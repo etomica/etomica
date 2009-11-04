@@ -15,7 +15,6 @@ import javax.swing.JPopupMenu;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IBox;
 import etomica.api.IIntegrator;
@@ -121,7 +120,7 @@ public class SimulationGraphic implements SimulationContainer {
         }
         dcb = new DeviceTrioControllerButton(simulation, space, controller);
         add(dcb);
-        setupDisplayBox();
+        setupDisplayBox(simulation.getIntegrator(), new LinkedList<IBox>());
     }
 
     public ISimulation getSimulation() {return simulation;}
@@ -137,17 +136,6 @@ public class SimulationGraphic implements SimulationContainer {
 	   return simulationPanel;
 	}
      
-	private void setupDisplayBox() {
-	    IAction[] activities = controller.getPendingActions();
-	    LinkedList<IBox> boxList = new LinkedList<IBox>();
-	    for (int i=0; i<activities.length; i++) {
-	        if (activities[i] instanceof ActivityIntegrate) {
-	            IIntegrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
-	            setupDisplayBox(integrator, boxList);
-	        }
-	    }
-	}
-
 	/**
 	  * Creates a DisplayBox for each Box handled by the given Integrator 
 	  * and/or its sub-integrators.  Boxs found are added to boxList.  If 

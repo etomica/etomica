@@ -3,10 +3,14 @@ package etomica.simulation;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import etomica.action.ActionIntegrate;
+import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IElement;
+import etomica.api.IIntegrator;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationEventManager;
@@ -119,7 +123,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     public ISimulationEventManager getEventManager() {
         return eventManager;
     }
-    
+
     public void addSpecies(ISpecies species) {
 
         int atomTypeMaxIndex = 0;
@@ -147,9 +151,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         eventManager.speciesAdded(species);
     }
 
-    /* (non-Javadoc)
-     * @see etomica.simulation.ISpeciesManager#removeSpecies(etomica.api.ISpecies)
-     */
     public void removeSpecies(ISpecies removedSpecies) {
 
         int index = removedSpecies.getIndex();
@@ -237,6 +238,29 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         // this will get replaced by the actual Element when it gets added via childTypeAddedNotify
         elementSymbolHash.put(symbolBase+n, null);
         return symbolBase+n;
+    }
+
+    /**
+     * Returns the Simulation's primary integrator.  If the controller holds
+     * multiple integrators, the first is returned.  If the first integrator
+     * holds sub-integrators, the top-level integrator is still returned.  This
+     * method assumes the controller holds an ActivityIntegrate or an
+     * ActionIntegrate.
+     */
+    public IIntegrator getIntegrator() {
+        IIntegrator integrator = null;
+        IAction[] controllerActions = controller.getAllActions();
+        for (int i=0; i<controllerActions.length; i++) {
+            if (controllerActions[i] instanceof ActivityIntegrate) {
+                integrator = ((ActivityIntegrate)controllerActions[i]).getIntegrator();
+                break;
+            }
+            if (controllerActions[i] instanceof ActionIntegrate) {
+                integrator = ((ActionIntegrate)controllerActions[i]).getIntegrator();
+                break;
+            }
+        }
+        return integrator;
     }
 
     private static final long serialVersionUID = 4L;

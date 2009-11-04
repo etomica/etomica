@@ -1,5 +1,11 @@
 package etomica.api;
 
+/**
+ * The ISimulation is an interface for a simulation, containing boxes, species
+ * and an integrator.
+ * 
+ * @author Andrew Schultz
+ */
 public interface ISimulation {
 
     /**
@@ -25,29 +31,13 @@ public interface ISimulation {
     public IBox getBox(int index);
 
     /**
-     * Returns the Simulation's random number generator.
-     */
-    public IRandom getRandom();
-
-    /**
-     * Returns the Simulation's event manager, which fires events for
-     * Boxs and Species being added and removed.
-     */
-    public ISimulationEventManager getEventManager();
-
-    /**
-     * Adds species to the list of all species in the simulation, and
-     * adds new species agent to every box currently in simulation.
-     * This is called by the Species constructor.
-     * 
-     * @return the index assigned to the new species
+     * Adds species to the list of all ISpecies in the simulation, and
+     * adds notifies all IBoxes of the new ISpecies.
      */
     public void addSpecies(ISpecies species);
 
     /**
-     * Removes the given AtomTypes associated with the given Species from the 
-     * Simulation and does cleanup, including renumbering indices and firing 
-     * AtomType-related event notifications.
+     * Removes the given ISpecies from the ISimulation.
      */
     public void removeSpecies(ISpecies removedSpecies);
 
@@ -60,4 +50,20 @@ public interface ISimulation {
      * Returns the Species in the Simulation for the specified index.
      */
     public ISpecies getSpecies(int index);
+    
+    /**
+     * Returns the integrator for this simulation.
+     */
+    public IIntegrator getIntegrator();
+
+    /**
+     * Returns the Simulation's random number generator.
+     */
+    public IRandom getRandom();
+
+    /**
+     * Returns the Simulation's event manager, which fires events for
+     * Boxes and Species being added and removed.
+     */
+    public ISimulationEventManager getEventManager();
 }
