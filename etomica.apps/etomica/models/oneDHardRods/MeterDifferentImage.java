@@ -1,7 +1,6 @@
 package etomica.models.oneDHardRods;
 
 import etomica.api.IBox;
-import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -35,7 +34,7 @@ public class MeterDifferentImage extends DataSourceScalar {
     private int cDim, simCDim;
     private IVectorMutable[] waveVectors, simWaveVectors;
     private double[] rRand, iRand, realT, imagT, simRealT, simImagT;
-    private double[][] uOld, omegaSquared, stdDev;
+    private double[][] uOld, stdDev;
     protected double temperature;
     private double[] uNow, deltaU;
     private double[] wvCoeff, simWVCoeff;
@@ -48,23 +47,22 @@ public class MeterDifferentImage extends DataSourceScalar {
     
     
     public MeterDifferentImage(String string, IPotentialMaster potentialMaster, 
-            IPotential potential, int numSimAtoms, double density, Simulation sim,
+            int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
-            IVectorMutable[] simWV, double[][][] simEV, IRandom rand){
+            IVectorMutable[] simWV, double[][][] simEV){
         super(string, Null.DIMENSION);
         
         simWaveVectors = simWV;
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
         simEigenVectors = simEV;
-        this.random = rand;
+        this.random = sim.getRandom();
         
         numAtoms = numSimAtoms + 1;
         box = new Box(sim.getSpace());
         box.setNMolecules(sim.getSpecies(0), numAtoms); 
         sim.addBox(box);
         
-        potential.setBox(box);
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
@@ -86,16 +84,9 @@ public class MeterDifferentImage extends DataSourceScalar {
     
     public double getDataAsScalar() {
 
-        //Store old positions
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = simCells[0];
-        uOld = new double[simCells.length][simCDim];
-        for(int iCell = 0; iCell < simCells.length; iCell++){
-            //store old positions.
-            uNow = simCDef.calcU(simCells[iCell].molecules);
-            System.arraycopy(uNow, 0, uOld[iCell], 0, cDim);
-        }
         
         //Calculate normal mode coordinates of simulation system.
         double[] realCoord = new double[cDim];
@@ -115,15 +106,16 @@ public class MeterDifferentImage extends DataSourceScalar {
         
         //Create the last normal mode coordinate from the Gaussian distribution
         double sqrtT = Math.sqrt(temperature);
-//        if (stdDev[waveVectors.length][j] == 0) {continue;}
-//        // generate real and imaginary parts of random normal-mode coordinate 
-//        double realGauss = random.nextGaussian() * sqrtT;
-//        double imagGauss = random.nextGaussian() * sqrtT;
-//        if (wvCoeff[waveVectors.length] == 0.5) {imagGauss = 0;}
-//        realCoord[waveVectors.length] = realGauss * stdDev[waveVectors.length][j];
-//        imagCoord[waveVectors.length] = imagGauss * stdDev[waveVectors.length][j];
-//        
-//        
+        for (int j = 0; j < cDim; j++) {
+            if (stdDev[waveVectors.length][j] == 0) {continue;}
+            // generate real and imaginary parts of random normal-mode coordinate 
+            double realGauss = random.nextGaussian() * sqrtT;
+            double imagGauss = random.nextGaussian() * sqrtT;
+            if (wvCoeff[waveVectors.length] == 0.5) {imagGauss = 0;}
+            realCoord[waveVectors.length] = realGauss * stdDev[waveVectors.length][j];
+            imagCoord[waveVectors.length] = imagGauss * stdDev[waveVectors.length][j];
+        }
+            
         //Calculate the positions for the meter's system
         for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
             for (int iCell = 0; iCell < cells.length; iCell++){
@@ -154,11 +146,10 @@ public class MeterDifferentImage extends DataSourceScalar {
     }
 
     public void setOmegaSquared(double[][] o2, double[] coeff) {
-        this.omegaSquared = o2;
-        stdDev = new double[omegaSquared.length][omegaSquared[0].length];
+        stdDev = new double[o2.length][o2[0].length];
         for (int i = 0; i < stdDev.length; i++) {
             for (int j = 0; j < stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(1.0 / (2.0 * omegaSquared[i][j] * coeff[i]));
+                stdDev[i][j] = Math.sqrt(1.0 / (2.0 * o2[i][j] * coeff[i]));
             }
         }
     }
