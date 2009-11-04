@@ -56,6 +56,7 @@ public class SimulationGraphic implements SimulationContainer {
     private HashMap<IBox,IntegratorListenerAction> repaintActions = new HashMap<IBox,IntegratorListenerAction>();
     private int graphicType = GRAPHIC_ONLY;
     protected final ISpace space;
+    protected final String appName;
 
 
     public SimulationGraphic(ISimulation simulation,
@@ -104,6 +105,7 @@ public class SimulationGraphic implements SimulationContainer {
         this.controller = controller;
         this.space = space;
         this.updateInterval = updateInterval;
+        this.appName = appName;
         simulationPanel = new SimulationPanel(appName);
         if(graphicType == GRAPHIC_ONLY || graphicType == TABBED_PANE) {
             this.graphicType = graphicType;
@@ -408,7 +410,7 @@ public class SimulationGraphic implements SimulationContainer {
     }
 
     public final JFrame makeAndDisplayFrame() {
-        return makeAndDisplayFrame(getPanel());
+        return makeAndDisplayFrame(appName);
     }
     
     public final JFrame makeAndDisplayFrame(String title) {
