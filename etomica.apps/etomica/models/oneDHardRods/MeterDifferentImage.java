@@ -145,7 +145,7 @@ public class MeterDifferentImage extends DataSourceScalar {
         }
     }
 
-    public void setOmegaSquared(double[][] o2, double[] coeff) {
+    public void setStdDev(double[][] o2, double[] coeff) {
         stdDev = new double[o2.length][o2[0].length];
         for (int i = 0; i < stdDev.length; i++) {
             for (int j = 0; j < stdDev[i].length; j++) {

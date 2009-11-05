@@ -3,6 +3,7 @@ package etomica.models.oneDHardRods;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
@@ -85,7 +86,7 @@ public class SimDifferentImage1DHR extends Simulation {
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
+//        addSpecies(species);
         
         basis = new BasisMonatomic(space);
         box = new Box(space);
@@ -163,9 +164,10 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
-//        meterdi = new MeterDifferentImage(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
-//        meterdi.setEigenVectors(nm.getEigenvectors());
-//        meterdi.setOmegaSquared(nm.getOmegaSquared());
+        meterdi = new MeterDifferentImage("MeterDI", potentialMaster, numAtoms, density, (Simulation)this, 
+                primitive, basis, coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors(),
+                nm.getEigenvectors());
+        meterdi.setStdDev(nm.getOmegaSquared(), nm.getWaveVectorFactory().getCoefficients());
         
         int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
         hists = new AccumulatorHistogram[coordNum];
