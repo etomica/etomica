@@ -86,8 +86,8 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
         }
         
 
-        double realCoord, imagCoord; 
-        realCoord = 0; imagCoord = 0;
+        double realCoord = 0.0;  //Don't worry; we rezero them later!
+        double imagCoord = 0.0;
         for (int wvCount = 0; wvCount < numWV; wvCount++) {
             int comparedwv = comparedWVs[wvCount];
             
@@ -95,7 +95,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
             // Calculate the current coordinate:
             for(int i = 0; i < coordinateDim; i++) {
-                realCoord = 0; imagCoord = 0;
+                realCoord = 0.0; imagCoord = 0.0;
                 for (int j = 0; j < coordinateDim; j++) {
                     realCoord += eigenVectors[comparedwv][i][j] * realT[j];
                     imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
