@@ -11,6 +11,9 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.NormalModes;
+import etomica.normalmode.NormalModes1DHR;
+import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -33,10 +36,10 @@ public class MeterDifferentImage extends DataSourceScalar {
     private CoordinateDefinition cDef, simCDef;
     private int cDim, simCDim;
     private IVectorMutable[] waveVectors, simWaveVectors;
-    private double[] rRand, iRand, realT, imagT, simRealT, simImagT;
-    private double[][] uOld, stdDev;
+    private double[] simRealT, simImagT;
+    private double[][] stdDev;
     protected double temperature;
-    private double[] uNow, deltaU;
+    private double[] deltaU;
     private double[] wvCoeff, simWVCoeff;
     private double[][][] eigenVectors, simEigenVectors;
 
@@ -44,24 +47,28 @@ public class MeterDifferentImage extends DataSourceScalar {
     private IBox box;
     private int numAtoms;
     private Boundary bdry;
+    private NormalModes nm;
+    WaveVectorFactory waveVectorFactory;
     
     
     public MeterDifferentImage(String string, IPotentialMaster potentialMaster, 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
-            IVectorMutable[] simWV, double[][][] simEV){
+            NormalModes simNM){
         super(string, Null.DIMENSION);
         
-        simWaveVectors = simWV;
+        simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
-        simEigenVectors = simEV;
+        simEigenVectors = simNM.getEigenvectors();
+        simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
+        setStdDev(simNM.getOmegaSquared(), simWVCoeff);
         this.random = sim.getRandom();
         
         numAtoms = numSimAtoms + 1;
         box = new Box(sim.getSpace());
-        box.setNMolecules(sim.getSpecies(0), numAtoms); 
         sim.addBox(box);
+        box.setNMolecules(sim.getSpecies(0), numAtoms); 
         
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
@@ -75,8 +82,16 @@ public class MeterDifferentImage extends DataSourceScalar {
         cDef.initializeCoordinates(nCells);
         cDim = cDef.getCoordinateDim();
         
-        realT = new double[cDim];
-        imagT = new double[cDim];
+        nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
+        nm.setHarmonicFudge(1.0);
+        nm.setTemperature(1.0);
+        nm.getOmegaSquared();
+        waveVectorFactory = nm.getWaveVectorFactory();
+        waveVectorFactory.makeWaveVectors(box);
+        waveVectors = nm.getWaveVectorFactory().getWaveVectors();
+        eigenVectors = nm.getEigenvectors();
+        wvCoeff = nm.getWaveVectorFactory().getCoefficients();
+        
         simRealT = new double[simCDim];
         simImagT = new double[simCDim];
 
@@ -145,7 +160,7 @@ public class MeterDifferentImage extends DataSourceScalar {
         }
     }
 
-    public void setStdDev(double[][] o2, double[] coeff) {
+    private void setStdDev(double[][] o2, double[] coeff) {
         stdDev = new double[o2.length][o2[0].length];
         for (int i = 0; i < stdDev.length; i++) {
             for (int j = 0; j < stdDev[i].length; j++) {

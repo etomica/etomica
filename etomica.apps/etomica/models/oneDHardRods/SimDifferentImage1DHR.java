@@ -3,11 +3,14 @@ package etomica.models.oneDHardRods;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.ISimulation;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
+import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
-import etomica.data.DataSplitter;
+import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -30,9 +33,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -73,6 +73,7 @@ public class SimDifferentImage1DHR extends Simulation {
     AccumulatorHistogram[] hists;
     int harmonicWV;
     boolean[] skipThisMode;
+    AccumulatorAverageFixed accumulatorDI;
 
 
     public SimDifferentImage1DHR(Space _space, int numAtoms, double density, int blocksize, int nbs) {
@@ -86,7 +87,7 @@ public class SimDifferentImage1DHR extends Simulation {
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-//        addSpecies(species);
+        addSpecies(species);
         
         basis = new BasisMonatomic(space);
         box = new Box(space);
@@ -165,27 +166,14 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
         meterdi = new MeterDifferentImage("MeterDI", potentialMaster, numAtoms, density, (Simulation)this, 
-                primitive, basis, coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors(),
-                nm.getEigenvectors());
-        meterdi.setStdDev(nm.getOmegaSquared(), nm.getWaveVectorFactory().getCoefficients());
+                primitive, basis, coordinateDefinition, nm);
         
-        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
-        hists = new AccumulatorHistogram[coordNum];
-        DataSplitter splitter = new DataSplitter();
-        DataPump pumpFromMeter = new DataPump(meterdi, splitter);
+        accumulatorDI = new AccumulatorAverageFixed(blocksize);
+        DataPump pumpFromMeter = new DataPump(meterdi, accumulatorDI);
         
-        DoubleRange range = new DoubleRange(-1.0, 1.0);
-        Histogram template;
-        for(int i = 0; i < coordNum; i++){
-            if(skipThisMode[i]) {continue;}
-            template = new HistogramSimple(nbs, range);
-            hists[i] = new AccumulatorHistogram(template, nbs);
-            splitter.setDataSink(i, hists[i]);
-        }
-        
-        IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
-        pumpFromMeterListener.setInterval(blocksize);
-        integrator.getEventManager().addListener(pumpFromMeterListener);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pumpFromMeter);
+        pumpListener.setInterval(blocksize);
+        integrator.getEventManager().addListener(pumpListener);
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
@@ -276,20 +264,10 @@ public class SimDifferentImage1DHR extends Simulation {
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
         
-        /* 
-         * This loop creates a new write class for each histogram from each 
-         * AccumulatorHistogram, changes the filename for the histogram output,
-         * connects the write class with this histogram, and 
-         * writes out the results to the file.
-         */
-        WriteHistograms wh;
-        for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i]) {continue;}
-            String outputName = new String(outputfn + "_" + i);
-            wh = new WriteHistograms(outputName);
-            wh.setHistogram(sim.hists[i].getHistograms());
-            wh.actionPerformed();
-        }
+      //After processing...
+        DataGroup group = (DataGroup)sim.accumulatorDI.getData();
+        double results = ((DataDouble)group.getData(StatType.AVERAGE.index)).x;
+        System.out.println("results: " + results);
         
 //        IAtomList leaflist = sim.box.getLeafList();
 //        double[] locations = new double[nA];
