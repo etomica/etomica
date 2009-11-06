@@ -6,7 +6,6 @@ import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
-import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
@@ -69,14 +68,15 @@ public class SimDifferentImage1DHR extends Simulation {
     MeterDifferentImage meterdi;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
-    MCMoveChangeSingleWVLoop mcMoveMode;
+    MCMoveChangeMultipleWV mcMoveMode;
     AccumulatorHistogram[] hists;
     int harmonicWV;
     boolean[] skipThisMode;
     AccumulatorAverageFixed accumulatorDI;
 
 
-    public SimDifferentImage1DHR(Space _space, int numAtoms, double density, int blocksize, int nbs) {
+    public SimDifferentImage1DHR(Space _space, int numAtoms, double density, 
+            int blocksize, int[] changeable) {
         super(_space);
         
 //        long seed = 3;
@@ -156,7 +156,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         
-        mcMoveMode = new MCMoveChangeSingleWVLoop(potentialMaster, random);
+        mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
@@ -164,6 +164,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+        mcMoveMode.setChangeableWVs(changeable);
         
         meterdi = new MeterDifferentImage("MeterDI", potentialMaster, numAtoms, density, (Simulation)this, 
                 primitive, basis, coordinateDefinition, nm);
@@ -199,11 +200,6 @@ public class SimDifferentImage1DHR extends Simulation {
     public BasisMonatomic getBasis() {
         return basis;
     }
-
-    private void setHarmonicWV(int hwv){
-        harmonicWV = hwv;
-        mcMoveMode.setHarmonicWV(hwv);
-    }
     
     /**
      * @param args
@@ -230,10 +226,9 @@ public class SimDifferentImage1DHR extends Simulation {
             filename = "1DHR";
         }
         double temperature = params.temperature;
-        int comparedWV = params.comparedWV;
+        int[] changeableWV = params.changeableWV;
         long nSteps = params.numSteps;
         int bs = params.blockSize;
-        int nbins = params.nBins;
         String outputfn = params.outputname;
         
         System.out.println("Running "
@@ -241,25 +236,18 @@ public class SimDifferentImage1DHR extends Simulation {
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
         System.out.println(nSteps + " steps, " + bs + " blocksize");
-        System.out.println(nbins + " starting number of bins");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimDifferentImage1DHR sim = new SimDifferentImage1DHR(Space.getInstance(D), nA, density, bs, nbins);
+        SimDifferentImage1DHR sim = new SimDifferentImage1DHR(Space.getInstance(D),
+                nA, density, bs, changeableWV);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
-        sim.setHarmonicWV(comparedWV);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
         sim.getController().reset();
-
-        int accumulatorLength = sim.hists.length;
-        for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i]) {continue;}
-            sim.hists[i].reset();
-        }
        
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
@@ -299,11 +287,11 @@ public class SimDifferentImage1DHR extends Simulation {
         public String inputfilename = "input";
         public String outputname = "hists";
         public double temperature = 1.0;
-        public int comparedWV = numAtoms/2;
+        public int[] changeableWV = {0, 1, 2, 3, 4};
         public int nBins = 200;
         
         public int blockSize = 1000;
-        public long numSteps = 10000;
+        public long numSteps = 1000000;
     }
 
 }

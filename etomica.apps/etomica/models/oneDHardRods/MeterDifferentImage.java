@@ -39,7 +39,7 @@ public class MeterDifferentImage extends DataSourceScalar {
     private double[] simRealT, simImagT;
     private double[][] stdDev;
     protected double temperature;
-    private double[] deltaU;
+    private double[] newU;
     private double[] wvCoeff, simWVCoeff;
     private double[][][] eigenVectors, simEigenVectors;
 
@@ -50,29 +50,25 @@ public class MeterDifferentImage extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
-    
     public MeterDifferentImage(String string, IPotentialMaster potentialMaster, 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
             NormalModes simNM){
         super(string, Null.DIMENSION);
+        this.random = sim.getRandom();
         
         simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
         simEigenVectors = simNM.getEigenvectors();
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
-        setStdDev(simNM.getOmegaSquared(), simWVCoeff);
-        this.random = sim.getRandom();
+        simRealT = new double[simCDim];
+        simImagT = new double[simCDim];
         
         numAtoms = numSimAtoms + 1;
         box = new Box(sim.getSpace());
         sim.addBox(box);
-        box.setNMolecules(sim.getSpecies(0), numAtoms); 
-        
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
-        
+        box.setNMolecules(sim.getSpecies(0), numAtoms);
         bdry = new BoundaryRectangularPeriodic(sim.getSpace(), numAtoms/density);
         box.setBoundary(bdry);
         
@@ -81,7 +77,7 @@ public class MeterDifferentImage extends DataSourceScalar {
                 simBasis, sim.getSpace());
         cDef.initializeCoordinates(nCells);
         cDim = cDef.getCoordinateDim();
-        
+
         nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
@@ -91,10 +87,11 @@ public class MeterDifferentImage extends DataSourceScalar {
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
+        setStdDev(nm.getOmegaSquared(), wvCoeff);
         
-        simRealT = new double[simCDim];
-        simImagT = new double[simCDim];
-
+        
+        meterPE = new MeterPotentialEnergy(potentialMaster);
+        meterPE.setBox(box);
     }
     
     public double getDataAsScalar() {
@@ -102,58 +99,70 @@ public class MeterDifferentImage extends DataSourceScalar {
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = simCells[0];
+        newU = new double[cDim];
         
         //Calculate normal mode coordinates of simulation system.
-        double[] realCoord = new double[cDim];
-        double[] imagCoord = new double[cDim];
+        double[] realCoord = new double[waveVectors.length];
+        double[] imagCoord = new double[waveVectors.length];
         
-        for (int wvcount = 0; wvcount < simWVCoeff.length; wvcount++){
+        for (int wvcount = 0; wvcount < simWaveVectors.length; wvcount++){
             simCDef.calcT(simWaveVectors[wvcount], simRealT, simImagT);
+            realCoord[wvcount] = 0.0;
+            imagCoord[wvcount] = 0.0;
             for (int i = 0; i < simCDim; i++){
-                realCoord[wvcount] = 0.0;
-                imagCoord[wvcount] = 0.0;
                 for (int j = 0; j < simCDim; j++){
                     realCoord[wvcount] += simEigenVectors[wvcount][i][j] * simRealT[j];
                     imagCoord[wvcount] += simEigenVectors[wvcount][i][j] * simImagT[j];
                 }
             }
+            if(simWVCoeff[wvcount] != 1.0 ) {imagCoord[wvcount] = 0.0;}
         }
         
         //Create the last normal mode coordinate from the Gaussian distribution
-        double sqrtT = Math.sqrt(temperature);
         for (int j = 0; j < cDim; j++) {
-            if (stdDev[waveVectors.length][j] == 0) {continue;}
-            // generate real and imaginary parts of random normal-mode coordinate 
-            double realGauss = random.nextGaussian() * sqrtT;
-            double imagGauss = random.nextGaussian() * sqrtT;
-            if (wvCoeff[waveVectors.length] == 0.5) {imagGauss = 0;}
-            realCoord[waveVectors.length] = realGauss * stdDev[waveVectors.length][j];
-            imagCoord[waveVectors.length] = imagGauss * stdDev[waveVectors.length][j];
+            //We are adding 0.5, and this code lets us get it in the right slot.
+            if(waveVectors.length == simWaveVectors.length){
+                imagCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+            } else {
+                realCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+            }
         }
             
         //Calculate the positions for the meter's system
-        for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
-            for (int iCell = 0; iCell < cells.length; iCell++){
-                cell = cells[iCell];
-                
+        for (int j = 0; j < cDim; j++) {
+            newU[j] = 0.0;
+        }
+        for (int iCell = 0; iCell < cells.length; iCell++){
+            cell = cells[iCell];
+            System.out.println("CELL " + iCell);
+            for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
                 //Calculate the change in positions.
+                System.out.println("WV " + wvcount);
                 double kR = waveVectors[wvcount].dot(cell.cellPosition);
-                double coskR = Math.cos(kR);
-                double sinkR = Math.sin(kR);
+                double coskR = Math.cos(kR);  System.out.println("cos " + coskR);
+                double sinkR = Math.sin(kR);   System.out.println("sin " + sinkR);
                 for (int i = 0; i < cDim; i++){
                     for (int j = 0; j < cDim; j++){
-                        deltaU[j] += wvCoeff[wvcount] * eigenVectors[wvcount][i][j] 
+                        newU[j] += wvCoeff[wvcount] * eigenVectors[wvcount][i][j] 
                             * 2.0 * (realCoord[i] * coskR - imagCoord[i] * sinkR);
+                        System.out.println("wvCoeff " + wvCoeff[wvcount] + " evect " + eigenVectors[wvcount][i][j] + " real " + realCoord[i] + " imag " +imagCoord[i]);
+                        System.out.println(" newU " + newU[j]);
+                        System.out.println("  ");
                     }
                 }
             }
+            cDef.setToU(cells[iCell].molecules, newU);
         }
         
         
         //Check for overlap
         double energy = meterPE.getDataAsScalar();
+        System.out.println(energy);
         
         if(Double.isInfinite(energy)) {
+            System.out.println("0");
             return 0;
         } else {
             return 1;
