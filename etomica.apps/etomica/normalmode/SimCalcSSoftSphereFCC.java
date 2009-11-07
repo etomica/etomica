@@ -214,7 +214,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		SimCalcSSoftSphereFCC sim = new SimCalcSSoftSphereFCC(Space.getInstance(D), nA, density, temperature, exponent);
 
 		// set up normal-mode meter
-		/*
+		
 		MeterNormalMode meterNormalMode = new MeterNormalMode();
 		meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
 		WaveVectorFactory waveVectorFactory;
@@ -231,7 +231,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		IntegratorListenerAction meterNormalModeListener = new IntegratorListenerAction(meterNormalMode);
 		meterNormalModeListener.setInterval(nA);
 		sim.integrator.getEventManager().addListener(meterNormalModeListener);
-		*/
+		
 		// ////////////////////////////////////////////////////////////////
 		/*
 		 * NormalModesFromFile nm = new NormalModesFromFile(new String
@@ -314,8 +314,8 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		sim.integrator.getMoveManager().setEquilibrating(false);
 		sim.getController().reset();
 		
-		//meterNormalMode.reset();
-		/*
+		meterNormalMode.reset();
+		
 		WriteS sWriter = new WriteS(sim.space);
 		sWriter.setFilename(filename);
 		sWriter.setOverwrite(true);
@@ -326,12 +326,12 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
 		sWriterListener.setInterval((int)simSteps/10);
 		sim.integrator.getEventManager().addListener(sWriterListener);
-		*/
+		
 		sim.activityIntegrate.setMaxSteps(simSteps);
 		sim.getController().actionPerformed();
 		
-		//double A = sWriter.getLastA();
-		//System.out.println("A/N: " + A/nA);
+		double A = sWriter.getLastA();
+		System.out.println("A/N: " + A/nA);
 		System.out.println("Average Energy: " + ((DataGroup) energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index)
 				+ " ,Error: "+ ((DataGroup) energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
 		System.out.println(" ");
