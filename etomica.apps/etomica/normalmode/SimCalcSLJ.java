@@ -69,7 +69,8 @@ public class SimCalcSLJ extends Simulation {
             double L = Math.pow(4.0/density, 1.0/3.0);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             primitive = new PrimitiveCubic(space, n*L);
-           
+            primitiveUnitCell = new PrimitiveCubic(space, L);
+            
             nCells = new int[]{n,n,n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
@@ -97,6 +98,14 @@ public class SimCalcSLJ extends Simulation {
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
 
+		
+		/*
+		 * 1-body Potential to Constraint the atom from moving too far away from
+		 * its lattice-site
+		 */
+		p1Constraint = new P1Constraint(space, primitiveUnitCell , box, coordinateDefinition);
+		potentialMaster.addPotential(p1Constraint, new IAtomType[] { sphereType });
+        
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
@@ -237,9 +246,10 @@ public class SimCalcSLJ extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IBox box;
     public Boundary boundary;
-    public Primitive primitive;
+    public Primitive primitive, primitiveUnitCell;
     public Basis basis;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
     public PotentialMaster potentialMaster;
+    protected P1Constraint p1Constraint;
 }

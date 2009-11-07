@@ -87,7 +87,8 @@ public class SimOverlapLJ extends Simulation {
             double L = Math.pow(4.0/density, 1.0/3.0);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             primitive = new PrimitiveCubic(space, n*L);
-           
+            primitiveUnitCell = new PrimitiveCubic(space, L);
+            
             nCells = new int[]{n,n,n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
@@ -104,6 +105,14 @@ public class SimOverlapLJ extends Simulation {
         IAtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
+        
+		
+		/*
+		 * 1-body Potential to Constraint the atom from moving too far away from
+		 * its lattice-site
+		 */
+		p1Constraint = new P1Constraint(space, primitiveUnitCell , boxTarget, coordinateDefinitionTarget);
+		potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] { sphereType });
         
         if (potentialMasterTarget instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
@@ -364,7 +373,7 @@ public class SimOverlapLJ extends Simulation {
         } else if (density == 1.211) {
         	inputFile = "LJDB_nA"+numMolecules+"_d1211";
         } else {
-        	System.err.println("NO INPUT FILE FOUND!!!!")
+        	System.err.println("NO INPUT FILE FOUND!!!!");
         }
         */
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" LJ overlap simulation");
@@ -447,11 +456,12 @@ public class SimOverlapLJ extends Simulation {
     public int[] nCells;
     public Basis basis;
     public NormalModes normalModes;
-    public Primitive primitive;
+    public Primitive primitive, primitiveUnitCell;
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
+    public P1Constraint p1Constraint;
     //private static String inputFile;
 
     /**

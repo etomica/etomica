@@ -72,6 +72,7 @@ public class SimOverlapSoftSphere extends Simulation {
         MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
+        
         integratorTarget.getMoveManager().addMCMove(atomMove);
         ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
@@ -86,6 +87,7 @@ public class SimOverlapSoftSphere extends Simulation {
             double L = Math.pow(4.0/density, 1.0/3.0);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             primitive = new PrimitiveCubic(space, n*L);
+            primitiveUnitCell = new PrimitiveCubic(space, L);
             
             nCells = new int[]{n,n,n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
@@ -112,7 +114,7 @@ public class SimOverlapSoftSphere extends Simulation {
          *  
          */
 
-        P1Constraint p1Constraint = new P1Constraint(space, primitive, boxTarget, coordinateDefinitionTarget);
+        P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell, boxTarget, coordinateDefinitionTarget);
         potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] {sphereType});
         
         potentialMasterTarget.lrcMaster().setEnabled(false);
@@ -145,12 +147,13 @@ public class SimOverlapSoftSphere extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
         
+        //inFile = "testsoftsphereHessian"+numAtoms;
         normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         /*
          * nuke this line if it is DB
          */
-        //normalModes.setTemperature(temperature);
+        normalModes.setTemperature(temperature);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
@@ -444,12 +447,13 @@ public class SimOverlapSoftSphere extends Simulation {
     public int[] nCells;
     public Basis basis;
     public NormalModes normalModes;
-    public Primitive primitive;
+    public Primitive primitive, primitiveUnitCell;
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
     public String fname;
+    public String inFile;
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor

@@ -1,15 +1,21 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IIntegratorEvent;
+import etomica.api.IIntegratorListener;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -22,11 +28,13 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * MC simulation of FCC soft-sphere model in 3D with tabulation of the
@@ -38,8 +46,8 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 
 	public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
 		super(_space);
-
-		potentialMaster = new PotentialMaster();
+		
+		potentialMaster = new PotentialMasterMonatomic(this);
 
 		SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
 		addSpecies(species);
@@ -59,7 +67,8 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 			double L = Math.pow(4.0 / density, 1.0 / 3.0);
 			int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
 			primitive = new PrimitiveCubic(space, n * L);
-
+			primitiveUnitCell = new PrimitiveCubic(space, L);
+			
 			nCells = new int[] {n, n, n};
 			boundary = new BoundaryRectangularPeriodic(space, n * L);
 			Basis basisFCC = new BasisCubicFcc();
@@ -98,6 +107,9 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster,getRandom(), space); 
 		move.setPotential(potential);
 		move.setDoExcludeNonNeighbors(true);
+		
+		integrator.getMoveManager().addMCMove(move);
+		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
 		 
 /*
 		nm = new NormalModesFromFile("testsoftsphereHessian32", space.D());
@@ -139,7 +151,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		 * 1-body Potential to Constraint the atom from moving too far away from
 		 * its lattice-site
 		 */
-		p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
+		p1Constraint = new P1Constraint(space, primitiveUnitCell , box, coordinateDefinition);
 		potentialMaster.addPotential(p1Constraint, new IAtomType[] { sphereType });
 
 		if (potentialMaster instanceof PotentialMasterList) {
@@ -172,7 +184,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		int D = 3;
 		int nA = 32;
 		double density = 1.256;
-		double temperature = 1.0;
+		double temperature = 0.8;
 		int exponent = 12;
 		if (D == 1) {
 			nA = 3;
@@ -210,11 +222,12 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		System.out.println(simSteps + " steps");
 		System.out.println("output data to " + filename);
 
+		
 		// construct simulation
-		SimCalcSSoftSphereFCC sim = new SimCalcSSoftSphereFCC(Space.getInstance(D), nA, density, temperature, exponent);
+		final SimCalcSSoftSphereFCC sim = new SimCalcSSoftSphereFCC(Space.getInstance(D), nA, density, temperature, exponent);
 
 		// set up normal-mode meter
-		
+	
 		MeterNormalMode meterNormalMode = new MeterNormalMode();
 		meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
 		WaveVectorFactory waveVectorFactory;
@@ -347,7 +360,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 	public ActivityIntegrate activityIntegrate;
 	public IBox box;
 	public Boundary boundary;
-	public Primitive primitive;
+	public Primitive primitive, primitiveUnitCell;
 	public Basis basis;
 	public int[] nCells;
 	public P1Constraint p1Constraint;
