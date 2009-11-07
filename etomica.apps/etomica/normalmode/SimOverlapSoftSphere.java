@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -48,7 +47,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  * The original Bennett's Overlapping Sampling Simulation
  * 	- used to check for the computation time
  * 
- * @author Andrew Schultz & Tai Tan
+ * @author Tai Boon Tan
  */
 public class SimOverlapSoftSphere extends Simulation {
 
@@ -65,7 +64,6 @@ public class SimOverlapSoftSphere extends Simulation {
         addSpecies(species);
 
         // TARGET
-        
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
@@ -86,22 +84,24 @@ public class SimOverlapSoftSphere extends Simulation {
             basis = new BasisMonatomic(space);
         } else {
             double L = Math.pow(4.0/density, 1.0/3.0);
-            primitive = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            primitive = new PrimitiveCubic(space, n*L);
+            
             nCells = new int[]{n,n,n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
-            basis = new BasisCubicFcc();
+            Basis basisFCC = new BasisCubicFcc();
+            basis = new BasisBigCell(space, primitive, basisFCC, nCells);
         }
         boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        coordinateDefinitionTarget.initializeCoordinates(nCells);
+        coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         IAtomType sphereType = species.getLeafType();
-        potentialMasterTarget.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
+        potentialMasterTarget.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType });
         atomMove.setPotential(pTruncated);
 
         integratorTarget.setBox(boxTarget);
@@ -143,7 +143,7 @@ public class SimOverlapSoftSphere extends Simulation {
         boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(nCells);
+        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
         
         normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
@@ -364,7 +364,7 @@ public class SimOverlapSoftSphere extends Simulation {
             filename = "CB_FCC_n"+exponentN+"_T"+ (int)Math.round(temperature*10);
         }
         //String refFileName = args.length > 0 ? filename+"_ref" : null;
-        String refFileName = filename+"_ref";
+        String refFileName = "overlap108DBT"+temperature+"_ref";
         
         
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
@@ -394,76 +394,32 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("equilibration finished");
         System.out.flush();
         
-        sim.accumulators[0].setFile(filename+"_BenlnQharm");
-        sim.accumulators[1].setFile(filename+"_BenlnQtarg");
-        
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
-  
+        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().actionPerformed();
         
-        double[][] omega2 = sim.normalModes.getOmegaSquared();
-        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-        double AHarmonic = 0;
-        for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<omega2[0].length; j++) {
-                if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
-                }
-            }
-        }
-
         int totalCells = 1;
         for (int i=0; i<D; i++) {
             totalCells *= sim.nCells[i];
         }
         int basisSize = sim.basis.getScaledCoordinates().length;
-        double fac = 1;
-        if (totalCells % 2 == 0) {
-            fac = Math.pow(2,D);
-        }
-        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
-        System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
+        
+        double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, basisSize*totalCells);
+        System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numMolecules);
         System.out.println(" ");
-        
-        final double temp = temperature;
-        final double AHarm = AHarmonic;
-        
-        //final FileWriter fileWriterBen = fileWriter;
-        
-        IAction output = new IAction(){
-        	public void actionPerformed(){
-        		double ratio = sim.dsvo.getDataAsScalar();
-        		double error = sim.dsvo.getError();
-        		
-        	    long currentTime = System.currentTimeMillis();
-      
-        	    System.out.println("Time: " + (currentTime - startTime)+     				
-        	    		" ,Targ_FE/N: "+temp*(AHarm-Math.log(ratio))/numMolecules + " ,error: " + temp*(error/ratio)/numMolecules+
-        	 			" ;ratio: " + ratio + " ,error:" + error);
-        	 	
-        	 	
-        	}
-        };
-        
-        IntegratorListenerAction outputListener = new IntegratorListenerAction(output);
-        outputListener.setInterval((int)numSteps/200);
-		sim.integratorOverlap.getEventManager().addListener(outputListener);
-        
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
-        
-        sim.accumulators[0].closeFile();
-        sim.accumulators[1].closeFile();
         
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+              
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         System.out.println("\nratio average: "+ratio+" ,error: "+error);
         System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
-        System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));
-        System.out.println("target free energy per particle: "+temperature*(AHarmonic-Math.log(ratio))/numMolecules);
+        System.out.println("target free energy: "+(AHarmonic-temperature*Math.log(ratio)));
+        System.out.println("target free energy per particle: "+ (AHarmonic-temperature*Math.log(ratio))/numMolecules 
+        		+" ;error: "+temperature*(error/ratio)/numMolecules);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
         System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
@@ -476,7 +432,6 @@ public class SimOverlapSoftSphere extends Simulation {
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);
         System.out.println("Time taken: " + (endTime - startTime));
-
     }
 
     private static final long serialVersionUID = 1L;
@@ -506,7 +461,7 @@ public class SimOverlapSoftSphere extends Simulation {
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "CB_FCC_n12_T14";
-        public double temperature = 1.4;
+        public String filename = "testDB108_FCC_n12_T01";
+        public double temperature = 1.0;
     }
 }
