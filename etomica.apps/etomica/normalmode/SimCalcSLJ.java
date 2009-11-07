@@ -1,10 +1,14 @@
 package etomica.normalmode;
 
-import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.DataPump;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -35,7 +39,7 @@ public class SimCalcSLJ extends Simulation {
     public SimCalcSLJ(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterMonatomic(this);
         potentialMaster.lrcMaster().setEnabled(false);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -55,7 +59,6 @@ public class SimCalcSLJ extends Simulation {
         
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        // activityIntegrate.setMaxSteps(nSteps);
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
@@ -64,11 +67,13 @@ public class SimCalcSLJ extends Simulation {
             basis = new BasisMonatomic(space);
         } else {
             double L = Math.pow(4.0/density, 1.0/3.0);
-            primitive = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            primitive = new PrimitiveCubic(space, n*L);
+           
             nCells = new int[]{n,n,n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
-            basis = new BasisCubicFcc();
+            Basis basisFCC = new BasisCubicFcc();
+            basis = new BasisBigCell(space, primitive, basisFCC, nCells);
         }
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
@@ -90,7 +95,7 @@ public class SimCalcSLJ extends Simulation {
         box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(nCells);
+        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
@@ -128,36 +133,35 @@ public class SimCalcSLJ extends Simulation {
         }
         long simSteps = 1000000;
 
-        // parse arguments
-        if (args.length > 1) {
-            density = Double.parseDouble(args[1]);
-        }
-        if (args.length > 2) {
-            simSteps = Long.parseLong(args[2]);
-        }
-        if (args.length > 3) {
-            nA = Integer.parseInt(args[3]);
-        }
-        if (args.length > 4) {
-            temperature = Double.parseDouble(args[4]);
-        }
-        String filename = "normal_modes_LJ_" + D + "D_"+nA;
-        if (args.length > 0) {
-            filename = args[0];
-        }
+		// parse arguments
+		if (args.length > 1) {
+			density = Double.parseDouble(args[1]);
+		}
+		if (args.length > 2) {
+			simSteps = Long.parseLong(args[2]);
+		}
+		if (args.length > 3) {
+			nA = Integer.parseInt(args[3]);
+		}
+		if (args.length > 4) {
+			temperature = Double.parseDouble(args[4]);
+		}
+		
+		String filename = "LJCB_FCC_nA"+nA+ "_d"+density
+		+"T"+ (int) Math.round(temperature);
+		if (args.length > 0) {
+			filename = args[0];
+		}
 
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
-                + " hard sphere simulation");
+                + " Lennard-Jones simulation");
         System.out.println(nA + " atoms at density " + density+" and temperature "+temperature);
         System.out.println(simSteps+ " steps");
         System.out.println("output data to " + filename);
 
         // construct simulation
         SimCalcSLJ sim = new SimCalcSLJ(Space.getInstance(D), nA, density, temperature);
-
-        // set up initial configuration and save nominal positions
-        Primitive primitive = sim.primitive;
 
         // set up normal-mode meter
         MeterNormalMode meterNormalMode = new MeterNormalMode();
@@ -168,45 +172,38 @@ public class SimCalcSLJ extends Simulation {
         } else if (D == 2) {
             waveVectorFactory = null;
         } else {
-            waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
+            waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
         }
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
-        // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
-        // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
-        // DataSinkConsole console = new DataSinkConsole();
-        // DataPump comPump = new DataPump(meterCOM,console);
-        // IntervalActionAdapter comAdapter = new
-        // IntervalActionAdapter(comPump);
-        // sim.integrator.addListener(comAdapter);
-        // meterCOM.setBox(sim.box);
+        IntegratorListenerAction meterNormalModeListener = new IntegratorListenerAction(meterNormalMode);
+        meterNormalModeListener.setInterval(nA);
+        sim.integrator.getEventManager().addListener(meterNormalModeListener);
 
-        // start simulation
-//        MeterEnergy m = new MeterEnergy(sim.getPotentialMaster());
-//        m.setBox(sim.box);
-//        DataLogger logger = new DataLogger();
-//        logger.setAppending(true);
-//        logger.setCloseFileEachTime(true);
-//        DataTableWriter writer = new DataTableWriter();
-//        writer.setIncludeHeader(false);
-//        logger.setDataSink(writer);
-//        logger.setFileName("LJ_energy.dat");
-//        logger.setSameFileEachTime(true);
-//        logger.setWriteInterval(1);
-//        logger.setWriteOnInterval(true);
-//        DataPump pump = new DataPump(m, logger);
-//        sim.integrator.addListener(new IntervalActionAdapter(pump));
+    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
+		meterEnergy.setBox(sim.box);
+		double latticeEnergy = meterEnergy.getDataAsScalar();
+		System.out.println("Lattice Energy per particle: " + (latticeEnergy /nA));
+		System.out.println(" ");
+
+		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
+		DataPump energyPump = new DataPump(meterEnergy, energyAverage);
+
+		IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+		energyPumpListener.setInterval(100);
+		sim.integrator.getEventManager().addListener(energyPumpListener);
+
         sim.activityIntegrate.setMaxSteps(simSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
 
-        IntegratorListenerAction meterListener = new IntegratorListenerAction(meterNormalMode);
-        meterListener.setInterval(nA);
-        sim.integrator.getEventManager().addListener(meterListener);
-
-        sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().reset();
+    	long startTime = System.currentTimeMillis();
+		System.out.println("\nStart Time: " + startTime);
+		sim.integrator.getMoveManager().setEquilibrating(false);
+		sim.getController().reset();
+		
+		meterNormalMode.reset();
 
         WriteS sWriter = new WriteS(sim.space);
         sWriter.setFilename(filename);
@@ -214,15 +211,24 @@ public class SimCalcSLJ extends Simulation {
         sWriter.setMeter(meterNormalMode);
         sWriter.setWaveVectorFactory(waveVectorFactory);
         sWriter.setTemperature(temperature);
+       
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
         
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
-        PDBWriter pdbWriter = new PDBWriter(sim.box);
-        pdbWriter.setFileName("calcS.pdb");
-        pdbWriter.actionPerformed();
+    
+    	double A = sWriter.getLastA();
+		System.out.println("A/N: " + A/nA);
+		System.out.println("Average Energy: " + ((DataGroup) energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index)
+				+ " ,Error: "+ ((DataGroup) energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
+		System.out.println(" ");
+		
+		long endTime = System.currentTimeMillis();
+		System.out.println("End Time: " + endTime);
+		System.out.println("Time taken: " + (endTime - startTime));
+
         
     }
 
@@ -235,4 +241,5 @@ public class SimCalcSLJ extends Simulation {
     public Basis basis;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
+    public PotentialMaster potentialMaster;
 }
