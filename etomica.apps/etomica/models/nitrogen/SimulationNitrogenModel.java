@@ -6,7 +6,6 @@ import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -18,7 +17,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -44,7 +43,6 @@ public class SimulationNitrogenModel extends Simulation{
 		
 		potentialMaster = new PotentialMaster();
 				
-		
 		Basis basisFCC = new BasisCubicFcc();
 		Primitive primitiveImag = new PrimitiveCubic(space, unitCellLength);
 		Basis basis = new BasisBigCell(space, primitiveImag, basisFCC, new int[]{nCell, nCell, nCell});
@@ -60,7 +58,7 @@ public class SimulationNitrogenModel extends Simulation{
 		box.setNMolecules(species, numAtoms);		
 		
 		int [] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space,nCell*unitCellLength);
+		Boundary boundary = new BoundaryDeformablePeriodic(space,nCell*unitCellLength);
 		Primitive primitive = new PrimitiveCubic(space, nCell*unitCellLength);
 		
 		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -70,16 +68,16 @@ public class SimulationNitrogenModel extends Simulation{
 		box.setBoundary(boundary);
 		potential = new P2Nitrogen(space);
 		potential.setBox(box);
+		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+		
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
 		move.setPotential(potential);
-		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
 		
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
 		rotate.setBox(box);
-		((MCMoveStepTracker)rotate.getTracker()).setNoisyAdjustment(true);
 		
 		MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMaster, space);
 		mcMoveVolume.setBox(box);
@@ -99,10 +97,25 @@ public class SimulationNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int nCell = 2;
-		double temperature = 35.0; // in Unit Kelvin
-		long simSteps = 10000000;
+		int nCell =2;
+		double temperature = 50.0; // in Unit Kelvin
+		long simSteps = 1000;
 		
+		if(args.length > 1){
+			simSteps = Long.parseLong(args[1]);
+		}
+		if(args.length > 2){
+			temperature = Double.parseDouble(args[2]);
+		}
+		if(args.length > 3){
+			nCell = Integer.parseInt(args[3]);
+		}
+		String filename = "alphaN2_nC"+nCell+"_T"+Math.round(temperature);
+		
+		if(args.length > 0){
+			filename = args[0];
+		} 
+
 		SimulationNitrogenModel sim = new SimulationNitrogenModel(Space3D.getInstance(3), nCell, temperature);
 	    int numMolecule = sim.box.getMoleculeList().getMoleculeCount();
 	/*
@@ -110,16 +123,27 @@ public class SimulationNitrogenModel extends Simulation{
 		meterPotentialEnergy.setBox(sim.box);
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy (per molecule): "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
-		
+ 
 		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
 		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
 		
 		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 		energyListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyListener);
+		
+		sim.activityIntegrate.setMaxSteps(simSteps/5);
+		sim.getController().actionPerformed();
+		System.out.println("****System Equilibrated (20% of SimSteps)****");
+		
+		sim.integrator.getMoveManager().setEquilibrating(false);
+		sim.getController().reset();
 						
 		sim.activityIntegrate.setMaxSteps(simSteps);
 		sim.getController().actionPerformed();
+		
+		PDBWriter pdbWriter = new PDBWriter(sim.box);
+		pdbWriter.setFileName(filename+".pdb");
+	    pdbWriter.actionPerformed();
 		
 		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);

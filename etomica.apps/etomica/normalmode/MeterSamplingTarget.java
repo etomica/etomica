@@ -4,8 +4,6 @@ import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
@@ -14,9 +12,9 @@ import etomica.units.Null;
 /**
  *Meter used for compute for the probability of the target system sampling 
  * 
- * < e1 / sqrt(e1^2 + alpha^2 * e0^2)>umb
+ * < e1 / (e1 + alpha * e0)>umb
  * 
- * @author Andrew Schultz & Tai Boon Tan
+ * @author Tai Boon Tan
  */
 public class MeterSamplingTarget implements IEtomicaDataSource {
     
@@ -25,7 +23,7 @@ public class MeterSamplingTarget implements IEtomicaDataSource {
         this.integrator = integrator;
         
         data = new DataDouble();
-        dataInfo = new DataInfoDouble("Target and Bennet's Overlap Energies", Null.DIMENSION);
+        dataInfo = new DataInfoDouble("Target and Umbrella Energies", Null.DIMENSION);
 
         tag = new DataTag();
     }

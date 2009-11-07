@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -9,20 +8,20 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphere;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -37,239 +36,322 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class SimCalcSSoftSphereFCC extends Simulation {
 
-    public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
-        super(_space);
+	public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
+		super(_space);
 
+		potentialMaster = new PotentialMaster();
 
-        potentialMaster = new PotentialMasterMonatomic(this);
+		SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+		addSpecies(species);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
+		box = new Box(space);
+		addBox(box);
+		box.setNMolecules(species, numAtoms);
 
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, numAtoms);
+		integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom(), space);
-        move.setStepSize(0.2);
-        move.setStepSizeMax(0.5);
-        integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-        
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        // activityIntegrate.setMaxSteps(nSteps);
+		if (space.D() == 1) {
+			primitive = new PrimitiveCubic(space, 1.0 / density);
+			boundary = new BoundaryRectangularPeriodic(space, numAtoms/ density);
+			nCells = new int[] { numAtoms };
+			basis = new BasisMonatomic(space);
+		} else {
+			double L = Math.pow(4.0 / density, 1.0 / 3.0);
+			int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+			primitive = new PrimitiveCubic(space, n * L);
 
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            nCells = new int[]{numAtoms};
-            basis = new BasisMonatomic(space);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
-            boundary = new BoundaryRectangularPeriodic(space, n * L);
-            basis = new BasisCubicFcc();
-        }
-        
-        Potential2SoftSpherical potential = new P2SoftSphere(space);
-        
-        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
-        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
-        //potentialMaster.lrcMaster().setEnabled(false); //turn off the long-range correction ::updated 7/4/2008 
-        
-        IAtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});
-        move.setPotential(pTruncated);
+			nCells = new int[] {n, n, n};
+			boundary = new BoundaryRectangularPeriodic(space, n * L);
+			Basis basisFCC = new BasisCubicFcc();
+			basis = new BasisBigCell(space, primitive, basisFCC, nCells);
+		}
 
-        box.setBoundary(boundary);
+		Potential2SoftSpherical potential = new P2SoftSphere(space);
+		double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+		
+		/*
+		 * When we consider the interaction of the neighborlist, we are safe to use <P2SoftSphereTruncated>;
+		 * if not, we will have to use <P2SoftSphereTruncatedShifted>
+		 * This is because the possible occurrence of atom "jumping" in and out of the truncation radius
+		 * 	might potentially causes our energy average to be off
+		 */
+		if(potentialMaster instanceof PotentialMasterList){
+			potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+		
+		} else {
+			potential = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+			
+		}
+		/*
+		 * this is to make sure we don't include the long-tailed correction to
+		 * our solid calculation; and it is only important for fluid simulation
+		 */
+		potentialMaster.lrcMaster().setEnabled(false); 
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(nCells);
-        
-        
-        /*
-         * 1-body Potential to Constraint the atom from moving too far 
-         * 	away from its lattice-site
-         */
-       p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
-       potentialMaster.addPotential(p1Constraint, new IAtomType[]{sphereType});
-        
-       integrator.setBox(box);
-    }
+		IAtomType sphereType = species.getLeafType();
+		potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType});
+		box.setBoundary(boundary);
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
+		coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+		coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
 
-        // defaults
-        int D = 3;
-        int nA = 2048;
-        double density = 1.256;
-        double temperature = .2;
-        int exponent = 12 ;
-        if (D == 1) {
-            nA = 3;
-            density = 1.0;
-        }
-        long simSteps =100000;
+		MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster,getRandom(), space); 
+		move.setPotential(potential);
+		move.setDoExcludeNonNeighbors(true);
+		 
+/*
+		nm = new NormalModesFromFile("testsoftsphereHessian32", space.D());
+		nm.setTemperature(temperature);
+		// MC Move Harmonic
+		/*
+		 * MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
+		 * move.setCoordinateDefinition(coordinateDefinition);
+		 * move.setEigenVectors(nm.getEigenvectors(box));
+		 * move.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+		 * move.setOmegaSquared(nm.getOmegaSquared(box),
+		 * nm.getWaveVectorFactory().getCoefficients());
+		 * move.setWaveVectorCoefficients
+		 * (nm.getWaveVectorFactory().getCoefficients());
+		 * move.setTemperature(temperature); move.setBox(box);
+		 */
 
-        // parse arguments
-        if (args.length > 1) {
-            density = Double.parseDouble(args[1]);
-        }
-        if (args.length > 2) {
-            simSteps = Long.parseLong(args[2]);
-        }
-        if (args.length > 3) {
-            nA = Integer.parseInt(args[3]);
-        }
-        if (args.length > 4) {
-            temperature = Double.parseDouble(args[4]);
-        }
-        if (args.length > 5) {
-        	exponent = Integer.parseInt(args[5]);
-        }
-        String filename = "CB_FCC_n"+exponent+"_T"+ (int)Math.round(temperature*10);
-        if (args.length > 0) {
-            filename = args[0];
-        }
+		// MC Move Single Mode
+		/*
+		MCMoveSingleMode move = new MCMoveSingleMode(potentialMaster,
+				getRandom());
+		move.setCoordinateDefinition(coordinateDefinition);
+		move.setEigenVectors(nm.getEigenvectors());
+		move.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+		move.setOmegaSquared(nm.getOmegaSquared(), nm.getWaveVectorFactory()
+				.getCoefficients());
+		move.setWaveVectorCoefficients(nm.getWaveVectorFactory()
+				.getCoefficients());
+		move.setTemperature(temperature);
+		move.setBox(box);
+		((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
+		 */
+		
+		integrator.getMoveManager().addMCMove(move);
+		activityIntegrate = new ActivityIntegrate(integrator);
 
-        System.out.println("Running "
-                + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
-                + " soft sphere simulation");
-        System.out.println(nA + " atoms with exponent " + exponent+" and density "+density);
-        System.out.println("isotherm temperature at "+temperature);
-        System.out.println(simSteps+ " steps");
-        System.out.println("output data to " + filename);
+		
+		/*
+		 * 1-body Potential to Constraint the atom from moving too far away from
+		 * its lattice-site
+		 */
+		p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
+		potentialMaster.addPotential(p1Constraint, new IAtomType[] { sphereType });
 
-        // construct simulation
-        SimCalcSSoftSphereFCC sim = new SimCalcSSoftSphereFCC(Space.getInstance(D), nA, density, temperature, exponent);
+		if (potentialMaster instanceof PotentialMasterList) {
+            double neighborRange = truncationRadius;
+            int cellRange = 7;
+            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
+            if (potentialCells < cellRange*2+1) {
+                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            }
+            if (potentialCells > cellRange*2+1) {
+                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            }
+            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+		}
+		
+		integrator.setBox(box);
+		getController().addAction(activityIntegrate);
+	}
 
-        // set up initial configuration and save nominal positions
-        Primitive primitive = sim.primitive;
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
 
-        // set up normal-mode meter
-        MeterNormalMode meterNormalMode = new MeterNormalMode();
-        meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
-        WaveVectorFactory waveVectorFactory;
-        if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D();
-        } else if (D == 2) {
-            waveVectorFactory = null;
-        } else {
-            waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
-        }
-        meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-        meterNormalMode.setBox(sim.box);
+		// defaults
+		int D = 3;
+		int nA = 32;
+		double density = 1.256;
+		double temperature = 1.0;
+		int exponent = 12;
+		if (D == 1) {
+			nA = 3;
+			density = 1.0;
+		}
+		long simSteps = 100000;
 
-        IntegratorListenerAction meterNormalModeListener = new IntegratorListenerAction(meterNormalMode);
-        meterNormalModeListener.setInterval(nA);
-        sim.integrator.getEventManager().addListener(meterNormalModeListener);
+		// parse arguments
+		if (args.length > 1) {
+			density = Double.parseDouble(args[1]);
+		}
+		if (args.length > 2) {
+			simSteps = Long.parseLong(args[2]);
+		}
+		if (args.length > 3) {
+			nA = Integer.parseInt(args[3]);
+		}
+		if (args.length > 4) {
+			temperature = Double.parseDouble(args[4]);
+		}
+		if (args.length > 5) {
+			exponent = Integer.parseInt(args[5]);
+		}
+		String filename = "testCB_FCC_n" + exponent + "_T"
+				+ (int) Math.round(temperature);
+		if (args.length > 0) {
+			filename = args[0];
+		}
 
-  
-        MeterPressure meterPressure = new MeterPressure(sim.space);
-        meterPressure.setIntegrator(sim.integrator);
-        System.out.println("\nPressure Lattice: "+ meterPressure.getDataAsScalar());
-        System.out.println("\nZ: "+ meterPressure.getDataAsScalar()/(density*temperature));
-        //System.exit(1);
-        
-        
-        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergy.setBox(sim.box);
-        System.out.println("Lattice Energy per particle: "+ meterEnergy.getDataAsScalar()/nA);
-        System.out.println(" ");
-        //System.exit(1);
-        
-        AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
-	    DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
-	    
-        IntegratorListenerAction pressurePumpListener = new IntegratorListenerAction(pressurePump);
-        pressurePumpListener.setInterval(100);
-	    sim.integrator.getEventManager().addListener(pressurePumpListener);
-	    
-        AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
-        DataPump energyPump = new DataPump(meterEnergy, energyAverage);
-        
-        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
-        energyPumpListener.setInterval(100);
-        sim.integrator.getEventManager().addListener(energyPumpListener);
-        
-        
-        /*
-        MeterAtomicDisplacement meterAtomicDisplacement = new MeterAtomicDisplacement(sim.space, sim.coordinateDefinition);
-       
-        DataTableWriter histogramSink = new DataTableWriter();
-        sim.integrator.addIntervalAction(meterAtomicDisplacement);
-        sim.integrator.setActionInterval(meterAtomicDisplacement, 100);
-        */
-        sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
-        sim.getController().actionPerformed();
-        System.out.println("equilibrated");
-        
-        long startTime = System.currentTimeMillis();
-        System.out.println("\nStart Time: " +startTime);
-        sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().reset();
-        meterNormalMode.reset();
+		System.out.println("Running " + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
+				+ " soft sphere simulation");
+		System.out.println(nA + " atoms with exponent " + exponent
+				+ " and density " + density);
+		System.out.println("isotherm temperature at " + temperature);
+		System.out.println(simSteps + " steps");
+		System.out.println("output data to " + filename);
 
-        
-        WriteS sWriter = new WriteS(sim.space);
-        sWriter.setFilename(filename);
-        sWriter.setOverwrite(true);
-        sWriter.setMeter(meterNormalMode);
-        sWriter.setWaveVectorFactory(waveVectorFactory);
-        sWriter.setTemperature(temperature);
-       	IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
-        sWriterListener.setInterval((int)simSteps/200);
-        sim.integrator.getEventManager().addListener(sWriterListener);
-        
-        /*
-        DataLogger dataLogger = new DataLogger();
-        dataLogger.setFileName(filename+"hist_dist");
-        dataLogger.setDataSink(histogramSink);
-        histogramSink.setIncludeHeader(false);
-        dataLogger.setAppending(false);
-        dataLogger.setWriteInterval(1);
-        dataLogger.putDataInfo(meterAtomicDisplacement.getDataInfo());
-        dataLogger.putData(meterAtomicDisplacement.getData());
-        dataLogger.closeFile();
-        */
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
-        
-        PDBWriter pdbWriter = new PDBWriter(sim.box);
-        pdbWriter.setFileName("calcS_nA"+nA+"_n"+exponent+"_T"+temperature+".pdb");
-        pdbWriter.actionPerformed();
-        
-        System.out.println("\nAverage Energy: "+ ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index) +
-        	" ,Error Energy: "+ ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
-        System.out.println(" ");
-        
-        System.out.println("Average-Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index) +
-        					 " ,Error-Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
-        
-        long endTime = System.currentTimeMillis();
-        System.out.println("End Time: " + endTime);
-        System.out.println("Time taken: " + (endTime - startTime));
-        System.out.println("innerRadius:" +Math.sqrt(sim.p1Constraint.getInnerRadius()));
-        System.out.println("outerRadius:" +Math.sqrt(sim.p1Constraint.getOuterRadius()));
-       
-    }
+		// construct simulation
+		SimCalcSSoftSphereFCC sim = new SimCalcSSoftSphereFCC(Space.getInstance(D), nA, density, temperature, exponent);
 
-    private static final long serialVersionUID = 1L;
-    public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
-    public IBox box;
-    public Boundary boundary;
-    public Primitive primitive;
-    public Basis basis;
-    public int[] nCells;
-    public P1Constraint p1Constraint;
-    public CoordinateDefinition coordinateDefinition;
-    public PotentialMasterMonatomic potentialMaster;
+		// set up normal-mode meter
+		/*
+		MeterNormalMode meterNormalMode = new MeterNormalMode();
+		meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
+		WaveVectorFactory waveVectorFactory;
+		if (D == 1) {
+			waveVectorFactory = new WaveVectorFactory1D();
+		} else if (D == 2) {
+			waveVectorFactory = null;
+		} else {
+			waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
+		}
+		meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+		meterNormalMode.setBox(sim.box);
+
+		IntegratorListenerAction meterNormalModeListener = new IntegratorListenerAction(meterNormalMode);
+		meterNormalModeListener.setInterval(nA);
+		sim.integrator.getEventManager().addListener(meterNormalModeListener);
+		*/
+		// ////////////////////////////////////////////////////////////////
+		/*
+		 * NormalModesFromFile nm = new NormalModesFromFile(new String
+		 * ("DB_FCC_n12_N2"), 3);
+		 * 
+		 * MeterHarmonicEnergy harmE = new
+		 * MeterHarmonicEnergy(sim.coordinateDefinition, nm);
+		 * harmE.setWaveVectorNum(0);
+		 * 
+		 * MeterPotentialEnergy pe = new
+		 * MeterPotentialEnergy(sim.potentialMaster); pe.setBox(sim.box); double
+		 * latticeE = pe.getDataAsScalar();
+		 * 
+		 * vector = new IVectorMutable[3];
+		 * 
+		 * for (int i=0; i<vector.length; i++){ vector[i] =
+		 * sim.space.makeVector(); }
+		 * 
+		 * vector[0].E(new double[] {0.001, 0.0, 0.0}); vector[1].E(new double[]
+		 * {0.0, 0.001, 0.0}); vector[2].E(new double[] {0.0, 0.0, 0.001});
+		 * 
+		 * IVectorMutable[] vecAtom = new IVectorMutable[4];
+		 * 
+		 * vecAtom[0] = sim.space.makeVector(new double[]{-0.01881690950659513,
+		 * 0.09124436420176268, -0.048684908766342544}); vecAtom[1] =
+		 * sim.space.makeVector(new double[]{ 0.018816909506595172,
+		 * -0.0258933122044554, -1.127955435369349}); vecAtom[2] =
+		 * sim.space.makeVector(new double[]{-0.22299502866257292,
+		 * 0.025893312204455038, 0.04868490876634228}); vecAtom[3] =
+		 * sim.space.makeVector(new double[]{0.22299502866257292,
+		 * -0.09124436420176324, 1.1279554353693495}); IAtom atom;
+		 * IVectorMutable atomPos;
+		 * 
+		 * int atomm = 0; int atomn = 1;
+		 * 
+		 * int d1 = 0; int d2 = 0;
+		 * 
+		 * for (int steps=1; steps<=20; steps++){ IAtomList atoms =
+		 * sim.box.getLeafList();
+		 * 
+		 * 
+		 * for(int i=0; i<atoms.getAtomCount(); i+=4){ for(int j=0; j<4;j++){
+		 * atom = atoms.getAtom(i+j); atomPos =
+		 * ((IAtomPositioned)atom).getPosition(); atomPos.PEa1Tv1(.001,
+		 * vecAtom[j]); } }
+		 * 
+		 * 
+		 * for(int i=atomn; i<atoms.getAtomCount(); i+=4){ atom =
+		 * atoms.getAtom(i); atomPos = ((IAtomPositioned)atom).getPosition();
+		 * atomPos.ME(vector[d2]); }
+		 * 
+		 * System.out.println((steps*0.001) +" " +
+		 * (pe.getDataAsScalar()-latticeE) + " " + harmE.getDataAsScalar());
+		 * 
+		 * }
+		 * 
+		 * System.exit(1);
+		 */
+		// ////////////////////////////////////////////////////////////////
+
+		MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
+		meterEnergy.setBox(sim.box);
+		double latticeEnergy = meterEnergy.getDataAsScalar();
+		System.out.println("Lattice Energy per particle: " + (latticeEnergy /nA));
+		System.out.println(" ");
+
+		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
+		DataPump energyPump = new DataPump(meterEnergy, energyAverage);
+
+		IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+		energyPumpListener.setInterval(100);
+		sim.integrator.getEventManager().addListener(energyPumpListener);
+
+		sim.activityIntegrate.setMaxSteps(simSteps / 10); // simSteps/10
+		sim.getController().actionPerformed();
+		System.out.println("equilibrated");
+
+		long startTime = System.currentTimeMillis();
+		System.out.println("\nStart Time: " + startTime);
+		sim.integrator.getMoveManager().setEquilibrating(false);
+		sim.getController().reset();
+		
+		//meterNormalMode.reset();
+		/*
+		WriteS sWriter = new WriteS(sim.space);
+		sWriter.setFilename(filename);
+		sWriter.setOverwrite(true);
+		sWriter.setMeter(meterNormalMode);
+		sWriter.setWaveVectorFactory(waveVectorFactory);
+		sWriter.setTemperature(temperature);
+		
+		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+		sWriterListener.setInterval((int)simSteps/10);
+		sim.integrator.getEventManager().addListener(sWriterListener);
+		*/
+		sim.activityIntegrate.setMaxSteps(simSteps);
+		sim.getController().actionPerformed();
+		
+		//double A = sWriter.getLastA();
+		//System.out.println("A/N: " + A/nA);
+		System.out.println("Average Energy: " + ((DataGroup) energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index)
+				+ " ,Error: "+ ((DataGroup) energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index));
+		System.out.println(" ");
+		
+		long endTime = System.currentTimeMillis();
+		System.out.println("End Time: " + endTime);
+		System.out.println("Time taken: " + (endTime - startTime));
+
+	}
+
+	private static final long serialVersionUID = 1L;
+	public IntegratorMC integrator;
+	public ActivityIntegrate activityIntegrate;
+	public IBox box;
+	public Boundary boundary;
+	public Primitive primitive;
+	public Basis basis;
+	public int[] nCells;
+	public P1Constraint p1Constraint;
+	public CoordinateDefinition coordinateDefinition;
+	public PotentialMaster potentialMaster;
+
 }

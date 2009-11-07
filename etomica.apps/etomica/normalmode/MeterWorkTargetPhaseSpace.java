@@ -15,7 +15,7 @@ import etomica.units.Null;
  * measures the energy difference for the harmonic and target
  * potentials.
  * 
- * @author Andrew Schultz
+ * @author Tai Boon Tan
  */
 public class MeterWorkTargetPhaseSpace implements IEtomicaDataSource {
     
@@ -30,8 +30,10 @@ public class MeterWorkTargetPhaseSpace implements IEtomicaDataSource {
     }
 
     public IData getData() {
-        data.x = (meterHarmonicEnergy.getDataAsScalar() -
-                (meterEnergy.getDataAsScalar() - latticeEnergy)) / integrator.getTemperature();
+    	double uTarget = (meterEnergy.getDataAsScalar() - latticeEnergy);
+    	double uHarmonic = meterHarmonicEnergy.getDataAsScalar();
+    	data.x = ( uHarmonic - uTarget) / integrator.getTemperature();
+    	
         return data;
     }
 

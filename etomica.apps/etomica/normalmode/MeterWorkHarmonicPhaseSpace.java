@@ -15,7 +15,7 @@ import etomica.units.Null;
  * measures the energy difference for the harmonic and target
  * potentials.
  * 
- * @author Andrew Schultz & Tai Boon Tan
+ * @author Tai Boon Tan
  */
 public class MeterWorkHarmonicPhaseSpace implements IEtomicaDataSource {
     
@@ -27,6 +27,7 @@ public class MeterWorkHarmonicPhaseSpace implements IEtomicaDataSource {
         dataInfo = new DataInfoDouble("Scaled Harmonic and soft sphere Energies", Null.DIMENSION);
 
         tag = new DataTag();
+        
     }
 
     public void setTemperature(double newTemperature) {
@@ -38,8 +39,10 @@ public class MeterWorkHarmonicPhaseSpace implements IEtomicaDataSource {
     }
     
     public IData getData() {
-        data.x = ((meterEnergy.getDataAsScalar() - latticeEnergy) -
-        		mcMoveHarmonic.getLastTotalEnergy()) / temperature;
+    	double uTarget = (meterEnergy.getDataAsScalar() - latticeEnergy);
+        double diff = (uTarget-mcMoveHarmonic.getLastTotalEnergy());
+    	data.x = ( uTarget - mcMoveHarmonic.getLastTotalEnergy()) / temperature;
+    	
         return data;
     }
 

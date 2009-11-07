@@ -2,20 +2,20 @@ package etomica.normalmode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorAverageFixedOutputFile;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -55,6 +55,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         } catch (IOException e){
         	throw new RuntimeException ("Cannot find refPref file!! "+e.getMessage() );
         }
+        
         try {
         	BufferedReader bufReader = new BufferedReader(refFileReader);
         	String line = bufReader.readLine();
@@ -65,11 +66,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
         } catch (IOException e){
         	throw new RuntimeException(" Cannot read from file "+ refFileName);
         }
-        //System.out.println("refPref is: "+ refPref);
-        
         
         int D = space.D();
         
+        BasisNMOneCell scaledBasis = new BasisNMOneCell(_space, numAtoms, density);
+                
         potentialMasterMonatomic = new PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
        
@@ -85,11 +86,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
         getController().addAction(activityIntegrate);
       
        	double L = Math.pow(4.0/density, 1.0/3.0);
-        primitive = new PrimitiveCubic(space, L);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        nCells = new int[]{n,n,n};
+       	int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+        primitive = new PrimitiveCubic(space, n*L);
+        nCells = new int[]{1,1,1};
         boundary = new BoundaryRectangularPeriodic(space, n*L);
-        basis = new BasisCubicFcc();
+        basis = new Basis(scaledBasis.getScaledBasis());
         
         box.setBoundary(boundary);
         
@@ -128,6 +129,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         move.setTemperature(temperature);
         move.setLatticeEnergy(latticeEnergy);
         integrator.getMoveManager().addMCMove(move);
+        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
       
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         
@@ -201,8 +203,10 @@ public class SimUmbrellaSoftSphere extends Simulation {
         meterSamplingHarmonic.setRefPref(sim.refPref);
         samplingMeters[0] = meterSamplingHarmonic;
         
-        final AccumulatorAverageFixedOutputFile dataAverageSamplingHarmonic = new AccumulatorAverageFixedOutputFile();
-        dataAverageSamplingHarmonic.setFile(filename+"_UmblnQharm");
+//        final AccumulatorAverageFixedOutputFile dataAverageSamplingHarmonic = new AccumulatorAverageFixedOutputFile();
+//        dataAverageSamplingHarmonic.setFile(filename+"_UmblnQharm");
+        
+        final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
         
         DataPump pumpSamplingHarmonic = new DataPump(samplingMeters[0], dataAverageSamplingHarmonic);
         dataAverageSamplingHarmonic.setBlockSize(200);
@@ -216,9 +220,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
         meterSamplingTarget.setRefPref(sim.refPref);
         samplingMeters[1] = meterSamplingTarget;
         
-        final AccumulatorAverageFixedOutputFile dataAverageSamplingTarget = new AccumulatorAverageFixedOutputFile();
-        dataAverageSamplingTarget.setFile(filename+"_UmblnQtarg");
-
+//        final AccumulatorAverageFixedOutputFile dataAverageSamplingTarget = new AccumulatorAverageFixedOutputFile();
+//        dataAverageSamplingTarget.setFile(filename+"_UmblnQtarg");
+        
+        final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
+        
         DataPump pumpSamplingTarget = new DataPump(samplingMeters[1], dataAverageSamplingTarget);
         dataAverageSamplingTarget.setBlockSize(200);
         IntegratorListenerAction pumpSamplingTargetListener = new IntegratorListenerAction(pumpSamplingTarget);
@@ -227,7 +233,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         if (numAtoms == 32){
             pumpSamplingHarmonicListener.setInterval(100);
             pumpSamplingTargetListener.setInterval(100);
-        } else if (numAtoms == 108){
+        } else if (numAtoms >= 108){
         	 pumpSamplingHarmonicListener.setInterval(300);
             pumpSamplingTargetListener.setInterval(300);
             /*
@@ -235,11 +241,13 @@ public class SimUmbrellaSoftSphere extends Simulation {
             	dataAverageSamplingHarmonic.setBlockSize(200);
             	dataAverageSamplingTarget.setBlockSize(200);
             }*/
-        } else {
+        } 
+        
+        /*else {
             pumpSamplingHarmonicListener.setInterval(1);
             pumpSamplingTargetListener.setInterval(1);
         }
-       
+       */
         
 		double[][] omega2 = sim.normalModes.getOmegaSquared();
 		double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
@@ -261,89 +269,89 @@ public class SimUmbrellaSoftSphere extends Simulation {
 		if (totalCells % 2 == 0) {
 			fac = Math.pow(2,D);
 		}
-		AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
-		System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
+		AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0)); // Math.pow(totalCells,0.5*D));
+		System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature + " " +AHarmonic*temperature/(numAtoms));
 		System.out.println(" ");
 		
-		FileWriter fileWriterHarm, fileWriterTarget;
-		
-		try{
-			fileWriterHarm = new FileWriter(filename+"_Qharm");
-			fileWriterTarget = new FileWriter(filename+"_Qtarg");
-			
-		} catch (IOException e){
-			fileWriterHarm = null;
-			fileWriterTarget = null;
-		}
-		
-        final double temp = temperature;
-        final double AHarm = AHarmonic;
-        
-        final FileWriter fHarm = fileWriterHarm;
-        final FileWriter fTarg = fileWriterTarget;
-        
-		IAction output = new IAction(){
-			public void actionPerformed(){
-				/*
-				 * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
-				 *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
-				 * 
-				 */
-				long currentStep = sim.integrator.getStepCount();
-	
-				double aveQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-				double aveQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-				
-				double Qharmonic = meterSamplingHarmonic.getData().getValue(0);
-				double Qtarget = meterSamplingTarget.getData().getValue(0);
-				
-			    double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-			    double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-				
-			    /*
-				 * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
-				 *  deltaFE_target : beta*(FE_target - FE_umbrella) = - ln(Qtarget)
-				 */
-				double deltaFE_harmonic = - Math.log(aveQharmonic);
-				double deltaFE_target = - Math.log(aveQtarget);
-				double deltaFE = temp*deltaFE_target - temp*deltaFE_harmonic;
-        
-				long currentTime = System.currentTimeMillis();
-				double error = temp*Math.sqrt( (eQharmonic/aveQharmonic)*(eQharmonic/aveQharmonic) 
-						+ (eQtarget/aveQtarget)*(eQtarget/aveQtarget))/numAtoms;
-				/*
-				if (Double.isNaN(error)){
-					System.out.println("error: "+ error);
-				}
-				System.out.println(currentStep+ " : Time: " + (currentTime - startTime)+ 
-						" ,Targ_FE/N: "+(temp*AHarm+ deltaFE)/numAtoms +
-						" ,error: "+error+
-						" ,Qharmonic: " + aveQharmonic + " , " + eQharmonic +
-						" ,Qtarget: " + aveQtarget + " , "+ eQtarget);
-				*/
-				try {	
-					fHarm.write(currentStep + " " + Qharmonic + " " + aveQharmonic + " " + eQharmonic + "\n");
-					fTarg.write(currentStep + " " + Qtarget + " " + aveQtarget + " " + eQtarget + "\n");
-					
-				} catch (IOException e){
-					
-				}
-				
-			}
-		};
-		
-		IntegratorListenerAction outputListener = new IntegratorListenerAction(output);
-		outputListener.setInterval((int)numSteps/200);
-		sim.integrator.getEventManager().addListener(outputListener);
+//		FileWriter fileWriterHarm, fileWriterTarget;
+//		
+//		try{
+//			fileWriterHarm = new FileWriter(filename+"_Qharm");
+//			fileWriterTarget = new FileWriter(filename+"_Qtarg");
+//			
+//		} catch (IOException e){
+//			fileWriterHarm = null;
+//			fileWriterTarget = null;
+//		}
+//		
+//        final double temp = temperature;
+//        final double AHarm = AHarmonic;
+//        
+//        final FileWriter fHarm = fileWriterHarm;
+//        final FileWriter fTarg = fileWriterTarget;
+//        
+//		IAction output = new IAction(){
+//			public void actionPerformed(){
+//				/*
+//				 * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
+//				 *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
+//				 * 
+//				 */
+//				long currentStep = sim.integrator.getStepCount();
+//	
+//				double aveQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+//				double aveQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+//				
+//				double Qharmonic = meterSamplingHarmonic.getData().getValue(0);
+//				double Qtarget = meterSamplingTarget.getData().getValue(0);
+//				
+//			    double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+//			    double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+//				
+//			    /*
+//				 * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
+//				 *  deltaFE_target : beta*(FE_target - FE_umbrella) = - ln(Qtarget)
+//				 */
+//				double deltaFE_harmonic = - Math.log(aveQharmonic);
+//				double deltaFE_target = - Math.log(aveQtarget);
+//				double deltaFE = temp*deltaFE_target - temp*deltaFE_harmonic;
+//        
+//				long currentTime = System.currentTimeMillis();
+//				double error = temp*Math.sqrt( (eQharmonic/aveQharmonic)*(eQharmonic/aveQharmonic) 
+//						+ (eQtarget/aveQtarget)*(eQtarget/aveQtarget))/numAtoms;
+//				/*
+//				if (Double.isNaN(error)){
+//					System.out.println("error: "+ error);
+//				}
+//				System.out.println(currentStep+ " : Time: " + (currentTime - startTime)+ 
+//						" ,Targ_FE/N: "+(temp*AHarm+ deltaFE)/numAtoms +
+//						" ,error: "+error+
+//						" ,Qharmonic: " + aveQharmonic + " , " + eQharmonic +
+//						" ,Qtarget: " + aveQtarget + " , "+ eQtarget);
+//				*/
+//				try {	
+//					fHarm.write(currentStep + " " + Qharmonic + " " + aveQharmonic + " " + eQharmonic + "\n");
+//					fTarg.write(currentStep + " " + Qtarget + " " + aveQtarget + " " + eQtarget + "\n");
+//					
+//				} catch (IOException e){
+//					
+//				}
+//				
+//			}
+//		};
+//		
+//		IntegratorListenerAction outputListener = new IntegratorListenerAction(output);
+//		outputListener.setInterval((int)numSteps/200);
+//		sim.integrator.getEventManager().addListener(outputListener);
 	    
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         
-		dataAverageSamplingHarmonic.closeFile();
-		dataAverageSamplingTarget.closeFile();
+//		dataAverageSamplingHarmonic.closeFile();
+//		dataAverageSamplingTarget.closeFile();
 		/*
-		 * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
-		 *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
+		 * Qharmonic = < e0 / [e1 + alpha * e0)]>umbrella
+		 *  Qtarget  = < e1 / [e1 + alpha * e0)]>umbrella
 		 * 
 		 */
 	    double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
@@ -378,13 +386,13 @@ public class SimUmbrellaSoftSphere extends Simulation {
 		System.out.println("End Time: " + endTime);
 		System.out.println("Total time taken: " + (endTime - startTime));
 		
-		try {
-			fileWriterHarm.close();
-			fileWriterTarget.close();
-			
-		} catch (IOException e){
-			
-		}
+//		try {
+//			fileWriterHarm.close();
+//			fileWriterTarget.close();
+//			
+//		} catch (IOException e){
+//			
+//		}
 		
     }
 
@@ -407,14 +415,14 @@ public class SimUmbrellaSoftSphere extends Simulation {
     public double refPref;
     
     public static class SimBennetParam extends ParameterBase {
-    	public int numMolecules = 108;
+    	public int numMolecules = 32;
     	public double density = 1256;
     	public int exponentN = 12;
     	public int D = 3;
     	public long numSteps = 1000000;
     	public double harmonicFudge =1;
-    	public String filename = "CB_FCC_n12_T14";
-    	public double temperature = 1.4;
+    	public String filename = "input_hessian32CBT01";
+    	public double temperature = 0.1;
     }
 
 }
