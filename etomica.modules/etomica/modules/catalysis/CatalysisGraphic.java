@@ -23,8 +23,6 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
 import etomica.data.DataTag;
-import etomica.data.IDataSink;
-import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
@@ -127,21 +125,13 @@ public class CatalysisGraphic extends SimulationGraphic {
         colorScheme.setFullBondColor(sim.speciesC.getLeafType(),new Color(0.5f, 0.0f, 0.5f));
         getDisplayBox(sim.box).setColorScheme(colorScheme);
 		
-        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-
         //add meter and display for current kinetic temperature
 
 		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
-        DataFork temperatureFork = new DataFork();
-        final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
-        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
-        sim.integrator.getEventManager().addListener(temperaturePumpListener);
-        temperaturePumpListener.setInterval(1);
         final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
+        final DataPumpListener temperaturePump = new DataPumpListener(thermometer,temperatureAverage);
+        sim.integrator.getEventManager().addListener(temperaturePump);
         temperatureAverage.setPushInterval(20);
-        final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
-        temperatureHistory.setTimeDataSource(timeCounter);
-		temperatureFork.setDataSinks(new IDataSink[]{temperatureAverage,temperatureHistory});
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tBox.setAccumulator(temperatureAverage);
 		dataStreamPumps.add(temperaturePump);
@@ -150,14 +140,14 @@ public class CatalysisGraphic extends SimulationGraphic {
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
 		// Number density box
-	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
-	    final DisplayTextBox densityBox = new DisplayTextBox();
+//	    final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
+//        densityMeter.setBox(sim.box);
+//	    final DisplayTextBox densityBox = new DisplayTextBox();
 //	    densityBox.setUnit(dUnit);
-        final DataPumpListener densityPump = new DataPumpListener(densityMeter, densityBox, 10);
-        sim.integrator.getEventManager().addListener(densityPump);
-        dataStreamPumps.add(densityPump);
-	    densityBox.setLabel("Density");
+//        final DataPumpListener densityPump = new DataPumpListener(densityMeter, densityBox, 10);
+//        sim.integrator.getEventManager().addListener(densityPump);
+//        dataStreamPumps.add(densityPump);
+//	    densityBox.setLabel("Density");
 	    
 //		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
 //        final AccumulatorHistory energyHistory = new AccumulatorHistory();
@@ -200,28 +190,31 @@ public class CatalysisGraphic extends SimulationGraphic {
 //        peDisplay.setAccumulator(peAccumulator);
 //        peDisplay.setLabel("Potential Energy (J/mol)");
         
-        MeterDensityCO meterDensityCO = new MeterDensityCO(sim.box, sim.speciesC, sim.interactionTracker.getAgentManager());
+	    final MeterDensityCO meterDensityCO = new MeterDensityCO(sim.box, sim.speciesC, sim.interactionTracker.getAgentManager());
         DataFork densityCOFork = new DataFork();
-        DataPumpListener densityCOPump = new DataPumpListener(meterDensityCO, densityCOFork, 100);
+        final DataPumpListener densityCOPump = new DataPumpListener(meterDensityCO, densityCOFork, 100);
         sim.integrator.getEventManager().addListener(densityCOPump);
         dataStreamPumps.add(densityCOPump);
         AccumulatorHistory densityCOHistory = new AccumulatorHistory(new HistoryCollapsing());
+        densityCOHistory.setTimeDataSource(meterCycles);
         densityCOFork.addDataSink(densityCOHistory);
         
-        MeterDensityO2 meterDensityO2 = new MeterDensityO2(sim.box, sim.speciesO, sim.interactionTracker.getAgentManager());
+        final MeterDensityO2 meterDensityO2 = new MeterDensityO2(sim.box, sim.speciesO, sim.interactionTracker.getAgentManager());
         DataFork densityO2Fork = new DataFork();
-        DataPumpListener densityO2Pump = new DataPumpListener(meterDensityO2, densityO2Fork, 100);
+        final DataPumpListener densityO2Pump = new DataPumpListener(meterDensityO2, densityO2Fork, 100);
         sim.integrator.getEventManager().addListener(densityO2Pump);
         dataStreamPumps.add(densityO2Pump);
         AccumulatorHistory densityO2History = new AccumulatorHistory(new HistoryCollapsing());
+        densityO2History.setTimeDataSource(meterCycles);
         densityO2Fork.addDataSink(densityO2History);
 
-        MeterDensityCO2 meterDensityCO2 = new MeterDensityCO2(sim.box, sim.speciesC, sim.interactionTracker.getAgentManager());
+        final MeterDensityCO2 meterDensityCO2 = new MeterDensityCO2(sim.box, sim.speciesC, sim.interactionTracker.getAgentManager());
         DataFork densityCO2Fork = new DataFork();
-        DataPumpListener densityCO2Pump = new DataPumpListener(meterDensityCO2, densityCO2Fork, 100);
+        final DataPumpListener densityCO2Pump = new DataPumpListener(meterDensityCO2, densityCO2Fork, 100);
         sim.integrator.getEventManager().addListener(densityCO2Pump);
         dataStreamPumps.add(densityCO2Pump);
         AccumulatorHistory densityCO2History = new AccumulatorHistory(new HistoryCollapsing());
+        densityCO2History.setTimeDataSource(meterCycles);
         densityCO2Fork.addDataSink(densityCO2History);
 
         DisplayPlot densityHistoryPlot = new DisplayPlot();
@@ -234,30 +227,6 @@ public class CatalysisGraphic extends SimulationGraphic {
         densityHistoryPlot.setLegend(new DataTag[]{meterDensityCO2.getTag()}, "CO2");
         densityHistoryPlot.setUnit(new UnitRatio(Mole.UNIT, Liter.UNIT));
         densityHistoryPlot.getPlot().setYLabel("Density (mol/L)");
-        
-        DataSourceWallPressureCatalysis dataSourcePressure = new DataSourceWallPressureCatalysis(space, sim.speciesC, sim.speciesO, sim.interactionTracker.getAgentManager());
-        dataSourcePressure.setIntegrator(sim.integrator);
-        DataSplitter pressureSplitter = new DataSplitter();
-        DataPumpListener pressurePump = new DataPumpListener(dataSourcePressure, pressureSplitter, 100);
-        sim.integrator.getEventManager().addListener(pressurePump);
-        dataStreamPumps.add(pressurePump);
-        AccumulatorHistory pressureCOHistory = new AccumulatorHistory(new HistoryCollapsing());
-        pressureSplitter.setDataSink(0, pressureCOHistory);
-        AccumulatorHistory pressureO2History = new AccumulatorHistory(new HistoryCollapsing());
-        pressureSplitter.setDataSink(1, pressureO2History);
-        AccumulatorHistory pressureCO2History = new AccumulatorHistory(new HistoryCollapsing());
-        pressureSplitter.setDataSink(2, pressureCO2History);
-        
-        DisplayPlot pressurePlot = new DisplayPlot();
-        pressureCOHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
-        pressureO2History.setDataSink(pressurePlot.getDataSet().makeDataSink());
-        pressureCO2History.setDataSink(pressurePlot.getDataSet().makeDataSink());
-        pressurePlot.setLegend(new DataTag[]{pressureCOHistory.getTag()}, "CO");
-        pressurePlot.setLegend(new DataTag[]{pressureO2History.getTag()}, "O2");
-        pressurePlot.setLegend(new DataTag[]{pressureCO2History.getTag()}, "CO2");
-        pressurePlot.setUnit(Bar.UNIT);
-        pressurePlot.setLabel("Pressure");
-        pressurePlot.getPlot().setYLabel("Pressure (bar)");
 
         final DeviceSlider nSliderCO = new DeviceSlider(sim.getController());
         nSliderCO.setMinimum(0);
@@ -268,6 +237,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         nSliderCO.setLabel("Number of CO");
         nSliderCO.setPostAction(new IAction() {
             public void actionPerformed() {
+                sim.interactionTracker.reset();
                 sim.config.initializeCoordinates(sim.box);
                 getDisplayBox(sim.box).repaint();
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
@@ -284,6 +254,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         nSliderO2.setLabel("Number of O2");
         nSliderO2.setPostAction(new IAction() {
             public void actionPerformed() {
+                sim.interactionTracker.reset();
                 sim.config.initializeCoordinates(sim.box);
                 getDisplayBox(sim.box).repaint();
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).reset();
@@ -313,37 +284,32 @@ public class CatalysisGraphic extends SimulationGraphic {
 		tempSlider.setSliderPostAction(resetDataAction);
         tempSlider.addRadioGroupActionListener(isothermalListener);
 
+        final IAction resetDisplayDataAction = new IAction() {
+            public void actionPerformed() {
+                temperaturePump.actionPerformed();
+                tBox.putData(temperatureAverage.getData());
+                tBox.repaint();
+
+                displayCycles.putData(meterCycles.getData());
+                displayCycles.repaint();
+            }
+        };
         final IAction resetAction = new IAction() {
         	public void actionPerformed() {
         	    sim.interactionTracker.reset();
         	    
         	    sim.integrator.reset();
 
-        	    // Reset density (Density is set and won't change, but
-        		// do this anyway)
-        		densityPump.actionPerformed();
-        		densityBox.repaint();
-
-        		// Reset temperature (THIS IS NOT WORKING)
-                temperaturePump.actionPerformed();
-                tBox.putData(temperatureAverage.getData());
-                tBox.repaint();
-
-                // IS THIS WORKING?
-//                peDisplay.putData(peAccumulator.getData());
-//                peDisplay.repaint();
+        	    resetDisplayDataAction.actionPerformed();
 
         		getDisplayBox(sim.box).graphic().repaint();
-        		
-        		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
         
         ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.config);
 
         this.getController().getReinitButton().setPostAction(resetAction);
-        this.getController().getResetAveragesButton().setPostAction(resetAction);
+        this.getController().getResetAveragesButton().setPostAction(resetDisplayDataAction);
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         
@@ -740,17 +706,9 @@ public class CatalysisGraphic extends SimulationGraphic {
             getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         }
 
-//    	add(ePlot);
         add(displayCycles);
-        add(densityBox);
         add(tBox);
-//    	add(peDisplay);
         add(densityHistoryPlot);
-        add(pressurePlot);
-    	
-//        java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
-//        d.width -= 50;
-//        ePlot.getPlot().setSize(d);
     }
 
     public static void main(String[] args) {
