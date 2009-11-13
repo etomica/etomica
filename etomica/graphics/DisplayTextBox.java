@@ -13,7 +13,6 @@ import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Null;
-import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
@@ -57,22 +56,14 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
     protected etomica.units.Unit unit;
     
     public DisplayTextBox() {
-        this("", Null.UNIT);
-    }
-    
-    public DisplayTextBox(IEtomicaDataInfo info) {
-        this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
-    }
-    
-    public DisplayTextBox(String label, Unit unit) {
         super();
-        this.unit = unit;
+        this.unit = Null.UNIT;
         jLabel = new JLabel();
         value = new JTextField("");
         value.setEditable(false);
         panel.add(value, java.awt.BorderLayout.CENTER);
         setLabelType(LabelType.STRING);
-        setLabel(label);
+        setLabel("");
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         setPrecision(4);
         setIntegerDisplay(false);

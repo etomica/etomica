@@ -464,10 +464,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         JPanel profilePanel = new JPanel(new GridBagLayout());
         getPanel().tabbedPane.add("Density", profilePanel);
         profilePanel.add(profilePlot.graphic(), vertGBC);
-        final DisplayTextBox vaporDensityBox = new DisplayTextBox("Vapor density", Null.UNIT);
-        final DisplayTextBox liquidDensityBox = new DisplayTextBox("Liquid density", Null.UNIT);
-        final DisplayTextBox interfaceWidthBox = new DisplayTextBox("Interface width", Null.UNIT);
-        final DisplayTextBox interfaceLocationBox = new DisplayTextBox("Interface location", Null.UNIT);
+        final DisplayTextBox vaporDensityBox = new DisplayTextBox();
+        vaporDensityBox.setLabel("Vapor density");
+        final DisplayTextBox liquidDensityBox = new DisplayTextBox();
+        liquidDensityBox.setLabel("Vapor density");
+        final DisplayTextBox interfaceWidthBox = new DisplayTextBox();
+        interfaceWidthBox.setLabel("Vapor density");
+        final DisplayTextBox interfaceLocationBox = new DisplayTextBox();
+        interfaceLocationBox.setLabel("Vapor density");
         JPanel fitParamsPanel = new JPanel();
         fitParamsPanel.add(vaporDensityBox.graphic());
         fitParamsPanel.add(liquidDensityBox.graphic());

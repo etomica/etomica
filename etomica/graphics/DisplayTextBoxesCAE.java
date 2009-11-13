@@ -48,18 +48,13 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
 	JLabel jLabelPanelParentGroup = new JLabel();
     
     public DisplayTextBoxesCAE() {
-        this("", Null.UNIT);
-    }
-
-	public DisplayTextBoxesCAE(IEtomicaDataInfo info) {
-        this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
-    }
-
-    public DisplayTextBoxesCAE(String label, Unit unit) {
 		super();
-		currentBox = new DisplayTextBox("Current", unit);
-		averageBox = new DisplayTextBox("Average", unit);
-		errorBox = new DisplayTextBox("Error", unit);
+		currentBox = new DisplayTextBox();
+		currentBox.setLabel("Current");
+		averageBox = new DisplayTextBox();
+		averageBox.setLabel("Average");
+		errorBox = new DisplayTextBox();
+		errorBox.setLabel("Error");
 		jLabelPanelParentGroup = new JLabel();
         panelParentGroup = new JPanel(new java.awt.BorderLayout());
         panelParentGroup.add(currentBox.graphic(), java.awt.BorderLayout.WEST);
@@ -198,7 +193,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
         graphic.getController().getDataStreamPumps().add(dataPump);
-        DisplayTextBoxesCAE boxes = new DisplayTextBoxesCAE(pressureMeter.getDataInfo());
+        DisplayTextBoxesCAE boxes = new DisplayTextBoxesCAE();
         boxes.setAccumulator(accumulator);
         graphic.add(boxes);
         graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));

@@ -71,8 +71,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    meterA.setSpecies(sim.species1);
 	    meterB.setBox(sim.box);
 	    meterB.setSpecies(sim.species2);
-	    DisplayTextBox boxA = new DisplayTextBox(meterA.getDataInfo());
-	    DisplayTextBox boxB = new DisplayTextBox(meterB.getDataInfo());
+	    DisplayTextBox boxA = new DisplayTextBox();
+	    DisplayTextBox boxB = new DisplayTextBox();
 	    boxA.setPrecision(3);
 	    boxB.setPrecision(3);
 	    boxA.setIntegerDisplay(true);
@@ -122,7 +122,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		//tubePanelSlider.setMaximum(24);
 		
 	    //Display to see adjusted temperature
-		DisplayTextBox box1 = new DisplayTextBox(sim.thermometer.getDataInfo());
+		DisplayTextBox box1 = new DisplayTextBox();
 	    final DataPump tpump = new DataPump(sim.thermometer, box1);
 	    IntegratorListenerAction tpumpListener = new IntegratorListenerAction(tpump);
         sim.integratorDCV.getEventManager().addListener(tpumpListener);

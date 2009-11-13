@@ -19,7 +19,8 @@ public class DisplayTimer extends DisplayTextBox {
     }
         
     private DisplayTimer(IntegratorMD integrator, DataSourceCountTime timer) {
-        super(timer.getDataInfo());
+        super();
+        putDataInfo(timer.getDataInfo());
         this.timer = timer;
         this.integrator = integrator;
         dataPump = new DataPump(timer, this);
