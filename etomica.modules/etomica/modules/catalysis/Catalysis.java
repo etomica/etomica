@@ -63,7 +63,7 @@ public class Catalysis extends Simulation {
         double sigmaS = 3.7;
         double epsilonO = 1000*Mole.UNIT.fromSim(Calorie.UNIT.toSim(0.15));
         double epsilonC = 1000*Mole.UNIT.fromSim(Calorie.UNIT.toSim(0.08));
-        double epsilonOS = 10*epsilonO;
+        double epsilonOS = 5*epsilonO;
         double epsilonCS = 10*epsilonC;
         
 	    //species and potentials
