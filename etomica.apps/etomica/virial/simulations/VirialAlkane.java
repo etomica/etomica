@@ -25,7 +25,6 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
@@ -77,6 +76,7 @@ public class VirialAlkane {
         int nSpheres = params.nSpheres;
         double temperature = params.temperature;
         long steps = params.numSteps;
+        double refFreq = params.refFreq;
         double sigmaCH2 = 3.95;
         double sigmaCH3 = 3.75;
         double sigmaHSRef = sigmaCH3 + 0.5*nSpheres;
@@ -120,10 +120,12 @@ public class VirialAlkane {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
         final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
                           temperature,refCluster,targetCluster, nSpheres > 2);
-        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
-//        sim.integratorOS.setAdjustStepFreq(false);
-//        sim.integratorOS.setStepFreq0(1);
+//        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
+//        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
+        if (refFreq >= 0) {
+            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setStepFreq0(refFreq);
+        }
 
         SpeciesAlkane species = (SpeciesAlkane)sim.species;
         IAtomType typeCH3 = species.getAtomType(0);
@@ -237,8 +239,10 @@ public class VirialAlkane {
                 throw new RuntimeException("Oops");
             }
             
-            final DisplayTextBox averageBox = new DisplayTextBox("Average", Quantity.SIM_UNIT);
-            final DisplayTextBox errorBox = new DisplayTextBox("Error", Quantity.SIM_UNIT);
+            final DisplayTextBox averageBox = new DisplayTextBox();
+            averageBox.setLabel("Average");
+            final DisplayTextBox errorBox = new DisplayTextBox();
+            errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
             final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
@@ -355,5 +359,6 @@ public class VirialAlkane {
         public int nSpheres = 5;
         public double temperature = 300.0;   // Kelvin
         public long numSteps = 10000;
+        public double refFreq = -1;
     }
 }
