@@ -136,8 +136,10 @@ public class VirialLJRejected {
                 throw new RuntimeException("Oops");
             }
             
-            final DisplayTextBox averageBox = new DisplayTextBox("Average", Quantity.SIM_UNIT);
-            final DisplayTextBox errorBox = new DisplayTextBox("Error", Quantity.SIM_UNIT);
+            final DisplayTextBox averageBox = new DisplayTextBox();
+            averageBox.setLabel("Average");
+            final DisplayTextBox errorBox = new DisplayTextBox();
+            errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
             final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
