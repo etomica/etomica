@@ -21,7 +21,15 @@ public class P1Constraint extends Potential1{
 		latticeSite = space.makeVectorArray(siteIndex);
 				
 		double neighborRadius = primitive.getSize()[0];
-		radiusInner = neighborRadius*neighborRadius/25;
+		
+		if(box.getLeafList().getAtomCount()==32){
+			radiusInner = neighborRadius*neighborRadius/32;
+			
+		} else {
+			radiusInner = neighborRadius*neighborRadius/8;
+			
+		}
+		
 		
 		System.out.println("radiusInner: "+Math.sqrt(radiusInner));
 		//Lattice Site Assignment
@@ -83,6 +91,6 @@ public class P1Constraint extends Potential1{
 	private IVectorMutable[] latticeSite; 
 	private IVectorMutable[][] neighborSite;
 	private int siteIndex;
-	private final double radiusInner;
+	private double radiusInner;
 	
 }
