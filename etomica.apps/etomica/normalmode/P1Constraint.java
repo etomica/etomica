@@ -21,9 +21,9 @@ public class P1Constraint extends Potential1{
 		latticeSite = space.makeVectorArray(siteIndex);
 				
 		double neighborRadius = primitive.getSize()[0];
-		radiusInner = neighborRadius*neighborRadius/8;
-		radiusOuter = neighborRadius*neighborRadius/6;
+		radiusInner = neighborRadius*neighborRadius/25;
 		
+		System.out.println("radiusInner: "+Math.sqrt(radiusInner));
 		//Lattice Site Assignment
 		for(int i=0; i<siteIndex; i++){
 			latticeSite[i] = coordinateDefinition.getLatticePosition(box.getLeafList().getAtom(i));
@@ -35,7 +35,6 @@ public class P1Constraint extends Potential1{
 		
 		for (int i=0; i<siteIndex; i++){
 			for (int j=0; j<siteIndex; j++){
-				
 				neighborSite[i][j]= space.makeVector();
 
 			}
@@ -47,6 +46,7 @@ public class P1Constraint extends Potential1{
 			for(int j=0; j<siteIndex; j++){
 			
 				distance.Ev1Mv2(latticeSite[j], latticeSite[i]);
+				box.getBoundary().nearestImage(distance);
 				double distCheck = Math.sqrt(distance.squared());
 				
 				if (distCheck >0.00000001 && distCheck < neighborRadius-0.000001){
@@ -54,7 +54,6 @@ public class P1Constraint extends Potential1{
 					neighborSite[i][k].E(latticeSite[j]);
 					k++;
 				}
-			
 			}
 		}
 		
@@ -65,10 +64,6 @@ public class P1Constraint extends Potential1{
 		return radiusInner;
 	}
 	
-	public double getOuterRadius(){
-		return radiusOuter;
-	}
-
 	@Override
 	public double energy(IAtomList atoms) {
 		
@@ -81,28 +76,13 @@ public class P1Constraint extends Potential1{
 			return 0;
 		} 
 		
-		if (d > radiusOuter){
-			return Double.POSITIVE_INFINITY;
-		} 
-		
-		for (int i=0; i<neighborSite[atomIndex].length; i++){
-			double dNeighbor = posAtom.Mv1Squared(neighborSite[atomIndex][i]);
-			
-			if (d > dNeighbor){
-				return Double.POSITIVE_INFINITY;
-			} 
-		}
-		
-		return 0;
+		return Double.POSITIVE_INFINITY;
 	}
 
 	
 	private IVectorMutable[] latticeSite; 
 	private IVectorMutable[][] neighborSite;
 	private int siteIndex;
-	private final double radiusInner, radiusOuter;
+	private final double radiusInner;
 	
-
-
-
 }
