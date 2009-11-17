@@ -1,7 +1,8 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
+import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
@@ -9,15 +10,21 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
+import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2;
+import etomica.potential.Potential2HardSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 
 
@@ -50,7 +57,7 @@ public class MeterDifferentImage extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
-    public MeterDifferentImage(String string, IPotentialMaster potentialMaster, 
+    public MeterDifferentImage(String string, /*IPotentialMaster potentialMaster,*/ 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
             NormalModes simNM, double temp){
@@ -90,12 +97,31 @@ public class MeterDifferentImage extends DataSourceScalar {
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
         setStdDev(nm.getOmegaSquared(), wvCoeff);
         
+        PotentialMasterList potentialMaster = new PotentialMasterList(sim, sim.getSpace());
+        Potential2 potential = new P2HardSphere(sim.getSpace(), 1.0, true);
+        potential = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)potential);
+        potential.setBox(box);
+        potentialMaster.addPotential(potential, new IAtomType[] {((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType(), ((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType()});
+        double neighborRange = 1.01/density;
+        potentialMaster.setRange(neighborRange);
+        //find neighbors now.  Don't hook up NeighborListManager since the
+        //  neighbors won't change
+        potentialMaster.getNeighborManager(box).reset();
+        
+        
+        
+        
         
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
     }
     
     public double getDataAsScalar() {
+        
+        IAtomList atomlist = box.getLeafList();
+//        for (int i = 0; i < atomlist.getAtomCount(); i++){
+//            System.out.println("start i " + atomlist.getAtom(i).getPosition().getX(0));
+//        }
 
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
@@ -156,14 +182,20 @@ public class MeterDifferentImage extends DataSourceScalar {
             cDef.setToU(cells[iCell].molecules, newU);
         }
         
+//        for (int i = 0; i < atomlist.getAtomCount(); i++){
+//            System.out.println("end i " + atomlist.getAtom(i).getPosition().getX(0));
+//        }
+//        System.out.println(".");
         
-        //Check for overlap
-        double energy = meterPE.getDataAsScalar();
         
-        if(Double.isInfinite(energy)) {
-            return 0;
-        } else {
-            return 1;
+        
+        //Check for overlap & return based on it.
+           if(Double.isInfinite(meterPE.getDataAsScalar())) {
+//               System.out.println("0");
+               return 0;
+           } else {
+//               System.out.println("1");
+               return 1;
         }
     }
 

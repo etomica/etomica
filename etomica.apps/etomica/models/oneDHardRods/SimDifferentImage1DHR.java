@@ -168,7 +168,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.setChangeableWVs(changeable);
         
-        meterdi = new MeterDifferentImage("MeterDI", potentialMaster, numAtoms, density, (Simulation)this, 
+        meterdi = new MeterDifferentImage("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
                 primitive, basis, coordinateDefinition, nm, 1.0);
         
         accumulatorDI = new AccumulatorAverageFixed(blocksize);
@@ -293,7 +293,7 @@ public class SimDifferentImage1DHR extends Simulation {
         public int nBins = 200;
         
         public int blockSize = 1000;
-        public long numSteps = 1000000;
+        public long numSteps = 1000000000000L;
     }
 
 }
