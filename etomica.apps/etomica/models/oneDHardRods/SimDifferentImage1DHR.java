@@ -3,6 +3,7 @@ package etomica.models.oneDHardRods;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
@@ -33,6 +34,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
@@ -79,10 +81,10 @@ public class SimDifferentImage1DHR extends Simulation {
             int blocksize, int[] changeable) {
         super(_space);
         
-//        long seed = 3;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 3;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
@@ -167,7 +169,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setChangeableWVs(changeable);
         
         meterdi = new MeterDifferentImage("MeterDI", potentialMaster, numAtoms, density, (Simulation)this, 
-                primitive, basis, coordinateDefinition, nm);
+                primitive, basis, coordinateDefinition, nm, 1.0);
         
         accumulatorDI = new AccumulatorAverageFixed(blocksize);
         DataPump pumpFromMeter = new DataPump(meterdi, accumulatorDI);
