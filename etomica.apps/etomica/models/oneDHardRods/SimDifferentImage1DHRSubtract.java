@@ -3,10 +3,14 @@ package etomica.models.oneDHardRods;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
-import etomica.data.DataSplitter;
+import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
@@ -29,28 +33,27 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
  * MC simulation
+ * 
  * 1D hard rods
  * No graphic display
  * Output: histogram files of probability that a mode is zero
  * Calculate free energy of solid
  * 
- * Treats modes as degrees of freedom; keeps one rod at each end that does not
- * move by central image.
+ * Treats modes as degrees of freedom; uses a MeterDifferentImage to calculate 
+ * what happens when an extra mode is added.
  * 
  */
 
 /*
  * Starts in notes 7/09
  */
-public class SimDifferentImage extends Simulation {
+public class SimDifferentImage1DHRSubtract extends Simulation {
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDegreeFreedom1DHR";
@@ -64,22 +67,24 @@ public class SimDifferentImage extends Simulation {
     public IBox box;
     public Boundary bdry;
     public CoordinateDefinition coordinateDefinition;
-    MeterDifferentImageAdd meternmc;
+    MeterDifferentImageSubtract meterdi;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
-    MCMoveChangeSingleWVLoop mcMoveMode;
+    MCMoveChangeMultipleWV mcMoveMode;
     AccumulatorHistogram[] hists;
     int harmonicWV;
     boolean[] skipThisMode;
+    AccumulatorAverageFixed accumulatorDI;
 
 
-    public SimDifferentImage(Space _space, int numAtoms, double density, int blocksize, int nbs) {
+    public SimDifferentImage1DHRSubtract(Space _space, int numAtoms, double density, 
+            int blocksize, int[] changeable) {
         super(_space);
         
-//        long seed = 3;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 3;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
@@ -153,7 +158,7 @@ public class SimDifferentImage extends Simulation {
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         
-        mcMoveMode = new MCMoveChangeSingleWVLoop(potentialMaster, random);
+        mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
@@ -161,28 +166,17 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+        mcMoveMode.setChangeableWVs(changeable);
         
-//        meternmc = new MeterDifferentImage(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
-//        meternmc.setEigenVectors(nm.getEigenvectors());
-//        meternmc.setOmegaSquared(nm.getOmegaSquared());
+        meterdi = new MeterDifferentImageSubtract("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
+                primitive, basis, coordinateDefinition, nm, 1.0);
         
-        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
-        hists = new AccumulatorHistogram[coordNum];
-        DataSplitter splitter = new DataSplitter();
-        DataPump pumpFromMeter = new DataPump(meternmc, splitter);
+        accumulatorDI = new AccumulatorAverageFixed(blocksize);
+        DataPump pumpFromMeter = new DataPump(meterdi, accumulatorDI);
         
-        DoubleRange range = new DoubleRange(-1.0, 1.0);
-        Histogram template;
-        for(int i = 0; i < coordNum; i++){
-            if(skipThisMode[i]) {continue;}
-            template = new HistogramSimple(nbs, range);
-            hists[i] = new AccumulatorHistogram(template, nbs);
-            splitter.setDataSink(i, hists[i]);
-        }
-        
-        IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
-        pumpFromMeterListener.setInterval(blocksize);
-        integrator.getEventManager().addListener(pumpFromMeterListener);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pumpFromMeter);
+        pumpListener.setInterval(blocksize);
+        integrator.getEventManager().addListener(pumpListener);
         
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
@@ -201,9 +195,12 @@ public class SimDifferentImage extends Simulation {
 //        }
     }
 
-    private void setHarmonicWV(int hwv){
-        harmonicWV = hwv;
-        mcMoveMode.setHarmonicWV(hwv);
+    public Primitive getPrimitive() {
+        return primitive;
+    }
+
+    public BasisMonatomic getBasis() {
+        return basis;
     }
     
     /**
@@ -231,10 +228,9 @@ public class SimDifferentImage extends Simulation {
             filename = "1DHR";
         }
         double temperature = params.temperature;
-        int comparedWV = params.comparedWV;
+        int[] changeableWV = params.changeableWV;
         long nSteps = params.numSteps;
         int bs = params.blockSize;
-        int nbins = params.nBins;
         String outputfn = params.outputname;
         
         System.out.println("Running "
@@ -242,43 +238,26 @@ public class SimDifferentImage extends Simulation {
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
         System.out.println(nSteps + " steps, " + bs + " blocksize");
-        System.out.println(nbins + " starting number of bins");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, density, bs, nbins);
+        SimDifferentImage1DHR sim = new SimDifferentImage1DHR(Space.getInstance(D),
+                nA, density, bs, changeableWV);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
-        sim.setHarmonicWV(comparedWV);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
         sim.getController().reset();
-
-        int accumulatorLength = sim.hists.length;
-        for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i]) {continue;}
-            sim.hists[i].reset();
-        }
        
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
         
-        /* 
-         * This loop creates a new write class for each histogram from each 
-         * AccumulatorHistogram, changes the filename for the histogram output,
-         * connects the write class with this histogram, and 
-         * writes out the results to the file.
-         */
-        WriteHistograms wh;
-        for(int i = 0; i < accumulatorLength; i++){
-            if(sim.skipThisMode[i]) {continue;}
-            String outputName = new String(outputfn + "_" + i);
-            wh = new WriteHistograms(outputName);
-            wh.setHistogram(sim.hists[i].getHistograms());
-            wh.actionPerformed();
-        }
+      //After processing...
+        DataGroup group = (DataGroup)sim.accumulatorDI.getData();
+        double results = ((DataDouble)group.getData(StatType.AVERAGE.index)).x;
+        System.out.println("results: " + results);
         
 //        IAtomList leaflist = sim.box.getLeafList();
 //        double[] locations = new double[nA];
@@ -302,7 +281,7 @@ public class SimDifferentImage extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 3;
         public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -310,11 +289,11 @@ public class SimDifferentImage extends Simulation {
         public String inputfilename = "input";
         public String outputname = "hists";
         public double temperature = 1.0;
-        public int comparedWV = numAtoms/2;
+        public int[] changeableWV = {0, 1, 2, 3, 4};
         public int nBins = 200;
         
         public int blockSize = 1000;
-        public long numSteps = 10000;
+        public long numSteps = 100000;
     }
 
 }

@@ -36,7 +36,7 @@ import etomica.units.Null;
  * @author cribbin
  *
  */
-public class MeterDifferentImage extends DataSourceScalar {
+public class MeterDifferentImageAdd extends DataSourceScalar {
 
     public int nInsert, counter;
     private MeterPotentialEnergy meterPE;
@@ -57,7 +57,7 @@ public class MeterDifferentImage extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
-    public MeterDifferentImage(String string, /*IPotentialMaster potentialMaster,*/ 
+    public MeterDifferentImageAdd(String string, /*IPotentialMaster potentialMaster,*/ 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
             NormalModes simNM, double temp){
