@@ -60,7 +60,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         panelParentGroup.add(currentBox.graphic(), java.awt.BorderLayout.WEST);
         panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.CENTER);
         panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
-        setLabel(label);
+        setLabel("");
         setLabelType(LabelType.STRING);
         setPrecision(4);
 	}
