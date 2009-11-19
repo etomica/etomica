@@ -11,9 +11,9 @@ import etomica.units.Undefined;
 
 /**
  * Meter for calculation of structure factor of a group of atoms based on a
- * particular wave vector.  The meter is initially constructed the smallest 
+ * particular wave vector.  The meter is initially constructed using the smallest 
  * reciprocal lattice vector as the wave vector and loops over all atoms in
- * the box.  GetData returns the square of the magnitutde of the structure factor.
+ * the box.  GetData returns the square of the magnitude of the structure factor.
  *
  * @author Michael Sellers
  */
@@ -54,8 +54,11 @@ public class MeterStructureFactor extends DataSourceScalar {
 	}
 	
 	public void reset() {
+		
 		for(int i=0; i<waveVec.length; i++){
-        	waveVec[i].E(lattice.getPrimitive().makeReciprocal().vectors()[i]);
+        	waveVec[i].setX(0, 0.0);
+        	waveVec[i].setX(1, 0.0);
+        	waveVec[i].setX(2, 0.0);
         	struct[i] = 0.0;
 		}
 		
@@ -85,9 +88,11 @@ public class MeterStructureFactor extends DataSourceScalar {
 	/**
 	 * @param waveVec Sets a custom wave vector array.
 	 */
-	public void setWaveVec(IVectorMutable [] waveVec){
-		for(int i=0; i<waveVec.length; i++){
-			this.waveVec[i].E(waveVec[i]);
+	public void setWaveVec(IVectorMutable [] _waveVec){
+		 waveVec = space.makeVectorArray(_waveVec.length);
+		 struct = new double[waveVec.length];
+		for(int i=0; i<_waveVec.length; i++){
+			waveVec[i].E(_waveVec[i]);
 		}
 		
 	}
