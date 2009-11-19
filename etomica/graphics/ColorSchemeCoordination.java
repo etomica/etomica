@@ -1,0 +1,43 @@
+package etomica.graphics;
+
+import java.awt.Color;
+
+import etomica.api.IAtom;
+import etomica.api.IAtomList;
+import etomica.api.IBox;
+import etomica.api.ISimulation;
+import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.list.PotentialMasterList;
+
+public class ColorSchemeCoordination extends ColorSchemeCollectiveAgent {
+    
+    public ColorSchemeCoordination(ISimulation sim, PotentialMasterList potentialMaster, IBox box) {
+        super(box);
+
+        leafList = box.getLeafList();
+        nbrManager = potentialMaster.getNeighborManager(box);
+        colors = new Color[]{Color.WHITE,Color.MAGENTA, Color.RED, Color.ORANGE,Color.GRAY,Color.GREEN,Color.BLUE,Color.WHITE};
+    }
+    
+    public void colorAllAtoms() {
+    	
+		//color all atoms according to their type
+        int nLeaf = leafList.getAtomCount();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            IAtom atom = leafList.getAtom(iLeaf);
+            
+            int coordNum = nbrManager.getDownList(atom)[0].getAtomCount();
+            coordNum += nbrManager.getUpList(atom)[0].getAtomCount();
+            
+            if(coordNum>colors.length-1){
+            	coordNum = colors.length-1;	
+            }
+            agentManager.setAgent(atom, colors[coordNum]);
+        }
+    }
+        
+    private static final long serialVersionUID = 1L;
+    private final IAtomList leafList;
+    private Color[] colors;
+    private NeighborListManager nbrManager;
+}
