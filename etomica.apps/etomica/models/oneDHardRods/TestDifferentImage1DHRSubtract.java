@@ -53,7 +53,7 @@ import etomica.util.ReadParameters;
 /*
  * Starts in notes 7/09
  */
-public class SimDifferentImage1DHRSubtract extends Simulation {
+public class TestDifferentImage1DHRSubtract extends Simulation {
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDegreeFreedom1DHR";
@@ -77,14 +77,14 @@ public class SimDifferentImage1DHRSubtract extends Simulation {
     AccumulatorAverageFixed accumulatorDI;
 
 
-    public SimDifferentImage1DHRSubtract(Space _space, int numAtoms, double density, 
+    public TestDifferentImage1DHRSubtract(Space _space, int numAtoms, double density, 
             int blocksize, int[] changeable) {
         super(_space);
         
-        long seed = 3;
-        System.out.println("Seed explicitly set to " + seed);
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 3;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
@@ -129,27 +129,6 @@ public class SimDifferentImage1DHRSubtract extends Simulation {
         //Set up skip-these-modes code
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared();
-        int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
-        skipThisMode = new boolean[2*jump];
-        for(int i = 0; i < 2*jump; i++){
-            skipThisMode[i] = false;
-        }
-        for(int wvCount = 0; wvCount < wvc.length; wvCount++){
-            //Sets up the imaginary modes that should be skipped.
-            if(wvc[wvCount] == 0.5) {
-                for(int j = 0; j < coordinateDim; j++){
-                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
-                }
-            }
-            //Sets up the modes that are center of mass motion to skip
-            for(int j = 0; j < omega[wvCount].length; j++){
-                if(Double.isInfinite(omega[wvCount][j])){
-                    skipThisMode[j + coordinateDim*wvCount] = true;
-                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
-
-                }
-            }
-        }
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
         mcMoveAtom.setPotential(potential);
@@ -181,18 +160,6 @@ public class SimDifferentImage1DHRSubtract extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
         
-        
-//        IAtomList leaflist = box.getLeafList();
-//        double[] locations = new double[numAtoms];
-//        System.out.println("starting positions:");
-//        for(int i = 0; i < numAtoms; i++){
-//            //one d is assumed here.
-//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
-//        }
-//        
-//        for(int i = 0; i < numAtoms; i++){
-//            System.out.println(i + "  " + locations[i]);
-//        }
     }
 
     public Primitive getPrimitive() {
@@ -242,7 +209,7 @@ public class SimDifferentImage1DHRSubtract extends Simulation {
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimDifferentImage1DHR sim = new SimDifferentImage1DHR(Space.getInstance(D),
+        TestDifferentImage1DHRSubtract sim = new TestDifferentImage1DHRSubtract(Space.getInstance(D),
                 nA, density, bs, changeableWV);
         
         // start simulation
@@ -259,18 +226,6 @@ public class SimDifferentImage1DHRSubtract extends Simulation {
         double results = ((DataDouble)group.getData(StatType.AVERAGE.index)).x;
         System.out.println("results: " + results);
         
-//        IAtomList leaflist = sim.box.getLeafList();
-//        double[] locations = new double[nA];
-//        System.out.println("final:");
-//        for(int i = 0; i < nA; i++){
-//            //one d is assumed here.
-//            locations[i] = ( ((Atom)leaflist.getAtom(i)).getPosition().x(0) );
-//        }
-//        
-//        for(int i = 0; i < 32; i++){
-//            System.out.println(i + "  " + locations[i]);
-//        }
-        
         if(D==1) {
             double AHR = -(nA-1)*Math.log(nA/density-nA)
                 + SpecialFunctions.lnFactorial(nA) ;
@@ -281,7 +236,7 @@ public class SimDifferentImage1DHRSubtract extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 3;
+        public int numAtoms = 10;
         public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -290,7 +245,6 @@ public class SimDifferentImage1DHRSubtract extends Simulation {
         public String outputname = "hists";
         public double temperature = 1.0;
         public int[] changeableWV = {0, 1, 2, 3, 4};
-        public int nBins = 200;
         
         public int blockSize = 1000;
         public long numSteps = 100000;
