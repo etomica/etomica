@@ -48,19 +48,10 @@ public class MeterWorkHarmonicBennet implements IEtomicaDataSource {
     	double overlapEnergy = -Math.log(ratio);
     	double harmonicEnergy = mcMoveHarmonic.getLastTotalEnergy()/temperature;
         data.x = overlapEnergy - harmonicEnergy;
-   
-        /*
-         * to take care of the limit when e1 --> 0
-         */
-        if (e1 < 1e-100){
-            numSum += 0.0;              
 
-        } else {
-        	numSum += data.x*(ratio/e0);
-        	
-        }
-        
+       	numSum += data.x*(ratio/e0);
         denomSum += ratio/e0;
+        
         return data;
     }
     
