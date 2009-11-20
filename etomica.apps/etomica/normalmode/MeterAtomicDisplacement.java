@@ -114,11 +114,11 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
 
 	public DataDoubleArray getIndependentData(int i) {
 		
-        if (rDataInfo != null || rDataInfo.getLength() != histogram.getNBins()) {
+        //if (rDataInfo != null || rDataInfo.getLength() != histogram.getNBins()) {
             distanceR = new DataDoubleArray(histogram.getNBins());
-            rDataInfo = new DataInfoDoubleArray("Atomic Distance", Length.DIMENSION, new int[]{histogram.getNBins()});
-            rDataInfo.addTag(tag);
-        }
+           // rDataInfo = new DataInfoDoubleArray("Atomic Distance", Length.DIMENSION, new int[]{histogram.getNBins()});
+          //  rDataInfo.addTag(tag);
+        //}
 		distanceR.E(histogram.xValues());
 		
 		return distanceR;
@@ -127,11 +127,11 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
 
 
 	public DataInfoDoubleArray getIndependentDataInfo(int i) {
-	    if (rDataInfo != null || rDataInfo.getLength() != histogram.getNBins()) {
-            distanceR = new DataDoubleArray(histogram.getNBins());
+	    //if (rDataInfo != null || rDataInfo.getLength() != histogram.getNBins()) {
+           // distanceR = new DataDoubleArray(histogram.getNBins());
 	        rDataInfo = new DataInfoDoubleArray("Atomic Distance", Length.DIMENSION, new int[]{histogram.getNBins()});
-	        rDataInfo.addTag(tag);
-	    }
+	      //  rDataInfo.addTag(tag);
+	    //}
 		return rDataInfo;
 	}
 

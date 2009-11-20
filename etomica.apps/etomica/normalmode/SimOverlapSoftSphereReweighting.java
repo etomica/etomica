@@ -197,18 +197,14 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         refPref = refPrefCenter;
         accumulators[0].setBennetParam(refPrefCenter,span);
         accumulators[1].setBennetParam(refPrefCenter,span);
-        // needed for Bennett sampling
-//        if (accumulators[0].getNBennetPoints() == 1) {
-//            ((MeterBoltzmannHarmonic)meters[0]).refPref = refPrefCenter;
-//            ((MeterBoltzmannTarget)meters[1]).refPref = refPrefCenter;
-//        }
+
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
 
         accumulators[iBox] = newAccumulator;
     
-        newAccumulator.setBlockSize(200); // setting the block size = 300
+        newAccumulator.setBlockSize(200); 
         
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],newAccumulator);
@@ -429,34 +425,18 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         
         sim.integrators[1].getEventManager().addListener(dataPumpTarget);
         
-        
-        double[][] omega2 = sim.normalModes.getOmegaSquared();
-        double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-        double AHarmonic = 0;
-        for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<omega2[0].length; j++) {
-                if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
-                }
-            }
-        }
-
         int totalCells = 1;
         for (int i=0; i<D; i++) {
             totalCells *= sim.nCells[i];
         }
         int basisSize = sim.basis.getScaledCoordinates().length;
-        double fac = 1;
-        if (totalCells % 2 == 0) {
-            fac = Math.pow(2,D);
-        }
-        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
-      
+        
+        double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, basisSize*totalCells);
+        System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numMolecules);
+       
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
                
-        System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
-        System.out.println(" ");
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
         double ratio = sim.dsvo.getDataAsScalar();

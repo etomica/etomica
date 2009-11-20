@@ -56,11 +56,11 @@ public class SimCalcS extends Simulation {
         potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
                 sphereType });
 
-        int nCells;
+        int n;
         Basis basis;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
-            nCells = numAtoms;
+            n = numAtoms;
             bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
             ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space), sphereType);
             basis = new BasisMonatomic(space);
@@ -68,18 +68,23 @@ public class SimCalcS extends Simulation {
             primitive = new PrimitiveCubic(space, 1);
             double v = primitive.unitCell().getVolume();
             primitive.scaleSize(Math.pow(v*density/4,-1.0/3.0));
-            nCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            bdry = new BoundaryDeformableLattice(primitive, new int[]{nCells,nCells,nCells});
-            basis = new BasisCubicFcc();
+            n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            int [] nCells = new int[]{n,n,n};
+            bdry = new BoundaryDeformableLattice(primitive, new int[]{n,n,n});
+            Basis basisFCC = new BasisCubicFcc();
+            basis = new BasisBigCell(space, primitive, basisFCC, nCells);
+            primitive.scaleSize(n);
+            
         }
         box.setBoundary(bdry);
-
+        
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         if (space.D() == 1) {
-            coordinateDefinition.initializeCoordinates(new int[]{nCells});
+            coordinateDefinition.initializeCoordinates(new int[]{n});
         }
         else {
-            coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+        	
+            coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         }
         
         integrator.setBox(box);

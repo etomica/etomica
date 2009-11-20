@@ -34,10 +34,7 @@ public class MeterSamplingHarmonic implements IEtomicaDataSource {
     	double uHarmonic = mcMove.getHarmonicEnergy();
     	double exp_uTarget = Math.exp(-uTarget /integrator.getTemperature());
     	double exp_uHarmonic = Math.exp(-uHarmonic /integrator.getTemperature());
-//    	double exp_2uTarget = exp_uTarget*exp_uTarget;
-//    	double exp_2uHarmonic = exp_uHarmonic*exp_uHarmonic;
     	
-//    	double gamma = Math.sqrt(exp_2uTarget + refPref*refPref*exp_2uHarmonic);
        	double gamma = exp_uTarget + refPref*exp_uHarmonic;   	
     	data.x = exp_uHarmonic / gamma;
         

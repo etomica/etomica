@@ -93,9 +93,6 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         
         gamma_Old = exp_uOld + refPref*exp_uOldHarmonic;
         
-//        System.out.println("exp_uOld: "+ exp_uOld);
-//        System.out.println("exp_uOldHarmonic: "+exp_uOldHarmonic);
-//        System.out.println("gamma_Old: "+ gamma_Old);
         
         pair.atom0 = atom0;
         pair.atom1 = atom1;
@@ -112,14 +109,8 @@ public class MCMoveAtomCoupledUmbrella extends MCMoveBoxStep {
         uHarmonicNew = harmonicEnergyMeter.getDataAsScalar();
         double exp_uNew = Math.exp(-uNew /temperature);
         double exp_uNewHarmonic = Math.exp(-uHarmonicNew/ temperature);
-        //double exp_2uNew = exp_uNew*exp_uNew;
-        //double exp_2uNewHarmonic = exp_uNewHarmonic*exp_uNewHarmonic;
         
         gamma_New = exp_uNew + refPref*exp_uNewHarmonic;
-        
-//        System.out.println("\nexp_uNew: "+ exp_uNew);
-//        System.out.println("uexp_NewHarmonic: "+exp_uNewHarmonic);
-//        System.out.println("gamma_New: "+ gamma_New+ "\n");
         
         return true;
     }//end of doTrial

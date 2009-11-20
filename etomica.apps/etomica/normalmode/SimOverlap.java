@@ -12,13 +12,10 @@ import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataFork;
-import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
-import etomica.data.DataTableWriter;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -42,7 +39,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistogramCollapsing;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
@@ -66,6 +62,7 @@ public class SimOverlap extends Simulation {
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+
         species.setIsDynamic(true);
         addSpecies(species);
 
@@ -104,16 +101,18 @@ public class SimOverlap extends Simulation {
             basis = new BasisMonatomic(space);
         } else {
             double L = Math.pow(4.0/density, 1.0/3.0);
-            primitive = new PrimitiveCubic(space, L);
+            Primitive primitiveImag = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             nCells = new int[]{n,n,n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
-            basis = new BasisCubicFcc();
+            Basis basisFCC = new BasisCubicFcc();
+            basis = new BasisBigCell(space, primitiveImag, basisFCC, nCells);
+            primitive = new PrimitiveCubic(space, n*L);
         }
         boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        coordinateDefinitionTarget.initializeCoordinates(nCells);
+        coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
 
         double neighborRange;
         if (space.D() == 1) {
@@ -149,7 +148,7 @@ public class SimOverlap extends Simulation {
         integrators[0] = integratorHarmonic;
         
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(nCells);
+        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
 
         if(space.D() == 1) {
             normalModes = new NormalModes1DHR(boundaryTarget, numAtoms);
@@ -359,16 +358,17 @@ public class SimOverlap extends Simulation {
         //instantiate simulation
         SimOverlap sim = new SimOverlap(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge);
 
-        double AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, numMolecules);
+        int totalCells = 1;
+        for (int i=0; i<D; i++) {
+            totalCells *= sim.nCells[i];
+        }
+        int basisSize = sim.basis.getScaledCoordinates().length;
+
+        double AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, basisSize*totalCells);
 
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
-
-//        StopWatcher stopWatcher = new StopWatcher("stop", sim, filename);
-//        IntervalActionAdapter iaa = new IntervalActionAdapter(stopWatcher);
-//        iaa.setActionInterval(100);
-//        sim.integratorOverlap.addListener(iaa);
 
         sim.initRefPref(refFileName, numSteps/20);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
@@ -395,10 +395,10 @@ public class SimOverlap extends Simulation {
         
         AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
         dataForkHarmonic.addDataSink(dataAverageHarmonic);
-        
+        /*
         AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramCollapsing());
         dataForkHarmonic.addDataSink(histogramHarmonic);
-        
+        */
         sim.integrators[0].getEventManager().addListener(pumpHarmonic);
         //
         
@@ -412,10 +412,10 @@ public class SimOverlap extends Simulation {
         
         AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
         dataForkTarget.addDataSink(dataAverageTarget);
-        
+        /*
         AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramCollapsing());
         dataForkTarget.addDataSink(histogramTarget);
-        
+        */
         sim.integrators[1].getEventManager().addListener(pumpTarget);
         
         //
@@ -440,7 +440,7 @@ public class SimOverlap extends Simulation {
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
         System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-
+/*
         double betaUab = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
         double betaUba = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
         
@@ -449,31 +449,11 @@ public class SimOverlap extends Simulation {
         
         System.out.println("betaUab: "+betaUab + " ,err: "+err_betaUab);
         System.out.println("betaUba: "+betaUba + " ,err: "+err_betaUba);
-        
+  */      
         if(D==1) {
-            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules-1) ;
+            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
-        
-        //Harmonic
-        DataLogger dataLogger1 = new DataLogger();
-        DataTableWriter dataTableWriter1 = new DataTableWriter();
-        dataLogger1.setFileName(filename + "_hist_HarmTarg");
-        dataLogger1.setDataSink(dataTableWriter1);
-        dataTableWriter1.setIncludeHeader(false);
-        dataLogger1.putDataInfo(histogramHarmonic.getDataInfo());
-        dataLogger1.putData(histogramHarmonic.getData());
-        dataLogger1.closeFile();
-        
-        //Target
-        DataLogger dataLogger2 = new DataLogger();
-        DataTableWriter dataTableWriter2 = new DataTableWriter();
-        dataLogger2.setFileName(filename + "_hist_TargHarm");
-        dataLogger2.setDataSink(dataTableWriter2);
-        dataTableWriter2.setIncludeHeader(false);
-        dataLogger2.putDataInfo(histogramTarget.getDataInfo());
-        dataLogger2.putData(histogramTarget.getData());
-        dataLogger2.closeFile();
         
         
     }
@@ -502,12 +482,12 @@ public class SimOverlap extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 10;
-        public double density = 0.1;
-        public int D = 1;
+        public int numMolecules = 32;
+        public double density = 1.3;
+        public int D = 3;
         public long numSteps = 100000;
         public double harmonicFudge = 1;
-        public String filename = "S_d120_N32_s1000";
+        public String filename = "normal_modes3D_32_130_cubic";
         public double temperature = 1.0;
     }
 }

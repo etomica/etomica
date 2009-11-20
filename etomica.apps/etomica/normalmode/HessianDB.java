@@ -16,10 +16,11 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
@@ -49,7 +50,6 @@ public class HessianDB extends Simulation {
          * Creating new basis
          */
         
-        BasisNMOneCell scaledBasis = new BasisNMOneCell(space, numAtoms, density);
         potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(this, potentialMaster);
         
@@ -63,12 +63,13 @@ public class HessianDB extends Simulation {
         double L = Math.pow(4.0/density, 1.0/3.0);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
        	primitive = new PrimitiveCubic(space, n*L);
-       	nCells = new int[]{1,1,1};
-       	boundary = new BoundaryRectangularPeriodic(space, n * L);
-       	basis = new Basis(scaledBasis.getScaledBasis());
+       	nCells = new int[]{n,n,n};
+       	boundary = new BoundaryRectangularPeriodic(space, n*L);
+       	basisFCC = new BasisCubicFcc();
+       	basis = new BasisBigCell(space, primitive, basisFCC, nCells);
        	
-        Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundary.getBoxSize().getX(0) * 0.45;
+        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
+        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
       
         IAtomType sphereType = species.getLeafType();
@@ -76,7 +77,7 @@ public class HessianDB extends Simulation {
         box.setBoundary(boundary);
         
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(nCells);
+        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
         
         if (!getFile){
        
@@ -269,41 +270,48 @@ public class HessianDB extends Simulation {
     	
         // defaults
         int D = 3;
-        int nA =4;
-        double density = 0.962;
-        double temperature = 0.5479;
+        int nA =32;
+        double density = 1.256;
+        double temperature = 1.0;
         int exponent = 12 ;
-        String filename = "LJDB_nA"+nA+"_d0962";
+        String filename = "inputSSDB"+nA;//+"_d0962";
         // construct simulation
         boolean getInitFile = true;
-        HessianDB sim = new HessianDB(Space.getInstance(D), nA, density, temperature, exponent, filename, getInitFile);
+        //HessianDB sim = new HessianDB(Space.getInstance(D), nA, density, temperature, exponent, filename, getInitFile);
         
         
        // SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
        // simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
        // simGraphic.makeAndDisplayFrame("Test");
         
-        MeterWorkHarmonicPhaseSpace meterWorkHarmonic = new MeterWorkHarmonicPhaseSpace(sim.move, sim.potentialMaster);
-        meterWorkHarmonic.setTemperature(temperature);
-        meterWorkHarmonic.setLatticeEnergy(sim.latticeEnergy);
         
-        AccumulatorAverageFixed dataAverage = new AccumulatorAverageFixed();
-        DataPump pump = new DataPump(meterWorkHarmonic, dataAverage);
-        IntegratorListenerAction pumpActionListener = new IntegratorListenerAction(pump);
-        pumpActionListener.setInterval(1);
-        sim.integrator.getEventManager().addListener(pumpActionListener);
+//        MeterWorkHarmonicPhaseSpace meterWorkHarmonic = new MeterWorkHarmonicPhaseSpace(sim.move, sim.potentialMaster);
+//        meterWorkHarmonic.setTemperature(temperature);
+//        meterWorkHarmonic.setLatticeEnergy(sim.latticeEnergy);
+//        
+//        AccumulatorAverageFixed dataAverage = new AccumulatorAverageFixed();
+//        DataPump pump = new DataPump(meterWorkHarmonic, dataAverage);
+//        IntegratorListenerAction pumpActionListener = new IntegratorListenerAction(pump);
+//        pumpActionListener.setInterval(1);
+//        sim.integrator.getEventManager().addListener(pumpActionListener);
+//        
+//        sim.activityIntegrate.setMaxSteps(1000);
+//        sim.getController().actionPerformed();
         
-        sim.activityIntegrate.setMaxSteps(1000);
-        sim.getController().actionPerformed();
-     
-        CalcHarmonicA.doit(sim.nm, 3, temperature, nA);
+        NormalModesFromFile nm = new NormalModesFromFile(filename, 3);
+        CalcHarmonicA.doit(nm, 3, 0.001, nA);
+        CalcHarmonicA.doit(nm, 3, 1.2147, nA);
         
+        for (int i =1; i<17; i++){
+        	double temp = (double)i*0.1;
+        	CalcHarmonicA.doit(nm, 3, temp, nA);
+        }
     }
 
     public IBox box;
     public Boundary boundary;
     public Primitive primitive;
-    public Basis basis;
+    public Basis basis, basisFCC;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     public int[] nCells;

@@ -108,7 +108,6 @@ public class SimBennet extends Simulation {
         IAtomType sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
         
-        
         integrator.setBox(box);
         
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
@@ -117,7 +116,7 @@ public class SimBennet extends Simulation {
         latticeEnergy = meterPE.getDataAsScalar();
         
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-
+        
         MCMoveAtomCoupledBennet move = new MCMoveAtomCoupledBennet(potentialMasterMonatomic, getRandom(), 
         		coordinateDefinition, normalModes, getRefPref(), space);
         move.setTemperature(temperature);
@@ -171,9 +170,7 @@ public class SimBennet extends Simulation {
         System.out.println("output data to "+filename);
         
         //construct simulation
-        final SimBennet sim = new SimBennet(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
-        
-        
+        SimBennet sim = new SimBennet(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
         
         IEtomicaDataSource[] workMeters = new IEtomicaDataSource[2];
         
@@ -186,17 +183,14 @@ public class SimBennet extends Simulation {
         DataFork dataForkHarmonic = new DataFork();
         DataPump pumpHarmonic = new DataPump(workMeters[0], dataForkHarmonic);
         
-        final AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
-        
+        AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed();
         dataForkHarmonic.addDataSink(dataAverageHarmonic);
+        AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(2500, new DoubleRange(-150,100)));
+        dataForkHarmonic.addDataSink(histogramHarmonic);
+        
         IntegratorListenerAction pumpHarmonicListener = new IntegratorListenerAction(pumpHarmonic);
         pumpHarmonicListener.setInterval(1);
         sim.integrator.getEventManager().addListener(pumpHarmonicListener);
-        
-        //Histogram Harmonic
-        final AccumulatorHistogram histogramHarmonic = new AccumulatorHistogram(new HistogramSimple(1500, new DoubleRange(-50,100)));
-        dataForkHarmonic.addDataSink(histogramHarmonic);
-        
         
       //Bennet's Overlap ---> Target
         MeterWorkBennetTarget meterWorkBennetTarget = new MeterWorkBennetTarget(sim.integrator, sim.meterHarmonicEnergy);
@@ -207,109 +201,70 @@ public class SimBennet extends Simulation {
         DataFork dataForkTarget = new DataFork();
         DataPump pumpTarget = new DataPump(workMeters[1], dataForkTarget);
         
-        final AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
-
+        AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed();
         dataForkTarget.addDataSink(dataAverageTarget);
-        IntegratorListenerAction pumpTargetListener = new IntegratorListenerAction(pumpHarmonic);
-        pumpTargetListener.setInterval(numAtoms*2);
-        sim.integrator.getEventManager().addListener(pumpTargetListener);
-
-        //Histogram Target
-        final AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramSimple(1500, new DoubleRange(-50,100)));
+        AccumulatorHistogram histogramTarget = new AccumulatorHistogram(new HistogramSimple(2500, new DoubleRange(-150,100)));
         dataForkTarget.addDataSink(histogramTarget);
         
+        IntegratorListenerAction pumpTargetListener = new IntegratorListenerAction(pumpTarget);
+        pumpTargetListener.setInterval(1000);
+        sim.integrator.getEventManager().addListener(pumpTargetListener);
 
-        
+        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().actionPerformed();
+       
         /*
          * 
          */
-        FileWriter fileWriter;
         
-        try{
-        	fileWriter = new FileWriter(filename + "_SimBen");
-        } catch(IOException e){
-        	fileWriter = null;
-        }
+        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
         
-        final String outFileName = filename;
-        final FileWriter fileWriterSimBen = fileWriter;
+        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+        double eTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
         
-        IAction outputAction = new IAction(){
-        	public void actionPerformed(){
-        		long idStep = sim.integrator.getStepCount();
-        		 //Target
-        		DataLogger dataLogger1 = new DataLogger();
-        		DataTableWriter dataTableWriter1 = new DataTableWriter();
-        		dataLogger1.setFileName(outFileName + "_hist_BennTarg");
-        		dataLogger1.setDataSink(dataTableWriter1);
-        		dataTableWriter1.setIncludeHeader(false);
-        		dataLogger1.putDataInfo(histogramTarget.getDataInfo());
-        		
-        		dataLogger1.setWriteInterval(1);
-        		dataLogger1.setAppending(false);
-        		dataLogger1.putData(histogramTarget.getData());
-        		dataLogger1.closeFile();
-                
-        		
-        		//Harmonic
-        		DataLogger dataLogger2 = new DataLogger();
-        		DataTableWriter dataTableWriter2 = new DataTableWriter();
-        		dataLogger2.setFileName(outFileName + "_hist_BennHarm");
-        		dataLogger2.setDataSink(dataTableWriter2);
-        		dataTableWriter2.setIncludeHeader(false);
-        		dataLogger2.putDataInfo(histogramHarmonic.getDataInfo());
-        		
-        		dataLogger2.setWriteInterval(1);
-        		dataLogger2.setAppending(false);
-        		dataLogger2.putData(histogramHarmonic.getData());
-        		dataLogger2.closeFile();
-                /*
-                 * 
-                 */
-                
-                double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-                double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-                
-                double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-                double eTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-                
-		        System.out.println("\n*****************************************************************");
-		        System.out.println("**********                "+ idStep + "               ***************");
-		        System.out.println("*****************************************************************");
-                
-                System.out.println("\nwBennetHarmonic: "  + wHarmonic  + " ,error: "+ eHarmonic);
-                System.out.println("wBennetTarget: " + wTarget + " ,error: "+ eTarget);
-				
-                try {
-                	
-	                fileWriterSimBen.write(idStep + " " + wHarmonic + " "+ eHarmonic + " " + wTarget  + " "+ eTarget +"\n");
-	                
-                	} catch(IOException e){
-                	
-                }
-                /*
-                 * To get the entropy (overlap --> target or harmonic system),
-                 * all you need to do is to take:
-                 * 
-                 *  sHarmonic = wHarmonic + ln(ratioHarmonicAverage)
-                 *   sTarget  =  wTarget  + ln( ratioTargetAverage )
-                 *   
-                 *  both ratioHarmonicAverage and ratioTargetAverage are from SimPhaseOverlapSoftSphere class
-                 *  
-                 */
-        	}
-        };
+        System.out.println("wBennetHarmonic: "  + wHarmonic  + " ,error: "+ eHarmonic);
+        System.out.println("wBennetTarget: " + wTarget + " ,error: "+ eTarget);
+		
+
+        /*
+         * To get the entropy (overlap --> target or harmonic system),
+         * all you need to do is to take:
+         * 
+         *  sHarmonic = wHarmonic + ln(ratioHarmonicAverage)
+         *   sTarget  =  wTarget  + ln( ratioTargetAverage )
+         *   
+         *  both ratioHarmonicAverage and ratioTargetAverage are from SimPhaseOverlapSoftSphere class
+         *  
+         */
         
-        IntegratorListenerAction outputActionListener = new IntegratorListenerAction(pumpHarmonic);
-        outputActionListener.setInterval(200000);
-        sim.integrator.getEventManager().addListener(outputActionListener);
+        
+		 //Target
+		DataLogger dataLogger1 = new DataLogger();
+		DataTableWriter dataTableWriter1 = new DataTableWriter();
+		dataLogger1.setFileName(filename + "_hist_BennTargSim");
+		dataLogger1.setDataSink(dataTableWriter1);
+		dataTableWriter1.setIncludeHeader(false);
+		dataLogger1.putDataInfo(histogramTarget.getDataInfo());
+		
+		dataLogger1.setWriteInterval(1);
+		dataLogger1.setAppending(false);
+		dataLogger1.putData(histogramTarget.getData());
+		dataLogger1.closeFile();
        
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
-        
-        try {
-    	    fileWriterSimBen.close();
-        } catch(IOException e){ }
+		
+		//Harmonic
+		DataLogger dataLogger2 = new DataLogger();
+		DataTableWriter dataTableWriter2 = new DataTableWriter();
+		dataLogger2.setFileName(filename + "_hist_BennHarmSim");
+		dataLogger2.setDataSink(dataTableWriter2);
+		dataTableWriter2.setIncludeHeader(false);
+		dataLogger2.putDataInfo(histogramHarmonic.getDataInfo());
+		
+		dataLogger2.setWriteInterval(1);
+		dataLogger2.setAppending(false);
+		dataLogger2.putData(histogramHarmonic.getData());
+		dataLogger2.closeFile();
     }
 
     private static final long serialVersionUID = 1L;

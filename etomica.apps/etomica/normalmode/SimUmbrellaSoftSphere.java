@@ -20,10 +20,12 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphere;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -65,11 +67,10 @@ public class SimUmbrellaSoftSphere extends Simulation {
         } catch (IOException e){
         	throw new RuntimeException(" Cannot read from file "+ refFileName);
         }
-        
         int D = space.D();
                         
-        potentialMasterMonatomic = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
        
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -85,6 +86,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
        	double L = Math.pow(4.0/density, 1.0/3.0);
        	int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         primitive = new PrimitiveCubic(space, n*L);
+        primitiveUnitCell = new PrimitiveCubic(space, L);
         nCells = new int[]{n,n,n};
         boundary = new BoundaryRectangularPeriodic(space, n*L);
         Basis basisFCC = new BasisCubicFcc();
@@ -93,37 +95,63 @@ public class SimUmbrellaSoftSphere extends Simulation {
         box.setBoundary(boundary);
         
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        normalModes = new NormalModesFromFile(filename, D);
+        String inFile = "inputSSDB"+numAtoms;
+        normalModes = new NormalModesFromFile(inFile, D);
         /*
          * nuke this line when it is derivative-based
          */
-        normalModes.setTemperature(temperature);
+        //normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
         
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
-        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+    	
+        if(potentialMaster instanceof PotentialMasterList){
+			potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+		
+		} else {
+			potential = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+			
+		}
+        
         IAtomType sphereType = species.getLeafType();
-        potentialMasterMonatomic.addPotential(pTruncated, new IAtomType[] { sphereType, sphereType });
-        potentialMasterMonatomic.lrcMaster().setEnabled(false);
+        potentialMaster.addPotential(potential, new IAtomType[] { sphereType, sphereType });
+        potentialMaster.lrcMaster().setEnabled(false);
         
         integrator.setBox(box);
-        
+
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site
          *  
          */
 
-        P1Constraint p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
-        potentialMasterMonatomic.addPotential(p1Constraint, new IAtomType[] {sphereType});
+        P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell, box, coordinateDefinition);
+        potentialMaster.addPotential(p1Constraint, new IAtomType[] {sphereType});
+        potentialMaster.lrcMaster().setEnabled(false);
         
-        potentialMasterMonatomic.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
+        if (potentialMaster instanceof PotentialMasterList) {
+            double neighborRange = truncationRadius;
+            int cellRange = 7;
+            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
+            if (potentialCells < cellRange*2+1) {
+                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            }
+            if (potentialCells > cellRange*2+1) {
+                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            }
+            //((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+		}
+        
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         
-        move = new MCMoveAtomCoupledUmbrella(potentialMasterMonatomic, getRandom(), 
+        move = new MCMoveAtomCoupledUmbrella(potentialMaster, getRandom(), 
         		coordinateDefinition, normalModes, getRefPref(), space);
         move.setTemperature(temperature);
         move.setLatticeEnergy(latticeEnergy);
@@ -132,7 +160,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
       
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         
-        meterEnergy = new MeterPotentialEnergy(potentialMasterMonatomic);
+        meterEnergy = new MeterPotentialEnergy(potentialMaster);
         meterEnergy.setBox(box);
         
     }
@@ -160,12 +188,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
             ReadParameters readParameters = new ReadParameters(inputFilename, params);
             readParameters.readParameters();
         }
-        double density = params.density/1000;
+        double density = params.density/10000;
         int exponentN = params.exponentN;
         long numSteps = params.numSteps;
         final int numAtoms = params.numMolecules;
         double temperature = params.temperature;
-        double harmonicFudge = params.harmonicFudge;
         int D = params.D;
         String filename = params.filename;
         if (filename.length() == 0) {
@@ -173,7 +200,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
             filename = "FCC_SoftSphere_n"+exponentN+"_T"+ (int)Math.round(temperature*10);
         }
         
-        final long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere Umbrella's Sampling simulation");
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
@@ -182,7 +209,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         System.out.println("output data to "+filename);
         
         //construct simulation
-        final SimUmbrellaSoftSphere sim = new SimUmbrellaSoftSphere(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
+        SimUmbrellaSoftSphere sim = new SimUmbrellaSoftSphere(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
         
         IEtomicaDataSource[] samplingMeters = new IEtomicaDataSource[2];
         
@@ -197,12 +224,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
          */
         
         // Harmonic Sampling
-        
-        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.move);
+        MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.move);
         meterSamplingHarmonic.setRefPref(sim.refPref);
         samplingMeters[0] = meterSamplingHarmonic;
         
-        final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
+        AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
         
         DataPump pumpSamplingHarmonic = new DataPump(samplingMeters[0], dataAverageSamplingHarmonic);
         dataAverageSamplingHarmonic.setBlockSize(200);
@@ -211,12 +237,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
     
         
         // Target Sampling
-        
-        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.move);
+        MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.move);
         meterSamplingTarget.setRefPref(sim.refPref);
         samplingMeters[1] = meterSamplingTarget;
                 
-        final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
+        AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
         
         DataPump pumpSamplingTarget = new DataPump(samplingMeters[1], dataAverageSamplingTarget);
         dataAverageSamplingTarget.setBlockSize(200);
@@ -226,47 +251,27 @@ public class SimUmbrellaSoftSphere extends Simulation {
         if (numAtoms == 32){
             pumpSamplingHarmonicListener.setInterval(100);
             pumpSamplingTargetListener.setInterval(100);
-        } else if (numAtoms >= 108){
-        	 pumpSamplingHarmonicListener.setInterval(300);
+        } else if (numAtoms == 108){
+        	pumpSamplingHarmonicListener.setInterval(300);
             pumpSamplingTargetListener.setInterval(300);
-            /*
-            if (temperature >= 1.1){
-            	dataAverageSamplingHarmonic.setBlockSize(200);
-            	dataAverageSamplingTarget.setBlockSize(200);
-            }*/
-        } 
-        
-        /*else {
-            pumpSamplingHarmonicListener.setInterval(1);
+   
+        } else if (numAtoms >= 256){
+        	pumpSamplingHarmonicListener.setInterval(500);
+            pumpSamplingTargetListener.setInterval(500);
+   
+        } else {
+        	pumpSamplingHarmonicListener.setInterval(1);
             pumpSamplingTargetListener.setInterval(1);
         }
-       */
-        
-		double[][] omega2 = sim.normalModes.getOmegaSquared();
-		double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
-		double AHarmonic = 0;
-		for(int i=0; i<omega2.length; i++) {
-		      for(int j=0; j<omega2[0].length; j++) {
-		            if (!Double.isInfinite(omega2[i][j])) {
-		               AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
-		            }
-		      }
-		}
-
+  
         int totalCells = 1;
         for (int i=0; i<D; i++) {
-        		totalCells *= sim.nCells[i];
+            totalCells *= sim.nCells[i];
         }
-		int basisSize = sim.basis.getScaledCoordinates().length;
-		double fac = 1;
-		if (totalCells % 2 == 0) {
-			fac = Math.pow(2,D);
-		}
-		AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0)); // Math.pow(totalCells,0.5*D));
-		System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature + " " +AHarmonic*temperature/(numAtoms));
-		System.out.println(" ");
-
-	    
+        
+        double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, numAtoms);
+        System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numAtoms);
+       
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         
@@ -314,8 +319,8 @@ public class SimUmbrellaSoftSphere extends Simulation {
     public NormalModes normalModes;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
-    public Primitive primitive;
-    public PotentialMasterMonatomic potentialMasterMonatomic;
+    public Primitive primitive, primitiveUnitCell;
+    public PotentialMaster potentialMaster;
     public double latticeEnergy;
     public MeterHarmonicEnergy meterHarmonicEnergy;
     public MeterPotentialEnergy meterEnergy;

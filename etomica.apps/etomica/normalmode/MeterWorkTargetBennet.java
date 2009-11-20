@@ -44,8 +44,7 @@ public class MeterWorkTargetBennet implements IEtomicaDataSource {
         
         if (e0 < 1e-60){
             
-            numSum += (e0/e1)*100;   //*100 is just a correction to the order of magnitude 1/27/2009
-            
+            numSum += e0;   //e0limit
             
             //System.out.println("e0: " + e0);
             //System.out.println("e0limit: "+ (e0/e1)*100+ " , e0: "+ data.x*(e0/(e1+refPref*e0)));

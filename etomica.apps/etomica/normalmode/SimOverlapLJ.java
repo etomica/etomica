@@ -64,7 +64,6 @@ public class SimOverlapLJ extends Simulation {
         addSpecies(species);
 
         // TARGET
-        
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
@@ -159,11 +158,12 @@ public class SimOverlapLJ extends Simulation {
         boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(nCells);
+        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
         
-        normalModes = new NormalModesFromFile(filename, space.D());
+        String inFile = "LJDB_nA"+numAtoms+"_d0962";
+        normalModes = new NormalModesFromFile(inFile, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
-        normalModes.setTemperature(temperature);
+        //normalModes.setTemperature(temperature);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
@@ -473,7 +473,7 @@ public class SimOverlapLJ extends Simulation {
         public int D = 3;
         public long numSteps = 10000000;
         public double harmonicFudge = 1;
-        public String filename = "LJCB_nA32_d0962_T02";
-        public double temperature = 0.1374;
+        public String filename = "LJCB_nA32_d0962_T10";
+        public double temperature = 1.0;
     }
 }
