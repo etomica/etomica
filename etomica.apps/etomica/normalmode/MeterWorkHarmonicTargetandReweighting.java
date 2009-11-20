@@ -86,14 +86,9 @@ public class MeterWorkHarmonicTargetandReweighting implements IEtomicaDataSource
     	histogramUAWf.addValue(betaUAW);
     	
     	// < beta*U_AW >W
-    	if (eA < 1e-100){
-    		numSum += eB/(refPref*eA)*100;
-    		denomSum += (eW/eA); // eW/eA
-    	} else if (eW > 0.0) {
-    		
-    		numSum += betaUAW*(eW / eA);    // ( beta*U_AW )*(eW/eA)
-    		denomSum += (eW/eA); // eW/eA
-    	}
+
+   		numSum += betaUAW*(eW / eA);    // ( beta*U_AW )*(eW/eA)
+   		denomSum += (eW/eA); // eW/eA
     	
     	if (!Double.isInfinite(betaUAW)){
     		histogramUAWr.addValue(betaUAW, (eW/eA));
