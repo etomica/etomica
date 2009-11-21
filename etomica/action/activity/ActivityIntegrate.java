@@ -45,9 +45,12 @@ public class ActivityIntegrate extends Activity {
         }
         integrator.resetStepCount();
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
-            if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
-            if (Debug.ON && stepCount == Debug.STOP) break;
-            if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
+            if (Debug.ON) {
+                if (stepCount == Debug.START) Debug.DEBUG_NOW = true;
+                if (stepCount == Debug.STOP) break;
+                if (Debug.DEBUG_NOW && Debug.LEVEL > 0) System.out.println("*** integrator step "+stepCount);
+                Debug.stepCount = stepCount;
+            }
             if (!doContinue()) break;
             integrator.doStep();
             if(sleepPeriod > 0) {
