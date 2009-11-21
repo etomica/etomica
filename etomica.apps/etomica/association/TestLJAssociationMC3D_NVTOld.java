@@ -50,7 +50,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
     public ActivityIntegrate actionIntegrator;
     //public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
-    public AssociationHelper associationHelper;
+    public IAssociationHelper associationHelper;
         
     
     public TestLJAssociationMC3D_NVTOld(int numAtoms, double pressure, double density, double wellConstant, double temperature, long numSteps) {
@@ -77,7 +77,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
 	    bvso.setBiasSphereInnerRadius(0.0);
 	    bvso.setBox(box);
 	    associationManagerOriented =new AssociationManager(box, potentialMaster, bvso);
-        associationHelper = new AssociationHelper(associationManagerOriented);
+        associationHelper = new AssociationHelperSingle(associationManagerOriented);
 	    //mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
 	    mcMoveAtom.setAssociationManager(associationManagerOriented);
 	    mcMoveRotate.setAssociationManager(associationManagerOriented);

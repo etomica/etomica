@@ -16,7 +16,7 @@ import etomica.graphics.ColorScheme;
  */
 public class ColorSchemeSmerByLength extends ColorScheme {
 
-    public ColorSchemeSmerByLength(AssociationHelper associationHelper, IRandom random) {
+    public ColorSchemeSmerByLength(IAssociationHelper associationHelper, IRandom random) {
         super();
         this.associationHelper = associationHelper;
         this.random = random;
@@ -31,7 +31,7 @@ public class ColorSchemeSmerByLength extends ColorScheme {
     }
     
     public synchronized Color getAtomColor(IAtom a) {
-        associationHelper.populateList(smerList, a);
+        associationHelper.populateList(smerList, a, false);
         int oldSize = colors.size();
         if (oldSize < smerList.getAtomCount()+1) {
             for (int i=oldSize; i<smerList.getAtomCount()+1; i++) {
@@ -42,7 +42,7 @@ public class ColorSchemeSmerByLength extends ColorScheme {
     }
     
     private static final long serialVersionUID = 1L;
-    protected AssociationHelper associationHelper;
+    protected IAssociationHelper associationHelper;
     protected IRandom random;
     protected final ArrayList<Color> colors;
     protected final AtomArrayList smerList;

@@ -18,7 +18,7 @@ import etomica.graphics.ColorScheme;
  */
 public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager.AgentSource {
 
-    public ColorSchemeSmer(AssociationHelper associationHelper, IBox box, IRandom random) {
+    public ColorSchemeSmer(IAssociationHelper associationHelper, IBox box, IRandom random) {
         super();
         setMonomerColor(DEFAULT_ATOM_COLOR);
         this.associationHelper = associationHelper;
@@ -54,7 +54,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
     
     public synchronized Color getAtomColor(IAtom a) {
         ColorAgent colorAgent = (ColorAgent)dimerColorManager.getAgent(a);
-        associationHelper.populateList(smerList, a);
+        associationHelper.populateList(smerList, a, false);
         if (colorAgent != null) {
             if (smerList.getAtomCount() > 1) {
                 if (smerList.getAtomCount() != colorAgent.smerList.getAtomCount() || !equalLists(smerList, colorAgent.smerList)) {
@@ -178,7 +178,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
     
     private static final long serialVersionUID = 1L;
     protected Color monomerColor;
-    protected AssociationHelper associationHelper;
+    protected IAssociationHelper associationHelper;
     protected AtomLeafAgentManager dimerColorManager;
     protected IRandom random;
     protected HashMap<Color,Integer> oldColors;
