@@ -95,12 +95,12 @@ public class SimUmbrellaSoftSphere extends Simulation {
         box.setBoundary(boundary);
         
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        String inFile = "inputSSDB"+numAtoms;
-        normalModes = new NormalModesFromFile(inFile, D);
+        //String inFile = "inputSSDB"+numAtoms;
+        normalModes = new NormalModesFromFile(filename, D);
         /*
          * nuke this line when it is derivative-based
          */
-        //normalModes.setTemperature(temperature);
+        normalModes.setTemperature(temperature);
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
         
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
@@ -298,11 +298,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
 	    System.out.println(" beta*deltaFE (harmonic): " + deltaFE_harmonic);
 	    System.out.println(" beta*deltaFE (target): " + deltaFE_target);
 			        
-	    System.out.println("\nHarmonic-reference free energy: " + temperature*AHarmonic);
+	    System.out.println("\nHarmonic-reference free energy: " + AHarmonic);
 	    System.out.println("free energy difference (harmonic --> target): " + deltaFE 
 	    		           	+ ", error: " + temperature*Math.sqrt( (eQharmonic/Qharmonic)*(eQharmonic/Qharmonic) + (eQtarget/Qtarget)*(eQtarget/Qtarget) ));
-		System.out.println("target free energy: " + (temperature*AHarmonic+ deltaFE));
-		System.out.println("target free energy per particle: " + (temperature*AHarmonic+ deltaFE)/numAtoms);
+		System.out.println("target free energy: " + (AHarmonic+ deltaFE));
+		System.out.println("target free energy per particle: " + (AHarmonic+ deltaFE)/numAtoms);
 		long endTime = System.currentTimeMillis();
 		System.out.println("End Time: " + endTime);
 		System.out.println("Total time taken: " + (endTime - startTime));
@@ -329,12 +329,12 @@ public class SimUmbrellaSoftSphere extends Simulation {
     
     public static class SimBennetParam extends ParameterBase {
     	public int numMolecules = 32;
-    	public double density = 1256;
+    	public double density = 12560;
     	public int exponentN = 12;
     	public int D = 3;
     	public long numSteps = 1000000;
     	public double harmonicFudge =1;
-    	public String filename = "input_hessian32CBT01";
+    	public String filename = "inputSSDB32T01";
     	public double temperature = 0.1;
     }
 
