@@ -79,7 +79,10 @@ public class P2Nitrogen extends PotentialMolecular {
 	
 		final boolean zeroShift = shift.squared() < 0.1; 
 		r2 = work.squared();
-	
+		
+		if (r2 > 81.0){
+			return 0.0;
+		}
 		//if(r2<1.6) return Double.POSITIVE_INFINITY;
 		
 		/*

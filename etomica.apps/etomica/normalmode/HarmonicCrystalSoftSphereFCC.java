@@ -5,8 +5,10 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**
@@ -21,12 +23,14 @@ import etomica.space3d.Space3D;
 public class HarmonicCrystalSoftSphereFCC {
 
     public static void main(String[] args) {
-        double rho = 1.116;
+        double rho = 1.256;
         int exponent = 12;
         int maxLatticeShell = 49;
-        int nC =2;
-        double temperature = 1.0;
-        String fileName = "DB_FCC_n12_T16";
+        int nC =5;
+        int numAtom = nC*nC*nC*4;
+        
+        double temperature = 0.001;
+        String fileName = "inputSSDB"+ numAtom;
 //        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
 //        Basis basis = new BasisMonatomic(Space3D.getInstance());
         
@@ -47,12 +51,16 @@ public class HarmonicCrystalSoftSphereFCC {
         }
         
         Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
-        Basis basis = new BasisCubicFcc();
+        Basis basisFCC = new BasisCubicFcc();
+        
+        Basis basis = new BasisBigCell(Space.getInstance(3), basisFCC, new int[]{nC,nC,nC});
         
         ISpace sp = Space3D.getInstance();
         final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, exponent);
-
-        int[] nCells = new int[] {nC, nC, nC};
+        double truncationRadius = 3.64137;
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(sp, potential, truncationRadius);
+        
+        int[] nCells = new int[] {1, 1, 1};
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
         
@@ -63,7 +71,7 @@ public class HarmonicCrystalSoftSphereFCC {
         
         
         
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential, sp);
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, pTruncated, sp);
        
         harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
 
@@ -76,19 +84,12 @@ public class HarmonicCrystalSoftSphereFCC {
         System.out.println("Harmonic-reference free energy: "+ (a-u));
       
         System.out.println("\nCalcHarmonicA from file (Temperature-independent)");
-        CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, temperature, basis.getScaledCoordinates().length*nC*nC*nC);
+        CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, temperature, basis.getScaledCoordinates().length);
 
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);
         System.out.println("Time taken: " + (endTime - startTime));
         
-//        double latticeConstant = 1.0;
-//        primitive = new PrimitiveHexagonal(Space3D.getInstance(), latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant);
-//        basis = new BasisHcp();
-//        harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential);
-//        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
-//        harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
-//        u = harmonicCrystal.getLatticeEnergy();
-//        System.out.println("Lattice energy (HCP): "+u);
+
     }
 }
