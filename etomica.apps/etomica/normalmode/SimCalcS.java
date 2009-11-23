@@ -72,7 +72,7 @@ public class SimCalcS extends Simulation {
             int [] nCells = new int[]{n,n,n};
             bdry = new BoundaryDeformableLattice(primitive, new int[]{n,n,n});
             Basis basisFCC = new BasisCubicFcc();
-            basis = new BasisBigCell(space, primitive, basisFCC, nCells);
+            basis = new BasisBigCell(space, basisFCC, nCells);
             primitive.scaleSize(n);
             
         }

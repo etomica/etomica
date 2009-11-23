@@ -10,7 +10,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataFork;
@@ -101,12 +100,11 @@ public class SimOverlap extends Simulation {
             basis = new BasisMonatomic(space);
         } else {
             double L = Math.pow(4.0/density, 1.0/3.0);
-            Primitive primitiveImag = new PrimitiveCubic(space, L);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             nCells = new int[]{n,n,n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
-            basis = new BasisBigCell(space, primitiveImag, basisFCC, nCells);
+            basis = new BasisBigCell(space, basisFCC, nCells);
             primitive = new PrimitiveCubic(space, n*L);
         }
         boxTarget.setBoundary(boundaryTarget);

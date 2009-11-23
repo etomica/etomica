@@ -25,7 +25,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
@@ -35,7 +34,6 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -89,22 +87,16 @@ public class SimOverlapSoftSphere extends Simulation {
         
         integrators[1] = integratorTarget;
 
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            nCells = new int[]{numAtoms};
-            basis = new BasisMonatomic(space);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            primitive = new PrimitiveCubic(space, n*L);
-            primitiveUnitCell = new PrimitiveCubic(space, L);
-            
-            nCells = new int[]{n,n,n};
-            boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
-            Basis basisFCC = new BasisCubicFcc();
-            basis = new BasisBigCell(space, primitive, basisFCC, nCells);
-        }
+        double L = Math.pow(4.0/density, 1.0/3.0);
+        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+        primitive = new PrimitiveCubic(space, n*L);
+        primitiveUnitCell = new PrimitiveCubic(space, L);
+        
+        nCells = new int[]{n,n,n};
+        boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
+        Basis basisFCC = new BasisCubicFcc();
+        basis = new BasisBigCell(space, basisFCC, nCells);
+
         boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
@@ -169,13 +161,7 @@ public class SimOverlapSoftSphere extends Simulation {
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
         
-        if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
-        }
+        boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);

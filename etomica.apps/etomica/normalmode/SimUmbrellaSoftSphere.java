@@ -90,7 +90,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         nCells = new int[]{n,n,n};
         boundary = new BoundaryRectangularPeriodic(space, n*L);
         Basis basisFCC = new BasisCubicFcc();
-        basis = new BasisBigCell(space, primitive, basisFCC, nCells);
+        basis = new BasisBigCell(space, basisFCC, nCells);
         
         box.setBoundary(boundary);
         

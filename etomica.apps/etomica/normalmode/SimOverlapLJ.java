@@ -50,7 +50,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapLJ extends Simulation {
 
-    public SimOverlapLJ(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
+    public SimOverlapLJ(Space _space, int numAtoms, double density, double temperature, double harmonicFudge) {
         super(_space);
         
        
@@ -91,7 +91,7 @@ public class SimOverlapLJ extends Simulation {
             nCells = new int[]{n,n,n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
-            basis = new BasisBigCell(space, primitive, basisFCC, nCells);
+            basis = new BasisBigCell(space, basisFCC, nCells);
         }
         boxTarget.setBoundary(boundaryTarget);
 
@@ -384,7 +384,7 @@ public class SimOverlapLJ extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimOverlapLJ sim = new SimOverlapLJ(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge);
+        SimOverlapLJ sim = new SimOverlapLJ(Space.getInstance(D), numMolecules, density, temperature, harmonicFudge);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
