@@ -67,8 +67,9 @@ public class HessianDB extends Simulation {
        	
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+        System.out.println("radius: " + truncationRadius);
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
-      
+        
         IAtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new IAtomType[] {sphereType, sphereType});
         box.setBoundary(boundary);
@@ -143,7 +144,7 @@ public class HessianDB extends Simulation {
         			box.getBoundary().nearestImage(r); // get the nearest image
         			
         			double [][]der2 = new double[space.D()][space.D()];
-        			derivative2nd(r, potential).assignTo(der2);
+        			derivative2nd(r, pTruncated).assignTo(der2);
         			for(int i=0; i<space.D(); i++){
         				for (int j=0; j<space.D(); j++){
     				
@@ -267,7 +268,7 @@ public class HessianDB extends Simulation {
     	
         // defaults
         int D = 3;
-        int nA =32;
+        int nA =500;
         double density = 1.256;
         double temperature = 1.0;
         int exponent = 12 ;
@@ -307,7 +308,7 @@ public class HessianDB extends Simulation {
 
     public IBox box;
     public Boundary boundary;
-    public Primitive primitive;
+    public Primitive primitive, primitiveUnitCell;
     public Basis basis, basisFCC;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
