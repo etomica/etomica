@@ -44,8 +44,7 @@ public class SimulationNitrogenModel extends Simulation{
 		potentialMaster = new PotentialMaster();
 				
 		Basis basisFCC = new BasisCubicFcc();
-		Primitive primitiveImag = new PrimitiveCubic(space, unitCellLength);
-		Basis basis = new BasisBigCell(space, primitiveImag, basisFCC, new int[]{nCell, nCell, nCell});
+		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 		
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
 		SpeciesN2 species = new SpeciesN2(space);

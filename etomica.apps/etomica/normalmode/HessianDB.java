@@ -11,15 +11,12 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -66,7 +63,7 @@ public class HessianDB extends Simulation {
        	nCells = new int[]{n,n,n};
        	boundary = new BoundaryRectangularPeriodic(space, n*L);
        	basisFCC = new BasisCubicFcc();
-       	basis = new BasisBigCell(space, primitive, basisFCC, nCells);
+       	basis = new BasisBigCell(space, basisFCC, nCells);
        	
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
