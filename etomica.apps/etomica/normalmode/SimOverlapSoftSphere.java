@@ -25,6 +25,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
@@ -155,7 +156,7 @@ public class SimOverlapSoftSphere extends Simulation {
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
 
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
@@ -167,7 +168,7 @@ public class SimOverlapSoftSphere extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
         
-        inFile = "inputSSDB"+numAtoms;
+        String inFile = "inputSSDB"+numAtoms;
         normalModes = new NormalModesFromFile(inFile, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         /*
@@ -539,7 +540,6 @@ public class SimOverlapSoftSphere extends Simulation {
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
     public String fname;
-    public String inFile;
     protected MCMoveHarmonic move;
     protected MCMoveAtomCoupled atomMove;
     protected PotentialMaster potentialMasterTarget;
@@ -556,7 +556,7 @@ public class SimOverlapSoftSphere extends Simulation {
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "inputSSDB108T15";
-        public double temperature = 1.5;
+        public String filename = "inputSSDB32T01";
+        public double temperature =0.1;
     }
 }
