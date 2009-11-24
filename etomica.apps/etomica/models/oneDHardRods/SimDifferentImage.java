@@ -9,10 +9,9 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.box.Box;
-import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
-import etomica.data.DataSplitter;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
@@ -38,10 +37,9 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
+import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -87,23 +85,23 @@ public class SimDifferentImage extends Simulation {
     public IEtomicaDataSource[] meters;
     public IBox boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
-    MeterPotentialEnergy meterAinB, meterAinA;
-    MeterDifferentImageAdd meterdiA;
-    MeterDifferentImageSubtract meterdiS;
+    MeterPotentialEnergy meterBinB, meterAinA;
+    MeterDifferentImageAdd meterBinA;
+    MeterDifferentImageSubtract meterAinB;
     
 
-    public SimDifferentImage(Space _space, int numAtoms, double density, int blocksize) {
+    public SimDifferentImage(Space _space, int numAtoms, double density, int blocksize, double tems) {
         super(_space);
         
-//        long seed = 3;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 3;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         int targAtoms = numAtoms + 1;
         int refAtoms = numAtoms;
         
-        double temperature = 1.0;
+        double temperature = tems;
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -115,10 +113,12 @@ public class SimDifferentImage extends Simulation {
         
         basis = new BasisMonatomic(space);
         
-//TARGET
-        // Set up target system - A, 1
+        PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
 
+//TARGET
+        // Set up target system - A, 1
+        
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, targAtoms);
@@ -148,9 +148,9 @@ public class SimDifferentImage extends Simulation {
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
         
-        nm = new NormalModes1DHR(boxTarget.getBoundary(), targAtoms+1);
+        nm = new NormalModes1DHR(boxTarget.getBoundary(), targAtoms);
         nm.setHarmonicFudge(1.0);
-        nm.setTemperature(1.0);
+        nm.setTemperature(temperature);
         nm.getOmegaSquared();
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxTarget);
@@ -171,10 +171,26 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
+        meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
+        meterAinA.setBox(boxTarget);
+        
+//        meterBinA = new MeterDifferentImageAdd("meterBinA", potentialMasterRef, 
+//                cDefTarget, boxTarget);
+//        meterBinA.setEigenVectors(nm.getEigenvectors());
+//        meterBinA.setOmegaSquared(nm.getOmegaSquared());
+//        meterBinA.setTemperature(temperature);
+//        meterBinA.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+//        meterBinA.setWaveVectors(waveVectorFactory.getWaveVectors());
+        
+        MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
+                meterAinA, meterBinA, temperature);
+        meters[1] = meterOverlapInA;
+        
+        potentialMasterTarget.getNeighborManager(boxTarget).reset();
+        
+        
         
 //REFERENCE
-        PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
-
         boxRef = new Box(space);
         addBox(boxRef);
         boxRef.setNMolecules(species, refAtoms);
@@ -190,7 +206,7 @@ public class SimDifferentImage extends Simulation {
         boxRef.setBoundary(bdryRef);
         
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
-        cDefRef.initializeCoordinates(nCellsTarget);
+        cDefRef.initializeCoordinates(nCellsRef);
         int cDimRef = cDefRef.getCoordinateDim();
 
         neighborRange = 1.01/density;
@@ -199,7 +215,12 @@ public class SimDifferentImage extends Simulation {
         //  neighbors won't change
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
-        nm = new NormalModes1DHR(boxRef.getBoundary(), targAtoms+1);
+        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
+                random, temperature);
+        integratorRef.setBox(boxRef);
+        integrators[0] = integratorRef;
+        
+        nm = new NormalModes1DHR(boxRef.getBoundary(), refAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(temperature);
         nm.getOmegaSquared();
@@ -223,12 +244,32 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         
+//        meterAinB = new MeterDifferentImageSubtract(potentialMasterRef);
+//        meterAinB.setBox(boxRef);
+//       
+//        meterBinB = new MeterCompareSingleWVBrute(potentialMasterRef,
+//                coordinateDefinitionRef, boxRef);
+//        meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
+//        meterBinB.setEigenVectors(nm.getEigenvectors());
+//        meterBinB.setOmegaSquared(nm.getOmegaSquared());
+//        meterBinB.setTemperature(temperature);
+//        meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
+//        meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
+//        integratorRef.setMeterPotentialEnergy(meterBinB);
+        
+        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
+                meterBinB, meterAinB, temperature);
+        meters[0] = meterOverlapInB;
+        
+        integratorRef.setBox(boxRef);
+        potentialMasterRef.getNeighborManager(boxRef).reset();
+        
         
 //JOINT
         //Set up the rest of the joint stuff
         
-//        integratorSim = new IntegratorOverlap(new 
-//                IntegratorMC[]{integratorRef, integratorTarget});
+        integratorSim = new IntegratorOverlap(new 
+                IntegratorMC[]{integratorRef, integratorTarget});
         
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
@@ -464,7 +505,7 @@ public class SimDifferentImage extends Simulation {
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, density, bs);
+        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, density, bs, temperature);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
