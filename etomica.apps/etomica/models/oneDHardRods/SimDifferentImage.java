@@ -67,12 +67,12 @@ public class SimDifferentImage extends Simulation {
     private static final String APP_NAME = "SimDegreeFreedom1DHR";
     public Primitive primitive;
     int[] nCellsTarget, nCellsRef;
-    NormalModes nm;
+    NormalModes nmRef, nmTarg;
     public BasisMonatomic basis;
     public ActivityIntegrate activityIntegrate;
-    
     public CoordinateDefinition cDefTarget, cDefRef;
-    WaveVectorFactory waveVectorFactory;
+    WaveVectorFactory waveVectorFactoryRef, waveVectorFactoryTarg;
+    
     MCMoveAtomCoupled mcMoveAtom;
     MCMoveChangeMultipleWV mcMoveMode;
     
@@ -113,11 +113,9 @@ public class SimDifferentImage extends Simulation {
         
         basis = new BasisMonatomic(space);
         
-        PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
-        PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
-
 //TARGET
         // Set up target system - A, 1
+        PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
         
         boxTarget = new Box(space);
         addBox(boxTarget);
@@ -148,15 +146,15 @@ public class SimDifferentImage extends Simulation {
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
         
-        nm = new NormalModes1DHR(boxTarget.getBoundary(), targAtoms);
-        nm.setHarmonicFudge(1.0);
-        nm.setTemperature(temperature);
-        nm.getOmegaSquared();
-        waveVectorFactory = nm.getWaveVectorFactory();
-        waveVectorFactory.makeWaveVectors(boxTarget);
+        nmTarg = new NormalModes1DHR(boxTarget.getBoundary(), targAtoms);
+        nmTarg.setHarmonicFudge(1.0);
+        nmTarg.setTemperature(temperature);
+        nmTarg.getOmegaSquared();
+        waveVectorFactoryTarg = nmTarg.getWaveVectorFactory();
+        waveVectorFactoryTarg.makeWaveVectors(boxTarget);
         
-        double[] wvc= nm.getWaveVectorFactory().getCoefficients();
-        double[][] omega = nm.getOmegaSquared();
+        double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
+        double[][] omega = nmTarg.getOmegaSquared();
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterTarget, random, space);
         mcMoveAtom.setPotential(potential);
@@ -166,31 +164,20 @@ public class SimDifferentImage extends Simulation {
         
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
         mcMoveMode.setCoordinateDefinition(cDefTarget);
-        mcMoveMode.setEigenVectors(nm.getEigenvectors());
-        mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
-        mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
-        mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+        mcMoveMode.setEigenVectors(nmTarg.getEigenvectors());
+        mcMoveMode.setOmegaSquared(nmTarg.getOmegaSquared());
+        mcMoveMode.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
+        mcMoveMode.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
         
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
-        
-//        meterBinA = new MeterDifferentImageAdd("meterBinA", potentialMasterRef, 
-//                cDefTarget, boxTarget);
-//        meterBinA.setEigenVectors(nm.getEigenvectors());
-//        meterBinA.setOmegaSquared(nm.getOmegaSquared());
-//        meterBinA.setTemperature(temperature);
-//        meterBinA.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-//        meterBinA.setWaveVectors(waveVectorFactory.getWaveVectors());
-        
-        MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
-                meterAinA, meterBinA, temperature);
-        meters[1] = meterOverlapInA;
-        
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
-        
+        integratorTarget.setMeterPotentialEnergy(meterAinA);
         
         
 //REFERENCE
+        // Set up reference system - B, 0
+        PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
+        
         boxRef = new Box(space);
         addBox(boxRef);
         boxRef.setNMolecules(species, refAtoms);
@@ -220,15 +207,15 @@ public class SimDifferentImage extends Simulation {
         integratorRef.setBox(boxRef);
         integrators[0] = integratorRef;
         
-        nm = new NormalModes1DHR(boxRef.getBoundary(), refAtoms);
-        nm.setHarmonicFudge(1.0);
-        nm.setTemperature(temperature);
-        nm.getOmegaSquared();
-        waveVectorFactory = nm.getWaveVectorFactory();
-        waveVectorFactory.makeWaveVectors(boxRef);
+        nmRef = new NormalModes1DHR(boxRef.getBoundary(), refAtoms);
+        nmRef.setHarmonicFudge(1.0);
+        nmRef.setTemperature(temperature);
+        nmRef.getOmegaSquared();
+        waveVectorFactoryRef = nmRef.getWaveVectorFactory();
+        waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        wvc= nm.getWaveVectorFactory().getCoefficients();
-        omega = nm.getOmegaSquared();
+        wvc= nmRef.getWaveVectorFactory().getCoefficients();
+        omega = nmRef.getOmegaSquared();
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterRef, random, space);
         mcMoveAtom.setPotential(potential);
@@ -239,33 +226,30 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterRef, random);
         mcMoveMode.setBox(boxRef);
         mcMoveMode.setCoordinateDefinition(cDefRef);
-        mcMoveMode.setEigenVectors(nm.getEigenvectors());
-        mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
-        mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
-        mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
+        mcMoveMode.setEigenVectors(nmRef.getEigenvectors());
+        mcMoveMode.setOmegaSquared(nmRef.getOmegaSquared());
+        mcMoveMode.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
+        mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
         
-//        meterAinB = new MeterDifferentImageSubtract(potentialMasterRef);
-//        meterAinB.setBox(boxRef);
-//       
-//        meterBinB = new MeterCompareSingleWVBrute(potentialMasterRef,
-//                coordinateDefinitionRef, boxRef);
-//        meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
-//        meterBinB.setEigenVectors(nm.getEigenvectors());
-//        meterBinB.setOmegaSquared(nm.getOmegaSquared());
-//        meterBinB.setTemperature(temperature);
-//        meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-//        meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-//        integratorRef.setMeterPotentialEnergy(meterBinB);
+        meterBinB = new MeterPotentialEnergy(potentialMasterRef);
+        meterBinB.setBox(boxRef);
         
+
+        
+//JOINT
+        meterBinA = new MeterDifferentImageAdd("meterBinA", refAtoms, density, this, primitive, basis, cDefRef, nmRef, temperature);
+        MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
+                meterAinA, meterBinA, temperature);
+        meters[1] = meterOverlapInA;
+        potentialMasterTarget.getNeighborManager(boxTarget).reset();
+        
+        
+        meterAinB = new MeterDifferentImageSubtract("MeterAinB", targAtoms, density, this, primitive, basis, cDefTarget, nmTarg, temperature);
         MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
                 meterBinB, meterAinB, temperature);
         meters[0] = meterOverlapInB;
-        
-        integratorRef.setBox(boxRef);
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
-        
-//JOINT
         //Set up the rest of the joint stuff
         
         integratorSim = new IntegratorOverlap(new 
@@ -536,7 +520,7 @@ public class SimDifferentImage extends Simulation {
         public double temperature = 1.0;
         
         public int blockSize = 1000;
-        public long numSteps = 10000;
+        public long numSteps = 1000000;
     }
 
 }
