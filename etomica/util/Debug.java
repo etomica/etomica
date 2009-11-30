@@ -22,7 +22,7 @@ public final class Debug {
     /**
      * true if any debugging should be done
      */
-    public static final boolean ON = true;
+    public static final boolean ON = false;
 
     /**
      * what step of the integrator debugging should start from.
