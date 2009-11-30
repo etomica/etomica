@@ -3,6 +3,7 @@ package etomica.modules.rheology;
 import java.util.ArrayList;
 
 import etomica.action.IAction;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
@@ -12,6 +13,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.math.geometry.LineSegment;
 import etomica.modifier.ModifierGeneral;
 import etomica.space3d.Space3D;
 import g3dsys.images.Figure;
@@ -33,7 +35,7 @@ public class RheologyGraphic extends SimulationGraphic {
             bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().getAtom(i), sim.box.getLeafList().getAtom(i+1)), bondObject));
         }
         
-        final DeviceSlider sliderA = new DeviceSlider(sim.getController());
+        sliderA = new DeviceSlider(sim.getController());
         sliderA.setLabel("a");
         sliderA.setShowBorder(true);
         ModifierGeneral modifierA = new ModifierGeneral(sim.integrator, "a");
@@ -45,7 +47,7 @@ public class RheologyGraphic extends SimulationGraphic {
         sliderA.setShowValues(true);
         add(sliderA);
 
-        final DeviceSlider sliderShear = new DeviceSlider(sim.getController());
+        sliderShear = new DeviceSlider(sim.getController());
         sliderShear.setShowBorder(true);
         ModifierGeneral modifierShear = new ModifierGeneral(sim.integrator, "shearRateNumber");
         sliderShear.setModifier(modifierShear);
@@ -127,16 +129,71 @@ public class RheologyGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 meterNormalStress1.setDoDouble(sliderA.getValue() < 0);
                 meterNormalStress2.setDoDouble(sliderA.getValue() < 0);
+                updateFlowLines();
+                getPaintAction(sim.box).actionPerformed();
+            }
+        });
+        sliderShear.setPostAction(new IAction() {
+            public void actionPerformed() {
+                updateFlowLines();
+                getPaintAction(sim.box).actionPerformed();
             }
         });
         
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         getPanel().controlPanel.add(delaySlider.graphic(), SimulationPanel.getVertGBC());
+        
+        flowLines = new ArrayList<LineSegment>();
+        updateFlowLines();
     }
-    
+
+    protected void updateFlowLines() {
+        DisplayBoxCanvasG3DSys canvas = (DisplayBoxCanvasG3DSys)getDisplayBox(simulation.getBox(0)).canvas;
+        // first nuke the old flow lines
+        for (int i=0; i<flowLines.size(); i++) {
+            canvas.removeLine(flowLines.get(i));
+        }
+        flowLines.clear();
+
+        // now construct new flowlines
+        double a = sliderA.getValue();
+        double sr = sliderShear.getValue();
+        IVectorMutable s = space.makeVector();
+        IVectorMutable v = space.makeVector();
+        // flow doesn't vary with z, so we can put our flowlines in the z=0 plane
+        for (int ix = -10; ix < 11; ix+=5) {
+            s.setX(0, ix);
+            for (int iy = -10; iy < 11; iy+=5) {
+                s.setX(1, iy);
+                LineSegment line = new LineSegment(space);
+                line.setVertex1(s);
+                if (a < 0) {
+                    v.setX(0, iy*sr);
+                    v.setX(1, a*ix*sr);
+                }
+                else {
+                    v.setX(0,(Math.sqrt(a)*ix+((1-a*a)/(1+a))*iy)*sr);
+                    v.setX(1,-Math.sqrt(a)*iy*sr);
+                    
+                }
+                v.PE(s);
+                line.setVertex2(v);
+                flowLines.add(line);
+            }
+        }
+
+        // add our new flow lines
+        for (int i=0; i<flowLines.size(); i++) {
+            canvas.addLine(flowLines.get(i));
+        }
+    }
+
     public static void main(String[] args) {
         SimulationRheology sim = new SimulationRheology(Space3D.getInstance());
         RheologyGraphic graphic = new RheologyGraphic(sim);
         graphic.makeAndDisplayFrame();
     }
+
+    protected final ArrayList<LineSegment> flowLines;
+    protected final DeviceSlider sliderA, sliderShear;
 }
