@@ -53,6 +53,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	private boolean initialOrient = false;
     private Plane[] planes;
     private Triangle[][] planeTriangles;
+    protected LineSegment[] lines;
+    protected Line[] lineFigures;
     private IVectorMutable[] planeIntersections;
     private IVectorMutable work, work2, work3;
     private double[] planeAngles;
@@ -88,6 +90,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
         planeIntersections = new IVectorMutable[0];
+        lines = new LineSegment[0];
+        lineFigures = new Line[0];
         planeAngles = new double[0];
         work = space.makeVector();
         work2 = space.makeVector();
@@ -288,10 +292,14 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			ball.setZ((float) coords[2]);
 		}
 
-        for (int i=0; i<planes.length; i++) {
-            drawPlane(i);
+        for (int i=0; i<lines.length; i++) {
+            updateLine(i);
         }
-        
+
+        for (int i=0; i<planes.length; i++) {
+            updatePlane(i);
+        }
+
 		IBoundary boundary = displayBox.getBox().getBoundary();
 
 		// Do not draw bounding box around figure if the boundary
@@ -310,10 +318,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 						gsys.removeFig(polytopeLines[i]);
 					}
 				}
-				LineSegment[] lines = polytope.getEdges();
-				polytopeLines = new Line[lines.length];
-				for (int i = 0; i < lines.length; i++) {
-					IVector[] vertices = lines[i].getVertices();
+				LineSegment[] boundaryLines = polytope.getEdges();
+				polytopeLines = new Line[boundaryLines.length];
+				for (int i = 0; i < boundaryLines.length; i++) {
+					IVector[] vertices = boundaryLines[i].getVertices();
 					polytopeLines[i] = new Line(gsys, G3DSys
 							.getColix(boundaryFrameColor), new Point3f(
 							(float) vertices[0].getX(0), (float) vertices[0].getX(1),
@@ -326,9 +334,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				}
 				oldPolytope = polytope;
 			} else {
-				LineSegment[] lines = polytope.getEdges();
-				for (int i = 0; i < lines.length; i++) {
-					IVector[] vertices = lines[i].getVertices();
+				LineSegment[] boundaryLines = polytope.getEdges();
+				for (int i = 0; i < boundaryLines.length; i++) {
+					IVector[] vertices = boundaryLines[i].getVertices();
 					polytopeLines[i].setStart((float) vertices[0].getX(0),
 							(float) vertices[0].getX(1), (float) vertices[0].getX(2));
 					polytopeLines[i].setEnd((float) vertices[1].getX(0),
@@ -390,6 +398,46 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		gsys.fastRefresh();
 	}
 
+    public void addLine(LineSegment newLine) {
+        lines = (LineSegment[])Arrays.addObject(lines, newLine);
+        IVector[] endpoints = newLine.getVertices();
+        Point3f s = new Point3f();
+        s.x = (float)endpoints[0].getX(0);
+        s.y = (float)endpoints[0].getX(1);
+        s.z = (float)endpoints[0].getX(2);
+        Point3f e = new Point3f();
+        e.x = (float)endpoints[1].getX(0);
+        e.y= (float)endpoints[1].getX(1);
+        e.z = (float)endpoints[1].getX(2);
+        lineFigures = (Line[])Arrays.addObject(lineFigures, new Line(gsys, G3DSys.getColix(Color.WHITE), s, e));
+        gsys.addFig(lineFigures[lineFigures.length-1]);
+    }
+
+    public void removeLine(LineSegment oldLine) {
+        for (int i=0; i<lines.length; i++) {
+            if (lines[i] == oldLine) {
+                gsys.removeFig(lineFigures[i]);
+                lineFigures = (Line[])Arrays.removeObject(lineFigures, lineFigures[i]);
+                lines = (LineSegment[])Arrays.removeObject(lines, oldLine);
+                return;
+            }
+        }
+        throw new RuntimeException("I don't know about that line");
+    }
+
+    protected synchronized void updateLine(int iLine) {
+        IVector[] endpoints = lines[iLine].getVertices();
+        Line myLine = lineFigures[iLine];
+        Point3f s = myLine.getStart();
+        s.x = (float)endpoints[0].getX(0);
+        s.y = (float)endpoints[0].getX(1);
+        s.z = (float)endpoints[0].getX(2);
+        Point3f e = myLine.getEnd();
+        e.x = (float)endpoints[1].getX(0);
+        e.y = (float)endpoints[1].getX(1);
+        e.z = (float)endpoints[1].getX(2);
+    }
+
     public void addPlane(Plane newPlane) {
         planes = (Plane[])Arrays.addObject(planes, newPlane);
         planeTriangles = (Triangle[][])Arrays.addObject(planeTriangles, new Triangle[0]);
@@ -409,17 +457,17 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         throw new RuntimeException("I don't know about that plane");
     }
         
-    public synchronized void drawPlane(int iPlane) {
+    protected synchronized void updatePlane(int iPlane) {
         IBoundary boundary = displayBox.getBox().getBoundary();
     	if(!(boundary instanceof Boundary)) {
     		throw new RuntimeException("Unable to drawPlane for a Boundary not a subclass of etomica.space.Boundary");
     	}
         Plane plane = planes[iPlane];
         Polytope polytope = ((Boundary)boundary).getShape();
-        LineSegment[] lines = polytope.getEdges();
+        LineSegment[] boundaryLines = polytope.getEdges();
         int intersectionCount = 0;
-        for (int i = 0; i < lines.length; i++) {
-            IVector[] vertices = lines[i].getVertices();
+        for (int i = 0; i < boundaryLines.length; i++) {
+            IVector[] vertices = boundaryLines[i].getVertices();
             work.Ev1Mv2(vertices[1], vertices[0]);
             // this happens to do what we want
             double alpha = -plane.distanceTo(vertices[0]) / 
