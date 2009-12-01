@@ -11,9 +11,12 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.box.Box;
+import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -22,6 +25,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.normalmode.CalcHarmonicA;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
@@ -86,17 +90,18 @@ public class SimDifferentImage extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
     MeterPotentialEnergy meterBinB, meterAinA;
-    MeterDifferentImageAdd meterBinA;
-    MeterDifferentImageSubtract meterAinB;
+    MeterDifferentImageAdd meterAinB;
+    MeterDifferentImageSubtract meterBinA;
     
 
-    public SimDifferentImage(Space _space, int numAtoms, double density, int blocksize, double tems) {
+    public SimDifferentImage(Space _space, int numAtoms, double density, 
+            int blocksize, double tems, int[] targWV, int[] refWV) {
         super(_space);
         
-        long seed = 3;
-        System.out.println("Seed explicitly set to " + seed);
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 3;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         int targAtoms = numAtoms + 1;
         int refAtoms = numAtoms;
@@ -124,7 +129,8 @@ public class SimDifferentImage extends Simulation {
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(boxTarget);
-        potentialMasterTarget.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMasterTarget.addPotential(potential, new IAtomType[] {
+                species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0/density);
         bdryTarget = new BoundaryRectangularPeriodic(space, targAtoms/density);
@@ -168,6 +174,7 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setOmegaSquared(nmTarg.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
+        mcMoveMode.setChangeableWVs(targWV);
         
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
@@ -185,7 +192,8 @@ public class SimDifferentImage extends Simulation {
         potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(boxRef);
-        potentialMasterRef.addPotential(potential, new IAtomType[] {species.getLeafType(), species.getLeafType()});
+        potentialMasterRef.addPotential(potential, new IAtomType[] {
+                species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0/density);
         bdryRef = new BoundaryRectangularPeriodic(space, refAtoms/density);
@@ -230,6 +238,7 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setOmegaSquared(nmRef.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
+        mcMoveMode.setChangeableWVs(refWV);
         
         meterBinB = new MeterPotentialEnergy(potentialMasterRef);
         meterBinB.setBox(boxRef);
@@ -237,18 +246,19 @@ public class SimDifferentImage extends Simulation {
 
         
 //JOINT
-        meterBinA = new MeterDifferentImageAdd("meterBinA", refAtoms, density, this, primitive, basis, cDefRef, nmRef, temperature);
-        MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", Null.DIMENSION, 
-                meterAinA, meterBinA, temperature);
+        meterAinB = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
+                this, primitive, basis, cDefRef, nmRef, temperature);
+        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", 
+                Null.DIMENSION, meterBinB, meterAinB, temperature);
+        meterBinA = new MeterDifferentImageSubtract("MeterBinA", targAtoms, 
+                density, this, primitive, basis, cDefTarget, nmTarg, temperature);
+        MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", 
+                Null.DIMENSION, meterAinA, meterBinA, temperature);
+        
         meters[1] = meterOverlapInA;
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
-        
-        
-        meterAinB = new MeterDifferentImageSubtract("MeterAinB", targAtoms, density, this, primitive, basis, cDefTarget, nmTarg, temperature);
-        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
-                meterBinB, meterAinB, temperature);
         meters[0] = meterOverlapInB;
         potentialMasterRef.getNeighborManager(boxRef).reset();
+        potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         //Set up the rest of the joint stuff
         
@@ -476,41 +486,105 @@ public class SimDifferentImage extends Simulation {
             filename = "1DHR";
         }
         double temperature = params.temperature;
-        long nSteps = params.numSteps;
-        int bs = params.blockSize;
         String outputfn = params.outputname;
+        int[] targWVs = params.targWVs;
+        int[] refWVs = params.refWVs;
+        int runNumSteps = params.numSteps;
+        int runBlockSize = params.runBlockSize;
+        int subBlockSize = params.subBlockSize;
+        int eqNumSteps = params.eqNumSteps;
+        int eqBlockSize = params.eqBlockSize;
+        int benNumSteps = params.bennettNumSteps;
+        int benBlockSize = params.benBlockSize;
+        
+        String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         System.out.println("Running "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
-        System.out.println(nSteps + " steps, " + bs + " blocksize");
+        System.out.println(runNumSteps + " steps, " + runBlockSize + " blocksize");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
-        // construct simulation
-        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, density, bs, temperature);
+        // instantiate simulation
+        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, 
+                density, runBlockSize, temperature, targWVs, refWVs);
+        System.out.println("instantiated");
+        
+        //Divide out all the steps, so that the subpieces have the proper # of steps
+        runNumSteps /= (int)subBlockSize;
+        eqNumSteps /= (int)subBlockSize;
+        benNumSteps /= subBlockSize;
+        
+        //start simulation & equilibrate
+        sim.integratorSim.getMoveManager().setEquilibrating(true);
+        sim.integratorSim.setNumSubSteps(subBlockSize);
+        
+        System.out.println("Init Bennett");
+        sim.setAccumulatorBlockSize(benBlockSize);
+        sim.initBennettParameter(filename, benNumSteps, benBlockSize);
+        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                Double.isInfinite(sim.bennettParam)){
+            throw new RuntimeException("Simulation failed to find a valid " +
+                    "Bennett parameter");
+        }
+        
+        System.out.println("equilibrate");
+        sim.setAccumulatorBlockSize(eqBlockSize);
+        sim.equilibrate(refFileName, eqNumSteps, eqBlockSize);
+        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                Double.isInfinite(sim.bennettParam)){
+            throw new RuntimeException("Simulation failed to find a valid " +
+                    "Bennett parameter");
+        }
+        System.out.println("equilibration finished.");
         
         // start simulation
-        sim.activityIntegrate.setMaxSteps(nSteps/10);
+        sim.setAccumulatorBlockSize((int)runBlockSize);
+        sim.integratorSim.getMoveManager().setEquilibrating(false);
+        sim.activityIntegrate.setMaxSteps(runNumSteps);
         sim.getController().actionPerformed();
-        System.out.println("equilibration finished");
-        sim.getController().reset();
-       
-        sim.activityIntegrate.setMaxSteps(nSteps);
-        sim.getController().actionPerformed();
+        System.out.println("final reference optimal step frequency " + 
+                sim.integratorSim.getStepFreq0() + " (actual: " + 
+                sim.integratorSim.getActualStepFreq0() + ")");
         
+        
+        
+        //CALCULATION OF HARMONIC ENERGY
+        
+        double ratio = sim.dsvo.getDataAsScalar();
+        double error = sim.dsvo.getError();
+        System.out.println("ratio average: "+ratio+", error: "+error);
+        System.out.println("free energy difference: " + (-Math.log(ratio)) + 
+                ", error: "+(error/ratio));
+        DataGroup allYourBase = 
+            (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+        System.out.println("reference ratio average: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                 + " error: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        
+        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints() -
+                sim.dsvo.minDiffLocation()-1);
+        System.out.println("target ratio average: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                 + " error: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+    
         if(D==1) {
-            double AHR = -(nA-1)*Math.log(nA/density-nA)
-                + SpecialFunctions.lnFactorial(nA) ;
-            System.out.println("Hard-rod free energy: "+AHR);
+            double AHR = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA) ;
+            System.out.println("Hard-rod free energy for " + nA + ": "+AHR);
+            
+            AHR = -(nA)*Math.log((nA+1)/density-(nA+1)) + SpecialFunctions.lnFactorial(nA+1) ;
+            System.out.println("Hard-rod free energy for " + (nA+1) + ": "+AHR);
         }
         
         System.out.println("Fini.");
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 10;
+        public int numAtoms = 3;
         public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -519,8 +593,18 @@ public class SimDifferentImage extends Simulation {
         public String outputname = "hists";
         public double temperature = 1.0;
         
-        public int blockSize = 1000;
-        public long numSteps = 1000000;
+        public int numSteps = 1000000;
+        public int runBlockSize = 1000;
+        public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
+        
+        public int eqNumSteps = 40000;  
+        public int eqBlockSize = 1000;
+        
+        public int bennettNumSteps = 40000;
+        public int benBlockSize = 1000;
+        
+        public int[] targWVs = {0, 1, 2, 3, 4, 5};
+        public int[] refWVs = {0, 1, 2, 3, 4, 5};
     }
 
 }

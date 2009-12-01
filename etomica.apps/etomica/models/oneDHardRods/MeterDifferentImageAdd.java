@@ -145,6 +145,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                     imagCoord[wvcount] += simEigenVectors[wvcount][i][j] * simImagT[j];
                 }
             }
+            //cleans up E-15 type numbers
             if(simWVCoeff[wvcount] != 1.0 ) {imagCoord[wvcount] = 0.0;}
         }
         
@@ -181,22 +182,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             }
             cDef.setToU(cells[iCell].molecules, newU);
         }
-        
-//        for (int i = 0; i < atomlist.getAtomCount(); i++){
-//            System.out.println("end i " + atomlist.getAtom(i).getPosition().getX(0));
-//        }
-//        System.out.println(".");
-        
-        
-        
-        //Check for overlap & return based on it.
-           if(Double.isInfinite(meterPE.getDataAsScalar())) {
-//               System.out.println("0");
-               return 0;
-           } else {
-//               System.out.println("1");
-               return 1;
-        }
+        return meterPE.getDataAsScalar();
     }
 
     private void setStdDev(double[][] o2, double[] coeff) {
