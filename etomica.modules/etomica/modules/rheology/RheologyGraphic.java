@@ -2,11 +2,14 @@ package etomica.modules.rheology;
 
 import java.util.ArrayList;
 
+import javax.swing.JPanel;
+
 import etomica.action.IAction;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -139,15 +142,35 @@ public class RheologyGraphic extends SimulationGraphic {
                 getPaintAction(sim.box).actionPerformed();
             }
         });
-        
+
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         getPanel().controlPanel.add(delaySlider.graphic(), SimulationPanel.getVertGBC());
-        
-        flowLines = new ArrayList<LineSegment>();
-        updateFlowLines();
+
+        final DeviceButton showFlowButton = new DeviceButton(sim.getController());
+        showFlowButton.setLabel("Show flow field");
+        showFlowButton.setAction(new IAction() {
+            public void actionPerformed() {
+                if (flowLines == null) {
+                    flowLines = new ArrayList<LineSegment>();
+                    updateFlowLines();
+                }
+                else {
+                    DisplayBoxCanvasG3DSys canvas = (DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas;
+                    // first nuke the old flow lines
+                    for (int i=0; i<flowLines.size(); i++) {
+                        canvas.removeLine(flowLines.get(i));
+                    }
+                    flowLines = null;
+                }
+                showFlowButton.setLabel(flowLines == null ? "Show flow field" : "Hide flow field");
+            }
+        });
+        showFlowButton.setPostAction(getPaintAction(sim.box));
+        ((JPanel)getController().graphic()).add(showFlowButton.graphic());
     }
 
-    protected void updateFlowLines() {
+    protected synchronized void updateFlowLines() {
+        if (flowLines == null) return;
         DisplayBoxCanvasG3DSys canvas = (DisplayBoxCanvasG3DSys)getDisplayBox(simulation.getBox(0)).canvas;
         // first nuke the old flow lines
         for (int i=0; i<flowLines.size(); i++) {
@@ -167,14 +190,13 @@ public class RheologyGraphic extends SimulationGraphic {
                 s.setX(1, iy);
                 LineSegment line = new LineSegment(space);
                 line.setVertex1(s);
-                if (a < 0) {
+                if (a <= 0) {
                     v.setX(0, iy*sr);
                     v.setX(1, a*ix*sr);
                 }
                 else {
                     v.setX(0,(Math.sqrt(a)*ix+((1-a*a)/(1+a))*iy)*sr);
                     v.setX(1,-Math.sqrt(a)*iy*sr);
-                    
                 }
                 v.PE(s);
                 line.setVertex2(v);
@@ -194,6 +216,6 @@ public class RheologyGraphic extends SimulationGraphic {
         graphic.makeAndDisplayFrame();
     }
 
-    protected final ArrayList<LineSegment> flowLines;
+    protected ArrayList<LineSegment> flowLines;
     protected final DeviceSlider sliderA, sliderShear;
 }
