@@ -36,7 +36,7 @@ public class ReactionManagerCO implements IIntegratorListener {
             }
             if (agent.isRadical) {
                 // consider deradicalization
-                if (random.nextDouble() < sim.integrator.getTimeStep()*Math.exp(-uReactCO/temperature)) {
+                if (random.nextDouble() < sim.integrator.getTimeStep()*Math.exp(-uReactCORev/temperature)) {
                     agent.isRadical = false;
                 }
             }
@@ -68,7 +68,16 @@ public class ReactionManagerCO implements IIntegratorListener {
         uReactCO = newUReactCO;
     }
 
+    public double getuReactCORev() {
+        return uReactCORev;
+    }
+
+    public void setuReactCORev(double newUReactCORev) {
+        uReactCORev = newUReactCORev;
+    }
+
     protected final Catalysis sim;
     protected int nReactCO = 3;      // number of surface sites C needs for radicalization
-    protected double uReactCO = Kelvin.UNIT.toSim(40); // barrier for forward and reverse reactions
+    protected double uReactCO = Kelvin.UNIT.toSim(80); // barrier for forward reaction (radicalization)
+    protected double uReactCORev = Kelvin.UNIT.toSim(40); // barrier for reverse reaction
 }

@@ -76,10 +76,10 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
         double nudge = 0;
         CatalysisAgent agent = null;
         if (rm0 == 0) {
-            agent = (CatalysisAgent)agentManager.getAgent((IAtom)atom1);
+            agent = (CatalysisAgent)agentManager.getAgent(atom1);
         }
         else {
-            agent = (CatalysisAgent)agentManager.getAgent((IAtom)atom0);
+            agent = (CatalysisAgent)agentManager.getAgent(atom0);
         }
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
             lastCollisionVirial = 2.0*reduced_m*bij;

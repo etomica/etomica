@@ -526,8 +526,34 @@ public class CatalysisGraphic extends SimulationGraphic {
             });
             lambdaCBox.doUpdate();
             controlsCC.add(lambdaCBox.graphic(), vertGBC);
-            }
             
+            DeviceBox epsCSBox = new DeviceBox();
+            epsCSBox.setController(sim.getController());
+            epsCSBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "surface epsilon";
+                }
+
+                public double getValue() {
+                    return sim.potentialCS.getEpsilon();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialCS.setEpsilon(newValue);
+                }
+            });
+            epsCSBox.setUnit(Kelvin.UNIT);
+            epsCSBox.doUpdate();
+            controlsCC.add(epsCSBox.graphic(), vertGBC);
+            }
+
+
             // CO
             {
             JPanel controlsCO = new JPanel(new GridBagLayout());
@@ -609,6 +635,30 @@ public class CatalysisGraphic extends SimulationGraphic {
             });
             uRadCOBox.setUnit(Kelvin.UNIT);
             controlsCO.add(uRadCOBox.graphic(), vertGBC);
+
+            DeviceBox uRadCORevBox = new DeviceBox();
+            uRadCORevBox.setController(sim.getController());
+            uRadCORevBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "U derad";
+                }
+
+                public double getValue() {
+                    return sim.reactionManagerCO.getuReactCORev();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.reactionManagerCO.setuReactCORev(newValue);
+                }
+            });
+            uRadCORevBox.setUnit(Kelvin.UNIT);
+            controlsCO.add(uRadCORevBox.graphic(), vertGBC);
 
             DeviceBox epsBarrierCOBox = new DeviceBox();
             epsBarrierCOBox.setController(sim.getController());
