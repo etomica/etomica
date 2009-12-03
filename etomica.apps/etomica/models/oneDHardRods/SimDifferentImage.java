@@ -89,7 +89,7 @@ public class SimDifferentImage extends Simulation {
     public IEtomicaDataSource[] meters;
     public IBox boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
-    MeterPotentialEnergy meterBinB, meterAinA;
+    MeterPotentialEnergy meterBinB, meterAinA, meterRef;
     MeterDifferentImageAdd meterAinB;
     MeterDifferentImageSubtract meterBinA;
     
@@ -246,19 +246,20 @@ public class SimDifferentImage extends Simulation {
 
         
 //JOINT
-        meterAinB = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
-                this, primitive, basis, cDefRef, nmRef, temperature);
-        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", 
-                Null.DIMENSION, meterBinB, meterAinB, temperature);
+//        meterAinB = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
+//                this, primitive, basis, cDefRef, nmRef, temperature);
+//        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", 
+//                Null.DIMENSION, meterBinB, meterAinB, temperature);
         meterBinA = new MeterDifferentImageSubtract("MeterBinA", targAtoms, 
                 density, this, primitive, basis, cDefTarget, nmTarg, temperature);
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterAinA, meterBinA, temperature);
-        
-        meters[1] = meterOverlapInA;
-        meters[0] = meterOverlapInB;
-        potentialMasterRef.getNeighborManager(boxRef).reset();
-        potentialMasterTarget.getNeighborManager(boxTarget).reset();
+//        
+//        MeterOverlapSameGaussian meterOverlapInB = new MeterOverlapSameGaussian();
+//        meters[1] = meterOverlapInA;
+//        meters[0] = meterOverlapInB;
+//        potentialMasterRef.getNeighborManager(boxRef).reset();
+//        potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         //Set up the rest of the joint stuff
         

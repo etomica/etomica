@@ -49,13 +49,16 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private double[] newU;
     private double[] wvCoeff, simWVCoeff;
     private double[][][] eigenVectors, simEigenVectors;
-
+    double[] gaussCoord;
+    
     protected final IRandom random;
     private IBox box;
     private int numAtoms;
     private Boundary bdry;
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
+    
+    boolean outsideGaussian;    //flag to indicate if the Gaussian values are set outside of this class.
     
     public MeterDifferentImageAdd(String string, /*IPotentialMaster potentialMaster,*/ 
             int numSimAtoms, double density, Simulation sim,
@@ -108,21 +111,17 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
         
-        
-        
-        
-        
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
+        
+        gaussCoord = new double[2];
+        setOutsideGaussian(true);
     }
     
     public double getDataAsScalar() {
         
         IAtomList atomlist = box.getLeafList();
-//        for (int i = 0; i < atomlist.getAtomCount(); i++){
-//            System.out.println("start i " + atomlist.getAtom(i).getPosition().getX(0));
-//        }
-
+        
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = simCells[0];
@@ -145,19 +144,21 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                     imagCoord[wvcount] += simEigenVectors[wvcount][i][j] * simImagT[j];
                 }
             }
-            //cleans up E-15 type numbers
+            //cleans up E-15 order numbers
             if(simWVCoeff[wvcount] != 1.0 ) {imagCoord[wvcount] = 0.0;}
         }
         
         //Create the last normal mode coordinate from the Gaussian distribution
-        for (int j = 0; j < cDim; j++) {
-            //We are adding 0.5, and this code lets us get it in the right slot.
-            if(waveVectors.length == simWaveVectors.length){
-                imagCoord[waveVectors.length - 1] = random.nextGaussian() * 
-                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
-            } else {
-                realCoord[waveVectors.length - 1] = random.nextGaussian() * 
-                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+        if(!outsideGaussian){
+            for (int j = 0; j < cDim; j++) {
+                    //We are adding 0.5, and this code lets us get it in the right slot.
+                if(waveVectors.length == simWaveVectors.length){
+                    imagCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                        Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+                } else {
+                    realCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                        Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+                }
             }
         }
             
@@ -194,5 +195,12 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         }
     }
     
+    public void setOutsideGaussian(boolean b){
+        outsideGaussian = b;
+    }
+    
+    public void setGaussian(double[] values){
+        gaussCoord = values;
+    }
     
 }
