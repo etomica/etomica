@@ -187,37 +187,31 @@ public class P2HardAssociationConeDoubleSites extends Potential2 implements Pote
         boundary = box.getBoundary();
     }
 
-	@Override
 	public double hyperVirial(IAtomList pair) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public double integral(double rc) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public double u(double r2) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public IVector[] gradient(IAtomList atoms) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public double virial(IAtomList atoms) {
 		// TODO Auto-generated method stub
 		return 0;
