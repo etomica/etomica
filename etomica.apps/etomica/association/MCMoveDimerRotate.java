@@ -29,7 +29,6 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtoms;
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
     protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -67,7 +66,6 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomDimer();
         ((AtomSourceRandomDimer)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

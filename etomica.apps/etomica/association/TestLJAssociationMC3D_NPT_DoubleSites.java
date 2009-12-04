@@ -59,6 +59,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
     public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
     public BiasVolumeSphereOrientedDoubleSites bvso;
+    public AssociationHelperDouble associationHelper;
         
     
     public TestLJAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
@@ -91,6 +92,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
 	    bvso.setBiasSphereInnerRadius(0.0);
 	    bvso.setBox(box);
 	    associationManagerOriented =new AssociationManager(box, potentialMaster, bvso);//define and track atom associations
+	    associationHelper = new AssociationHelperDouble(space, box, associationManagerOriented);
 	    mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
 	    mcMoveBiasUB.setMaxLength(maxChainLength);//only allow the formation up to maxChainLengh-mer
 	    mcMoveAtomMonomer.setAssociationManager(associationManagerOriented);
@@ -272,7 +274,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         	energy2History.setDataSink(energyPlot.getDataSet().makeDataSink());
 //        	energy2Plot.setLabel("energy2");
 //        	graphic.add(energy2Plot);
-        	ColorSchemeDimer colorScheme = new ColorSchemeDimer(sim.associationManagerOriented,sim.box,sim.getRandom());
+        	ColorSchemeSmer colorScheme = new ColorSchemeSmer(sim.associationHelper,sim.box,sim.getRandom());
         	graphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
         	graphic.makeAndDisplayFrame();
         	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
@@ -298,7 +300,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
 					System.out.println("energy= "+energyMeter.getDataAsScalar()+" true energy= "+energy2Meter.getDataAsScalar());
 					System.out.println("position of atom207: "+atom207.getPosition()+" orientation of atom207: "+atom207.getOrientation().getDirection());
 					System.out.println("position of atom58: "+atom58.getPosition()+" orientation of atom58: "+atom58.getOrientation().getDirection());
-					MCMoveVolumeAssociated.dodebug =true;
+					//MCMoveVolumeAssociated.dodebug =true;
 					IntegratorMC.dodebug = true;
 					double energyDifference = energyMeter.getDataAsScalar()-energy2Meter.getDataAsScalar();
 					if (sim.integrator.getStepCount() > 3807000 || Math.abs(energyDifference)> 1E-7){

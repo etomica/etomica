@@ -4,8 +4,10 @@ import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -24,6 +26,7 @@ public class MCMoveBiasUB extends MCMoveBox {
     private AssociationManager associationManager;
     private MeterPotentialEnergy meterPotentialEnergy;
     private int ni, Nai;
+    private int maxLength = Integer.MAX_VALUE;
     private IAtom atomA;
     private IVectorRandom orientation;
     private boolean isbonding;
@@ -32,15 +35,20 @@ public class MCMoveBiasUB extends MCMoveBox {
     private double uNew;
     private IVectorMutable oldPosition;
     private IVectorMutable oldDirection;
+    protected final AtomArrayList smerList;
+    protected final IVectorMutable dr;
 
     public MCMoveBiasUB(PotentialMasterCell potentialMaster, BiasVolume bv, IRandom random, ISpace space) {
         super(potentialMaster);//variable
         biasVolume = bv;
         this.random =random;
+        this.smerList = new AtomArrayList();
+        this.dr = space.makeVector();
         meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
         orientation = (IVectorRandom)space.makeVector();
         oldPosition = space.makeVector();
         oldDirection = space.makeVector();
+        perParticleFrequency = true;// the frequency of the move is increasing with the system size
     }
     
     public void setBox(IBox box){
@@ -53,7 +61,6 @@ public class MCMoveBiasUB extends MCMoveBox {
     }
     
     public boolean doTrial() {
-        
         int N = box.getMoleculeList().getMoleculeCount();
         if(N < 2) return false;
         /*
@@ -77,7 +84,7 @@ public class MCMoveBiasUB extends MCMoveBox {
          
         }//end bonding
         else { // unbonding,breaking bond
-        	IAtomList atoms = associationManager.getAssociatedAtoms();
+        	IAtomList atoms = associationManager.getAssociatedAtoms();//associated atoms
         	if (atoms.getAtomCount() == 0) {
         		return false;
         	}
@@ -99,18 +106,34 @@ public class MCMoveBiasUB extends MCMoveBox {
     }//end doTrial
     public double getB() {
     	uNew = meterPotentialEnergy.getDataAsScalar();
-    	if (atomA.getParentGroup().getIndex() == 10 || atomA.getParentGroup().getIndex() == 452){
-    		System.out.println("MCMoveBiasUB "+atomA);
-        	System.out.println("uOld-uNew = "+(uOld-meterPotentialEnergy.getDataAsScalar()));
-        	System.out.println("uOld = "+uOld);
-        	System.out.println("isbonding = "+isbonding);
-        }
+//    	if (atomA.getParentGroup().getIndex() == 10 || atomA.getParentGroup().getIndex() == 452){
+//    		System.out.println("MCMoveBiasUB "+atomA);
+//        	System.out.println("uOld-uNew = "+(uOld-meterPotentialEnergy.getDataAsScalar()));
+//        	System.out.println("uOld = "+uOld);
+//        	System.out.println("isbonding = "+isbonding);
+//        }
     	return uOld - uNew;
     }
     public double getA() {
+//    	System.out.print("isbonding= "+isbonding +" ");
+//    	if (isbonding){
+//    		System.out.print("\t\t" );
+//    	}
+//        if (associationManager.getAssociatedAtoms(atomA).getAtomCount() > 1) {
+//        	return 0;
+//        } 
+//        if (associationManager.getAssociatedAtoms(atomA).getAtomCount() == 1){
+//        	IAtom atomj = associationManager.getAssociatedAtoms(atomA).getAtom(0);
+//        	if(associationManager.getAssociatedAtoms(atomj).getAtomCount() > 1){
+//        		return 0;
+//        	} 
+//        }
+//        else if(isbonding){
+//        	throw new RuntimeException("wrong!!!");
+//        }
     	int Naj = associationManager.getAssociatedAtoms().getAtomCount();
     	int N = box.getMoleculeList().getMoleculeCount();
-    	double phi = biasVolume.biasVolume()/box.getBoundary().volume();
+    	double phi = biasVolume.biasVolume()/box.getBoundary().volume()*N;
     	//if (Naj == 0) System.out.println("A1 = " +(ni*Nai/((N-1)*phi)));
     	if(Naj == 0) return ni*Nai/((N-1)*phi);//acceptance criteria
     	int nj = associationManager.getAssociatedAtoms(atomA).getAtomCount();
@@ -124,7 +147,130 @@ public class MCMoveBiasUB extends MCMoveBox {
 //        if (Double.isNaN(((N-1)*phi*deltaj/Naj + ni)/((N-1)*phi*deltai/Nai + nj))){
 //        	throw new RuntimeException ("Oops");
 //        }
+        if (populateList(smerList) == 0){
+        	return 0;
+        }
+        if (smerList.getAtomCount() > maxLength) {
+    		return 0.0;
+		}
         return ((N-1)*phi*deltaj/Naj + ni)/((N-1)*phi*deltai/Nai + nj);    
+    }
+    
+    public void setMaxLength(int i){
+    	maxLength = i;
+    }
+    
+    protected int populateList(AtomArrayList mySmerList){
+    	mySmerList.clear();
+    	mySmerList.add(atomA);
+    	IAtomList bondList = associationManager.getAssociatedAtoms(atomA);
+    	if (bondList.getAtomCount() > 2){
+    		return 0;
+    	}
+    	if (bondList.getAtomCount() == 2){
+    		IAtom atom0 = bondList.getAtom(0);
+    		IAtom atom1 = bondList.getAtom(1);
+    		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
+        	box.getBoundary().nearestImage(dr);
+        	double innerRadius = 0.8;
+        	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
+        	if (dr.squared() < minDistance){
+        		return 0;
+        	}
+    	}
+    	if (bondList.getAtomCount() == 0){
+    		return 1;
+    	}
+    	IAtom thisAtom = bondList.getAtom(0);
+    	mySmerList.add(thisAtom);
+    	IAtomList bondList1 = associationManager.getAssociatedAtoms(thisAtom);
+    	if (bondList1.getAtomCount() > 2){
+    		return 0;
+    	}
+    	if (bondList1.getAtomCount() == 2){
+    		IAtom atom0 = bondList1.getAtom(0);
+    		IAtom atom1 = bondList1.getAtom(1);
+    		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
+        	box.getBoundary().nearestImage(dr);
+        	double innerRadius = 0.8;
+        	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
+        	if (dr.squared() < minDistance){
+        		return 0;
+        	}
+    	}
+    	IAtom previousAtom = atomA;
+    	while (bondList1.getAtomCount() > 1){
+    		IAtom nextAtom = bondList1.getAtom(0);
+    		if (nextAtom == previousAtom){
+    			nextAtom = bondList1.getAtom(1);
+    		} 
+    		if (nextAtom == atomA){
+    			return 1;
+    		}
+    		mySmerList.add(nextAtom);
+    		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
+    		if (bondList1.getAtomCount() > 2){
+        		return 0;
+        	}
+    		if (bondList1.getAtomCount() == 2){
+        		IAtom atom0 = bondList1.getAtom(0);
+        		IAtom atom1 = bondList1.getAtom(1);
+        		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
+            	box.getBoundary().nearestImage(dr);
+            	double innerRadius = 0.8;
+            	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
+            	if (dr.squared() < minDistance){
+            		return 0;
+            	}
+        	}
+    		previousAtom = thisAtom;
+    		thisAtom = nextAtom;
+    	}
+    	if (bondList.getAtomCount()>1){
+    		thisAtom = bondList.getAtom(1);
+        	mySmerList.add(thisAtom);
+        	bondList1 = associationManager.getAssociatedAtoms(thisAtom);
+        	if (bondList1.getAtomCount() > 2){
+        		return 0;
+        	}
+        	if (bondList1.getAtomCount() == 2){
+        		IAtom atom0 = bondList1.getAtom(0);
+        		IAtom atom1 = bondList1.getAtom(1);
+        		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
+            	box.getBoundary().nearestImage(dr);
+            	double innerRadius = 0.8;
+            	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
+            	if (dr.squared() < minDistance){
+            		return 0;
+            	}
+        	}
+        	previousAtom = atomA;
+        	while (bondList1.getAtomCount() > 1){
+        		IAtom nextAtom = bondList1.getAtom(0);
+        		if (nextAtom == previousAtom){
+        			nextAtom = bondList1.getAtom(1);
+        		} 
+        		mySmerList.add(nextAtom);
+        		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
+        		if (bondList1.getAtomCount() > 2){
+            		return 0;
+            	}
+        		if (bondList1.getAtomCount() == 2){
+            		IAtom atom0 = bondList1.getAtom(0);
+            		IAtom atom1 = bondList1.getAtom(1);
+            		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
+                	box.getBoundary().nearestImage(dr);
+                	double innerRadius = 0.8;
+                	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
+                	if (dr.squared() < minDistance){
+                		return 0;
+                	}
+            	}
+        		previousAtom = thisAtom;
+        		thisAtom = nextAtom;
+        	}
+    	}
+    	return 1;
     }
 
 	public AtomIterator affectedAtoms() {
@@ -136,14 +282,19 @@ public class MCMoveBiasUB extends MCMoveBox {
 	}
 
 	public void acceptNotify() {
-		//System.out.println("accepted");
+//		if (atomA.getLeafIndex()== 388 ||atomA.getLeafIndex()== 115 ){
+//        	System.out.println("accepted UB moving atomA "+atomA);
+//        	System.out.println("position 388 "+((IAtomPositioned)box.getLeafList().getAtom(388)).getPosition()+"position 115 "+((IAtomPositioned)box.getLeafList().getAtom(115)).getPosition());
+//        }
 		
 	}
 
 	public void rejectNotify() {
 		atomA.getPosition().E(oldPosition);
 		((IAtomOriented)atomA).getOrientation().setDirection(oldDirection);
-		//System.out.println("rejected");
+//		if (atomA.getLeafIndex()== 388 ||atomA.getLeafIndex()== 115 ){
+//        	System.out.println("rejected UB moving atomA "+atomA);
+//        	System.out.println("position 388 "+((IAtomPositioned)box.getLeafList().getAtom(388)).getPosition()+"position 115 "+((IAtomPositioned)box.getLeafList().getAtom(115)).getPosition());
+//        }
 	}
- 
-}//end of MCMoveBiasUB
+}

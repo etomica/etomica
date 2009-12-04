@@ -325,7 +325,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 					System.out.println("energy= "+energyMeter.getDataAsScalar()+" true energy= "+energy2Meter.getDataAsScalar());
 					System.out.println("position of atom253: "+atom253.getPosition()+" orientation of atom263: "+atom253.getOrientation().getDirection());
 					System.out.println("position of atom63: "+atom63.getPosition()+" orientation of atom63: "+atom63.getOrientation().getDirection());
-					MCMoveVolumeAssociated.dodebug =true;
+					//MCMoveVolumeAssociated.dodebug =true;
 					IntegratorMC.dodebug = true;
 					double energyDifference = energyMeter.getDataAsScalar()-energy2Meter.getDataAsScalar();
 					if (sim.integrator.getStepCount() > 3807000 || Math.abs(energyDifference)> 1E-7){
