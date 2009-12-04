@@ -443,6 +443,31 @@ public class CatalysisGraphic extends SimulationGraphic {
             epsBondingOBox.setUnit(Kelvin.UNIT);
             epsBondingOBox.doUpdate();
             controlsOO.add(epsBondingOBox.graphic(), vertGBC);
+
+            DeviceBox epsOSBox = new DeviceBox();
+            epsOSBox.setController(sim.getController());
+            epsOSBox.setModifier(new Modifier() {
+
+                public Dimension getDimension() {
+                    return Energy.DIMENSION;
+                }
+
+                public String getLabel() {
+                    return "surface epsilon";
+                }
+
+                public double getValue() {
+                    return sim.potentialOS.getEpsilon();
+                }
+
+                public void setValue(double newValue) {
+                    if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    sim.potentialOS.setEpsilon(newValue);
+                }
+            });
+            epsOSBox.setUnit(Kelvin.UNIT);
+            epsOSBox.doUpdate();
+            controlsOO.add(epsOSBox.graphic(), vertGBC);
             }
             
             // CC
@@ -526,7 +551,7 @@ public class CatalysisGraphic extends SimulationGraphic {
             });
             lambdaCBox.doUpdate();
             controlsCC.add(lambdaCBox.graphic(), vertGBC);
-            
+
             DeviceBox epsCSBox = new DeviceBox();
             epsCSBox.setController(sim.getController());
             epsCSBox.setModifier(new Modifier() {
