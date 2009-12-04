@@ -93,7 +93,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
         	energyMeter.setTarget(smerList.getAtom(i));
             uOld += energyMeter.getDataAsScalar();
             if(uOld > 1e8 && !fixOverlap) {
-            	PotentialCalculationEnergySum.dodebug = true;
+            	//PotentialCalculationEnergySum.dodebug = true;
             	energyMeter.getDataAsScalar();
                 throw new RuntimeException("smerList.getAtom(i) "+smerList.getAtom(i)+" in box "+box+" has an overlap");
             }

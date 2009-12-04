@@ -54,7 +54,7 @@ public class MCMoveAtomSmer extends MCMoveAtom {
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         if(uOld > 1e8 && !fixOverlap) {
-        	PotentialCalculationEnergySum.dodebug = true;
+        	//PotentialCalculationEnergySum.dodebug = true;
         	energyMeter.getDataAsScalar();
             throw new RuntimeException("atom "+atom+" in box "+box+" has an overlap");
         }
