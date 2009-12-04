@@ -22,7 +22,6 @@ import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumAssociation;
 import etomica.virial.ConfigurationClusterChain;
 import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEGeneral;
