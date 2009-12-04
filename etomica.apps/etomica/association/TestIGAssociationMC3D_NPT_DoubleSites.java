@@ -35,7 +35,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Simple ideal gas + S-W Association Monte Carlo NPT simulation in 3D.
@@ -60,6 +59,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
     public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
     public BiasVolumeSphereOrientedDoubleSites bvso;
+    public AssociationHelperDouble associationHelper;
         
     
     public TestIGAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
@@ -92,6 +92,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 	    bvso.setBiasSphereInnerRadius(0.8);
 	    bvso.setBox(box);
 	    associationManagerOriented =new AssociationManager(box, potentialMaster, bvso);//define and track atom associations
+	    associationHelper = new AssociationHelperDouble(space, box, associationManagerOriented);
 	    mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
 	    mcMoveBiasUB.setMaxLength(maxChainLength);//only allow the formation up to maxChainLengh-mer
 	    mcMoveAtomMonomer.setAssociationManager(associationManagerOriented);
@@ -134,7 +135,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         mcMoveSmer = new MCMoveSmer(this, potentialMaster, space, potential);
         mcMoveSmerRotate = new MCMoveSmerRotate(this, potentialMaster, space, potential);
         mcMoveVolume = new MCMoveVolumeAssociated(this, potentialMaster, space);
-        MCMoveVolumeAssociated.dodebug =false;
+        //MCMoveVolumeAssociated.dodebug =false;
         mcMoveVolume.setAssociationManager(associationManagerOriented);
         mcMoveSmer.setAssociationManager(associationManagerOriented);
 	    mcMoveSmerRotate.setAssociationManager(associationManagerOriented);
@@ -298,7 +299,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         	energy2History.setDataSink(energyPlot.getDataSet().makeDataSink());
 //        	energy2Plot.setLabel("energy2");
 //        	graphic.add(energy2Plot);
-        	ColorSchemeDimer colorScheme = new ColorSchemeDimer(sim.associationManagerOriented,sim.box,sim.getRandom());
+        	ColorSchemeSmer colorScheme = new ColorSchemeSmer(sim.associationHelper,sim.box,sim.getRandom());
         	graphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
         	graphic.makeAndDisplayFrame();
         	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
