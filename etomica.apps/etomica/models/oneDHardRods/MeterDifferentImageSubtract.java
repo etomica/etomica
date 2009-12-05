@@ -172,7 +172,12 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             cDef.setToU(cells[iCell].molecules, newU);
         }
         
-        return meterPE.getDataAsScalar();
+        double sqrtT = Math.sqrt(temperature);
+        double real = random.nextGaussian() * sqrtT;
+        double imag = random.nextGaussian() * sqrtT;
+        double harmonic = 0.5 * (real* real + imag * imag);
+        
+        return meterPE.getDataAsScalar() + harmonic;
     }
 
     private void setStdDev(double[][] o2, double[] coeff) {

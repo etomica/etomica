@@ -58,8 +58,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
-    boolean outsideGaussian;    //flag to indicate if the Gaussian values are set outside of this class.
-    
     public MeterDifferentImageAdd(String string, /*IPotentialMaster potentialMaster,*/ 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
@@ -115,7 +113,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         meterPE.setBox(box);
         
         gaussCoord = new double[2];
-        setOutsideGaussian(true);
     }
     
     public double getDataAsScalar() {
@@ -149,19 +146,17 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         }
         
         //Create the last normal mode coordinate from the Gaussian distribution
-        if(!outsideGaussian){
-            for (int j = 0; j < cDim; j++) {
-                    //We are adding 0.5, and this code lets us get it in the right slot.
-                if(waveVectors.length == simWaveVectors.length){
-                    imagCoord[waveVectors.length - 1] = random.nextGaussian() * 
-                        Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
-                } else {
-                    realCoord[waveVectors.length - 1] = random.nextGaussian() * 
-                        Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
-                }
+        for (int j = 0; j < cDim; j++) {
+            //We are adding 0.5, and this code lets us get it in the right slot.
+            if(waveVectors.length == simWaveVectors.length){
+                imagCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+            } else {
+                realCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
             }
         }
-            
+        
         //Calculate the positions for the meter's system
 
         for (int iCell = 0; iCell < cells.length; iCell++){
@@ -193,14 +188,12 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                 stdDev[i][j] = Math.sqrt(1.0 / (2.0 * o2[i][j] * coeff[i]));
             }
         }
+//        System.out.print("om2 " + o2[2][0]);
     }
     
-    public void setOutsideGaussian(boolean b){
-        outsideGaussian = b;
-    }
-    
-    public void setGaussian(double[] values){
-        gaussCoord = values;
+
+    public double[] getGaussian(){
+        return gaussCoord;
     }
     
 }

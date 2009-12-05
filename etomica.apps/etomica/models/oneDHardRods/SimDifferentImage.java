@@ -246,20 +246,21 @@ public class SimDifferentImage extends Simulation {
 
         
 //JOINT
-//        meterAinB = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
-//                this, primitive, basis, cDefRef, nmRef, temperature);
-//        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", 
-//                Null.DIMENSION, meterBinB, meterAinB, temperature);
+        meterAinB = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
+                this, primitive, basis, cDefRef, nmRef, temperature);
+        MeterOverlapSameGaussian meterOverlapInB = new MeterOverlapSameGaussian("MeterOverlapInB", 
+                Null.DIMENSION, meterBinB, meterAinB, temperature);
+
+        
         meterBinA = new MeterDifferentImageSubtract("MeterBinA", targAtoms, 
                 density, this, primitive, basis, cDefTarget, nmTarg, temperature);
         MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterAinA, meterBinA, temperature);
-//        
-//        MeterOverlapSameGaussian meterOverlapInB = new MeterOverlapSameGaussian();
-//        meters[1] = meterOverlapInA;
-//        meters[0] = meterOverlapInB;
-//        potentialMasterRef.getNeighborManager(boxRef).reset();
-//        potentialMasterTarget.getNeighborManager(boxTarget).reset();
+
+        meters[1] = meterOverlapInA;
+        meters[0] = meterOverlapInB;
+        potentialMasterRef.getNeighborManager(boxRef).reset();
+        potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
         //Set up the rest of the joint stuff
         
@@ -336,7 +337,7 @@ public class SimDifferentImage extends Simulation {
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,false),1);
-            setBennettParameter(1e40,40);
+            setBennettParameter(1,10);
             activityIntegrate.setMaxSteps(initSteps);
             
             getController().actionPerformed();
@@ -347,9 +348,9 @@ public class SimDifferentImage extends Simulation {
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             
             double top = accumulators[0].getBennetAverage(newMinDiffLoc);
-            System.out.println("top " + top);
+//            System.out.println("top " + top);
             double bottom = accumulators[1].getBennetAverage(newMinDiffLoc);
-            System.out.println("bottom " + bottom);
+//            System.out.println("bottom " + bottom);
             
             if (Double.isNaN(bennettParam) || bennettParam == 0 || Double.isInfinite(bennettParam)) {
                 throw new RuntimeException("Simulation failed to find a valid ref pref");
@@ -359,7 +360,7 @@ public class SimDifferentImage extends Simulation {
             
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-            setBennettParameter(bennettParam,5);
+            setBennettParameter(bennettParam,2);
             
             // set benParam back to -1 so that later on we know that we've been looking for
             // the appropriate value
@@ -440,6 +441,28 @@ public class SimDifferentImage extends Simulation {
             System.out.println("setting ref pref to "+bennettParam+" ("+newMinDiffLoc+")");
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,false),1);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             setBennettParameter(bennettParam,1);
             if (fileName != null) {
                 try {
@@ -531,6 +554,8 @@ public class SimDifferentImage extends Simulation {
                     "Bennett parameter");
         }
         
+//        System.exit(5);
+        
         System.out.println("equilibrate");
         sim.setAccumulatorBlockSize(eqBlockSize);
         sim.equilibrate(refFileName, eqNumSteps, eqBlockSize);
@@ -585,7 +610,7 @@ public class SimDifferentImage extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 3;
+        public int numAtoms = 1;
         public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -594,14 +619,14 @@ public class SimDifferentImage extends Simulation {
         public String outputname = "hists";
         public double temperature = 1.0;
         
-        public int numSteps = 1000000;
+        public int numSteps = 10000000;
         public int runBlockSize = 1000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
-        public int eqNumSteps = 40000;  
+        public int eqNumSteps = 4000000;  
         public int eqBlockSize = 1000;
         
-        public int bennettNumSteps = 40000;
+        public int bennettNumSteps = 4000000;
         public int benBlockSize = 1000;
         
         public int[] targWVs = {0, 1, 2, 3, 4, 5};

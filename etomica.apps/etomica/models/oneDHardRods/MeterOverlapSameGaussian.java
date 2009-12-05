@@ -6,7 +6,6 @@ import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Dimension;
@@ -20,8 +19,6 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
     DataDoubleArray dda;
     
     MeterDifferentImageAdd meterAdd;
-    double[] gaussian;
-    protected final IRandom random;
     
     /**
      * Put the system you are measuring in as the first DataSourceScalar
@@ -32,30 +29,28 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
      * @param temperature
      */
     MeterOverlapSameGaussian(String label, Dimension dimension, DataSourceScalar dataSourceA,
-            DataSourceScalar dataSourceB, double temperature, IRandom rand){
+            DataSourceScalar dataSourceB, double temperature){
         dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{2});
         tag = new DataTag();
         dataInfo.addTag(tag);
         
-        this.random = rand;
+        
         this.dataSourceA = dataSourceA;
         this.dataSourceB = dataSourceB;
         this.temperature = temperature;
         
         dda = new DataDoubleArray(2);
         
-        gaussian = new double[2];
     }
     
     public DataDoubleArray getData(){
         double[] eAeB = dda.getData();
         
-        generateGaussian();
-        
-        
-        
         double numerator = Math.exp(-dataSourceB.getDataAsScalar()/temperature);
-        double denominator = Math.exp(-dataSourceA.getDataAsScalar()/temperature);
+        
+        double[] gausses = ((MeterDifferentImageAdd)dataSourceB).getGaussian();
+        double harmonic = 0.5 * (gausses[0] * gausses[0] + gausses[1] * gausses[1]);
+        double denominator = Math.exp(-(dataSourceA.getDataAsScalar()+harmonic)/temperature);
         
         eAeB[1] = numerator / denominator;
         eAeB[0] = 1.0;
@@ -70,16 +65,4 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
         return tag;
     }
     
-    public void generateGaussian(){
-        double sqrtT = Math.sqrt(temperature);
-        double realGauss = random.nextGaussian() * sqrtT;
-        double imagGauss = random.nextGaussian() * sqrtT;
-
-        gaussian[0] = realGauss;
-        gaussian[1] = imagGauss;
-    }
-    
-    
-    
-
 }
