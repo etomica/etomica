@@ -183,7 +183,7 @@ public class ImageShell extends Figure {
         }
         else if(f instanceof Triangle) {
           Triangle tr = (Triangle) f;
-          if (!_gsys.getG3D().setColix(tr.getColor())) return;
+          if (!_gsys.getG3D().setColix(tr.getColor())) continue;
           Point3f v = tr.getVertex1();
           p.set(v.x+dx, v.y+dy, v.z+dz);
           _gsys.screenSpace(p, s);
