@@ -38,6 +38,7 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
     protected double epsilonBarrier;
     protected double epsilonBonding;
     protected final double minOOr2;
+    protected P2SquareWellSurface potentialCS;
 
     public P2SquareWellBondingCO(ISpace space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon,
             int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOOr) {
@@ -141,8 +142,10 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
                 if (agent0.isRadical && agent1.isRadical) {
                     IAtomKinetic unbondedO = atom0;
                     IAtomKinetic alreadyBondedO = (IAtomKinetic)agent1.bondedAtom1;
+                    int nCSites = agent1.nSurfaceBonds;
                     if (alreadyBondedO == null) {
                         alreadyBondedO = (IAtomKinetic)agent0.bondedAtom1;
+                        nCSites = agent0.nSurfaceBonds;
                         unbondedO = atom1;
                     }
                     dvOO.Ev1Mv2(unbondedO.getVelocity(), alreadyBondedO.getVelocity());
@@ -154,7 +157,13 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
                     double OOr2 = drOO.squared();
                     if (OOr2 > minOOr2) {
                         barrier = epsilonBarrier;
-                        de = -epsilonBonding;
+                        // when we form the C-O bond, we turn off the C reactions with the surface
+                        // (otherwise the CO2 is too strongly adsorbed)
+                        // we need to account for this energy change in the bonding energy here.
+                        de = -epsilonBonding + nCSites * potentialCS.getEpsilon();
+                        if (de > 0) {
+                            barrier += de;
+                        }
                         isBondEvent = true;
                     }
                 }
@@ -349,6 +358,10 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
             throw new RuntimeException("Must be positive");
         }
         nSurfaceSites = newNumSurfaceSites;
+    }
+
+    public void setCSPotential(P2SquareWellSurface newPotentialCS) {
+        potentialCS = newPotentialCS;
     }
 }
   

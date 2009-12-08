@@ -102,6 +102,8 @@ public class Catalysis extends Simulation {
         potentialCS = new P2SquareWellSurface(space, interactionTracker.getAgentManager(), 0.5*(sigmaC+sigmaS), 1.3, epsilonCS, minCSites);
         potentialMaster.addPotential(potentialCS,new IAtomType[]{speciesC.getLeafType(), speciesSurface.getLeafType()});
         
+        potentialCO.setCSPotential(potentialCS);
+
         P1HardBoundary p1HardWallO = new P1HardBoundary(space, true);
         p1HardWallO.setActive(0, true, false);
         p1HardWallO.setActive(0, false, false);
