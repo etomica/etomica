@@ -37,6 +37,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
@@ -67,7 +68,7 @@ public class CatalysisGraphic extends SimulationGraphic {
     protected DeviceThermoSlider tempSlider;
     protected Catalysis sim;
 
-    public CatalysisGraphic(final Catalysis simulation, Space _space) {
+    public CatalysisGraphic(final Catalysis simulation, ISpace _space, boolean showParams) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
@@ -275,7 +276,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         
-        if (false) {
+        if (showParams) {
             JTabbedPane controlsTabs = new JTabbedPane();
             JPanel mainControls = new JPanel(new GridBagLayout());
             controlsTabs.add(mainControls, "State");
@@ -776,17 +777,15 @@ public class CatalysisGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        Space space = Space3D.getInstance();
+        ISpace space = Space3D.getInstance();
+        boolean showParams = false;
         if(args.length != 0) {
             try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    space = Space3D.getInstance();
-                }
+                showParams = Integer.parseInt(args[0]) != 0;
             } catch(NumberFormatException e) {}
         }
 
-        CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(space), space);
+        CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(space), space, showParams);
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
     }
@@ -796,13 +795,13 @@ public class CatalysisGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            String dimStr = getParameter("dim");
-            int dim = 3;
-            if (dimStr != null) {
-                dim = Integer.valueOf(dimStr).intValue();
+            String paramStr = getParameter("showParams");
+            boolean showParams = false;
+            if (paramStr != null) {
+                showParams = Integer.valueOf(paramStr) != 0;
             }
-            Space sp = Space.getInstance(dim);
-            CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(sp), sp);
+            ISpace sp = Space3D.getInstance();
+            CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(sp), sp, showParams);
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

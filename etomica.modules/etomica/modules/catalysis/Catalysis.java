@@ -16,6 +16,7 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -44,7 +45,7 @@ public class Catalysis extends Simulation {
     public final InteractionTracker interactionTracker;
     public final ReactionManagerCO reactionManagerCO;
     
-    public Catalysis(Space _space) {
+    public Catalysis(ISpace _space) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 9, space); //List(this, 2.0);
         
@@ -63,8 +64,8 @@ public class Catalysis extends Simulation {
         double sigmaS = 3.7;
         double epsilonO = 1000*Mole.UNIT.fromSim(Calorie.UNIT.toSim(0.15));
         double epsilonC = 1000*Mole.UNIT.fromSim(Calorie.UNIT.toSim(0.08));
-        double epsilonOS = 5*epsilonO;
-        double epsilonCS = 10*epsilonC;
+        double epsilonOS = Kelvin.UNIT.toSim(500);
+        double epsilonCS = Kelvin.UNIT.toSim(2000);
         
 	    //species and potentials
 	    speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
@@ -87,7 +88,7 @@ public class Catalysis extends Simulation {
 
         int minOSites = 2, minCSites = 2;
         
-	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(400), 7.4);
+	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(300), Kelvin.UNIT.toSim(400), 7.4);
         potentialMaster.addPotential(potentialOO,new IAtomType[]{speciesO.getLeafType(), speciesO.getLeafType()});
 
         potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaC), 1.1, Math.sqrt(epsilonC*epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(1500), 7.4);
