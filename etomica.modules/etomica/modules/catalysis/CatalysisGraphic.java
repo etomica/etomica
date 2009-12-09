@@ -26,6 +26,7 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceDelaySlider;
+import etomica.graphics.DeviceSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
@@ -132,7 +133,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 		dataStreamPumps.add(temperaturePump);
         DisplayPlot temperatureHistoryPlot = new DisplayPlot();
         temperatureHistory.setDataSink(temperatureHistoryPlot.getDataSet().makeDataSink());
-        temperatureHistoryPlot.setLabel("temperature");
+        temperatureHistoryPlot.setLabel("Temperature");
         temperatureHistoryPlot.setDoLegend(false);
         temperatureHistoryPlot.setUnit(Kelvin.UNIT);
         temperatureHistoryPlot.getPlot().setYLabel("Temperature (K)");
@@ -274,7 +275,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         
-        if (true) {
+        if (false) {
             JTabbedPane controlsTabs = new JTabbedPane();
             JPanel mainControls = new JPanel(new GridBagLayout());
             controlsTabs.add(mainControls, "State");
@@ -740,6 +741,29 @@ public class CatalysisGraphic extends SimulationGraphic {
         else {
             getPanel().controlPanel.add(statePanel, vertGBC);
             getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
+            
+            DeviceSelector surfaceSelector = new DeviceSelector(sim.getController());
+            surfaceSelector.setLabel("Catalyst type");
+            surfaceSelector.addOption("Catalyst A", new IAction() {
+                public void actionPerformed() {
+                    sim.potentialCS.setEpsilon(Kelvin.UNIT.toSim(2000));
+                    sim.potentialOS.setEpsilon(Kelvin.UNIT.toSim(500));
+                    sim.reactionManagerCO.setuReactCO(Kelvin.UNIT.toSim(80));
+                    sim.potentialCO.setBarrier(Kelvin.UNIT.toSim(400));
+                    sim.potentialOO.setBarrier(Kelvin.UNIT.toSim(300));
+                }
+            });
+            surfaceSelector.addOption("Catalyst B", new IAction() {
+                public void actionPerformed() {
+                    sim.potentialCS.setEpsilon(Kelvin.UNIT.toSim(3000));
+                    sim.potentialOS.setEpsilon(Kelvin.UNIT.toSim(700));
+                    sim.reactionManagerCO.setuReactCO(Kelvin.UNIT.toSim(300));
+                    sim.potentialCO.setBarrier(Kelvin.UNIT.toSim(4000));
+                    sim.potentialOO.setBarrier(Kelvin.UNIT.toSim(400));
+                }
+            });
+
+            getPanel().controlPanel.add(surfaceSelector.graphic(), vertGBC);
         }
 
         add(displayCycles);
