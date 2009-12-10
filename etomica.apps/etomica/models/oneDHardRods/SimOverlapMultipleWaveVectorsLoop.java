@@ -24,6 +24,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.normalmode.CalcHarmonicA;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
@@ -45,7 +46,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 
 public class SimOverlapMultipleWaveVectorsLoop extends Simulation {
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimOverlapMultipleWaveVectors";
+    private static final String APP_NAME = "SimOverlapMultipleWaveVectorsLoop";
     Primitive primitive;
     int[] nCells;
     NormalModes1DHR nm;
@@ -148,6 +149,7 @@ public class SimOverlapMultipleWaveVectorsLoop extends Simulation {
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         changeMove.setEigenVectors(nm.getEigenvectors());
+        changeMove.setOmegaSquared(nm.getOmegaSquared());
         changeMove.setCoordinateDefinition(coordinateDefinitionTarget);
         changeMove.setBox((IBox)boxTarget);
         changeMove.setStepSizeMin(0.001);
@@ -529,7 +531,12 @@ public class SimOverlapMultipleWaveVectorsLoop extends Simulation {
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
-        System.out.println("Running Nancy's 1DHR simulation");
+        
+        //instantiate simulations!
+        SimOverlapMultipleWaveVectorsLoop sim = new SimOverlapMultipleWaveVectorsLoop(Space.getInstance(D), numMolecules,
+                density, temperature, filename, harmonicFudge, comparedWV, harmonicWV);
+        
+        System.out.println("Running "+ sim.APP_NAME);
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
@@ -547,9 +554,6 @@ public class SimOverlapMultipleWaveVectorsLoop extends Simulation {
         System.out.println(numBenSteps+" Bennett-only steps, split into blocks of "+benBlockSize);
         System.out.println("output data to "+filename);
         
-        //instantiate simulations!
-        SimOverlapMultipleWaveVectorsLoop sim = new SimOverlapMultipleWaveVectorsLoop(Space.getInstance(D), numMolecules,
-                density, temperature, filename, harmonicFudge, comparedWV, harmonicWV);
         System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
@@ -595,28 +599,32 @@ public class SimOverlapMultipleWaveVectorsLoop extends Simulation {
         double[] coeffs = sim.nm.getWaveVectorFactory().getCoefficients();
         
         //CALCULATION OF HARMONIC ENERGY
-        double AHarmonic = 0;
-        for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<omega2[0].length; j++) {
-                if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i] * Math.log(omega2[i][j]*coeffs[i] /
-                            (temperature*Math.PI));
-                }
-            }
-        }
-        int totalCells = 1;
-        for (int i=0; i<D; i++) {
-            totalCells *= sim.nCells[i];
-        }
-        int basisSize = sim.basis.getScaledCoordinates().length;
-        double fac = 1;
-        if (totalCells % 2 == 0) {
-            fac = Math.pow(2,D);
-        }
-        AHarmonic -= Math.log(Math.pow(2.0, basisSize *D * (totalCells - fac) / 
-                2.0) / Math.pow(totalCells, 0.5 * D));
-        System.out.println("Harmonic-reference free energy: " + AHarmonic * 
-                temperature);
+        double AHarmonic = CalcHarmonicA.doit(sim.nm, D, temperature, numMolecules);
+
+//        double AHarmonic = 0;
+//        for(int i=0; i<omega2.length; i++) {
+//            for(int j=0; j<omega2[0].length; j++) {
+//                if (!Double.isInfinite(omega2[i][j])) {
+//                    AHarmonic += coeffs[i] * Math.log(omega2[i][j]*coeffs[i] /
+//                            (temperature*Math.PI));
+//                }
+//            }
+//        }
+//        
+//        
+//        int totalCells = 1;
+//        for (int i=0; i<D; i++) {
+//            totalCells *= sim.nCells[i];
+//        }
+//        int basisSize = sim.basis.getScaledCoordinates().length;
+//        double fac = 1;
+//        if (totalCells % 2 == 0) {
+//            fac = Math.pow(2,D);
+//        }
+//        AHarmonic -= Math.log(Math.pow(2.0, basisSize *D * (totalCells - fac) / 
+//                2.0) / Math.pow(totalCells, 0.5 * D));
+//        System.out.println("Harmonic-reference free energy: " + AHarmonic * 
+//                temperature);
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         System.out.println("ratio average: "+ratio+", error: "+error);
@@ -667,10 +675,10 @@ public class SimOverlapMultipleWaveVectorsLoop extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {1, 2};
-        public int[] harmonicWV = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14, 15 , 16};
+        public int[] comparedWV = {3};
+        public int[] harmonicWV = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
         
-        public int numSteps = 400000;
+        public int numSteps = 40000000;
         public int runBlockSize = 1000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         

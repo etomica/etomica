@@ -55,7 +55,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapSingleWV3DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimSingleWaveVector";
+    private static final String APP_NAME = "SimOverlapSingleWV3DLJ";
     Primitive primitiveTarget, primitiveRef;
     int[] nCells;
     NormalModes nm;
@@ -525,7 +525,7 @@ public class SimOverlapSingleWV3DLJ extends Simulation {
         int numBenSteps = params.bennettNumSteps;
         int benBlockSize = params.benBlockSize;
         
-        System.out.println("Running Nancy's single " +D+"D Lennard Jones simulation");
+        System.out.println("Running " + sim.APP_NAME + ", "+ D +" D");
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);

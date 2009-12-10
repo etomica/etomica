@@ -48,7 +48,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 
 public class SimOverlapMultipleWV3DLJ extends Simulation {
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimOverlapMultipleWaveVectors";
+    private static final String APP_NAME = "SimOverlapMultipleWV3DLJ";
     Primitive primitiveTarget, primitiveRef;
     int[] nCells;
     NormalModesFromFile nm;
@@ -542,7 +542,10 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
-        System.out.println("Running Nancy's 1DHR simulation");
+        //instantiate simulations!
+        SimOverlapMultipleWV3DLJ sim = new SimOverlapMultipleWV3DLJ(Space.getInstance(D), numMolecules,
+                density, temperature, filename, harmonicFudge, comparedWV, harmonicWV);
+        System.out.println("Running " + sim.APP_NAME);
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
@@ -559,10 +562,6 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         System.out.println(numEqSteps+" equilibration steps, split into blocks of "+ eqBlockSize);
         System.out.println(numBenSteps+" Bennett-only steps, split into blocks of "+benBlockSize);
         System.out.println("output data to "+filename);
-        
-        //instantiate simulations!
-        SimOverlapMultipleWV3DLJ sim = new SimOverlapMultipleWV3DLJ(Space.getInstance(D), numMolecules,
-                density, temperature, filename, harmonicFudge, comparedWV, harmonicWV);
         System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
@@ -674,7 +673,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {
-        public int numAtoms = 32;
+        public int numAtoms = 10;
         public double density = 1.3;
         public int D = 3;
         public double harmonicFudge = 1.0;

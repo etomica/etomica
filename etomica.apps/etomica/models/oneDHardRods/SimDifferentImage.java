@@ -68,7 +68,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimDifferentImage extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimDegreeFreedom1DHR";
+    private static final String APP_NAME = "SimDifferentImage";
     public Primitive primitive;
     int[] nCellsTarget, nCellsRef;
     NormalModes nmRef, nmTarg;
@@ -523,18 +523,16 @@ public class SimDifferentImage extends Simulation {
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
-        System.out.println("Running "
+        // instantiate simulation
+        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, 
+                density, runBlockSize, temperature, targWVs, refWVs);
+        System.out.println("Running " + sim.APP_NAME + " "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
         System.out.println(runNumSteps + " steps, " + runBlockSize + " blocksize");
         System.out.println("input data from " + inputFilename);
-        System.out.println("output data to " + filename);
-
-        // instantiate simulation
-        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, 
-                density, runBlockSize, temperature, targWVs, refWVs);
-        System.out.println("instantiated");
+        System.out.println("output data to " + filename);System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
         runNumSteps /= (int)subBlockSize;

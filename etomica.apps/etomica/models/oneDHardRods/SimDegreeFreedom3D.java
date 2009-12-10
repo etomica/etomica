@@ -49,7 +49,7 @@ import etomica.util.ReadParameters;
 public class SimDegreeFreedom3D extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimDegreeFreedom3D1DHR";
+    private static final String APP_NAME = "SimDegreeFreedom3D";
     public Primitive primitive;
     int[] nCells;
     NormalModes nm;
@@ -230,7 +230,9 @@ public class SimDegreeFreedom3D extends Simulation {
         int bs = params.blockSize;
         int nbins = params.nBins;
         
-        System.out.println("Running "
+        // construct simulation
+        SimDegreeFreedom3D sim = new SimDegreeFreedom3D(Space.getInstance(D), nA, density, bs, nbins, inputFilename);
+        System.out.println("Running " + sim.APP_NAME + " "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
@@ -239,9 +241,6 @@ public class SimDegreeFreedom3D extends Simulation {
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
-        // construct simulation
-        SimDegreeFreedom3D sim = new SimDegreeFreedom3D(Space.getInstance(D), nA, density, bs, nbins, inputFilename);
-        
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.setHarmonicWV(comparedWV);

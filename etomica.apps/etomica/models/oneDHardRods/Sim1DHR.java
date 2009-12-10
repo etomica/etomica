@@ -61,7 +61,7 @@ public class Sim1DHR extends Simulation {
 	SpeciesSpheresMono species;
 	NormalModes1DHR nm;
 	
-	private static final String APP_NAME = "Sim 1DHR";
+	private static final String APP_NAME = "Sim1DHR";
 
 	public Sim1DHR(Space _space, int numAtoms, double density, double 
 			temperature, String filename, double harmonicFudge){
@@ -190,17 +190,22 @@ public class Sim1DHR extends Simulation {
         }
         String refFileName = args.length>0 ? filename+"_ref" : null;
         
-        System.out.println("Running 1D hard rod simulation");
-        System.out.println(numAtoms+" atoms at density "+density);
-        System.out.println("harmonic fudge: "+harmonicFudge);
-        System.out.println((numSteps/1000)+ " total steps of 1000");
-        System.out.println("output data to "+filename);
         
         
         
         
         //instantiate simulation
         SimTarget sim = new SimTarget(Space.getInstance(D), numAtoms, density);
+        
+        System.out.println("THis i calling a completely different class " +
+                "constructor than the constructor I expect!");
+        
+        
+        System.out.println("Running 1D hard rod simulation");
+        System.out.println(numAtoms+" atoms at density "+density);
+        System.out.println("harmonic fudge: "+harmonicFudge);
+        System.out.println((numSteps/1000)+ " total steps of 1000");
+        System.out.println("output data to "+filename);
         
         
         

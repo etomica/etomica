@@ -52,7 +52,7 @@ import etomica.util.ReadParameters;
 public class SimDegFreeBinning extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimDegreeFreedom1DHR";
+    private static final String APP_NAME = "SimDefFreeBinning";
     public Primitive primitive;
     int[] nCells;
     NormalModes nm;
@@ -236,7 +236,9 @@ public class SimDegFreeBinning extends Simulation {
         int nbins = params.nBins;
         String outputfn = params.outputname;
         
-        System.out.println("Running "
+        // construct simulation
+        SimDegFreeBinning sim = new SimDegFreeBinning(Space.getInstance(D), nA, density, bs, nbins);
+        System.out.println("Running " + sim.APP_NAME + " "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
@@ -244,9 +246,6 @@ public class SimDegFreeBinning extends Simulation {
         System.out.println(nbins + " starting number of bins");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
-
-        // construct simulation
-        SimDegFreeBinning sim = new SimDegFreeBinning(Space.getInstance(D), nA, density, bs, nbins);
         
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);

@@ -50,7 +50,7 @@ import etomica.util.ReadParameters;
 public class SimExtensiveTest extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimDegreeFreedom1DHR";
+    private static final String APP_NAME = "SimExtensiveTest";
     public Primitive primitive;
     int[] nCells;
     NormalModes nm;
@@ -232,7 +232,10 @@ public class SimExtensiveTest extends Simulation {
         int nbins = params.nBins;
         String outputfn = params.outputname;
         
-        System.out.println("Running "
+        
+        // construct simulation
+        SimExtensiveTest sim = new SimExtensiveTest(Space.getInstance(D), nA, density, bs, nbins);
+        System.out.println("Running " + sim.APP_NAME+ " "
                 + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
                 + " hard sphere simulation");
         System.out.println(nA + " atoms at density " + density);
@@ -240,10 +243,8 @@ public class SimExtensiveTest extends Simulation {
         System.out.println(nbins + " starting number of bins");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
+        System.out.println("instantiated");
 
-        // construct simulation
-        SimExtensiveTest sim = new SimExtensiveTest(Space.getInstance(D), nA, density, bs, nbins);
-        
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.setHarmonicWV(comparedWV);

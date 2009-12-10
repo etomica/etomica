@@ -42,7 +42,7 @@ import etomica.util.ReadParameters;
 public class SimWidomMode extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimDegreeFreedom1DHR";
+    private static final String APP_NAME = "SimWidomMode";
     public Primitive primitive;
     int[] nCells;
     NormalModes nm;
@@ -204,16 +204,14 @@ public class SimWidomMode extends Simulation {
         int nSteps = params.numSteps;
         int bs = params.blockSize;
         
-        System.out.println("Running "
-                + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
-                + " hard sphere simulation");
+        
+        SimWidomMode sim = new SimWidomMode(Space.getInstance(D), nA, density, bs);
+        System.out.println("Running "+ sim.APP_NAME);
         System.out.println(nA + " atoms at density " + density);
         System.out.println(nSteps + " steps, " + bs + " blocksize");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);
 
-        SimWidomMode sim = new SimWidomMode(Space.getInstance(D), nA, density, bs);
-        
         // start simulation
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.setHarmonicWV(comparedWV);

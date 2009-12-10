@@ -465,16 +465,15 @@ public class SimOverlapAB extends Simulation {
         }
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
-        System.out.println("Running Nancy's 1DHR simulation");
-        System.out.println(numMolecules+" atoms at density "+density);
-        System.out.println("harmonic fudge: "+harmonicFudge);
-        System.out.println((numSteps/1000)+" total steps of 1000");
-        System.out.println("output data to "+filename);
         
         //instantiate simulations!
         SimOverlapAB sim = new SimOverlapAB(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, affectedWV);
-        
+        System.out.println("Running " + sim.APP_NAME);
+        System.out.println(numMolecules+" atoms at density "+density);
+        System.out.println("harmonic fudge: "+harmonicFudge);
+        System.out.println((numSteps/1000)+" total steps of 1000");
+        System.out.println("output data to "+filename);
         System.out.println("instantiated");
         
         //start simulation & equilibrate

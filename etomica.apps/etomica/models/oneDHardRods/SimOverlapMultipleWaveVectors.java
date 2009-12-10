@@ -524,20 +524,19 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
-        System.out.println("Running Nancy's 1DHR simulation");
+        
+        //instantiate simulations!
+        SimOverlapMultipleWaveVectors sim = new SimOverlapMultipleWaveVectors(Space.getInstance(D), numMolecules,
+                density, temperature, filename, harmonicFudge, comparedWV, changeableWVs);
+        System.out.println("Running " + sim.APP_NAME);
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
-
         System.out.println("Total steps: "+numSteps+" , split into blocks of "+runBlockSize);
         System.out.println(subBlockSize+" steps in subintegrator, per step in  main integrator");
         System.out.println(numEqSteps+" equilibration steps, split into blocks of "+ eqBlockSize);
         System.out.println(numBenSteps+" Bennett-only steps, split into blocks of "+benBlockSize);
         System.out.println("output data to "+filename);
-        
-        //instantiate simulations!
-        SimOverlapMultipleWaveVectors sim = new SimOverlapMultipleWaveVectors(Space.getInstance(D), numMolecules,
-                density, temperature, filename, harmonicFudge, comparedWV, changeableWVs);
         System.out.println("instantiated");
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
@@ -579,7 +578,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         
         //CALCULATION OF HARMONIC ENERGY
         double AHarmonic = CalcHarmonicA.doit(sim.nm, D, temperature, numMolecules);
-        
 
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
@@ -628,8 +626,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {1, 2};
-        public int[] changeableWV = {3, 4};
+        public int[] comparedWV = {3};
+        public int[] changeableWV = {1, 2};
         
         public int numSteps = 40000;
         public int runBlockSize = 1000;

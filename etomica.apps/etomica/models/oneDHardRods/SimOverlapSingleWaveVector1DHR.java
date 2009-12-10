@@ -50,7 +50,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 
 public class SimOverlapSingleWaveVector1DHR extends Simulation {
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "SimSingleWaveVector";
+    private static final String APP_NAME = "SimOverlapSingleWaveVector1DHR";
     Primitive primitive;
     int[] nCells;
     NormalModes nm;
@@ -77,8 +77,8 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
     DataPump mnmPump;
     WriteS sWriter;
     
-    public SimOverlapSingleWaveVector1DHR(Space _space, int numAtoms, double density, double 
-            temperature, String filename, double harmonicFudge, int awv){
+    public SimOverlapSingleWaveVector1DHR(Space _space, int numAtoms, double density,
+            double temperature,/*String filename,*/ double harmonicFudge, int awv){
         super(_space);
         
 //        long seed = 3;
@@ -131,13 +131,13 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
         
-        if(awv == numAtoms/2){
+//        if(awv == numAtoms/2){
             nm = new NormalModes1DHR(boundaryTarget, numAtoms);
             System.out.println("Perfect 1DHR springs in use");
-        } else {
-            nm = new NormalModesFromFile(filename, space.D());
-            System.out.println("Calculated springs in use");
-        }
+//        } else {
+//            nm = new NormalModesFromFile(filename, space.D());
+//            System.out.println("Calculated springs in use");
+//        }
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
         nm.getOmegaSquared();
@@ -156,6 +156,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(
                 waveVectorFactoryTarget.getCoefficients());
+        changeMove.setOmegaSquared(nm.getOmegaSquared());
         changeMove.setEigenVectors(nm.getEigenvectors());
         changeMove.setCoordinateDefinition(coordinateDefinitionTarget);
         changeMove.setBox((IBox)boxTarget);
@@ -269,7 +270,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
 //        integratorRef.getEventManager().addListener(pumpListener);
         
         sWriter = new WriteS(space);
-        sWriter.setFilename(filename + "_output");
+        sWriter.setFilename(/*filename +*/ "single_output");
         sWriter.setMeter(mnm);
         sWriter.setWaveVectorFactory(mnm.getWaveVectorFactory());
         sWriter.setOverwrite(true);
@@ -311,29 +312,29 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         setBennettParameter(newBennettParameter,1);
     }
     
-    public void initBennettParameter(String fileName, int initSteps, int initBlockSize) {
+    public void initBennettParameter(/*String fileName,*/ int initSteps, int initBlockSize) {
         // benParam = -1 indicates we are searching for an appropriate value
         bennettParam = -1.0;
         integratorSim.getMoveManager().setEquilibrating(true);
         
-        if (fileName != null) {
-            try { 
-                FileReader fileReader = new FileReader(fileName);
-                BufferedReader bufReader = new BufferedReader(fileReader);
-                String benParamString = bufReader.readLine();
-                bennettParam = Double.parseDouble(benParamString);
-                bufReader.close();
-                fileReader.close();
-                System.out.println("setting ref pref (from file) to "+bennettParam);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-                setBennettParameter(bennettParam,1);
-            }
-            catch (IOException e) {
-                System.out.println("Bennett parameter not from file");
-                // file not there, which is ok.
-            }
-        }
+//        if (fileName != null) {
+//            try { 
+//                FileReader fileReader = new FileReader(fileName);
+//                BufferedReader bufReader = new BufferedReader(fileReader);
+//                String benParamString = bufReader.readLine();
+//                bennettParam = Double.parseDouble(benParamString);
+//                bufReader.close();
+//                fileReader.close();
+//                System.out.println("setting ref pref (from file) to "+bennettParam);
+//                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+//                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
+//                setBennettParameter(bennettParam,1);
+//            }
+//            catch (IOException e) {
+//                System.out.println("Bennett parameter not from file");
+//                // file not there, which is ok.
+//            }
+//        }
         
         if (bennettParam == -1) {
             
@@ -421,7 +422,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         }
         catch (ConfigurationOverlapException e) { /* meaningless */ }
     }
-    public void equilibrate(String fileName, int initSteps, int initBlockSize) {
+    public void equilibrate(/*String fileName,*/ int initSteps, int initBlockSize) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
@@ -458,18 +459,18 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,false),1);
             setBennettParameter(bennettParam,1);
-            if (fileName != null) {
-                try {
-                    FileWriter fileWriter = new FileWriter(fileName);
-                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
-                    bufWriter.write(String.valueOf(bennettParam)+"\n");
-                    bufWriter.close();
-                    fileWriter.close();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException("couldn't write to Bennet parameter file");
-                }
-            }
+//            if (fileName != null) {
+//                try {
+//                    FileWriter fileWriter = new FileWriter(fileName);
+//                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
+//                    bufWriter.write(String.valueOf(bennettParam)+"\n");
+//                    bufWriter.close();
+//                    fileWriter.close();
+//                }
+//                catch (IOException e) {
+//                    throw new RuntimeException("couldn't write to Bennet parameter file");
+//                }
+//            }
         }
         else {
             dsvo.reset();
@@ -494,18 +495,18 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         double density = params.density;
         int D = params.D;
         double harmonicFudge = params.harmonicFudge;
-        String filename = params.filename;
-        if(filename.length() == 0){
-            filename = "1DHR";
-        }
+//        String filename = params.filename;
+//        if(filename.length() == 0){
+//            filename = "1DHR";
+//        }
         double temperature = params.temperature;
         int comparedWV = params.comparedWV;
         
-        String refFileName = args.length > 0 ? filename+"_ref" : null;
+//        String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         //instantiate simulations!
         SimOverlapSingleWaveVector1DHR sim = new SimOverlapSingleWaveVector1DHR(Space.getInstance(D), numMolecules,
-                density, temperature, filename, harmonicFudge, comparedWV);
+                density, temperature,/*filename,*/ harmonicFudge, comparedWV);
         int numSteps = params.numSteps;
         int runBlockSize = params.runBlockSize;
         int subBlockSize = params.subBlockSize;
@@ -516,7 +517,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         int numBenSteps = params.bennettNumSteps;
         int benBlockSize = params.benBlockSize;
         
-        System.out.println("Running Nancy's single 1DHR simulation");
+        System.out.println("Running " + sim.APP_NAME);
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
@@ -525,7 +526,7 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         System.out.println(params.subBlockSize+" steps in subintegrator, per step in  main integrator");
         System.out.println(params.eqNumSteps+" equilibration steps, split into blocks of "+ params.eqBlockSize);
         System.out.println(params.bennettNumSteps +" Bennett-only steps, split into blocks of "+params.benBlockSize);
-        System.out.println("output data to "+filename);
+//        System.out.println("output data to "+filename);
 
         System.out.println("instantiated");
         
@@ -539,14 +540,14 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
         sim.setAccumulatorBlockSize(benBlockSize);
-        sim.initBennettParameter(filename, numBenSteps, benBlockSize);
+        sim.initBennettParameter(/*filename,*/ numBenSteps, benBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
         sim.setAccumulatorBlockSize(eqBlockSize);
-        sim.equilibrate(refFileName, numEqSteps, eqBlockSize);
+        sim.equilibrate(/*refFileName,*/ numEqSteps, eqBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
             throw new RuntimeException("Simulation failed to find a valid " +
@@ -689,23 +690,23 @@ public class SimOverlapSingleWaveVector1DHR extends Simulation {
         meterBinB.setComparedWV(awv);
     }
     public static class SimOverlapSingleWaveVectorParam extends ParameterBase {
-        public int numAtoms = 6;
+        public int numAtoms = 32;
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
-        public String filename = "HR1D_";
+//        public String filename = "HR1D_";
         public double temperature = 1.0;
         public int comparedWV = 3;
         
-        public int numSteps = 4000000;
-        public int runBlockSize = 10000;
+        public int numSteps = 40000000;
+        public int runBlockSize = 1000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
 
         public int eqNumSteps = 40000;  
-        public int eqBlockSize = 10000;
+        public int eqBlockSize = 1000;
         
         public int bennettNumSteps = 40000;
-        public int benBlockSize = 10000;
+        public int benBlockSize = 1000;
 
     }
     
