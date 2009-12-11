@@ -63,7 +63,7 @@ import etomica.util.HistoryCollapsingAverage;
  */
 public class CatalysisGraphic extends SimulationGraphic {
 
-    private final static String APP_NAME = "Square-Well Molecular Dynamics";
+    private final static String APP_NAME = "Catalysis";
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
     protected Catalysis sim;
