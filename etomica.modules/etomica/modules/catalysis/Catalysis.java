@@ -91,7 +91,7 @@ public class Catalysis extends Simulation {
 	    potentialOO = new P2SquareWellBonding(space, interactionTracker.getAgentManager(), sigmaO, 1.3, epsilonO, minOSites, Kelvin.UNIT.toSim(300), Kelvin.UNIT.toSim(400), 7.4);
         potentialMaster.addPotential(potentialOO,new IAtomType[]{speciesO.getLeafType(), speciesO.getLeafType()});
 
-        potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaC), 1.1, Math.sqrt(epsilonC*epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(1500), 7.4);
+        potentialCO = new P2SquareWellBondingCO(space, interactionTracker.getAgentManager(), 0.5*(sigmaO+sigmaC), 1.1, Math.sqrt(epsilonC*epsilonO), 20, Kelvin.UNIT.toSim(400), Kelvin.UNIT.toSim(7500), 7.4);
         potentialMaster.addPotential(potentialCO,new IAtomType[]{speciesO.getLeafType(), speciesC.getLeafType()});
 
         potentialCC = new P2SquareWell(space, sigmaC, 1.3, epsilonC, false);
