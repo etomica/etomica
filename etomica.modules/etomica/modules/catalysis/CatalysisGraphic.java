@@ -787,7 +787,7 @@ public class CatalysisGraphic extends SimulationGraphic {
             
             if(args.length > 1) {
                 try {
-                    nCellsZ = Integer.parseInt(args[0]);
+                    nCellsZ = Integer.parseInt(args[1]);
                 } catch(NumberFormatException e) {}
             }
         }
