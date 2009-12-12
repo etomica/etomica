@@ -45,7 +45,7 @@ public class Catalysis extends Simulation {
     public final InteractionTracker interactionTracker;
     public final ReactionManagerCO reactionManagerCO;
     
-    public Catalysis(ISpace _space) {
+    public Catalysis(ISpace _space, int nCellsZ) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 9, space); //List(this, 2.0);
         
@@ -136,8 +136,8 @@ public class Catalysis extends Simulation {
         int nCO = 40, nO2 = 40;
         
         config = new ConfigurationCatalysis(this, space, speciesSurface, speciesC, speciesO, interactionTracker.getAgentManager());
-        config.setNCellsX(30);
-        config.setNCellsZ(20);
+        config.setNCellsX(nCellsZ*3/2);
+        config.setNCellsZ(nCellsZ);
         config.setCellSizeX(sigmaS);
         config.setCellSizeZ(sigmaS*Math.sqrt(3));
         config.setNumCO(nCO);
@@ -148,21 +148,10 @@ public class Catalysis extends Simulation {
     }
     
     public static void main(String[] args) {
-        System.out.println(1000*Mole.UNIT.fromSim(Calorie.UNIT.toSim(0.15)));
-//        System.out.println(Kelvin.UNIT.fromSim(ElectronVolt.UNIT.toSim(1)));
-//        System.out.println();
-//        System.exit(1);
-        Space space = Space3D.getInstance();
-        if(args.length != 0) {
-            try {
-                int D = Integer.parseInt(args[0]);
-                if (D == 3) {
-                    space = Space3D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-            
-        Catalysis sim = new Catalysis(space);
+        ISpace space = Space3D.getInstance();
+        int nCellsZ = 20;
+        
+        Catalysis sim = new Catalysis(space, nCellsZ);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1, sim.space, sim.getController());
         simGraphic.makeAndDisplayFrame();
     }

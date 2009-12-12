@@ -779,13 +779,20 @@ public class CatalysisGraphic extends SimulationGraphic {
     public static void main(String[] args) {
         ISpace space = Space3D.getInstance();
         boolean showParams = false;
+        int nCellsZ = 20;
         if(args.length != 0) {
             try {
                 showParams = Integer.parseInt(args[0]) != 0;
             } catch(NumberFormatException e) {}
+            
+            if(args.length > 1) {
+                try {
+                    nCellsZ = Integer.parseInt(args[0]);
+                } catch(NumberFormatException e) {}
+            }
         }
 
-        CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(space), space, showParams);
+        CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(space, nCellsZ), space, showParams);
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
     }
@@ -800,8 +807,13 @@ public class CatalysisGraphic extends SimulationGraphic {
             if (paramStr != null) {
                 showParams = Integer.valueOf(paramStr) != 0;
             }
+            int nCellsZ = 20;
+            String nCellsZStr = getParameter("nCellsZ");
+            if (nCellsZStr != null) {
+                nCellsZ = Integer.valueOf(nCellsZStr);
+            }
             ISpace sp = Space3D.getInstance();
-            CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(sp), sp, showParams);
+            CatalysisGraphic swmdGraphic = new CatalysisGraphic(new Catalysis(sp, nCellsZ), sp, showParams);
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }
