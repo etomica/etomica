@@ -11,6 +11,7 @@ import etomica.virial.cluster2.graph.isomorphism.Match;
 
 public class TestNaiveEdgesGenerator extends CustomTestCase {
 
+  private boolean enumArticulationPoint = false;
   private boolean enumConnected = false;
   private boolean enumBiconnected = false;
   private boolean enumNodalPoint = false;
@@ -126,6 +127,16 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
           filter = chained;
         }
       }
+      // cheap filter for articulation point free graphs
+      if (enumArticulationPoint) {
+        EdgesFilter chained = ffactory.articulationPointFilter(nodes);
+        if (filter != null) {
+          filter.chain(chained);
+        }
+        else {
+          filter = chained;
+        }
+      }
       runGC();
       time1 = System.nanoTime();
       // create family
@@ -143,7 +154,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
       printEnumerated(numNodes);
       printRuntime();
       printMemory();
-      if (!enumConnected && !enumBiconnected && !enumNodalPoint && minEdges < 0 && maxEdges < 0
+      if (!enumConnected && !enumBiconnected && !enumNodalPoint && !enumArticulationPoint && minEdges < 0 && maxEdges < 0
           && !isomorphFree && !dropRootEdges) {
         assertEquals(expected, enumerated, 0.0001);
       }
@@ -163,6 +174,8 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     rangeEnd = 5;
     enumConnected = false;
     enumBiconnected = false;
+    enumArticulationPoint = false;
+    enumNodalPoint = false;
     nullFiltered = false;
     printMemory = true;
     printPermutations = false;
@@ -228,7 +241,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     enumConnected = true;
     dropRootEdges = true;
     // baseTest();
-//     baseTest(2);
+    // baseTest(2);
   }
 
   public void testBiconnected() {
@@ -239,7 +252,7 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     rangeBegin = 1;
     rangeEnd = 7;
     enumBiconnected = true;
-//    printPermutations = false;
+    // printPermutations = false;
     // isomorphFree = true;
     dropRootEdges = true;
     // baseTest();
@@ -257,8 +270,23 @@ public class TestNaiveEdgesGenerator extends CustomTestCase {
     printPermutations = false;
     // isomorphFree = true;
     dropRootEdges = true;
-  baseTest(2);
-//  baseTest(3);
+     // baseTest(2);
+     // baseTest(3);
+  }
+
+  public void testArticulationPoint() {
+
+    reset();
+    printTest("Articulation Point");
+    // OK: 09-09-15
+    rangeBegin = 4;
+    rangeEnd = 4;
+    enumArticulationPoint = true;
+    printPermutations = true;
+    // isomorphFree = true;
+    dropRootEdges = true;
+    //baseTest(2);
+    // baseTest(3);
   }
 
   public void testNullFilteredGeneral() {

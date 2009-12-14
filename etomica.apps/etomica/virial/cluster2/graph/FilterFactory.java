@@ -13,6 +13,7 @@ public class FilterFactory {
 	public static final String TAG_TRUE_FILTER = "TRUE";
 	public static final String TAG_BICONNECTED = "Biconnected";
 	public static final String TAG_NODAL_POINT = "Nodal Point";
+  public static final String TAG_ARTICULATION_POINT = "Articulation Point";
 	public static final String TAG_CONNECTED = "Connected";
 	public static final String TAG_ISOMORPH_FREE = "Isomorph-Free";
 	public static final String TAG_NO_ROOT_EDGES = "No Root Edges";
@@ -114,7 +115,25 @@ public class FilterFactory {
 		};
 	}
 
-	public EdgesFilter isomorphismFilter(final Nodes nodes,
+  public EdgesFilter articulationPointFilter(final Nodes nodes) {
+
+    return new AbstractEdgesFilter() {
+
+      @Override
+      protected boolean doAccept(Edges edges, List<Edges> edgesList) {
+
+        return !Algorithms.hasArticulationPoint(nodes, edges);
+      }
+
+      @Override
+      protected String tag() {
+
+        return TAG_ARTICULATION_POINT;
+      }
+    };
+  }
+
+  public EdgesFilter isomorphismFilter(final Nodes nodes,
 			final List<Edges> edgesList) {
 
 		return new AbstractEdgesFilter() {
