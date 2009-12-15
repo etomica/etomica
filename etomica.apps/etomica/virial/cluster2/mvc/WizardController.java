@@ -19,7 +19,7 @@ public abstract class WizardController implements Runnable, ViewResponseListener
     // initialize the state, create the wizard
     preProcess();
     // first wizard page
-    WizardPageView pageView = nextPageView(null);
+    WizardPageView pageView = nextPageView(null, null);
     // CONTRACT: there must exist a view corresponding to the action response
     assert (pageView != null);
     // the wizard attaches its public UI to the page view
@@ -55,7 +55,7 @@ public abstract class WizardController implements Runnable, ViewResponseListener
     // detach the current view because we are done with it
     getWizard().detachPageView((WizardPageView) viewResponse.getView());
     if (!actionResponse.getStatus().isTerminated()) {
-      WizardPageView pageView = nextPageView(actionResponse);
+      WizardPageView pageView = nextPageView(actionResponse, viewResponse);
       // CONTRACT: there must exist a view corresponding to the action response
       assert (pageView != null);
       // the wizard attaches its public UI to the page view
@@ -125,5 +125,5 @@ public abstract class WizardController implements Runnable, ViewResponseListener
    * and the last action response.
    *
    */
-  protected abstract WizardPageView nextPageView(ActionResponse response);
+  protected abstract WizardPageView nextPageView(ActionResponse actionResponse, ViewResponse viewResponse);
 }

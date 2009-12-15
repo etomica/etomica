@@ -4,19 +4,13 @@ import java.awt.AlphaComposite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.LookAndFeel;
@@ -38,8 +32,8 @@ import com.jgoodies.looks.plastic.theme.SkyKrupp;
 public class ApplicationUI {
 
   /**
-   * The constants below provide a number of choices for each of the
-   * configurable options of the application.
+   * The constants below provide a number of choices for each of the configurable options
+   * of the application.
    */
   // Icon Size options
   public static final Dimension IS_DIM1 = new Dimension(18, 18);
@@ -57,10 +51,10 @@ public class ApplicationUI {
   public static final String THM_SKYBLUE = "SkyBlue";
   public static final String THM_SKYKRUPP = "SkyKrupp";
   // Resource relative base folder
-  public static final String RESOURCE_BASE_FOLDER = "resources/images/";
+  public static final String RESOURCE_BASE_FOLDER = "images/";
   /**
-   * The constants below define the actual values for each of the configurable
-   * options above.
+   * The constants below define the actual values for each of the configurable options
+   * above.
    */
   // Default Icon Size
   public static final Dimension DF_ICON_SIZE = IS_DIM1;
@@ -68,39 +62,40 @@ public class ApplicationUI {
   public static final String LF_CHOICE = LF_PLASTIC3D;
   // Look and Feel
   public static final String THM_CHOICE = THM_EXPERIENCER;
+  // use the theme's control background color for our custom dialogs instead of the
+  // theme's dialog background
+  public static boolean overrideDialogBackground = false;
   // UI standard settings
   public static final JGoodiesSettings uiSettings = defaultUISettings();
 
   /**
-   * Configures the user interface; requests Swing settings and JGoodies Looks
-   * options from the launcher.
+   * Configures the user interface; requests Swing settings and JGoodies Looks options
+   * from the launcher.
    */
   public static void configure() {
 
     // UIManager.put("ToolTip.hideAccelerator", Boolean.FALSE);
     Options.setDefaultIconSize(DF_ICON_SIZE);
     Options.setUseNarrowButtons(uiSettings.isUseNarrowButtons());
-// Global options
+    // Global options
     Options.setTabIconsEnabled(uiSettings.isTabIconsEnabled());
-    UIManager.put(Options.POPUP_DROP_SHADOW_ENABLED_KEY, uiSettings
-        .isPopupDropShadowEnabled());
-// Swing Settings
+    UIManager.put(Options.POPUP_DROP_SHADOW_ENABLED_KEY, uiSettings.isPopupDropShadowEnabled());
+    // Swing Settings
     LookAndFeel selectedLaf = uiSettings.getSelectedLookAndFeel();
     if (selectedLaf instanceof PlasticLookAndFeel) {
       PlasticLookAndFeel.setPlasticTheme(uiSettings.getSelectedTheme());
       PlasticLookAndFeel.setTabStyle(uiSettings.getPlasticTabStyle());
-      PlasticLookAndFeel.setHighContrastFocusColorsEnabled(uiSettings
-          .isPlasticHighContrastFocusEnabled());
+      PlasticLookAndFeel.setHighContrastFocusColorsEnabled(uiSettings.isPlasticHighContrastFocusEnabled());
     }
     else if (selectedLaf.getClass() == MetalLookAndFeel.class) {
       MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
     }
-// Work around caching in MetalRadioButtonUI
+    // Work around caching in MetalRadioButtonUI
     JRadioButton radio = new JRadioButton();
     radio.getUI().uninstallUI(radio);
     JCheckBox checkBox = new JCheckBox();
     checkBox.getUI().uninstallUI(checkBox);
-// try setting the look and feel
+    // try setting the look and feel
     try {
       UIManager.setLookAndFeel(selectedLaf);
     }
@@ -117,8 +112,10 @@ public class ApplicationUI {
     JGoodiesSettings settings = JGoodiesSettings.createDefault();
     settings.setSelectedLookAndFeel(getLookAndFeel());
     settings.setTabIconsEnabled(true);
-    settings.setSelectedTheme(getTheme());
+    settings.setSelectedTheme(getTheme()); // PlasticLookAndFeel.createMyDefaultTheme()
     // Configure more settings here.
+    UIManager.put("Application.useSystemFontSettings", Boolean.TRUE);
+    UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
     return settings;
   }
 
@@ -148,8 +145,7 @@ public class ApplicationUI {
         // Get the image's graphics
         Graphics2D g = image.createGraphics();
         // Set the Graphics composite to Alpha
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-            transparency));
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transparency));
         // Draw the LOADED image onto the actual image
         g.drawImage(memImage, null, 0, 0);
         // let go of all system resources in this Graphics
@@ -180,11 +176,16 @@ public class ApplicationUI {
         prefSize.height = arNum * getHeight() / arDen;
         prefSize.width = prefSize.height * arWidth / arHeight;
       }
-// System.out.println(getWidth() + ":" + getHeight() + ":"
-// + image.getWidth() + ":" + image.getHeight() + ":"
-// + prefSize.getWidth() + ":" + prefSize.getHeight());
-      g.drawImage(image, getWidth() - prefSize.width - delta, getHeight()
-          - prefSize.height - delta, prefSize.width, prefSize.height, null);
+      // System.out.println(getWidth() + ":" + getHeight() + ":"
+      // + image.getWidth() + ":" + image.getHeight() + ":"
+      // + prefSize.getWidth() + ":" + prefSize.getHeight());
+      g.drawImage(image, getWidth() - prefSize.width - delta, getHeight() - prefSize.height - delta,
+          prefSize.width, prefSize.height, null);
+      // System.err.println("components: " + getComponentCount());
+      // for (int i = 0; i < getComponentCount(); i++) {
+      // System.err.println("component #" + i + ": " +
+      // getComponent(i).getClass().getName());
+      // }
     }
   }
 

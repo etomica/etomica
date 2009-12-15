@@ -11,7 +11,7 @@ import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 /**
  * Describes most of the optional settings of the JGoodies Looks. Used by the
  * <code>DemoFrame</code> to configure the UI.
- * 
+ *
  * @author Karsten Lentzsch
  * @version $Revision$
  * @see com.jgoodies.looks.BorderStyle

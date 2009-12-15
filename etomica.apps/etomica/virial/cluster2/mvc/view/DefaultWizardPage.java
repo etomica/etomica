@@ -1,6 +1,5 @@
 package etomica.virial.cluster2.mvc.view;
 
-import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -8,7 +7,6 @@ import java.awt.event.KeyAdapter;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.virial.cluster2.mvc.DefaultState;
@@ -22,12 +20,15 @@ import etomica.virial.cluster2.mvc.WizardPageView;
 
 public class DefaultWizardPage implements WizardPageView {
 
-  private static Boolean onOff = true;
   private ViewResponseListener viewResponseListener;
   private State data = new DefaultState();
   private MouseAdapter mouseAdapter;
   private KeyAdapter keyAdapter;
 
+  /**
+   * Creates the wizard page and default keyboard and mouse handlers to delegate the
+   * handling to the appropriate methods.
+   */
   public DefaultWizardPage() {
 
     keyAdapter = new KeyAdapter() {
@@ -35,21 +36,23 @@ public class DefaultWizardPage implements WizardPageView {
       @Override
       public void keyPressed(KeyEvent e) {
 
-        if (e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_ENTER) {
-          if (e.getComponent() == data.getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
-            doNext();
-          }
-          else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
-            doBack();
-          }
-          else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
-            doCancel();
-          }
-          else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
-            doHelp();
-          }
-          else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
-            doFinish();
+        if (e.getComponent().isEnabled()) {
+          if (e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
+              doNext();
+            }
+            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
+              doBack();
+            }
+            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
+              doCancel();
+            }
+            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
+              doHelp();
+            }
+            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
+              doFinish();
+            }
           }
         }
       }
@@ -60,20 +63,22 @@ public class DefaultWizardPage implements WizardPageView {
       @Override
       public void mouseClicked(MouseEvent e) {
 
-        if (e.getComponent() == data.getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
-          doNext();
-        }
-        else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
-          doBack();
-        }
-        else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
-          doCancel();
-        }
-        else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
-          doHelp();
-        }
-        else if (e.getComponent() == data.getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
-          doFinish();
+        if (e.getComponent().isEnabled()) {
+          if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
+            doNext();
+          }
+          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
+            doBack();
+          }
+          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
+            doCancel();
+          }
+          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
+            doHelp();
+          }
+          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
+            doFinish();
+          }
         }
       }
     };
@@ -81,131 +86,131 @@ public class DefaultWizardPage implements WizardPageView {
 
   public void attach(String key, Object object) {
 
-    data.setProperty(key, object);
+    getData().setProperty(key, object);
 
     if (object instanceof JButton) {
-      ((JButton) object).addMouseListener(mouseAdapter);
-      ((JButton) object).addKeyListener(keyAdapter);
+      attachButton(key, (JButton) object);
     }
-    else {
-      JPanel panel = (JPanel) object;
-      if (panel == data.getProperty(ClusterWizard.KEY_MODEL_PANE)) {
-        panel.setBackground(Color.CYAN);
-        panel.setOpaque(onOff);
-        onOff = !onOff;
-        Double randomSeed = Math.random();
-        JLabel label = new JLabel("Called from attach: @" + randomSeed);
-        panel.add(label);
-        if (randomSeed > 0.5) {
-          JButton button = new JButton("Click me, dude");
-          panel.add(button);
-        }
-      }
+    else if (object instanceof JPanel) {
+      attachPanel(key, (JPanel) object);
     }
   }
 
-  protected void doFinish() {
+  protected void attachButton(String key, JButton button) {
 
-    final WizardPageView thisView = this;
-    viewResponseListener.onViewResponse(new ViewResponse() {
-
-      public ViewStatus getStatus() {
-
-        return ViewStatus.COMPLETE_SUCCESS;
-      }
-
-      public View getView() {
-
-        return thisView;
-      }
-
-      public State getData() {
-
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-      public List<MVCException> getErrors() {
-
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-    });
+    button.addMouseListener(mouseAdapter);
+    button.addKeyListener(keyAdapter);
   }
 
-  protected void doHelp() {
+  public void attachDone() {
 
-    // viewResponseListener.onViewResponse(viewResponse);
+    // no-op here; descendant classes can override this
   }
 
-  protected void doCancel() {
+  protected void attachPanel(String key, JPanel panel) {
 
-    // viewResponseListener.onViewResponse(viewResponse);
-  }
-
-  protected void doBack() {
-
-    // viewResponseListener.onViewResponse(viewResponse);
-  }
-
-  protected void doNext() {
-
-    final WizardPageView thisView = this;
-    viewResponseListener.onViewResponse(new ViewResponse() {
-
-      public ViewStatus getStatus() {
-
-        return ViewStatus.CONTINUE_NEXT;
-      }
-
-      public View getView() {
-
-        return thisView;
-      }
-
-      public State getData() {
-
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-      public List<MVCException> getErrors() {
-
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-    });
-  }
-
-  public void detach(String key, Object object) {
-
-    if (object instanceof JButton) {
-      JButton button = (JButton) object;
-      button.removeMouseListener(mouseAdapter);
-      button.removeKeyListener(keyAdapter);
-    }
-    if (key.equals(ClusterWizard.KEY_MODEL_PANE)) {
-      ((JPanel) object).removeAll();
-    }
+    // no-op here; descendant classes can override this
   }
 
   public void configure(State state) {
 
     for (String key : state.getKeys()) {
-      data.setProperty(key, state.getProperty(key));
+      getData().setProperty(key, state.getProperty(key));
     }
+  }
+
+  protected ViewResponse createResponse(final ViewStatus status, final List<MVCException> errors) {
+
+    final WizardPageView thisView = this;
+    return new ViewResponse() {
+
+      public State getData() {
+
+        return getData();
+      }
+
+      public List<MVCException> getErrors() {
+
+        return errors;
+      }
+
+      public ViewStatus getStatus() {
+
+        return status;
+      }
+
+      public View getView() {
+
+        return thisView;
+      }
+
+    };
+  }
+
+  public void detach(String key, Object object) {
+
+    if (object instanceof JButton) {
+      detachButton(key, (JButton) object);
+    }
+    if (key.startsWith(ClusterWizard.KEY_PANE)) {
+      detachPanel(key, (JPanel) object);
+    }
+  }
+
+  protected void detachButton(String key, JButton button) {
+
+    button.removeMouseListener(mouseAdapter);
+    button.removeKeyListener(keyAdapter);
+  }
+
+  public void detachDone() {
+
+    display();
+  }
+
+  protected void detachPanel(String key, JPanel panel) {
+
+    panel.removeAll();
   }
 
   public void display() {
 
-    JPanel modelPane = (JPanel) data.getProperty(ClusterWizard.KEY_MODEL_PANE);
+    JPanel modelPane = (JPanel) getData().getProperty(ClusterWizard.KEY_MODEL_PANE);
     modelPane.validate();
     modelPane.repaint();
-    JPanel figurePane = (JPanel) data.getProperty(ClusterWizard.KEY_FIGURE_PANE);
+    JPanel figurePane = (JPanel) getData().getProperty(ClusterWizard.KEY_FIGURE_PANE);
     figurePane.validate();
     figurePane.repaint();
+  }
+
+  protected void doBack() {
+
+    viewResponseListener.onViewResponse(createResponse(ViewStatus.CONTINUE_PRIOR, null));
+  }
+
+  protected void doCancel() {
+
+    viewResponseListener.onViewResponse(createResponse(ViewStatus.COMPLETE_USER_CANCELED, null));
+  }
+
+  protected void doFinish() {
+
+    viewResponseListener.onViewResponse(createResponse(ViewStatus.COMPLETE_SUCCESS, null));
+  }
+
+  protected void doHelp() {
+
+    viewResponseListener.onViewResponse(createResponse(ViewStatus.CONTINUE_HELP, null));
+  }
+
+  protected void doNext() {
+
+    viewResponseListener.onViewResponse(createResponse(ViewStatus.CONTINUE_NEXT, null));
+  }
+
+  protected State getData() {
+
+    return data;
   }
 
   public void setResponseListener(ViewResponseListener listener) {

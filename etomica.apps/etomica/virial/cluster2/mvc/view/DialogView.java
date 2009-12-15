@@ -6,30 +6,34 @@ import java.awt.Frame;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import com.jgoodies.looks.LookUtils;
 
 import etomica.virial.cluster2.mvc.State;
 import etomica.virial.cluster2.mvc.View;
-import etomica.virial.cluster2.mvc.ViewResponse;
 
 public abstract class DialogView extends JDialog implements View {
 
   private static final long serialVersionUID = 1988692491467886360L;
   // Dialog's Preferred Dimensions
-// public static final Dimension DP_DIM1 = new Dimension(560, 420);
-// public static final Dimension DP_DIM2 = new Dimension(640, 480);
-// public static final Dimension DP_DIM3 = new Dimension(720, 540);
-// public static final Dimension DP_DIM4 = new Dimension(800, 600);
-  public static final Dimension DP_DIM1 = new Dimension(720, 540);
-  public static final Dimension DP_DIM2 = new Dimension(800, 600);
-  public static final Dimension DP_DIM3 = new Dimension(880, 660);
-  public static final Dimension DP_DIM4 = new Dimension(960, 720);
+  public static final Dimension DP_DIM1 = new Dimension(560, 420);
+  public static final Dimension DP_DIM2 = new Dimension(640, 480);
+  public static final Dimension DP_DIM3 = new Dimension(720, 540);
+  public static final Dimension DP_DIM4 = new Dimension(800, 600);
+  public static final Dimension DP_DIM5 = new Dimension(880, 660);
+  public static final Dimension DP_DIM6 = new Dimension(960, 720);
 
   public DialogView(final Frame owner, final String dialogTitle) {
 
     super(owner, dialogTitle);
+    // because our DialogView extends JDialog, the background color picked
+    // from the theme is not the same as if we had used a JFrame; we use an
+    // extra setting to decide whether to override this setting
+    if (ApplicationUI.overrideDialogBackground) {
+      setBackground(ApplicationUI.uiSettings.getSelectedTheme().getControl());
+    }
   }
 
   public DialogView(final String dialogTitle) {
@@ -49,13 +53,13 @@ public abstract class DialogView extends JDialog implements View {
   // Determines this dialogs's preferred size in high resolution
   protected Dimension getPreferredHighResSize() {
 
-    return DP_DIM3;
+    return DP_DIM6;
   }
 
   // Determines this dialogs's preferred size in low resolution
   protected Dimension getPreferredLowResSize() {
 
-    return DP_DIM2;
+    return DP_DIM4;
   }
 
   public void display() {

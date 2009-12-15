@@ -39,6 +39,7 @@ public class ClusterWizard extends DialogView implements WizardView {
   public static final int WZL_LEFT_FIGURE = 0x0001;
   public static final int WZL_TOP_FIGURE = 0x0002;
   public static final String IMG_BACKGROUND = "cluster_4.png";
+
   private JPanel mainPane = null;
   private JPanel wizardPane = null;
   private JPanel modelPane = null;
@@ -49,6 +50,7 @@ public class ClusterWizard extends DialogView implements WizardView {
   private JButton nextButton = null;
   private JButton cancelButton = null;
   private JButton finishButton = null;
+
   private int wizardLayout = WZL_LEFT_FIGURE;
   private boolean localOpaque = false;
   private int delta = 10;
@@ -166,6 +168,7 @@ public class ClusterWizard extends DialogView implements WizardView {
     pageView.detach(KEY_BACK_BUTTON, backButton);
     pageView.detach(KEY_CANCEL_BUTTON, cancelButton);
     pageView.detach(KEY_FINISH_BUTTON, finishButton);
+    pageView.detachDone();
   }
 
   public void attachPageView(WizardPageView pageView) {
@@ -177,6 +180,7 @@ public class ClusterWizard extends DialogView implements WizardView {
     pageView.attach(KEY_BACK_BUTTON, backButton);
     pageView.attach(KEY_CANCEL_BUTTON, cancelButton);
     pageView.attach(KEY_FINISH_BUTTON, finishButton);
+    pageView.attachDone();
   }
 
   protected void buildControlBar() {
