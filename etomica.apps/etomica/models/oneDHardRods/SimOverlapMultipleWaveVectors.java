@@ -263,29 +263,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         potentialMasterRef.getNeighborManager(boxRef).reset();
         
         
-//        meterBinB.getSingle().setCoordinateDefinition(coordinateDefinitionRef);
-//        meterBinB.getSingle().setEigenVectors(nm.getEigenvectors(boxRef));
-//        meterBinB.getSingle().setOmegaSquared(nm.getOmegaSquared(boxRef));
-//        meterBinB.getSingle().setTemperature(temperature);
-//        meterBinB.getSingle().setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-//        meterBinB.getSingle().setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-//        meterBinB.setA(false);
-        
-//        singleBinB = new MeterCompareSingleModeBrute(potentialMasterRef, 
-//                coordinateDefinitionRef, boxRef);
-//        singleBinB.setCoordinateDefinition(coordinateDefinitionRef);
-//        singleBinB.setEigenVectors(nm.getEigenvectors(boxRef));
-//        singleBinB.setOmegaSquared(nm.getOmegaSquared(boxRef));
-//        singleBinB.setTemperature(temperature);
-//        singleBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-//        singleBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
-//        
-//        
-//        MeterOverlap singleOverlapInB = new MeterOverlap("SingleOverlapInB", Null.DIMENSION, singleBinB, meterAinB, temperature);
-//        bMeters[0] = singleOverlapInB;
-        
-        
-        
 //JOINT
         //Set up the rest of the joint stuff
         setComparedWV(compWV);
@@ -611,6 +588,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinB.setComparedWV(cwvs);
         meterBinA.setComparedWV(cwvs);
         compareMove.setComparedWV(cwvs);
+        changeMove.setComparedWV(cwvs);
         
         System.out.println("Compared WV: ");
         for (int i = 0; i < cwvs.length; i++){
@@ -619,7 +597,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public void setChangeableWVs(int[] cwvs){
-        changeMove.setChangeableWVs(cwvs);
+        changeMove.setChangeableWV(cwvs);
         compareMove.setChangeableWVs(cwvs);
         
         System.out.println("Hard Rod WV: ");
