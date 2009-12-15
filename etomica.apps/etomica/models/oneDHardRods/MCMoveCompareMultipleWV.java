@@ -85,22 +85,12 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
             System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
         }
         
-
-        double realCoord = 0.0;  //Don't worry; we rezero them later!
-        double imagCoord = 0.0;
         for (int wvCount = 0; wvCount < numWV; wvCount++) {
             int comparedwv = comparedWVs[wvCount];
             
             // Get normal mode coordinate information
             coordinateDefinition.calcT(waveVectors[comparedwv], realT, imagT);
-            // Calculate the current coordinate:
-            for(int i = 0; i < coordinateDim; i++) {
-                realCoord = 0.0; imagCoord = 0.0;
-                for (int j = 0; j < coordinateDim; j++) {
-                    realCoord += eigenVectors[comparedwv][i][j] * realT[j];
-                    imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
-                }
-            }
+            
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 cell = cells[iCell];
                 uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -114,7 +104,13 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
                 double kR = waveVectors[comparedwv].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for (int i = 0; i < coordinateDim; i++) {
+                for (int i = 0; i < coordinateDim; i++) {// Calculate the current coordinate:
+                    double realCoord = 0.0;
+                    double imagCoord = 0.0;
+                    for (int j = 0; j < coordinateDim; j++) {
+                        realCoord += eigenVectors[comparedwv][i][j] * realT[j];
+                        imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
+                    }
                     for (int j = 0; j < coordinateDim; j++) {
                         deltaU[j] -= waveVectorCoefficients[comparedwv] 
                                 * eigenVectors[comparedwv][i][j] * 2.0
@@ -201,6 +197,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
         //This should loop over the wave vectors that we are comparing.
         for(int wvCount = 0; wvCount < numWV; wvCount++){
             int comparedwv = comparedWVs[wvCount];
+            
             for (int j = 0; j < coordinateDim; j++) {
                 if (stdDev[comparedwv][j] == 0) {continue;}
                 // generate real and imaginary parts of random normal-emode
