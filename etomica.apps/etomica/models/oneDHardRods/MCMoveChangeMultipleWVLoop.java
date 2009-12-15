@@ -30,14 +30,14 @@ public class MCMoveChangeMultipleWVLoop extends MCMoveBoxStep{
     protected double[][] uOld;
     protected double[] deltaU;
     protected final IRandom random;
-    protected double energyOld, energyNew /*, latticeEnergy*/;
+    protected double energyOld, energyNew;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV;
-    int[] harmonicWaveVectors;  //all wvs from the harmonic wv are not changed.
+    int[] harmonicWaveVectors;  //all wvs from this are not changed.
     
     
     public MCMoveChangeMultipleWVLoop(IPotentialMaster potentialMaster, IRandom random) {
@@ -112,7 +112,6 @@ public class MCMoveChangeMultipleWVLoop extends MCMoveBoxStep{
         
         // assume that the first cell is the same as every other cell.
         BasisCell cell = cells[0];
-//        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
         
         // Select the wave vector whose eigenvectors will be changed.
@@ -134,31 +133,6 @@ public class MCMoveChangeMultipleWVLoop extends MCMoveBoxStep{
         for ( int i = 0; i < coordinateDim*2; i++) {
             delta[i] = (2*random.nextDouble()-1) * stepSize;
         }
-        
-//        delta[0] = -0.0029653237447294246;
-//        delta[1] = 0.0016316722166146214;
-//        delta[2] = 0.0030751866954766773;
-//        delta[3] = 0.008012405061567083;
-//        delta[4] = -0.006694646160710827;
-//        delta[5] = 0.008860310911614997;
-//        delta[6] = 0.0030797600498032197;
-//        delta[7] = 0.0038382598846641858;
-//        delta[8] = 0.0029754973545280295;
-//        delta[9] = -0.006403666076344965;
-//        delta[10] = -0.0024842357739646103;
-//        delta[11] = 0.0064143765696891356;
-//        delta[12] = 0.0059169632522216385;
-//        delta[13] = 0.007540547168508485;
-//        delta[14] = -0.009634032291220392;
-//        delta[15] = 6.969264890624771E-4;
-//        delta[16] = 0.0010155124952521645;
-//        delta[17] = -0.005026848827159598;
-//        delta[18] = -0.008215967301386084;
-//        delta[19] = -0.00553170904372634;
-//        delta[20] = -7.588581703999287E-4;
-//        delta[21] = -0.003466895374507657;
-//        delta[22] = -7.729910137865504E-4;
-//        delta[23] = 0.009934004383833723;
         
         for(int iCell = 0; iCell < cells.length; iCell++){
             //store old positions.
