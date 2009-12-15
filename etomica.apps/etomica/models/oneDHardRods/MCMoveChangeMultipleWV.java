@@ -30,14 +30,14 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     protected double[][] uOld;
     protected double[] deltaU;
     protected final IRandom random;
-    protected double energyOld, energyNew /*, latticeEnergy*/;
+    protected double energyOld, energyNew;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
     private double[][] omega2;
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV;
-    int[] changeableWVs;  //all wvs from the harmonic wv are not changed.
+    int[] comparedWVs, changeableWVs;  //all wvs from this are changed.
     
     
     public MCMoveChangeMultipleWV(IPotentialMaster potentialMaster, IRandom random) {
@@ -58,10 +58,31 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         return coordinateDefinition;
     }
     
-    public void setChangeableWVs(int[] wv){
-        changeableWVs = wv;
+    public void setComparedWV(int[] wv){
+        comparedWVs = wv;
     }
+    
+    public void setChangeableWV(int[] wv){
+        if(comparedWVs == null){ 
+            throw new IllegalStateException("Must set comparedWVs before " +
+                    "harmonicWVs");
+        }
+        changeableWVs = new int[wv.length + comparedWVs.length];
+        
+        for(int i = 0; i < wv.length; i++) {
+            for(int j = 0; j < comparedWVs.length; j++){
+                if(wv[i] == comparedWVs[j]){
+                    throw new IllegalArgumentException("A compared " +
+                            "wavevector cannot be a harmonic wavevector");
+                }
+            }
+            changeableWVs[i] = wv[i];
+        }
 
+        for(int i = wv.length; i < changeableWVs.length; i++){
+            changeableWVs[i] = comparedWVs[i-wv.length];
+        }
+    }
     public void setOmegaSquared(double[][] o2){
         omega2 = o2;
     }
