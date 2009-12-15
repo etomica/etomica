@@ -73,6 +73,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
             int[] compWV, int[] chbleWV){
         super(_space);
         
+        System.out.println("Running " + SimOverlapMultipleWaveVectors.APP_NAME);
+        
 //        long seed = 2;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
@@ -528,7 +530,6 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         //instantiate simulations!
         SimOverlapMultipleWaveVectors sim = new SimOverlapMultipleWaveVectors(Space.getInstance(D), numMolecules,
                 density, temperature, filename, harmonicFudge, comparedWV, changeableWVs);
-        System.out.println("Running " + sim.APP_NAME);
         System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println("temperature: " + temperature);
@@ -611,11 +612,20 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinA.setComparedWV(cwvs);
         compareMove.setComparedWV(cwvs);
         
+        System.out.println("Compared WV: ");
+        for (int i = 0; i < cwvs.length; i++){
+            System.out.println(cwvs[i]);
+        }
     }
     
     public void setChangeableWVs(int[] cwvs){
         changeMove.setChangeableWVs(cwvs);
         compareMove.setChangeableWVs(cwvs);
+        
+        System.out.println("Hard Rod WV: ");
+        for (int i = 0; i < cwvs.length; i++){
+            System.out.println(cwvs[i]);
+        }
     }
     
     
@@ -626,11 +636,11 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {3};
-        public int[] changeableWV = {1, 2};
+        public int[] comparedWV = {2};
+        public int[] changeableWV = {1};
         
-        public int numSteps = 40000;
-        public int runBlockSize = 1000;
+        public int numSteps = 4000000;
+        public int runBlockSize = 100000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
         public int eqNumSteps = 40000;  
