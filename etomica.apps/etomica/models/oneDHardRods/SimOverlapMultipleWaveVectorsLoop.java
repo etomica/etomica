@@ -675,8 +675,8 @@ public class SimOverlapMultipleWaveVectorsLoop extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] comparedWV = {3};
-        public int[] harmonicWV = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+        public int[] comparedWV = {2};
+        public int[] harmonicWV = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
         
         public int numSteps = 40000000;
         public int runBlockSize = 1000;
