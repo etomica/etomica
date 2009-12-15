@@ -140,7 +140,6 @@ public class MCMoveCompareMultipleWVLoop extends MCMoveBoxStep {
 
 // MOVE SOME NUMBER OF RANDOM HARD ROD POTENTIAL MODES, AND MEASURE energyNew
         // equivalent to MCMoveChangeMode for several modes.
-//        int changedWV;
         for(int wvCount = 0; wvCount < howManyChangesToHardRodModes; wvCount++){
             // Select the wave vector whose eigenvectors will be changed.
             // The zero wavevector is center of mass motion, and is rejected as
