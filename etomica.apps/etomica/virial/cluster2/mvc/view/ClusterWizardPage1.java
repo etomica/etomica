@@ -103,7 +103,7 @@ public class ClusterWizardPage1 extends ClusterWizardPageTemplate {
     spTotalNodes.addChangeListener(listener);
     spRootNodes.addChangeListener(listener);
     ckIsomorphFree = createCheckBox("isomorph-free cluster");
-    cbMonochromatic = createComboBox(new String[] { "monochormatic", "multi-colored" }, true);
+    cbMonochromatic = createComboBox(new String[] { "monochromatic", "multi-colored" }, true);
     cbColor = createComboBox(new String[] { "black", "blue", "red" }, true);
     builder.append("Cluster &Name:", buildGrid(edClusterName));
     builder.append("&Total Nodes:", buildGrid(spTotalNodes));
@@ -119,7 +119,7 @@ public class ClusterWizardPage1 extends ClusterWizardPageTemplate {
   protected String getTitle() {
 
     String title = "Provide a name for the cluster as well as the node, color and isomorphism specifications. ";
-    title += "If the cluster is monochromatic, field and rood nodes will all have the same color (the default color). ";
+    title += "If the cluster is monochromatic, field and root nodes will all have the same color (the default color). ";
     title += "If the cluster is multi-colored, you will be asked to define the colors of the root and field nodes before the cluster is generated.";
     return title;
   }
