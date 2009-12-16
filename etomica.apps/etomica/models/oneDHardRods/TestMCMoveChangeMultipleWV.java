@@ -165,7 +165,7 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
         //instantiate simulation
         TestMCMoveChangeMultipleWV sim = new TestMCMoveChangeMultipleWV(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setChangeableWVs(changeablewvs);
+        sim.move.setChangeableWV(changeablewvs);
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);

@@ -141,7 +141,7 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-        mcMoveMode.setChangeableWVs(changeable);
+        mcMoveMode.setChangeableWV(changeable);
         
         meterdi = new MeterDifferentImageAdd("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
                 primitive, basis, coordinateDefinition, nm, 1.0);

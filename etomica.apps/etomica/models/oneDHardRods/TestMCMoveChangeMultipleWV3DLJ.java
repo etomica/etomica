@@ -117,7 +117,7 @@ public class TestMCMoveChangeMultipleWV3DLJ extends Simulation {
         changeMove.setBox((IBox)box);
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
-        changeMove.setChangeableWVs(awv);
+        changeMove.setChangeableWV(awv);
         
 
        
