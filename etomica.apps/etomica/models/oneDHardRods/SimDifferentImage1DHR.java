@@ -174,7 +174,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setOmegaSquared(nmTarg.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
-        mcMoveMode.setChangeableWV(targWV);
+        mcMoveMode.addChangeableWV(targWV);
         
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
@@ -238,7 +238,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setOmegaSquared(nmRef.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
-        mcMoveMode.setChangeableWV(refWV);
+        mcMoveMode.addChangeableWV(refWV);
         
         meterBinB = new MeterPotentialEnergy(potentialMasterRef);
         meterBinB.setBox(boxRef);

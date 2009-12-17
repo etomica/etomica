@@ -37,7 +37,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     private IVectorMutable[] waveVectors;
     private double[] waveVectorCoefficients;
     int changedWV;
-    int[] comparedWVs, changeableWVs;  //all wvs from this are changed.
+    int[] changeableWV;  //all wvs from this are changed.
     
     
     public MCMoveChangeMultipleWV(IPotentialMaster potentialMaster, IRandom random) {
@@ -46,6 +46,8 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        
+        changeableWV = new int[0];
     }
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
@@ -58,30 +60,27 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         return coordinateDefinition;
     }
     
-    public void setComparedWV(int[] wv){
-        comparedWVs = wv;
-    }
-    
-    public void setChangeableWV(int[] wv){
-        if(comparedWVs == null){ 
-            throw new IllegalStateException("Must set comparedWVs before " +
-                    "harmonicWVs");
-        }
-        changeableWVs = new int[wv.length + comparedWVs.length];
+    public void addChangeableWV(int[] wv){
         
-        for(int i = 0; i < wv.length; i++) {
-            for(int j = 0; j < comparedWVs.length; j++){
-                if(wv[i] == comparedWVs[j]){
-                    throw new IllegalArgumentException("A compared " +
-                            "wavevector cannot be a harmonic wavevector");
+        int[] newWV = new int[wv.length + changeableWV.length];
+        
+        for (int i = 0; i < wv.length; i++){
+            for (int j = 0; j < changeableWV.length; j++){
+                if(wv[i] == changeableWV[j]){
+                    throw new IllegalArgumentException("WV used twice in " +
+                            "MCMoveChangeMultipleWV.addChangeableWV");
                 }
             }
-            changeableWVs[i] = wv[i];
+            newWV[i] = wv[i];
         }
-
-        for(int i = wv.length; i < changeableWVs.length; i++){
-            changeableWVs[i] = comparedWVs[i-wv.length];
+        
+        for (int i = wv.length; i < newWV.length; i++){
+            newWV[i] = changeableWV[i-wv.length];
         }
+        
+        changeableWV = new int[newWV.length];
+        changeableWV = newWV;
+        
     }
     public void setOmegaSquared(double[][] o2){
         omega2 = o2;
@@ -129,7 +128,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         uOld = new double[cells.length][coordinateDim];
         
         // Select the wave vector whose eigenvectors will be changed.
-        changedWV = changeableWVs[random.nextInt(changeableWVs.length)];
+        changedWV = changeableWV[random.nextInt(changeableWV.length)];
         
         //calculate the new positions of the atoms.
         //loop over cells

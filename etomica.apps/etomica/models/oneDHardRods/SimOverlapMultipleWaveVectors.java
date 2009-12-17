@@ -588,7 +588,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinB.setComparedWV(cwvs);
         meterBinA.setComparedWV(cwvs);
         compareMove.setComparedWV(cwvs);
-        changeMove.setComparedWV(cwvs);
+        changeMove.addChangeableWV(cwvs);
         
         System.out.println("Compared WV: ");
         for (int i = 0; i < cwvs.length; i++){
@@ -597,7 +597,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     }
     
     public void setChangeableWVs(int[] cwvs){
-        changeMove.setChangeableWV(cwvs);
+        changeMove.addChangeableWV(cwvs);
         compareMove.setChangeableWVs(cwvs);
         
         System.out.println("Hard Rod WV: ");

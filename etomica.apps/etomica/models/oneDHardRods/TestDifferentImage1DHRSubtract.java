@@ -145,7 +145,7 @@ public class TestDifferentImage1DHRSubtract extends Simulation {
         mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-        mcMoveMode.setChangeableWV(changeable);
+        mcMoveMode.addChangeableWV(changeable);
         
         meterdi = new MeterDifferentImageSubtract("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
                 primitive, basis, coordinateDefinition, nm, 1.0);

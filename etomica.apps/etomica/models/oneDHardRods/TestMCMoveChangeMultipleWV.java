@@ -165,7 +165,8 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
         //instantiate simulation
         TestMCMoveChangeMultipleWV sim = new TestMCMoveChangeMultipleWV(Space.getInstance(D), numAtoms, density, temperature, filename, harmonicFudge);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.move.setChangeableWV(changeablewvs);
+        sim.move.addChangeableWV(changeablewvs);
+        sim.move.addChangeableWV(new int[] {14,15,16});
         
         MeterNormalMode mnm = new MeterNormalMode();
         mnm.setCoordinateDefinition(sim.coordinateDefinition);
@@ -228,6 +229,6 @@ public class TestMCMoveChangeMultipleWV extends Simulation {
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
         public double temperature = 1.0;
-        public int[] changeableWV = {11,12,13,14,15,16};
+        public int[] changeableWV = {11,12,13};
     }
 }
