@@ -751,7 +751,7 @@ public class CatalysisGraphic extends SimulationGraphic {
                     sim.potentialOS.setEpsilon(Kelvin.UNIT.toSim(500));
                     sim.reactionManagerCO.setuReactCO(Kelvin.UNIT.toSim(80));
                     sim.potentialCO.setBarrier(Kelvin.UNIT.toSim(400));
-                    sim.potentialOO.setBarrier(Kelvin.UNIT.toSim(300));
+                    sim.potentialOO.setBarrier(Kelvin.UNIT.toSim(200));
                 }
             });
             surfaceSelector.addOption("Catalyst B", new IAction() {
