@@ -167,6 +167,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveAtom.setBox(boxTarget);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
+        integratorTarget.getMoveManager().addMCMove(mcMoveAtom);
         
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
         mcMoveMode.setCoordinateDefinition(cDefTarget);
@@ -175,6 +176,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(targWV);
+        integratorTarget.getMoveManager().addMCMove(mcMoveMode);
         
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
@@ -230,6 +232,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveAtom.setBox(boxRef);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
+        integratorRef.getMoveManager().addMCMove(mcMoveAtom);
         
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterRef, random);
         mcMoveMode.setBox(boxRef);
@@ -239,6 +242,7 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(refWV);
+        integratorRef.getMoveManager().addMCMove(mcMoveMode);
         
         meterBinB = new MeterPotentialEnergy(potentialMasterRef);
         meterBinB.setBox(boxRef);
@@ -526,9 +530,7 @@ public class SimDifferentImage1DHR extends Simulation {
         // instantiate simulation
         SimDifferentImage1DHR sim = new SimDifferentImage1DHR(Space.getInstance(D), nA, 
                 density, runBlockSize, temperature, targWVs, refWVs);
-        System.out.println("Running " + sim.APP_NAME + " "
-                + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
-                + " hard sphere simulation");
+        System.out.println("Running " + sim.APP_NAME);
         System.out.println(nA + " atoms at density " + density);
         System.out.println(runNumSteps + " steps, " + runBlockSize + " blocksize");
         System.out.println("input data from " + inputFilename);
@@ -608,7 +610,7 @@ public class SimDifferentImage1DHR extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 1;
+        public int numAtoms = 2;
         public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -627,8 +629,8 @@ public class SimDifferentImage1DHR extends Simulation {
         public int bennettNumSteps = 4000000;
         public int benBlockSize = 1000;
         
-        public int[] targWVs = {0, 1, 2, 3, 4, 5};
-        public int[] refWVs = {0, 1, 2, 3, 4, 5};
+        public int[] targWVs = {0, 1};
+        public int[] refWVs = {0, 1};
     }
 
 }
