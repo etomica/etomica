@@ -43,25 +43,15 @@ public class AkimaSpline extends DataProcessor implements DataSourceIndependent 
         System.arraycopy(originalX, 0, x, 2, N-4);
         System.arraycopy(originalY, 0, y, 2, N-4);
 
-        double dx42 = x[4] - x[2];
-        x[1] = x[2] - dx42;
-        x[0] = x[1] - dx42;
-        m[2] = (y[3]-y[2])/(x[3]-x[2]);
-        m[3] = (y[4]-y[3])/(x[4]-x[3]);
+        for (int i=2; i<N-5; i++) {
+            m[i] = (y[i+1]-y[i])/(x[i+1]-x[i]);
+        }
+
         m[1] = 2*m[2] - m[3];
         m[0] = 2*m[1] - m[2];
 
-        double dxN = x[N-5] - x[N-3];
-        x[N-2] = x[N-4] + dxN;
-        x[N-1] = x[N-3] + dxN;
-        m[N-5] = (y[N-4]-y[N-5])/(x[N-4]-x[N-5]);
-        m[N-4] = (y[N-3]-y[N-4])/(x[N-3]-x[N-4]);
         m[N-3] = 2*m[N-4] - m[N-5];
         m[N-2] = 2*m[N-3] - m[N-4];
-
-        for (int i=2; i<N-2; i++) {
-            m[i] = (y[i+1]-y[i])/(x[i+1]-x[i]);
-        }
 
         for (int i=2; i<N-2; i++) {
             double am2m1 = Math.abs(m[i-1]-m[i-2]);
