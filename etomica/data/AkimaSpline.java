@@ -22,8 +22,6 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 public class AkimaSpline extends DataProcessor implements DataSourceIndependent {
 
     public AkimaSpline(int nSubPoints) {
-        x = new double[0];
-        y = new double[0];
         m = new double[0];
         t = new double[0];
         interpolatedX = new double[0];
@@ -32,39 +30,49 @@ public class AkimaSpline extends DataProcessor implements DataSourceIndependent 
         xTag = new DataTag();
     }
     
-    protected void doInterpolation(double[] originalX, double[] originalY) {
-        int N = originalX.length+4;
-        if (x.length != N) {
-            x = new double[N];
-            y = new double[N];
-            m = new double[N];
+    protected void doInterpolation(double[] x, double[] y) {
+        //ugh.  We need to shift the data over by 2 because we need to include
+        // to more data points on the left side m
+        int N = x.length;
+        if (t.length != N) {
+            m = new double[N-1];
             t = new double[N];
         }
-        System.arraycopy(originalX, 0, x, 2, N-4);
-        System.arraycopy(originalY, 0, y, 2, N-4);
 
-        for (int i=2; i<N-3; i++) {
+        for (int i=0; i<N-1; i++) {
             m[i] = (y[i+1]-y[i])/(x[i+1]-x[i]);
         }
 
-        m[1] = 2*m[2] - m[3];
-        m[0] = 2*m[1] - m[2];
-
-        m[N-3] = 2*m[N-4] - m[N-5];
-        m[N-2] = 2*m[N-3] - m[N-4];
-
-        for (int i=2; i<N-2; i++) {
-            double am2m1 = Math.abs(m[i-1]-m[i-2]);
-            double am4m3 = Math.abs(m[i+1]-m[i]);
-            if (am2m1 != 0 || am4m3 != 0 || am2m1 == am4m3) {
+        // special-case first t
+        t[0] = 0.5 * (3*m[0] - m[1]);
+        for (int i=1; i<N-1; i++) {
+            double am2m1;
+            if (i>1) {
+                // special-case second t
+                am2m1 = Math.abs(m[i-1]-m[i-2]);
+            }
+            else {
+                am2m1 = Math.abs(m[1] - m[0]);
+            }
+            double am4m3;
+            if (i<N-2) {
+                am4m3 = Math.abs(m[i+1]-m[i]);
+            }
+            else {
+                // special-case next-to-last t
+                am4m3 = Math.abs(m[N-2] - m[N-3]);
+            }
+            if (am2m1 != am4m3) {
                 t[i] = (am4m3*m[i-1] + am2m1*m[i])/(am4m3 + am2m1);
             }
             else {
                 t[i] = 0.5 * (m[i-1] + m[i]);
             }
         }
+        // special-case last t
+        t[N-1] = 0.5 * (3*m[N-2]-m[N-3]);
 
-        for (int i=2; i<N-3; i++) {
+        for (int i=0; i<N-1; i++) {
             double p0 = y[i];
             double p1 = t[i];
             double dx = (x[i+1]-x[i]);
@@ -72,13 +80,13 @@ public class AkimaSpline extends DataProcessor implements DataSourceIndependent 
             double p3 = (-2*m[i] + t[i] + t[i+1])/(dx*dx);
             for (int j=0; j<nSubPoints; j++) {
                 dx = j*(x[i+1] - x[i])/nSubPoints;
-                int iData = (i-2)*nSubPoints+j;
+                int iData = i*nSubPoints+j;
                 interpolatedX[iData] = x[i]+dx;
                 interpolatedY[iData] = p0 + p1*dx + p2*dx*dx + p3*dx*dx*dx;
             }
         }
-        interpolatedX[(N-5)*nSubPoints] = x[N-3];
-        interpolatedY[(N-5)*nSubPoints] = y[N-3];
+        interpolatedX[(N-1)*nSubPoints] = x[N-1];
+        interpolatedY[(N-1)*nSubPoints] = y[N-1];
     }
     
     public static void main(String[] args) {
@@ -174,7 +182,7 @@ public class AkimaSpline extends DataProcessor implements DataSourceIndependent 
     protected DataInfoDoubleArray xOutDataInfo;
     protected DataFunction interpolatedData;
     protected DataInfoFunction dataInfo, originalDataInfo;
-    protected double[] m, t, x, y, interpolatedX, interpolatedY;
+    protected double[] m, t, interpolatedX, interpolatedY;
     protected int nSubPoints;
     protected final DataTag xTag;
 }
