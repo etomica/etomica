@@ -43,7 +43,7 @@ public class AkimaSpline extends DataProcessor implements DataSourceIndependent 
         System.arraycopy(originalX, 0, x, 2, N-4);
         System.arraycopy(originalY, 0, y, 2, N-4);
 
-        for (int i=2; i<N-5; i++) {
+        for (int i=2; i<N-3; i++) {
             m[i] = (y[i+1]-y[i])/(x[i+1]-x[i]);
         }
 
@@ -77,6 +77,8 @@ public class AkimaSpline extends DataProcessor implements DataSourceIndependent 
                 interpolatedY[iData] = p0 + p1*dx + p2*dx*dx + p3*dx*dx*dx;
             }
         }
+        interpolatedX[(N-5)*nSubPoints] = x[N-3];
+        interpolatedY[(N-5)*nSubPoints] = y[N-3];
     }
     
     public static void main(String[] args) {
