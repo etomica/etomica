@@ -162,6 +162,15 @@ public class SimDifferentImage1DHR extends Simulation {
         double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
         double[][] omega = nmTarg.getOmegaSquared();
         
+        int wvflength = waveVectorFactoryTarg.getWaveVectors().length;
+        System.out.println("We have " + wvflength +" target wave vectors.");
+        System.out.println("Target Wave Vector Coefficients:");
+        
+        System.out.println("Target WV: ");
+        for (int i = 0; i < targWV.length; i++){
+            System.out.println(targWV[i]);
+        }
+        
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterTarget, random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(boxTarget);
@@ -226,6 +235,16 @@ public class SimDifferentImage1DHR extends Simulation {
         
         wvc= nmRef.getWaveVectorFactory().getCoefficients();
         omega = nmRef.getOmegaSquared();
+        
+        
+        wvflength = waveVectorFactoryRef.getWaveVectors().length;
+        System.out.println("We have " + wvflength +" reference wave vectors.");
+        System.out.println("Reference Wave Vector Coefficients:");
+        
+        System.out.println("Ref WV: ");
+        for (int i = 0; i < refWV.length; i++){
+            System.out.println(refWV[i]);
+        }
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterRef, random, space);
         mcMoveAtom.setPotential(potential);
@@ -610,7 +629,7 @@ public class SimDifferentImage1DHR extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 2;
+        public int numAtoms = 1;
         public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -630,7 +649,7 @@ public class SimDifferentImage1DHR extends Simulation {
         public int benBlockSize = 1000;
         
         public int[] targWVs = {0, 1};
-        public int[] refWVs = {0, 1};
+        public int[] refWVs = {0};
     }
 
 }
