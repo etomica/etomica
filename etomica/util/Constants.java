@@ -112,7 +112,7 @@ public final class Constants {
         public static final CompassDirection SOUTH = new CompassDirection("South");
         public static final CompassDirection WEST = new CompassDirection("West");
         public static final CompassDirection EAST = new CompassDirection("East");
-        public static CompassDirection[] choicse() {
+        public static CompassDirection[] choices() {
             return new CompassDirection[] {NORTH,SOUTH,WEST,EAST};
         }
         private static final long serialVersionUID = 1L;
