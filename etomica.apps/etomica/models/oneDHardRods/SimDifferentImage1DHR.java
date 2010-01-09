@@ -25,7 +25,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.CalcHarmonicA;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
@@ -97,11 +96,12 @@ public class SimDifferentImage1DHR extends Simulation {
     public SimDifferentImage1DHR(Space _space, int numAtoms, double density, 
             int blocksize, double tems, int[] targWV, int[] refWV) {
         super(_space);
+        System.out.println("Running " + APP_NAME);
         
-//        long seed = 3;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 3;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         int targAtoms = numAtoms + 1;
         int refAtoms = numAtoms;
@@ -139,7 +139,7 @@ public class SimDifferentImage1DHR extends Simulation {
         
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         cDefTarget.initializeCoordinates(nCellsTarget);
-        int cDimTarget = cDefTarget.getCoordinateDim();
+//        int cDimTarget = cDefTarget.getCoordinateDim();
 
         double neighborRange = 1.01/density;
         potentialMasterTarget.setRange(neighborRange);
@@ -159,11 +159,10 @@ public class SimDifferentImage1DHR extends Simulation {
         waveVectorFactoryTarg = nmTarg.getWaveVectorFactory();
         waveVectorFactoryTarg.makeWaveVectors(boxTarget);
         
-        double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
-        double[][] omega = nmTarg.getOmegaSquared();
+//        double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
+//        double[][] omega = nmTarg.getOmegaSquared();
         
-        int wvflength = waveVectorFactoryTarg.getWaveVectors().length;
-        System.out.println("We have " + wvflength +" target wave vectors.");
+        System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length +" target wave vectors.");
         System.out.println("Target Wave Vector Coefficients:");
         
         System.out.println("Target WV: ");
@@ -213,7 +212,7 @@ public class SimDifferentImage1DHR extends Simulation {
         
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         cDefRef.initializeCoordinates(nCellsRef);
-        int cDimRef = cDefRef.getCoordinateDim();
+//        int cDimRef = cDefRef.getCoordinateDim();
 
         neighborRange = 1.01/density;
         potentialMasterRef.setRange(neighborRange);
@@ -233,12 +232,11 @@ public class SimDifferentImage1DHR extends Simulation {
         waveVectorFactoryRef = nmRef.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        wvc= nmRef.getWaveVectorFactory().getCoefficients();
-        omega = nmRef.getOmegaSquared();
+//        wvc= nmRef.getWaveVectorFactory().getCoefficients();
+//        omega = nmRef.getOmegaSquared();
         
         
-        wvflength = waveVectorFactoryRef.getWaveVectors().length;
-        System.out.println("We have " + wvflength +" reference wave vectors.");
+        System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length +" reference wave vectors.");
         System.out.println("Reference Wave Vector Coefficients:");
         
         System.out.println("Ref WV: ");
@@ -370,9 +368,9 @@ public class SimDifferentImage1DHR extends Simulation {
             bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             
-            double top = accumulators[0].getBennetAverage(newMinDiffLoc);
+//            double top = accumulators[0].getBennetAverage(newMinDiffLoc);
 //            System.out.println("top " + top);
-            double bottom = accumulators[1].getBennetAverage(newMinDiffLoc);
+//            double bottom = accumulators[1].getBennetAverage(newMinDiffLoc);
 //            System.out.println("bottom " + bottom);
             
             if (Double.isNaN(bennettParam) || bennettParam == 0 || Double.isInfinite(bennettParam)) {
@@ -505,7 +503,7 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         
         integratorSim.getMoveManager().setEquilibrating(false);
-//        setAccumulatorBlockSize(oldBlockSize);
+//        setAccumulatorBlockSize(oldBlock Size);
     }
 
     /**
@@ -533,7 +531,7 @@ public class SimDifferentImage1DHR extends Simulation {
             filename = "1DHR";
         }
         double temperature = params.temperature;
-        String outputfn = params.outputname;
+//        String outputfn = params.outputname;
         int[] targWVs = params.targWVs;
         int[] refWVs = params.refWVs;
         int runNumSteps = params.numSteps;
@@ -549,7 +547,6 @@ public class SimDifferentImage1DHR extends Simulation {
         // instantiate simulation
         SimDifferentImage1DHR sim = new SimDifferentImage1DHR(Space.getInstance(D), nA, 
                 density, runBlockSize, temperature, targWVs, refWVs);
-        System.out.println("Running " + sim.APP_NAME);
         System.out.println(nA + " atoms at density " + density);
         System.out.println(runNumSteps + " steps, " + runBlockSize + " blocksize");
         System.out.println("input data from " + inputFilename);
@@ -593,7 +590,6 @@ public class SimDifferentImage1DHR extends Simulation {
         System.out.println("final reference optimal step frequency " + 
                 sim.integratorSim.getStepFreq0() + " (actual: " + 
                 sim.integratorSim.getActualStepFreq0() + ")");
-        
         
         
         //CALCULATION OF HARMONIC ENERGY
