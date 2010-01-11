@@ -412,69 +412,88 @@ public class AkimaSplineSmoother {
     public void setSmoothedY(double[] smoothedY) {
         System.arraycopy(smoothedY, 0, y, 0, smoothedY.length);
     }
+
+    public double[][] getDy12(int nSubPoints) {
+        if (dy12 == null || dy12[0].length != (y.length-1)*nSubPoints+1) {
+            dy12 = new double[2][(y.length-1)*nSubPoints+1];
+        }
+        int N = x.length;
+        if (t.length != N) {
+            m = new double[N-1];
+            t = new double[N];
+        }
+
+        for (int i=0; i<N-1; i++) {
+            m[i] = (y[i+1]-y[i])/(x[i+1]-x[i]);
+        }
+
+        // special-case first t
+        t[0] = 0.5 * (3*m[0] - m[1]);
+        for (int i=1; i<N-1; i++) {
+            double am2m1;
+            if (i>1) {
+                // special-case second t
+                am2m1 = Math.abs(m[i-1]-m[i-2]);
+            }
+            else {
+                am2m1 = Math.abs(m[1] - m[0]);
+            }
+            double am4m3;
+            if (i<N-2) {
+                am4m3 = Math.abs(m[i+1]-m[i]);
+            }
+            else {
+                // special-case next-to-last t
+                am4m3 = Math.abs(m[N-2] - m[N-3]);
+            }
+            if (am2m1 != am4m3) {
+                t[i] = (am4m3*m[i-1] + am2m1*m[i])/(am4m3 + am2m1);
+            }
+            else {
+                t[i] = 0.5 * (m[i-1] + m[i]);
+            }
+        }
+        // special-case last t
+        t[N-1] = 0.5 * (3*m[N-2]-m[N-3]);
+
+        for (int i=0; i<N-1; i++) {
+            double p1 = t[i];
+            double dx = (x[i+1]-x[i]);
+            double p2 = (3*m[i] - 2*t[i] - t[i+1])/dx;
+            double p3 = (-2*m[i] + t[i] + t[i+1])/(dx*dx);
+            for (int j=0; j<nSubPoints; j++) {
+                dx = j*(x[i+1] - x[i])/nSubPoints;
+                dy12[0][i*nSubPoints+j] = p1 + (2*p2 + 3*p3*dx)*dx;
+                dy12[1][i*nSubPoints+j] = 2*p2 + 6*p3*dx;
+            }
+            if (i==N-2) {
+                dx = (x[i+1] - x[i]);
+                dy12[0][i*nSubPoints] = p1 + (2*p2 + 3*p3*dx)*dx;
+                dy12[1][i*nSubPoints] = 2*p2 + 6*p3*dx;
+            }
+        }
+        return dy12;
+    }
+
     public void writeD(String outbase, int nSubPoints) {
+        getDy12(nSubPoints);
+
         try {
             FileWriter dyfw = new FileWriter(outbase+".dy");
             FileWriter dy2fw = new FileWriter(outbase+".dy2");
 
             int N = x.length;
-            if (t.length != N) {
-                m = new double[N-1];
-                t = new double[N];
-            }
 
             for (int i=0; i<N-1; i++) {
-                m[i] = (y[i+1]-y[i])/(x[i+1]-x[i]);
-            }
-
-            // special-case first t
-            t[0] = 0.5 * (3*m[0] - m[1]);
-            for (int i=1; i<N-1; i++) {
-                double am2m1;
-                if (i>1) {
-                    // special-case second t
-                    am2m1 = Math.abs(m[i-1]-m[i-2]);
-                }
-                else {
-                    am2m1 = Math.abs(m[1] - m[0]);
-                }
-                double am4m3;
-                if (i<N-2) {
-                    am4m3 = Math.abs(m[i+1]-m[i]);
-                }
-                else {
-                    // special-case next-to-last t
-                    am4m3 = Math.abs(m[N-2] - m[N-3]);
-                }
-                if (am2m1 != am4m3) {
-                    t[i] = (am4m3*m[i-1] + am2m1*m[i])/(am4m3 + am2m1);
-                }
-                else {
-                    t[i] = 0.5 * (m[i-1] + m[i]);
-                }
-            }
-            // special-case last t
-            t[N-1] = 0.5 * (3*m[N-2]-m[N-3]);
-
-            for (int i=0; i<N-1; i++) {
-                double p1 = t[i];
-                double dx = (x[i+1]-x[i]);
-                double p2 = (3*m[i] - 2*t[i] - t[i+1])/dx;
-                double p3 = (-2*m[i] + t[i] + t[i+1])/(dx*dx);
                 for (int j=0; j<nSubPoints; j++) {
-                    dx = j*(x[i+1] - x[i])/nSubPoints;
+                    double dx = j*(x[i+1] - x[i])/nSubPoints;
                     double ix = x[i]+dx;
-                    double dy = p1 + (2*p2 + 3*p3*dx)*dx;
-                    double dy2 = 2*p2 + 6*p3*dx;
-                    dyfw.write(ix+" "+dy+"\n");
-                    dy2fw.write(ix+" "+dy2+"\n");
+                    dyfw.write(ix+" "+dy12[0][i*nSubPoints+j]+"\n");
+                    dy2fw.write(ix+" "+dy12[1][i*nSubPoints+j]+"\n");
                 }
                 if (i==N-2) {
-                    dx = (x[i+1] - x[i]);
-                    double dy = p1 + (2*p2 + 3*p3*dx)*dx;
-                    double dy2 = 2*p2 + 6*p3*dx;
-                    dyfw.write(x[i+1]+" "+dy+"\n");
-                    dy2fw.write(x[i+1]+" "+dy2+"\n");
+                    dyfw.write(x[i+1]+" "+dy12[0][(i+1)*nSubPoints]+"\n");
+                    dy2fw.write(x[i+1]+" "+dy12[1][(i+1)*nSubPoints]+"\n");
                 }
             }
 
@@ -485,6 +504,7 @@ public class AkimaSplineSmoother {
             throw new RuntimeException(e);
         }
     }
+
     public void setInputData(double[] originalX, double[] originalY, double[] ey) {
         this.x = originalX;
         this.y0 = originalY;
@@ -544,6 +564,7 @@ public class AkimaSplineSmoother {
     protected double[] m, t, y;
     protected double[] lx, ly;
     protected double[][] ss, pac;
+    protected double[][] dy12;
     protected double totSqErr, sumSqDy, sumSqD2, sumSqD2D, sumSqD3, sumSqD3D;
     protected double d2fac, d2dfac, d3fac, d3dfac;
     protected double[] trialP;
