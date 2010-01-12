@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
@@ -46,6 +45,23 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         int dI = atom1.getParentGroup().getIndex() - atom0.getParentGroup().getIndex();
         // assume 1 species
         if (hasPBC && Math.abs(dI) == box.getMoleculeList().getMoleculeCount()-1) {
+            if (box.getMoleculeList().getMoleculeCount() == 2) {
+                // order is more complicated for 2 atoms since an atom is on both sides of the other
+                if (dr.getX(0)*dI < 0 || Math.abs(dr.getX(0)) > box.getBoundary().getBoxSize().getX(0)) {
+                    // out of order
+                    return Double.POSITIVE_INFINITY;
+                }
+
+                double drnew = Math.abs(dr.getX(0) - dI*box.getBoundary().getBoxSize().getX(0));
+                double mindr;
+                if (drnew > Math.abs(dr.getX(0))) {
+                    mindr = Math.abs(dr.getX(0));
+                }
+                else {
+                    mindr = drnew;
+                }
+                return wrappedPotential.u(mindr*mindr);
+            }
             dr.PEa1Tv1(dI > 0 ? -1 : 1, box.getBoundary().getBoxSize());
             return (dr.getX(0) * dI > 0.0) ? Double.POSITIVE_INFINITY : wrappedPotential.u(dr.squared());
         }
