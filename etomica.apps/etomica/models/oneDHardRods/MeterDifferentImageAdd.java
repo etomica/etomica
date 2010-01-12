@@ -134,48 +134,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         double[] realCoord = new double[waveVectors.length];
         double[] imagCoord = new double[waveVectors.length];
         
-        
-        
-        //TEMP TESTING
-        double limey = 1.0* (bdry.getBoxSize().getX(0)/4 -0.5);
-//        for (int iCell = 0; iCell < cells.length; iCell++){
-//            cell = cells[iCell];
-//            for (int j = 0; j < cDim; j++){
-//                newU[j] = limey;
-//            }
-//            cDef.setToU(cells[iCell].molecules, newU);
-//        }
-        
-        cell = cells[0];
-        newU[0] = limey;
-        cDef.setToU(cells[0].molecules, newU);
-        double expt = -limey/2;
-        expt *= expt;
-        expt /=2;
-        expt *= nm.getOmegaSquared()[1][0];
-        double total = expt;
-        
-        
-        cell = cells[1];
-        newU[0]= -limey;
-        cDef.setToU(cells[1].molecules, newU);
-        expt = limey/2;
-        expt *= expt;
-        expt /=2;
-        expt *= nm.getOmegaSquared()[1][0];
-        total += expt;
-        
-        System.out.println("experimental " + total);
-        MeterHarmonicEnergy meterHE = new MeterHarmonicEnergy(cDef, nm);
-        
-        System.out.println(meterHE.getDataAsScalar());
-        
-        
-        
-        
-        
-        
-        
         for (int wvcount = 0; wvcount < simWaveVectors.length; wvcount++){
             simCDef.calcT(simWaveVectors[wvcount], simRealT, simImagT);
             realCoord[wvcount] = 0.0;
