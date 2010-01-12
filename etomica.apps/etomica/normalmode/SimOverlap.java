@@ -110,7 +110,12 @@ public class SimOverlap extends Simulation {
         boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
+        if (space.D() == 1) {
+            coordinateDefinitionTarget.initializeCoordinates(nCells);
+        }
+        else {
+            coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
+        }
 
         double neighborRange;
         if (space.D() == 1) {
@@ -146,13 +151,15 @@ public class SimOverlap extends Simulation {
         integrators[0] = integratorHarmonic;
         
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
-
-        if(space.D() == 1) {
+        if (space.D() == 1) {
+            coordinateDefinitionHarmonic.initializeCoordinates(nCells);
             normalModes = new NormalModes1DHR(boundaryTarget, numAtoms);
-        } else {
+        }
+        else {
+            coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
             normalModes = new NormalModesFromFile(filename, space.D());
         }
+
         normalModes.setHarmonicFudge(harmonicFudge);
         normalModes.setTemperature(temperature);
         
@@ -449,7 +456,7 @@ public class SimOverlap extends Simulation {
         System.out.println("betaUba: "+betaUba + " ,err: "+err_betaUba);
   */      
         if(D==1) {
-            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules) ;
+            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules-1) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
         
