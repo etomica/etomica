@@ -11,10 +11,12 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
@@ -28,6 +30,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
+import etomica.normalmode.MeterHarmonicCoordinate;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
@@ -93,6 +96,9 @@ public class SimDifferentImage1DHR extends Simulation {
     MeterDifferentImageSubtract meterBinA;
     
 
+    AccumulatorAverageFixed accHarmonic;
+    
+    
     public SimDifferentImage1DHR(Space _space, int numAtoms, double density, 
             int blocksize, double tems, int[] targWV, int[] refWV) {
         super(_space);
@@ -189,6 +195,17 @@ public class SimDifferentImage1DHR extends Simulation {
         meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
         meterAinA.setBox(boxTarget);
         integratorTarget.setMeterPotentialEnergy(meterAinA);
+        
+        
+        //Fun with meters!
+        MeterHarmonicCoordinate meterHarmonic = new MeterHarmonicCoordinate(cDefTarget);
+        meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
+        meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
+        accHarmonic = new AccumulatorAverageFixed();
+        DataPump pumpHarm = new DataPump(meterHarmonic, accHarmonic);
+        IntegratorListenerAction pumpHarmListener = new IntegratorListenerAction(pumpHarm);
+        pumpHarmListener.setInterval(1000);
+        integratorTarget.getEventManager().addListener(pumpHarmListener);
         
         
 //REFERENCE
@@ -614,12 +631,17 @@ public class SimDifferentImage1DHR extends Simulation {
                 ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
     
         if(D==1) {
-            double AHR = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA) ;
+            double AHR = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA-1) ;
             System.out.println("Hard-rod free energy for " + nA + ": "+AHR);
             
-            AHR = -(nA)*Math.log((nA+1)/density-(nA+1)) + SpecialFunctions.lnFactorial(nA+1) ;
+            AHR = -(nA)*Math.log((nA+1)/density-(nA+1)) + SpecialFunctions.lnFactorial(nA) ;
             System.out.println("Hard-rod free energy for " + (nA+1) + ": "+AHR);
         }
+        
+        
+        DataGroup dork = (DataGroup)sim.accHarmonic.getData();
+        System.out.println("Measurement of eta: " + dork.getValue(0));
+        
         
         System.out.println("Fini.");
     }
