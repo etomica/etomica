@@ -72,7 +72,8 @@ public class SimOverlap extends Simulation {
         boxTarget.setNMolecules(species, numAtoms);
 
         integratorTarget = new IntegratorHard(this, potentialMasterTarget, space);
-        integratorTarget.setTimeStep(4);
+        // needs to be irrational so that configurations don't repeat in 1D with 2 atoms
+        integratorTarget.setTimeStep(Math.PI);
         integratorTarget.setTemperature(1.0);
         integratorTarget.setBox(boxTarget);
 
@@ -80,7 +81,7 @@ public class SimOverlap extends Simulation {
         integrators[1] = integratorTarget;
 
         Potential2 p2 = new P2HardSphere(space, 1.0, false);
-        if (space.D() == 1) {
+        if (space.D() == 1 && numAtoms > 2) {
             // don't need this for the target system, but we do need it for the reference
             p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         }
@@ -261,7 +262,7 @@ public class SimOverlap extends Simulation {
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
-            setRefPref(1e40,40);
+            setRefPref(1,40);
             activityIntegrate.setMaxSteps(initSteps);
             getController().actionPerformed();
             getController().reset();
@@ -487,9 +488,9 @@ public class SimOverlap extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 32;
-        public double density = 1.3;
-        public int D = 3;
+        public int numMolecules = 10;
+        public double density = 0.1;
+        public int D = 1;
         public long numSteps = 100000;
         public double harmonicFudge = 1;
         public String filename = "normal_modes3D_32_130_cubic";
