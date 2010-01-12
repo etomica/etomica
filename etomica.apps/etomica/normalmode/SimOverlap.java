@@ -81,7 +81,7 @@ public class SimOverlap extends Simulation {
         integrators[1] = integratorTarget;
 
         Potential2 p2 = new P2HardSphere(space, 1.0, false);
-        if (space.D() == 1 && numAtoms > 2) {
+        if (space.D() == 1) {
             // don't need this for the target system, but we do need it for the reference
             p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         }
