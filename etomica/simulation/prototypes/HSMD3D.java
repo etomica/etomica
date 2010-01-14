@@ -28,7 +28,7 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
-import etomica.space2d.Space2D;
+import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
@@ -151,7 +151,7 @@ public class HSMD3D extends Simulation {
     public static void main(String[] args) {
     	final String APP_NAME = "HSMD3D";
 
-    	ISpace sp = Space2D.getInstance();
+    	ISpace sp = Space3D.getInstance();
         HSMD3DParam params = new HSMD3DParam();
         final HSMD3D sim = new HSMD3D(sp, params);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
