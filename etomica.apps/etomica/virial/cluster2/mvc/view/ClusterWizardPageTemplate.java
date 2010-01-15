@@ -18,6 +18,7 @@ import com.jgoodies.looks.Options;
 
 import etomica.virial.cluster2.mvc.WizardController;
 
+import static etomica.virial.cluster2.mvc.view.ClusterWizardState.*;
 public abstract class ClusterWizardPageTemplate extends DefaultWizardPage {
 
   public ClusterWizardPageTemplate(WizardController controller) {
@@ -83,6 +84,12 @@ public abstract class ClusterWizardPageTemplate extends DefaultWizardPage {
       Font font = labels[selectedIndex - 1].getFont();
       labels[selectedIndex - 1].setForeground(UIManager.getColor("TitledBorder.titleColor"));
       labels[selectedIndex - 1].setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+    }
+    // will we be showing the color assignment page?
+    if (getController().getState().getProperty(KEY_COLOR_SCHEME).equals(DEFVAL_MONOCHROMATIC)) {
+      Font font = labels[3].getFont();
+      labels[3].setForeground(Color.LIGHT_GRAY);
+      labels[3].setFont(font.deriveFont(font.getStyle() ^ Font.ITALIC));
     }
     return builder.getPanel();
   }

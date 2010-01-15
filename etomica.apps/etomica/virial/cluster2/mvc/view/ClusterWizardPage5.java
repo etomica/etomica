@@ -131,86 +131,120 @@ public class ClusterWizardPage5 extends ClusterWizardPageTemplate {
     List<ColorEntry> colorAssignment = (List<ColorEntry>) state.getProperty(KEY_ASSIGNED_COLORS);
     boolean effectivelyMono = state.getProperty(KEY_COLOR_SCHEME).equals(DEFVAL_MONOCHROMATIC)
         || colorAssignment.size() == 1;
-    result += "\nCluster Generation Plan\n";
+
+    int cost = 0;
+    int clusters = (int) Math.round(0.01 * totalNodes * Math.sqrt(Math.pow(totalNodes, totalNodes)));
+    if ((Boolean) state.getProperty(KEY_ISOMORPH_FREE)) {
+      clusters = (int) Math.round(0.5 * Math.sqrt(clusters));
+    }
+    clusters *= colorAssignment.size();
+
+    result += "\n\nCluster Generation Plan\n";
     result += "-----------------------\n\n";
-    result += String.format("   ==> %d distinct colors assigned\n", colorAssignment.size());
+    result += "1. Effective Chromacity\n";
+    if (!state.getProperty(KEY_COLOR_SCHEME).equals(DEFVAL_MONOCHROMATIC)) {
+      result += String.format("   ==> %d distinct colors assigned\n", colorAssignment.size());
+    }
     result += String.format("   ==> effectively %s\n", effectivelyMono ? DEFVAL_MONOCHROMATIC
         : DEFVAL_MULTICOLORED);
+    result += "       cost estimation delayed\n";
+
+    result += "\n2. Isomorphisms\n";
     if ((Boolean) state.getProperty(KEY_ISOMORPH_FREE)) {
       result += "   ==> isomorph-free generation\n";
     }
-
-    int cost = 0;
+    else {
+      result += "   ==> naïve generation with isomorphs\n";
+    }
 
     // cluster size and isomorphism
     if ((Boolean) state.getProperty(KEY_ISOMORPH_FREE)) {
       if (totalNodes > 9) {
-        cost += 750 * totalNodes * totalNodes * totalNodes * totalNodes;
+        cost += 150 * clusters * clusters;
         result += String.format("   ==> %d total nodes, so using the naïve cluster generator\n", totalNodes);
         result += String.format("       updated cost: %d\n", cost);
       }
       else {
-        cost += 5 * totalNodes;
+        cost += 5 * clusters;
         result += "   ==> using clusters precomputed by nauty\n";
         result += String.format("       updated cost: %d\n", cost);
       }
     }
     else {
       if (totalNodes > 7) {
-        cost += 1250 * totalNodes * totalNodes * totalNodes;
+        cost += 150 * clusters * clusters;
         result += "   ==> using the naïve cluster generator\n";
         result += String.format("       updated cost: %d\n", cost);
       }
       else if (totalNodes > 6) {
-        cost += 750 * totalNodes * totalNodes * totalNodes;
+        cost += 150 * totalNodes * totalNodes * clusters;
         result += "   ==> using the naïve cluster generator\n";
         result += String.format("       updated cost: %d\n", cost);
       }
       else {
-        cost += 150 * totalNodes * totalNodes * totalNodes;
+        cost += 50 * totalNodes * clusters;
         result += "   ==> using the naïve cluster generator\n";
         result += String.format("       updated cost: %d\n", cost);
       }
     }
 
+    result += "\n3. Multicolored Permutations\n";
     // multicolored permutation cost
     if (!effectivelyMono) {
-      cost *= 5 * cost;
+      cost *= clusters / totalNodes;
       result += "   ==> running the naïve color permutator\n";
       result += String.format("       updated cost: %d\n", cost);
     }
+    else {
+      result += "   ==> no color permutations\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
 
+    result += "\n4. Connectivity Class\n";
     // connectivity cost: by class
     if (classConnected) {
-      cost += 5 * totalNodes;
+      cost += 5 * totalNodes * clusters;
       result += "   ==> running the connectivity filter\n";
       result += String.format("       updated cost: %d\n", cost);
     }
-    if (classBiconnected) {
-      cost += 30 * totalNodes;
+    else if (classBiconnected) {
+      cost += 30 * totalNodes * clusters;
       result += "   ==> running the biconnectivity filter\n";
       result += String.format("       updated cost: %d\n", cost);
     }
-    if (classReeHoover) {
-      cost += 50 * totalNodes;
+    else if (classReeHoover) {
+      cost += 50 * totalNodes * clusters;
       result += "   ==> running the Ree-Hoover filter\n";
       result += String.format("       updated cost: %d\n", cost);
     }
+    else {
+      result += "   ==> no connectivity class selected\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
 
+    result += "\n5. Additional Connectivity\n";
+    boolean addtionalConnectivity = false;
     // additional connectivity cost
     if ((Boolean) state.getProperty(KEY_EXCLUDE_NODAL_POINTS)) {
-      cost += 50 * totalNodes;
+      cost += 50 * totalNodes * clusters;
       result += "   ==> running the nodal points filter\n";
       result += String.format("       updated cost: %d\n", cost);
+      addtionalConnectivity = true;
     }
     if ((Boolean) state.getProperty(KEY_EXCLUDE_ARTICULATION_POINTS)) {
-      cost += 125 * totalNodes * totalNodes;
+      cost += 125 * totalNodes * totalNodes * clusters;
       result += "   ==> running the articulation points filter\n";
       result += String.format("       updated cost: %d\n", cost);
+      addtionalConnectivity = true;
     }
     if ((Boolean) state.getProperty(KEY_EXCLUDE_ARTICULATION_PAIRS)) {
-      cost += 375 * totalNodes * totalNodes * totalNodes;
+      cost += 375 * totalNodes * clusters * clusters;
       result += "   ==> running the articulation pairs filter\n";
+      result += String.format("       updated cost: %d\n", cost);
+      addtionalConnectivity = true;
+    }
+    if (!addtionalConnectivity) {
+      result += "   ==> no additional filters applied\n";
       result += String.format("       updated cost: %d\n", cost);
     }
 

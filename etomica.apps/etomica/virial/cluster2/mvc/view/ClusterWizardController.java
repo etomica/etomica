@@ -1,5 +1,8 @@
 package etomica.virial.cluster2.mvc.view;
 
+import static etomica.virial.cluster2.mvc.view.ClusterWizardState.DEFVAL_MONOCHROMATIC;
+import static etomica.virial.cluster2.mvc.view.ClusterWizardState.KEY_COLOR_SCHEME;
+import static etomica.virial.cluster2.mvc.view.ClusterWizardState.KEY_ISOMORPH_FREE;
 import etomica.virial.cluster2.mvc.*;
 
 public class ClusterWizardController extends WizardController {
@@ -32,7 +35,13 @@ public class ClusterWizardController extends WizardController {
       // back button from the view
       if (viewResponse.getStatus() == ViewStatus.CONTINUE_PRIOR) {
         if (viewResponse.getView() instanceof ClusterWizardPage5) {
-          return new ClusterWizardPage4(this);
+          // do we show the color assignment page?
+          if ((Boolean) getState().getProperty(KEY_COLOR_SCHEME).equals(DEFVAL_MONOCHROMATIC)) {
+            return new ClusterWizardPage3(this);
+          }
+          else {
+            return new ClusterWizardPage4(this);
+          }
         }
         else if (viewResponse.getView() instanceof ClusterWizardPage4) {
           return new ClusterWizardPage3(this);
@@ -50,7 +59,13 @@ public class ClusterWizardController extends WizardController {
           return new ClusterWizardPage5(this);
         }
         else if (viewResponse.getView() instanceof ClusterWizardPage3) {
-          return new ClusterWizardPage4(this);
+          // do we show the color assignment page?
+          if ((Boolean) getState().getProperty(KEY_COLOR_SCHEME).equals(DEFVAL_MONOCHROMATIC)) {
+            return new ClusterWizardPage5(this);
+          }
+          else {
+            return new ClusterWizardPage4(this);
+          }
         }
         else if (viewResponse.getView() instanceof ClusterWizardPage2) {
           return new ClusterWizardPage3(this);

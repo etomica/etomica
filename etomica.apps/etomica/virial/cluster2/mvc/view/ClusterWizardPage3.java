@@ -144,15 +144,20 @@ public class ClusterWizardPage3 extends ClusterWizardPageTemplate {
 
     TableModel data = colorMapping.getModel();
     List<ColorEntry> colors = new ArrayList<ColorEntry>();
-    // these are the actual (color id, color) pairs of the mapping
-    for (int i = 0; i < data.getRowCount(); i++) {
-      ColorEntry entry = (ColorEntry) data.getValueAt(i, 1);
+    int colorIndex = 0;
+    for (int i = 0; i < (Integer) getController().getState().getProperty(KEY_TOTAL_NODES); i++) {
+      ColorEntry entry = (ColorEntry) data.getValueAt(colorIndex, 1);
       getController().getState().setProperty(KEY_COLORS.get(i), entry);
       if (!colors.contains(entry)) {
         colors.add(entry);
       }
+      if (getController().getState().getProperty(KEY_COLOR_SCHEME).equals(DEFVAL_MULTICOLORED)) {
+        colorIndex++;
+      }
     }
     // this is the set of colors in the image of the mapping
     getController().getState().setProperty(KEY_MAPPED_COLORS, colors);
+    // this is ALSO the set of default colors in the assignment of the mapping
+    getController().getState().setProperty(KEY_ASSIGNED_COLORS, colors);
   }
 }
