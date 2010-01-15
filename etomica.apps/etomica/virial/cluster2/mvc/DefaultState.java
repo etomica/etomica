@@ -32,4 +32,14 @@ public class DefaultState implements State {
 
     getData().put(key, value);
   }
+
+  @Override
+  public String toString() {
+
+    String result = "";
+    for (String key : data.keySet())  {
+      result += String.format("%s = %s", key, data.get(key));
+    }
+    return result;
+  }
 }

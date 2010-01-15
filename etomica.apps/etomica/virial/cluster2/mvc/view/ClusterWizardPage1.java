@@ -1,48 +1,51 @@
 package etomica.virial.cluster2.mvc.view;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import etomica.virial.cluster2.mvc.WizardController;
+import static etomica.virial.cluster2.mvc.view.ClusterWizardState.*;
+
 public class ClusterWizardPage1 extends ClusterWizardPageTemplate {
 
-  private JComponent edClusterName;
+  private JTextField edClusterName;
   private JSpinner spTotalNodes;
   private JSpinner spRootNodes;
   private JSpinner spFieldNodes;
   private JCheckBox ckIsomorphFree;
-  private JComboBox cbColor;
-  private JComboBox cbMonochromatic;
+  private JComboBox cbColorScheme;
   private boolean spinnerChanging = false;
+
+  public ClusterWizardPage1(WizardController controller) {
+
+    super(controller);
+  }
 
   @Override
   public void attachDone() {
 
-    ((JButton) getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(false);
-    ((JButton) getData().getProperty(ClusterWizard.KEY_BACK_BUTTON)).setEnabled(false);
-    ((JButton) getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(false);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(false);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_BACK_BUTTON)).setEnabled(false);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(false);
+    super.attachDone();
   }
 
   @Override
   public void detachDone() {
 
-    ((JButton) getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(true);
-    ((JButton) getData().getProperty(ClusterWizard.KEY_BACK_BUTTON)).setEnabled(true);
-    ((JButton) getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(true);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(true);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_BACK_BUTTON)).setEnabled(true);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(true);
+    super.detachDone();
   }
 
   @Override
-  protected int getPageIndex() {
+  public int getPageId() {
 
     return 1;
   }
@@ -103,14 +106,12 @@ public class ClusterWizardPage1 extends ClusterWizardPageTemplate {
     spTotalNodes.addChangeListener(listener);
     spRootNodes.addChangeListener(listener);
     ckIsomorphFree = createCheckBox("isomorph-free cluster");
-    cbMonochromatic = createComboBox(new String[] { "monochromatic", "multi-colored" }, true);
-    cbColor = createComboBox(new String[] { "black", "blue", "red" }, true);
+    cbColorScheme = createComboBox(new String[] { DEFVAL_MONOCHROMATIC, DEFVAL_MULTICOLORED }, true);
     builder.append("Cluster &Name:", buildGrid(edClusterName));
     builder.append("&Total Nodes:", buildGrid(spTotalNodes));
     builder.append("&Root Nodes:", buildGrid(spRootNodes));
     builder.append("Field Nodes:", buildGrid(spFieldNodes));
-    builder.append("Cluster &Colors:", buildGrid(cbMonochromatic));
-    builder.append("&Default Node Color:", buildGrid(cbColor));
+    builder.append("Colors Sc&heme:", buildGrid(cbColorScheme));
     builder.append("&Isomorphism:", buildButtonRow(ckIsomorphFree, true, true, false, false));
     return builder.getPanel();
   }
@@ -118,9 +119,29 @@ public class ClusterWizardPage1 extends ClusterWizardPageTemplate {
   @Override
   protected String getTitle() {
 
-    String title = "Provide a name for the cluster as well as the node, color and isomorphism specifications. ";
-    title += "If the cluster is monochromatic, field and root nodes will all have the same color (the default color). ";
-    title += "If the cluster is multi-colored, you will be asked to define the colors of the root and field nodes before the cluster is generated.";
+    String title = "Provide a name and some basic specifications for the cluster. Connectivity filters can be ";
+    title += "defined on page 2, color mappings and assignments on pages 3 and 4. A summary with the complete ";
+    title += "specifications will be provided before the cluster is generated.";
     return title;
+  }
+
+  @Override
+  public void loadFromState() {
+
+    edClusterName.setText((String) getController().getState().getProperty(KEY_NAME));
+    spTotalNodes.setValue(getController().getState().getProperty(KEY_TOTAL_NODES));
+    spRootNodes.setValue(getController().getState().getProperty(KEY_ROOT_NODES));
+    cbColorScheme.setSelectedItem(getController().getState().getProperty(KEY_COLOR_SCHEME));
+    ckIsomorphFree.setSelected((Boolean) getController().getState().getProperty(KEY_ISOMORPH_FREE));
+  }
+
+  @Override
+  public void commitChanges() {
+
+    getController().getState().setProperty(KEY_NAME, edClusterName.getText());
+    getController().getState().setProperty(KEY_TOTAL_NODES, spTotalNodes.getValue());
+    getController().getState().setProperty(KEY_ROOT_NODES, spRootNodes.getValue());
+    getController().getState().setProperty(KEY_COLOR_SCHEME, cbColorScheme.getSelectedItem());
+    getController().getState().setProperty(KEY_ISOMORPH_FREE, ckIsomorphFree.isSelected());
   }
 }

@@ -1,20 +1,9 @@
 package etomica.virial.cluster2.mvc.view;
 
-import java.awt.Component;
-import java.awt.Font;
+import java.awt.*;
+import java.util.List;
 
-import javax.swing.AbstractButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SpinnerModel;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.border.EmptyBorder;
 
@@ -27,11 +16,18 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.Sizes;
 import com.jgoodies.looks.Options;
 
+import etomica.virial.cluster2.mvc.WizardController;
+
 public abstract class ClusterWizardPageTemplate extends DefaultWizardPage {
+
+  public ClusterWizardPageTemplate(WizardController controller) {
+
+    super(controller);
+  }
 
   protected void attachPanel(String key, JPanel panel) {
 
-    if (panel == getData().getProperty(ClusterWizard.KEY_FIGURE_PANE)) {
+    if (panel == getController().getState().getProperty(ClusterWizard.KEY_FIGURE_PANE)) {
       FormLayout layout = new FormLayout("left:pref", "4dlu, pref, pref");
       DefaultFormBuilder builder = new DefaultFormBuilder(layout);
       builder.setDefaultDialogBorder();
@@ -41,7 +37,7 @@ public abstract class ClusterWizardPageTemplate extends DefaultWizardPage {
       builder.add(createGuideEntries(), new CellConstraints(1, 3));
       panel.add(builder.getPanel());
     }
-    else if (panel == getData().getProperty(ClusterWizard.KEY_MODEL_PANE)) {
+    else if (panel == getController().getState().getProperty(ClusterWizard.KEY_MODEL_PANE)) {
       FormLayout layout = new FormLayout("center:270dlu", "pref, 20dlu, pref");
       DefaultFormBuilder builder = new DefaultFormBuilder(layout);
       builder.setDefaultDialogBorder();
@@ -69,19 +65,21 @@ public abstract class ClusterWizardPageTemplate extends DefaultWizardPage {
 
   protected JComponent createGuideEntries() {
 
-    FormLayout layout = new FormLayout("4dlu, pref", "2dlu, 18dlu:grow, 18dlu:grow, 18dlu:grow, 18dlu:grow");
+    FormLayout layout = new FormLayout("4dlu, pref",
+        "2dlu, 18dlu:grow, 18dlu:grow, 18dlu:grow, 18dlu:grow, 18dlu:grow");
     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
     builder.setBorder(new EmptyBorder(0, 0, 0, 0));
     // builder.setDefaultDialogBorder();
     builder.setOpaque(false);
 
-    JLabel[] labels = new JLabel[4];
-    labels[0] = builder.addLabel("1. General Properties", new CellConstraints(2, 2));
+    JLabel[] labels = new JLabel[5];
+    labels[0] = builder.addLabel("1. Global Properties", new CellConstraints(2, 2));
     labels[1] = builder.addLabel("2. Connectivity Properties", new CellConstraints(2, 3));
-    labels[2] = builder.addLabel("3. Color Properties", new CellConstraints(2, 4));
-    labels[3] = builder.addLabel("4. Summary", new CellConstraints(2, 5));
-    int selectedIndex = getPageIndex();
-    if (selectedIndex >= 1 && selectedIndex <= 4) {
+    labels[2] = builder.addLabel("3. Color Mappings", new CellConstraints(2, 4));
+    labels[3] = builder.addLabel("4. Color Assignments", new CellConstraints(2, 5));
+    labels[4] = builder.addLabel("5. Summary", new CellConstraints(2, 6));
+    int selectedIndex = getPageId();
+    if (selectedIndex >= 1 && selectedIndex <= 5) {
       Font font = labels[selectedIndex - 1].getFont();
       labels[selectedIndex - 1].setForeground(UIManager.getColor("TitledBorder.titleColor"));
       labels[selectedIndex - 1].setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
@@ -142,6 +140,14 @@ public abstract class ClusterWizardPageTemplate extends DefaultWizardPage {
     return box;
   }
 
+  protected JComboBox createColorComboBox(List<ColorEntry> colors) {
+
+    JColorComboBox box = new JColorComboBox(colors);
+    box.setEnabled(true);
+    box.setEditable(false);
+    return box;
+  }
+
   protected JSpinner createSpinner(SpinnerModel model, boolean enabled, boolean editable) {
 
     JSpinner spinner = new JSpinner(model);
@@ -180,8 +186,6 @@ public abstract class ClusterWizardPageTemplate extends DefaultWizardPage {
     area.setEnabled(enabled);
     return area;
   }
-
-  protected abstract int getPageIndex();
 
   protected abstract String getTitle();
 

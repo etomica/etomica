@@ -6,16 +6,24 @@ import etomica.virial.cluster2.mvc.View;
 import etomica.virial.cluster2.mvc.view.ApplicationUI;
 import etomica.virial.cluster2.mvc.view.ApplicationView;
 import etomica.virial.cluster2.mvc.view.ClusterWizard;
+import etomica.virial.cluster2.mvc.view.ClusterWizardController;
 
 public class ViewFactory {
 
   public static String VN_VIRIAL = "virialApplication";
-  public static String VN_WIZARD = "wizardTest";
+  public static String VN_EMPTY_WIZARD = "Wizard Demo";
+  public static String VN_CLUSTER_WIZARD = "Cluster Wizard";
 
   public static void showView(final String viewName) {
 
     ApplicationUI.configure();
-    SwingUtilities.invokeLater(new ViewRunnable(viewName));
+    // the wizard controller implements its own runnable, so no need to wrap here
+    if (viewName.equalsIgnoreCase(VN_CLUSTER_WIZARD)) {
+      SwingUtilities.invokeLater(new ClusterWizardController());
+    }
+    else {
+      SwingUtilities.invokeLater(new ViewRunnable(viewName));
+    }
   }
 
   public static View createView(String viewName) {
@@ -23,8 +31,8 @@ public class ViewFactory {
     if (viewName.equalsIgnoreCase(VN_VIRIAL)) {
       return new ApplicationView();
     }
-    if (viewName.equalsIgnoreCase(VN_WIZARD)) {
-      return new ClusterWizard(VN_WIZARD);
+    if (viewName.equalsIgnoreCase(VN_EMPTY_WIZARD)) {
+      return new ClusterWizard(VN_EMPTY_WIZARD);
     }
     return null;
   }
@@ -41,8 +49,7 @@ public class ViewFactory {
     public void run() {
 
       View v = ViewFactory.createView(viewName);
-      // TODO: provide a real state
-      v.configure(null);
+      v.initializeUI();
       v.display();
     }
   }

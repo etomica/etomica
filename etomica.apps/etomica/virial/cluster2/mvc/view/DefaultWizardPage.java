@@ -1,36 +1,27 @@
 package etomica.virial.cluster2.mvc.view;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.KeyAdapter;
+import java.awt.event.*;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import etomica.virial.cluster2.mvc.DefaultState;
-import etomica.virial.cluster2.mvc.MVCException;
-import etomica.virial.cluster2.mvc.State;
-import etomica.virial.cluster2.mvc.View;
-import etomica.virial.cluster2.mvc.ViewResponse;
-import etomica.virial.cluster2.mvc.ViewResponseListener;
-import etomica.virial.cluster2.mvc.ViewStatus;
-import etomica.virial.cluster2.mvc.WizardPageView;
+import etomica.virial.cluster2.mvc.*;
 
 public class DefaultWizardPage implements WizardPageView {
 
   private ViewResponseListener viewResponseListener;
-  private State data = new DefaultState();
   private MouseAdapter mouseAdapter;
   private KeyAdapter keyAdapter;
+  private WizardController controller;
 
   /**
    * Creates the wizard page and default keyboard and mouse handlers to delegate the
    * handling to the appropriate methods.
    */
-  public DefaultWizardPage() {
+  public DefaultWizardPage(WizardController controller) {
 
+    this.controller = controller;
     keyAdapter = new KeyAdapter() {
 
       @Override
@@ -38,19 +29,19 @@ public class DefaultWizardPage implements WizardPageView {
 
         if (e.getComponent().isEnabled()) {
           if (e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_ENTER) {
-            if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
+            if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
               doNext();
             }
-            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
+            else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
               doBack();
             }
-            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
+            else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
               doCancel();
             }
-            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
+            else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
               doHelp();
             }
-            else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
+            else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
               doFinish();
             }
           }
@@ -64,19 +55,19 @@ public class DefaultWizardPage implements WizardPageView {
       public void mouseClicked(MouseEvent e) {
 
         if (e.getComponent().isEnabled()) {
-          if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
+          if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_NEXT_BUTTON)) {
             doNext();
           }
-          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
+          else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_BACK_BUTTON)) {
             doBack();
           }
-          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
+          else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_CANCEL_BUTTON)) {
             doCancel();
           }
-          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
+          else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_HELP_BUTTON)) {
             doHelp();
           }
-          else if (e.getComponent() == getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
+          else if (e.getComponent() == getController().getState().getProperty(ClusterWizard.KEY_FINISH_BUTTON)) {
             doFinish();
           }
         }
@@ -84,9 +75,14 @@ public class DefaultWizardPage implements WizardPageView {
     };
   }
 
+  public WizardController getController() {
+
+    return controller;
+  }
+
   public void attach(String key, Object object) {
 
-    getData().setProperty(key, object);
+    getController().getState().setProperty(key, object);
 
     if (object instanceof JButton) {
       attachButton(key, (JButton) object);
@@ -104,30 +100,18 @@ public class DefaultWizardPage implements WizardPageView {
 
   public void attachDone() {
 
-    // no-op here; descendant classes can override this
+    loadFromState();
   }
 
   protected void attachPanel(String key, JPanel panel) {
 
-    // no-op here; descendant classes can override this
-  }
-
-  public void configure(State state) {
-
-    for (String key : state.getKeys()) {
-      getData().setProperty(key, state.getProperty(key));
-    }
+    // default no-op attach
   }
 
   protected ViewResponse createResponse(final ViewStatus status, final List<MVCException> errors) {
 
     final WizardPageView thisView = this;
     return new ViewResponse() {
-
-      public State getData() {
-
-        return getData();
-      }
 
       public List<MVCException> getErrors() {
 
@@ -175,26 +159,30 @@ public class DefaultWizardPage implements WizardPageView {
 
   public void display() {
 
-    JPanel modelPane = (JPanel) getData().getProperty(ClusterWizard.KEY_MODEL_PANE);
+    JPanel modelPane = (JPanel) getController().getState().getProperty(ClusterWizard.KEY_MODEL_PANE);
     modelPane.validate();
     modelPane.repaint();
-    JPanel figurePane = (JPanel) getData().getProperty(ClusterWizard.KEY_FIGURE_PANE);
+    JPanel figurePane = (JPanel) getController().getState().getProperty(ClusterWizard.KEY_FIGURE_PANE);
     figurePane.validate();
     figurePane.repaint();
   }
 
   protected void doBack() {
 
+    // this is conservative but a good idea since state on a page X may depend on the state of a page X-1
+    rollbackChanges();
     viewResponseListener.onViewResponse(createResponse(ViewStatus.CONTINUE_PRIOR, null));
   }
 
   protected void doCancel() {
 
+    commitChanges();
     viewResponseListener.onViewResponse(createResponse(ViewStatus.COMPLETE_USER_CANCELED, null));
   }
 
   protected void doFinish() {
 
+    commitChanges();
     viewResponseListener.onViewResponse(createResponse(ViewStatus.COMPLETE_SUCCESS, null));
   }
 
@@ -205,16 +193,38 @@ public class DefaultWizardPage implements WizardPageView {
 
   protected void doNext() {
 
+    commitChanges();
     viewResponseListener.onViewResponse(createResponse(ViewStatus.CONTINUE_NEXT, null));
-  }
-
-  protected State getData() {
-
-    return data;
   }
 
   public void setResponseListener(ViewResponseListener listener) {
 
     this.viewResponseListener = listener;
+  }
+
+  public void loadFromState() {
+
+    // default no-op load
+  }
+
+  public void commitChanges() {
+
+    // default no-op commit
+  }
+
+  public void rollbackChanges() {
+
+    // sets the state of this wizard page back to its default
+    getController().getState().loadDefaultState(getPageId());
+  }
+
+  public void initializeUI() {
+
+    // default no-op initialize
+  }
+
+  public int getPageId() {
+
+    return -1;
   }
 }

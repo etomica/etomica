@@ -2,20 +2,24 @@ package etomica.virial.cluster2.mvc.view;
 
 import java.awt.Component;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JRadioButton;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+import etomica.virial.cluster2.mvc.WizardController;
+
+import static etomica.virial.cluster2.mvc.view.ClusterWizardState.*;
+
 public class ClusterWizardPage2 extends ClusterWizardPageTemplate {
+
+  public ClusterWizardPage2(WizardController controller) {
+
+    super(controller);
+  }
 
   private JRadioButton rbConnectivityReeHoover;
   private JRadioButton rbConnectivityBiconnected;
@@ -28,19 +32,21 @@ public class ClusterWizardPage2 extends ClusterWizardPageTemplate {
   @Override
   public void attachDone() {
 
-    ((JButton) getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(false);
-    ((JButton) getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(false);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(false);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(false);
+    super.attachDone();
   }
 
   @Override
   public void detachDone() {
 
-    ((JButton) getData().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(true);
-    ((JButton) getData().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(true);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_HELP_BUTTON)).setEnabled(true);
+    ((JButton) getController().getState().getProperty(ClusterWizard.KEY_FINISH_BUTTON)).setEnabled(true);
+    super.detachDone();
   }
 
   @Override
-  protected int getPageIndex() {
+  public int getPageId() {
 
     return 2;
   }
@@ -122,5 +128,17 @@ public class ClusterWizardPage2 extends ClusterWizardPageTemplate {
     title += "any, connected, biconnected, and Ree-Hoover. Note that connected and biconnected here refer to the graph ";
     title += "theoretic definitions. For connected and biconnected clusters, you may specify two additional filters. ";
     return title;
+  }
+
+  @Override
+  public void commitChanges() {
+
+    getController().getState().setProperty(KEY_CLASS_ANY, rbConnectivityAny.isSelected());
+    getController().getState().setProperty(KEY_CLASS_CONNECTED, rbConnectivityConnected.isSelected());
+    getController().getState().setProperty(KEY_CLASS_BICONNECTED, rbConnectivityBiconnected.isSelected());
+    getController().getState().setProperty(KEY_CLASS_REEHOOVER, rbConnectivityReeHoover.isSelected());
+    getController().getState().setProperty(KEY_EXCLUDE_NODAL_POINTS, ckNodalPoint.isSelected());
+    getController().getState().setProperty(KEY_EXCLUDE_ARTICULATION_POINTS, ckArticulationPoint.isSelected());
+    getController().getState().setProperty(KEY_EXCLUDE_ARTICULATION_PAIRS, ckArticulationPair.isSelected());
   }
 }

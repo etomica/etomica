@@ -7,39 +7,54 @@ package etomica.virial.cluster2.mvc;
  */
 public abstract class WizardController implements Runnable, ViewResponseListener {
 
-  private WizardView wizard;
-  private State internalState = new DefaultState();
+  private WizardView view;
+  private WizardState state;
 
   /**
    * Invoked later by the Swing thread.
-   *
    */
   public void run() {
 
     // initialize the state, create the wizard
     preProcess();
     // first wizard page
-    WizardPageView pageView = nextPageView(null, null);
-    // CONTRACT: there must exist a view corresponding to the action response
-    assert (pageView != null);
-    // the wizard attaches its public UI to the page view
-    getWizard().attachPageView(pageView);
-    // configure the page view with the internal state and the listener
-    pageView.configure(getState());
-    pageView.setResponseListener(this);
+    WizardPageView pageView = createPageView(null, null);
+    // prepare the state
+    prepareState(pageView);
+    // prepare the page view
+    preparePageView(pageView);
+    // display the page view
     pageView.display();
     // display the wizard; after this first display, all other displays are event-based
     // and are indirectly controlled by the event handlers in each page view
-    getWizard().display();
+    getWizardView().display();
   }
 
-  // Returns the actual wizard on top of which the wizard pages will be displayed
-  protected WizardView getWizard() {
+  private void preparePageView(WizardPageView pageView) {
 
-    if (wizard == null) {
+    // initialize the UI before actually displaying it
+    pageView.initializeUI();
+    // the wizard attaches its public UI to the page view
+    getWizardView().attachPageView(pageView);
+    // configure the page view with the listener
+    pageView.setResponseListener(this);
+  }
+
+  private void prepareState(WizardPageView pageView) {
+
+    // initialize the part of the state corresponding to this page, if necessary
+    if (!getState().isStateLoaded(pageView.getPageId())) {
+      getState().loadDefaultState(pageView.getPageId());
+    }
+  }
+
+  // Returns the actual wizard on top of which the wizard pages are displayed
+  protected WizardView getWizardView() {
+
+    if (view == null) {
       createWizard();
     }
-    return wizard;
+    return view;
   }
 
   public void onViewResponse(ViewResponse viewResponse) {
@@ -49,25 +64,24 @@ public abstract class WizardController implements Runnable, ViewResponseListener
     Action action = nextAction(viewResponse);
     // CONTRACT: there must exist an action corresponding to the view response
     assert (action != null);
-    ActionResponse actionResponse = action.execute(viewResponse, getState());
+    ActionResponse actionResponse = action.execute(viewResponse);
     // CONTRACT: every action must return a response object
     assert (actionResponse != null);
     // detach the current view because we are done with it
-    getWizard().detachPageView((WizardPageView) viewResponse.getView());
+    getWizardView().detachPageView((WizardPageView) viewResponse.getView());
     if (!actionResponse.getStatus().isTerminated()) {
-      WizardPageView pageView = nextPageView(actionResponse, viewResponse);
-      // CONTRACT: there must exist a view corresponding to the action response
-      assert (pageView != null);
-      // the wizard attaches its public UI to the page view
-      getWizard().attachPageView(pageView);
-      pageView.configure(getState());
-      pageView.setResponseListener(this);
+      WizardPageView pageView = createPageView(actionResponse, viewResponse);
+      // prepare the state
+      prepareState(pageView);
+      // prepare the page view
+      preparePageView(pageView);
+      // display the page view
       pageView.display();
     }
     else {
       // post-processing with the last action response
       postProcess(actionResponse);
-      getWizard().close();
+      getWizardView().close();
     }
   }
 
@@ -77,9 +91,9 @@ public abstract class WizardController implements Runnable, ViewResponseListener
    */
   protected void preProcess() {
 
-    wizard = createWizard();
-    initializeState();
-    getWizard().configure(getState());
+    state = createWizardState();
+    view = createWizard();
+    getWizardView().initializeUI();
   }
 
   /**
@@ -88,23 +102,19 @@ public abstract class WizardController implements Runnable, ViewResponseListener
   protected abstract WizardView createWizard();
 
   /**
-   * Initializes the internal state to be used by the wizard. The default
-   * implementation is a no-operation.
+   * Create the actual wizard state instance.
    */
-  protected void initializeState() {
-
-    // no-operation
-  }
+  protected abstract WizardState createWizardState();
 
   /**
    * Returns this workflow's state instance.
    */
-  protected State getState() {
+  public WizardState getState() {
 
-    return internalState;
+    return state;
   }
 
-  /**
+   /**
    * Performs any necessary result processing after the wizard has completed. The default
    * implementation is a no-operation.
    *
@@ -125,5 +135,5 @@ public abstract class WizardController implements Runnable, ViewResponseListener
    * and the last action response.
    *
    */
-  protected abstract WizardPageView nextPageView(ActionResponse actionResponse, ViewResponse viewResponse);
+  protected abstract WizardPageView createPageView(ActionResponse actionResponse, ViewResponse viewResponse);
 }

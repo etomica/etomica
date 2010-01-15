@@ -6,12 +6,10 @@ import java.awt.Frame;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import com.jgoodies.looks.LookUtils;
 
-import etomica.virial.cluster2.mvc.State;
 import etomica.virial.cluster2.mvc.View;
 
 public abstract class DialogView extends JDialog implements View {
@@ -67,7 +65,7 @@ public abstract class DialogView extends JDialog implements View {
     setVisible(true);
   }
 
-  public void configure(State state) {
+  public void initializeUI() {
 
     setContentPane(buildContentPane());
     if (getIconName() != null) {

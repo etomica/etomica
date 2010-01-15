@@ -9,9 +9,7 @@ import javax.swing.WindowConstants;
 
 import com.jgoodies.looks.LookUtils;
 
-import etomica.virial.cluster2.mvc.State;
 import etomica.virial.cluster2.mvc.View;
-import etomica.virial.cluster2.mvc.ViewResponse;
 
 public abstract class FrameView extends JFrame implements View {
 
@@ -35,11 +33,6 @@ public abstract class FrameView extends JFrame implements View {
 
     return null;
   }
-//
-//  public Map<String, Object> getData() {
-//
-//    return null;
-//  }
 
   // Returns the resource name of this frame's icon
   protected String getIconName() {
@@ -73,7 +66,7 @@ public abstract class FrameView extends JFrame implements View {
     }
   }
 
-  public void configure(State state) {
+  public void initializeUI() {
 
     setContentPane(buildContentPane());
     JMenuBar menu = buildMainMenu();
@@ -87,14 +80,12 @@ public abstract class FrameView extends JFrame implements View {
     setPreferredSize(getPreferredDefaultSize());
     Dimension paneSize = getSize();
     Dimension screenSize = getToolkit().getScreenSize();
-    setLocation((screenSize.width - paneSize.width) / 2,
-        (screenSize.height - paneSize.height) / 2);
+    setLocation((screenSize.width - paneSize.width) / 2, (screenSize.height - paneSize.height) / 2);
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
   }
 
   protected Dimension getPreferredDefaultSize() {
 
-    return LookUtils.IS_LOW_RESOLUTION ? getPreferredLowResSize()
-        : getPreferredHighResSize();
+    return LookUtils.IS_LOW_RESOLUTION ? getPreferredLowResSize() : getPreferredHighResSize();
   }
 }

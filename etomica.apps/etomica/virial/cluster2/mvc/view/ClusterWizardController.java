@@ -1,15 +1,6 @@
 package etomica.virial.cluster2.mvc.view;
 
-import javax.swing.SwingUtilities;
-
-import etomica.virial.cluster2.mvc.Action;
-import etomica.virial.cluster2.mvc.ActionResponse;
-import etomica.virial.cluster2.mvc.ActionStatus;
-import etomica.virial.cluster2.mvc.ViewResponse;
-import etomica.virial.cluster2.mvc.ViewStatus;
-import etomica.virial.cluster2.mvc.WizardController;
-import etomica.virial.cluster2.mvc.WizardPageView;
-import etomica.virial.cluster2.mvc.WizardView;
+import etomica.virial.cluster2.mvc.*;
 
 public class ClusterWizardController extends WizardController {
 
@@ -23,52 +14,58 @@ public class ClusterWizardController extends WizardController {
   protected Action nextAction(ViewResponse response) {
 
     if (response.getStatus().isTerminated()) {
-      return new DefaultWizardAction(ActionStatus.COMPLETE_SUCCESS, response.getView());
+      return new DefaultWizardAction(ActionStatus.COMPLETE_SUCCESS);
     }
     else {
-      return new DefaultWizardAction(ActionStatus.CONTINUE_SUCCESS, response.getView());
+      return new DefaultWizardAction(ActionStatus.CONTINUE_SUCCESS);
     }
   }
 
   @Override
-  protected WizardPageView nextPageView(ActionResponse actionResponse, ViewResponse viewResponse) {
+  protected WizardPageView createPageView(ActionResponse actionResponse, ViewResponse viewResponse) {
 
     if (actionResponse == null || viewResponse == null) {
-      return new ClusterWizardPage1();
+      return new ClusterWizardPage1(this);
     }
     // successful action
     if (actionResponse.getStatus() == ActionStatus.CONTINUE_SUCCESS) {
       // back button from the view
       if (viewResponse.getStatus() == ViewStatus.CONTINUE_PRIOR) {
-        if (viewResponse.getView() instanceof ClusterWizardPage4) {
-          return new ClusterWizardPage3();
+        if (viewResponse.getView() instanceof ClusterWizardPage5) {
+          return new ClusterWizardPage4(this);
+        }
+        else if (viewResponse.getView() instanceof ClusterWizardPage4) {
+          return new ClusterWizardPage3(this);
         }
         else if (viewResponse.getView() instanceof ClusterWizardPage3) {
-          return new ClusterWizardPage2();
+          return new ClusterWizardPage2(this);
         }
         else if (viewResponse.getView() instanceof ClusterWizardPage2) {
-          return new ClusterWizardPage1();
+          return new ClusterWizardPage1(this);
         }
       }
       // next button from the view
       else if (viewResponse.getStatus() == ViewStatus.CONTINUE_NEXT) {
-        if (viewResponse.getView() instanceof ClusterWizardPage3) {
-          return new ClusterWizardPage4();
+        if (viewResponse.getView() instanceof ClusterWizardPage4) {
+          return new ClusterWizardPage5(this);
+        }
+        else if (viewResponse.getView() instanceof ClusterWizardPage3) {
+          return new ClusterWizardPage4(this);
         }
         else if (viewResponse.getView() instanceof ClusterWizardPage2) {
-          return new ClusterWizardPage3();
+          return new ClusterWizardPage3(this);
         }
         else if (viewResponse.getView() instanceof ClusterWizardPage1) {
-          return new ClusterWizardPage2();
+          return new ClusterWizardPage2(this);
         }
       }
     }
-    return new DefaultWizardPage();
+    return new ClusterWizardPage1(this);
   }
 
-  public static void main(String[] args) {
+  @Override
+  protected WizardState createWizardState() {
 
-    ApplicationUI.configure();
-    SwingUtilities.invokeLater(new ClusterWizardController());
+    return new ClusterWizardState();
   }
 }

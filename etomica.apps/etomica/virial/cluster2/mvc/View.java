@@ -3,14 +3,12 @@ package etomica.virial.cluster2.mvc;
 public interface View {
 
   /**
-   * Present the entire state to the view so it can initialize its internal state.
-   *
+   * Initializes the UI, independently of the current state of the model.
    */
-  public void configure(State state);
+  public void initializeUI();
 
   /**
-   * Renders this view.
-   *
+   * Renders this view visible.
    */
   public void display();
 }
