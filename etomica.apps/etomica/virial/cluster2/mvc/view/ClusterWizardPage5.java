@@ -2,6 +2,7 @@ package etomica.virial.cluster2.mvc.view;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -14,6 +15,9 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import etomica.virial.cluster2.mvc.WizardController;
+import etomica.virial.cluster2.mvc.WizardState;
+
+import static etomica.virial.cluster2.mvc.view.ClusterWizardState.*;
 
 public class ClusterWizardPage5 extends ClusterWizardPageTemplate {
 
@@ -81,28 +85,135 @@ public class ClusterWizardPage5 extends ClusterWizardPageTemplate {
     return pane;
   }
 
+  @SuppressWarnings("unchecked")
   private String getSummaryText() {
 
+    WizardState state = getController().getState();
+    int totalNodes = (Integer) state.getProperty(KEY_TOTAL_NODES);
+    int rootNodes = (Integer) state.getProperty(KEY_ROOT_NODES);
+    boolean classAny = (Boolean) state.getProperty(KEY_CLASS_ANY);
+    boolean classConnected = (Boolean) state.getProperty(KEY_CLASS_CONNECTED);
+    boolean classBiconnected = (Boolean) state.getProperty(KEY_CLASS_BICONNECTED);
+    boolean classReeHoover = (Boolean) state.getProperty(KEY_CLASS_REEHOOVER);
+    String connectivityClass = classAny ? "all clusters" : classConnected ? "connected clusters"
+        : classBiconnected ? "biconnected clusters" : classReeHoover ? "Ree-Hoover clusters" : "unknown";
     String result = "";
     result += "Cluster Specification Summary\n";
     result += "-----------------------------\n\n";
     result += "1. Global Properties\n\n";
-    result += "   Cluster Name...........: @NAME\n";
-    result += "   Cluster Name...........: @NAME\n";
-    result += "   Total Nodes............: @TNODES\n";
-    result += "   Root Nodes.............: @RNODES\n";
-    result += "   Field Nodes............: @FNODES\n";
-    result += "   Cluster Colors.........: @COLORS\n";
-    result += "   Default Node Color.....: @DNCOLOR\n";
-    result += "   Isomorphism............: @ISOMORPHISM\n\n";
+    result += String.format("   Cluster Name...........: %s\n", state.getProperty(KEY_NAME));
+    result += String.format("   Total Nodes............: %d\n", totalNodes);
+    result += String.format("   Root Nodes.............: %d\n", rootNodes);
+    result += String.format("   Field Nodes............: %d\n", totalNodes - rootNodes);
+    result += String.format("   Color Scheme...........: %s\n", state.getProperty(KEY_COLOR_SCHEME));
+    result += String.format("   Isomorph-Free..........: %s\n\n", state.getProperty(KEY_ISOMORPH_FREE));
     result += "2. Connectivity Properties\n\n";
-    result += "   Connectivity Class.....: @CCLASS\n";
-    result += "   Connectivity Filters...: @CFILTERS\n\n";
-    result += "3. Color Specifications\n\n";
-    result += "   Root Nodes.............: @RCOLORS\n";
-    result += "   Field Nodes............: @FCOLORS\n\n\n";
-    result += "Cluster Generation Plan\n";
+    result += String.format("   Connectivity Class............: %s\n", connectivityClass);
+    result += String.format("   Exclude Nodal Points..........: %s\n", state
+        .getProperty(KEY_EXCLUDE_NODAL_POINTS));
+    result += String.format("   Exclude Articulation Points...: %s\n", state
+        .getProperty(KEY_EXCLUDE_ARTICULATION_POINTS));
+    result += String.format("   Exclude Articulation Pairs....: %s\n\n", state
+        .getProperty(KEY_EXCLUDE_ARTICULATION_PAIRS));
+    result += "3. Node Colors\n\n";
+    int colorIndex = 0;
+    for (int i = 0; i < rootNodes; i++) {
+      ColorEntry entry = (ColorEntry) state.getProperty(KEY_NODE_COLORS.get(colorIndex));
+      result += String.format("   Root Node %d........: %s\n", i, entry.getText());
+      colorIndex++;
+    }
+    for (int i = 0; i < totalNodes - rootNodes; i++) {
+      ColorEntry entry = (ColorEntry) state.getProperty(KEY_NODE_COLORS.get(colorIndex));
+      result += String.format("   Field Node %d.......: %s\n", i, entry.getText());
+      colorIndex++;
+    }
+    // plan information
+    List<ColorEntry> colorAssignment = (List<ColorEntry>) state.getProperty(KEY_ASSIGNED_COLORS);
+    boolean effectivelyMono = state.getProperty(KEY_COLOR_SCHEME).equals(DEFVAL_MONOCHROMATIC)
+        || colorAssignment.size() == 1;
+    result += "\nCluster Generation Plan\n";
     result += "-----------------------\n\n";
+    result += String.format("   ==> %d distinct colors assigned\n", colorAssignment.size());
+    result += String.format("   ==> effectively %s\n", effectivelyMono ? DEFVAL_MONOCHROMATIC
+        : DEFVAL_MULTICOLORED);
+    if ((Boolean) state.getProperty(KEY_ISOMORPH_FREE)) {
+      result += "   ==> isomorph-free generation\n";
+    }
+
+    int cost = 0;
+
+    // cluster size and isomorphism
+    if ((Boolean) state.getProperty(KEY_ISOMORPH_FREE)) {
+      if (totalNodes > 9) {
+        cost += 750 * totalNodes * totalNodes * totalNodes * totalNodes;
+        result += String.format("   ==> %d total nodes, so using the naïve cluster generator\n", totalNodes);
+        result += String.format("       updated cost: %d\n", cost);
+      }
+      else {
+        cost += 5 * totalNodes;
+        result += "   ==> using clusters precomputed by nauty\n";
+        result += String.format("       updated cost: %d\n", cost);
+      }
+    }
+    else {
+      if (totalNodes > 7) {
+        cost += 1250 * totalNodes * totalNodes * totalNodes;
+        result += "   ==> using the naïve cluster generator\n";
+        result += String.format("       updated cost: %d\n", cost);
+      }
+      else if (totalNodes > 6) {
+        cost += 750 * totalNodes * totalNodes * totalNodes;
+        result += "   ==> using the naïve cluster generator\n";
+        result += String.format("       updated cost: %d\n", cost);
+      }
+      else {
+        cost += 150 * totalNodes * totalNodes * totalNodes;
+        result += "   ==> using the naïve cluster generator\n";
+        result += String.format("       updated cost: %d\n", cost);
+      }
+    }
+
+    // multicolored permutation cost
+    if (!effectivelyMono) {
+      cost *= 5 * cost;
+      result += "   ==> running the naïve color permutator\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
+
+    // connectivity cost: by class
+    if (classConnected) {
+      cost += 5 * totalNodes;
+      result += "   ==> running the connectivity filter\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
+    if (classBiconnected) {
+      cost += 30 * totalNodes;
+      result += "   ==> running the biconnectivity filter\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
+    if (classReeHoover) {
+      cost += 50 * totalNodes;
+      result += "   ==> running the Ree-Hoover filter\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
+
+    // additional connectivity cost
+    if ((Boolean) state.getProperty(KEY_EXCLUDE_NODAL_POINTS)) {
+      cost += 50 * totalNodes;
+      result += "   ==> running the nodal points filter\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
+    if ((Boolean) state.getProperty(KEY_EXCLUDE_ARTICULATION_POINTS)) {
+      cost += 125 * totalNodes * totalNodes;
+      result += "   ==> running the articulation points filter\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
+    if ((Boolean) state.getProperty(KEY_EXCLUDE_ARTICULATION_PAIRS)) {
+      cost += 375 * totalNodes * totalNodes * totalNodes;
+      result += "   ==> running the articulation pairs filter\n";
+      result += String.format("       updated cost: %d\n", cost);
+    }
+
     return result;
   }
 
@@ -113,11 +224,5 @@ public class ClusterWizardPage5 extends ClusterWizardPageTemplate {
     title += "Please go over the generation plan to have a rough idea of how the generation is setup ";
     title += "and, therefore, how long it may take to complete.";
     return title;
-  }
-
-  @Override
-  public void commitChanges() {
-
-    // update page properties in the state
   }
 }

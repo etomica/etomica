@@ -73,10 +73,10 @@ public class ClusterWizardPage2 extends ClusterWizardPageTemplate {
     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
     builder.setBorder(new EmptyBorder(0, 0, 0, 0));
     builder.setOpaque(false);
-    rbConnectivityAny = createRadioButton("any connectivity");
-    rbConnectivityConnected = createRadioButton("connected only");
-    rbConnectivityBiconnected = createRadioButton("biconnected only");
-    rbConnectivityReeHoover = createRadioButton("Ree-Hoover only");
+    rbConnectivityAny = createRadioButton("all clusters");
+    rbConnectivityConnected = createRadioButton("connected clusters only");
+    rbConnectivityBiconnected = createRadioButton("biconnected clusters only");
+    rbConnectivityReeHoover = createRadioButton("Ree-Hoover clusters only");
     ButtonGroup group = new ButtonGroup();
     group.add(rbConnectivityAny);
     group.add(rbConnectivityConnected);

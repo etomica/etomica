@@ -121,6 +121,8 @@ public class ClusterWizardState implements WizardState {
       KEY_NODE_COLOR2, KEY_NODE_COLOR3, KEY_NODE_COLOR4, KEY_NODE_COLOR5, KEY_NODE_COLOR6, KEY_NODE_COLOR7,
       KEY_NODE_COLOR8, KEY_NODE_COLOR9, KEY_NODE_COLORA, KEY_NODE_COLORB, KEY_NODE_COLORC, KEY_NODE_COLORD,
       KEY_NODE_COLORE, KEY_NODE_COLORF });
+  public static final String KEY_ASSIGNED_COLORS = KEY_COLOR_MAP + ".assignment";
+  public static final List<ColorEntry> DEFVAL_ASSIGNED_COLORS = new ArrayList<ColorEntry>();
 
   private Map<String, Object> data;
   private Set<Integer> loadedPageStates;
@@ -202,6 +204,7 @@ public class ClusterWizardState implements WizardState {
         for (int i = 0; i < KEY_NODE_COLORS.size(); i++) {
           setProperty(KEY_NODE_COLORS.get(i), DEFVAL_COLORS.get(0));
         }
+        setProperty(KEY_ASSIGNED_COLORS, DEFVAL_ASSIGNED_COLORS);
         break;
       case 5:
         break;

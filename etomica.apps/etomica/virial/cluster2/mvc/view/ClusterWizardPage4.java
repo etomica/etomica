@@ -1,6 +1,7 @@
 package etomica.virial.cluster2.mvc.view;
 
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
@@ -156,10 +157,16 @@ public class ClusterWizardPage4 extends ClusterWizardPageTemplate {
   public void commitChanges() {
 
     TableModel data = colorAssignment.getModel();
+    List<ColorEntry> colors = new ArrayList<ColorEntry>();
     // these are the actual (color id, color) pairs of the mapping
     for (int i = 0; i < data.getRowCount(); i++) {
       ColorEntry entry = (ColorEntry) data.getValueAt(i, 1);
       getController().getState().setProperty(KEY_NODE_COLORS.get(i), entry);
+      if (!colors.contains(entry)) {
+        colors.add(entry);
+      }
     }
+    // this is the set of colors in the image of the mapping
+    getController().getState().setProperty(KEY_ASSIGNED_COLORS, colors);
   }
 }
