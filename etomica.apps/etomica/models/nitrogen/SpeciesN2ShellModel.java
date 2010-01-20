@@ -35,22 +35,22 @@ public class SpeciesN2ShellModel extends Species {
         
         nType = new AtomTypeSphere(Nitrogen.INSTANCE, 3.1);
         pType = new AtomTypeSphere(new ElementSimple("P", 1.0), 0.0);
-        addChildType(nType);
         addChildType(pType);
-
+        addChildType(nType);
+       
         setConformation(new ConformationNitrogenShellModel(space)); 
      }
 
      public IMolecule makeMolecule() {
-         Molecule nitrogen = new Molecule(this, 5);
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
+         Molecule nitrogenShellModel = new Molecule(this, 5);
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
 
-         conformation.initializePositions(nitrogen.getChildList());
-         return nitrogen;
+         conformation.initializePositions(nitrogenShellModel.getChildList());
+         return nitrogenShellModel;
      }
 
      public IAtomTypeSphere getNitrogenType() {
