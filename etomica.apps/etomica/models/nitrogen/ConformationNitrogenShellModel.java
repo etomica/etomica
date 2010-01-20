@@ -24,6 +24,12 @@ public class ConformationNitrogenShellModel implements IConformation, java.io.Se
 	}
 
 	public void initializePositions(IAtomList atomList) {
+		
+		IAtom n1 = atomList.getAtom(SpeciesN2ShellModel.indexN1);
+		n1.getPosition().E(new double[] {-bondOrigN, 0, 0});
+		
+		IAtom n2 = atomList.getAtom(SpeciesN2ShellModel.indexN2);
+		n2.getPosition().E(new double[] {bondOrigN, 0, 0});
 			
 		IAtom center = atomList.getAtom(SpeciesN2ShellModel.indexCenter);
 		center.getPosition().E(new double[] {0, 0, 0});
@@ -34,21 +40,16 @@ public class ConformationNitrogenShellModel implements IConformation, java.io.Se
 		IAtom p1Right = atomList.getAtom(SpeciesN2ShellModel.indexP1right);
 		p1Right.getPosition().E(new double[] {bondOrigP, 0, 0});
 		
-		IAtom n1 = atomList.getAtom(SpeciesN2ShellModel.indexN1);
-		n1.getPosition().E(new double[] {-bondOrigN, 0, 0});
-		
-		IAtom n2 = atomList.getAtom(SpeciesN2ShellModel.indexN2);
-		n2.getPosition().E(new double[] {bondOrigN, 0, 0});
-		
 	}
 	
     public final static double [] Echarge = new double [5];
     static {
+    
+        ConformationNitrogenShellModel.Echarge[SpeciesN2ShellModel.indexN1] = Electron.UNIT.toSim( 2.563085);
+        ConformationNitrogenShellModel.Echarge[SpeciesN2ShellModel.indexN2] = Electron.UNIT.toSim( 2.563085);
     	ConformationNitrogenShellModel.Echarge[SpeciesN2ShellModel.indexCenter] = Electron.UNIT.toSim( -2.49737);
         ConformationNitrogenShellModel.Echarge[SpeciesN2ShellModel.indexP1left] = Electron.UNIT.toSim(-1.3144);
         ConformationNitrogenShellModel.Echarge[SpeciesN2ShellModel.indexP1right] = Electron.UNIT.toSim(-1.3144);
-        ConformationNitrogenShellModel.Echarge[SpeciesN2ShellModel.indexN1] = Electron.UNIT.toSim( 2.563085);
-        ConformationNitrogenShellModel.Echarge[SpeciesN2ShellModel.indexN2] = Electron.UNIT.toSim( 2.563085);
 
     }
 	

@@ -43,11 +43,12 @@ public class SpeciesN2ShellModel extends Species {
 
      public IMolecule makeMolecule() {
          Molecule nitrogenShellModel = new Molecule(this, 5);
-         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
          nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
          nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
+         nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
+
 
          conformation.initializePositions(nitrogenShellModel.getChildList());
          return nitrogenShellModel;
@@ -66,11 +67,12 @@ public class SpeciesN2ShellModel extends Species {
          return 5;
      }
     
-    public final static int indexCenter = 0;
-    public final static int indexP1left  = 1;
-    public final static int indexP1right  = 2;
-    public final static int indexN1 = 3;
-    public final static int indexN2 = 4;
+     public final static int indexN1 = 0;
+     public final static int indexN2 = 1;
+     public final static int indexCenter = 2;
+     public final static int indexP1left  = 3;
+     public final static int indexP1right  = 4;
+
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;

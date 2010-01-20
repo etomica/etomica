@@ -46,8 +46,8 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
 		// to compute the midpoint distance between the two
-		IVectorMutable com1 = (nitrogena.getChildList().getAtom(0)).getPosition();
-		IVectorMutable com2 = (nitrogenb.getChildList().getAtom(0)).getPosition();
+		IVectorMutable com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
+		IVectorMutable com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
 
 	    /*
          *  to check for the nearest image
@@ -72,41 +72,42 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 		 * refer to SpeciesN2ShellModel.java class
 		 * 
 		 */
-        IVectorMutable Pac = nitrogena.getChildList().getAtom(0).getPosition();
-        IVectorMutable Pap1 = nitrogena.getChildList().getAtom(1).getPosition();                                                                        
-        IVectorMutable Pap2 = nitrogena.getChildList().getAtom(2).getPosition();
-        IVectorMutable Pan1 = nitrogena.getChildList().getAtom(3).getPosition();                                                                        
-        IVectorMutable Pan2 = nitrogena.getChildList().getAtom(4).getPosition();
-        
-        IVectorMutable Pbc = nitrogenb.getChildList().getAtom(0).getPosition();
-        IVectorMutable Pbp1 = nitrogenb.getChildList().getAtom(1).getPosition();
-        IVectorMutable Pbp2 = nitrogenb.getChildList().getAtom(2).getPosition();
-        IVectorMutable Pbn1 = nitrogenb.getChildList().getAtom(3).getPosition();
-        IVectorMutable Pbn2 = nitrogenb.getChildList().getAtom(4).getPosition();
+        IVectorMutable Pan1 = nitrogena.getChildList().getAtom(0).getPosition();                                                                        
+        IVectorMutable Pan2 = nitrogena.getChildList().getAtom(1).getPosition();
+        IVectorMutable Pac  = nitrogena.getChildList().getAtom(2).getPosition();
+        IVectorMutable Pap1 = nitrogena.getChildList().getAtom(3).getPosition();                                                                        
+        IVectorMutable Pap2 = nitrogena.getChildList().getAtom(4).getPosition();
+
+        IVectorMutable Pbn1 = nitrogenb.getChildList().getAtom(0).getPosition();
+        IVectorMutable Pbn2 = nitrogenb.getChildList().getAtom(1).getPosition();
+        IVectorMutable Pbc  = nitrogenb.getChildList().getAtom(2).getPosition();
+        IVectorMutable Pbp1 = nitrogenb.getChildList().getAtom(3).getPosition();
+        IVectorMutable Pbp2 = nitrogenb.getChildList().getAtom(4).getPosition();
+
         
         double r2QQ = 0*2.25;
         
         if (zeroShift) {
     		/*
-    		 * 'for' loop for 3 intraction site interaction between the 
+    		 * 'for' loop for 3 interaction site interaction between the 
     		 * 	non-bonded atoms between the 2 molecules
     		 *  the interactions are designed such a way that 
-    		 *  	a. center-center [0 vs 0]
-    		 *  	b. center-(-ve)charge [0 vs 1(or)2]
+    		 *  	a. center-center [2 vs 2]
+    		 *  	b. center-(-ve)charge [2 vs 3(or)4]
     		 *  
-    		 *   so the interaction are [0,0], [0,1], [0,2], [1,0] and [2,0]
+    		 *   so the interaction are [2,2], [2,3], [2,4], [3,2] and [4,2]
     		 *   there is no interaction between the (-ve)charges 
     		 */
     		
-    		for (int i=0; i<3; i++){
+    		for (int i=2; i<5; i++){
     			IVectorMutable dist = (nitrogena.getChildList().getAtom(i)).getPosition();
     			
-    			for (int j=0; j<3; j++){
-    				if (i>0 && j!=0) break;
+    			for (int j=2; j<5; j++){
+    				if (i>2 && j!=2) break;
     				
     				double distr2 = dist.Mv1Squared((nitrogenb.getChildList().getAtom(j)).getPosition());
     				
-    				if (i==0 && j==0){
+    				if (i==2 && j==2){
     					sum += calcDisperOverlap(distr2, alpha1, epsilon1, delta1);  						
     					
     				} else {
@@ -181,27 +182,27 @@ public class P2NitrogenShellModel extends PotentialMolecular {
         
         else {
         	/*
-    		 * 'for' loop for 3 intraction site interaction between the 
+    		 * 'for' loop for 3 interaction site interaction between the 
     		 * 	non-bonded atoms between the 2 molecules
     		 *  the interactions are designed such a way that 
-    		 *  	a. center-center [0 vs 0]
-    		 *  	b. center-(-ve)charge [0 vs 1(or)2]
+    		 *  	a. center-center [2 vs 2]
+    		 *  	b. center-(-ve)charge [2 vs 3(or)4]
     		 *  
-    		 *   so the interaction are [0,0], [0,1], [0,2], [1,0] and [2,0]
+    		 *   so the interaction are [2,2], [2,3], [2,4], [3,2] and [4,2]
     		 *   there is no interaction between the (-ve)charges 
     		 */
         	
-    		for (int i=0; i<3; i++){
+    		for (int i=2; i<5; i++){
     			IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
     			shift.TE(-1.0);
     			shift.PE(dist);
     			
-    			for (int j=0; j<3; j++){
-    				if (i>0 && j!=0) break;
+    			for (int j=2; j<5; j++){
+    				if (i>2 && j!=2) break;
     				
     				double distr2 = (nitrogena.getChildList().getAtom(j)).getPosition().Mv1Squared(shift);
     				
-    				if (i==0 && j==0){
+    				if (i==2 && j==2){
     					sum += calcDisperOverlap(distr2, alpha1, epsilon1, delta1);  						
     					
     				} else {
@@ -429,7 +430,7 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 	protected final double alpha2 = 12.7;
 	protected final double epsilon1 = 36.44; // unit K
 	protected final double epsilon2 = 35.61; // unit K
-	protected final double delta1 = 4.537; // unit A
+	protected final double delta1 = 4.531; // unit A
 	protected final double delta2 = 3.457; // unit A
 	
 	protected final IVectorMutable work, shift;
