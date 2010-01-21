@@ -23,9 +23,9 @@ public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
     	double coordX = cosAngle1;
         double coordY = cosAngle1*(1-cosAngle1)/sinAngle1;
         //double coordZ = Math.sqrt(1-coordX*coordX-coordY*coordY);
-        double rotateAngle1 = -Math.acos(Math.abs(coordY)/Math.sqrt((1-coordX*coordX)));
+        double rotateAngle1 = 2*Math.PI-Math.acos(Math.abs(coordY)/Math.sqrt((1-coordX*coordX)));
         System.out.println("rotateAngle1= "+rotateAngle1);
-        double rotateAngle2 = Math.acos(Math.abs(coordX));
+        double rotateAngle2 = 2*Math.PI-Math.acos(Math.abs(coordX));
         System.out.println("rotateAngle2= "+rotateAngle2);
         //double rotateAngle2 = Math.PI-angle1;
 		super.initializeCoordinates(box);
