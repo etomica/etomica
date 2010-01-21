@@ -80,9 +80,9 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 		
 		box.setBoundary(boundary);
-		double rC = 9.0;//box.getBoundary().getBoxSize().getX(0)*0.5;
+		double rC = box.getBoundary().getBoxSize().getX(0)*0.5;
 		System.out.println("Truncation Radius: " + rC);
-		potential = new P2Nitrogen(space, rC);
+		potential = new P2NitrogenAnisotropic(space, rC);
 		potential.setBox(box);
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
@@ -114,8 +114,8 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	public static void main (String[] args){
 		
 		int numMolecule =54;
-		double temperature = 35.0; // in Unit Kelvin
-		double pressure = 0.32; //in Unit GPa
+		double temperature = 20.0; // in Unit Kelvin
+		double pressure = 0.0; //in Unit GPa
 		long simSteps = 10000000;
 		
 		if(args.length > 1){
@@ -210,9 +210,9 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		if(true){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
-		    simGraphic.makeAndDisplayFrame("Alpha-Phase Nitrogen Crystal Structure");
-			sim.activityIntegrate.setMaxSteps(simSteps);
-			sim.getController().actionPerformed();
+		    simGraphic.makeAndDisplayFrame("Gamma-Phase Nitrogen Crystal Structure");
+			//sim.activityIntegrate.setMaxSteps(simSteps);
+			//sim.getController().actionPerformed();
 		}
 			
 	}

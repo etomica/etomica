@@ -8,7 +8,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
-import etomica.units.Electron;
 import etomica.units.Kelvin;
 
 /** 
@@ -21,7 +20,7 @@ import etomica.units.Kelvin;
  */
 public class P2Nitrogen extends PotentialMolecular {
 
-	public P2Nitrogen(ISpace space) {
+	public P2Nitrogen(ISpace space, double rC) {
 		super(2, space);
 		work = space.makeVector();
 		shift = space.makeVector();
@@ -37,6 +36,8 @@ public class P2Nitrogen extends PotentialMolecular {
         chargeP1P1 = chargeP1 * chargeP1;
         chargeP1P2 = chargeP1 * chargeP2;
         chargeP2P2 = chargeP2 * chargeP2;
+        
+        this.rC = rC;
         
 	}
 
@@ -80,7 +81,7 @@ public class P2Nitrogen extends PotentialMolecular {
 		final boolean zeroShift = shift.squared() < 0.1; 
 		r2 = work.squared();
 		
-		if (r2 > 81.0){
+		if (r2 > rC*rC){ 
 			return 0.0;
 		}
 		//if(r2<1.6) return Double.POSITIVE_INFINITY;
@@ -360,7 +361,7 @@ public class P2Nitrogen extends PotentialMolecular {
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }
-
+    
     private static final long serialVersionUID = 1L;
     
     
@@ -382,4 +383,5 @@ public class P2Nitrogen extends PotentialMolecular {
 	
 	protected final IVectorMutable work, shift;
 	protected final IVectorMutable com1, com2;
+	public double rC =1.0;
 }
