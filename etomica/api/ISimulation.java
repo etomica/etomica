@@ -1,8 +1,8 @@
 package etomica.api;
 
 /**
- * The ISimulation is an interface for a simulation, containing boxes, species
- * and an integrator.
+ * The ISimulation is an interface for a simulation, containing boxes, species,
+ * a random number generator and an integrator.
  * 
  * @author Andrew Schultz
  */
@@ -50,7 +50,7 @@ public interface ISimulation {
      * Returns the Species in the Simulation for the specified index.
      */
     public ISpecies getSpecies(int index);
-    
+
     /**
      * Returns the integrator for this simulation.
      */
