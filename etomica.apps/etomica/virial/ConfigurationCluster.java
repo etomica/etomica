@@ -43,6 +43,6 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
         // nothing needs that (and alkanes are unhappy with it).
 	}
 
-	private final ISpace space;
+	protected final ISpace space;
     private static final long serialVersionUID = 3L;
 }
