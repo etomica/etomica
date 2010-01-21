@@ -9,14 +9,9 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
@@ -24,13 +19,12 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2SquareWell;
+import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 
 /**
@@ -64,7 +58,7 @@ public class HSMD3D extends Simulation {
     /**
      * The hard-sphere potential governing the interactions.
      */
-    public final P2SquareWell potential;
+    public final P2HardSphere potential;
     
     public final IPotentialMaster potentialMaster;
     
@@ -104,7 +98,7 @@ public class HSMD3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        potential = new P2SquareWell(space, sigma, 2.5, -1.0, false);
+        potential = new P2HardSphere(space, sigma, false);
         IAtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potential,new IAtomType[]{leafType, leafType});
@@ -168,17 +162,6 @@ public class HSMD3D extends Simulation {
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
-        
-        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-        peHistory.setTimeDataSource(new DataSourceCountTime(sim.integrator));
-        DataPumpListener pePump = new DataPumpListener(meterPE, peHistory, 100);
-        sim.integrator.getEventManager().addListener(pePump);
-        DisplayPlot pePlot = new DisplayPlot();
-        peHistory.setDataSink(pePlot.getDataSet().makeDataSink());
-
-        pePlot.setLabel("PE");
-        simGraphic.add(pePlot);
     }
 
     public static HSMD3DParam getParameters() {
