@@ -11,9 +11,10 @@ import etomica.space.ISpace;
 
 /** 
  * P2 shell-model potential for Nitrogen.  
- *  Reference: Fabianski R. et al, Calculations on the stability of low temperature solid nitrogen
- *             phases, JCP 112(15) 6745 (2000)
- * 
+ *  Reference: 1. Fabianski R. et al, Calculations on the stability of low temperature solid nitrogen
+ *              	phases, JCP 112(15) 6745 (2000)
+ * 			   2. Jordan P.C. et al, Towards phase transferable potential functions: Methodology
+ * 					and application to nitrogen, JCP 103(6) 2272 (1995)
  * @author Tai Boon Tan
  */
 public class P2NitrogenShellModel extends PotentialMolecular {
@@ -30,8 +31,7 @@ public class P2NitrogenShellModel extends PotentialMolecular {
         chargeNN = chargeN * chargeN;
         chargeNP = chargeN * chargeP;
         
-        chargePP = chargeP * chargeP;
-                
+        chargePP = chargeP * chargeP;        
 	}
 
     public void setBox(IBox box) {
@@ -48,7 +48,7 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 		// to compute the midpoint distance between the two
 		IVectorMutable com1 = (nitrogena.getChildList().getAtom(2)).getPosition();
 		IVectorMutable com2 = (nitrogenb.getChildList().getAtom(2)).getPosition();
-
+		
 	    /*
          *  to check for the nearest image
          *  if it is not nearest image, zeroShift will return 0.0
@@ -58,7 +58,7 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 		shift.Ea1Tv1(-1,work);
 		boundary.nearestImage(work);
 		shift.PE(work);
-	
+		
 		final boolean zeroShift = shift.squared() < 0.1; 
 		r2 = work.squared();
 		
@@ -116,8 +116,7 @@ public class P2NitrogenShellModel extends PotentialMolecular {
     				}
     			}
     			
-    		}
-    		        	
+    		}  	
         	//Pac
             r2 = Pac.Mv1Squared(Pbc);
             sum += chargeCC/Math.sqrt(r2);
@@ -408,7 +407,7 @@ public class P2NitrogenShellModel extends PotentialMolecular {
     	double b2 = b*b;
     	double b6 = b2*b2*b2;
     	
-    	return epsilon/(1-a)*(a*Math.exp(alpha*(1-b))-(1/b6));
+    	return (epsilon/(1-a))*(a*Math.exp(alpha*(1-b))-(1/b6));
     }
     
 	public double getRange() {
@@ -426,10 +425,10 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 	protected final double chargeNN, chargeNP;
 	protected final double chargePP;
 	
-	protected final double alpha1 = 10.6;
-	protected final double alpha2 = 12.7;
-	protected final double epsilon1 = 36.44; // unit K
-	protected final double epsilon2 = 35.61; // unit K
+	protected final double alpha1 = 10.6; //11.51;
+	protected final double alpha2 = 12.7; //10.46;
+	protected final double epsilon1 = 36.44; //32.76; // unit K
+	protected final double epsilon2 = 35.61; //32.0; // unit K
 	protected final double delta1 = 4.531; // unit A
 	protected final double delta2 = 3.457; // unit A
 	

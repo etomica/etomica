@@ -55,7 +55,7 @@ public class ConformationNitrogenShellModel implements IConformation, java.io.Se
 	
 	protected final ISpace space;
 	protected static final double bondOrigN = 0.5485;
-	protected static final double bondOrigP = 0.81;
+	protected static final double bondOrigP = 0.81; // 0.83519;
 	
 	protected IVectorMutable vector;
 	

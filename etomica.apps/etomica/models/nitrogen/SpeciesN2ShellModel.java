@@ -35,9 +35,9 @@ public class SpeciesN2ShellModel extends Species {
         
         nType = new AtomTypeSphere(Nitrogen.INSTANCE, 3.1);
         pType = new AtomTypeSphere(new ElementSimple("P", 1.0), 0.0);
-        addChildType(pType);
         addChildType(nType);
-       
+        addChildType(pType);
+             
         setConformation(new ConformationNitrogenShellModel(space)); 
      }
 
@@ -48,7 +48,6 @@ public class SpeciesN2ShellModel extends Species {
          nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
          nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
          nitrogenShellModel.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-
 
          conformation.initializePositions(nitrogenShellModel.getChildList());
          return nitrogenShellModel;
