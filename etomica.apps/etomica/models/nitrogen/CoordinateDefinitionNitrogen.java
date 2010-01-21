@@ -96,20 +96,35 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             
-            int rotationNum = iMolecule % 4;
-            if (configuration == null) {
-               
-            	// initialize the coordinate
-                molecule.getType().initializeConformation(molecule);
-                
-                // do the orientation
-                
-                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(yOrientationTensor[rotationNum]);
-                atomGroupAction.actionPerformed(molecule);
-                
-                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
-                atomGroupAction.actionPerformed(molecule);
+            if (isAlpha){
+	            int rotationNum = iMolecule % 4;
+	            if (configuration == null) {
+	               
+	            	// initialize the coordinate
+	                molecule.getType().initializeConformation(molecule);
+	                
+	                // do the orientation
+	                
+	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(yOrientationTensor[rotationNum]);
+	                atomGroupAction.actionPerformed(molecule);
+	                
+	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
+	                atomGroupAction.actionPerformed(molecule);
+	            
+	            }
+            }
             
+            if (isGamma){
+	            int rotationNum = iMolecule % 2;
+	            if (configuration == null) {
+	               
+	            	// initialize the coordinate
+	                molecule.getType().initializeConformation(molecule);
+	                
+	                // do the orientation
+	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(yOrientationTensor[rotationNum]);
+	                atomGroupAction.actionPerformed(molecule);	            
+	            }
             }
             
             int[] ii = indexIterator.next();
@@ -145,10 +160,22 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     
     public void setConfiguration(Configuration configuration){
         this.configuration = configuration;
-   }
+    }
+    
+    public void setOrientationVectorGamma(ISpace space){
+    	/*
+    	 * Reference : R.L. Mills and A.F. Schuch, PRL 23(20) 1969 pg.1154 Fig1
+    	 */
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(45));
+    	yOrientationTensor[0].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(-45));
+    	yOrientationTensor[1].E(rotationTensor);
+  	
+    }
     
   
-    public void setOrientationVector(ISpace space){
+    public void setOrientationVectorAlpha(ISpace space){
     	/*
     	 * Reference : A. Di Nola et al Acta Cryst. (1970) A26, 144 Fig1
     	 */
@@ -269,6 +296,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    orientationManager.setAgent(molecule, orientation);
     	    	
     	}
+    }
+    
+    public void setIsGamma(){
+    	isGamma = true;
+    }
+    
+    public void setIsAlpha(){
+    	isAlpha = true;
     }
 
     public void setToU(IMoleculeList molecules, double[] newU) {
@@ -399,6 +434,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     protected Configuration configuration;
     protected MoleculeAgentManager orientationManager; 
     protected final MoleculeChildAtomAction atomGroupAction;
+    public boolean isAlpha=false;
+    public boolean isGamma=false;
 
     protected static class OrientationAgentSource implements MoleculeAgentSource, Serializable {
         
