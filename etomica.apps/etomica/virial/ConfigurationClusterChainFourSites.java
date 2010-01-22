@@ -31,15 +31,19 @@ public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 		super.initializeCoordinates(box);
 		BoxCluster clusterBox =(BoxCluster) box;
 		IAtomList list = box.getLeafList();
+        IVectorMutable direction = space.makeVector();
+        IVectorMutable secondaryDirection = space.makeVector();
 		for (int i=1;i<list.getAtomCount();i++){
-			((IVectorMutable)list.getAtom(i).getPosition()).setX(0, 0.9*i);
+			list.getAtom(i).getPosition().setX(0, 0.9*i);
 			if (list.getAtom(i) instanceof IAtomOriented){
-				IVectorMutable xDirection = space.makeVector();
-				IVectorMutable zDirection = space.makeVector();
-				xDirection.setX(0,1);//X axis=0, Y=1, Z=2
-				zDirection.setX(2,1);//Z
-				 ((IOrientationFull3D)((IAtomOriented)list.getAtom(i)).getOrientation()).rotateBy(rotateAngle1*i, xDirection);
-				 ((IOrientationFull3D)((IAtomOriented)list.getAtom(i)).getOrientation()).rotateBy(rotateAngle2*i, zDirection);
+				double x = 1.0/3.0;
+				double y = -2.0/(3.0*Math.sqrt(2.0));
+				double z = Math.sqrt(2.0/3.0);
+				direction.E(new double[]{x,y,z});
+				double norm = Math.sqrt(16/9.0*(x*x+y*y+0.25*z*z));
+				secondaryDirection.E(new double[]{4.0*x/3.0, 4.0*y/3.0, -2.0*z/3.0});
+				secondaryDirection.TE(1.0/norm);
+				((IOrientationFull3D)((IAtomOriented)list.getAtom(i)).getOrientation()).setDirections(direction, secondaryDirection);
 			}
 		 }
 		 clusterBox.trialNotify();
