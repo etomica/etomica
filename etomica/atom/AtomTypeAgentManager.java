@@ -67,7 +67,9 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
             IAtomType leafType = parentType.getAtomType(i);
             Object agent = agents[leafType.getIndex()];
             if (agent != null) {
-                agentSource.releaseAgent(agent, leafType);
+                if (agentSource != null) {
+                    agentSource.releaseAgent(agent, leafType);
+                }
                 agents[leafType.getIndex()] = null;
             }
         }
@@ -135,7 +137,7 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
 
         int numTypes = getGlobalMaxIndex()+1;
         
-        agents = (Object[])Array.newInstance(agentSource.getSpeciesAgentClass(), numTypes);
+        agents = (Object[])Array.newInstance(agentSource != null ? agentSource.getSpeciesAgentClass() : Object.class, numTypes);
         // fill in the array with agents from all the atoms
         makeAllAgents();
     }
@@ -178,7 +180,9 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
 
     
     protected void addAgent(IAtomType type) {
-        agents[type.getIndex()] = agentSource.makeAgent(type);
+        if (agentSource != null) {
+            agents[type.getIndex()] = agentSource.makeAgent(type);
+        }
     }
     
     /**

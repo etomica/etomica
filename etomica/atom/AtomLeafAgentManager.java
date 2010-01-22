@@ -102,7 +102,7 @@ public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializ
         for (int i=0; i<nLeaf; i++) {
             // leaf index corresponds to the position in the leaf list
             Object agent = agents[i];
-            if (agent != null) {
+            if (agent != null && agentSource != null) {
                 agentSource.releaseAgent(agent, leafList.getAtom(i));
             }
         }
@@ -115,7 +115,7 @@ public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializ
     protected void setupBox() {
         box.getEventManager().addListener(this);
         
-        agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
+        agents = (Object[])Array.newInstance(agentSource != null ? agentSource.getAgentClass() : Object.class,
                 box.getLeafList().getAtomCount()+1+reservoirSize);
         // fill in the array with agents from all the atoms
         IAtomList leafList = box.getLeafList();
@@ -146,7 +146,9 @@ public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializ
             int index = childAtom.getLeafIndex();
             if (agents[index] != null) {
                 // Atom used to have an agent.  nuke it.
-                agentSource.releaseAgent(agents[index], childAtom);
+                if (agentSource != null) {
+                    agentSource.releaseAgent(agents[index], childAtom);
+                }
                 agents[index] = null;
             }
         }
@@ -189,7 +191,9 @@ public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializ
             // no room in the array.  reallocate the array with an extra cushion.
             agents = Arrays.resizeArray(agents,index+1+reservoirSize);
         }
-        agents[index] = agentSource.makeAgent(a);
+        if (agentSource != null) {
+            agents[index] = agentSource.makeAgent(a);
+        }
     }        
     
     /**
