@@ -46,6 +46,7 @@ public class DisplayBox extends Display {
     private boolean graphicResizable = true;
     private final ISpace space;
     private double sigma = 1.0;
+    protected final ISimulation sim;
             
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvas canvas = null;
@@ -102,6 +103,7 @@ public class DisplayBox extends Display {
      */
     public DisplayBox(ISimulation sim, IBox box, ISpace space, Controller controller) {
         super();
+        this.sim = sim;
         this.controller = controller;
         this.space = space;
         colorScheme = new ColorSchemeByType(sim);
@@ -330,7 +332,7 @@ public class DisplayBox extends Display {
                 boxX *=1.4;
                 boxY *=1.4;
                 if(canvas == null) {
-                	canvas = new DisplayBoxCanvasG3DSys(this, space, controller);
+                	canvas = new DisplayBoxCanvasG3DSys(sim, this, space, controller);
                     setSize(boxX, boxY);
                 }
                 else {

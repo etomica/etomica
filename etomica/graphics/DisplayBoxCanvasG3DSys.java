@@ -14,17 +14,24 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.IAtomOriented;
+import etomica.atom.IAtomTypeOriented;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
+import etomica.space.IOrientation;
 import etomica.space.ISpace;
+import etomica.space3d.IOrientationFull3D;
+import etomica.units.Pixel;
 import etomica.util.Arrays;
 import g3dsys.control.G3DSys;
 import g3dsys.images.Ball;
@@ -41,7 +48,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	private G3DSys gsys;
 	private final double[] coords;
 
-	private AtomLeafAgentManager aam;
+	protected AtomLeafAgentManager aam;
 
 	private Polytope oldPolytope;
 	private Line[] polytopeLines;
@@ -59,35 +66,39 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private IVectorMutable work, work2, work3;
     private double[] planeAngles;
     private final ISpace space;
+    protected AtomLeafAgentManager aamOriented;
+    protected final AtomTypeAgentManager atomTypeOrientedManager;
 
-	public DisplayBoxCanvasG3DSys(DisplayBox _box, ISpace _space, Controller controller) {
-	    super(controller);
-		displayBox = _box;
-		space = _space;
+    public DisplayBoxCanvasG3DSys(ISimulation sim, DisplayBox _box, ISpace _space, Controller controller) {
+        super(controller);
+        displayBox = _box;
+        space = _space;
 
-		// init G3DSys
-		// adding JPanel flickers, Panel does not. Nobody knows why.
-		/*
-		 * Set visible false here to be toggled later; seems to fix the
-		 * 'sometimes gray' bug
-		 */
-		// this.setVisible(false); // to be set visible later by
-		// SimulationGraphic
-		panel = new Panel();
-		this.setLayout(new java.awt.GridLayout());
-		panel.setLayout(new java.awt.GridLayout());
-		panel.setSize(2000, 1600);
-		this.add(panel);
-		coords = new double[3];
-		gsys = new G3DSys(panel);
-		setBackgroundColor(Color.BLACK);
-		setBoundaryFrameColor(Color.WHITE);
-		setPlaneColor(Color.YELLOW);
-		// init AtomAgentManager, to sync G3DSys and Etomica models
-		// this automatically adds the atoms
-		aam = new AtomLeafAgentManager(this, displayBox.getBox());
+        // init G3DSys
+        // adding JPanel flickers, Panel does not. Nobody knows why.
+        /*
+         * Set visible false here to be toggled later; seems to fix the
+         * 'sometimes gray' bug
+         */
+        // this.setVisible(false); // to be set visible later by
+        // SimulationGraphic
+        panel = new Panel();
+        this.setLayout(new java.awt.GridLayout());
+        panel.setLayout(new java.awt.GridLayout());
+        panel.setSize(2000, 1600);
+        this.add(panel);
+        coords = new double[3];
+        gsys = new G3DSys(panel);
+        setBackgroundColor(Color.BLACK);
+        setBoundaryFrameColor(Color.WHITE);
+        setPlaneColor(Color.YELLOW);
+        // init AtomAgentManager, to sync G3DSys and Etomica models
+        // this automatically adds the atoms
+        aam = new AtomLeafAgentManager(this, displayBox.getBox());
+        aamOriented = new AtomLeafAgentManager(null, displayBox.getBox());
+        atomTypeOrientedManager = new AtomTypeAgentManager(null, sim);
 
-		planes = new Plane[0];
+        planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
         planeIntersections = new IVectorMutable[0];
         lines = new LineSegment[0];
@@ -96,6 +107,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         work = space.makeVector();
         work2 = space.makeVector();
         work3 = space.makeVector();
+
+        pixel = new Pixel();
 	}
 
 	public G3DSys getG3DSys() {
@@ -207,8 +220,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void refreshAtomAgentMgr() {
 
 		// Set new atom manager
-		aam = null;
 		aam = new AtomLeafAgentManager(this, displayBox.getBox());
+		aamOriented = new AtomLeafAgentManager(null, displayBox.getBox());
 		initialOrient = true;
 	}
 
@@ -290,6 +303,40 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			ball.setX((float) coords[0]);
 			ball.setY((float) coords[1]);
 			ball.setZ((float) coords[2]);
+
+			OrientedSite[] sites = (OrientedSite[])atomTypeOrientedManager.getAgent(a.getType());
+			if (sites != null) {
+			    Ball[] ballSites = (Ball[])aamOriented.getAgent(a);
+			    if (ballSites == null) {
+		            ballSites = new Ball[sites.length];
+		            for (int j=0; j<sites.length; j++) {
+		                ballSites[j] = new Ball(gsys, G3DSys.getColix(sites[j].color), 0, 0, 0, (float)sites[j].diameter);
+		                gsys.addFig(ballSites[j]);
+		            }
+		            aamOriented.setAgent(a, ballSites);
+			    }
+			    IOrientation orientation = ((IAtomOriented)a).getOrientation();
+			    IVector direction1 = orientation.getDirection();
+			    IVector direction2 = null;
+			    if (orientation instanceof IOrientationFull3D) {
+			        direction2 = ((IOrientationFull3D)orientation).getSecondaryDirection();
+	                work2.E(direction1);
+	                work2.XE(direction2);
+			    }
+			    
+			    for (int j=0; j<sites.length; j++) {
+			        work.E(a.getPosition());
+			        work.PEa1Tv1(sites[j].coord, direction1);
+			        if (sites[j] instanceof OrientedFullSite) {
+			            work.PEa1Tv1(((OrientedFullSite)sites[j]).coord2, direction2);
+			            work.PEa1Tv1(((OrientedFullSite)sites[j]).coord3, work2);
+			        }
+			        work.assignTo(coords);
+			        ballSites[j].setX((float) coords[0]);
+			        ballSites[j].setY((float) coords[1]);
+			        ballSites[j].setZ((float) coords[2]);
+			    }
+			}
 		}
 
         for (int i=0; i<lines.length; i++) {
@@ -607,6 +654,31 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		Figure f = new Bond(gsys, ball0, ball1);
 		gsys.addFig(f);
 		return f;
+	}
+	
+	public static class OrientedSite {
+	    public final double coord;
+	    public final Color color;
+	    public final double diameter;
+	    
+	    public OrientedSite(double coord, Color color, double diameter) {
+	        this.coord = coord;
+	        this.color = color;
+	        this.diameter = diameter;
+	    }
+	}
+	
+	public static class OrientedFullSite extends OrientedSite {
+	    public final double coord2, coord3;
+	    public OrientedFullSite(IVector coord, Color color, double diameter) {
+	        super(coord.getX(0), color, diameter);
+	        coord2 = coord.getX(1);
+            coord3 = coord.getX(2);
+	    }
+	}
+	
+	public void setOrientationSites(IAtomTypeOriented atomType, OrientedFullSite[] sites) {
+	    atomTypeOrientedManager.setAgent(atomType, sites);
 	}
 
 	private java.util.ArrayList<Object[]> pendingBonds = new java.util.ArrayList<Object[]>();
