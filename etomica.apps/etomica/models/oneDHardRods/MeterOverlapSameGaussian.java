@@ -28,7 +28,7 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
      * @param dataSourceB - numerator
      * @param temperature
      */
-    MeterOverlapSameGaussian(String label, Dimension dimension, DataSourceScalar dataSourceA,
+    public MeterOverlapSameGaussian(String label, Dimension dimension, DataSourceScalar dataSourceA,
             DataSourceScalar dataSourceB, double temperature){
         dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{2});
         tag = new DataTag();

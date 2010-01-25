@@ -25,7 +25,7 @@ public class MeterOverlap implements IEtomicaDataSource {
      * @param dataSourceB - numerator
      * @param temperature
      */
-    MeterOverlap(String label, Dimension dimension, DataSourceScalar dataSourceA,
+    public MeterOverlap(String label, Dimension dimension, DataSourceScalar dataSourceA,
             DataSourceScalar dataSourceB, double temperature){
         dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{2});
         tag = new DataTag();
