@@ -17,6 +17,7 @@ import etomica.atom.AtomFilter;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;
+import etomica.data.DataTag;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterNMolecules;
@@ -149,8 +150,11 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    table.setTransposed(true);
 	    table.setShowingRowLabels(true);
 	    table.setRowLabels(new String[] {"Average","Error"});
-	    
-	    
+	    table.setColumnHeader(new DataTag[]{sim.meterFlux0.getTag()}, "Left (A)");
+        table.setColumnHeader(new DataTag[]{sim.meterFlux1.getTag()}, "Right (A)");
+        table.setColumnHeader(new DataTag[]{sim.meterFlux2.getTag()}, "Left (B)");
+        table.setColumnHeader(new DataTag[]{sim.meterFlux3.getTag()}, "Right (B)");
+
 	    table.setPrecision(7);
 	    getPanel().tabbedPane.add("Flux Data", table.graphic());
 	    
