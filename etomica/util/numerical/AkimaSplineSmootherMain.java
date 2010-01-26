@@ -1,4 +1,4 @@
-package etomica.util;
+package etomica.util.numerical;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import etomica.api.IRandom;
+import etomica.util.RandomMersenneTwister;
+import etomica.util.RandomNumberGeneratorUnix;
 
 /**
  * Main method to drive AkimaSplineSmoother
@@ -215,7 +217,7 @@ public class AkimaSplineSmootherMain {
                 catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                fitter.writeD(outfile, 10);
+                writeD(fitter, outfile, 10);
             }
         }
         if (outfile.equals("")) {
@@ -234,7 +236,7 @@ public class AkimaSplineSmootherMain {
             catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            fitter.writeD(outfile, 10);
+            writeD(fitter, outfile, 10);
         }
         System.out.println(fitter.totSqErr+" "+fitter.sumSqDy+" "+d2fac*fitter.sumSqD2+" "+d2dfac*fitter.sumSqD2D+" "+d3fac*fitter.sumSqD3);
     }
@@ -274,4 +276,36 @@ public class AkimaSplineSmootherMain {
             }
         }
     }
+
+    public static void writeD(AkimaSplineSmoother fitter, String outbase, int nSubPoints) {
+        double[][] dy12 = fitter.getDy12(nSubPoints);
+        double[]x = fitter.x;
+
+        try {
+            FileWriter dyfw = new FileWriter(outbase+".dy");
+            FileWriter dy2fw = new FileWriter(outbase+".dy2");
+
+            int N = x.length;
+
+            for (int i=0; i<N-1; i++) {
+                for (int j=0; j<nSubPoints; j++) {
+                    double dx = j*(x[i+1] - x[i])/nSubPoints;
+                    double ix = x[i]+dx;
+                    dyfw.write(ix+" "+dy12[0][i*nSubPoints+j]+"\n");
+                    dy2fw.write(ix+" "+dy12[1][i*nSubPoints+j]+"\n");
+                }
+                if (i==N-2) {
+                    dyfw.write(x[i+1]+" "+dy12[0][(i+1)*nSubPoints]+"\n");
+                    dy2fw.write(x[i+1]+" "+dy12[1][(i+1)*nSubPoints]+"\n");
+                }
+            }
+
+            dyfw.close();
+            dy2fw.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

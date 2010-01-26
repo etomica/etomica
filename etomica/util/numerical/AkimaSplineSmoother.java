@@ -1,7 +1,4 @@
-package etomica.util;
-
-import java.io.FileWriter;
-import java.io.IOException;
+package etomica.util.numerical;
 
 import etomica.api.IRandom;
 
@@ -468,41 +465,11 @@ public class AkimaSplineSmoother {
             }
             if (i==N-2) {
                 dx = (x[i+1] - x[i]);
-                dy12[0][i*nSubPoints] = p1 + (2*p2 + 3*p3*dx)*dx;
-                dy12[1][i*nSubPoints] = 2*p2 + 6*p3*dx;
+                dy12[0][(N-1)*nSubPoints] = p1 + (2*p2 + 3*p3*dx)*dx;
+                dy12[1][(N-1)*nSubPoints] = 2*p2 + 6*p3*dx;
             }
         }
         return dy12;
-    }
-
-    public void writeD(String outbase, int nSubPoints) {
-        getDy12(nSubPoints);
-
-        try {
-            FileWriter dyfw = new FileWriter(outbase+".dy");
-            FileWriter dy2fw = new FileWriter(outbase+".dy2");
-
-            int N = x.length;
-
-            for (int i=0; i<N-1; i++) {
-                for (int j=0; j<nSubPoints; j++) {
-                    double dx = j*(x[i+1] - x[i])/nSubPoints;
-                    double ix = x[i]+dx;
-                    dyfw.write(ix+" "+dy12[0][i*nSubPoints+j]+"\n");
-                    dy2fw.write(ix+" "+dy12[1][i*nSubPoints+j]+"\n");
-                }
-                if (i==N-2) {
-                    dyfw.write(x[i+1]+" "+dy12[0][(i+1)*nSubPoints]+"\n");
-                    dy2fw.write(x[i+1]+" "+dy12[1][(i+1)*nSubPoints]+"\n");
-                }
-            }
-
-            dyfw.close();
-            dy2fw.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setInputData(double[] originalX, double[] originalY, double[] ey) {
@@ -520,7 +487,16 @@ public class AkimaSplineSmoother {
         nAccepted = new int[3][N];
         for (int j=0; j<3; j++) {
             for (int i=0; i<N; i++) {
-                ss[j][i] = 0.5*ey[i];
+                if (ey[i] < Double.MAX_VALUE) {
+                    ss[j][i] = 0.5*ey[i];
+                }
+                else {
+                    int ii=i-1;
+                    while (ey[ii] >= Double.MAX_VALUE) {
+                        ii--;
+                    }
+                    ss[j][i] = 0.5*ey[ii];
+                }
                 pac[j][i] = 0.1;
             }
         }

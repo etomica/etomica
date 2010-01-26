@@ -1,4 +1,4 @@
-package etomica.util;
+package etomica.util.numerical;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,7 +20,6 @@ import javax.swing.JTabbedPane;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IRandom;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceIndependentSimple;
@@ -40,6 +39,9 @@ import etomica.integrator.Integrator;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Null;
+import etomica.util.HistoryScrolling;
+import etomica.util.RandomMersenneTwister;
+import etomica.util.RandomNumberGeneratorUnix;
 import etomica.util.Constants.CompassDirection;
 
 /**
@@ -70,13 +72,14 @@ public class AkimaSplineSmootherApp {
             dy = readx[2];
         }
         else {
-            int N = 5;
+            int N = 50;
             x = new double[N];
             y = new double[N];
             dy = new double[N];
             for (int i=0; i<N; i++) {
                 x[i] = i;
-                dy[i] = 1;
+                dy[i] = i*i;
+                y[i] = i*i*i*i;
             }
         }
         fitter = new AkimaSplineSmoother(new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()));
@@ -179,7 +182,34 @@ public class AkimaSplineSmootherApp {
            }
         });
         controlPanel.add(loadButton, gbc);
-        
+
+        JButton padButton = new JButton();
+        padButton.setAction(new AbstractAction("Double data") {
+
+            public void actionPerformed(ActionEvent e) {
+                AkimaSpline spline = new AkimaSpline(2);
+                spline.setInputData(x, fitter.y0);
+
+                double[] newx = new double[x.length*2-1];
+                double[] newdy = new double[newx.length];
+                for (int i=0; i<x.length-1; i++) {
+                    newx[2*i] = x[i];
+                    newdy[2*i] = dy[i];
+                    newx[2*i+1] = 0.5*(x[i]+x[i+1]);
+                    newdy[2*i+1] = Double.MAX_VALUE;
+                }
+                newx[newx.length-1] = x[x.length-1];
+                newdy[newx.length-1] = dy[x.length-1];
+                y = spline.doInterpolation(newx);
+                x = newx;
+                dy = newdy;
+                fitter.setInputData(x, y, dy);
+                AkimaSplineSmootherApp.this.init(nSubPoints);
+                plotAction.actionPerformed();
+           }
+        });
+        controlPanel.add(padButton, gbc);
+
         DeviceControllerButton startButton = new DeviceControllerButton(controller);
         controlPanel.add(startButton.graphic(), gbc);
         
