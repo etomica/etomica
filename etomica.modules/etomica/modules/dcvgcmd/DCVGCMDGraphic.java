@@ -17,6 +17,8 @@ import etomica.atom.AtomFilter;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;
+import etomica.data.IEtomicaDataSource;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
@@ -137,7 +139,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		});
 
 		// Data table tab page
-	    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd);
+	    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd, new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR}, 1000, new IEtomicaDataSource[0]);
 	    dataTable.addDataSource(sim.meterFlux0);
 	    dataTable.addDataSource(sim.meterFlux1);
 	    dataTable.addDataSource(sim.meterFlux2);
@@ -146,7 +148,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    
 	    table.setTransposed(true);
 	    table.setShowingRowLabels(true);
-	    table.setRowLabels(new String[] {"Current","Average","Error"});
+	    table.setRowLabels(new String[] {"Average","Error"});
 	    
 	    
 	    table.setPrecision(7);
