@@ -10,17 +10,13 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 
-/**
- * Basis for a cell constructed using multiple cells.
- * 
- * @author Andrew Schultz
- */
 public class BasisBigCell extends Basis {
 
     private static final long serialVersionUID = 1L;
@@ -37,19 +33,25 @@ public class BasisBigCell extends Basis {
         // we might be used in the context of a deformable boundary (non-rectangular primitive)
         // but because we only care about scaled coordinates, the deformation doesn't
         // change what our result should be.  so just pretend that it's rectangular.
+        
+        
         IBoundary boundary = new BoundaryRectangularPeriodic(space);
+        Primitive primitive = new PrimitiveCubic(space);
+        
         IBox box = new Box(boundary, space);
         sim.addBox(box);
+        IVector vector = space.makeVector(nSubCells);
+        box.getBoundary().setBoxSize(vector);
         int numMolecules = subBasis.getScaledCoordinates().length;
         for (int i=0; i<nSubCells.length; i++) {
             numMolecules *= nSubCells[i];
         }
         box.setNMolecules(species, numMolecules);
-        ConfigurationLatticeSimple configLattice = new ConfigurationLatticeSimple(new BravaisLatticeCrystal(new PrimitiveCubic(space), subBasis), space);
+        ConfigurationLatticeSimple configLattice = new ConfigurationLatticeSimple(new BravaisLatticeCrystal(primitive, subBasis), space);
         configLattice.initializeCoordinates(box);
 
         IVector boxSize = boundary.getBoxSize();
-
+        
         // retrieve real coordinates and scale them
         IAtomList atomList = box.getLeafList();
         IVectorMutable[] pos = new IVectorMutable[atomList.getAtomCount()];
@@ -59,6 +61,7 @@ public class BasisBigCell extends Basis {
             pos[i].DE(boxSize);
             // coordinates now range from -0.5 to +0.5, we want 0.0 to 1.0
             pos[i].PE(0.5);
+            
         }
         return pos;
     }
