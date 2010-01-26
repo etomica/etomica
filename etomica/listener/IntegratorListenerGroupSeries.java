@@ -18,7 +18,7 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
      * of array is made and used internally.
      */
     public IntegratorListenerGroupSeries(IIntegratorListener[] listeners) {
-        this.listeners = (IIntegratorListener[])listeners.clone();
+        this.listeners = listeners.clone();
         intervalCount = 0;
         interval = 1;
     }
@@ -35,7 +35,6 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
             for(int i=0; i<listeners.length; i++) {
                 listeners[i].integratorStepStarted(e);
             }
-            intervalCount = 0;
         }
     }
     
