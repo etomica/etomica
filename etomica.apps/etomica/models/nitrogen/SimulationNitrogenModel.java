@@ -1,12 +1,12 @@
 package etomica.models.nitrogen;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.DataPump;
-import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -19,10 +19,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.normalmode.MeterNormalMode;
-import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.WaveVectorFactorySimple;
-import etomica.normalmode.WriteS;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
@@ -50,7 +46,7 @@ public class SimulationNitrogenModel extends Simulation{
 	public SimulationNitrogenModel(ISpace space, int numMolecule, double temperature, double pressure) {
 		super(space);
 		this.space = space;
-		double unitCellLength = 1.0*5.661;
+		double unitCellLength =1.0*5.661;
 		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
 			
 		potentialMaster = new PotentialMaster();
@@ -58,8 +54,8 @@ public class SimulationNitrogenModel extends Simulation{
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 		
-		ConformationNitrogenShellModel conformation = new ConformationNitrogenShellModel(space);
-		SpeciesN2ShellModel species = new SpeciesN2ShellModel(space);
+		ConformationNitrogen conformation = new ConformationNitrogen(space);
+		species = new SpeciesN2(space);
 		species.setConformation(conformation);
 		addSpecies(species);
 		
@@ -80,12 +76,11 @@ public class SimulationNitrogenModel extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 	
 		box.setBoundary(boundary);
-		double rC = 9.0;//box.getBoundary().getBoxSize().getX(0)*0.5;
+		double rC =9.0;//box.getBoundary().getBoxSize().getX(0)*0.5;
 		System.out.println("Truncation Radius: " + rC);
-		potential = new P2NitrogenShellModel(space);
+		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 		
-		System.out.println("main: " + box.getBoundary().volume());
 		coordinateDef.setInitVolume(box.getBoundary().volume());
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
@@ -115,10 +110,10 @@ public class SimulationNitrogenModel extends Simulation{
 	}
 	
 	public static void main (String[] args){
-		int numMolecule =108;
+		int numMolecule =32;
 		double temperature = 25.0; // in Unit Kelvin
 		double pressure = 0.0; // in Unit GPa
-		long simSteps = 500000;
+		long simSteps = 1000000;
 		
 		if(args.length > 1){
 			simSteps = Long.parseLong(args[1]);
@@ -157,28 +152,33 @@ public class SimulationNitrogenModel extends Simulation{
 //		
 		
 	    // set up normal mode meter
-	    MeterNormalMode meterNormalMode = new MeterNormalMode();
-	    meterNormalMode.setCoordinateDefinition(sim.coordinateDef);
-	    WaveVectorFactory waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
-	    meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-	    meterNormalMode.setBox(sim.box);
-	    
-	    IntegratorListenerAction meterNormalModeListerner = new IntegratorListenerAction(meterNormalMode);
-	    meterNormalModeListerner.setInterval(numMolecule);
-	    sim.integrator.getEventManager().addListener(meterNormalModeListerner);
-	    	    
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
-		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
-		System.out.println("Lattice Energy (per molecule): "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
-		//System.exit(1);
+//	    MeterNormalMode meterNormalMode = new MeterNormalMode();
+//	    meterNormalMode.setCoordinateDefinition(sim.coordinateDef);
+//	    WaveVectorFactory waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
+//	    meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+//	    meterNormalMode.setBox(sim.box);
+//	    
+//	    IntegratorListenerAction meterNormalModeListerner = new IntegratorListenerAction(meterNormalMode);
+//	    meterNormalModeListerner.setInterval(numMolecule);
+//	    sim.integrator.getEventManager().addListener(meterNormalModeListerner);
+//	    	    
+//		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
+//		meterPotentialEnergy.setBox(sim.box);
+//		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
+//		System.out.println("Lattice Energy (per molecule): "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
+//	
+//		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
+//		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
+//		
+//		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
+//		energyListener.setInterval(100);
+//		sim.integrator.getEventManager().addListener(energyListener);
 		
-		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
-		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
+		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species);
 		
-		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
-		energyListener.setInterval(100);
-		sim.integrator.getEventManager().addListener(energyListener);
+		IntegratorListenerAction meterCoordListener = new IntegratorListenerAction(meterCoord);
+		meterCoordListener.setInterval(1);
+		sim.integrator.getEventManager().addListener(meterCoordListener);
 		
 		sim.activityIntegrate.setMaxSteps(simSteps/5);
 		sim.getController().actionPerformed();
@@ -188,33 +188,33 @@ public class SimulationNitrogenModel extends Simulation{
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
 		sim.getController().reset();
-		meterNormalMode.reset();
+	//	meterNormalMode.reset();
 		
-		WriteS sWriter = new WriteS(sim.space);
-		sWriter.setFilename(filename);
-		sWriter.setOverwrite(true);
-		sWriter.setMeter(meterNormalMode);
-		sWriter.setWaveVectorFactory(waveVectorFactory);
-		sWriter.setTemperature(temperature);
-		
-		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
-		sWriterListener.setInterval((int)simSteps/10);
-		sim.integrator.getEventManager().addListener(sWriterListener);
-		
-		sim.activityIntegrate.setMaxSteps(simSteps);
-		sim.getController().actionPerformed();
+//		WriteS sWriter = new WriteS(sim.space);
+//		sWriter.setFilename(filename);
+//		sWriter.setOverwrite(true);
+//		sWriter.setMeter(meterNormalMode);
+//		sWriter.setWaveVectorFactory(waveVectorFactory);
+//		sWriter.setTemperature(temperature);
+//		
+//		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+//		sWriterListener.setInterval((int)simSteps/10);
+//		sim.integrator.getEventManager().addListener(sWriterListener);
+//		
+//		sim.activityIntegrate.setMaxSteps(simSteps);
+//		sim.getController().actionPerformed();
 		
 //			PDBWriter pdbWriter = new PDBWriter(sim.box);
 //			pdbWriter.setFileName(filename+".pdb");
 //		    pdbWriter.actionPerformed();
 		
-		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-	
-		double A = sWriter.getLastA();
-		System.out.println("A/N: " + A/numMolecule);
-		System.out.println("Average energy (per molecule): "   + Kelvin.UNIT.fromSim(averageEnergy)/numMolecule  
-				+ " ;error: " + Kelvin.UNIT.fromSim(errorEnergy)/numMolecule);
+//		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+//		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+//	
+//		double A = sWriter.getLastA();
+//		System.out.println("A/N: " + A/numMolecule);
+//		System.out.println("Average energy (per molecule): "   + Kelvin.UNIT.fromSim(averageEnergy)/numMolecule  
+//				+ " ;error: " + Kelvin.UNIT.fromSim(errorEnergy)/numMolecule);
 		
 //		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
@@ -222,6 +222,29 @@ public class SimulationNitrogenModel extends Simulation{
 //		System.out.println("Average pressure: "   + Pascal.UNIT.fromSim(averagePressure)*1e-9  
 //				+ " ;error: " + Pascal.UNIT.fromSim(errorPressure)*1e-9);
 	    
+		DataGroup uData = (DataGroup)meterCoord.getData();
+		
+		for (int i=0; i<uData.getNData(); i++){
+			String fName = filename+"U"+i+".coord";
+			try {
+				FileWriter fileWriter = new FileWriter(fName,false);
+				
+				DataDoubleArray uDistribution = (DataDoubleArray)uData.getData(i);
+				
+				for (int j=0; j<uDistribution.getLength()/uDistribution.getArrayDimension(); j++){
+				
+					fileWriter.write(uDistribution.getValue(new int[]{0,j})+" "+ uDistribution.getValue(new int[]{1,j}) + "\n");
+				}
+			
+				fileWriter.close();
+				
+			} catch(IOException e){
+				throw new RuntimeException("Oops, failed to write data " + e);
+			
+			}
+		}
+		
+		
 	    System.out.println("Box Dimension: " + sim.box.getBoundary().getBoxSize().toString());
 		long endTime = System.currentTimeMillis();
 		System.out.println("End Time: " + endTime);
@@ -236,7 +259,31 @@ public class SimulationNitrogenModel extends Simulation{
 			 System.out.println("Box Dimension: " + sim.box.getBoundary().getBoxSize().toString());
 		}
 	}
-
+	
+	void writeUdistribution(String filename, MeterNormalizedCoord meterCoord){
+		DataGroup uData = (DataGroup)meterCoord.getData();
+		
+		for (int i=0; i<uData.getNData(); i++){
+			String fName = filename+"U"+i+".coord";
+			try {
+				FileWriter fileWriter = new FileWriter(fName,false);
+				
+				DataDoubleArray uDistribution = (DataDoubleArray)uData.getData(i);
+				
+				for (int j=0; j<uDistribution.getLength()/uDistribution.getArrayDimension(); j++){
+				
+					fileWriter.write(uDistribution.getValue(new int[]{0,j})+" "+ uDistribution.getValue(new int[]{1,j}) + "\n");
+				}
+			
+				fileWriter.close();
+				
+			} catch(IOException e){
+				throw new RuntimeException("Oops, failed to write data " + e);
+			
+			}
+		}
+		
+	}
 	
 	protected Box box;
 	protected ISpace space;
@@ -246,5 +293,6 @@ public class SimulationNitrogenModel extends Simulation{
 	protected PotentialMolecular potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
+	protected SpeciesN2 species;
 	private static final long serialVersionUID = 1L;
 }

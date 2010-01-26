@@ -112,14 +112,6 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
         data.E(0);
     }
 
-    public void setName(String newName) {
-        name = newName;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
     public DataTag getTag() {
         return tag;
     }
