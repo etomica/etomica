@@ -36,8 +36,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();
+       
         u = new double[coordinateDim];
         setPositionDefinition(new AtomPositionGeometricCenter(space));
+        rScale = 1.0;
     }
     
     public void initializeCoordinates(int[] nCells) {
@@ -50,18 +52,25 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         // molecules
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom
-        int j = 0;
+    	rScale = Math.pow(box.getBoundary().volume()/initVolume, 1.0/3.0);
+        
+    	int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
             IVector pos = positionDefinition.position(molecule);
             IVectorMutable site = getLatticePosition(molecule);
-            work1.Ev1Mv2(pos, site);
+            
+            work1.Ea1Tv1(1/rScale, pos);
+            work1.ME(site);
+            //work1.Ev1Mv2(pos, site);
+               
             for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.getX(k);
             }
-            j += coordinateDim/molecules.getMoleculeCount();
+               j += coordinateDim/molecules.getMoleculeCount();
 
         }
+        
         return u;
     }
 
@@ -80,6 +89,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             IMolecule molecule = molecules.getMolecule(i);
             IVectorMutable site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
+            	newU[j+k] /= rScale;
                 work1.setX(k, site.getX(k) + newU[j+k]);
             }
             
@@ -103,13 +113,19 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     public IAtomPositionDefinition getPositionDefinition() {
         return positionDefinition;
     }
-
+    
+    public void setInitVolume(double initV){
+    	this.initVolume = initV;
+    }
+    
     private static final long serialVersionUID = 1L;
     protected final ISimulation sim;
     protected MoleculeAgentManager moleculeSiteManager;
     protected final IVectorMutable work1;
     protected final double[] u;
     protected IAtomPositionDefinition positionDefinition;
+    protected double rScale;
+    protected double initVolume;
 
     protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
         
