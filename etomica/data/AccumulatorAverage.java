@@ -142,6 +142,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         
         dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IEtomicaDataInfo[]{
             mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, correlationInfo});
+        dataInfo.addTags(incomingDataInfo.getTags());
         dataInfo.addTag(tag);
         return dataInfo;
     }
