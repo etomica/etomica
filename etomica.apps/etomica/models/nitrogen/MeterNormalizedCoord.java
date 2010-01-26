@@ -44,27 +44,12 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
         	throw new RuntimeException("Need to set species in MeterNormalizedCoord class");
         }
         dof = coordDef.getCoordinateDim() /newBox.getNMolecules(species);
-        
         uDistributions = new DataDoubleArray[dof];
-        for (int i=0; i<uDistributions.length; i++) {
-        	/*
-        	 * Store in the x and y columns from Histogram
-        	 * x: value and y: probability
-        	 */
-            uDistributions[i] = new DataDoubleArray(new int[]{2, 2000});
-        }
-        data = new DataGroup(uDistributions);
-        
-        DataInfoDoubleArray[] uDistributionsInfo = new DataInfoDoubleArray[dof];
-        CompoundDimension length = new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{1});
-        for (int i=0; i<uDistributionsInfo.length; i++) {
-            uDistributionsInfo[i] = new DataInfoDoubleArray("u", length, new int[]{2,2000});
-        }
-        dataInfo = new DataInfoGroup("all uDistributions", Null.DIMENSION, uDistributionsInfo);
+        uDistributionsInfo = new DataInfoDoubleArray[dof];
         
         histogramU = new HistogramExpanding[dof];
         for (int i=0; i<dof; i++){
-        	histogramU[i] = new HistogramExpanding(0.005, new DoubleRange(-5, 5));
+        	histogramU[i] = new HistogramExpanding(0.005);
         }
     }
 
@@ -100,14 +85,24 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
      * Returns the DataGroup of uDistribtion[i]
      */
     public IData getData() {
-    	
+ 
+    	CompoundDimension length = new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{1});
+        
     	for(int i=0; i<dof; i++){
+    		int nBin = histogramU[i].getNBins();
+    		uDistributions[i] = new DataDoubleArray(new int[] {2, nBin});
+    		uDistributionsInfo[i] = new DataInfoDoubleArray("u", length, new int[]{2, nBin});
+    		
     		uDistributions[i].assignColumnFrom(0, histogramU[i].xValues());
     		uDistributions[i].assignColumnFrom(1, histogramU[i].getHistogram());
     		
     	}
     	
+    	data = new DataGroup(uDistributions);
+        dataInfo = new DataInfoGroup("all uDistributions", Null.DIMENSION, uDistributionsInfo);
+      
     	return data;
+    	
     }
 
     /**
@@ -137,6 +132,7 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
     private DataGroup data;
     private HistogramExpanding[] histogramU;
     private DataDoubleArray[] uDistributions;
+    private DataInfoDoubleArray[] uDistributionsInfo;
     private int dof;
 
     
