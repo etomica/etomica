@@ -56,11 +56,13 @@ public class MyMCMove extends MCMoveInsertDelete {
             box.addMolecule(testMolecule);
 			position.E(positionSource.randomPosition());
 			double z = position.getX(2);
+            double zBoundary = box.getBoundary().getBoxSize().getX(2);
+            z += 0.5*zBoundary;
             z *= zFraction;
-			if(nearOrigin) {
-                z = (0.5*zFraction-0.5)*box.getBoundary().getBoxSize().getX(2) + z;
+			if(leftSide) {
+                z = -0.5*zBoundary + z;
 			} else {
-				z = (0.5-0.5*zFraction)*box.getBoundary().getBoxSize().getX(2) - z;
+			    z = 0.5*zBoundary - z;
 			}
 			position.setX(2,z); //multiply z-coordinate by zFraction
 			atomTranslator.setDestination(position);
@@ -100,8 +102,8 @@ public class MyMCMove extends MCMoveInsertDelete {
     public void setupActiveAtoms() {
     	activeAtoms.clear();
     	double zBoundary = box.getBoundary().getBoxSize().getX(2);
-    	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
-    	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
+    	double zmin = leftSide ? -0.5*zBoundary : (0.5-zFraction)*zBoundary;
+    	double zmax = zmin + zFraction*zBoundary;
         int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = moleculeList.getMolecule(i);
@@ -120,7 +122,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private double zFraction;
 	private int deltaN = 0;
 	private IVectorMutable position;
-	private boolean nearOrigin;
+	private boolean leftSide;
 	private final MoleculeArrayList activeAtoms;
     private IMoleculeList moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
@@ -132,16 +134,19 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * @return double
 	 */
 	public double getZFraction() {
-		return nearOrigin ? -zFraction : +zFraction;
+		return leftSide ? -zFraction : +zFraction;
 	}
 
 	/**
-	 * Sets the zFraction.
-	 * @param zFraction The zFraction to set
+	 * Sets the zFraction, the fraction of the box volume into which atoms are
+	 * inserted or deleted.  The volume is on the far left or right side (in
+	 * the z dimension).  To put the volume on the left side (negative z),
+	 * specify a negative z fraction (a positive value will result in the
+	 * volume being on the positive z side.
 	 */
 	public void setZFraction(double zFraction) {
 		this.zFraction = zFraction;
-		nearOrigin = zFraction < 0.0;
+		leftSide = zFraction < 0.0;
 		this.zFraction = Math.abs(zFraction);		
 	}
 
