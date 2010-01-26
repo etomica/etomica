@@ -1,21 +1,20 @@
 package etomica.data;
 
 import etomica.api.IIntegrator;
-import etomica.api.IIntegratorListener;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.listener.IntegratorListenerAction;
 import etomica.listener.IntegratorListenerGroupSeries;
 
 /**
- * Data table that collects the AccumulatorAverage statistics for a collection
- * of DataSource instances. Permits convenient setup of accumulator and piping
- * of data. Data sources may be specified at construction or added afterward.
- * For each source added, this class automatically constructs an
- * AccumulatorAverage, arranges for pumping of data from source to accumulator,
- * and from accumulator to a column in this table.
+ * Convenience class for a data table that collects the AccumulatorAverage
+ * statistics for a collection of DataSource instances. Permits convenient setup
+ * of accumulator and piping of data. Data sources may be specified at
+ * construction or added afterward. For each source added, this class
+ * automatically constructs an AccumulatorAverage, arranges for pumping of data
+ * from source to accumulator, and from accumulator to a column in this table.
  * 
  * @author David Kofke
- *  
+ *
  */
 public class DataTableAverages extends DataSinkTable {
 
@@ -40,9 +39,7 @@ public class DataTableAverages extends DataSinkTable {
             IEtomicaDataSource[] sources) {
         super();
         this.types = types.clone();
-        this.integrator = integrator;
         listenerGroup = new IntegratorListenerGroupSeries();
-//        integrator.addIntervalAction(actionGroup);
         integrator.getEventManager().addListener(listenerGroup);
         this.blockSize = blockSize;
         if (sources != null) {
@@ -116,5 +113,4 @@ public class DataTableAverages extends DataSinkTable {
     private int tableUpdateInterval = 100;
     private int accumulatorUpdateInterval = 1;
     private int blockSize;
-    private IIntegrator integrator;
 }
