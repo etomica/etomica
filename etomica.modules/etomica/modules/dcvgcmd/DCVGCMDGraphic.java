@@ -43,12 +43,12 @@ import etomica.units.Pixel;
  */
 public class DCVGCMDGraphic extends SimulationGraphic{
 
-	final static String APP_NAME = "Dual Control-volume GCMD";
-	final static int REPAINT_INTERVAL = 70;
+    final static String APP_NAME = "Dual Control-volume GCMD";
+    final static int REPAINT_INTERVAL = 70;
 
-	public DCVGCMDGraphic(final DCVGCMD sim, ISpace _space){
+    public DCVGCMDGraphic(final DCVGCMD sim, ISpace _space){
 
-		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());	
+        super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());	
         getDisplayBox(sim.box).setPixelUnit(new Pixel(7));
 
         getController().getDataStreamPumps().add(sim.profile1pump);
@@ -140,20 +140,21 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		});
 
 		// Data table tab page
-	    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd, new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR}, 1000, new IEtomicaDataSource[0]);
-	    dataTable.addDataSource(sim.meterFlux0);
-	    dataTable.addDataSource(sim.meterFlux1);
-	    dataTable.addDataSource(sim.meterFlux2);
-	    dataTable.addDataSource(sim.meterFlux3);
-	    DisplayTable table = new DisplayTable(dataTable);
-	    
+        DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd, new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR},
+                1000, new IEtomicaDataSource[0], getController().getDataStreamPumps());
+        dataTable.addDataSource(sim.meterFlux0);
+        dataTable.addDataSource(sim.meterFlux1);
+        dataTable.addDataSource(sim.meterFlux2);
+        dataTable.addDataSource(sim.meterFlux3);
+        DisplayTable table = new DisplayTable(dataTable);
+
 	    table.setTransposed(true);
 	    table.setShowingRowLabels(true);
 	    table.setRowLabels(new String[] {"Average","Error"});
-	    table.setColumnHeader(new DataTag[]{sim.meterFlux0.getTag()}, "Left (A)");
-        table.setColumnHeader(new DataTag[]{sim.meterFlux1.getTag()}, "Right (A)");
-        table.setColumnHeader(new DataTag[]{sim.meterFlux2.getTag()}, "Left (B)");
-        table.setColumnHeader(new DataTag[]{sim.meterFlux3.getTag()}, "Right (B)");
+	    table.setColumnHeader(new DataTag[]{sim.meterFlux0.getTag()}, "Left (1)");
+        table.setColumnHeader(new DataTag[]{sim.meterFlux1.getTag()}, "Right (1)");
+        table.setColumnHeader(new DataTag[]{sim.meterFlux2.getTag()}, "Left (2)");
+        table.setColumnHeader(new DataTag[]{sim.meterFlux3.getTag()}, "Right (2)");
 
 	    table.setPrecision(7);
 	    getPanel().tabbedPane.add("Flux Data", table.graphic());
@@ -163,6 +164,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    profilePlot.setLabel("Density Profile");
 	    profilePlot.getPlot().setTitle("Density Profile");
 	    profilePlot.getPlot().setColors(speciesColors);
+	    profilePlot.setLegend(new DataTag[]{sim.accumulator1.getTag()}, "Density (1)");
+        profilePlot.setLegend(new DataTag[]{sim.accumulator2.getTag()}, "Density (2)");
 		getPanel().tabbedPane.add("Density Profile", profilePlot.graphic());
 
 		sim.accumulator1.addDataSink(profilePlot.getDataSet().makeDataSink(),
