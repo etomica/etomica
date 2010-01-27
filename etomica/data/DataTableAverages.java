@@ -1,5 +1,7 @@
 package etomica.data;
 
+import java.util.ArrayList;
+
 import etomica.api.IIntegrator;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.listener.IntegratorListenerAction;
@@ -23,21 +25,22 @@ public class DataTableAverages extends DataSinkTable {
      * average, and the error bars.
      */
     public DataTableAverages(IIntegrator integrator) {
-        this(integrator, 1000);
+        this(integrator, 1000, null);
     }
     
-    public DataTableAverages(IIntegrator integrator, int blockSize) {
+    public DataTableAverages(IIntegrator integrator, int blockSize, ArrayList<DataPump> dataPumps) {
         this(integrator, new StatType[] { StatType.MOST_RECENT,
                 StatType.AVERAGE, StatType.ERROR }, 
-                blockSize, null);
+                blockSize, null, dataPumps);
     }
 
     /**
      * Sets up table with no sources.
      */
     public DataTableAverages(IIntegrator integrator, StatType[] types, int blockSize, 
-            IEtomicaDataSource[] sources) {
+            IEtomicaDataSource[] sources, ArrayList<DataPump> dataPumps) {
         super();
+        this.dataPumps = dataPumps;
         this.types = types.clone();
         listenerGroup = new IntegratorListenerGroupSeries();
         integrator.getEventManager().addListener(listenerGroup);
@@ -53,8 +56,17 @@ public class DataTableAverages extends DataSinkTable {
      * Adds the given data source to those feeding the table.
      */
     public void addDataSource(IEtomicaDataSource newSource) {
-        AccumulatorAverage accumulator = new AccumulatorAverageFixed(blockSize);
+        AccumulatorAverage accumulator;
+        if (newSource.getDataInfo().getLength() == 1) {
+            accumulator = new AccumulatorAverageCollapsing();
+        }
+        else {
+            accumulator = new AccumulatorAverageFixed(blockSize);
+        }
         DataPump dataPump = new DataPump(newSource, accumulator);
+        if (dataPumps != null) {
+            dataPumps.add(dataPump);
+        }
         listenerGroup.addListener(new IntegratorListenerAction(dataPump));
         accumulator.setPushInterval(tableUpdateInterval);
         accumulator.addDataSink(makeDataSink(),types);
@@ -113,4 +125,5 @@ public class DataTableAverages extends DataSinkTable {
     private int tableUpdateInterval = 100;
     private int accumulatorUpdateInterval = 1;
     private int blockSize;
+    protected final ArrayList<DataPump> dataPumps;
 }
