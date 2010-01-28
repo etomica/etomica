@@ -39,7 +39,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
        
         u = new double[coordinateDim];
         setPositionDefinition(new AtomPositionGeometricCenter(space));
-        rScale = 1.0;
+        rScale = new double[]{1.0, 1.0, 1.0};
     }
     
     public void initializeCoordinates(int[] nCells) {
@@ -52,7 +52,9 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         // molecules
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom
-    	rScale = Math.pow(box.getBoundary().volume()/initVolume, 1.0/3.0);
+    	for (int i=0; i<rScale.length; i++){
+    		rScale[i] = box.getBoundary().getBoxSize().getX(i)/initVolume.getX(i);
+    	}
         
     	int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
@@ -60,7 +62,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             IVector pos = positionDefinition.position(molecule);
             IVectorMutable site = getLatticePosition(molecule);
             
-            work1.Ea1Tv1(1/rScale, pos);
+            work1.E(new double[]{(1/rScale[0])*pos.getX(0),
+            					 (1/rScale[1])*pos.getX(1),
+            					 (1/rScale[2])*pos.getX(2)});
+            
             work1.ME(site);
             //work1.Ev1Mv2(pos, site);
                
@@ -89,7 +94,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             IMolecule molecule = molecules.getMolecule(i);
             IVectorMutable site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
-            	newU[j+k] /= rScale;
+            	newU[j+k] /= rScale[k];
                 work1.setX(k, site.getX(k) + newU[j+k]);
             }
             
@@ -114,7 +119,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         return positionDefinition;
     }
     
-    public void setInitVolume(double initV){
+    public void setInitVolume(IVector initV){
     	this.initVolume = initV;
     }
     
@@ -124,8 +129,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     protected final IVectorMutable work1;
     protected final double[] u;
     protected IAtomPositionDefinition positionDefinition;
-    protected double rScale;
-    protected double initVolume;
+    protected double[] rScale;
+    protected IVector initVolume;
 
     protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
         
