@@ -193,20 +193,21 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	
     	/*
     	 * rotation Axis about (-x, 0, z)
+    	 * ROTATION ANGLE: arctan(1/sqrt(2)) = 35.26438968deg
     	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(-45));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(-35.26438968));
     	xzOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(45));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(35.26438968));
     	xzOrientationTensor[1].E(rotationTensor);
     
     	/*
     	 * rotation Axis about (-x, 0, -z)
     	 */
-       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(-45));
+       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(-35.26438968));
     	xzOrientationTensor[2].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(45));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(35.26438968));
     	xzOrientationTensor[3].E(rotationTensor);
     	
     }
@@ -240,7 +241,13 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	
 	    	u[j] = axis.dot(siteOrientation[1]);  
 	    	u[j+1] = axis.dot(siteOrientation[2]); 
-	    	        
+	    	
+	    	double check = axis.dot(siteOrientation[0]);
+	    	if(check < 0.0){
+	    		u[j] = -u[j];
+	    		u[j+1] = -u[j+1];
+	    	}
+	    	
 	    	j += coordinateDim/molecules.getMoleculeCount();
         }
         return u;
