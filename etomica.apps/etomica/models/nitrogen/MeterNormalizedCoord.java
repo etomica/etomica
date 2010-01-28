@@ -6,7 +6,6 @@ import etomica.action.IAction;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.data.AccumulatorHistogram;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -21,9 +20,7 @@ import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
 import etomica.util.HistogramExpanding;
-import etomica.util.HistogramSimple;
 
 /**
  * Sample the distribution of the normalized coordinate for the atoms/ molecules
