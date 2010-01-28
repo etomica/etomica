@@ -715,7 +715,7 @@ public class SimDifferentImage1DHR extends Simulation {
         
         
         System.out.println("..");
-        System.out.println("harmonic value " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
+//        System.out.println("harmonic value " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
         System.out.println("Fini.");
     }
     
