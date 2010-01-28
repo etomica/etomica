@@ -6,13 +6,13 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
-import etomica.units.Energy;
 import etomica.units.Kelvin;
 import etomica.units.Pressure;
 
@@ -24,17 +24,6 @@ import etomica.units.Pressure;
  * @author Tai Boon Tan
  */
 public class MCMoveVolumeN2 extends MCMoveBoxStep {
-    
-    private static final long serialVersionUID = 2L;
-    protected double pressure;
-    private MeterPotentialEnergy energyMeter;
-    protected final BoxInflate inflate;
-    private final int D;
-    private IRandom random;
-    protected final AtomIteratorLeafAtoms affectedAtomIterator;
-
-    private transient double uOld, hOld, vNew, vScale, hNew, rhoNew;
-    private transient double uNew = Double.NaN;
 
     public MCMoveVolumeN2(ISimulation sim, IPotentialMaster potentialMaster,
     		            ISpace _space) {
@@ -59,6 +48,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
         coeff = new double[4];
+        rScale = _space.makeVector();
     }
     
     public void setBox(IBox p) {
@@ -95,16 +85,35 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
     
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
+
         double rhoOld = numMolec/vOld;
         uOld = energyMeter.getDataAsScalar() + uCorrection(rhoOld);
         hOld = uOld + pressure*vOld;
-       
-        vScale = (2.*random.nextDouble()-1.)*stepSize;
-        vNew = vOld * Math.exp(vScale); //Step in ln(V)
+        
+        if(isVolChange){
+	        vScale = (2.*random.nextDouble()-1.)*stepSize;
+	        vNew = vOld * Math.exp(vScale); //Step in ln(V)
+	        double scale = Math.exp(vScale/D);
+	        rScale.E(new double[]{scale,scale,scale});
+	        
+        }
+        
+        if (isXYZChange){
+            double xOld = box.getBoundary().getBoxSize().getX(0);
+            double yOld = box.getBoundary().getBoxSize().getX(1);
+            double zOld = box.getBoundary().getBoxSize().getX(2);
+        	xScale = Math.exp((2.*random.nextDouble()-1.)*stepSize);
+        	yScale = Math.exp((2.*random.nextDouble()-1.)*stepSize);
+        	zScale = Math.exp((2.*random.nextDouble()-1.)*stepSize);
+        	
+        	vNew = (xOld*xScale)*(yOld*yScale)*(zOld*zScale);
+        	rScale.E(new double[]{xScale,yScale,zScale});
+        }
+        
         rhoNew = numMolec/vNew;
-        double rScale = Math.exp(vScale/D);
-        inflate.setScale(rScale);
+        inflate.setVectorScale(rScale);
         inflate.actionPerformed();
+        
         uNew = energyMeter.getDataAsScalar() + uCorrection(rhoNew);
         hNew = uNew + pressure*vNew;
         return true;
@@ -165,11 +174,31 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
 		this.latticeCorrec = latticeCorrec;
 	}
 	
+	public void setXYZChange(){
+		isVolChange = false;
+		isXYZChange = true;
+	}
+	
+	private IVectorMutable rScale;
 	private double[] coeff;
     private int caseNumMolec = 0;
     private ISpecies species;
     protected int numMolec;
 	protected double latticeCorrec;
+    
+    private static final long serialVersionUID = 2L;
+    protected double pressure;
+    private MeterPotentialEnergy energyMeter;
+    protected final BoxInflate inflate;
+    private final int D;
+    private IRandom random;
+    protected final AtomIteratorLeafAtoms affectedAtomIterator;
+
+    private transient double uOld, hOld, vNew, vScale, hNew, rhoNew, xScale, yScale, zScale;
+    private transient double uNew = Double.NaN;
+    private boolean isVolChange = true;
+    private boolean isXYZChange = false;
+	
 	public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
