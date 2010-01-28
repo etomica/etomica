@@ -121,6 +121,9 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         
         IAtomList atomlist = box.getLeafList();
         
+        gaussCoord[0] = random.nextGaussian();
+        gaussCoord[1] = random.nextGaussian();
+        
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = simCells[0];
@@ -152,10 +155,10 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         for (int j = 0; j < cDim; j++) {
             //We are adding 0.5, and this code lets us get it in the right slot.
             if(waveVectors.length == simWaveVectors.length){
-                imagCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                imagCoord[waveVectors.length - 1] = gaussCoord[1] * 
                     Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
             } else {
-                realCoord[waveVectors.length - 1] = random.nextGaussian() * 
+                realCoord[waveVectors.length - 1] = gaussCoord[0] * 
                     Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
             }
         }
@@ -184,6 +187,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             cDef.setToU(cells[iCell].molecules, newU);
         }
         
+//        return Math.exp(-1*meterPE.getDataAsScalar());
         return meterPE.getDataAsScalar();
     }
 
