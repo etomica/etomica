@@ -11,12 +11,13 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
@@ -44,6 +45,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
+import etomica.util.Function;
 import etomica.util.ParameterBase;
 import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
@@ -91,12 +93,12 @@ public class SimDifferentImage1DHR extends Simulation {
     public IEtomicaDataSource[] meters;
     public IBox boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
-    MeterPotentialEnergy meterBinB, meterAinA, meterRef;
-    MeterDifferentImageAdd meterAinB;
-    MeterDifferentImageSubtract meterBinA;
+    MeterPotentialEnergy meterTargInTarg, meterRef, meterRefInRef;
+    MeterDifferentImageAdd meterTargInRef;
+    MeterDifferentImageSubtract meterRefInTarg;
     
 
-    AccumulatorAverageFixed accHarmonic;
+    AccumulatorAverageFixed accMeter0, accMeter1, accHarmonic, accTargInTarg, accRefInRef, accTargInRef, accRefInTarg;
     
     
     public SimDifferentImage1DHR(Space _space, int numAtoms, double density, 
@@ -104,10 +106,10 @@ public class SimDifferentImage1DHR extends Simulation {
         super(_space);
         System.out.println("Running " + APP_NAME);
         
-        long seed = 3;
-        System.out.println("Seed explicitly set to " + seed);
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 3;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         int targAtoms = numAtoms + 1;
         int refAtoms = numAtoms;
@@ -192,9 +194,9 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.addChangeableWV(targWV);
         integratorTarget.getMoveManager().addMCMove(mcMoveMode);
         
-        meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
-        meterAinA.setBox(boxTarget);
-        integratorTarget.setMeterPotentialEnergy(meterAinA);
+        meterTargInTarg = new MeterPotentialEnergy(potentialMasterTarget);
+        meterTargInTarg.setBox(boxTarget);
+        integratorTarget.setMeterPotentialEnergy(meterTargInTarg);
         
         
         //Fun with meters!
@@ -202,10 +204,10 @@ public class SimDifferentImage1DHR extends Simulation {
         meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
         meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
         accHarmonic = new AccumulatorAverageFixed();
-        DataPump pumpHarm = new DataPump(meterHarmonic, accHarmonic);
-        IntegratorListenerAction pumpHarmListener = new IntegratorListenerAction(pumpHarm);
-        pumpHarmListener.setInterval(1000);
-        integratorTarget.getEventManager().addListener(pumpHarmListener);
+        DataPump pump = new DataPump(meterHarmonic, accHarmonic);
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(1000);
+        integratorTarget.getEventManager().addListener(pumpListener);
         
         
 //REFERENCE
@@ -278,25 +280,26 @@ public class SimDifferentImage1DHR extends Simulation {
         mcMoveMode.addChangeableWV(refWV);
         integratorRef.getMoveManager().addMCMove(mcMoveMode);
         
-        meterBinB = new MeterPotentialEnergy(potentialMasterRef);
-        meterBinB.setBox(boxRef);
+        meterRefInRef = new MeterPotentialEnergy(potentialMasterRef);
+        meterRefInRef.setBox(boxRef);
+        
         
 
         
 //JOINT
-        meterAinB = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
+        meterTargInRef = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
                 this, primitive, basis, cDefRef, nmRef, temperature);
-        MeterOverlapSameGaussian meterOverlapInB = new MeterOverlapSameGaussian("MeterOverlapInB", 
-                Null.DIMENSION, meterBinB, meterAinB, temperature);
+        MeterOverlapSameGaussian meterOverlapInRef = new MeterOverlapSameGaussian("MeterOverlapInB", 
+                Null.DIMENSION, meterRefInRef, meterTargInRef, temperature);
 
         
-        meterBinA = new MeterDifferentImageSubtract("MeterBinA", targAtoms, 
+        meterRefInTarg = new MeterDifferentImageSubtract("MeterBinA", targAtoms, 
                 density, this, primitive, basis, cDefTarget, nmTarg, temperature);
-        MeterOverlap meterOverlapInA = new MeterOverlap("MeterOverlapInA", 
-                Null.DIMENSION, meterAinA, meterBinA, temperature);
+        MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
+                Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
 
-        meters[1] = meterOverlapInA;
-        meters[0] = meterOverlapInB;
+        meters[1] = meterOverlapInTarget;
+        meters[0] = meterOverlapInRef;
         potentialMasterRef.getNeighborManager(boxRef).reset();
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
         
@@ -312,6 +315,55 @@ public class SimDifferentImage1DHR extends Simulation {
         
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
+        
+        
+        
+        
+        
+        
+        
+      //Fun with meters!        
+        meterHarmonic = new MeterHarmonicCoordinate(cDefTarget);
+        meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
+        meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
+        accHarmonic = new AccumulatorAverageFixed();
+        pump = new DataPump(meterHarmonic, accHarmonic);
+        pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(1000);
+        integratorTarget.getEventManager().addListener(pumpListener);
+        
+        
+        accMeter0 = new AccumulatorAverageFixed();
+        pump = new DataPump(meters[0],accMeter0);
+        pumpListener = new IntegratorListenerAction(pump);
+        integratorTarget.getEventManager().addListener(pumpListener);
+        
+        accMeter1 = new AccumulatorAverageFixed();
+        pump = new DataPump(meters[1],accMeter1);
+        pumpListener = new IntegratorListenerAction(pump);
+        integratorSim.getEventManager().addListener(pumpListener);
+        
+        accTargInTarg = new AccumulatorAverageFixed();
+        pump = new DataPump(meterTargInTarg, accTargInTarg);
+        pumpListener = new IntegratorListenerAction(pump);
+        integratorSim.getEventManager().addListener(pumpListener);
+        
+        accRefInRef = new AccumulatorAverageFixed();
+        pump = new DataPump(meterRefInRef, accRefInRef);
+        pumpListener = new IntegratorListenerAction(pump);
+        integratorRef.getEventManager().addListener(pumpListener);
+        
+        accTargInRef = new AccumulatorAverageFixed();
+        pump = new DataPump(meterTargInRef, accTargInRef);
+        pumpListener = new IntegratorListenerAction(pump);
+        integratorRef.getEventManager().addListener(pumpListener);
+        
+        accRefInTarg = new AccumulatorAverageFixed();
+        pump = new DataPump(meterRefInTarg, accRefInTarg);
+        pumpListener = new IntegratorListenerAction(pump);
+        integratorTarget.getEventManager().addListener(pumpListener);
+        
+        
         
         
     }
@@ -555,9 +607,9 @@ public class SimDifferentImage1DHR extends Simulation {
         int runBlockSize = params.runBlockSize;
         int subBlockSize = params.subBlockSize;
         int eqNumSteps = params.eqNumSteps;
-        int eqBlockSize = params.eqBlockSize;
+//        int eqBlockSize = params.eqBlockSize;
         int benNumSteps = params.bennettNumSteps;
-        int benBlockSize = params.benBlockSize;
+//        int benBlockSize = params.benBlockSize;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
@@ -579,8 +631,8 @@ public class SimDifferentImage1DHR extends Simulation {
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
         System.out.println("Init Bennett");
-        sim.setAccumulatorBlockSize(benBlockSize);
-        sim.initBennettParameter(filename, benNumSteps, benBlockSize);
+//        sim.setAccumulatorBlockSize(benBlockSize);
+        sim.initBennettParameter(filename, benNumSteps, runBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
             throw new RuntimeException("Simulation failed to find a valid " +
@@ -590,14 +642,16 @@ public class SimDifferentImage1DHR extends Simulation {
 //        System.exit(5);
         
         System.out.println("equilibrate");
-        sim.setAccumulatorBlockSize(eqBlockSize);
-        sim.equilibrate(refFileName, eqNumSteps, eqBlockSize);
+//        sim.setAccumulatorBlockSize(eqBlockSize);
+        sim.equilibrate(refFileName, eqNumSteps, runBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
             throw new RuntimeException("Simulation failed to find a valid " +
                     "Bennett parameter");
         }
         System.out.println("equilibration finished.");
+        
+      sim.setBennettParameter(1.385);
         
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
@@ -640,9 +694,28 @@ public class SimDifferentImage1DHR extends Simulation {
         
         
         DataGroup dork = (DataGroup)sim.accHarmonic.getData();
-        System.out.println("Measurement of eta: " + dork.getValue(0));
+        System.out.println("Measurement of eta: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+
+        dork = (DataGroup)sim.accTargInTarg.getData();
+        System.out.println("Measurement of Target in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+        
+        dork = (DataGroup)sim.accTargInRef.getData();
+        System.out.println("Measurement of Target in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+        
+        dork = (DataGroup)sim.accRefInRef.getData();
+        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+        
+        dork = (DataGroup)sim.accRefInTarg.getData();
+        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+        
+        dork = (DataGroup)sim.accMeter0.getData();
+        System.out.println("Meter[0]: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+        dork = (DataGroup)sim.accMeter1.getData();
+        System.out.println("Meter[1]: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
         
         
+        System.out.println("..");
+        System.out.println("harmonic value " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
         System.out.println("Fini.");
     }
     
@@ -660,11 +733,11 @@ public class SimDifferentImage1DHR extends Simulation {
         public int runBlockSize = 1000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
-        public int eqNumSteps = 4000000;  
-        public int eqBlockSize = 1000;
+        public int eqNumSteps = 100000;  
+//        public int eqBlockSize = 1000;
         
-        public int bennettNumSteps = 4000000;
-        public int benBlockSize = 1000;
+        public int bennettNumSteps = 50000;
+//        public int benBlockSize = 1000;
         
         public int[] targWVs = {0, 1};
         public int[] refWVs = {0};
