@@ -195,11 +195,10 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     
     public void acceptNotify() {
 //        System.out.println("accept MCMoveChangeMultipleWV");
-//        iterator.reset();
-//        for(int i = 0; i < 32; i++){
-//            System.out.println(((AtomLeaf)iterator.nextAtom()).getPosition());
-//        }
-//        
+//        System.out.println("nrg dif" + (energyOld - energyNew));
+//        printLocations();
+        
+        iterator.reset();
     }
 
     public double energyChange() {
@@ -208,6 +207,9 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
 
     public void rejectNotify() {
 //        System.out.println("reject MCMoveChangeMultipleWV");
+//        System.out.println("nrg dif" + (energyOld - energyNew));
+//        printLocations();
+        
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         for (int iCell = 0; iCell<cells.length; iCell++) {
