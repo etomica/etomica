@@ -33,14 +33,23 @@ import etomica.util.HistogramExpanding;
  */
 public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serializable {
 
-    public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species) {
+    public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species, boolean isVolFluctuation) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
+        this.isVolFluctuation = isVolFluctuation;
         
         if (species==null){
         	throw new RuntimeException("Need to set species in MeterNormalizedCoord class");
         }
-        dof = coordDef.getCoordinateDim() /newBox.getNMolecules(species);
+        /*
+         * minus 3 is to ignore the volume fluctuation*****!!
+         */
+        if(isVolFluctuation){
+        	dof = (coordDef.getCoordinateDim()- 3) /newBox.getNMolecules(species);
+        } else {
+        	dof = (coordDef.getCoordinateDim()- 3) /newBox.getNMolecules(species) + 3;
+            
+        }
         uDistributions = new DataDoubleArray[dof];
         uDistributionsInfo = new DataInfoDoubleArray[dof];
         
@@ -68,13 +77,30 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
             int numMolecules = molecules.getMoleculeCount();
             
             double[] u = coordinateDefinition.calcU(molecules);
-                                  
-	        for (int i=0; i<dof; i++){ 
-	        	for (int j=0; j<numMolecules; j++){
-	            	histogramU[i].addValue(u[i+dof*j]);
-	            }
-           
-	        }           
+            
+            if(isVolFluctuation){
+            	for (int i=0; i<(dof-3); i++){ 
+ 		        	for (int j=0; j<numMolecules; j++){
+ 		            	histogramU[i].addValue(u[i+dof*j]);
+ 		            }
+ 		        } 
+            	
+            	for (int i=0; i<3; i++){
+            		histogramU[(dof-3)+i].addValue(u[(coordinateDefinition.getCoordinateDim()-(3-i))]);
+            	}
+            	
+            } else {
+		        for (int i=0; i<dof; i++){ 
+		        	for (int j=0; j<numMolecules; j++){
+		            	histogramU[i].addValue(u[i+dof*j]);
+		            }
+	           
+		        }           
+            }
+	        
+	        
+	        
+	        
         } //end of cell; there is only 1 cell
     }
 
@@ -123,6 +149,7 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
     private DataDoubleArray[] uDistributions;
     private DataInfoDoubleArray[] uDistributionsInfo;
     private int dof;
+    private boolean isVolFluctuation;
 
     
 }

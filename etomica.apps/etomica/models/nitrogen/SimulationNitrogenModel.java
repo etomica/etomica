@@ -197,7 +197,7 @@ public class SimulationNitrogenModel extends Simulation{
 	    meterNormalModeListerner.setInterval(numMolecule);
 	    sim.integrator.getEventManager().addListener(meterNormalModeListerner);
 		
-		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species);
+		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species, true);
 		
 		IntegratorListenerAction meterCoordListener = new IntegratorListenerAction(meterCoord);
 		meterCoordListener.setInterval(1);
