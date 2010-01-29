@@ -81,7 +81,7 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
             if(isVolFluctuation){
             	for (int i=0; i<(dof-3); i++){ 
  		        	for (int j=0; j<numMolecules; j++){
- 		            	histogramU[i].addValue(u[i+dof*j]);
+ 		            	histogramU[i].addValue(u[i+(dof-3)*j]);
  		            }
  		        } 
             	
