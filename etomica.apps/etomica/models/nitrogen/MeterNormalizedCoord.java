@@ -45,9 +45,9 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
          * minus 3 is to ignore the volume fluctuation*****!!
          */
         if(isVolFluctuation){
-        	dof = (coordDef.getCoordinateDim()- 3) /newBox.getNMolecules(species);
+        	dof = (coordDef.getCoordinateDim()- 3) /newBox.getNMolecules(species) +3;
         } else {
-        	dof = (coordDef.getCoordinateDim()- 3) /newBox.getNMolecules(species) + 3;
+        	dof = coordDef.getCoordinateDim() /newBox.getNMolecules(species);
             
         }
         uDistributions = new DataDoubleArray[dof];
