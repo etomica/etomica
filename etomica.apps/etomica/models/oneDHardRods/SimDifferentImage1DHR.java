@@ -336,12 +336,12 @@ public class SimDifferentImage1DHR extends Simulation {
         accMeter0 = new AccumulatorAverageFixed();
         pump = new DataPump(meters[0],accMeter0);
         pumpListener = new IntegratorListenerAction(pump);
-        integratorTarget.getEventManager().addListener(pumpListener);
+        integratorRef.getEventManager().addListener(pumpListener);
         
         accMeter1 = new AccumulatorAverageFixed();
         pump = new DataPump(meters[1],accMeter1);
         pumpListener = new IntegratorListenerAction(pump);
-        integratorSim.getEventManager().addListener(pumpListener);
+        integratorTarget.getEventManager().addListener(pumpListener);
         
         accTargInTarg = new AccumulatorAverageFixed();
         pump = new DataPump(meterTargInTarg, accTargInTarg);
@@ -651,8 +651,6 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         System.out.println("equilibration finished.");
         
-      sim.setBennettParameter(1.385);
-        
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
@@ -693,7 +691,8 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         
         
-        DataGroup dork = (DataGroup)sim.accHarmonic.getData();
+        DataGroup dork;
+        dork = (DataGroup)sim.accHarmonic.getData();
         System.out.println("Measurement of eta: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
 
         dork = (DataGroup)sim.accTargInTarg.getData();
@@ -729,14 +728,14 @@ public class SimDifferentImage1DHR extends Simulation {
         public String outputname = "hists";
         public double temperature = 1.0;
         
-        public int numSteps = 10000000;
+        public int numSteps = 1000000;
         public int runBlockSize = 1000;
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
-        public int eqNumSteps = 100000;  
+        public int eqNumSteps = 10000;  
 //        public int eqBlockSize = 1000;
         
-        public int bennettNumSteps = 50000;
+        public int bennettNumSteps = 5000;
 //        public int benBlockSize = 1000;
         
         public int[] targWVs = {0, 1};
