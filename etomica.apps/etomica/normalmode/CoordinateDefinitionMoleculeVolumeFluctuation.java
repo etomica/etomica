@@ -2,12 +2,13 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.action.BoxInflate;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
@@ -38,7 +39,9 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
         super(box, ((space.D() + orientationDim)*basis.getScaledCoordinates().length+space.D()), primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();
-       
+        inflate = new BoxInflate(space);
+        inflate.setBox(box);
+        
         u = new double[coordinateDim];
         setPositionDefinition(new AtomPositionGeometricCenter(space));
         rScale = new double[]{1.0, 1.0, 1.0};
@@ -104,12 +107,30 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
         // sets the center of mass of the molecules to that specified by newU
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom
+    	
+    	/*
+    	 * use BoxInflate class to
+    	 * move the degrees of freedom for volume fluctuation
+    	 * in the last 3 components in u[] array
+    	 * 
+    	 *  x-direction fluctuation : u[coordinateDim-3]
+    	 *  y-direction fluctuation : u[coordinateDim-2]
+    	 *  z-direction fluctuation : u[coordinateDim-1]
+    	 *  
+    	 */
+    	for (int i=0; i<rScale.length; i++){
+    		double currentDimi = box.getBoundary().getBoxSize().getX(i);
+    		rScale[i] = initVolume.getX(i)/currentDimi; //rescale the fluctation to the initial volume
+    		
+    	}
+    	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
+    	inflate.actionPerformed();
+    	
         int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
             IVectorMutable site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
-            	newU[j+k] /= rScale[k];
                 work1.setX(k, site.getX(k) + newU[j+k]);
             }
             
@@ -119,6 +140,13 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             j += coordinateDim/molecules.getMoleculeCount();
 
         }
+       	for (int i=0; i<rScale.length; i++){
+    		rScale[i] = (initVolume.getX(i)-u[coordinateDim-(3-i)])/initVolume.getX(i); //rescale the fluctation to the initial volume
+    		
+    	}
+    	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
+    	inflate.actionPerformed();
+        
     }
     
     public IVectorMutable getLatticePosition(IMolecule molecule) {
@@ -146,6 +174,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     protected IAtomPositionDefinition positionDefinition;
     protected double[] rScale;
     protected IVector initVolume;
+    protected final BoxInflate inflate;
 
     protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
         
