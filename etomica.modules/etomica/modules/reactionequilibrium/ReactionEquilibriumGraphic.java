@@ -256,7 +256,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         DataGroupFilter filter1 = new DataGroupFilter(0);
         dimerFork.addDataSink(filter1);
 
-        AccumulatorAverageFixed dimerFractionAccum = new AccumulatorAverageFixed();
+        AccumulatorAverageFixed dimerFractionAccum = new AccumulatorAverageFixed(100);
         dimerFractionAccum.setPushInterval(10);
         filter1.setDataSink(dimerFractionAccum);
 
