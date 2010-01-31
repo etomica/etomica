@@ -69,20 +69,28 @@ public final class SimulationRestart extends SimulationActionAdapter {
             }
         }
 
+        IAction myAction = null;
         IAction[] currentActions = controller.getCurrentActions();
         if (currentActions.length == 1) {
-            IAction currentAction = currentActions[0];
-            if (currentAction instanceof ActivityIntegrate) {
-                IIntegrator integrator = ((ActivityIntegrate)currentAction).getIntegrator();
-                if(integrator.getStepCount() > 0) {
-                    integrator.resetStepCount();
-                    try {
-                        integrator.reset();
-                    }
-                    catch (ConfigurationOverlapException e) {
-                        if (!ignoreOverlap) {
-                            throw e;
-                        }
+            myAction = currentActions[0];
+        }
+        else if (currentActions.length == 0) {
+            // we've reset the controller, which turns all the "current" actions to "pending"
+            IAction[] pendingActions = controller.getPendingActions();
+            if (pendingActions.length == 1) {
+                myAction = pendingActions[0];
+            }
+        }
+        if (myAction instanceof ActivityIntegrate) {
+            IIntegrator integrator = ((ActivityIntegrate)myAction).getIntegrator();
+            if(integrator.getStepCount() > 0) {
+                integrator.resetStepCount();
+                try {
+                    integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    if (!ignoreOverlap) {
+                        throw e;
                     }
                 }
             }
