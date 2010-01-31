@@ -285,15 +285,16 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         int nData = filter1.getDataInfo().getLength();
         DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)filter1.getDataInfo();
 
+        final AccumulatorHistory[] fractionHistory = new AccumulatorHistory[nData];
         for (int i=0; i<nData; i++) {
-            AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
-            dimerfractionhistory.setTimeDataSource(timeCounter);
-            
-    		splitter.setDataSink(i, dimerfractionhistory);
-    		dimerfractionhistory.addDataSink (plot.getDataSet().makeDataSink());
-    		plot.setLegend(new DataTag[]{dimerfractionhistory.getTag()}, dimerInfo.getRowHeader(i));
+            fractionHistory[i] = new AccumulatorHistory();
+            fractionHistory[i].setTimeDataSource(timeCounter);
+
+    		splitter.setDataSink(i, fractionHistory[i]);
+    		fractionHistory[i].addDataSink (plot.getDataSet().makeDataSink());
+    		plot.setLegend(new DataTag[]{fractionHistory[i].getTag()}, dimerInfo.getRowHeader(i));
         }
-        
+
         DataGroupFilter filter3 = new DataGroupFilter(1);
         dimerFork.addDataSink(filter3);
         densityAccum = new AccumulatorAverageCollapsing();
@@ -368,21 +369,24 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		add(tBox);
 		add(densityDisplay);
 
-        IAction reinitDisplayAction = new IAction() {
-        	public void actionPerformed() {
-        		tPump.actionPerformed();
-        		tBox.putData(tempAccum.getData());
-        		tBox.repaint();
+        getController().getReinitButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                for (int i=0; i<fractionHistory.length; i++) {
+                    fractionHistory[i].reset();
+                }
 
-        		dimerPump.actionPerformed();
-        		densityDisplay.putData(densityAccum.getData());
-        		densityDisplay.repaint();
+                tPump.actionPerformed();
+                tBox.putData(tempAccum.getData());
+                tBox.repaint();
 
-        		getDisplayBox(sim.box).graphic().repaint();
-        	}
-        };
+                dimerPump.actionPerformed();
+                densityDisplay.putData(densityAccum.getData());
+                densityDisplay.repaint();
 
-        getController().getReinitButton().setPostAction(reinitDisplayAction);
+                getDisplayBox(sim.box).graphic().repaint();
+            }
+        });
+        
 
 		table.setPrecision(6);
 
