@@ -108,23 +108,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom
     	
-    	/*
-    	 * use BoxInflate class to
-    	 * move the degrees of freedom for volume fluctuation
-    	 * in the last 3 components in u[] array
-    	 * 
-    	 *  x-direction fluctuation : u[coordinateDim-3]
-    	 *  y-direction fluctuation : u[coordinateDim-2]
-    	 *  z-direction fluctuation : u[coordinateDim-1]
-    	 *  
-    	 */
-    	for (int i=0; i<rScale.length; i++){
-    		double currentDimi = box.getBoundary().getBoxSize().getX(i);
-    		rScale[i] = initVolume.getX(i)/currentDimi; //rescale the fluctation to the initial volume
-    		
-    	}
-    	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
-    	inflate.actionPerformed();
+
     	
         int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
@@ -141,12 +125,12 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
 
         }
        	for (int i=0; i<rScale.length; i++){
-    		rScale[i] = (initVolume.getX(i)-u[coordinateDim-(3-i)])/initVolume.getX(i); //rescale the fluctation to the initial volume
-    		
+    		rScale[i] = (initVolume.getX(i)+newU[coordinateDim-(3-i)])/initVolume.getX(i); //rescale the fluctation to the initial volume
     	}
-    	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
+       	
+       	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
     	inflate.actionPerformed();
-        
+    	
     }
     
     public IVectorMutable getLatticePosition(IMolecule molecule) {
