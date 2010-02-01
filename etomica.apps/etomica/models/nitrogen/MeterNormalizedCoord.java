@@ -32,7 +32,10 @@ import etomica.util.HistogramExpanding;
  *  	3 translation and 2 rotation motion respectively.
  */
 public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serializable {
-
+	 public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species) {
+		 this(newBox, coordDef, species,false);
+	 }
+	
     public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species, boolean isVolFluctuation) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
@@ -139,6 +142,14 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
         return tag;
     }
     
+	public boolean isVolFluctuation() {
+		return isVolFluctuation;
+	}
+
+	public void setVolFluctuation(boolean isVolFluctuation) {
+		this.isVolFluctuation = isVolFluctuation;
+	}
+    
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private String name;
@@ -150,6 +161,7 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
     private DataInfoDoubleArray[] uDistributionsInfo;
     private int dof;
     private boolean isVolFluctuation;
+
 
     
 }
