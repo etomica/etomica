@@ -19,7 +19,6 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.normalmode.CoordinateDefinitionMoleculeVolumeFluctuation;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -33,7 +32,7 @@ import etomica.space3d.Tensor3D;
  * 
  * @author Tai Boon Tan
  */
-public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVolumeFluctuation
+public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         implements Serializable {
 
     public CoordinateDefinitionNitrogen(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
@@ -359,7 +358,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
 		    	/*
 		    	 * c. rotating counter-clockwise. that's why the negative-sign is there
 		    	 */
-		    	rotation.setRotationAxis(rotationAxis, -angle);
+		    	rotation.setRotationAxis(rotationAxis, angle);
 		    	
 		      	if(rotation.isNaN()){
 		    		System.out.println("Step 1 Rotation tensor is BAD!");
@@ -411,7 +410,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
 			    	rotationAxis.E(axis);
 			    	rotationAxis.XE(siteOrientation[0]);
 			    	rotationAxis.normalize();
-			    
+			    	
 			    	rotation.setRotationAxis(rotationAxis, -angle);
 			    	
 			    	if(rotation.isNaN()){
