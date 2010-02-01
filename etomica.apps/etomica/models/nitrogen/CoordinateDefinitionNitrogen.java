@@ -19,11 +19,13 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
+import etomica.normalmode.CoordinateDefinitionMoleculeVolumeFluctuation;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
+import etomica.units.Degree;
 
 /**
  * CoordinateDefinition implementation for nitrogen molecule. The class takes the first
@@ -32,7 +34,7 @@ import etomica.space3d.Tensor3D;
  * 
  * @author Tai Boon Tan
  */
-public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
+public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVolumeFluctuation
         implements Serializable {
 
     public CoordinateDefinitionNitrogen(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
@@ -315,6 +317,25 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
     public void setToU(IMoleculeList molecules, double[] newU) {
     	
+    	/*
+    	 * use BoxInflate class to
+    	 * move the degrees of freedom for volume fluctuation
+    	 * in the last 3 components in u[] array
+    	 * 
+    	 *  x-direction fluctuation : u[coordinateDim-3]
+    	 *  y-direction fluctuation : u[coordinateDim-2]
+    	 *  z-direction fluctuation : u[coordinateDim-1]
+    	 *  
+    	 */
+    	for (int i=0; i<rScale.length; i++){
+    		double currentDimi = box.getBoundary().getBoxSize().getX(i);
+    		rScale[i] = initVolume.getX(i)/currentDimi; //rescale the fluctuation to the initial volume
+    		
+    	}
+    	
+    	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
+    	inflate.actionPerformed();
+    	
         int j=3;
         
         for (int i=0; i < molecules.getMoleculeCount() ; i++){
@@ -369,7 +390,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	}
 		        ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
 	            atomGroupAction.actionPerformed(molecule);
-	            
+	        
 	    	}
 	    	
                     
@@ -404,7 +425,6 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	 * b.
 		    	 */
 		    	angle = Math.acos(axis.dot(siteOrientation[0]));
-		    	
 		    	if(Math.abs(angle) > 1e-7){
 			    	rotationAxis.E(0);
 			    	rotationAxis.E(axis);
