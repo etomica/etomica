@@ -2,12 +2,13 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.action.BoxInflate;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
@@ -36,6 +37,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();
+        inflate = new BoxInflate(space);
+        inflate.setBox(box);
        
         u = new double[coordinateDim];
         setPositionDefinition(new AtomPositionGeometricCenter(space));
@@ -52,22 +55,14 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         // molecules
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom
-    	for (int i=0; i<rScale.length; i++){
-    		rScale[i] = box.getBoundary().getBoxSize().getX(i)/initVolume.getX(i);
-    	}
-        
+    
     	int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
             IVector pos = positionDefinition.position(molecule);
             IVectorMutable site = getLatticePosition(molecule);
             
-            work1.E(new double[]{(1/rScale[0])*pos.getX(0),
-            					 (1/rScale[1])*pos.getX(1),
-            					 (1/rScale[2])*pos.getX(2)});
-            
-            work1.ME(site);
-            //work1.Ev1Mv2(pos, site);
+            work1.Ev1Mv2(pos, site);
                
             for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.getX(k);
@@ -94,7 +89,6 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             IMolecule molecule = molecules.getMolecule(i);
             IVectorMutable site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
-            	newU[j+k] /= rScale[k];
                 work1.setX(k, site.getX(k) + newU[j+k]);
             }
             
@@ -131,6 +125,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     protected IAtomPositionDefinition positionDefinition;
     protected double[] rScale;
     protected IVector initVolume;
+    protected final BoxInflate inflate;
 
     protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
         
