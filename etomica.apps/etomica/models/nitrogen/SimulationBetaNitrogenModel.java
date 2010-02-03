@@ -1,19 +1,25 @@
 package etomica.models.nitrogen;
 
+import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.config.ConfigurationFile;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.DataPump;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -27,13 +33,12 @@ import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
 import etomica.units.Pixel;
-import etomica.units.Radian;
 
 
 
 /**
  * Simulation class for nitrogen molecules
- * gamma-N2 crystal Structure
+ * beta-N2 crystal Structure
  * 
  * @author Tai Boon Tan
  *
@@ -41,17 +46,16 @@ import etomica.units.Radian;
 public class SimulationBetaNitrogenModel extends Simulation{
 
 	
-	public SimulationBetaNitrogenModel(ISpace space, int numMolecule, double temperature, double pressure) {
+	public SimulationBetaNitrogenModel(ISpace space, int[] nC, double temperature, double pressure) {
 		super(space);
 		this.space = space;
 		double a = 3.854;
 		double c = 6.284; 
-		int nCell = (int)Math.round(Math.pow((numMolecule/2), 1.0/3.0));
+		int numMolecule = nC[0]*nC[1]*nC[2]*2;
 	
 		potentialMaster = new PotentialMaster();
-				
 		Basis basisHCP = new BasisHcp();
-		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nCell, nCell, nCell});
+		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC[0], nC[1], nC[2]});
 		
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
 		SpeciesN2 species = new SpeciesN2(space);
@@ -65,20 +69,23 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		int [] nCells = new int[]{1,1,1};
 		
 		IVector[] boxDim = new IVector[3];
-		boxDim[0] = space.makeVector(new double[]{nCell*a, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nCell*a*Math.cos(Degree.UNIT.toSim(60)), nCell*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nCell*c});
+		boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0, 0});
+		boxDim[1] = space.makeVector(new double[]{-nC[1]*a*Math.cos(Degree.UNIT.toSim(60)), nC[1]*a*Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*c});
 		
 		Boundary boundary = new BoundaryDeformablePeriodic(space,boxDim);
-		primitive = new PrimitiveHexagonal(space, nCell*a, nCell*c);
+		primitive = new PrimitiveHexagonal(space, (nC[0])*a, nC[2]*c);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsGamma();
 		coordinateDef.setOrientationVectorGamma(space);
 		coordinateDef.initializeCoordinates(nCells);
 		
+		ConfigurationFile configFile = new ConfigurationFile("configFile+numMolecule");
+		configFile.initializeCoordinates(box);
+		
 		box.setBoundary(boundary);
-		double rC = box.getBoundary().getBoxSize().getX(0)*0.5;
+		double rC = 9.0;//box.getBoundary().getBoxSize().getX(0)*0.5;
 		System.out.println("Truncation Radius: " + rC);
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
@@ -100,7 +107,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		integrator = new IntegratorMC(this, potentialMaster);
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
-		integrator.getMoveManager().addMCMove(mcMoveVolume);
+		//integrator.getMoveManager().addMCMove(mcMoveVolume);
 		integrator.setBox(box);
 		
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
@@ -111,10 +118,12 @@ public class SimulationBetaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int numMolecule =54;
-		double temperature = 90.0; // in Unit Kelvin
+		int nC0 =7; 
+		int nC1 =6; 
+		int nC2 =6;
+		double temperature = 50.0; // in Unit Kelvin
 		double pressure = 0.0; //in Unit GPa
-		long simSteps = 10000000;
+		long simSteps = 10000;
 		
 		if(args.length > 1){
 			simSteps = Long.parseLong(args[1]);
@@ -126,21 +135,32 @@ public class SimulationBetaNitrogenModel extends Simulation{
 			pressure = Double.parseDouble(args[3]);
 		}
 		if(args.length > 4){
-			numMolecule = Integer.parseInt(args[4]);
+			nC0 = Integer.parseInt(args[4]);
 		}
-		String filename = "gammaN2_nA"+numMolecule+"_T"+Math.round(temperature);
+		if(args.length > 5){
+			nC1 = Integer.parseInt(args[5]);
+		}
+		if(args.length > 6){
+			nC2 = Integer.parseInt(args[6]);
+		}
+		
+		int[] nC = new int []{nC0,nC1,nC2};
+		int numMolecule =nC[0]*nC[1]*nC[2]*2;
+		
+		String filename = "betaN2_nA"+numMolecule+"_T"+Math.round(temperature);
 		
 		if(args.length > 0){
 			filename = args[0];
 		} 
-		System.out.println("Running gamma-N2 crystal structure simulation with " + simSteps + " steps" );
+		System.out.println("Running beta-N2 crystal structure simulation with " + simSteps + " steps" );
 		System.out.println("num Molecules: " + numMolecule+ " ; temperature: " + temperature
-				+"K ; pressure: "+ pressure+"GPa\n");
+				+"K ; pressure: "+ pressure+"GPa");
+		System.out.println("Output file: " + filename + "\n");
 
 		
-		SimulationBetaNitrogenModel sim = new SimulationBetaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, pressure);
+		SimulationBetaNitrogenModel sim = new SimulationBetaNitrogenModel(Space3D.getInstance(3), nC, temperature, pressure);
 
-	    /*
+	    
 	    // set up normal mode meter
 //	    MeterNormalMode meterNormalMode = new MeterNormalMode();
 //	    meterNormalMode.setCoordinateDefinition(sim.coordinateDef);
@@ -154,8 +174,6 @@ public class SimulationBetaNitrogenModel extends Simulation{
 	    	    
 		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
-		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
-		System.out.println("Lattice Energy (per molecule): "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
 		//System.exit(1);
 		
 		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
@@ -204,8 +222,17 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		long endTime = System.currentTimeMillis();
 		System.out.println("End Time: " + endTime);
 		System.out.println("Time taken: " + (endTime - startTime));
-		*/
-		if(true){
+		
+		WriteConfiguration writeConfig = new WriteConfiguration(sim.space);
+		writeConfig.setBox(sim.box);
+		writeConfig.setDoApplyPBC(false);
+		writeConfig.setFileName("configFile"+numMolecule+".pos");
+		writeConfig.actionPerformed();
+		
+		writeConfig.setFileName("configBeta"+numMolecule+"T"+Math.round(temperature)+".pos");
+		writeConfig.actionPerformed();
+		
+		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(20));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");

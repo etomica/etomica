@@ -129,7 +129,7 @@ public class SimulationNitrogenModel extends Simulation{
 		int numMolecule =32;
 		double temperature = 25.0; // in Unit Kelvin
 		double pressure = 0.0; // in Unit GPa
-		long simSteps = 1000000;
+		long simSteps = 100000;
 		
 		if(args.length > 1){
 			simSteps = Long.parseLong(args[1]);
@@ -151,7 +151,7 @@ public class SimulationNitrogenModel extends Simulation{
 			filename = "alphaN2_nA"+numMolecule+"_T"+Math.round(temperature);
 		}
 		
-		//filename = "testFull"+numMolecule;
+		filename = "testFull"+numMolecule;
 		if(args.length > 0){
 			filename = args[0];
 		} 
@@ -188,18 +188,18 @@ public class SimulationNitrogenModel extends Simulation{
 		sim.integrator.getEventManager().addListener(energyListener);
 		
 	    // set up normal mode meter
-	    MeterNormalMode meterNormalMode = new MeterNormalMode();
-	    meterNormalMode.setCoordinateDefinition(sim.coordinateDef);
-	    WaveVectorFactory waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
-	    meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-	    meterNormalMode.setBox(sim.box);
-	    
-	    IntegratorListenerAction meterNormalModeListerner = new IntegratorListenerAction(meterNormalMode);
-	    meterNormalModeListerner.setInterval(numMolecule);
-	    sim.integrator.getEventManager().addListener(meterNormalModeListerner);
-		
+//	    MeterNormalMode meterNormalMode = new MeterNormalMode();
+//	    meterNormalMode.setCoordinateDefinition(sim.coordinateDef);
+//	    WaveVectorFactory waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
+//	    meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+//	    meterNormalMode.setBox(sim.box);
+//	    
+//	    IntegratorListenerAction meterNormalModeListerner = new IntegratorListenerAction(meterNormalMode);
+//	    meterNormalModeListerner.setInterval(numMolecule);
+//	    sim.integrator.getEventManager().addListener(meterNormalModeListerner);
+//		
 		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species);
-		//meterCoord.setVolFluctuation(true);
+		//MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species, true);
 		
 		IntegratorListenerAction meterCoordListener = new IntegratorListenerAction(meterCoord);
 		meterCoordListener.setInterval(1);
@@ -213,18 +213,18 @@ public class SimulationNitrogenModel extends Simulation{
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
 		sim.getController().reset();
-		meterNormalMode.reset();
-		
-		WriteS sWriter = new WriteS(sim.space);
-		sWriter.setFilename(filename);
-		sWriter.setOverwrite(true);
-		sWriter.setMeter(meterNormalMode);
-		sWriter.setWaveVectorFactory(waveVectorFactory);
-		sWriter.setTemperature(Kelvin.UNIT.toSim(temperature));
-		
-		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
-		sWriterListener.setInterval((int)simSteps/10);
-		sim.integrator.getEventManager().addListener(sWriterListener);
+//		meterNormalMode.reset();
+//		
+//		WriteS sWriter = new WriteS(sim.space);
+//		sWriter.setFilename(filename);
+//		sWriter.setOverwrite(true);
+//		sWriter.setMeter(meterNormalMode);
+//		sWriter.setWaveVectorFactory(waveVectorFactory);
+//		sWriter.setTemperature(Kelvin.UNIT.toSim(temperature));
+//		
+//		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
+//		sWriterListener.setInterval((int)simSteps/10);
+//		sim.integrator.getEventManager().addListener(sWriterListener);
 		
 		sim.activityIntegrate.setMaxSteps(simSteps);
 		sim.getController().actionPerformed();
@@ -236,11 +236,11 @@ public class SimulationNitrogenModel extends Simulation{
 		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 	
-		double A = Kelvin.UNIT.fromSim(sWriter.getLastA());
-		System.out.println("Aharm/N in K: " + A/numMolecule);
+//		double A = Kelvin.UNIT.fromSim(sWriter.getLastA());
+//		System.out.println("Aharm/N in K: " + A/numMolecule);
 		double uLatticeInfinite = -1023.896102;
 		System.out.println("Ulattice energy(infinite) in K: "+ uLatticeInfinite);
-		System.out.println("Helmholtz Free energy per molecule in K: " + (A/numMolecule+uLatticeInfinite));
+//		System.out.println("Helmholtz Free energy per molecule in K: " + (A/numMolecule+uLatticeInfinite));
 		
 		System.out.println("Average energy in K (per molecule): "   + (Kelvin.UNIT.fromSim(averageEnergy))/numMolecule  
 				+ " ;error: " + Kelvin.UNIT.fromSim(errorEnergy)/numMolecule);
