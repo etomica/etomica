@@ -25,7 +25,6 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
-import etomica.units.Degree;
 
 /**
  * CoordinateDefinition implementation for nitrogen molecule. The class takes the first
@@ -34,7 +33,7 @@ import etomica.units.Degree;
  * 
  * @author Tai Boon Tan
  */
-public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVolumeFluctuation
+public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         implements Serializable {
 
     public CoordinateDefinitionNitrogen(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {

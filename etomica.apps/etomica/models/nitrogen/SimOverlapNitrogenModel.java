@@ -12,6 +12,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -33,6 +34,7 @@ import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterBoltzmannHarmonic;
 import etomica.normalmode.MeterBoltzmannTarget;
 import etomica.normalmode.MeterHarmonicEnergy;
+import etomica.normalmode.MeterWorkHarmonicPhaseSpace;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -98,7 +100,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 		coordDefTarget.initializeCoordinates(nCells);
         
 		boxTarget.setBoundary(boundaryTarget);
-		double rC =9.0;//box.getBoundary().getBoxSize().getX(0)*0.5;
+		double rC =9.0;//boxTarget.getBoundary().getBoxSize().getX(0)*0.485;
 		System.out.println("Truncation Radius: " + rC);
 		P2Nitrogen potential = new P2Nitrogen(space, rC);
 		potential.setBox(boxTarget);
@@ -109,7 +111,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 		coordDefTarget.setInitVolume(initBox);
 		potentialMasterTarget.addPotential(potential, new ISpecies[]{species,species});
 		
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), Kelvin.UNIT.toSim(temperature));
+        integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), Kelvin.UNIT.toSim(temperature));
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMasterTarget,getRandom(),space);
 		move.setBox(boxTarget);
 		move.setPotential(potential);
@@ -122,9 +124,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 		mcMoveVolume.setBox(boxTarget);
 		mcMoveVolume.setXYZChange();
 		mcMoveVolume.setPressure(Pascal.UNIT.toSim(0.0e9));
-		
-		uLatticeCorrec = mcMoveVolume.getLatticeCorrec();
-		
+				
 		integratorTarget = new IntegratorMC(this, potentialMasterTarget);
 		integratorTarget.getMoveManager().addMCMove(move);
 		integratorTarget.getMoveManager().addMCMove(rotate);
@@ -135,8 +135,9 @@ public class SimOverlapNitrogenModel extends Simulation {
      
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
         meterPE.setBox(boxTarget);
-        latticeEnergy =  Kelvin.UNIT.fromSim(meterPE.getDataAsScalar())+ uLatticeCorrec;
-        System.out.println("lattice energy per molecule in K: " +latticeEnergy/numMolecules);
+        latticeEnergy =  meterPE.getDataAsScalar();
+        
+        System.out.println("lattice energy per molecule in K: " +Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
       
         // HARMONIC
         boundaryHarmonic =  new BoundaryDeformablePeriodic(space,nCell*unitCellLength);
@@ -145,7 +146,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         boxHarmonic.setNMolecules(species, numMolecules);
         boxHarmonic.setBoundary(boundaryHarmonic);
         
-        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
+        integratorHarmonic = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
 
         moveHarmonic = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(moveHarmonic);
@@ -168,6 +169,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         moveHarmonic.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         moveHarmonic.setCoordinateDefinition(coordDefHarmonic);
         moveHarmonic.setTemperature(Kelvin.UNIT.toSim(temperature));
+        //moveHarmonic.setModeNum(new int[] {4});
         
         moveHarmonic.setBox(boxHarmonic);
         
@@ -364,16 +366,16 @@ public class SimOverlapNitrogenModel extends Simulation {
     			filename = "alphaN2_nA"+numMolecules+"_T0"+(int)(temperature*10);
     			
     		} else {
-    			filename = "alphaN2_nA"+numMolecules+"_ConstCT"+Math.round(temperature);
+    			filename = "alphaN2_nA"+numMolecules+"_T"+Math.round(temperature);
     		}
         }
         //String refFileName = args.length > 0 ? filename+"_ref" : null;
         String refFileName = filename+"_ref";
         
-    	System.out.println("Running alpha-N2 crystal structure overlap-sampling simulation with " + numSteps + " steps" );
-		System.out.println("num Molecules: " + numMolecules+ " ; temperature: " + temperature+"K\n");
-		System.out.println((numSteps/1000)+" total steps of 1000");
-        System.out.println("output data to "+filename);
+//    	System.out.println("Running alpha-N2 crystal structure overlap-sampling simulation with " + numSteps + " steps" );
+//		System.out.println("num Molecules: " + numMolecules+ " ; temperature: " + temperature+"K\n");
+//		System.out.println((numSteps/1000)+" total steps of 1000");
+//        System.out.println("output data to "+filename);
 
         //instantiate simulation
         SimOverlapNitrogenModel sim = new SimOverlapNitrogenModel(Space.getInstance(D), numMolecules, temperature, filename);
@@ -406,8 +408,8 @@ public class SimOverlapNitrogenModel extends Simulation {
         for (int i=0; i<D; i++) {
             totalCells *= sim.nCell;
         }
-        double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, Kelvin.UNIT.toSim(temperature), numMolecules);
-        System.out.println("Harmonic-reference free energy in K, A: "+Kelvin.UNIT.fromSim(AHarmonic) + " " + Kelvin.UNIT.fromSim(AHarmonic)/numMolecules);
+        double  AHarmonic = Kelvin.UNIT.fromSim(CalcHarmonicA.doit(sim.normalModes, D, Kelvin.UNIT.toSim(temperature), numMolecules));
+        System.out.println("Harmonic-reference free energy in K, A: "+AHarmonic + " " + AHarmonic/numMolecules);
         System.out.println(" ");
         
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
@@ -415,13 +417,18 @@ public class SimOverlapNitrogenModel extends Simulation {
               
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
-        
+        double uLatticeInfinite = -1023.896102;
+		System.out.println("Ulattice energy(infinite) in K: "+ uLatticeInfinite);
+		
         System.out.println("\nratio average: "+ratio+" ,error: "+error);
-        System.out.println("free energy difference in K: "+(-temperature*Kelvin.UNIT.fromSim(Math.log(ratio)))
+        System.out.println("free energy difference in K, deltaA: "+(-temperature*Kelvin.UNIT.fromSim(Math.log(ratio)))
         												  +" ,error: "+temperature*Kelvin.UNIT.fromSim((error/ratio)));
-        System.out.println("target free energy in K: "+(Kelvin.UNIT.fromSim(AHarmonic)-temperature*Kelvin.UNIT.fromSim(Math.log(ratio))));
-        System.out.println("target free energy per particle in K: "+ (Kelvin.UNIT.fromSim(AHarmonic)-temperature*Kelvin.UNIT.fromSim(Math.log(ratio)))/numMolecules 
+        System.out.println("target free energy in K, A: "+(AHarmonic-temperature*Kelvin.UNIT.fromSim(Math.log(ratio))));
+        System.out.println("target free energy per particle in K, A/N: "+ (AHarmonic-temperature*Kelvin.UNIT.fromSim(Math.log(ratio)))/numMolecules 
         		+" ;error: "+temperature*Kelvin.UNIT.fromSim((error/ratio))/numMolecules);
+        System.out.println("target Helmholtz free energy per particle in K, A/N: "+ ((AHarmonic-temperature*Kelvin.UNIT.fromSim(Math.log(ratio)))/numMolecules+uLatticeInfinite) 
+        		+" ;error: "+temperature*Kelvin.UNIT.fromSim((error/ratio))/numMolecules);
+        
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
         double betaFAW = -Math.log(((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]);
         System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
@@ -443,9 +450,21 @@ public class SimOverlapNitrogenModel extends Simulation {
 		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.boxHarmonic).setPixelUnit(new Pixel(50));
-		    simGraphic.makeAndDisplayFrame("Alpha-Phase Nitrogen Crystal Structure");
+		    simGraphic.makeAndDisplayFrame("Overlap Sampling Alpha-Phase Nitrogen Crystal Structure");
 			sim.activityIntegrate.setMaxSteps(numSteps);
-			//sim.getController().actionPerformed();
+			
+			MeterWorkHarmonicPhaseSpace meterHarmonicTarget = new MeterWorkHarmonicPhaseSpace(sim.moveHarmonic, sim.potentialMasterTarget);
+			meterHarmonicTarget.setLatticeEnergy(sim.latticeEnergy);
+			meterHarmonicTarget.setTemperature(Kelvin.UNIT.toSim(temperature));
+			
+			AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
+			DataPump energyPump = new DataPump(meterHarmonicTarget, energyAverage);
+			
+			IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
+			energyListener.setInterval(1);
+			sim.integratorHarmonic.getEventManager().addListener(energyListener);
+			
+			sim.getController().actionPerformed();
 		}
         
     }
@@ -467,9 +486,10 @@ public class SimOverlapNitrogenModel extends Simulation {
     protected MCMoveHarmonic moveHarmonic;
     protected PotentialMaster potentialMasterTarget;
     protected MeterHarmonicEnergy meterHarmonicEnergy;
-    protected double latticeEnergy, uLatticeCorrec;
+    protected double latticeEnergy;
     protected SpeciesN2 species;
     protected int nCell;
+    protected IntegratorMC integratorHarmonic, integratorTarget;
     
     /**
      * Inner class for parameters understood by the HSMD3D constructor
@@ -477,7 +497,7 @@ public class SimOverlapNitrogenModel extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules =32;
         public long numSteps = 1000000;
-        public String filename = "alphaN2_nA32_ConstCT25";
-        public double temperature =25;
+        public String filename = "uNVTAlpha32_T25";
+        public double temperature =25.0;
     }
 }

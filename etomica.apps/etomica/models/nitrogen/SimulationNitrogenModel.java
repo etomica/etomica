@@ -11,6 +11,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -67,7 +68,6 @@ public class SimulationNitrogenModel extends Simulation{
 		species.setConformation(conformation);
 		addSpecies(species);
 		
-		//double L = Math.pow(4.0/1.0, 1.0/3.0);  // 4/1 is numAtom / density
 		box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		
@@ -84,7 +84,7 @@ public class SimulationNitrogenModel extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 	
 		box.setBoundary(boundary);
-		double rC =9.0;//box.getBoundary().getBoxSize().getX(0)*0.5;
+		double rC =9.0;//box.getBoundary().getBoxSize().getX(0)*0.485;
 		System.out.println("Truncation Radius: " + rC);
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
@@ -107,15 +107,15 @@ public class SimulationNitrogenModel extends Simulation{
 		mcMoveVolume.setSpecies(species);
 		mcMoveVolume.setBox(box);
 		mcMoveVolume.setXYZChange();
-		uLatticeCorrec = mcMoveVolume.getLatticeCorrec();
-		
 		pressure *= 1e9;
 		mcMoveVolume.setPressure(Pascal.UNIT.toSim(pressure));
+		
+		//uLatticeCorrec = mcMoveVolume.getLatticeCorrec();
 		
 		integrator = new IntegratorMC(this, potentialMaster);
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
-		integrator.getMoveManager().addMCMove(mcMoveVolume);
+		//integrator.getMoveManager().addMCMove(mcMoveVolume);
 		integrator.setBox(box);
 		
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
@@ -125,8 +125,9 @@ public class SimulationNitrogenModel extends Simulation{
 	}
 	
 	public static void main (String[] args){
+
 		int numMolecule =32;
-		double temperature = 25; // in Unit Kelvin
+		double temperature = 25.0; // in Unit Kelvin
 		double pressure = 0.0; // in Unit GPa
 		long simSteps = 1000000;
 		
@@ -150,12 +151,14 @@ public class SimulationNitrogenModel extends Simulation{
 			filename = "alphaN2_nA"+numMolecule+"_T"+Math.round(temperature);
 		}
 		
+		//filename = "testFull"+numMolecule;
 		if(args.length > 0){
 			filename = args[0];
 		} 
 		System.out.println("Running alpha-N2 crystal structure simulation with " + simSteps + " steps" );
 		System.out.println("num Molecules: " + numMolecule+ " ; temperature: " + temperature
-				+"K ; pressure: "+ pressure+"GPa\n");
+				+"K ; pressure: "+ pressure+"GPa");
+		System.out.println("Output file: " + filename + "\n");
 
 		SimulationNitrogenModel sim = new SimulationNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, pressure);
 	 
@@ -169,15 +172,13 @@ public class SimulationNitrogenModel extends Simulation{
 //		meterPressureListener.setInterval(100);
 //		sim.integrator.getEventManager().addListener(meterPressureListener);
 //		
-//		System.out.println("Static Pressure: " + Pascal.UNIT.fromSim(meterPressure.getDataAsScalar())*1e-9);
-//		
+//		System.out.println("Static Pressure in GPa: " + Pascal.UNIT.fromSim(meterPressure.getDataAsScalar())*1e-9);
 		
-   
 		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
-		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
-		System.out.println("Lattice Energy correction in K (per molecule): "+ sim.uLatticeCorrec/numMolecule);
-		System.out.println("Lattice Energy in K (per molecule): "+ (Kelvin.UNIT.fromSim(latticeEnergy)+sim.uLatticeCorrec)/numMolecule);
+		double latticeEnergy = Kelvin.UNIT.fromSim(meterPotentialEnergy.getDataAsScalar());
+		System.out.println("1K = "+ Kelvin.UNIT.toSim(1)+ " sim unit");
+		System.out.println("Lattice Energy in K (per molecule): "+ latticeEnergy/numMolecule);
 		
 		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
 		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
@@ -197,7 +198,8 @@ public class SimulationNitrogenModel extends Simulation{
 	    meterNormalModeListerner.setInterval(numMolecule);
 	    sim.integrator.getEventManager().addListener(meterNormalModeListerner);
 		
-		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species, true);
+		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species);
+		//meterCoord.setVolFluctuation(true);
 		
 		IntegratorListenerAction meterCoordListener = new IntegratorListenerAction(meterCoord);
 		meterCoordListener.setInterval(1);
@@ -218,7 +220,7 @@ public class SimulationNitrogenModel extends Simulation{
 		sWriter.setOverwrite(true);
 		sWriter.setMeter(meterNormalMode);
 		sWriter.setWaveVectorFactory(waveVectorFactory);
-		sWriter.setTemperature(temperature);
+		sWriter.setTemperature(Kelvin.UNIT.toSim(temperature));
 		
 		IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
 		sWriterListener.setInterval((int)simSteps/10);
@@ -234,19 +236,22 @@ public class SimulationNitrogenModel extends Simulation{
 		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 	
-		double A = sWriter.getLastA();
-		System.out.println("Aharm/N in K: " + Kelvin.UNIT.fromSim(A)/numMolecule);
-		System.out.println("Helmholtz Free energy per molecule in K: " + (Kelvin.UNIT.fromSim(A)+(Kelvin.UNIT.fromSim(latticeEnergy)+sim.uLatticeCorrec))/numMolecule);
-		System.out.println("Average energy in K (per molecule): "   + (Kelvin.UNIT.fromSim(averageEnergy)+sim.uLatticeCorrec)/numMolecule  
-				+ " ;error: " + Kelvin.UNIT.fromSim(errorEnergy)/numMolecule);
+		double A = Kelvin.UNIT.fromSim(sWriter.getLastA());
+		System.out.println("Aharm/N in K: " + A/numMolecule);
+		double uLatticeInfinite = -1023.896102;
+		System.out.println("Ulattice energy(infinite) in K: "+ uLatticeInfinite);
+		System.out.println("Helmholtz Free energy per molecule in K: " + (A/numMolecule+uLatticeInfinite));
 		
+		System.out.println("Average energy in K (per molecule): "   + (Kelvin.UNIT.fromSim(averageEnergy))/numMolecule  
+				+ " ;error: " + Kelvin.UNIT.fromSim(errorEnergy)/numMolecule);
+//		
 //		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 //	
-//		System.out.println("Average pressure: "   + Pascal.UNIT.fromSim(averagePressure)*1e-9  
+//		System.out.println("Average pressure in GPa: "   + Pascal.UNIT.fromSim(averagePressure)*1e-9  
 //				+ " ;error: " + Pascal.UNIT.fromSim(errorPressure)*1e-9);
 	 		
-		//sim.writeUdistribution(filename, meterCoord);
+		sim.writeUdistribution(filename, meterCoord);
 	 
 		System.out.println("Box Dimension(after): " + sim.box.getBoundary().getBoxSize().toString());
 		long endTime = System.currentTimeMillis();
@@ -258,9 +263,8 @@ public class SimulationNitrogenModel extends Simulation{
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 		    simGraphic.makeAndDisplayFrame("Alpha-Phase Nitrogen Crystal Structure");
 			sim.activityIntegrate.setMaxSteps(simSteps);
-			sim.getController().actionPerformed();
+			//sim.getController().actionPerformed();
 		}
-		System.out.println("Box Dimension(after): " + sim.box.getBoundary().getBoxSize().toString());
 	}
 	
 	void writeUdistribution(String filename, MeterNormalizedCoord meterCoord){
@@ -287,7 +291,7 @@ public class SimulationNitrogenModel extends Simulation{
 		
 	}
 	
-	protected double uLatticeCorrec;
+	//protected double uLatticeCorrec;
 	protected Box box;
 	protected ISpace space;
 	protected PotentialMaster potentialMaster;

@@ -167,6 +167,9 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
 	}
 	
     public double getLatticeCorrec() {
+    	/*
+    	 * return latticeCorrec in unit Kelvin
+    	 */
 		return latticeCorrec;
 	}
 
