@@ -44,11 +44,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     private int cDim, simCDim;
     private IVectorMutable[] waveVectors, simWaveVectors;
     private double[] simRealT, simImagT;
-    private double[][] stdDev;
     protected double temperature;
     private double[] newU;
     private double[] wvCoeff, simWVCoeff;
     private double[][][] eigenVectors, simEigenVectors;
+    private double[][] simOmegaSquared;
 
     protected final IRandom random;
     private IBox box;
@@ -72,6 +72,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
         simRealT = new double[simCDim];
         simImagT = new double[simCDim];
+        simOmegaSquared = simNM.getOmegaSquared();
         
         numAtoms = numSimAtoms - 1;
         box = new Box(sim.getSpace());
@@ -95,7 +96,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
-        setStdDev(nm.getOmegaSquared(), wvCoeff);
         
         PotentialMasterList potentialMaster = new PotentialMasterList(sim, sim.getSpace());
         Potential2 potential = new P2HardSphere(sim.getSpace(), 1.0, true);
@@ -129,9 +129,9 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         }
         
         //Calculate normal mode coordinates of simulation system.
-        double[] realCoord = new double[waveVectors.length];
-        double[] imagCoord = new double[waveVectors.length];
-        for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
+        double[] realCoord = new double[simWaveVectors.length];
+        double[] imagCoord = new double[simWaveVectors.length];
+        for (int wvcount = 0; wvcount < simWaveVectors.length; wvcount++){
             simCDef.calcT(simWaveVectors[wvcount], simRealT, simImagT);
             realCoord[wvcount] = 0.0;
             imagCoord[wvcount] = 0.0;
@@ -144,12 +144,23 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             //cleans up E-15 type numbers
             if(simWVCoeff[wvcount] != 1.0 ) {imagCoord[wvcount] = 0.0;}
             
-            //The original-number-of-rods-is-even case is handled automatically 
-            // by not calculating the last coordinate (whose wvc == 0.5).
-            // This bit of code should handle the 
-            // original-number-of-rods-is-odd case.
-            if(wvCoeff[wvcount] != 1.0) {imagCoord[wvcount] = 0.0;}
+            
         }
+        
+        //nan put explanation here!!!
+        //nan this will not work for more than 1D
+        double harmonic;
+        int index = simWVCoeff.length-1;
+        if(simWVCoeff[index] == 1.0){
+            harmonic = simWVCoeff[index] * simOmegaSquared[index][0] * 
+                    imagCoord[index] * imagCoord[index];
+            imagCoord[index] = 0.0;
+        } else {
+            harmonic = simWVCoeff[index] * simOmegaSquared[index][0] * 
+                    realCoord[index] * realCoord[index];
+            realCoord[index] = 0.0;
+        }
+        
             
         //Calculate the positions for the meter's system
         for (int iCell = 0; iCell < cells.length; iCell++){
@@ -172,22 +183,10 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             cDef.setToU(cells[iCell].molecules, newU);
         }
         
-        double sqrtT = Math.sqrt(temperature);
-        double real = random.nextGaussian() * sqrtT;
-        double imag = random.nextGaussian() * sqrtT;
-        double harmonic = 0.5 * (real* real + imag * imag);
+        System.out.println("Harmonic NRG " + harmonic);
         
         return meterPE.getDataAsScalar() + harmonic;
     }
 
-    private void setStdDev(double[][] o2, double[] coeff) {
-        stdDev = new double[o2.length][o2[0].length];
-        for (int i = 0; i < stdDev.length; i++) {
-            for (int j = 0; j < stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(1.0 / (2.0 * o2[i][j] * coeff[i]));
-            }
-        }
-    }
-    
     
 }
