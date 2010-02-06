@@ -240,11 +240,32 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	axis.Ev1Mv2(leafPos1, leafPos0);
 	       	axis.normalize();
 	    	
-	    	u[j] = axis.dot(siteOrientation[1]);  
-	    	u[j+1] = axis.dot(siteOrientation[2]); 
+	       	double u3 = axis.dot(siteOrientation[1]);  
+	    	double u4 = axis.dot(siteOrientation[2]); 
+	    	double ratio = u3/u4;
 	    	
-	    	double check = axis.dot(siteOrientation[0]);
-	    	if(check < 0.0){
+	    	
+	    	double a = axis.dot(siteOrientation[0]);
+	    	double sintheta = Math.sin(Math.acos(a));
+	    	
+	    	if(u4 == 0.0){
+	    		u[j] = u3;
+	    		u[j+1] = u4;
+	    	} else {
+	    		if(u4 < 0.0){
+	    			u[j+1] = -Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    		} else {
+	    			u[j+1] = Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    		}
+	    		
+	    		if (u3 < 0.0){
+	    			u[j] = -ratio*Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    		} else {
+	    			u[j] = ratio*Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    		}
+	    	}
+	    	
+	    	if(a < 0.0){
 	    		u[j] = -u[j];
 	    		u[j+1] = -u[j+1];
 	    	}
