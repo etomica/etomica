@@ -183,8 +183,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             cDef.setToU(cells[iCell].molecules, newU);
         }
         
-        System.out.println("Harmonic NRG " + harmonic);
-        
         return meterPE.getDataAsScalar() + harmonic;
     }
 
