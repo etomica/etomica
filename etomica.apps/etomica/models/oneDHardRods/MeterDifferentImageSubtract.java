@@ -147,8 +147,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             
         }
         
-        //nan put explanation here!!!
         //nan this will not work for more than 1D
+        //Calculation of harmonic energy
+        //The if statement determines whether the real coordinate or the 
+        // imaginary coordinate is used, and zeroes out the last coordinate
+        // calculated.
         double harmonic;
         int index = simWVCoeff.length-1;
         if(simWVCoeff[index] == 1.0){
