@@ -242,8 +242,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	
 	       	double u3 = axis.dot(siteOrientation[1]);  
 	    	double u4 = axis.dot(siteOrientation[2]); 
-	    	double ratio = u3/u4;
-	    	
+	    	double ratio = Math.abs(u3/u4);
 	    	
 	    	double a = axis.dot(siteOrientation[0]);
 	    	double sintheta = Math.sin(Math.acos(a));
@@ -397,7 +396,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	rotationAxis.normalize();
 		    	
 		    	/*
-		    	 * c. rotating counter-clockwise. that's why the negative-sign is there
+		    	 * c. rotating clockwise.
 		    	 */
 		    	rotation.setRotationAxis(rotationAxis, angle);
 		    	
@@ -412,7 +411,6 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	            atomGroupAction.actionPerformed(molecule);
 	        
 	    	}
-	    	
                     
 	    	/*
 	    	 *    STEP  2
@@ -433,18 +431,18 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		        /*
 		         * a.	
 		         */
-	        	
-		    	double x = Math.sqrt(1 - newU[j]*newU[j] - newU[j+1]*newU[j+1]);
-		    	
+	        	double x = Math.sqrt(1-newU[j]*newU[j]-newU[j+1]*newU[j+1]);
 		    	axis.E(0);
 		    	axis.Ea1Tv1(newU[j], siteOrientation[1]);
 		    	axis.PEa1Tv1(newU[j+1], siteOrientation[2]);
-		    	axis.PEa1Tv1(x, siteOrientation[0]);
+		    	//axis.PEa1Tv1(x, siteOrientation[0]);
+		    	axis.normalize();
 		    	
 		    	/*
 		    	 * b.
 		    	 */
-		    	angle = Math.acos(axis.dot(siteOrientation[0]));
+		    	angle = Math.asin(Math.sqrt(newU[j]*newU[j] + newU[j+1]*newU[j+1]));
+		    	//angle = Math.acos(axis.dot(siteOrientation[0]));
 		    	if(Math.abs(angle) > 1e-7){
 			    	rotationAxis.E(0);
 			    	rotationAxis.E(axis);
