@@ -42,7 +42,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
        
         u = new double[coordinateDim];
         setPositionDefinition(new AtomPositionGeometricCenter(space));
-        rScale = new double[]{1.0, 1.0, 1.0};
+        rScale = 1.0;
     }
     
     public void initializeCoordinates(int[] nCells) {
@@ -123,7 +123,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     protected final IVectorMutable work1;
     protected final double[] u;
     protected IAtomPositionDefinition positionDefinition;
-    protected double[] rScale;
+    protected double rScale;
     protected IVector initVolume;
     protected final BoxInflate inflate;
 

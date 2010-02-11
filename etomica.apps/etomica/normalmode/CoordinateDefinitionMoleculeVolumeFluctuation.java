@@ -24,7 +24,7 @@ import etomica.space.ISpace;
  * mass from its nominal position. Subclasses should add additional u values for
  * intramolecular degrees of freedom.
  * 
- * with 3 extra degree of freedom for volume fluctuation
+ * with an extra degree of freedom for volume fluctuation
  * 
  * @author Andrew Schultz & Tai Boon Tan
  */
@@ -36,7 +36,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     }
     
     public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, IBox box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
-        super(box, ((space.D() + orientationDim)*basis.getScaledCoordinates().length+space.D()), primitive, basis, space);
+        super(box, ((space.D() + orientationDim)*basis.getScaledCoordinates().length+1), primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();
         inflate = new BoxInflate(space);
@@ -44,7 +44,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
         
         u = new double[coordinateDim];
         setPositionDefinition(new AtomPositionGeometricCenter(space));
-        rScale = new double[]{1.0, 1.0, 1.0};
+        rScale = 1.0;
     }
     
     public void initializeCoordinates(int[] nCells) {
@@ -67,12 +67,12 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     	 *  z-direction fluctuation : u[coordinateDim-1]
     	 *  
     	 */
-    	for (int i=0; i<rScale.length; i++){
-    		double currentDimi = box.getBoundary().getBoxSize().getX(i);
-    		rScale[i] = currentDimi/initVolume.getX(i);
-    		u[coordinateDim-(3-i)] = currentDimi - initVolume.getX(i);  
+    	
+    	double currentDimi = box.getBoundary().getBoxSize().getX(0);
+    	rScale = currentDimi/initVolume.getX(0);
+    	u[coordinateDim-1] = currentDimi - initVolume.getX(0);  
     		
-    	}
+    	
         
     	int j = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
@@ -80,9 +80,9 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             IVector pos = positionDefinition.position(molecule);
             IVectorMutable site = getLatticePosition(molecule);
             
-            work1.E(new double[]{(1/rScale[0])*pos.getX(0),
-            					 (1/rScale[1])*pos.getX(1),
-            					 (1/rScale[2])*pos.getX(2)});
+            work1.E(new double[]{(1/rScale)*pos.getX(0),
+            					 (1/rScale)*pos.getX(1),
+            					 (1/rScale)*pos.getX(2)});
             
             work1.ME(site);
             //work1.Ev1Mv2(pos, site);
@@ -90,7 +90,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.getX(k);
             }
-               j += coordinateDim/molecules.getMoleculeCount();
+               j += (coordinateDim-1)/molecules.getMoleculeCount();
 
         }
         
@@ -124,13 +124,12 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             j += coordinateDim/molecules.getMoleculeCount();
 
         }
-       	for (int i=0; i<rScale.length; i++){
-    		rScale[i] = (initVolume.getX(i)+newU[coordinateDim-(3-i)])/initVolume.getX(i); //rescale the fluctation to the initial volume
-    	}
-       	
-       	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
-    	inflate.actionPerformed();
     	
+        rScale = (initVolume.getX(0) + newU[coordinateDim-1])/initVolume.getX(0); //rescale the fluctation to assigned fluctuation
+    	
+       	inflate.setScale(rScale);
+    	inflate.actionPerformed();
+    	    	   	
     }
     
     public IVectorMutable getLatticePosition(IMolecule molecule) {
@@ -156,7 +155,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     protected final IVectorMutable work1;
     protected final double[] u;
     protected IAtomPositionDefinition positionDefinition;
-    protected double[] rScale;
+    protected double rScale;
     protected IVector initVolume;
     protected final BoxInflate inflate;
 
