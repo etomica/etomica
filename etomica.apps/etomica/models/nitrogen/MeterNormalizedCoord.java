@@ -48,7 +48,7 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
          * minus 3 is to ignore the volume fluctuation*****!!
          */
         if(isVolFluctuation){
-        	dof = (coordDef.getCoordinateDim()- 3) /newBox.getNMolecules(species) +3;
+        	dof = (coordDef.getCoordinateDim()- 1) /newBox.getNMolecules(species) +1;
         } else {
         	dof = coordDef.getCoordinateDim() /newBox.getNMolecules(species);
             
@@ -82,15 +82,15 @@ public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serial
             double[] u = coordinateDefinition.calcU(molecules);
             
             if(isVolFluctuation){
-            	for (int i=0; i<(dof-3); i++){ 
+            	for (int i=0; i<(dof-1); i++){ 
  		        	for (int j=0; j<numMolecules; j++){
- 		            	histogramU[i].addValue(u[i+(dof-3)*j]);
+ 		            	histogramU[i].addValue(u[i+(dof-1)*j]);
  		            }
  		        } 
             	
-            	for (int i=0; i<3; i++){
-            		histogramU[(dof-3)+i].addValue(u[(coordinateDefinition.getCoordinateDim()-(3-i))]);
-            	}
+            	//for (int i=0; i<3; i++){
+            		histogramU[(dof-1)].addValue(u[(coordinateDefinition.getCoordinateDim()-1)]);
+            	//}
             	
             } else {
 		        for (int i=0; i<dof; i++){ 

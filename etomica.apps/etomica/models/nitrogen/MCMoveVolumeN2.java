@@ -47,7 +47,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
         setPressure(pressure);
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
-        coeff = new double[4];
+        coeff = new double[3];
         rScale = _space.makeVector();
     }
     
@@ -59,33 +59,44 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
         if(species==null){
         	throw new RuntimeException("<MCMoveVolumeN2.java> Must set Species First");
         }
+                       
         numMolec = p.getNMolecules(species);
         double rho = numMolec/p.getBoundary().volume();
         
         if (numMolec == 32){
         	caseNumMolec = 1;
-        	coeff[0] = -2.6662784873e-1;
-        	coeff[1] = -3.5164057559e2;
-        	coeff[2] = -2.9386151219e5;
-        	coeff[3] = -6.767248762e4;
-        	setLatticeCorrec(Kelvin.UNIT.fromSim(uCorrection(rho)));
+        	coeff[0] =  0.28814;
+        	coeff[1] = -8.04733;
+        	coeff[2] = - 489961;
+        	setLatticeCorrec(uCorrection(rho));
         	
         } else if (numMolec == 108){
         	caseNumMolec = 2;
-        	coeff[0] = -1.3294323226e-1;
-        	coeff[1] = -1.3902715906e3;
-        	coeff[2] = -2.9491796677e4;
-        	coeff[3] = -3.9889114522e5;
-        	setLatticeCorrec(Kelvin.UNIT.fromSim(uCorrection(rho)));
+        	coeff[0] = -1.14599;
+        	coeff[1] =  226.707;
+        	coeff[2] = - 153552;
+        	setLatticeCorrec(uCorrection(rho));
         } else if (numMolec == 256){
         	caseNumMolec = 3;
+        	coeff[0] = -0.210275;
+        	coeff[1] =   34.4034;
+        	coeff[2] = - 74007.7;
+         	setLatticeCorrec(uCorrection(rho));
+            
+        }else if (numMolec == 500){
+        	caseNumMolec = 4;
+        	coeff[0] = -0.0760888;
+        	coeff[1] =    15.1728;
+        	coeff[2] = -  30991.5;
+        	setLatticeCorrec(uCorrection(rho));
+            
         }
         
     }
     
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
-
+        
         double rhoOld = numMolec/vOld;
         uOld = energyMeter.getDataAsScalar() + uCorrection(rhoOld);
         hOld = uOld + pressure*vOld;
@@ -140,8 +151,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
     }
     
     private double uCorrection(double rho){
-    	double rho2 = rho*rho;
-    	double rho3 = rho2*rho;
+    	double rho2 = rho * rho;
     	
     	if (caseNumMolec==0){
     		return  0.0;
@@ -153,12 +163,14 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
     		 * The coeff was fitted with energy in K
     		 * so we have to convert the unit to simulation unit 
     		 */
-    		return  Kelvin.UNIT.toSim(numMolec*(coeff[0]+coeff[1]*rho+coeff[2]*rho2+coeff[3]*rho3));
+    		return  Kelvin.UNIT.toSim(numMolec*(coeff[0] + coeff[1]*rho + coeff[2]*rho2));
     	
     	}
     }
     
-    public ISpecies getSpecies() {
+
+
+	public ISpecies getSpecies() {
 		return species;
 	}
 
@@ -168,7 +180,8 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
 	
     public double getLatticeCorrec() {
     	/*
-    	 * return latticeCorrec in unit Kelvin
+    	 * return latticeCorrec in sim unit
+    	 * per molecule
     	 */
 		return latticeCorrec;
 	}
@@ -188,7 +201,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
     private ISpecies species;
     protected int numMolec;
 	protected double latticeCorrec;
-    
+	
     private static final long serialVersionUID = 2L;
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
