@@ -51,10 +51,10 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private double[] newU;
     private double[] wvCoeff, simWVCoeff;
     private double[][][] eigenVectors, simEigenVectors;
-    double[] gaussCoord;
+    double gaussCoord;
     
     protected final IRandom random;
-    private IBox box;
+    public IBox box;
     private int numAtoms;
     private Boundary bdry;
     private NormalModes nm;
@@ -114,15 +114,21 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
-        gaussCoord = new double[2];
     }
     
     public double getDataAsScalar() {
         
         IAtomList atomlist = box.getLeafList();
         
-        gaussCoord[0] = random.nextGaussian();
-        gaussCoord[1] = random.nextGaussian();
+        gaussCoord = random.nextGaussian();
+        
+
+//        gaussCoord = 0.15468475562819778;
+//        double gaussImagCoord = -0.36614992292964565;
+        
+        
+        
+        
         
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
@@ -155,10 +161,10 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         for (int j = 0; j < cDim; j++) {
             //We are adding 0.5, and this code lets us get it in the right slot.
             if(waveVectors.length == simWaveVectors.length){
-                imagCoord[waveVectors.length - 1] = gaussCoord[1] * 
+                imagCoord[waveVectors.length - 1] = gaussCoord * 
                     Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
             } else {
-                realCoord[waveVectors.length - 1] = gaussCoord[0] * 
+                realCoord[waveVectors.length - 1] = gaussCoord * 
                     Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
             }
         }
@@ -184,8 +190,14 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                     }
                 }
             }
+            
+            double normalization = 1/Math.sqrt(cells.length);
+            for (int i=0; i<cDim; i++) {
+                newU[i] *= normalization;
+            }
             cDef.setToU(cells[iCell].molecules, newU);
         }
+        
         
 //        return Math.exp(-1*meterPE.getDataAsScalar());
         return meterPE.getDataAsScalar();
@@ -202,7 +214,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     }
     
 
-    public double[] getGaussian(){
+    public double getGaussian(){
         return gaussCoord;
     }
     

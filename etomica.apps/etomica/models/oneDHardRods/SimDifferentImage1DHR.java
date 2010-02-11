@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
@@ -532,27 +533,6 @@ public class SimDifferentImage1DHR extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,false),1);
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             setBennettParameter(bennettParam,1);
             if (fileName != null) {
                 try {
@@ -616,7 +596,7 @@ public class SimDifferentImage1DHR extends Simulation {
         // instantiate simulation
         SimDifferentImage1DHR sim = new SimDifferentImage1DHR(Space.getInstance(D), nA, 
                 density, runBlockSize, temperature, targWVs, refWVs);
-        System.out.println(nA + " atoms at density " + density);
+        System.out.println("Ref system is " +nA + " atoms at density " + density);
         System.out.println(runNumSteps + " steps, " + runBlockSize + " blocksize");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);System.out.println("instantiated");
@@ -707,19 +687,20 @@ public class SimDifferentImage1DHR extends Simulation {
         dork = (DataGroup)sim.accRefInTarg.getData();
         System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
         
-        dork = (DataGroup)sim.accMeter0.getData();
-        System.out.println("Meter[0]: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        dork = (DataGroup)sim.accMeter1.getData();
-        System.out.println("Meter[1]: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        
-        
-        System.out.println("..");
+        System.out.println("MeterOverlapInRef total/count " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
 //        System.out.println("harmonic value " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
+        
+        
+        IAtomList list = sim.meterTargInRef.box.getLeafList();
+        System.out.println("0 " + list.getAtom(0).getPosition().getX(0));
+        System.out.println("1 " + list.getAtom(1).getPosition().getX(0));
+        
+        
         System.out.println("Fini.");
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 1;
+        public int numAtoms = 2;  //number of atoms in the reference system.
         public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
