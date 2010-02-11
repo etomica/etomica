@@ -16,16 +16,12 @@ public class TestRotationVector {
 			axis[i] = space.makeVector();
 		}
 		
-		axis[0].E(new double[]{1.0, 1.0, 1.0});
-		axis[2].E(new double[]{1.0, 1.0, -1.0});
-		axis[1].E(axis[0]);
-		axis[1].XE(axis[2]);
+		axis[0].E(new double[]{1.0, 0.0, 0.0});
+		axis[1].E(new double[]{0.0, 1.0, 0.0});
 		axis[0].normalize();
 		axis[1].normalize();
-		System.out.println("dor: " + axis[0].dot(axis[1]));
 		
-		axis[2].E(axis[0]);
-		axis[2].XE(axis[1]);
+		axis[2].E(new double[]{0.0, 0.0, 1.0});
 		axis[2].normalize();
 		u = new double[2];
 		
@@ -39,38 +35,38 @@ public class TestRotationVector {
 		
 		double u3 = vector.dot(axis[1]);
 		double u4 = vector.dot(axis[2]);
-		double ratio = u3/u4;
+		double ratio = Math.abs(u3/u4);
 		
 		double a = vector.dot(axis[0]);
 		double theta = Math.acos(a);
 		double sintheta = Math.sin(theta);
 		
-		   if(u[1] == 0.0){
-               u[0] = u3;
+		   if(u4 == 0.0){
+               u[0] = Math.sqrt(2*(1-Math.cos(theta)));
                u[1] = u4;
 		   } else {
                if(u4 < 0.0){
-                       u[1] = -Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+            	   System.out.println("BAd1");
+                       u[1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                } else {
-                       u[1] = Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+            	   System.out.println("BAd2");
+                       u[1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                }
 
                if (u3 < 0.0){
-                       u[0] = -ratio*Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+            	   System.out.println("BAd10");
+                       u[0] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                } else {
-                       u[0] = ratio*Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+            	   System.out.println("BAd11");
+                       u[0] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                }
        }
 
-       if(a < 0.0){
-               u[0] = -u[0];
-               u[1] = -u[1];
-       }
 
-		if(vector.dot(axis[0]) < 0.0){
-			u[0] = -u[0];
-			u[1] = -u[1];
-		}
+//		if(vector.dot(axis[0]) < 0.0){
+//			u[0] = u[0];
+//			u[1] = u[1];
+//		}
 		
 		return u; 
 	}
@@ -88,8 +84,10 @@ public class TestRotationVector {
 		r.normalize();
 		System.out.println("Back to initial nominal position: "+ r.toString());
 		
-		double theta = Math.asin(Math.sqrt(u[0]*u[0] + u[1]*u[1]));
+		double theta = Math.acos(1 - (u[0]*u[0] + u[1]*u[1])*0.5);
 
+		//System.out.println("setToU theta^2: " + (theta*theta));
+		
 		r.E(0.0);
 		r.PEa1Tv1(u[0], axis[1]);
 		r.PEa1Tv1(u[1], axis[2]);
@@ -108,14 +106,14 @@ public class TestRotationVector {
 		TestRotationVector testVector = new TestRotationVector();
 		
 		IVectorMutable rVector = testVector.space.makeVector();
-		rVector.E(new double[]{0.5, 20.3, 10.4});
+		rVector.E(new double[]{-1.0, -2.0, 1.0});
 		rVector.normalize();
 		System.out.println("Initial position: " + rVector.toString());
-		System.out.println("u:    "+rVector.dot(testVector.axis[1])+" "+rVector.dot(testVector.axis[2]));
-		
+		//System.out.println("cos(alpha)^2: "+Math.pow(rVector.dot(testVector.axis[1]),2.0)+" ; cos(beta)^2: "+Math.pow(rVector.dot(testVector.axis[2]), 2.0));
+		System.out.println("theta^2:    "+Math.acos(rVector.dot(testVector.axis[0]))*Math.acos(rVector.dot(testVector.axis[0])));
 		double[] u = testVector.calcU(rVector);
 		for (int i=0; i<u.length; i++){
-			System.out.println("u["+i+"]: "+u[i]+" "+ Degree.UNIT.fromSim(Math.acos(u[i])));
+			System.out.println("u["+i+"]^2: "+u[i]*u[i]);
 		}
 		System.out.println();
 		
