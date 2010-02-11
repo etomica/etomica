@@ -19,7 +19,6 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.normalmode.CoordinateDefinitionMoleculeVolumeFluctuation;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -234,8 +233,15 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
 	    	
 	    	/*
-	    	 * Determine u[j] and u[j+1] by using Vector Projection
+	    	 * Determine u3 and u4 by using Vector Projection
 	    	 * - taking the dot-product w.r.t. orientation[1]---y' and orientation[2]---z'
+	    	 * 
+	    	 * with both u[j] and u[j+1] within the constraints:
+	    	 *  a. u3^2 + u4^2 = 2*[ 1 - cos(theta) ]
+	    	 *  b. u3/u4 = r.orietation[1]/ r.orientaion[2] = ratio
+	    	 *  
+	    	 *  
+	    	 * 
 	    	 */
 	    	axis.Ev1Mv2(leafPos1, leafPos0);
 	       	axis.normalize();
@@ -245,30 +251,25 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	double ratio = Math.abs(u3/u4);
 	    	
 	    	double a = axis.dot(siteOrientation[0]);
-	    	double sintheta = Math.sin(Math.acos(a));
+	    	double theta = Math.acos(a);
 	    	
 	    	if(u4 == 0.0){
-	    		u[j] = u3;
+	    		u[j] = Math.sqrt(2*(1-Math.cos(theta)));;
 	    		u[j+1] = u4;
 	    	} else {
 	    		if(u4 < 0.0){
-	    			u[j+1] = -Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    			u[j+1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
 	    		} else {
-	    			u[j+1] = Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    			u[j+1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
 	    		}
 	    		
 	    		if (u3 < 0.0){
-	    			u[j] = -ratio*Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    			u[j] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
 	    		} else {
-	    			u[j] = ratio*Math.sqrt(sintheta*sintheta/(ratio*ratio+1));
+	    			u[j] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
 	    		}
 	    	}
-	    	
-	    	if(a < 0.0){
-	    		u[j] = -u[j];
-	    		u[j+1] = -u[j+1];
-	    	}
-	    	
+	
 	    	j += coordinateDim/molecules.getMoleculeCount();
         }
         return u;
@@ -346,13 +347,13 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	 *  z-direction fluctuation : u[coordinateDim-1]
     	 *  
     	 */
-    	for (int i=0; i<rScale.length; i++){
-    		double currentDimi = box.getBoundary().getBoxSize().getX(i);
-    		rScale[i] = initVolume.getX(i)/currentDimi; //rescale the fluctuation to the initial volume
+    	//for (int i=0; i<rScale.length; i++){
+    		double currentDimi = box.getBoundary().getBoxSize().getX(0);
+    		rScale = initVolume.getX(0)/currentDimi; //rescale the fluctuation to the initial volume
     		
-    	}
+    	//}
     	
-    	inflate.setVectorScale(space.makeVector(new double[]{rScale[0],rScale[1],rScale[2]}));
+    	inflate.setScale(rScale);
     	inflate.actionPerformed();
     	
         int j=3;
@@ -409,7 +410,6 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	}
 		        ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
 	            atomGroupAction.actionPerformed(molecule);
-	        
 	    	}
                     
 	    	/*
@@ -425,6 +425,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	 *  b. find the rotation axis by crossing vector 'new orientation vector' 
 	    	 *  	with siteOrientation[0]
 	    	 *  c. rotate the molecule to the given position
+	    	 *  
+	    	 *  the rotation angle is determine through the equation that satisfies the 
+	    	 *  equation below:
+	    	 *       u3^2 + u4^2 = 2[ 1- cos(theta) ]
+	    	 *  at small theta limit, the equation becomes:
+	    	 *       u3^2 + u4^2 = theta^2
+	    	 *  
+	    	 *  
 	    	 */
 
 	        if (Math.abs(Math.acos(newU[j]))>1e-8 || Math.abs(Math.acos(newU[j+1]))>1e-8){
@@ -441,7 +449,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	/*
 		    	 * b.
 		    	 */
-		    	angle = Math.asin(Math.sqrt(newU[j]*newU[j] + newU[j+1]*newU[j+1]));
+		    	angle = Math.acos(1 - (newU[j]*newU[j] + newU[j+1]*newU[j+1])*0.5);
 		    	//angle = Math.acos(axis.dot(siteOrientation[0]));
 		    	if(Math.abs(angle) > 1e-7){
 			    	rotationAxis.E(0);
