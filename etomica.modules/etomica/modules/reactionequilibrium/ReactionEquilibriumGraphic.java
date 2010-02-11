@@ -172,8 +172,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		sizeSlider.setPostAction(resetAction);
 
 		//sliders to adjust widths of wells
-		eMin = 5;
-		eMax = 95;
+		eMin = 10;
+		eMax = 100;
 		int majorSpacing = 15;
 		int minorSpacing = 5;
 		DeviceSlider AAWellSlider = new DeviceSlider(sim.getController(),new WellModifier(sim.AAbonded));
@@ -550,15 +550,10 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 	class WellModifier implements Modifier {
 
-		double currentValue;
-
-		double fullDiameter;
-
 		P2SquareWell potential;
 
 		WellModifier(P2SquareWell pot) {
 			potential = pot;
-			fullDiameter = potential.getCoreDiameter() * potential.getLambda();
 		}
 
 		public String getLabel() {
@@ -569,18 +564,19 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			return etomica.units.Null.DIMENSION;
 		}
 
-		public void setValue(double d) {
+		public synchronized void setValue(double d) {
 			if (initializing)
 				return;
-			currentValue = d;
-			double x = 0.01 * currentValue;
-			fullDiameter = potential.getCoreDiameter() * potential.getLambda();
+			double x = 0.01 * d;
+			double fullDiameter = potential.getCoreDiameter() * potential.getLambda();
+			System.out.println("start "+fullDiameter);
 			potential.setCoreDiameter(x * fullDiameter);
 			potential.setLambda(1.0 / x);
+            System.out.println("end "+potential.getCoreDiameter() * potential.getLambda());
 		}
 
 		public double getValue() {
-			return currentValue;
+			return 100.0/potential.getLambda();
 		}
 	}//end of WellModulator
 

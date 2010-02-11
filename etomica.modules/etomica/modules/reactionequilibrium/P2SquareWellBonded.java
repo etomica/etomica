@@ -169,7 +169,7 @@ public class P2SquareWellBonded extends P2SquareWell {
         }
 		else { 	//not bonded to each other
 			//well collision; decide whether to bond or have hard repulsion
-			if (a1Saturated || a0Saturated) { //at least one is already bound;
+			if (a1Saturated || a0Saturated || lambda <= 1) { //at least one is already bound;
 											  // repel
 				lastCollisionVirial = reduced_m * bij;
 				nudge = eps;
