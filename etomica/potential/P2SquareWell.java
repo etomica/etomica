@@ -1,7 +1,7 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -76,7 +76,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         double rm1 = ((IAtom)atom1).getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
-        if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
+        if(2*r2 < (coreDiameterSquared+wellDiameterSquared) || lambda == 1) {   // Hard-core collision
             if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
@@ -232,7 +232,7 @@ public class P2SquareWell extends Potential2HardSpherical {
      * this is changed
      */
     public void setLambda(double lam) {
-        if (lam <= 1.0) throw new IllegalArgumentException("Square-well lambda must be greater than 1.0");
+        if (lam < 1.0) throw new IllegalArgumentException("Square-well lambda must be greater than 1.0");
         lambda = lam;
         wellDiameter = coreDiameter*lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
