@@ -20,7 +20,7 @@ import etomica.units.Kelvin;
  */
 public class P2Nitrogen extends PotentialMolecular {
 
-	public P2Nitrogen(ISpace space, double rC) {
+	public P2Nitrogen(ISpace space, double rCFactor) {
 		super(2, space);
 		work = space.makeVector();
 		shift = space.makeVector();
@@ -37,7 +37,7 @@ public class P2Nitrogen extends PotentialMolecular {
         chargeP1P2 = chargeP1 * chargeP2;
         chargeP2P2 = chargeP2 * chargeP2;
         
-        this.rC = rC;
+        this.rCFactor = rCFactor;
         
 	}
 
@@ -46,6 +46,7 @@ public class P2Nitrogen extends PotentialMolecular {
     }
 
     public double energy(IMoleculeList pair){
+    	
 		double sum = 0.0;
 		double r2 = 0.0;
 
@@ -81,6 +82,7 @@ public class P2Nitrogen extends PotentialMolecular {
 		final boolean zeroShift = shift.squared() < 0.1; 
 		r2 = work.squared();
 		
+		double rC = boundary.getBoxSize().getX(0)*rCFactor;
 		if (r2 > rC*rC){ 
 			return 0.0;
 		}
@@ -383,5 +385,5 @@ public class P2Nitrogen extends PotentialMolecular {
 	
 	protected final IVectorMutable work, shift;
 	protected final IVectorMutable com1, com2;
-	public double rC =1.0;
+	public double rCFactor =1.0;
 }
