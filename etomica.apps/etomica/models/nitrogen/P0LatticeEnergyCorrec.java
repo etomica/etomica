@@ -40,27 +40,27 @@ public class P0LatticeEnergyCorrec implements PotentialMolecularSoft{
        
        if (numMolec == 32){
        	caseNumMolec = 1;
-       	coeff[0] =  0.28814;
-       	coeff[1] = -8.04733;
-       	coeff[2] = - 489961;
+       	coeff[0] =  0.288064;
+       	coeff[1] = -8.03294;
+       	coeff[2] = - 490092;
        	
        } else if (numMolec == 108){
        	caseNumMolec = 2;
-       	coeff[0] = -1.14599;
-       	coeff[1] =  226.707;
-       	coeff[2] = - 153552;
+       	coeff[0] = -1.14609;
+       	coeff[1] =  226.723;
+       	coeff[2] = - 153683;
        	
        } else if (numMolec == 256){
        	caseNumMolec = 3;
-       	coeff[0] = -0.210275;
-       	coeff[1] =   34.4034;
-       	coeff[2] = - 74007.7;
+       	coeff[0] = -0.210368;
+       	coeff[1] =   34.4197;
+       	coeff[2] = - 74137.8;
            
        }else if (numMolec == 500){
        	caseNumMolec = 4;
-       	coeff[0] = -0.0760888;
-       	coeff[1] =    15.1728;
-       	coeff[2] = -  30991.5;
+       	coeff[0] = -0.0761822;
+       	coeff[1] =    15.1892;
+       	coeff[2] = -  31121.6;
            
        } 
 	}
