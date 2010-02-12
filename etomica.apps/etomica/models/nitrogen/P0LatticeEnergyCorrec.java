@@ -3,10 +3,8 @@ package etomica.models.nitrogen;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.potential.PotentialMolecularSoft;
+import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
-import etomica.space.Tensor;
 import etomica.units.Kelvin;
 
 /**
@@ -14,14 +12,15 @@ import etomica.units.Kelvin;
  *  zero-body interaction
  *  
  *  All the parameters are determined from the fitted equation. 
- *   (uLattice - uLattice_infinite) as function of rho
+ *   (uLattice_infinite - uLattice) as function of rho
  * 
  * @author Tai Boon Tan
  *
  */
-public class P0LatticeEnergyCorrec implements PotentialMolecularSoft{
+public class P0LatticeEnergyCorrec extends PotentialMolecular{
 
 	public P0LatticeEnergyCorrec(ISpace space){
+		super(0, space);
 		coeff = new double[3];
 	}
 	
@@ -33,7 +32,7 @@ public class P0LatticeEnergyCorrec implements PotentialMolecularSoft{
 	public void setBox(IBox p){
 		this.box = p;
 	   if(species==null){
-       	throw new RuntimeException("<MCMoveVolumeN2.java> Must set Species First");
+       	throw new RuntimeException("<P0LatticeEnergyCorrec.java> Must set Species First");
        }
                       
        numMolec = p.getNMolecules(species);
@@ -95,27 +94,12 @@ public class P0LatticeEnergyCorrec implements PotentialMolecularSoft{
 		return 0;
 	}
 
-	public IVector[] gradient(IMoleculeList atoms) {
-		return null;
-	}
-
-	public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
-		return null;
-	}
-
-	public double virial(IMoleculeList atoms) {
-		return 0;
-	}
-
-	public int nBody() {
-		return 0;
-	}
-
 	private ISpecies species;
 	private IBox box;
 	private double[] coeff;
     private int caseNumMolec = 0;
     protected int numMolec;
 	private static final long serialVersionUID = 1L;
+
 
 }
