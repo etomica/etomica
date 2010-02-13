@@ -6,6 +6,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -24,6 +25,7 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * CoordinateDefinition implementation for nitrogen molecule. The class takes the first
@@ -440,8 +442,42 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
 	    	 *  
 	    	 */
 
+	  		/*
+    		 * To take of large value of u3 and u4
+    		 * scale u3 and u4 accordingly so that they will satisfy the
+    		 *  condition u3^2 + u4^2 < 4.0
+    		 * if u3^2 + u4^2 >= 4.0, the rotation is completely random
+    		 * 
+    		 */
+    		double u3 = newU[j];
+    		double u4 = newU[j+1];
+    		double check = u3*u3+u4*u4;
+    		
+    		if(check >= 4.0){
+    			double ratio = Math.abs(u3/u4);
+    			
+    			IRandom random = new RandomNumberGenerator();
+    			double rand = random.nextDouble()*4;
+    			u4 = Math.sqrt(rand/(ratio*ratio+1));
+    			u3 = ratio*u4;
+    			
+    			if(u4 < 0.0){
+	    			u[j+1] = -u4;
+	    		} else {
+	    			u[j+1] = u4;
+	    		}
+	    		
+	    		if (u3 < 0.0){
+	    			u[j] = -u3;
+	    		} else {
+	    			u[j] = u3;
+	    		}
+    			
+    		}
+	    	
 	        if (Math.abs(Math.acos(newU[j]))>1e-8 || Math.abs(Math.acos(newU[j+1]))>1e-8){
-		        /*
+		      
+	        	/*
 		         * a.	
 		         */
 	        	double x = Math.sqrt(1-newU[j]*newU[j]-newU[j+1]*newU[j+1]);
