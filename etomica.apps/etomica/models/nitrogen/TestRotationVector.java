@@ -1,11 +1,13 @@
 package etomica.models.nitrogen;
 
+import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.Degree;
+import etomica.util.RandomNumberGenerator;
 
 public class TestRotationVector {
 
@@ -86,9 +88,38 @@ public class TestRotationVector {
 		rotation.transform(r);
 		r.normalize();
 		System.out.println("Back to initial nominal position: "+ r.toString());
-		
+		/*
+		 * 
+		 * scale u3 and u4 accordingly so that they will satisfy the
+		 *  condition u3^2 + u4^2 < 4.0
+		 * 
+		 */
+		double u0 = u[0];
+		double u1 = u[1];
+		double check = u0*u0+u1*u1;
+		if(check >= 4.0){
+			double sum = Math.abs(u0)+Math.abs(u1);
+			double ratio = Math.abs(u0/u1);
+			
+			IRandom random = new RandomNumberGenerator();
+			double rand = random.nextDouble()*4;
+			u1 = Math.sqrt(rand/(ratio*ratio+1));
+			u0 = ratio*u1;
+			if (u1 < 0.0){
+				u[1] = -u1;
+			} else {
+				u[1] = u1;
+			}
+			if (u0 < 0.0){
+				u[0] = -u0;
+			} else {
+				u[0] = u0;
+			}
+			
+		}
+		System.out.println("Math.acos component: " + (1 - (u[0]*u[0] + u[1]*u[1])*0.5));
 		double theta = Math.acos(1 - (u[0]*u[0] + u[1]*u[1])*0.5);
-
+		System.out.println("theta in setToU: " + theta);
 		//System.out.println("setToU theta^2: " + (theta*theta));
 		
 		r.E(0.0);
@@ -112,19 +143,24 @@ public class TestRotationVector {
 		rVector.E(new double[]{-1.0, 1.0, 1.0});
 		rVector.normalize();
 		System.out.println("Initial position: " + rVector.toString());
-		//System.out.println("cos(alpha)^2: "+Math.pow(rVector.dot(testVector.axis[1]),2.0)+" ; cos(beta)^2: "+Math.pow(rVector.dot(testVector.axis[2]), 2.0));
-		System.out.println("theta^2:    "+Math.acos(rVector.dot(testVector.axis[0]))*Math.acos(rVector.dot(testVector.axis[0])));
-		double[] u = testVector.calcU(rVector);
+		
+		//double[] u = new double[]{-.28631195091, 2.01714919501};
+		double[] u = new double[]{-Math.sqrt(3), Math.sqrt(2)};
+		System.out.println("sun u^2: " + (u[0]*u[0]+u[1]*u[1]));
+		testVector.setToU(u, rVector);
+		
+		u = testVector.calcU(rVector);
 		for (int i=0; i<u.length; i++){
 			System.out.println("u["+i+"]: "+u[i]);
 		}
 		System.out.println();
 		
 		
-		testVector.setToU(u, rVector);
-		
-		
-		
+		double u4 = 6/Math.sqrt(13);
+		double u3 = (2.0/3.0)*u4;
+		System.out.println("u3: " +  u3);
+		System.out.println("u4: " +  u4);
+		System.out.println("u3^2 + u4^2: " +  (u3*u3+u4*u4));
 		
 		
 		
