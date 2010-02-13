@@ -450,8 +450,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
     		double u3 = newU[j];
     		double u4 = newU[j+1];
     		
-    		if(Math.abs(u3) >1.0 && Math.abs(u4) >1.0){
+    		if(Math.abs(u3) >=Math.sqrt(2.0) && Math.abs(u4) >=Math.sqrt(2.0)){
     			
+    			System.out.println("free rotor encountered");
+    			System.out.println("u3 and u4 are " +u3 + " " + u4);
     			IRandom random = new RandomNumberGenerator();
     			double randu3 = random.nextDouble();
     			double randu4 = random.nextDouble();
@@ -472,8 +474,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
 	    		}
     		}
 	    	
-	        if (Math.abs(Math.acos(newU[j]))>1e-8 || Math.abs(Math.acos(newU[j+1]))>1e-8){
-		      
+	        if (Math.abs(Math.acos(newU[j]))>1e-10 || Math.abs(Math.acos(newU[j+1]))>1e-10){
+	        	System.out.println("perform the rotation");
 	        	/*
 		         * a.	
 		         */
