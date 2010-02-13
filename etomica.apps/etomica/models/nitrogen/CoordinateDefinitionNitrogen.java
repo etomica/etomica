@@ -443,36 +443,33 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
 	    	 */
 
 	  		/*
-    		 * To take of large value of u3 and u4
-    		 * scale u3 and u4 accordingly so that they will satisfy the
-    		 *  condition u3^2 + u4^2 < 4.0
-    		 * if u3^2 + u4^2 >= 4.0, the rotation is completely random
+    		 * 
+    		 * if Abs(u3) or Abs(u4) > 1.0, the rotation is completely random
     		 * 
     		 */
     		double u3 = newU[j];
     		double u4 = newU[j+1];
-    		double check = u3*u3+u4*u4;
     		
-    		if(check >= 4.0){
-    			double ratio = Math.abs(u3/u4);
+    		if(Math.abs(u3) >1.0 && Math.abs(u4) >1.0){
     			
     			IRandom random = new RandomNumberGenerator();
-    			double rand = random.nextDouble()*4;
-    			u4 = Math.sqrt(rand/(ratio*ratio+1));
-    			u3 = ratio*u4;
+    			double randu3 = random.nextDouble();
+    			double randu4 = random.nextDouble();
     			
-    			if(u4 < 0.0){
-	    			u[j+1] = -u4;
+    			u3 = randu3;
+    			u4 = randu4;
+    			
+    			if(newU[j+1] < 0.0){
+	    			newU[j+1] = -u4;
 	    		} else {
-	    			u[j+1] = u4;
+	    			newU[j+1] = u4;
 	    		}
 	    		
-	    		if (u3 < 0.0){
-	    			u[j] = -u3;
+	    		if (newU[j] < 0.0){
+	    			newU[j] = -u3;
 	    		} else {
-	    			u[j] = u3;
+	    			newU[j] = u3;
 	    		}
-    			
     		}
 	    	
 	        if (Math.abs(Math.acos(newU[j]))>1e-8 || Math.abs(Math.acos(newU[j+1]))>1e-8){
