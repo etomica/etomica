@@ -18,7 +18,7 @@ import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.normalmode.CoordinateDefinitionMolecule;
+import etomica.normalmode.CoordinateDefinitionMoleculeVolumeFluctuation;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -32,7 +32,7 @@ import etomica.space3d.Tensor3D;
  * 
  * @author Tai Boon Tan
  */
-public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
+public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVolumeFluctuation
         implements Serializable {
 
     public CoordinateDefinitionNitrogen(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
@@ -254,7 +254,12 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	double theta = Math.acos(a);
 	    	
 	    	if(u4 == 0.0){
+	    		
 	    		u[j] = Math.sqrt(2*(1-Math.cos(theta)));;
+	    		if(u3 < 0.0){
+	    			u[j] = -u[j];
+	    		}
+	    		
 	    		u[j+1] = u4;
 	    	} else {
 	    		if(u4 < 0.0){
