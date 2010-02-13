@@ -40,9 +40,13 @@ public class TestRotationVector {
 		double a = vector.dot(axis[0]);
 		double theta = Math.acos(a);
 		double sintheta = Math.sin(theta);
-		
+		System.out.println("theta: " + Degree.UNIT.fromSim(theta));
 		   if(u4 == 0.0){
+			   
                u[0] = Math.sqrt(2*(1-Math.cos(theta)));
+               if(u3 <0.0){
+            	   u[0] = -u[0];
+               }
                u[1] = u4;
 		   } else {
                if(u4 < 0.0){
@@ -61,7 +65,6 @@ public class TestRotationVector {
                        u[0] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                }
        }
-
 
 //		if(vector.dot(axis[0]) < 0.0){
 //			u[0] = u[0];
@@ -106,14 +109,14 @@ public class TestRotationVector {
 		TestRotationVector testVector = new TestRotationVector();
 		
 		IVectorMutable rVector = testVector.space.makeVector();
-		rVector.E(new double[]{-1.0, -2.0, 1.0});
+		rVector.E(new double[]{-1.0, 1.0, 1.0});
 		rVector.normalize();
 		System.out.println("Initial position: " + rVector.toString());
 		//System.out.println("cos(alpha)^2: "+Math.pow(rVector.dot(testVector.axis[1]),2.0)+" ; cos(beta)^2: "+Math.pow(rVector.dot(testVector.axis[2]), 2.0));
 		System.out.println("theta^2:    "+Math.acos(rVector.dot(testVector.axis[0]))*Math.acos(rVector.dot(testVector.axis[0])));
 		double[] u = testVector.calcU(rVector);
 		for (int i=0; i<u.length; i++){
-			System.out.println("u["+i+"]^2: "+u[i]*u[i]);
+			System.out.println("u["+i+"]: "+u[i]);
 		}
 		System.out.println();
 		
