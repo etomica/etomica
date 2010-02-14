@@ -34,7 +34,7 @@ public class TestRotationVector {
 	}
 	
 	public double[] calcU(IVectorMutable vector){
-		
+		System.out.println("In calcU");
 		double u3 = vector.dot(axis[1]);
 		double u4 = vector.dot(axis[2]);
 		double ratio = Math.abs(u3/u4);
@@ -52,18 +52,14 @@ public class TestRotationVector {
                u[1] = u4;
 		   } else {
                if(u4 < 0.0){
-            	   System.out.println("BAd1");
                        u[1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                } else {
-            	   System.out.println("BAd2");
                        u[1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                }
 
                if (u3 < 0.0){
-            	   System.out.println("BAd10");
                        u[0] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                } else {
-            	   System.out.println("BAd11");
                        u[0] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
                }
        }
@@ -72,12 +68,15 @@ public class TestRotationVector {
 //			u[0] = u[0];
 //			u[1] = u[1];
 //		}
-		
+		for (int i=0; i<u.length; i++){
+			System.out.println("CalcU u["+i+"]: "+u[i]);
+		}
+		System.out.println("END of calcU\n");
 		return u; 
 	}
 	
 	public void setToU(double[] u, IVectorMutable r){
-		
+		System.out.println("In setToU");
 		double angle = Math.acos(r.dot(axis[0]));
 		rotationAxis.E(r);
 		rotationAxis.XE(axis[0]);
@@ -97,7 +96,7 @@ public class TestRotationVector {
 		double u0 = u[0];
 		double u1 = u[1];
 		double check = u0*u0+u1*u1;
-		if(check >= 4.0){
+		if(Math.abs(u0) > 2.0 || Math.abs(u1) >2.0||check >= 4.0){
 			double sum = Math.abs(u0)+Math.abs(u1);
 			double ratio = Math.abs(u0/u1);
 			
@@ -132,35 +131,27 @@ public class TestRotationVector {
 		rotationAxis.normalize();
 		rotation.setRotationAxis(rotationAxis, (Math.PI/2-theta));
 		rotation.transform(r);		
-		System.out.println("Set to destination: " + r.toString());
 		
+		System.out.println("END of setToU");
+		System.out.println("After setToU destination: " + r.toString()+"\n");
 	}
 	
 	public static void main (String[] args){
 		TestRotationVector testVector = new TestRotationVector();
 		
 		IVectorMutable rVector = testVector.space.makeVector();
-		rVector.E(new double[]{-1.0, 1.0, 1.0});
+		rVector.E(new double[]{-1.0, -.1, .1});
 		rVector.normalize();
 		System.out.println("Initial position: " + rVector.toString());
 		
+		double[] u = testVector.calcU(rVector);
+
 		//double[] u = new double[]{-.28631195091, 2.01714919501};
-		double[] u = new double[]{-Math.sqrt(3), Math.sqrt(2)};
+		//u = new double[]{1.44, 1.44};
 		System.out.println("sun u^2: " + (u[0]*u[0]+u[1]*u[1]));
 		testVector.setToU(u, rVector);
 		
-		u = testVector.calcU(rVector);
-		for (int i=0; i<u.length; i++){
-			System.out.println("u["+i+"]: "+u[i]);
-		}
-		System.out.println();
 		
-		
-		double u4 = 6/Math.sqrt(13);
-		double u3 = (2.0/3.0)*u4;
-		System.out.println("u3: " +  u3);
-		System.out.println("u4: " +  u4);
-		System.out.println("u3^2 + u4^2: " +  (u3*u3+u4*u4));
 		
 		
 		
