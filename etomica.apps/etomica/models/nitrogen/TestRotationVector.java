@@ -20,11 +20,8 @@ public class TestRotationVector {
 		
 		axis[0].E(new double[]{1.0, 0.0, 0.0});
 		axis[1].E(new double[]{0.0, 1.0, 0.0});
-		axis[0].normalize();
-		axis[1].normalize();
-		
 		axis[2].E(new double[]{0.0, 0.0, 1.0});
-		axis[2].normalize();
+		
 		u = new double[2];
 		
 		tensor = new Tensor3D(new double[][]{{1.0, 0.0, 0.0},{0.0, 1.0, 0.0},{0.0, 0.0, 1.0}});
@@ -41,10 +38,18 @@ public class TestRotationVector {
 		
 		double a = vector.dot(axis[0]);
 		double theta = Math.acos(a);
-		double sintheta = Math.sin(theta);
 		System.out.println("theta: " + Degree.UNIT.fromSim(theta));
-		   if(u4 == 0.0){
-			   
+		
+		if(Degree.UNIT.fromSim(theta) > 179.99){
+			u[0] = Math.sqrt(2);
+			u[1] = Math.sqrt(2);
+			for (int i=0; i<u.length; i++){
+				System.out.println("CalcU u["+i+"]: "+u[i]);
+			}
+			System.out.println("END of calcU\n");
+			return u;
+		}
+		   if(Math.abs(u4) > -1e-10 && Math.abs(u4) < 1e-10){
                u[0] = Math.sqrt(2*(1-Math.cos(theta)));
                if(u3 <0.0){
             	   u[0] = -u[0];
@@ -64,10 +69,6 @@ public class TestRotationVector {
                }
        }
 
-//		if(vector.dot(axis[0]) < 0.0){
-//			u[0] = u[0];
-//			u[1] = u[1];
-//		}
 		for (int i=0; i<u.length; i++){
 			System.out.println("CalcU u["+i+"]: "+u[i]);
 		}
@@ -78,60 +79,68 @@ public class TestRotationVector {
 	public void setToU(double[] u, IVectorMutable r){
 		System.out.println("In setToU");
 		double angle = Math.acos(r.dot(axis[0]));
-		rotationAxis.E(r);
-		rotationAxis.XE(axis[0]);
-		rotationAxis.normalize();
 		
-		
-		rotation.setRotationAxis(rotationAxis, angle);
-		rotation.transform(r);
-		r.normalize();
-		System.out.println("Back to initial nominal position: "+ r.toString());
+		if(Math.sqrt(angle) > 1e-7){
+			rotationAxis.E(r);
+			rotationAxis.XE(axis[0]);
+			rotationAxis.normalize();
+			
+			System.out.println("angle: " + angle);
+			
+			rotation.setRotationAxis(rotationAxis, angle);
+			rotation.transform(r);
+			r.normalize();
+			System.out.println("Back to initial nominal position: "+ r.toString());
+		}
 		/*
+		 * 
 		 * 
 		 * scale u3 and u4 accordingly so that they will satisfy the
 		 *  condition u3^2 + u4^2 < 4.0
 		 * 
 		 */
-		double u0 = u[0];
-		double u1 = u[1];
-		double check = u0*u0+u1*u1;
-		if(Math.abs(u0) > 2.0 || Math.abs(u1) >2.0||check >= 4.0){
-			double sum = Math.abs(u0)+Math.abs(u1);
-			double ratio = Math.abs(u0/u1);
-			
-			IRandom random = new RandomNumberGenerator();
-			double rand = random.nextDouble()*4;
-			u1 = Math.sqrt(rand/(ratio*ratio+1));
-			u0 = ratio*u1;
-			if (u1 < 0.0){
-				u[1] = -u1;
-			} else {
-				u[1] = u1;
+		if(Math.abs(u[0]) > 1e-7 || Math.abs(u[1]) > 1e-7){
+			double u0 = u[0];
+			double u1 = u[1];
+			double check = u0*u0+u1*u1;
+			if((Math.abs(u0) > (Math.sqrt(2)+1e-10) || Math.abs(u1) > (Math.sqrt(2)+1e-10)) && (check > 3.99999999)){
+				System.out.println("*****Free Rotor******");
+				
+				IRandom random = new RandomNumberGenerator();
+				double randU0 = random.nextDouble();
+				double randU1 = random.nextDouble();
+				u0 = randU0;
+				u1 = randU1;
+				if (u[1] < 0.0){
+					u[1] = -u1;
+				} else {
+					u[1] = u1;
+				}
+				if (u[0] < 0.0){
+					u[0] = -u0;
+				} else {
+					u[0] = u0;
+				}
+				
 			}
-			if (u0 < 0.0){
-				u[0] = -u0;
-			} else {
-				u[0] = u0;
-			}
 			
+			System.out.println("u[]:" + u[0] + " " +u[1]);
+			System.out.println("Math.acos component: " + (1 - (u[0]*u[0] + u[1]*u[1])*0.5));
+			
+			double theta = Math.acos(1.0000000000000004 - (u[0]*u[0] + u[1]*u[1])*0.5);
+			System.out.println("theta in setToU: " + Degree.UNIT.fromSim(theta));
+			
+			r.E(0.0);
+			r.PEa1Tv1(u[0], axis[1]);
+			r.PEa1Tv1(u[1], axis[2]);
+			r.normalize();
+			
+			rotationAxis.E(r);
+			rotationAxis.XE(axis[0]);
+			rotationAxis.normalize();
+			rotation.setRotationAxis(rotationAxis, (Math.PI/2-theta));
+			rotation.transform(r);		
 		}
-		System.out.println("Math.acos component: " + (1 - (u[0]*u[0] + u[1]*u[1])*0.5));
-		double theta = Math.acos(1 - (u[0]*u[0] + u[1]*u[1])*0.5);
-		System.out.println("theta in setToU: " + theta);
-		//System.out.println("setToU theta^2: " + (theta*theta));
-		
-		r.E(0.0);
-		r.PEa1Tv1(u[0], axis[1]);
-		r.PEa1Tv1(u[1], axis[2]);
-		r.normalize();
-		
-		rotationAxis.E(r);
-		rotationAxis.XE(axis[0]);
-		rotationAxis.normalize();
-		rotation.setRotationAxis(rotationAxis, (Math.PI/2-theta));
-		rotation.transform(r);		
-		
 		System.out.println("END of setToU");
 		System.out.println("After setToU destination: " + r.toString()+"\n");
 	}
@@ -140,43 +149,16 @@ public class TestRotationVector {
 		TestRotationVector testVector = new TestRotationVector();
 		
 		IVectorMutable rVector = testVector.space.makeVector();
-		rVector.E(new double[]{-1.0, -.1, .1});
+		rVector.E(new double[]{-0.000000000000001, 0.000000001, 1.0000000000000000001});
 		rVector.normalize();
 		System.out.println("Initial position: " + rVector.toString());
-		
 		double[] u = testVector.calcU(rVector);
 
 		//double[] u = new double[]{-.28631195091, 2.01714919501};
-		//u = new double[]{1.44, 1.44};
-		System.out.println("sun u^2: " + (u[0]*u[0]+u[1]*u[1]));
+		//u = new double[]{0.01, 1.44};
+		System.out.println("sum u^2: " + (u[0]*u[0]+u[1]*u[1]));
 		testVector.setToU(u, rVector);
-		
-		
-		
-		
-		
-//		double rdotx = rVector.dot(testVector.axis[0]);
-//		double rdoty = rVector.dot(testVector.axis[1]);
-//		double rdotz = rVector.dot(testVector.axis[2]);
-//		
-//		double angleX = Math.acos(rdotx);
-//		double angleY = Math.acos(rdoty);
-//		double angleZ = Math.acos(rdotz);
-//		double thetaX = Math.asin(Math.sqrt(rdoty*rdoty + rdotz*rdotz)); 
-//		
-//		double ratio = rdoty/rdotz;
-//		double u3 = ratio*Math.sqrt(Math.sin(angleX)*Math.sin(thetaX)/(ratio*ratio +1));
-//		double u4 = Math.sqrt(Math.sin(angleX)*Math.sin(thetaX)/(ratio*ratio +1));
-//		
-//		
-//		System.out.println("rVector: "+ rVector.toString());
-//		System.out.println("rdotx: "+rdotx+" "+Degree.UNIT.fromSim(angleX));
-//		System.out.println("rdoty: "+rdoty+" "+Degree.UNIT.fromSim(angleY));
-//		System.out.println("rdotz: "+rdotz+" "+Degree.UNIT.fromSim(angleZ));
-//		System.out.println("thetaX: "+Degree.UNIT.fromSim(thetaX));
-//		System.out.println("u3: "+u3+" ;u4: "+ u4);
-		
-		
+
 		
 	}
 	
