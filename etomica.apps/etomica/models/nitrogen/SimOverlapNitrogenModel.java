@@ -22,6 +22,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -63,7 +64,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapNitrogenModel extends Simulation {
 
-    public SimOverlapNitrogenModel(Space _space, int numMolecules,double temperature, String filename) {
+    public SimOverlapNitrogenModel(Space _space, int numMolecules,double temperature, String filename, double scale) {
         super(_space);
         this.fname = filename;
         
@@ -72,7 +73,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         meters = new IEtomicaDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        double unitCellLength = 5.661;
+        double unitCellLength = scale*5.661;
         nCell = (int) Math.round(Math.pow((numMolecules/4), 1.0/3.0));
        
         potentialMasterTarget = new PotentialMaster();
@@ -100,16 +101,23 @@ public class SimOverlapNitrogenModel extends Simulation {
 		coordDefTarget.initializeCoordinates(nCells);
         
 		boxTarget.setBoundary(boundaryTarget);
-		double rC =9.0;//boxTarget.getBoundary().getBoxSize().getX(0)*0.485;
+		double rScale = 0.45;
+		double rC = boxTarget.getBoundary().getBoxSize().getX(0)*rScale;
 		System.out.println("Truncation Radius: " + rC);
-		P2Nitrogen potential = new P2Nitrogen(space, rC);
+		P2Nitrogen potential = new P2Nitrogen(space, rScale);
 		potential.setBox(boxTarget);
 		System.out.println("Box Dimension(before): " + boxTarget.getBoundary().getBoxSize().toString());
 		final IVector initBox = space.makeVector(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
 															  boxTarget.getBoundary().getBoxSize().getX(1),
 															  boxTarget.getBoundary().getBoxSize().getX(2)});
 		coordDefTarget.setInitVolume(initBox);
+		
+		P0LatticeEnergyCorrec p0correc = new P0LatticeEnergyCorrec(space);
+		p0correc.setSpecies(species);
+		p0correc.setBox(boxTarget);
+		
 		potentialMasterTarget.addPotential(potential, new ISpecies[]{species,species});
+		potentialMasterTarget.addPotential(p0correc, new ISpecies[]{species, species});
 		
         integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), Kelvin.UNIT.toSim(temperature));
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMasterTarget,getRandom(),space);
@@ -119,16 +127,14 @@ public class SimOverlapNitrogenModel extends Simulation {
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMasterTarget, getRandom(), space);
 		rotate.setBox(boxTarget);
 		
-		MCMoveVolumeN2 mcMoveVolume = new MCMoveVolumeN2(this, potentialMasterTarget, space);
-		mcMoveVolume.setSpecies(species);
+		MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMasterTarget, space);
 		mcMoveVolume.setBox(boxTarget);
-		mcMoveVolume.setXYZChange();
 		mcMoveVolume.setPressure(Pascal.UNIT.toSim(0.0e9));
 				
 		integratorTarget = new IntegratorMC(this, potentialMasterTarget);
 		integratorTarget.getMoveManager().addMCMove(move);
 		integratorTarget.getMoveManager().addMCMove(rotate);
-		//integratorTarget.getMoveManager().addMCMove(mcMoveVolume);
+		integratorTarget.getMoveManager().addMCMove(mcMoveVolume);
 
 		integratorTarget.setBox(boxTarget);
         integrators[1] = integratorTarget;
@@ -359,6 +365,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         long numSteps = params.numSteps;
         final int numMolecules = params.numMolecules;
         double temperature = params.temperature;
+        double scale = params.scale;
         String filename = params.filename;
         if (filename.length() == 0) {
         	System.err.println("Need input files!!!");
@@ -378,7 +385,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 //        System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimOverlapNitrogenModel sim = new SimOverlapNitrogenModel(Space.getInstance(D), numMolecules, temperature, filename);
+        SimOverlapNitrogenModel sim = new SimOverlapNitrogenModel(Space.getInstance(D), numMolecules, temperature, filename, scale);
        
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
@@ -499,5 +506,6 @@ public class SimOverlapNitrogenModel extends Simulation {
         public long numSteps = 1000000;
         public String filename = "uNVTAlpha32_T25";
         public double temperature =25.0;
+        public double scale = 1.0;
     }
 }
