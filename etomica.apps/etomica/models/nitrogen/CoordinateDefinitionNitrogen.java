@@ -25,6 +25,7 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
+import etomica.units.Degree;
 import etomica.util.RandomNumberGenerator;
 
 /**
@@ -57,6 +58,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
     	
         orientationManager = new MoleculeAgentManager(sim, box, new OrientationAgentSource());
         atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
+        random = new RandomNumberGenerator();
     }
 
     public void initializeCoordinates(int[] nCells) {
@@ -254,29 +256,37 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
 	    	
 	    	double a = axis.dot(siteOrientation[0]);
 	    	double theta = Math.acos(a);
-	    	
-	    	if(u4 == 0.0){
+	    	/*
+	    	 * 
+	    	 */
+	    	if(Degree.UNIT.fromSim(theta) > 179.999){
+	    		u[j] = Math.sqrt(2);
+	    		u[j+1] = Math.sqrt(2);
 	    		
-	    		u[j] = Math.sqrt(2*(1-Math.cos(theta)));;
-	    		if(u3 < 0.0){
-	    			u[j] = -u[j];
-	    		}
-	    		
-	    		u[j+1] = u4;
 	    	} else {
-	    		if(u4 < 0.0){
-	    			u[j+1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-	    		} else {
-	    			u[j+1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-	    		}
-	    		
-	    		if (u3 < 0.0){
-	    			u[j] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-	    		} else {
-	    			u[j] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-	    		}
+		    	
+		    	if(Math.abs(u4) > -1e-10 && Math.abs(u4) < 1e-10){
+		    		
+		    		u[j] = Math.sqrt(2*(1-Math.cos(theta)));;
+		    		if(u3 < 0.0){
+		    			u[j] = -u[j];
+		    		}
+		    		
+		    		u[j+1] = u4;
+		    	} else {
+		    		if(u4 < 0.0){
+		    			u[j+1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+		    		} else {
+		    			u[j+1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+		    		}
+		    		
+		    		if (u3 < 0.0){
+		    			u[j] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+		    		} else {
+		    			u[j] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+		    		}
+		    	}
 	    	}
-	
 	    	j += coordinateDim/molecules.getMoleculeCount();
         }
         return u;
@@ -442,55 +452,54 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
 	    	 *  
 	    	 */
 
-	  		/*
-    		 * 
-    		 * if Abs(u3) or Abs(u4) > 1.0, the rotation is completely random
-    		 * 
+	    	double u3 = newU[j];
+        	double u4 = newU[j+1];
+        	double check = u3*u3 + u4*u4;
+        	
+        	/*
+    		 * scale u3 and u4 accordingly so that they will satisfy the
+    		 *  condition u3^2 + u4^2 < 4.0
+    		 *  
+    		 *  Free Rotor
     		 */
-    		double u3 = newU[j];
-    		double u4 = newU[j+1];
-    		
-    		if(Math.abs(u3) >=Math.sqrt(2.0) && Math.abs(u4) >=Math.sqrt(2.0)){
-    			
-    			System.out.println("free rotor encountered");
-    			System.out.println("u3 and u4 are " +u3 + " " + u4);
-    			IRandom random = new RandomNumberGenerator();
-    			double randu3 = random.nextDouble();
-    			double randu4 = random.nextDouble();
-    			
-    			u3 = randu3;
-    			u4 = randu4;
-    			
-    			if(newU[j+1] < 0.0){
-	    			newU[j+1] = -u4;
-	    		} else {
-	    			newU[j+1] = u4;
-	    		}
-	    		
-	    		if (newU[j] < 0.0){
-	    			newU[j] = -u3;
-	    		} else {
-	    			newU[j] = u3;
-	    		}
-    		}
-	    	
-	        if (Math.abs(Math.acos(newU[j]))>1e-10 || Math.abs(Math.acos(newU[j+1]))>1e-10){
-	        	System.out.println("perform the rotation");
+        	if((Math.abs(u3) > (Math.sqrt(2)+1e-10) || Math.abs(u4) > (Math.sqrt(2)+1e-10)) 
+        			&& (check > 3.99999999)){
+        		//System.out.println("FREE ROTOR");
+        		double randU3 = random.nextDouble();
+        		double randU4 = random.nextDouble();
+        		
+        		u3 = randU3;
+        		u4 = randU4;
+        		
+        		if(newU[j] < 0.0){
+        			newU[j] = -u3;
+        		} else {
+        			newU[j] = u3;
+        		}
+        		
+        		if(newU[j+1] < 0.0){
+        			newU[j+1] = -u4;
+        		} else {
+        			newU[j+1] = u4;
+        		}
+        	}
+	  	
+  
+	        if (Math.abs(newU[j])>1e-7 || Math.abs(newU[j+1])>1e-7){
+	        	//System.out.println((j+1) +" " + (j+2) +" perform the rotation");
+	        	
 	        	/*
 		         * a.	
 		         */
-	        	double x = Math.sqrt(1-newU[j]*newU[j]-newU[j+1]*newU[j+1]);
-		    	axis.E(0);
+	        	axis.E(0);
 		    	axis.Ea1Tv1(newU[j], siteOrientation[1]);
 		    	axis.PEa1Tv1(newU[j+1], siteOrientation[2]);
-		    	//axis.PEa1Tv1(x, siteOrientation[0]);
 		    	axis.normalize();
 		    	
 		    	/*
 		    	 * b.
 		    	 */
-		    	angle = Math.acos(1 - (newU[j]*newU[j] + newU[j+1]*newU[j+1])*0.5);
-		    	//angle = Math.acos(axis.dot(siteOrientation[0]));
+		    	angle = Math.acos(1.0000000000000004 - (newU[j]*newU[j] + newU[j+1]*newU[j+1])*0.5);
 		    	if(Math.abs(angle) > 1e-7){
 			    	rotationAxis.E(0);
 			    	rotationAxis.E(axis);
@@ -529,6 +538,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
     protected final MoleculeChildAtomAction atomGroupAction;
     public boolean isAlpha=false;
     public boolean isGamma=false;
+    protected IRandom random;
 
     protected static class OrientationAgentSource implements MoleculeAgentSource, Serializable {
         
