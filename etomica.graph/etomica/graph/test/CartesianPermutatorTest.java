@@ -2,7 +2,6 @@ package etomica.graph.test;
 
 import java.util.Arrays;
 
-
 import etomica.graph.iterators.CartesianPermutator;
 import etomica.graph.model.BytePermutator;
 
