@@ -34,6 +34,7 @@ public class GraphImpl implements Graph {
     this.edges = edges;
     this.store = store;
     this.coefficient = coefficient;
+    this.labels = new byte[nodes.length];
     for (byte i = 0; i < nodes.length; i++) {
       this.labels[i] = i;
     }
@@ -226,13 +227,24 @@ public class GraphImpl implements Graph {
     return (byte) store.bitCount();
   }
 
+  // (0,1),(0,2),(1,2),(0,3),(1,3),(2,3),(0,4),(1,4),(2,4),(3,4)...,(n-1,n)
+  // edgeId = (toNode)*(toNode-1)/2 + fromNode
+  // (0,1) => (1)(0)/2 + 0 = 0
+  // (0,2) => (2)(1)/2 + 0 = 1
+  // (1,2) => (2)(1)/2 + 1 = 2
+  // (0,3) => (3)(2)/2 + 0 = 3
+  // (1,3) => (3)(2)/2 + 1 = 4
+  // (2,3) => (3)(2)/2 + 2 = 5
+  // (0,4) => (4)(3)/2 + 0 = 6
+
   public byte getEdgeId(byte fromNode, byte toNode) {
 
     assert (fromNode != toNode);
     if (fromNode > toNode) {
       return getEdgeId(toNode, fromNode);
     }
-    return (byte) ((toNode - fromNode - 1) + sumMaxEdges((byte) (fromNode - 1)));
+    return (byte) (fromNode + toNode * (toNode - 1) / 2);
+    // return (byte) ((toNode - fromNode - 1) + sumMaxEdges((byte) (fromNode - 1)));
   }
 
   public byte getFromLabel(byte edge) {
@@ -242,13 +254,21 @@ public class GraphImpl implements Graph {
 
   public byte getFromNode(byte edge) {
 
-    byte fromNode = 0;
-    byte offset = (byte) (maxEdges(fromNode) - 1);
-    while (edge > offset) {
-      fromNode++;
-      offset += maxEdges(fromNode);
+    for (int toNode = 1; toNode < nodes.length; toNode++) {
+      // 0, 1, 3, 6, 10, 15, ...
+      byte sectionStart = (byte) (toNode * (toNode - 1) / 2);
+      // edge - candidate is the offset of the fromNode in a toNode section
+      if (edge - sectionStart < toNode) {
+        return (byte) (edge - sectionStart);
+      }
     }
-    return fromNode;
+    return 0;
+//    byte offset = (byte) (maxEdges(fromNode) - 1);
+//    while (edge > offset) {
+//      fromNode++;
+//      offset += maxEdges(fromNode);
+//    }
+//    return fromNode;
   }
 
   // returns the label of the given node
@@ -329,9 +349,18 @@ public class GraphImpl implements Graph {
 
   public byte getToNode(byte edge) {
 
-    byte fromNode = getFromNode(edge);
-    int fromEdge = getEdgeId(fromNode, (byte) (fromNode + 1));
-    return (byte) ((fromNode + 1) + (edge - fromEdge));
+    for (int toNode = 1; toNode < nodes.length; toNode++) {
+      // 0, 1, 3, 6, 10, 15, ...
+      byte sectionStart = (byte) (toNode * (toNode - 1) / 2);
+      // edge - candidate is the offset of the fromNode in a toNode section
+      if (edge - sectionStart < toNode) {
+        return (byte) toNode;
+      }
+    }
+    return 0;
+//    byte fromNode = getFromNode(edge);
+//    int fromEdge = getEdgeId(fromNode, (byte) (fromNode + 1));
+//    return (byte) ((fromNode + 1) + (edge - fromEdge));
   }
 
   public boolean hasEdge(byte fromNode, byte toNode) {
@@ -339,10 +368,10 @@ public class GraphImpl implements Graph {
     return store.testBit(getEdgeId(fromNode, toNode));
   }
 
-  protected byte maxEdges(byte node) {
-
-    return (byte) (getNodeCount() - node - 1);
-  }
+//  protected byte maxEdges(byte node) {
+//
+//    return (byte) (getNodeCount() - node - 1);
+//  }
 
   public List<Node> nodes() {
 
@@ -382,14 +411,14 @@ public class GraphImpl implements Graph {
     labels[label] = node;
   }
 
-  private byte sumMaxEdges(byte lastNode) {
-
-    byte result = 0;
-    for (byte node = 0; node <= lastNode; node++) {
-      result += maxEdges(node);
-    }
-    return result;
-  }
+//  private byte sumMaxEdges(byte lastNode) {
+//
+//    byte result = 0;
+//    for (byte node = 0; node <= lastNode; node++) {
+//      result += maxEdges(node);
+//    }
+//    return result;
+//  }
 
   @Override
   public String toString() {

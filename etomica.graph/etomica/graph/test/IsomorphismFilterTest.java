@@ -24,8 +24,8 @@ public class IsomorphismFilterTest extends GraphIteratorTest {
   public void testIsoFreeGraphs() {
 
     reset();
-    byte rangeBegin = 7;
-    byte rangeEnd = 7;
+    byte rangeBegin = 5;
+    byte rangeEnd = 5;
     for (byte i = rangeBegin; i <= rangeEnd; i++) {
       expected = i == 0 ? 0 : Match.ISMORPHS_COUNT[i - 1];
       testNaive(i, new IsomorphismFilter(new DefaultIterator(i)));

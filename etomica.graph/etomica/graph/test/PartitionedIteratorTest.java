@@ -139,10 +139,9 @@ public class PartitionedIteratorTest extends GraphIteratorTest {
   public void testIsoFreeNoRootEdgeCartesianColorGraphs1() {
 
     setupColorMap(1);
-    // nodes = 2ra2fa1fb total of 288 graphs after 1s ==> no ground truth to check
-    // against!
-    // testNaive((byte) 5, new IsomorphismFilter(new PropertyFilter(getColorIterator(),
-    // new HasNoRootEdge())));
+    // nodes = 2ra2fa1fb total of 288 graphs after 1s ==> no ground truth to check against!
+//     testNaive((byte) 5, new IsomorphismFilter(new PropertyFilter(getColorIterator(),
+//     new HasNoRootEdge())));
   }
 
   public void testIsoFreeNoRootEdgeCartesianColorGraphs2() {

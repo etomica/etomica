@@ -20,8 +20,8 @@ public class StoredIteratorTest extends GraphIteratorTest {
   public void testGraphs() {
 
     reset();
-    byte rangeBegin = 6;
-    byte rangeEnd = 6;
+    byte rangeBegin = 5;
+    byte rangeEnd = 5;
     for (byte i = rangeBegin; i <= rangeEnd; i++) {
       testNaive(i);
     }

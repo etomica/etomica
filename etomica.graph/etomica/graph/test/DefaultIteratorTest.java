@@ -14,7 +14,7 @@ public class DefaultIteratorTest extends GraphIteratorTest {
   public void reset() {
 
     super.reset();
-    printPermutations = false;
+    printPermutations = true;
     printMemory = true;
     checkAssertion = true;
   }
@@ -23,11 +23,12 @@ public class DefaultIteratorTest extends GraphIteratorTest {
 
     reset();
     // nodes = 7: total of 2097152 graphs after 2 secs (0 min)
-    byte rangeBegin = 1;
-    byte rangeEnd = 6;
+    byte rangeBegin = 5;
+    byte rangeEnd = 5;
     for (byte i = rangeBegin; i <= rangeEnd; i++) {
       expected = i == 0 ? 0 : 1 << (i) * (i - 1) / 2;
       testNaive(i, new DefaultIterator(i));
     }
   }
+
 }

@@ -9,8 +9,8 @@ import etomica.graph.model.GraphIterator;
 
 public class IsomorphismFilter extends GlobalFilter {
 
-  public static boolean DEBUG_MODE = true;
-  private static int DEBUG_FREQUENCY = 1000;
+  public static boolean DEBUG_MODE = false;
+  private static int DEBUG_FREQUENCY = 2000;
 
   private int countSeen = 0;
   private int countUnique = 0;

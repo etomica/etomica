@@ -9,14 +9,13 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphIterator;
 import etomica.graph.model.impl.GraphImpl;
 
 public class StoredIterator implements GraphIterator {
 
-  private static final String GRAPH_BASE = "/org/lessa/graph/model/impl/";
+  private static final String GRAPH_BASE = "/etomica/graph/model/impl/";
   private static final String GRAPH_FILE = "graphset-";
   private static final String ZIP_FILE = "graph6fmt.zip";
   private byte data[] = null;
@@ -100,20 +99,25 @@ public class StoredIterator implements GraphIterator {
   private Graph toNativeGraph(String nautyGraph) {
 
     Graph g = new GraphImpl(nodeCount);
-    int index = 0;
-    for (byte value = 1; value <= (nodeCount - 1) + (nodeCount - 2); value++) {
-      for (byte x = 0; x < nodeCount; x++) {
-        for (byte y = (byte) (x + 1); y < nodeCount; y++) {
-          if (x + y == value) {
-            if (nautyGraph.charAt(index) == '1') {
-              g.putEdge((byte) (nodeCount - x - 1), (byte) (nodeCount - y - 1));
-              g.putEdge((byte) (nodeCount - y - 1), (byte) (nodeCount - x - 1));
-            }
-            index++;
-          }
-        }
+    for (byte edgeId = 0; edgeId < nautyGraph.length(); edgeId++) {
+      if (nautyGraph.charAt(edgeId) == '1') {
+        g.putEdge(edgeId);
       }
     }
+    // int index = 0;
+    // for (byte value = 1; value <= (nodeCount - 1) + (nodeCount - 2); value++) {
+    // for (byte x = 0; x < nodeCount; x++) {
+    // for (byte y = (byte) (x + 1); y < nodeCount; y++) {
+    // if (x + y == value) {
+    // if (nautyGraph.charAt(index) == '1') {
+    // g.putEdge((byte) x, (byte) y);
+    // g.putEdge((byte) y, (byte) x);
+    // }
+    // index++;
+    // }
+    // }
+    // }
+    // }
     return g;
   }
 
