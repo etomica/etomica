@@ -27,16 +27,16 @@ public class CoefficientImpl implements Coefficient {
 
   public void add(Coefficient value) {
 
-    if (getSign() == value.getSign()) {
-      numerator = getNumerator() * value.getDenominator() + value.getNumerator() * getDenominator();
-      denominator = getDenominator() * value.getDenominator();
+    if (getDenominator() == value.getDenominator()) {
+      numerator = sign * numerator + value.getSign() * value.getNumerator();
     }
     else {
-      int newValue1 = getSign() * getNumerator() * value.getDenominator() + value.getSign()
-          * value.getNumerator() * getDenominator();
-      sign = newValue1 >= 0 ? 1 : -1;
-      numerator = newValue1 * sign;
+      numerator = sign * numerator * value.getDenominator() + value.getSign() * value.getNumerator() * denominator;
       denominator = getDenominator() * value.getDenominator();
+    }
+    if (numerator < 0) {
+      numerator = -numerator;
+      switchSign();
     }
   }
 

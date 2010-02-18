@@ -1,6 +1,6 @@
 package etomica.graph.operations;
 
 
-public interface Arguments {
+public interface Parameters {
 
 }

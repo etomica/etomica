@@ -2,7 +2,7 @@ package etomica.graph.iterators;
 
 import java.util.NoSuchElementException;
 
-import etomica.graph.model.BytePermutator;
+import etomica.graph.model.Permutator;
 
 /*
  * Consider the partition P of a given set S of objects, where each partition
@@ -25,7 +25,7 @@ import etomica.graph.model.BytePermutator;
  *
  * @author Demian Lessa
  */
-public class DefaultPermutator implements BytePermutator {
+public class DefaultPermutator implements Permutator {
 
   private int size = 0;
   private int[][] groups;

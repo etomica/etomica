@@ -31,6 +31,11 @@ public class NodeImpl implements Node {
     return createNode(id, TYPE_NODE_ROOT, color);
   }
 
+  public Node copy() {
+
+    return new NodeImpl(getId(), getType(), getColor());
+  }
+
   public char getColor() {
 
     return stockMetadata.getColor();
@@ -57,9 +62,9 @@ public class NodeImpl implements Node {
         && (getType() == TYPE_NODE_FIELD || (getType() == TYPE_NODE_ROOT && isSameId(other)));
   }
 
-  public boolean isSameColor(Metadata other) {
+  public boolean isSameColor(Node other) {
 
-    return stockMetadata.isSameColor(other);
+    return stockMetadata.isSameColor(other.getMetadata());
   }
 
   public boolean isSameId(Node other) {

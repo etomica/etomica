@@ -28,6 +28,17 @@ public class GraphImpl implements Graph {
   private Coefficient coefficient;
   private Map<Byte, Edge> edges = new HashMap<Byte, Edge>();
 
+  public GraphImpl(Node[] nodes, Map<Byte, Edge> edges, Bitmap store, Coefficient coefficient) {
+
+    this.nodes = nodes;
+    this.edges = edges;
+    this.store = store;
+    this.coefficient = coefficient;
+    for (byte i = 0; i < nodes.length; i++) {
+      this.labels[i] = i;
+    }
+  }
+
   public GraphImpl(Node[] nodes) {
 
     this.coefficient = GraphFactory.createCoefficient();
@@ -116,10 +127,20 @@ public class GraphImpl implements Graph {
     }
   }
 
-//  public Graph copy() {
-//
-//    return new GraphImpl((byte) nodes.length, store.copy(), coefficient.copy());
-//  }
+  public Graph copy() {
+
+    // copy the nodes
+    Node[] nodesCopy = new Node[nodes.length];
+    for (int nodeId = 0; nodeId < nodes.length; nodeId++) {
+      nodesCopy[nodeId] = nodes[nodeId].copy();
+    }
+    // copy the edges
+    Map<Byte, Edge> edgesCopy = new HashMap<Byte, Edge>();
+    for (Byte edgeId : edges.keySet()) {
+      edgesCopy.put(edgeId, edges.get(edgeId).copy());
+    }
+    return new GraphImpl(nodesCopy, edgesCopy, store.copy(), coefficient.copy());
+  }
 
   protected void createEdges() {
 

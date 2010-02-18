@@ -1,7 +1,8 @@
 package etomica.graph.iterators;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import etomica.graph.model.Permutator;
 
 /**
  * This is a facility class that iterates through (maxP1 - minP1 + 1) permutations one at
@@ -13,7 +14,7 @@ import java.util.NoSuchElementException;
  * would generate all combinations of 8 bits.
  *
  */
-public class RangePermutator implements Iterator<byte[]> {
+public class RangePermutator implements Permutator {
 
   private int cur;
   private DefaultPermutator[] permutations;

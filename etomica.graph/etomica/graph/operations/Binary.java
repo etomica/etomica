@@ -6,5 +6,5 @@ import etomica.graph.model.Graph;
 
 public interface Binary {
 
-  public Set<Graph> apply(Set<Graph> left, Set<Graph> right, Arguments params);
+  public Set<Graph> apply(Set<Graph> left, Set<Graph> right, Parameters params);
 }

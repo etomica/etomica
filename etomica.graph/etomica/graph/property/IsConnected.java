@@ -21,7 +21,7 @@ public class IsConnected implements Property {
       return true;
     }
     // invariant: a connected graph has at least N-1 edges
-    if (graph.getNodeCount() < (graph.getNodeCount() - 1)) {
+    if (graph.getEdgeCount() < (graph.getNodeCount() - 1)) {
       return false;
     }
     // traverse the graph starting at nodeID and return true IFF all nodes in the graph

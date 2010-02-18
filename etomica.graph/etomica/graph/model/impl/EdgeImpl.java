@@ -20,6 +20,11 @@ public class EdgeImpl implements Edge {
     return new EdgeImpl(id, color);
   }
 
+  public Edge copy() {
+
+    return new EdgeImpl(getId(), getColor());
+  }
+
   public char getColor() {
 
     return stockMetadata.getColor();
@@ -45,9 +50,9 @@ public class EdgeImpl implements Edge {
     return stockMetadata.isCompatible(other.getMetadata());
   }
 
-  public boolean isSameColor(Metadata other) {
+  public boolean isSameColor(Edge other) {
 
-    return stockMetadata.isSameColor(other);
+    return stockMetadata.isSameColor(other.getMetadata());
   }
 
   public boolean isSameId(Edge other) {

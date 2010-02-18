@@ -25,7 +25,7 @@ public class IsBiconnected implements Property {
       return true;
     }
     // invariant: a biconnected graph has at least N edges
-    if (graph.getEdgeCount() < (graph.getNodeCount() - 1)) {
+    if (graph.getEdgeCount() < graph.getNodeCount()) {
       return false;
     }
     // traverse the graph starting at nodeID and return true IFF all nodes in the graph

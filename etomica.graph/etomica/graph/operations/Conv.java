@@ -6,7 +6,7 @@ import etomica.graph.model.Graph;
 
 public class Conv implements Binary {
 
-  public Set<Graph> apply(Set<Graph> left, Set<Graph> right, Arguments params) {
+  public Set<Graph> apply(Set<Graph> left, Set<Graph> right, Parameters params) {
 
     return null;
   }

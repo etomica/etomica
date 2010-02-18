@@ -7,7 +7,7 @@ public interface Graph extends Comparable<Graph> {
 
   public Coefficient coefficient();
 
-//  public Graph copy();
+  public Graph copy();
 
   public void deleteEdge(byte fromNode, byte toNode);
 

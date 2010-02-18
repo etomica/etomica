@@ -1,8 +1,8 @@
 package etomica.graph.iterators;
 
-import etomica.graph.model.BytePermutator;
+import etomica.graph.model.Permutator;
 
-public class CartesianPermutator implements BytePermutator {
+public class CartesianPermutator implements Permutator {
 
   private int[] innerPartition;
   private int[] outerPartition;
