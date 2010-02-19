@@ -56,4 +56,19 @@ public class MetadataImpl implements Metadata {
 
     return "" + type + color;
   }
+
+  public int compareTo(Metadata other) {
+
+    // it only makes sense to compare objects of the same type
+    if (other == null) {
+      return 1;
+    }
+    if (other == this) {
+      return 0;
+    }
+    if (color == other.getColor()) {
+      return 0;
+    }
+    return color > other.getColor() ? 1 : -1;
+  }
 }

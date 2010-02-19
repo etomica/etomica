@@ -1,6 +1,6 @@
 package etomica.graph.model;
 
-public interface Edge {
+public interface Edge extends Comparable<Edge> {
 
   public Edge copy();
 

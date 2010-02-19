@@ -27,9 +27,9 @@ public interface Traversal {
 
   /**
    * Traverses all components of the graph, starting at an arbitrary node for each
-   * component.
+   * component, and returns the total number of components traversed.
    */
-  public void traverseAll(Graph graph, TraversalVisitor visitor);
+  public byte traverseAll(Graph graph, TraversalVisitor visitor);
 
   /**
    * Traverses a single component of the graph starting at the designated node.

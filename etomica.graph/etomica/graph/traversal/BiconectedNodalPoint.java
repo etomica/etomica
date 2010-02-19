@@ -10,18 +10,19 @@ public class BiconectedNodalPoint extends Biconnected {
    * field nodes.
    */
   @Override
-  public void traverseAll(Graph graph, TraversalVisitor visitor) {
+  public byte traverseAll(Graph graph, TraversalVisitor visitor) {
 
+    byte result = 0;
     if (setup(graph, visitor)) {
       byte nodeID = 0;
-      while (nodeID < graph.getNodeCount()) {
+      while (nodeID < graph.nodeCount()) {
         // start the next traversal with the first unseen field node
-        while (nodeID < graph.getNodeCount()
+        while (nodeID < graph.nodeCount()
             && (((getSeen() & BitmapUtils.bitOnMask(nodeID)) > 0) || (graph.nodes().get(nodeID).getType() == TYPE_NODE_FIELD))) {
           nodeID++;
         }
         // make sure the nodeID is valid
-        if (nodeID < graph.getNodeCount()) {
+        if (nodeID < graph.nodeCount()) {
           // every connected component traversal starts at time 0;
           // this ensures that every connected component has its
           // own traversal root
@@ -30,11 +31,13 @@ public class BiconectedNodalPoint extends Biconnected {
           localVisit(STATUS_START_COMPONENT);
           traverseBCC(nodeID, graph, true);
           localVisit(STATUS_VISITED_COMPONENT);
+          result++;
         }
       }
     }
     if (seenAll()) {
       visit(STATUS_VISITED_ALL);
     }
+    return result;
   }
 }

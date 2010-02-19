@@ -39,8 +39,8 @@ public class Biconnected extends AbstractTraversal {
   protected boolean setup(Graph graph, TraversalVisitor visitor) {
 
     super.setup(graph, visitor);
-    visited = new int[graph.getNodeCount()];
-    low = new int[graph.getNodeCount()];
+    visited = new int[graph.nodeCount()];
+    low = new int[graph.nodeCount()];
     time = 0;
     return true;
   }
@@ -122,8 +122,9 @@ public class Biconnected extends AbstractTraversal {
   }
 
   @Override
-  public void traverseAll(Graph graph, TraversalVisitor visitor) {
+  public byte traverseAll(Graph graph, TraversalVisitor visitor) {
 
+    byte result = 0;
     if (setup(graph, visitor)) {
       while (!seenAll()) {
         byte nodeID = BitmapUtils.leftmostBit(~getSeen());
@@ -135,9 +136,11 @@ public class Biconnected extends AbstractTraversal {
         status(STATUS_START_COMPONENT);
         traverseBCC(nodeID, graph, true);
         status(STATUS_VISITED_COMPONENT);
+        result++;
       }
       status(STATUS_VISITED_ALL);
     }
+    return result == 0 ? (byte) graph.nodes().size() : result;
   }
 
   @Override

@@ -20,13 +20,13 @@ public class HasNodalPoint implements Property {
       return false;
     }
     Set<Byte> rootNodes = new HashSet<Byte>();
-    for (byte nodeID = 0; nodeID < graph.getNodeCount(); nodeID++) {
+    for (byte nodeID = 0; nodeID < graph.nodeCount(); nodeID++) {
       if (graph.nodes().get(nodeID).getType() == TYPE_NODE_ROOT) {
         rootNodes.add(nodeID);
       }
     }
     // a graph having no field node has no nodal point
-    if (graph.getNodeCount() == rootNodes.size()) {
+    if (graph.nodeCount() == rootNodes.size()) {
       return false;
     }
     // a graph having exactly one root node has no nodal point
@@ -35,8 +35,8 @@ public class HasNodalPoint implements Property {
     }
     // a graph having a single field node has a nodal point only
     // if the field node is not connected to all root nodes
-    if (graph.getNodeCount() - rootNodes.size() == 1) {
-      return graph.getOutDegree((byte) (graph.getNodeCount() - 1)) != rootNodes.size();
+    if (graph.nodeCount() - rootNodes.size() == 1) {
+      return graph.getOutDegree((byte) (graph.nodeCount() - 1)) != rootNodes.size();
     }
     // invoke a NP traversal starting and return true IFF the visitor
     // detected that the graph has a nodal point

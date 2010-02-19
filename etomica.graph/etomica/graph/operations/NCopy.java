@@ -5,12 +5,6 @@ import java.util.Set;
 
 import etomica.graph.model.Graph;
 
-/*
- * NCopy (Negative Copy): GraphSet --> GraphSet
- *
- * Given a graph set S, returns a graph set S' such that every graph g in S has an exact
- * copy g' in S' and coefficient(g') = -coefficient(g).
- */
 public class NCopy implements Unary {
 
   public Set<Graph> apply(Set<Graph> argument, Parameters params) {

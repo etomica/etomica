@@ -20,6 +20,8 @@ import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.Node;
 import etomica.graph.model.NodeVisitor;
+import etomica.graph.traversal.DepthFirst;
+import etomica.graph.traversal.Traversal;
 
 import static etomica.graph.model.Metadata.*;
 
@@ -103,18 +105,29 @@ public class GraphImpl implements Graph {
     // colors can be freely defined
     if (nodes().size() == other.nodes().size()) {
       if (edges.size() == other.edges().size()) {
-        int result = store.compareTo(other.getStore());
-        if (result == 0) {
-          for (int nodeId = 0; nodeId < nodes().size(); nodeId++) {
-            if (nodes().get(nodeId).getColor() < other.nodes().get(nodeId).getColor()) {
-              return -1;
-            }
-            else if (nodes().get(nodeId).getColor() > other.nodes().get(nodeId).getColor()) {
-              return 1;
+        // check store
+        int storeOrder = store.compareTo(other.getStore());
+        if (storeOrder != 0) {
+          return storeOrder;
+        }
+        // check nodes
+        for (int nodeId = 0; nodeId < nodes().size(); nodeId++) {
+          int nodeOrder = nodes().get(nodeId).compareTo(other.nodes().get(nodeId));
+          if (nodeOrder != 0) {
+            return nodeOrder;
+          }
+        }
+        // check edges
+        for (byte edgeId = 0; edgeId < edges().size(); edgeId++) {
+          Edge edge = edges.get(edgeId);
+          if (edge != null) {
+            int edgeOrder = edge.compareTo(other.getEdge(edge.getId()));
+            if (edgeOrder != 0) {
+              return edgeOrder;
             }
           }
         }
-        return result;
+        return 0;
       }
       else if (edges().size() < other.edges().size()) {
         return -1;
@@ -168,9 +181,6 @@ public class GraphImpl implements Graph {
   public List<Edge> edges() {
 
     return new ArrayList<Edge>(edges.values());
-    // EdgeCollectorVisitor v = new EdgeCollectorVisitor();
-    // visitEdges(v);
-    // return v.getEdges();
   }
 
   public String edgesToString() {
@@ -195,7 +205,6 @@ public class GraphImpl implements Graph {
   @Override
   public boolean equals(Object obj) {
 
-    // TODO: implement w/o resorting to the toString method...
     if (obj instanceof Graph) {
       Graph other = (Graph) obj;
       // check coefficient
@@ -203,11 +212,11 @@ public class GraphImpl implements Graph {
         return false;
       }
       // check node count
-      if (nodes.length != other.getNodeCount()) {
+      if (nodes.length != other.nodeCount()) {
         return false;
       }
       // check edge count
-      if (edges.size() != other.getEdgeCount()) {
+      if (edges.size() != other.edgeCount()) {
         return false;
       }
       // check nodes
@@ -230,13 +239,14 @@ public class GraphImpl implements Graph {
   }
 
   // computes the signature of the graph:
+  // - add a string CCStr for the number of connected components
   // - add a string RStr for each root node, in ID order
   // - add a string FStr for each field node color, in color order
   // - add a string EStr for each edge node color, in color order
+  // - CCStr = '/CC' || count of connected components
   // - RStr = '/R' || (color || Id || outDegree)* ordered by Id
   // - FStr = '/F' || (color count)* ordered by color || (outDegree)* ordered
   // - EStr = '/E' || (color count)* ordered by color
-  // - separate the RStr, FStr, and EStr sections with /R, /F, /E
   public String getSignature() {
 
     String result = "/R";
@@ -277,6 +287,9 @@ public class GraphImpl implements Graph {
     for (Character color : edgeColorMap.keySet()) {
       result += "" + color + edgeColorMap.get(color);
     }
+    Traversal t = new DepthFirst();
+    byte cc = t.traverseAll(this, null);
+    result = "/CC" + cc + result;
     return result;
   }
 
@@ -304,21 +317,13 @@ public class GraphImpl implements Graph {
     return edges.get(edgeId);
   }
 
-  public byte getEdgeCount() {
+  public byte edgeCount() {
 
     return (byte) store.bitCount();
   }
 
   // (0,1),(0,2),(1,2),(0,3),(1,3),(2,3),(0,4),(1,4),(2,4),(3,4)...,(n-1,n)
   // edgeId = (toNode)*(toNode-1)/2 + fromNode
-  // (0,1) => (1)(0)/2 + 0 = 0
-  // (0,2) => (2)(1)/2 + 0 = 1
-  // (1,2) => (2)(1)/2 + 1 = 2
-  // (0,3) => (3)(2)/2 + 0 = 3
-  // (1,3) => (3)(2)/2 + 1 = 4
-  // (2,3) => (3)(2)/2 + 2 = 5
-  // (0,4) => (4)(3)/2 + 0 = 6
-
   public byte getEdgeId(byte fromNode, byte toNode) {
 
     assert (fromNode != toNode);
@@ -326,7 +331,6 @@ public class GraphImpl implements Graph {
       return getEdgeId(toNode, fromNode);
     }
     return (byte) (fromNode + toNode * (toNode - 1) / 2);
-    // return (byte) ((toNode - fromNode - 1) + sumMaxEdges((byte) (fromNode - 1)));
   }
 
   public byte getFromLabel(byte edge) {
@@ -345,12 +349,6 @@ public class GraphImpl implements Graph {
       }
     }
     return 0;
-    // byte offset = (byte) (maxEdges(fromNode) - 1);
-    // while (edge > offset) {
-    // fromNode++;
-    // offset += maxEdges(fromNode);
-    // }
-    // return fromNode;
   }
 
   // returns the label of the given node
@@ -375,7 +373,7 @@ public class GraphImpl implements Graph {
     return nodes[node];
   }
 
-  public byte getNodeCount() {
+  public byte nodeCount() {
 
     return (byte) this.nodes.length;
   }
@@ -383,7 +381,7 @@ public class GraphImpl implements Graph {
   public byte getOutDegree(byte node) {
 
     byte result = 0;
-    for (byte i = 0; i < getNodeCount(); i++) {
+    for (byte i = 0; i < nodeCount(); i++) {
       if (i != node) {
         result += hasEdge(node, i) ? 1 : 0;
       }
@@ -394,7 +392,7 @@ public class GraphImpl implements Graph {
   public byte getOutNode(byte node, byte index) {
 
     byte found = 0;
-    for (byte i = 0; i < getNodeCount(); i++) {
+    for (byte i = 0; i < nodeCount(); i++) {
       if (i != node) {
         found += hasEdge(node, i) ? 1 : 0;
       }
@@ -404,20 +402,6 @@ public class GraphImpl implements Graph {
     }
     return (byte) 0xFF;
   }
-
-  // public List<Byte> getPartition(char type, char color) {
-  //
-  // if (type == TYPE_EDGE_ANY) {
-  // EdgeColorPartitionVisitor v = new EdgeColorPartitionVisitor(color);
-  // visitEdges(v);
-  // return v.getPartition();
-  // }
-  // else {
-  // NodeColorPartitionVisitor v = new NodeColorPartitionVisitor(type, color);
-  // visitNodes(v);
-  // return v.getPartition();
-  // }
-  // }
 
   public Bitmap getStore() {
 
@@ -440,20 +424,12 @@ public class GraphImpl implements Graph {
       }
     }
     return 0;
-    // byte fromNode = getFromNode(edge);
-    // int fromEdge = getEdgeId(fromNode, (byte) (fromNode + 1));
-    // return (byte) ((fromNode + 1) + (edge - fromEdge));
   }
 
   public boolean hasEdge(byte fromNode, byte toNode) {
 
     return store.testBit(getEdgeId(fromNode, toNode));
   }
-
-  // protected byte maxEdges(byte node) {
-  //
-  // return (byte) (getNodeCount() - node - 1);
-  // }
 
   public List<Node> nodes() {
 
@@ -474,11 +450,13 @@ public class GraphImpl implements Graph {
     return result;
   }
 
-  public void putEdge(byte fromNode, byte toNode) {
+  public Edge putEdge(byte fromNode, byte toNode) {
 
     byte edgeId = getEdgeId(fromNode, toNode);
     store.setBit(edgeId);
-    edges.put(edgeId, GraphFactory.createEdge(edgeId));
+    Edge edge = GraphFactory.createEdge(edgeId);
+    edges.put(edgeId, edge);
+    return edge;
   }
 
   public void putEdge(byte edgeId) {
@@ -492,15 +470,6 @@ public class GraphImpl implements Graph {
 
     labels[label] = node;
   }
-
-  // private byte sumMaxEdges(byte lastNode) {
-  //
-  // byte result = 0;
-  // for (byte node = 0; node <= lastNode; node++) {
-  // result += maxEdges(node);
-  // }
-  // return result;
-  // }
 
   @Override
   public String toString() {
@@ -520,7 +489,7 @@ public class GraphImpl implements Graph {
 
   public void visitNodes(NodeVisitor visitor) {
 
-    for (byte i = 0; i < getNodeCount(); i++) {
+    for (byte i = 0; i < nodeCount(); i++) {
       if (!visitor.visit(getNode(i))) {
         return;
       }
@@ -544,30 +513,6 @@ class EdgeCollectorVisitor implements EdgeVisitor {
   }
 }
 
-// class EdgeColorPartitionVisitor implements EdgeVisitor {
-//
-// List<Byte> partition = new ArrayList<Byte>();
-// private char color;
-//
-// public EdgeColorPartitionVisitor(char color) {
-//
-// this.color = color;
-// }
-//
-// public List<Byte> getPartition() {
-//
-// return partition;
-// }
-//
-// public boolean visit(Edge edge) {
-//
-// if (edge.getColor() == color) {
-// partition.add(edge.getId());
-// }
-// return true;
-// }
-// }
-//
 class EdgeColorVisitor implements EdgeVisitor {
 
   Set<Character> colors = new HashSet<Character>();
@@ -584,32 +529,6 @@ class EdgeColorVisitor implements EdgeVisitor {
   }
 }
 
-// class NodeColorPartitionVisitor implements NodeVisitor {
-//
-// List<Byte> partition = new ArrayList<Byte>();
-// private char color;
-// private char type;
-//
-// public NodeColorPartitionVisitor(char type, char color) {
-//
-// this.type = type;
-// this.color = color;
-// }
-//
-// public List<Byte> getPartition() {
-//
-// return partition;
-// }
-//
-// public boolean visit(Node node) {
-//
-// if (node.getType() == type && node.getColor() == color) {
-// partition.add(node.getId());
-// }
-// return true;
-// }
-// }
-//
 class NodeColorVisitor implements NodeVisitor {
 
   Set<Character> colors = new HashSet<Character>();

@@ -85,18 +85,18 @@ public abstract class AbstractTraversal implements Traversal {
   protected boolean setup(Graph graph, TraversalVisitor visitor) {
 
     setLocalVisitor(visitor);
-    if ((graph == null) || (graph.getNodeCount() == 0)) {
+    if ((graph == null) || (graph.nodeCount() == 0)) {
       error(ERROR_TRAVERSAL_NODES);
       return false;
     }
-    if (graph.getEdgeCount() == 0) {
+    if (graph.edgeCount() == 0) {
       error(ERROR_TRAVERSAL_EDGES);
       return false;
     }
     // we have seen no nodes
     setSeen(0);
     // one bit per every node we may see
-    setGoal(BitmapUtils.bitMask((byte) graph.getNodeCount()));
+    setGoal(BitmapUtils.bitMask((byte) graph.nodeCount()));
     return true;
   }
 
@@ -105,7 +105,7 @@ public abstract class AbstractTraversal implements Traversal {
     if (!setup(graph, visitor)) {
       return false;
     }
-    if ((nodeID < 0) || (nodeID >= graph.getNodeCount())) {
+    if ((nodeID < 0) || (nodeID >= graph.nodeCount())) {
       error(ERROR_TRAVERSAL_ROOT);
       return false;
     }
@@ -129,17 +129,20 @@ public abstract class AbstractTraversal implements Traversal {
   /**
    * The only reason to override this method is to change the node choice before
    * traversing each component, or to traverse more complex components such as
-   * biconnected, triconnected, etc.
+   * biconnected, K-connected, etc.
    */
-  public void traverseAll(Graph graph, TraversalVisitor visitor) {
+  public byte traverseAll(Graph graph, TraversalVisitor visitor) {
 
+    byte result = 0;
     if (setup(graph, visitor)) {
       while (!seenAll()) {
         byte nodeID = BitmapUtils.leftmostBit(~getSeen());
         // traverse the component
         traverseComponent(nodeID, graph);
+        result++;
       }
       status(STATUS_VISITED_ALL);
     }
+    return result == 0 ? (byte) graph.nodes().size() : result;
   }
 }

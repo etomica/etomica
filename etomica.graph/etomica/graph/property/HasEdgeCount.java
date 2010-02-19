@@ -13,6 +13,6 @@ public class HasEdgeCount implements Property {
 
   public boolean check(Graph graph) {
 
-    return graph.getEdgeCount() == edgeCount;
+    return graph.edgeCount() == edgeCount;
   }
 }

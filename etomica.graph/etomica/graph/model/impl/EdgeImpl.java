@@ -90,4 +90,15 @@ public class EdgeImpl implements Edge {
 
     return stockMetadata.toString();
   }
+
+  public int compareTo(Edge other) {
+
+    if (other == null) {
+      return 1;
+    }
+    if (id != other.getId()) {
+      return id > other.getId() ? 1 : -1;
+    }
+    return stockMetadata.compareTo(other.getMetadata());
+  }
 }

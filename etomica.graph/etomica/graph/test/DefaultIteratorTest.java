@@ -27,7 +27,7 @@ public class DefaultIteratorTest extends GraphIteratorTest {
     byte rangeEnd = 5;
     for (byte i = rangeBegin; i <= rangeEnd; i++) {
       expected = i == 0 ? 0 : 1 << (i) * (i - 1) / 2;
-//      testNaive(i, new DefaultIterator(i));
+      testNaive(i, new DefaultIterator(i));
     }
   }
 

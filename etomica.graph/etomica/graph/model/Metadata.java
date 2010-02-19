@@ -2,7 +2,7 @@ package etomica.graph.model;
 
 import java.awt.Color;
 
-public interface Metadata {
+public interface Metadata extends Comparable<Metadata>{
 
   public static final char TYPE_EDGE_ANY = 'E';
   public static final char TYPE_NODE_ROOT = 'R';

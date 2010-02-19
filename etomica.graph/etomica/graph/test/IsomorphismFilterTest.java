@@ -18,7 +18,7 @@ public class IsomorphismFilterTest extends GraphIteratorTest {
   public void reset() {
 
     super.reset();
-    printPermutations = false;
+    printPermutations = true;
     printMemory = true;
     checkAssertion = true;
   }
@@ -28,11 +28,11 @@ public class IsomorphismFilterTest extends GraphIteratorTest {
     reset();
     byte rangeBegin = 2;
     byte rangeEnd = 6;
-    // nodes = 7: total of 1044 out of 2097152 graphs after 221 secs
-//    for (byte i = rangeBegin; i <= rangeEnd; i++) {
-//      expected = i == 0 ? 0 : Match.ISMORPHS_COUNT[i - 1];
-//      testNaive(i, new IsomorphismFilter(new DefaultIterator(i)));
-//    }
+    // nodes = 7: total of 1044 out of 2097152 graphs after 216 secs
+    for (byte i = rangeBegin; i <= rangeEnd; i++) {
+      expected = i == 0 ? 0 : Match.ISMORPHS_COUNT[i - 1];
+      testNaive(i, new IsomorphismFilter(new DefaultIterator(i)));
+    }
   }
 
   public void testIsoFreeGraphsWithRootNodes() {

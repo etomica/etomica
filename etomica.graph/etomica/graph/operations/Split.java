@@ -12,7 +12,21 @@ import etomica.graph.model.Permutator;
 
 public class Split implements Unary {
 
-  private Set<Graph> apply(Graph graph, SplitParameters params) {
+  public Set<Graph> apply(Set<Graph> argument, Parameters params) {
+
+    assert (params instanceof SplitParameters);
+    Set<Graph> result = new HashSet<Graph>();
+    for (Graph g : argument) {
+      Set<Graph> newSet = apply(g, (SplitParameters) params);
+      if (newSet != null) {
+        result.addAll(newSet);
+      }
+    }
+    Unary isoFree = new IsoFree();
+    return isoFree.apply(result, params);
+  }
+
+  public Set<Graph> apply(Graph graph, SplitParameters params) {
 
     // collect the Ids of all edges we must replace
     List<Byte> edges = new ArrayList<Byte>();
@@ -42,19 +56,5 @@ public class Split implements Unary {
       result.add(newGraph);
     }
     return result;
-  }
-
-  public Set<Graph> apply(Set<Graph> argument, Parameters params) {
-
-    assert (params instanceof SplitParameters);
-    Set<Graph> result = new HashSet<Graph>();
-    for (Graph g : argument) {
-      Set<Graph> newSet = apply(g, (SplitParameters) params);
-      if (newSet != null) {
-        result.addAll(newSet);
-      }
-    }
-    Unary isoFree = new IsoFree();
-    return isoFree.apply(result, params);
   }
 }

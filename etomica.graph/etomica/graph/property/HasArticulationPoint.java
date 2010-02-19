@@ -20,7 +20,7 @@ public class HasArticulationPoint implements Property {
       return false;
     }
     Set<Byte> rootNodes = new HashSet<Byte>();
-    for (byte nodeID = 0; nodeID < graph.getNodeCount(); nodeID++) {
+    for (byte nodeID = 0; nodeID < graph.nodeCount(); nodeID++) {
       if (graph.nodes().get(nodeID).getType() == TYPE_NODE_ROOT) {
         rootNodes.add(nodeID);
       }
@@ -56,7 +56,7 @@ class APVisitor implements TraversalVisitor {
       rootNodesVisited = 0;
     }
     else if (status == STATUS_VISITED_COMPONENT) {
-      isConnected = isConnected || (visitedNodes.size() == graph.getNodeCount());
+      isConnected = isConnected || (visitedNodes.size() == graph.nodeCount());
       visitedNodes.clear();
     }
     // the next node is an articulation point and should not be processed

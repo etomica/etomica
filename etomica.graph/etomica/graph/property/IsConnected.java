@@ -17,11 +17,11 @@ public class IsConnected implements Property {
   public boolean check(Graph graph) {
 
     // by definition, a null graph and a singleton graph are connected
-    if (graph.getNodeCount() <= 1) {
+    if (graph.nodeCount() <= 1) {
       return true;
     }
     // invariant: a connected graph has at least N-1 edges
-    if (graph.getEdgeCount() < (graph.getNodeCount() - 1)) {
+    if (graph.edgeCount() < (graph.nodeCount() - 1)) {
       return false;
     }
     // traverse the graph starting at nodeID and return true IFF all nodes in the graph

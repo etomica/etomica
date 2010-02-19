@@ -1,6 +1,6 @@
 package etomica.graph.model;
 
-public interface Node {
+public interface Node extends Comparable<Node> {
 
   public Node copy();
 

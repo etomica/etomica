@@ -17,15 +17,15 @@ public class IsBiconnected implements Property {
   public boolean check(Graph graph) {
 
     // by definition, a null graph is not biconnected
-    if (graph.getNodeCount() == 0) {
+    if (graph.nodeCount() == 0) {
       return false;
     }
     // by definition, a singleton graph and a two node graph are biconnected
-    if (graph.getNodeCount() == 1) {
+    if (graph.nodeCount() == 1) {
       return true;
     }
     // invariant: a biconnected graph has at least N edges
-    if (graph.getEdgeCount() < graph.getNodeCount()) {
+    if (graph.edgeCount() < graph.nodeCount()) {
       return false;
     }
     // traverse the graph starting at nodeID and return true IFF all nodes in the graph

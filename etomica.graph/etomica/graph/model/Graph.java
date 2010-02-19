@@ -10,6 +10,8 @@ public interface Graph extends Comparable<Graph> {
 
   public void deleteEdge(byte fromNode, byte toNode);
 
+  public byte edgeCount();
+
   public List<Edge> edges();
 
   public String edgesToString();
@@ -19,8 +21,6 @@ public interface Graph extends Comparable<Graph> {
   public Edge getEdge(byte edgeId);
 
   public Edge getEdge(byte fromNode, byte toNode);
-
-  public byte getEdgeCount();
 
   public byte getEdgeId(byte fromNode, byte toNode);
 
@@ -33,8 +33,6 @@ public interface Graph extends Comparable<Graph> {
   public byte getLabeledNode(byte label);
 
   public Node getNode(byte node);
-
-  public byte getNodeCount();
 
   public byte getOutDegree(byte node);
 
@@ -52,13 +50,15 @@ public interface Graph extends Comparable<Graph> {
 
   public boolean hasEdge(byte fromNode, byte toNode);
 
+  public byte nodeCount();
+
   public List<Node> nodes();
 
   public String nodesToString();
 
   public void putEdge(byte edgeId);
 
-  public void putEdge(byte fromNode, byte toNode);
+  public Edge putEdge(byte fromNode, byte toNode);
 
   public void setLabel(byte label, byte node);
 

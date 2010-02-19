@@ -1,183 +1,111 @@
 package etomica.graph.operations;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
+import etomica.graph.model.GraphFactory;
 import etomica.graph.model.Node;
 import static etomica.graph.model.Metadata.*;
 
-//
-///*
-//* Mul (Graph Multiplication): Graph x Graph --> Graph
-//*/
-//public static Graph Mul(final Graph g1, final Graph g2) {
-//
-//// multiplication: take the union of the nodes
-//byte totalNodes = 0;
-//byte n1RootCount = 0;
-//byte n2RootCount = 0;
-//byte totalRootNodes = 0;
-//for (byte i = 0; i < n1.count(); i++) {
-//  if (n1.getAttributes(i).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)) {
-//    n1RootCount++;
-//    totalRootNodes++;
-//  }
-//  totalNodes++;
-//}
-//for (byte i = 0; i < n2.count(); i++) {
-//  if (n2.getAttributes(i).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)) {
-//    if (i == totalRootNodes) {
-//      totalNodes++;
-//      totalRootNodes++;
-//    }
-//    n2RootCount++;
-//  }
-//  else {
-//    totalNodes++;
-//  }
-//}
-//// VERY IMPORTANT: this implementation is still representation dependent, as it
-//// explores the fact that root nodes are the first nodes in the representation of a
-//// cluster; in order to alleviate this issue, it is necessary to support labels on
-//// top of the node representations.
-////
-//// compute the mapping of field nodes in the new graph to nodes in n1 and n2
-//byte fieldIndex = totalRootNodes;
-//Map<Byte, Byte> fieldMap = new HashMap<Byte, Byte>();
-//for (byte i = 0; i < n1.count(); i++) {
-//  if (n1.getAttributes(i).isSameClass(GraphFactory.FIELD_NODE_ATTRIBUTES)) {
-//    fieldMap.put(fieldIndex, i);
-//    fieldIndex++;
-//  }
-//}
-//for (byte i = 0; i < n2.count(); i++) {
-//  if (n2.getAttributes(i).isSameClass(GraphFactory.FIELD_NODE_ATTRIBUTES)) {
-//    fieldMap.put(fieldIndex, i);
-//    fieldIndex++;
-//  }
-//}
-//char[] rootColors = new char[totalRootNodes];
-//char[] fieldColors = new char[totalNodes - totalRootNodes];
-//// determine the colors of all root nodes
-//for (byte i = 0; i < totalRootNodes; i++) {
-//  if (i < n1RootCount) {
-//    rootColors[i] = n1.getAttributes(i).getColor();
-//  }
-//  else {
-//    rootColors[i] = n2.getAttributes(i).getColor();
-//  }
-//}
-//// determine the colors of all field nodes
-//for (int i = 0; i < totalNodes - totalRootNodes; i++) {
-//  if (i < n1.count() - n1RootCount) {
-//    fieldColors[i] = n1.getAttributes(fieldMap.get(i)).getColor();
-//  }
-//  else {
-//    fieldColors[i] = n2.getAttributes(fieldMap.get(i)).getColor();
-//  }
-//}
-//// now encode all edges in g1 and g2 to the edges in the new graph
-//StringBuffer[] neighbors = new StringBuffer[totalNodes - 1];
-//for (int i = 0; i < totalNodes; i++) {
-//  neighbors[i] = new StringBuffer(getZeroVector(totalNodes - i - 1));
-//}
-//for (byte i = 0; i < totalNodes; i++) {
-//  for (byte j = (byte) (i + 1); j < totalNodes; j++) {
-//    // edges from the first graph
-//    if (i < n1.count() && j < n1.count() && g1.getEdges().hasEdge(i, j)) {
-//      int fromNode = -1;
-//      int toNode = -1;
-//      if (n1.getAttributes(i).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)) {
-//        fromNode = i;
-//      }
-//      else {
-//        fromNode = fieldMap.get(i - n1RootCount);
-//      }
-//      if (n1.getAttributes(j).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)) {
-//        toNode = j;
-//      }
-//      else {
-//        toNode = fieldMap.get(j - n1RootCount);
-//      }
-//      neighbors[fromNode].setCharAt(toNode, '1');
-//    }
-//    // edges from the second graph
-//    else if (i >= n1.count() && j >= n1.count()
-//        && g2.getEdges().hasEdge((byte) (i - n1.count()), (byte) (j - n1.count()))) {
-//      int fromNode = -1;
-//      int toNode = -1;
-//      if (n2.getAttributes((byte) (i - n1.count())).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)) {
-//        fromNode = i - n1.count();
-//      }
-//      else {
-//        fromNode = fieldMap.get(i - n1.count() - n2RootCount);
-//      }
-//      if (n2.getAttributes((byte) (j - n1.count())).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)) {
-//        toNode = j - n1.count();
-//      }
-//      else {
-//        toNode = fieldMap.get(j - n1.count() - n2RootCount);
-//      }
-//      neighbors[fromNode].setCharAt(toNode, '1');
-//    }
-//  }
-//}
-//// create the the set of nodes
-//Nodes nodes = GraphFactory.defaultNodes(fieldColors, rootColors);
-//// create the the set of edges
-//StringBuffer strRep = new StringBuffer();
-//for (int i = 0; i < totalNodes; i++) {
-//  strRep.append(neighbors[i]);
-//}
-//EdgesRepresentationFactory factory = EdgesRepresentationFactory.getFactory(nodes.count());
-//Edges edges = GraphFactory.simpleEdges(factory.getRepresentation(BitmapFactory.getBitmap(strRep
-//    .toString())));
-//Coefficient coef1 = g1.getEdges().getMetadata().getCoefficient();
-//Coefficient coef2 = g2.getEdges().getMetadata().getCoefficient();
-//Coefficient coef = coef1.multiply(coef2);
-//edges.getMetadata().setCoefficient(coef);
-//return GraphFactory.simpleGraph(nodes, edges);
-//}
 public class Mul implements Binary {
 
-  public Graph multiply(Graph left, Graph right) {
+  public Set<Graph> apply(Set<Graph> left, Set<Graph> right, Parameters params) {
 
+    Unary isoFree = new IsoFree();
+    Set<Graph> result = new HashSet<Graph>();
+    for (Graph lg : left) {
+      for (Graph rg : right) {
+        Graph graph = apply(lg, rg);
+        if (graph != null) {
+          result.add(graph);
+        }
+      }
+    }
+    return isoFree.apply(result, params);
+  }
+
+  public Graph apply(Graph left, Graph right) {
+
+    List<Byte> sameLabelRootNodes = new ArrayList<Byte>();
     // two root nodes with the same nodeId in left and right must have the same color
-    for (byte nodeId = 0; nodeId < left.getNodeCount(); nodeId++) {
-      if (nodeId >= right.getNodeCount()) {
+    for (byte nodeId = 0; nodeId < left.nodeCount(); nodeId++) {
+      if (nodeId >= right.nodeCount()) {
         break;
       }
       Node leftNode = left.nodes().get(nodeId);
       Node rightNode = left.nodes().get(nodeId);
       if (leftNode.getType() == TYPE_NODE_ROOT && rightNode.getType() == TYPE_NODE_ROOT) {
-        assert (leftNode.isSameColor(rightNode));
+        if (!leftNode.isSameColor(rightNode)) {
+          return null;
+        }
+        sameLabelRootNodes.add(nodeId);
       }
     }
-    // two edges in left and right must not connect the same labeled root nodes
-    // NOTE: expensive check!
-//    for (byte i = 0; i < n1.count(); i++) {
-//      // root nodes of g1
-//      if (n1.getAttributes(i).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)) {
-//        for (byte j = 0; j < n1.count(); j++) {
-//          // edges (i,j) between root nodes in g1
-//          if (i != j && n1.getAttributes(j).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES)
-//              && g1.getEdges().hasEdge(i, j)) {
-//            // corresponding edges (i,j) between nodes in g2
-//            if (i < n2.count() && j < n2.count() && g2.getEdges().hasEdge(i, j)) {
-//              // edge (i,j) in g2 must not be between root nodes
-//              assert (!n2.getAttributes(i).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES) || !n2
-//                  .getAttributes(j).isSameClass(GraphFactory.ROOT_NODE_ATTRIBUTES));
-//            }
-//          }
-//        }
-//      }
-//    }
-    return null;
-  }
-
-  public Set<Graph> apply(Set<Graph> left, Set<Graph> right, Parameters params) {
-
-    Unary pcopy = new PCopy();
-    return null;
+    // left and right must not have edges connecting root nodes with the same labels
+    for (byte fromNode = 0; fromNode < left.nodeCount(); fromNode++) {
+      if (fromNode >= right.nodeCount()) {
+        break;
+      }
+      if (left.nodes().get(fromNode).getType() != TYPE_NODE_ROOT) {
+        continue;
+      }
+      for (byte toNode = (byte) (fromNode + 1); toNode < left.nodeCount(); toNode++) {
+        if (toNode >= right.nodeCount()) {
+          break;
+        }
+        if (left.nodes().get(fromNode).getType() != TYPE_NODE_ROOT) {
+          continue;
+        }
+        if (left.hasEdge(fromNode, toNode) && left.hasEdge(fromNode, toNode)) {
+          return null;
+        }
+      }
+    }
+    // union of nodes : all nodes from left
+    Node[] nodes = new Node[left.nodes().size() + right.nodes().size() - sameLabelRootNodes.size()];
+    for (byte nodeId = 0; nodeId < left.nodes().size(); nodeId++) {
+      nodes[nodeId] = left.nodes().get(nodeId).copy();
+    }
+    // union of nodes : nodes from right except those with a corresponding root node in
+    // left;
+    // nodes from right are relabeled in the result
+    byte nodeIndex = (byte) left.nodes().size();
+    for (byte nodeId = 0; nodeId < right.nodes().size(); nodeId++) {
+      if (sameLabelRootNodes.get(nodeId) != null) {
+        continue;
+      }
+      Node rnode = right.nodes().get(nodeId);
+      nodes[nodeIndex] = GraphFactory.createNode(nodeIndex, rnode.getColor(), rnode.getType());
+      nodeIndex++;
+    }
+    // create the graph
+    Graph result = GraphFactory.createGraph(nodes);
+    // union of edges : all edges from left
+    for (Edge edge : left.edges()) {
+      Edge newEdge = result.putEdge(left.getFromNode(edge.getId()), left.getToNode(edge.getId()));
+      newEdge.setColor(edge.getColor());
+    }
+    // union of edges : all edges from right; adjust for the relabeled nodes from right
+    byte deltaId = (byte) left.nodes().size();
+    for (Edge edge : right.edges()) {
+      byte fromNode = right.getFromNode(edge.getId());
+      if (sameLabelRootNodes.get(fromNode) == null) {
+        fromNode = (byte) (fromNode + deltaId);
+      }
+      byte toNode = right.getToNode(edge.getId());
+      if (sameLabelRootNodes.get(toNode) == null) {
+        fromNode = (byte) (toNode + deltaId);
+      }
+      Edge newEdge = result.putEdge(fromNode, toNode);
+      newEdge.setColor(edge.getColor());
+    }
+    // update the coefficient (default value is 1)
+    result.coefficient().multiply(left.coefficient());
+    result.coefficient().multiply(right.coefficient());
+    return result;
   }
 }
