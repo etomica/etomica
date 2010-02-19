@@ -28,31 +28,21 @@ import static etomica.graph.model.Metadata.*;
 public class GraphImpl implements Graph {
 
   private Bitmap store;
-  private byte[] labels;
   private Node[] nodes;
   private Coefficient coefficient;
   private Map<Byte, Edge> edges = new HashMap<Byte, Edge>();
 
-  public GraphImpl(Node[] nodes, Map<Byte, Edge> edges, Bitmap store, Coefficient coefficient) {
+  private GraphImpl(Node[] nodes, Map<Byte, Edge> edges, Bitmap store, Coefficient coefficient) {
 
     this.nodes = nodes;
     this.edges = edges;
     this.store = store;
     this.coefficient = coefficient;
-    this.labels = new byte[nodes.length];
-    for (byte i = 0; i < nodes.length; i++) {
-      this.labels[i] = i;
-    }
   }
 
   public GraphImpl(Node[] nodes) {
 
     this.coefficient = GraphFactory.createCoefficient();
-    this.labels = new byte[nodes.length];
-    this.nodes = new Node[nodes.length];
-    for (byte i = 0; i < nodes.length; i++) {
-      this.labels[i] = i;
-    }
     this.nodes = nodes;
     this.store = BitmapFactory.createBitmap((byte) nodes.length, false);
     createEdges();
@@ -81,10 +71,8 @@ public class GraphImpl implements Graph {
   public GraphImpl(byte nodeCount, byte rootNodeCount, Bitmap store, Coefficient coefficient) {
 
     this.coefficient = coefficient;
-    this.labels = new byte[nodeCount];
     this.nodes = new Node[nodeCount];
     for (byte i = 0; i < this.nodes.length; i++) {
-      this.labels[i] = i;
       this.nodes[i] = GraphFactory.createNode(i, i < rootNodeCount);
     }
     this.store = store;
@@ -333,11 +321,6 @@ public class GraphImpl implements Graph {
     return (byte) (fromNode + toNode * (toNode - 1) / 2);
   }
 
-  public byte getFromLabel(byte edge) {
-
-    return getLabel(getFromNode(edge));
-  }
-
   public byte getFromNode(byte edge) {
 
     for (int toNode = 1; toNode < nodes.length; toNode++) {
@@ -349,23 +332,6 @@ public class GraphImpl implements Graph {
       }
     }
     return 0;
-  }
-
-  // returns the label of the given node
-  public byte getLabel(byte node) {
-
-    for (byte i = 0; i < labels.length; i++) {
-      if (labels[i] == node) {
-        return i;
-      }
-    }
-    assert (false);
-    return (byte) 0xFF;
-  }
-
-  public byte getLabeledNode(byte label) {
-
-    return labels[label];
   }
 
   public Node getNode(byte node) {
@@ -406,11 +372,6 @@ public class GraphImpl implements Graph {
   public Bitmap getStore() {
 
     return store;
-  }
-
-  public byte getToLabel(byte edge) {
-
-    return getLabel(getToNode(edge));
   }
 
   public byte getToNode(byte edge) {
@@ -463,12 +424,6 @@ public class GraphImpl implements Graph {
 
     store.setBit(edgeId);
     edges.put(edgeId, GraphFactory.createEdge(edgeId));
-  }
-
-  // use this label to refer to this node
-  public void setLabel(byte label, byte node) {
-
-    labels[label] = node;
   }
 
   @Override

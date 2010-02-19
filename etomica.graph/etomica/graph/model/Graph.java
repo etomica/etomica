@@ -16,21 +16,13 @@ public interface Graph extends Comparable<Graph> {
 
   public String edgesToString();
 
-//  public Set<Character> getColors(char type);
-
   public Edge getEdge(byte edgeId);
 
   public Edge getEdge(byte fromNode, byte toNode);
 
   public byte getEdgeId(byte fromNode, byte toNode);
 
-  public byte getFromLabel(byte edge);
-
   public byte getFromNode(byte edge);
-
-  public byte getLabel(byte node);
-
-  public byte getLabeledNode(byte label);
 
   public Node getNode(byte node);
 
@@ -40,11 +32,7 @@ public interface Graph extends Comparable<Graph> {
 
   public String getSignature();
 
-//  public List<Byte> getPartition(char type, char color);
-
   public Bitmap getStore();
-
-  public byte getToLabel(byte edge);
 
   public byte getToNode(byte edge);
 
@@ -59,8 +47,6 @@ public interface Graph extends Comparable<Graph> {
   public void putEdge(byte edgeId);
 
   public Edge putEdge(byte fromNode, byte toNode);
-
-  public void setLabel(byte label, byte node);
 
   public void visitEdges(EdgeVisitor visitor);
 
