@@ -16,7 +16,7 @@ import etomica.graph.model.GraphIterator;
  */
 public abstract class GlobalFilter implements GraphIterator {
 
-  private Map<Byte, Set<Graph>>  blockingMap = new HashMap<Byte, Set<Graph>> ();
+  private Map<String, Set<Graph>>  blockingMap = new HashMap<String, Set<Graph>> ();
   private GraphIterator iterator;
   private ChainedIterator blockingIterator = null;
 
@@ -25,12 +25,13 @@ public abstract class GlobalFilter implements GraphIterator {
     this.iterator = iterator;
   }
 
-  private Set<Graph> getBlockingSet(byte edgeCount) {
+  protected Set<Graph> getBlockingSet(Graph g) {
 
-    Set<Graph> set = blockingMap.get(edgeCount);
+    String key = g.getSignature();
+    Set<Graph> set = blockingMap.get(key);
     if (set == null) {
       set = new HashSet<Graph>();
-      blockingMap.put(edgeCount, set);
+      blockingMap.put(key, set);
     }
     return set;
   }
@@ -43,13 +44,13 @@ public abstract class GlobalFilter implements GraphIterator {
     if (blockingIterator == null) {
       while (iterator.hasNext()) {
         Graph next = iterator.next();
-        Set<Graph> set = getBlockingSet(next.getEdgeCount());
+        Set<Graph> set = getBlockingSet(next);
         if (accept(next, set)) {
           set.add(next);
         }
       }
       blockingIterator = new ChainedIterator();
-      for (Byte key : blockingMap.keySet()) {
+      for (String key : blockingMap.keySet()) {
         blockingIterator.chainIterator(blockingMap.get(key).iterator());
       }
       blockingIterator.start();

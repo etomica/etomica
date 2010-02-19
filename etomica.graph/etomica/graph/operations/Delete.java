@@ -18,7 +18,7 @@ public class Delete implements Binary {
       boolean deleteLeft = false;
       for (Graph rg : right) {
         // should we delete lg from the result?
-        if (Match.match(lg, rg)) {
+        if (Match.match(lg, rg, true)) {
           deleteLeft = true;
           break;
         }

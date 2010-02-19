@@ -9,6 +9,7 @@ import etomica.graph.model.GraphIterator;
 public class PartitionedIterator extends CartesianIterator {
 
   private byte nodeCount;
+  private byte rootNodeCount;
   private Map<Character, Byte> fieldMap;
   private Map<Character, Byte> rootMap;
 
@@ -16,20 +17,20 @@ public class PartitionedIterator extends CartesianIterator {
 
     this.rootMap = rootMap;
     this.fieldMap = fieldMap;
-    this.nodeCount = computeNodeCount();
+    computeNodeCounts();
     bootstrap();
   }
 
-  private byte computeNodeCount() {
+  private void computeNodeCounts() {
 
-    byte result = (byte) 0;
+    rootNodeCount = (byte) 0;
     for (Byte partitionSize : rootMap.values()) {
-      result += partitionSize;
+      rootNodeCount += partitionSize;
     }
+    nodeCount = rootNodeCount;
     for (Byte partitionSize : fieldMap.values()) {
-      result += partitionSize;
+      nodeCount += partitionSize;
     }
-    return result;
   }
 
   @Override
@@ -53,6 +54,6 @@ public class PartitionedIterator extends CartesianIterator {
   @Override
   public GraphIterator createOuterIterator() {
 
-    return new DefaultIterator(nodeCount);
+    return new DefaultIterator(nodeCount, rootNodeCount);
   }
 }

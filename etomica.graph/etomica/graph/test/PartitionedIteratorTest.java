@@ -5,9 +5,9 @@ import java.util.Map;
 
 import static etomica.graph.model.Metadata.*;
 
-
 import etomica.graph.iterators.DefaultIterator;
 import etomica.graph.iterators.PartitionedIterator;
+import etomica.graph.iterators.IsomorphismPrefilteredPartitionedIterator;
 import etomica.graph.iterators.filters.IsomorphismFilter;
 import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.GraphIterator;
@@ -56,7 +56,12 @@ public class PartitionedIteratorTest extends GraphIteratorTest {
   protected void setupColorMap(int map) {
 
     reset();
-    if (map == 1) {
+    if (map == 0) {
+      coloredRootMap.put(COLOR_CODE_0, (byte) 0);
+      coloredFieldMap.put(COLOR_CODE_0, (byte) 2);
+      coloredFieldMap.put(COLOR_CODE_1, (byte) 1);
+    }
+    else if (map == 1) {
       coloredRootMap.put(COLOR_CODE_0, (byte) 2);
       coloredFieldMap.put(COLOR_CODE_0, (byte) 2);
       coloredFieldMap.put(COLOR_CODE_1, (byte) 1);
@@ -67,11 +72,21 @@ public class PartitionedIteratorTest extends GraphIteratorTest {
       coloredFieldMap.put(COLOR_CODE_0, (byte) 2);
       coloredFieldMap.put(COLOR_CODE_1, (byte) 1);
     }
+    else if (map == 3) {
+      coloredRootMap.put(COLOR_CODE_0, (byte) 1);
+      coloredFieldMap.put(COLOR_CODE_0, (byte) 2);
+      coloredFieldMap.put(COLOR_CODE_1, (byte) 1);
+    }
   }
 
   public GraphIterator getColorIterator() {
 
     return new PartitionedIterator(coloredRootMap, coloredFieldMap);
+  }
+
+  public GraphIterator getPreFilteredColorIterator() {
+
+    return new IsomorphismPrefilteredPartitionedIterator(coloredRootMap, coloredFieldMap);
   }
 
   public GraphIterator getMonoIterator() {
@@ -120,12 +135,84 @@ public class PartitionedIteratorTest extends GraphIteratorTest {
     // testNaive((byte) 6, new PropertyFilter(getColorIterator(), new HasNoRootEdge()));
   }
 
+  public void testIsoFreeCartesianColorGraphs0() {
+
+    setupColorMap(0);
+    // testNaive((byte) 3, new IsomorphismFilter(getColorIterator()));
+  }
+
+  public void testPreIsoFreeCartesianColorGraphs0() {
+
+    setupColorMap(0);
+    // testNaive((byte) 3, new PreFilteredPartitionedIterator(coloredRootMap,
+    // coloredFieldMap));
+  }
+
+  public void testPreAndPostIsoFreeCartesianColorGraphs0() {
+
+    setupColorMap(0);
+    // testNaive((byte) 3, new IsomorphismFilter(new
+    // PreFilteredPartitionedIterator(coloredRootMap, coloredFieldMap)));
+  }
+
+  public void testCartesianColorGraphs3() {
+
+    setupColorMap(3);
+    // nodes = 1ra2fa1fb total of 192 graphs after 54s ==> no ground truth to check
+    // against!
+    // testNaive((byte) 4, getColorIterator());
+  }
+
+  public void testIsoFreeCartesianColorGraphs3() {
+
+    setupColorMap(3);
+    // nodes = 1ra2fa1fb total of 40 graphs after 107ms ==> no ground truth to check
+    // against!
+    // testNaive((byte) 4, new IsomorphismFilter(getColorIterator()));
+  }
+
+  public void testPreIsoFreeCartesianColorGraphs3() {
+
+    setupColorMap(3);
+    // nodes = 1ra2fa1fb total of 60 graphs after 10ms ==> no ground truth to check
+    // against!
+    // testNaive((byte) 4, new IsomorphismPrefilteredPartitionedIterator(coloredRootMap,
+    // coloredFieldMap));
+  }
+
+  public void testPreAndPostIsoFreeCartesianColorGraphs3() {
+
+    setupColorMap(3);
+    // nodes = 1ra2fa1fb total of 40 graphs after 31ms ==> no ground truth to check
+    // against!
+    // testNaive((byte) 4, new IsomorphismFilter(new
+    // IsomorphismPrefilteredPartitionedIterator(coloredRootMap, coloredFieldMap)));
+  }
+
+  public void testCartesianColorGraphs0() {
+
+    setupColorMap(3);
+    // nodes = 2fa1fb total of 576 graphs after 1s ==> no ground truth to check
+    // against!
+    // testNaive((byte) 3, getColorIterator());
+  }
+
   public void testIsoFreeCartesianColorGraphs1() {
 
     setupColorMap(1);
     // nodes = 2ra2fa1fb total of 576 graphs after 1s ==> no ground truth to check
     // against!
     // testNaive((byte) 5, new IsomorphismFilter(getColorIterator()));
+  }
+
+  public void testPreIsoFreeCartesianColorGraphs1() {
+
+    setupColorMap(1);
+    // nodes = 2ra2fa1fb total of 576 graphs after 1s ==> no ground truth to check
+    // against!
+    // testNaive((byte) 5, new IsomorphismFilter(getColorIterator()));
+    // testNaive((byte) 5, new IsomorphismFilter(new
+    // PreFilteredPartitionedIterator(coloredRootMap, coloredFieldMap)));
   }
 
   public void testIsoFreeCartesianColorGraphs2() {
@@ -136,21 +223,42 @@ public class PartitionedIteratorTest extends GraphIteratorTest {
     // testNaive((byte) 6, new IsomorphismFilter(getColorIterator()));
   }
 
+  public void testPreIsoFreeCartesianColorGraphs2() {
+
+    setupColorMap(2);
+    // nodes = 2ra1rb2fa1fb total of 52224 graphs after ~20min ==> no ground
+    // truth to check against!
+    // testNaive((byte) 6, new IsomorphismFilter(new
+    // IsomorphismPrefilteredPartitionedIterator(coloredRootMap, coloredFieldMap)));
+  }
+
   public void testIsoFreeNoRootEdgeCartesianColorGraphs1() {
 
     setupColorMap(1);
-    // nodes = 2ra2fa1fb total of 288 graphs after 1s ==> no ground truth to check against!
-//     testNaive((byte) 5, new IsomorphismFilter(new PropertyFilter(getColorIterator(),
-//     new HasNoRootEdge())));
+    // nodes = 2ra2fa1fb total of 288 graphs after 1s ==> no ground truth to check
+    // against!
+    // testNaive((byte) 5, new IsomorphismFilter(new PropertyFilter(getColorIterator(),
+    // new HasNoRootEdge())));
   }
 
   public void testIsoFreeNoRootEdgeCartesianColorGraphs2() {
 
     setupColorMap(2);
-    // nodes = 2ra1rb2fa1fb total of 6528 graphs after 2min ==> no ground truth to check
+    // nodes = 2ra1rb2fa1fb total of 6528 graphs after 4s (down from > 2min!) ==> no ground
+    // truth to check
     // against!
     // testNaive((byte) 6, new IsomorphismFilter(new PropertyFilter(getColorIterator(),
     // new HasNoRootEdge())));
+  }
+
+  public void testPreIsoFreeNoRootEdgeCartesianColorGraphs2() {
+
+    setupColorMap(2);
+    // nodes = 2ra1rb2fa1fb total of 6528 graphs after 1s (down from > 2min!) ==> no ground
+    // truth to check
+    // against!
+//    testNaive((byte) 6, new IsomorphismFilter(new PropertyFilter(
+//        new IsomorphismPrefilteredPartitionedIterator(coloredRootMap, coloredFieldMap), new HasNoRootEdge())));
   }
 
   public void testNoRootEdgeIsoFreeCartesianColorGraphs1() {
@@ -241,7 +349,8 @@ public class PartitionedIteratorTest extends GraphIteratorTest {
 
     setupMonoMap(1);
     // nodes = 2r3f: total of 120 graphs after 648ms
-    // testNaive((byte) 5, new PropertyFilter(new IsomorphismFilter(getMonoIterator()), new
+    // testNaive((byte) 5, new PropertyFilter(new IsomorphismFilter(getMonoIterator()),
+    // new
     // HasNoRootEdge()));
   }
 

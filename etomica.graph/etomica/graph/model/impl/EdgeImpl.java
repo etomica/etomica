@@ -25,6 +25,16 @@ public class EdgeImpl implements Edge {
     return new EdgeImpl(getId(), getColor());
   }
 
+  @Override
+  public boolean equals(Object obj) {
+
+    if (obj instanceof Edge) {
+      Edge other = (Edge) obj;
+      return id == other.getId() && stockMetadata.equals(other.getMetadata());
+    }
+    return false;
+  }
+
   public char getColor() {
 
     return stockMetadata.getColor();

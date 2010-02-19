@@ -1,7 +1,6 @@
 package etomica.graph.model;
 
 import java.util.List;
-import java.util.Set;
 
 public interface Graph extends Comparable<Graph> {
 
@@ -15,7 +14,7 @@ public interface Graph extends Comparable<Graph> {
 
   public String edgesToString();
 
-  public Set<Character> getColors(char type);
+//  public Set<Character> getColors(char type);
 
   public Edge getEdge(byte edgeId);
 
@@ -41,7 +40,9 @@ public interface Graph extends Comparable<Graph> {
 
   public byte getOutNode(byte node, byte index);
 
-  public List<Byte> getPartition(char type, char color);
+  public String getSignature();
+
+//  public List<Byte> getPartition(char type, char color);
 
   public Bitmap getStore();
 

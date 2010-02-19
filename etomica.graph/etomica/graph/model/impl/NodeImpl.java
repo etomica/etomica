@@ -36,6 +36,16 @@ public class NodeImpl implements Node {
     return new NodeImpl(getId(), getType(), getColor());
   }
 
+  @Override
+  public boolean equals(Object obj) {
+
+    if (obj instanceof Node) {
+      Node other = (Node) obj;
+      return id == other.getId() && stockMetadata.equals(other.getMetadata());
+    }
+    return false;
+  }
+
   public char getColor() {
 
     return stockMetadata.getColor();

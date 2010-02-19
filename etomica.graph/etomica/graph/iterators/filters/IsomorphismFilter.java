@@ -9,8 +9,8 @@ import etomica.graph.model.GraphIterator;
 
 public class IsomorphismFilter extends GlobalFilter {
 
-  public static boolean DEBUG_MODE = false;
-  private static int DEBUG_FREQUENCY = 2000;
+  public static boolean DEBUG_MODE = true;
+  private static int DEBUG_FREQUENCY = 2500;
 
   private int countSeen = 0;
   private int countUnique = 0;
@@ -29,7 +29,7 @@ public class IsomorphismFilter extends GlobalFilter {
       for (Graph isoGraph : set) {
         // test for isomorphism and, if they don't match, keep the graph lower in the
         // graph order; update the graph coefficients;
-        if (Match.match(isoGraph, g1)) {
+        if (Match.match(isoGraph, g1, false)) {
           result = false;
           if (isoGraph.compareTo(g1) <= 0) {
             isoGraph.coefficient().add(g1.coefficient());
