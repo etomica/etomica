@@ -87,7 +87,9 @@ public class Interpreter implements ConsoleReader {
     catch (ParserException e) {
       echo(e.getMessage());
     }
-    echo();
+    if (!Parser.COMMAND_CLEAR.equals(statement)) {
+      echo();
+    }
   }
 
   private void dispatch(Command cmd) {
@@ -347,13 +349,17 @@ public class Interpreter implements ConsoleReader {
     if (expr instanceof ConstructorMono) {
       ConstructorMono c = (ConstructorMono) expr;
       byte nodeCount = (byte) (c.getFieldNodes() + c.getRootNodes());
-      if (c.isIsoFree() && nodeCount > 5 && c.getRootNodes() == 0) {
+      if (c.isIsoFree() && nodeCount > 1 && nodeCount < 10 && c.getRootNodes() == 0) {
         gi = new StoredIterator(nodeCount);
+        gi = appendFilters(c, gi);
       }
       else {
         gi = new DefaultIterator((byte) (c.getFieldNodes() + c.getRootNodes()), c.getRootNodes());
+        gi = appendFilters(c, gi);
+        if (c.isIsoFree()) {
+          gi = new IsomorphismFilter(gi);
+        }
       }
-      gi = appendFilters(c, gi);
     }
     else if (expr instanceof ConstructorColored) {
       ConstructorColored c = (ConstructorColored) expr;
@@ -393,17 +399,18 @@ public class Interpreter implements ConsoleReader {
   // executes the list command
   public void list(Command command) {
 
-    int propCount = 0;
     int varCount = 0;
+    int propCount = 0;
     for (String name : environment.getPropertyNames()) {
-      echo(String.format("@%s = '%s'", name, environment.getPropertyValue(name)));
+      echoLn(String.format("@%s = '%s'", name, environment.getPropertyValue(name)));
       propCount++;
     }
     for (String name : environment.getVariableNames()) {
       Set<Graph> gs = environment.getVariableValue(name);
-      echo(String.format("$%s : graph set size is %s.", name, getValueFmt(gs.size())));
+      echoLn(String.format("$%s : graph set size is %s.", name, getValueFmt(gs.size())));
       varCount++;
     }
+    echo();
     echo(String.format("%d properties and %d variables listed.", propCount, varCount));
   }
 
