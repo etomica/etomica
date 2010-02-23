@@ -429,7 +429,7 @@ public class GraphImpl implements Graph {
   @Override
   public String toString() {
 
-    return coefficient.toString() + " :: " + getSignature() + " :: " + nodesToString() + " :: "
+    return coefficient.toString() + /* " :: " + getSignature() + */" :: " + nodesToString() + " :: "
         + edgesToString();
   }
 

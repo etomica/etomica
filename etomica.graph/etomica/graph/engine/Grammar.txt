@@ -1,0 +1,81 @@
+#
+# support for console interaction and graph manipulations via assignments
+#
+statement ::= command | assignment
+
+#
+# console interaction
+#
+command ::= 'clear' |
+            'display(' variable ')' |
+            'drop(' variable ')' |
+            'list' |
+            'print(' variable ')' |
+            'read(' variable ',' value ')' |
+            'readdb(' value ')' |
+            'run(' value ')' |
+            'save(' value ')' |
+            'set(' property ',' value ')' |
+            'summary(' variable ')' |
+            'write(' variable ',' value ')' |
+            'writedb(' value ')'
+
+#
+# strict_expression avoids variable aliasing
+#
+assignment ::= variable '=' strict_expression
+
+#
+# compute graph sets by construction combined with filtering,
+# as well as unary and binary operations
+#
+strict_expression ::= constructor ['>' filter_name]* | op_unary | op_binary
+
+constructor ::= 'colored(' type_color_map ',' type_color_map ')' |
+                'iso_colored(' type_color_map ',' type_color_map ')' |
+                'iso_mono(' type_byte ',' type_byte ')' |
+                'mono(' type_byte ',' type_byte ')'
+
+filter_name ::= 'has_articulation_pair' |
+                'has_articulation_point' |
+                'has_no_root_point'|
+                'has_nodal_point' |
+                'is_biconnected' |
+                'is_connected'
+
+op_unary ::= 'edif(' expression ',' type_color ')' |
+             'exp(' expression ',' type_byte ',' type_byte ')' |
+             'int(' expression ',' type_byte ')' |
+             'iso(' expression ')' |
+             'ncopy(' expression ')' |
+             'ndif(' expression ',' type_color ')' |
+             'pcopy(' expression ')' |
+             'power(' expression ',' type_byte ')' |
+             'relabel(' expression ',' type_byte_map ')' |
+             'split(' expression ',' type_color ',' type_color ',' type_color ')'
+
+op_binary ::= 'conv(' expression ',' expression ',' type_byte ')' |
+              'del(' expression ',' expression ')' |
+              'mul(' expression ',' expression ')' |
+              'sub(' expression ',' expression ')' |
+              'sum(' expression ',' expression ')' |
+              'union(' expression ',' expression ')'
+
+expression ::= variable | strict_expression
+
+#
+# name bindings: variables and properties
+#
+variable       ::= '$' type_string
+property       ::= '@' type_string
+
+#
+# literals
+#
+value          ::= '"' type_string '"'
+type_byte_map  ::= '{' type_byte ':' type_byte [',' type_byte ':' type_byte]* '}'
+type_color_map ::= '{' type_color ':' type_byte [',' type_color ':' type_byte]* '}'
+
+type_byte      ::= PCDATA
+type_color     ::= PCDATA
+type_string    ::= PCDATA
