@@ -25,8 +25,8 @@ public class HarmonicCrystalSoftSphereFCC {
     public static void main(String[] args) {
         double rho = 1.256;
         int exponent = 12;
-        int maxLatticeShell = 49;
-        int nC =5;
+        int maxLatticeShell = 2;
+        int nC = 5;
         int numAtom = nC*nC*nC*4;
         
         double temperature = 0.001;
@@ -57,8 +57,9 @@ public class HarmonicCrystalSoftSphereFCC {
         
         ISpace sp = Space3D.getInstance();
         final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, exponent);
-        double truncationRadius = 3.64137;
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(sp, potential, truncationRadius);
+        double rc = (maxLatticeShell*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
+        System.out.println("truncation at "+rc);
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(sp, potential, rc);
         
         int[] nCells = new int[] {1, 1, 1};
         long startTime = System.currentTimeMillis();
@@ -69,13 +70,23 @@ public class HarmonicCrystalSoftSphereFCC {
         System.out.println("Density: " + rho);
         System.out.println("Exponent: " + exponent +"\n");
         
-        
-        
+        // we want an untruncated lattice energy, so extend lattice sum by 2 more cells
+        double rcU = ((maxLatticeShell+2)*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
+        pTruncated.setTruncationRadius(rcU);
         HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, pTruncated, sp);
+        
+        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
+
+        harmonicCrystal.setMaxLatticeShell(maxLatticeShell+2);
+        double u = harmonicCrystal.getLatticeEnergy();
+
+
+        // now actually calculate the free energy
+        harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, pTruncated, sp);
        
         harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
 
-        double u = harmonicCrystal.getLatticeEnergy();
+        harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
         harmonicCrystal.getNormalModes().setFileName(fileName);
         double a = harmonicCrystal.getHelmholtzFreeEnergy(temperature);
         
