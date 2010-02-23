@@ -95,8 +95,8 @@ public class HarmonicCrystal {
         System.out.println("cellCount: "+cellCount);
         System.out.println("basisDim: "+basisDim);
         System.out.println("moleculeCount: "+moleculeCount);
-        double jacobian = 0.5*D*(basisDim*(cellCount - differ)*Math.log(2.0) - Math.log(cellCount));
-        System.out.println("differ, jacobian: " + differ + "\t" + jacobian);
+        double Acom = 0.5*D*Math.log(moleculeCount);
+        System.out.println("differ, COM: " + differ + "\t" + Acom);
 
         double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
@@ -107,8 +107,8 @@ public class HarmonicCrystal {
         for(int k=0; k<omega2.length; k++) {
             double coeff = coeffs[k];
             for(int i=0; i<omega2[k].length; i++) {
-                if(omega2[k][i] > 1.e-9) {
-                    sumA += coeff*Math.log(omega2[k][i]*coeff/(temperature*Math.PI));
+                if(!Double.isInfinite(omega2[k][i])) {
+                    sumA += coeff*Math.log(omega2[k][i]/(2*temperature*Math.PI));
                     normalModeSum += coeff;
                 } else {
                     omega2zeroCount++;
@@ -119,7 +119,7 @@ public class HarmonicCrystal {
         System.out.println("omega2==0 count: "+omega2zeroCount);
         System.out.println("2*normalModeSum + D: " + (2*normalModeSum+D));
         System.out.println("D * moleculeCount: " + (D*moleculeCount));
-        sumA -= jacobian;
+        sumA -= Acom;
         sumA /= moleculeCount;
         sumA *= temperature;
         sumA += getLatticeEnergy();
