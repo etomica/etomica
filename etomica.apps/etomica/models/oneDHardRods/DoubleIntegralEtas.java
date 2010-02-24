@@ -1,6 +1,8 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
+import etomica.atom.Atom;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -17,6 +19,17 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
+/**
+ * Please note this class is specifically designed to integrate for 2 or 3
+ * rod systems, with one rod per cell.
+ * 
+ * Hardcoded with the initial atom locations for 2 or 3 atoms.
+ * 
+ * Hardcoded to only use the wave vector #1
+ * 
+ * @author cribbin
+ *
+ */
 public class DoubleIntegralEtas extends Simulation{
     
     NormalModes nm;
@@ -24,7 +37,7 @@ public class DoubleIntegralEtas extends Simulation{
     private double[][][] eigenvectors;
     private IVectorMutable[] waveVectors;
     private double[] wvc;
-    double[][] omega;
+    double[][] omega2;
 
     Box box;
     double xStart, xEnd, yStart, yEnd;
@@ -56,6 +69,7 @@ public class DoubleIntegralEtas extends Simulation{
         Primitive primitive = new PrimitiveCubic(space, 1.0/density);
         Boundary bdry = new BoundaryRectangularPeriodic(space, nAtoms/density);
         nCells = new int[]{nAtoms};
+        box.setBoundary(bdry);
         
         cDef = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         cDef.initializeCoordinates(nCells);
@@ -67,11 +81,17 @@ public class DoubleIntegralEtas extends Simulation{
         atomLocs = new double[bCells.length];
         u = new double[bCells.length];
         x0Pos = new double[bCells.length];
-        x0Pos[0] = -2.142857142857143;
-        x0Pos[1] = -0.7142857142857142;
-        x0Pos[2] = 0.7142857142857142;
 
-
+        //THESE ARE HARD CODE FOR 2 RODS, 0.7 density
+        x0Pos[0] = -1.4285714285714286;
+        x0Pos[1] = 0.0;
+        
+        //nan THESE ARE HARD CODE FOR 3 RODS, 0.7 density
+//        x0Pos[0] = -2.142857142857143;
+//        x0Pos[1] = -0.7142857142857142;
+//        x0Pos[2] = 0.7142857142857142;
+            
+            
         nm = new NormalModes1DHR(box.getBoundary(), nAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
@@ -80,7 +100,7 @@ public class DoubleIntegralEtas extends Simulation{
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         
         wvc = nm.getWaveVectorFactory().getCoefficients();
-        omega = nm.getOmegaSquared();
+        omega2 = nm.getOmegaSquared();
         eigenvectors = nm.getEigenvectors();
     }
     
@@ -97,22 +117,22 @@ public class DoubleIntegralEtas extends Simulation{
         double tol = 0.0000000001;
         xValue = xStart;
         yValue = yStart;
-        if(Math.abs(function(xValue, yValue)) >= tol){
+        if(Math.abs(integrand(xValue, yValue)) >= tol ){
             System.out.println("Increase your ranges xStart, yStart.");
         }
             
         yValue = yEnd;
-        if(Math.abs(function(xValue, yValue)) >= tol){
+        if(Math.abs(integrand(xValue, yValue)) >= tol ){
             System.out.println("Increase your ranges xStart, yEnd.");
         }
         xValue = xEnd;
         yValue = yStart;
-        if(Math.abs(function(xValue, yValue)) >= tol){
+        if(Math.abs(integrand(xValue, yValue)) >= tol ){
             System.out.println("Increase your ranges xEnd, yStart.");
         }
         
         yValue = yEnd;
-        if(Math.abs(function(xValue, yValue)) >= tol){
+        if(Math.abs(integrand(xValue, yValue)) >= tol ){
             System.out.println("Increase your ranges xEnd, yEnd.");
         }
         
@@ -121,28 +141,29 @@ public class DoubleIntegralEtas extends Simulation{
         xValue = xStart;
         for (int j = 1; j < yN; j++) {
             yValue = yStart + j *(yEnd - yStart) / yN;
-            if(Math.abs(function(xValue, yValue)) >= tol){
+            if(Math.abs(integrand(xValue, yValue)) >= tol ){
                 System.out.println("Increase your ranges xStart, yEdge.");
             }
         }
         xValue = xEnd;
         for (int j = 1; j < yN; j++) {
             yValue = yStart + j *(yEnd - yStart) / yN;
-            total += 2 * function(xValue, yValue);
-            if(Math.abs(function(xValue, yValue)) >= tol){
+            total += 2 * integrand(xValue, yValue);
+            if(Math.abs(integrand(xValue, yValue)) >= tol ){
                 System.out.println("Increase your ranges xEnd, yEdge.");
             }
         }
         yValue = yStart;
         for (int i = 1; i < yN; i++) {
-            xValue = xStart + i *(xEnd - xStart) / xN;if(Math.abs(function(xValue, yValue)) >= tol){
-                System.out.println("Increase your ranges xEdge, yStart.");
+            xValue = xStart + i *(xEnd - xStart) / xN;
+            if(Math.abs(integrand(xValue, yValue)) >= tol ){
+                        System.out.println("Increase your ranges xEdge, yStart.");
             }
         }
         yValue = yEnd;
         for (int i = 1; i < yN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
-            if(Math.abs(function(xValue, yValue)) >= tol){
+            if(Math.abs(integrand(xValue, yValue)) >= tol ){
                 System.out.println("Increase your ranges xEdge, yEnd.");
             }
         }
@@ -156,7 +177,7 @@ public class DoubleIntegralEtas extends Simulation{
             for (int j = 1; j < yN; j++) {
                 yValue = yStart + j *(yEnd - yStart) / yN;
                 if(!overlap(xValue, yValue)){
-                    total += 4 * function(xValue, yValue);
+                    total += 4 * integrand(xValue, yValue);
                 }
             }
         }
@@ -179,25 +200,27 @@ public class DoubleIntegralEtas extends Simulation{
                 u[i] = 0.0;
             }
             
-            for(int iVector = 0; iVector < waveVectors.length; iVector++){
+//            for(int iVector = 1; iVector < waveVectors.length; iVector++){
+            int iVector = 1;
                 double kR = waveVectors[iVector].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 
                 for (int i=0; i<coordinateDim; i++) {
-                    for (int j=0; j<coordinateDim; j++) {
+                    if( !(Double.isInfinite(omega2[iVector][i])) ){
+                        for (int j=0; j<coordinateDim; j++) {
                         u[j] += wvc[iVector] * eigenvectors[iVector][i][j] * 2.0 *
-                            (etaReal * coskR + etaImag * sinkR);
-                        
+                            (etaReal * coskR - etaImag * sinkR);
+                        }
                     }
                 }
-            }
+//            }
             
             for(int i=0; i < coordinateDim; i++){
                 u[i] *= normalization;
             }
+            atomLocs[iCell] = u[0] + x0Pos[iCell];
             
-            atomLocs[iCell] = u[iCell] + x0Pos[iCell];
         }
         
         for (int i=0; i < atomLocs.length-1; i++){
@@ -207,11 +230,13 @@ public class DoubleIntegralEtas extends Simulation{
             }
         }
         
-        double repeat = box.getBoundary().getEdgeVector(0).getX(0);
+        double repeat = box.getBoundary().getBoxSize().getX(0);
         if( (atomLocs[0]+repeat-0.5) <= (atomLocs[atomLocs.length-1]+0.5) ){
             isOverlap = true;
         }
         
+        if (!isOverlap) {System.out.println(etaReal + " " + etaImag);}
+       
         return isOverlap;
     }
     
@@ -226,8 +251,13 @@ public class DoubleIntegralEtas extends Simulation{
         this.yN = yN;
     }
 
-    private double function(double x, double y){
-        double value = x * y ;
+    private double integrand(double x, double y){
+        double value;
+        if (overlap(x, y)) {
+            value = 0;
+        }else{
+            value = 1;
+        }
         return value;
     }
     
@@ -236,10 +266,10 @@ public class DoubleIntegralEtas extends Simulation{
       double yStart = -1.0;
       double xEnd = 1.0;
       double yEnd = 1.0;
-      int xN = 100000;
-      int yN = 100000;
+      int xN = 100;
+      int yN = 100;
       
-      int nAtoms = 3;
+      int nAtoms = 2;
       double density = 0.7;
       
       DoubleIntegralEtas di = new DoubleIntegralEtas(nAtoms, density);
