@@ -9,6 +9,7 @@ import etomica.graph.model.Graph;
 import etomica.graph.model.GraphIterator;
 import etomica.graph.operations.*;
 import etomica.graph.property.*;
+import etomica.graph.viewer.ClusterViewer;
 
 public class Interpreter implements ConsoleReader {
 
@@ -378,8 +379,15 @@ public class Interpreter implements ConsoleReader {
   // executes the display command
   public void display(CommandVariable command) {
 
-    echoCommand(command);
-    notImplemented();
+    String varName = command.getVariable().getName();
+    Set<Graph> gs = environment.getVariableValue(varName);
+    if (gs == null) {
+      echo("Variable is not set.");
+    }
+    else {
+      ClusterViewer.createView(varName, gs);
+      echo(String.format("Displaying $%s.", varName));
+    }
   }
 
   // executes the drop command

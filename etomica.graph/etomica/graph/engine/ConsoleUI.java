@@ -7,18 +7,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
-// Have a local buffer with the whole data (until clear);
-// Have a window size to determine how much is to be shown at any given point;
-// Have a method update() that synchronizes the viewport with the buffer;
-// Synchronize the scrollbar vertical length with the buffer size;
-// Synchronize the scrollbar vertical scrolling with the viewport;
-// For instance, use the length of the vertical scrollbar as the length
-// of the buffer (in lines) so that scrolling maps the viewport to the
-// the block starting from the line corresponding to the scrollbar position
-// up to the viewport size...
-// something like that; the jtextarea component cannot handle a large number
-// of updates smoothly due to GUI processing issues- the processing has to
-// be done in another thread for this to work decently
 public class ConsoleUI extends JTextArea implements Console {
 
   private static final long serialVersionUID = 8775341949270012136L;
