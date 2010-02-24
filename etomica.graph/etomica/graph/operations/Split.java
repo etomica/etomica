@@ -35,10 +35,7 @@ public class Split implements Unary {
         edges.add(edge.getId());
       }
     }
-    // if there is nothing to do, return null
-    if (edges.size() == 0) {
-      return null;
-    }
+
     Set<Graph> result = new HashSet<Graph>();
     // compute all possible permutations of length |edges| consisting of two colors
     // such that each of the colors can appear any number of times from 0 to |edges|
