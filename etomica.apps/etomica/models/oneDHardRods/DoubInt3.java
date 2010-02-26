@@ -30,7 +30,7 @@ import etomica.species.SpeciesSpheresMono;
  * @author cribbin
  *
  */
-public class DoubleIntegralEtas extends Simulation{
+public class DoubInt3 extends Simulation{
     
     NormalModes nm;
     protected CoordinateDefinition cDef;
@@ -52,7 +52,7 @@ public class DoubleIntegralEtas extends Simulation{
     double[] atomLocs, u, x0Pos;
 
     
-    public DoubleIntegralEtas(int nAtoms, double density){
+    public DoubInt3(int nAtoms, double density){
         super(Space.getInstance(1));
         
         this.nAtoms = nAtoms;
@@ -81,18 +81,14 @@ public class DoubleIntegralEtas extends Simulation{
         atomLocs = new double[bCells.length];
         u = new double[bCells.length];
         x0Pos = new double[bCells.length];
-
-        //THESE ARE HARD CODE FOR 2 RODS, 0.7 density
-        if(nAtoms == 2){
-            x0Pos[0] = -1.4285714285714286;
-            x0Pos[1] = 0.0;
-        }
-        if(nAtoms == 3){
-            x0Pos[0] = -2.142857142857143;
-            x0Pos[1] = -0.7142857142857142;
-            x0Pos[2] = 0.7142857142857142;
-        }
-            
+        
+        //nan THESE ARE HARD CODE FOR 3 RODS, 0.7 density
+//        x0Pos[0] = -2.142857142857143;
+//        x0Pos[1] = -0.7142857142857142;
+//        x0Pos[2] = 0.7142857142857142;
+        x0Pos[0] = -1.4285714285714286;
+        x0Pos[1] = 0.0;
+        
         nm = new NormalModes1DHR(box.getBoundary(), nAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
@@ -158,14 +154,14 @@ public class DoubleIntegralEtas extends Simulation{
         for (int i = 1; i < yN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
             if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                        System.out.println("Increase your ranges xEdge, yStart. " + integrand(xValue, yValue));
+                        System.out.println("Increase your ranges xEdge, yStart.");
             }
         }
         yValue = yEnd;
         for (int i = 1; i < yN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
             if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                System.out.println("Increase your ranges xEdge, yEnd " + integrand(xValue, yValue));
+                System.out.println("Increase your ranges xEdge, yEnd");
             }
         }
         
@@ -173,19 +169,15 @@ public class DoubleIntegralEtas extends Simulation{
         //The actual calculation of the integral.
         //  We have already eliminated the edges' and endpoints' contributions,
         //  because they have been confirmed to be zero by the above code.
-        int count = 0;
         for(int i = 1; i < xN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
             for (int j = 1; j < yN; j++) {
                 yValue = yStart + j *(yEnd - yStart) / yN;
                     total += 4 * integrand(xValue, yValue);
             }
-            count++;
         }
-        System.out.println("count " + count);
         
         //Now we do the prefix thing
-        
         System.out.println("total before prefix " + total);
         double prefix = (xEnd - xStart)*(yEnd - yStart) / (4 * xN * yN);
         total *= prefix;
@@ -214,13 +206,8 @@ public class DoubleIntegralEtas extends Simulation{
                 for (int i=0; i<coordinateDim; i++) {
                     if( !(Double.isInfinite(omega2[iVector][i])) ){
                         for (int j=0; j<coordinateDim; j++) {
-                            if(nAtoms == 2) {
-                                u[j] += eigenvectors[iVector][i][j] * 2.0 *
-                                (etaReal * coskR);
-                            }else{
-                                u[j] += eigenvectors[iVector][i][j] * 2.0 *
-                                    (etaReal * coskR - etaImag * sinkR);
-                            }
+                        u[j] += eigenvectors[iVector][i][j] * 2.0 *
+                            (etaReal * coskR /*- etaImag * sinkR*/);
                         }
                     }
                 }
@@ -272,18 +259,10 @@ public class DoubleIntegralEtas extends Simulation{
     }
     
     public static void main(String[] args) {
-//      double xStart = -0.5;
-//      double yStart = -0.5;
-//      double xEnd = 0.5;
-//      double yEnd = 0.5;
-      
       double xStart = -1.0;
       double yStart = -1.0;
       double xEnd = 1.0;
       double yEnd = 1.0;
-      
-      
-      
       int xN = 100;
       int yN = 100;
       ;
@@ -291,11 +270,8 @@ public class DoubleIntegralEtas extends Simulation{
       int nAtoms = 2;
       double density = 0.7;
       
-      DoubleIntegralEtas di = new DoubleIntegralEtas(nAtoms, density);
+      DoubInt3 di = new DoubInt3(nAtoms, density);
       di.setIntegrationParameters(xStart, xEnd, yStart, yEnd, xN, yN);
-//      if(di.overlap(0.3, 1000)){
-//          System.out.println("AARGHH!");
-//      }
       di.calculate();
     }
 }
