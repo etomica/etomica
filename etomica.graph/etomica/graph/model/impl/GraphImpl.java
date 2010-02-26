@@ -176,16 +176,16 @@ public class GraphImpl implements Graph {
 
     // use curly brackets for a set
     String result = "";
-    boolean isMono = (getColors(TYPE_EDGE_ANY).size() == 1);
+    // boolean isMono = (getColors(TYPE_EDGE_ANY).size() == 1);
     boolean first = true;
     for (Byte edgeId : edges.keySet()) {
       if (!first) {
         result += ", ";
       }
       result += "(" + getFromNode(edgeId) + "," + getToNode(edgeId) + ")";
-      if (!isMono) {
-        result += edges.get(edgeId).getColor();
-      }
+      // if (!isMono) {
+      result += edges.get(edgeId).getColor();
+      // }
       first = false;
     }
     return "{" + result + "}";

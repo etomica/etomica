@@ -4,7 +4,7 @@ import etomica.graph.model.Graph;
 
 public class Match {
 
-  public static String DEF_ISOMORPHISM_ALGO = SearchState.ULLMAN_ALGORITHM;
+  public static String DEF_ISOMORPHISM_ALGO = SearchState.ULLMAN_ALGORITHM; // SearchState.VF2_ALGORITHM;
   // known isomorphism counts for N in {1,...,11}
   // for N > 11, the count falls beyond the range of 32 bit integers
   public static final int[] ISMORPHS_COUNT = { 1, 2, 4, 11, 34, 156, 1044, 12346, 274668, 12005168 /**

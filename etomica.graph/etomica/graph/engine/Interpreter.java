@@ -225,6 +225,9 @@ public class Interpreter implements ConsoleReader {
     else if (expression instanceof BinaryOp) {
       result = binaryOp((BinaryOp) expression);
     }
+    if (expression instanceof Variable) {
+      result = environment.getVariableValue(((Variable) expression).getName());
+    }
     return result;
   }
 

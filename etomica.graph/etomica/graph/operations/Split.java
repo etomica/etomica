@@ -22,6 +22,7 @@ public class Split implements Unary {
         result.addAll(newSet);
       }
     }
+//    return result;
     Unary isoFree = new IsoFree();
     return isoFree.apply(result, params);
   }

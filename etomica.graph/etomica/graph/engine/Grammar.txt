@@ -44,6 +44,7 @@ filter_name ::= 'has_articulation_pair' |
                 'is_connected'
 
 op_unary ::= 'edif(' expression ',' type_color ')' |
+             'excl(' expression ',' type_site_map ')' |
              'exp(' expression ',' type_byte ',' type_byte ')' |
              'int(' expression ',' type_byte ')' |
              'iso(' expression ')' |
@@ -75,6 +76,8 @@ property       ::= '@' type_string
 value          ::= '"' type_string '"'
 type_byte_map  ::= '{' type_byte ':' type_byte [',' type_byte ':' type_byte]* '}'
 type_color_map ::= '{' type_color ':' type_byte [',' type_color ':' type_byte]* '}'
+type_site_map  ::= '{' type_color ':' type_site_list [',' type_color ':' type_site_list ]* '}'
+type_site_list ::= '<' type_color [, type_color]* '>'
 
 type_byte      ::= PCDATA
 type_color     ::= PCDATA
