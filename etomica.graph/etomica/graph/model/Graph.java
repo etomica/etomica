@@ -48,6 +48,8 @@ public interface Graph extends Comparable<Graph> {
 
   public Edge putEdge(byte fromNode, byte toNode);
 
+  public String toSVG(int dim);
+
   public void visitEdges(EdgeVisitor visitor);
 
   public void visitNodes(NodeVisitor visitor);

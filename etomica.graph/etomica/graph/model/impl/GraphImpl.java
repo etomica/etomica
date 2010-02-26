@@ -1,6 +1,7 @@
 package etomica.graph.model.impl;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -431,6 +432,46 @@ public class GraphImpl implements Graph {
 
     return coefficient.toString() + /* " :: " + getSignature() + */" :: " + nodesToString() + " :: "
         + edgesToString();
+  }
+
+  public String toSVG(int dim) {
+
+    int nodeR = 6;
+    int oX = dim / 2;
+    int oY = dim / 2;
+    int graphR = dim / 2 - nodeR;
+
+    // first try 0, then A, then use this fixed one-- should work for 0
+    double oA = Math.PI / 2;
+    double angle = 2 * Math.PI / nodes.length;
+
+    double[] x = new double[nodes.length];
+    double[] y = new double[nodes.length];
+
+    String svgNodes = "";
+    for (int i = 0; i < nodes.length; i++) {
+      x[i] = oX + graphR * Math.cos(oA + i * angle);
+      y[i] = oY + graphR * Math.sin(oA + i * angle);
+      if (nodes[i].getType() == TYPE_NODE_ROOT) {
+        svgNodes += String.format(
+            "<circle style=\"fill: white; stroke: %s\" r=\"%d\" cx=\"%.2f\" cy=\"%.2f\"/>\n",
+            COLORS[COLOR_CODES.indexOf(nodes[i].getColor())], nodeR, x[i], y[i]);
+      }
+      else {
+        svgNodes += String.format(
+            "<circle style=\"fill: %s; stroke: black\" r=\"%d\" cx=\"%.2f\" cy=\"%.2f\"/>\n",
+            COLORS[COLOR_CODES.indexOf(nodes[i].getColor())], nodeR, x[i], y[i]);
+      }
+    }
+    String svgEdges = "";
+    for (Edge e : edges()) {
+      byte nodeFrom = getFromNode(e.getId());
+      byte nodeTo = getToNode(e.getId());
+      svgEdges += String.format(
+          "<line style=\"stroke: %s\" x1=\"%.2f\" y1=\"%.2f\" x2=\"%.2f\" y2=\"%.2f\"/>\n",
+          COLORS[COLOR_CODES.indexOf(e.getColor())], x[nodeFrom], y[nodeFrom], x[nodeTo], y[nodeTo]);
+    }
+    return svgEdges + svgNodes;
   }
 
   public void visitEdges(EdgeVisitor visitor) {
