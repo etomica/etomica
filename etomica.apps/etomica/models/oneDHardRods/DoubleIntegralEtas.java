@@ -158,14 +158,14 @@ public class DoubleIntegralEtas extends Simulation{
         for (int i = 1; i < yN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
             if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                        System.out.println("Increase your ranges xEdge, yStart. " + integrand(xValue, yValue));
+                        System.out.println("Increase your ranges xEdge, yStart.");
             }
         }
         yValue = yEnd;
         for (int i = 1; i < yN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
             if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                System.out.println("Increase your ranges xEdge, yEnd " + integrand(xValue, yValue));
+                System.out.println("Increase your ranges xEdge, yEnd.");
             }
         }
         
@@ -229,9 +229,8 @@ public class DoubleIntegralEtas extends Simulation{
             isOverlap = true;
         }
         
-//        if (!isOverlap) {System.out.println(etaReal + " " + etaImag);}
-        System.out.println("etaReal " + etaReal + " " + isOverlap + " 0 " + atomLocs[0]+" 1 " + atomLocs[1]);
-       
+//        if (!isOverlap) {System.out.println(etaReal + " " + etaIma  g);}
+        
         return isOverlap;
     }
     
@@ -257,13 +256,13 @@ public class DoubleIntegralEtas extends Simulation{
     }
     
     public static void main(String[] args) {
-      double xStart = -1.0;
-      double yStart = -1.0;
-      double xEnd = 1.0;
-      double yEnd = 1.0;
+      double xStart = -0.5;
+      double yStart = -0.5;
+      double xEnd = 0.5;
+      double yEnd = 0.5;
       
       int xN = 100;
-      int yN = 2;
+      int yN = 50;
       
       int nAtoms = 2;
       double density = 0.7;
