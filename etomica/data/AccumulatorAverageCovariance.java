@@ -18,7 +18,7 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
     public AccumulatorAverageCovariance() {
     }
 
-    public AccumulatorAverageCovariance(int blockSize) {
+    public AccumulatorAverageCovariance(long blockSize) {
         super(blockSize);
     }
 
