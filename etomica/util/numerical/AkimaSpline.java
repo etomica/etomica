@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class AkimaSpline {
 
-    public AkimaSpline(int nSubPoints) {
+    public AkimaSpline() {
         m = new double[0];
         t = new double[0];
         x = new double[0];
@@ -120,7 +120,7 @@ public class AkimaSpline {
             x[i] = xList.get(i);
             y[i] = yList.get(i);
         }
-        AkimaSpline fitter = new AkimaSpline(10);
+        AkimaSpline fitter = new AkimaSpline();
         fitter.setInputData(x, y);
         double[] ix = new double[10*(x.length-1)+1];
         for (int i=0; i<x.length-1; i++) {
