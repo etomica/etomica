@@ -34,11 +34,11 @@ public class MCMoveHarmonic extends MCMoveBox {
         return coordinateDefinition;
     }
 
-    public void setOmegaSquared(double[][] omega2, double[] coeff) {
-        stdDev = new double[omega2.length][omega2[0].length];
-        for (int i=0; i<stdDev.length; i++) {
-            for (int j=0; j<stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(1.0/(2.0*omega2[i][j]*coeff[i]));
+    public void setOmegaSquared(double[][] omega2) {
+        oneOverOmega2 = new double[omega2.length][omega2[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+            for (int j=0; j<oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(omega2[i][j]));
             }
         }
     }
@@ -53,6 +53,11 @@ public class MCMoveHarmonic extends MCMoveBox {
     
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
         waveVectorCoefficients = newWaveVectorCoefficients;
+        
+        sqrtWVC = new double[newWaveVectorCoefficients.length];
+        for (int i =0; i < newWaveVectorCoefficients.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*newWaveVectorCoefficients[i]);
+        }
     }
     
     public void setEigenVectors(double[][][] newEigenVectors) {
@@ -83,36 +88,36 @@ public class MCMoveHarmonic extends MCMoveBox {
         double sqrtT = Math.sqrt(temperature);
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
-        	
-        	if (isSelectMode){
-        	       for (int j=0; j<modeNum.length; j++) {
-   	                if (stdDev[iVector][modeNum[j]] == 0) continue;
-   	                //generate real and imaginary parts of random normal-mode coordinate Q
-   	                double realGauss = random.nextGaussian() * sqrtT;
-   	                double imaginaryGauss = random.nextGaussian() * sqrtT;
-   	                rRand[iVector][modeNum[j]] = realGauss * stdDev[iVector][modeNum[j]];
-   	                iRand[iVector][modeNum[j]] = imaginaryGauss * stdDev[iVector][modeNum[j]];
-   	                //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
-   	                // it's hard to know which.  So long as we don't put an atom at the origin
-   	                // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-   	                if (waveVectorCoefficients[iVector] == 0.5) imaginaryGauss = 0;
-   	                lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
-   	            }
-        	} else {
-	            for (int j=0; j<coordinateDim; j++) {
-	                if (stdDev[iVector][j] == 0) continue;
-	                //generate real and imaginary parts of random normal-mode coordinate Q
-	                double realGauss = random.nextGaussian() * sqrtT;
-	                double imaginaryGauss = random.nextGaussian() * sqrtT;
-	                rRand[iVector][j] = realGauss * stdDev[iVector][j];
-	                iRand[iVector][j] = imaginaryGauss * stdDev[iVector][j];
-	                //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
-	                // it's hard to know which.  So long as we don't put an atom at the origin
-	                // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-	                if (waveVectorCoefficients[iVector] == 0.5) imaginaryGauss = 0;
-	                lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
-	            }
-        	}
+            
+            if (isSelectMode){
+               for (int j=0; j<modeNum.length; j++) {
+                   if (oneOverOmega2[iVector][modeNum[j]] == 0) continue;
+                   //generate real and imaginary parts of random normal-mode coordinate Q
+                   double realGauss = random.nextGaussian() * sqrtT;
+                   double imaginaryGauss = random.nextGaussian() * sqrtT;
+                   rRand[iVector][modeNum[j]] = realGauss * oneOverOmega2[iVector][modeNum[j]];
+                   iRand[iVector][modeNum[j]] = imaginaryGauss * oneOverOmega2[iVector][modeNum[j]];
+                   //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
+                   // it's hard to know which.  So long as we don't put an atom at the origin
+                   // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
+                   if (waveVectorCoefficients[iVector] == 0.5) imaginaryGauss = 0;
+                   lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
+               }
+            } else {
+                for (int j=0; j<coordinateDim; j++) {
+                    if (oneOverOmega2[iVector][j] == 0) continue;
+                    //generate real and imaginary parts of random normal-mode coordinate Q
+                    double realGauss = random.nextGaussian() * sqrtT;
+                    double imaginaryGauss = random.nextGaussian() * sqrtT;
+                    rRand[iVector][j] = realGauss * oneOverOmega2[iVector][j];
+                    iRand[iVector][j] = imaginaryGauss * oneOverOmega2[iVector][j];
+                    //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
+                    // it's hard to know which.  So long as we don't put an atom at the origin
+                    // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
+                    if (waveVectorCoefficients[iVector] == 0.5) imaginaryGauss = 0;
+                    lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
+                }
+            }
         }
         
         if (isRejectable) {
@@ -138,20 +143,19 @@ public class MCMoveHarmonic extends MCMoveBox {
                 
                 if(isSelectMode){
                     for (int i=0; i<modeNum.length; i++) {
- 	                    for (int j=0; j<coordinateDim; j++) {
- 	                        u[j] += waveVectorCoefficients[iVector]*eigenVectors[iVector][modeNum[i]][j]*
- 	                                  2.0*(rRand[iVector][modeNum[i]]*coskR - iRand[iVector][modeNum[i]]*sinkR);
- 	                    }
+                        for (int j=0; j<coordinateDim; j++) {
+                            u[j] += sqrtWVC[iVector]*eigenVectors[iVector][modeNum[i]][j]*
+                            (rRand[iVector][modeNum[i]]*coskR - iRand[iVector][modeNum[i]]*sinkR);
+                        }
                     }
-                	
                 } else {
-	                for (int i=0; i<coordinateDim; i++) {
-	                    for (int j=0; j<coordinateDim; j++) {
-	                        u[j] += waveVectorCoefficients[iVector]*eigenVectors[iVector][i][j]*
-	                                  2.0*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
-	                    }
-	                }
-            	}
+                    for (int i=0; i<coordinateDim; i++) {
+                        for (int j=0; j<coordinateDim; j++) {
+                            u[j] += sqrtWVC[iVector]*eigenVectors[iVector][i][j]*
+                                (rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
+                        }
+                    }
+                }
             }
             double normalization = 1/Math.sqrt(cells.length);
             for (int i=0; i<coordinateDim; i++) {
@@ -199,22 +203,22 @@ public class MCMoveHarmonic extends MCMoveBox {
     }
 
     
-	public int[] getModeNum() {
-		return modeNum;
-	}
+    public int[] getModeNum() {
+        return modeNum;
+    }
 
-	public void setModeNum(int[] modeNum) {
-		isSelectMode = true;
-		this.modeNum = modeNum;
-	}
+    public void setModeNum(int[] modeNum) {
+        isSelectMode = true;
+        this.modeNum = modeNum;
+    }
     
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     protected final AtomIteratorLeafAtoms iterator;
-    private double[][] stdDev;
+    private double[][] oneOverOmega2;
     private double[][][] eigenVectors;
     private IVectorMutable[] waveVectors;
-    private double[] waveVectorCoefficients;
+    private double[] waveVectorCoefficients, sqrtWVC;
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;

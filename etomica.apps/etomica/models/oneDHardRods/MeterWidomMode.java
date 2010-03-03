@@ -27,10 +27,10 @@ public class MeterWidomMode extends DataSourceScalar {
     private double eigenVectors[][][];
     private IVectorMutable[] waveVectors;
     private double[] realT, imagT;
-    private double[][] uOld, omegaSquared;
+    private double[][] uOld, omegaSquared, oneOverOmega2;
     protected double temperature;
     private double[] uNow, deltaU;
-    private double[] waveVectorCoefficients;
+    private double[] sqrtWVC;
     
     
     public MeterWidomMode(String string, IPotentialMaster 
@@ -63,7 +63,6 @@ public class MeterWidomMode extends DataSourceScalar {
         
         double[] realCoord = new double[coordinateDim];
         double[] imagCoord = new double[coordinateDim];
-        double[] normalCoord = new double[coordinateDim];
         for(int j = 0; j < coordinateDim; j++){
             realCoord[j] = 0.0;
             imagCoord[j] = 0.0;
@@ -96,8 +95,8 @@ public class MeterWidomMode extends DataSourceScalar {
             for(int i = 0; i < coordinateDim; i++){
                 //Calculate the current coordinates.
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] -= waveVectorCoefficients[i]*eigenVectors[affectedWV][i][j] *
-                        2.0 * (realCoord[i]*coskR - imagCoord[i]*sinkR);
+                    deltaU[j] -= sqrtWVC[i]*eigenVectors[affectedWV][i][j] *
+                        (realCoord[i]*coskR - imagCoord[i]*sinkR);
                 }
             }
 
@@ -141,7 +140,10 @@ public class MeterWidomMode extends DataSourceScalar {
         this.temperature = temperature;
     }
     public void setWaveVectorCoefficients(double[] waveVectorCoefficients) {
-        this.waveVectorCoefficients = waveVectorCoefficients;
+        sqrtWVC = new double[waveVectorCoefficients.length];
+        for (int i =0; i < waveVectorCoefficients.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*waveVectorCoefficients[i]);
+        }
     }
     public void setCoordinateDefinition(CoordinateDefinition cd){
         coordinateDefinition = cd;
@@ -150,9 +152,21 @@ public class MeterWidomMode extends DataSourceScalar {
     
     public void setSpringConstants(double[][] sc){
         omegaSquared = sc;
+        oneOverOmega2 = new double[sc.length][sc[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+              for (int j=0; j<oneOverOmega2[i].length; j++) {
+                  oneOverOmega2[i][j] = Math.sqrt(1.0/(sc[i][j]));
+              }
+          }
     }
     
     public void setOmegaSquared(double[][] sc){
         omegaSquared = sc;
+        oneOverOmega2 = new double[sc.length][sc[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+              for (int j=0; j<oneOverOmega2[i].length; j++) {
+                  oneOverOmega2[i][j] = Math.sqrt(1.0/(sc[i][j]));
+              }
+          }
     }
 }

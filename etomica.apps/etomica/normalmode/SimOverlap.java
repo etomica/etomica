@@ -169,7 +169,7 @@ public class SimOverlap extends Simulation {
 
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
-        move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setOmegaSquared(normalModes.getOmegaSquared());
         move.setEigenVectors(normalModes.getEigenvectors());
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -488,8 +488,8 @@ public class SimOverlap extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 10;
-        public double density = 0.1;
+        public int numMolecules = 2;
+        public double density = 0.7;
         public int D = 1;
         public long numSteps = 100000;
         public double harmonicFudge = 1;

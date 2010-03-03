@@ -55,7 +55,7 @@ public class SimWidomMode extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
-    MCMoveChangeSingleWVLoop mcMoveMode;
+    MCMoveChangeMultipleWV mcMoveMode;
     int harmonicWV;
     MeterWidomModeReal[] realMeter;
     MeterWidomModeImaginary[] imagMeter;
@@ -63,6 +63,10 @@ public class SimWidomMode extends Simulation {
 
     public SimWidomMode(Space _space, int numAtoms, double density, int blocksize) {
         super(_space);
+        
+        System.out.println("THIS CODE IS NOT FINISHED!");
+        System.out.println("need to fix this setHarmonicWV");
+        
         
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);
@@ -115,7 +119,7 @@ public class SimWidomMode extends Simulation {
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         
-        mcMoveMode = new MCMoveChangeSingleWVLoop(potentialMaster, random);
+        mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
@@ -172,7 +176,9 @@ public class SimWidomMode extends Simulation {
 
     private void setHarmonicWV(int hwv){
         harmonicWV = hwv;
-        mcMoveMode.setHarmonicWV(hwv);
+        System.out.println("THIS CODE IS NOT FINISHED!");
+        System.out.println("need to fix this setHarmonicWV");
+//        mcMoveMode.setHarmonicWV(hwv);
     }
     
     /**

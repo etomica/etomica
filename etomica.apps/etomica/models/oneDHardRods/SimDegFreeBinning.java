@@ -66,7 +66,7 @@ public class SimDegFreeBinning extends Simulation {
     MeterNMCBaskets meternmc;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
-    MCMoveChangeSingleWVLoop mcMoveMode;
+    MCMoveChangeMultipleWV mcMoveMode;
     AccumulatorHistogram[] hists;
     int harmonicWV;
     boolean[] skipThisMode;
@@ -75,6 +75,7 @@ public class SimDegFreeBinning extends Simulation {
     public SimDegFreeBinning(Space _space, int numAtoms, double density, int blocksize, int nbs) {
         super(_space);
         
+        System.out.println("THIS CODE IS NOT FINISHED!");
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
@@ -152,7 +153,7 @@ public class SimDegFreeBinning extends Simulation {
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         
-        mcMoveMode = new MCMoveChangeSingleWVLoop(potentialMaster, random);
+        mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
         mcMoveMode.setCoordinateDefinition(coordinateDefinition);
@@ -202,7 +203,9 @@ public class SimDegFreeBinning extends Simulation {
 
     private void setHarmonicWV(int hwv){
         harmonicWV = hwv;
-        mcMoveMode.setHarmonicWV(hwv);
+
+        System.out.println("need to fix this setHarmonicWV");
+//        mcMoveMode.setHarmonicWV(hwv);
     }
     
     /**

@@ -64,8 +64,8 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
     public IEtomicaDataSource[] meters;
     public IBox boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
-    MCMoveChangeMultipleWVLoop changeMove;
-    MCMoveCompareMultipleWVLoop compareMove;
+    MCMoveChangeMultipleWV changeMove;
+    MCMoveCompareMultipleWV compareMove;
     MeterPotentialEnergy meterAinB, meterAinA;
     MeterCompareMultipleWVBrute meterBinA, meterBinB;
     
@@ -76,6 +76,10 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
             density, double temperature, String filename, double harmonicFudge,
             int[] compWV, int[] harmWV){
         super(_space);
+        
+        System.out.println("THIS CODE IS NOT FINISHED!");
+        System.out.println("need to fix this setHarmonicWV");
+        
         
 //        long seed = 2;
 //        System.out.println("Seed explicitly set to " + seed);
@@ -140,7 +144,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
             System.out.println(i + " " + waveVectorFactoryTarget.getCoefficients()[i]);
         }
         
-        changeMove = new MCMoveChangeMultipleWVLoop(potentialMasterTarget, random);
+        changeMove = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
         integratorTarget.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
         changeMove.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
@@ -230,7 +234,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-        compareMove = new MCMoveCompareMultipleWVLoop(potentialMasterRef, 
+        compareMove = new MCMoveCompareMultipleWV(potentialMasterRef, 
                 random);
         integratorRef.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
@@ -668,8 +672,12 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
     }
     
     public void setHarmonicWV(int[] hwv){
-        compareMove.setHarmonicWV(hwv);
-        changeMove.setHarmonicWV(hwv);
+        System.out.println("THIS CODE IS NOT FINISHED!");
+        System.out.println("need to fix this setHarmonicWV");
+        
+        
+//        compareMove.setHarmonicWV(hwv);
+//        changeMove.setHarmonicWV(hwv);
     }
     
     public static class SimOverlapMultipleWaveVectorsParam extends ParameterBase {

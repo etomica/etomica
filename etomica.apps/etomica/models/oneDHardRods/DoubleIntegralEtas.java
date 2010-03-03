@@ -34,10 +34,9 @@ public class DoubleIntegralEtas extends Simulation{
     
     NormalModes nm;
     protected CoordinateDefinition cDef;
-    private double[][][] eigenvectors;
     private IVectorMutable[] waveVectors;
-    private double[] wvc;
-    double[][] omega2;
+    private double[] wvc, sqrtWVC;
+    double[][] omega2, oneOverOmega2;
 
     Box box;
     double xStart, xEnd, yStart, yEnd;
@@ -101,8 +100,18 @@ public class DoubleIntegralEtas extends Simulation{
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         
         wvc = nm.getWaveVectorFactory().getCoefficients();
+        sqrtWVC = new double[wvc.length];
+        for (int i =0; i < wvc.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*wvc[i]);
+        }
         omega2 = nm.getOmegaSquared();
-        eigenvectors = nm.getEigenvectors();
+//        oneOverOmega2 = new double[omega]
+//        for (int i=0; i<omega2.length; i++) {
+//            for (int j=0; j<omega2[i].length; j++) {
+//                oneOverOmega2[i][j] = Math.sqrt(1.0/(omega2[i][j]));
+//            }
+//        }
+
     }
     
     
@@ -189,7 +198,7 @@ public class DoubleIntegralEtas extends Simulation{
         return total;
     }
     
-    private boolean overlap(double etaReal, double etaImag){
+    private boolean overlap2(double etaReal){
         boolean isOverlap = false;
         
         //This pile o' stuff here calculates the x position of each atom.
@@ -205,11 +214,49 @@ public class DoubleIntegralEtas extends Simulation{
             double sinkR = Math.sin(kR);
 
             if( !(Double.isInfinite(omega2[1][0])) ){
-                if(nAtoms == 2) {
-                    u[iCell] += wvc[1] * eigenvectors[1][0][0] * 2.0 * (etaReal * coskR);
-                }else{
-                    u[iCell] += wvc[1] * eigenvectors[1][0][0] * 2.0 * (etaReal * coskR - etaImag * sinkR);
-                }
+                //NB all eigenvectors are one, so the term is dropped.
+                u[iCell] += wvc[1] * 2.0 * (etaReal * coskR);
+            }
+            u[iCell] *= normalization;
+            atomLocs[iCell] = u[iCell] + x0Pos[iCell];
+            
+        }//end of iCell loop
+        
+        for (int i=0; i < atomLocs.length-1; i++){
+            if ( (atomLocs[i] + 0.5) >= (atomLocs[i+1] - 0.5) ){
+                isOverlap = true;
+                break;
+            }
+        }
+        
+        double repeat = box.getBoundary().getBoxSize().getX(0);
+        if( (atomLocs[0]+repeat-0.5) <= (atomLocs[atomLocs.length-1]+0.5) ){
+            isOverlap = true;
+        }
+        
+        if (!isOverlap) {System.out.println(etaReal);}
+        
+        return isOverlap;
+    }
+    
+    private boolean overlap3(double etaReal, double etaImag){
+        boolean isOverlap = false;
+        
+        //This pile o' stuff here calculates the x position of each atom.
+        for(int i = 0; i < nAtoms; i++){
+            u[i] = 0.0;
+        }
+        
+        for(int iCell = 0; iCell < bCells.length; iCell++ ){
+            BasisCell cell = bCells[iCell];
+            
+            double kR = waveVectors[1].dot(cell.cellPosition);
+            double coskR = Math.cos(kR);
+            double sinkR = Math.sin(kR);
+
+            if( !(Double.isInfinite(omega2[1][0])) ){
+                //NB all eigenvectors are one, so the term is dropped.
+                u[iCell] += sqrtWVC[1] * (etaReal * coskR - etaImag * sinkR);
             }
             
             u[iCell] *= normalization;
@@ -229,11 +276,10 @@ public class DoubleIntegralEtas extends Simulation{
             isOverlap = true;
         }
         
-//        if (!isOverlap) {System.out.println(etaReal + " " + etaIma  g);}
+        if (!isOverlap) {System.out.println(etaReal + " " + etaImag);}
         
         return isOverlap;
     }
-    
     
     public void setIntegrationParameters(double xStart, double xEnd, double yStart, double yEnd,
             int xN, int yN){
@@ -247,24 +293,42 @@ public class DoubleIntegralEtas extends Simulation{
 
     private double integrand(double x, double y){
         double value;
-        if (overlap(x, y)) {
-            value = 0;
-        }else{
-            value = 1;
-        }
+        
+//        //Hard rod N = 2
+//        if (overlap2(x)) {
+//            value = 0;
+//        }else{
+//            value = 1;
+//        }
+        
+//        //Hard Rod + harmonic, 2 rods
+//        if (overlap3(x, y)) {
+//            value = 0.0;
+//        }else{
+//            value = Math.exp(-(0.0 + 0.5 * omega2[1][0] * y*y));
+//        }      
+        
+      //Hard rod N = 3
+      if (overlap3(x, y)) {
+          value = 0;
+      }else{
+          value = 1;
+      }
+        
+        
         return value;
     }
     
     public static void main(String[] args) {
-      double xStart = -0.5;
-      double yStart = -0.5;
-      double xEnd = 0.5;
-      double yEnd = 0.5;
+      double xStart = -1.0;
+      double yStart = -1.0;
+      double xEnd = 1.0;
+      double yEnd = 1.0;
       
       int xN = 100;
-      int yN = 50;
+      int yN = 100;
       
-      int nAtoms = 2;
+      int nAtoms = 3;
       double density = 0.7;
       
       DoubleIntegralEtas di = new DoubleIntegralEtas(nAtoms, density);

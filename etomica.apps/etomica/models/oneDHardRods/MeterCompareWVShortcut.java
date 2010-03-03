@@ -26,22 +26,22 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     private IVectorMutable[] waveVectors;
     int comparedWV;
     protected double temperature;
-    private double[] waveVectorCoefficients;
+    private double[] waveVectorCoefficients, sqrtWVC;
     private double wvc;
     private CoordinateDefinition coordinateDefinition;
     private double[] realT, imagT;
     private double[][] uOld;
     private double[] uNow, deltaU;
     int coordinateDim;
-    private double omegaSquared[][];	//spring constants
+    private double[][] omegaSquared, oneOverOmega2; //spring constants
     private double energyNM, energyOP;  //energyNM is energy of normal modes
                                 //energyOP is the energy of the Gaussian modes
     
     private static final long serialVersionUID = 1L;
-    MCMoveCompareSingleWVLoop mcmove;
+    MCMoveCompareMultipleWV mcmove;
     
     public MeterCompareWVShortcut(IPotentialMaster potentialMaster, 
-            MCMoveCompareSingleWVLoop mcmove){
+            MCMoveCompareMultipleWV mcmove){
         super("meterComapreMode", Null.DIMENSION);
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
@@ -51,7 +51,7 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
         this.mcmove = mcmove; 
     }
     public double getDataAsScalar() {
-        double[] gaussian = mcmove.getLastGaussian();
+        double[] gaussian = mcmove.getGaussian();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         BasisCell cell = cells[0];
         uOld = new double[cells.length][coordinateDim];
@@ -84,8 +84,8 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
             for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                 //Calculate the current coordinates
                 for(int j = 0; j < coordinateDim; j++){
-                    deltaU[j] -= wvc*eigenVectors[comparedWV][i][j] *
-                        2.0 * (realCoord*coskR - imagCoord*sinkR);
+                    deltaU[j] -= sqrtWVC[comparedWV]*eigenVectors[comparedWV][i][j] *
+                        (realCoord*coskR - imagCoord*sinkR);
                 }
             }
             
@@ -130,6 +130,10 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     }
     public void setWaveVectorCoefficients(double[] waveVectorCoefficients) {
         this.waveVectorCoefficients = waveVectorCoefficients;
+        sqrtWVC = new double[waveVectorCoefficients.length];
+        for (int i =0; i < waveVectorCoefficients.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*waveVectorCoefficients[i]);
+        }
     }
     public void setCoordinateDefinition(CoordinateDefinition cd){
         coordinateDefinition = cd;
@@ -137,9 +141,20 @@ public class MeterCompareWVShortcut extends DataSourceScalar {
     }
     public void setSpringConstants(double[][] sc){
         omegaSquared = sc;
+        for (int i=0; i<oneOverOmega2.length; i++) {
+            for (int j=0; j<oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(sc[i][j]));
+            }
+        }
     }
     public void setOmegaSquared(double[][] sc){
         omegaSquared = sc;
+        oneOverOmega2 = new double[sc.length][sc[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+            for (int j=0; j<oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(sc[i][j]));
+            }
+        }
     }
     
     

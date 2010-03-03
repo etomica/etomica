@@ -10,6 +10,14 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.units.Null;
 
+/**
+ * Meter which measures a hard rod energy plus a harmonic energy of a system
+ * The harmonic energy is determined by removing the effects of some 
+ * normal mode coordinates, and applying 1/2 omega^2 nmc^2 to them.
+ * The hard rod energy is determined by the remaining wavevectors.
+ * @author cribbin
+ *
+ */
 public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     int numTrials, numAccept;
     IPotential potentialTarget, potentialHarmonic;
@@ -18,10 +26,10 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     private IVectorMutable[] waveVectors;
     int[] comparedWVs;
     protected double temperature;
-    private double[] waveVectorCoefficients;
+    private double[] waveVectorCoefficients, sqrtWVC;
     private CoordinateDefinition coordinateDefinition;
     private double[] realT, imagT;
-    private double[][] uOld, omegaSquared;
+    private double[][] uOld, omegaSquared, oneOverOmega2;
     private double[] uNow, deltaU;
     int coordinateDim;
     private double energyHardRod, energyHarmonic;
@@ -98,8 +106,8 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
                 for(int i = 0; i < coordinateDim; i++){  //Loop would go away
                     //Calculate the current coordinates.
                     for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] -= waveVectorCoefficients[comparedWVs[wvcount]] * 
-                            eigenVectors[comparedWVs[wvcount]][i][j] * 2.0 *
+                        deltaU[j] -= sqrtWVC[comparedWVs[wvcount]] * 
+                            eigenVectors[comparedWVs[wvcount]][i][j] * 
                             (realCoord[wvcount] * coskR - imagCoord[wvcount]*sinkR);
                     }
                 }
@@ -178,6 +186,10 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     }
     public void setWaveVectorCoefficients(double[] waveVectorCoefficients) {
         this.waveVectorCoefficients = waveVectorCoefficients;
+        sqrtWVC = new double[waveVectorCoefficients.length];
+        for (int i =0; i < waveVectorCoefficients.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*waveVectorCoefficients[i]);
+        }
     }
     public void setCoordinateDefinition(CoordinateDefinition cd){
         coordinateDefinition = cd;
@@ -190,6 +202,12 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     
     public void setOmegaSquared(double[][] sc){
         omegaSquared = sc;
+        oneOverOmega2 = new double[sc.length][sc[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+            for (int j=0; j<oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(sc[i][j]));
+            }
+        }
     }
 
 //    public boolean isOnlyHardRod() {

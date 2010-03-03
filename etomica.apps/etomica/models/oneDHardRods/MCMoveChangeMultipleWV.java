@@ -14,7 +14,7 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 
 /**
- * A Monte Carlo move which selects a wave vector, and changes the normal mode
+ * A Monte Carlo move which selects a wave vector, and changes the normal modes
  * associated with that wave vector.
  * 
  * Uses a whitelist of wavevectors that can be changed by the doTrial() method.
@@ -33,9 +33,9 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     protected double energyOld, energyNew;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
-    private double[][] omega2;
+    private double[][] omega2, oneOverOmega2;
     private IVectorMutable[] waveVectors;
-    private double[] waveVectorCoefficients;
+    private double[] waveVectorCoefficients, sqrtWVC;
     int changedWV;
     int[] changeableWV;  //all wvs from this are changed.
     
@@ -84,9 +84,15 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     }
     public void setOmegaSquared(double[][] o2){
         omega2 = o2;
+        oneOverOmega2 = new double[o2.length][o2[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+            for (int j=0; j<oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(omega2[i][j]));
+            }
+        }
     }
     /**
-     * Set the wave vectors used by the move.
+     * Set the wave vectors that can be changed by the move.
      * 
      * @param wv
      */
@@ -96,6 +102,10 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
     }
     public void setWaveVectorCoefficients(double[] coeff){
         waveVectorCoefficients = coeff;
+        sqrtWVC = new double[coeff.length];
+        for (int i =0; i < coeff.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*coeff[i]);
+        }
     }
     /**
      * Informs the move of the eigenvectors for the selected wave vector.  The
@@ -160,7 +170,7 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
             
                 if( !(Double.isInfinite(omega2[changedWV][iMode])) ){
                     for(int j = 0; j < coordinateDim; j++){
-                        deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*
+                        deltaU[j] += sqrtWVC[changedWV]*eigenVectors[changedWV][iMode][j]*
                             (delta[iMode]*coskR - delta[iMode+coordinateDim]*sinkR);
                     }
                 }

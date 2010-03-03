@@ -33,7 +33,7 @@ import etomica.units.Null;
 /**
  * Uses a Widom-like insertion of a mode to calculate a probability.
  * Uses a different box than the main simulation, to assume an extra mode & rod 
- * is added/
+ * are added
  * 
  * @author cribbin
  *
@@ -46,10 +46,10 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private int cDim, simCDim;
     private IVectorMutable[] waveVectors, simWaveVectors;
     private double[] simRealT, simImagT;
-    private double[][] stdDev;
     protected double temperature;
     private double[] newU;
-    private double[] wvCoeff, simWVCoeff;
+    private double[] wvCoeff, simWVCoeff, sqrtWVC;
+    private double[][] oneOverOmega2;
     private double[][][] eigenVectors, simEigenVectors;
     double gaussCoord;
     
@@ -98,7 +98,12 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
-        setStdDev(nm.getOmegaSquared(), wvCoeff);
+        sqrtWVC = new double[wvCoeff.length];
+        for (int i =0; i < wvCoeff.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*wvCoeff[i]);
+        }
+        
+        setOmegaSquared(nm.getOmegaSquared());
         
         PotentialMasterList potentialMaster = new PotentialMasterList(sim, sim.getSpace());
         Potential2 potential = new P2HardSphere(sim.getSpace(), 1.0, true);
@@ -121,14 +126,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         IAtomList atomlist = box.getLeafList();
         
         gaussCoord = random.nextGaussian();
-        
-
-//        gaussCoord = 0.15468475562819778;
-//        double gaussImagCoord = -0.36614992292964565;
-        
-        
-        
-        
         
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
@@ -162,17 +159,14 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             //We are adding 0.5, and this code lets us get it in the right slot.
             if(waveVectors.length == simWaveVectors.length){
                 imagCoord[waveVectors.length - 1] = gaussCoord * 
-                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+                    Math.sqrt(temperature) * oneOverOmega2[waveVectors.length - 1][j];
             } else {
                 realCoord[waveVectors.length - 1] = gaussCoord * 
-                    Math.sqrt(temperature) * stdDev[waveVectors.length - 1][j];
+                    Math.sqrt(temperature) * oneOverOmega2[waveVectors.length - 1][j];
             }
         }
         
         //Calculate the positions for the meter's system
-        
-        
-        
         for (int iCell = 0; iCell < cells.length; iCell++){
             cell = cells[iCell];
             for (int j = 0; j < cDim; j++) {
@@ -185,8 +179,8 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                 double sinkR = Math.sin(kR);
                 for (int i = 0; i < cDim; i++){
                     for (int j = 0; j < cDim; j++){
-                       newU[j] += wvCoeff[wvcount] * eigenVectors[wvcount][i][j] 
-                            * 2.0 * (realCoord[wvcount] * coskR - imagCoord[wvcount] * sinkR);
+                       newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][i][j] 
+                            * (realCoord[wvcount] * coskR - imagCoord[wvcount] * sinkR);
                     }
                 }
             }
@@ -203,17 +197,15 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         return meterPE.getDataAsScalar();
     }
 
-    private void setStdDev(double[][] o2, double[] coeff) {
-        stdDev = new double[o2.length][o2[0].length];
-        for (int i = 0; i < stdDev.length; i++) {
-            for (int j = 0; j < stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(1.0 / (2.0 * o2[i][j] * coeff[i]));
+    private void setOmegaSquared(double[][] o2) {
+        oneOverOmega2 = new double[o2.length][o2[0].length];
+        for (int i = 0; i < oneOverOmega2.length; i++) {
+            for (int j = 0; j < oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(o2[i][j]));
             }
         }
-//        System.out.print("om2 " + o2[2][0]);
     }
     
-
     public double getGaussian(){
         return gaussCoord;
     }

@@ -30,8 +30,8 @@ import etomica.units.Null;
 
 /**
  * Uses a Widom-like insertion of a mode to calculate a probability.
- * Uses a different box than the main simulation, to assume an extra mode & rod 
- * is added/
+ * Uses a different box than the main simulation, to assume a mode & rod 
+ * are removed
  * 
  * @author cribbin
  *
@@ -46,7 +46,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     private double[] simRealT, simImagT;
     protected double temperature;
     private double[] newU;
-    private double[] wvCoeff, simWVCoeff;
+    private double[] wvCoeff, simWVCoeff, sqrtWVC;
     private double[][][] eigenVectors, simEigenVectors;
     private double[][] simOmegaSquared;
 
@@ -96,6 +96,10 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
+        sqrtWVC = new double[wvCoeff.length];
+        for (int i =0; i < wvCoeff.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*wvCoeff[i]);
+        }
         
         PotentialMasterList potentialMaster = new PotentialMasterList(sim, sim.getSpace());
         Potential2 potential = new P2HardSphere(sim.getSpace(), 1.0, true);
@@ -178,8 +182,8 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                 double sinkR = Math.sin(kR);
                 for (int i = 0; i < cDim; i++){
                     for (int j = 0; j < cDim; j++){
-                       newU[j] += wvCoeff[wvcount] * eigenVectors[wvcount][i][j] 
-                            * 2.0 * (realCoord[wvcount] * coskR - imagCoord[wvcount] * sinkR);
+                       newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][i][j] 
+                            * (realCoord[wvcount] * coskR - imagCoord[wvcount] * sinkR);
                     }
                 }
             }

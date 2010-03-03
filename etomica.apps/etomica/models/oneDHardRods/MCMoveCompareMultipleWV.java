@@ -41,10 +41,9 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
     private IVectorMutable[] waveVectors;
     private double[] gaussian;
     protected double temperature;
-    private double[][] stdDev;
     private double[] rRand, iRand, realT, imagT;
-    private double[] waveVectorCoefficients;
-    private double[][] omega2;
+    private double[] waveVectorCoefficients, sqrtWVC;
+    private double[][] omega2, oneOverOmega2;
     double[] uNow;
     int changedWV, howManyChangesToHardRodModes;
     int[] comparedWVs, changeableWVs;
@@ -112,9 +111,8 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
                         imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
                     }
                     for (int j = 0; j < coordinateDim; j++) {
-                        deltaU[j] -= waveVectorCoefficients[comparedwv] 
-                                * eigenVectors[comparedwv][i][j] * 2.0
-                                * (realCoord * coskR - imagCoord * sinkR);
+                        deltaU[j] -= sqrtWVC[comparedwv] * eigenVectors[comparedwv][i][j] * 
+                                (realCoord * coskR - imagCoord * sinkR);
                     }
                 }
                 for (int i = 0; i < coordinateDim; i++) {
@@ -169,7 +167,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
                 for (int iMode = 0; iMode < coordinateDim; iMode++) {
                     if( !(Double.isInfinite(omega2[changedWV][iMode]))) {
                         for (int j = 0; j < coordinateDim; j++) {
-                            deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*
+                            deltaU[j] += sqrtWVC[changedWV]*eigenVectors[changedWV][iMode][j]*
                                 (delta[iMode]*coskR - delta[iMode+coordinateDim]*sinkR);
                         }
                     }
@@ -199,7 +197,7 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
             int comparedwv = comparedWVs[wvCount];
             
             for (int j = 0; j < coordinateDim; j++) {
-                if (stdDev[comparedwv][j] == 0) {continue;}
+                if (oneOverOmega2[comparedwv][j] == 0) {continue;}
                 // generate real and imaginary parts of random normal-emode
                 // coordinate Q
                 double realGauss = random.nextGaussian() * sqrtT;
@@ -210,8 +208,8 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
                 // an atom at the  origin (which is true for 1D if c(k)=0.5), 
                 // it's the real part that will be ignored.
                 if (waveVectorCoefficients[comparedwv] == 0.5) {imagGauss = 0;}
-                rRand[j] = realGauss * stdDev[comparedwv][j];
-                iRand[j] = imagGauss * stdDev[comparedwv][j];
+                rRand[j] = realGauss * oneOverOmega2[comparedwv][j];
+                iRand[j] = imagGauss * oneOverOmega2[comparedwv][j];
                 gaussian[0] = realGauss;
                 gaussian[1] = imagGauss;
             }
@@ -231,9 +229,8 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
                 double sinkR = Math.sin(kR);
                 for (int i = 0; i < coordinateDim; i++) {
                     for (int j = 0; j < coordinateDim; j++) {
-                        deltaU[j] += waveVectorCoefficients[comparedwv] 
-                                * eigenVectors[comparedwv][i][j] * 2.0
-                                * (rRand[i] * coskR - iRand[i] * sinkR);
+                        deltaU[j] += sqrtWVC[comparedwv] * eigenVectors[comparedwv][i][j] * 
+                                 (rRand[i] * coskR - iRand[i] * sinkR);
                     }
                 }
                 for (int i = 0; i < coordinateDim; i++) {
@@ -313,6 +310,11 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
     }
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
         waveVectorCoefficients = newWaveVectorCoefficients;
+        
+        sqrtWVC = new double[newWaveVectorCoefficients.length];
+        for (int i =0; i < newWaveVectorCoefficients.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*newWaveVectorCoefficients[i]);
+        }
     }
 
     /**
@@ -324,10 +326,10 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
 
     public void setOmegaSquared(double[][] o2, double[] coeff) {
         this.omega2 = o2;
-        stdDev = new double[omega2.length][omega2[0].length];
-        for (int i = 0; i < stdDev.length; i++) {
-            for (int j = 0; j < stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(1.0 / (2.0 * omega2[i][j] * coeff[i]));
+        oneOverOmega2 = new double[o2.length][o2[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+            for (int j=0; j<oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(omega2[i][j]));
             }
         }
     }

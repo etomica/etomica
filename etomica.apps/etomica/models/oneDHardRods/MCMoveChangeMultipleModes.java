@@ -15,8 +15,8 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space3d.Vector3D;
 
 /**
- * A Monte Carlo move which selects a wave vector, and changes the normal mode
- * associated with that wave vector.
+ * A Monte Carlo move which selects a wave vector and mode(s), and changes the normal mode
+ * associated with that wave vector and mode(s).
  * 
  * Uses a whitelist of wavevectors that can be changed by the doTrial() method.
  * 
@@ -34,9 +34,9 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     protected double energyOld, energyNew /*, latticeEnergy*/;
     protected final MeterPotentialEnergy energyMeter;
     private double[][][] eigenVectors;
-    private double[][] omega2;
+    private double[][] omega2, oneOverOmega2;
     private IVectorMutable[] waveVectors;
-    private double[] waveVectorCoefficients;
+    private double[] waveVectorCoefficients, sqrtWVC;
     int changedWV, changedMode, numberOfModesChanged;
     int[] changeableWVs, changeableModes;  //all wvs from the harmonic wv are not changed.
     
@@ -72,6 +72,12 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
 
     public void setOmegaSquared(double[][] o2){
         omega2 = o2;
+        oneOverOmega2 = new double[o2.length][o2[0].length];
+        for (int i=0; i<oneOverOmega2.length; i++) {
+            for (int j=0; j<oneOverOmega2[i].length; j++) {
+                oneOverOmega2[i][j] = Math.sqrt(1.0/(omega2[i][j]));
+            }
+        }
     }
     /**
      * Set the wave vectors used by the move.
@@ -84,6 +90,11 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
     public void setWaveVectorCoefficients(double[] coeff){
         waveVectorCoefficients = coeff;
+        
+        sqrtWVC = new double[coeff.length];
+        for (int i =0; i < coeff.length; i++){
+            sqrtWVC[i] = Math.sqrt(2*coeff[i]);
+        }
     }
     /**
      * Informs the move of the eigenvectors for the selected wave vector.  The
@@ -155,7 +166,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
                 for(int i = 0; i < coordinateDim; i++){
                     if( !(Double.isInfinite(omega2[changedWV][i])) ){
                         for(int j = 0; j < coordinateDim; j++){
-                            deltaU[j] += eigenVectors[changedWV][iMode][j]*2.0*
+                            deltaU[j] += sqrtWVC[changedWV]*eigenVectors[changedWV][iMode][j]*
                                 (delta[iMode]*coskR - delta[iMode+coordinateDim]*sinkR);
                         }
                     }
