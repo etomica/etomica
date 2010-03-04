@@ -52,8 +52,6 @@ public class MCMoveHarmonic extends MCMoveBox {
     }
     
     public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
-        waveVectorCoefficients = newWaveVectorCoefficients;
-        
         sqrtWVC = new double[newWaveVectorCoefficients.length];
         for (int i =0; i < newWaveVectorCoefficients.length; i++){
             sqrtWVC[i] = Math.sqrt(2*newWaveVectorCoefficients[i]);
@@ -100,7 +98,7 @@ public class MCMoveHarmonic extends MCMoveBox {
                    //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
                    // it's hard to know which.  So long as we don't put an atom at the origin
                    // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-                   if (waveVectorCoefficients[iVector] == 0.5) imaginaryGauss = 0;
+                   if (sqrtWVC[iVector] == 1.0) imaginaryGauss = 0;
                    lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
                }
             } else {
@@ -114,7 +112,7 @@ public class MCMoveHarmonic extends MCMoveBox {
                     //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
                     // it's hard to know which.  So long as we don't put an atom at the origin
                     // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-                    if (waveVectorCoefficients[iVector] == 0.5) imaginaryGauss = 0;
+                    if (sqrtWVC[iVector] == 1.0) imaginaryGauss = 0;
                     lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
                 }
             }
@@ -218,7 +216,7 @@ public class MCMoveHarmonic extends MCMoveBox {
     private double[][] oneOverOmega2;
     private double[][][] eigenVectors;
     private IVectorMutable[] waveVectors;
-    private double[] waveVectorCoefficients, sqrtWVC;
+    private double[] sqrtWVC;
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;
