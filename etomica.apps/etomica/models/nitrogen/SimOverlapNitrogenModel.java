@@ -101,10 +101,10 @@ public class SimOverlapNitrogenModel extends Simulation {
 		coordDefTarget.initializeCoordinates(nCells);
         
 		boxTarget.setBoundary(boundaryTarget);
-		double rScale = 0.45;
-		double rC = boxTarget.getBoundary().getBoxSize().getX(0)*rScale;
-		System.out.println("Truncation Radius: " + rC);
-		P2Nitrogen potential = new P2Nitrogen(space, rScale);
+		double rCScale = 0.45;
+		double rC = boxTarget.getBoundary().getBoxSize().getX(0)*rCScale;
+		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
+		P2Nitrogen potential = new P2Nitrogen(space, rCScale);
 		potential.setBox(boxTarget);
 		System.out.println("Box Dimension(before): " + boxTarget.getBoundary().getBoxSize().toString());
 		final IVector initBox = space.makeVector(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
@@ -143,7 +143,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         meterPE.setBox(boxTarget);
         latticeEnergy =  meterPE.getDataAsScalar();
         
-        System.out.println("lattice energy per molecule in K: " +Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
+        System.out.println("lattice energy per molecule in K: " +Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules+"\n");
       
         // HARMONIC
         boundaryHarmonic =  new BoundaryDeformablePeriodic(space,nCell*unitCellLength);
@@ -169,7 +169,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
-        moveHarmonic.setOmegaSquared(normalModes.getOmegaSquared());
+        moveHarmonic.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
         moveHarmonic.setEigenVectors(normalModes.getEigenvectors());
         moveHarmonic.setWaveVectors(waveVectorFactory.getWaveVectors());
         moveHarmonic.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -362,6 +362,7 @@ public class SimOverlapNitrogenModel extends Simulation {
             readParameters.readParameters();
         }
         int D = 3;
+        double pressure = 0.0;
         long numSteps = params.numSteps;
         final int numMolecules = params.numMolecules;
         double temperature = params.temperature;
@@ -379,10 +380,12 @@ public class SimOverlapNitrogenModel extends Simulation {
         //String refFileName = args.length > 0 ? filename+"_ref" : null;
         String refFileName = filename+"_ref";
         
-//    	System.out.println("Running alpha-N2 crystal structure overlap-sampling simulation with " + numSteps + " steps" );
-//		System.out.println("num Molecules: " + numMolecules+ " ; temperature: " + temperature+"K\n");
-//		System.out.println((numSteps/1000)+" total steps of 1000");
-//        System.out.println("output data to "+filename);
+    	System.out.println("Running alpha-N2 crystal structure overlap-sampling simulation with " + numSteps + " steps" );
+		System.out.println("num Molecules: " + numMolecules+ " ; temperature: " + temperature
+					+"K ; pressure: "+ pressure+"GPa");
+		System.out.println("With volume scaling of " + scale);
+		System.out.println((numSteps/1000)+" total steps of 1000");
+        System.out.println("output data to "+filename +"\n");
 
         //instantiate simulation
         SimOverlapNitrogenModel sim = new SimOverlapNitrogenModel(Space.getInstance(D), numMolecules, temperature, filename, scale);
@@ -433,7 +436,8 @@ public class SimOverlapNitrogenModel extends Simulation {
         System.out.println("target free energy in K, A: "+(AHarmonic-temperature*Kelvin.UNIT.fromSim(Math.log(ratio))));
         System.out.println("target free energy per particle in K, A/N: "+ (AHarmonic-temperature*Kelvin.UNIT.fromSim(Math.log(ratio)))/numMolecules 
         		+" ;error: "+temperature*Kelvin.UNIT.fromSim((error/ratio))/numMolecules);
-        System.out.println("target Helmholtz free energy per particle in K, A/N: "+ ((AHarmonic-temperature*Kelvin.UNIT.fromSim(Math.log(ratio)))/numMolecules+uLatticeInfinite) 
+        System.out.println("target Helmholtz free energy per particle in K, A/N: "+ ((AHarmonic-temperature*Kelvin.UNIT.fromSim(Math.log(ratio))+
+        		Kelvin.UNIT.fromSim(sim.latticeEnergy))/numMolecules) 
         		+" ;error: "+temperature*Kelvin.UNIT.fromSim((error/ratio))/numMolecules);
         
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
@@ -504,8 +508,8 @@ public class SimOverlapNitrogenModel extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules =32;
         public long numSteps = 1000000;
-        public String filename = "uNVTAlpha32_T25";
-        public double temperature =25.0;
+        public String filename = "NPT32T35";
+        public double temperature =35.0;
         public double scale = 1.0;
     }
 }
