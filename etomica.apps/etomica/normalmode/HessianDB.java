@@ -89,7 +89,7 @@ public class HessianDB extends Simulation {
         move.setCoordinateDefinition(coordinateDefinition);
         move.setEigenVectors(nm.getEigenvectors());
         move.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-        move.setOmegaSquared(nm.getOmegaSquared(), nm.getWaveVectorFactory().getCoefficients());
+        move.setOmegaSquared(nm.getOmegaSquared());
         move.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         move.setTemperature(temperature);
         move.setBox(box);

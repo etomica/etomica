@@ -128,7 +128,7 @@ public class SimOverlapLJModule {
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
         
-        move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setOmegaSquared(normalModes.getOmegaSquared());
         move.setEigenVectors(normalModes.getEigenvectors());
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());

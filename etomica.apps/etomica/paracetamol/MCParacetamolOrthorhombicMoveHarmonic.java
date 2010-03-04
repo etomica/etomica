@@ -95,7 +95,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        moveHarmonic.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        moveHarmonic.setOmegaSquared(normalModes.getOmegaSquared());
         moveHarmonic.setEigenVectors(normalModes.getEigenvectors());
         moveHarmonic.setWaveVectors(waveVectorFactory.getWaveVectors());
         moveHarmonic.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());

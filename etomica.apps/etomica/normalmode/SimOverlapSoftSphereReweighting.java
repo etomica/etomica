@@ -161,7 +161,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
-        move.setOmegaSquared(normalModes.getOmegaSquared(), waveVectorFactory.getCoefficients());
+        move.setOmegaSquared(normalModes.getOmegaSquared());
         move.setEigenVectors(normalModes.getEigenvectors());
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
