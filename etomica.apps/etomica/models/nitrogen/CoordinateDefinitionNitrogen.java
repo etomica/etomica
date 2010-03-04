@@ -3,6 +3,7 @@ package etomica.models.nitrogen;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -19,7 +20,7 @@ import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.normalmode.CoordinateDefinitionMoleculeVolumeFluctuation;
+import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -35,7 +36,7 @@ import etomica.util.RandomNumberGenerator;
  * 
  * @author Tai Boon Tan
  */
-public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVolumeFluctuation
+public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         implements Serializable {
 
     public CoordinateDefinitionNitrogen(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
@@ -352,6 +353,13 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMoleculeVo
     	isAlpha = true;
     }
 
+    public IVectorMutable[] getMoleculeOrientation(IMolecule molecule) {
+       /*
+        * return the initial Orientation of the molecule
+        */
+        return (IVectorMutable[])orientationManager.getAgent(molecule);
+    }
+    
     public void setToU(IMoleculeList molecules, double[] newU) {
     	
     	/*
