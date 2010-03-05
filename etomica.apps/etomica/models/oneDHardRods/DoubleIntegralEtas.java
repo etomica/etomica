@@ -32,94 +32,146 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class DoubleIntegralEtas extends Simulation{
     
-    NormalModes nm;
-    protected CoordinateDefinition cDef;
-    private IVectorMutable[] waveVectors;
-    private double[] wvc, sqrtWVC;
-    double[][] omega2, oneOverOmega2;
-
-    Box box;
-    double xStart, xEnd, yStart, yEnd;
-    int xN, yN, nAtoms;
-    double density;
-    int[] nCells;
-    
-    BasisCell[] bCells;
-    int coordinateDim;
-    double normalization;
     double sqrtT;
-    double[] atomLocs, u, x0Pos;
+    double density;
+    Box boxT, boxR;
+    double alpha;
+    double xStart, xEnd, yStart, yEnd;
+    int xN, yN, nAtomsT, nAtomsR;
+    NormalModes nmT, nmR;
+    protected CoordinateDefinition cDefT, cDefR;
+    private IVectorMutable[] wvT, wvR;
+    private double[] wvcT, sqrtWvcT, wvcR, sqrtWvcR;
+    double[][] omega2T, oneOverOmega2T, omega2R, oneOverOmega2R;
+    int[] nCellsT, nCellsR;
+    BasisCell[] rCells, tCells;
+    double normalizationT, normalizationR;
+    double[] atomLocsT, uT, x0PosT, atomLocsR, uR, x0PosR;
 
     
-    public DoubleIntegralEtas(int nAtoms, double density){
+    public DoubleIntegralEtas(int nAtoms, double density, double a){
         super(Space.getInstance(1));
-        
-        this.nAtoms = nAtoms;
         this.density = density;
+        sqrtT = Math.sqrt(1.0);
+        alpha = a;
+        
+        //TARGET
+        this.nAtomsT = nAtoms;
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
         Basis basis = new BasisMonatomic(space);
         
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, nAtoms);
+        boxT = new Box(space);
+        addBox(boxT);
+        boxT.setNMolecules(species, nAtomsT);
         
         Primitive primitive = new PrimitiveCubic(space, 1.0/density);
-        Boundary bdry = new BoundaryRectangularPeriodic(space, nAtoms/density);
-        nCells = new int[]{nAtoms};
-        box.setBoundary(bdry);
+        Boundary bdryT = new BoundaryRectangularPeriodic(space, nAtomsT/density);
+        nCellsT = new int[]{nAtomsT};
+        boxT.setBoundary(bdryT);
         
-        cDef = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        cDef.initializeCoordinates(nCells);
+        cDefT = new CoordinateDefinitionLeaf(boxT, primitive, basis, space);
+        cDefT.initializeCoordinates(nCellsT);
         
-        bCells = cDef.getBasisCells();
-        coordinateDim = cDef.getCoordinateDim();
-        normalization = 1/Math.sqrt(bCells.length);
-        sqrtT = Math.sqrt(1.0);
-        atomLocs = new double[bCells.length];
-        u = new double[bCells.length];
-        x0Pos = new double[bCells.length];
+        tCells = cDefT.getBasisCells();
+        normalizationT = 1/Math.sqrt(tCells.length);
+        atomLocsT = new double[tCells.length];
+        uT = new double[tCells.length];
+        x0PosT = new double[tCells.length];
+        
+        x0PosT[0] = -2.142857142857143;
+        x0PosT[1] = -0.7142857142857142;
+        x0PosT[2] = 0.7142857142857142;
+        
+        nmT = new NormalModes1DHR(boxT.getBoundary(), nAtoms);
+        nmT.setHarmonicFudge(1.0);
+        nmT.setTemperature(1.0);
+        nmT.getOmegaSquared();
+        nmT.getWaveVectorFactory().makeWaveVectors(boxT);
+        wvT = nmT.getWaveVectorFactory().getWaveVectors();
+        
+        wvcT = nmT.getWaveVectorFactory().getCoefficients();
+        sqrtWvcT = new double[wvcT.length];
+        for (int i =0; i < wvcT.length; i++){
+            sqrtWvcT[i] = Math.sqrt(2*wvcT[i]);
+        }
+        omega2T = nmT.getOmegaSquared();
+        oneOverOmega2T = new double[omega2T.length][omega2T[0].length];
+        for (int i=0; i<omega2T.length; i++) {
+            for (int j=0; j<omega2T[i].length; j++) {
+                oneOverOmega2T[i][j] = Math.sqrt(1.0/(omega2T[i][j]));
+            }
+        }
+
+        //REFERENCE
+        nAtomsR = nAtomsT - 1;
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+        basis = new BasisMonatomic(space);
+        
+        boxR = new Box(space);
+        addBox(boxR);
+        boxR.setNMolecules(species, nAtomsR);
+        
+        primitive = new PrimitiveCubic(space, 1.0/density);
+        Boundary bdryR = new BoundaryRectangularPeriodic(space, nAtomsR/density);
+        nCellsR = new int[]{nAtomsR};
+        boxR.setBoundary(bdryR);
+        
+        cDefR = new CoordinateDefinitionLeaf(boxR, primitive, basis, space);
+        cDefR.initializeCoordinates(nCellsR);
+        
+        rCells = cDefR.getBasisCells();
+        normalizationR = 1/Math.sqrt(rCells.length);
+        atomLocsR = new double[rCells.length];
+        uR = new double[rCells.length];
+        x0PosR = new double[rCells.length];
 
         //THESE ARE HARD CODE FOR 2 RODS, 0.7 density
-        if(nAtoms == 2){
-            x0Pos[0] = -1.4285714285714286;
-            x0Pos[1] = 0.0;
-        }
-        if(nAtoms == 3){
-            x0Pos[0] = -2.142857142857143;
-            x0Pos[1] = -0.7142857142857142;
-            x0Pos[2] = 0.7142857142857142;
-        }
-            
-        nm = new NormalModes1DHR(box.getBoundary(), nAtoms);
-        nm.setHarmonicFudge(1.0);
-        nm.setTemperature(1.0);
-        nm.getOmegaSquared();
-        nm.getWaveVectorFactory().makeWaveVectors(box);
-        waveVectors = nm.getWaveVectorFactory().getWaveVectors();
+        x0PosR[0] = -1.4285714285714286;
+        x0PosR[1] = 0.0;
         
-        wvc = nm.getWaveVectorFactory().getCoefficients();
-        sqrtWVC = new double[wvc.length];
-        for (int i =0; i < wvc.length; i++){
-            sqrtWVC[i] = Math.sqrt(2*wvc[i]);
+        nmR = new NormalModes1DHR(boxR.getBoundary(), nAtomsR);
+        nmR.setHarmonicFudge(1.0);
+        nmR.setTemperature(1.0);
+        nmR.getWaveVectorFactory().makeWaveVectors(boxR);
+        wvR = nmR.getWaveVectorFactory().getWaveVectors();
+        
+        wvcR = nmR.getWaveVectorFactory().getCoefficients();
+        sqrtWvcR = new double[wvcR.length];
+        for (int i =0; i < wvcR.length; i++){
+            sqrtWvcR[i] = Math.sqrt(2*wvcR[i]);
         }
-        omega2 = nm.getOmegaSquared();
-//        oneOverOmega2 = new double[omega]
-//        for (int i=0; i<omega2.length; i++) {
-//            for (int j=0; j<omega2[i].length; j++) {
-//                oneOverOmega2[i][j] = Math.sqrt(1.0/(omega2[i][j]));
-//            }
-//        }
-
+        omega2R = nmR.getOmegaSquared();
+        oneOverOmega2R = new double[omega2R.length][omega2R[0].length];
+        for (int i=0; i<omega2R.length; i++) {
+            for (int j=0; j<omega2R[i].length; j++) {
+                oneOverOmega2R[i][j] = Math.sqrt(1.0/(omega2R[i][j]));
+            }
+        }
+        
+        
     }
     
-    
     public double calculate(){
+        double numerator = getNumerator();
+        double denomRef = getDenomRef();
+        double denomTarg = getDenomTarg();
+        
+        double it = numerator/denomTarg;
+        double ir = numerator/denomRef;
+        System.out.println("It " + it);
+        System.out.println("Ir " + ir);
+        
+        System.out.println("Ratio average " + ir/it);
+        
+        return ir/it;
+    }
+    private double getDenomTarg(){
         double total = 0.0;
         double xValue = 0.0;
         double yValue = 0.0;
-        
         //Here we are checking that we have enclosed all values of potential
         //  interest.
         //First, the four values for which both the x and y values are
@@ -127,23 +179,23 @@ public class DoubleIntegralEtas extends Simulation{
         double tol = 0.0000000001;
         xValue = xStart;
         yValue = yStart;
-        if(Math.abs(integrand(xValue, yValue)) >= tol ){
-            System.out.println("Increase your ranges xStart, yStart.");
+        if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomTarg - increase your ranges xStart, yStart.");
         }
             
         yValue = yEnd;
-        if(Math.abs(integrand(xValue, yValue)) >= tol ){
-            System.out.println("Increase your ranges xStart, yEnd.");
+        if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomTarg - increase your ranges xStart, yEnd.");
         }
         xValue = xEnd;
         yValue = yStart;
-        if(Math.abs(integrand(xValue, yValue)) >= tol ){
-            System.out.println("Increase your ranges xEnd, yStart.");
+        if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomTarg - increase your ranges xEnd, yStart.");
         }
         
         yValue = yEnd;
-        if(Math.abs(integrand(xValue, yValue)) >= tol ){
-            System.out.println("Increase your ranges xEnd, yEnd.");
+        if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomTarg - increase your ranges xEnd, yEnd.");
         }
         
         //Now do the "edge" stuff, where either the x or y value, but not both,
@@ -151,30 +203,29 @@ public class DoubleIntegralEtas extends Simulation{
         xValue = xStart;
         for (int j = 1; j < yN; j++) {
             yValue = yStart + j *(yEnd - yStart) / yN;
-            if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                System.out.println("Increase your ranges xStart, yEdge.");
+            if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomTarg - increase your ranges xStart, yEdge.");
             }
         }
         xValue = xEnd;
         for (int j = 1; j < yN; j++) {
             yValue = yStart + j *(yEnd - yStart) / yN;
-            total += 2 * integrand(xValue, yValue);
-            if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                System.out.println("Increase your ranges xEnd, yEdge.");
+            if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomTarg - increase your ranges xEnd, yEdge.");
             }
         }
         yValue = yStart;
         for (int i = 1; i < yN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
-            if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                        System.out.println("Increase your ranges xEdge, yStart.");
+            if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomTarg - increase your ranges xEdge, yStart.");
             }
         }
         yValue = yEnd;
         for (int i = 1; i < yN; i++) {
             xValue = xStart + i *(xEnd - xStart) / xN;
-            if(Math.abs(integrand(xValue, yValue)) >= tol ){
-                System.out.println("Increase your ranges xEdge, yEnd.");
+            if(Math.abs(integrandTargetDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomTarg - increase your ranges xEdge, yEnd.");
             }
         }
         
@@ -186,7 +237,7 @@ public class DoubleIntegralEtas extends Simulation{
             xValue = xStart + i *(xEnd - xStart) / xN;
             for (int j = 1; j < yN; j++) {
                 yValue = yStart + j *(yEnd - yStart) / yN;
-                    total += 4 * integrand(xValue, yValue);
+                    total += 4 * integrandTargetDenom(xValue, yValue);
             }
         }
         //nan could also code the above with xValue = xStart; xValue  += (xEnd - xStart) / xN;
@@ -194,93 +245,239 @@ public class DoubleIntegralEtas extends Simulation{
         //Now we do the prefix thing
         double prefix = (xEnd - xStart)*(yEnd - yStart) / (4 * xN * yN);
         total *= prefix;
-        System.out.println("Integral = " + total);
+        System.out.println("DenomTarg = " + total);
         return total;
     }
-    
+    private double getDenomRef(){
+        double total = 0.0;
+        double xValue = 0.0;
+        double yValue = 0.0;
+        //Here we are checking that we have enclosed all values of potential
+        //  interest.
+        //First, the four values for which both the x and y values are
+        //  the start or end value
+        double tol = 0.0000000001;
+        xValue = xStart;
+        yValue = yStart;
+        if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomRef - increase your ranges xStart, yStart.");
+        }
+            
+        yValue = yEnd;
+        if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomRef - increase your ranges xStart, yEnd.");
+        }
+        xValue = xEnd;
+        yValue = yStart;
+        if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomRef - increase your ranges xEnd, yStart.");
+        }
+        
+        yValue = yEnd;
+        if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+            System.out.println("DenomRef - increase your ranges xEnd, yEnd.");
+        }
+        
+        //Now do the "edge" stuff, where either the x or y value, but not both,
+        //  are the start or end value
+        xValue = xStart;
+        for (int j = 1; j < yN; j++) {
+            yValue = yStart + j *(yEnd - yStart) / yN;
+            if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomRef - increase your ranges xStart, yEdge.");
+            }
+        }
+        xValue = xEnd;
+        for (int j = 1; j < yN; j++) {
+            yValue = yStart + j *(yEnd - yStart) / yN;
+            if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomRef - increase your ranges xEnd, yEdge.");
+            }
+        }
+        yValue = yStart;
+        for (int i = 1; i < yN; i++) {
+            xValue = xStart + i *(xEnd - xStart) / xN;
+            if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomRef - increase your ranges xEdge, yStart.");
+            }
+        }
+        yValue = yEnd;
+        for (int i = 1; i < yN; i++) {
+            xValue = xStart + i *(xEnd - xStart) / xN;
+            if(Math.abs(integrandRefDenom(xValue, yValue)) >= tol ){
+                System.out.println("DenomRef - increase your ranges xEdge, yEnd.");
+            }
+        }
+        
+        
+        //The actual calculation of the integral.
+        //  We have already eliminated the edges' and endpoints' contributions,
+        //  because they have been confirmed to be zero by the above code.
+        for(int i = 1; i < xN; i++) {
+            xValue = xStart + i *(xEnd - xStart) / xN;
+            for (int j = 1; j < yN; j++) {
+                yValue = yStart + j *(yEnd - yStart) / yN;
+                    total += 4 * integrandRefDenom(xValue, yValue);
+            }
+        }
+        //nan could also code the above with xValue = xStart; xValue  += (xEnd - xStart) / xN;
+        
+        //Now we do the prefix thing
+        double prefix = (xEnd - xStart)*(yEnd - yStart) / (4 * xN * yN);
+        total *= prefix;
+        System.out.println("DenomRef = " + total);
+        return total;
+    }
+    private double getNumerator(){
+        double total = 0.0;
+        double xValue = 0.0;
+        double yValue = 0.0;
+        //Here we are checking that we have enclosed all values of potential
+        //  interest.
+        //First, the four values for which both the x and y values are
+        //  the start or end value
+        double tol = 0.0000000001;
+        xValue = xStart;
+        yValue = yStart;
+        if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+            System.out.println("Numerator - increase your ranges xStart, yStart.");
+        }
+            
+        yValue = yEnd;
+        if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+            System.out.println("Numerator - increase your ranges xStart, yEnd.");
+        }
+        xValue = xEnd;
+        yValue = yStart;
+        if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+            System.out.println("Numerator - increase your ranges xEnd, yStart.");
+        }
+        
+        yValue = yEnd;
+        if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+            System.out.println("Numerator - increase your ranges xEnd, yEnd.");
+        }
+        
+        //Now do the "edge" stuff, where either the x or y value, but not both,
+        //  are the start or end value
+        xValue = xStart;
+        for (int j = 1; j < yN; j++) {
+            yValue = yStart + j *(yEnd - yStart) / yN;
+            if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+                System.out.println("Numerator - increase your ranges xStart, yEdge.");
+            }
+        }
+        xValue = xEnd;
+        for (int j = 1; j < yN; j++) {
+            yValue = yStart + j *(yEnd - yStart) / yN;
+            if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+                System.out.println("Numerator - increase your ranges xEnd, yEdge.");
+            }
+        }
+        yValue = yStart;
+        for (int i = 1; i < yN; i++) {
+            xValue = xStart + i *(xEnd - xStart) / xN;
+            if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+                        System.out.println("Numerator - increase your ranges xEdge, yStart.");
+            }
+        }
+        yValue = yEnd;
+        for (int i = 1; i < yN; i++) {
+            xValue = xStart + i *(xEnd - xStart) / xN;
+            if(Math.abs(integrandNumerator(xValue, yValue)) >= tol ){
+                System.out.println("Numerator - increase your ranges xEdge, yEnd.");
+            }
+        }
+        
+        
+        //The actual calculation of the integral.
+        //  We have already eliminated the edges' and endpoints' contributions,
+        //  because they have been confirmed to be zero by the above code.
+        for(int i = 1; i < xN; i++) {
+            xValue = xStart + i *(xEnd - xStart) / xN;
+            for (int j = 1; j < yN; j++) {
+                yValue = yStart + j *(yEnd - yStart) / yN;
+                    total += 4 * integrandNumerator(xValue, yValue);
+            }
+        }
+        //nan could also code the above with xValue = xStart; xValue  += (xEnd - xStart) / xN;
+        
+        //Now we do the prefix thing
+        double prefix = (xEnd - xStart)*(yEnd - yStart) / (4 * xN * yN);
+        total *= prefix;
+        System.out.println("Numerator = " + total);
+        return total;
+    }
     private boolean overlap2(double etaReal){
         boolean isOverlap = false;
         
         //This pile o' stuff here calculates the x position of each atom.
-        for(int i = 0; i < nAtoms; i++){
-            u[i] = 0.0;
+        for(int i = 0; i < nAtomsR; i++){
+            uR[i] = 0.0;
         }
         
-        for(int iCell = 0; iCell < bCells.length; iCell++ ){
-            BasisCell cell = bCells[iCell];
+        for(int iCell = 0; iCell < rCells.length; iCell++ ){
+            BasisCell cell = rCells[iCell];
             
-            double kR = waveVectors[1].dot(cell.cellPosition);
+            double kR = wvR[1].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
-            double sinkR = Math.sin(kR);
-
-            if( !(Double.isInfinite(omega2[1][0])) ){
-                //NB all eigenvectors are one, so the term is dropped.
-                u[iCell] += wvc[1] * 2.0 * (etaReal * coskR);
-            }
-            u[iCell] *= normalization;
-            atomLocs[iCell] = u[iCell] + x0Pos[iCell];
+            //NB all eigenvectors are one, so the term is dropped.
+            uR[iCell] += sqrtWvcR[1] * (etaReal * coskR);
+            uR[iCell] *= normalizationR;
+            atomLocsR[iCell] = uR[iCell] + x0PosR[iCell];
             
         }//end of iCell loop
         
-        for (int i=0; i < atomLocs.length-1; i++){
-            if ( (atomLocs[i] + 0.5) >= (atomLocs[i+1] - 0.5) ){
+        for (int i=0; i < atomLocsR.length-1; i++){
+            if ( (atomLocsR[i] + 0.5) >= (atomLocsR[i+1] - 0.5) ){
                 isOverlap = true;
                 break;
             }
         }
         
-        double repeat = box.getBoundary().getBoxSize().getX(0);
-        if( (atomLocs[0]+repeat-0.5) <= (atomLocs[atomLocs.length-1]+0.5) ){
+        double repeat = boxR.getBoundary().getBoxSize().getX(0);
+        if( (atomLocsR[0]+repeat-0.5) <= (atomLocsR[atomLocsR.length-1]+0.5) ){
             isOverlap = true;
         }
         
-        if (!isOverlap) {System.out.println(etaReal);}
-        
         return isOverlap;
     }
-    
     private boolean overlap3(double etaReal, double etaImag){
         boolean isOverlap = false;
         
         //This pile o' stuff here calculates the x position of each atom.
-        for(int i = 0; i < nAtoms; i++){
-            u[i] = 0.0;
+        for(int i = 0; i < nAtomsT; i++){
+            uT[i] = 0.0;
         }
         
-        for(int iCell = 0; iCell < bCells.length; iCell++ ){
-            BasisCell cell = bCells[iCell];
+        for(int iCell = 0; iCell < tCells.length; iCell++ ){
+            BasisCell cell = tCells[iCell];
             
-            double kR = waveVectors[1].dot(cell.cellPosition);
+            double kR = wvT[1].dot(cell.cellPosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
 
-            if( !(Double.isInfinite(omega2[1][0])) ){
-                //NB all eigenvectors are one, so the term is dropped.
-                u[iCell] += sqrtWVC[1] * (etaReal * coskR - etaImag * sinkR);
-            }
+            //NB all eigenvectors are one, so the term is dropped.
+            uT[iCell] += sqrtWvcT[1] * (etaReal * coskR - etaImag * sinkR);
             
-            u[iCell] *= normalization;
-            atomLocs[iCell] = u[iCell] + x0Pos[iCell];
+            uT[iCell] *= normalizationT;
+            atomLocsT[iCell] = uT[iCell] + x0PosT[iCell];
             
         }//end of iCell loop
         
-        for (int i=0; i < atomLocs.length-1; i++){
-            if ( (atomLocs[i] + 0.5) >= (atomLocs[i+1] - 0.5) ){
+        for (int i=0; i < atomLocsT.length-1; i++){
+            if ( (atomLocsT[i] + 0.5) >= (atomLocsT[i+1] - 0.5) ){
                 isOverlap = true;
                 break;
             }
         }
         
-        double repeat = box.getBoundary().getBoxSize().getX(0);
-        if( (atomLocs[0]+repeat-0.5) <= (atomLocs[atomLocs.length-1]+0.5) ){
+        double repeat = boxT.getBoundary().getBoxSize().getX(0);
+        if( (atomLocsT[0]+repeat-0.5) <= (atomLocsT[atomLocsT.length-1]+0.5) ){
             isOverlap = true;
         }
-        
-        if (!isOverlap) {System.out.println(etaReal + " " + etaImag);}
-        
         return isOverlap;
     }
-    
     public void setIntegrationParameters(double xStart, double xEnd, double yStart, double yEnd,
             int xN, int yN){
         this.xStart = xStart;
@@ -290,32 +487,37 @@ public class DoubleIntegralEtas extends Simulation{
         this.xN = xN;
         this.yN = yN;
     }
-
-    private double integrand(double x, double y){
+    private double integrandRefDenom(double x, double y){
         double value;
         
-//        //Hard rod N = 2
-//        if (overlap2(x)) {
-//            value = 0;
-//        }else{
-//            value = 1;
-//        }
+        //Hard Rod + harmonic, 2 rods
+        if (overlap2(x)) {
+            value = 0.0;
+        }else{
+            value = Math.exp(-0.5 * omega2R[1][0] * y*y);
+        }
+        return value;
+    }
+    private double integrandTargetDenom(double x, double y){
+        double value;
         
-//        //Hard Rod + harmonic, 2 rods
-//        if (overlap3(x, y)) {
-//            value = 0.0;
-//        }else{
-//            value = Math.exp(-(0.0 + 0.5 * omega2[1][0] * y*y));
-//        }      
+//      //Hard rod N = 3
+        if (overlap3(x, y)) {
+            value = 0;
+        }else{
+            value = 1;
+        }
+        return value;
+    }
+    private double integrandNumerator(double x, double y){
+        double value;
         
-      //Hard rod N = 3
-      if (overlap3(x, y)) {
-          value = 0;
-      }else{
-          value = 1;
-      }
-        
-        
+        if (!overlap2(x) && !overlap3(x, y)){
+            double dork = Math.exp(-0.5 * omega2R[1][0] * y*y);
+            value = dork / (1 + alpha * dork);
+        } else {
+            value = 0;
+        }
         return value;
     }
     
@@ -328,10 +530,12 @@ public class DoubleIntegralEtas extends Simulation{
       int xN = 100;
       int yN = 100;
       
-      int nAtoms = 3;
+      int nAtomsTarget = 3;
       double density = 0.7;
+      double alpha = 1.5;
       
-      DoubleIntegralEtas di = new DoubleIntegralEtas(nAtoms, density);
+      System.out.println("Alpha " + alpha);
+      DoubleIntegralEtas di = new DoubleIntegralEtas(nAtomsTarget, density, alpha);
       di.setIntegrationParameters(xStart, xEnd, yStart, yEnd, xN, yN);
       di.calculate();
     }
