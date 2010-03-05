@@ -6,6 +6,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
+import etomica.units.Degree;
 
 public class PRotConstraint extends PotentialMolecular{
 
@@ -49,8 +50,7 @@ public class PRotConstraint extends PotentialMolecular{
 		molecOrientation.normalize();
 		
 		double cosangle = molecOrientation.dot(initMolecOrientation[index][0]);
-		
-		if(cosangle <= 0.0){
+		if(cosangle <= Math.cos(Degree.UNIT.toSim(constraintAngle))){
 			
 			return Double.POSITIVE_INFINITY;
 		}
@@ -68,10 +68,15 @@ public class PRotConstraint extends PotentialMolecular{
 		this.box = box;
 		
 	}
+	
+	public void setConstraintAngle(double angle){
+		this.constraintAngle = angle;
+	}
 
 	private IVectorMutable[][] initMolecOrientation;
 	private IVectorMutable molecOrientation;
 	private IBox box;
+	protected double constraintAngle = 90.0; //in degree
 
 	
 }
