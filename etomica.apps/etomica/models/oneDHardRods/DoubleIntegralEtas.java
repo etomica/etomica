@@ -143,7 +143,7 @@ public class DoubleIntegralEtas extends Simulation{
         for (int i =0; i < wvcR.length; i++){
             sqrtWvcR[i] = Math.sqrt(2*wvcR[i]);
         }
-        omega2R = nmR.getOmegaSquared();
+        omega2R = nmT.getOmegaSquared();
         oneOverOmega2R = new double[omega2R.length][omega2R[0].length];
         for (int i=0; i<omega2R.length; i++) {
             for (int j=0; j<omega2R[i].length; j++) {
@@ -527,8 +527,8 @@ public class DoubleIntegralEtas extends Simulation{
       double xEnd = 1.0;
       double yEnd = 1.0;
       
-      int xN = 100;
-      int yN = 100;
+      int xN = 400;
+      int yN = 400;
       
       int nAtomsTarget = 3;
       double density = 0.7;
