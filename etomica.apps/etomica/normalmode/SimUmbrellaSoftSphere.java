@@ -2,8 +2,10 @@ package etomica.normalmode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -209,7 +211,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         System.out.println("output data to "+filename);
         
         //construct simulation
-        SimUmbrellaSoftSphere sim = new SimUmbrellaSoftSphere(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
+        final SimUmbrellaSoftSphere sim = new SimUmbrellaSoftSphere(Space.getInstance(D), numAtoms, density, temperature, filename, exponentN);
         
         IEtomicaDataSource[] samplingMeters = new IEtomicaDataSource[2];
         
@@ -224,11 +226,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
          */
         
         // Harmonic Sampling
-        MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.move);
+        final MeterSamplingHarmonic meterSamplingHarmonic = new MeterSamplingHarmonic(sim.integrator, sim.move);
         meterSamplingHarmonic.setRefPref(sim.refPref);
         samplingMeters[0] = meterSamplingHarmonic;
         
-        AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
+        final AccumulatorAverageFixed dataAverageSamplingHarmonic = new AccumulatorAverageFixed();
         
         DataPump pumpSamplingHarmonic = new DataPump(samplingMeters[0], dataAverageSamplingHarmonic);
         dataAverageSamplingHarmonic.setBlockSize(200);
@@ -237,11 +239,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
     
         
         // Target Sampling
-        MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.move);
+        final MeterSamplingTarget meterSamplingTarget = new MeterSamplingTarget(sim.integrator, sim.move);
         meterSamplingTarget.setRefPref(sim.refPref);
         samplingMeters[1] = meterSamplingTarget;
                 
-        AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
+        final AccumulatorAverageFixed dataAverageSamplingTarget = new AccumulatorAverageFixed();
         
         DataPump pumpSamplingTarget = new DataPump(samplingMeters[1], dataAverageSamplingTarget);
         dataAverageSamplingTarget.setBlockSize(200);
@@ -272,8 +274,52 @@ public class SimUmbrellaSoftSphere extends Simulation {
         double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, numAtoms);
         System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numAtoms);
        
+        FileWriter fileWriter1, fileWriter2;
+        
+        try{
+        	fileWriter1 = new FileWriter(filename+"_UmblnQharm");
+        	fileWriter2 = new FileWriter(filename+"_UmblnQtarg");
+        	
+        } catch (IOException e){
+        	fileWriter1 = null;
+        	fileWriter2 = null;
+        }
+        final FileWriter fileWriterHarm = fileWriter1; 
+        final FileWriter fileWriterTarg = fileWriter2;
+        
+        
+        IAction outputAction = new IAction(){
+        	public void actionPerformed(){
+        		long idStep = sim.integrator.getStepCount();
+        		
+        		double Qharmonic = meterSamplingHarmonic.getData().getValue(0);
+        		double Qtarget = meterSamplingTarget.getData().getValue(0);
+        		
+        		try {
+        			fileWriterHarm.write(idStep + " " + Qharmonic +"\n");
+        			fileWriterTarg.write(idStep + " " + Qtarget +"\n");
+        			
+        		} catch (IOException e){
+        			
+        		}
+        		
+        	}
+        };
+        
+        IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
+        outputActionListener.setInterval(10000);
+        sim.integrator.getEventManager().addListener(outputActionListener);
+        
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
+        
+        try{
+        	fileWriterHarm.close();
+        	fileWriterTarg.close();
+        
+        } catch (IOException e){
+        	
+        }
         
 	    double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
 	    double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
@@ -328,13 +374,13 @@ public class SimUmbrellaSoftSphere extends Simulation {
     public double refPref;
     
     public static class SimBennetParam extends ParameterBase {
-    	public int numMolecules = 32;
+    	public int numMolecules = 256;
     	public double density = 12560;
     	public int exponentN = 12;
     	public int D = 3;
-    	public long numSteps = 1000000;
+    	public long numSteps = 10000;
     	public double harmonicFudge =1;
-    	public String filename = "inputSSDB32T01";
+    	public String filename = "inputSSDB256T01";
     	public double temperature = 0.1;
     }
 
