@@ -42,8 +42,9 @@ public class MeterHarmonicCoordinate extends DataSourceScalar {
     		realCoord += realT[i] * eigenvectors[i];
     		imaginaryCoord += imaginaryT[i] * eigenvectors[i];
     	}
-    	double QCoord = Math.sqrt(realCoord*realCoord + imaginaryCoord*imaginaryCoord);
-    	return realCoord > 0 ? QCoord : -QCoord; 
+    	return realCoord;
+//    	double QCoord = Math.sqrt(realCoord*realCoord + imaginaryCoord*imaginaryCoord);
+//    	return realCoord > 0 ? QCoord : -QCoord; 
        
     }
 
