@@ -6,7 +6,9 @@ import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
+import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
@@ -134,8 +136,14 @@ public class SimOverlapSoftSphereTP extends Simulation {
         int numBlocks = 100;
         int interval = numAtoms;
         long blockSize = numSteps/(numBlocks*interval);
+        if (blockSize == 0) blockSize = 1;
         System.out.println("block size "+blockSize+" interval "+interval);
-        accumulator = new AccumulatorAverageFixed(blockSize);
+        if (otherTemperatures.length > 1) {
+            accumulator = new AccumulatorRatioAverageCovariance(blockSize);
+        }
+        else {
+            accumulator = new AccumulatorAverageFixed(blockSize);
+        }
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
        
@@ -192,7 +200,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         
         //start simulation
 
-        sim.initialize(numSteps/20);
+        sim.initialize(numSteps/10);
         System.out.flush();
         
         final long startTime = System.currentTimeMillis();
@@ -203,14 +211,43 @@ public class SimOverlapSoftSphereTP extends Simulation {
         //MeterTargetTP.closeFW();
         
         System.out.println("\nratio averages:\n");
-        
+
+        DataGroup data = (DataGroup)sim.accumulator.getData();
+        IData dataErr = data.getData(AccumulatorRatioAverageCovariance.StatType.ERROR.index);
+        IData dataAvg = data.getData(AccumulatorRatioAverageCovariance.StatType.AVERAGE.index);
+        IData dataCorrelation = data.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_CORRELATION.index);
         for (int i=0; i<otherTemperatures.length; i++) {
             System.out.println(otherTemperatures[i]);
             double[] iAlpha = sim.meter.getAlpha(i);
             for (int j=0; j<numAlpha; j++) {
-                System.out.println("  "+iAlpha[j]+" "+((DataGroup)sim.accumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(i*numAlpha+j)
-                        +" "+((DataGroup)sim.accumulator.getData()).getData(AccumulatorAverage.StatType.ERROR.index).getValue(i*numAlpha+j)
-                        +" "+((DataGroup)sim.accumulator.getData()).getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index).getValue(i*numAlpha+j));
+                System.out.println("  "+iAlpha[j]+" "+dataAvg.getValue(i*numAlpha+j)
+                        +" "+dataErr.getValue(i*numAlpha+j)
+                        +" "+dataCorrelation.getValue(i*numAlpha+j));
+            }
+        }
+        
+        if (otherTemperatures.length == 2) {
+            // we really kinda want each covariance for every possible pair of alphas,
+            // but we're going to be interpolating anyway and the covariance is almost
+            // completely insensitive to choice of alpha.  so just take the covariance for
+            // the middle alphas.
+            IData dataCov = data.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_COVARIANCE.index);
+            System.out.print("covariance "+otherTemperatures[1]+" / "+otherTemperatures[0]+"   ");
+            for (int i=0; i<numAlpha; i++) {
+                i = (numAlpha-1)/2;
+                double ivar = dataErr.getValue(i);
+                ivar *= ivar;
+                ivar *= (sim.accumulator.getBlockCount()-1);
+                for (int j=0; j<numAlpha; j++) {
+                    j = (numAlpha-1)/2;
+                    double jvar = dataErr.getValue(numAlpha+j);
+                    jvar *= jvar;
+                    jvar *= (sim.accumulator.getBlockCount()-1);
+                    System.out.print(dataCov.getValue(i*(2*numAlpha)+(numAlpha+j))/Math.sqrt(ivar*jvar)+" ");
+                    break;
+                }
+                System.out.println();
+                break;
             }
         }
         
@@ -243,7 +280,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         public long numSteps = 100000000;
         public double temperature = 1.2;
         public double[] alpha = new double[]{0.011};
-        public int numAlpha = 10;
+        public int numAlpha = 11;
         public double alphaSpan = 1;
         public double[] otherTemperatures = new double[]{1.1};
     }
