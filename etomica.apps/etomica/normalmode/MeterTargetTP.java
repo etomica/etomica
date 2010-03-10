@@ -60,11 +60,6 @@ public class MeterTargetTP implements IEtomicaDataSource {
         pretendBox = new Box(space);
         sim.addBox(pretendBox);
 
-        if (potentialMaster instanceof PotentialMasterList) {
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(pretendBox).reset();
-        }
-
         tag = new DataTag();
     }
     
@@ -83,7 +78,6 @@ public class MeterTargetTP implements IEtomicaDataSource {
         meterPotential.setBox(pretendBox);
 
         pretendBox.setBoundary(realBox.getBoundary());
-        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
         double a0 = (u-latticeEnergy)/temperature;
@@ -220,6 +214,24 @@ public class MeterTargetTP implements IEtomicaDataSource {
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
         this.coordinateDefinition = newCoordinateDefinition;
+
+        // insert atoms into the box at their lattice sites.
+        // we do this because want to find neighbors now (and then never again)
+        IBox realBox = coordinateDefinition.getBox();
+        pretendBox.setBoundary(realBox.getBoundary());
+        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
+        IAtomList atoms = realBox.getLeafList();
+        IAtomList pretendAtoms = pretendBox.getLeafList();
+        for (int j=0; j<atoms.getAtomCount(); j++) {
+            IAtom jRealAtom = atoms.getAtom(j);
+            IVectorMutable pos = pretendAtoms.getAtom(j).getPosition();
+            pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
+        }
+
+        if (potentialMaster instanceof PotentialMasterList) {
+            // find neighbors now.
+            ((PotentialMasterList)potentialMaster).getNeighborManager(pretendBox).reset();
+        }
     }
 
 }
