@@ -209,7 +209,12 @@ public class NormalModesPotential implements NormalModes {
 //            System.out.println("Imag eigenvalues: " + Arrays.toString(ed.getImagEigenvalues()));
             
             for(int j=0; j<eDim; j++) {
-                omega2[k][j] = eVals[j];
+                if (eVals[j] < 1E-12) {
+                    omega2[k][j] = Double.POSITIVE_INFINITY;
+                }
+                else {
+                    omega2[k][j] = eVals[j];
+                }
                 for(int m=0; m<eDim; m++) {
                     eigenvectors[k][j][m] = eVecs[m][j];//need to check if indexes are right
                 }
