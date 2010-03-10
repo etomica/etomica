@@ -31,7 +31,6 @@ public class P1Constraint extends Potential1{
 		}
 		
 		
-		System.out.println("radiusInner: "+Math.sqrt(radiusInner));
 		//Lattice Site Assignment
 		for(int i=0; i<siteIndex; i++){
 			latticeSite[i] = coordinateDefinition.getLatticePosition(box.getLeafList().getAtom(i));
