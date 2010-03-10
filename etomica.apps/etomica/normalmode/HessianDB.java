@@ -212,7 +212,7 @@ public class HessianDB extends Simulation {
         	}
         	// output .val file
         	for (int ival=0; ival<eVals.length; ival++){
-        		if (eVals[ival] < 1E-15){
+        		if (eVals[ival] < 1E-12){
         			fileWriterVal.write("0.0 ");
         		} else {
         			fileWriterVal.write(1/eVals[ival]+ " ");
@@ -244,7 +244,6 @@ public class HessianDB extends Simulation {
         	throw new RuntimeException(e);
         }
         
-       System.exit(1);
         }
     }
 	
@@ -275,7 +274,7 @@ public class HessianDB extends Simulation {
         String filename = "inputSSDB"+nA;//+"_d0962";
         // construct simulation
         boolean getInitFile = true;
-        //HessianDB sim = new HessianDB(Space.getInstance(D), nA, density, temperature, exponent, filename, getInitFile);
+        HessianDB sim = new HessianDB(Space.getInstance(D), nA, density, temperature, exponent, filename, getInitFile);
         
         
        // SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
@@ -295,15 +294,6 @@ public class HessianDB extends Simulation {
 //        
 //        sim.activityIntegrate.setMaxSteps(1000);
 //        sim.getController().actionPerformed();
-        
-        NormalModesFromFile nm = new NormalModesFromFile(filename, 3);
-        CalcHarmonicA.doit(nm, 3, 0.001, nA);
-        CalcHarmonicA.doit(nm, 3, 1.2147, nA);
-        
-        for (int i =1; i<17; i++){
-        	double temp = (double)i*0.1;
-        	CalcHarmonicA.doit(nm, 3, temp, nA);
-        }
     }
 
     public IBox box;
