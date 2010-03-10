@@ -168,15 +168,15 @@ public class SimDifferentImage1DHR extends Simulation {
         waveVectorFactoryTarg = nmTarg.getWaveVectorFactory();
         waveVectorFactoryTarg.makeWaveVectors(boxTarget);
         
-//        double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
-//        double[][] omega = nmTarg.getOmegaSquared();
+        double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
+        double[][] omega = nmTarg.getOmegaSquared();
         
         System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length +" target wave vectors.");
         System.out.println("Target Wave Vector Coefficients:");
         
-        System.out.println("Target WV: ");
+        System.out.println("Target WV: 1DHR ASSUMED");
         for (int i = 0; i < targWV.length; i++){
-            System.out.println(targWV[i]);
+            System.out.println(targWV[i] + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
         }
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterTarget, random, space);
@@ -200,15 +200,15 @@ public class SimDifferentImage1DHR extends Simulation {
         integratorTarget.setMeterPotentialEnergy(meterTargInTarg);
         
         
-        //Fun with meters!
-        MeterHarmonicCoordinate meterHarmonic = new MeterHarmonicCoordinate(cDefTarget);
-        meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
-        meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
-        accHarmonic = new AccumulatorAverageFixed();
-        DataPump pump = new DataPump(meterHarmonic, accHarmonic);
-        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
-        pumpListener.setInterval(1000);
-        integratorTarget.getEventManager().addListener(pumpListener);
+//        //Fun with meters!
+//        MeterHarmonicCoordinate meterHarmonic = new MeterHarmonicCoordinate(cDefTarget);
+//        meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
+//        meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
+//        accHarmonic = new AccumulatorAverageFixed();
+//        DataPump pump = new DataPump(meterHarmonic, accHarmonic);
+//        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+//        pumpListener.setInterval(1000);
+//        integratorTarget.getEventManager().addListener(pumpListener);
         
         
 //REFERENCE
@@ -252,8 +252,8 @@ public class SimDifferentImage1DHR extends Simulation {
         waveVectorFactoryRef = nmRef.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
         
-//        wvc= nmRef.getWaveVectorFactory().getCoefficients();
-//        omega = nmRef.getOmegaSquared();
+        wvc= nmRef.getWaveVectorFactory().getCoefficients();
+        omega = nmRef.getOmegaSquared();
         
         
         System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length +" reference wave vectors.");
@@ -261,7 +261,7 @@ public class SimDifferentImage1DHR extends Simulation {
         
         System.out.println("Ref WV: ");
         for (int i = 0; i < refWV.length; i++){
-            System.out.println(refWV[i]);
+            System.out.println(refWV[i] + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
         }
         
         mcMoveAtom = new MCMoveAtomCoupled(potentialMasterRef, random, space);
@@ -323,46 +323,46 @@ public class SimDifferentImage1DHR extends Simulation {
         
         
         
-      //Fun with meters!        
-        meterHarmonic = new MeterHarmonicCoordinate(cDefTarget);
-        meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
-        meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
-        accHarmonic = new AccumulatorAverageFixed();
-        pump = new DataPump(meterHarmonic, accHarmonic);
-        pumpListener = new IntegratorListenerAction(pump);
-        pumpListener.setInterval(1000);
-        integratorTarget.getEventManager().addListener(pumpListener);
-        
-        
-        accMeter0 = new AccumulatorAverageFixed();
-        pump = new DataPump(meters[0],accMeter0);
-        pumpListener = new IntegratorListenerAction(pump);
-        integratorRef.getEventManager().addListener(pumpListener);
-        
-        accMeter1 = new AccumulatorAverageFixed();
-        pump = new DataPump(meters[1],accMeter1);
-        pumpListener = new IntegratorListenerAction(pump);
-        integratorTarget.getEventManager().addListener(pumpListener);
-        
-        accTargInTarg = new AccumulatorAverageFixed();
-        pump = new DataPump(meterTargInTarg, accTargInTarg);
-        pumpListener = new IntegratorListenerAction(pump);
-        integratorSim.getEventManager().addListener(pumpListener);
-        
-        accRefInRef = new AccumulatorAverageFixed();
-        pump = new DataPump(meterRefInRef, accRefInRef);
-        pumpListener = new IntegratorListenerAction(pump);
-        integratorRef.getEventManager().addListener(pumpListener);
-        
-        accTargInRef = new AccumulatorAverageFixed();
-        pump = new DataPump(meterTargInRef, accTargInRef);
-        pumpListener = new IntegratorListenerAction(pump);
-        integratorRef.getEventManager().addListener(pumpListener);
-        
-        accRefInTarg = new AccumulatorAverageFixed();
-        pump = new DataPump(meterRefInTarg, accRefInTarg);
-        pumpListener = new IntegratorListenerAction(pump);
-        integratorTarget.getEventManager().addListener(pumpListener);
+//      //Fun with meters!        
+//        meterHarmonic = new MeterHarmonicCoordinate(cDefTarget);
+//        meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
+//        meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
+//        accHarmonic = new AccumulatorAverageFixed();
+//        pump = new DataPump(meterHarmonic, accHarmonic);
+//        pumpListener = new IntegratorListenerAction(pump);
+//        pumpListener.setInterval(1000);
+//        integratorTarget.getEventManager().addListener(pumpListener);
+//        
+//        
+//        accMeter0 = new AccumulatorAverageFixed();
+//        pump = new DataPump(meters[0],accMeter0);
+//        pumpListener = new IntegratorListenerAction(pump);
+//        integratorRef.getEventManager().addListener(pumpListener);
+//        
+//        accMeter1 = new AccumulatorAverageFixed();
+//        pump = new DataPump(meters[1],accMeter1);
+//        pumpListener = new IntegratorListenerAction(pump);
+//        integratorTarget.getEventManager().addListener(pumpListener);
+//        
+//        accTargInTarg = new AccumulatorAverageFixed();
+//        pump = new DataPump(meterTargInTarg, accTargInTarg);
+//        pumpListener = new IntegratorListenerAction(pump);
+//        integratorSim.getEventManager().addListener(pumpListener);
+//        
+//        accRefInRef = new AccumulatorAverageFixed();
+//        pump = new DataPump(meterRefInRef, accRefInRef);
+//        pumpListener = new IntegratorListenerAction(pump);
+//        integratorRef.getEventManager().addListener(pumpListener);
+//        
+//        accTargInRef = new AccumulatorAverageFixed();
+//        pump = new DataPump(meterTargInRef, accTargInRef);
+//        pumpListener = new IntegratorListenerAction(pump);
+//        integratorRef.getEventManager().addListener(pumpListener);
+//        
+//        accRefInTarg = new AccumulatorAverageFixed();
+//        pump = new DataPump(meterRefInTarg, accRefInTarg);
+//        pumpListener = new IntegratorListenerAction(pump);
+//        integratorTarget.getEventManager().addListener(pumpListener);
         
         
         
@@ -671,29 +671,29 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         
         
-        DataGroup dork;
-        dork = (DataGroup)sim.accHarmonic.getData();
-        System.out.println("Measurement of eta: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-
-        dork = (DataGroup)sim.accTargInTarg.getData();
-        System.out.println("Measurement of Target in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        
-        dork = (DataGroup)sim.accTargInRef.getData();
-        System.out.println("Measurement of Target in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        
-        dork = (DataGroup)sim.accRefInRef.getData();
-        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        
-        dork = (DataGroup)sim.accRefInTarg.getData();
-        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        
-        System.out.println("MeterOverlapInRef total/count " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
-//        System.out.println("harmonic value " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
-        
-        
-        IAtomList list = sim.meterTargInRef.box.getLeafList();
-        System.out.println("0 " + list.getAtom(0).getPosition().getX(0));
-        System.out.println("1 " + list.getAtom(1).getPosition().getX(0));
+//        DataGroup dork;
+//        dork = (DataGroup)sim.accHarmonic.getData();
+//        System.out.println("Measurement of eta: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+//
+//        dork = (DataGroup)sim.accTargInTarg.getData();
+//        System.out.println("Measurement of Target in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+//        
+//        dork = (DataGroup)sim.accTargInRef.getData();
+//        System.out.println("Measurement of Target in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+//        
+//        dork = (DataGroup)sim.accRefInRef.getData();
+//        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+//        
+//        dork = (DataGroup)sim.accRefInTarg.getData();
+//        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+//        
+//        System.out.println("MeterOverlapInRef total/count " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
+////        System.out.println("harmonic value " + MeterOverlapSameGaussian.total/MeterOverlapSameGaussian.count);
+//        
+//        
+//        IAtomList list = sim.meterTargInRef.box.getLeafList();
+//        System.out.println("0 " + list.getAtom(0).getPosition().getX(0));
+//        System.out.println("1 " + list.getAtom(1).getPosition().getX(0));
         
         
         System.out.println("Fini.");
