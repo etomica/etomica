@@ -57,8 +57,13 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
                     realCoord += eigenvectors[iVector][i][j] * realT[j];
                     imaginaryCoord += eigenvectors[iVector][i][j] * imaginaryT[j];
                 }
-                double normalCoord = realCoord*realCoord + imaginaryCoord*imaginaryCoord;
-                energySum += waveVectorCoefficients[iVector] * normalCoord * omegaSquared[iVector][i];
+                // coordinates are now actually the normal mode coordinates times sqrt(wvc/2)
+                // if wvc=0.5, realCoord and imagCoord are the normal mode coordinates
+                // if wvc=1, realCoord and imagCoord are the normal mode coordinates/sqrt(2)
+                double normalCoordSq = realCoord*realCoord + imaginaryCoord*imaginaryCoord;
+                // if wvc=0.5, then we want 0.5*coord^2
+                // if wvc=1.0, we want coord^2, since coord^2 implicitly includes a factor of 0.5
+                energySum += waveVectorCoefficients[iVector] * normalCoordSq * omegaSquared[iVector][i];
             }
         }
         return energySum;//don't multiply by 1/2 because we're summing over only half of the wave vectors
