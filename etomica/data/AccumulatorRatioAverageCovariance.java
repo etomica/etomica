@@ -130,7 +130,7 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
         return dataInfo;
     }
     
-    public static class StatType extends AccumulatorAverage.StatType {
+    public static class StatType extends AccumulatorAverageCovariance.StatType {
         private static final long serialVersionUID = 1L;
         protected StatType(String label, int index) {super(label,index);}       
         public static final StatType RATIO = new StatType("Ratio",7);
