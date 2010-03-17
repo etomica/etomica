@@ -8,6 +8,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
@@ -39,7 +40,9 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected final IRandom random;
     protected IPotentialAtomic pairPotential;
     protected final AtomPair pair;
+    protected final AtomSetSinglet atomSinglet;
     protected boolean doExcludeNonNeighbors, doIncludePair;
+    protected IPotentialAtomic constraintPotential;
 
     public MCMoveAtomCoupled(IPotentialMaster potentialMaster, IRandom random,
     		                 ISpace _space) {
@@ -57,6 +60,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         affectedAtomList = new AtomArrayList(2);
         affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
         pair = new AtomPair();
+        atomSinglet = new AtomSetSinglet();
     }
     
     public void setPotential(IPotentialAtomic newPotential) {
@@ -66,6 +70,13 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         pairPotential = newPotential;
     }
     
+    public void setConstraint(IPotentialAtomic newConstraintPotential) {
+        if (newConstraintPotential.nBody() != 1) {
+            throw new RuntimeException("must be a 1-body potential");
+        }
+        constraintPotential = newConstraintPotential;
+    }
+
     /**
      * Method to perform trial move.
      */
@@ -79,7 +90,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         energyMeter.setTarget(atom1);
         uOld += energyMeter.getDataAsScalar();
         if(uOld > 1e10) {
-            new ConfigurationOverlapException(box);
+            throw new ConfigurationOverlapException(box);
         }
         pair.atom0 = atom0;
         pair.atom1 = atom1;
@@ -123,6 +134,15 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         uNew += energyMeter.getDataAsScalar();
         if(!Double.isInfinite(uNew) && doIncludePair){
             uNew -= pairPotential.energy(pair);
+        }
+        if (constraintPotential != null) {
+            // we could be double-counting the "energy" here (if the atoms are
+            // neighbors), but the energy can only be 0 or +inf, so it's OK.
+            atomSinglet.atom = atom0;
+            constraintPotential.setBox(box);
+            uNew += constraintPotential.energy(atomSinglet);
+            atomSinglet.atom = atom1;
+            uNew += constraintPotential.energy(atomSinglet);
         }
 
         return -(uNew - uOld);
