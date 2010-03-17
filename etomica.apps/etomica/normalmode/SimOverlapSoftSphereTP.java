@@ -1,6 +1,9 @@
 package etomica.normalmode;
 
+import java.awt.Color;
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
@@ -9,9 +12,13 @@ import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -42,7 +49,7 @@ import etomica.util.ReadParameters;
  */
 public class SimOverlapSoftSphereTP extends Simulation {
 
-    public SimOverlapSoftSphereTP(Space _space, int numAtoms, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps) {
+    public SimOverlapSoftSphereTP(Space _space, int numAtoms, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
         
         potentialMaster = new PotentialMasterList(this, space);
@@ -79,12 +86,11 @@ public class SimOverlapSoftSphereTP extends Simulation {
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
      	if(potentialMaster instanceof PotentialMasterList){
-			potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+			potential = new P2SoftSphericalTruncated(space, potential, rc);
 		
 		} else {
-			potential = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+			potential = new P2SoftSphericalTruncatedShifted(space, potential, rc);
 			
 		}
         atomMove.setPotential(potential);
@@ -97,18 +103,16 @@ public class SimOverlapSoftSphereTP extends Simulation {
          *  
          */
 
-        if (numAtoms == 32) {
-            P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell, box, coordinateDefinition);
-            potentialMaster.addPotential(p1Constraint, new IAtomType[] {sphereType});
-        }
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitiveUnitCell, box);
+        atomMove.setConstraint(p1Constraint);
+
         potentialMaster.lrcMaster().setEnabled(false);
     
         integrator.setBox(box);
 
 		if (potentialMaster instanceof PotentialMasterList) {
-            double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList)potentialMaster).setRange(rc);
             ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
@@ -116,17 +120,11 @@ public class SimOverlapSoftSphereTP extends Simulation {
             if (potentialCells < cellRange*2+1) {
                 throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
             }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
-            }
-            //((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundaryTarget.getBoxSize().getX(0));
 		}
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy: " + latticeEnergy);
-        
 
         meter = new MeterTargetTP(potentialMaster, species, space, this);
         meter.setCoordinateDefinition(coordinateDefinition);
@@ -166,7 +164,6 @@ public class SimOverlapSoftSphereTP extends Simulation {
         activityIntegrate.setMaxSteps(initSteps);
         getController().actionPerformed();
         getController().reset();
-        System.out.println("equilibration finished");
 
         accumulator.reset();
 
@@ -198,6 +195,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         double[] alpha = params.alpha;
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
+        double rc = params.rc;
         
         System.out.println("Running soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
@@ -205,8 +203,40 @@ public class SimOverlapSoftSphereTP extends Simulation {
         System.out.println(numSteps+" steps");
 
         //instantiate simulation
-        final SimOverlapSoftSphereTP sim = new SimOverlapSoftSphereTP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps);
-        
+        final SimOverlapSoftSphereTP sim = new SimOverlapSoftSphereTP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
+        if (false) {
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            simGraphic.setPaintInterval(sim.box, 1000);
+            ColorScheme colorScheme = new ColorScheme() {
+                public Color getAtomColor(IAtom a) {
+                    if (allColors==null) {
+                        allColors = new Color[768];
+                        for (int i=0; i<256; i++) {
+                            allColors[i] = new Color(255-i,i,0);
+                        }
+                        for (int i=0; i<256; i++) {
+                            allColors[i+256] = new Color(0,255-i,i);
+                        }
+                        for (int i=0; i<256; i++) {
+                            allColors[i+512] = new Color(i,0,255-i);
+                        }
+                    }
+                    return allColors[(2*a.getLeafIndex()) % 768];
+                }
+                protected Color[] allColors;
+            };
+            simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+            
+            DisplayTextBox timer = new DisplayTextBox();
+            DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
+            DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
+            sim.integrator.getEventManager().addListener(counterPump);
+            simGraphic.getPanel().controlPanel.add(timer.graphic());
+            
+            simGraphic.makeAndDisplayFrame("SS");
+            return;
+        }
+
         //start simulation
 
         sim.initialize(numSteps/10);
@@ -292,5 +322,6 @@ public class SimOverlapSoftSphereTP extends Simulation {
         public int numAlpha = 11;
         public double alphaSpan = 1;
         public double[] otherTemperatures = new double[]{1.1};
+        public double rc = 2.0;
     }
 }
