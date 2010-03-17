@@ -51,7 +51,8 @@ public class MeterTargetTP implements IEtomicaDataSource {
     protected double[] alphaCenter;
     protected double alphaSpan;
     protected int numAlpha = 1;
-    public static FileWriter fw;
+    protected FileWriter fw;
+    protected P1ConstraintNbr p1;
     
     public MeterTargetTP(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim) {
         this.potentialMaster = potentialMaster;
@@ -93,9 +94,19 @@ public class MeterTargetTP implements IEtomicaDataSource {
                 pos.PEa1Tv1(+fac, jRealAtom.getPosition());
             }
 
-            double otherU = meterPotential.getDataAsScalar();
+            double otherU = 0;
+            if (p1 != null) {
+                // we need to include the constraint energy here even though we
+                // didn't include it in the u above (for realBox).  RealBox will
+                // always have constraint energy = 0 (moves that violate the
+                // constraint are rejected).  But we could have scaled the
+                // atoms into a constraint violation, so we should check now.
+                otherU = constraintEnergy(pretendBox);
+            }
+            if (otherU < Double.POSITIVE_INFINITY) {
+                otherU += meterPotential.getDataAsScalar();
+            }
             double ai = (otherU-latticeEnergy)/otherTemperatures[i];
-//            if (i==0) System.out.println(u+" "+otherU+" "+(u-latticeEnergy)/temperature+" "+(otherU-latticeEnergy)/otherTemperatures[i]);
             
             for (int j=0; j<numAlpha; j++) {
                 if (temperature>otherTemperatures[i]) {
@@ -118,10 +129,24 @@ public class MeterTargetTP implements IEtomicaDataSource {
     }
 
     /**
+     * Returns true if all atoms in the given box satisfy p1's constraint
+     */
+    protected double constraintEnergy(IBox box) {
+        p1.setBox(box);
+        IAtomList atomList = box.getLeafList();
+        for (int i=0; i<atomList.getAtomCount(); i++) {
+            if (p1.energyi(atomList.getAtom(i)) == Double.POSITIVE_INFINITY) {
+                return Double.POSITIVE_INFINITY;
+            }
+        }
+        return 0;
+    }
+
+    /**
      * Writes collected overlap data (for the "middle" alpha) to a file.
      * Only data for the first perturbed temperature is written.
      */
-    public static void openFW(String filename) {
+    public void openFW(String filename) {
         try {
             if (fw != null) {
                 fw.close();
@@ -136,7 +161,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     /**
      * Closes file with overlap data.
      */
-    public static void closeFW() {
+    public void closeFW() {
         try {
             fw.close();
             fw = null;
@@ -234,4 +259,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
         }
     }
 
+    public void setConstraint(P1ConstraintNbr p1) {
+        this.p1 = p1;
+    }
 }
