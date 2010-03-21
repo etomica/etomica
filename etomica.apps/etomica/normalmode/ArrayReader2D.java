@@ -1,8 +1,10 @@
 package etomica.normalmode;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 
@@ -15,9 +17,13 @@ public class ArrayReader2D {
     
     /**
      * Returns 2D arrays from the given file.  The arrays are assumed to be
-     * square.
+     * square.  If the given filename is of the form something.bin, it is
+     * assume to be in binary format (serialized) and will be deserialized.
      */
     public static double[][][] getFromFile(String fn){
+        if (fn.matches(".*.bin")) {
+            return getFromBinFile(fn);
+        }
         return getFromFile(fn, 0);
     }
 
@@ -70,5 +76,25 @@ public class ArrayReader2D {
             throw new RuntimeException("Couldn't read data from file "+fn);
         }
         return S;
+    }
+
+    /**
+     * Deserializes a 3D array from the given file.
+     */
+    public static double[][][] getFromBinFile(String fn){
+        try {
+            FileInputStream fis = new FileInputStream(fn);
+            ObjectInputStream in = new ObjectInputStream(fis);
+            double[][][] bar = (double[][][])in.readObject();
+            in.close();
+            fis.close();
+            return bar;
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
