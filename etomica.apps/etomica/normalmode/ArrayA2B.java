@@ -19,11 +19,11 @@ public class ArrayA2B {
         if (args.length < 1) {
             throw new RuntimeException("usage: A2B filename");
         }
-        double[][][] x = ArrayReader2D.getFromFile(args[1]);
+        double[][][] x = ArrayReader2D.getFromFile(args[0]);
         try {
             FileOutputStream fos = null;
             ObjectOutputStream out = null;
-            fos = new FileOutputStream(args[1]+".bin");
+            fos = new FileOutputStream(args[0]+".bin");
             out = new ObjectOutputStream(fos); 
             out.writeObject(x);
             out.close();

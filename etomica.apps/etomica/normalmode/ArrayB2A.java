@@ -21,7 +21,7 @@ public class ArrayB2A {
         }
         double[][][] x;
         try {
-            FileInputStream fis = new FileInputStream(args[1]);
+            FileInputStream fis = new FileInputStream(args[0]);
             ObjectInputStream in = new ObjectInputStream(fis);
             x = (double[][][])in.readObject();
             in.close();
@@ -35,7 +35,7 @@ public class ArrayB2A {
         }
 
         try {
-            FileWriter fw = new FileWriter(args[1]+".txt");
+            FileWriter fw = new FileWriter(args[0]+".txt");
             for (int i = 0; i<x.length; i++) {
                 for (int j = 0; j < x[i].length; j++) {
                     fw.write(Double.toString(x[i][j][0]));
