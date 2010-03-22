@@ -1,6 +1,7 @@
 package etomica.normalmode;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -21,7 +22,13 @@ public class ArrayReader2D {
      * assume to be in binary format (serialized) and will be deserialized.
      */
     public static double[][][] getFromFile(String fn){
-        if (fn.matches(".*.bin")) {
+        if (!(fn.matches(".*.bin"))) {
+            File binFile = new File(fn+".bin");
+            if (binFile.exists()) {
+                return getFromBinFile(fn+".bin");
+            }
+        }
+        else if (fn.matches(".*.bin")) {
             return getFromBinFile(fn);
         }
         return getFromFile(fn, 0);
