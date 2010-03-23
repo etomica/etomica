@@ -190,6 +190,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             cDef.setToU(cells[iCell].molecules, newU);
         }
         
+//        return Math.exp(-1*(meterPE.getDataAsScalar()+harmonic));
         return meterPE.getDataAsScalar() + harmonic;
     }
 
