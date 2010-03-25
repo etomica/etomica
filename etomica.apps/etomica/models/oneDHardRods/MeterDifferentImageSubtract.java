@@ -5,6 +5,7 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomArrayList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -125,7 +126,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
 
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
-        BasisCell cell = simCells[0];
+        BasisCell cell = cells[0];
         //nan this makes it 1D
         newU = new double[cDim];
         for(int i=0; i < newU.length; i++){
@@ -186,6 +187,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                             * (realCoord[wvcount] * coskR - imagCoord[wvcount] * sinkR);
                     }
                 }
+            }
+            
+            double normalization = 1/Math.sqrt(cells.length);
+            for (int i=0; i<cDim; i++) {
+                newU[i] *= normalization;
             }
             cDef.setToU(cells[iCell].molecules, newU);
         }
