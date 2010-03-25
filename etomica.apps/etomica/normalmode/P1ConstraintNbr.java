@@ -7,7 +7,6 @@ import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
-import etomica.lattice.crystal.Primitive;
 import etomica.space.ISpace;
 
 public class P1ConstraintNbr implements IPotentialAtomic{
@@ -18,11 +17,10 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	private static final long serialVersionUID = 1L;
 
 	// this could take a NeighborListManager to try to speed up finding neighbors
-	public P1ConstraintNbr(ISpace space, Primitive primitive, IBox box) {
+	public P1ConstraintNbr(ISpace space, double neighborDistance, IBox box) {
 	    boundary = box.getBoundary();
 	    
-		double l = primitive.getSize()[0];
-		neighborRadiusSq = l*l/2.0;
+		neighborRadiusSq = neighborDistance*neighborDistance;
 		
 		IAtomList list = box.getLeafList();
 		

@@ -73,7 +73,6 @@ public class SimOverlapSoftSphereTP extends Simulation {
         double L = Math.pow(4.0/density, 1.0/3.0);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         primitive = new PrimitiveCubic(space, n*L);
-        primitiveUnitCell = new PrimitiveCubic(space, L);
         
         nCells = new int[]{n,n,n};
         boundary = new BoundaryRectangularPeriodic(space, n * L);
@@ -103,7 +102,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
          *  
          */
 
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitiveUnitCell, box);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, L/Math.sqrt(2), box);
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
@@ -301,7 +300,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
     public Boundary boundary;
     public int[] nCells;
     public Basis basis;
-    public Primitive primitive, primitiveUnitCell;
+    public Primitive primitive;
     public AccumulatorAverageFixed accumulator;
     public DataPumpListener accumulatorPump;
     public MeterTargetTP meter;

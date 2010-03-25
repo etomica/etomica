@@ -7,6 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -22,8 +23,9 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.nbr.list.BoxAgentSourceCellManagerList;
+import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -53,13 +55,13 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
     public SimOverlapSoftSphereTPSlantedBox(Space _space, int numAtoms, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
         
-        potentialMaster = new PotentialMasterList(this, space);
+        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+        BoxAgentManager boxAgentManager = new BoxAgentManager(boxAgentSource);
+        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        nCells = new int[]{2,2,2};
-        numAtoms =nCells[0]*nCells[1]*nCells[2];
         // TARGET
         box = new Box(space);
         addBox(box);
@@ -72,16 +74,15 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-        
 
         System.out.println("numatoms: "+ numAtoms);
+        int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+        nCells = new int[]{c,c,c};
         double sixtyDeg = Degree.UNIT.toSim(60);
         
         double L = Math.pow(numAtoms*Math.sqrt(2)/density, 1.0/3.0);
       
-     //   System.out.println("L/6: " + L/6);
         primitive = new PrimitiveTriclinic(space, L, L, L, sixtyDeg, sixtyDeg, sixtyDeg);
-        //primitiveUnitCell = new PrimitiveCubic(space, L/nCells[0]);
      
         boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
         Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
@@ -110,23 +111,17 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
          *  
          */
 
-        //P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitiveUnitCell, box);
-        //atomMove.setConstraint(p1Constraint);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitive.getSize()[0]/c, box);
+        atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
     
         integrator.setBox(box);
 
 		if (potentialMaster instanceof PotentialMasterList) {
-            int cellRange = 7;
             ((PotentialMasterList)potentialMaster).setRange(rc);
-            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
-            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
 		}
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
