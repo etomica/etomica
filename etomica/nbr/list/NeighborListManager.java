@@ -376,11 +376,10 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     private final ApiAACell cellNbrIterator;
     private final Api1ACell cell1ANbrIterator;
     protected final PotentialMasterList potentialMaster;
-    private int priority;
     private BoxImposePbc pbcEnforcer;
     private boolean quiet;
-    private final AtomLeafAgentManager agentManager2Body;
-    private final AtomLeafAgentManager agentManager1Body;
+    protected final AtomLeafAgentManager agentManager2Body;
+    protected final AtomLeafAgentManager agentManager1Body;
     private NeighborListEventManager eventManager;
     protected IBox box;
     private NeighborCriterion[] oldCriteria;
