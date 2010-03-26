@@ -152,8 +152,8 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                 }
             }
             if(simWVCoeff[wvcount] == 1.0){
-                realCoord[wvcount] *= Math.sqrt(2/simWVCoeff[wvcount]);
-                imagCoord[wvcount] *= Math.sqrt(2/simWVCoeff[wvcount]);
+                realCoord[wvcount] *= Math.sqrt(2);
+                imagCoord[wvcount] *= Math.sqrt(2);
             } else {
                 imagCoord[wvcount] = 0.0;
             }
