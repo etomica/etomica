@@ -148,7 +148,6 @@ public class SimDifferentImage1DHR extends Simulation {
         
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         cDefTarget.initializeCoordinates(nCellsTarget);
-//        int cDimTarget = cDefTarget.getCoordinateDim();
 
         double neighborRange = 1.01/density;
         potentialMasterTarget.setRange(neighborRange);
@@ -173,7 +172,6 @@ public class SimDifferentImage1DHR extends Simulation {
         
         System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length +" target wave vectors.");
         System.out.println("Target Wave Vector Coefficients:");
-        
         System.out.println("Target WV: 1DHR ASSUMED");
         for (int i = 0; i < targWV.length; i++){
             System.out.println(targWV[i] + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
@@ -232,7 +230,6 @@ public class SimDifferentImage1DHR extends Simulation {
         
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         cDefRef.initializeCoordinates(nCellsRef);
-//        int cDimRef = cDefRef.getCoordinateDim();
 
         neighborRange = 1.01/density;
         potentialMasterRef.setRange(neighborRange);
@@ -255,10 +252,8 @@ public class SimDifferentImage1DHR extends Simulation {
         wvc= nmRef.getWaveVectorFactory().getCoefficients();
         omega = nmRef.getOmegaSquared();
         
-        
         System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length +" reference wave vectors.");
         System.out.println("Reference Wave Vector Coefficients:");
-        
         System.out.println("Ref WV: ");
         for (int i = 0; i < refWV.length; i++){
             System.out.println(refWV[i] + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
@@ -323,7 +318,7 @@ public class SimDifferentImage1DHR extends Simulation {
         
         
         
-//      //Fun with meters!        
+////      //Fun with meters!        
 //        meterHarmonic = new MeterHarmonicCoordinate(cDefTarget);
 //        meterHarmonic.setEigenvectors(nmTarg.getEigenvectors()[1][0]);
 //        meterHarmonic.setWaveVector(nmTarg.getWaveVectorFactory().getWaveVectors()[1]);
@@ -631,6 +626,8 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         System.out.println("equilibration finished.");
         
+        sim.setBennettParameter(1.0);
+        
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
@@ -662,15 +659,17 @@ public class SimDifferentImage1DHR extends Simulation {
                  + " error: " + 
                 ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
     
-        if(D==1) {
-            double AHR = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA-1) ;
-            System.out.println("Hard-rod free energy for " + nA + ": "+AHR);
-            
-            AHR = -(nA)*Math.log((nA+1)/density-(nA+1)) + SpecialFunctions.lnFactorial(nA) ;
-            System.out.println("Hard-rod free energy for " + (nA+1) + ": "+AHR);
-        }
+        double AHR1 = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA-1) ;
+        System.out.println("Hard-rod free energy for " + nA + ": "+AHR1);
+        
+        double AHR2 = -(nA)*Math.log((nA+1)/density-(nA+1)) + SpecialFunctions.lnFactorial(nA) ;
+        System.out.println("Hard-rod free energy for " + (nA+1) + ": "+AHR2);
+        
+        System.out.println("HRFE diff " + (AHR2 - AHR1));
         
         
+        double[][] o2 = sim.nmTarg.getOmegaSquared();
+        System.out.println("calculated diff " + (-Math.log(ratio) -0.5*Math.log(2*Math.PI/o2[o2.length-1][0]) -0.5*Math.log(nA+1) +0.5*Math.log(nA)));
 //        DataGroup dork;
 //        dork = (DataGroup)sim.accHarmonic.getData();
 //        System.out.println("Measurement of eta: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
@@ -700,8 +699,8 @@ public class SimDifferentImage1DHR extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 10;  //number of atoms in the reference system.
-        public double density = 0.70;
+        public int numAtoms = 3;  //number of atoms in the reference system.
+        public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
@@ -719,8 +718,8 @@ public class SimDifferentImage1DHR extends Simulation {
         public int bennettNumSteps = 5000;
 //        public int benBlockSize = 1000;
         
-        public int[] targWVs = {0, 1, 2, 3, 4, 5};
-        public int[] refWVs = {0, 1, 2, 3, 4, 5};
+        public int[] targWVs = {0, 1, 2};
+        public int[] refWVs = {0, 1};
     }
 
 }
