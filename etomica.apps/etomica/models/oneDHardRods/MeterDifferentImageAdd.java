@@ -5,6 +5,7 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomArrayList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -150,8 +151,12 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                     imagCoord[wvcount] += simEigenVectors[wvcount][i][j] * simImagT[j];
                 }
             }
-            //cleans up E-15 order numbers
-            if(simWVCoeff[wvcount] != 1.0 ) {imagCoord[wvcount] = 0.0;}
+            if(simWVCoeff[wvcount] == 1.0){
+                realCoord[wvcount] *= Math.sqrt(2/simWVCoeff[wvcount]);
+                imagCoord[wvcount] *= Math.sqrt(2/simWVCoeff[wvcount]);
+            } else {
+                imagCoord[wvcount] = 0.0;
+            }
         }
         
         //Create the last normal mode coordinate from the Gaussian distribution
@@ -191,8 +196,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             }
             cDef.setToU(cells[iCell].molecules, newU);
         }
-        
-        
+
 //        return Math.exp(-1*meterPE.getDataAsScalar());
         return meterPE.getDataAsScalar();
     }

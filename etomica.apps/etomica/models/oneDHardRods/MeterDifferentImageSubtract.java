@@ -146,10 +146,12 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                     imagCoord[wvcount] += simEigenVectors[wvcount][i][j] * simImagT[j];
                 }
             }
-            //cleans up E-15 type numbers
-            if(simWVCoeff[wvcount] != 1.0 ) {imagCoord[wvcount] = 0.0;}
-            
-            
+            if(simWVCoeff[wvcount] == 1.0){
+                realCoord[wvcount] *= Math.sqrt(2/simWVCoeff[wvcount]);
+                imagCoord[wvcount] *= Math.sqrt(2/simWVCoeff[wvcount]);
+            } else {
+                imagCoord[wvcount] = 0.0;
+            }
         }
         
         //nan this will not work for more than 1D
