@@ -137,7 +137,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	eulerRotationL2BoxTOP.transform(projection);
     	
     	phi = Math.acos(projection.dot(origin[2]) / Math.sqrt(projection.squared()));
-    	System.out.println(phi);
+    	System.out.println(phi*360/Math.PI);
     	setRotationTOP(0,phi);
     	setRotationBOTTOM(0,-phi);
     }
@@ -208,10 +208,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	    yaxispbc=latticeTOP.getLatticeConstants()[2];
     	}
     	
-    	System.out.println(xboxshift+"    "+yboxshift);
-    	shiftVector = space.makeVector();
-    	shiftVector.setX(0, xboxshift);
-    	shiftVector.setX(1, yboxshift);
+    	System.out.println(xaxispbc+"    "+yaxispbc);
     	
     	//Set Box size
     	box.getBoundary().setBoxSize(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
@@ -359,7 +356,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.getX(2)>0.0001){
                continue;            
             }
-            transformedPosition.PE(shiftVector);
+            
             // Check to see if this atom needs to be fixed. Notice signs/inequalities
             IMolecule a = null;
             if(transformedPosition.getX(2)<(-box.getBoundary().getBoxSize().getX(2)/2.0 + cutoff)){
@@ -378,7 +375,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          * REMOVE OVERLAPPING ATOMS AT GRAIN BOUNDARY INTERFACE
          */
         int removeCount = 0;
-        dist = 3.0;
+        dist = 0.1;
         IVectorMutable rij = space.makeVector();
         
         
@@ -403,13 +400,13 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         if(millerPlane[2]==0){
         	theta = 360*theta/Math.PI;
         	if(theta>90){
-        		theta = 180-theta;
+        	theta = 180-theta;
         	}
         	System.out.println("Tilt Grain Boundary of "+theta+" degrees created.----");
         }else{
         	phi = 360*phi/Math.PI;
         	if(phi>90){
-        		phi = 180-phi;
+        	//	phi = 180-phi;
         	}
         	System.out.println("Tilt Grain Boundary of "+phi+" degrees created.");
         }
