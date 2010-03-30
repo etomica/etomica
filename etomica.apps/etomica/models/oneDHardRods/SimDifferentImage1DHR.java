@@ -626,7 +626,7 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         System.out.println("equilibration finished.");
         
-        sim.setBennettParameter(1.0);
+//        sim.setBennettParameter(1.0);
         
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
@@ -699,7 +699,7 @@ public class SimDifferentImage1DHR extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 3;  //number of atoms in the reference system.
+        public int numAtoms = 10;  //number of atoms in the reference system.
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -718,8 +718,7 @@ public class SimDifferentImage1DHR extends Simulation {
         public int bennettNumSteps = 5000;
 //        public int benBlockSize = 1000;
         
-        public int[] targWVs = {0, 1, 2};
-        public int[] refWVs = {0, 1};
+        public int[] targWVs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        public int[] refWVs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     }
-
 }
