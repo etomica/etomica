@@ -162,16 +162,15 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         double harmonic;
         int index = simWVCoeff.length-1;
         if(simWVCoeff[index] == 1.0){
-            harmonic = simWVCoeff[index] * simOmegaSquared[index][0] * 
+            harmonic = 0.5 * simOmegaSquared[index][0] * 
                     imagCoord[index] * imagCoord[index];
             imagCoord[index] = 0.0;
         } else {
-            harmonic = simWVCoeff[index] * simOmegaSquared[index][0] * 
+            harmonic = 0.5 * simOmegaSquared[index][0] * 
                     realCoord[index] * realCoord[index];
             realCoord[index] = 0.0;
         }
         
-            
         //Calculate the positions for the meter's system
         for (int iCell = 0; iCell < cells.length; iCell++){
             cell = cells[iCell];
