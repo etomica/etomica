@@ -67,7 +67,7 @@ public class TestDifferentImage1DHRSubtract extends Simulation {
     public IBox box;
     public Boundary bdry;
     public CoordinateDefinition coordinateDefinition;
-    MeterDifferentImageSubtract meterdi;
+    MeterDifferentImageSubtract1D meterdi;
     WaveVectorFactory waveVectorFactory;
     MCMoveAtomCoupled mcMoveAtom;
     MCMoveChangeMultipleWV mcMoveMode;
@@ -147,7 +147,7 @@ public class TestDifferentImage1DHRSubtract extends Simulation {
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(changeable);
         
-        meterdi = new MeterDifferentImageSubtract("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
+        meterdi = new MeterDifferentImageSubtract1D("MeterDI", /*potentialMaster,*/ numAtoms, density, (Simulation)this, 
                 primitive, basis, coordinateDefinition, nm, 1.0);
         
         accumulatorDI = new AccumulatorAverageFixed(blocksize);

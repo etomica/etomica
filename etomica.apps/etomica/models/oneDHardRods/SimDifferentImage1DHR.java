@@ -95,8 +95,8 @@ public class SimDifferentImage1DHR extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
     MeterPotentialEnergy meterTargInTarg, meterRef, meterRefInRef;
-    MeterDifferentImageAdd meterTargInRef;
-    MeterDifferentImageSubtract meterRefInTarg;
+    MeterDifferentImageAdd1D meterTargInRef;
+    MeterDifferentImageSubtract1D meterRefInTarg;
     
 
     AccumulatorAverageFixed accMeter0, accMeter1, accHarmonic, accTargInTarg, accRefInRef, accTargInRef, accRefInTarg;
@@ -283,13 +283,13 @@ public class SimDifferentImage1DHR extends Simulation {
 
         
 //JOINT
-        meterTargInRef = new MeterDifferentImageAdd("meterAinB", refAtoms, density, 
+        meterTargInRef = new MeterDifferentImageAdd1D("meterAinB", refAtoms, density, 
                 this, primitive, basis, cDefRef, nmRef, temperature);
         MeterOverlapSameGaussian meterOverlapInRef = new MeterOverlapSameGaussian("MeterOverlapInB", 
                 Null.DIMENSION, meterRefInRef, meterTargInRef, temperature);
 
         
-        meterRefInTarg = new MeterDifferentImageSubtract("MeterBinA", targAtoms, 
+        meterRefInTarg = new MeterDifferentImageSubtract1D("MeterBinA", targAtoms, 
                 density, this, primitive, basis, cDefTarget, nmTarg, temperature);
         MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);

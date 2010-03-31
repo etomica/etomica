@@ -18,7 +18,7 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
     double temperature;
     DataDoubleArray dda;
     
-    MeterDifferentImageAdd meterAdd;
+    MeterDifferentImageAdd1D meterAdd;
     
     
     public static double total, count;
@@ -53,7 +53,7 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
         double[] eAeB = dda.getData();
         
         double numerator = Math.exp(-dataSourceB.getDataAsScalar()/temperature);
-        double gausses = ((MeterDifferentImageAdd)dataSourceB).getGaussian();
+        double gausses = ((MeterDifferentImageAdd1D)dataSourceB).getGaussian();
         double harmonic = 0.5 * (gausses * gausses);
         double denominator = Math.exp(-(dataSourceA.getDataAsScalar()+harmonic)/temperature);
         
