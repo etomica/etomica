@@ -563,7 +563,6 @@ public class SimDifferentImage1DHR extends Simulation {
         if(inputFilename != null){
             ReadParameters readParameters = new ReadParameters(inputFilename, params);
             readParameters.readParameters();
-            inputFilename = params.inputfilename;
         }
         
         int nA = params.numAtoms;
@@ -572,7 +571,7 @@ public class SimDifferentImage1DHR extends Simulation {
         double harmonicFudge = params.harmonicFudge;
         String filename = params.filename;
         if(filename.length() == 0){
-            filename = "1DHR";
+            filename = "nmi_1DHR";
         }
         double temperature = params.temperature;
 //        String outputfn = params.outputname;
