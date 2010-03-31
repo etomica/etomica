@@ -82,6 +82,14 @@ public class MCMoveChangeMultipleWV extends MCMoveBoxStep{
         changeableWV = newWV;
         
     }
+    
+    public void addChangeableWV(String string){
+      changeableWV = new int[waveVectors.length];
+        for(int i = 0; i < changeableWV.length; i++){
+            changeableWV[i] = i;
+        }
+    }
+    
     public void setOmegaSquared(double[][] o2){
         omega2 = o2;
         oneOverOmega2 = new double[o2.length][o2[0].length];
