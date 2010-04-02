@@ -1,7 +1,5 @@
 package etomica.space;
 
-import java.io.Serializable;
-
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.lattice.IndexIteratorRectangular;
@@ -54,21 +52,6 @@ public class BoundaryDeformablePeriodic extends Boundary {
             edgeVectors[i].E(vex[i]);
         }
 
-        if(D == 2) { 
-            edgePairTransforms = new PeriodicTransform2[1];
-            edgeTripletTransforms = new PeriodicTransform3[0];
-            edgePairTransforms[0] = new PeriodicTransform2(edgeVectors, 0, 1);
-        } else {//D == 3
-            edgePairTransforms = new PeriodicTransform2[3];
-            edgeTripletTransforms = new PeriodicTransform3[2];
-            edgePairTransforms[0] = new PeriodicTransform2(edgeVectors, 1, 2);
-            edgePairTransforms[1] = new PeriodicTransform2(edgeVectors, 0, 2);
-            edgePairTransforms[2] = new PeriodicTransform2(edgeVectors, 0, 1);
-            edgeTripletTransforms[0] = new PeriodicTransform3(edgeVectors, true);
-            edgeTripletTransforms[1] = new PeriodicTransform3(edgeVectors, false);
-            
-        }
-            
         h = space.makeTensor();
         hCopy = space.makeTensor();
         hInv = space.makeTensor();
@@ -156,136 +139,26 @@ public class BoundaryDeformablePeriodic extends Boundary {
         return temp1;
     }
 
-    //needs work to improve efficiency; may be incorrect for extremely deformed boundaries
-	public void nearestImage(IVectorMutable dr) { 
-	    
-        boolean transformed = false;
-       // temp1.E(dr);
-       // temp1.transform(hInv);//transform to edge-vector basis
-//        for(int i=0; i<edgePairTransforms.length; i++) {
-//            transformed = edgePairTransforms[i].transform(temp1);
-//            if(transformed) {
-//                temp1.transform(h);//convert back to space-frame basis
-//                dr.E(temp1);
-//                return;
-//            }
-//        }
-//
-        //transform into reciprocal lattice unit cell
-        double dot = 0.0;
-        //temp1.E(dr);
-        //temp1.transform(hInv);
-        //System.out.println(temp1.toString());
-        do {
-            transformed = false;
-            for(int i=0; i<edgeVectors.length; i++) {
-                dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
-                //System.out.println("dot "+dot);
-                if(dot > halfTol) {
-                    //System.out.println("subtract "+edgeVectors[i]);
-                    do {
-                        dr.ME(edgeVectors[i]);
-                        dot -= 1.0;
-                        //System.out.println("minus "+edgeVectors[i]);
-                    } while(dot > halfTol);
-                    transformed = true;
-                } else if(dot < -halfTol) {
-                    //System.out.println("add "+edgeVectors[i]);
-                    do {
-                        dr.PE(edgeVectors[i]);
-                        dot += 1.0;
-                        //System.out.println("plus"+edgeVectors[i]);
-                    } while(dot < -halfTol);
-                    transformed = true;
-                }
-                //dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
-    //            if(dot > halfTol || dot < -halfTol) {
-    //                System.out.println("busted");
-    //            }
+	public void nearestImage(IVectorMutable dr) {
+	    // pretend that we last transformed the last+1 vector
+	    // this has the effect we want
+	    int lastTransform = transformVectors.length;
+        for (int i=0; i!=lastTransform; i++) {
+            double dot = transformVectors[i].dot(dr)/tV2[i];
+            if (Math.abs(dot) > halfTol) {
+                dot = Math.round(dot);
+                dr.PEa1Tv1(-dot, transformVectors[i]);
+                // remember that we transformed with this vector
+                // when we finish the vectors, we'll restart back at 0 and continue until we reach this one again.
+                lastTransform = i;
             }
-        } while(transformed);
-        //temp1.E(dr);
-        //temp1.transform(hPrimeInv);// position in terms of reciprocal-vector basis
-        //temp1.PE(half);
-        //temp1.mod(unit);
-        //temp1.ME(half);
-        
-        transformed = false;
-        for(int i=0; i<edgeTripletTransforms.length; i++) {
-            transformed = edgeTripletTransforms[i].transform(dr);
-        }
-//        if(transformed) {
-//            return;
-//        }
-        
-        //temp1.transform(hPrime);//transform back to lab frame
-        //temp1.transform(hInv);//transform to edge-vector basis
-        
-        //System.out.println(temp1.toString());
-        
-        do {
-            transformed = false;
-            for(int i=0; i<edgePairTransforms.length; i++) {
-                boolean trans = edgePairTransforms[i].transform(dr);
-                transformed |= trans;
-                if(trans) {
-                    dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
-                    //System.out.println("dot "+dot);
-                    if(dot > halfTol) {
-                        //System.out.println("subtract "+edgeVectors[i]);
-                            dr.ME(edgeVectors[i]);
-                            //System.out.println("minus "+edgeVectors[i]);
-                    } else if(dot < -halfTol) {
-                        //System.out.println("add "+edgeVectors[i]);
-                            dr.PE(edgeVectors[i]);
-                            //System.out.println("plus"+edgeVectors[i]);
-                    }
-                }
+            if (i==transformVectors.length-1 && lastTransform != transformVectors.length) {
+                // we finished a pass, but transformed a vector.
+                // make another pass (we'll stop at the vector we transformed)
+                i=-1;
             }
-        } while(transformed);
-        do {
-            transformed = false;
-            for(int i=0; i<edgeVectors.length; i++) {
-                dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
-                //System.out.println("dot "+dot);
-                if(dot > halfTol) {
-                    //System.out.println("subtract "+edgeVectors[i]);
-                    do {
-                        dr.ME(edgeVectors[i]);
-                        dot -= 1.0;
-                        //System.out.println("minus "+edgeVectors[i]);
-                    } while(dot > halfTol);
-                    transformed = true;
-                } else if(dot < -halfTol) {
-                    //System.out.println("add "+edgeVectors[i]);
-                    do {
-                        dr.PE(edgeVectors[i]);
-                        dot += 1.0;
-                        //System.out.println("plus"+edgeVectors[i]);
-                    } while(dot < -halfTol);
-                    transformed = true;
-                }
-                //dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
-    //            if(dot > halfTol || dot < -halfTol) {
-    //                System.out.println("busted");
-    //            }
-            }
-        } while(transformed);
-        
-        transformed = false;
-        for(int i=0; i<edgeTripletTransforms.length; i++) {
-            transformed = edgeTripletTransforms[i].transform(dr);
         }
-        if(transformed) {
-            return;
-        }
-        
-        //System.out.println();
-
-       //System.out.println(temp1.toString());
-        //temp1.transform(h);//convert back to space-frame basis
-        //dr.E(temp1);
-
+        return;
 	}
 
 
@@ -367,7 +240,16 @@ public class BoundaryDeformablePeriodic extends Boundary {
 	public double volume() {
 		return volume;
 	}
+
+	public void setTruncationRadius(double newTruncationRadius) {
+	    truncationRadius = newTruncationRadius;
+	    update();
+	}
     
+	public double getTruncationRadius() {
+	    return truncationRadius;
+	}
+
     private boolean isPositive(IVector v) {
         for(int i=0; i<v.getD(); i++) {
             if(v.getX(i) <= 0.0) return false;
@@ -376,24 +258,120 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
 
     //method to update all auxiliary fields of tensor when edgeVectors are changed
-    private void update() {
+    protected void update() {
 //      h times a vector s gives coordinate r in lab frame; s elements are between 0,1 to be in box
         h.E(edgeVectors);//edge vectors in column format
         hInv.E(h);
         hInv.invert(); // to get point s in edgeVector frame, do hInv times r
-        
+
         ((Parallelotope)shape).setEdgeVectors(edgeVectors);
         volume = shape.getVolume();
-        
-        for(int i=0; i<edgePairTransforms.length; i++) {
-            edgePairTransforms[i].update();
+
+        transformVectors = new IVectorMutable[D];
+
+        // add actual edges as transform vectors
+        for (int i=0; i<D; i++) {
+            transformVectors[i] = space.makeVector();
+            transformVectors[i].E(edgeVectors[i]);
         }
-        for(int i=0; i<edgeTripletTransforms.length; i++) {
-            edgeTripletTransforms[i].update();
+
+        // test edge pairs
+        for(int i=0; i<D-1; i++) {
+            for (int k=i+1; k<D; k++) {
+                double dot = edgeVectors[i].dot(edgeVectors[k]);
+                if (Math.abs(dot) < 1e-10) continue;
+                if(dot < -1e-10) {
+                    temp1.Ev1Pv2(edgeVectors[i], edgeVectors[k]);
+                }
+                else if (dot > 1e-10) {
+                    temp1.Ev1Mv2(edgeVectors[i], edgeVectors[k]);
+                }
+                testTransformVector(temp1);
+            }
+        }
+
+        // test edge triplets 
+        if (D>2) {
+            double dot01 = edgeVectors[0].dot(edgeVectors[1]);
+            double dot02 = edgeVectors[0].dot(edgeVectors[2]);
+            double dot12 = edgeVectors[1].dot(edgeVectors[2]);
+
+            double sum = 0.0;
+
+            sum = dot01 + dot02 + dot12;//+0 +1 +2
+            if(sum < -1e-10) {
+                temp1.Ev1Pv2(edgeVectors[0], edgeVectors[1]);
+                temp1.PE(edgeVectors[2]);
+                testTransformVector(temp1);
+            }
+
+            sum = dot01 - dot02 - dot12;//+0 +1 -2
+            if(sum < -1e-10) {
+                temp1.Ev1Pv2(edgeVectors[0], edgeVectors[1]);
+                temp1.ME(edgeVectors[2]);
+                testTransformVector(temp1);
+            }
+
+            sum = -dot01 + dot02 - dot12;//+0 -1 +2
+            if(sum < -1e-10) {
+                temp1.Ev1Mv2(edgeVectors[0], edgeVectors[1]);
+                temp1.PE(edgeVectors[2]);
+                testTransformVector(temp1);
+            }
+
+            sum = -dot01 - dot02 + dot12;//+0 -1 -2
+            if(sum < -1e-10) {
+                temp1.Ev1Mv2(edgeVectors[0], edgeVectors[1]);
+                temp1.ME(edgeVectors[2]);
+                testTransformVector(temp1);
+            }
+        }
+
+        if (tV2 == null || tV2.length != transformVectors.length) {
+            tV2 = new double[transformVectors.length];
+        }
+        for (int i=0; i<transformVectors.length; i++) {
+            tV2[i] = transformVectors[i].squared();
         }
 
         // we get called when the boundary changes, so fire inflate event now
         eventManager.inflate(this);
+    }
+
+    /**
+     * We test the given vector (v) to see if 0.5*v would be transformed by any
+     * of our existing transformVectors.  If so, then we don't need to keep v
+     * as an additional transform vector.  We also check to see if vectors that
+     * would be transformed could be within our truncation radius (if given).
+     * If no vector transformed by only v would be within the truncation
+     * radius, then v is not included as a new transform vector.
+     */
+    protected void testTransformVector(IVector v) {
+        temp2.Ea1Tv1(0.5, v);
+        for (int i=0; i<transformVectors.length; i++) {
+            double dot = Math.abs(temp2.dot(transformVectors[i])/transformVectors[i].squared());
+            if (dot > 1-halfTol) {
+                return;
+            }
+        }
+
+        if (truncationRadius < Double.POSITIVE_INFINITY) {
+            // now check truncation distance
+            temp2.Ea1Tv1(1-truncationRadius/Math.sqrt(v.squared()), v);
+            // temp2 is now the periodic image of a vector on the edge of the
+            // truncation radius.  If temp2 would be transformed by another
+            // transformVector, then we don't need to keep v.
+            for (int i=0; i<transformVectors.length; i++) {
+                double dot = Math.abs(temp2.dot(transformVectors[i])/transformVectors[i].squared());
+                if (dot > 1-halfTol) {
+                    return;
+                }
+            }
+        }
+
+        // add v to our transform vectors
+        transformVectors = (IVectorMutable[])etomica.util.Arrays.addObject(transformVectors, space.makeVector());
+        transformVectors[transformVectors.length-1].E(v);
     }
 
     public IVector getEdgeVector(int d) {
@@ -446,137 +424,12 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private final IVectorMutable unit;
     private final IVectorMutable half;
     private final int D;
-    private final PeriodicTransform2[] edgePairTransforms;
-    private final PeriodicTransform3[] edgeTripletTransforms;
     private final IndexIteratorRectangular indexIterator;
     private double[][] origins = new double[0][];
     private final static double halfTol = 0.50000000001;
+    protected IVectorMutable[] transformVectors;
+    protected double[] tV2;
+    protected double truncationRadius = Double.POSITIVE_INFINITY;
 
     private static final long serialVersionUID = 1L;
-    
-    private static abstract class PeriodicTransform implements Serializable {
-        
-        PeriodicTransform(int D) {
-            transformVector = Space.makeVector(D);
-        }
-        
-        boolean transform(IVectorMutable dr) {
-            double dot = dr.dot(transformVector)/t2;
-            if(dot > halfTol) {
-                do {
-                    //System.out.println(n+"minus"+dr+transformVector.toString());
-                    dr.ME(transformVector);
-                    dot -= 1;
-                } while(dot > halfTol); 
-                return true;
-            } else if(dot < -halfTol) {
-                do {
-                    //System.out.println(n+"plus"+dr+transformVector.toString());
-                    dr.PE(transformVector);
-                    dot += 1;
-                } while(dot < -halfTol);
-                return true;
-            }
-            return false;
-        }
-        
-        
-        abstract void update();
-        
-        protected final IVectorMutable transformVector;
-        protected double t2;
-        protected int n;
-   }
-    
-    private static class PeriodicTransform2 extends PeriodicTransform {
-        
-        PeriodicTransform2(IVectorMutable[] edgeVectors, int k0, int k1) {
-            super(edgeVectors.length);
-            edge0 = edgeVectors[k0];
-            edge1 = edgeVectors[k1];
-            n = 2;
-        }
-        
-        void update() {
-            if(edge0.dot(edge1) < 0) {
-                transformVector.Ev1Pv2(edge0,edge1);
-            } else {
-                transformVector.Ev1Mv2(edge0,edge1);
-            }
-            t2 = transformVector.squared();
-        }
-        
-        private final IVectorMutable edge0, edge1;
-        private static final long serialVersionUID = 1L;
-    }
-
-    private static class PeriodicTransform3 extends PeriodicTransform {
-        
-        PeriodicTransform3(IVectorMutable[] edgeVectors, boolean getFirst) {
-            super(edgeVectors.length);
-            edge0 = edgeVectors[0];
-            edge1 = edgeVectors[1];
-            edge2 = edgeVectors[2];
-            this.getFirst = getFirst;
-            n = 3;
-        }
-        
-        void update() {
-            boolean getNext = getFirst;
-            
-            double dot01 = edge0.dot(edge1);
-            double dot02 = edge0.dot(edge2);
-            double dot12 = edge1.dot(edge2);
-            
-            double sum = 0.0;
-            
-            sum = dot01 + dot02 + dot12;//+0 +1 +2
-            if(sum < 0) {
-                if(getNext) {
-                    transformVector.Ev1Pv2(edge0, edge1);
-                    transformVector.PE(edge2);
-                    t2 = transformVector.squared();
-                    return;
-                }
-                getNext = true;
-            }
-            
-            sum = dot01 - dot02 - dot12;//+0 +1 -2
-            if(sum < 0) {
-                if(getNext) {
-                    transformVector.Ev1Pv2(edge0, edge1);
-                    transformVector.ME(edge2);
-                    t2 = transformVector.squared();
-                    return;
-                }
-                getNext = true;
-            }
-            
-            sum = -dot01 + dot02 - dot12;//+0 -1 +2
-            if(sum < 0) {
-                if(getNext) {
-                    transformVector.Ev1Mv2(edge0, edge1);
-                    transformVector.PE(edge2);
-                    t2 = transformVector.squared();
-                    return;
-                }
-                getNext = true;
-            }
-            
-            sum = -dot01 - dot02 + dot12;//+0 -1 -2
-            if(sum < 0) {
-                if(getNext) {
-                    transformVector.Ev1Mv2(edge0, edge1);
-                    transformVector.ME(edge2);
-                    t2 = transformVector.squared();
-                    return;
-                }
-            }
-            if(sum != 0) throw new RuntimeException("i really shouldn't be here");
-        }
-        
-        private final IVectorMutable edge0, edge1, edge2;
-        private final boolean getFirst;
-        private static final long serialVersionUID = 1L;
-    }
-}//end of BoundaryDeformablePeriodic
+}
