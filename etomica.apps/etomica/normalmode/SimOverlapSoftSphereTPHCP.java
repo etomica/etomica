@@ -115,9 +115,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
          *  	away from its lattice-site
          *  
          */
-        System.out.println("a: " + a);
-
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, a, box);
+        p1Constraint = new P1ConstraintNbrHcp(space, a, box);
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
@@ -207,14 +205,14 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         double alphaSpan = params.alphaSpan;
         double rc = params.rc;
         
-        System.out.println("Running soft sphere overlap simulation");
+        System.out.println("Running HCP soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN);
         System.out.println(numSteps+" steps");
 
         //instantiate simulation
         final SimOverlapSoftSphereTPHCP sim = new SimOverlapSoftSphereTPHCP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
-        if (true) {
+        if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
@@ -301,7 +299,8 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         }
         
         long endTime = System.currentTimeMillis();
-        System.out.println("Time taken: " + (endTime - startTime)/1000.0);
+        System.out.println("Time taken(s): " + (endTime - startTime)/1000.0);
+        System.out.println("p1 Counter: " + sim.p1Constraint.getp1Counter());
     }
 
     private static final long serialVersionUID = 1L;
@@ -318,6 +317,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
     protected MCMoveAtomCoupled atomMove;
     protected PotentialMaster potentialMaster;
     protected double latticeEnergy;
+    protected P1ConstraintNbrHcp p1Constraint;
     
     /**
      * Inner class for parameters understood by the HSMD3D constructor
@@ -326,8 +326,8 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         public int numMolecules = 250;
         public double density = 1.1964;
         public int exponentN = 12;
-        public long numSteps = 1000000;
-        public double temperature = 0.3;
+        public long numSteps = 1000;
+        public double temperature = 1.2;
         public double[] alpha = new double[]{0.011};
         public int numAlpha = 11;
         public double alphaSpan = 1;
