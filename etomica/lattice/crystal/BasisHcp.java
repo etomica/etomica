@@ -14,7 +14,7 @@ public class BasisHcp extends Basis {
     
     private static final Vector3D[] scaledPositions = new Vector3D[] {
         new Vector3D(0.0, 0.0, 0.0),
-        new Vector3D(1.0/3.0, 1.0/3.0, 0.5),
+        new Vector3D(2.0/3.0, 1.0/3.0, 0.5),
     };
 
     private static final long serialVersionUID = 1L;
