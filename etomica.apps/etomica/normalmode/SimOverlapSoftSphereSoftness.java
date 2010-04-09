@@ -1,17 +1,10 @@
 package etomica.normalmode;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -37,7 +30,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
@@ -120,8 +112,9 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *  
          */
 
-        P1Constraint p1ConstraintTarg = new P1Constraint(space, primitiveUnitCell, boxTarg, coordinateDefinitionTarg);
-        potentialMasterTarg.addPotential(p1ConstraintTarg, new IAtomType[] {sphereType});
+        P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L/Math.sqrt(2.0), boxTarg);
+        //potentialMasterTarg.addPotential(p1ConstraintTarg, new IAtomType[] {sphereType});
+        atomMoveTarg.setConstraint(p1ConstraintTarg);
         potentialMasterTarg.lrcMaster().setEnabled(false);
     
         integratorTarg.setBox(boxTarg);
@@ -140,7 +133,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             if (potentialCells > cellRange*2+1) {
                 System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
             }
-            //((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundaryTarget.getBoxSize().getX(0));
+            ((P2SoftSphericalTruncated)potentialTarg).setTruncationRadius(0.6*boundaryTarg.getBoxSize().getX(0));
 		}
         
         MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
@@ -186,8 +179,9 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *  
          */
 
-        P1Constraint p1ConstraintRef = new P1Constraint(space, primitiveUnitCell, boxRef, coordinateDefinitionRef);
-        potentialMasterRef.addPotential(p1ConstraintRef, new IAtomType[] {sphereType});
+        P1ConstraintNbr p1ConstraintRef = new P1ConstraintNbr(space, L/Math.sqrt(2.0), boxRef);
+        //potentialMasterRef.addPotential(p1ConstraintRef, new IAtomType[] {sphereType});
+        atomMoveRef.setConstraint(p1ConstraintRef);
         potentialMasterRef.lrcMaster().setEnabled(false);
     
         integratorRef.setBox(boxRef);
@@ -206,7 +200,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             if (potentialCells > cellRange*2+1) {
                 System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
             }
-            //((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundaryTarget.getBoxSize().getX(0));
+            ((P2SoftSphericalTruncated)potentialRef).setTruncationRadius(0.6*boundaryRef.getBoxSize().getX(0));
 		}
         
 	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
@@ -253,6 +247,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             integrators[iBox].getEventManager().addListener(pumpListener);
            
             pumpListener.setInterval(boxTarg.getMoleculeList().getMoleculeCount());
+            System.out.println("block size: "+newAccumulator.getBlockSize()*pumpListener.getInterval());
             
         }
         else {
@@ -304,7 +299,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("Perturbation from n=" + exponentN[0] +" to n=" + exponentN[1]);
-        System.out.println((numSteps/1000)+" total steps of 1000");
+        System.out.println((numSteps/1000)+" total steps of 1000\n");
 
         
         SimOverlapSoftSphereSoftness sim = new SimOverlapSoftSphereSoftness(Space.getInstance(D), numMolecules, density, temperature, 
@@ -336,45 +331,45 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
               
         
-        System.out.println("numPoint: " +sim.accumulators[0].getNBennetPoints());
+        System.out.println("numPoint: " +sim.accumulators[0].getNBennetPoints()+ "\n");
         
         
 //        DataGroup data = (DataGroup)sim.accumulators[0].getData(0);
 //        double refError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
 //        double refErrorRatio = refError/Math.abs(((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
         
+        
+        System.out.println("    i\t  alpha_set\t       alpha\t         ratio0\t            ratio0_err\t         ratio1\t          ratio1_err");
+        
         for (int i=0; i<numAlpha; i++){
-        	System.out.println(sim.accumulators[0].getBennetBias(i)+
-        			" "+sim.accumulators[0].getBennetAverage(i)+
-        			" "+sim.accumulators[1].getBennetAverage(i)+
-        			" "+sim.accumulators[0].getBennetAverage(i)/sim.accumulators[1].getBennetAverage(i));
+        	
+        	DataGroup dataRatio0 = (DataGroup)sim.accumulators[0].getData(i);
+        	double ratio0 = ((DataDoubleArray)dataRatio0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
+        	double ratio0_err = ((DataDoubleArray)dataRatio0.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+            
+        	DataGroup dataRatio1 = (DataGroup)sim.accumulators[1].getData(i);
+        	double ratio1 = ((DataDoubleArray)dataRatio1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
+        	double ratio1_err = ((DataDoubleArray)dataRatio1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+        	
+        	System.out.println("    "+(i+1)+" "+sim.accumulators[0].getBennetBias(i)+
+        			" "+sim.accumulators[0].getBennetAverage(i)/sim.accumulators[1].getBennetAverage(i)+
+        			" "+ ratio0 + " " + ratio0_err + 
+        			" "+ ratio1 + " " + ratio1_err);
+      
         }
         
         
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         
-        System.out.println("\nratio average: "+ratio+" ,error: "+error);
+        System.out.println("\nset alpha: "+alpha);
+        System.out.println("ratio average: "+ratio+" ,error: "+error);
         System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
-        
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        double betaFAW = -Math.log(((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]);
-        System.out.println("ref ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-        
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        double betaFBW = -Math.log(((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]);
-        System.out.println("targ ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-        
         
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);
         System.out.println("Time taken (s): " + (endTime - startTime)/1000);
        
-    
     }
 
     private static final long serialVersionUID = 1L;
@@ -402,12 +397,12 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules =32;
         public double density = 1.1964;
-        public int[] exponentN = new int[]{10, 12};
+        public int[] exponentN = new int[]{10, 20};
         public int D = 3;
-        public double alpha = 1.1126591321141184;
-        public double alphaSpan = 1;
+        public double alpha = 1.4260671576771222;
+        public double alphaSpan = 1.0;
         public int numAlpha = 11;
-        public long numSteps = 2000000;
+        public long numSteps = 100000;
         public double harmonicFudge = 1;
         public double temperature =0.1;
     }
