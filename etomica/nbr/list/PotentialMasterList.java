@@ -30,6 +30,7 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -595,7 +596,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     // things needed for N-body potentials
     private AtomArrayList atomArrayList;
     
-    protected static class NeighborListAgentSource implements BoxAgentManager.BoxAgentSource,
+    public static class NeighborListAgentSource implements BoxAgentManager.BoxAgentSource,
                                                               java.io.Serializable {
         public NeighborListAgentSource(double range, ISpace space) {
             
