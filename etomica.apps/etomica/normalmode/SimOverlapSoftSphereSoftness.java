@@ -11,6 +11,7 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -55,9 +56,9 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapSoftSphereSoftness extends Simulation {
 
-    public SimOverlapSoftSphereSoftness(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int[] exponent) {
+    public SimOverlapSoftSphereSoftness(Space _space, int numAtoms, double density, double temperature, 
+    		double harmonicFudge, int[] exponent, double alpha, double alphaSpan, int numAlpha) {
         super(_space);
-        this.fname = filename;
         
         potentialMasterTarg = new PotentialMasterList(this, space);
         potentialMasterRef  = new PotentialMasterList(this, space);
@@ -147,7 +148,6 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         latticeEnergyTarg = meterPETarg.getDataAsScalar();
         System.out.println("lattice energy/N (targ n="+exponent[1]+"): " + latticeEnergyTarg/numAtoms);
        
-        
         // Reference System
         boundaryRef = new BoundaryRectangularPeriodic(space);
         boxRef = new Box(boundaryRef, space);
@@ -222,28 +222,23 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         MeterBoltzmann meterTarg = new MeterBoltzmann(integratorTarg, meterPERef, latticeEnergyTarg, latticeEnergyRef);
         meters[1] = meterTarg;
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, false), 1);
         
         MeterBoltzmann meterRef = new MeterBoltzmann(integratorRef, meterPETarg, latticeEnergyRef, latticeEnergyTarg);
         meters[0] = meterRef;
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, true), 0);
         
-        setRefPref(1.0, 2.0);
+        setRefPref(alpha, alphaSpan);
         
         activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        
         getController().addAction(activityIntegrate);
     }
 
-    public void setRefPref(double refPrefCenter, double span) {
-        refPref = refPrefCenter;
-        accumulators[0].setBennetParam(refPrefCenter,span);
-        accumulators[1].setBennetParam(refPrefCenter,span);
-        // needed for Bennett sampling
-//        if (accumulators[0].getNBennetPoints() == 1) {
-//            ((MeterBoltzmannHarmonic)meters[0]).refPref = refPrefCenter;
-//            ((MeterBoltzmannTarget)meters[1]).refPref = refPrefCenter;
-//        }
+    public void setRefPref(double alpha, double alphaSpan) {
+        refPref = alpha;
+        accumulators[0].setBennetParam(alpha, alphaSpan);
+        accumulators[1].setBennetParam(alpha, alphaSpan);
+
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
@@ -256,97 +251,22 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
-            if (iBox == 1) {
-            	if (boxTarg.getMoleculeList().getMoleculeCount()==32){
-            		
-            	    pumpListener.setInterval(100);
-            	
-            	} else if (boxTarg.getMoleculeList().getMoleculeCount()==108){
-            	    pumpListener.setInterval(300);
-            	    
-            	} else if (boxTarg.getMoleculeList().getMoleculeCount()==256){
-            	    pumpListener.setInterval(500);
-            	
-            	} else 
-            		
-            	    pumpListener.setInterval(boxTarg.getMoleculeList().getMoleculeCount());
-            }
+           
+            pumpListener.setInterval(boxTarg.getMoleculeList().getMoleculeCount());
+            
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
         }
+        
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
             integratorOverlap.setDSVO(dsvo);
         }
     }
-    
-    public void setRefPref(double newRefPref) {
-        System.out.println("setting ref pref (explicitly) to "+newRefPref);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-        setRefPref(newRefPref,1);
-    }
-    
-    public void initRefPref(String fileName, long initSteps) {
-        // refPref = -1 indicates we are searching for an appropriate value
-        refPref = -1.0;
-        if (fileName != null) {
-            try { 
-                FileReader fileReader = new FileReader(fileName);
-                BufferedReader bufReader = new BufferedReader(fileReader);
-                String refPrefString = bufReader.readLine();
-                refPref = Double.parseDouble(refPrefString);
-                bufReader.close();
-                fileReader.close();
-                System.out.println("setting ref pref (from file) to "+refPref);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-                setRefPref(refPref,2.0);
-            }
-            catch (IOException e) {
-                // file not there, which is ok.
-            }
-        }
-        
-        if (refPref == -1) {
-            // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps/2);
-            getController().actionPerformed();
-            getController().reset();
-            System.out.println("target equilibration finished");
 
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
-            setRefPref(1,200);
-            activityIntegrate.setMaxSteps(initSteps);
-            getController().actionPerformed();
-            getController().reset();
+    public void equilibrate(long initSteps) {
 
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
-                throw new RuntimeException("Simulation failed to fiq" +
-                		"nd a valid ref pref");
-            }
-            System.out.println("setting ref pref to "+refPref);
-            
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-            setRefPref(refPref,5);
-
-            // set refPref back to -1 so that later on we know that we've been looking for
-            // the appropriate value
-            refPref = -1;
-            getController().reset();
-        }
-
-    }
-    
-    public void equilibrate(String fileName, long initSteps) {
-        // run a short simulation to get reasonable MC Move step sizes and
-        // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
 
         for (int i=0; i<2; i++) {
@@ -358,33 +278,9 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }
 
-        if (refPref == -1) {
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-            
-            System.out.println("block size (equilibrate) "+accumulators[0].getBlockSize());
-            
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-            setRefPref(refPref,2.0);
-            if (fileName != null) {
-                try {
-                    FileWriter fileWriter = new FileWriter(fileName);
-                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
-                    bufWriter.write(String.valueOf(refPref)+"\n");
-                    bufWriter.close();
-                    fileWriter.close();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException("couldn't write to refpref file");
-                }
-            }
-        }
-        else {
-            dsvo.reset();
-        }
+        System.out.println("block size (equilibrate) "+accumulators[0].getBlockSize());
+        dsvo.reset();
+        
     }
 
     /**
@@ -394,49 +290,34 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
     public static void main(String[] args) {
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
-        String inputFilename = null;
-        if (args.length > 0) {
-            inputFilename = args[0];
-        }
-        if (inputFilename != null) {
-            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-            readParameters.readParameters();
-        }
         double density = params.density;
         int[] exponentN = params.exponentN;
         long numSteps = params.numSteps;
-        final int numMolecules = params.numMolecules;
+        int numMolecules = params.numMolecules;
         double harmonicFudge = params.harmonicFudge;
         double temperature = params.temperature;
+        double alpha = params.alpha;
+        double alphaSpan = params.alphaSpan;
+        int numAlpha = params.numAlpha;
         int D = params.D;
-        String filename = params.filename;
-        if (filename.length() == 0) {
-        	System.err.println("Need input files!!!");
-            filename = "CB_FCC_n"+exponentN+"_T"+ (int)Math.round(temperature*10);
-        }
-        String refFileName = filename+"_ref";
-        
         
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("Perturbation from n=" + exponentN[0] +" to n=" + exponentN[1]);
         System.out.println((numSteps/1000)+" total steps of 1000");
-        System.out.println("output data to "+filename);
 
-        //instantiate simulation
-        final SimOverlapSoftSphereSoftness sim = new SimOverlapSoftSphereSoftness(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
+        
+        SimOverlapSoftSphereSoftness sim = new SimOverlapSoftSphereSoftness(Space.getInstance(D), numMolecules, density, temperature, 
+        		harmonicFudge, exponentN, alpha, alphaSpan, numAlpha);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
+        sim.integratorOverlap.setAdjustStepFreq(false);
         numSteps /= 1000;
-
-        sim.initRefPref(refFileName, numSteps/20);
-        if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
-            throw new RuntimeException("Simulation failed to find a valid ref pref");
-        }
+        
         System.out.flush();
         
-        sim.equilibrate(refFileName, numSteps/10);
+        sim.equilibrate(numSteps);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
@@ -454,6 +335,22 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
               
+        
+        System.out.println("numPoint: " +sim.accumulators[0].getNBennetPoints());
+        
+        
+//        DataGroup data = (DataGroup)sim.accumulators[0].getData(0);
+//        double refError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+//        double refErrorRatio = refError/Math.abs(((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
+        
+        for (int i=0; i<numAlpha; i++){
+        	System.out.println(sim.accumulators[0].getBennetBias(i)+
+        			" "+sim.accumulators[0].getBennetAverage(i)+
+        			" "+sim.accumulators[1].getBennetAverage(i)+
+        			" "+sim.accumulators[0].getBennetAverage(i)/sim.accumulators[1].getBennetAverage(i));
+        }
+        
+        
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         
@@ -503,13 +400,15 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules =500;
+        public int numMolecules =32;
         public double density = 1.1964;
         public int[] exponentN = new int[]{10, 12};
         public int D = 3;
-        public long numSteps = 1000000;
+        public double alpha = 1.1126591321141184;
+        public double alphaSpan = 1;
+        public int numAlpha = 11;
+        public long numSteps = 2000000;
         public double harmonicFudge = 1;
-        public String filename = "inputSSDB32T0001";
         public double temperature =0.1;
     }
 }
