@@ -94,8 +94,11 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         coordinateDefinitionTarg.initializeCoordinates(new int[]{1,1,1});
 
         Potential2SoftSpherical potentialTarg = new P2SoftSphere(space, 1.0, 1.0, exponent[1]);
-        double truncationRadius = boundaryTarg.getBoxSize().getX(0) * 0.495;
-     	if(potentialMasterTarg instanceof PotentialMasterList){
+        double truncationRadius = 2.2;//boundaryTarg.getBoxSize().getX(0) * 0.495;
+     	
+        
+        
+        if(potentialMasterTarg instanceof PotentialMasterList){
 			potentialTarg = new P2SoftSphericalTruncated(space, potentialTarg, truncationRadius);
 		
 		} else {
@@ -113,7 +116,6 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          */
 
         P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L/Math.sqrt(2.0), boxTarg);
-        //potentialMasterTarg.addPotential(p1ConstraintTarg, new IAtomType[] {sphereType});
         atomMoveTarg.setConstraint(p1ConstraintTarg);
         potentialMasterTarg.lrcMaster().setEnabled(false);
     
@@ -246,9 +248,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
            
-            pumpListener.setInterval(boxTarg.getMoleculeList().getMoleculeCount());
-            System.out.println("block size: "+newAccumulator.getBlockSize()*pumpListener.getInterval());
-            
+            pumpListener.setInterval(boxTarg.getMoleculeList().getMoleculeCount());            
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -273,7 +273,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }
 
-        System.out.println("block size (equilibrate) "+accumulators[0].getBlockSize());
+        System.out.println("block size: "+accumulators[0].getBlockSize());
         dsvo.reset();
         
     }
@@ -298,7 +298,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
-        System.out.println("Perturbation from n=" + exponentN[0] +" to n=" + exponentN[1]);
+        System.out.println("Perturbation from n=" + exponentN[0] +" ("+(1.0/exponentN[0]) +") to n=" + exponentN[1]+" ("+(1.0/exponentN[1]) +")");
         System.out.println((numSteps/1000)+" total steps of 1000\n");
 
         
@@ -364,10 +364,19 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         
         System.out.println("\nset alpha: "+alpha);
         System.out.println("ratio average: "+ratio+" ,error: "+error);
-        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
+        //System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
+        
+        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+        System.out.println("ref ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        
+        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
+        System.out.println("targ ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        
         
         long endTime = System.currentTimeMillis();
-        System.out.println("End Time: " + endTime);
+        System.out.println("\nEnd Time: " + endTime);
         System.out.println("Time taken (s): " + (endTime - startTime)/1000);
        
     }
@@ -395,15 +404,15 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules =32;
-        public double density = 1.1964;
-        public int[] exponentN = new int[]{10, 20};
+        public int numMolecules = 108;
+        public double density = 1.0409;
+        public int[] exponentN = new int[]{60, 59};
         public int D = 3;
-        public double alpha = 1.4260671576771222;
+        public double alpha = 1.0;
         public double alphaSpan = 1.0;
         public int numAlpha = 11;
-        public long numSteps = 100000;
+        public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public double temperature =0.1;
+        public double temperature = 10.0;
     }
 }
