@@ -26,6 +26,7 @@ public class DeviceSelector extends Device {
         //listener to combo box gets value and initiates action
         selector.addItemListener( new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
+                if (event.getStateChange() == ItemEvent.DESELECTED) return;
                 IAction action = actionHash.get(event.getItem());
                 doAction(action);
             }
