@@ -1,7 +1,7 @@
 package etomica.config;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 public class ConformationChainZigZag2 extends ConformationChain {

@@ -2,20 +2,13 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayBox;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.simulation.Simulation;
 import etomica.space.ISpace;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
 /**

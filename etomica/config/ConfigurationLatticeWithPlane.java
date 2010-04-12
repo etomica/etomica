@@ -3,27 +3,16 @@ package etomica.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
-import etomica.box.Box;
-import etomica.integrator.IntegratorHard;
-import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.math.geometry.Plane;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.ISpace;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
