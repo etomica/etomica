@@ -19,6 +19,7 @@ import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Time;
@@ -84,8 +85,17 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
      * reset the integrator's kinetic energy tracker
      */
     public void reset() {
-        super.reset();
+        ConfigurationOverlapException overlapException = null;
+        try {
+            super.reset();
+        }
+        catch (ConfigurationOverlapException e) {
+            overlapException = e;
+        }
         currentKineticEnergy = meterKE.getDataAsScalar();
+        if (overlapException != null) {
+            throw overlapException;
+        }
     }
 
     public void doStepInternal() {
