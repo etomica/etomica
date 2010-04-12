@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -144,7 +143,7 @@ public class TestHexaneHarmonic extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
+        IAtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new IAtomType[] { sphereType,

@@ -8,10 +8,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -152,7 +150,7 @@ public class TestSetToUHexane extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
+        IAtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new IAtomType[] { sphereType,

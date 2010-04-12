@@ -1,21 +1,16 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IAtom;
-import etomica.api.IAtomTypeSphere;
-import etomica.api.IMolecule;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationCone;
 import etomica.potential.P2MoleculeMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEGeneral;
@@ -23,7 +18,6 @@ import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactoryOrientedSpheres;
-import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /** 

@@ -5,7 +5,6 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -105,9 +104,6 @@ public class SimDimerMEAMGB extends Simulation{
         addSpecies(fixed);
         addSpecies(movable);
         addSpecies(dimer);
-        ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
-        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
-        ((IAtomTypeSphere)dimer.getLeafType()).setDiameter(3.022);
         potential = new PotentialMEAM(space);
         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);

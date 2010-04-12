@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
@@ -110,16 +109,6 @@ public class MEAMMd3DThreaded extends Simulation {
         addSpecies(ag);
         addSpecies(cu);
 
-        /** The following values come from either the ASM Handbook or Cullity & Stock's 
-         * "Elements of X-Ray Diffraction" (2001)
-         */
-        ((IAtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
-        
-        ((IAtomTypeSphere)ag.getLeafType()).setDiameter(2.8895); 
-        
-        ((IAtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
-        
-        
         box = new Box(space);
         addBox(box);
         box.setNMolecules(sn, 0);

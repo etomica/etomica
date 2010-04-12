@@ -1,14 +1,13 @@
 package etomica.models.rowley;
 
 
-import etomica.api.IAtomTypeSphere;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
-import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.space.ISpace;
@@ -25,12 +24,12 @@ public class SpeciesEthanol extends Species {
         
         this.space = space;
         
-        oType = new AtomTypeSphere(Oxygen.INSTANCE, 2.0); // diameter NOT taken to be O-O equilibrium distance
-        acType = new AtomTypeSphere(Carbon.INSTANCE, 2.0); // diameter NOT taken to be aC-aC equilibrium distance
-        ahType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0); // diameter NOT taken to be aH-aH equilibrium distance
-        cType = new AtomTypeSphere(Carbon.INSTANCE, 2.0); // diameter NOT taken to be aC-aC equilibrium distance
-        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0); // diameter NOT taken to be H-H equilibrium distance
-        xType = new AtomTypeSphere(new ElementSimple("X", 1.0), 2.0); // diameter NOT taken to be X-X equilibrium distance
+        oType = new AtomTypeLeaf(Oxygen.INSTANCE);
+        acType = new AtomTypeLeaf(Carbon.INSTANCE);
+        ahType = new AtomTypeLeaf(Hydrogen.INSTANCE);
+        cType = new AtomTypeLeaf(Carbon.INSTANCE);
+        hType = new AtomTypeLeaf(Hydrogen.INSTANCE);
+        xType = new AtomTypeLeaf(new ElementSimple("X", 1.0));
         
         addChildType(oType);
         addChildType(acType);
@@ -61,27 +60,27 @@ public class SpeciesEthanol extends Species {
          return ethanol;
      }
      
-     public IAtomTypeSphere getOxygenType() {
+     public IAtomType getOxygenType() {
          return oType;
      }
      
-     public IAtomTypeSphere getAlphaCarbonType() {
+     public IAtomType getAlphaCarbonType() {
          return acType;
      }
      
-     public IAtomTypeSphere getAlphaHydrogenType() {
+     public IAtomType getAlphaHydrogenType() {
          return ahType;
      }
      
-     public IAtomTypeSphere getCarbonType() {
+     public IAtomType getCarbonType() {
          return cType;
      }
 
-     public IAtomTypeSphere getHydrogenType() {
+     public IAtomType getHydrogenType() {
          return hType;
      }
 
-     public IAtomTypeSphere getXType() {
+     public IAtomType getXType() {
          return xType;
      }
 
@@ -102,5 +101,5 @@ public class SpeciesEthanol extends Species {
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    protected final AtomTypeSphere oType, acType, ahType, cType, hType, xType;
+    protected final AtomTypeLeaf oType, acType, ahType, cType, hType, xType;
 }

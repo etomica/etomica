@@ -28,7 +28,6 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;

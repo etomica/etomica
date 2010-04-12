@@ -84,7 +84,7 @@ public class VirialGCPM {
         final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactoryWaterGCPM(), 
                 temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
         
-        if (false) {
+        if (true) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
@@ -103,13 +103,13 @@ public class VirialGCPM {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null,20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
+//            sim.getController().addAction(new IAction() {
+//                public void actionPerformed() {
+//                    sim.initRefPref(null, 0);
+//                    sim.equilibrate(null,0);
+//                    sim.ai.setMaxSteps(Long.MAX_VALUE);
+//                }
+//            });
             sim.getController().addAction(sim.ai);
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
@@ -192,7 +192,7 @@ public class VirialGCPM {
      * Inner class for parameters
      */
     public static class VirialGCPMParam extends ParameterBase {
-        public int nPoints = 5;
+        public int nPoints = 3;
         public double temperature = 350;   // Kelvin
         public long numSteps = 100000;
     }

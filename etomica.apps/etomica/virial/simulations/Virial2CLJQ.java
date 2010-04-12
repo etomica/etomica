@@ -3,7 +3,7 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.DiameterHashByType;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
@@ -109,7 +109,9 @@ public class Virial2CLJQ {
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
-            ((AtomTypeSphere)sim.getSpecies(0).getAtomType(0)).setDiameter(sigma);
+            DiameterHashByType diameterManager = (DiameterHashByType)simGraphic.getDisplayBox(sim.box[0]).getDiameterHash();
+            diameterManager.setDiameter(sim.species.getAtomType(0), sigma);
+            simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameterManager);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);

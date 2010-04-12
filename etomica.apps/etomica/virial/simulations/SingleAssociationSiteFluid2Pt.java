@@ -2,7 +2,6 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -151,7 +150,6 @@ public class SingleAssociationSiteFluid2Pt {
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             Species species = (Species)sim.species;
             IAtomType typeLJ = species.getAtomType(0);
-            ((IAtomTypeSphere)typeLJ).setDiameter(sigma);
             simGraphic.makeAndDisplayFrame();
     
             sim.integratorOS.setNumSubSteps(1000);

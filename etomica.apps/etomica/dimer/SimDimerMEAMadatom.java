@@ -4,7 +4,6 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -98,9 +97,6 @@ public class SimDimerMEAMadatom extends Simulation{
         addSpecies(fixed);
         addSpecies(movable);
         addSpecies(potentialSpecies);
-        ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
-        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
-        ((IAtomTypeSphere)potentialSpecies.getLeafType()).setDiameter(3.022);
         box.setNMolecules(fixed, 180);
         
         potential = new PotentialMEAM(space);

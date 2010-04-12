@@ -1,9 +1,9 @@
 package etomica.models.traPPE;
 
-import etomica.api.IAtomTypeSphere;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -22,9 +22,9 @@ public class SpeciesMethanol extends Species {
         
         this.space = space;
         
-        cH3Type = new AtomTypeSphere(new ElementSimple("cH3", 1.0), 3.75); // diameter taken to be CH3-CH3 equilibrium LJ distance
-        oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.02); // diameter taken to be O-O equilibrium LJ distance
-        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0); // H-H equilibrium distance is not applicable 
+        cH3Type = new AtomTypeLeaf(new ElementSimple("cH3", 1.0)); // diameter taken to be CH3-CH3 equilibrium LJ distance
+        oType = new AtomTypeLeaf(Oxygen.INSTANCE); // diameter taken to be O-O equilibrium LJ distance
+        hType = new AtomTypeLeaf(Hydrogen.INSTANCE); // H-H equilibrium distance is not applicable 
         
         addChildType(cH3Type);
         addChildType(oType);
@@ -46,15 +46,15 @@ public class SpeciesMethanol extends Species {
          return methanol;
      }
      
-     public IAtomTypeSphere getCH3Type() {
+     public IAtomType getCH3Type() {
          return cH3Type;
      }
      
-     public IAtomTypeSphere getOType() {
+     public IAtomType getOType() {
          return oType;
      }
 
-     public IAtomTypeSphere getHType() {
+     public IAtomType getHType() {
          return hType;
      }
 
@@ -68,5 +68,5 @@ public class SpeciesMethanol extends Species {
   
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    protected final AtomTypeSphere cH3Type, oType, hType;
+    protected final AtomTypeLeaf cH3Type, oType, hType;
 }

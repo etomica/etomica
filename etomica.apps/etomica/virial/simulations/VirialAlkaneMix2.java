@@ -2,8 +2,8 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -13,6 +13,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2Exp6Buckingham;
@@ -340,14 +341,18 @@ public class VirialAlkaneMix2 {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
-            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
-            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
-            //((IAtomTypeSphere)typeCH4).setDiameter(sigmaCH4);
-            ((IAtomTypeSphere)typeCH3A).setDiameter(sigmaCH3);
-            ((IAtomTypeSphere)typeCH3B).setDiameter(sigmaCH3);
-            ((IAtomTypeSphere)typeCH2A).setDiameter(sigmaCH2);
-            ((IAtomTypeSphere)typeCH2B).setDiameter(sigmaCH2);
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            displayBox0.setShowBoundary(false);
+            DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            
+            DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
+            //diameterManager.setDiameter(typeCH4, sigmaCH4);
+            diameterManager.setDiameter(typeCH3A, sigmaCH3);
+            diameterManager.setDiameter(typeCH3B, sigmaCH3);
+            diameterManager.setDiameter(typeCH2A, sigmaCH2);
+            diameterManager.setDiameter(typeCH2B, sigmaCH2);
+            displayBox1.setDiameterHash(diameterManager);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);

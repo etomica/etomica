@@ -3,7 +3,6 @@ package etomica.normalmode;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
@@ -52,7 +51,7 @@ public class SimCalcS extends Simulation {
         // activityIntegrate.setMaxSteps(nSteps);
 
         Potential potential = new P2HardSphere(space, 1.0, false);
-        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
+        IAtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
                 sphereType });
 

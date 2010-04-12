@@ -6,7 +6,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
@@ -153,7 +152,7 @@ public class TestHexaneFileConfig extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
+        IAtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new IAtomType[] { sphereType,

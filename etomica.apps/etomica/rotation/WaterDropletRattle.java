@@ -4,7 +4,6 @@ import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -78,8 +77,8 @@ public class WaterDropletRattle {
         double chargeOxygen = Electron.UNIT.toSim(-0.82);
         double chargeHydrogen = Electron.UNIT.toSim(0.41);
         
-        IAtomTypeSphere oType = species.getOxygenType();
-        IAtomTypeSphere hType = species.getHydrogenType();
+        IAtomType oType = species.getOxygenType();
+        IAtomType hType = species.getHydrogenType();
         double epsOxygen = new P2WaterSPC(space).getEpsilon();
         double sigOxygen = new P2WaterSPC(space).getSigma();
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);

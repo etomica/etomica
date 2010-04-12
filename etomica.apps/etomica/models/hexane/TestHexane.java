@@ -7,7 +7,6 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -163,7 +162,7 @@ public class TestHexane extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
+        IAtomType sphereType = species.getLeafType();
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new IAtomType[] { sphereType,
@@ -193,7 +192,7 @@ public class TestHexane extends Simulation {
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.349942899;
         double den = 0.35;
-        boolean graphic = false;
+        boolean graphic = true;
   
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
@@ -202,7 +201,7 @@ public class TestHexane extends Simulation {
         System.out.println("Happy Goodness!!");
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.makeAndDisplayFrame();
         } else {
             long time = System.currentTimeMillis();
@@ -314,7 +313,8 @@ public class TestHexane extends Simulation {
             sWriter.actionPerformed();
             
             //Write out the final configurations for further use.
-            PDBWriter pdbWriter = new PDBWriter(sim.box);
+            PDBWriter pdbWriter = new PDBWriter();
+            pdbWriter.setBox(sim.box);
             pdbWriter.setFileName("calcHex.pdb");
             pdbWriter.actionPerformed();
 

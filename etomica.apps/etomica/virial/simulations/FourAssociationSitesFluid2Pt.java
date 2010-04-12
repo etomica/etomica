@@ -4,13 +4,13 @@ import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomTypeOriented;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedFullSite;
@@ -162,13 +162,17 @@ public class FourAssociationSitesFluid2Pt {
 		
 		
 		
-		if (false) {
+		if (true) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
             Species species = (Species)sim.species;
             IAtomType typeLJ = species.getAtomType(0);
-            ((IAtomTypeSphere)typeLJ).setDiameter(0.7*sigma);
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
+            DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
+            diameterManager.setDiameter(typeLJ, 0.7*sigma);
+            displayBox1.setDiameterHash(diameterManager);
             OrientedFullSite[] sites = new OrientedFullSite[4];
             sites[0] = new OrientedFullSite(space.makeVector(new double[]{0.5,0,0}), Color.BLUE, 0.2);
             sites[1] = new OrientedFullSite(space.makeVector(new double[]{-1.0/6.0,Math.sqrt(2.0/9.0),0}), Color.BLUE, 0.2);
@@ -176,10 +180,12 @@ public class FourAssociationSitesFluid2Pt {
             double z23 = -0.5*Math.sqrt(2.0/3.0);
             sites[2] = new OrientedFullSite(space.makeVector(new double[]{-1.0/6.0,y23,z23}), Color.GREEN, 0.2);
             sites[3] = new OrientedFullSite(space.makeVector(new double[]{-1.0/6.0,y23,-z23}), Color.GREEN, 0.2);
-            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[0]).canvas).setOrientationSites(
+            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setOrientationSites(
                     (IAtomTypeOriented)typeLJ, sites);
-            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
-            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
+            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setOrientationSites(
+                    (IAtomTypeOriented)typeLJ, sites);
+            displayBox0.setShowBoundary(false);
+            displayBox1.setShowBoundary(false);
             simGraphic.makeAndDisplayFrame();
     
             sim.integratorOS.setNumSubSteps(1000);

@@ -15,7 +15,7 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         setTotalChildren(numCarbons);
     }
     public SpeciesAlkane(ISpace _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
-    	 super(_space, makeAtomTypeSpheres(new Element[]{CH3element, CH2element}));
+    	 super(_space, makeAtomTypes(new Element[]{CH3element, CH2element}));
         setTotalChildren(numCarbons);
     }
 

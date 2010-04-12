@@ -2,9 +2,6 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
-import etomica.api.ISpecies;
-import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -15,14 +12,9 @@ import etomica.potential.P2HardAssociationConeDoubleSites;
 import etomica.potential.P2HardAssociationConeSW;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2MoleculeMonatomic;
-import etomica.potential.P3BondAngle;
-import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
-import etomica.species.SpeciesOriented;
-import etomica.species.SpeciesSpheres;
-import etomica.units.Kelvin;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
@@ -142,7 +134,6 @@ public class DoubleAssociationSitesFluid2Pt {
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             Species species = (Species)sim.species;
             IAtomType typeLJ = species.getAtomType(0);
-            ((IAtomTypeSphere)typeLJ).setDiameter(sigma);
             simGraphic.makeAndDisplayFrame();
     
             sim.integratorOS.setNumSubSteps(1000);

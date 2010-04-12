@@ -3,8 +3,9 @@ package etomica.zeolite;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
+import etomica.atom.DiameterHash;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -15,7 +16,6 @@ import etomica.data.IDataSink;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.listener.IntegratorListenerAction;
@@ -95,10 +95,6 @@ public class ZeoliteSimulation extends Simulation {
         double neighborRangeFac = 1.2;
         //defaults.makeLJDefaults();
         //Setting sizes of molecules
-        double[] atomicSize = new double[3];
-        atomicSize[0] = 0.73;
-        atomicSize[1] = 1.18;
-        atomicSize[2] = 2.088;
         
         double range = 8.035;
         potentialMaster.setRange(3.214*neighborRangeFac*2.5);
@@ -124,7 +120,6 @@ public class ZeoliteSimulation extends Simulation {
             species[i].setIsDynamic(true);
             addSpecies(species[i]);
         	box.setNMolecules(species[i], numAtoms[i]);
-        	((IAtomTypeSphere)species[i].getLeafType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
                 // all elements except the last (methane) are fixed
         	    ((ElementSimple)(species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
@@ -148,7 +143,7 @@ public class ZeoliteSimulation extends Simulation {
         
         //Setting up Methane - Silicon interactions
         //P2LennardJones potentialMS = potentialMO;
-        P2WCA potentialMS = new P2WCA(space,atomicSize[1],potentialMO.getEpsilon());
+        P2WCA potentialMS = new P2WCA(space,1.18,potentialMO.getEpsilon());
         
         //Wrap LJ potentials to truncate
         P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(space, potentialMM,2.5*potentialMM.getSigma());
@@ -293,7 +288,12 @@ public class ZeoliteSimulation extends Simulation {
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 
-        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme();
+        DiameterHashByType diameterManager = (DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash();
+        double[] atomicSize = new double[3];
+        atomicSize[0] = 0.73;
+        atomicSize[1] = 1.18;
+        atomicSize[2] = 2.088;
         for(int i=0;i<sim.species.length;i++){
         	switch(i){
         		case 0:
@@ -306,6 +306,7 @@ public class ZeoliteSimulation extends Simulation {
         			colorScheme.setColor(sim.species[i].getLeafType(), java.awt.Color.white);
         	}
         	
+        	diameterManager.setDiameter(sim.species[i].getLeafType(), atomicSize[i]);
         }
 
     }//end of main

@@ -3,7 +3,6 @@ package etomica.gaussianwork;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -66,7 +65,6 @@ public class SimOverlapMultiHarmonic extends Simulation{
 		
 		species = new SpeciesSpheresMono(this, space);
 		addSpecies(species);
-		((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
 		
 		//System A
 		boxA = new Box(new BoundaryRectangularNonperiodic(space), space);

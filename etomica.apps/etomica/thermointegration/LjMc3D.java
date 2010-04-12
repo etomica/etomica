@@ -6,7 +6,6 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IIntegrator;
 import etomica.api.IPotentialMaster;
@@ -57,7 +56,6 @@ public class LjMc3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);

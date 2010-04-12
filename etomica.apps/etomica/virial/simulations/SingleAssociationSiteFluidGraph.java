@@ -1,16 +1,11 @@
 package etomica.virial.simulations;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import etomica.action.IAction;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.graph.model.Graph;
 import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationConeOneSite;
@@ -19,11 +14,8 @@ import etomica.potential.P2MoleculeMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
-import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
 import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
@@ -111,12 +103,11 @@ public class SingleAssociationSiteFluidGraph {
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             Species species = (Species)sim.species;
             IAtomType typeLJ = species.getAtomType(0);
-            ((IAtomTypeSphere)typeLJ).setDiameter(sigma);
             simGraphic.makeAndDisplayFrame();
     
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.getController().removeAction(sim.ai);

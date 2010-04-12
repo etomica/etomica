@@ -3,7 +3,6 @@ package etomica.dimer;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.box.Box;
@@ -69,11 +68,6 @@ public class EnergyMap extends Simulation{
         addSpecies(snAdatom);
         addSpecies(movable);
         
-        ((IAtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
-        ((IAtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
-        ((IAtomTypeSphere)snAdatom.getLeafType()).setDiameter(3.022);
-        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
-        
         /**
         // Cu
         Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
@@ -88,10 +82,6 @@ public class EnergyMap extends Simulation{
         getSpeciesManager().addSpecies(cuAdatom);
         getSpeciesManager().addSpecies(movable);
         
-        ((AtomTypeSphere)cuFix.getMoleculeType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)cu.getMoleculeType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)cuAdatom.getMoleculeType()).setDiameter(2.5561);
-        ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(2.5561);
          */
         
         box = new Box(new BoundaryRectangularSlit(0, 5, space), space);

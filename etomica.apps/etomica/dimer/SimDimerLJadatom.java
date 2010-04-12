@@ -6,7 +6,6 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -81,8 +80,6 @@ public class SimDimerLJadatom extends Simulation{
         movable.setIsDynamic(true);
         addSpecies(fixed);
         addSpecies(movable);
-        ((IAtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
-        ((IAtomTypeSphere)movable.getLeafType()).setDiameter(sigma);
     	
         // Must be in same order as the respective species is added to SpeciesManager
         box.setNMolecules(fixed, 256);    	

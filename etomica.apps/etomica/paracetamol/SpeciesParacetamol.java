@@ -2,11 +2,11 @@ package etomica.paracetamol;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
@@ -26,15 +26,15 @@ public class SpeciesParacetamol extends Species {
         //atomic Instance Class, atomic diameter
         //L. Pauling, The Nature of the Chemical Bond, Cornell University Press, USA, 1945.
         //1.7, 1.55, 1.52, 1.2
-        oType = new AtomTypeSphere(Oxygen.INSTANCE, 2*1.7);
+        oType = new AtomTypeLeaf(Oxygen.INSTANCE);
         addChildType(oType);
-        cType = new AtomTypeSphere(Carbon.INSTANCE, 2*1.55);
+        cType = new AtomTypeLeaf(Carbon.INSTANCE);
         addChildType(cType);
-        nType = new AtomTypeSphere(Nitrogen.INSTANCE, 2*1.52);
+        nType = new AtomTypeLeaf(Nitrogen.INSTANCE);
         addChildType(nType);
-        hpType = new AtomTypeSphere(HydrogenP.INSTANCE, 2*1.20);
+        hpType = new AtomTypeLeaf(HydrogenP.INSTANCE);
         addChildType(hpType);
-        hyType = new AtomTypeSphere(Hydrogen.INSTANCE, 2*1.20);
+        hyType = new AtomTypeLeaf(Hydrogen.INSTANCE);
         addChildType(hyType);
 
         //CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
@@ -91,27 +91,27 @@ public class SpeciesParacetamol extends Species {
         return 20;
     }
     
-	public IAtomTypeSphere getCType() {
+	public IAtomType getCType() {
         return cType;
     }
 
 
-    public IAtomTypeSphere getOType() {
+    public IAtomType getOType() {
         return oType;
     }
 
 
-    public IAtomTypeSphere getNType() {
+    public IAtomType getNType() {
         return nType;
     }
 
 
-    public IAtomTypeSphere getHpType() {
+    public IAtomType getHpType() {
         return hpType;
     }
 
 
-    public IAtomTypeSphere getHyType() {
+    public IAtomType getHyType() {
         return hyType;
     }
 
@@ -149,5 +149,5 @@ public class SpeciesParacetamol extends Species {
 	private static final long serialVersionUID = 1L;
 	protected final ISpace space;
 	protected final boolean isDynamic;
-    protected final AtomTypeSphere cType, oType, nType, hpType, hyType;
+    protected final AtomTypeLeaf cType, oType, nType, hpType, hyType;
 }

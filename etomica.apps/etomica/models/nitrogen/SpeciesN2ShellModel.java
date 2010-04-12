@@ -1,10 +1,10 @@
 package etomica.models.nitrogen;
 
-import etomica.api.IAtomTypeSphere;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
@@ -33,8 +33,8 @@ public class SpeciesN2ShellModel extends Species {
         this.space = space;
         this.isDynamic = isDynamic;
         
-        nType = new AtomTypeSphere(Nitrogen.INSTANCE, 3.1);
-        pType = new AtomTypeSphere(new ElementSimple("P", 1.0), 0.0);
+        nType = new AtomTypeLeaf(Nitrogen.INSTANCE);
+        pType = new AtomTypeLeaf(new ElementSimple("P", 1.0));
         addChildType(nType);
         addChildType(pType);
              
@@ -53,11 +53,11 @@ public class SpeciesN2ShellModel extends Species {
          return nitrogenShellModel;
      }
 
-     public IAtomTypeSphere getNitrogenType() {
+     public IAtomType getNitrogenType() {
          return nType;
      }
 
-     public AtomTypeSphere getPType() {
+     public IAtomType getPType() {
          return pType;
      }
 
@@ -76,5 +76,5 @@ public class SpeciesN2ShellModel extends Species {
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
     protected final boolean isDynamic;
-    protected final AtomTypeSphere nType, pType;
+    protected final AtomTypeLeaf nType, pType;
 }

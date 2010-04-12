@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.chem.elements.Silver;
@@ -256,26 +255,6 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         box.setNMolecules(agB, nBMobile);
 	    
 	        
-	    /** The following values come from either the ASM Handbook or Cullity & Stock's 
-	     * "Elements of X-Ray Diffraction" (2001)
-	     */
-	    
-	    ((IAtomTypeSphere)snFixedA.getLeafType()).setDiameter(3.022); 
-	    
-	    ((IAtomTypeSphere)snA.getLeafType()).setDiameter(3.022); 
-	        
-//	    ((AtomTypeSphere)agA.getFactory().getType()).setDiameter(2.8895); 
-	        
-//	    ((AtomTypeSphere)cuA.getFactory().getType()).setDiameter(2.5561); 
-	    
-	    ((IAtomTypeSphere)agFixedB.getLeafType()).setDiameter(2.8895); 
-	        
-//	    ((AtomTypeSphere)snB.getFactory().getType()).setDiameter(3.022); 
-	        
-	    ((IAtomTypeSphere)agB.getLeafType()).setDiameter(2.8895); 
-	        
-//	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
-	     
 	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB, space);
 	    config.setDimensions(nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, 
 	    		nCellsBz, aA, bA, cA, aB, bB, cB);
