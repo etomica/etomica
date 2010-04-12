@@ -88,8 +88,8 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
         if (!initialized) {
             setup();
             initialized = true;
-            eventManager.initialized();
         }
+        eventManager.initialized();
     }
 
     public void resetStepCount() {
