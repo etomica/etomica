@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsingLog;
 import etomica.data.AccumulatorHistory;
@@ -62,6 +63,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dataStreamPumps.add(simulation.dataPumpEnergy);
 
         displayBox.setPixelUnit(new Pixel(350/sim.box.getBoundary().getBoxSize().getX(0)));
+        ((DiameterHashByType)displayBox.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
 
         final DisplayPlot plot = new DisplayPlot();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {

@@ -10,8 +10,8 @@ import javax.swing.border.TitledBorder;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtom;
-import etomica.api.IAtomTypeSphere;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -502,14 +502,14 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			potentialRR.setCoreDiameter(newCoreDiameter);
 			potentialRB.setCoreDiameter(newCoreDiameter);
 			potentialBB.setCoreDiameter(newCoreDiameter);
-			((IAtomTypeSphere)speciesR.getLeafType()).setDiameter(d);
-			((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(d);
+			((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(speciesR.getLeafType(), d);
+            ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(speciesB.getLeafType(), d);
 			if (display != null)
 				display.repaint();
 		}
 
 		public double getValue() {
-			return ((IAtomTypeSphere)speciesR.getLeafType()).getDiameter();
+			return ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).getDiameter(speciesR.getLeafType());
 		}
 
 		public void setDisplay(DisplayBox display) {
@@ -569,10 +569,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 				return;
 			double x = 0.01 * d;
 			double fullDiameter = potential.getCoreDiameter() * potential.getLambda();
-			System.out.println("start "+fullDiameter);
 			potential.setCoreDiameter(x * fullDiameter);
 			potential.setLambda(1.0 / x);
-            System.out.println("end "+potential.getCoreDiameter() * potential.getLambda());
 		}
 
 		public double getValue() {

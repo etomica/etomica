@@ -11,7 +11,7 @@ import etomica.action.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
@@ -121,11 +121,12 @@ public class DropletGraphic extends SimulationGraphic {
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
 
-        ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(Math.pow(2.0/nSlider.getValue(),1.0/3.0));
+        final DiameterHashByType diameterHash = (DiameterHashByType)getDisplayBox(sim.box).getDiameterHash();
+        diameterHash.setDiameter(sim.species.getLeafType(), Math.pow(2.0/nSlider.getValue(),1.0/3.0));
         nSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 sim.config.initializeCoordinates(sim.box);
-                ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(Math.pow(2.0/nSlider.getValue(),1.0/3.0));
+                diameterHash.setDiameter(sim.species.getLeafType(), Math.pow(2.0/nSlider.getValue(),1.0/3.0));
                 getDisplayBox(sim.box).repaint();
             }
         });

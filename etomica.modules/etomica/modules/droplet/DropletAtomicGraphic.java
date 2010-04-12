@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.api.IVectorMutable;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
@@ -69,6 +70,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     	final ColorSchemeLiquidVapor colorScheme = new ColorSchemeLiquidVapor(liquidFilter);
     	colorScheme.setDoResetFilter(true);
     	getDisplayBox(sim.box).setColorScheme(colorScheme);
+    	((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.sigma);
         final DeviceButton cutawayButton = new DeviceButton(sim.getController());
         cutawayButton.setLabel("Liquid Atoms");
         cutawayButton.setAction(new IAction() {

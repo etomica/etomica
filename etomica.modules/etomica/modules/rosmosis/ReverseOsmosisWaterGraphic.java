@@ -13,8 +13,8 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.ISpecies;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -236,9 +236,11 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
                 return sim.potentialWater.getEpsilon();
             }
         };
+        DiameterHashByType diameterManager = (DiameterHashByType)getDisplayBox(sim.box).getDiameterHash();
+        diameterManager.setDiameter(sim.speciesMembrane.getLeafType(), sim.potentialMM.getSigma());
         ModifierAtomDiameter sigMembraneModifier = new ModifierAtomDiameter(sim.speciesMembrane, sim.potentialMM,
                 new P2LennardJones[]{sim.potentialMO, sim.potentialMNa, sim.potentialMCl},
-                new P2LennardJones[]{p2LJOO, sim.potentialLJNaNa, sim.potentialLJClCl});
+                new P2LennardJones[]{p2LJOO, sim.potentialLJNaNa, sim.potentialLJClCl}, diameterManager);
         ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialMM,
                 new P2LennardJones[]{sim.potentialMO, sim.potentialMNa, sim.potentialMCl},
                 new P2LennardJones[]{p2LJOO, sim.potentialLJNaNa, sim.potentialLJClCl});
@@ -615,19 +617,20 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
     protected static class ModifierAtomDiameter implements Modifier {
         
         public ModifierAtomDiameter(SpeciesSpheresMono species, P2LennardJones potential,
-                P2LennardJones[] crossPotentials, P2LennardJones[] otherPurePotentials) {
+                P2LennardJones[] crossPotentials, P2LennardJones[] otherPurePotentials, DiameterHashByType diameterManager) {
             this.species = species;
             this.potential = potential;
             this.crossPotentials = crossPotentials;
             this.otherPurePotentials = otherPurePotentials;
+            this.diameterHash = diameterManager;
         }
 
         public void setValue(double d) {
             if (d > 4.5) {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
-            //assume one type of atom
-            ((IAtomTypeSphere)species.getLeafType()).setDiameter(d);
+
+            diameterHash.setDiameter(species.getLeafType(), d);
             potential.setSigma(d);
             for (int i=0; i<crossPotentials.length; i++) {
                 double otherSigma = otherPurePotentials[i].getSigma();
@@ -636,7 +639,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return ((IAtomTypeSphere)species.getLeafType()).getDiameter();
+            return potential.getSigma();
         }
 
         public Dimension getDimension() {
@@ -655,6 +658,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         protected final P2LennardJones potential;
         protected final P2LennardJones[] crossPotentials;
         protected final P2LennardJones[] otherPurePotentials;
+        protected final DiameterHashByType diameterHash;
     }
     
     protected static class ModifierEpsilon implements Modifier {

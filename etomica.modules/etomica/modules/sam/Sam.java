@@ -3,7 +3,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -96,12 +95,11 @@ public class Sam extends Simulation {
         sizeCellX = sizeCellZ/Math.sqrt(3);
         chainLength = 16;
 
-        double surfaceSigma = 3.0;
-
         //controller and integrator
 
 	    //species and potentials
         species = new SpeciesAlkaneThiol(space, chainLength-1);
+        species.setIsDynamic(true);
         addSpecies(species);
 
         //construct box
@@ -112,7 +110,7 @@ public class Sam extends Simulation {
         box.getBoundary().setBoxSize(dim);
 
         speciesSurface = new SpeciesSpheresMono(this, space);
-        ((IAtomTypeSphere)speciesSurface.getLeafType()).setDiameter(surfaceSigma);
+        speciesSurface.setIsDynamic(true);
         ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesSurface);
 
@@ -167,9 +165,6 @@ public class Sam extends Simulation {
         double sigmaCH3 = 3.75;
         double sigmaSulfur = 3.62;
 
-        ((IAtomTypeSphere)typeCH2).setDiameter(sigmaCH2);
-        ((IAtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
-        ((IAtomTypeSphere)typeS).setDiameter(sigmaSulfur);
 
         double epsilonCH2 = Kelvin.UNIT.toSim(46);
         double epsilonCH3 = Kelvin.UNIT.toSim(98);

@@ -6,7 +6,6 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.MoleculeArrayList;
 import etomica.box.Box;
 import etomica.chem.elements.Argon;
@@ -71,7 +70,6 @@ public class DropletAtomic extends Simulation {
 	    species.setIsDynamic(true);
         addSpecies(species);
         IAtomType leafType = species.getLeafType();
-        ((AtomTypeSphere)leafType).setDiameter(sigma);
         
         p2LJ = new P2LennardJones(space);
         p2LJ.setEpsilon(Kelvin.UNIT.toSim(118));
@@ -125,7 +123,6 @@ public class DropletAtomic extends Simulation {
         for (int i=0; i<outerMolecules.getMoleculeCount(); i++) {
             box.removeMolecule(outerMolecules.getMolecule(i));
         }
-        System.out.println(outerMolecules.getMoleculeCount());
     }
     
     

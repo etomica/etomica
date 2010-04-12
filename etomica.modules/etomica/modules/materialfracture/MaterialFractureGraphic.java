@@ -1,6 +1,7 @@
 package etomica.modules.materialfracture;
 
 import etomica.action.IAction;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -32,6 +33,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1, sim.getSpace(), sim.getController());
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(6));
+        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 3.0);
 
         final StrainColorScheme strainColor = new StrainColorScheme();    
         getDisplayBox(sim.box).setColorScheme(strainColor);

@@ -1,6 +1,7 @@
 package etomica.modules.vle;
 
 import etomica.action.IAction;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -84,7 +85,7 @@ public class VLE extends SimulationGraphic {
         thermoSlider.setPostAction(resetMCMoves);
         add(thermoSlider);
         
-        DeviceSlider sigmaSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim, "sigma"));
+        final DeviceSlider sigmaSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim, "sigma"));
         sigmaSlider.setPrecision(2);
         sigmaSlider.setMinimum(2);
         sigmaSlider.setMaximum(5);
@@ -94,8 +95,12 @@ public class VLE extends SimulationGraphic {
         sigmaSlider.setLabel("sigma (A)");
         add(sigmaSlider);
         sigmaSlider.doUpdate();
+        final DiameterHashByType diameterManager = (DiameterHashByType)getDisplayBox(sim.boxLiquid).getDiameterHash();
+        getDisplayBox(sim.boxVapor).setDiameterHash(diameterManager);
+        diameterManager.setDiameter(sim.species.getLeafType(), sim.getSigma());
         sigmaSlider.setPostAction(new IAction() {
             public void actionPerformed() {
+                diameterManager.setDiameter(sim.species.getLeafType(), sigmaSlider.getValue());
                 resetMCMoves.actionPerformed();
                 getDisplayBox(sim.boxLiquid).repaint();
                 getDisplayBox(sim.boxVapor).repaint();

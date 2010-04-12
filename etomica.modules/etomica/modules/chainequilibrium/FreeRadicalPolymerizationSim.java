@@ -4,7 +4,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -70,8 +69,6 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         speciesB.setIsDynamic(true);
         addSpecies(speciesA);
         addSpecies(speciesB);
-        ((IAtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
-        ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 50);
         box.setNMolecules(speciesB, 100);
         config = new ConfigurationLatticeFreeRadical(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);

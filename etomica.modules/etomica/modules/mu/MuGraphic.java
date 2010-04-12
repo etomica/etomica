@@ -19,11 +19,11 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IFunction;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
+import etomica.atom.DiameterHashByType;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -708,7 +708,7 @@ public class MuGraphic extends SimulationGraphic {
             }
             //assume one type of atom
             Mu sim = simGraphic.sim;
-            ((IAtomTypeSphere)species.getAtomType(0)).setDiameter(d);
+            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(species.getLeafType(), d);
             p2.setCoreDiameter(d);
             double sigmaOther = p2Other.getCoreDiameter();
             p2Mix.setCoreDiameter(0.5*(sigmaOther+d));

@@ -12,9 +12,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
@@ -114,14 +114,19 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         epsilonSolute = sim.potential11.getEpsilon();
         massSolute = sim.speciesSolute.getLeafType().getMass();
-        sigmaSolute = ((IAtomTypeSphere)sim.speciesSolute.getLeafType()).getDiameter();
+        sigmaSolute = sim.potential11.getSigma();
         epsilonSolvent = sim.potential22.getEpsilon();
         massSolvent = sim.speciesSolvent.getLeafType().getMass();
-        sigmaSolvent = ((IAtomTypeSphere)sim.speciesSolvent.getLeafType()).getDiameter();
+        sigmaSolvent = sim.potential22.getSigma();
         epsilonMembrane = sim.potentialMM.getEpsilon();
         massMembrane = sim.speciesMembrane.getLeafType().getMass();
-        sigmaMembrane = ((IAtomTypeSphere)sim.speciesMembrane.getLeafType()).getDiameter();
+        sigmaMembrane = sim.potentialMM.getSigma();
 
+        DiameterHashByType diameterManager = (DiameterHashByType)getDisplayBox(sim.box).getDiameterHash();
+        diameterManager.setDiameter(sim.speciesSolute.getLeafType(), sigmaSolute);
+        diameterManager.setDiameter(sim.speciesSolvent.getLeafType(), sigmaSolvent);
+        diameterManager.setDiameter(sim.speciesMembrane.getLeafType(), sigmaMembrane);
+        
         if (sim.getSpace().D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
                                     new MKS().area());
@@ -242,7 +247,8 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
 
         ModifierAtomDiameter sigMembraneModifier = new ModifierAtomDiameter(sim.speciesMembrane, sim.potentialMM,
-                new SpeciesSpheresMono[]{sim.speciesSolute, sim.speciesSolvent}, new P2LennardJones[]{sim.potentialM1, sim.potentialM2});
+                new SpeciesSpheresMono[]{sim.speciesSolute, sim.speciesSolvent}, new P2LennardJones[]{sim.potentialM1, sim.potentialM2},
+                diameterManager);
         ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialMM, new P2LennardJones[]{sim.potential11, sim.potential22},
                 new P2LennardJones[]{sim.potentialM1, sim.potentialM2});
         ModifierGeneral massModifier = new ModifierGeneral(sim.speciesSolute.getLeafType().getElement(),"mass");
@@ -556,11 +562,12 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     protected static class ModifierAtomDiameter implements Modifier {
         
         public ModifierAtomDiameter(SpeciesSpheresMono species, P2LennardJones potential,
-                SpeciesSpheresMono[] otherSpecies, P2LennardJones[] otherPotentials) {
+                SpeciesSpheresMono[] otherSpecies, P2LennardJones[] otherPotentials, DiameterHashByType diameterManager) {
             this.species = species;
             this.otherSpecies = otherSpecies;
             this.potential = potential;
             this.otherPotentials = otherPotentials;
+            this.diameterHash = diameterManager;
         }
 
         public void setValue(double d) {
@@ -568,11 +575,12 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
             //assume one type of atom
-            ((IAtomTypeSphere)species.getLeafType()).setDiameter(d);
+            diameterHash.setDiameter(species.getLeafType(), d);
+            double oldSigma = potential.getSigma();
             potential.setSigma(d);
             for (int i=0; i<otherPotentials.length; i++) {
-                double otherSigma = ((IAtomTypeSphere)otherSpecies[i].getLeafType()).getDiameter();
-                otherPotentials[i].setSigma(0.5*(d+otherSigma));
+                double oldMixSigma = otherPotentials[i].getSigma();
+                otherPotentials[i].setSigma(oldMixSigma + 0.5*(d-oldSigma));
             }
 //            new BoxImposePbc(sim.box).actionPerformed();
 //            if (sim.potentialWrapper.getWrappedPotential() instanceof P2Ideal) {
@@ -597,7 +605,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return ((IAtomTypeSphere)species.getLeafType()).getDiameter();
+            return potential.getSigma();
 
         }
 
@@ -617,6 +625,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         protected final SpeciesSpheresMono[] otherSpecies;
         protected final P2LennardJones potential;
         protected final P2LennardJones[] otherPotentials;
+        protected final DiameterHashByType diameterHash;
     }
     
     protected static class ModifierEpsilon implements Modifier {

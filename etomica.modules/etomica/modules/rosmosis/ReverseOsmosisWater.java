@@ -4,7 +4,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Chlorine;
 import etomica.chem.elements.ElementSimple;
@@ -105,11 +104,11 @@ public class ReverseOsmosisWater extends Simulation {
         double rCut = 0.49*yzSize;
         double switchFac = 0.7;
         
-        AtomTypeSphere oType = speciesSolvent.getOxygenType();
-        AtomTypeSphere hType = speciesSolvent.getHydrogenType();
-        AtomTypeSphere naType = (AtomTypeSphere)speciesSodium.getLeafType();
-        AtomTypeSphere clType = (AtomTypeSphere)speciesChlorine.getLeafType();
-        AtomTypeSphere mType = (AtomTypeSphere)speciesMembrane.getLeafType();
+        IAtomType oType = speciesSolvent.getOxygenType();
+        IAtomType hType = speciesSolvent.getHydrogenType();
+        IAtomType naType = speciesSodium.getLeafType();
+        IAtomType clType = speciesChlorine.getLeafType();
+        IAtomType mType = speciesMembrane.getLeafType();
         
         potentialWater = new P2WaterSPCSoft(space);
         P2MoleculeSoftTruncatedSwitched pWaterTrunc = new P2MoleculeSoftTruncatedSwitched(potentialWater, rCut, space);
@@ -211,10 +210,6 @@ public class ReverseOsmosisWater extends Simulation {
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMCl, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc,new IAtomType[]{mType, clType});
-
-        naType.setDiameter(sigSodium);
-        clType.setDiameter(sigChlorine);
-        mType.setDiameter(sigMembrane);
 
         //construct box
 	    box = new Box(new BoundaryRectangularPeriodic(space, 15), space);

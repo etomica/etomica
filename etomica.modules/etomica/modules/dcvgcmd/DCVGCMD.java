@@ -2,10 +2,8 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
@@ -89,13 +87,10 @@ public class DCVGCMD extends Simulation {
         addSpecies(species2);
         addSpecies(speciesTube);
         IAtomType tubetype = speciesTube.getLeafType();
-        AtomTypeSphere speciestype = (AtomTypeSphere)species1.getLeafType();
-        AtomTypeSphere speciestype1 = (AtomTypeSphere)species2.getLeafType();
+        IAtomType speciestype = species1.getLeafType();
+        IAtomType speciestype1 = species2.getLeafType();
         ((ElementSimple)speciestype.getElement()).setMass(mass);
         ((ElementSimple)speciestype1.getElement()).setMass(mass);
-        speciestype.setDiameter(sigma);
-        speciestype1.setDiameter(sigma);
-        ((IAtomTypeSphere)tubetype).setDiameter(sigma);
         
         double neighborRangeFac = 1.4;
         potentialMaster.setCellRange(1);

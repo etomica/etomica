@@ -43,11 +43,11 @@ public class FitTanh extends DataProcessor {
 
         for (int cycle=0; cycle<maxIterations; cycle++) {
             for (int paramNow=0; paramNow<4; paramNow++) {
-                double sumSqErr1 = getSqErr(x, y, param);
+                double sumSqErr1 = getSqErr(x, y);
                 param[paramNow] += dx[paramNow];
-                double sumSqErr2 = getSqErr(x, y, param);
+                double sumSqErr2 = getSqErr(x, y);
                 param[paramNow] -= 2*dx[paramNow];
-                double sumSqErr0 = getSqErr(x, y, param);
+                double sumSqErr0 = getSqErr(x, y);
                 param[paramNow] += dx[paramNow];
                 double a = (sumSqErr2 - 2*sumSqErr1 + sumSqErr0) / (dx[paramNow]*dx[paramNow]);
                 double b = (sumSqErr2 - sumSqErr0) / (2*dx[paramNow]) - a*(2*param[paramNow]);
@@ -68,7 +68,7 @@ public class FitTanh extends DataProcessor {
                 }
                 param[paramNow] = newParam;
             }
-            double newSumSqErr = getSqErr(x, y, param);
+            double newSumSqErr = getSqErr(x, y);
             if (sumSqErr - newSumSqErr < tolerance) {
                 // bail if we didn't get better by at least tolerance (or got worse)
                 break;
@@ -78,7 +78,7 @@ public class FitTanh extends DataProcessor {
         return param;
     }
     
-    protected double getSqErr(double[] x, double[] y, double[] param) {
+    protected double getSqErr(double[] x, double[] y) {
         int nValues = x.length;
         double sumSqErr = 0;
         for (int i=0; i<nValues; i++) {

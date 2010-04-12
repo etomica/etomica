@@ -7,7 +7,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -65,8 +64,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         speciesB.setIsDynamic(true);
         addSpecies(speciesA);
         addSpecies(speciesB);
-        ((IAtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
-        ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 30);
         box.setNMolecules(speciesB, 30);
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, diameter);

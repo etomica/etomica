@@ -13,8 +13,8 @@ import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IVectorMutable;
+import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -409,7 +409,7 @@ public class JouleThomson extends SimulationGraphic {
                     ((ElementSimple)sim.species.getLeafType().getElement()).setMass(currentMass);
                     currentEps = epsilon[i];
                     currentSig = sigma[i];
-                    ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(sigma[i]);
+                    ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sigma[i]);
                     sim.potential.setEpsilon(epsilon[i]);
                     sim.potential.setSigma(sigma[i]);
                 }

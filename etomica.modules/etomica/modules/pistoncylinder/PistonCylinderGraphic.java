@@ -23,9 +23,9 @@ import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.atom.DiameterHashByElementType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -60,6 +60,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.graphics.DeviceBox.LabelType;
+import etomica.integrator.IntegratorMD;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
@@ -961,7 +962,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         public void setValue(double d) {
             //assume one type of atom
-            ((IAtomTypeSphere)pc.species.getLeafType()).setDiameter(d);
+            PistonCylinder sim = PistonCylinderGraphic.this.pc;
+            ((DiameterHashByElementType)PistonCylinderGraphic.this.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
             PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             pc.pistonPotential.setCollisionRadius(0.5*d);

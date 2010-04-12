@@ -4,7 +4,6 @@ import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -38,7 +37,6 @@ public class MultiharmonicMC extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
         box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         box.getBoundary().setBoxSize(new Vector1D(3.0));

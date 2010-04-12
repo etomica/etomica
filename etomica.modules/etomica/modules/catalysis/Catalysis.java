@@ -3,7 +3,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
@@ -17,7 +16,6 @@ import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
@@ -70,15 +68,12 @@ public class Catalysis extends Simulation {
 	    //species and potentials
 	    speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
 	    speciesO.setIsDynamic(true);
-	    ((AtomTypeSphere)speciesO.getLeafType()).setDiameter(sigmaO);
         addSpecies(speciesO);
         speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
         speciesC.setIsDynamic(true);
-        ((AtomTypeSphere)speciesC.getLeafType()).setDiameter(sigmaC);
         addSpecies(speciesC);
         speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
         speciesSurface.setIsDynamic(true);
-        ((AtomTypeSphere)speciesSurface.getLeafType()).setDiameter(sigmaS);
         addSpecies(speciesSurface);
 
         //construct box

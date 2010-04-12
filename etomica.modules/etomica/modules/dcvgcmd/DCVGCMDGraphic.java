@@ -14,6 +14,7 @@ import etomica.action.SimulationRestart;
 import etomica.api.IAtom;
 import etomica.api.IMolecule;
 import etomica.atom.AtomFilter;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;
@@ -179,6 +180,10 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		colorScheme.setColor(sim.species2.getLeafType(), speciesColors[1]);
 		colorScheme.setColor(sim.speciesTube.getAtomType(0),java.awt.Color.cyan);
 
+		DiameterHashByType diameterHash = (DiameterHashByType)getDisplayBox(sim.box).getDiameterHash();
+		diameterHash.setDiameter(sim.species1.getLeafType(), 3.0);
+        diameterHash.setDiameter(sim.species2.getLeafType(), 3.0);
+        diameterHash.setDiameter(sim.speciesTube.getLeafType(), 3.0);
 
 	    //panel for Mu's
 		JPanel muPanel = new JPanel(new java.awt.GridBagLayout());

@@ -2,7 +2,6 @@ package etomica.modules.rosmosis;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
@@ -67,6 +66,7 @@ public class ReverseOsmosis extends Simulation {
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
+        speciesMembrane.setIsDynamic(true);
         ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
 
@@ -106,10 +106,6 @@ public class ReverseOsmosis extends Simulation {
         pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialM2, rCut);
         potentialMaster.addPotential(pTrunc,new IAtomType[]{speciesMembrane.getLeafType(),speciesSolvent.getLeafType()});
 
-
-        ((IAtomTypeSphere)speciesSolute.getLeafType()).setDiameter(sigSolute);
-        ((IAtomTypeSphere)speciesSolvent.getLeafType()).setDiameter(sigSolvent);
-        ((IAtomTypeSphere)speciesMembrane.getLeafType()).setDiameter(sigMembrane);
 
         //construct box
 	    box = new Box(space);

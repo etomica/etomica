@@ -10,12 +10,12 @@ import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenterPBC;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -73,7 +73,6 @@ import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
-import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.Unit;
 import etomica.units.systems.LJ;
@@ -650,7 +649,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 catch (ConfigurationOverlapException e) {
                     // ignore... if the diameter is too large we can get overlap.  they'll fix themselves over time
                 }
-                ((IAtomTypeSphere)sim.tailType).setDiameter(newValue);
+                ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.tailType, newValue);
             }
         });
         surfactantSigma.setLabel("tail diameter");

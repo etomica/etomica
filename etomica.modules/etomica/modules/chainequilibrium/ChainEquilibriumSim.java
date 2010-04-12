@@ -5,7 +5,6 @@ import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
@@ -118,8 +117,6 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         speciesB.setIsDynamic(true);
         addSpecies(speciesA);
         addSpecies(speciesB);
-        ((IAtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
-        ((IAtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 50);
         nDiol = 50;
         box.setNMolecules(speciesB, 100);

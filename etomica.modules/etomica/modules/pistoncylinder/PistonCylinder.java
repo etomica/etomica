@@ -2,7 +2,6 @@ package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
@@ -49,7 +48,6 @@ public class PistonCylinder extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         ((ElementSimple)species.getLeafType().getElement()).setMass(16);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         addSpecies(species);
         box = new Box(new BoundaryPistonCylinder(space), space);
         addBox(box);

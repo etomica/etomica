@@ -3,7 +3,6 @@ package etomica.modules.materialfracture;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
@@ -56,7 +55,6 @@ public class MaterialFracture extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(false);
         ((ElementSimple)species.getLeafType().getElement()).setMass(40);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(3.0);
         addSpecies(species);
         box.setNMolecules(species, 198);
 

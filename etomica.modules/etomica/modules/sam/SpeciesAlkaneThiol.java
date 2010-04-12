@@ -10,7 +10,7 @@ import etomica.species.SpeciesSpheresHetero;
 public class SpeciesAlkaneThiol extends SpeciesSpheresHetero {
 
     public SpeciesAlkaneThiol(ISpace _space, int numCarbons) {
-        super(_space, makeAtomTypeSpheres(new Element[]{Sulfur.INSTANCE, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14)}));
+        super(_space, makeAtomTypes(new Element[]{Sulfur.INSTANCE, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14)}));
         setIsDynamic(true);
         setTotalChildren(numCarbons+1);
     }

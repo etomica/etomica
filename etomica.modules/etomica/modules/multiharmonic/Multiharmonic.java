@@ -5,7 +5,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
@@ -44,7 +43,6 @@ public class Multiharmonic extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(0.02);
         box = new Box(new BoundaryRectangularNonperiodic(space), space);
         addBox(box);
         box.getBoundary().setBoxSize(new Vector1D(3.0));

@@ -18,7 +18,7 @@ import javax.swing.event.ChangeListener;
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.api.IAtomTypeSphere;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -117,7 +117,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
-        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
         final IAction resetDataAction = new IAction() {
             public void actionPerformed() {
@@ -574,9 +574,9 @@ public class SwmdGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
             //assume one type of atom
-            ((IAtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
-            SwmdGraphic.this.potentialHS.setCollisionDiameter(d);
-            SwmdGraphic.this.potentialSW.setCoreDiameter(d);
+            ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
+            potentialHS.setCollisionDiameter(d);
+            potentialSW.setCoreDiameter(d);
             new BoxImposePbc(sim.box, space).actionPerformed();
             try {
                 sim.integrator.reset();

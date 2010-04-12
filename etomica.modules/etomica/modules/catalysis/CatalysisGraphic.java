@@ -14,7 +14,7 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
@@ -38,7 +38,6 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -85,6 +84,10 @@ public class CatalysisGraphic extends SimulationGraphic {
         Unit tUnit = Kelvin.UNIT;
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
+        double sigmaS = 2*sim.potentialCS.getCoreDiameter() - sim.potentialCC.getCoreDiameter();
+        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesSurface.getLeafType(), sigmaS);
+        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesO.getLeafType(), sim.potentialOO.getCoreDiameter());
+        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesC.getLeafType(), sim.potentialCC.getCoreDiameter());
 
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
@@ -307,10 +310,13 @@ public class CatalysisGraphic extends SimulationGraphic {
 
                 public void setValue(double newValue) {
                     if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    double oldValue = sim.potentialOO.getCoreDiameter();
                     sim.potentialOO.setCoreDiameter(newValue);
+                    ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesO.getLeafType(), newValue);
                     sim.potentialCO.setCoreDiameter(0.5*(sim.potentialCC.getCoreDiameter()+newValue));
-                    sim.potentialOS.setCoreDiameter(0.5*(((AtomTypeSphere)sim.speciesSurface.getLeafType()).getDiameter()+newValue));
-                    ((AtomTypeSphere)sim.speciesO.getLeafType()).setDiameter(newValue);
+                    double sigmaOS = sim.potentialOS.getCoreDiameter();
+                    sigmaOS += 0.5*(newValue-oldValue);
+                    sim.potentialOS.setCoreDiameter(sigmaOS);
                     sim.config.initializeCoordinates(sim.box);
                     resetAction.actionPerformed();
                 }
@@ -494,10 +500,13 @@ public class CatalysisGraphic extends SimulationGraphic {
 
                 public void setValue(double newValue) {
                     if (newValue <= 0) throw new RuntimeException("value must be positive");
+                    double oldValue = sim.potentialCC.getCoreDiameter();
                     sim.potentialCC.setCoreDiameter(newValue);
+                    ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesC.getLeafType(), newValue);
                     sim.potentialCO.setCoreDiameter(0.5*(sim.potentialOO.getCoreDiameter()+newValue));
-                    sim.potentialCS.setCoreDiameter(0.5*(((AtomTypeSphere)sim.speciesSurface.getLeafType()).getDiameter()+newValue));
-                    ((AtomTypeSphere)sim.speciesC.getLeafType()).setDiameter(newValue);
+                    double sigmaCS = sim.potentialCS.getCoreDiameter();
+                    sigmaCS += 0.5*(newValue-oldValue);
+                    sim.potentialCS.setCoreDiameter(sigmaCS);
                     sim.config.initializeCoordinates(sim.box);
                     resetAction.actionPerformed();
                 }

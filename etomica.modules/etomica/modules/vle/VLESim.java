@@ -3,7 +3,6 @@ package etomica.modules.vle;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -26,6 +25,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.units.Coulomb;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
 import etomica.util.IEvent;
@@ -46,6 +46,10 @@ public class VLESim extends Simulation {
     protected final P2LJQ p2LJQ;
     protected final P2SoftTruncated p2Truncated;
     
+    public static void main(String[] args) {
+        new VLESim();
+    }
+    
     public VLESim() {
         super(Space3D.getInstance());
         boolean doNBR = false;
@@ -61,7 +65,6 @@ public class VLESim extends Simulation {
         
         species = new SpeciesSpheresRotating(this, space);
         addSpecies(species);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
 
         boxLiquid = new Box(new BoundaryRectangularPeriodic(space, initBoxSize), space);
         addBox(boxLiquid);
@@ -160,7 +163,6 @@ public class VLESim extends Simulation {
         sigma = newSigma;
         p2LJQ.setSigma(sigma);
         p2Truncated.setTruncationRadius(4.0*sigma);
-        ((IAtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         integratorLiquid.reset();
         integratorVapor.reset();
     }

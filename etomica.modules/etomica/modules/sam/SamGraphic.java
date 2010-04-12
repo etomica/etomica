@@ -9,6 +9,7 @@ import javax.swing.JTabbedPane;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
@@ -33,6 +34,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
@@ -68,18 +70,26 @@ public class SamGraphic extends SimulationGraphic {
     
     public SamGraphic(final Sam sim) {
         super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
-        getDisplayBox(sim.box).setPixelUnit(new Pixel(8));
+        DisplayBox displayBox = getDisplayBox(sim.box);
+        displayBox.setPixelUnit(new Pixel(8));
         setPaintInterval(sim.box, 1);
-        getDisplayBox(sim.box).setShowBoundary(false);
+        displayBox.setShowBoundary(false);
         
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new WallPlane(space, sim.wallPotential));
+        ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new WallPlane(space, sim.wallPotential));
         
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH2Type(), new Color(190, 190, 190));
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getCH3Type(), new Color(230, 230, 230));
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH2Type(), new Color(190, 190, 190));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH3Type(), new Color(230, 230, 230));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
+        
+        DiameterHashByType diameterHash = (DiameterHashByType)displayBox.getDiameterHash();
+        diameterHash.setDiameter(sim.speciesSurface.getLeafType(), 3.0);
+        diameterHash.setDiameter(sim.species.getCH2Type(), sim.p2CH2.getSigma());
+        diameterHash.setDiameter(sim.species.getCH3Type(), sim.p2CH3.getSigma());
+        diameterHash.setDiameter(sim.species.getSulfurType(), sim.p2S.getSigma());
+
 
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
         
