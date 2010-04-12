@@ -12,8 +12,8 @@ import java.util.LinkedList;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
+import etomica.graphics.DiameterHashByType;
 
 /**
  * Action that dumps a box's configuration to an PDB file.  Arbitrary but 
@@ -24,14 +24,8 @@ import etomica.api.IBox;
 public class PDBWriter implements IAction, Serializable {
 
     public PDBWriter() {
-        try {
-            Class.forName("java.util.Formatter");
-        }
-        catch (ClassNotFoundException e) {
-            throw new RuntimeException("JRE 1.5 is required for PDBWriter.  Try XYZWriter instead");
-        }
-    }        
-    
+    }
+
     public PDBWriter(IBox aBox) {
         this();
         setBox(aBox);
@@ -97,8 +91,9 @@ public class PDBWriter implements IAction, Serializable {
 
     /**
      * Writes a script for rasmol that initializes the radii of each atom type.
+     * The DiameterHashByType is used to provide radii.
      */
-    public void writeRasmolScript() {
+    public void writeRasmolScript(DiameterHashByType diameterHash) {
         if (file == null) {
             throw new IllegalStateException("must call setFile or setFileName before actionPerformed");
         }
@@ -116,7 +111,7 @@ public class PDBWriter implements IAction, Serializable {
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = elementIterator.next();
                 fileWriter.write("select elemno="+elementNum[thisElement.elementIndex]+"\n");
-                fileWriter.write("spacefill "+((IAtomTypeSphere)thisElement.type).getDiameter()*0.5);
+                fileWriter.write("spacefill "+diameterHash.getDiameter(thisElement.type)*0.5);
             }
             fileWriter.close();
         } catch(IOException e) {

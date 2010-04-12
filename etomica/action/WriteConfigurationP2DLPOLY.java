@@ -1,7 +1,6 @@
 package etomica.action;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;

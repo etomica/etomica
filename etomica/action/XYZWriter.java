@@ -10,10 +10,10 @@ import java.util.LinkedList;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IElement;
 import etomica.chem.elements.ElementChemical;
+import etomica.graphics.DiameterHashByType;
 
 /**
  * Action that dumps a box's configuration to an XYZ file.  Arbitrary but 
@@ -101,8 +101,9 @@ public class XYZWriter implements IAction, Serializable {
 
     /**
      * Writes a script for rasmol that initializes the radii of each atom type.
+     * The DiameterHashByType is used to provide radii.
      */
-    public void writeRasmolScript() {
+    public void writeRasmolScript(DiameterHashByType diameterHash) {
         if (file == null) {
             throw new IllegalStateException("must call setFile or setFileName before actionPerformed");
         }
@@ -121,7 +122,7 @@ public class XYZWriter implements IAction, Serializable {
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = elementIterator.next();
                 fileWriter.write("select elemno="+elementNum[thisElement.elementIndex]+"\n");
-                fileWriter.write("spacefill "+((IAtomTypeSphere)thisElement.type).getDiameter()*0.5);
+                fileWriter.write("spacefill "+diameterHash.getDiameter(thisElement.type)*0.5);
             }
             fileWriter.close();
         } catch(IOException e) {

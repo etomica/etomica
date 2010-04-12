@@ -2,8 +2,8 @@ package etomica.action;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 
@@ -33,6 +33,8 @@ public class AtomActionRandomizeVelocity implements AtomAction, Serializable {
      * mass is infinite, assigns a zero velocity.
      */
     public void actionPerformed(IAtom a) {
+        // if you're getting a class cast exception here, you probably forgot
+        // to call setIsDynamic on your species!
         IVectorMutable velocity = ((IAtomKinetic)a).getVelocity();
         double mass = a.getType().getMass();
         if(Double.isInfinite(mass)) {

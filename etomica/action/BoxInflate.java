@@ -3,8 +3,8 @@ package etomica.action;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.space.ISpace;
 
