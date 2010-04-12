@@ -386,6 +386,10 @@ public class DisplayBox extends Display {
         if (box == null) throw new IllegalStateException("Cannot set canvas before setting box");
         
         Pixel pixel = canvas.getPixelUnit();
+        if (pixel == null) {
+            // set a default.  canvases don't set a pixel in their constructors.
+            pixel = new Pixel(10);
+        }
         int boxX = (int)(box.getBoundary().getBoxSize().getX(0) * pixel.toPixels() * scale + 1);
         int boxY = 1;
 
