@@ -13,7 +13,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.graphics.DiameterHashByType;
+import etomica.atom.DiameterHashByType;
 
 /**
  * Action that dumps a box's configuration to an PDB file.  Arbitrary but 

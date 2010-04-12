@@ -16,6 +16,9 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
+import etomica.atom.DiameterHash;
+import etomica.atom.DiameterHashByElement;
+import etomica.atom.DiameterHashByElementType;
 import etomica.space.ISpace;
 import etomica.units.Pixel;
 
@@ -39,6 +42,7 @@ public class DisplayBox extends Display {
     //Explicit to 2D because drawing to 2D image
     private final int D = 2;
     protected ColorScheme colorScheme;
+    protected DiameterHash diameterHash;
     protected AtomFilter atomFilter = null;
     protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
@@ -110,6 +114,9 @@ public class DisplayBox extends Display {
         setLabel("Configuration");
 
         align[0] = align[1] = CENTER;
+
+        diameterHash = new DiameterHashByElementType(sim);
+        DiameterHashByElement.populateVDWDiameters(((DiameterHashByElementType)diameterHash).getDiameterHashByElement());
 
         setBox(box);
         setPixelUnit(new Pixel(10));
@@ -447,7 +454,22 @@ public class DisplayBox extends Display {
      * @return ColorScheme
      */
     public ColorScheme getColorScheme() {return colorScheme;}
-    
+
+    /**
+     * Returns the DiameterHash used by this DisplayBox.  The default
+     * DiameterHash is an instance of DiameterHashByElementType.
+     */
+    public DiameterHash getDiameterHash() {
+        return diameterHash;
+    }
+
+    /**
+     * Sets the DiameterHash used by this DisplayBox.
+     */
+    public void setDiameterHash(DiameterHash newDiameterManager) {
+        diameterHash = newDiameterManager;
+    }
+
     /**
      * Mutator method for the atom filter that determines which atoms 
      * are displayed.  Atoms for which the filter returns false are not displayed.

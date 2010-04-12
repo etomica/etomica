@@ -1,6 +1,6 @@
 package etomica.models.water;
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.config.IConformation;
 import etomica.space.ISpace;
 

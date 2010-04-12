@@ -16,7 +16,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import ptolemy.plot.Plot;
 import etomica.EtomicaInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataSet;

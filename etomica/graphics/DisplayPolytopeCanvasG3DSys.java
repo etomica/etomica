@@ -6,7 +6,6 @@ import java.awt.Panel;
 
 import javax.vecmath.Point3f;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;

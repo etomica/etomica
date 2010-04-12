@@ -8,7 +8,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
@@ -18,48 +17,18 @@ import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
-import etomica.modifier.Modifier;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Dimension;
-import etomica.units.Length;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 
 //problems with this simulation hanging
 
 public class SWMD3D extends Simulation {
 
-	public class MyModifier implements Modifier {
-
-        public Dimension getDimension() {
-            return Length.DIMENSION;
-        }
-
-		/**
-		 * @see etomica.modifier.Modifier#setValue(double)
-		 */
-		public void setValue(double d) {
-			potential.setCoreDiameter(d);
-			((IAtomTypeSphere)species.getLeafType()).setDiameter(d);
-		}
-
-		/**
-		 * @see etomica.modifier.Modifier#getValue()
-		 */
-		public double getValue() {
-			return potential.getCoreDiameter();
-		}
-        
-        public String getLabel() {
-            return "diameter";
-        }
-
-	}
-	
   public SWMD3D(Space _space) {
 	super(_space);
 	IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);

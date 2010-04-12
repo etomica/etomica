@@ -1,10 +1,10 @@
 package etomica.models.water;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;

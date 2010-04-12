@@ -12,8 +12,8 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IElement;
+import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementChemical;
-import etomica.graphics.DiameterHashByType;
 
 /**
  * Action that dumps a box's configuration to an XYZ file.  Arbitrary but 

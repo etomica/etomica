@@ -1,9 +1,9 @@
 package etomica.models.water;
-import etomica.api.IAtomTypeSphere;
+import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -22,8 +22,8 @@ public class SpeciesWater3P extends Species {
     public SpeciesWater3P(ISpace space, boolean isDynamic) {
         super();
         this.space = space;
-        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
-        oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
+        hType = new AtomTypeLeaf(Hydrogen.INSTANCE);
+        oType = new AtomTypeLeaf(Oxygen.INSTANCE);
         addChildType(hType);
         addChildType(oType);
         this.isDynamic = isDynamic;
@@ -40,11 +40,11 @@ public class SpeciesWater3P extends Species {
         return water;
     }
     
-    public IAtomTypeSphere getHydrogenType() {
+    public IAtomType getHydrogenType() {
         return hType;
     }
     
-    public IAtomTypeSphere getOxygenType() {
+    public IAtomType getOxygenType() {
         return oType;
     }
 
@@ -58,6 +58,6 @@ public class SpeciesWater3P extends Species {
 
     private static final long serialVersionUID = 1L;
     protected final ISpace space;
-    protected final AtomTypeSphere oType, hType;
+    protected final AtomTypeLeaf oType, hType;
     protected final boolean isDynamic;
 }

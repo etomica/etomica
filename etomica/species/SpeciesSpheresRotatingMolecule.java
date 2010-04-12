@@ -6,7 +6,7 @@ import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.chem.elements.ElementSimple;
@@ -32,7 +32,7 @@ public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implement
     }
 
     public SpeciesSpheresRotatingMolecule(Simulation sim, ISpace _space, IVector moment) {
-        this(_space, new AtomTypeSphere(new ElementSimple(sim), 1.0), moment);
+        this(_space, new AtomTypeLeaf(new ElementSimple(sim)), moment);
     }
     
     public SpeciesSpheresRotatingMolecule(ISpace _space, IAtomType atomType, IVector moment) {

@@ -3,7 +3,6 @@ package etomica.species;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.config.IConformation;
 import etomica.util.Arrays;
 
@@ -13,7 +12,7 @@ import etomica.util.Arrays;
  * 
  * @author andrew
  */
-public abstract class Species implements ISpecies {
+public abstract class Species implements ISpecies, java.io.Serializable {
 
     protected int index;
 

@@ -11,13 +11,11 @@ import java.util.Iterator;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
-import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 import etomica.space.ISpace;
 import etomica.units.Pixel;
@@ -34,7 +32,6 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
-    private final static Color wellColor = new Color(185,185,185, 110);
     private final ISpace space;
     private final int[] atomOrigin;
     
@@ -93,51 +90,38 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     private void drawAtom(Graphics g, int origin[], IAtom a) {
         
         IVectorMutable r = a.getPosition();
-        boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;
-
-        if(a.getType() instanceof AtomTypeWell) {
-            drawWell = true;
-        }
 
         g.setColor(displayBox.getColorScheme().getAtomColor(a));
             
         baseXP = origin[0] + (int)(displayBox.getToPixels()*r.getX(0));
         int drawingHeight = displayBox.getDrawingHeight();
         baseYP = origin[1] + drawingHeight/2;
-        if(a.getType() instanceof IAtomTypeSphere) {
-            /* Draw the core of the atom */
-            sigmaP = (int)(displayBox.getToPixels()*((IAtomTypeSphere)a.getType()).getDiameter());
-            if (sigmaP == 0) {
-                sigmaP = 1;
-            }
-            xP = baseXP - (sigmaP>>1);
-            yP = baseYP - (drawingHeight >> 1);
-            g.fillRect(xP, yP, sigmaP, drawingHeight);
-            /* Draw the surrounding well, if any */
-            if(drawWell) {
-                sigmaP = (int)(displayBox.getToPixels()*((AtomTypeWell)a.getType()).wellDiameter());
-                xP = baseXP - (sigmaP>>1);
-                g.setColor(wellColor);
-                g.drawRect(xP, yP, sigmaP, drawingHeight);
-            }
-//            a.type.electroType().draw(g, origin, displayBox.getToPixels(), r);
-        } else { // Not a sphere, wall, or one of their derivatives...
-            // Do nothing (how do you draw an object of unkown shape?)
+        /* Draw the core of the atom */
+        double sigma = displayBox.getDiameterHash().getDiameter(a);
+        if (sigma<0) {
+            // deafult diameter
+            sigma = 1;
         }
+        sigmaP = (int)(displayBox.getToPixels()*sigma);
+        if (sigmaP == 0) {
+            sigmaP = 1;
+        }
+        xP = baseXP - (sigmaP>>1);
+        yP = baseYP - (drawingHeight >> 1);
+        g.fillRect(xP, yP, sigmaP, drawingHeight);
     }
             
     protected boolean computeShiftOrigin(IAtom a, IBoundary b) {
-        if(a.getType() instanceof IAtomTypeSphere) {
-            OverflowShift overflow = new OverflowShift(space);
-            float[][] shifts = overflow.getShifts(b, a.getPosition(),0.5*((IAtomTypeSphere)a.getType()).getDiameter());
-            for(int i=0; i<shifts.length; i++) {
-                shiftOrigin[0] = displayBox.getOrigin()[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
-                shiftOrigin[1] = displayBox.getOrigin()[1] + (int)(displayBox.getToPixels()*shifts[i][1]);
-            }
-            return(true);
+        OverflowShift overflow = new OverflowShift(space);
+        double sigma = displayBox.getDiameterHash().getDiameter(a);
+        if (sigma == -1) sigma = 1;
+        float[][] shifts = overflow.getShifts(b, a.getPosition(),0.5*sigma);
+        for(int i=0; i<shifts.length; i++) {
+            shiftOrigin[0] = displayBox.getOrigin()[0] + (int)(displayBox.getToPixels()*shifts[i][0]);
+            shiftOrigin[1] = displayBox.getOrigin()[1] + (int)(displayBox.getToPixels()*shifts[i][1]);
         }
-        return(false);
+        return true;
     }
       
     /**

@@ -22,7 +22,7 @@ public class SpeciesSpheresRotating extends SpeciesSpheresMono {
     }
     
     public SpeciesSpheresRotating(ISpace _space, IElement element) {
-        super(_space, new AtomTypeOrientedSphere(element, 1.0, _space));
+        super(_space, new AtomTypeOrientedSphere(element, _space));
     }
 
     protected IAtom makeLeafAtom() {

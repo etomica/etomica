@@ -5,7 +5,7 @@ import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
@@ -57,13 +57,13 @@ public class SpeciesSpheresHetero extends Species {
      * construction.
      */
     public SpeciesSpheresHetero(ISpace _space, IElement[] leafElements) {
-        this(_space, makeAtomTypeSpheres(leafElements));
+        this(_space, makeAtomTypes(leafElements));
     }
     
-    protected static final AtomTypeSphere[] makeAtomTypeSpheres(IElement[] leafElements) {
-        AtomTypeSphere[] types = new AtomTypeSphere[leafElements.length];
+    protected static final AtomTypeLeaf[] makeAtomTypes(IElement[] leafElements) {
+        AtomTypeLeaf[] types = new AtomTypeLeaf[leafElements.length];
         for (int i=0; i<types.length; i++) {
-            types[i] = new AtomTypeSphere(leafElements[i]);
+            types[i] = new AtomTypeLeaf(leafElements[i]);
         }
         return types;
     }

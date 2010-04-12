@@ -5,7 +5,6 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
-import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBox;
@@ -45,8 +44,7 @@ public class SwMd2D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        AtomTypeSphere leafType = (AtomTypeSphere)species.getLeafType();
-        leafType.setDiameter(sigma);
+        IAtomType leafType = species.getLeafType();
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 50);

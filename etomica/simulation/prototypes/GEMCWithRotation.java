@@ -3,7 +3,6 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.box.Box;
@@ -44,7 +43,6 @@ public class GEMCWithRotation extends Simulation {
 	    
 	    species = new SpeciesSpheresRotating(this, space);
         addSpecies(species);
-        ((IAtomTypeSphere)species.getAtomType(0)).setDiameter(sigma);
 
 	    box1 = new Box(space);
         addBox(box1);

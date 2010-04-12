@@ -11,7 +11,6 @@ import org.jmol.g3d.Graphics3D;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IAtomTypeSphere;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
@@ -21,6 +20,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.DiameterHash;
 import etomica.atom.IAtomOriented;
 import etomica.atom.IAtomTypeOriented;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -202,7 +202,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
 			IAtom a = leafList.getAtom(iLeaf);
-			if (a == null || !(a.getType() instanceof IAtomTypeSphere))
+			if (a == null)
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
 			if (ball == null) {
@@ -258,6 +258,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			((ColorSchemeCollective) colorScheme).colorAllAtoms();
 		}
 
+		DiameterHash diameterHash = displayBox.getDiameterHash();
+
 		IAtomList leafList = displayBox.getBox().getLeafList();
 		int nLeaf = leafList.getAtomCount();
 
@@ -266,7 +268,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		    Ball ball = null;
 		    try {
 		        a = leafList.getAtom(iLeaf);
-	            if (a == null || !(a.getType() instanceof IAtomTypeSphere))
+	            if (a == null)
 	                continue;
 	            ball = (Ball) aam.getAgent(a);
 		    }
@@ -296,8 +298,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				continue;
 			}
 			a.getPosition().assignTo(coords);
-			float diameter = (float) ((IAtomTypeSphere) a.getType())
-					.getDiameter();
+			float diameter = (float) diameterHash.getDiameter(a);
+            // deafult diameter
+	        if (diameter == -1) diameter = 1;
 			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
 			ball.setD(diameter);
 			ball.setX((float) coords[0]);
@@ -703,11 +706,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	}
 
 	public Object makeAgent(IAtom a) {
-		if (!(a.getType() instanceof IAtomTypeSphere))
-			return null;
 		a.getPosition().assignTo(coords);
 
-		float diameter = (float) ((IAtomTypeSphere) a.getType()).getDiameter();
+		float diameter = (float) displayBox.getDiameterHash().getDiameter(a);
+		if (diameter == -1) diameter = 1;
 		Ball newBall = new Ball(gsys, G3DSys.getColix((displayBox
 				.getColorScheme().getAtomColor(a))), (float) coords[0],
 				(float) coords[1], (float) coords[2], diameter);

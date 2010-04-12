@@ -4,14 +4,12 @@ import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
 import etomica.api.ISimulation;
 import etomica.data.DataPump;
-import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.ISpace;
 

@@ -8,8 +8,8 @@ import java.awt.event.MouseMotionListener;
 
 import etomica.EtomicaInfo;
 import etomica.action.IAction;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;

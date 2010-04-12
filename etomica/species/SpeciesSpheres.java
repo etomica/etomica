@@ -5,7 +5,7 @@ import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
@@ -34,7 +34,7 @@ public class SpeciesSpheres extends Species {
     
     public SpeciesSpheres(int nA, IElement leafElement,
     		              IConformation conformation, ISpace _space) {
-        this(_space, nA, new AtomTypeSphere(leafElement), conformation);
+        this(_space, nA, new AtomTypeLeaf(leafElement), conformation);
     }
     
     public SpeciesSpheres(ISpace _space, int nA, IAtomType leafAtomType, IConformation conformation) {

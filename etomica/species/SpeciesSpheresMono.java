@@ -5,7 +5,7 @@ import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
@@ -32,7 +32,7 @@ public class SpeciesSpheresMono extends Species {
     }
     
     public SpeciesSpheresMono(ISpace _space, IElement element) {
-        this(_space, new AtomTypeSphere(element));
+        this(_space, new AtomTypeLeaf(element));
     }
     
     public SpeciesSpheresMono(ISpace space, IAtomType leafAtomType) {

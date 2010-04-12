@@ -10,24 +10,16 @@ import etomica.space.ISpace;
  * Atom type for a sphere that has some feature depending upon an orientation coordinate.
  * For example an orientational dependent potential may be attached to an otherwise spherical atom
  */
-public class AtomTypeOrientedSphere extends AtomTypeSphere implements IAtomTypeOriented {
+public class AtomTypeOrientedSphere extends AtomTypeLeaf implements IAtomTypeOriented {
     
     protected final IVectorMutable I;
-    public AtomTypeOrientedSphere(IElement element, double d, ISpace space) {
-        super(element, d);
+    public AtomTypeOrientedSphere(IElement element, ISpace space) {
+        super(element);
         I = space.makeVector();
-        updateI();
     }
     public IVector getMomentOfInertia() {return I;}
-    
-    protected void updateI() {
-        //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
-        if(I != null)
-            I.E(0.1*this.getMass()*diameter*diameter);
-    }
-    
-    public void setDiameter(double d) {
-        super.setDiameter(d);
-        updateI();
+
+    public void setMomentOfInertia(double moment) {
+        I.E(moment);
     }
 }
