@@ -38,14 +38,14 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         int[] numCells = new int[space.D()];
         IVector[] reciprocals =  primitive.makeReciprocal().vectors();
         IVectorMutable[] waveVectorBasis = new IVectorMutable[reciprocals.length];
-        
+                
         for (int i=0; i<space.D(); i++) {
             waveVectorBasis[i] = space.makeVector();
             waveVectorBasis[i].E(reciprocals[i]);
-            numCells[i] = (int)Math.round(box.getBoundary().getBoxSize().getX(i) / (d[i]));
+            numCells[i] = (int)Math.round(Math.sqrt(box.getBoundary().getEdgeVector(i).squared()) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
-    
+
         int[] kMin = new int[space.D()];
         int[] kMax= new int[space.D()];
         for (int i=0; i<kMax.length; i++) {
