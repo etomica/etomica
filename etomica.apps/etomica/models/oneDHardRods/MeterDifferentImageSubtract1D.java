@@ -197,6 +197,7 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
             cDef.setToU(cells[iCell].molecules, newU);
         }
         
+        System.out.println("1d harmonic " + harmonic+ "  "+ meterPE.getDataAsScalar());
 //        return Math.exp(-1*(meterPE.getDataAsScalar()+harmonic));
         return meterPE.getDataAsScalar() + harmonic;
     }

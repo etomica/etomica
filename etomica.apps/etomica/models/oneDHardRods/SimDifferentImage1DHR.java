@@ -163,7 +163,6 @@ public class SimDifferentImage1DHR extends Simulation {
         nmTarg = new NormalModes1DHR(boxTarget.getBoundary(), targAtoms);
         nmTarg.setHarmonicFudge(1.0);
         nmTarg.setTemperature(temperature);
-        nmTarg.getOmegaSquared();
         waveVectorFactoryTarg = nmTarg.getWaveVectorFactory();
         waveVectorFactoryTarg.makeWaveVectors(boxTarget);
         
@@ -360,7 +359,7 @@ public class SimDifferentImage1DHR extends Simulation {
 //        integratorTarget.getEventManager().addListener(pumpListener);
         
         
-        
+//        System.exit(0);
         
     }
     public void setBennettParameter(double benParamCenter, double span) {
@@ -698,7 +697,7 @@ public class SimDifferentImage1DHR extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 10;  //number of atoms in the reference system.
+        public int numAtoms = 9;  //number of atoms in the reference system.
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
@@ -717,7 +716,7 @@ public class SimDifferentImage1DHR extends Simulation {
         public int bennettNumSteps = 5000;
 //        public int benBlockSize = 1000;
         
-        public int[] targWVs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        public int[] refWVs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        public int[] targWVs = {0, 1, 2, 3, 4, 5};
+        public int[] refWVs = {0, 1, 2, 3, 4};
     }
 }
