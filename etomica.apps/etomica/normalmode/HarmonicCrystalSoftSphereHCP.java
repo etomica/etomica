@@ -6,6 +6,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -23,16 +24,14 @@ import etomica.space3d.Space3D;
 public class HarmonicCrystalSoftSphereHCP {
 
     public static void main(String[] args) {
-        double rho = 1.1964;
-        int exponent = 12;
+        double rho = 1.256;
+        int exponent = 6;
         int maxLatticeShell = 6;
-        int nC =4;
+        int nC =3;
         int numAtom = nC*nC*nC*2;
         
         double temperature = 1.0;
         String fileName = "inputSSDB"+ numAtom;
-//        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
-//        Basis basis = new BasisMonatomic(Space3D.getInstance());
         
         if (args.length > 0) {
             rho = Double.parseDouble(args[0]);
@@ -50,6 +49,9 @@ public class HarmonicCrystalSoftSphereHCP {
         	fileName = args[4];
         }
         
+        System.out.println("HCP Harmonic Crystal with n = " + exponent);
+        System.out.println("numAtom: " + numAtom);
+        
         double a = Math.pow(Math.sqrt(2)/rho, 1.0/3.0);
         double c = Math.sqrt(8.0/3.0)*a;
                 
@@ -57,41 +59,25 @@ public class HarmonicCrystalSoftSphereHCP {
         Basis basisHCP = new BasisHcp();
         
         Basis basis = new BasisBigCell(Space.getInstance(3), basisHCP, new int[]{nC,nC,nC});
-        
+
         ISpace sp = Space3D.getInstance();
         final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, exponent);
-        double rc = (maxLatticeShell*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
+        double rc = 15; //nC*a*0.495;//15; //(maxLatticeShell*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
         System.out.println("truncation at "+rc);
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(sp, potential, rc);
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncatedShifted(sp, potential, rc);
         
         int[] nCells = new int[] {1, 1, 1};
         long startTime = System.currentTimeMillis();
         
-        // we want an untruncated lattice energy, so extend lattice sum by 2 more cells
-        double rcU = ((maxLatticeShell+2)*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
-        pTruncated.setTruncationRadius(rcU);
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential, sp);
-        
+        pTruncated.setTruncationRadius(rc);
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, pTruncated, sp);
         harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
-
-        harmonicCrystal.setMaxLatticeShell(maxLatticeShell+2);
-        double u = harmonicCrystal.getLatticeEnergy();
-        System.out.println("lattice energy: " + u);
-        System.exit(1);
-
-        // now actually calculate the free energy
-        harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, pTruncated, sp);
-       
-        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
-
         harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
         harmonicCrystal.getNormalModes().setFileName(fileName);
         
-        System.out.println("0.001  " + harmonicCrystal.getHelmholtzFreeEnergy(0.001));
-        System.out.println("1.2147 " + harmonicCrystal.getHelmholtzFreeEnergy(1.2147));
-        for (int i=1; i<17; i++){
-        	System.out.println((i*0.1)+" " + harmonicCrystal.getHelmholtzFreeEnergy(i*0.1));
-        }
+        double u = harmonicCrystal.getLatticeEnergy();
+        System.out.println("lattice energy: " + u);
+
         
         double f = harmonicCrystal.getHelmholtzFreeEnergy(temperature);
         
@@ -101,11 +87,6 @@ public class HarmonicCrystalSoftSphereHCP {
       
         System.out.println("\nCalcHarmonicA from file (Temperature-independent)");
         CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, temperature, basis.getScaledCoordinates().length);
-
-//        long endTime = System.currentTimeMillis();
-//        System.out.println("End Time: " + endTime);
-//        System.out.println("Time taken: " + (endTime - startTime));
-        
 
     }
 }
