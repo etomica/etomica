@@ -30,6 +30,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 import etomica.virial.overlap.IntegratorOverlap;
@@ -96,7 +97,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         Potential2SoftSpherical potentialTarg = new P2SoftSphere(space, 1.0, 1.0, exponent[1]);
         double truncationRadius = 2.2;//boundaryTarg.getBoxSize().getX(0) * 0.495;
      	
-        
+        System.out.println("Truncation Radius: " + truncationRadius);
         
         if(potentialMasterTarg instanceof PotentialMasterList){
 			potentialTarg = new P2SoftSphericalTruncated(space, potentialTarg, truncationRadius);
@@ -285,6 +286,16 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
     public static void main(String[] args) {
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
+        
+        String inputFilename = null;
+        if (args.length > 0) {
+            inputFilename = args[0];
+        }
+        if (inputFilename != null) {
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+        }
+        
         double density = params.density;
         int[] exponentN = params.exponentN;
         long numSteps = params.numSteps;
@@ -295,6 +306,8 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         double alphaSpan = params.alphaSpan;
         int numAlpha = params.numAlpha;
         int D = params.D;
+        
+        numSteps *=2;
         
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
@@ -312,14 +325,9 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         
         System.out.flush();
         
-        sim.equilibrate(numSteps);
-        if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
-            throw new RuntimeException("Simulation failed to find a valid ref pref");
-        }
-       
+        sim.equilibrate(numSteps);       
         System.out.println("equilibration finished");
         System.out.flush();
- 
  
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
@@ -337,11 +345,14 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 //        DataGroup data = (DataGroup)sim.accumulators[0].getData(0);
 //        double refError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
 //        double refErrorRatio = refError/Math.abs(((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
-        
-        
-        System.out.println("    i\t  alpha_set\t       alpha\t         ratio0\t            ratio0_err\t         ratio1\t          ratio1_err");
+        System.out.println("ratio averages: \n");
+        System.out.println(exponentN[0] + " to " + exponentN[1]);
+        //System.out.println("    i\t  alpha_set\t       alpha\t         ratio0\t            ratio0_err\t         ratio1\t          ratio1_err");
         
         for (int i=0; i<numAlpha; i++){
+        	
+        	double ratio = sim.dsvo.getAverage(i);
+        	double ratio_err = sim.dsvo.getError(i);
         	
         	DataGroup dataRatio0 = (DataGroup)sim.accumulators[0].getData(i);
         	double ratio0 = ((DataDoubleArray)dataRatio0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
@@ -351,8 +362,8 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         	double ratio1 = ((DataDoubleArray)dataRatio1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
         	double ratio1_err = ((DataDoubleArray)dataRatio1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
         	
-        	System.out.println("    "+(i+1)+" "+sim.accumulators[0].getBennetBias(i)+
-        			" "+sim.accumulators[0].getBennetAverage(i)/sim.accumulators[1].getBennetAverage(i)+
+        	System.out.println("    "+sim.accumulators[0].getBennetBias(i)+
+        			" "+ ratio  + " " + ratio_err +
         			" "+ ratio0 + " " + ratio0_err + 
         			" "+ ratio1 + " " + ratio1_err);
       
@@ -362,16 +373,16 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         double ratio = sim.dsvo.getDataAsScalar();
         double error = sim.dsvo.getError();
         
-        System.out.println("\nset alpha: "+alpha);
-        System.out.println("ratio average: "+ratio+" ,error: "+error);
+        System.out.println("\nset_alpha: "+alpha);
+        System.out.println("ratio_average: "+ratio+" ,error: "+error);
         //System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
         
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("ref ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+        System.out.println("ref_ratio_average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
         
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        System.out.println("targ ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+        System.out.println("targ_ratio_average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
         
         
@@ -404,15 +415,15 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 108;
+        public int numMolecules = 256;
         public double density = 1.0409;
-        public int[] exponentN = new int[]{60, 59};
+        public int[] exponentN = new int[]{65, 64};
         public int D = 3;
-        public double alpha = 1.0;
+        public double alpha =0.26;
         public double alphaSpan = 1.0;
         public int numAlpha = 11;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public double temperature = 10.0;
+        public double temperature = 0.01;
     }
 }

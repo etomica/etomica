@@ -44,8 +44,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
 /**
- * Simulation to run sampling with the hard sphere potential, but measuring
- * the harmonic potential based on normal mode data from a previous simulation.
  * 
  * The original Bennett's Overlapping Sampling Simulation
  * 	- used to check for the computation time
@@ -169,6 +167,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
     
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
+    	System.out.println("Equilibration Steps: " + initSteps);
         activityIntegrate.setMaxSteps(initSteps);
         getController().actionPerformed();
         getController().reset();
@@ -212,7 +211,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
 
         //instantiate simulation
         final SimOverlapSoftSphereTPHCP sim = new SimOverlapSoftSphereTPHCP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
-        if (false) {
+        if (true) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
@@ -247,7 +246,7 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
 
         //start simulation
 
-        sim.initialize(numSteps/10);
+        sim.initialize(numMolecules*50);
         System.out.flush();
         
         final long startTime = System.currentTimeMillis();
@@ -323,15 +322,15 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 250;
+        public int numMolecules = 1024;
         public double density = 1.1964;
         public int exponentN = 12;
-        public long numSteps = 1000;
-        public double temperature = 1.2;
-        public double[] alpha = new double[]{0.011};
+        public long numSteps = 1000000;
+        public double temperature = 1.1;
+        public double[] alpha = new double[]{0.011, 0.011};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{1.1};
+        public double[] otherTemperatures = new double[]{1.09,1.11};
         public double rc = 2.2;
     }
 }
