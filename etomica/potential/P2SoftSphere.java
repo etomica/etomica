@@ -50,8 +50,17 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
     	int expN = getExponent();
     	double sig_rn = 1;
     	
-    	for (int i=0; i<expN; i++){
-    			sig_rn *= sig_r;
+    	if (n >= 1e6){
+    		return sig_r <= 1.0 ? 0.0 : Double.POSITIVE_INFINITY; 
+    	} 
+    	
+    	if(n > 50){
+    		sig_rn = Math.pow(sig_r, n);
+    		
+    	} else {
+	    	for (int i=0; i<expN; i++){
+	    			sig_rn *= sig_r;
+	    	}
     	}
     	
     	return epsilon*sig_rn;
