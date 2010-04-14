@@ -8,10 +8,14 @@ import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.graphics.BondListener;
+import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.nbr.CriterionAll;
+import etomica.nbr.CriterionBondedSimple;
+import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
@@ -64,6 +68,9 @@ public class ChainHSMD3D extends Simulation {
         potential = new P2HardSphere(space, 1.0, true);
         IAtomType leafType = species.getLeafType();
         potentialMaster.addPotential(potential, new IAtomType[]{leafType,leafType});
+        CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
+        nonBondedCriterion.setBonded(false);
+        ((CriterionInterMolecular)potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
 
         integrator.setBox(box);
     }
@@ -74,6 +81,8 @@ public class ChainHSMD3D extends Simulation {
       final SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
       BondListener bl = new BondListener(sim.box,(DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas);
       bl.addModel(sim.model);
+      ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
+      simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
       simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
