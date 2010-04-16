@@ -123,9 +123,6 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
     }
     
     public double getDataAsScalar() {
-        
-        IAtomList atomlist = box.getLeafList();
-        
         gaussCoord = random.nextGaussian();
         
         BasisCell[] simCells = simCDef.getBasisCells();
