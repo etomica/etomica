@@ -1,16 +1,14 @@
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IRandom;
+import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomArrayList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.Primitive;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -22,9 +20,9 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 
@@ -49,7 +47,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     private double[] newU;
     private double[] wvCoeff, simWVCoeff, sqrtWVC;
     private double[][][] eigenVectors, simEigenVectors;
-    private double[][] simOmegaSquared;
+    private double[][] simOmegaSquared, omegaSquared;
 
     protected final IRandom random;
     private IBox box;
@@ -57,12 +55,12 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     private Boundary bdry;
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
+    private double etas[];
+    private int min, max;
     
-    public MeterDifferentImageSubtract(String string, /*IPotentialMaster potentialMaster,*/ 
-            int numSimAtoms, double density, Simulation sim,
-            Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
-            NormalModes simNM, double temp){
-        super(string, Null.DIMENSION);
+    public MeterDifferentImageSubtract(ISimulation sim, ISpace space, double temp, 
+            CoordinateDefinition simCD, NormalModes simNM, IBox otherBox){
+        super("MeterSubtract", Null.DIMENSION);
         this.random = sim.getRandom();
         this.temperature = temp;
         
@@ -75,16 +73,20 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         simImagT = new double[simCDim];
         simOmegaSquared = simNM.getOmegaSquared();
         
-        numAtoms = numSimAtoms - 1;
-        box = new Box(sim.getSpace());
+        //nan need to fix this here thingy!
+        double density = simCDef.getBox().getLeafList().getAtomCount() / 
+        simCDef.getBox().getBoundary().volume();
+        numAtoms = otherBox.getLeafList().getAtomCount();
+        box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(sim.getSpecies(0), numAtoms);
-        bdry = new BoundaryRectangularPeriodic(sim.getSpace(), numAtoms/density);
+        bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
         box.setBoundary(bdry);
         
+        //nan This will change when we have more than one atoms per cell
         int[] nCells = new int[]{numAtoms};
-        cDef = new CoordinateDefinitionLeaf(box, simPrimitive, 
-                simBasis, sim.getSpace());
+        cDef = new CoordinateDefinitionLeaf(box, simCDef.getPrimitive(), 
+                simCDef.getBasis(), space);
         cDef.initializeCoordinates(nCells);
         cDim = cDef.getCoordinateDim();
 
@@ -96,15 +98,16 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         waveVectorFactory.makeWaveVectors(box);
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
+        omegaSquared = nm.getOmegaSquared();
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
         sqrtWVC = new double[wvCoeff.length];
         for (int i =0; i < wvCoeff.length; i++){
             sqrtWVC[i] = Math.sqrt(2*wvCoeff[i]);
         }
         
-        PotentialMasterList potentialMaster = new PotentialMasterList(sim, sim.getSpace());
-        Potential2 potential = new P2HardSphere(sim.getSpace(), 1.0, true);
-        potential = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)potential);
+        PotentialMasterList potentialMaster = new PotentialMasterList(sim, space);
+        Potential2 potential = new P2HardSphere(space, 1.0, true);
+        potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(box);
         potentialMaster.addPotential(potential, new IAtomType[] {((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType(), ((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType()});
         double neighborRange = 1.01/density;
@@ -115,16 +118,17 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
+        
+        etas = new double[2 * simWaveVectors.length * simCDim];
+        min = space.D() * (numAtoms - 1); 
+        max = space.D() * (simCDef.getBox().getLeafList().getAtomCount() - 1) ;
     }
     
     public double getDataAsScalar() {
-        
-        IAtomList atomlist = box.getLeafList();
+//        IAtomList atomlist = box.getLeafList();
 //        for (int i = 0; i < atomlist.getAtomCount(); i++){
 //            System.out.println("start i " + atomlist.getAtom(i).getPosition().getX(0));
 //        }
-
-        BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = cells[0];
         //nan this makes it 1D
@@ -136,39 +140,40 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         //Calculate normal mode coordinates of simulation system.
         double[] realCoord = new double[simWaveVectors.length];
         double[] imagCoord = new double[simWaveVectors.length];
-        for (int wvcount = 0; wvcount < simWaveVectors.length; wvcount++){
-            simCDef.calcT(simWaveVectors[wvcount], simRealT, simImagT);
-            realCoord[wvcount] = 0.0;
-            imagCoord[wvcount] = 0.0;
+        int etaCount = 0;
+        for (int iWV = 0; iWV < simWaveVectors.length; iWV++){
+            simCDef.calcT(simWaveVectors[iWV], simRealT, simImagT);
+            realCoord[iWV] = 0.0;
+            imagCoord[iWV] = 0.0;
             for (int i = 0; i < simCDim; i++){
                 for (int j = 0; j < simCDim; j++){
-                    realCoord[wvcount] += simEigenVectors[wvcount][i][j] * simRealT[j];
-                    imagCoord[wvcount] += simEigenVectors[wvcount][i][j] * simImagT[j];
+                    realCoord[iWV] += simEigenVectors[iWV][i][j] * simRealT[j];
+                    imagCoord[iWV] += simEigenVectors[iWV][i][j] * simImagT[j];
                 }
             }
-            if(simWVCoeff[wvcount] == 1.0){
-                realCoord[wvcount] *= Math.sqrt(2);
-                imagCoord[wvcount] *= Math.sqrt(2);
+            if(simWVCoeff[iWV] == 1.0){
+                realCoord[iWV] *= Math.sqrt(2);
+                imagCoord[iWV] *= Math.sqrt(2);
+                //nan omega2[wv][evect]
+                etas[etaCount] = realCoord[iWV] * Math.sqrt(simOmegaSquared[iWV][0]);
+                etaCount++;
+                etas[etaCount] = imagCoord[iWV] * Math.sqrt(simOmegaSquared[iWV][0]);
+                etaCount++;
             } else {
-                imagCoord[wvcount] = 0.0;
+                etas[etaCount] = realCoord[iWV] * Math.sqrt(simOmegaSquared[iWV][0]);
+                etaCount++;
             }
         }
         
-        //nan this will not work for more than 1D
-        //Calculation of harmonic energy
-        //The if statement determines whether the real coordinate or the 
-        // imaginary coordinate is used, and zeroes out the last coordinate
-        // calculated.
-        double harmonic;
-        int index = simWVCoeff.length-1;
-        if(simWVCoeff[index] == 1.0){
-            harmonic = 0.5 * simOmegaSquared[index][0] * 
-                    imagCoord[index] * imagCoord[index];
-            imagCoord[index] = 0.0;
-        } else {
-            harmonic = 0.5 * simOmegaSquared[index][0] * 
-                    realCoord[index] * realCoord[index];
-            realCoord[index] = 0.0;
+        //CALCULATE A HARMONIC ENERGY FOR THE SUBTRACTED NORMAL MODES.
+        //nan THERE IS NO ORGANIZATION TO WHICH ETAS ARE ZEROED!!!!!!
+        
+        //Calculate harmonic, and zero out the subtracted normal modes.
+        double harmonic = 0.0;
+        for (int i = min; i < max; i++){
+            //The omega^2 term is dropped because of the scaling.
+            harmonic = 0.5 * etas[i] * etas[i];
+            etas[i] = 0.0;
         }
         
         //Calculate the positions for the meter's system
@@ -177,15 +182,25 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             for (int j = 0; j < cDim; j++) {
                 newU[j] = 0.0;
             }
-            for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
+            etaCount = 0;
+            for (int iWV = 0; iWV < waveVectors.length; iWV++){
                 //Calculate the change in positions.
-                double kR = waveVectors[wvcount].dot(cell.cellPosition);
+                double kR = waveVectors[iWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for (int i = 0; i < cDim; i++){
-                    for (int j = 0; j < cDim; j++){
-                       newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][i][j] 
-                            * (realCoord[wvcount] * coskR - imagCoord[wvcount] * sinkR);
+                for (int iMode = 0; iMode < cDim; iMode++){
+                    for (int iCD = 0; iCD < cDim; iCD++){
+                        if (wvCoeff[iWV] == 1.0){
+                            newU[iCD] += sqrtWVC[iWV] 
+                                * eigenVectors[iWV][iMode][iCD] / Math.sqrt(omegaSquared[iWV][0])
+                                * (etas[etaCount] * coskR - etas[etaCount+1] * sinkR);
+                            etaCount += 2;
+                        } else {
+                            newU[iCD] += sqrtWVC[iWV] 
+                                * eigenVectors[iWV][iMode][iCD] / Math.sqrt(omegaSquared[iWV][0])
+                                * (etas[etaCount] * coskR);
+                            etaCount ++;
+                        }
                     }
                 }
             }
