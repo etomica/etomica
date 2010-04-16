@@ -212,6 +212,14 @@ public abstract class CoordinateDefinition {
         return cells;
     }
 
+    public Primitive getPrimitive() {
+        return primitive;
+    }
+
+    public Basis getBasis() {
+        return basis;
+    }
+
     protected final int coordinateDim;
     protected final IBox box;
     protected AtomLeafAgentManager siteManager;
