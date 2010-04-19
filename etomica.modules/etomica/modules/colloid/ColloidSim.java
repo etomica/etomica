@@ -13,6 +13,7 @@ import etomica.box.BoxAgentManager;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.PotentialMasterList;
@@ -46,6 +47,8 @@ public class ColloidSim extends Simulation {
     public P2HardSphere p2pseudo;
     public int nGraft;
     public int chainLength;
+    public P1Wall p1WallMonomer, p1WallColloid;
+    public CriterionPositionWall criterionWallMonomer;
     
     public ColloidSim(Space _space) {
         super(_space);
@@ -109,7 +112,26 @@ public class ColloidSim extends Simulation {
         potentialMaster.addPotential(p2mc,new IAtomType[]{species.getLeafType(), speciesColloid.getLeafType()});
         potentialMaster.setCriterion(p2mc, new CriterionNone());
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setPotentialMC(p2mc);
+        
+        p1WallMonomer = new P1Wall(space, monomerMonomerBondManager);
+        p1WallMonomer.setBox(box);
+        p1WallMonomer.setRange(2);
+        p1WallMonomer.setSigma(1);
+        p1WallMonomer.setEpsilon(2);
+        potentialMaster.addPotential(p1WallMonomer, new IAtomType[]{species.getLeafType()});
+        criterionWallMonomer = new CriterionPositionWall(this);
+        criterionWallMonomer.setBoundaryWall(true);
+        criterionWallMonomer.setNeighborRange(3);
+        criterionWallMonomer.setWallDim(1);
+        potentialMaster.setCriterion(p1WallMonomer, criterionWallMonomer);
 	    
+        p1WallColloid = new P1Wall(space, null);
+        p1WallColloid.setBox(box);
+        p1WallColloid.setRange(15);
+        p1WallColloid.setSigma(7.5);
+        p1WallColloid.setEpsilon(10);
+        potentialMaster.addPotential(p1WallColloid, new IAtomType[]{speciesColloid.getLeafType()});
+        
         //construct box
         configuration = new ConfigurationColloid(space, species, speciesColloid, random);
         configuration.setNGraft(nGraft);

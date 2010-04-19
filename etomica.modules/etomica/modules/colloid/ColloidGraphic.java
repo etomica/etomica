@@ -2,20 +2,35 @@ package etomica.modules.colloid;
 
 import java.util.ArrayList;
 
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
 import etomica.action.IAction;
+import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterTemperature;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSelector;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
+import etomica.math.geometry.Plane;
+import etomica.modifier.Modifier;
+import etomica.modifier.ModifierGeneral;
+import etomica.nbr.CriterionPositionWall;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.units.Dimension;
+import etomica.units.Length;
 import etomica.units.Pixel;
 
 /**
@@ -28,6 +43,7 @@ public class ColloidGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Colloid";
     private final static int REPAINT_INTERVAL = 10;
     protected ColloidSim sim;
+    protected final Plane planeBottom, planeTop;
     
     public ColloidGraphic(final ColloidSim simulation, Space _space) {
 
@@ -35,16 +51,15 @@ public class ColloidGraphic extends SimulationGraphic {
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
-        final IAction resetDataAction = new IAction() {
-            public void actionPerformed() {
-                getController().getResetAveragesButton().press();
-            }
-        };
-
     	this.sim = simulation;
 
     	((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.p2mm.getCoreDiameter());
         ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesColloid.getLeafType(), 7.5);
+
+        planeBottom = new Plane(space,0,1,0,sim.box.getBoundary().getBoxSize().getX(1)*0.5);
+        planeTop = new Plane(space,0,1,0,-sim.box.getBoundary().getBoxSize().getX(1)*0.5);
+        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(planeBottom);
+        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(planeTop);
     	
     	getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
 
@@ -90,8 +105,115 @@ public class ColloidGraphic extends SimulationGraphic {
         DataPumpListener tempPump = new DataPumpListener(meterTemperature, displayTemperature);
         sim.getIntegrator().getEventManager().addListener(tempPump);
         add(displayTemperature);
+        
+        DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
+        thermoSlider.setIntegrator(sim.integrator);
+        thermoSlider.setMaximum(5);
+        thermoSlider.setShowValues(true);
+        add(thermoSlider);
+        
+        DeviceSlider boxSizeSlider = new DeviceSlider(sim.getController());
+        boxSizeSlider.setModifier(new Modifier() {
+            
+            public void setValue(double newValue) {
+                if (newValue == getValue()) return;
+                IVectorMutable v = space.makeVector();
+                v.E(sim.box.getBoundary().getBoxSize());
+                v.setX(1, newValue);
+                sim.box.setNMolecules(sim.species, 0);
+                sim.box.setNMolecules(sim.speciesColloid, 0);
+                sim.box.getBoundary().setBoxSize(v);
+                sim.configuration.initializeCoordinates(sim.box);
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {}
+                planeBottom.setDistanceToOrigin(0.5*newValue);
+                planeTop.setDistanceToOrigin(-0.5*newValue);
+                getDisplayBox(sim.box).repaint();
+            }
+            
+            public double getValue() {
+                return sim.box.getBoundary().getBoxSize().getX(1);
+            }
+            
+            public String getLabel() {
+                return "Box size";
+            }
+            
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
+        });
+        boxSizeSlider.setMaximum(150);
+        boxSizeSlider.setShowValues(true);
+        boxSizeSlider.setLabel("Box Size");
+        boxSizeSlider.setShowBorder(true);
+        add(boxSizeSlider);
+
+        JTabbedPane potentialTabs = new JTabbedPane();
+        JPanel monomerPanel = new JPanel();
+        DeviceBox monomerRangeBox = new DeviceBox();
+        monomerRangeBox.setController(sim.getController());
+        monomerRangeBox.setLabel("Wall range");
+        monomerRangeBox.setModifier(new WallRangeModifier(sim.p1WallMonomer, sim.criterionWallMonomer));
+        monomerPanel.add(monomerRangeBox.graphic());
+        
+        DeviceBox monomerEpsilonBox = new DeviceBox();
+        monomerEpsilonBox.setController(sim.getController());
+        monomerEpsilonBox.setLabel("Wall epsilon");
+        monomerEpsilonBox.setModifier(new ModifierGeneral(sim.p1WallMonomer, "epsilon"));
+        monomerPanel.add(monomerEpsilonBox.graphic());
+        
+        potentialTabs.add(monomerPanel, "monomer");
+
+        JPanel colloidPanel = new JPanel();
+        DeviceBox colloidRangeBox = new DeviceBox();
+        colloidRangeBox.setController(sim.getController());
+        colloidRangeBox.setLabel("Wall range");
+        colloidRangeBox.setModifier(new WallRangeModifier(sim.p1WallColloid, null));
+        colloidPanel.add(colloidRangeBox.graphic());
+
+        DeviceBox colloidEpsilonBox = new DeviceBox();
+        colloidEpsilonBox.setController(sim.getController());
+        colloidEpsilonBox.setLabel("Wall epsilon");
+        colloidEpsilonBox.setModifier(new ModifierGeneral(sim.p1WallColloid, "epsilon"));
+        colloidPanel.add(colloidEpsilonBox.graphic());
+        
+        potentialTabs.add(colloidPanel, "colloid");
+        
+        getPanel().controlPanel.add(potentialTabs,SimulationPanel.getVertGBC());
     }
 
+    public static class WallRangeModifier implements Modifier {
+        public WallRangeModifier(P1Wall p1, CriterionPositionWall criterion) {
+            this.p1 = p1;
+            this.criterion = criterion;
+        }
+
+        public Dimension getDimension() {
+            return Length.DIMENSION;
+        }
+
+        public String getLabel() {
+            return "Wall range";
+        }
+
+        public double getValue() {
+            return p1.getRange();
+        }
+
+        public void setValue(double newValue) {
+            if (newValue == getValue()) return;
+            p1.setRange(newValue);
+            if (criterion != null) {
+                criterion.setNeighborRange(1.5*newValue);
+            }
+        }
+        
+        protected final P1Wall p1;
+        protected final CriterionPositionWall criterion;
+    }
 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();

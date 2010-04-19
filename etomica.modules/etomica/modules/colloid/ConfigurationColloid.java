@@ -168,6 +168,7 @@ public class ConfigurationColloid implements Configuration {
         IVectorRandom temp = (IVectorRandom)space.makeVector();
         IVectorMutable lastPos = space.makeVector();
 
+        box.setNMolecules(speciesColloid, 1);
         IAtom colloidAtom = colloidList.getMolecule(0).getChildList().getAtom(0);
         ((AtomArrayList)colloidMonomerBondManager.getAgent(colloidAtom)).clear();
         IVectorMutable colloidPos = colloidAtom.getPosition();
@@ -178,7 +179,6 @@ public class ConfigurationColloid implements Configuration {
             for (int k=0; k<chainLength; k++) {
                 IAtom atom = monomerList.getMolecule(iMonomer).getChildList().getAtom(0);
                 if (k==0) {
-                    System.out.println("bonding "+atom+" to colloid");
                     ((AtomArrayList)colloidMonomerBondManager.getAgent(colloidAtom)).add(atom);
                     ((AtomArrayList)colloidMonomerBondManager.getAgent(atom)).add(colloidAtom);
                 }
@@ -209,7 +209,6 @@ public class ConfigurationColloid implements Configuration {
                 IVectorMutable p = atom.getPosition();
                 p.E(lastPos);
                 p.PEa1Tv1(0.99*sigmaMonomer, dr);
-                if (k==0) System.out.println("m-c "+Math.sqrt(p.Mv1Squared(colloidPos)));
                 iMonomer++;
                 previousAtom = atom;
                 lastPos.E(p);
