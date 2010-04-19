@@ -47,7 +47,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     private double[] newU;
     private double[] wvCoeff, simWVCoeff, sqrtWVC;
     private double[][][] eigenVectors, simEigenVectors;
-    private double[][] simOmegaSquared, omegaSquared;
+    private double[][] simOmegaSquared, oneOverOmega2;
 
     protected final IRandom random;
     private IBox box;
@@ -71,11 +71,15 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
         simRealT = new double[simCDim];
         simImagT = new double[simCDim];
-        simOmegaSquared = simNM.getOmegaSquared();
+        double[][] tempO2 = simNM.getOmegaSquared();
+        for(int i = 0; i < tempO2.length; i++ ){
+            for(int j = 0; j < tempO2[0].length; j++){
+                simOmegaSquared[i][j] = Math.sqrt(tempO2[i][j]);
+            }
+        }
         
-        //nan need to fix this here thingy!
         double density = simCDef.getBox().getLeafList().getAtomCount() / 
-        simCDef.getBox().getBoundary().volume();
+            simCDef.getBox().getBoundary().volume();
         numAtoms = otherBox.getLeafList().getAtomCount();
         box = new Box(space);
         sim.addBox(box);
@@ -93,12 +97,16 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(temperature);
-        nm.getOmegaSquared();
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
-        omegaSquared = nm.getOmegaSquared();
+        tempO2 = nm.getOmegaSquared();
+        for(int i = 0; i < tempO2.length; i++ ){
+            for(int j = 0; j < tempO2[0].length; j++){
+                oneOverOmega2[i][j] = 1/Math.sqrt(tempO2[i][j]);
+            }
+        }
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
         sqrtWVC = new double[wvCoeff.length];
         for (int i =0; i < wvCoeff.length; i++){
@@ -109,7 +117,9 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential = new P2XOrder(space, (Potential2HardSpherical)potential);
         potential.setBox(box);
-        potentialMaster.addPotential(potential, new IAtomType[] {((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType(), ((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType()});
+        potentialMaster.addPotential(potential, new IAtomType[] {
+                ((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType(), 
+                ((SpeciesSpheresMono)sim.getSpecies(0)).getLeafType()});
         double neighborRange = 1.01/density;
         potentialMaster.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
@@ -155,12 +165,12 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                 realCoord[iWV] *= Math.sqrt(2);
                 imagCoord[iWV] *= Math.sqrt(2);
                 //nan omega2[wv][evect]
-                etas[etaCount] = realCoord[iWV] * Math.sqrt(simOmegaSquared[iWV][0]);
+                etas[etaCount] = realCoord[iWV] * simOmegaSquared[iWV][0];
                 etaCount++;
-                etas[etaCount] = imagCoord[iWV] * Math.sqrt(simOmegaSquared[iWV][0]);
+                etas[etaCount] = imagCoord[iWV] * simOmegaSquared[iWV][0];
                 etaCount++;
             } else {
-                etas[etaCount] = realCoord[iWV] * Math.sqrt(simOmegaSquared[iWV][0]);
+                etas[etaCount] = realCoord[iWV] * simOmegaSquared[iWV][0];
                 etaCount++;
             }
         }
@@ -192,12 +202,12 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                     for (int iCD = 0; iCD < cDim; iCD++){
                         if (wvCoeff[iWV] == 1.0){
                             newU[iCD] += sqrtWVC[iWV] 
-                                * eigenVectors[iWV][iMode][iCD] / Math.sqrt(omegaSquared[iWV][0])
+                                * eigenVectors[iWV][iMode][iCD] * oneOverOmega2[iWV][0]
                                 * (etas[etaCount] * coskR - etas[etaCount+1] * sinkR);
                             etaCount += 2;
                         } else {
                             newU[iCD] += sqrtWVC[iWV] 
-                                * eigenVectors[iWV][iMode][iCD] / Math.sqrt(omegaSquared[iWV][0])
+                                * eigenVectors[iWV][iMode][iCD] * oneOverOmega2[iWV][0]
                                 * (etas[etaCount] * coskR);
                             etaCount ++;
                         }

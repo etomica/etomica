@@ -99,7 +99,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(temperature);
-        nm.getOmegaSquared();
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
@@ -193,7 +192,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                 for (int iMode = 0; iMode < cDim; iMode++){
                     for (int j = 0; j < cDim; j++){
                        newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][iMode][j] 
-                            * simOmega2[wvcount][iMode]
+                            * oneOverOmega2[wvcount][iMode]
                             * (etas[etaCount] * coskR - etas[etaCount+1]* sinkR);
                        etaCount += 2;
                     }
