@@ -46,10 +46,12 @@ public class IntegratorPolymer extends IntegratorMD {
             IAtomList atoms = molecule.getChildList();
             IVectorMutable p0 = atoms.getAtom(0).getPosition();
             IVectorMutable p1 = atoms.getAtom(1).getPosition();
+            //calculate 0-1 bond vector before moving 0 and 1.
             drNext.Ev1Mv2(p1, p0);
             double px = p0.getX(0);
             double py = p0.getX(1);
-            p0.PEa1Tv1(-omdth, drNext);
+            double fQ = 1 + b*drNext.squared();
+            p0.PEa1Tv1(-omdth*fQ, drNext);
             if (a<0) {
                 p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
                 p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
@@ -60,7 +62,7 @@ public class IntegratorPolymer extends IntegratorMD {
             }
             p0.setX(2, p0.getX(2) + sqdt*random.nextGaussian());
             center.PE(p0);
-            
+
             for (int j=1; j<atoms.getAtomCount()-1; j++) {
                 drPrev.E(drNext);
                 p0 = p1;
@@ -69,8 +71,10 @@ public class IntegratorPolymer extends IntegratorMD {
                 px = p0.getX(0);
                 py = p0.getX(1);
 
-                p0.PEa1Tv1(omdth, drPrev);
-                p0.PEa1Tv1(-omdth, drNext);
+                fQ = 1 + b*drPrev.squared();
+                p0.PEa1Tv1(fQ*omdth, drPrev);
+                fQ = 1 + b*drNext.squared();
+                p0.PEa1Tv1(-fQ*omdth, drNext);
                 if (a<0) {
                     p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
                     p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
@@ -88,7 +92,8 @@ public class IntegratorPolymer extends IntegratorMD {
             px = p0.getX(0);
             py = p0.getX(1);
 
-            p0.PEa1Tv1(omdth, drPrev);
+            fQ = 1 + b*drPrev.squared();
+            p0.PEa1Tv1(fQ*omdth, drPrev);
             if (a<0) {
                 p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
                 p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
@@ -142,9 +147,17 @@ public class IntegratorPolymer extends IntegratorMD {
         a = newA;
     }
 
+    public double getB() {
+        return b;
+    }
+
+    public void setB(double newB) {
+        b = newB;
+    }
+
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable drPrev, drNext, center;
     protected double omdth, sqdt;
     protected double shearRate;
-    protected double a;
+    protected double a, b;
 }

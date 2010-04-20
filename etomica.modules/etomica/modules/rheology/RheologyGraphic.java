@@ -50,6 +50,18 @@ public class RheologyGraphic extends SimulationGraphic {
         sliderA.setShowValues(true);
         add(sliderA);
 
+        DeviceSlider sliderB = new DeviceSlider(sim.getController());
+        sliderB.setLabel("b");
+        sliderB.setShowBorder(true);
+        ModifierGeneral modifierB = new ModifierGeneral(sim.integrator, "b");
+        sliderB.setModifier(modifierB);
+        sliderB.setPrecision(1);
+        sliderB.setMinimum(0);
+        sliderB.setMaximum(2);
+        sliderB.setNMajor(4);
+        sliderB.setShowValues(true);
+        add(sliderB);
+
         sliderShear = new DeviceSlider(sim.getController());
         sliderShear.setShowBorder(true);
         ModifierGeneral modifierShear = new ModifierGeneral(sim.integrator, "shearRateNumber");
