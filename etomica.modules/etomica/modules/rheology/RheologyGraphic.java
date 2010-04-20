@@ -18,6 +18,8 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.math.geometry.LineSegment;
 import etomica.modifier.ModifierGeneral;
+import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import g3dsys.images.Figure;
 
@@ -226,6 +228,21 @@ public class RheologyGraphic extends SimulationGraphic {
         SimulationRheology sim = new SimulationRheology(Space3D.getInstance());
         RheologyGraphic graphic = new RheologyGraphic(sim);
         graphic.makeAndDisplayFrame();
+    }
+
+    public static class Applet extends javax.swing.JApplet {
+
+        public void init() {
+            getRootPane().putClientProperty(
+                            "defeatSystemEventQueueCheck", Boolean.TRUE);
+            int dim = 3;
+            ISpace sp = Space.getInstance(dim);
+            RheologyGraphic swmdGraphic = new RheologyGraphic(new SimulationRheology(sp));
+
+            getContentPane().add(swmdGraphic.getPanel());
+        }
+
+        private static final long serialVersionUID = 1L;
     }
 
     protected ArrayList<LineSegment> flowLines;
