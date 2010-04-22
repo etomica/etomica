@@ -1,6 +1,5 @@
 package etomica.models.oneDHardRods;
 
-import etomica.api.IRandom;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
@@ -11,7 +10,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Dimension;
 
 
-public class MeterOverlapSameGaussian implements IEtomicaDataSource {
+public class MeterOverlapSameGaussian1DHR implements IEtomicaDataSource {
     DataTag tag;
     DataInfo dataInfo;
     DataSourceScalar dataSourceA, dataSourceB;
@@ -31,7 +30,7 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
      * @param dataSourceB - numerator
      * @param temperature
      */
-    public MeterOverlapSameGaussian(String label, Dimension dimension, DataSourceScalar dataSourceA,
+    public MeterOverlapSameGaussian1DHR(String label, Dimension dimension, DataSourceScalar dataSourceA,
             DataSourceScalar dataSourceB, double temperature){
         dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{2});
         tag = new DataTag();
@@ -53,11 +52,8 @@ public class MeterOverlapSameGaussian implements IEtomicaDataSource {
         double[] eAeB = dda.getData();
         
         double numerator = Math.exp(-dataSourceB.getDataAsScalar()/temperature);
-        double[] gausses = ((MeterDifferentImageAdd)dataSourceB).getGaussian();
-        double harmonic = 0.0;
-        for (int i = 0; i < gausses.length; i++){
-            harmonic = 0.5 * (gausses[i] * gausses[i]);
-        }
+        double gausses = ((MeterDifferentImageAdd1D)dataSourceB).getGaussian();
+        double harmonic = 0.5 * (gausses * gausses);
         double denominator = Math.exp(-(dataSourceA.getDataAsScalar()+harmonic)/temperature);
         
         eAeB[1] = numerator / denominator;
