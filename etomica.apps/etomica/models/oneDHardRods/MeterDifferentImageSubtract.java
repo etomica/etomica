@@ -20,6 +20,7 @@ import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
+import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
@@ -36,7 +37,9 @@ import etomica.units.Null;
  *
  */
 public class MeterDifferentImageSubtract extends DataSourceScalar {
-
+    private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "MeterDifferentImageSubtract";
+    
     public int nInsert, counter;
     private MeterPotentialEnergy meterPE;
     private CoordinateDefinition cDef, simCDef;
@@ -52,11 +55,14 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected final IRandom random;
     private IBox box;
     private int numAtoms;
-    private Boundary bdry;
+    private IBoundary bdry;
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     private double etas[];
     private int min, max;
+    
+    
+    private MeterDifferentImageSubtract1D testmeter;
     
     public MeterDifferentImageSubtract(ISimulation sim, ISpace space, double temp, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox){
@@ -72,9 +78,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         simRealT = new double[simCDim];
         simImagT = new double[simCDim];
         double[][] tempO2 = simNM.getOmegaSquared();
+        simOmegaSquared = new double[tempO2.length][tempO2[0].length];
         for(int i = 0; i < tempO2.length; i++ ){
             for(int j = 0; j < tempO2[0].length; j++){
                 simOmegaSquared[i][j] = Math.sqrt(tempO2[i][j]);
+                simOmegaSquared[i][j] = 1.0;
             }
         }
         
@@ -102,9 +110,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
         tempO2 = nm.getOmegaSquared();
+        oneOverOmega2 = new double[tempO2.length][tempO2[0].length];
         for(int i = 0; i < tempO2.length; i++ ){
             for(int j = 0; j < tempO2[0].length; j++){
                 oneOverOmega2[i][j] = 1/Math.sqrt(tempO2[i][j]);
+                oneOverOmega2[i][j] = 1.0;
             }
         }
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
@@ -132,13 +142,14 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         etas = new double[2 * simWaveVectors.length * simCDim];
         min = space.D() * (numAtoms - 1); 
         max = space.D() * (simCDef.getBox().getLeafList().getAtomCount() - 1) ;
+        
+        
+        
+//        testmeter = new MeterDifferentImageSubtract1D("thread", numAtoms+1,density, (Simulation)sim,
+//                simCDef.getPrimitive(), simCDef.getBasis(), simCDef, simNM, temperature, this);
     }
     
     public double getDataAsScalar() {
-//        IAtomList atomlist = box.getLeafList();
-//        for (int i = 0; i < atomlist.getAtomCount(); i++){
-//            System.out.println("start i " + atomlist.getAtom(i).getPosition().getX(0));
-//        }
         BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = cells[0];
         //nan this makes it 1D
@@ -192,12 +203,12 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             for (int j = 0; j < cDim; j++) {
                 newU[j] = 0.0;
             }
-            etaCount = 0;
             for (int iWV = 0; iWV < waveVectors.length; iWV++){
                 //Calculate the change in positions.
                 double kR = waveVectors[iWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
+                etaCount = 0;
                 for (int iMode = 0; iMode < cDim; iMode++){
                     for (int iCD = 0; iCD < cDim; iCD++){
                         if (wvCoeff[iWV] == 1.0){
@@ -223,6 +234,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         }
         
 //        return Math.exp(-1*(meterPE.getDataAsScalar()+harmonic));
+        
+//        if(testmeter.getDataAsScalar() != (meterPE.getDataAsScalar() + harmonic)){
+//            System.out.println("Subtract fail");
+//        }
+        
         return meterPE.getDataAsScalar() + harmonic;
     }
 

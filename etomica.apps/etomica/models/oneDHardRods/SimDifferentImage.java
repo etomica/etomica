@@ -9,6 +9,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
@@ -43,6 +44,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -101,10 +103,10 @@ public class SimDifferentImage extends Simulation {
         super(_space);
         System.out.println("Running " + APP_NAME);
         
-//        long seed = 3;
-//        System.out.println("Seed explicitly set to " + seed);
-//        IRandom rand = new RandomNumberGenerator(seed);
-//        this.setRandom(rand);
+        long seed = 3;
+        System.out.println("Seed explicitly set to " + seed);
+        IRandom rand = new RandomNumberGenerator(seed);
+        this.setRandom(rand);
         
         int targAtoms = numAtoms + 1;
         int refAtoms = numAtoms;
@@ -266,7 +268,7 @@ public class SimDifferentImage extends Simulation {
         
 //JOINT
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
-                temperature, cDefRef, nmRef, boxRef);
+                temperature, cDefRef, nmRef, boxTarget);
         MeterOverlapSameGaussian meterOverlapInRef = new MeterOverlapSameGaussian("MeterOverlapInB", 
                 Null.DIMENSION, meterRefInRef, meterTargInRef, temperature);
 
@@ -474,9 +476,7 @@ public class SimDifferentImage extends Simulation {
         int runBlockSize = params.runBlockSize;
         int subBlockSize = params.subBlockSize;
         int eqNumSteps = params.eqNumSteps;
-//        int eqBlockSize = params.eqBlockSize;
         int benNumSteps = params.bennettNumSteps;
-//        int benBlockSize = params.benBlockSize;
         
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
@@ -506,10 +506,7 @@ public class SimDifferentImage extends Simulation {
                     "Bennett parameter");
         }
         
-//        System.exit(5);
-        
         System.out.println("equilibrate");
-//        sim.setAccumulatorBlockSize(eqBlockSize);
         sim.equilibrate(refFileName, eqNumSteps, runBlockSize);
         if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
                 Double.isInfinite(sim.bennettParam)){
@@ -517,8 +514,6 @@ public class SimDifferentImage extends Simulation {
                     "Bennett parameter");
         }
         System.out.println("equilibration finished.");
-        
-//        sim.setBennettParameter(1.0);
         
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
@@ -567,7 +562,7 @@ public class SimDifferentImage extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 2;  //number of atoms in the reference system.
+        public int numAtoms = 4;  //number of atoms in the reference system.
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
