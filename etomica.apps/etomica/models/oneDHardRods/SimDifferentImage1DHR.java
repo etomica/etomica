@@ -7,15 +7,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -32,7 +28,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.MeterHarmonicCoordinate;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
@@ -46,9 +41,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
-import etomica.util.Function;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -272,7 +265,7 @@ public class SimDifferentImage1DHR extends Simulation {
 //JOINT
         meterTargInRef = new MeterDifferentImageAdd1D("meterAinB", refAtoms, density, 
                 this, primitive, basis, cDefRef, nmRef, temperature);
-        MeterOverlapSameGaussian meterOverlapInRef = new MeterOverlapSameGaussian("MeterOverlapInB", 
+        MeterOverlapSameGaussian1D meterOverlapInRef = new MeterOverlapSameGaussian1D("MeterOverlapInB", 
                 Null.DIMENSION, meterRefInRef, meterTargInRef, temperature);
 
         
@@ -567,7 +560,7 @@ public class SimDifferentImage1DHR extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 3;  //number of atoms in the reference system.
+        public int numAtoms = 2;  //number of atoms in the reference system.
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
