@@ -10,7 +10,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Dimension;
 
 
-public class MeterOverlapSameGaussian1DHR implements IEtomicaDataSource {
+public class MeterOverlapSameGaussian1D implements IEtomicaDataSource {
     DataTag tag;
     DataInfo dataInfo;
     DataSourceScalar dataSourceA, dataSourceB;
@@ -30,7 +30,7 @@ public class MeterOverlapSameGaussian1DHR implements IEtomicaDataSource {
      * @param dataSourceB - numerator
      * @param temperature
      */
-    public MeterOverlapSameGaussian1DHR(String label, Dimension dimension, DataSourceScalar dataSourceA,
+    public MeterOverlapSameGaussian1D(String label, Dimension dimension, DataSourceScalar dataSourceA,
             DataSourceScalar dataSourceB, double temperature){
         dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{2});
         tag = new DataTag();
