@@ -41,6 +41,8 @@ import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Pixel;
+import etomica.units.SimpleUnit;
+import etomica.units.Time;
 import etomica.util.HistoryCollapsing;
 import g3dsys.images.Ellipse;
 
@@ -94,6 +96,9 @@ public class DropletGraphic extends SimulationGraphic {
 
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integrator);
+        // die unit symbol, die!
+        displayTimer.setUnit(new SimpleUnit(Time.DIMENSION, 1, "time", "", true));
+        displayTimer.setLabel("Simulation time");
         getPanel().controlPanel.add(displayTimer.graphic(), SimulationPanel.getVertGBC());
         displayTimer.setUpdateInterval(1);
         
@@ -209,7 +214,7 @@ public class DropletGraphic extends SimulationGraphic {
         JPanel numMoleculesPanel = new JPanel(new GridBagLayout());
         numMoleculesPanel.add(nSlider.graphic(), vertGBC);
         numMoleculesPanel.add(defSlider.graphic(), vertGBC);
-        tabbedPane.add("# of molecules", numMoleculesPanel);
+        tabbedPane.add("Configuration", numMoleculesPanel);
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(surfaceCohesionButton.graphic(), vertGBC);
         potentialPanel.add(cohesionEpsilon.graphic(), vertGBC);
