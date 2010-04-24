@@ -23,7 +23,6 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 	/**
 	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
 	 */
-    //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(IBox box) {
         IVectorMutable dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getBoxSize());
