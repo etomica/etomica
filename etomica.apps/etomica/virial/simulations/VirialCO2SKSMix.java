@@ -155,6 +155,7 @@ public class VirialCO2SKSMix {
         SpeciesAlkane speciesAlkane = (SpeciesAlkane)sim.getSpecies(1);
         SpeciesSpheresHetero speciesCO2 = (SpeciesSpheresHetero)sim.getSpecies(0);
         sim.mcMoveWiggle[0].setSpecies(sim.getSpecies(1));
+        sim.mcMoveWiggle[1].setSpecies(sim.getSpecies(1));
         sim.integratorOS.setNumSubSteps(1000);
 
         IAtomType typeCH3 = speciesAlkane.getAtomType(0);
