@@ -188,6 +188,30 @@ public class P2CO2EMP extends PotentialMolecular {
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }
+
+    public double getSigmaC() {
+        return sigmaC;
+    }
+
+    public double getSigmaO() {
+        return sigmaO;
+    }
+
+    public double getSigmaCO() {
+        return sigmaCO;
+    }
+
+    public double getEpsilonC() {
+        return epsilonC;
+    }
+
+    public double getEpsilonO() {
+        return epsilonO;
+    }
+
+    public double getEpsilonCO() {
+        return epsilonCO;
+    }
     
     private static final long serialVersionUID = 1L;
 	public double sigmaC, sigmaC2, sigmaO, sigmaO2, sigmaCO, sigmaCO2;
