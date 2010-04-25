@@ -1,12 +1,13 @@
 package etomica.virial;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -62,6 +63,10 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         energyMeter.setBox(p);
     }
     
+    public void setSpecies(ISpecies newSpecies) {
+        species = newSpecies;
+    }
+
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = energyMeter.getDataAsScalar();
@@ -69,6 +74,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
+            if (species != null && moleculeList.getMolecule(i).getType() != species) {
+                continue;
+            }
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
             int numChildren = childList.getAtomCount();
 
@@ -200,6 +208,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
+            if (species != null && moleculeList.getMolecule(i).getType() != species) continue;
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
             work1.E(translationVectors[i]);
             work1.TE(1.0/childList.getAtomCount());
@@ -227,4 +236,5 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     protected IVectorMutable[] translationVectors;
     protected double wOld, wNew;
     protected final ISpace space;
+    protected ISpecies species;
 }
