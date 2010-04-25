@@ -238,9 +238,7 @@ public class VirialCO2SKSMix {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        System.out.println("v1 "+sim.box[1].getSampleCluster().value(sim.box[1]));
-        
-        if (true) {
+        if (false) {
             double size = 10;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
