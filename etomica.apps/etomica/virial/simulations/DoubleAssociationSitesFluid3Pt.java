@@ -170,7 +170,7 @@ public class DoubleAssociationSitesFluid3Pt {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            Species species = (Species)sim.species;
+            Species species = (Species)sim.getSpecies(0);
             IAtomType typeLJ = species.getAtomType(0);
             simGraphic.makeAndDisplayFrame();
     

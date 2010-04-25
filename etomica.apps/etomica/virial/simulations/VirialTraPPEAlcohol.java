@@ -169,7 +169,7 @@ public class VirialTraPPEAlcohol {
         	final SimulationVirialOverlap sim;
         	sim = new SimulationVirialOverlap (space,new SpeciesFactoryMethanol(),
                     temperature,refCluster,targetCluster, true); //use first constructor; no need for intramolecular movement MC trial
-        	SpeciesMethanol species = (SpeciesMethanol)sim.species;
+        	SpeciesMethanol species = (SpeciesMethanol)sim.getSpecies(0);
         	MethanolPotentialHelper.initPotential(space, species, U_a_b);
         	//potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         	

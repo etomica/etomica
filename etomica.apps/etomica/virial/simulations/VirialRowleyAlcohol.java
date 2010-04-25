@@ -211,14 +211,14 @@ public class VirialRowleyAlcohol {
         if(ethanol) {
         	sim = new SimulationVirialOverlap (space,new SpeciesFactoryEthanol(pointCharges),
         			temperature,refCluster,targetCluster); //use first constructor; no need for intramolecular movement MC trial
-        	SpeciesEthanol species = (SpeciesEthanol)sim.species;
+        	SpeciesEthanol species = (SpeciesEthanol)sim.getSpecies(0);
         	EthanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges);
         	//potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         }
         else {
         	sim = new SimulationVirialOverlap (space,new SpeciesFactoryMethanol(pointCharges),
                     temperature,refCluster,targetCluster); //use first constructor; no need for intramolecular movement MC trial
-        	SpeciesMethanol species = (SpeciesMethanol)sim.species;
+        	SpeciesMethanol species = (SpeciesMethanol)sim.getSpecies(0);
         	
         	MethanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges, sigmaOC, sigmaOH);
         	//potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
@@ -366,7 +366,7 @@ public class VirialRowleyAlcohol {
             
             if (ethanol) {
             	
-            	SpeciesEthanol species = (SpeciesEthanol)sim.species;
+            	SpeciesEthanol species = (SpeciesEthanol)sim.getSpecies(0);
             	
             	// Create instances of the types of molecular sites
             	IAtomType type_O  = species.getOxygenType();
@@ -395,7 +395,7 @@ public class VirialRowleyAlcohol {
             }
             else {
             	
-            	SpeciesMethanol species = (SpeciesMethanol)sim.species;
+            	SpeciesMethanol species = (SpeciesMethanol)sim.getSpecies(0);
             	
             	// Create instances of the types of molecular sites
             	IAtomType type_O  = species.getOxygenType();

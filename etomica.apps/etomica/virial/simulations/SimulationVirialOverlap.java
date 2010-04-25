@@ -59,19 +59,34 @@ public class SimulationVirialOverlap extends Simulation {
 	
 	public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
+	    this(aSpace, new SpeciesFactory[]{speciesFactory}, new int[]{aValueClusters[0].pointCount()}, temperature, aValueClusters, aSampleClusters, doWiggle);
+	}
+
+	public SimulationVirialOverlap(Space aSpace, SpeciesFactory[] speciesFactory, int[] nMolecules,
+            double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
 		super(aSpace);
 		PotentialMaster potentialMaster = new PotentialMaster();
         sampleClusters = aSampleClusters;
-        int nMolecules = sampleClusters[0].pointCount();
-        species = speciesFactory.makeSpecies(space);
-        addSpecies(species);
+        boolean doRotate = false;
+        boolean multiAtomic = false;
+        ISpecies[] species = new ISpecies[speciesFactory.length];
+        for (int i=0; i<speciesFactory.length; i++) {
+            species[i] = speciesFactory[i].makeSpecies(space);
+            addSpecies(species[i]);
+            if (!(species[i] instanceof SpeciesSpheresMono)) {
+                doRotate = true;
+            }
+            if (!(species[i] instanceof SpeciesSpheresMono || species[i] instanceof SpeciesSpheresRotating)) {
+                multiAtomic = true;
+            }
+        }
         accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
         accumulatorPumps = new DataPumpListener[sampleClusters.length];
         box = new BoxCluster[sampleClusters.length];
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
         mcMoveTranslate = new MCMoveBoxStep[sampleClusters.length];
-        if (!(species instanceof SpeciesSpheresMono)|| species instanceof SpeciesSpheresRotating) {
+        if (doRotate) {
             mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
         }
         if (doWiggle) {
@@ -87,7 +102,9 @@ public class SimulationVirialOverlap extends Simulation {
             // integrator for iBox samples based on iBox cluster
             box[iBox] = new BoxCluster(sampleClusters[iBox], space);
             addBox(box[iBox]);
-            box[iBox].setNMolecules(species, nMolecules);
+            for (int i=0; i<species.length; i++) {
+                box[iBox].setNMolecules(species[i], nMolecules[i]);
+            }
             
             integrators[iBox] = new IntegratorMC(this, potentialMaster);
             integrators[iBox].setTemperature(temperature);
@@ -96,12 +113,12 @@ public class SimulationVirialOverlap extends Simulation {
             
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
-            if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
+            if (!multiAtomic) {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
-                if (species instanceof SpeciesSpheresRotating) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, space, nMolecules-1);
+                if (doRotate) {
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, space, aValueClusters[0].pointCount()-1);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
@@ -112,7 +129,7 @@ public class SimulationVirialOverlap extends Simulation {
                 mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
-                    mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
+                    mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, aValueClusters[0].pointCount(), space);
                     moveManager.addMCMove(mcMoveWiggle[iBox]);
                 }
             }
@@ -316,7 +333,6 @@ public class SimulationVirialOverlap extends Simulation {
     protected DataPumpListener[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
     public BoxCluster[] box;
-    public ISpecies species;
     public IntegratorMC[] integrators;
     public MCMoveBoxStep[] mcMoveRotate;
     public MCMoveBoxStep[] mcMoveTranslate;
