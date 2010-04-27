@@ -2,26 +2,29 @@
 
 package etomica.simulation.prototypes;
 
-import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.DataPumpListener;
+import etomica.data.meter.MeterPressureHard;
 import etomica.graphics.ColorScheme;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P1HardPeriodic;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
+import etomica.space.ISpace;
+import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 
@@ -29,88 +32,70 @@ import etomica.species.SpeciesSpheresMono;
 
 public class SWMD3D extends Simulation {
 
-  public SWMD3D(Space _space) {
-	super(_space);
-	IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+    public SWMD3D(ISpace _space) {
+        super(_space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 	
-    integrator = new IntegratorHard(this, potentialMaster, space);
-    integrator.setTimeStep(0.01);
-    integrator.setIsothermal(true);
-    integrator.setTemperature(1);
-    double lambda = 1.6;
-    ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-    getController().addAction(activityIntegrate);
+        integrator = new IntegratorHard(this, potentialMaster, space);
+        integrator.setTimeStep(0.01);
+        integrator.setIsothermal(true);
+        integrator.setTemperature(1);
+        double lambda = 1.5;
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
 
+        box = new Box(space);
+        addBox(box);
+        potential  = new etomica.potential.P2SquareWell(space);
+        potential.setLambda(lambda);
 
-    box = new Box(space);
-    addBox(box);
-    potential  = new etomica.potential.P2SquareWell(space);
-    potential.setLambda(lambda);
+        species  = new etomica.species.SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+        box.setNMolecules(species, 108);
 
-    species  = new etomica.species.SpeciesSpheresMono(this, space);
-    species.setIsDynamic(true);
-    addSpecies(species);
-    box.setNMolecules(species, 108);
-    integrator.setNullPotential(new P1HardPeriodic(space, lambda), species.getLeafType());
+        potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
 
-	
-//	DeviceSlider tControl = new DeviceSlider(integrator, "temperature");
-//	DeviceSlider sigmaControl = new DeviceSlider(new MyModifier());
-//	DeviceSlider lambdaControl = new DeviceSlider(potential0, "lambda");
-//	tControl.setLabel("Temperature (K)");
-//	sigmaControl.setLabel("Atom size (Angstroms)");
-//	tControl.setShowValues(true);
-//	tControl.setShowBorder(true);
-//	tControl.setMinimum(100);
-//	tControl.setMaximum(700);
-//	sigmaControl.setShowValues(true);
-//	sigmaControl.setShowBorder(true);
-//	sigmaControl.setPrecision(2);
-//	sigmaControl.setMinimum(0.0);
-//	sigmaControl.setMaximum(3.0);
-//	lambdaControl.setShowValues(true);
-//	lambdaControl.setShowBorder(true);
-//	lambdaControl.setPrecision(2);
-//	lambdaControl.setMinimum(1.1);
-//	lambdaControl.setMaximum(2.1);
-//	lambdaControl.setValue(1.4);
-//	lambdaControl.setNMajor(5);
+        integrator.setBox(box);
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(0.0405);
+        inflater.actionPerformed();
+        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        configuration.initializeCoordinates(box);
+    }
 
-    potentialMaster.addPotential(potential,new IAtomType[]{species.getLeafType(),species.getLeafType()});
+    private static final long serialVersionUID = 1L;
+    public IntegratorHard integrator;
+    public SpeciesSpheresMono species;
+    public IBox box;
+    public P2SquareWell potential;
+    public Controller controller;
+    public DisplayBox display;
 
-    integrator.setBox(box);
-    integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
+    /**
+     * Demonstrates how this class is implemented.
+     */
+    public static void main(String[] args) {
+        final String APP_NAME = "SWMD3D";
 
-//	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(box0));
-//	nControl.setMaximum(108);
-    BoxInflate inflater = new BoxInflate(box, space);
-    inflater.setTargetDensity(0.0405);
-    inflater.actionPerformed();
-    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-    configuration.initializeCoordinates(box);
-  }
+        ISpace sp = Space3D.getInstance();
+        final SWMD3D sim = new SWMD3D(sp);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
 
-  private static final long serialVersionUID = 1L;
-  public IntegratorHard integrator;
-  public SpeciesSpheresMono species;
-  public IBox box;
-  public P2SquareWell potential;
-  public Controller controller;
-  public DisplayBox display;
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+        colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
-  
-  public static class MyColorScheme extends ColorScheme {
-      public MyColorScheme(IAtom redAtom) {
-    	  super();
-          atom = redAtom;
-      }
-	  public java.awt.Color getAtomColor(IAtom a) {
-		  return (a == atom) ? java.awt.Color.red : java.awt.Color.yellow;
-	  }
-      private static final long serialVersionUID = 1L;
-      private IAtom atom;
-  }
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
+        pMeter.setIntegrator(sim.integrator);
 
-}//end of class
+        DisplayTextBox pdisplay = new DisplayTextBox();
+        DataPumpListener pPump = new DataPumpListener(pMeter, pdisplay, 100);
+        sim.integrator.getEventManager().addListener(pPump);
+        simGraphic.add(pdisplay);
+    }
+}
