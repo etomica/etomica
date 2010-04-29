@@ -1,5 +1,6 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -9,6 +10,8 @@ import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.Primitive;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -42,7 +45,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     public int nInsert, counter;
     private MeterPotentialEnergy meterPE;
     private CoordinateDefinition cDef, simCDef;
-    private int cDim, simCDim, spaceD;;
+    private int cDim, spaceD;;
     private IVectorMutable[] waveVectors, simWaveVectors;
     private double[] simRealT, simImagT;
     protected double temperature;
@@ -60,8 +63,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     WaveVectorFactory waveVectorFactory;
     private double etas[];
     
-    private MeterDifferentImageAdd1D testmeter;
-    
     public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox){
         
@@ -71,17 +72,20 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         
         simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
-        simCDim = simCD.getCoordinateDim();
+        cDim = simCD.getCoordinateDim();
         simEigenVectors = simNM.getEigenvectors();
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
-        simRealT = new double[simCDim];
-        simImagT = new double[simCDim];
+        simRealT = new double[cDim];
+        simImagT = new double[cDim];
         double[][] omegaTemp = simNM.getOmegaSquared();
         simOmega2 = new double[omegaTemp.length][omegaTemp[0].length];
         for(int i = 0; i < omegaTemp.length; i++){
             for(int j = 0; j < omegaTemp[0].length; j++){
-                simOmega2[i][j] = Math.sqrt(omegaTemp[i][j]);
-                simOmega2[i][j] = 1.0;
+                if(Double.isInfinite(omegaTemp[i][j])){
+                    simOmega2[i][j] = omegaTemp[i][j];
+                } else {
+                    simOmega2[i][j] = Math.sqrt(omegaTemp[i][j]);
+                }
             }
         }
         
@@ -118,8 +122,11 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         oneOverOmega2 = new double[omegaTemp.length][omegaTemp[0].length];
         for (int i = 0; i < oneOverOmega2.length; i++) {
             for (int j = 0; j < oneOverOmega2[i].length; j++) {
-                oneOverOmega2[i][j] = Math.sqrt(1.0/(omegaTemp[i][j]));
-                oneOverOmega2[i][j] = 1.0;
+                if(Double.isInfinite(omegaTemp[i][j])){
+                    oneOverOmega2[i][j] = 0.0;
+                } else {
+                    oneOverOmega2[i][j] = Math.sqrt(1.0/(omegaTemp[i][j]));
+                }
             }
         }
         
@@ -145,9 +152,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         gaussCoord = new double[space.D() *(numAtoms - simCDef.getBox().getLeafList().getAtomCount())];
         
         spaceD = space.D();
-        
-        testmeter = new MeterDifferentImageAdd1D("yarn", numAtoms-1, density, (Simulation)sim,
-                simCDef.getPrimitive(), simCDef.getBasis(), simCDef, simNM, temperature);
     }
     
     public double getDataAsScalar() {
@@ -168,8 +172,8 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             simCDef.calcT(simWaveVectors[iWV], simRealT, simImagT);
             realCoord[iWV] = 0.0;
             imagCoord[iWV] = 0.0;
-            for (int iMode = 0; iMode < simCDim; iMode++){
-                for (int j = 0; j < simCDim; j++){
+            for (int iMode = 0; iMode < cDim; iMode++){
+                for (int j = 0; j < cDim; j++){
                     realCoord[iWV] += simEigenVectors[iWV][iMode][j] * simRealT[j];
                     imagCoord[iWV] += simEigenVectors[iWV][iMode][j] * simImagT[j];
                 }
@@ -180,73 +184,59 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             }
         }
         
-        //Scale and transfer the normal mode coordinates to etas.  The first wv,
-        // which contains the 
-        //nan omega2[wv][evect] - will need to change for 3D
+        //Scale and transfer the normal mode coordinates to etas.
         int etaCount = 0;
-        for (int i = spaceD; i < cDim; i++){
-            for(int iMode = 0; iMode < simCDim; iMode++){
-                etas[0] = realCoord[0] * simOmega2[0][iMode];
-                etaCount++;
-            }
-            if(simWVCoeff[0] == 1.0){
-                for(int iMode = 0; iMode < simCDim; iMode++){
-                    etas[etaCount] = imagCoord[0] * simOmega2[0][iMode];
+        for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
+            for(int iMode = 0; iMode < cDim; iMode++){
+                if(!Double.isInfinite(simOmega2[iWV][iMode])){
+                    etas[etaCount] = realCoord[iWV] * simOmega2[iWV][iMode];
                     etaCount++;
                 }
             }
         }
-        for(int iWV = 1; iWV < simWaveVectors.length; iWV++){
-            for(int iMode = 0; iMode < simCDim; iMode++){
-                etas[etaCount] = realCoord[iWV] * simOmega2[iWV][iMode];
-                etaCount++;
-            }
-        }
-        for(int iWV = 1; iWV < simWaveVectors.length; iWV++){
-            if(simWVCoeff[iWV] == 1.0){
-                for(int iMode = 0; iMode < simCDim; iMode++){
-                    etas[etaCount] = imagCoord[iWV] * simOmega2[iWV][iMode];
-                    etaCount++;
+        for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
+            for(int iMode = 0; iMode < cDim; iMode++){
+                if(simWVCoeff[iWV] == 1.0){
+                    if(!Double.isInfinite(simOmega2[iWV][iMode])){
+                        etas[etaCount] = imagCoord[iWV] * simOmega2[iWV][iMode];
+                        etaCount++;
+                    }
                 }
             }
         }
-        
         
         //Create the last normal mode coordinates from the Gaussian distribution 
         for(int count = etaCount; count < etas.length; count++){
-            etas[count] = random.nextGaussian();
-            
-            
-            etas[count] = 0.34;
-            
-            
-            gaussCoord[count-etaCount] = etas[count];
+            gaussCoord[count-etaCount] = random.nextGaussian();
+            etas[count] = gaussCoord[count-etaCount];
         }
-        
+         
         //Calculate the positions for the meter's system
         for (int iCell = 0; iCell < cells.length; iCell++){
             cell = cells[iCell];
             for (int j = 0; j < cDim; j++) {
                 newU[j] = 0.0;
             }
+            etaCount = 0;   //etaCount counts through "wv" for etas.
             for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
                 //Calculate the change in positions.
                 double kR = waveVectors[wvcount].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                etaCount = 0;   //etaCount counts through "wv" for etas.
                 for (int iMode = 0; iMode < cDim; iMode++){
-                    for (int j = 0; j < cDim; j++){
-                        if(etaCount+1 < etas.length){
-                           newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][iMode][j] 
-                                * oneOverOmega2[wvcount][iMode]
-                                * (etas[etaCount] * coskR - etas[etaCount+1]* sinkR);
-                           etaCount += 2;
-                        } else {
-                            newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][iMode][j]
-                                * oneOverOmega2[wvcount][iMode]
-                                * (etas[etaCount] * coskR);
-                            etaCount += 1;
+                    if(!(oneOverOmega2[wvcount][iMode] == 0.0)){
+                        for (int j = 0; j < cDim; j++){
+                            if(etaCount+1 < etas.length){
+                               newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][iMode][j] 
+                                    * oneOverOmega2[wvcount][iMode]
+                                    * (etas[etaCount] * coskR - etas[etaCount+1]* sinkR);
+                               etaCount += 2;
+                            } else {
+                                newU[j] += sqrtWVC[wvcount] * eigenVectors[wvcount][iMode][j]
+                                    * oneOverOmega2[wvcount][iMode]
+                                    * (etas[etaCount] * coskR);
+                                etaCount += 1;
+                            }
                         }
                     }
                 }
@@ -256,13 +246,10 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             for (int i=0; i<cDim; i++) {
                 newU[i] *= normalization;
             }
+            
             cDef.setToU(cells[iCell].molecules, newU);
         }
 //        return Math.exp(-1*meterPE.getDataAsScalar());
-        if(testmeter.getDataAsScalar() != meterPE.getDataAsScalar()){
-            System.out.println("Add fail");
-            testmeter.getDataAsScalar();
-        }
         return meterPE.getDataAsScalar();
     }
     
