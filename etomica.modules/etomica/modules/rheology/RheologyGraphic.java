@@ -1,5 +1,6 @@
 package etomica.modules.rheology;
 
+import java.awt.GridBagConstraints;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -9,6 +10,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
+import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
@@ -64,18 +66,18 @@ public class RheologyGraphic extends SimulationGraphic {
         sliderB.setShowValues(true);
         add(sliderB);
 
-        sliderShear = new DeviceSlider(sim.getController());
-        sliderShear.setShowBorder(true);
+        shearBox = new DeviceBox();
+        shearBox.setController(sim.getController());
+        shearBox.setLabelType(DeviceBox.LabelType.BORDER);
         ModifierGeneral modifierShear = new ModifierGeneral(sim.integrator, "shearRateNumber");
-        sliderShear.setModifier(modifierShear);
-        sliderShear.setLabel("Shear rate");
-        sliderShear.setPrecision(2);
-        sliderShear.setMinimum(0);
-        sliderShear.setMaximum(10);
-        sliderShear.setNMajor(4);
-        sliderShear.setShowValues(true);
-        sliderShear.setEditValues(true);
-        add(sliderShear);
+        shearBox.setModifier(modifierShear);
+        shearBox.setLabel("Shear rate");
+        shearBox.setPrecision(3);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        getPanel().controlPanel.add(shearBox.graphic(),gbc);
         
         DeviceSlider sliderPolymerLength= new DeviceSlider(sim.getController());
         sliderPolymerLength.setShowBorder(true);
@@ -104,6 +106,16 @@ public class RheologyGraphic extends SimulationGraphic {
                 getPaintAction(sim.box).actionPerformed();
             }
         });
+
+        final MeterEndToEnd meterEE = new MeterEndToEnd(sim.getSpace());
+        meterEE.setBox(sim.box);
+        AccumulatorAverageCollapsing avgEE = new AccumulatorAverageCollapsing();
+        DataPumpListener eePump = new DataPumpListener(meterEE, avgEE, 10);
+        sim.integrator.getEventManager().addListener(eePump);
+        DisplayTextBoxesCAE eeDisplay = new DisplayTextBoxesCAE();
+        eeDisplay.setAccumulator(avgEE);
+        add(eeDisplay);
+        getController().getDataStreamPumps().add(eePump);
 
         final MeterViscosity meterViscosity = new MeterViscosity(sim.getSpace());
         meterViscosity.setIntegrator(sim.integrator);
@@ -150,8 +162,15 @@ public class RheologyGraphic extends SimulationGraphic {
                 getPaintAction(sim.box).actionPerformed();
             }
         });
-        sliderShear.setPostAction(new IAction() {
+        shearBox.setPostAction(new IAction() {
             public void actionPerformed() {
+                double sr = sim.integrator.getShearRate();
+                if (sr > 1) {
+                    sim.integrator.setTimeStep(0.01/sr);
+                }
+                else {
+                    sim.integrator.setTimeStep(0.01);
+                }
                 updateFlowLines();
                 getPaintAction(sim.box).actionPerformed();
             }
@@ -194,7 +213,7 @@ public class RheologyGraphic extends SimulationGraphic {
 
         // now construct new flowlines
         double a = sliderA.getValue();
-        double sr = sliderShear.getValue();
+        double sr = shearBox.getModifier().getValue();
         IVectorMutable s = space.makeVector();
         IVectorMutable v = space.makeVector();
         // flow doesn't vary with z, so we can put our flowlines in the z=0 plane
@@ -246,5 +265,6 @@ public class RheologyGraphic extends SimulationGraphic {
     }
 
     protected ArrayList<LineSegment> flowLines;
-    protected final DeviceSlider sliderA, sliderShear;
+    protected final DeviceSlider sliderA;
+    protected final DeviceBox shearBox;
 }
