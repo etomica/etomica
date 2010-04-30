@@ -21,7 +21,12 @@ public class IntegratorPolymer extends IntegratorMD {
         super(potentialMaster, random, timeStep, temperature, _space);
         center = _space.makeVector();
         drPrev = _space.makeVector();
-        drNext = _space.makeVector();
+        dr = _space.makeVector();
+        ds = _space.makeVector();
+        s = new IVectorMutable[0];
+        r = new IVectorMutable[0];
+        W = new IVectorMutable[0];
+        fQ = new double[0];
     }
 
     /* no point in trying to thermostat */
@@ -39,73 +44,90 @@ public class IntegratorPolymer extends IntegratorMD {
         if (sqa > 1.0/160.0) {
             srdt /= 162*sqa;
         }
+        double srdt2 = 0.5*srdt;
         IMoleculeList molecules = box.getMoleculeList();
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             center.E(0);
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
-            IVectorMutable p0 = atoms.getAtom(0).getPosition();
-            IVectorMutable p1 = atoms.getAtom(1).getPosition();
+            if (s.length != atoms.getAtomCount()) {
+                s = new IVectorMutable[atoms.getAtomCount()];
+                r = new IVectorMutable[atoms.getAtomCount()];
+                W = new IVectorMutable[atoms.getAtomCount()];
+                for (int j=0; j<atoms.getAtomCount(); j++) {
+                    s[j] = space.makeVector();
+                    r[j] = space.makeVector();
+                    W[j] = space.makeVector();
+                }
+                fQ = new double[atoms.getAtomCount()];
+            }
+            for (int j=0; j<atoms.getAtomCount(); j++) {
+                s[j].E(atoms.getAtom(j).getPosition());
+                for (int k=0; k<3; k++) {
+                    W[j].setX(k, sqdt*random.nextGaussian());
+                }
+            }
             //calculate 0-1 bond vector before moving 0 and 1.
-            drNext.Ev1Mv2(p1, p0);
-            double px = p0.getX(0);
-            double py = p0.getX(1);
-            double fQ = 1 + b*drNext.squared();
-            p0.PEa1Tv1(-omdth*fQ, drNext);
-            if (a<0) {
-                p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
-                p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
-            }
-            else {
-                p0.setX(0, p0.getX(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
-                p0.setX(1, p0.getX(1) - sqa*srdt*py + sqdt*random.nextGaussian());
-            }
-            p0.setX(2, p0.getX(2) + sqdt*random.nextGaussian());
-            center.PE(p0);
 
-            for (int j=1; j<atoms.getAtomCount()-1; j++) {
-                drPrev.E(drNext);
-                p0 = p1;
-                p1 = atoms.getAtom(j+1).getPosition();
-                drNext.Ev1Mv2(p1, p0);
-                px = p0.getX(0);
-                py = p0.getX(1);
+            // predictor step
+            for (int j=0; j<atoms.getAtomCount(); j++) {
 
-                fQ = 1 + b*drPrev.squared();
-                p0.PEa1Tv1(fQ*omdth, drPrev);
-                fQ = 1 + b*drNext.squared();
-                p0.PEa1Tv1(-fQ*omdth, drNext);
-                if (a<0) {
-                    p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
-                    p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
+                if (a < 0) {
+                    r[j].setX(0, srdt*s[j].getX(1));
+                    r[j].setX(1, a*srdt*s[j].getX(0));
                 }
                 else {
-                    p0.setX(0, p0.getX(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
-                    p0.setX(1, p0.getX(1) - sqa*srdt*py + sqdt*random.nextGaussian());
+                    r[j].setX(0, srdt*(z*s[j].getX(1) + sqa*s[j].getX(0)));
+                    r[j].setX(1, -sqa*srdt*s[j].getX(1));
                 }
-                p0.setX(2, p0.getX(2) + sqdt*random.nextGaussian());
-                center.PE(p0);
-            }
+                r[j].setX(2,0);
 
-            drPrev.E(drNext);
-            p0 = p1;
-            px = p0.getX(0);
-            py = p0.getX(1);
+                r[j].PE(s[j]);
 
-            fQ = 1 + b*drPrev.squared();
-            p0.PEa1Tv1(fQ*omdth, drPrev);
-            if (a<0) {
-                p0.setX(0, p0.getX(0) + srdt*py + sqdt*random.nextGaussian());
-                p0.setX(1, p0.getX(1) + a*srdt*px + sqdt*random.nextGaussian());
+                if (j > 0) {
+                    r[j].PEa1Tv1(fQ[j-1], ds);
+                }
+
+                if (j+1 < atoms.getAtomCount()) {
+                    ds.Ev1Mv2(s[j+1], s[j]);
+                    fQ[j] = (1 + b*ds.squared())*omdth;
+                    r[j].PEa1Tv1(-fQ[j], ds);
+                }
+                
+                r[j].PE(W[j]);
             }
-            else {
-                p0.setX(0, p0.getX(0) + z*srdt*py + sqa*srdt*px + sqdt*random.nextGaussian());
-                p0.setX(1, p0.getX(1) - sqa*srdt*py + sqdt*random.nextGaussian());
+            
+            // corrector step
+            double fR = 0;
+            for (int j=0; j<atoms.getAtomCount(); j++) {
+                IVectorMutable q = atoms.getAtom(j).getPosition();
+                if (a < 0) {
+                    q.setX(0, srdt2*(s[j].getX(1)+r[j].getX(1)));
+                    q.setX(1, a*srdt2*(s[j].getX(0)+r[j].getX(0)));
+                }
+                else {
+                    q.setX(0, srdt*(z*(s[j].getX(1)+r[j].getX(1)) + sqa*(s[j].getX(0)+r[j].getX(0))));
+                    q.setX(1, -sqa*srdt*(s[j].getX(1)+r[j].getX(1)));
+                }
+                q.setX(2, 0);
+                q.PE(s[j]);
+                if (j > 0) {
+                    q.PEa1Tv1(fQ[j-1], ds);
+                    q.PEa1Tv1(fR, dr);
+                }
+                if (j+1 < atoms.getAtomCount()) {
+                    ds.Ev1Mv2(s[j+1], s[j]);
+                    fQ[j] *= 0.5;
+                    q.PEa1Tv1(-fQ[j], ds);
+                    dr.Ev1Mv2(s[j+1], s[j]);
+                    fR = (1 + b*dr.squared())*omdth*0.5;
+                    q.PEa1Tv1(-fR, dr);
+                }
+                q.PE(W[j]);
+                center.PE(q);
             }
-            p0.setX(2, p0.getX(2) + sqdt*random.nextGaussian());
 
             // maintain center at 0
-            center.PE(p0);
             center.TE(-1.0/atoms.getAtomCount());
 
             for (int j=0; j<atoms.getAtomCount(); j++) {
@@ -156,8 +178,11 @@ public class IntegratorPolymer extends IntegratorMD {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorMutable drPrev, drNext, center;
+    protected final IVectorMutable drPrev, dr, ds, center;
     protected double omdth, sqdt;
     protected double shearRate;
     protected double a, b;
+    protected IVectorMutable[] W;
+    protected IVectorMutable[] s, r;
+    protected double[] fQ;
 }
