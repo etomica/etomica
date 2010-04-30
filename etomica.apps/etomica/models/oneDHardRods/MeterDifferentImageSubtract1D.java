@@ -58,6 +58,11 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
+    
+    
+
+    public double harmonic;
+    
     public MeterDifferentImageSubtract1D(String string, /*IPotentialMaster potentialMaster,*/ 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
@@ -115,6 +120,8 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
         
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
+        
+        harmonic = 0.0;
     }
     
     public double getDataAsScalar() {
@@ -159,15 +166,17 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
         //The if statement determines whether the real coordinate or the 
         // imaginary coordinate is used, and zeroes out the last coordinate
         // calculated.
-        double harmonic;
+        double temp;
         int index = simWVCoeff.length-1;
         if(simWVCoeff[index] == 1.0){
             harmonic = 0.5 * simOmegaSquared[index][0] * 
                     imagCoord[index] * imagCoord[index];
+            temp = imagCoord[index];
             imagCoord[index] = 0.0;
         } else {
             harmonic = 0.5 * simOmegaSquared[index][0] * 
                     realCoord[index] * realCoord[index];
+            temp = realCoord[index];
             realCoord[index] = 0.0;
         }
         

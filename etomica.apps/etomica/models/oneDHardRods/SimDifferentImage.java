@@ -12,6 +12,7 @@ import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -95,7 +96,7 @@ public class SimDifferentImage extends Simulation {
     MeterDifferentImageSubtract meterRefInTarg;
     
 
-    AccumulatorAverageFixed accMeter0, accMeter1, accHarmonic, accTargInTarg, accRefInRef, accTargInRef, accRefInTarg;
+//    AccumulatorAverageFixed accMeter0, accMeter1, accHarmonic, accTargInTarg, accRefInRef, accTargInRef, accRefInTarg;
     
     
     public SimDifferentImage(Space _space, int numAtoms, double density, 
@@ -296,6 +297,16 @@ public class SimDifferentImage extends Simulation {
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
         
+        
+//        accRefInRef = new AccumulatorAverageFixed();      
+//        DataPump pump = new DataPump(meterRefInRef, accRefInRef);   
+//        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+//        integratorRef.getEventManager().addListener(pumpListener);            
+//                                                                              
+//        accTargInRef = new AccumulatorAverageFixed();                         
+//        pump = new DataPump(meterTargInRef, accTargInRef);                    
+//        pumpListener = new IntegratorListenerAction(pump);                    
+//        integratorRef.getEventManager().addListener(pumpListener);            
     }
     public void setBennettParameter(double benParamCenter, double span) {
         bennettParam = benParamCenter;
@@ -558,11 +569,20 @@ public class SimDifferentImage extends Simulation {
         double[][] o2 = sim.nmTarg.getOmegaSquared();
         System.out.println("calculated diff " + (-Math.log(ratio) -0.5*Math.log(2*Math.PI/o2[o2.length-1][0]) -0.5*Math.log(nA+1) +0.5*Math.log(nA)));
         
+        
+//        DataGroup dork;                                                       
+//        dork = (DataGroup)sim.accRefInRef.getData();                          
+//        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));                        
+//
+//        dork = (DataGroup)sim.accTargInRef.getData();                         
+//        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+        
+        
         System.out.println("Fini.");
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 4;  //number of atoms in the reference system.
+        public int numAtoms = 2;  //number of atoms in the reference system.
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;

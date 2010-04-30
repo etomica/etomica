@@ -10,6 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -292,6 +293,52 @@ public class SimDifferentImage1DHR extends Simulation {
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
         
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        accRefInRef = new AccumulatorAverageFixed();      
+        DataPump pump = new DataPump(meterRefInRef, accRefInRef);   
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        integratorRef.getEventManager().addListener(pumpListener);            
+                                                                              
+        accTargInRef = new AccumulatorAverageFixed();                         
+        pump = new DataPump(meterTargInRef, accTargInRef);                    
+        pumpListener = new IntegratorListenerAction(pump);                    
+        integratorRef.getEventManager().addListener(pumpListener);            
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     }
     public void setBennettParameter(double benParamCenter, double span) {
         bennettParam = benParamCenter;
@@ -512,6 +559,12 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         System.out.println("equilibration finished.");
         
+        
+        
+        sim.setBennettParameter(1.0);
+        
+        
+        
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
@@ -554,6 +607,27 @@ public class SimDifferentImage1DHR extends Simulation {
         
         double[][] o2 = sim.nmTarg.getOmegaSquared();
         System.out.println("calculated diff " + (-Math.log(ratio) -0.5*Math.log(2*Math.PI/o2[o2.length-1][0]) -0.5*Math.log(nA+1) +0.5*Math.log(nA)));
+        
+        
+        
+        
+        
+        
+        DataGroup dork;                                                       
+        dork = (DataGroup)sim.accRefInRef.getData();                          
+        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));                        
+
+        dork = (DataGroup)sim.accRefInTarg.getData();                         
+        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         System.out.println("Fini.");
