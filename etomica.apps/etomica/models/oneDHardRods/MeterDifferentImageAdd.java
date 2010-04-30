@@ -81,11 +81,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         simOmega2 = new double[omegaTemp.length][omegaTemp[0].length];
         for(int i = 0; i < omegaTemp.length; i++){
             for(int j = 0; j < omegaTemp[0].length; j++){
-                if(Double.isInfinite(omegaTemp[i][j])){
-                    simOmega2[i][j] = omegaTemp[i][j];
-                } else {
-                    simOmega2[i][j] = Math.sqrt(omegaTemp[i][j]);
-                }
+                simOmega2[i][j] = Math.sqrt(omegaTemp[i][j]);
             }
         }
         
