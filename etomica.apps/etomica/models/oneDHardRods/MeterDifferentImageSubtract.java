@@ -84,6 +84,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         simImagT = new double[simCDim];
         double[][] tempO2 = simNM.getOmegaSquared();
         simOmega2 = new double[tempO2.length][tempO2[0].length];
+        
+        
+        double torque = tempO2[0][0];
+        
+        
         for(int i = 0; i < tempO2.length; i++ ){
             for(int j = 0; j < tempO2[0].length; j++){
                 if(Double.isInfinite(tempO2[i][j])){
@@ -93,17 +98,18 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                     
                     
                     
-                    
-                    
                     simOmega2[i][j] = 1.0;
-                
-                
-                
                 
                 
                 }
             }
         }
+        
+        
+        simOmega2[0][0] = torque;
+            
+        
+        
         
         double density = simCDef.getBox().getLeafList().getAtomCount() / 
             simCDef.getBox().getBoundary().volume();
@@ -139,7 +145,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                 
                 
                 oneOverOmega2[i][j] = 1.0;
-                oneOverOmega2[0][0] = 1.0;
+                oneOverOmega2[0][0] = 0.0;
             }
         }
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
@@ -204,6 +210,14 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             }
         }
         
+        realCoord[0] = 1.0;
+        imagCoord[0]=2.0;
+                  realCoord[1]=3.0;
+                  imagCoord[1] = 4.0;
+        
+        
+        
+        
         //Scale and transfer the normal mode coordinates to etas.
         int etaCount = 0;
         for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
@@ -266,6 +280,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                     }
                 }
             }
+            
+
+            System.out.println(iCell + "  " + newU[0]);
+            
+            
             
             double normalization = 1/Math.sqrt(cells.length);
             for (int i=0; i<cDim; i++) {

@@ -80,6 +80,19 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
         simImagT = new double[simCDim];
         simOmegaSquared = simNM.getOmegaSquared();
         
+        
+        double torque = simOmegaSquared[0][0];
+        for (int i = 0; i < simOmegaSquared.length; i++){
+            for (int j = 0; j < simOmegaSquared[0].length; j++){
+                simOmegaSquared[i][j] = 1.0;
+            }
+        }
+        simOmegaSquared[0][0] = torque;
+        
+        
+        
+        
+        
         numAtoms = numSimAtoms - 1;
         box = new Box(sim.getSpace());
         sim.addBox(box);
@@ -161,6 +174,13 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
             }
         }
         
+        
+
+        realCoord[0] = 1.0;
+        imagCoord[0]=2.0;
+                  realCoord[1]=3.0;
+                  imagCoord[1] = 4.0;
+        
         //nan this will not work for more than 1D
         //Calculation of harmonic energy
         //The if statement determines whether the real coordinate or the 
@@ -198,6 +218,12 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
                     }
                 }
             }
+            
+            System.out.println(iCell + "  " + newU[0]);
+            
+            
+            
+            
             
             double normalization = 1/Math.sqrt(cells.length);
             for (int i=0; i<cDim; i++) {
