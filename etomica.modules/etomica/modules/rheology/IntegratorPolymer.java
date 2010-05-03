@@ -106,8 +106,8 @@ public class IntegratorPolymer extends IntegratorMD {
                     q.setX(1, a*srdt2*(s[j].getX(0)+r[j].getX(0)));
                 }
                 else {
-                    q.setX(0, srdt*(z*(s[j].getX(1)+r[j].getX(1)) + sqa*(s[j].getX(0)+r[j].getX(0))));
-                    q.setX(1, -sqa*srdt*(s[j].getX(1)+r[j].getX(1)));
+                    q.setX(0, srdt2*(z*(s[j].getX(1)+r[j].getX(1)) + sqa*(s[j].getX(0)+r[j].getX(0))));
+                    q.setX(1, -sqa*srdt2*(s[j].getX(1)+r[j].getX(1)));
                 }
                 q.setX(2, 0);
                 q.PE(s[j]);
