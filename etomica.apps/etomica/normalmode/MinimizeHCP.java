@@ -39,16 +39,27 @@ public class MinimizeHCP extends Simulation {
     public MinimizeHCP(Space _space, int numAtoms, double density, int exponent, double rc, double initC) {
         super(_space);
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-        BoxAgentManager boxAgentManager = new BoxAgentManager(boxAgentSource);
-        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
-
+        
+        this.density = density;
+        this.numMolecules = numAtoms;
+        
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-
+        
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
+        
+        setC(initC, density);
+        
+        if(exponent ==6){
+        	System.out.println("set rc");
+        	rc = box.getBoundary().getBoxSize().getX(0)*0.495;
+        }
+        
+        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+        BoxAgentManager boxAgentManager = new BoxAgentManager(boxAgentSource);
+        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
@@ -58,7 +69,7 @@ public class MinimizeHCP extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        setC(initC, density);
+     
 
         ((PotentialMasterList)potentialMaster).setRange(rc);
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
@@ -73,7 +84,7 @@ public class MinimizeHCP extends Simulation {
         double a = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
         double c = newC*a;
         a *=  Math.sqrt(Math.sqrt(8.0/3.0)/newC);
-//        System.out.println("cf "+newC);
+        //System.out.println("cf "+newC);
         int nC = (int)Math.ceil(Math.pow(box.getLeafList().getAtomCount()/2, 1.0/3.0));
         IVector[] boxDim = new IVector[3];
         boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
@@ -91,45 +102,22 @@ public class MinimizeHCP extends Simulation {
         config.initializeCoordinates(box);
     }
 
-    /**
-     * @param args filename containing simulation parameters
-     * @see MinimizeHCP.SimOverlapParam
-     */
-    public static void main(String[] args) {
-        //set up simulation parameters
-        SimOverlapParam params = new SimOverlapParam();
-        String inputFilename = null;
-        if (args.length > 0) {
-            inputFilename = args[0];
-        }
-        if (inputFilename != null) {
-            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-            readParameters.readParameters();
-        }
-        double density = params.density;
-        int exponentN = params.exponentN;
-        final int numMolecules = params.numMolecules;
-        double initC = params.initC;
-        double rc = params.rc;
-        double mincf = params.mincf;
-        double maxcf = params.maxcf;
-
-        System.out.println("Running HCP soft sphere overlap simulation");
-        System.out.println(numMolecules+" atoms at density "+density);
-        System.out.println("exponent N: "+ exponentN);
-
-        MinimizeHCP sim = new MinimizeHCP(Space.getInstance(3), numMolecules, density, exponentN, rc, initC);
-
-        int bootstrap = 0;
-        double[] u = new double[3];
-        double[] allcf = new double[3];
-
-        double cf = mincf;
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
-
+    
+    public double findcf(double initC, double maxcf, double mincf){
+    	
+    	int bootstrap = 0;
+    	double[] u = new double[3];
+    	double[] allcf = new double[3];
+       	
+    	double cf = mincf;
+    	
+    	MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+    	meterPE.setBox(box);
+    	
+    	
         while (true) {
-            sim.setC(cf, density);
+
+            setC(cf, density);
 
             double latticeEnergy = meterPE.getDataAsScalar();
 //            System.out.println("lattice energy: " + latticeEnergy/numMolecules);
@@ -190,9 +178,13 @@ public class MinimizeHCP extends Simulation {
                 if (u[1] > u[0] && u[1] > u[2]) {
                     // we found a maximum, due to numerical precision failure
                     // just bail and pretend that the middle point is the global minimum
-//                    System.out.println("oops, a maximum");
-                    System.out.println("c/a "+allcf[1]);
-                    return;
+                  //  System.out.println("oops, a maximum");
+//                  System.out.println("all cf:");
+//                  System.out.println(allcf[0]+" "+u[0]/numMolecules);
+//                  System.out.println(allcf[1]+" "+u[1]/numMolecules);
+//                  System.out.println(allcf[2]+" "+u[2]/numMolecules);
+//                    System.out.println("c/a "+allcf[1]);
+                    return allcf[1];
                 }
             }
 
@@ -221,26 +213,62 @@ public class MinimizeHCP extends Simulation {
                         
                 if (cf == allcf[0] || cf == allcf[1] || cf == allcf[2]) {
                     // we converged cf to numerical precision.
-                    System.out.println("c/a "+cf);
-                    return;
+                    //System.out.println("c/a "+cf);
+                    return cf;
                 }
             }
         }
+    }
+    
+    /**
+     * @param args filename containing simulation parameters
+     * @see MinimizeHCP.SimOverlapParam
+     */
+    public static void main(String[] args) {
+        //set up simulation parameters
+        SimOverlapParam params = new SimOverlapParam();
+        String inputFilename = null;
+        if (args.length > 0) {
+            inputFilename = args[0];
+        }
+        if (inputFilename != null) {
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+        }
+        double density = params.density;
+        int exponentN = params.exponentN;
+        final int numMolecules = params.numMolecules;
+        double initC = params.initC;
+        double rc = params.rc;
+        double mincf = params.mincf;
+        double maxcf = params.maxcf;
+
+        System.out.println("Running HCP soft sphere overlap simulation");
+        System.out.println(numMolecules+" atoms at density "+density);
+        System.out.println("exponent N: "+ exponentN);
+
+        MinimizeHCP sim = new MinimizeHCP(Space.getInstance(3), numMolecules, density, exponentN, rc, initC);
+        
+        double cfvalue = sim.findcf(initC, maxcf, mincf);
+        System.out.println("final cf: " + cfvalue);
+
     }
 
     private static final long serialVersionUID = 1L;
     public final IBox box;
     public final PotentialMaster potentialMaster;
+    public final double density;
+    public final int numMolecules;
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 2000;
-        public double density = 1.1964;
-        public int exponentN = 12;
+        public int numMolecules = 3456;
+        public double density = 2.20617;
+        public int exponentN = 6;
         public double rc = 2.2;
-        public double initC = Math.sqrt(8.0/3.0);
+        public double initC = 1.6339554555247535;//Math.sqrt(8.0/3.0);
         public double mincf = 1.2;
         public double maxcf = 2.0;
     }
