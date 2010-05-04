@@ -154,10 +154,12 @@ public class RheologyGraphic extends SimulationGraphic {
         add(normalStress2Display);
         getController().getDataStreamPumps().add(normalStress2Pump);
         
+        meterNormalStress1.setDoDouble(sim.integrator.getA() <= 0);
+        meterNormalStress2.setDoDouble(sim.integrator.getA() <= 0);
         sliderA.setPostAction(new IAction() {
             public void actionPerformed() {
-                meterNormalStress1.setDoDouble(sliderA.getValue() < 0);
-                meterNormalStress2.setDoDouble(sliderA.getValue() < 0);
+                meterNormalStress1.setDoDouble(sim.integrator.getA() <= 0);
+                meterNormalStress2.setDoDouble(sim.integrator.getA() <= 0);
                 updateFlowLines();
                 getPaintAction(sim.box).actionPerformed();
             }
