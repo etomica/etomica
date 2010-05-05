@@ -28,7 +28,6 @@ import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactoryTangentSpheres;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -47,6 +46,7 @@ public class VirialCO2 {
         double temperature = params.temperature;
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
+        double refFrac = params.refFrac;
 
         System.out.println("CO2 overlap sampling B"+nPoints+" at T="+temperature+" Kelvin");
         temperature = Kelvin.UNIT.toSim(temperature);
@@ -152,6 +152,10 @@ public class VirialCO2 {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
+        if (refFrac >= 0) {
+            sim.integratorOS.setStepFreq0(refFrac);
+            sim.integratorOS.setAdjustStepFreq(false);
+        }
 
         if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
@@ -212,5 +216,6 @@ public class VirialCO2 {
         public double temperature = 300;
         public long numSteps = 100000;
         public double sigmaHSRef = 5*1.1491;
+        public double refFrac = -1;
     }
 }

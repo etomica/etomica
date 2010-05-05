@@ -63,6 +63,7 @@ public class VirialCO2SKSMix {
         double sigmaHSRef = params.sigmaHSRef;
         int nSpheres = params.nSpheres;
         int[] nTypes = params.nTypes;
+        double refFrac = params.refFrac;
         int sum = 0;
         for (int i=0; i<nTypes.length; i++) {
             if (nTypes[i] == 0) {
@@ -291,6 +292,11 @@ public class VirialCO2SKSMix {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
 
+        if (refFrac >= 0) {
+            sim.integratorOS.setStepFreq0(refFrac);
+            sim.integratorOS.setAdjustStepFreq(false);
+        }
+
         if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
                 public void integratorInitialized(IIntegratorEvent e) {}
@@ -349,8 +355,9 @@ public class VirialCO2SKSMix {
         public int nPoints = 2;
         public double temperature = 300;
         public long numSteps = 100000;
-        public double sigmaHSRef = 5;
+        public double sigmaHSRef = 7;
         public int nSpheres = 6;
         public int[] nTypes = new int[]{1,1};
+        public double refFrac = -1;
     }
 }

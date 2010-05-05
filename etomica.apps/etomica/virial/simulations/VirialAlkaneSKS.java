@@ -74,7 +74,7 @@ public class VirialAlkaneSKS {
         int nSpheres = params.nSpheres;
         double temperature = params.temperature;
         long steps = params.numSteps;
-        double refFreq = params.refFreq;
+        double refFrac = params.refFrac;
         double sigmaCH2 = 3.93;
         double sigmaCH3 = 3.93;
         double sigmaHSRef = sigmaCH3 + 0.5*nSpheres;
@@ -115,10 +115,6 @@ public class VirialAlkaneSKS {
                           temperature,refCluster,targetCluster, nSpheres > 2);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
-        if (refFreq >= 0) {
-            sim.integratorOS.setAdjustStepFreq(false);
-            sim.integratorOS.setStepFreq0(refFreq);
-        }
 
         SpeciesAlkane species = (SpeciesAlkane)sim.species;
         IAtomType typeCH3 = species.getAtomType(0);
@@ -193,7 +189,7 @@ public class VirialAlkaneSKS {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        if (true) {
+        if (false) {
             double size = (nSpheres+5)*1.5;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
@@ -295,6 +291,11 @@ public class VirialAlkaneSKS {
                     torsionMoves[1].getTracker().acceptanceRatio());
         }
 
+        if (refFrac >= 0) {
+            sim.integratorOS.setStepFreq0(refFrac);
+            sim.integratorOS.setAdjustStepFreq(false);
+        }
+
         if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
                 public void integratorInitialized(IIntegratorEvent e) {}
@@ -356,6 +357,6 @@ public class VirialAlkaneSKS {
         public int nSpheres = 6;
         public double temperature = 300.0;   // Kelvin
         public long numSteps = 10000;
-        public double refFreq = -1;
+        public double refFrac = -1;
     }
 }
