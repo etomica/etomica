@@ -93,7 +93,7 @@ public class SimDifferentImage1DHR extends Simulation {
     MeterDifferentImageSubtract1D meterRefInTarg;
     
 
-    AccumulatorAverageFixed accMeter0, accMeter1, accHarmonic, accTargInTarg, accRefInRef, accTargInRef, accRefInTarg;
+//    AccumulatorAverageFixed accMeter0, accMeter1, accHarmonic, accTargInTarg, accRefInRef, accTargInRef, accRefInTarg;
     
     
     public SimDifferentImage1DHR(Space _space, int numAtoms, double density, 
@@ -294,49 +294,15 @@ public class SimDifferentImage1DHR extends Simulation {
         getController().addAction(activityIntegrate);
         
         
-        
-        
-
-        
-        
-        
-        
-        
-        
-        
-        accRefInRef = new AccumulatorAverageFixed();      
-        DataPump pump = new DataPump(meterRefInRef, accRefInRef);   
-        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
-        integratorRef.getEventManager().addListener(pumpListener);            
-                                                                              
-        accTargInRef = new AccumulatorAverageFixed();                         
-        pump = new DataPump(meterTargInRef, accTargInRef);                    
-        pumpListener = new IntegratorListenerAction(pump);                    
-        integratorRef.getEventManager().addListener(pumpListener);            
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+//        accRefInRef = new AccumulatorAverageFixed();      
+//        DataPump pump = new DataPump(meterRefInRef, accRefInRef);   
+//        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+//        integratorRef.getEventManager().addListener(pumpListener);            
+//                                                                              
+//        accTargInRef = new AccumulatorAverageFixed();                         
+//        pump = new DataPump(meterTargInRef, accTargInRef);                    
+//        pumpListener = new IntegratorListenerAction(pump);                    
+//        integratorRef.getEventManager().addListener(pumpListener);            
         
         
     }
@@ -609,26 +575,12 @@ public class SimDifferentImage1DHR extends Simulation {
         System.out.println("calculated diff " + (-Math.log(ratio) -0.5*Math.log(2*Math.PI/o2[o2.length-1][0]) -0.5*Math.log(nA+1) +0.5*Math.log(nA)));
         
         
-        
-        
-        
-        
-        DataGroup dork;                                                       
-        dork = (DataGroup)sim.accRefInRef.getData();                          
-        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));                        
-
-        dork = (DataGroup)sim.accRefInTarg.getData();                         
-        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+//        DataGroup dork;                                                       
+//        dork = (DataGroup)sim.accRefInRef.getData();                          
+//        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));                        
+//
+//        dork = (DataGroup)sim.accRefInTarg.getData();                         
+//        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
         
         System.out.println("Fini.");
     }

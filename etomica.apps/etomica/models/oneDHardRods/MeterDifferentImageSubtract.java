@@ -63,12 +63,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     private double etas[];
     private int maxEta;
     
-    
-    private MeterDifferentImageSubtract1D testmeter;
-    
-    
-    
-    
     public MeterDifferentImageSubtract(ISimulation sim, ISpace space, double temp, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox){
         super("MeterSubtract", Null.DIMENSION);
@@ -84,32 +78,15 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         simImagT = new double[simCDim];
         double[][] tempO2 = simNM.getOmegaSquared();
         simOmega2 = new double[tempO2.length][tempO2[0].length];
-        
-        
-        double torque = tempO2[0][0];
-        
-        
         for(int i = 0; i < tempO2.length; i++ ){
             for(int j = 0; j < tempO2[0].length; j++){
                 if(Double.isInfinite(tempO2[i][j])){
                     simOmega2[i][j] = tempO2[i][j];
                 } else {
                     simOmega2[i][j] = Math.sqrt(tempO2[i][j]);
-                    
-                    
-                    
-                    simOmega2[i][j] = 1.0;
-                
-                
                 }
             }
         }
-        
-        
-        simOmega2[0][0] = torque;
-            
-        
-        
         
         double density = simCDef.getBox().getLeafList().getAtomCount() / 
             simCDef.getBox().getBoundary().volume();
@@ -139,13 +116,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         for(int i = 0; i < tempO2.length; i++ ){
             for(int j = 0; j < tempO2[0].length; j++){
                 oneOverOmega2[i][j] = 1/Math.sqrt(tempO2[i][j]);
-                
-                
-                
-                
-                
-                oneOverOmega2[i][j] = 1.0;
-                oneOverOmega2[0][0] = 0.0;
             }
         }
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
@@ -173,17 +143,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         etas = new double[space.D() * (simCDef.getBox().getLeafList().getAtomCount() - 1)];
         maxEta = space.D() * (numAtoms - 1); 
         
-        
-        
-        
-        
-        testmeter = new MeterDifferentImageSubtract1D("yarn", simCDef.getBox().getLeafList().getAtomCount(),
-                density, (Simulation)sim, simCDef.getPrimitive(), simCDef.getBasis(),
-                simCDef, simNM, 1.0);
-        
-        
-        
-        
     }
     
     public double getDataAsScalar() {
@@ -208,15 +167,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                     imagCoord[iWV] += simEigenVectors[iWV][iMode][j] * simImagT[j];
                 }
             }
+            if(simWVCoeff[iWV] == 1.0){
+                realCoord[iWV] *= Math.sqrt(2);
+                imagCoord[iWV] *= Math.sqrt(2);
+            }
         }
-        
-        realCoord[0] = 1.0;
-        imagCoord[0]=2.0;
-                  realCoord[1]=3.0;
-                  imagCoord[1] = 4.0;
-        
-        
-        
         
         //Scale and transfer the normal mode coordinates to etas.
         int etaCount = 0;
@@ -246,7 +201,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         for (int i = maxEta; i < etas.length; i++){
             //The omega^2 term is dropped because of the scaling.
             harmonic = 0.5 * etas[i] * etas[i];
-//            etas[i] = 0.0;
         }
         
         //Calculate the positions for the meter's system
@@ -281,11 +235,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                 }
             }
             
-
-            System.out.println(iCell + "  " + newU[0]);
-            
-            
-            
             double normalization = 1/Math.sqrt(cells.length);
             for (int i=0; i<cDim; i++) {
                 newU[i] *= normalization;
@@ -294,15 +243,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         }
         
 //        return Math.exp(-1*(meterPE.getDataAsScalar()+harmonic));
-        
-        if( (meterPE.getDataAsScalar() + harmonic) != testmeter.getDataAsScalar()){
-            System.out.println("Subtract fail!");
-            System.out.println("THis " + meterPE.getDataAsScalar());
-            System.out.println(testmeter.getDataAsScalar());
-        }
-        
-        
-        
         return meterPE.getDataAsScalar() + harmonic;
     }
 

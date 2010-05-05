@@ -104,10 +104,10 @@ public class SimDifferentImage extends Simulation {
         super(_space);
         System.out.println("Running " + APP_NAME);
         
-        long seed = 3;
-        System.out.println("Seed explicitly set to " + seed);
-        IRandom rand = new RandomNumberGenerator(seed);
-        this.setRandom(rand);
+//        long seed = 3;
+//        System.out.println("Seed explicitly set to " + seed);
+//        IRandom rand = new RandomNumberGenerator(seed);
+//        this.setRandom(rand);
         
         int targAtoms = numAtoms + 1;
         int refAtoms = numAtoms;
@@ -559,24 +559,13 @@ public class SimDifferentImage extends Simulation {
     
         double AHR1 = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA-1) ;
         System.out.println("Hard-rod free energy for " + nA + ": "+AHR1);
-        
         double AHR2 = -(nA)*Math.log((nA+1)/density-(nA+1)) + SpecialFunctions.lnFactorial(nA) ;
         System.out.println("Hard-rod free energy for " + (nA+1) + ": "+AHR2);
-        
         System.out.println("HRFE diff " + (AHR2 - AHR1));
         
         
         double[][] o2 = sim.nmTarg.getOmegaSquared();
         System.out.println("calculated diff " + (-Math.log(ratio) -0.5*Math.log(2*Math.PI/o2[o2.length-1][0]) -0.5*Math.log(nA+1) +0.5*Math.log(nA)));
-        
-        
-//        DataGroup dork;                                                       
-//        dork = (DataGroup)sim.accRefInRef.getData();                          
-//        System.out.println("Measurement of Reference in Reference: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));                        
-//
-//        dork = (DataGroup)sim.accTargInRef.getData();                         
-//        System.out.println("Measurement of Reference in Target: " + dork.getValue(AccumulatorAverage.StatType.AVERAGE.index ));
-        
         
         System.out.println("Fini.");
     }

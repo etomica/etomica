@@ -58,11 +58,6 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
-    
-    
-
-    public double harmonic;
-    
     public MeterDifferentImageSubtract1D(String string, /*IPotentialMaster potentialMaster,*/ 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
@@ -79,19 +74,6 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
         simRealT = new double[simCDim];
         simImagT = new double[simCDim];
         simOmegaSquared = simNM.getOmegaSquared();
-        
-        
-        double torque = simOmegaSquared[0][0];
-        for (int i = 0; i < simOmegaSquared.length; i++){
-            for (int j = 0; j < simOmegaSquared[0].length; j++){
-                simOmegaSquared[i][j] = 1.0;
-            }
-        }
-        simOmegaSquared[0][0] = torque;
-        
-        
-        
-        
         
         numAtoms = numSimAtoms - 1;
         box = new Box(sim.getSpace());
@@ -134,17 +116,9 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
-        harmonic = 0.0;
     }
     
     public double getDataAsScalar() {
-        
-        IAtomList atomlist = box.getLeafList();
-//        for (int i = 0; i < atomlist.getAtomCount(); i++){
-//            System.out.println("start i " + atomlist.getAtom(i).getPosition().getX(0));
-//        }
-
-        BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
         BasisCell cell = cells[0];
         //nan this makes it 1D
@@ -174,29 +148,20 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
             }
         }
         
-        
-
-        realCoord[0] = 1.0;
-        imagCoord[0]=2.0;
-                  realCoord[1]=3.0;
-                  imagCoord[1] = 4.0;
-        
         //nan this will not work for more than 1D
         //Calculation of harmonic energy
         //The if statement determines whether the real coordinate or the 
         // imaginary coordinate is used, and zeroes out the last coordinate
         // calculated.
-        double temp;
+        double harmonic = 0.0;
         int index = simWVCoeff.length-1;
         if(simWVCoeff[index] == 1.0){
             harmonic = 0.5 * simOmegaSquared[index][0] * 
                     imagCoord[index] * imagCoord[index];
-            temp = imagCoord[index];
             imagCoord[index] = 0.0;
         } else {
             harmonic = 0.5 * simOmegaSquared[index][0] * 
                     realCoord[index] * realCoord[index];
-            temp = realCoord[index];
             realCoord[index] = 0.0;
         }
         
@@ -218,12 +183,6 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
                     }
                 }
             }
-            
-            System.out.println(iCell + "  " + newU[0]);
-            
-            
-            
-            
             
             double normalization = 1/Math.sqrt(cells.length);
             for (int i=0; i<cDim; i++) {
