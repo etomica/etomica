@@ -250,8 +250,22 @@ public class SimulationVirialOverlap extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
             setRefPref(oldRefPref,30);
+            boolean adjustable = integratorOS.isAdjustStepFreq();
+            if (adjustable) {
+                // we do this initialization to
+                // 1. find alpha
+                // 2. get molecules out of their starting configuration
+                // 3. find optimal mc move step sizes
+                // all of these are about as hard in the reference as in the target system
+                // so force integratorOS to run both systems equally.
+                integratorOS.setStepFreq0(0.5);
+                integratorOS.setAdjustStepFreq(false);
+            }
             ai.setMaxSteps(initSteps);
             ai.actionPerformed();
+            if (adjustable) {
+                integratorOS.setAdjustStepFreq(true);
+            }
 
             int newMinDiffLoc = dsvo.minDiffLocation();
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
@@ -290,7 +304,21 @@ public class SimulationVirialOverlap extends Simulation {
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(true);
         }
+        boolean adjustable = integratorOS.isAdjustStepFreq();
+        if (adjustable) {
+            // we do this initialization to
+            // 1. find alpha
+            // 2. get molecules out of their starting configuration
+            // 3. find optimal mc move step sizes
+            // all of these are about as hard in the reference as in the target system
+            // so force integratorOS to run both systems equally.
+            integratorOS.setStepFreq0(0.5);
+            integratorOS.setAdjustStepFreq(false);
+        }
         ai.actionPerformed();
+        if (adjustable) {
+            integratorOS.setAdjustStepFreq(true);
+        }
 
         if (refPref == -1) {
             int newMinDiffLoc = dsvo.minDiffLocation();
