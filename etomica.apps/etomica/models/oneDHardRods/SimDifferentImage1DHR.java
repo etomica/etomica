@@ -525,12 +525,6 @@ public class SimDifferentImage1DHR extends Simulation {
         }
         System.out.println("equilibration finished.");
         
-        
-        
-        sim.setBennettParameter(1.0);
-        
-        
-        
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
