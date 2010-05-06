@@ -6,18 +6,21 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
-import etomica.nbr.cell.Api1ACell;
+import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 
+/**
+ * Color atoms based on being neighbors of the reference atom
+ *
+ * @author Andrew Schultz
+ */
 public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
     
     public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, IBox box, int dim) {
         super(box);
         typeColorScheme = new ColorSchemeByType(sim);
         leafList = box.getLeafList();
-        nbrIterator = new Api1ACell(dim, 1.0, potentialMaster.getCellAgentManager());
-        nbrIterator.setDirection(null);
-        nbrIterator.setBox(box);
+        neighborManager = potentialMaster.getNeighborManager(box);
     }
     
     public void colorAllAtoms() {
@@ -31,14 +34,20 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
             return;
         }
         //color blue the neighbor atoms in same group
-        nbrIterator.reset();
-        for (IAtomList pair = nbrIterator.next(); pair != null;
-             pair = nbrIterator.next()) {
-            IAtom atom = pair.getAtom(1);
-            if(atom.getType() == referenceAtom.getType()) {
-                agentManager.setAgent(atom, Color.blue);
-            } else {
-                agentManager.setAgent(atom, Color.yellow);
+        IAtomList[] list = neighborManager.getDownList(referenceAtom);
+        for (int foo=0; foo<2; foo++) {
+            if (foo==1) {
+                list = neighborManager.getUpList(referenceAtom);
+            }
+            for (int i=0; i<list.length; i++) {
+                for (int j=0; j<list[i].getAtomCount(); j++) {
+                    IAtom atom = list[i].getAtom(j);
+                    if(atom.getType() == referenceAtom.getType()) {
+                        agentManager.setAgent(atom, Color.blue);
+                    } else {
+                        agentManager.setAgent(atom, Color.yellow);
+                    }
+                }
             }
         }
         //color green the target atom 
@@ -47,7 +56,6 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
     
     public void setAtom(IAtom a) {
         referenceAtom = a;
-        nbrIterator.setTarget(a);
     }
 
     public IAtom getAtom() {
@@ -56,7 +64,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
     
     private static final long serialVersionUID = 1L;
     private IAtom referenceAtom;
-    private final Api1ACell nbrIterator;
+    private final NeighborListManager neighborManager;
     private final IAtomList leafList;
     private final ColorSchemeByType typeColorScheme;
 }
