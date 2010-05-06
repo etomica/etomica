@@ -90,8 +90,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
 
     /**
-     * Returns a vector with each element equal to the length of the corresponding
-     * edge of the boundary.
+     * Returns the length of the sides of a rectangular box oriented in the lab
+     * frame and in which the boundary is inscribed.
      */
 	public IVector getBoxSize() {
         IVector[] vertices = shape.getVertices();
