@@ -162,22 +162,9 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
             if(waveVectors.length == simWaveVectors.length){
                 imagCoord[waveVectors.length - 1] = gaussCoord * 
                     Math.sqrt(temperature) * oneOverOmega2[waveVectors.length - 1][j];
-                
-                
-                
-                imagCoord[waveVectors.length - 1] = 0.34;
-                
-                
-                
             } else {
                 realCoord[waveVectors.length - 1] = gaussCoord * 
                     Math.sqrt(temperature) * oneOverOmega2[waveVectors.length - 1][j];
-                
-                
-                realCoord[waveVectors.length - 1] = 0.34;
-                
-                
-                
             }
         }
         
