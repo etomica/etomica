@@ -8,9 +8,15 @@ import javax.swing.JTabbedPane;
 import etomica.action.IAction;
 import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataDump;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataTag;
+import etomica.data.meter.MeterNMolecules;
+import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -19,6 +25,7 @@ import etomica.graphics.DeviceSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -43,7 +50,6 @@ public class ColloidGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Colloid";
     private final static int REPAINT_INTERVAL = 10;
     protected ColloidSim sim;
-    protected final Plane planeBottom, planeTop;
     
     public ColloidGraphic(final ColloidSim simulation, Space _space) {
 
@@ -53,11 +59,15 @@ public class ColloidGraphic extends SimulationGraphic {
 
     	this.sim = simulation;
 
+    	getController().getSimRestart().setConfiguration(sim.configuration);
+    	getController().getSimRestart().setIgnoreOverlap(true);
+    	getController().getReinitButton().setPostAction(getPaintAction(sim.box));
+
     	((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.p2mm.getCoreDiameter());
         ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesColloid.getLeafType(), 7.5);
 
-        planeBottom = new Plane(space,0,1,0,sim.box.getBoundary().getBoxSize().getX(1)*0.5);
-        planeTop = new Plane(space,0,1,0,-sim.box.getBoundary().getBoxSize().getX(1)*0.5);
+        final Plane planeBottom = new Plane(space,0,1,0,sim.box.getBoundary().getBoxSize().getX(1)*0.5);
+        final Plane planeTop = new Plane(space,0,1,0,-sim.box.getBoundary().getBoxSize().getX(1)*0.5);
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(planeBottom);
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(planeTop);
     	
@@ -86,16 +96,15 @@ public class ColloidGraphic extends SimulationGraphic {
         graftSelector.addOption("6", new GraftAction(6));
         graftSelector.addOption("8", new GraftAction(8));
         graftSelector.addOption("12", new GraftAction(12));
-        graftSelector.addOption("20", new GraftAction(20));
-        graftSelector.setSelected(6);
+        graftSelector.setSelected(5);
         graftSelector.setLabel("# of grafted chains");
         add(graftSelector);
         
         DeviceSlider chainLengthSlider = new DeviceSlider(sim.getController(), sim, "chainLength");
         chainLengthSlider.setLabel("Chain length");
         chainLengthSlider.setShowBorder(true);
-        chainLengthSlider.setMaximum(200);
-        chainLengthSlider.setNMajor(4);
+        chainLengthSlider.setMaximum(50);
+        chainLengthSlider.setNMajor(5);
         chainLengthSlider.setPostAction(getPaintAction(sim.box));
         chainLengthSlider.setShowValues(true);
         add(chainLengthSlider);
@@ -183,6 +192,41 @@ public class ColloidGraphic extends SimulationGraphic {
         potentialTabs.add(colloidPanel, "colloid");
         
         getPanel().controlPanel.add(potentialTabs,SimulationPanel.getVertGBC());
+
+
+        MeterProfileByVolume densityProfileMeter = new MeterProfileByVolume(space);
+        densityProfileMeter.setProfileDim(1);
+        densityProfileMeter.setBox(sim.box);
+        MeterNMolecules meterNMolecules = new MeterNMolecules();
+        meterNMolecules.setSpecies(sim.species);
+        densityProfileMeter.setDataSource(meterNMolecules);
+        AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
+        densityProfileAvg.setPushInterval(10);
+        DataPumpListener profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 10);
+        sim.integrator.getEventManager().addListener(profilePump);
+        dataStreamPumps.add(profilePump);
+
+        MeterProfileByVolume colloidDensityProfileMeter = new MeterProfileByVolume(space);
+        colloidDensityProfileMeter.setProfileDim(1);
+        colloidDensityProfileMeter.setBox(sim.box);
+        meterNMolecules = new MeterNMolecules();
+        meterNMolecules.setSpecies(sim.speciesColloid);
+        colloidDensityProfileMeter.setDataSource(meterNMolecules);
+        AccumulatorAverageFixed colloidDensityProfileAvg = new AccumulatorAverageFixed(10);
+        colloidDensityProfileAvg.setPushInterval(10);
+        profilePump = new DataPumpListener(colloidDensityProfileMeter, colloidDensityProfileAvg, 10);
+        sim.integrator.getEventManager().addListener(profilePump);
+        dataStreamPumps.add(profilePump);
+
+        DisplayPlot profilePlot = new DisplayPlot();
+        densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        colloidDensityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "monomer");
+        profilePlot.setLegend(new DataTag[]{colloidDensityProfileAvg.getTag()}, "colloid");
+        profilePlot.setDoLegend(true);
+        profilePlot.setLabel("Density");
+
+        add(profilePlot);
     }
 
     public static class WallRangeModifier implements Modifier {
