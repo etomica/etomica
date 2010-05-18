@@ -58,7 +58,7 @@ public class ColloidSim extends Simulation {
         
         int nColloid = 1;
         chainLength = 50;
-        nGraft = 20;
+        nGraft = 12;
         
         double sigma = 1.0;
         double sigmaColloid = 7.5;
