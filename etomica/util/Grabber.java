@@ -1,9 +1,13 @@
 package etomica.util;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -390,5 +394,35 @@ public class Grabber {
         gbc.gridx = 0;
         gbc.gridy = 1;
         topPanel.add(controlPanel, gbc);
+    }
+
+    public static class ImagePanel extends Component {
+
+        /**
+         * Constructor sets default size of the plot
+         */
+        public ImagePanel () {
+            this(Color.white,400,400);
+        }
+
+        public ImagePanel(Color background, int xSize, int ySize) {
+            setBackground(background);
+            setSize(xSize,ySize);
+        }
+
+        public void setImage(Image newImage) {
+            myImage = newImage;
+        }
+
+        public void update(Graphics g) {
+            paint(g);
+        }
+
+        public void paint (Graphics g) {
+            g.drawImage(myImage, 0, 0, null);
+        }
+
+        protected Image myImage;
+        protected Graphics osg;
     }
 }
