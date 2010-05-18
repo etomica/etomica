@@ -63,7 +63,7 @@ public class ColloidSim extends Simulation {
         double sigma = 1.0;
         double sigmaColloid = 7.5;
         double lambda = 1.5;
-        double boxSize = 150;
+        double boxSize = 80;
         
         //controller and integrator
 	    integrator = new IntegratorHard(this, potentialMaster, space);
