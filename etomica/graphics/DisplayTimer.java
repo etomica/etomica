@@ -3,9 +3,6 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.integrator.IntegratorMD;
 import etomica.listener.IntegratorListenerAction;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
-import etomica.units.Second;
 
 /** 
  * DisplayBox to present the elapsed time in a
@@ -27,9 +24,7 @@ public class DisplayTimer extends DisplayTextBox {
         pumpListener = new IntegratorListenerAction(dataPump);
         integrator.getEventManager().addListener(pumpListener);
         setUpdateInterval(10);
-        this.setUnit(new PrefixedUnit(Second.UNIT));
-        ((PrefixedUnit)unit).setPrefix(Prefix.PICO);
-        this.setPrecision(7);
+        setPrecision(7);
         graphic().setSize(100,60);
     }
     
