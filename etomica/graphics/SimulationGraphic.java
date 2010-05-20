@@ -255,46 +255,7 @@ public class SimulationGraphic implements SimulationContainer {
         	    getPanel().graphicsPanel.add(component);
             }
             else {
-            	getPanel().tabbedPane.add(display.getLabel(), component);
-
-            	if (!(display instanceof DisplayBox)) {
-                    final JPopupMenu popupMenu = new JPopupMenu();
-                    final JMenuItem detachMenuItem = new JMenuItem("detach");
-                    final JMenuItem reattachMenuItem = new JMenuItem("reattach");
-                    detachMenuItem.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            JFrame f = new JFrame();
-                            f.setTitle(display.getLabel());
-                            getPanel().tabbedPane.remove(component);
-                            f.add(component);
-                            f.setSize(component.getWidth()+5,component.getHeight()+40);
-                            f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                            f.setVisible(true);
-                            popupMenu.removeAll();
-                            popupMenu.add(reattachMenuItem);
-                        }
-                    });
-                    popupMenu.add(detachMenuItem);
-
-                    reattachMenuItem.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            Container f = component.getParent();
-                            while (!(f instanceof JFrame)) {
-                                f = f.getParent();
-                                if (f == null) {
-                                    return;
-                                }
-                            }
-                            f.remove(component);
-                            f.setVisible(false);
-                            getPanel().tabbedPane.add(display.getLabel(), component);
-                            popupMenu.removeAll();
-                            popupMenu.add(detachMenuItem);
-                        }
-                    });
-
-                    component.addMouseListener(new PopupListener(popupMenu));
-            	}
+                addAsTab(component, display.getLabel(), !(display instanceof DisplayBox));
             }
             //add a listener to update the tab label if the name of the display changes
             display.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
@@ -307,6 +268,49 @@ public class SimulationGraphic implements SimulationContainer {
             });
         }
         displayList.add(display);
+    }
+    
+    public void addAsTab(final Component component, final String label, boolean detachable) {
+        getPanel().tabbedPane.add(label, component);
+
+        if (detachable) {
+            final JPopupMenu popupMenu = new JPopupMenu();
+            final JMenuItem detachMenuItem = new JMenuItem("detach");
+            final JMenuItem reattachMenuItem = new JMenuItem("reattach");
+            detachMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JFrame f = new JFrame();
+                    f.setTitle(label);
+                    getPanel().tabbedPane.remove(component);
+                    f.add(component);
+                    f.setSize(component.getWidth()+5,component.getHeight()+40);
+                    f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                    f.setVisible(true);
+                    popupMenu.removeAll();
+                    popupMenu.add(reattachMenuItem);
+                }
+            });
+            popupMenu.add(detachMenuItem);
+
+            reattachMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    Container f = component.getParent();
+                    while (!(f instanceof JFrame)) {
+                        f = f.getParent();
+                        if (f == null) {
+                            return;
+                        }
+                    }
+                    f.remove(component);
+                    f.setVisible(false);
+                    getPanel().tabbedPane.add(label, component);
+                    popupMenu.removeAll();
+                    popupMenu.add(detachMenuItem);
+                }
+            });
+
+            component.addMouseListener(new PopupListener(popupMenu));
+        }
     }
 
     public void remove(Display display) {
@@ -380,7 +384,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     public DeviceTrioControllerButton getController() { return dcb; }
 
-    private IAction createDisplayBoxPaintAction(IBox box) {
+    protected IAction createDisplayBoxPaintAction(IBox box) {
     	IAction repaintAction = null;
 
     	final DisplayBox display = getDisplayBox(box);
