@@ -156,23 +156,25 @@ public class ConfigurationColloid implements Configuration {
     public void initializeCoordinates(IBox box) {
         box.setNMolecules(species, 0);
         box.setNMolecules(species, nGraft*chainLength);
+        box.setNMolecules(speciesColloid, 1);
+
+        IMoleculeList colloidList = box.getMoleculeList(speciesColloid);
+        IAtom colloidAtom = colloidList.getMolecule(0).getChildList().getAtom(0);
+        ((AtomArrayList)colloidMonomerBondManager.getAgent(colloidAtom)).clear();
+        IVectorMutable colloidPos = colloidAtom.getPosition();
+        colloidPos.E(0);
+
         if (chainLength*nGraft == 0) {
             return;
         }
         
         IMoleculeList monomerList = box.getMoleculeList(species);
-        IMoleculeList colloidList = box.getMoleculeList(speciesColloid);
         IAtom previousAtom = null;
         int iMonomer = 0;
         IVectorMutable dr = space.makeVector();
         IVectorRandom temp = (IVectorRandom)space.makeVector();
         IVectorMutable lastPos = space.makeVector();
 
-        box.setNMolecules(speciesColloid, 1);
-        IAtom colloidAtom = colloidList.getMolecule(0).getChildList().getAtom(0);
-        ((AtomArrayList)colloidMonomerBondManager.getAgent(colloidAtom)).clear();
-        IVectorMutable colloidPos = colloidAtom.getPosition();
-        colloidPos.E(0);
         for (int j=0; j<nGraft; j++) {
             lastPos.E(colloidPos);
             lastPos.PEa1Tv1(0.5*sigmaColloid-0.5*sigmaMonomer, graftVectors[j]);
