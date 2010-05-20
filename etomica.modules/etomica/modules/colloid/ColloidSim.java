@@ -71,7 +71,7 @@ public class ColloidSim extends Simulation {
 	    integrator.setTemperature(2);
 	    integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integrator.setThermostatInterval(10);
+        integrator.setThermostatInterval(50);
         activityIntegrate = new ActivityIntegrate(integrator,0,true);
         getController().addAction(activityIntegrate);
 
@@ -110,7 +110,12 @@ public class ColloidSim extends Simulation {
         p2mc.setCollisionDiameter(0.5*(sigma+sigmaColloid));
         p2mc.setBondFac(0.9);
         potentialMaster.addPotential(p2mc,new IAtomType[]{species.getLeafType(), speciesColloid.getLeafType()});
-        potentialMaster.setCriterion(p2mc, new CriterionNone());
+        potentialMaster.setCriterion(p2mc, new CriterionNone() {
+            public boolean needUpdate(IAtom atom) {
+                return integrator.getStepCount() % 100 == 0;
+            }
+        });
+
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setPotentialMC(p2mc);
         
         p1WallMonomer = new P1Wall(space, monomerMonomerBondManager);
@@ -127,9 +132,9 @@ public class ColloidSim extends Simulation {
 	    
         p1WallColloid = new P1Wall(space, null);
         p1WallColloid.setBox(box);
-        p1WallColloid.setRange(15);
+        p1WallColloid.setRange(10);
         p1WallColloid.setSigma(7.5);
-        p1WallColloid.setEpsilon(10);
+        p1WallColloid.setEpsilon(0.5);
         potentialMaster.addPotential(p1WallColloid, new IAtomType[]{speciesColloid.getLeafType()});
         
         //construct box
@@ -146,11 +151,18 @@ public class ColloidSim extends Simulation {
         p2pseudo = new P2HardSphere(space, 1, true);
         if (nGraft > 1) {
             IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().getAtom(0);
-            IAtom atom2 = box.getMoleculeList(species).getMolecule(chainLength).getChildList().getAtom(0);
-            IVectorMutable dr = space.makeVector();
-            dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
-            box.getBoundary().nearestImage(dr);
-            p2pseudo.setCollisionDiameter(0.9*Math.sqrt(dr.squared()));
+            double minr2 = Double.POSITIVE_INFINITY;
+            for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
+                IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
+                IVectorMutable dr = space.makeVector();
+                dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
+                box.getBoundary().nearestImage(dr);
+                double r2 = dr.squared();
+                if (minr2 > r2) {
+                    minr2 = r2;
+                }
+            }
+            p2pseudo.setCollisionDiameter(0.9*Math.sqrt(minr2));
         }
         
         potentialMaster.addPotential(p2pseudo, new IAtomType[]{species.getLeafType(), species.getLeafType()});
@@ -158,7 +170,6 @@ public class ColloidSim extends Simulation {
 
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setPotentialPseudo(p2pseudo);
         ((NeighborListManagerColloid)potentialMaster.getNeighborManager(box)).setChainLength(chainLength);
-        
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
@@ -172,12 +183,18 @@ public class ColloidSim extends Simulation {
         if (newNumGraft > 1) {
 
             IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().getAtom(0);
-            IAtom atom2 = box.getMoleculeList(species).getMolecule(chainLength).getChildList().getAtom(0);
-            IVectorMutable dr = space.makeVector();
-            dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
-            box.getBoundary().nearestImage(dr);
-            
-            p2pseudo.setCollisionDiameter(0.9*Math.sqrt(dr.squared()));
+            double minr2 = Double.POSITIVE_INFINITY;
+            for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
+                IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
+                IVectorMutable dr = space.makeVector();
+                dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
+                box.getBoundary().nearestImage(dr);
+                double r2 = dr.squared();
+                if (minr2 > r2) {
+                    minr2 = r2;
+                }
+            }
+            p2pseudo.setCollisionDiameter(0.9*Math.sqrt(minr2));
         }
         try {
             integrator.reset();
@@ -202,6 +219,27 @@ public class ColloidSim extends Simulation {
         return chainLength;
     }
     
+    public void setColloidSigma(double newColloidSigma) {
+        double oldSigma = p1WallColloid.getSigma();
+        p1WallColloid.setRange(p1WallColloid.getRange()*newColloidSigma/oldSigma);
+        p1WallColloid.setSigma(newColloidSigma);
+        
+        p2mc.setCollisionDiameter(0.5*(p2mm.getCoreDiameter()+newColloidSigma));
+        configuration.setSigmaColloid(newColloidSigma);
+        
+        configuration.initializeCoordinates(box);
+        if (integrator.getStepCount() > 0) {
+            try {
+                integrator.reset();
+            }
+            catch (ConfigurationOverlapException e) {}
+        }
+    }
+
+    public double getColloidSigma() {
+        return p1WallColloid.getSigma();
+    }
+
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
             
