@@ -95,16 +95,13 @@ public class SimDifferentImage extends Simulation {
     MeterDifferentImageAdd meterTargInRef;
     MeterDifferentImageSubtract meterRefInTarg;
     
-
-//    AccumulatorAverageFixed accMeter0, accMeter1, accHarmonic, accTargInTarg, accRefInRef, accTargInRef, accRefInTarg;
-    
     
     public SimDifferentImage(Space _space, int numAtoms, double density, 
             int blocksize, double tems) {
         super(_space);
         System.out.println("Running " + APP_NAME);
         
-//        long seed = 3;
+//        long seed = 2;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
@@ -167,7 +164,8 @@ public class SimDifferentImage extends Simulation {
         double[] wvc= nmTarg.getWaveVectorFactory().getCoefficients();
         double[][] omega = nmTarg.getOmegaSquared();
         
-        System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length +" target wave vectors.");
+        System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length 
+                +" target wave vectors.");
         System.out.println("Target Wave Vector Coefficients:");
         System.out.println("Target WV: 1DHR ASSUMED");
         for (int i = 0; i < wvc.length; i++){
@@ -185,7 +183,8 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setCoordinateDefinition(cDefTarget);
         mcMoveMode.setEigenVectors(nmTarg.getEigenvectors());
         mcMoveMode.setOmegaSquared(nmTarg.getOmegaSquared());
-        mcMoveMode.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
+        mcMoveMode.setWaveVectorCoefficients(
+                nmTarg.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
         String all = new String("all");
         mcMoveMode.addChangeableWV(all);
@@ -239,7 +238,8 @@ public class SimDifferentImage extends Simulation {
         wvc= nmRef.getWaveVectorFactory().getCoefficients();
         omega = nmRef.getOmegaSquared();
         
-        System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length +" reference wave vectors.");
+        System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length
+                +" reference wave vectors.");
         System.out.println("Reference Wave Vector Coefficients:");
         System.out.println("Ref WV: ");
         for (int i = 0; i < wvc.length; i++){
@@ -258,7 +258,8 @@ public class SimDifferentImage extends Simulation {
         mcMoveMode.setCoordinateDefinition(cDefRef);
         mcMoveMode.setEigenVectors(nmRef.getEigenvectors());
         mcMoveMode.setOmegaSquared(nmRef.getOmegaSquared());
-        mcMoveMode.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
+        mcMoveMode.setWaveVectorCoefficients(
+                nmRef.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
         mcMoveMode.addChangeableWV(all);
         integratorRef.getMoveManager().addMCMove(mcMoveMode);
@@ -270,8 +271,9 @@ public class SimDifferentImage extends Simulation {
 //JOINT
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
                 temperature, cDefRef, nmRef, boxTarget);
-        MeterOverlapSameGaussian meterOverlapInRef = new MeterOverlapSameGaussian("MeterOverlapInB", 
-                Null.DIMENSION, meterRefInRef, meterTargInRef, temperature);
+        MeterOverlapSameGaussian meterOverlapInRef = new 
+                MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
+                meterRefInRef, meterTargInRef, temperature);
 
         
         meterRefInTarg = new MeterDifferentImageSubtract(this, space, temperature,
@@ -367,7 +369,8 @@ public class SimDifferentImage extends Simulation {
             bennettParam = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             
-            if (Double.isNaN(bennettParam) || bennettParam == 0 || Double.isInfinite(bennettParam)) {
+            if (Double.isNaN(bennettParam) || bennettParam == 0 || 
+                    Double.isInfinite(bennettParam)) {
                 throw new RuntimeException("Simulation failed to find a valid ref pref");
             }
             System.out.println("setting ref pref to "+bennettParam);
@@ -423,12 +426,16 @@ public class SimDifferentImage extends Simulation {
         integratorSim.getMoveManager().setEquilibrating(true);
         
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
+            if (integrators[i] instanceof IntegratorMC) {
+                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
+            }
         }
         getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
+            if (integrators[i] instanceof IntegratorMC) {
+                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
+            }
         }
         
         if (bennettParam == -1) {
@@ -545,33 +552,43 @@ public class SimDifferentImage extends Simulation {
                 ", error: "+(error/ratio));
         DataGroup allYourBase = 
             (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("reference ratio average: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                 + " error: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("reference ratio average (unscaled): " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.
+                        StatType.RATIO.index)).getData()[1] + " error: " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.
+                        StatType.RATIO_ERROR.index)).getData()[1]);
         
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints() -
-                sim.dsvo.minDiffLocation()-1);
-        System.out.println("target ratio average: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1]
+                .getNBennetPoints() - sim.dsvo.minDiffLocation()-1);
+        System.out.println("target ratio average (unscaled): " + 
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.
+                        StatType.RATIO.index)).getData()[1]
                  + " error: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.
+                        StatType.RATIO_ERROR.index)).getData()[1]);
     
-        double AHR1 = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA-1) ;
+        double AHR1 = -(nA-1)*Math.log(nA/density-nA) + 
+                SpecialFunctions.lnFactorial(nA-1) ;
         System.out.println("Hard-rod free energy for " + nA + ": "+AHR1);
-        double AHR2 = -(nA)*Math.log((nA+1)/density-(nA+1)) + SpecialFunctions.lnFactorial(nA) ;
+        double AHR2 = -(nA)*Math.log((nA+1)/density-(nA+1)) 
+                + SpecialFunctions.lnFactorial(nA) ;
         System.out.println("Hard-rod free energy for " + (nA+1) + ": "+AHR2);
         System.out.println("HRFE diff " + (AHR2 - AHR1));
         
         
-        double[][] o2 = sim.nmTarg.getOmegaSquared();
-        System.out.println("calculated diff " + (-Math.log(ratio) -0.5*Math.log(2*Math.PI/o2[o2.length-1][0]) -0.5*Math.log(nA+1) +0.5*Math.log(nA)));
+//        double[][] o2 = sim.nmTarg.getOmegaSquared();
+//        System.out.println("TinR " + sim.meterTargInRef.getScaling());
+//        System.out.println("RinT " + sim.meterRefInTarg.getScaling());
+        System.out.println("calculated diff " + (-Math.log(ratio * sim.meterTargInRef.getScaling()) 
+                - 0.5 * Math.log(2*Math.PI) 
+                - 0.5 * Math.log(nA+1)
+                + 0.5 * Math.log(nA)));
         
         System.out.println("Fini.");
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 2;  //number of atoms in the reference system.
+        public int numAtoms = 10;  //number of atoms in the reference system.
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
