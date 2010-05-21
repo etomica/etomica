@@ -61,6 +61,12 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
     private NormalModes nm;
     WaveVectorFactory waveVectorFactory;
     
+    
+    
+    public double forceGauss;
+    
+    
+    
     public MeterDifferentImageAdd1D(String string, /*IPotentialMaster potentialMaster,*/ 
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
@@ -123,7 +129,14 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
     }
     
     public double getDataAsScalar() {
-        gaussCoord = random.nextGaussian();
+//        gaussCoord = random.nextGaussian();
+        
+        //lets this code run itself and also be used for debugging
+        if(forceGauss == 0) gaussCoord = random.nextGaussian();
+        else gaussCoord = forceGauss;
+        
+        
+        
         
         BasisCell[] simCells = simCDef.getBasisCells();
         BasisCell[] cells = cDef.getBasisCells();
