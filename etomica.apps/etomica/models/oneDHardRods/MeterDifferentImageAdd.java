@@ -223,29 +223,26 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         }
         
         //Scale and transfer the normal mode coordinates to etas.
-        int realCount = 0;
-        int imagCount = 1;
-        for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
-            for(int iMode = 0; iMode < cDim; iMode++){
-                if(!Double.isInfinite(sqrtSimOmega2[iWV][iMode])){
-                    etas[realCount] = realCoord[iWV] * sqrtSimOmega2[iWV][iMode];
-                    realCount += 2;
+        int etaCount = 0;
+        for (int iWV = 0; iWV < simWaveVectors.length; iWV++){
+            for (int iMode = 0; iMode < cDim; iMode++){
+                if(!(sqrtSimOmega2[iWV][iMode] == Double.POSITIVE_INFINITY)){
                     if(simWVCoeff[iWV] == 1.0){
-                        etas[imagCount] = imagCoord[iWV] * sqrtSimOmega2[iWV][iMode];
-                        imagCount += 2;
+                        etas[etaCount] = realCoord[iWV] * sqrtSimOmega2[iWV][iMode];
+                        etas[etaCount+1] = imagCoord[iWV] * sqrtSimOmega2[iWV][iMode];
+                        etaCount +=2;
+                   } else {
+                        etas[etaCount] = realCoord[iWV] * sqrtSimOmega2[iWV][iMode];
+                        etaCount++;
                     }
                 }
             }
         }
         
         //Create the last normal mode coordinates from the Gaussian distribution 
-        for (int count = realCount; count < etas.length; count+=2){
-            gaussCoord[count-realCount] = random.nextGaussian();
-            etas[count] = gaussCoord[count-realCount];
-        }
-        for(int count = imagCount; count < etas.length; count+=2){
-            gaussCoord[count-imagCount] = random.nextGaussian();
-            etas[count] = gaussCoord[count-imagCount];
+        for(int count = etaCount; count < etas.length; count++) {
+            gaussCoord[count - etaCount] = random.nextGaussian();
+            etas[count] = gaussCoord[count - etaCount];
         }
         
         //Calculate the positions for the meter's system
@@ -254,25 +251,25 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             for (int j = 0; j < cDim; j++) {
                 newU[j] = 0.0;
             }
-            int etaCount = 0;   //etaCount counts through "wv" for etas.
-            for (int wvcount = 0; wvcount < waveVectors.length; wvcount++){
+            etaCount = 0;   //etaCount counts through "wv" for etas.
+            for (int iWV = 0; iWV < waveVectors.length; iWV++){
                 //Calculate the change in positions.
-                double kR = waveVectors[wvcount].dot(cell.cellPosition);
+                double kR = waveVectors[iWV].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 for (int iMode = 0; iMode < cDim; iMode++){
-                    if(!(oneOverSqrtOmega2[wvcount][iMode] == 0.0)){
+                    if(!(oneOverSqrtOmega2[iWV][iMode] == 0.0)){
                         for (int iCD = 0; iCD < cDim; iCD++){
                             if(etaCount+1 < etas.length){
-                               newU[iCD] += sqrtWVC[wvcount] * eigenVectors[wvcount][iMode][iCD] 
-                                    * oneOverSqrtOmega2[wvcount][iMode]
+                               newU[iCD] += sqrtWVC[iWV] * eigenVectors[iWV][iMode][iCD] 
+                                    * oneOverSqrtOmega2[iWV][iMode]
                                     * (etas[etaCount] * coskR - etas[etaCount+1]* sinkR);
                                etaCount += 2;
                             } else {
-                                newU[iCD] += sqrtWVC[wvcount] * eigenVectors[wvcount][iMode][iCD]
-                                    * oneOverSqrtOmega2[wvcount][iMode]
+                                newU[iCD] += sqrtWVC[iWV] * eigenVectors[iWV][iMode][iCD]
+                                    * oneOverSqrtOmega2[iWV][iMode]
                                     * (etas[etaCount] * coskR);
-                                etaCount += 1;
+                                etaCount++;
                             }
                         }
                     }

@@ -195,17 +195,19 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                 imagCoord[iWV] *= Math.sqrt(2);
             }
         }
-        //Scale and transfer the normal mode coordinates to etas.
-        int realCount = 0;
-        int imagCount = 1;
-        for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
-            for(int iMode = 0; iMode < cDim; iMode++){
-                if(!Double.isInfinite(sqrtSimOmega2[iWV][iMode])){
-                    etas[realCount] = realCoord[iWV] * sqrtSimOmega2[iWV][iMode];
-                    realCount += 2;
+        
+      //Scale and transfer the normal mode coordinates to etas.
+        int etaCount = 0;
+        for (int iWV = 0; iWV < simWaveVectors.length; iWV++){
+            for (int iMode = 0; iMode < cDim; iMode++){
+                if(!(sqrtSimOmega2[iWV][iMode] == Double.POSITIVE_INFINITY)){
                     if(simWVCoeff[iWV] == 1.0){
-                        etas[imagCount] = imagCoord[iWV] * sqrtSimOmega2[iWV][iMode];
-                        imagCount += 2;
+                        etas[etaCount] = realCoord[iWV] * sqrtSimOmega2[iWV][iMode];
+                        etas[etaCount+1] = imagCoord[iWV] * sqrtSimOmega2[iWV][iMode];
+                        etaCount +=2;
+                   } else {
+                        etas[etaCount] = realCoord[iWV] * sqrtSimOmega2[iWV][iMode];
+                        etaCount++;
                     }
                 }
             }
@@ -222,7 +224,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         }
         
         //Calculate the positions for the meter's system
-        int etaCount;
         for (int iCell = 0; iCell < cells.length; iCell++){
             cell = cells[iCell];
             for (int j = 0; j < cDim; j++) {
