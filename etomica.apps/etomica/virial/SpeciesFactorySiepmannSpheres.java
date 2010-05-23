@@ -44,7 +44,7 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
         IVectorMutable vector1 = space.makeVector();
         vector1.setX(0, bondL);
         IVectorMutable vector2 = space.makeVector();
-        vector2.setX(0, bondL*Math.cos(bondTheta));
+        vector2.setX(0, -bondL*Math.cos(bondTheta));
         vector2.setX(1, bondL*Math.sin(bondTheta));
         conformation = new ConformationChainZigZag(space, vector1, vector2);
     }
