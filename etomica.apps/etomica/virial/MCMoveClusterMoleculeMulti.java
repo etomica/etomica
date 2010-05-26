@@ -20,6 +20,8 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
+    private IVectorRandom[] translationVectors;
+    protected int[] constraintMap;
 
     public MCMoveClusterMoleculeMulti(ISimulation sim, IPotentialMaster potentialMaster,
     		                          ISpace _space) {
@@ -42,20 +44,36 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     public void setBox(IBox p) {
         super.setBox(p);
         weightMeter.setBox(p);
-        translationVectors = new IVectorRandom[box.getMoleculeList().getMoleculeCount()-1];
-        for (int i=0; i<box.getMoleculeList().getMoleculeCount()-1; i++) {
+        translationVectors = new IVectorRandom[box.getMoleculeList().getMoleculeCount()];
+        for (int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {
             translationVectors[i] = (IVectorRandom)space.makeVector();
         }
+        if (constraintMap == null) {
+            constraintMap = new int[box.getMoleculeList().getMoleculeCount()];
+            for (int i=0; i<constraintMap.length; i++) {
+                constraintMap[i] = i;
+            }
+        }
+    }
+    
+    public void setConstraintMap(int[] newConstraintMap) {
+        constraintMap = newConstraintMap;
     }
     
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = weightMeter.getDataAsScalar();
+//        if (uOld == 0) {
+//            throw new RuntimeException("oops, initial configuration unhappy");
+//        }
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=1; i<moleculeList.getMoleculeCount(); i++) {
-            translationVectors[i-1].setRandomCube(random);
-            translationVectors[i-1].TE(stepSize);
-            groupTranslationVector.E(translationVectors[i-1]);
+            int tv = constraintMap[i];
+            if (tv == i) {
+                translationVectors[tv].setRandomCube(random);
+                translationVectors[tv].TE(stepSize);
+            }
+            groupTranslationVector.E(translationVectors[tv]);
             moveMoleculeAction.actionPerformed(moleculeList.getMolecule(i));
         }
         ((BoxCluster)box).trialNotify();
@@ -65,8 +83,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=1; i<moleculeList.getMoleculeCount(); i++) {
-            groupTranslationVector.E(translationVectors[i-1]);
-            groupTranslationVector.TE(-1);
+            groupTranslationVector.Ea1Tv1(-1,translationVectors[constraintMap[i]]);
             moveMoleculeAction.actionPerformed(moleculeList.getMolecule(i));
         }
         ((BoxCluster)box).rejectNotify();
@@ -76,13 +93,10 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     }
 
     public void acceptNotify() {
-        if (uNew == 0) {
-            throw new RuntimeException("oops, accepted illegal configuration");
-        }
+//        if (uNew == 0) {
+//            throw new RuntimeException("oops, accepted illegal configuration");
+//        }
         ((BoxCluster)box).acceptNotify();
-        if (weightMeter.getDataAsScalar() == 0) {
-            throw new RuntimeException("oops oops, accepted illegal configuration");
-        }
     }
     
     public double getB() {
@@ -94,5 +108,4 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         return uNew/uOld;
     }
 	
-    private IVectorRandom[] translationVectors;
 }
