@@ -32,18 +32,25 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         super.setBox(p);
         weightMeter.setBox(p);
         IMoleculeList moleculeList = box.getMoleculeList();
-        oldPositions = new IVectorMutable[moleculeList.getMoleculeCount()][];
-        for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            molecule = moleculeList.getMolecule(i);
-            oldPositions[i] = new IVectorMutable[molecule.getChildList().getAtomCount()];
-            for (int j=0; j<oldPositions[i].length; j++) {
-                oldPositions[i][j] = space.makeVector();
+        rotationAxis = new int[moleculeList.getMoleculeCount()];
+        theta = new double[rotationAxis.length];
+        if (constraintMap == null) {
+            constraintMap = new int[box.getMoleculeList().getMoleculeCount()];
+            for (int i=0; i<constraintMap.length; i++) {
+                constraintMap[i] = i;
             }
         }
     }
 
+    public void setConstraintMap(int[] newConstraintMap) {
+        constraintMap = newConstraintMap;
+    }
+
     public boolean doTrial() {
         uOld = weightMeter.getDataAsScalar();
+//        if (uOld == 0) {
+//            throw new RuntimeException("oops, illegal initial configuration");
+//        }
         boolean doRelax = false;
         if (trialCount-- == 0) {
             doRelax = true;
@@ -52,15 +59,16 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         IMoleculeList moleculeList = box.getMoleculeList();
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             molecule = moleculeList.getMolecule(i);
-            IAtomList leafAtoms = molecule.getChildList();
             r0.E(positionDefinition.position(molecule));
 
-            double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
-            rotationTensor.setAxial(random.nextInt(3),dTheta);
-
-            for (int j=0; j<leafAtoms.getAtomCount(); j++) {
-                oldPositions[i][j].E(leafAtoms.getAtom(j).getPosition());
+            int j = constraintMap[i];
+            if (j == i) {
+                theta[j] = (2*random.nextDouble() - 1.0)*stepSize;
+                rotationAxis[j] = random.nextInt(3);
             }
+
+            rotationTensor.setAxial(rotationAxis[j],theta[j]);
+
             doTransform();
 
             if (doRelax && relaxAction != null) {
@@ -83,23 +91,21 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     public void acceptNotify() {
         super.acceptNotify();
-        if (uNew == 0) {
-            throw new RuntimeException("oops, accepted illegal configuration");
-        }
+//        if (uNew == 0) {
+//            throw new RuntimeException("oops, accepted illegal configuration");
+//        }
         ((BoxCluster)box).acceptNotify();
-        if (weightMeter.getDataAsScalar() == 0) {
-            throw new RuntimeException("oops oops, accepted illegal configuration");
-        }
     }
     
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             molecule = moleculeList.getMolecule(i);
-            IAtomList leafAtoms = molecule.getChildList();
-            for (int j=0; j<leafAtoms.getAtomCount(); j++) {
-                leafAtoms.getAtom(j).getPosition().E(oldPositions[i][j]);
-            }
+            r0.E(positionDefinition.position(molecule));
+            int j = constraintMap[i];
+            rotationTensor.setAxial(rotationAxis[j],-theta[j]);
+
+            doTransform();
         }
         ((BoxCluster)box).rejectNotify();
         if (weightMeter.getDataAsScalar() == 0) {
@@ -112,9 +118,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     private static final long serialVersionUID = 1L;
+    protected int[] constraintMap;
     private final MeterClusterWeight weightMeter;
-    private IVectorMutable[][] oldPositions;
+    protected int[] rotationAxis;
+    protected double[] theta;
     private int trialCount, relaxInterval = 100;
     private MoleculeAction relaxAction;
-    private final ISpace space;
 }
