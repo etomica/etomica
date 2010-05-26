@@ -22,6 +22,7 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationCluster;
+import etomica.virial.MCMoveClusterAngleBend;
 import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MCMoveClusterAtomRotateMulti;
 import etomica.virial.MCMoveClusterMoleculeMulti;
@@ -90,7 +91,7 @@ public class SimulationVirialOverlap extends Simulation {
             mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
         }
         if (doWiggle) {
-            mcMoveWiggle = new MCMoveClusterWiggleMulti[sampleClusters.length];
+            mcMoveWiggle = new MCMoveBoxStep[sampleClusters.length];
         }
         
         P0Cluster p0 = new P0Cluster(space);
@@ -129,7 +130,12 @@ public class SimulationVirialOverlap extends Simulation {
                 mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
-                    mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, aValueClusters[0].pointCount(), space);
+                    if (box[iBox].getMoleculeList().getMolecule(0).getChildList().getAtomCount() == 3) {
+                        mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(potentialMaster, random, 0.5, space);
+                    }
+                    else {
+                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, aValueClusters[0].pointCount(), space);
+                    }
                     moveManager.addMCMove(mcMoveWiggle[iBox]);
                 }
             }
@@ -364,7 +370,7 @@ public class SimulationVirialOverlap extends Simulation {
     public IntegratorMC[] integrators;
     public MCMoveBoxStep[] mcMoveRotate;
     public MCMoveBoxStep[] mcMoveTranslate;
-    public MCMoveClusterWiggleMulti[] mcMoveWiggle;
+    public MCMoveBoxStep[] mcMoveWiggle;
     public MeterVirial[] meters;
     public ActivityIntegrate ai;
     public IntegratorOverlap integratorOS;
