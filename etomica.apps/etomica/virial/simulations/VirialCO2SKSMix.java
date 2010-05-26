@@ -35,6 +35,7 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MCMoveClusterTorsionMulti;
+import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
@@ -155,8 +156,8 @@ public class VirialCO2SKSMix {
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},true);
         SpeciesAlkane speciesAlkane = (SpeciesAlkane)sim.getSpecies(1);
         SpeciesSpheresHetero speciesCO2 = (SpeciesSpheresHetero)sim.getSpecies(0);
-        sim.mcMoveWiggle[0].setSpecies(sim.getSpecies(1));
-        sim.mcMoveWiggle[1].setSpecies(sim.getSpecies(1));
+        ((MCMoveClusterWiggleMulti)sim.mcMoveWiggle[0]).setSpecies(sim.getSpecies(1));
+        ((MCMoveClusterWiggleMulti)sim.mcMoveWiggle[1]).setSpecies(sim.getSpecies(1));
         sim.integratorOS.setNumSubSteps(1000);
 
         IAtomType typeCH3 = speciesAlkane.getAtomType(0);
