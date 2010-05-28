@@ -23,7 +23,9 @@ import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /**
- * LJ simulation using Mayer sampling to evaluate the bridge diagram for four molecules
+ * MSMC computations (via overlap sampling) of the bridge diagram(s) within the f-bond-only formulation of B4 and B5
+ * 
+ * Kate Shaul
  */
 public class VirialLJBridge {
 
@@ -76,7 +78,7 @@ public class VirialLJBridge {
         System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
         System.out.println("B7HS: "+HSB[7]+" = 0.013046 B2HS^6");
         System.out.println("B8HS: "+HSB[8]+" = 0.004164 B2HS^7");
-        System.out.println("Lennard Jones overlap sampling B"+nPoints+" at T= "+temperature);
+        System.out.println("Lennard Jones overlap sampling f-bond decomposition of B"+nPoints+" at T= "+temperature);
 		
         Space space = Space3D.getInstance();
         
@@ -88,9 +90,9 @@ public class VirialLJBridge {
         
         ClusterAbstract targetCluster;
         
-        if (nPoints != 4) {
-        	targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);
-        } else {
+        if (nPoints == 4) {
+       
+       
         
 	        int[][][] bondList = {{{0,1},{1,2},{2,3},{3,0},{0,2},{1,3}}, {}};
 	        
@@ -108,6 +110,31 @@ public class VirialLJBridge {
 	  
 		    
 		    targetCluster =  new ClusterSumEF(new ClusterBonds[] {cluster},weights,new MayerFunction[]{eTarget});
+        } else if (nPoints == 5) {
+        	
+        	int[][][] bondList1 = {{{0,1},{0,2},{0,4},{1,2},{1,4},{2,3},{3,4}}, {}};
+        	
+        	int[][][] bondList2 = {{{0,1},{0,2},{0,4},{1,2},{1,4},{2,3},{3,4},{2,4}}, {}};
+        	
+        	int[][][] bondList3 = {{{0,1},{0,2},{0,4},{1,2},{1,4},{2,3},{3,4},{1,3}}, {}};
+        	
+        	int[][][] bondList4 = {{{0,1},{0,2},{0,4},{1,2},{1,4},{2,3},{3,4},{1,3},{0,3}}, {}};
+        	
+        	int[][][] bondList5 = {{{0,1},{0,2},{0,4},{1,2},{1,4},{2,3},{3,4},{1,3},{0,3},{2,4}}, {}};
+        	
+        	ClusterBonds cluster1 = new ClusterBonds(5, bondList1, false);
+        	ClusterBonds cluster2 = new ClusterBonds(5, bondList2, false);
+        	ClusterBonds cluster3 = new ClusterBonds(5, bondList3, false);
+        	ClusterBonds cluster4 = new ClusterBonds(5, bondList4, false);
+        	ClusterBonds cluster5 = new ClusterBonds(5, bondList5, false);
+        	
+        	double[] weights = {-1.0, -1.0, -0.5, -1.0/3.0, -1.0/30.0};
+        	
+        	targetCluster =  new ClusterSumEF(new ClusterBonds[] {cluster1, cluster2, cluster3, cluster4, cluster5},weights,new MayerFunction[]{eTarget});
+        
+        
+        } else {
+        	throw new IllegalArgumentException("Cannot yet compute correction to f-bond decomposition approximation for that order of virial coefficient");
         }
 
         
@@ -191,10 +218,11 @@ public class VirialLJBridge {
     	// number of molecules in simulation (e.g., 2 for B2 calculation)
 
  
-        public int numMolecules = 4;
+        public int numMolecules = 5;
         public double temperature = 1.0;
-        public long numSteps = 100000;
+        public long numSteps = 10000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
     }
+    
 }
