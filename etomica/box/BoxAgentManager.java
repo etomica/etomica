@@ -27,6 +27,9 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
 
     public BoxAgentManager(BoxAgentSource source) {
         agentSource = source;
+        if (source == null) {
+            agents = new Object[0];
+        }
     }
 
     public BoxAgentManager(BoxAgentSource source, ISimulation sim) {
@@ -41,6 +44,15 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
         return agents[box.getIndex()];
     }
     
+    public void setAgent(IBox box, Object agent) {
+        int idx = box.getIndex();
+        if (idx >= agents.length) {
+            // no room in the array.  reallocate the array with an extra cushion.
+            agents = Arrays.resizeArray(agents,idx+1);
+        }
+        agents[box.getIndex()] = agent;
+    }
+
     /**
      * Returns an iterator that returns each non-null agent
      */
