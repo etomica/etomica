@@ -61,7 +61,7 @@ public class VirialLJQB2 {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        double ratio = sim.dsvo.getDataAsScalar();
+        double ratio = sim.dsvo.getOverlapAverageAndError()[0];
         return ratio*HSB2;
 //        double error = sim.dsvo.getError();
 	}
