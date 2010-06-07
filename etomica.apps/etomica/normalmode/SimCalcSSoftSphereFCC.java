@@ -105,7 +105,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
 		coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
 
-		MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster,getRandom(), space); 
+		MCMoveAtomCoupled move = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster),getRandom(), space); 
 		move.setPotential(potential);
 		move.setDoExcludeNonNeighbors(true);
 		

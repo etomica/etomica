@@ -8,6 +8,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
@@ -112,7 +113,7 @@ public class SimWidomMode extends Simulation {
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         
-        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
+        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

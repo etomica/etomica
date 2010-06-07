@@ -87,7 +87,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         boxTarget.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
-        atomMove = new MCMoveAtomCoupled(potentialMasterTarget, getRandom(), space);
+        atomMove = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);

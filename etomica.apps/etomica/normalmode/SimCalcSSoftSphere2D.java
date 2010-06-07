@@ -51,7 +51,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom(), space);
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setStepSize(0.2);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);

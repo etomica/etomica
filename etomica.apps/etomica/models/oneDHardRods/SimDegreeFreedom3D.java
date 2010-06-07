@@ -7,6 +7,7 @@ import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
 import etomica.data.DataSplitter;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -141,7 +142,7 @@ public class SimDegreeFreedom3D extends Simulation {
         System.out.println("Number of wave vectors " + 
                 waveVectorFactory.getWaveVectors().length);
         
-        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
+        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

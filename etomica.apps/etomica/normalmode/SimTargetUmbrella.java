@@ -116,7 +116,7 @@ public class SimTargetUmbrella extends Simulation {
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMasterMonatomic, getRandom(), space);
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterMonatomic), getRandom(), space);
         move.setPotential(pTruncated);
         integrator.getMoveManager().addMCMove(move);
       

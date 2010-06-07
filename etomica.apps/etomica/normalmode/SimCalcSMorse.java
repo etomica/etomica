@@ -5,6 +5,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -45,7 +46,7 @@ public class SimCalcSMorse extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom(), space);
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);

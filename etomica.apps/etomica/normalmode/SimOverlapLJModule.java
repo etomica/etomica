@@ -11,6 +11,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -147,7 +148,7 @@ public class SimOverlapLJModule {
         boxTarget.setNMolecules(species, numMolecules);
 
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, sim.getRandom(), temperature);
-        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, sim.getRandom(), space);
+        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarget), sim.getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         integratorTarget.getMoveManager().addMCMove(atomMove);
