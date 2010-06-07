@@ -1,0 +1,143 @@
+package etomica.normalmode;
+
+import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.units.Null;
+
+/**
+ * Meter whose purpose in life is to measure the overlap between systems
+ * defined by a combination of two energy meters.  The returned energy is taken
+ * to be   (1-f)*meterRef + f*meterTarg
+ * The systems under consideration for overlap differ only in the values of f.
+ *
+ * @author Andrew Schultz
+ */
+public class MeterOverlapSwitch implements IEtomicaDataSource {
+
+    protected DataInfoDoubleArray dataInfo;
+    protected DataDoubleArray data;
+    protected final DataTag tag;
+    protected final MeterPotentialEnergy meterRef, meterTarget;
+    protected double temperature;
+    protected double latticeEnergy;
+    protected double frac;
+    protected double[] otherFrac;
+    protected double[][] alpha;
+    protected double[] alphaCenter;
+    protected double alphaSpan;
+    protected int numAlpha = 1;
+    public double targetSum, refSum;
+    public int count;
+    
+    
+    public MeterOverlapSwitch(IPotentialMaster potentialMasterRef, IPotentialMaster potentialMasterTarget) {
+        meterRef = new MeterPotentialEnergy(potentialMasterRef);
+        meterTarget = new MeterPotentialEnergy(potentialMasterTarget);
+        meterTarget.setIncludeLrc(false);
+        tag = new DataTag();
+    }
+    
+    public IEtomicaDataInfo getDataInfo() {
+        return dataInfo;
+    }
+
+    public DataTag getTag() {
+        return tag;
+    }
+
+    public void setBox(IBox newBox) {
+        meterRef.setBox(newBox);
+        meterTarget.setBox(newBox);
+    }
+    
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
+    
+    public void setSampledSwitchFrac(double newFrac) {
+        frac = newFrac;
+    }
+    
+    public void setOtherSwitchFrac(double[] newOtherFrac) {
+        otherFrac = newOtherFrac;
+    }
+    
+    protected void initAlpha() {
+        if (alphaCenter == null) {
+            return;
+        }
+        alpha = new double[alphaCenter.length][numAlpha];
+        for (int i=0; i<alpha.length; i++) {
+            if (numAlpha == 1) {
+                alpha[i][0] = alphaCenter[i];
+            }
+            else {
+                for (int j=0; j<numAlpha; j++) {
+                    alpha[i][j] = alphaCenter[i]*Math.exp(2.0*alphaSpan*(j-(numAlpha-1)/2)/(numAlpha-1));
+                }
+            }
+        }
+        data = new DataDoubleArray(numAlpha*alphaCenter.length);
+        dataInfo = new DataInfoDoubleArray("overlap", Null.DIMENSION, new int[]{numAlpha*alphaCenter.length});
+    }
+    
+    public double[] getAlpha(int iTemp) {
+        return alpha[iTemp];
+    }
+    
+    public void setAlpha(double[] newAlpha) {
+        alphaCenter = newAlpha;
+        initAlpha();
+    }
+    
+    public void setAlphaSpan(double newAlphaSpan) {
+        alphaSpan = newAlphaSpan;
+        initAlpha();
+    }
+    
+    public void setNumAlpha(int newNumAlpha) {
+        numAlpha = newNumAlpha;
+        initAlpha();
+    }
+
+    public double getLatticeEnergy() {
+        return latticeEnergy;
+    }
+
+    public void setLatticeEnergy(double latticeEnergy) {
+        this.latticeEnergy = latticeEnergy;
+    }
+
+    public IData getData() {
+        double uTarget = meterTarget.getDataAsScalar() - latticeEnergy;
+        double uRef = meterRef.getDataAsScalar();
+        targetSum += uTarget;
+        refSum += uRef;
+        count++;
+        double uSampled = frac*uTarget + (1-frac)*uRef;
+
+        double[] x = data.getData();
+        for (int i=0; i<otherFrac.length; i++) {
+            double uOther = otherFrac[i]*uTarget + (1-otherFrac[i])*uRef;
+            double eRatio = Math.exp(-(uSampled-uOther)/temperature);
+            for (int j=0; j<numAlpha; j++) {
+                if (frac>otherFrac[i]) {
+                    // eOther / (alpha * eOther + eSampled)
+                    // 1.0 / (alpha + eSampled/eOther)
+                    x[i*numAlpha+j] = 1.0/(alpha[i][j]+eRatio);
+                }
+                else {
+                    x[i*numAlpha+j] = 1.0/(1+alpha[i][j]*eRatio);
+                }
+            }
+        }
+        return data;
+    }
+}
