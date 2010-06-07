@@ -38,7 +38,7 @@ public class MCMoveHarmonic extends MCMoveBox {
         oneOverOmega2 = new double[omega2.length][omega2[0].length];
         for (int i=0; i<oneOverOmega2.length; i++) {
             for (int j=0; j<oneOverOmega2[i].length; j++) {
-                oneOverOmega2[i][j] = Math.sqrt(1.0/(omega2[i][j]));
+                oneOverOmega2[i][j] = 1.0/Math.sqrt(omega2[i][j]);
             }
         }
     }
@@ -124,6 +124,7 @@ public class MCMoveHarmonic extends MCMoveBox {
             }
         }
         
+        double normalization = 1/Math.sqrt(cells.length);
         for (int iCell = 0; iCell<cells.length; iCell++) {
             if (isRejectable) {
                 double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
@@ -143,19 +144,18 @@ public class MCMoveHarmonic extends MCMoveBox {
                     for (int i=0; i<modeNum.length; i++) {
                         for (int j=0; j<coordinateDim; j++) {
                             u[j] += sqrtWVC[iVector]*eigenVectors[iVector][modeNum[i]][j]*
-                            (rRand[iVector][modeNum[i]]*coskR - iRand[iVector][modeNum[i]]*sinkR);
+                                    (rRand[iVector][modeNum[i]]*coskR - iRand[iVector][modeNum[i]]*sinkR);
                         }
                     }
                 } else {
                     for (int i=0; i<coordinateDim; i++) {
                         for (int j=0; j<coordinateDim; j++) {
                             u[j] += sqrtWVC[iVector]*eigenVectors[iVector][i][j]*
-                                (rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
+                                    (rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
                         }
                     }
                 }
             }
-            double normalization = 1/Math.sqrt(cells.length);
             for (int i=0; i<coordinateDim; i++) {
                 u[i] *= normalization;
             }
