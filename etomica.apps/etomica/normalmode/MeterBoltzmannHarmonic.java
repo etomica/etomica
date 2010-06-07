@@ -31,6 +31,14 @@ public class MeterBoltzmannHarmonic implements IEtomicaDataSource {
         tag = new DataTag();
     }
 
+    /**
+     * Sets the fraction that the system is coupled to measured energy.
+     * measured value = exp(-beta*frac*(delta U))
+     */
+    public void setFrac(double newFrac) {
+        frac = newFrac;
+    }
+
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
     }
@@ -40,7 +48,7 @@ public class MeterBoltzmannHarmonic implements IEtomicaDataSource {
     }
     
     public IData getData() {
-        data.getData()[1] = Math.exp(-((meterEnergy.getDataAsScalar() - latticeEnergy) - 
+        data.getData()[1] = Math.exp(-frac*((meterEnergy.getDataAsScalar() - latticeEnergy) - 
                 mcMoveHarmonic.getLastTotalEnergy())/temperature);
         return data;
     }
@@ -64,4 +72,5 @@ public class MeterBoltzmannHarmonic implements IEtomicaDataSource {
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected double latticeEnergy;
+    protected double frac;
 }

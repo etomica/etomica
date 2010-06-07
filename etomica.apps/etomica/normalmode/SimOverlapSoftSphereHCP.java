@@ -16,6 +16,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
@@ -195,7 +196,8 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
-        MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
+        MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(new MeterPotentialEnergyFromIntegrator(integratorTarget), meterHarmonicEnergy);
+        meterTarget.setTemperature(temperature);
         meterTarget.setLatticeEnergy(latticeEnergy);
         meters[1] = meterTarget;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);

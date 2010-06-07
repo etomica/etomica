@@ -1,13 +1,12 @@
 package etomica.normalmode;
 
+import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorBox;
 import etomica.units.Null;
 
 /**
@@ -19,10 +18,9 @@ import etomica.units.Null;
  */
 public class MeterBoltzmannTarget implements IEtomicaDataSource {
     
-    public MeterBoltzmannTarget(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonicEnergy) {
-        meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
-        this.integrator = integrator;
-        this.meterHarmonicEnergy = meterHarmonicEnergy;
+    public MeterBoltzmannTarget(DataSourceScalar meterTargetEnergy, DataSourceScalar meterRefEnergy) {
+        meterEnergy = meterTargetEnergy;
+        this.meterRefEnergy = meterRefEnergy;
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("Scaled Harmonic and hard sphere Energies", Null.DIMENSION, new int[]{2});
         // AccumulatorVirialOverlapSingleAverage expects the first data value to
@@ -31,9 +29,17 @@ public class MeterBoltzmannTarget implements IEtomicaDataSource {
         tag = new DataTag();
     }
 
+    public void setFrac(double newFrac) {
+        frac = newFrac;
+    }
+
+    /**
+     * Sets the fraction that the system is coupled to measured energy.
+     * measured value = exp(-beta*frac*(delta U))
+     */
     public IData getData() {
-        data.getData()[1] = Math.exp(-(meterHarmonicEnergy.getDataAsScalar() -
-                (meterEnergy.getDataAsScalar() - latticeEnergy)) / integrator.getTemperature());
+        data.getData()[1] = Math.exp(-frac*(meterRefEnergy.getDataAsScalar() -
+                (meterEnergy.getDataAsScalar() - latticeEnergy)) / temperature);
         return data;
     }
 
@@ -41,6 +47,10 @@ public class MeterBoltzmannTarget implements IEtomicaDataSource {
         latticeEnergy = newLatticeEnergy;
     }
     
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
+
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
@@ -49,11 +59,12 @@ public class MeterBoltzmannTarget implements IEtomicaDataSource {
         return tag;
     }
 
-    protected final MeterPotentialEnergyFromIntegrator meterEnergy;
-    protected final MeterHarmonicEnergy meterHarmonicEnergy;
-    protected final IntegratorBox integrator;
+    protected final DataSourceScalar meterEnergy;
+    protected final DataSourceScalar meterRefEnergy;
+    protected double temperature;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected double latticeEnergy;
+    protected double frac;
 }
