@@ -436,8 +436,9 @@ public class SimOverlap extends Simulation {
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
 
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("free energy difference: "+(-Math.log(ratio))+", error: "+(error/ratio));
         System.out.println("target free energy: "+(AHarmonic-Math.log(ratio)));
@@ -462,8 +463,11 @@ public class SimOverlap extends Simulation {
             double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules-1) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
-        
-        
+
+        numMolecules++;
+        double AHRNp1 = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules-1) ;
+        System.out.println("Hard-rod free energy ("+numMolecules+"): "+AHRNp1);
+
     }
 
     private static final long serialVersionUID = 1L;

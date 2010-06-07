@@ -537,8 +537,9 @@ public class SimDifferentImage1DHR extends Simulation {
         
         //CALCULATION OF HARMONIC ENERGY
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("free energy difference: " + (-Math.log(ratio)) + 
                 ", error: "+(error/ratio));

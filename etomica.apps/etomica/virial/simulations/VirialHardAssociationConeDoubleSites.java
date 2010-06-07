@@ -179,9 +179,8 @@ public class VirialHardAssociationConeDoubleSites {
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double ratio = sim.dsvo.getDataAsScalar();
-                double error = sim.dsvo.getError();
-                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
             }
         };
         IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
@@ -197,10 +196,9 @@ public class VirialHardAssociationConeDoubleSites {
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
         System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
-        System.out.println("ratio average: "+ratio+", error: "+error);
-        System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
+        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(0);
         System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);

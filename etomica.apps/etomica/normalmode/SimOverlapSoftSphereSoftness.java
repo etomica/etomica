@@ -370,8 +370,9 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         }
         
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         
         System.out.println("\nset_alpha: "+alpha);
         System.out.println("ratio_average: "+ratio+" ,error: "+error);

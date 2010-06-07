@@ -248,8 +248,9 @@ public class SimOverlapLJModule {
         AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
 
-        double ratio = module.getDsvo().getDataAsScalar();
-        double error = module.getDsvo().getError();
+        double[] ratioAndError = module.getDsvo().getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+", error: "+temperature*(error/ratio));
         System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));

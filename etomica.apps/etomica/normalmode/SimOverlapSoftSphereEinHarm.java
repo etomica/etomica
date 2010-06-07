@@ -402,11 +402,10 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         for (int j=0; j<numAlpha; j++) {
             System.out.println(sim.accumulators[0].getBennetBias(j)+" "+sim.dsvo.getAverage(j)+" "+sim.dsvo.getError(j));
         }
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
-        System.out.println("\nnew alpha "+ratio+" "+error);
+        double[] avgerr = sim.dsvo.getOverlapAverageAndError();
+        System.out.println("\nnew alpha "+avgerr[0]+" "+avgerr[1]);
         
-        System.out.println("delta A "+(-temperature*Math.log(ratio))+" "+temperature*error/ratio);
+        System.out.println("delta A "+(-temperature*Math.log(avgerr[0]))+" "+temperature*avgerr[1]/avgerr[0]);
         
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime)/1000.0);

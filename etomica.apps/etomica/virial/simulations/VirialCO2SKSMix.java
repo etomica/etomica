@@ -305,9 +305,8 @@ public class VirialCO2SKSMix {
                 public void integratorStepFinished(IIntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double ratio = sim.dsvo.getDataAsScalar();
-                    double error = sim.dsvo.getError();
-                    System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
                 }
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
@@ -318,10 +317,9 @@ public class VirialCO2SKSMix {
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
         System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
 
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
-        System.out.println("ratio average: "+ratio+", error: "+error);
-        System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
+        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
         IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
         IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
         IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);

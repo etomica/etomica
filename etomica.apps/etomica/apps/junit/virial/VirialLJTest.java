@@ -57,8 +57,9 @@ public class VirialLJTest extends TestCase {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         // check against expected values, 0.0604 +/- 0.0036
         assertTrue("Final ratio within expected limits: "+ratio, Math.abs(ratio - 0.0604) < 0.011);
         // improvements to the algorithm might lower this.  be wary of changes that raise it.

@@ -354,7 +354,8 @@ public class SimulationVirialMultiOverlap extends Simulation {
         SimulationVirialMultiOverlap sim = new SimulationVirialMultiOverlap(space, new SpeciesFactorySpheres[]{new SpeciesFactorySpheres()}, temperature, refCluster, targetCluster, new int[]{nPoints});
         sim.ai.setMaxSteps(maxSteps);
         sim.ai.actionPerformed();
-        System.out.println("average: "+sim.dsvo.getDataAsScalar()+", error: "+sim.dsvo.getError());
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
         System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);

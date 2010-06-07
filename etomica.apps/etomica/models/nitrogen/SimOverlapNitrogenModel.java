@@ -427,8 +427,9 @@ public class SimOverlapNitrogenModel extends Simulation {
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
               
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         double uLatticeInfinite = -1023.896102;
 		System.out.println("Ulattice energy(infinite) in K: "+ uLatticeInfinite);
 		

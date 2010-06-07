@@ -111,12 +111,12 @@ public class VirialAlkaneSKS {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
+        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
                           temperature,refCluster,targetCluster, nSpheres > 2);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
 
-        SpeciesAlkane species = (SpeciesAlkane)sim.species;
+        SpeciesAlkane species = (SpeciesAlkane)sim.getSpecies(0);
         IAtomType typeCH3 = species.getAtomType(0);
         IAtomType typeCH2 = species.getAtomType(1);
         pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
@@ -142,7 +142,7 @@ public class VirialAlkaneSKS {
             }
             pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
             // integrators share a common potentialMaster.  so just add to one
-            sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.species});
+            sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.getSpecies(0)});
         }
         MCMoveClusterTorsionMulti[] torsionMoves = null;
         if (nSpheres > 3) {
@@ -232,40 +232,6 @@ public class VirialAlkaneSKS {
                 throw new RuntimeException("Oops");
             }
             
-            final DisplayTextBox averageBox = new DisplayTextBox();
-            averageBox.setLabel("Average");
-            final DisplayTextBox errorBox = new DisplayTextBox();
-            errorBox.setLabel("Error");
-            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
-            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
-            simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
-            
-            IAction pushAnswer = new IAction() {
-                public void actionPerformed() {
-                    double ratio = sim.dsvo.getDataAsScalar() * HSB[nPoints];
-                    double error = sim.dsvo.getError() * HSB[nPoints];
-                    data.x = ratio;
-                    averageBox.putData(data);
-                    data.x = error;
-                    errorBox.putData(data);
-                }
-                
-                DataDouble data = new DataDouble();
-            };
-            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
-            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
-            averageBox.putDataInfo(dataInfo);
-            averageBox.setLabel("average");
-            averageBox.setUnit(unit);
-            errorBox.putDataInfo(dataInfo);
-            errorBox.setLabel("error");
-            errorBox.setPrecision(2);
-            errorBox.setUnit(unit);
-            sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
-            
             return;
         }
         
@@ -303,9 +269,8 @@ public class VirialAlkaneSKS {
                 public void integratorStepFinished(IIntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double ratio = sim.dsvo.getDataAsScalar();
-                    double error = sim.dsvo.getError();
-                    System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
                 }
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
@@ -318,10 +283,9 @@ public class VirialAlkaneSKS {
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
         System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
-        System.out.println("ratio average: "+ratio+", error: "+error);
-        System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
+        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
         IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
         IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
         IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);

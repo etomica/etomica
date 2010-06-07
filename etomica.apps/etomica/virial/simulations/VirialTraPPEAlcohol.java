@@ -339,8 +339,9 @@ public class VirialTraPPEAlcohol {
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" blocks of 1000 attempted MC moves: ");
-                double ratio = sim.dsvo.getDataAsScalar();
-                double error = sim.dsvo.getError();
+                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                double ratio = ratioAndError[0];
+                double error = ratioAndError[1];
                 System.out.println("Calculated B" + numMolecules + " = "+ratio*HSB[numMolecules]+" +/- "+error*HSB[numMolecules] + " Angstroms^3");
                 
                 DataGroup reference = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
@@ -369,8 +370,6 @@ public class VirialTraPPEAlcohol {
                 System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                                   +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
                 
-                double ratio1 = sim.dsvo.getDataAsScalar();
-                double error1 = sim.dsvo.getError();
                 System.out.println();
                 System.out.println("ratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
                 System.out.println("Calculated B" + numMolecules +  " = " +ratio*HSB[numMolecules]+" +/- "+error*HSB[numMolecules] + " Angstroms^3");
@@ -415,8 +414,9 @@ public class VirialTraPPEAlcohol {
         System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println();
         System.out.println("ratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
         System.out.println("Calculated B" + numMolecules +  " = " +ratio*HSB[numMolecules]+" +/- "+error*HSB[numMolecules] + " Angstroms^3");

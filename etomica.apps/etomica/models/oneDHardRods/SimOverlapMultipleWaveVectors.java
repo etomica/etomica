@@ -557,8 +557,9 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         //CALCULATION OF HARMONIC ENERGY
         double AHarmonic = CalcHarmonicA.doit(sim.nm, D, temperature, numMolecules);
 
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("free energy difference: " + (-Math.log(ratio)) + 
                 ", error: "+(error/ratio));

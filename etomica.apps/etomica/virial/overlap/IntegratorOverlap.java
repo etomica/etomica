@@ -135,11 +135,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      */
     public void adjustStepFreq() {
         int newMinDiffLoc = dsvo.minDiffLocation();
-        int nBennetPoints = accumulators[0].getNBennetPoints();
-        if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) {
-            System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc)
-                    +" ("+(accumulators[0].getBennetAverage(newMinDiffLoc)/accumulators[1].getBennetAverage(newMinDiffLoc))+")");
-        }
+//        int nBennetPoints = accumulators[0].getNBennetPoints();
+//        if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) {
+//            System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc)
+//                    +" ("+(accumulators[0].getBennetAverage(newMinDiffLoc)/accumulators[1].getBennetAverage(newMinDiffLoc))+")");
+//        }
         minDiffLoc = newMinDiffLoc;
 
         DataGroup data = (DataGroup)accumulators[0].getData(minDiffLoc);
