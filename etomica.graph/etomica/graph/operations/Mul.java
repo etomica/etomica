@@ -37,7 +37,7 @@ public class Mul implements Binary {
         break;
       }
       Node leftNode = left.nodes().get(nodeId);
-      Node rightNode = left.nodes().get(nodeId);
+      Node rightNode = right.nodes().get(nodeId);
       if (leftNode.getType() == TYPE_NODE_ROOT && rightNode.getType() == TYPE_NODE_ROOT) {
         if (!leftNode.isSameColor(rightNode)) {
           return null;
