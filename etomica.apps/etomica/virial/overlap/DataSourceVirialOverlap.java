@@ -47,7 +47,9 @@ public class DataSourceVirialOverlap {
         double[] lnAlphaDiff = new double[nBennetPoints];
 
         for (int j=0; j<nBennetPoints; j++) {
-            lnAlphaDiff[j] += Math.log(getAverage(j));
+            double refOverlap = ((DataDoubleArray)((DataGroup)refAccumulator.getData(j)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index)).getData()[1];
+            double targetOverlap = ((DataDoubleArray)((DataGroup)targetAccumulator.getData(j)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index)).getData()[1];
+            lnAlphaDiff[j] += Math.log(refOverlap/targetOverlap);
 
             double jAlpha = refAccumulator.getBennetBias(j);
             err[j] = getError(j);
@@ -103,6 +105,18 @@ public class DataSourceVirialOverlap {
                     newErr = err[i] + (err[i+1]-err[i])*(ix-lnAlpha[i])/(lnAlpha[i+1]-lnAlpha[i]);
                 }
             }
+        }
+
+        if (refAccumulator instanceof AccumulatorRatioAverage) {
+            double targetAvg = ((DataGroup)targetAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(0); 
+            double refAvg = ((DataGroup)refAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(0);
+            double ratio = targetAvg/refAvg;
+            newAlpha *= ratio;
+            double refErr = ((DataGroup)refAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.ERROR.index).getValue(0);
+            double targetErr = ((DataGroup)targetAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.ERROR.index).getValue(0);
+            double refErrRatio = refErr/refAvg;
+            double targetErrRatio = targetErr/targetAvg;
+            newErr = Math.sqrt(newErr*newErr + ratio*ratio*(refErrRatio*refErrRatio + targetErrRatio*targetErrRatio));
         }
 
         return new double[]{newAlpha, newErr};
