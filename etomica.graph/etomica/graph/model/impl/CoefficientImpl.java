@@ -34,9 +34,10 @@ public class CoefficientImpl implements Coefficient {
       numerator = sign * numerator * value.getDenominator() + value.getSign() * value.getNumerator() * denominator;
       denominator = getDenominator() * value.getDenominator();
     }
+    sign = 1;
     if (numerator < 0) {
       numerator = -numerator;
-      switchSign();
+      sign = -1;
     }
   }
 
