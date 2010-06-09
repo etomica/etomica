@@ -396,8 +396,10 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                System.out.print(sim.integratorOS.getStepCount()+" blocks of 1000 attempted MC moves: ");
-                double ratio = sim.dsvo.getDataAsScalar();
-                double error = sim.dsvo.getError();
+               
+               double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                double ratio = ratioAndError[0];
+                double error = ratioAndError[1];
                 System.out.println("");
                 
                 DataGroup reference = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
@@ -426,8 +428,9 @@ public class BnFlexibleContributionTraPPEUAMethanol {
                 System.out.println("  ratio of these PRaverages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                                   +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
                 
-                double ratio1 = sim.dsvo.getDataAsScalar();
-                double error1 = sim.dsvo.getError();
+                ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                ratio = ratioAndError[0];
+                error = ratioAndError[1];
                 System.out.println();
                 System.out.println("PRratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
                 System.out.println("PRCalculated contribution to B" + numMolecules +  " = " +ratio*refReport+" +/- "+error*refReport+ " Angstroms^"+3*(numMolecules-1));
@@ -472,8 +475,9 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println();
         System.out.println("ratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
         System.out.println("Calculated contribution to B" + numMolecules +  " = " +ratio*ref+" +/- "+error*ref + " Angstroms^" +3*(numMolecules-1));
