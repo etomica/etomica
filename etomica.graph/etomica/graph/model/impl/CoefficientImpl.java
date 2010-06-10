@@ -23,6 +23,7 @@ public class CoefficientImpl implements Coefficient {
     this.numerator = numerator;
     this.denominator = denominator;
     sign = sgn;
+    reduce();
   }
 
   public void add(Coefficient value) {
@@ -31,7 +32,8 @@ public class CoefficientImpl implements Coefficient {
       numerator = sign * numerator + value.getSign() * value.getNumerator();
     }
     else {
-      numerator = sign * numerator * value.getDenominator() + value.getSign() * value.getNumerator() * denominator;
+      numerator = sign * numerator * value.getDenominator() + value.getSign()
+          * value.getNumerator() * denominator;
       denominator = getDenominator() * value.getDenominator();
     }
     sign = 1;
@@ -39,6 +41,7 @@ public class CoefficientImpl implements Coefficient {
       numerator = -numerator;
       sign = -1;
     }
+    reduce();
   }
 
   public Coefficient copy() {
@@ -71,6 +74,51 @@ public class CoefficientImpl implements Coefficient {
     numerator = numerator * value.getNumerator();
     denominator = denominator * value.getDenominator();
     sign = sign * value.getSign();
+    reduce();
+  }
+
+  protected void reduce() {
+outer: do {
+      int min = numerator;
+      int max = denominator;
+      if (min > max) {
+        int t = min;
+        min = max;
+        max = t;
+      }
+      if (min < 2) {
+        return;
+      }
+      // find factors for min, see if each factor is a factor of max
+      int sqrt = (int)Math.sqrt(min);
+      for (int i = 1; i<sqrt+1; i++) {
+        int fac = min/i;
+        if (fac*i == min) {
+          // i and fac are factors of min
+          int fac2 = max/fac;
+          if (fac*fac2 == max) {
+            // fac is a common factor
+            numerator /= fac;
+            denominator /= fac;
+            // now start over
+            reduce();
+            continue outer;
+          }
+          if (i>1) {
+            fac2 = max/i;
+            if (fac2*i == max) {
+              // i is a common factor
+              numerator /= i;
+              denominator /= i;
+              // now start over
+              reduce();
+              continue outer;
+            }
+          }
+        }
+      }
+      // we want one pass, with the option starting over from the middle
+    } while (false);
   }
 
   public void setDenominator(int value) {
@@ -91,6 +139,7 @@ public class CoefficientImpl implements Coefficient {
   @Override
   public String toString() {
 
-    return (sign < 0 ? "-" : "") + numerator + (denominator == 1 ? "" : "/" + denominator);
+    return (sign < 0 ? "-" : "") + numerator
+        + (denominator == 1 ? "" : "/" + denominator);
   }
 }
