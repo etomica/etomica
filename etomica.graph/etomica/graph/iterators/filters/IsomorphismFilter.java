@@ -30,15 +30,18 @@ public class IsomorphismFilter extends GlobalFilter {
         // test for isomorphism and, if they don't match, keep the graph lower in the
         // graph order; update the graph coefficients;
         if (Match.match(isoGraph, g1, false)) {
-          result = false;
           if (isoGraph.compareTo(g1) <= 0) {
             isoGraph.coefficient().add(g1.coefficient());
+            result = false;
+            if (isoGraph.coefficient().getNumerator() == 0) {
+              set.remove(isoGraph);
+            }
           }
           else {
             set.remove(isoGraph);
             g1.coefficient().add(isoGraph.coefficient());
             // replace the graph in the set with an isomorph with lower score
-            result = true;
+            result = g1.coefficient().getNumerator() != 0;
           }
           break;
         }
