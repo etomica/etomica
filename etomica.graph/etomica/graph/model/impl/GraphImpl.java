@@ -436,7 +436,7 @@ public class GraphImpl implements Graph {
 
   public String toSVG(int dim) {
 
-    int nodeR = 6;
+    int nodeR = dim / 12;
     int oX = dim / 2;
     int oY = dim / 2;
     int graphR = dim / 2 - nodeR;
