@@ -11,6 +11,14 @@ public class MetadataImpl implements Metadata {
   private char type;
   private char color;
 
+  // FIXME there has to be a better way to do this
+  // For heterogenous systems, turn this on so that root and field points are not
+  // interchangeable.
+  // even for homogenous fluids, two root points within one component of a graph
+  // should also be special since they are rooted at a specific distance from
+  // each other.
+  public static boolean rootPointsSpecial = false;
+
   protected MetadataImpl(char type, char color) {
 
     this.type = type;
@@ -37,8 +45,7 @@ public class MetadataImpl implements Metadata {
   }
 
   public boolean isCompatible(Metadata other) {
-
-    return (this == other);
+    return (this == other) || (!rootPointsSpecial && isSameColor(other));
   }
 
   public boolean isSameColor(Metadata other) {

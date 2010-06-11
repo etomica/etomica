@@ -68,8 +68,7 @@ public class NodeImpl implements Node {
 
   public boolean isCompatible(Node other) {
 
-    return stockMetadata.isCompatible(other.getMetadata())
-        && (getType() == TYPE_NODE_FIELD || (getType() == TYPE_NODE_ROOT && isSameId(other)));
+    return stockMetadata.isCompatible(other.getMetadata());
   }
 
   public boolean isSameColor(Node other) {

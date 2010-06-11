@@ -237,21 +237,22 @@ public class GraphImpl implements Graph {
   // - FStr = '/F' || (color count)* ordered by color || (outDegree)* ordered
   // - EStr = '/E' || (color count)* ordered by color
   public String getSignature() {
-
     String result = "/R";
     SortedMap<Character, List<Byte>> fieldColorMap = new TreeMap<Character, List<Byte>>();
+    byte rootCount = 0;
     for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
       if (nodes[nodeId].getType() == TYPE_NODE_ROOT) {
-        result += "" + nodes[nodeId].getColor() + nodes[nodeId].getId() + ":" + getOutDegree(nodeId);
+        rootCount++;
       }
-      else {
-        List<Byte> degrees = fieldColorMap.get(nodes[nodeId].getColor());
-        if (degrees == null) {
-          degrees = new ArrayList<Byte>();
-          fieldColorMap.put(nodes[nodeId].getColor(), degrees);
-        }
-        degrees.add(getOutDegree(nodeId));
+    }
+    result += "" + rootCount; 
+    for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
+      List<Byte> degrees = fieldColorMap.get(nodes[nodeId].getColor());
+      if (degrees == null) {
+        degrees = new ArrayList<Byte>();
+        fieldColorMap.put(nodes[nodeId].getColor(), degrees);
       }
+      degrees.add(getOutDegree(nodeId));
     }
     result += "/F";
     for (Character color : fieldColorMap.keySet()) {
