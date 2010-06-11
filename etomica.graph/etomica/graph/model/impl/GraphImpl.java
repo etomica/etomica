@@ -453,24 +453,30 @@ public class GraphImpl implements Graph {
     for (int i = 0; i < nodes.length; i++) {
       x[i] = oX + graphR * Math.cos(oA + i * angle);
       y[i] = oY + graphR * Math.sin(oA + i * angle);
+      if (COLOR_CODES.indexOf(nodes[i].getColor()) == -1) {
+          COLOR_CODES.add(nodes[i].getColor());
+      }
       if (nodes[i].getType() == TYPE_NODE_ROOT) {
         svgNodes += String.format(
             "<circle style=\"fill: white; stroke: %s\" r=\"%d\" cx=\"%.2f\" cy=\"%.2f\"/>\n",
-            COLORS[COLOR_CODES.indexOf(nodes[i].getColor())], nodeR, x[i], y[i]);
+            COLORS.get(COLOR_CODES.indexOf(nodes[i].getColor())), nodeR, x[i], y[i]);
       }
       else {
         svgNodes += String.format(
             "<circle style=\"fill: %s; stroke: black\" r=\"%d\" cx=\"%.2f\" cy=\"%.2f\"/>\n",
-            COLORS[COLOR_CODES.indexOf(nodes[i].getColor())], nodeR, x[i], y[i]);
+            COLORS.get(COLOR_CODES.indexOf(nodes[i].getColor())), nodeR, x[i], y[i]);
       }
     }
     String svgEdges = "";
     for (Edge e : edges()) {
       byte nodeFrom = getFromNode(e.getId());
       byte nodeTo = getToNode(e.getId());
+      if (COLOR_CODES.indexOf(e.getColor()) == -1) {
+          COLOR_CODES.add(e.getColor());
+      }
       svgEdges += String.format(
           "<line style=\"stroke: %s\" x1=\"%.2f\" y1=\"%.2f\" x2=\"%.2f\" y2=\"%.2f\"/>\n",
-          COLORS[COLOR_CODES.indexOf(e.getColor())], x[nodeFrom], y[nodeFrom], x[nodeTo], y[nodeTo]);
+          COLORS.get(COLOR_CODES.indexOf(e.getColor())), x[nodeFrom], y[nodeFrom], x[nodeTo], y[nodeTo]);
     }
     return svgEdges + svgNodes;
   }
