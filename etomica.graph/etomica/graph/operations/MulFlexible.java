@@ -43,6 +43,7 @@ public class MulFlexible implements Binary {
       // add edges from g1
       for (Node node1 : g1.nodes()) {
         result.getNode(node1.getId()).setType(node1.getType());
+        result.getNode(node1.getId()).setColor(node1.getColor());
         for (Node node2 : g1.nodes()) {
           if (node2.getId() <= node1.getId() || !g1.hasEdge(node1.getId(), node2.getId())) continue;
           result.putEdge(node1.getId(), node2.getId());
@@ -52,6 +53,7 @@ public class MulFlexible implements Binary {
       // now add edges from g2
       for (Node node1 : g2.nodes()) {
         result.getNode((byte)(node1.getId()+nodes1)).setType(node1.getType());
+        result.getNode((byte)(node1.getId()+nodes1)).setColor(node1.getColor());
         for (Node node2 : g2.nodes()) {
           if (node2.getId() <= node1.getId() || !g2.hasEdge(node1.getId(), node2.getId())) continue;
           result.putEdge((byte)(node1.getId()+nodes1), (byte)(node2.getId()+nodes1));
