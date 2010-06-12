@@ -6,6 +6,16 @@ public interface Graph extends Comparable<Graph> {
 
   public Coefficient coefficient();
 
+  /**
+   * factors are considered to be variables that go with the diagram, such as
+   * rhoA^2 rhoB^3
+   * 
+   * The array contains the exponents on each of the factors
+   */
+  public int[] factors();
+  public void addFactors(int[] newFactors);
+  public void setNumFactors(int numFactors);
+
   public Graph copy();
 
   public void deleteEdge(byte fromNode, byte toNode);

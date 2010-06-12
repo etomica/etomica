@@ -106,6 +106,9 @@ public class Mul implements Binary {
     // update the coefficient (default value is 1)
     result.coefficient().multiply(left.coefficient());
     result.coefficient().multiply(right.coefficient());
+    result.setNumFactors(left.factors().length);
+    result.addFactors(left.factors());
+    result.addFactors(right.factors());
     return result;
   }
 }

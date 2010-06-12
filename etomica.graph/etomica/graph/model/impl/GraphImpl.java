@@ -32,6 +32,7 @@ public class GraphImpl implements Graph {
   private Node[] nodes;
   private Coefficient coefficient;
   private Map<Byte, Edge> edges = new HashMap<Byte, Edge>();
+  private int[] factors = new int[0];
 
   private GraphImpl(Node[] nodes, Map<Byte, Edge> edges, Bitmap store, Coefficient coefficient) {
 
@@ -47,6 +48,23 @@ public class GraphImpl implements Graph {
     this.nodes = nodes;
     this.store = BitmapFactory.createBitmap((byte) nodes.length, false);
     createEdges();
+  }
+
+  public void setNumFactors(int numFactors) {
+    factors = new int[numFactors];
+  }
+
+  public int[] factors() {
+    return factors;
+  }
+
+  public void addFactors(int[] newFactors) {
+    if (newFactors.length != factors.length) {
+      throw new RuntimeException("incorrect factor length");
+    }
+    for (int i=0; i<factors.length; i++) {
+      factors[i] += newFactors[i];
+    }
   }
 
   public GraphImpl(byte nodeCount) {
@@ -145,7 +163,10 @@ public class GraphImpl implements Graph {
     for (Byte edgeId : edges.keySet()) {
       edgesCopy.put(edgeId, edges.get(edgeId).copy());
     }
-    return new GraphImpl(nodesCopy, edgesCopy, store.copy(), coefficient.copy());
+    Graph g = new GraphImpl(nodesCopy, edgesCopy, store.copy(), coefficient.copy());
+    g.setNumFactors(factors.length);
+    g.addFactors(factors);
+    return g;
   }
 
   protected void createEdges() {
@@ -237,7 +258,15 @@ public class GraphImpl implements Graph {
   // - FStr = '/F' || (color count)* ordered by color || (outDegree)* ordered
   // - EStr = '/E' || (color count)* ordered by color
   public String getSignature() {
-    String result = "/R";
+    String result = "";
+    if (factors.length > 0) {
+      result = "/Fac("+factors[0];
+      for (int i=1; i<factors.length; i++) {
+        result += ","+factors[i];
+      }
+      result += ")";
+    }
+    result += "/R";
     SortedMap<Character, List<Byte>> fieldColorMap = new TreeMap<Character, List<Byte>>();
     byte rootCount = 0;
     for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
@@ -431,7 +460,15 @@ public class GraphImpl implements Graph {
   @Override
   public String toString() {
 
-    return coefficient.toString() + /* " :: " + getSignature() + */" :: " + nodesToString() + " :: "
+    String str = coefficient.toString();
+    if (factors.length > 0) {
+      str += "("+factors[0];
+      for (int i=1; i<factors.length; i++) {
+        str += ","+factors[i];
+      }
+      str += ")";
+    }
+    return str + /* " :: " + getSignature() + */" :: " + nodesToString() + " :: "
         + edgesToString();
   }
 

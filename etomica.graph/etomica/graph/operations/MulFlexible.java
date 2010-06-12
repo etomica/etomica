@@ -33,9 +33,11 @@ public class MulFlexible implements Binary {
     Graph result;
     if (g1.nodeCount() == 1) {
       result = g2.copy();
+      result.coefficient().multiply(g1.coefficient());
     }
     else if (g2.nodeCount() == 1) {
       result = g1.copy();
+      result.coefficient().multiply(g2.coefficient());
     }
     else {
       byte nodes1 = g1.nodeCount();
@@ -63,6 +65,9 @@ public class MulFlexible implements Binary {
       result.coefficient().multiply(g1.coefficient());
       result.coefficient().multiply(g2.coefficient());
     }
+    result.setNumFactors(g1.factors().length);
+    result.addFactors(g1.factors());
+    result.addFactors(g2.factors());
     return result;
   }
 }
