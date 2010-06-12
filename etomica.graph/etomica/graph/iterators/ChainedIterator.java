@@ -24,6 +24,9 @@ public class ChainedIterator implements GraphIterator {
   public void start() {
 
     current = 0;
+    while (current < iterators.size() && !iterators.get(current).hasNext()) {
+      current++;
+    }
   }
 
   public boolean hasNext() {
