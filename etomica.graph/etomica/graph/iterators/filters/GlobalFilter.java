@@ -51,7 +51,10 @@ public abstract class GlobalFilter implements GraphIterator {
       }
       blockingIterator = new ChainedIterator();
       for (String key : blockingMap.keySet()) {
-        blockingIterator.chainIterator(blockingMap.get(key).iterator());
+        Set<Graph> set = blockingMap.get(key);
+        if (set.size() > 0) {
+          blockingIterator.chainIterator(set.iterator());
+        }
       }
       blockingIterator.start();
     }

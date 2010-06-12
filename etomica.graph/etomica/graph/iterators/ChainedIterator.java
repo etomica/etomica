@@ -35,7 +35,7 @@ public class ChainedIterator implements GraphIterator {
 
     if (hasNext()) {
       Graph g = iterators.get(current).next();
-      if (!iterators.get(current).hasNext()) {
+      while (current < iterators.size() && !iterators.get(current).hasNext()) {
         current++;
       }
       return g;
