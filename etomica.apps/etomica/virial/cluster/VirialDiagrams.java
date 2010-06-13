@@ -14,9 +14,13 @@ import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphIterator;
-import etomica.graph.model.GraphSuperSet;
+import etomica.graph.model.GraphList;
 import etomica.graph.model.Node;
-import etomica.graph.model.GraphSuperSet.SubSetJudge;
+import etomica.graph.model.comparators.ComparatorBiConnected;
+import etomica.graph.model.comparators.ComparatorChain;
+import etomica.graph.model.comparators.ComparatorNumEdges;
+import etomica.graph.model.comparators.ComparatorNumFieldNodes;
+import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
@@ -37,59 +41,12 @@ public class VirialDiagrams {
     public static void main(String[] args) {
         final int n = 5;
 
-        SubSetJudge nFieldJudge = new SubSetJudge() {
-            public int getSetId(Graph g) {
-                int fieldCount = 0;
-                for (Node node : g.nodes()) {
-                    if (node.getType() == 'F') {
-                        fieldCount++;
-                    }
-                }
-                return fieldCount;
-            }
-        };
-        SubSetJudge biConJudge = new SubSetJudge() {
-            public int getSetId(Graph g) { return isBiCon.check(g) ? 0 : 1;}
-            protected final IsBiconnected isBiCon = new IsBiconnected();
-        };
-        SubSetJudge nEdgesJudge = new SubSetJudge() {
-            public int getSetId(Graph g) {
-                return n*(n-1)/2 - g.edgeCount();
-            }
-        };
-        SubSetJudge nRootJudge = new SubSetJudge() {
-            public int getSetId(Graph g) {
-                int fieldCount = 0;
-                for (Node node : g.nodes()) {
-                    if (node.getType() == 'F') {
-                        fieldCount++;
-                    }
-                }
-                return g.nodeCount() - fieldCount;
-            }
-        };
-
-        // array of sets containing different # of field points
-        GraphSuperSet<Graph>[] fieldPointsSets = new GraphSuperSet[n+1];
-        for (int l=0; l<n+1; l++) {
-            // array of sets containing biconnected and not-biconnected sets
-            GraphSuperSet<Graph>[] biConSets = new GraphSuperSet[2];
-            for (int k=0; k<2; k++) {
-                // array of sets containing different # of edges
-                GraphSuperSet<Graph>[] nEdgesSets = new GraphSuperSet[n*(n+1)/2+1];
-                for (int j=0; j<n*(n+1)/2+1; j++) {
-                    // array of sets containing different # of root points
-                    Set<Graph>[] rootSets = new Set[n+1];  // low-level sets
-                    for (int m=0; m<n+1; m++) {
-                        rootSets[m] = new HashSet<Graph>();
-                    }
-                    nEdgesSets[j] = new GraphSuperSet<Graph>(nRootJudge, rootSets);
-                }
-                biConSets[k] = new GraphSuperSet<Graph>(nEdgesJudge, nEdgesSets);
-            }
-            fieldPointsSets[l] = new GraphSuperSet<Graph>(biConJudge, biConSets);
-        }
-        GraphSuperSet<Graph> topSet = new GraphSuperSet<Graph>(nFieldJudge, fieldPointsSets);
+        ComparatorChain comp = new ComparatorChain();
+        comp.addComparator(new ComparatorNumFieldNodes());
+        comp.addComparator(new ComparatorBiConnected());
+        comp.addComparator(new ComparatorNumEdges());
+        comp.addComparator(new ComparatorNumNodes());
+        GraphList<Graph> topSet = new GraphList<Graph>(comp);
 
         Set<Graph> eXi = new HashSet<Graph>();//set of full star diagrams with e bonds
         System.out.println("Xi");
