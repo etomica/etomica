@@ -201,7 +201,7 @@ public class ColloidGraphic extends SimulationGraphic {
         
         DeviceBox monomerEpsilonBox = new DeviceBox();
         monomerEpsilonBox.setController(sim.getController());
-        monomerEpsilonBox.setLabel("Wall epsilon");
+        monomerEpsilonBox.setLabel("W-W epsilon");
         monomerEpsilonBox.setModifier(new Modifier() {
             
             public void setValue(double newValue) {
