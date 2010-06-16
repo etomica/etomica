@@ -48,6 +48,7 @@ public class ColloidSim extends Simulation {
     public int nGraft;
     public int chainLength;
     public P1Wall p1WallMonomer, p1WallColloid;
+    public double epsWallWall = 4.0;
     public CriterionPositionWall criterionWallMonomer;
     
     public ColloidSim(Space _space) {
@@ -64,6 +65,7 @@ public class ColloidSim extends Simulation {
         double sigmaColloid = 7.5;
         double lambda = 1.5;
         double boxSize = 80;
+        double epsMM = 1.0;
         
         //controller and integrator
 	    integrator = new IntegratorHard(this, potentialMaster, space);
@@ -105,6 +107,7 @@ public class ColloidSim extends Simulation {
 	    p2mm.setCoreDiameter(sigma);
 	    p2mm.setLambda(lambda);
 	    p2mm.setBondFac(0.85);
+	    p2mm.setEpsilon(epsMM);
         potentialMaster.addPotential(p2mm,new IAtomType[]{species.getLeafType(), species.getLeafType()});
         p2mc = new P2HardSphereMC(space, colloidMonomerBondManager);
         p2mc.setCollisionDiameter(0.5*(sigma+sigmaColloid));
@@ -122,7 +125,7 @@ public class ColloidSim extends Simulation {
         p1WallMonomer.setBox(box);
         p1WallMonomer.setRange(2);
         p1WallMonomer.setSigma(1);
-        p1WallMonomer.setEpsilon(2);
+        p1WallMonomer.setEpsilon(Math.sqrt(epsMM*epsWallWall));
         potentialMaster.addPotential(p1WallMonomer, new IAtomType[]{species.getLeafType()});
         criterionWallMonomer = new CriterionPositionWall(this);
         criterionWallMonomer.setBoundaryWall(true);

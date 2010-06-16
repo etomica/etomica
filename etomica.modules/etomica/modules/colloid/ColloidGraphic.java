@@ -10,6 +10,7 @@ import etomica.action.IAction;
 import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
@@ -27,6 +28,7 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
@@ -37,6 +39,7 @@ import etomica.nbr.CriterionPositionWall;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
@@ -52,6 +55,7 @@ public class ColloidGraphic extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 10;
     protected ColloidSim sim;
     protected final MeterProfileByVolume densityProfileMeter, colloidDensityProfileMeter;
+    protected final MeterEnd2End meterE2E;
     
     public ColloidGraphic(final ColloidSim simulation, Space _space) {
 
@@ -109,6 +113,7 @@ public class ColloidGraphic extends SimulationGraphic {
                     throw new IllegalArgumentException("too large for box size");
                 }
                 sim.setChainLength((int)newValue);
+                meterE2E.setChainLength((int)newValue);
             }
             public double getValue() {
                 return sim.getChainLength();
@@ -197,13 +202,37 @@ public class ColloidGraphic extends SimulationGraphic {
         DeviceBox monomerEpsilonBox = new DeviceBox();
         monomerEpsilonBox.setController(sim.getController());
         monomerEpsilonBox.setLabel("Wall epsilon");
-        monomerEpsilonBox.setModifier(new ModifierGeneral(sim.p1WallMonomer, "epsilon"));
+        monomerEpsilonBox.setModifier(new Modifier() {
+            
+            public void setValue(double newValue) {
+                sim.epsWallWall = newValue;
+                double epsMW = Math.sqrt(newValue*sim.p2mm.getEpsilon());
+                sim.p1WallMonomer.setEpsilon(epsMW);
+            }
+            
+            public double getValue() { return sim.epsWallWall; }
+            public String getLabel() { return "W-W epsilon"; }
+            public Dimension getDimension() { return Energy.DIMENSION; }
+        });
+
         monomerPanel.add(monomerEpsilonBox.graphic());
 
         DeviceBox mmEpsilonBox = new DeviceBox();
         mmEpsilonBox.setController(sim.getController());
         mmEpsilonBox.setLabel("mm epsilon");
         mmEpsilonBox.setModifier(new ModifierGeneral(sim.p2mm, "epsilon"));
+        mmEpsilonBox.setModifier(new Modifier() {
+            
+            public void setValue(double newValue) {
+                sim.p2mm.setEpsilon(newValue);
+                double epsMW = Math.sqrt(newValue*sim.epsWallWall);
+                sim.p1WallMonomer.setEpsilon(epsMW);
+            }
+            
+            public double getValue() { return sim.p2mm.getEpsilon(); }
+            public String getLabel() { return "mm epsilon"; }
+            public Dimension getDimension() { return Energy.DIMENSION; }
+        });
         monomerPanel.add(mmEpsilonBox.graphic());
 
         potentialTabs.add(monomerPanel, "monomer");
@@ -289,6 +318,19 @@ public class ColloidGraphic extends SimulationGraphic {
         colloidProfilePlot.getPlot().setSize(d);
 
         addAsTab(plotPanel, "Density Profiles", true);
+
+        meterE2E = new MeterEnd2End(space);
+        meterE2E.setBox(sim.box);
+        meterE2E.setChainLength(sim.getChainLength());
+        AccumulatorAverageCollapsing avgE2E = new AccumulatorAverageCollapsing();
+        avgE2E.setPushInterval(10);
+        DataPumpListener pumpE2E = new DataPumpListener(meterE2E, avgE2E, 10);
+        sim.integrator.getEventManager().addListener(pumpE2E);
+        dataStreamPumps.add(pumpE2E);
+        DisplayTextBoxesCAE displayE2E = new DisplayTextBoxesCAE();
+        displayE2E.setAccumulator(avgE2E);
+        displayE2E.setLabel("end to end distance");
+        add(displayE2E);
     }
 
     public static class WallRangeModifier implements Modifier {
