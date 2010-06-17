@@ -10,15 +10,9 @@ public interface Coefficient {
 
   public int getNumerator();
 
-  public int getSign();
-
-  public void inc();
-
   public void multiply(Coefficient value);
 
   public void setDenominator(int value);
 
   public void setNumerator(int value);
-
-  public void switchSign();
 }

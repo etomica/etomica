@@ -6,47 +6,37 @@ public class CoefficientImpl implements Coefficient {
 
   private int numerator;
   private int denominator;
-  private int sign;
 
   public CoefficientImpl(int value) {
 
-    this(value, 1, 1);
+    this(value, 1);
   }
 
   public CoefficientImpl(int numerator, int denominator) {
-
-    this(numerator, denominator, 1);
-  }
-
-  public CoefficientImpl(int numerator, int denominator, int sgn) {
-
     this.numerator = numerator;
     this.denominator = denominator;
-    sign = sgn;
+    if (denominator < 0) {
+      numerator = -numerator;
+      denominator = -denominator;
+    }
     reduce();
   }
 
   public void add(Coefficient value) {
 
     if (getDenominator() == value.getDenominator()) {
-      numerator = sign * numerator + value.getSign() * value.getNumerator();
+      numerator = numerator + value.getNumerator();
     }
     else {
-      numerator = sign * numerator * value.getDenominator() + value.getSign()
-          * value.getNumerator() * denominator;
+      numerator = numerator * value.getDenominator() + 
+          value.getNumerator() * denominator;
       denominator = getDenominator() * value.getDenominator();
-    }
-    sign = 1;
-    if (numerator < 0) {
-      numerator = -numerator;
-      sign = -1;
     }
     reduce();
   }
 
   public Coefficient copy() {
-
-    return new CoefficientImpl(numerator, denominator, sign);
+    return new CoefficientImpl(numerator, denominator);
   }
 
   public int getDenominator() {
@@ -59,21 +49,10 @@ public class CoefficientImpl implements Coefficient {
     return numerator;
   }
 
-  public int getSign() {
-
-    return sign;
-  }
-
-  public void inc() {
-
-    numerator += denominator;
-  }
-
   public void multiply(Coefficient value) {
 
     numerator = numerator * value.getNumerator();
     denominator = denominator * value.getDenominator();
-    sign = sign * value.getSign();
     reduce();
   }
 
@@ -131,15 +110,8 @@ outer: do {
     numerator = value;
   }
 
-  public void switchSign() {
-
-    sign = -sign;
-  }
-
-  @Override
   public String toString() {
 
-    return (sign < 0 ? "-" : "") + numerator
-        + (denominator == 1 ? "" : "/" + denominator);
+    return numerator + (denominator == 1 ? "" : "/" + denominator);
   }
 }

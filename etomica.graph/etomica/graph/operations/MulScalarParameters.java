@@ -8,17 +8,7 @@ public class MulScalarParameters implements Parameters {
     private final Coefficient factor;
 
     public MulScalarParameters(int numerator, int denominator) {
-      int sign = 1;
-      if (numerator*denominator < 0) {
-        sign = -1;
-      }
-      if (numerator < 0) {
-        numerator = -numerator;
-      }
-      if (denominator < 0) {
-        denominator = -denominator;
-      }
-      factor = new CoefficientImpl(numerator, denominator, sign);
+      factor = new CoefficientImpl(numerator, denominator);
     }
 
     public MulScalarParameters(Coefficient factor) {

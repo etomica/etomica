@@ -12,7 +12,7 @@ public class NCopy implements Unary {
     Set<Graph> result = new HashSet<Graph>();
     for (Graph g : argument) {
       Graph ncopy = g.copy();
-      ncopy.coefficient().switchSign();
+      ncopy.coefficient().setNumerator(-g.coefficient().getNumerator());
       result.add(ncopy);
     }
     return result;
