@@ -46,6 +46,7 @@ import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.Volume;
 import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;
 import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
@@ -73,6 +74,13 @@ public class VirialAlkane {
             ReadParameters paramReader = new ReadParameters(args[0], params);
             paramReader.readParameters();
         }
+        if (args.length > 1) {
+            // we want to skip the first arg
+            String[] otherArgs = new String[args.length-1];
+            System.arraycopy(args, 1, otherArgs, 0, otherArgs.length);
+            ParseArgs parseArgs = new ParseArgs(params);
+            parseArgs.parseArgs(otherArgs);
+        }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
         double temperature = params.temperature;
@@ -89,12 +97,7 @@ public class VirialAlkane {
         HSB[6] = Standard.B6HS(sigmaHSRef);
         HSB[7] = Standard.B7HS(sigmaHSRef);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-        System.out.println("B2HS: "+HSB[2]);
-        System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
-        System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
-        System.out.println("B5HS: "+HSB[5]+" = 0.110252 B2HS^4");
-        System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
-        System.out.println("B7HS: "+HSB[7]+" = 0.013046 B2HS^6");
+        System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
 		
         Space space = Space3D.getInstance();
         
@@ -119,7 +122,7 @@ public class VirialAlkane {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
+        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
                           temperature,refCluster,targetCluster, nSpheres > 2);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
@@ -128,7 +131,7 @@ public class VirialAlkane {
             sim.integratorOS.setStepFreq0(refFreq);
         }
 
-        SpeciesAlkane species = (SpeciesAlkane)sim.species;
+        SpeciesAlkane species = (SpeciesAlkane)sim.getSpecies(0);
         IAtomType typeCH3 = species.getAtomType(0);
         IAtomType typeCH2 = species.getAtomType(1);
         pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
@@ -154,7 +157,7 @@ public class VirialAlkane {
             }
             pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
             // integrators share a common potentialMaster.  so just add to one
-            sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.species});
+            sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.getSpecies(0)});
         }
         MCMoveClusterTorsionMulti[] torsionMoves = null;
         if (nSpheres > 3) {
@@ -201,7 +204,7 @@ public class VirialAlkane {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        if (true) {
+        if (false) {
             double size = (nSpheres+5)*1.5;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
@@ -257,8 +260,9 @@ public class VirialAlkane {
             
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
-                    double ratio = sim.dsvo.getDataAsScalar() * HSB[nPoints];
-                    double error = sim.dsvo.getError() * HSB[nPoints];
+                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double ratio = ratioAndError[0];
+                    double error = ratioAndError[1];
                     data.x = ratio;
                     averageBox.putData(data);
                     data.x = error;
@@ -310,8 +314,9 @@ public class VirialAlkane {
                 public void integratorStepFinished(IIntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double ratio = sim.dsvo.getDataAsScalar();
-                    double error = sim.dsvo.getError();
+                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double ratio = ratioAndError[0];
+                    double error = ratioAndError[1];
                     System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
                 }
             };
@@ -325,8 +330,9 @@ public class VirialAlkane {
         System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
         System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
         IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
