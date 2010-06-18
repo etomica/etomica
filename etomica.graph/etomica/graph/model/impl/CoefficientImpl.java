@@ -58,7 +58,7 @@ public class CoefficientImpl implements Coefficient {
 
   protected void reduce() {
 outer: do {
-      int min = numerator;
+      int min = Math.abs(numerator);
       int max = denominator;
       if (min > max) {
         int t = min;
