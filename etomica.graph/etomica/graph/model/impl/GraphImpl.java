@@ -1,13 +1,15 @@
 package etomica.graph.model.impl;
 
-import java.util.ArrayList;
+import static etomica.graph.model.Metadata.COLORS;
+import static etomica.graph.model.Metadata.COLOR_CODES;
+import static etomica.graph.model.Metadata.TYPE_EDGE_ANY;
+import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -24,17 +26,15 @@ import etomica.graph.model.NodeVisitor;
 import etomica.graph.traversal.DepthFirst;
 import etomica.graph.traversal.Traversal;
 
-import static etomica.graph.model.Metadata.*;
-
 public class GraphImpl implements Graph {
 
-  private Bitmap store;
-  private Node[] nodes;
-  private Coefficient coefficient;
-  private Map<Byte, Edge> edges = new HashMap<Byte, Edge>();
+  private final Bitmap store;
+  private final Node[] nodes;
+  private final Coefficient coefficient;
+  private final Edge[] edges;
   private int[] factors = new int[0];
 
-  private GraphImpl(Node[] nodes, Map<Byte, Edge> edges, Bitmap store, Coefficient coefficient) {
+  private GraphImpl(Node[] nodes, Edge[] edges, Bitmap store, Coefficient coefficient) {
 
     this.nodes = nodes;
     this.edges = edges;
@@ -47,6 +47,7 @@ public class GraphImpl implements Graph {
     this.coefficient = GraphFactory.createCoefficient();
     this.nodes = nodes;
     this.store = BitmapFactory.createBitmap((byte) nodes.length, false);
+    edges = new Edge[nodes.length*(nodes.length-1)/2];
     createEdges();
   }
 
@@ -95,6 +96,7 @@ public class GraphImpl implements Graph {
       this.nodes[i] = GraphFactory.createNode(i, i < rootNodeCount);
     }
     this.store = store;
+    edges = new Edge[nodeCount*(nodeCount-1)/2];
     createEdges();
   }
 
@@ -110,8 +112,10 @@ public class GraphImpl implements Graph {
     // same node color strings; the ordering based on color strings is arbitrary, yet
     // useful as a tie breaker; the actual colors mapped to each of these abstract
     // colors can be freely defined
-    if (nodes().size() == other.nodes().size()) {
-      if (edges.size() == other.edges().size()) {
+    List<Node> otherNodes = other.nodes();
+    if (nodes.length == otherNodes.size()) {
+      List<Edge> otherEdges = other.edges();
+      if (edgeCount() == otherEdges.size()) {
         // check store
         int storeOrder = store.compareTo(other.getStore());
         if (storeOrder != 0) {
@@ -119,16 +123,16 @@ public class GraphImpl implements Graph {
         }
         // check nodes
         for (int nodeId = 0; nodeId < nodes().size(); nodeId++) {
-          int nodeOrder = nodes().get(nodeId).compareTo(other.nodes().get(nodeId));
+          int nodeOrder = nodes().get(nodeId).compareTo(otherNodes.get(nodeId));
           if (nodeOrder != 0) {
             return nodeOrder;
           }
         }
         // check edges
         for (byte edgeId = 0; edgeId < edges().size(); edgeId++) {
-          Edge edge = edges.get(edgeId);
+          Edge edge = edges[edgeId];
           if (edge != null) {
-            int edgeOrder = edge.compareTo(other.getEdge(edge.getId()));
+            int edgeOrder = edge.compareTo(otherEdges.get(edge.getId()));
             if (edgeOrder != 0) {
               return edgeOrder;
             }
@@ -136,14 +140,14 @@ public class GraphImpl implements Graph {
         }
         return 0;
       }
-      else if (edges().size() < other.edges().size()) {
+      else if (edges().size() < otherEdges.size()) {
         return -1;
       }
       else {
         return 1;
       }
     }
-    else if (nodes().size() < other.nodes().size()) {
+    else if (nodes().size() < otherNodes.size()) {
       return -1;
     }
     else {
@@ -159,9 +163,9 @@ public class GraphImpl implements Graph {
       nodesCopy[nodeId] = nodes[nodeId].copy();
     }
     // copy the edges
-    Map<Byte, Edge> edgesCopy = new HashMap<Byte, Edge>();
-    for (Byte edgeId : edges.keySet()) {
-      edgesCopy.put(edgeId, edges.get(edgeId).copy());
+    Edge[] edgesCopy = new Edge[edges.length];
+    for (byte edgeId = 0; edgeId < edges.length; edgeId++) {
+      if (edges[edgeId] != null) edgesCopy[edgeId] = edges[edgeId].copy();
     }
     Graph g = new GraphImpl(nodesCopy, edgesCopy, store.copy(), coefficient.copy());
     g.setNumFactors(factors.length);
@@ -173,9 +177,9 @@ public class GraphImpl implements Graph {
 
     for (byte i = 0; i < nodes.length; i++) {
       for (byte j = (byte) (i + 1); j < nodes.length; j++) {
-        if (hasEdge(i, j)) {
-          byte edgeId = getEdgeId(i, j);
-          edges.put(edgeId, GraphFactory.createEdge(edgeId));
+        byte edgeId = getEdgeId(i, j);
+        if (store.testBit(edgeId)) {
+          edges[edgeId] = GraphFactory.createEdge(edgeId);
         }
       }
     }
@@ -184,13 +188,17 @@ public class GraphImpl implements Graph {
   public void deleteEdge(byte fromNode, byte toNode) {
 
     byte edgeId = getEdgeId(fromNode, toNode);
-    edges.remove(edgeId);
+    edges[edgeId] = null;
     store.clearBit(edgeId);
   }
 
   public List<Edge> edges() {
 
-    return new ArrayList<Edge>(edges.values());
+    ArrayList<Edge> list = new ArrayList<Edge>(edgeCount());
+    for (byte edgeId=0; edgeId<edges.length; edgeId++) {
+      if (edges[edgeId] != null) list.add(edges[edgeId]);
+    }
+    return list;
   }
 
   public String edgesToString() {
@@ -199,13 +207,14 @@ public class GraphImpl implements Graph {
     String result = "";
     // boolean isMono = (getColors(TYPE_EDGE_ANY).size() == 1);
     boolean first = true;
-    for (Byte edgeId : edges.keySet()) {
+    for (byte edgeId=0; edgeId<edges.length; edgeId++) {
+      if (edges[edgeId] == null) continue;
       if (!first) {
         result += ", ";
       }
       result += "(" + getFromNode(edgeId) + "," + getToNode(edgeId) + ")";
       // if (!isMono) {
-      result += edges.get(edgeId).getColor();
+      result += edges[edgeId].getColor();
       // }
       first = false;
     }
@@ -226,7 +235,7 @@ public class GraphImpl implements Graph {
         return false;
       }
       // check edge count
-      if (edges.size() != other.edgeCount()) {
+      if (edgeCount() != other.edgeCount()) {
         return false;
       }
       // check nodes
@@ -236,8 +245,8 @@ public class GraphImpl implements Graph {
         }
       }
       // check edges
-      for (Edge edge : edges.values()) {
-        if (!edge.equals(other.getEdge(edge.getId()))) {
+      for (byte edgeId=0; edgeId<edges.length; edgeId++) {
+        if (edges[edgeId] != null && !edges[edgeId].equals(other.getEdge(edgeId))) {
           return false;
         }
       }
@@ -293,7 +302,9 @@ public class GraphImpl implements Graph {
       }
     }
     SortedMap<Character, Byte> edgeColorMap = new TreeMap<Character, Byte>();
-    for (Edge edge : edges.values()) {
+    for (byte edgeId=0; edgeId<edges.length; edgeId++) {
+      Edge edge = edges[edgeId];
+      if (edge == null) continue;
       Byte count = edgeColorMap.get(edge.getColor());
       if (count == null) {
         edgeColorMap.put(edge.getColor(), (byte) 1);
@@ -328,12 +339,12 @@ public class GraphImpl implements Graph {
 
   public Edge getEdge(byte fromNode, byte toNode) {
 
-    return edges.get(getEdgeId(fromNode, toNode));
+    return edges[getEdgeId(fromNode, toNode)];
   }
 
   public Edge getEdge(byte edgeId) {
 
-    return edges.get(edgeId);
+    return edges[edgeId];
   }
 
   public byte edgeCount() {
@@ -447,14 +458,14 @@ public class GraphImpl implements Graph {
     byte edgeId = getEdgeId(fromNode, toNode);
     store.setBit(edgeId);
     Edge edge = GraphFactory.createEdge(edgeId);
-    edges.put(edgeId, edge);
+    edges[edgeId] = edge;
     return edge;
   }
 
   public void putEdge(byte edgeId) {
 
     store.setBit(edgeId);
-    edges.put(edgeId, GraphFactory.createEdge(edgeId));
+    edges[edgeId] = GraphFactory.createEdge(edgeId);;
   }
 
   @Override
@@ -520,8 +531,8 @@ public class GraphImpl implements Graph {
 
   public void visitEdges(EdgeVisitor visitor) {
 
-    for (Edge edge : edges.values()) {
-      if (!visitor.visit(edge)) {
+    for (byte edgeId=0; edgeId<edges.length; edgeId++) {
+      if (edges[edgeId] != null && !visitor.visit(edges[edgeId])) {
         return;
       }
     }
