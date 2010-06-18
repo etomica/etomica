@@ -9,8 +9,8 @@ import java.util.Set;
 import etomica.graph.iterators.IteratorWrapper;
 import etomica.graph.iterators.filters.FieldNodeCount;
 import etomica.graph.iterators.filters.IsomorphismFilter;
-import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.BitmapFactory;
+import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphIterator;
@@ -33,13 +33,13 @@ import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.IsBiconnected;
-import etomica.graph.property.IsConnected;
 import etomica.graph.viewer.ClusterViewer;
 
 public class VirialDiagrams {
 
     public static void main(String[] args) {
         final int n = 5;
+        boolean multibody = false;
 
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
@@ -50,20 +50,35 @@ public class VirialDiagrams {
 
         Set<Graph> eXi = new HashSet<Graph>();//set of full star diagrams with e bonds
         System.out.println("Xi");
+        char eBond = 'A';//color of edge
+        char fBond = 'f';
+        char oneBond = 'o';
+        char mBond = 'm';  // multi-body
+        Set<Graph>[] multiXi = new Set[n+1];
         for (byte i=1; i<n+1; i++) {
             Graph g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
             g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
             eXi.add(g);
+            
+            multiXi[i] = new HashSet<Graph>();
+
+            if (multibody && i>2) {
+                g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
+                g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
+                for (Edge e : g.edges()) {
+                    e.setColor(mBond);
+                }
+                eXi.add(g);
+                multiXi[i].add(g);
+            }
         }
         
         topSet.addAll(eXi);
         for (Graph g : topSet) {
             System.out.println(g);
         }
-        
-        char eBond = 'A';//color of edge
-        char fBond = 'f';
-        char oneBond = 'o';
+//        ClusterViewer.createView("eXi", topSet);
+
         
         Split split = new Split();
         SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
@@ -79,19 +94,42 @@ public class VirialDiagrams {
         for (Graph g : topSet) {
             System.out.println(g);
         }
+//        ClusterViewer.createView("fXi", topSet);
         
-        GraphIterator iterator = new PropertyFilter(new IteratorWrapper(fXi.iterator()), new IsConnected());
         Set<Graph> lnfXi = new HashSet<Graph>();
-        while (iterator.hasNext()) {
-            Graph g = iterator.next();
-            lnfXi.add(g);
+        Set<Graph> fXipow = new HashSet<Graph>();
+        MulFlexible mulFlex = new MulFlexible();
+        IsoFree isoFree = new IsoFree();
+        fXipow.addAll(fXi);
+        MulScalarParameters msp = null;
+        MulScalar mulScalar = new MulScalar();
+        for (int i=1; i<n+1; i++) {
+
+            lnfXi.addAll(fXipow);
+            lnfXi = isoFree.apply(lnfXi, null);
+            msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
+            fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, null), msp), null);
+            FieldNodeCount truncater = new FieldNodeCount(new IteratorWrapper(fXipow.iterator()), n);
+            Set<Graph> truncatedfXipow = new HashSet<Graph>();
+            while (truncater.hasNext()) {
+                truncatedfXipow.add(truncater.next());
+            }
+            fXipow = truncatedfXipow;
+
         }
+        topSet.clear();
+        topSet.addAll(lnfXi);
+        System.out.println("\nlnfXi");
+        for (Graph g : topSet) {
+            System.out.println(g);
+        }
+//        ClusterViewer.createView("lnfXi", topSet);
 
         DifByNode opzdlnXidz = new DifByNode();
         DifParameters difParams = new DifParameters('A');
         Set<Graph> rho = opzdlnXidz.apply(lnfXi, difParams);
         
-        iterator = new IsomorphismFilter(new IteratorWrapper(rho.iterator()));
+        GraphIterator iterator = new IsomorphismFilter(new IteratorWrapper(rho.iterator()));
         rho = new HashSet<Graph>();
         while (iterator.hasNext()) {
             rho.add(iterator.next());
@@ -113,7 +151,6 @@ public class VirialDiagrams {
             allRho[g.nodeCount()].add(g);
         }
         
-        MulFlexible mulFlex = new MulFlexible();
         Set<Graph> z = new HashSet<Graph>();
         
         // r = z + b*z^2 + c*z^3 + d*z^4 + e*z^5
@@ -121,48 +158,47 @@ public class VirialDiagrams {
         //     + (14 b^4 - 21 b^2*c + 3 c^2 + 6 b*d - e) r^5
         z.addAll(allRho[1]);
         if (n>1) {
-            MulScalarParameters p = new MulScalarParameters(new CoefficientImpl(-1,1));
-            z.addAll(new MulScalar().apply(allRho[2], p));
+            msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+            z.addAll(new MulScalar().apply(allRho[2], msp));
             
             if (n>2) {
-                p = new MulScalarParameters(new CoefficientImpl(2,1));
+                msp = new MulScalarParameters(new CoefficientImpl(2,1));
                 Set<Graph> b2 = mulFlex.apply(allRho[2], allRho[2], null);
-                z.addAll(new MulScalar().apply(b2, p));
-                p = new MulScalarParameters(new CoefficientImpl(-1,1));
-                z.addAll(new MulScalar().apply(allRho[3], p));
+                z.addAll(new MulScalar().apply(b2, msp));
+                msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+                z.addAll(new MulScalar().apply(allRho[3], msp));
                 
                 if (n>3) {
                     Set<Graph> b3 = mulFlex.apply(b2, allRho[2], null);
-                    p = new MulScalarParameters(new CoefficientImpl(-5,1));
-                    z.addAll(new MulScalar().apply(b3, p));
+                    msp = new MulScalarParameters(new CoefficientImpl(-5,1));
+                    z.addAll(new MulScalar().apply(b3, msp));
                     Set<Graph> bc = mulFlex.apply(allRho[2], allRho[3], null);
-                    p = new MulScalarParameters(new CoefficientImpl(5,1));
-                    z.addAll(new MulScalar().apply(bc, p));
-                    p = new MulScalarParameters(new CoefficientImpl(-1,1));
-                    z.addAll(new MulScalar().apply(allRho[4], p));
+                    msp = new MulScalarParameters(new CoefficientImpl(5,1));
+                    z.addAll(new MulScalar().apply(bc, msp));
+                    msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+                    z.addAll(new MulScalar().apply(allRho[4], msp));
                     
                     if (n>4) {
                         Set<Graph> b4 = mulFlex.apply(b3, allRho[2], null);
-                        p = new MulScalarParameters(new CoefficientImpl(14,1));
-                        z.addAll(new MulScalar().apply(b4, p));
+                        msp = new MulScalarParameters(new CoefficientImpl(14,1));
+                        z.addAll(new MulScalar().apply(b4, msp));
                         Set<Graph> b2c = mulFlex.apply(b2, allRho[3], null);
-                        p = new MulScalarParameters(new CoefficientImpl(-21,1));
-                        z.addAll(new MulScalar().apply(b2c, p));
+                        msp = new MulScalarParameters(new CoefficientImpl(-21,1));
+                        z.addAll(new MulScalar().apply(b2c, msp));
                         Set<Graph> c2 = mulFlex.apply(allRho[3], allRho[3], null);
-                        p = new MulScalarParameters(new CoefficientImpl(3,1));
-                        z.addAll(new MulScalar().apply(c2, p));
+                        msp = new MulScalarParameters(new CoefficientImpl(3,1));
+                        z.addAll(new MulScalar().apply(c2, msp));
                         Set<Graph> bd = mulFlex.apply(allRho[2], allRho[4], null);
-                        p = new MulScalarParameters(new CoefficientImpl(6,1));
-                        z.addAll(new MulScalar().apply(bd, p));
-                        p = new MulScalarParameters(new CoefficientImpl(-1,1));
-                        z.addAll(new MulScalar().apply(allRho[5], p));
+                        msp = new MulScalarParameters(new CoefficientImpl(6,1));
+                        z.addAll(new MulScalar().apply(bd, msp));
+                        msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+                        z.addAll(new MulScalar().apply(allRho[5], msp));
                     }
                 }
             }
         }
 
         System.out.println("\nz");
-        IsoFree isoFree = new IsoFree();
         z = isoFree.apply(z, null);
         topSet.clear();
         topSet.addAll(z);
