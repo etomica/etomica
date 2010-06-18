@@ -1,5 +1,7 @@
 package etomica.graph.operations;
 
+import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,11 +33,13 @@ public class MulFlexible implements Binary {
 
   public Graph apply(Graph g1, Graph g2) {
     Graph result;
-    if (g1.nodeCount() == 1) {
+    // FIXME: should look for any root node without any bonds.  this root can be superimposed on another
+    // node of appropriate color even though we're doing flexible molecules.
+    if (g1.nodeCount() == 0 || (g1.nodeCount() == 1 && g1.getNode((byte)0).getType() == TYPE_NODE_ROOT)) {
       result = g2.copy();
       result.coefficient().multiply(g1.coefficient());
     }
-    else if (g2.nodeCount() == 1) {
+    else if (g2.nodeCount() == 0 || (g2.nodeCount() == 1 && g2.getNode((byte)0).getType() == TYPE_NODE_ROOT)) {
       result = g1.copy();
       result.coefficient().multiply(g2.coefficient());
     }
