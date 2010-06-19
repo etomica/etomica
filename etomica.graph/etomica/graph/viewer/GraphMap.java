@@ -69,7 +69,7 @@ public class GraphMap {
     this.graphs = graphs;
     clustersAcross = (container.getWidth() - 4 * defaultBorder) / (clusterDimOut);
     clustersAcross = clustersAcross > graphs.size() ? graphs.size() : clustersAcross;
-    clustersAlong = graphs.size() / clustersAcross + (graphs.size() % clustersAcross > 0 ? 1 : 0);
+    clustersAlong = clustersAcross > 0 ? (graphs.size() / clustersAcross + (graphs.size() % clustersAcross > 0 ? 1 : 0)) : 0;
     width = 4 * defaultBorder + clustersAcross * (clusterDimOut);
     height = 2 * defaultBorder + clustersAlong * (clusterDimOut);
   }
