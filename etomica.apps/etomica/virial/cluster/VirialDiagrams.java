@@ -1,6 +1,6 @@
 package etomica.virial.cluster;
 
-import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
+import static etomica.graph.model.Metadata.COLOR_CODE_0;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,6 +32,7 @@ import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
+import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.viewer.ClusterViewer;
 
@@ -40,6 +41,12 @@ public class VirialDiagrams {
     public static void main(String[] args) {
         final int n = 5;
         boolean multibody = false;
+        boolean flex = false;
+        
+        char[] flexColors = new char[0];
+        if (flex) {
+           flexColors = new char[]{COLOR_CODE_0};
+        }
 
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
@@ -99,6 +106,7 @@ public class VirialDiagrams {
         Set<Graph> lnfXi = new HashSet<Graph>();
         Set<Graph> fXipow = new HashSet<Graph>();
         MulFlexible mulFlex = new MulFlexible();
+        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors);
         IsoFree isoFree = new IsoFree();
         fXipow.addAll(fXi);
         MulScalarParameters msp = null;
@@ -108,7 +116,7 @@ public class VirialDiagrams {
             lnfXi.addAll(fXipow);
             lnfXi = isoFree.apply(lnfXi, null);
             msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
-            fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, null), msp), null);
+            fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, mfp), msp), null);
             FieldNodeCount truncater = new FieldNodeCount(new IteratorWrapper(fXipow.iterator()), n);
             Set<Graph> truncatedfXipow = new HashSet<Graph>();
             while (truncater.hasNext()) {
@@ -163,32 +171,32 @@ public class VirialDiagrams {
             
             if (n>2) {
                 msp = new MulScalarParameters(new CoefficientImpl(2,1));
-                Set<Graph> b2 = mulFlex.apply(allRho[2], allRho[2], null);
+                Set<Graph> b2 = mulFlex.apply(allRho[2], allRho[2], mfp);
                 z.addAll(new MulScalar().apply(b2, msp));
                 msp = new MulScalarParameters(new CoefficientImpl(-1,1));
                 z.addAll(new MulScalar().apply(allRho[3], msp));
                 
                 if (n>3) {
-                    Set<Graph> b3 = mulFlex.apply(b2, allRho[2], null);
+                    Set<Graph> b3 = mulFlex.apply(b2, allRho[2], mfp);
                     msp = new MulScalarParameters(new CoefficientImpl(-5,1));
                     z.addAll(new MulScalar().apply(b3, msp));
-                    Set<Graph> bc = mulFlex.apply(allRho[2], allRho[3], null);
+                    Set<Graph> bc = mulFlex.apply(allRho[2], allRho[3], mfp);
                     msp = new MulScalarParameters(new CoefficientImpl(5,1));
                     z.addAll(new MulScalar().apply(bc, msp));
                     msp = new MulScalarParameters(new CoefficientImpl(-1,1));
                     z.addAll(new MulScalar().apply(allRho[4], msp));
                     
                     if (n>4) {
-                        Set<Graph> b4 = mulFlex.apply(b3, allRho[2], null);
+                        Set<Graph> b4 = mulFlex.apply(b3, allRho[2], mfp);
                         msp = new MulScalarParameters(new CoefficientImpl(14,1));
                         z.addAll(new MulScalar().apply(b4, msp));
-                        Set<Graph> b2c = mulFlex.apply(b2, allRho[3], null);
+                        Set<Graph> b2c = mulFlex.apply(b2, allRho[3], mfp);
                         msp = new MulScalarParameters(new CoefficientImpl(-21,1));
                         z.addAll(new MulScalar().apply(b2c, msp));
-                        Set<Graph> c2 = mulFlex.apply(allRho[3], allRho[3], null);
+                        Set<Graph> c2 = mulFlex.apply(allRho[3], allRho[3], mfp);
                         msp = new MulScalarParameters(new CoefficientImpl(3,1));
                         z.addAll(new MulScalar().apply(c2, msp));
-                        Set<Graph> bd = mulFlex.apply(allRho[2], allRho[4], null);
+                        Set<Graph> bd = mulFlex.apply(allRho[2], allRho[4], mfp);
                         msp = new MulScalarParameters(new CoefficientImpl(6,1));
                         z.addAll(new MulScalar().apply(bd, msp));
                         msp = new MulScalarParameters(new CoefficientImpl(-1,1));
@@ -214,53 +222,52 @@ public class VirialDiagrams {
         }
         while (iterator.hasNext()) {
             Graph g = iterator.next().copy();
-            g.getNode((byte)0).setType(TYPE_NODE_ROOT);
+//            g.getNode((byte)0).setType(TYPE_NODE_ROOT);
             lnfXiOverV.add(g);
             alllnfXiOverV[g.nodeCount()].add(g);
         }
         
         Set<Graph> p = new HashSet<Graph>();
-        p.addAll(mulFlex.apply(alllnfXiOverV[1], z, null));
+        p.addAll(mulFlex.apply(alllnfXiOverV[1], z, mfp));
         p = isoFree.apply(p, null);
 
-        etomica.graph.model.Metadata.COLOR_CODES.add('f');
-        
+
         if (n>1) {
             Set<Graph> z2 = new HashSet<Graph>();
-            iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z, z, null).iterator()), n-2);
+            iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z, z, mfp).iterator()), n-2);
             while (iterator.hasNext()) {
                 z2.add(iterator.next());
             }
 
-            p.addAll(mulFlex.apply(alllnfXiOverV[2], z2, null));
+            p.addAll(mulFlex.apply(alllnfXiOverV[2], z2, mfp));
 
             p = isoFree.apply(p, null);
 
             if (n>2) {
                 Set<Graph> z3 = new HashSet<Graph>();
-                iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z2, z, null).iterator()), n-3);
+                iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z2, z, mfp).iterator()), n-3);
                 while (iterator.hasNext()) {
                     z3.add(iterator.next());
                 }
-                p.addAll(mulFlex.apply(alllnfXiOverV[3], z3, null));
+                p.addAll(mulFlex.apply(alllnfXiOverV[3], z3, mfp));
                 p = isoFree.apply(p, null);
                 
                 if (n>3) {
                     Set<Graph> z4 = new HashSet<Graph>();
-                    iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z3, z, null).iterator()), n-4);
+                    iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z3, z, mfp).iterator()), n-4);
                     while (iterator.hasNext()) {
                         z4.add(iterator.next());
                     }
-                    p.addAll(mulFlex.apply(alllnfXiOverV[4], z4, null));
+                    p.addAll(mulFlex.apply(alllnfXiOverV[4], z4, mfp));
                     p = isoFree.apply(p, null);
 
                     if (n>4) {
                         Set<Graph> z5 = new HashSet<Graph>();
-                        iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z4, z, null).iterator()), n-5);
+                        iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z4, z, mfp).iterator()), n-5);
                         while (iterator.hasNext()) {
                             z5.add(iterator.next());
                         }
-                        p.addAll(mulFlex.apply(alllnfXiOverV[5], z5, null));
+                        p.addAll(mulFlex.apply(alllnfXiOverV[5], z5, mfp));
                         p = isoFree.apply(p, null);
 
                     }
