@@ -1,5 +1,7 @@
 package etomica.graph.operations;
 
+import static etomica.graph.model.Metadata.TYPE_NODE_FIELD;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,8 +27,14 @@ public class Decorate implements Binary {
     int maxNodes = 0;
     int maxPow = 0;
     for (Graph g : argument) {
-      if (g.nodeCount() > maxNodes) {
-        maxNodes = g.nodeCount();
+      int fieldNodes = 0;
+      for (Node node : g.nodes()) {
+        if (node.getType() == TYPE_NODE_FIELD) {
+          fieldNodes++;
+        }
+      }
+      if (fieldNodes > maxNodes) {
+        maxNodes = fieldNodes;
       }
       int colorCount = 0;
       for (Node node : g.nodes()) {
