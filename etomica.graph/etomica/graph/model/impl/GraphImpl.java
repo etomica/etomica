@@ -132,11 +132,9 @@ public class GraphImpl implements Graph {
         // check edges
         for (int iEdge = 0; iEdge < myEdges.size(); iEdge++) {
           Edge edge = myEdges.get(iEdge);
-          if (edge != null) {
-            int edgeOrder = edge.compareTo(otherEdges.get(iEdge));
-            if (edgeOrder != 0) {
-              return edgeOrder;
-            }
+          int edgeOrder = edge.compareTo(otherEdges.get(edge.getId()));
+          if (edgeOrder != 0) {
+            return edgeOrder;
           }
         }
         return 0;
