@@ -93,6 +93,7 @@ public class GraphMap {
               "<g id=\"g%d\" style=\"fill:none; stroke: black; stroke-width: 1.1;\" transform=\"translate(%d,%d)\">\n",
               row * clustersAcross + col, col * clusterDimOut + 2 * defaultBorder, row * clusterDimOut + 2
                   * defaultBorder);
+      mapSVG += "<title>"+g.toString()+"</title>\n";
       mapSVG += g.toSVG(clusterDim);
       mapSVG += "</g>\n";
       col++;
@@ -133,7 +134,8 @@ public class GraphMap {
     }
 
     canvas = new JSVGCanvas();
-    canvas.setDocumentState(JSVGComponent.ALWAYS_STATIC);
+    // tooltips don't work with ALWAYS_STATIC...
+//    canvas.setDocumentState(JSVGComponent.ALWAYS_STATIC);
     JSVGScrollPane spane = new JSVGScrollPane(canvas);
     SVGContextMenu menu = new SVGContextMenu(spane);
     canvas.setSVGDocument(svg);
