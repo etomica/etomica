@@ -49,7 +49,11 @@ public class ClusterBonds implements java.io.Serializable {
 		}
 		if(usePermutations) setUsePermutations(usePermutations);
 	}
-	
+
+	public int[][] getBondIndexArray() {
+	    return bondIndexArray;
+	}
+
 	public String toString() {
 		String string = "Cluster \n Number of points: " + nPoints + "\n";
 		if(!usePermutations) {
