@@ -122,14 +122,14 @@ public class GraphImpl implements Graph {
           return storeOrder;
         }
         // check nodes
-        for (int nodeId = 0; nodeId < nodes().size(); nodeId++) {
-          int nodeOrder = nodes().get(nodeId).compareTo(otherNodes.get(nodeId));
+        for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
+          int nodeOrder = nodes[nodeId].compareTo(otherNodes.get(nodeId));
           if (nodeOrder != 0) {
             return nodeOrder;
           }
         }
         // check edges
-        for (byte edgeId = 0; edgeId < edges().size(); edgeId++) {
+        for (byte edgeId = 0; edgeId < edges.length; edgeId++) {
           Edge edge = edges[edgeId];
           if (edge != null) {
             int edgeOrder = edge.compareTo(otherEdges.get(edge.getId()));
