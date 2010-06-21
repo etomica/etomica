@@ -2,8 +2,8 @@ package etomica.virial.cluster;
 
 import static etomica.graph.model.Metadata.COLOR_CODE_0;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import etomica.graph.iterators.IteratorWrapper;
@@ -15,25 +15,28 @@ import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphIterator;
 import etomica.graph.model.GraphList;
-import etomica.graph.model.Node;
 import etomica.graph.model.comparators.ComparatorBiConnected;
 import etomica.graph.model.comparators.ComparatorChain;
 import etomica.graph.model.comparators.ComparatorNumEdges;
 import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
+import etomica.graph.operations.Decorate;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
+import etomica.graph.operations.Factor;
+import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
+import etomica.graph.operations.Decorate.DecorateParameters;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
-import etomica.graph.property.IsBiconnected;
+import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.viewer.ClusterViewer;
 
 public class VirialDiagrams {
@@ -214,114 +217,68 @@ public class VirialDiagrams {
             System.out.println(g);
         }
         
-        HashSet<Graph> lnfXiOverV = new HashSet<Graph>();
-        iterator = new IteratorWrapper(lnfXi.iterator());
-        HashSet<Graph>[] alllnfXiOverV = new HashSet[n+1];
-        for (int i=0; i<n+1; i++) {
-            alllnfXiOverV[i] = new HashSet<Graph>();
-        }
-        while (iterator.hasNext()) {
-            Graph g = iterator.next().copy();
-//            g.getNode((byte)0).setType(TYPE_NODE_ROOT);
-            lnfXiOverV.add(g);
-            alllnfXiOverV[g.nodeCount()].add(g);
-        }
+        Decorate decorate = new Decorate();
+        DecorateParameters dp = new DecorateParameters(COLOR_CODE_0, mfp);
         
-        Set<Graph> p = new HashSet<Graph>();
-        p.addAll(mulFlex.apply(alllnfXiOverV[1], z, mfp));
+        Set<Graph> p = decorate.apply(lnfXi, z, dp);
         p = isoFree.apply(p, null);
-
-
-        if (n>1) {
-            Set<Graph> z2 = new HashSet<Graph>();
-            iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z, z, mfp).iterator()), n-2);
-            while (iterator.hasNext()) {
-                z2.add(iterator.next());
+        
+        // attempt to factor any graphs with an articulation point
+        HashMap<Graph,Graph> cancelSet = new HashMap<Graph,Graph>();
+        if (!flex) {
+            HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
+            Factor factor = new Factor();
+            Set<Graph> newP = new HashSet<Graph>();
+            for (Graph g : p) {
+                boolean ap = hap.check(g);
+                boolean con = hap.isConnected();
+                if ((con && ap) || (!con && hap.getArticulationPoints().size() > 0)) {
+                    Graph gf = factor.apply(g, mfp);
+                    newP.add(gf);
+                }
+                else {
+                    newP.add(g.copy());
+                }
             }
-
-            p.addAll(mulFlex.apply(alllnfXiOverV[2], z2, mfp));
-
-            p = isoFree.apply(p, null);
-
-            if (n>2) {
-                Set<Graph> z3 = new HashSet<Graph>();
-                iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z2, z, mfp).iterator()), n-3);
-                while (iterator.hasNext()) {
-                    z3.add(iterator.next());
+            p = isoFree.apply(newP, null);
+        }
+        else {
+            MulFlexibleParameters mfp2 = new MulFlexibleParameters(new char[0]);
+            HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
+            FactorOnce factor = new FactorOnce();
+            Set<Graph> newP = new HashSet<Graph>();
+            for (Graph g : p) {
+                boolean ap = hap.check(g);
+                boolean con = hap.isConnected();
+                newP.add(g.copy());
+                if (con && ap) {
+                    System.out.println("\nfactoring\n"+g);
+                    Graph gf = factor.apply(g, mfp2);
+                    newP.add(gf);
                 }
-                p.addAll(mulFlex.apply(alllnfXiOverV[3], z3, mfp));
-                p = isoFree.apply(p, null);
-                
-                if (n>3) {
-                    Set<Graph> z4 = new HashSet<Graph>();
-                    iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z3, z, mfp).iterator()), n-4);
-                    while (iterator.hasNext()) {
-                        z4.add(iterator.next());
-                    }
-                    p.addAll(mulFlex.apply(alllnfXiOverV[4], z4, mfp));
-                    p = isoFree.apply(p, null);
-
-                    if (n>4) {
-                        Set<Graph> z5 = new HashSet<Graph>();
-                        iterator = new FieldNodeCount(new IteratorWrapper(mulFlex.apply(z4, z, mfp).iterator()), n-5);
-                        while (iterator.hasNext()) {
-                            z5.add(iterator.next());
-                        }
-                        p.addAll(mulFlex.apply(alllnfXiOverV[5], z5, mfp));
-                        p = isoFree.apply(p, null);
-
-                    }
-
+            }
+            p = isoFree.apply(newP, null);
+            
+            for (Graph g : p) {
+                boolean ap = hap.check(g);
+                boolean con = hap.isConnected();
+                if (con && ap) {
+                    Graph gf = factor.apply(g, mfp2);
+                    cancelSet.put(g,gf);
                 }
-
             }
         }
+
         topSet.clear();
         topSet.addAll(p);
         System.out.println("\nP");
         for (Graph g : topSet) {
             System.out.println(g);
-        }
-        ClusterViewer.createView("P", topSet);
-
-//        iterator = new FieldNodeCount(new IteratorWrapper(p.iterator()), n-1);
-//        System.out.println("\nP (in terms of rho)");
-//        while (iterator.hasNext()) {
-//            System.out.println(iterator.next());
-//        }
-
-    }
-    
-    protected static void dump(Set<Graph> set, int max) {
-        dump(set, max, false);
-    }
-    
-    protected static void dump(Set<Graph> set, int max, boolean verbose) {
-        IsBiconnected isBi = new IsBiconnected();
-        for (int i=0; i<max+1; i++) {  // # of points
-            System.out.println("** "+i+" **");
-            for (int d=1; d>-1; d--) {  // isBiconnected
-                if (verbose && i>2) System.out.println(d==1 ? "* biconnected *" : "* not biconnected *");
-                for (int j=i*(i+1)/2; j>-1; j--) { // # of edges 
-                    for (int k=0; k<2*i+2; k++) {  // # of root points
-                        Iterator<Graph> iterator = set.iterator();
-                        HashSet<Graph> printSet = new HashSet<Graph>();
-                        while (iterator.hasNext()) {
-                            Graph g = iterator.next();
-                            if (g.edgeCount() != j || (isBi.check(g) != (d==1))) continue;
-                            int fieldCount = 0;
-                            for (Node node : g.nodes()) {
-                                if (node.getType() == 'F') {
-                                    fieldCount++;
-                                }
-                            }
-                            if (fieldCount == i && (g.nodeCount()-fieldCount == k)) {
-                                System.out.println(g);
-                            }
-                        }
-                    }
-                }
+            Graph cancelGraph = cancelSet.get(g);
+            if (cancelGraph != null) {
+                System.out.println(" -  "+cancelGraph);
             }
         }
+        ClusterViewer.createView("P", topSet);
     }
 }
