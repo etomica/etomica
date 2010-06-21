@@ -73,9 +73,12 @@ public class MetadataImpl implements Metadata {
     if (other == this) {
       return 0;
     }
-    if (color == other.getColor()) {
+    if (color == other.getColor() && type == other.getType()) {
       return 0;
     }
-    return color > other.getColor() ? 1 : -1;
+    if (color != other.getColor()) {
+      return color > other.getColor() ? 1 : -1;
+    }
+    return type > other.getType() ? 1 : -1;
   }
 }
