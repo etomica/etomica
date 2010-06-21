@@ -115,6 +115,7 @@ public class GraphImpl implements Graph {
     List<Node> otherNodes = other.nodes();
     if (nodes.length == otherNodes.size()) {
       List<Edge> otherEdges = other.edges();
+      List<Edge> myEdges = edges();
       if (edgeCount() == otherEdges.size()) {
         // check store
         int storeOrder = store.compareTo(other.getStore());
@@ -129,10 +130,10 @@ public class GraphImpl implements Graph {
           }
         }
         // check edges
-        for (byte edgeId = 0; edgeId < edges.length; edgeId++) {
-          Edge edge = edges[edgeId];
+        for (int iEdge = 0; iEdge < myEdges.size(); iEdge++) {
+          Edge edge = myEdges.get(iEdge);
           if (edge != null) {
-            int edgeOrder = edge.compareTo(otherEdges.get(edge.getId()));
+            int edgeOrder = edge.compareTo(otherEdges.get(iEdge));
             if (edgeOrder != 0) {
               return edgeOrder;
             }
