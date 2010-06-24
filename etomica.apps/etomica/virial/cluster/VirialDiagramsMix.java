@@ -16,6 +16,8 @@ import etomica.graph.model.comparators.ComparatorNumEdges;
 import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
+import etomica.graph.operations.Decorate;
+import etomica.graph.operations.Decorate.DecorateParameters;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
@@ -53,11 +55,14 @@ public class VirialDiagramsMix {
         char eBondAA = Metadata.COLOR_CODE_0;
         char eBondAB = Metadata.COLOR_CODE_1;
         char eBondBB = Metadata.COLOR_CODE_2;
+        // factors: zA, zB, rhoA, rhoB
         for (byte i=1; i<n+1; i++) {
             for (byte j=0; j<i+1; j++) {
                 // j points of color A, i-j points of color B
                 Graph g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
                 g.coefficient().setDenominator((int)(SpecialFunctions.factorial(i-j)*SpecialFunctions.factorial(j)));
+                g.setNumFactors(4);
+                g.addFactors(new int[]{j,i-j,0,0});
                 for (byte k=j; k<i; k++) {
                     g.getNode(k).setColor(nodeB);
                 }
@@ -199,59 +204,11 @@ public class VirialDiagramsMix {
         }
         ClusterViewer.createView("zA", topSet);
 
-        HashSet<Graph> lnfXiOverV = new HashSet<Graph>();
-        HashSet<Graph>[][] alllnfXiOverV = new HashSet[n+1][n+1];
-        for (int i=0; i<n+1; i++) {
-            for (int j=0; j<n+1; j++) {
-                alllnfXiOverV[i][j] = new HashSet<Graph>();
-            }
-        }
-        for (Graph g : lnfXi) {
-            g = g.copy();
-            g.setNumFactors(2);
-//            g.getNode((byte)0).setType(TYPE_NODE_ROOT);
-            lnfXiOverV.add(g);
-            int nodeACount = 0;
-            for (Node node : g.nodes()) {
-                if (node.getColor() == nodeA) {
-                    nodeACount++;
-                }
-            }
-            alllnfXiOverV[nodeACount][g.nodeCount()-nodeACount].add(g);
-        }
-        
-        Set<Graph> p = new HashSet<Graph>();
-
-        Set<Graph>[] zApow = new Set[n+1];
-        zApow[1] = new HashSet<Graph>();
-        zApow[1].addAll(zA);
-        Set<Graph>[] zBpow = new Set[n+1];
-        zBpow[1] = new HashSet<Graph>();
-        zBpow[1].addAll(zB);
-        
-        for (int j=1; j<n+1; j++) {
-            if (j>1) {
-                zBpow[j] = new HashSet<Graph>();
-                zBpow[j].addAll(isoFree.apply(mulFlex.apply(zBpow[j-1], zB, mfpn), null));
-            }
-            p.addAll(mulFlex.apply(alllnfXiOverV[0][j], zBpow[j], mfpn));
-            p = isoFree.apply(p, null);
-            if (j>1) {
-                zApow[j] = new HashSet<Graph>();
-                zApow[j].addAll(isoFree.apply(mulFlex.apply(zApow[j-1], zA, mfpn), null));
-            }
-            p.addAll(mulFlex.apply(alllnfXiOverV[j][0], zApow[j], mfpn));
-        }
-        Set<Graph> ptmp = new HashSet<Graph>();
-        for (int j=1; j<n; j++) {
-            for (int k=1; k+j<n+1; k++) {
-                ptmp.clear();
-                ptmp.addAll(mulFlex.apply(alllnfXiOverV[j][k], zApow[j], mfpn));
-                p.addAll(isoFree.apply(mulFlex.apply(ptmp, zBpow[k], mfpn), null));
-            }
-        }
+        Decorate decorate = new Decorate();
+        Set<Graph> p = decorate.apply(lnfXi, zA, new DecorateParameters(0, mfpn));
+        p = decorate.apply(p, zB, new DecorateParameters(1, mfpn));
         p = isoFree.apply(p, null);
-        
+
         topSet.clear();
         topSet.addAll(p);
         System.out.println("\nP");
@@ -259,13 +216,6 @@ public class VirialDiagramsMix {
             System.out.println(g);
         }
         ClusterViewer.createView("P", topSet);
-
-//        iterator = new FieldNodeCount(new IteratorWrapper(p.iterator()), n-1);
-//        System.out.println("\nP (in terms of rho)");
-//        while (iterator.hasNext()) {
-//            System.out.println(iterator.next());
-//        }
-
     }
     
     public static class Term {
@@ -310,10 +260,10 @@ public class VirialDiagramsMix {
             }
             int[] factors;
             if (comp0.equals("A")) {
-                factors = new int[]{nT-n1,n1};
+                factors = new int[]{0,0,nT-n1,n1};
             }
             else {
-                factors = new int[]{n1,nT-n1};
+                factors = new int[]{0,0,n1,nT-n1};
             }
                     
             int[][][] termSet = terms[k];
@@ -337,7 +287,7 @@ public class VirialDiagramsMix {
                 }
                 product = mulScalar.apply(product, new MulScalarParameters(coefficient,1));
                 for (Graph g : product) {
-                    g.setNumFactors(2);
+                    g.setNumFactors(4);
                     g.addFactors(factors);
                 }
                 z.addAll(product);
