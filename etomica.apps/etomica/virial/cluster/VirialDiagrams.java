@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import etomica.graph.iterators.IteratorWrapper;
-import etomica.graph.iterators.filters.FieldNodeCount;
 import etomica.graph.iterators.filters.IsomorphismFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Edge;
@@ -22,6 +21,7 @@ import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.Decorate;
+import etomica.graph.operations.Decorate.DecorateParameters;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
@@ -30,12 +30,11 @@ import etomica.graph.operations.Factor;
 import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulFlexible;
+import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
-import etomica.graph.operations.Decorate.DecorateParameters;
-import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.viewer.ClusterViewer;
 
@@ -64,14 +63,11 @@ public class VirialDiagrams {
         char fBond = 'f';
         char oneBond = 'o';
         char mBond = 'm';  // multi-body
-        Set<Graph>[] multiXi = new Set[n+1];
         for (byte i=1; i<n+1; i++) {
             Graph g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
             g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
             eXi.add(g);
-            
-            multiXi[i] = new HashSet<Graph>();
-
+ 
             if (multibody && i>2) {
                 g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
                 g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
@@ -79,7 +75,6 @@ public class VirialDiagrams {
                     e.setColor(mBond);
                 }
                 eXi.add(g);
-                multiXi[i].add(g);
             }
         }
         
@@ -160,45 +155,30 @@ public class VirialDiagrams {
         // r = z + b*z^2 + c*z^3 + d*z^4 + e*z^5
         // z = r - b*r^2 + (2 b^2 - c) r^3 + (-5 b^3 + 5*b*c - d) r^4
         //     + (14 b^4 - 21 b^2*c + 3 c^2 + 6 b*d - e) r^5
+        // or
+        // z = r - b*z^2 - c*z^3 - d*z^4 - e*z^5
+        // z0 = r
+        // z1 = r - b*z0^2
+        //    = r - b*r^2
+        // z2 = r - b*z1^2 - c*z1^3
+        //    = r - b*(r-b*r^2)^2 - c*(r-b*r^2)^3
+        //    = r - b*r^2 + 4*b^2*r^3 - c*r^3 + O[r^4]
+        // etc
+
         z.addAll(allRho[1]);
-        if (n>1) {
+        for (int i=2; i<n+1; i++) {
+            Set<Graph>[] zPow = new Set[n+1];
+            zPow[1] = new HashSet<Graph>();
+            zPow[1].addAll(z);
+            for (int j=2; j<i+1; j++) {
+                zPow[j] = new HashSet<Graph>();
+                zPow[j] = isoFree.apply(mulFlex.apply(zPow[j-1], z, mfp), null);
+            }
+            z = new HashSet<Graph>();
+            z.addAll(allRho[1]);
             msp = new MulScalarParameters(new CoefficientImpl(-1,1));
-            z.addAll(new MulScalar().apply(allRho[2], msp));
-            
-            if (n>2) {
-                msp = new MulScalarParameters(new CoefficientImpl(2,1));
-                Set<Graph> b2 = mulFlex.apply(allRho[2], allRho[2], mfp);
-                z.addAll(new MulScalar().apply(b2, msp));
-                msp = new MulScalarParameters(new CoefficientImpl(-1,1));
-                z.addAll(new MulScalar().apply(allRho[3], msp));
-                
-                if (n>3) {
-                    Set<Graph> b3 = mulFlex.apply(b2, allRho[2], mfp);
-                    msp = new MulScalarParameters(new CoefficientImpl(-5,1));
-                    z.addAll(new MulScalar().apply(b3, msp));
-                    Set<Graph> bc = mulFlex.apply(allRho[2], allRho[3], mfp);
-                    msp = new MulScalarParameters(new CoefficientImpl(5,1));
-                    z.addAll(new MulScalar().apply(bc, msp));
-                    msp = new MulScalarParameters(new CoefficientImpl(-1,1));
-                    z.addAll(new MulScalar().apply(allRho[4], msp));
-                    
-                    if (n>4) {
-                        Set<Graph> b4 = mulFlex.apply(b3, allRho[2], mfp);
-                        msp = new MulScalarParameters(new CoefficientImpl(14,1));
-                        z.addAll(new MulScalar().apply(b4, msp));
-                        Set<Graph> b2c = mulFlex.apply(b2, allRho[3], mfp);
-                        msp = new MulScalarParameters(new CoefficientImpl(-21,1));
-                        z.addAll(new MulScalar().apply(b2c, msp));
-                        Set<Graph> c2 = mulFlex.apply(allRho[3], allRho[3], mfp);
-                        msp = new MulScalarParameters(new CoefficientImpl(3,1));
-                        z.addAll(new MulScalar().apply(c2, msp));
-                        Set<Graph> bd = mulFlex.apply(allRho[2], allRho[4], mfp);
-                        msp = new MulScalarParameters(new CoefficientImpl(6,1));
-                        z.addAll(new MulScalar().apply(bd, msp));
-                        msp = new MulScalarParameters(new CoefficientImpl(-1,1));
-                        z.addAll(new MulScalar().apply(allRho[5], msp));
-                    }
-                }
+            for (int j=2; j<i+1; j++) {
+                z.addAll(mulScalar.apply(mulFlex.apply(allRho[j], zPow[j], mfp), msp));
             }
         }
 
@@ -245,7 +225,7 @@ public class VirialDiagrams {
                 boolean con = hap.isConnected();
                 newP.add(g.copy());
                 if (con && ap) {
-                    System.out.println("\nfactoring\n"+g);
+//                    System.out.println("\nfactoring\n"+g);
                     Graph gf = factor.apply(g, mfp2);
                     newP.add(gf);
                 }
