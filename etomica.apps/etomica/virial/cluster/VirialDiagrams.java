@@ -109,7 +109,7 @@ public class VirialDiagrams {
         Set<Graph> lnfXi = new HashSet<Graph>();
         Set<Graph> fXipow = new HashSet<Graph>();
         MulFlexible mulFlex = new MulFlexible();
-        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors);
+        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
         IsoFree isoFree = new IsoFree();
         fXipow.addAll(fXi);
         MulScalarParameters msp = null;
@@ -120,13 +120,6 @@ public class VirialDiagrams {
             lnfXi = isoFree.apply(lnfXi, null);
             msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
             fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, mfp), msp), null);
-            FieldNodeCount truncater = new FieldNodeCount(new IteratorWrapper(fXipow.iterator()), n);
-            Set<Graph> truncatedfXipow = new HashSet<Graph>();
-            while (truncater.hasNext()) {
-                truncatedfXipow.add(truncater.next());
-            }
-            fXipow = truncatedfXipow;
-
         }
         topSet.clear();
         topSet.addAll(lnfXi);
@@ -243,7 +236,7 @@ public class VirialDiagrams {
             p = isoFree.apply(newP, null);
         }
         else {
-            MulFlexibleParameters mfp2 = new MulFlexibleParameters(new char[0]);
+            MulFlexibleParameters mfp2 = new MulFlexibleParameters(new char[0], (byte)n);
             HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
             FactorOnce factor = new FactorOnce();
             Set<Graph> newP = new HashSet<Graph>();

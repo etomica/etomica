@@ -2,13 +2,65 @@ package etomica.graph.engine;
 
 import java.util.Set;
 
-import etomica.graph.engine.Parser.*;
-import etomica.graph.iterators.*;
-import etomica.graph.iterators.filters.*;
+import etomica.graph.engine.Parser.Assignment;
+import etomica.graph.engine.Parser.BinaryOp;
+import etomica.graph.engine.Parser.BinaryOpByte;
+import etomica.graph.engine.Parser.Command;
+import etomica.graph.engine.Parser.CommandPropertyValue;
+import etomica.graph.engine.Parser.CommandValue;
+import etomica.graph.engine.Parser.CommandVariable;
+import etomica.graph.engine.Parser.CommandVariableValue;
+import etomica.graph.engine.Parser.Constructor;
+import etomica.graph.engine.Parser.ConstructorColored;
+import etomica.graph.engine.Parser.ConstructorMono;
+import etomica.graph.engine.Parser.Expression;
+import etomica.graph.engine.Parser.ParserException;
+import etomica.graph.engine.Parser.Statement;
+import etomica.graph.engine.Parser.StrictExpression;
+import etomica.graph.engine.Parser.UnaryOp;
+import etomica.graph.engine.Parser.UnaryOpByte;
+import etomica.graph.engine.Parser.UnaryOpByteMap;
+import etomica.graph.engine.Parser.UnaryOpColor;
+import etomica.graph.engine.Parser.UnaryOpThreeColor;
+import etomica.graph.engine.Parser.UnaryOpTwoByte;
+import etomica.graph.engine.Parser.Variable;
+import etomica.graph.iterators.DefaultIterator;
+import etomica.graph.iterators.IsomorphismPrefilteredPartitionedIterator;
+import etomica.graph.iterators.IteratorToSet;
+import etomica.graph.iterators.PartitionedIterator;
+import etomica.graph.iterators.StoredIterator;
+import etomica.graph.iterators.filters.IsomorphismFilter;
+import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphIterator;
-import etomica.graph.operations.*;
-import etomica.graph.property.*;
+import etomica.graph.operations.Conv;
+import etomica.graph.operations.ConvParameters;
+import etomica.graph.operations.Delete;
+import etomica.graph.operations.DifByEdge;
+import etomica.graph.operations.DifByNode;
+import etomica.graph.operations.DifParameters;
+import etomica.graph.operations.Exp;
+import etomica.graph.operations.ExpParameters;
+import etomica.graph.operations.Int;
+import etomica.graph.operations.IsoFree;
+import etomica.graph.operations.Mul;
+import etomica.graph.operations.Mul.MulParameters;
+import etomica.graph.operations.NCopy;
+import etomica.graph.operations.PCopy;
+import etomica.graph.operations.Pow;
+import etomica.graph.operations.PowParameters;
+import etomica.graph.operations.Relabel;
+import etomica.graph.operations.RelabelParameters;
+import etomica.graph.operations.Split;
+import etomica.graph.operations.SplitParameters;
+import etomica.graph.operations.Sub;
+import etomica.graph.operations.Sum;
+import etomica.graph.operations.Union;
+import etomica.graph.property.HasArticulationPair;
+import etomica.graph.property.HasArticulationPoint;
+import etomica.graph.property.HasNoRootEdge;
+import etomica.graph.property.IsBiconnected;
+import etomica.graph.property.IsConnected;
 import etomica.graph.viewer.ClusterViewer;
 
 public class Interpreter implements ConsoleReader {
@@ -236,7 +288,7 @@ public class Interpreter implements ConsoleReader {
     if (expr instanceof BinaryOpByte) {
       BinaryOpByte op = (BinaryOpByte) expr;
       Conv conv = new Conv();
-      ConvParameters params = new ConvParameters(op.getByte1());
+      ConvParameters params = new ConvParameters(op.getByte1(), new MulParameters((byte)100));
       return conv.apply(buildGraphSet(op.getExpression1()), buildGraphSet(op.getExpression2()), params);
     }
     else {

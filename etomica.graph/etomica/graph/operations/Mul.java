@@ -14,22 +14,38 @@ import static etomica.graph.model.Metadata.*;
 public class Mul implements Binary {
 
   public Set<Graph> apply(Set<Graph> left, Set<Graph> right, Parameters params) {
-
+    assert(params instanceof MulParameters);
     Unary isoFree = new IsoFree();
     Set<Graph> result = new HashSet<Graph>();
     for (Graph lg : left) {
       for (Graph rg : right) {
-        Graph graph = apply(lg, rg);
+        Graph graph = apply(lg, rg, (MulParameters)params);
         if (graph != null) {
           result.add(graph);
         }
       }
     }
-    return isoFree.apply(result, params);
+    return isoFree.apply(result, null);
   }
 
-  public Graph apply(Graph left, Graph right) {
+  public Graph apply(Graph left, Graph right, MulParameters params) {
 
+    int numNodes = 0;
+    for (Node node : left.nodes()) {
+      if (node.getType() == TYPE_NODE_FIELD) {
+        numNodes++;
+      }
+    }
+    for (Node node : right.nodes()) {
+      if (node.getType() == TYPE_NODE_FIELD) {
+        numNodes++;
+      }
+    }
+    numNodes--;
+    if (numNodes > params.nFieldPoints) {
+      return null;
+    }
+    
     List<Byte> sameLabelRootNodes = new ArrayList<Byte>();
     // two root nodes with the same nodeId in left and right must have the same color
     for (byte nodeId = 0; nodeId < left.nodeCount(); nodeId++) {
@@ -110,5 +126,15 @@ public class Mul implements Binary {
     result.addFactors(left.factors());
     result.addFactors(right.factors());
     return result;
+  }
+  
+  public static class MulParameters implements Parameters {
+    protected final byte nFieldPoints;
+    public MulParameters(byte numFieldPoints) {
+      nFieldPoints = numFieldPoints;
+    }
+    public byte getNumFieldPoints() {
+      return nFieldPoints;
+    }
   }
 }

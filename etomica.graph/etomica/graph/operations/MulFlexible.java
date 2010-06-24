@@ -1,5 +1,6 @@
 package etomica.graph.operations;
 
+import static etomica.graph.model.Metadata.TYPE_NODE_FIELD;
 import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
 
 import java.util.HashSet;
@@ -8,6 +9,7 @@ import java.util.Set;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.Node;
+import etomica.graph.operations.Mul.MulParameters;
 
 /**
  * Perform graph multiplication for flexible molecules.  Where possible, the
@@ -35,14 +37,32 @@ public class MulFlexible implements Binary {
     for (Graph g : argument) {
       for (Graph g2 : argument2) {
         Graph newGraph = apply(g, g2, (MulFlexibleParameters)params);
-        result.add(newGraph);
-        apply(g,g2, (MulFlexibleParameters)params);
+        if (newGraph != null) {
+          result.add(newGraph);
+        }
       }
     }
     return result;
   }
 
   public Graph apply(Graph g1, Graph g2, MulFlexibleParameters params) {
+
+    int numNodes = 0;
+    for (Node node : g1.nodes()) {
+      if (node.getType() == TYPE_NODE_FIELD) {
+        numNodes++;
+      }
+    }
+    for (Node node : g2.nodes()) {
+      if (node.getType() == TYPE_NODE_FIELD) {
+        numNodes++;
+      }
+    }
+    if (numNodes > params.nFieldPoints) {
+      return null;
+    }
+
+    
     Graph result;
     Node myNode1 = null;
     Node myNode2 = null;
@@ -167,9 +187,10 @@ public class MulFlexible implements Binary {
     return result;
   }
 
-  public static class MulFlexibleParameters implements Parameters {
+  public static class MulFlexibleParameters extends MulParameters {
     public final char[] flexColors;
-    public MulFlexibleParameters(char[] flexColors) {
+    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes) {
+      super(nFieldNodes);
       this.flexColors = flexColors;
     }
   }

@@ -20,7 +20,7 @@ public class Conv implements Binary {
       }
     }
     Unary isoFree = new IsoFree();
-    return isoFree.apply(result, params);
+    return isoFree.apply(result, null);
   }
 
   public Graph apply(Graph lg, Graph rg, ConvParameters params) {
@@ -31,7 +31,7 @@ public class Conv implements Binary {
         && rg.getNode(params.nodeId()).getType() == TYPE_NODE_ROOT) {
       Mul multiply = new Mul();
       Int integration = new Int();
-      return integration.apply(multiply.apply(lg, rg), new IntParameters(params.nodeId()));
+      return integration.apply(multiply.apply(lg, rg, params.mulParameters()), new IntParameters(params.nodeId()));
     }
     return result;
   }
