@@ -1,12 +1,8 @@
 package etomica.graph.operations;
 
-import static etomica.graph.model.Metadata.TYPE_NODE_FIELD;
-
 import java.util.HashSet;
 import java.util.Set;
 
-import etomica.graph.iterators.IteratorWrapper;
-import etomica.graph.iterators.filters.FieldNodeCount;
 import etomica.graph.model.Graph;
 import etomica.graph.model.Node;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
@@ -24,18 +20,8 @@ public class Decorate implements Binary {
     char color = ((DecorateParameters)params).color;
     MulFlexibleParameters mfp = ((DecorateParameters)params).mfp;
     Set<Graph> result = new HashSet<Graph>();
-    int maxNodes = 0;
     int maxPow = 0;
     for (Graph g : argument) {
-      int fieldNodes = 0;
-      for (Node node : g.nodes()) {
-        if (node.getType() == TYPE_NODE_FIELD) {
-          fieldNodes++;
-        }
-      }
-      if (fieldNodes > maxNodes) {
-        maxNodes = fieldNodes;
-      }
       int colorCount = 0;
       for (Node node : g.nodes()) {
         if (node.getColor() == color) {
@@ -70,25 +56,11 @@ public class Decorate implements Binary {
     IsoFree isoFree = new IsoFree();
     for (int i=1; i<allSet1.length; i++) {
       result.addAll(mulFlex.apply(allSet1[i], set2Pow, mfp));
+      result = isoFree.apply(result, null);
 
-      FieldNodeCount truncater = new FieldNodeCount(new IteratorWrapper(result.iterator()), maxNodes);
-      Set<Graph> truncatedSet = new HashSet<Graph>();
-      while (truncater.hasNext()) {
-        truncatedSet.add(truncater.next());
-      }
-      result = isoFree.apply(truncatedSet, null);
-      
       if (i+1<allSet1.length) {
         // we're going to make another pass.  calculate (set2)^(i+1)
-        set2Pow = mulFlex.apply(set2Pow, argument2, mfp);
-
-        // truncate to avoid diagram explosion
-        truncater = new FieldNodeCount(new IteratorWrapper(set2Pow.iterator()), maxNodes-i);
-        truncatedSet = new HashSet<Graph>();
-        while (truncater.hasNext()) {
-          truncatedSet.add(truncater.next());
-        }
-        set2Pow = isoFree.apply(truncatedSet, null);
+        set2Pow = isoFree.apply(mulFlex.apply(set2Pow, argument2, mfp), null);
       }
     }
     return result;
