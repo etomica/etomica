@@ -1,17 +1,11 @@
 package etomica.virial.cluster;
 
-import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
-
 import java.util.HashSet;
 import java.util.Set;
 
-import etomica.graph.iterators.IteratorWrapper;
-import etomica.graph.iterators.filters.IsomorphismFilter;
-import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
-import etomica.graph.model.GraphIterator;
 import etomica.graph.model.GraphList;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
@@ -21,21 +15,20 @@ import etomica.graph.model.comparators.ComparatorNodeColors;
 import etomica.graph.model.comparators.ComparatorNumEdges;
 import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
+import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulFlexible;
+import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.SetPropertyFilter;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
-import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.property.FieldNodeCountMax;
-import etomica.graph.property.IsBiconnected;
-import etomica.graph.property.IsConnected;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 
@@ -120,22 +113,33 @@ public class VirialDiagramsMix {
             System.out.println(g);
         }
         
-        GraphIterator iterator = new PropertyFilter(new IteratorWrapper(fXi.iterator()), new IsConnected());
+        MulFlexible mulFlex = new MulFlexible();
+        
+        MulFlexibleParameters mfpn = new MulFlexibleParameters(flexColors, (byte)n);
+        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
         Set<Graph> lnfXi = new HashSet<Graph>();
-        while (iterator.hasNext()) {
-            Graph g = iterator.next();
-            lnfXi.add(g);
+        Set<Graph> fXipow = new HashSet<Graph>();
+        fXipow.addAll(fXi);
+        MulScalarParameters msp = null;
+        MulScalar mulScalar = new MulScalar();
+        for (int i=1; i<n+1; i++) {
+
+            lnfXi.addAll(fXipow);
+            lnfXi = isoFree.apply(lnfXi, null);
+            msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
+            fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, mfpn), msp), null);
+        }
+        topSet.clear();
+        topSet.addAll(lnfXi);
+        System.out.println("\nlnfXi");
+        for (Graph g : topSet) {
+            System.out.println(g);
         }
 
         DifByNode opzdlnXidzA = new DifByNode();
         DifParameters difParams = new DifParameters('A');
-        Set<Graph> rhoA = opzdlnXidzA.apply(lnfXi, difParams);
+        Set<Graph> rhoA = isoFree.apply(opzdlnXidzA.apply(lnfXi, difParams), null);
         
-        iterator = new IsomorphismFilter(new IteratorWrapper(rhoA.iterator()));
-        rhoA = new HashSet<Graph>();
-        while (iterator.hasNext()) {
-            rhoA.add(iterator.next());
-        }
         topSet.clear();
         topSet.addAll(rhoA);
         ClusterViewer.createView("rhoA", topSet);
@@ -181,10 +185,6 @@ public class VirialDiagramsMix {
             }
             allRhoB[nodeBCount][g.nodeCount()-nodeBCount].add(g);
         }
-        MulFlexible mulFlex = new MulFlexible();
-        
-        MulFlexibleParameters mfpn = new MulFlexibleParameters(flexColors, (byte)n);
-        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
         Set<Graph> zA = invertSeries(new Set[][][]{allRhoA, allRhoB}, n, "A", "B", mfpnm1);
         Set<Graph> zB = invertSeries(new Set[][][]{allRhoB, allRhoA}, n, "B", "A", mfpnm1);
         
@@ -199,11 +199,6 @@ public class VirialDiagramsMix {
         }
         ClusterViewer.createView("zA", topSet);
 
-        // now we have a series expansion for rhoA in powers of zB, with rhoA in the coefficients
-
-        // now we have a series expansion for rhoB in powers of zB, with rhoA in the coefficients
-        // we can invert that series and get zB in terms of rhoA and rhoB
-        
         HashSet<Graph> lnfXiOverV = new HashSet<Graph>();
         HashSet<Graph>[][] alllnfXiOverV = new HashSet[n+1][n+1];
         for (int i=0; i<n+1; i++) {
@@ -233,7 +228,6 @@ public class VirialDiagramsMix {
         Set<Graph>[] zBpow = new Set[n+1];
         zBpow[1] = new HashSet<Graph>();
         zBpow[1].addAll(zB);
-//        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
         
         for (int j=1; j<n+1; j++) {
             if (j>1) {
