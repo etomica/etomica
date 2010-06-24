@@ -32,6 +32,7 @@ import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.SetPropertyFilter;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
+import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.property.FieldNodeCountMax;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.IsConnected;
@@ -44,6 +45,7 @@ public class VirialDiagramsMix {
         final int n = 4;
         final char nodeA = Metadata.COLOR_CODE_0;
         final char nodeB = Metadata.COLOR_CODE_1;
+        char[] flexColors = new char[]{nodeA,nodeB};
         
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
@@ -181,8 +183,10 @@ public class VirialDiagramsMix {
         }
         MulFlexible mulFlex = new MulFlexible();
         
-        Set<Graph> zA = invertSeries(new Set[][][]{allRhoA, allRhoB}, n, "A", "B");
-        Set<Graph> zB = invertSeries(new Set[][][]{allRhoB, allRhoA}, n, "B", "A");
+        MulFlexibleParameters mfpn = new MulFlexibleParameters(flexColors, (byte)n);
+        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
+        Set<Graph> zA = invertSeries(new Set[][][]{allRhoA, allRhoB}, n, "A", "B", mfpnm1);
+        Set<Graph> zB = invertSeries(new Set[][][]{allRhoB, allRhoA}, n, "B", "A", mfpnm1);
         
         SetPropertyFilter truncater = new SetPropertyFilter(new FieldNodeCountMax(n-1));
         zA = isoFree.apply(truncater.apply(zA, null), null);
@@ -194,19 +198,6 @@ public class VirialDiagramsMix {
             System.out.println(g);
         }
         ClusterViewer.createView("zA", topSet);
-
-        if (false) {
-            zA = invertSeries(allRhoA, allRhoB, n);
-            zA = isoFree.apply(truncater.apply(zA, null), null);
-            System.out.println("\nold zA");
-            dump(zA, n-1, nodeA);
-            zB = invertSeries(allRhoB, allRhoA, n);
-            zB = isoFree.apply(truncater.apply(zB, null), null);
-            System.out.println("\nold zB");
-            dump(zB, n-1, nodeA);
-            System.exit(1);
-        }
-
 
         // now we have a series expansion for rhoA in powers of zB, with rhoA in the coefficients
 
@@ -223,7 +214,7 @@ public class VirialDiagramsMix {
         for (Graph g : lnfXi) {
             g = g.copy();
             g.setNumFactors(2);
-            g.getNode((byte)0).setType(TYPE_NODE_ROOT);
+//            g.getNode((byte)0).setType(TYPE_NODE_ROOT);
             lnfXiOverV.add(g);
             int nodeACount = 0;
             for (Node node : g.nodes()) {
@@ -236,25 +227,36 @@ public class VirialDiagramsMix {
         
         Set<Graph> p = new HashSet<Graph>();
 
-        Set<Graph> zApow = new HashSet<Graph>();
-        zApow.addAll(zA);
-        Set<Graph> zBpow = new HashSet<Graph>();
-        zBpow.addAll(zB);
+        Set<Graph>[] zApow = new Set[n+1];
+        zApow[1] = new HashSet<Graph>();
+        zApow[1].addAll(zA);
+        Set<Graph>[] zBpow = new Set[n+1];
+        zBpow[1] = new HashSet<Graph>();
+        zBpow[1].addAll(zB);
+//        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
+        
         for (int j=1; j<n+1; j++) {
-            p.addAll(truncater.apply(mulFlex.apply(alllnfXiOverV[0][j], zBpow, null), null));
-            p = isoFree.apply(p, null);
-            zBpow = isoFree.apply(truncater.apply(mulFlex.apply(zBpow, zB, null), null), null);
-        }
-        for (int i=1; i<n+1; i++) {
-            Set<Graph> zABpow = new HashSet<Graph>();
-            zABpow.addAll(zApow);
-            for (int j=0; j<n+1-i; j++) {
-                p.addAll(truncater.apply(mulFlex.apply(alllnfXiOverV[i][j], zABpow, null), null));
-                p = isoFree.apply(p, null);
-                zABpow = isoFree.apply(truncater.apply(mulFlex.apply(zABpow, zB, null), null), null);
+            if (j>1) {
+                zBpow[j] = new HashSet<Graph>();
+                zBpow[j].addAll(isoFree.apply(mulFlex.apply(zBpow[j-1], zB, mfpn), null));
             }
-            zApow = isoFree.apply(truncater.apply(mulFlex.apply(zApow, zA, null), null), null);
+            p.addAll(mulFlex.apply(alllnfXiOverV[0][j], zBpow[j], mfpn));
+            p = isoFree.apply(p, null);
+            if (j>1) {
+                zApow[j] = new HashSet<Graph>();
+                zApow[j].addAll(isoFree.apply(mulFlex.apply(zApow[j-1], zA, mfpn), null));
+            }
+            p.addAll(mulFlex.apply(alllnfXiOverV[j][0], zApow[j], mfpn));
         }
+        Set<Graph> ptmp = new HashSet<Graph>();
+        for (int j=1; j<n; j++) {
+            for (int k=1; k+j<n+1; k++) {
+                ptmp.clear();
+                ptmp.addAll(mulFlex.apply(alllnfXiOverV[j][k], zApow[j], mfpn));
+                p.addAll(isoFree.apply(mulFlex.apply(ptmp, zBpow[k], mfpn), null));
+            }
+        }
+        p = isoFree.apply(p, null);
         
         topSet.clear();
         topSet.addAll(p);
@@ -281,7 +283,7 @@ public class VirialDiagramsMix {
         }
     }
 
-    protected static Set<Graph> invertSeries(Set<Graph>[][][] allRho, int n, String comp0, String comp1) {
+    protected static Set<Graph> invertSeries(Set<Graph>[][][] allRho, int n, String comp0, String comp1, MulFlexibleParameters mfp) {
         MulScalar mulScalar = new MulScalar();
         MulFlexible mulFlex = new MulFlexible();
         IsoFree isoFree = new IsoFree();
@@ -335,7 +337,7 @@ public class VirialDiagramsMix {
                         product.addAll(allRho[term[j][0]][term[j][1]][term[j][2]]);
                     }
                     else {
-                        product = mulFlex.apply(product, allRho[term[j][0]][term[j][1]][term[j][2]], null);
+                        product = mulFlex.apply(product, allRho[term[j][0]][term[j][1]][term[j][2]], mfp);
                         product = isoFree.apply(truncater.apply(product, null), null);
                     }
                 }
@@ -349,118 +351,5 @@ public class VirialDiagramsMix {
             }
         }
         return z;
-    }
-
-    
-    protected static Set<Graph> invertSeries(Set<Graph>[][] allRho1, Set<Graph>[][] allRho2, int n) {
-        MulScalar mulScalar = new MulScalar();
-        MulScalarParameters minus = new MulScalarParameters(-1, 1);
-        MulFlexible mulFlex = new MulFlexible();
-        Set<Graph> z1 = new HashSet<Graph>();
-//        ArrayList<Term> terms = new ArrayList<Term>();
-//        
-//        terms.add(new Term(1, new Set[]{allRho1[1][0]}));
-//        int[] coefs = new int[]{1, -1, -1, -1, 2, -1, 3};
-//        int[][][] terms = new int[][][]{{{1,1,0}}, {{1,2,0}}, {{1,1,1}}, {{1,3,0}}, {{1,2,0},{2,0}}, {{2,1}}, {{1,1},{2,0}}, };
-        z1.addAll(allRho1[1][0]);
-
-        if (n>1) {
-            z1.addAll(mulScalar.apply(allRho1[2][0], minus));
-            z1.addAll(mulScalar.apply(allRho1[1][1], minus));
-
-            if (n>2) {
-                // msp = -1
-                z1.addAll(mulScalar.apply(allRho1[3][0], minus));
-                z1.addAll(mulScalar.apply(allRho1[2][1], minus));
-                z1.addAll(mulScalar.apply(allRho1[1][2], minus));
-
-                // from C30
-                Set<Graph> C20_2 = mulFlex.apply(allRho1[2][0], allRho1[2][0], null);
-                z1.addAll(mulScalar.apply(C20_2, new MulScalarParameters(2,1)));
-
-                // from C21
-                Set<Graph> C20C11 = mulFlex.apply(allRho1[2][0], allRho1[1][1], null);
-                z1.addAll(mulScalar.apply(C20C11, new MulScalarParameters(3,1)));
-                Set<Graph> C11D11 = mulFlex.apply(allRho1[1][1], allRho2[1][1], null);
-                z1.addAll(C11D11);
-
-                // from C12
-                Set<Graph> C11_2 = mulFlex.apply(allRho1[1][1], allRho1[1][1], null);
-                z1.addAll(C11_2);
-                Set<Graph> C11D20 = mulFlex.apply(allRho1[1][1], allRho2[2][0], null);
-                z1.addAll(C11D20);
-                
-//                if (n>3) {
-//                    Set<Graph> b3 = mulFlex.apply(b2, allRho1[2], null);
-//                    msp = new MulScalarParameters(new CoefficientImpl(-5,1));
-//                    zA.addAll(new MulScalar().apply(b3, msp));
-//                    Set<Graph> bc = mulFlex.apply(allRho1[2], allRho1[3], null);
-//                    msp = new MulScalarParameters(new CoefficientImpl(5,1));
-//                    zA.addAll(new MulScalar().apply(bc, msp));
-//                    msp = new MulScalarParameters(new CoefficientImpl(-1,1));
-//                    zA.addAll(new MulScalar().apply(allRho1[4], msp));
-//                    
-//                    if (n>4) {
-//                        Set<Graph> b4 = mulFlex.apply(b3, allRho1[2], null);
-//                        msp = new MulScalarParameters(new CoefficientImpl(14,1));
-//                        zA.addAll(new MulScalar().apply(b4, msp));
-//                        Set<Graph> b2c = mulFlex.apply(b2, allRho1[3], null);
-//                        msp = new MulScalarParameters(new CoefficientImpl(-21,1));
-//                        zA.addAll(new MulScalar().apply(b2c, msp));
-//                        Set<Graph> c2 = mulFlex.apply(allRho1[3], allRho1[3], null);
-//                        msp = new MulScalarParameters(new CoefficientImpl(3,1));
-//                        zA.addAll(new MulScalar().apply(c2, msp));
-//                        Set<Graph> bd = mulFlex.apply(allRho1[2], allRho1[4], null);
-//                        msp = new MulScalarParameters(new CoefficientImpl(6,1));
-//                        zA.addAll(new MulScalar().apply(bd, msp));
-//                        msp = new MulScalarParameters(new CoefficientImpl(-1,1));
-//                        zA.addAll(new MulScalar().apply(allRho1[5], msp));
-//                    }
-//                }
-            }
-        }
-        
-        return z1;
-    }
-    
-    protected static void dump(Set<Graph> set, int max, char colorA) {
-        dump(set, max, false, colorA);
-    }
-    
-    protected static void dump(Set<Graph> set, int max, boolean verbose, char colorA) {
-        IsBiconnected isBi = new IsBiconnected();
-        for (int i=0; i<max+1; i++) {  // # of points
-            System.out.println("** "+i+" **");
-            for (int d=1; d>-1; d--) {  // isBiconnected
-                if (verbose && i>2) System.out.println(d==1 ? "* biconnected *" : "* not biconnected *");
-                for (int j=i*(i+1)/2; j>-1; j--) { // # of edges
-                    for (int l=2*i+2; l>-1; l--) {
-                        for (int k=0; k<2*i+2; k++) {  // # of root points
-                            for (Graph g : set) {
-                                if (g.edgeCount() != j || (isBi.check(g) != (d==1))) continue;
-                                int[] factors = g.factors();
-                                if (factors.length > 0) {
-                                    if (factors[0] != l) continue;
-                                }
-                                int fieldCount = 0;
-                                int nodeACount = 0;
-                                for (Node node : g.nodes()) {
-                                    if (node.getType() == 'F') {
-                                        fieldCount++;
-                                    }
-                                    if (node.getColor() == colorA) {
-                                        nodeACount++;
-                                    }
-                                }
-                                if (factors.length == 0 && nodeACount != l) continue;
-                                if (fieldCount == i && (g.nodeCount()-fieldCount == k)) {
-                                    System.out.println(g);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
