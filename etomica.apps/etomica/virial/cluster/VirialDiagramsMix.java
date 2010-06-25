@@ -167,89 +167,53 @@ public class VirialDiagramsMix {
             System.out.println(g);
         }
 
-        // rhoA in powers of zA and zB
-        HashSet<Graph>[][] allRhoA = new HashSet[n+1][n+1];
-        // rhoB in powers of zA and zB
-        HashSet<Graph>[][] allRhoB = new HashSet[n+1][n+1];
-        for (int i=0; i<n+1; i++) {
-            for (int j=0; j<n+1; j++) {
-                allRhoA[i][j] = new HashSet<Graph>();
-                allRhoB[i][j] = new HashSet<Graph>();
-            }
-        }
+        msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+        Set<Graph> zAz = new HashSet<Graph>();
+        Set<Graph> zBz = new HashSet<Graph>();
+        Set<Graph> zA = new HashSet<Graph>();
+        Set<Graph> zB = new HashSet<Graph>();
         for (Graph g : rhoA) {
-            int nodeACount = 0;
-            for (Node node : g.nodes()) {
-                if (node.getColor() == nodeA) {
-                    nodeACount++;
-                }
+            if (g.nodeCount() == 1) {
+                // switch zA to rhoA
+                g = g.copy();
+                g.factors()[0] = 0;
+                g.factors()[2] = 1;
+                // zA = rhoA is our initial approximation for zA in terms of rho
+                zA.add(g.copy());
             }
-            allRhoA[nodeACount][g.nodeCount()-nodeACount].add(g);
+            else {
+                // each of our terms in zAz is the term from rhoA, but subtracted
+                g = mulScalar.apply(g, msp);
+            }
+            zAz.add(g);
         }
         for (Graph g : rhoB) {
-            int nodeBCount = 0;
-            for (Node node : g.nodes()) {
-                if (node.getColor() == nodeB) {
-                    nodeBCount++;
-                }
+            if (g.nodeCount() == 1) {
+                g = g.copy();
+                g.factors()[1] = 0;
+                g.factors()[3] = 1;
+                zB.add(g.copy());
             }
-            allRhoB[nodeBCount][g.nodeCount()-nodeBCount].add(g);
+            else {
+                g = mulScalar.apply(g, msp);
+            }
+            zBz.add(g);
         }
-
-        Set<Graph> zA = new HashSet<Graph>();
-        zA.addAll(allRhoA[1][0]);
-        for (Graph g : zA) {
-            g.setNumFactors(4);
-            g.addFactors(new int[]{0,0,1,0});
-        }
-        Set<Graph> zB = new HashSet<Graph>();
-        zB.addAll(allRhoB[1][0]);
-        for (Graph g : zB) {
-            g.setNumFactors(4);
-            g.addFactors(new int[]{0,0,0,1});
-        }
+        // we have  zAz = rhoA - a20 zA^2 - a11 zAzB
+                
+        Decorate decorate = new Decorate();
         for (int i=2; i<n+1; i++) {
-            Set<Graph>[] zAPow = new Set[n+1];
-            zAPow[1] = new HashSet<Graph>();
-            zAPow[1].addAll(zA);
-            Set<Graph>[] zBPow = new Set[n+1];
-            zBPow[1] = new HashSet<Graph>();
-            zBPow[1].addAll(zB);
-            for (int j=2; j<i+1; j++) {
-                zAPow[j] = new HashSet<Graph>();
-                zAPow[j] = isoFree.apply(mulFlex.apply(zAPow[j-1], zA, mfpnm1), null);
-                zBPow[j] = new HashSet<Graph>();
-                zBPow[j] = isoFree.apply(mulFlex.apply(zBPow[j-1], zB, mfpnm1), null);
-            }
-            zA = new HashSet<Graph>();
-            zA.addAll(allRhoA[1][0]);
-            zB = new HashSet<Graph>();
-            zB.addAll(allRhoB[1][0]);
-            msp = new MulScalarParameters(new CoefficientImpl(-1,1));
-            for (int j=2; j<i+1; j++) {
-                for (int k=1; k<j+1; k++) {
-                    Set<Graph> term = mulFlex.apply(allRhoA[k][j-k], zAPow[k], mfpnm1);
-                    if (j-k > 0) {
-                        term = mulFlex.apply(term, zBPow[j-k], mfpnm1);
-                    }
-                    zA.addAll(mulScalar.apply(term, msp));
-
-                    term = mulFlex.apply(allRhoB[k][j-k], zBPow[k], mfpnm1);
-                    if (j-k > 0) {
-                        term = mulFlex.apply(term, zAPow[j-k], mfpnm1);
-                    }
-                    zB.addAll(mulScalar.apply(term, msp));
-                }
-            }
-            for (Graph g : zA) {
-                g.factors()[0] = 0;
-                g.factors()[1] = 0;
-            }
-            for (Graph g : zB) {
-                g.factors()[0] = 0;
-                g.factors()[1] = 0;
-            }
+            // now decorate zAz with zA and zB
+            // we actually only need zAz to ith order, but that's more work.  Decorate will truncate for us.
+            Set<Graph> newZA = decorate.apply(zAz, zA, new DecorateParameters(0, mfpnm1));
+            newZA = decorate.apply(newZA, zB, new DecorateParameters(1, mfpnm1));
+            Set<Graph> newZB = decorate.apply(zBz, zA, new DecorateParameters(0, mfpnm1));
+            newZB = decorate.apply(newZB, zB, new DecorateParameters(1, mfpnm1));
+            
+            zA = newZA;
+            zB = newZB;
         }
+        
         zA = isoFree.apply(zA, null);
         zB = isoFree.apply(zB, null);
 
@@ -269,7 +233,6 @@ public class VirialDiagramsMix {
         }
         ClusterViewer.createView("zB", topSet);
 
-        Decorate decorate = new Decorate();
         Set<Graph> p = decorate.apply(lnfXi, zA, new DecorateParameters(0, mfpn));
         p = decorate.apply(p, zB, new DecorateParameters(1, mfpn));
         p = isoFree.apply(p, null);
