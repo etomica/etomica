@@ -158,9 +158,14 @@ public class VirialDiagramsMix {
         Set<Graph> rhoB = opzdlnXidzB.apply(lnfXi, difParams);
 
         rhoB = isoFree.apply(rhoB, null);
-//        ClusterViewer.createView("rhoB", rhoB);
-//        System.out.println("\nrhoB");
-//        dump(rhoB, n-1, nodeA);
+
+        topSet.clear();
+        topSet.addAll(rhoB);
+        ClusterViewer.createView("rhoB", topSet);
+        System.out.println("\nrhoB");
+        for (Graph g : topSet) {
+            System.out.println(g);
+        }
 
         // rhoA in powers of zA and zB
         HashSet<Graph>[][] allRhoA = new HashSet[n+1][n+1];
@@ -190,12 +195,64 @@ public class VirialDiagramsMix {
             }
             allRhoB[nodeBCount][g.nodeCount()-nodeBCount].add(g);
         }
-        Set<Graph> zA = invertSeries(new Set[][][]{allRhoA, allRhoB}, n, "A", "B", mfpnm1);
-        Set<Graph> zB = invertSeries(new Set[][][]{allRhoB, allRhoA}, n, "B", "A", mfpnm1);
-        
-        SetPropertyFilter truncater = new SetPropertyFilter(new FieldNodeCountMax(n-1));
-        zA = isoFree.apply(truncater.apply(zA, null), null);
-        zB = isoFree.apply(truncater.apply(zB, null), null);
+
+        Set<Graph> zA = new HashSet<Graph>();
+        zA.addAll(allRhoA[1][0]);
+        for (Graph g : zA) {
+            g.setNumFactors(4);
+            g.addFactors(new int[]{0,0,1,0});
+        }
+        Set<Graph> zB = new HashSet<Graph>();
+        zB.addAll(allRhoB[1][0]);
+        for (Graph g : zB) {
+            g.setNumFactors(4);
+            g.addFactors(new int[]{0,0,0,1});
+        }
+        for (int i=2; i<n+1; i++) {
+            Set<Graph>[] zAPow = new Set[n+1];
+            zAPow[1] = new HashSet<Graph>();
+            zAPow[1].addAll(zA);
+            Set<Graph>[] zBPow = new Set[n+1];
+            zBPow[1] = new HashSet<Graph>();
+            zBPow[1].addAll(zB);
+            for (int j=2; j<i+1; j++) {
+                zAPow[j] = new HashSet<Graph>();
+                zAPow[j] = isoFree.apply(mulFlex.apply(zAPow[j-1], zA, mfpnm1), null);
+                zBPow[j] = new HashSet<Graph>();
+                zBPow[j] = isoFree.apply(mulFlex.apply(zBPow[j-1], zB, mfpnm1), null);
+            }
+            zA = new HashSet<Graph>();
+            zA.addAll(allRhoA[1][0]);
+            zB = new HashSet<Graph>();
+            zB.addAll(allRhoB[1][0]);
+            msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+            for (int j=2; j<i+1; j++) {
+                for (int k=1; k<j+1; k++) {
+                    Set<Graph> term = mulFlex.apply(allRhoA[k][j-k], zAPow[k], mfpnm1);
+                    if (j-k > 0) {
+                        term = mulFlex.apply(term, zBPow[j-k], mfpnm1);
+                    }
+                    zA.addAll(mulScalar.apply(term, msp));
+
+                    term = mulFlex.apply(allRhoB[k][j-k], zBPow[k], mfpnm1);
+                    if (j-k > 0) {
+                        term = mulFlex.apply(term, zAPow[j-k], mfpnm1);
+                    }
+                    zB.addAll(mulScalar.apply(term, msp));
+                }
+            }
+            for (Graph g : zA) {
+                g.factors()[0] = 0;
+                g.factors()[1] = 0;
+            }
+            for (Graph g : zB) {
+                g.factors()[0] = 0;
+                g.factors()[1] = 0;
+            }
+        }
+        zA = isoFree.apply(zA, null);
+        zB = isoFree.apply(zB, null);
+
         topSet.clear();
         topSet.addAll(zA);
         System.out.println("\nzA");
@@ -203,6 +260,14 @@ public class VirialDiagramsMix {
             System.out.println(g);
         }
         ClusterViewer.createView("zA", topSet);
+
+        topSet.clear();
+        topSet.addAll(zB);
+        System.out.println("\nzB");
+        for (Graph g : topSet) {
+            System.out.println(g);
+        }
+        ClusterViewer.createView("zB", topSet);
 
         Decorate decorate = new Decorate();
         Set<Graph> p = decorate.apply(lnfXi, zA, new DecorateParameters(0, mfpn));
