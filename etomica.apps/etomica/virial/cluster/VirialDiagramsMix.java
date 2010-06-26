@@ -1,5 +1,6 @@
 package etomica.virial.cluster;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,15 +23,16 @@ import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
+import etomica.graph.operations.Factor;
+import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.SetPropertyFilter;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
-import etomica.graph.property.FieldNodeCountMax;
+import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 
@@ -40,7 +42,14 @@ public class VirialDiagramsMix {
         final int n = 4;
         final char nodeA = Metadata.COLOR_CODE_0;
         final char nodeB = Metadata.COLOR_CODE_1;
-        char[] flexColors = new char[]{nodeA,nodeB};
+        // we'll pretend that everything is flexible until the end
+        // if we allow rigid multiplication to happen during intermediate
+        // steps, we get confused because multiplications happen in an order
+        // that makes things unhappy (root points in the "wrong" place).  We
+        // could work around this by having multiplication move root points
+        // around to an appropriate color, but that seems icky.
+        char[] allColors = new char[]{nodeA,nodeB};
+        char[] flexColors = new char[]{nodeB};
         
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
@@ -120,8 +129,8 @@ public class VirialDiagramsMix {
         
         MulFlexible mulFlex = new MulFlexible();
         
-        MulFlexibleParameters mfpn = new MulFlexibleParameters(flexColors, (byte)n);
-        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
+        MulFlexibleParameters mfpn = new MulFlexibleParameters(allColors, (byte)n);
+        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(allColors, (byte)(n-1));
         Set<Graph> lnfXi = new HashSet<Graph>();
         Set<Graph> fXipow = new HashSet<Graph>();
         fXipow.addAll(fXi);
@@ -237,91 +246,80 @@ public class VirialDiagramsMix {
         p = decorate.apply(p, zB, new DecorateParameters(1, mfpn));
         p = isoFree.apply(p, null);
 
+        HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
+        if (flexColors.length < allColors.length) {
+            Set<Graph> newP = new HashSet<Graph>();
+            Factor factor = new Factor();
+            MulFlexibleParameters factorParameters = new MulFlexibleParameters(flexColors, (byte)n);
+            for (Graph g : p) {
+                boolean ap = hap.check(g);
+                boolean con = hap.isConnected();
+                if ((con && ap) || (!con && hap.getArticulationPoints().size() > 0)) {
+                    boolean factorable = false;
+                    for (byte nodeID : hap.getArticulationPoints()) {
+                        char color = g.getNode(nodeID).getColor();
+                        factorable = true;
+                        for (int i=0; i<flexColors.length; i++) {
+                            if (flexColors[i] == color) {
+                                factorable = false;
+                                break;
+                            }
+                        }
+                        if (factorable) break;
+                    }
+                    if (factorable) {
+                        Graph gf = factor.apply(g, factorParameters);
+                        newP.add(gf);
+                    }
+                    else {
+                        // graph had an articulation point, but it was flexible
+                        newP.add(g.copy());
+                    }
+                }
+                else {
+                    newP.add(g.copy());
+                }
+            }
+            p = isoFree.apply(newP, null);
+        }
+        HashMap<Graph,Graph> cancelSet = new HashMap<Graph,Graph>();
+        if (flexColors.length > 0) {
+            // pretend everything is fully flexible
+            MulFlexibleParameters mfp2 = new MulFlexibleParameters(new char[0], (byte)n);
+            FactorOnce factor = new FactorOnce();
+            Set<Graph> newP = new HashSet<Graph>();
+            for (Graph g : p) {
+                boolean ap = hap.check(g);
+                boolean con = hap.isConnected();
+                newP.add(g.copy());
+                if (con && ap) {
+//                    System.out.println("\nfactoring\n"+g);
+                    Graph gf = factor.apply(g, mfp2);
+                    newP.add(gf);
+                }
+            }
+            p = isoFree.apply(newP, null);
+            
+            for (Graph g : p) {
+                boolean ap = hap.check(g);
+                boolean con = hap.isConnected();
+                if (con && ap) {
+                    Graph gf = factor.apply(g, mfp2);
+                    cancelSet.put(g,gf);
+                }
+            }
+        }
+
         topSet.clear();
         topSet.addAll(p);
         System.out.println("\nP");
         for (Graph g : topSet) {
             System.out.println(g);
+            Graph cancelGraph = cancelSet.get(g);
+            if (cancelGraph != null) {
+                System.out.println(" -  "+cancelGraph);
+            }
         }
         ClusterViewer.createView("P", topSet);
-    }
-    
-    public static class Term {
-        public int coefficient;
-        public Set<Graph>[] factors;
-        public Term(int coefficient, Set<Graph>[] factors) {
-            this.coefficient = coefficient;
-            this.factors = factors;
-        }
-    }
-
-    protected static Set<Graph> invertSeries(Set<Graph>[][][] allRho, int n, String comp0, String comp1, MulFlexibleParameters mfp) {
-        MulScalar mulScalar = new MulScalar();
-        MulFlexible mulFlex = new MulFlexible();
-        IsoFree isoFree = new IsoFree();
-        SetPropertyFilter truncater = new SetPropertyFilter(new FieldNodeCountMax(n-1));
-        Set<Graph> z = new HashSet<Graph>();
-        
-        int[][][][] terms = new int[][][][]{
-                {{{1},{0,1,0}}},
-                
-                {{{-1},{0,2,0}}},
-                {{{-1},{0,1,1}}},
-                
-                {{{-1},{0,3,0}}, {{2},{0,2,0},{0,2,0}}},
-                {{{-1},{0,2,1}}, {{3},{0,1,1},{0,2,0}}, {{1},{0,1,1},{1,1,1}}},
-                {{{-1},{0,1,2}}, {{1},{0,1,1},{0,1,1}}, {{1},{0,1,1},{1,2,0}}},
-
-                {{{-5}, {0,2,0}, {0,2,0}, {0,2,0}}, {{5}, {0,2,0}, {0,3,0}}, {{-1}, {0,4,0}}}, 
-                {{{4}, {0,2,0}, {0,2,1}}, {{-1}, {0,3,1}}, {{1}, {0,2,1}, {1,1,1}}, {{-10}, {0,1,1}, {0,2,0}, {0,2,0}}, {{4}, {0,1,1}, {0,3,0}}, {{-4}, {0,1,1}, {0,2,0}, {1,1,1}}, {{-1}, {0,1,1}, {1,1,1}, {1,1,1}}, {{1}, {0,1,1}, {1,1,2}}}, 
-                {{{-1}, {0,2,2}}, {{1}, {0,2,1}, {1,2,0}}, {{-6}, {0,1,1}, {0,1,1}, {0,2,0}}, {{-3}, {0,1,1}, {0,1,1}, {1,1,1}}, {{3}, {0,1,2}, {0,2,0}}, {{2}, {0,1,2}, {1,1,1}}, {{3}, {0,1,1}, {0,2,1}}, {{-3}, {0,1,1}, {0,2,0}, {1,2,0}}, {{-3}, {0,1,1}, {1,2,0}, {1,1,1}}, {{1}, {0,1,1}, {1,2,1}}}, 
-                {{{-1}, {0,1,1}, {0,1,1}, {0,1,1}}, {{-1}, {0,1,3}}, {{-2}, {0,1,1}, {0,1,1}, {1,2,0}}, {{2}, {0,1,2}, {1,2,0}}, {{2}, {0,1,1}, {0,1,2}}, {{-2}, {0,1,1}, {1,2,0}, {1,2,0}}, {{1}, {0,1,1}, {1,3,0}}}
-        };
-              
-
-        int nT = 1, n1 = -1; 
-        for (int k=0; k<terms.length; k++ ) {
-            n1++;
-            if (n1 == nT) {
-                nT++;
-                n1 = 0;
-            }
-            int[] factors;
-            if (comp0.equals("A")) {
-                factors = new int[]{0,0,nT-n1,n1};
-            }
-            else {
-                factors = new int[]{0,0,n1,nT-n1};
-            }
-                    
-            int[][][] termSet = terms[k];
-            for (int i=0; i<termSet.length; i++ ) {
-                int[][] term = termSet[i];
-                int coefficient = term[0][0];
-                int order = 1-term.length;
-                Set<Graph> product = new HashSet<Graph>();
-                for (int j=1; j<term.length; j++) {
-                    order += term[j][1]+term[j][2];
-                    if (order > n || term[j][1]+term[j][2] > n) {
-                        return z;
-                    }
-                    if (j == 1) {
-                        product.addAll(allRho[term[j][0]][term[j][1]][term[j][2]]);
-                    }
-                    else {
-                        product = mulFlex.apply(product, allRho[term[j][0]][term[j][1]][term[j][2]], mfp);
-                        product = isoFree.apply(truncater.apply(product, null), null);
-                    }
-                }
-                product = mulScalar.apply(product, new MulScalarParameters(coefficient,1));
-                for (Graph g : product) {
-                    g.setNumFactors(4);
-                    g.addFactors(factors);
-                }
-                z.addAll(product);
-                z = isoFree.apply(z, null);
-            }
-        }
-        return z;
     }
 }
