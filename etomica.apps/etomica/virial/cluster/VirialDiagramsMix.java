@@ -49,7 +49,9 @@ public class VirialDiagramsMix {
         // could work around this by having multiplication move root points
         // around to an appropriate color, but that seems icky.
         char[] allColors = new char[]{nodeA,nodeB};
-        char[] flexColors = new char[]{nodeB};
+        char[] flexColors = new char[]{nodeA, nodeB};
+        boolean multiA = true;
+        boolean multiB = true;
         
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
@@ -64,6 +66,7 @@ public class VirialDiagramsMix {
         char eBondAA = Metadata.COLOR_CODE_0;
         char eBondAB = Metadata.COLOR_CODE_1;
         char eBondBB = Metadata.COLOR_CODE_2;
+        char mBond = Metadata.COLOR_CODE_3;
         // factors: zA, zB, rhoA, rhoB
         for (byte i=1; i<n+1; i++) {
             for (byte j=0; j<i+1; j++) {
@@ -92,17 +95,48 @@ public class VirialDiagramsMix {
                     }
                 }
                 eXi.add(g);
+                
+                if ((multiA && j > 2) || (multiB & i-j > 2) || (multiA && multiB && i > 2)) { 
+                    g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
+                    g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
+                    g.setNumFactors(4);
+                    g.addFactors(new int[]{j,i-j,0,0});
+                    for (byte k=j; k<i; k++) {
+                        g.getNode(k).setColor(nodeB);
+                    }
+                    for (Node node1 : g.nodes()) {
+                        for (Node node2 : g.nodes()) {
+                            if (node2.getId() <= node1.getId()) continue;
+                            if (node1.getColor() == nodeA) {
+                                if (node2.getColor() == nodeA) {
+                                    g.getEdge(node1.getId(), node2.getId()).setColor(multiA ? mBond : eBondAA);
+                                }
+                                else {
+                                    g.getEdge(node1.getId(), node2.getId()).setColor((multiA && multiB) ? mBond : eBondAB);
+                                }
+                            }
+                            else if (node2.getColor() == nodeA) {
+                                g.getEdge(node1.getId(), node2.getId()).setColor((multiA && multiB) ? mBond : eBondAB);
+                            }
+                            else {
+                                g.getEdge(node1.getId(), node2.getId()).setColor(multiB ? mBond : eBondBB);
+                            }
+                        }
+                    }
+
+                    eXi.add(g);
+                }
             }
         }
         topSet.addAll(eXi);
         for (Graph g : topSet) {
             System.out.println(g);
         }
-//        dump(topSet, n, nodeA);
-//        ClusterViewer.createView("eXi", eXi);
-        char fBondAA = Metadata.COLOR_CODE_3;
-        char fBondAB = Metadata.COLOR_CODE_4;
-        char fBondBB = Metadata.COLOR_CODE_5;
+//        ClusterViewer.createView("eXi", topSet);
+
+        char fBondAA = Metadata.COLOR_CODE_4;
+        char fBondAB = Metadata.COLOR_CODE_5;
+        char fBondBB = Metadata.COLOR_CODE_6;
         char oneBond = 'o';
         
         Split split = new Split();
