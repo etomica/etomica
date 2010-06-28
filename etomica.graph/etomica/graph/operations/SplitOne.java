@@ -37,7 +37,7 @@ public class SplitOne implements Unary {
   public Set<Graph> apply(Graph graph, SplitOneParameters params) {
 
     // collect the Ids of all edges we must replace
-    List<Short> edges = new ArrayList<Short>();
+    List<Byte> edges = new ArrayList<Byte>();
     byte nodeCount = graph.nodeCount();
     for (byte edgeId = 0; edgeId < nodeCount*(nodeCount-1)/2; edgeId++) {
       if (graph.getEdge(edgeId) == null) {
