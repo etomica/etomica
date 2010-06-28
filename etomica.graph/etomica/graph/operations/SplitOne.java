@@ -1,0 +1,90 @@
+package etomica.graph.operations;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import etomica.graph.iterators.RangePermutator;
+import etomica.graph.model.Graph;
+import etomica.graph.model.Permutator;
+
+/**
+ * Performs the substitution 1=a+b.  Can be used to perform
+ * 1 = e + (-f)
+ * (subsequently, you'll need to replace (-f) with (f) and
+ * multiply the diagram by -1 if it had an odd number of f bonds).
+ *
+ * @author Andrew Schultz
+ */
+public class SplitOne implements Unary {
+
+  public Set<Graph> apply(Set<Graph> argument, Parameters params) {
+
+    assert (params instanceof SplitParameters);
+    Set<Graph> result = new HashSet<Graph>();
+    for (Graph g : argument) {
+      Set<Graph> newSet = apply(g, (SplitOneParameters) params);
+      if (newSet != null) {
+        result.addAll(newSet);
+      }
+    }
+    Unary isoFree = new IsoFree();
+    result = isoFree.apply(result, null);
+    return result;
+  }
+
+  public Set<Graph> apply(Graph graph, SplitOneParameters params) {
+
+    // collect the Ids of all edges we must replace
+    List<Short> edges = new ArrayList<Short>();
+    byte nodeCount = graph.nodeCount();
+    for (short edgeId = 0; edgeId < nodeCount*(nodeCount-1)/2; edgeId++) {
+      if (graph.getEdge(edgeId) == null) {
+        edges.add(edgeId);
+      }
+    }
+
+    Set<Graph> result = new HashSet<Graph>();
+    // compute all possible permutations of length |edges| consisting of two colors
+    // such that each of the colors can appear any number of times from 0 to |edges|
+    Permutator permutations = new RangePermutator(edges.size(), 0, edges.size());
+    // each permutation is a color assignment for the edges
+    while (permutations.hasNext()) {
+      // copy the graph
+      Graph newGraph = graph.copy();
+      byte[] permutation = permutations.next();
+      // modify edge colors: partition 0 => newColor0, partition 1 => newColor1
+      for (short edgePtr = 0; edgePtr < edges.size(); edgePtr++) {
+        char newColor = permutation[edgePtr] == 0 ? params.newColor0() : params.newColor1();
+        short edgeId = edges.get(edgePtr);
+        newGraph.putEdge(edgeId);
+        newGraph.getEdge(edgeId).setColor(newColor);
+      }
+      result.add(newGraph);
+    }
+    return result;
+  }
+  
+  public static class SplitOneParameters implements Parameters {
+    
+    private char newColor0;
+    private char newColor1;
+  
+    public SplitOneParameters(char newColor0, char newColor1) {
+  
+      this.newColor0 = newColor0;
+      this.newColor1 = newColor1;
+    }
+  
+    public char newColor0() {
+  
+      return newColor0;
+    }
+  
+    public char newColor1() {
+  
+      return newColor1;
+    }
+  }
+}
