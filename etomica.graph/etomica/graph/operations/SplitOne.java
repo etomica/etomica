@@ -39,7 +39,7 @@ public class SplitOne implements Unary {
     // collect the Ids of all edges we must replace
     List<Short> edges = new ArrayList<Short>();
     byte nodeCount = graph.nodeCount();
-    for (short edgeId = 0; edgeId < nodeCount*(nodeCount-1)/2; edgeId++) {
+    for (byte edgeId = 0; edgeId < nodeCount*(nodeCount-1)/2; edgeId++) {
       if (graph.getEdge(edgeId) == null) {
         edges.add(edgeId);
       }
@@ -55,9 +55,9 @@ public class SplitOne implements Unary {
       Graph newGraph = graph.copy();
       byte[] permutation = permutations.next();
       // modify edge colors: partition 0 => newColor0, partition 1 => newColor1
-      for (short edgePtr = 0; edgePtr < edges.size(); edgePtr++) {
+      for (byte edgePtr = 0; edgePtr < edges.size(); edgePtr++) {
         char newColor = permutation[edgePtr] == 0 ? params.newColor0() : params.newColor1();
-        short edgeId = edges.get(edgePtr);
+        byte edgeId = edges.get(edgePtr);
         newGraph.putEdge(edgeId);
         newGraph.getEdge(edgeId).setColor(newColor);
       }
