@@ -351,28 +351,40 @@ public class GraphImpl implements Graph {
     return (byte) store.bitCount();
   }
 
-  // (0,1),(0,2),(1,2),(0,3),(1,3),(2,3),(0,4),(1,4),(2,4),(3,4)...,(n-1,n)
-  // edgeId = (toNode)*(toNode-1)/2 + fromNode
+  // (0,1),(1,2),...,(n-1,0),(0,2),(1,3),...(n-2,0),(n-1,1),...,(0,k),(1,k+1),...,(n-2,k-2),(n-1,k-1)
+  // for n odd, k=(n-1)/2
+  // for n even, k=(n-2)/2, edge list then also includes (0,n/2),(1,n/2+1),...,(n/2-2,n-2),(n/2-1,n-1)
   public byte getEdgeId(byte fromNode, byte toNode) {
 
     assert (fromNode != toNode);
     if (fromNode > toNode) {
-      return getEdgeId(toNode, fromNode);
+      byte tmpNode = fromNode;
+      fromNode = toNode;
+      toNode = tmpNode;
     }
-    return (byte) (fromNode + toNode * (toNode - 1) / 2);
+    byte diff = (byte)(toNode - fromNode);
+    if (diff > nodes.length/2) {
+      // we're jumping from an node near the start to node near the end
+      // consider instead going from the node near the end to the node near the beginning
+      // (so that diff is smaller)
+      diff = (byte)(nodes.length - diff);
+      fromNode = toNode;
+    }
+
+    // first n edges form the outer ring of edges, etc
+    return (byte) ((diff-1)*nodes.length + fromNode);
   }
 
-  public byte getFromNode(byte edge) {
-
-    for (int toNode = 1; toNode < nodes.length; toNode++) {
-      // 0, 1, 3, 6, 10, 15, ...
-      byte sectionStart = (byte) (toNode * (toNode - 1) / 2);
-      // edge - candidate is the offset of the fromNode in a toNode section
-      if (edge - sectionStart < toNode) {
-        return (byte) (edge - sectionStart);
-      }
+  public byte getFromNode(byte edgeId) {
+    byte diff = (byte) (edgeId / nodes.length + 1);
+    byte fromNode = (byte) (edgeId - (diff-1)*nodes.length);
+    byte toNode = (byte)(fromNode + diff);
+    if (toNode < nodes.length) {
+      return fromNode;
     }
-    return 0;
+    // we have something like a from=0, to=(n-1) edge.  our above math gives
+    // us from=n-1, to=n, so we need to convert back to from=0
+    return (byte)(toNode - nodes.length);
   }
 
   public Node getNode(byte node) {
@@ -415,17 +427,16 @@ public class GraphImpl implements Graph {
     return store;
   }
 
-  public byte getToNode(byte edge) {
-
-    for (int toNode = 1; toNode < nodes.length; toNode++) {
-      // 0, 1, 3, 6, 10, 15, ...
-      byte sectionStart = (byte) (toNode * (toNode - 1) / 2);
-      // edge - candidate is the offset of the fromNode in a toNode section
-      if (edge - sectionStart < toNode) {
-        return (byte) toNode;
-      }
+  public byte getToNode(byte edgeId) {
+    byte diff = (byte) (edgeId / nodes.length + 1);
+    byte fromNode = (byte) (edgeId - (diff-1)*nodes.length);
+    byte toNode = (byte)(fromNode + diff);
+    if (toNode < nodes.length) {
+      return toNode;
     }
-    return 0;
+    // we have something like a from=0, to=(n-1) edge.  our above math gives
+    // us from=n-1, to=n, so we need to take our from node to be our to node.
+    return fromNode;
   }
 
   public boolean hasEdge(byte fromNode, byte toNode) {
@@ -490,7 +501,7 @@ public class GraphImpl implements Graph {
     int graphR = dim / 2 - nodeR;
 
     // first try 0, then A, then use this fixed one-- should work for 0
-    double oA = Math.PI / 2;
+    double oA = Math.PI / 2 + Math.PI / nodes.length;
     double angle = 2 * Math.PI / nodes.length;
 
     double[] x = new double[nodes.length];
@@ -500,6 +511,10 @@ public class GraphImpl implements Graph {
     for (int i = 0; i < nodes.length; i++) {
       x[i] = oX + graphR * Math.cos(oA + i * angle);
       y[i] = oY + graphR * Math.sin(oA + i * angle);
+      if (nodes.length == 1) {
+        x[i] = oX;
+        y[i] = oY;
+      }
       if (COLOR_CODES.indexOf(nodes[i].getColor()) == -1) {
           COLOR_CODES.add(nodes[i].getColor());
       }
