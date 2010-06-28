@@ -38,7 +38,7 @@ public class GraphList<E> implements Set<E> {
     
     protected void sort() {
         if (sorted) return;
-        Collections.sort(list, comparator);
+        if (comparator != null) Collections.sort(list, comparator);
         sorted = true;
     }
 
