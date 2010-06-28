@@ -57,6 +57,10 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         lastValue = value;
         cPairID = thisCPairID;
         
+        for (int k=0; k<f.length; k++) {
+            f[k].setBox(box);
+        }
+
         int nPoints = pointCount();
         
         // recalculate all f values for all pairs
@@ -326,6 +330,13 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                         + f14*f25 + f14*f35 + f14*f45 + f15*f24 + f15*f34 + f15*f45
                         + f24*f35 + f24*f45 + f25*f34 + f25*f45 + f34*f45 + f35*f45
                         + 2*f14*f15 + 2*f24*f25 + 2*f34*f35);
+                
+                
+
+//                deltaE += exp123*g12*g13*g23*(2*(g14*g15 + g24*g25 + g34*g35 - g45));
+//                        + f45*(g24 + g14 + g15 + g25 + g34 + g35)
+//                        + f14*f25 + f14*f35 + f15*f24 + f15*f34 + f24*f35 + f25*f34 
+//                        + 2*f14*f15 + 2*f24*f25 + 2*f34*f35);
             }
             
             scfAtoms.remove(2);
