@@ -2,6 +2,7 @@ package etomica.virial.cluster;
 
 import static etomica.graph.model.Metadata.COLOR_CODE_0;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,12 +12,14 @@ import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphList;
+import etomica.graph.model.Metadata;
 import etomica.graph.model.comparators.ComparatorBiConnected;
 import etomica.graph.model.comparators.ComparatorChain;
 import etomica.graph.model.comparators.ComparatorNumEdges;
 import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
+import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
 import etomica.graph.operations.DeleteEdge;
@@ -50,6 +53,31 @@ public class VirialDiagrams {
            flexColors = new char[]{COLOR_CODE_0};
         }
 
+        final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
+        MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
+
+            public int compare(Metadata m1, Metadata m2) {
+                if (m1.getType() != m2.getType()) {
+                    return m1.getType() > m2.getType() ? 1 : -1;
+                }
+                Integer o1 = colorOrderMap.get(m1.getColor());
+                Integer o2 = colorOrderMap.get(m2.getColor());
+                if (o1 == o2) {
+                    return m1.getColor() > m2.getColor() ? 1 : -1;
+                }
+                if (o1 == null) {
+                    if (o2 == null) {
+                        return m1.getColor() > m2.getColor() ? 1 : -1;
+                    }
+                    return -1;
+                }
+                if (o2 == null) {
+                    return 1;
+                }
+                return o1 > o2 ? 1 : (o1 < o2 ? -1 : 0);
+            }
+        };
+
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
         comp.addComparator(new ComparatorBiConnected());
@@ -63,6 +91,10 @@ public class VirialDiagrams {
         char fBond = 'f';
         char oneBond = 'o';
         char mBond = 'm';  // multi-body
+        colorOrderMap.put(oneBond, 0);
+        colorOrderMap.put(mBond, 1);
+        colorOrderMap.put(eBond, 2);
+        colorOrderMap.put(fBond, 3);
         for (byte i=1; i<n+1; i++) {
             Graph g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
             g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
@@ -159,6 +191,7 @@ public class VirialDiagrams {
         //    = r - b*r^2 + 2*b^2*r^3 - c*r^3 + O[r^4]
         // etc
 
+        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
         z.addAll(allRho[1]);
         for (int i=2; i<n+1; i++) {
             Set<Graph>[] zPow = new Set[n+1];
@@ -166,13 +199,13 @@ public class VirialDiagrams {
             zPow[1].addAll(z);
             for (int j=2; j<i+1; j++) {
                 zPow[j] = new HashSet<Graph>();
-                zPow[j] = isoFree.apply(mulFlex.apply(zPow[j-1], z, mfp), null);
+                zPow[j] = isoFree.apply(mulFlex.apply(zPow[j-1], z, mfpnm1), null);
             }
             z = new HashSet<Graph>();
             z.addAll(allRho[1]);
             msp = new MulScalarParameters(new CoefficientImpl(-1,1));
             for (int j=2; j<i+1; j++) {
-                z.addAll(mulScalar.apply(mulFlex.apply(allRho[j], zPow[j], mfp), msp));
+                z.addAll(mulScalar.apply(mulFlex.apply(allRho[j], zPow[j], mfpnm1), msp));
             }
         }
 
