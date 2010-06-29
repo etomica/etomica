@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import etomica.graph.iterators.IteratorWrapper;
+import etomica.graph.iterators.filters.IsomorphismFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
+import etomica.graph.model.GraphIterator;
 import etomica.graph.model.GraphList;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
@@ -19,20 +22,20 @@ import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
-import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
 import etomica.graph.operations.FactorOnce;
+import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulFlexible;
-import etomica.graph.operations.Relabel;
-import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
+import etomica.graph.operations.Relabel;
+import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
@@ -53,8 +56,8 @@ public class VirialDiagramsMix {
         // around to an appropriate color, but that seems icky.
         char[] allColors = new char[]{nodeA,nodeB};
         char[] flexColors = new char[]{nodeA, nodeB};
-        boolean multiA = true;
-        boolean multiB = true;
+        boolean multiA = false;
+        boolean multiB = false;
         
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
@@ -324,41 +327,84 @@ public class VirialDiagramsMix {
             // pretend everything is fully flexible
             FactorOnce factor = new FactorOnce();
             Relabel relabel = new Relabel();
-            FactorOnceParameters fop = new FactorOnceParameters((byte)0, new char[0]);
+            FactorOnceParameters fopA = new FactorOnceParameters((byte)0, new char[0]);
+            FactorOnceParameters fopB = new FactorOnceParameters((byte)1, new char[0]);
             Set<Graph> newP = new HashSet<Graph>();
             for (Graph g : p) {
                 boolean ap = hap.check(g);
                 boolean con = hap.isConnected();
                 if (con && ap) {
-                    if (!hap.getArticulationPoints().contains(0)) {
-                        byte[] permutations = new byte[g.nodeCount()];
-                        for (int i=0; i<permutations.length; i++) {
-                            permutations[i] = (byte)i;
+                    FactorOnceParameters fop = null;
+                    boolean factorable0 = g.getNode((byte)0).getColor() == nodeA && hap.getArticulationPoints().contains(0);
+                    if (!factorable0) {
+                        byte articulationId = -1;
+                        for (byte nodeId : hap.getArticulationPoints()) {
+                            if (g.getNode(nodeId).getColor() == nodeA) {
+                                articulationId = nodeId;
+                                break;
+                            }
                         }
-                        permutations[0] = hap.getArticulationPoints().get(0);
-                        permutations[hap.getArticulationPoints().get(0)] = 0;
-                        RelabelParameters rp = new RelabelParameters(permutations);
-                        System.out.println("rl "+g);
-                        g = relabel.apply(g, rp);
-                        System.out.println("=> "+g);
+                        if (articulationId != -1) {
+                            factorable0 = true;
+                            byte[] permutations = new byte[g.nodeCount()];
+                            for (int i=0; i<permutations.length; i++) {
+                                permutations[i] = (byte)i;
+                            }
+                            permutations[0] = articulationId;
+                            permutations[articulationId] = 0;
+                            RelabelParameters rp = new RelabelParameters(permutations);
+                            g = relabel.apply(g, rp);
+                        }
                     }
-                    newP.add(g.copy());
+                    boolean factorableB = g.getNode((byte)1).getColor() == nodeB && hap.getArticulationPoints().contains(1);
+                    if (!factorable0 && !factorableB) {
+                        byte articulationId = -1;
+                        for (byte nodeId : hap.getArticulationPoints()) {
+                            if (g.getNode(nodeId).getColor() == nodeB) {
+                                articulationId = nodeId;
+                                break;
+                            }
+                        }
+                        if (articulationId != -1) {
+                            factorableB = true;
+                            byte[] permutations = new byte[g.nodeCount()];
+                            for (int i=0; i<permutations.length; i++) {
+                                permutations[i] = (byte)i;
+                            }
+                            permutations[1] = articulationId;
+                            permutations[articulationId] = 1;
+                            RelabelParameters rp = new RelabelParameters(permutations);
+                            g = relabel.apply(g, rp);
+                        }
+                    }
+                    g = g.copy();
+                    newP.add(g);
+                    if (factorable0) {
+                        fop = fopA;
+                    }
+                    else if (factorableB) {
+                        fop = fopB;
+                    }
+                    else {
+                        throw new RuntimeException("oops");
+                    }
                     Graph gf = factor.apply(g, fop);
-                    newP.add(gf);
+                    cancelSet.put(g, gf);
+                    // add a copy here so that it can be modified by IsoMorphism filter without
+                    // adversely affecting our cancelSet graph
+                    newP.add(gf.copy());
                 }
                 else {
                     newP.add(g.copy());
                 }
             }
-            p = isoFree.apply(newP, null);
-            
-            for (Graph g : p) {
-                boolean ap = hap.check(g);
-                boolean con = hap.isConnected();
-                if (con && ap) {
-                    Graph gf = factor.apply(g, fop);
-                    cancelSet.put(g,gf);
-                }
+            // we have to be extra careful because we made a graph-graph hasmap,
+            // so we can't make any graph copies
+            IteratorWrapper wrapper = new IteratorWrapper(newP.iterator());
+            GraphIterator isomorphs = new IsomorphismFilter(wrapper);
+            p = new HashSet<Graph>();
+            while (isomorphs.hasNext()) {
+                p.add(isomorphs.next());
             }
         }
 
