@@ -75,10 +75,8 @@ public class Factor implements Unary {
                 j--;
                 break;
               }
-              else {
-                if (g.getNode(iNodeID).getType() != TYPE_NODE_ROOT) {
-                  newRootNodes.get(j).add(iNodeID); 
-                }
+              if (g.getNode(iNodeID).getType() != TYPE_NODE_ROOT) {
+                newRootNodes.get(j).add(iNodeID); 
               }
             }
           }
