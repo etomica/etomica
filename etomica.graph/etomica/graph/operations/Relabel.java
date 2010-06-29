@@ -25,7 +25,8 @@ public class Relabel implements Unary {
 
     Node[] nodes = new Node[argument.nodeCount()];
     for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
-      nodes[nodeId] = argument.getNode(params.map(nodeId));
+      nodes[nodeId] = argument.getNode(nodeId).copy();
+//      nodes[nodeId] = argument.getNode(params.map(nodeId)).copy();
     }
     // copy the mapped nodes
     Graph result = GraphFactory.createGraph(nodes);
