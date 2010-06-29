@@ -55,7 +55,6 @@ public class FactorOnce implements Unary {
     for (int i=0; i<biComponents.size()-1; i++) {
       for (int in=0; in<biComponents.get(i).size(); in++) {
         byte iNodeID = biComponents.get(i).get(in);
-        if (iNodeID != mfp.nodeId) continue;
         for (int j=i+1; j<biComponents.size(); j++) {
           for (byte jNodeID : biComponents.get(j)) {
             if (iNodeID == jNodeID) {
@@ -65,8 +64,10 @@ public class FactorOnce implements Unary {
                   flexColor = true;
                 }
               }
-              if (flexColor) {
+              if (flexColor || iNodeID != mfp.nodeId) {
                 // flexible-molecule color, can't break it up.
+                // also combine any components connected at an articulation
+                //   point different than the one we want
                 for (byte jNodeID2 : biComponents.get(j)) {
                   if (jNodeID2 != iNodeID) {
                     biComponents.get(i).add(jNodeID2);
@@ -78,10 +79,8 @@ public class FactorOnce implements Unary {
                 j--;
                 break;
               }
-              else {
-                if (g.getNode(iNodeID).getType() != TYPE_NODE_ROOT) {
-                  newRootNodes.get(j).add(iNodeID); 
-                }
+              else if (g.getNode(iNodeID).getType() != TYPE_NODE_ROOT) {
+                newRootNodes.get(j).add(iNodeID); 
               }
             }
           }
