@@ -1,5 +1,6 @@
 package etomica.graph.model.impl;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import etomica.graph.model.Metadata;
 public class MetadataImpl implements Metadata {
 
   private static final Map<String, Metadata> stock = new HashMap<String, Metadata>();
+  public static Comparator<Metadata> metaDataComparator = null;
   private char type;
   private char color;
 
@@ -75,6 +77,9 @@ public class MetadataImpl implements Metadata {
     }
     if (color == other.getColor() && type == other.getType()) {
       return 0;
+    }
+    if (metaDataComparator != null) {
+      return metaDataComparator.compare(this, other);
     }
     if (color != other.getColor()) {
       return color > other.getColor() ? 1 : -1;
