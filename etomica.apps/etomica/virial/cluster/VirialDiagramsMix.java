@@ -19,6 +19,7 @@ import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
+import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
@@ -27,6 +28,8 @@ import etomica.graph.operations.Factor;
 import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulFlexible;
+import etomica.graph.operations.Relabel;
+import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
@@ -319,17 +322,32 @@ public class VirialDiagramsMix {
         HashMap<Graph,Graph> cancelSet = new HashMap<Graph,Graph>();
         if (flexColors.length > 0) {
             // pretend everything is fully flexible
-            MulFlexibleParameters mfp2 = new MulFlexibleParameters(new char[0], (byte)n);
             FactorOnce factor = new FactorOnce();
+            Relabel relabel = new Relabel();
+            FactorOnceParameters fop = new FactorOnceParameters((byte)0, new char[0]);
             Set<Graph> newP = new HashSet<Graph>();
             for (Graph g : p) {
                 boolean ap = hap.check(g);
                 boolean con = hap.isConnected();
-                newP.add(g.copy());
                 if (con && ap) {
-//                    System.out.println("\nfactoring\n"+g);
-                    Graph gf = factor.apply(g, mfp2);
+                    if (!hap.getArticulationPoints().contains(0)) {
+                        byte[] permutations = new byte[g.nodeCount()];
+                        for (int i=0; i<permutations.length; i++) {
+                            permutations[i] = (byte)i;
+                        }
+                        permutations[0] = hap.getArticulationPoints().get(0);
+                        permutations[hap.getArticulationPoints().get(0)] = 0;
+                        RelabelParameters rp = new RelabelParameters(permutations);
+                        System.out.println("rl "+g);
+                        g = relabel.apply(g, rp);
+                        System.out.println("=> "+g);
+                    }
+                    newP.add(g.copy());
+                    Graph gf = factor.apply(g, fop);
                     newP.add(gf);
+                }
+                else {
+                    newP.add(g.copy());
                 }
             }
             p = isoFree.apply(newP, null);
@@ -338,7 +356,7 @@ public class VirialDiagramsMix {
                 boolean ap = hap.check(g);
                 boolean con = hap.isConnected();
                 if (con && ap) {
-                    Graph gf = factor.apply(g, mfp2);
+                    Graph gf = factor.apply(g, fop);
                     cancelSet.put(g,gf);
                 }
             }
