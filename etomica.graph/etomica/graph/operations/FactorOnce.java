@@ -14,7 +14,6 @@ import java.util.Set;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
-import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.traversal.Biconnected;
 import etomica.graph.traversal.TraversalVisitor;
@@ -33,15 +32,15 @@ public class FactorOnce implements Unary {
   protected HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
     
   public Set<Graph> apply(Set<Graph> argument, Parameters params) {
-    assert(params instanceof MulFlexibleParameters);
+    assert(params instanceof FactorOnceParameters);
     Set<Graph> result = new HashSet<Graph>();
     for (Graph g : argument) {
-      result.add(apply(g, (MulFlexibleParameters)params));
+      result.add(apply(g, (FactorOnceParameters)params));
     }
     return result;
   }
     
-  public Graph apply(Graph g, MulFlexibleParameters mfp) {
+  public Graph apply(Graph g, FactorOnceParameters mfp) {
     if (!hap.check(g)) {
       throw new RuntimeException("unfactorable");
     }
@@ -56,6 +55,7 @@ public class FactorOnce implements Unary {
     for (int i=0; i<biComponents.size()-1; i++) {
       for (int in=0; in<biComponents.get(i).size(); in++) {
         byte iNodeID = biComponents.get(i).get(in);
+        if (iNodeID != mfp.nodeId) continue;
         for (int j=i+1; j<biComponents.size(); j++) {
           for (byte jNodeID : biComponents.get(j)) {
             if (iNodeID == jNodeID) {
@@ -189,6 +189,15 @@ public class FactorOnce implements Unary {
         }
       }
       return true;
+    }
+  }
+
+  public static class FactorOnceParameters implements Parameters {
+    public final byte nodeId;
+    public final char[] flexColors;
+    public FactorOnceParameters(byte nodeId, char[] flexColors) {
+      this.nodeId = nodeId;
+      this.flexColors = flexColors;
     }
   }
 }
