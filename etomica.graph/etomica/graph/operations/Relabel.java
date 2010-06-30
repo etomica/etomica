@@ -26,12 +26,16 @@ public class Relabel implements Unary {
     Node[] nodes = new Node[argument.nodeCount()];
     for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
       nodes[nodeId] = argument.getNode(nodeId).copy();
+      nodes[nodeId].setColor(argument.getNode(params.map(nodeId)).getColor());
+      nodes[nodeId].setType(argument.getNode(params.map(nodeId)).getType());
 //      nodes[nodeId] = argument.getNode(params.map(nodeId)).copy();
     }
     // copy the mapped nodes
     Graph result = GraphFactory.createGraph(nodes);
     // copy the coefficient
     result.coefficient().multiply(argument.coefficient());
+    result.setNumFactors(argument.factors().length);
+    result.addFactors(argument.factors());
     // copy the edges from and to mapped nodes
     for (Edge edge : argument.edges()) {
       Edge newEdge = result.putEdge(params.map(argument.getFromNode(edge.getId())), params.map(argument
