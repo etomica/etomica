@@ -1,5 +1,8 @@
 package etomica.virial;
 
+import etomica.util.Arrays;
+import etomica.util.Debug;
+
 
 public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 
@@ -18,6 +21,45 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         f = fArray;
         fValues = new double[pointCount][pointCount][fArray.length];
         fOld = new double[pointCount][fArray.length];
+        
+        if (!clusters[0].isUsePermutations()) {
+            // determine which fbonds are actually needed by the diagrams
+            fullBondIndexArray = new int[pointCount-1][pointCount][0];
+            for (int c=0; c<clusters.length; c++) {
+                int[][] bondIndexArray = clusters[c].getBondIndexArray();
+                for (int i=0; i<pointCount-1; i++) {
+                    for (int j=i+1; j<pointCount; j++) {
+                        int kf = bondIndexArray[i][j];
+                        if (kf == -1) continue;
+                        int[] ff = fullBondIndexArray[i][j];
+                        boolean newF = true;
+                        for (int k=0; k<ff.length; k++) {
+                            if (ff[k] == kf) {
+                                // we'll already calculate MayerFunction kf for the i-j pair
+                                newF = false;
+                                break;
+                            }
+                        }
+                        if (newF) {
+                            fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+                            fullBondIndexArray[i][j][ff.length] = kf;
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            // when using permutations in ClusterBonds, everything will get rearranged
+            // at some point, so each pair will have each bond
+            fullBondIndexArray = new int[pointCount-1][pointCount][f.length];
+            for (int i=0; i<pointCount-1; i++) {
+                for (int j=i+1; j<pointCount; j++) {
+                    for (int k=0; k<f.length; k++) {
+                        fullBondIndexArray[i][j][k] = k;
+                    }
+                }
+            }
+        }
     }
 
     // equal point count enforced in constructor 
@@ -71,7 +113,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
             value += clusterWeights[i] * v;
         }
     }
-    
+
     protected void revertF() {
         int nPoints = pointCount();
 
@@ -98,9 +140,12 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         // recalculate all f values for all pairs
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
-                for(int k=0; k<f.length; k++) {
-                    fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                    fValues[j][i][k] = fValues[i][j][k];
+                // only update the mayer functions that we'll need for this pair
+                int[] fij = fullBondIndexArray[i][j];
+                for(int k=0; k<fij.length; k++) {
+                    int fk = fij[k];
+                    fValues[i][j][fk] = f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                    fValues[j][i][fk] = fValues[i][j][fk];
                 }
             }
         }
@@ -112,12 +157,14 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         int nPoints = pointCount();
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
-                for(int k=0; k<f.length; k++) {
-                    if (fValues[i][j][k] != f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)) {
-                        throw new RuntimeException("oops2 "+i+" "+j+" "+k+" "+f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta));
+                int[] fij = fullBondIndexArray[i][j];
+                for(int k=0; k<fij.length; k++) {
+                    int fk = fij[k];
+                    if (fValues[i][j][fk] != f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)) {
+                        throw new RuntimeException("oops2 "+i+" "+j+" "+fk+" "+f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta));
                     }
-                    if (fValues[j][i][k] != fValues[i][j][k]) {
-                        throw new RuntimeException("oops3 "+i+" "+j+" "+k+" "+fValues[j][i][k]+" "+fValues[i][j][k]);
+                    if (fValues[j][i][fk] != fValues[i][j][fk]) {
+                        throw new RuntimeException("oops3 "+i+" "+j+" "+fk+" "+fValues[j][i][fk]+" "+fValues[i][j][fk]);
                     }
                 }
             }
@@ -138,11 +185,16 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         beta = 1/temperature;
     }
 
+    public double[][][] getFValues() {
+        return fValues;
+    }
+
     private static final long serialVersionUID = 1L;
     protected final ClusterBonds[] clusters;
     protected final double[] clusterWeights;
+    int[][][] fullBondIndexArray;
     protected final MayerFunction[] f;
-    protected final double[][][] fValues;
+    protected double[][][] fValues;
     protected final double[][] fOld;
     protected int oldDirtyAtom;
     protected int cPairID = -1, lastCPairID = -1;
