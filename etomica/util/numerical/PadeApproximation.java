@@ -39,8 +39,8 @@ public class PadeApproximation {
 		a = new double[K+1];
 		c = new double[L+1];
 		
-		double[][] y = new double[M-K][M-K];
-		double[] z = new double [M-K];
+		double[][] y = new double[L][L];
+		double[] z = new double [L];
 		
 		for (int icol=0; icol<L; icol++){
 			z[icol] = -b[K+1+icol];
@@ -97,8 +97,8 @@ public class PadeApproximation {
 	public static void main(String[] args){
 		
 		double[] b = new double []{1.0, 2.0, 3.0, 4.0, 5.0, 1.0, 2.0, 2.0};
-		int K = 2;
-		int L = 5;
+		int K = 3;
+		int L = 2;
 		PadeApproximation pade = new PadeApproximation(b, K, L);
 		pade.solveCoefficients();
 		
