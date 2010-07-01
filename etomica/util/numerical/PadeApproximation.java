@@ -31,8 +31,8 @@ public class PadeApproximation {
 		 */
 		int M = (b.length -1);
 		
-		if((K+L) > M){
-			throw new RuntimeException("K plus L should not exceed the M-order");
+		if((K+L) > M || (K-L)< 0.0){
+			throw new RuntimeException("Pade Approximation class: K plus L should not exceed the M-order");
 		}
 		
 		this.b = b;
@@ -44,7 +44,6 @@ public class PadeApproximation {
 		
 		for (int icol=0; icol<L; icol++){
 			z[icol] = -b[K+1+icol];
-			System.out.println("z["+icol+"]: " + z[icol]);
 		}
 		
 		for (int irow=0; irow<L; irow++){
@@ -97,9 +96,9 @@ public class PadeApproximation {
 	
 	public static void main(String[] args){
 		
-		double[] b = new double []{1.0, 2.0, 3.0, 4.0, 5.0,2.0};
-		int K = 4;
-		int L = 1;
+		double[] b = new double []{1.0, 2.0, 3.0, 4.0, 5.0, 1.0, 2.0, 2.0};
+		int K = 2;
+		int L = 5;
 		PadeApproximation pade = new PadeApproximation(b, K, L);
 		pade.solveCoefficients();
 		
