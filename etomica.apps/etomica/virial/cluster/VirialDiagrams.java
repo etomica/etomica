@@ -105,8 +105,8 @@ public class VirialDiagrams {
     
     public void setDoShortcut(boolean newDoShortcut) {
         doShortcut = newDoShortcut;
-        if (flex || multibody) {
-            throw new RuntimeException("shortcut only works for rigid pairwise models");
+        if (multibody) {
+            throw new RuntimeException("shortcut only works for pairwise models");
         }
     }
 
