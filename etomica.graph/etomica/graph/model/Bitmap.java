@@ -126,4 +126,9 @@ public interface Bitmap extends Comparable<Bitmap> {
    *
    */
   public void xor(final Bitmap other);
+
+  /**
+   * Returns a string for the integer represented by this bitmap
+   */
+  public String toNumberString();
 }

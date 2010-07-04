@@ -1,5 +1,7 @@
 package etomica.graph.model.impl;
 
+import java.math.BigInteger;
+
 import etomica.graph.model.Bitmap;
 
 /*
@@ -39,9 +41,7 @@ public abstract class AbstractBitmap implements Bitmap {
     if (bitSize() <= other.bitSize()) {
       return other;
     }
-    else {
-      return other.copyLowest(bitSize());
-    }
+    return other.copyLowest(bitSize());
   }
 
   public int compareTo(final Bitmap other) {
@@ -298,5 +298,23 @@ public abstract class AbstractBitmap implements Bitmap {
   protected Bitmap createInstance(final int capacity) {
 
     return null;
+  }
+
+  public String toNumberString() {
+    int bitSize = bitSize();
+    if (bitSize == 0) return "0";
+    byte[] byteArray = new byte[(bitSize+7)/8];
+    int startBit = 0;
+    for (int i=0; i<byteArray.length; i++) {
+      int thisBitSize = bitSize-8*(byteArray.length-i-1) - startBit;
+      for (int j=0; j<thisBitSize; j++) {
+        if (testBit(startBit+j)) {
+          byteArray[i] |= 1<<(thisBitSize-j-1);
+        }
+      }
+      startBit += thisBitSize;
+    }
+    BigInteger bigInteger = new BigInteger(byteArray);
+    return bigInteger.toString();
   }
 }
