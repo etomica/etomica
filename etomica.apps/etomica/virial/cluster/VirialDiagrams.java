@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 import etomica.graph.iterators.IteratorWrapper;
+import etomica.graph.iterators.StoredIterator;
 import etomica.graph.iterators.filters.IdenticalGraphFilter;
+import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
@@ -48,8 +50,9 @@ import etomica.graph.operations.SplitOne;
 import etomica.graph.operations.SplitOne.SplitOneParameters;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
-import etomica.graph.property.IsBiconnected;
+import etomica.graph.property.IsConnected;
 import etomica.graph.viewer.ClusterViewer;
+import etomica.math.SpecialFunctions;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumEF;
@@ -65,6 +68,8 @@ public class VirialDiagrams {
     protected boolean doReeHoover;
     protected Set<Graph> p, cancelP, disconnectedP;
     protected Map<Graph,Set<Graph>> cancelMap;
+    protected boolean doShortcut;
+    protected char fBond, eBond, mBond;
     
     public static void main(String[] args) {
         final int n = 4;
@@ -72,6 +77,7 @@ public class VirialDiagrams {
         boolean flex = false;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(false);
+        virialDiagrams.setDoShortcut(false);
         virialDiagrams.makeVirialDiagrams();
     }
     
@@ -85,6 +91,7 @@ public class VirialDiagrams {
         this.n = n;
         this.isInteractive = interactive;
         doReeHoover = true;
+        doShortcut = false;
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
         comp.addComparator(new ComparatorBiConnected());
@@ -96,6 +103,13 @@ public class VirialDiagrams {
         doReeHoover = newDoReeHoover;
     }
     
+    public void setDoShortcut(boolean newDoShortcut) {
+        doShortcut = newDoShortcut;
+        if (flex || multibody) {
+            throw new RuntimeException("shortcut only works for rigid pairwise models");
+        }
+    }
+
     public Set<Graph> getVirialGraphs() {
         if (p == null) {
             makeVirialDiagrams();
@@ -303,75 +317,100 @@ public class VirialDiagrams {
             }
         };
 
-
-        Set<Graph> eXi = new HashSet<Graph>();//set of full star diagrams with e bonds
-        char eBond = 'A';//color of edge
-        char fBond = 'f';
-        char oneBond = 'o';
-        char mBond = 'm';  // multi-body
-        colorOrderMap.put(oneBond, 0);
-        colorOrderMap.put(mBond, 1);
-        colorOrderMap.put(eBond, 2);
-        colorOrderMap.put(fBond, 3);
-        for (byte i=1; i<n+1; i++) {
-            Graph g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
-            g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
-            eXi.add(g);
-
-            if (multibody && i>2) {
-                g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
-                g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
-                for (Edge e : g.edges()) {
-                    e.setColor(mBond);
-                }
-                eXi.add(g);
-            }
-        }
-
         GraphList<Graph> topSet = makeGraphList();
-        if (isInteractive) {
-            System.out.println("Xi");
-            topSet.addAll(eXi);
-            for (Graph g : topSet) {
-                System.out.println(g);
-            }
-//            ClusterViewer.createView("eXi", topSet);
-        }
 
-        
-        Split split = new Split();
-        SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
-        Set<Graph> setOfSubstituted = split.apply(eXi, bonds);
-
-        DeleteEdgeParameters deleteEdgeParameters = new DeleteEdgeParameters(oneBond);
-        DeleteEdge deleteEdge = new DeleteEdge();
-        //set of full star diagrams with f bonds
-        Set<Graph> fXi = deleteEdge.apply(setOfSubstituted, deleteEdgeParameters);
-        if (isInteractive) {
-            System.out.println("\nXi with f bonds");
-            topSet.clear();
-            topSet.addAll(fXi);
-            for (Graph g : topSet) {
-                System.out.println(g);
-            }
-//            ClusterViewer.createView("fXi", topSet);
-        }
-        
+        char oneBond = 'o';
+        mBond = 'm';  // multi-body
         Set<Graph> lnfXi = new HashSet<Graph>();
-        Set<Graph> fXipow = new HashSet<Graph>();
+        IsoFree isoFree = new IsoFree();
+
         MulFlexible mulFlex = new MulFlexible();
         MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
-        IsoFree isoFree = new IsoFree();
-        fXipow.addAll(fXi);
         MulScalarParameters msp = null;
         MulScalar mulScalar = new MulScalar();
-        for (int i=1; i<n+1; i++) {
 
-            lnfXi.addAll(fXipow);
-            lnfXi = isoFree.apply(lnfXi, null);
-            msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
-            fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, mfp), msp), null);
+        if (doShortcut) {
+            // just take lnfXi to be the set of connected diagrams
+            fBond = 'A';
+            eBond = 'e';
+
+            colorOrderMap.put(oneBond, 0);
+            colorOrderMap.put(mBond, 1);
+            colorOrderMap.put(eBond, 2);
+            colorOrderMap.put(fBond, 3);
+
+            for (int i=1; i<n+1; i++) {
+                GraphIterator iter = new PropertyFilter(new StoredIterator((byte)i), new IsConnected());
+                msp = new MulScalarParameters(1, (int)SpecialFunctions.factorial(i));
+                while (iter.hasNext()) {
+                    lnfXi.add(mulScalar.apply(iter.next(), msp));
+                }
+            }
         }
+        else {
+            
+            eBond = 'A';//color of edge
+            fBond = 'f';
+
+            Set<Graph> eXi = new HashSet<Graph>();//set of full star diagrams with e bonds
+            colorOrderMap.put(oneBond, 0);
+            colorOrderMap.put(mBond, 1);
+            colorOrderMap.put(eBond, 2);
+            colorOrderMap.put(fBond, 3);
+            for (byte i=1; i<n+1; i++) {
+                Graph g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
+                g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
+                eXi.add(g);
+    
+                if (multibody && i>2) {
+                    g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
+                    g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
+                    for (Edge e : g.edges()) {
+                        e.setColor(mBond);
+                    }
+                    eXi.add(g);
+                }
+            }
+    
+            if (isInteractive) {
+                System.out.println("Xi");
+                topSet.addAll(eXi);
+                for (Graph g : topSet) {
+                    System.out.println(g);
+                }
+            }
+    
+            
+            Split split = new Split();
+            SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
+            Set<Graph> setOfSubstituted = split.apply(eXi, bonds);
+    
+            DeleteEdgeParameters deleteEdgeParameters = new DeleteEdgeParameters(oneBond);
+            DeleteEdge deleteEdge = new DeleteEdge();
+            //set of full star diagrams with f bonds
+            Set<Graph> fXi = deleteEdge.apply(setOfSubstituted, deleteEdgeParameters);
+
+            if (isInteractive) {
+                System.out.println("\nXi with f bonds");
+                topSet.clear();
+                topSet.addAll(fXi);
+                for (Graph g : topSet) {
+                    System.out.println(g);
+                }
+            }
+            
+            Set<Graph> fXipow = new HashSet<Graph>();
+            fXipow.addAll(fXi);
+            for (int i=1; i<n+1; i++) {
+
+                lnfXi.addAll(fXipow);
+                lnfXi = isoFree.apply(lnfXi, null);
+                msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
+                fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, mfp), msp), null);
+            }
+
+        }
+
         if (isInteractive) {
             topSet.clear();
             topSet.addAll(lnfXi);
@@ -381,6 +420,7 @@ public class VirialDiagrams {
             }
 //            ClusterViewer.createView("lnfXi", topSet);
         }
+
 
         DifByNode opzdlnXidz = new DifByNode();
         DifParameters difParams = new DifParameters('A');
@@ -455,6 +495,11 @@ public class VirialDiagrams {
         
         Set<Graph> newP = new HashSet<Graph>();
 
+        // clear these out -- we don't need them and (in extreme cases) we might need the memory
+        lnfXi.clear();
+        rho.clear();
+        z.clear();
+
         // attempt to factor any graphs with an articulation point
         cancelMap = new HashMap<Graph,Set<Graph>>();
         cancelP = new GraphList<Graph>();
@@ -478,31 +523,25 @@ public class VirialDiagrams {
 
             // perform Ree-Hoover substitution (brute-force)
             if (doReeHoover) {
-                IsBiconnected isBi = new IsBiconnected();
                 char nfBond = 'F';
                 SplitOneParameters splitOneParameters = new SplitOneParameters(eBond, nfBond);
                 SplitOne splitOne = new SplitOne();
                 msp = new MulScalarParameters(-1, 1);
                 newP.clear();
                 for (Graph g : p) {
-                    if (isBi.check(g)) {
-                        Set<Graph> gSet = splitOne.apply(g, splitOneParameters);
-                        for (Graph g2 : gSet) {
-                            boolean even = true;
-                            for (Edge e : g2.edges()) {
-                                if (e.getColor() == nfBond) {
-                                    even = !even;
-                                    e.setColor(fBond);
-                                }
+                    Set<Graph> gSet = splitOne.apply(g, splitOneParameters);
+                    for (Graph g2 : gSet) {
+                        boolean even = true;
+                        for (Edge e : g2.edges()) {
+                            if (e.getColor() == nfBond) {
+                                even = !even;
+                                e.setColor(fBond);
                             }
-                            if (!even) {
-                                g2 = mulScalar.apply(g2, msp);
-                            }
-                            newP.add(g2);
                         }
-                    }
-                    else {
-                        newP.add(g);
+                        if (!even) {
+                            g2 = mulScalar.apply(g2, msp);
+                        }
+                        newP.add(g2);
                     }
                 }
                 p = isoFree.apply(newP, null);
