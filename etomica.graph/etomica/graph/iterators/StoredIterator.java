@@ -36,7 +36,7 @@ public class StoredIterator implements GraphIterator {
     try {
       FileInputStream fis = new FileInputStream(new File(url.toURI()));
       ZipInputStream zis = new ZipInputStream(fis);
-      ZipEntry ze = zis.getNextEntry();
+      ZipEntry ze;
       String gf = GRAPH_FILE + nodeCount + 'a';
       do {
         ze = zis.getNextEntry();
@@ -99,9 +99,23 @@ public class StoredIterator implements GraphIterator {
   private Graph toNativeGraph(String nautyGraph) {
 
     Graph g = new GraphImpl(nodeCount);
-    for (byte edgeId = 0; edgeId < nautyGraph.length(); edgeId++) {
-      if (nautyGraph.charAt(edgeId) == '1') {
-        g.putEdge(edgeId);
+    byte toNode = 1;
+    for (byte nautyEdgeId = 0; nautyEdgeId < nautyGraph.length(); nautyEdgeId++) {
+      
+      if (nautyGraph.charAt(nautyEdgeId) == '1') {
+        byte fromNode = 0;
+        
+        for (; toNode < 15; toNode++) {
+          // 0, 1, 3, 6, 10, 15, ...
+          byte sectionStart = (byte) (toNode * (toNode - 1) / 2);
+          // edge - candidate is the offset of the fromNode in a toNode section 
+          if (nautyEdgeId < sectionStart + toNode) {
+            fromNode = (byte)(nautyEdgeId - sectionStart);
+            break;
+          }
+        } 
+      
+        g.putEdge(fromNode, toNode);
       }
     }
     // int index = 0;
