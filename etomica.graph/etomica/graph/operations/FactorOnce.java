@@ -35,111 +35,178 @@ public class FactorOnce implements Unary {
     assert(params instanceof FactorOnceParameters);
     Set<Graph> result = new HashSet<Graph>();
     for (Graph g : argument) {
-      result.add(apply(g, (FactorOnceParameters)params));
+      result.addAll(apply(g, (FactorOnceParameters)params));
     }
     return result;
   }
     
-  public Graph apply(Graph g, FactorOnceParameters mfp) {
+  public Set<Graph> apply(Graph g, FactorOnceParameters fop) {
     if (!hap.check(g)) {
       throw new RuntimeException("unfactorable");
     }
     List<List<Byte>> biComponents = new ArrayList<List<Byte>>();
     BCVisitor v = new BCVisitor(biComponents);
     new Biconnected().traverseAll(g, v);
+
+    List<Integer> myComponents = new ArrayList<Integer>();
+    for (int i=0; i<biComponents.size(); i++) {
+      if (biComponents.get(i).contains(fop.nodeId)) {
+        myComponents.add(i);
+      }
+    }
+    Set<Graph> resultSet = new HashSet<Graph>();
+    if (myComponents.size() < 2) {
+      resultSet.add(g);
+      return resultSet;
+    }
+    
+    List<Integer> iComps = new ArrayList<Integer>();
+    List<Integer> jComps = new ArrayList<Integer>();
+    for (int k=0; k<(1<<myComponents.size()-1); k++) {
+      iComps.clear();
+      jComps.clear();
+      iComps.add(myComponents.get(0));
+      for (int l=1; l<myComponents.size(); l++) {
+        if ((k & (1<<(l-1))) > 0) {
+          iComps.add(myComponents.get(l));
+        }
+        else {
+          jComps.add(myComponents.get(l));
+        }
+      }
+      if (jComps.isEmpty()) continue;
+      resultSet.add(apply(g, iComps, jComps));
+      if (!fop.allPermutations) return resultSet;
+    }
+    if (resultSet.size() > 1) {
+      MulScalar mulScalar = new MulScalar();
+      MulScalarParameters mspFactor = new MulScalarParameters(1, resultSet.size());
+      resultSet = mulScalar.apply(resultSet, mspFactor);
+    }
+    return resultSet;
+  }
+
+  // components in iComps will be combined together
+  // components not in iComps will be combined together
+  public Graph apply(Graph g, List<Integer> iComps, List<Integer> jComps) {
+    if (!hap.check(g) || !hap.isConnected()) {
+      throw new RuntimeException("unfactorable or disconnected");
+    }
+    if (iComps.size() == 0 || jComps.size() == 0) {
+      throw new RuntimeException("you gotta give me both i and j components");
+    }
+    List<List<Byte>> biComponents = new ArrayList<List<Byte>>();
+    BCVisitor v = new BCVisitor(biComponents);
+    new Biconnected().traverseAll(g, v);
+
+    while (biComponents.size() > 2) {
+      for (int i=0; i<biComponents.size()-1; i++) {
+        for (int in=0; in<biComponents.get(i).size(); in++) {
+          byte iNodeID = biComponents.get(i).get(in);
+          for (int j=i+1; j<biComponents.size(); j++) {
+            for (byte jNodeID : biComponents.get(j)) {
+              if (iNodeID == jNodeID) {
+                
+                // i and j in iComps => true
+                // i and j in jComps => true
+                // i iComps or jComps, j not in iComps or jComps => true
+                // j iComps or jComps, i not in iComps or jComps => true
+                if ((iComps.contains(i) && iComps.contains(j)) || (jComps.contains(i) && jComps.contains(j)) ||
+                    ((!iComps.contains(i) && !jComps.contains(i)) && (iComps.contains(j) || jComps.contains(j))) || 
+                    ((!iComps.contains(j) && !jComps.contains(j)) && (iComps.contains(i) || jComps.contains(i)))) {
+                  // we want to keep these components together
+                  for (byte jNodeID2 : biComponents.get(j)) {
+                    if (jNodeID2 != iNodeID) {
+                      biComponents.get(i).add(jNodeID2);
+                    }
+                  }
+                  biComponents.remove(biComponents.get(j));
+                  for (int ic = 0; ic<iComps.size(); ic++) {
+                    if (iComps.get(ic) == j) {
+                      if (iComps.contains(i)) {
+                        iComps.remove(ic);
+                        ic--;
+                      }
+                      else {
+                        iComps.set(ic, i);
+                      }
+                    }
+                    else if (iComps.get(ic) > j) {
+                      iComps.set(ic, iComps.get(ic)-1);
+                    }
+                  }
+                  for (int jc = 0; jc<jComps.size(); jc++) {
+                    if (jComps.get(jc) == j) {
+                      if (jComps.contains(i)) {
+                        jComps.remove(jc);
+                        jc--;
+                      }
+                      else {
+                        jComps.set(jc, i);
+                      }
+                    }
+                    else if (jComps.get(jc) > j) {
+                      jComps.set(jc, jComps.get(jc)-1);
+                    }
+                  }
+                  j--;
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
     List<Set<Byte>> newRootNodes = new ArrayList<Set<Byte>>();
     for (int i=0; i<biComponents.size(); i++) {
       newRootNodes.add(new HashSet<Byte>());
     }
-
     for (int i=0; i<biComponents.size()-1; i++) {
       for (int in=0; in<biComponents.get(i).size(); in++) {
         byte iNodeID = biComponents.get(i).get(in);
         for (int j=i+1; j<biComponents.size(); j++) {
           for (byte jNodeID : biComponents.get(j)) {
             if (iNodeID == jNodeID) {
-              boolean flexColor = false;
-              for (int ic=0; ic<mfp.flexColors.length; ic++) {
-                if (mfp.flexColors[ic] == g.getNode(iNodeID).getColor()) {
-                  flexColor = true;
-                }
+              if (g.getNode(iNodeID).getType() != TYPE_NODE_ROOT) {
+                // we'll separate these components
+                newRootNodes.get(j).add(iNodeID);
               }
-              if (flexColor || iNodeID != mfp.nodeId) {
-                // flexible-molecule color, can't break it up.
-                // also combine any components connected at an articulation
-                //   point different than the one we want
-                for (byte jNodeID2 : biComponents.get(j)) {
-                  if (jNodeID2 != iNodeID) {
-                    biComponents.get(i).add(jNodeID2);
-                  }
-                }
-                newRootNodes.get(i).addAll(newRootNodes.get(j));
-                newRootNodes.remove(newRootNodes.get(j));
-                biComponents.remove(biComponents.get(j));
-                j--;
-                break;
-              }
-              else if (g.getNode(iNodeID).getType() != TYPE_NODE_ROOT) {
-                newRootNodes.get(j).add(iNodeID); 
-              }
+              break;
             }
           }
         }
       }
     }
 
-    if (biComponents.size() == 1) throw new RuntimeException("unfactorable");
-    if (biComponents.size() > 2) {
-      for (int i=0; i<biComponents.size()-1; i++) {
-        for (int in=0; in<biComponents.get(i).size(); in++) {
-          byte iNodeID = biComponents.get(i).get(in);
-          for (int j=i+1; biComponents.size() > 2 && j<biComponents.size(); j++) {
-            for (byte jNodeID : biComponents.get(j)) {
-              if (iNodeID == jNodeID) {
-                // we only want 2 components, so recombine i and j, which share iNodeID
-                for (byte jNodeID2 : biComponents.get(j)) {
-                  if (jNodeID2 != iNodeID) {
-                    biComponents.get(i).add(jNodeID2);
-                  }
-                }
-                newRootNodes.get(j).remove(jNodeID);
-                newRootNodes.get(i).addAll(newRootNodes.get(j));
-                newRootNodes.remove(newRootNodes.get(j));
-                biComponents.remove(biComponents.get(j));
-                j--;
-                if (biComponents.size() == 2) {
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    
     byte newNodeCount = 0;
     HashMap<Byte,Byte>[] byteMaps = new HashMap[biComponents.size()];
-    byte myNode = -1;
+    byte newRootNodeId = g.nodeCount();
     for (int i=0; i<biComponents.size(); i++) {
       newNodeCount += biComponents.get(i).size();
       byteMaps[i] = new HashMap<Byte,Byte>();
       for (byte id : biComponents.get(i)) {
-        myNode++;
-        byteMaps[i].put(id,myNode);
+        if (newRootNodes.get(i).contains(id)) {
+          byteMaps[i].put(id,newRootNodeId);
+          newRootNodeId++;
+        }
+        else {
+          byteMaps[i].put(id,id);
+        }
       }
     }
     Graph result = GraphFactory.createGraph(newNodeCount);
-    for (int iComp = 0; iComp<biComponents.size(); iComp++) {
-      for (byte nodeID : biComponents.get(iComp)) {
-        byte newNodeId = byteMaps[iComp].get(nodeID);
+    for (int i= 0; i<biComponents.size(); i++) {
+      for (byte nodeID : biComponents.get(i)) {
+        byte newNodeId = byteMaps[i].get(nodeID);
         result.getNode(newNodeId).setColor(g.getNode(nodeID).getColor());
         result.getNode(newNodeId).setType(g.getNode(nodeID).getType());
-        if (newRootNodes.get(iComp).contains(nodeID)) {
+        if (newRootNodes.get(i).contains(nodeID)) {
           result.getNode(newNodeId).setType(TYPE_NODE_ROOT);
         }
-        for (byte nodeID2 : biComponents.get(iComp)) {
+        for (byte nodeID2 : biComponents.get(i)) {
           if (nodeID2 <= nodeID || !g.hasEdge(nodeID, nodeID2)) continue;
-          byte newNodeId2 = byteMaps[iComp].get(nodeID2);
+          byte newNodeId2 = byteMaps[i].get(nodeID2);
           result.putEdge(newNodeId, newNodeId2);
           result.getEdge(newNodeId, newNodeId2).setColor(g.getEdge(nodeID, nodeID2).getColor());
         }
@@ -194,9 +261,11 @@ public class FactorOnce implements Unary {
   public static class FactorOnceParameters implements Parameters {
     public final byte nodeId;
     public final char[] flexColors;
-    public FactorOnceParameters(byte nodeId, char[] flexColors) {
+    public final boolean allPermutations;
+    public FactorOnceParameters(byte nodeId, char[] flexColors, boolean allPermutations) {
       this.nodeId = nodeId;
       this.flexColors = flexColors;
+      this.allPermutations = allPermutations;
     }
   }
 }
