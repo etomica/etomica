@@ -45,7 +45,7 @@ import etomica.math.SpecialFunctions;
 public class VirialDiagramsMix {
 
     public static void main(String[] args) {
-        final int n = 4;
+        final int n = 3;
         final char nodeA = Metadata.COLOR_CODE_0;
         final char nodeB = Metadata.COLOR_CODE_1;
         // we'll pretend that everything is flexible until the end
@@ -322,13 +322,13 @@ public class VirialDiagramsMix {
             }
             p = isoFree.apply(newP, null);
         }
-        HashMap<Graph,Graph> cancelSet = new HashMap<Graph,Graph>();
+        HashMap<Graph,Set<Graph>> cancelSet = new HashMap<Graph,Set<Graph>>();
         if (flexColors.length > 0) {
             // pretend everything is fully flexible
             FactorOnce factor = new FactorOnce();
             Relabel relabel = new Relabel();
-            FactorOnceParameters fopA = new FactorOnceParameters((byte)0, new char[0]);
-            FactorOnceParameters fopB = new FactorOnceParameters((byte)1, new char[0]);
+            FactorOnceParameters fopA = new FactorOnceParameters((byte)0, new char[0], false);
+            FactorOnceParameters fopB = new FactorOnceParameters((byte)1, new char[0], false);
             Set<Graph> newP = new HashSet<Graph>();
             for (Graph g : p) {
                 boolean ap = hap.check(g);
@@ -388,11 +388,11 @@ public class VirialDiagramsMix {
                     else {
                         throw new RuntimeException("oops");
                     }
-                    Graph gf = factor.apply(g, fop);
+                    Set<Graph> gf = factor.apply(g, fop);
                     cancelSet.put(g, gf);
                     // add a copy here so that it can be modified by IsoMorphism filter without
                     // adversely affecting our cancelSet graph
-                    newP.add(gf.copy());
+                    newP.addAll(gf);
                 }
                 else {
                     newP.add(g.copy());
@@ -413,9 +413,11 @@ public class VirialDiagramsMix {
         System.out.println("\nP");
         for (Graph g : topSet) {
             System.out.println(g);
-            Graph cancelGraph = cancelSet.get(g);
+            Set<Graph> cancelGraph = cancelSet.get(g);
             if (cancelGraph != null) {
-                System.out.println(" -  "+cancelGraph);
+                for (Graph cg : cancelGraph) {
+                    System.out.println(" -  "+cg);
+                }
             }
         }
         ClusterViewer.createView("P", topSet);
