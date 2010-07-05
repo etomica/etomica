@@ -60,7 +60,7 @@ public interface Graph extends Comparable<Graph> {
 
   public void putEdge(byte edgeId);
 
-  public Edge putEdge(byte fromNode, byte toNode);
+  public void putEdge(byte fromNode, byte toNode);
 
   public String toSVG(int dim);
 

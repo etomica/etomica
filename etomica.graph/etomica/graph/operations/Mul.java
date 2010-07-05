@@ -102,8 +102,10 @@ public class Mul implements Binary {
     Graph result = GraphFactory.createGraph(nodes);
     // union of edges : all edges from left
     for (Edge edge : left.edges()) {
-      Edge newEdge = result.putEdge(left.getFromNode(edge.getId()), left.getToNode(edge.getId()));
-      newEdge.setColor(edge.getColor());
+      byte fromNode = left.getFromNode(edge.getId());
+      byte toNode = left.getToNode(edge.getId());
+      result.putEdge(fromNode, toNode);
+      result.getEdge(fromNode, toNode).setColor(edge.getColor());
     }
     // union of edges : all edges from right; adjust for the relabeled nodes from right
     byte deltaId = (byte) left.nodes().size();
@@ -116,8 +118,8 @@ public class Mul implements Binary {
       if (sameLabelRootNodes.get(toNode) == null) {
         fromNode = (byte) (toNode + deltaId);
       }
-      Edge newEdge = result.putEdge(fromNode, toNode);
-      newEdge.setColor(edge.getColor());
+      result.putEdge(fromNode, toNode);
+      result.getEdge(fromNode, toNode).setColor(edge.getColor());
     }
     // update the coefficient (default value is 1)
     result.coefficient().multiply(left.coefficient());

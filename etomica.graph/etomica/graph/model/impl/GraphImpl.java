@@ -469,13 +469,12 @@ public class GraphImpl implements Graph {
     return result;
   }
 
-  public Edge putEdge(byte fromNode, byte toNode) {
+  public void putEdge(byte fromNode, byte toNode) {
 
     byte edgeId = getEdgeId(fromNode, toNode);
     store.setBit(edgeId);
     Edge edge = GraphFactory.createEdge(edgeId);
     edges[edgeId] = edge;
-    return edge;
   }
 
   public void putEdge(byte edgeId) {

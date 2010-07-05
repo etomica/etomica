@@ -38,9 +38,10 @@ public class Relabel implements Unary {
     result.addFactors(argument.factors());
     // copy the edges from and to mapped nodes
     for (Edge edge : argument.edges()) {
-      Edge newEdge = result.putEdge(params.map(argument.getFromNode(edge.getId())), params.map(argument
-          .getToNode(edge.getId())));
-      newEdge.setColor(edge.getColor());
+      byte fromNode = params.map(argument.getFromNode(edge.getId()));
+      byte toNode = params.map(argument.getToNode(edge.getId()));
+      result.putEdge(fromNode, toNode);
+      result.getEdge(fromNode, toNode).setColor(edge.getColor());
     }
     return result;
   }
