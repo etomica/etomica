@@ -186,7 +186,11 @@ public class GraphImpl implements Graph {
 
   public void deleteEdge(byte fromNode, byte toNode) {
 
-    byte edgeId = getEdgeId(fromNode, toNode);
+    deleteEdge(getEdgeId(fromNode, toNode));
+  }
+
+  public void deleteEdge(byte edgeId) {
+
     edges[edgeId] = null;
     store.clearBit(edgeId);
   }
@@ -329,11 +333,9 @@ public class GraphImpl implements Graph {
       visitEdges(v);
       return v.getColors();
     }
-    else {
-      NodeColorVisitor v = new NodeColorVisitor(type);
-      visitNodes(v);
-      return v.getColors();
-    }
+    NodeColorVisitor v = new NodeColorVisitor(type);
+    visitNodes(v);
+    return v.getColors();
   }
 
   public Edge getEdge(byte fromNode, byte toNode) {
@@ -441,7 +443,11 @@ public class GraphImpl implements Graph {
 
   public boolean hasEdge(byte fromNode, byte toNode) {
 
-    return store.testBit(getEdgeId(fromNode, toNode));
+    return hasEdge(getEdgeId(fromNode, toNode));
+  }
+
+  public boolean hasEdge(byte edgeId) {
+    return store.testBit(edgeId);
   }
 
   public List<Node> nodes() {

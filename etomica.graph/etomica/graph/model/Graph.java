@@ -18,6 +18,8 @@ public interface Graph extends Comparable<Graph> {
 
   public Graph copy();
 
+  public void deleteEdge(byte edgeId);
+
   public void deleteEdge(byte fromNode, byte toNode);
 
   public byte edgeCount();
@@ -32,7 +34,7 @@ public interface Graph extends Comparable<Graph> {
 
   public byte getEdgeId(byte fromNode, byte toNode);
 
-  public byte getFromNode(byte edge);
+  public byte getFromNode(byte edgeId);
 
   public Node getNode(byte node);
 
@@ -44,7 +46,9 @@ public interface Graph extends Comparable<Graph> {
 
   public Bitmap getStore();
 
-  public byte getToNode(byte edge);
+  public byte getToNode(byte edgeId);
+
+  public boolean hasEdge(byte edgeId);
 
   public boolean hasEdge(byte fromNode, byte toNode);
 
