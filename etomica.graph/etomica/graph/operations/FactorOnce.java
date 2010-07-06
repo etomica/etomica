@@ -1,10 +1,6 @@
 package etomica.graph.operations;
 
 import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
-import static etomica.graph.traversal.Traversal.STATUS_ARTICULATION_POINT;
-import static etomica.graph.traversal.Traversal.STATUS_START_BICOMPONENT;
-import static etomica.graph.traversal.Traversal.STATUS_VISITED_BICOMPONENT;
-import static etomica.graph.traversal.Traversal.STATUS_VISITED_NODE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +10,9 @@ import java.util.Set;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
+import etomica.graph.operations.Factor.BCVisitor;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.traversal.Biconnected;
-import etomica.graph.traversal.TraversalVisitor;
 
 /**
  * Factor graphs once.  Each graph with an articulation point is factored into
@@ -219,43 +215,6 @@ public class FactorOnce implements Unary {
     result.addFactors(g.factors());
 
     return result;
-  }
-
-  public static class BCVisitor implements TraversalVisitor {
-
-    private List<List<Byte>> biComponents;
-    private List<Byte> biComponent;
-    private boolean isArticulation = false;
-
-    public BCVisitor(List<List<Byte>> biComponents) {
-      this.biComponents = biComponents;
-    }
-
-    public boolean visit(byte nodeID, byte status) {
-
-      // the next node is an articulation point and should not be processed
-      if (status == STATUS_START_BICOMPONENT) {
-        biComponent = new ArrayList<Byte>();
-        biComponents.add(biComponent);
-      }
-      else if (status == STATUS_VISITED_BICOMPONENT) {
-        biComponent = null;
-      }
-      else if  (status == STATUS_ARTICULATION_POINT) {
-        isArticulation = true;
-      }
-      // visiting a node in the current biconnected component
-      else if (status == STATUS_VISITED_NODE) {
-        // if it is an articulation point, ignore it
-        if (isArticulation) {
-          isArticulation = false;
-        }
-        else {
-          biComponent.add(nodeID);
-        }
-      }
-      return true;
-    }
   }
 
   public static class FactorOnceParameters implements Parameters {

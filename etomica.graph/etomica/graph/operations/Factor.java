@@ -43,7 +43,7 @@ public class Factor implements Unary {
     if (!hap.check(g)) {
       return g.copy();
     }
-    List<Set<Byte>> biComponents = new ArrayList<Set<Byte>>();
+    List<List<Byte>> biComponents = new ArrayList<List<Byte>>();
     BCVisitor v = new BCVisitor(biComponents);
     new Biconnected().traverseAll(g, v);
     List<Set<Byte>> newRootNodes = new ArrayList<Set<Byte>>();
@@ -125,11 +125,11 @@ public class Factor implements Unary {
 
   public static class BCVisitor implements TraversalVisitor {
 
-    private List<Set<Byte>> biComponents;
-    private Set<Byte> biComponent;
+    private List<List<Byte>> biComponents;
+    private List<Byte> biComponent;
     private boolean isArticulation = false;
 
-    public BCVisitor(List<Set<Byte>> biComponents) {
+    public BCVisitor(List<List<Byte>> biComponents) {
       this.biComponents = biComponents;
     }
 
@@ -137,7 +137,7 @@ public class Factor implements Unary {
 
       // the next node is an articulation point and should not be processed
       if (status == STATUS_START_BICOMPONENT) {
-        biComponent = new HashSet<Byte>();
+        biComponent = new ArrayList<Byte>();
         biComponents.add(biComponent);
       }
       else if (status == STATUS_VISITED_BICOMPONENT) {
