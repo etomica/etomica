@@ -1,5 +1,7 @@
 package etomica.util.numerical;
 
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
 import Jama.Matrix;
 
 /**
@@ -96,27 +98,45 @@ public class PadeApproximation {
 	
 	public static void main(String[] args){
 		
-		double[] b = new double []{1.0, 2.836057980, 4.27563, 3.43029, 1.08341,-.2145, -0.0895, 0.071};
-		int K = 3;
-		int L = 1;
+		VirialParam params = new VirialParam();
+	    String inputFilename = null;
+        if (args.length > 0) {
+            inputFilename = args[0];
+        }
+        if (inputFilename != null) {
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+        }
+		
+		double[] b = params.bVirial;
+				
+		int K = 5;
+		int L = 3;
 		PadeApproximation pade = new PadeApproximation(b, K, L);
 		pade.solveCoefficients();
 		
 		double[] aValues = pade.getA();
 		double[] cValues = pade.getC();
 		
-		System.out.print("a:");
+		System.out.println("PadeApproximation\n");
 		for (int i=0; i<aValues.length; i++){
-			System.out.print(" " + aValues[i]);
+			System.out.println("a " + i +"  "+ aValues[i]);
 		}
 		
-		System.out.print("\nc:");
+		System.out.println();
 		for (int i=0; i<cValues.length; i++){
-			System.out.print(" " + cValues[i]);
+			System.out.println("c " + i +"  " + cValues[i]);
 		}
+		System.out.println("\nAll done");
 		
 	}
 	
 	protected double[] a, b, c;
 	protected Matrix Y, Z;
+	
+	   public static class VirialParam extends ParameterBase {
+	        public double[] bVirial = new double[]{     1.0, 3.712218666, 5.55200, 
+                    1.44261,     -1.6883,  1.8935, 
+                    -1.700,        0.44,  3.0589};
+	    }
 }
