@@ -13,7 +13,6 @@ public class IsomorphismFilter extends GlobalFilter {
   private static int DEBUG_FREQUENCY = 2500;
 
   private int countSeen = 0;
-  private int countUnique = 0;
   private int countDiscarded = 0;
   private long debugStart = System.nanoTime();
 
@@ -30,10 +29,12 @@ public class IsomorphismFilter extends GlobalFilter {
         // test for isomorphism and, if they don't match, keep the graph lower in the
         // graph order; update the graph coefficients;
         if (Match.match(isoGraph, g1, false)) {
+          countDiscarded++;
           if (isoGraph.compareTo(g1) >= 0) {
             isoGraph.coefficient().add(g1.coefficient());
             result = false;
             if (isoGraph.coefficient().getNumerator() == 0) {
+              countDiscarded++;
               set.remove(isoGraph);
             }
           }
@@ -42,16 +43,13 @@ public class IsomorphismFilter extends GlobalFilter {
             g1.coefficient().add(isoGraph.coefficient());
             // replace the graph in the set with an isomorph with lower score
             result = g1.coefficient().getNumerator() != 0;
+            if (!result) {
+              countDiscarded++;
+            }
           }
           break;
         }
       }
-    }
-    if (!result) {
-      countDiscarded++;
-    }
-    else {
-      countUnique++;
     }
     countSeen++;
     debugReport();
@@ -64,6 +62,7 @@ public class IsomorphismFilter extends GlobalFilter {
       return;
     }
     long debugDuration = (System.nanoTime() - debugStart) / 1000000000;
+    int countUnique = countSeen - countDiscarded;
     System.out.println(String.format("unique: %d; discarded: %d; total: %d; time: %d sec (%d min)",
         countUnique, countDiscarded, countSeen, debugDuration, (debugDuration / 60)));
   }
