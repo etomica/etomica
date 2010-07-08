@@ -70,10 +70,12 @@ public class VirialDiagrams {
     protected final boolean isInteractive;
     protected boolean doReeHoover;
     protected Set<Graph> p, cancelP, disconnectedP;
+    protected Set<Graph> rho;
+    protected Set<Graph> lnfXi;
     protected Map<Graph,Set<Graph>> cancelMap;
     protected boolean doShortcut;
     protected char fBond, eBond, mBond;
-    
+
     public static void main(String[] args) {
         final int n = 4;
         boolean multibody = false;
@@ -201,10 +203,10 @@ public class VirialDiagrams {
                         else if (n2 == n) n2 = (byte)0;
                     }
                     char edgeColor = g.getEdge(node1.getId(), node2.getId()).getColor();
-                    if (edgeColor == 'f') {
+                    if (edgeColor == fBond) {
                         fbonds.add(new int[]{n1,n2});
                     }
-                    else if (edgeColor == 'A') {
+                    else if (edgeColor == eBond) {
                         ebonds.add(new int[]{n1,n2});
                     }
                     else {
@@ -288,43 +290,45 @@ public class VirialDiagrams {
         return graphList;
     }        
     
-    public void makeVirialDiagrams() {
-        
+    public void makeRhoDiagrams() {
+        char nodeColor = COLOR_CODE_0;
         char[] flexColors = new char[0];
         if (flex) {
-           flexColors = new char[]{COLOR_CODE_0};
+           flexColors = new char[]{nodeColor};
         }
 
         final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
-        MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
-
-            public int compare(Metadata m1, Metadata m2) {
-                if (m1.getType() != m2.getType()) {
-                    return m1.getType() > m2.getType() ? 1 : -1;
-                }
-                Integer o1 = colorOrderMap.get(m1.getColor());
-                Integer o2 = colorOrderMap.get(m2.getColor());
-                if (o1 == o2) {
-                    return m1.getColor() > m2.getColor() ? 1 : -1;
-                }
-                if (o1 == null) {
-                    if (o2 == null) {
+        if (MetadataImpl.metaDataComparator == null) {
+            MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
+    
+                public int compare(Metadata m1, Metadata m2) {
+                    if (m1.getType() != m2.getType()) {
+                        return m1.getType() > m2.getType() ? 1 : -1;
+                    }
+                    Integer o1 = colorOrderMap.get(m1.getColor());
+                    Integer o2 = colorOrderMap.get(m2.getColor());
+                    if (o1 == o2) {
                         return m1.getColor() > m2.getColor() ? 1 : -1;
                     }
-                    return -1;
+                    if (o1 == null) {
+                        if (o2 == null) {
+                            return m1.getColor() > m2.getColor() ? 1 : -1;
+                        }
+                        return -1;
+                    }
+                    if (o2 == null) {
+                        return 1;
+                    }
+                    return o1 > o2 ? 1 : (o1 < o2 ? -1 : 0);
                 }
-                if (o2 == null) {
-                    return 1;
-                }
-                return o1 > o2 ? 1 : (o1 < o2 ? -1 : 0);
-            }
-        };
+            };
+        }
 
         GraphList<Graph> topSet = makeGraphList();
 
         char oneBond = 'o';
         mBond = 'm';  // multi-body
-        Set<Graph> lnfXi = new HashSet<Graph>();
+        lnfXi = new HashSet<Graph>();
         IsoFree isoFree = new IsoFree();
 
         MulFlexible mulFlex = new MulFlexible();
@@ -343,32 +347,18 @@ public class VirialDiagrams {
             colorOrderMap.put(eBond, 2);
             colorOrderMap.put(fBond, 3);
 
-            if (!flex) {
-                // skip directly to p diagrams
-                p = new HashSet<Graph>();
-                IsBiconnected isBi = new IsBiconnected();
-                for (int i=1; i<n+1; i++) {
-                    GraphIterator iter = new PropertyFilter(new StoredIterator((byte)i), isBi);
-                    msp = new MulScalarParameters(1-i, (int)SpecialFunctions.factorial(i));
-                    while (iter.hasNext()) {
-                        p.add(mulScalar.apply(iter.next(), msp));
-                    }
-                }
-            }
-            else {
-                IsConnected isCon = new IsConnected();
-                for (int i=1; i<n+1; i++) {
-                    GraphIterator iter = new PropertyFilter(new StoredIterator((byte)i), isCon);
-                    msp = new MulScalarParameters(1, (int)SpecialFunctions.factorial(i));
-                    while (iter.hasNext()) {
-                        lnfXi.add(mulScalar.apply(iter.next(), msp));
-                    }
+            IsConnected isCon = new IsConnected();
+            for (int i=1; i<n+1; i++) {
+                GraphIterator iter = new PropertyFilter(new StoredIterator((byte)i), isCon);
+                msp = new MulScalarParameters(1, (int)SpecialFunctions.factorial(i));
+                while (iter.hasNext()) {
+                    lnfXi.add(mulScalar.apply(iter.next(), msp));
                 }
             }
         }
         else {
             
-            eBond = 'A';//color of edge
+            eBond = COLOR_CODE_0;//color of edge
             fBond = 'f';
 
             Set<Graph> eXi = new HashSet<Graph>();//set of full star diagrams with e bonds
@@ -430,29 +420,101 @@ public class VirialDiagrams {
 
         }
 
-        if (p == null) {
-            if (isInteractive) {
-                topSet.clear();
-                topSet.addAll(lnfXi);
-                System.out.println("\nlnfXi");
-                for (Graph g : topSet) {
-                    System.out.println(g);
-                }
-    //            ClusterViewer.createView("lnfXi", topSet);
+        if (isInteractive) {
+            topSet.clear();
+            topSet.addAll(lnfXi);
+            System.out.println("\nlnfXi");
+            for (Graph g : topSet) {
+                System.out.println(g);
             }
+//            ClusterViewer.createView("lnfXi", topSet);
+        }
     
+
+        DifByNode opzdlnXidz = new DifByNode();
+        DifParameters difParams = new DifParameters(nodeColor);
+        rho = isoFree.apply(opzdlnXidz.apply(lnfXi, difParams), null);
+
+        if (isInteractive) {
+            System.out.println("\nrho");
+            topSet.clear();
+            topSet.addAll(rho);
+            for (Graph g : topSet) {
+                System.out.println(g);
+            }
+            ClusterViewer.createView("rho", topSet);
+        }
+    }
     
-            DifByNode opzdlnXidz = new DifByNode();
-            DifParameters difParams = new DifParameters('A');
-            Set<Graph> rho = isoFree.apply(opzdlnXidz.apply(lnfXi, difParams), null);
-    
-            if (isInteractive) {
-                System.out.println("\nrho");
-                topSet.clear();
-                topSet.addAll(rho);
-                for (Graph g : topSet) {
-                    System.out.println(g);
+    public void makeVirialDiagrams() {
+        
+        char nodeColor = COLOR_CODE_0;
+        char[] flexColors = new char[0];
+        if (flex) {
+           flexColors = new char[]{nodeColor};
+        }
+
+        final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
+        MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
+
+            public int compare(Metadata m1, Metadata m2) {
+                if (m1.getType() != m2.getType()) {
+                    return m1.getType() > m2.getType() ? 1 : -1;
                 }
+                Integer o1 = colorOrderMap.get(m1.getColor());
+                Integer o2 = colorOrderMap.get(m2.getColor());
+                if (o1 == o2) {
+                    return m1.getColor() > m2.getColor() ? 1 : -1;
+                }
+                if (o1 == null) {
+                    if (o2 == null) {
+                        return m1.getColor() > m2.getColor() ? 1 : -1;
+                    }
+                    return -1;
+                }
+                if (o2 == null) {
+                    return 1;
+                }
+                return o1 > o2 ? 1 : (o1 < o2 ? -1 : 0);
+            }
+        };
+
+        GraphList<Graph> topSet = makeGraphList();
+
+        char oneBond = 'o';
+        mBond = 'm';  // multi-body
+        lnfXi = new HashSet<Graph>();
+        IsoFree isoFree = new IsoFree();
+
+        MulFlexible mulFlex = new MulFlexible();
+        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
+        MulScalarParameters msp = null;
+        MulScalar mulScalar = new MulScalar();
+
+        if (doShortcut && !flex) {
+            // just take lnfXi to be the set of connected diagrams
+            fBond = COLOR_CODE_0;
+            eBond = 'e';
+
+            colorOrderMap.put(oneBond, 0);
+            colorOrderMap.put(mBond, 1);
+            colorOrderMap.put(eBond, 2);
+            colorOrderMap.put(fBond, 3);
+
+            // skip directly to p diagrams
+            p = new HashSet<Graph>();
+            IsBiconnected isBi = new IsBiconnected();
+            for (int i=1; i<n+1; i++) {
+                GraphIterator iter = new PropertyFilter(new StoredIterator((byte)i), isBi);
+                msp = new MulScalarParameters(1-i, (int)SpecialFunctions.factorial(i));
+                while (iter.hasNext()) {
+                    p.add(mulScalar.apply(iter.next(), msp));
+                }
+            }
+        }
+        else {
+            if (rho == null) {
+                makeRhoDiagrams();
             }
             
             HashSet<Graph>[] allRho = new HashSet[n+1];
@@ -508,7 +570,7 @@ public class VirialDiagrams {
             }
             
             Decorate decorate = new Decorate();
-            DecorateParameters dp = new DecorateParameters(COLOR_CODE_0, mfp);
+            DecorateParameters dp = new DecorateParameters(nodeColor, mfp);
             
             p = decorate.apply(lnfXi, z, dp);
             p = isoFree.apply(p, null);
