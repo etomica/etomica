@@ -10,8 +10,11 @@ import etomica.action.IAction;
 import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
@@ -28,7 +31,6 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
@@ -43,6 +45,8 @@ import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
+import etomica.util.Function;
+import etomica.util.HistoryCollapsing;
 
 /**
  * Colloid module app.  Design by Alberto Striolo.
@@ -114,6 +118,8 @@ public class ColloidGraphic extends SimulationGraphic {
                 }
                 sim.setChainLength((int)newValue);
                 meterE2E.setChainLength((int)newValue);
+                int n = sim.box.getLeafList().getAtomCount();
+                sim.integrator.setThermostatInterval((1000+(n-1))/n);
             }
             public double getValue() {
                 return sim.getChainLength();
@@ -193,29 +199,29 @@ public class ColloidGraphic extends SimulationGraphic {
 
         JTabbedPane potentialTabs = new JTabbedPane();
         JPanel monomerPanel = new JPanel(new GridLayout(0,2));
-        DeviceBox monomerRangeBox = new DeviceBox();
-        monomerRangeBox.setController(sim.getController());
-        monomerRangeBox.setLabel("Wall range");
-        monomerRangeBox.setModifier(new WallRangeModifier(sim.p1WallMonomer, sim.criterionWallMonomer));
-        monomerPanel.add(monomerRangeBox.graphic());
+//        DeviceBox monomerRangeBox = new DeviceBox();
+//        monomerRangeBox.setController(sim.getController());
+//        monomerRangeBox.setLabel("Wall range");
+//        monomerRangeBox.setModifier(new WallRangeModifier(sim.p1WallMonomer, sim.criterionWallMonomer));
+//        monomerPanel.add(monomerRangeBox.graphic());
         
-        DeviceBox monomerEpsilonBox = new DeviceBox();
-        monomerEpsilonBox.setController(sim.getController());
-        monomerEpsilonBox.setLabel("W-W epsilon");
-        monomerEpsilonBox.setModifier(new Modifier() {
-            
-            public void setValue(double newValue) {
-                sim.epsWallWall = newValue;
-                double epsMW = Math.sqrt(newValue*sim.p2mm.getEpsilon());
-                sim.p1WallMonomer.setEpsilon(epsMW);
-            }
-            
-            public double getValue() { return sim.epsWallWall; }
-            public String getLabel() { return "W-W epsilon"; }
-            public Dimension getDimension() { return Energy.DIMENSION; }
-        });
-
-        monomerPanel.add(monomerEpsilonBox.graphic());
+//        DeviceBox monomerEpsilonBox = new DeviceBox();
+//        monomerEpsilonBox.setController(sim.getController());
+//        monomerEpsilonBox.setLabel("W-W epsilon");
+//        monomerEpsilonBox.setModifier(new Modifier() {
+//            
+//            public void setValue(double newValue) {
+//                sim.epsWallWall = newValue;
+//                double epsMW = Math.sqrt(newValue*sim.p2mm.getEpsilon());
+//                sim.p1WallMonomer.setEpsilon(epsMW);
+//            }
+//            
+//            public double getValue() { return sim.epsWallWall; }
+//            public String getLabel() { return "W-W epsilon"; }
+//            public Dimension getDimension() { return Energy.DIMENSION; }
+//        });
+//
+//        monomerPanel.add(monomerEpsilonBox.graphic());
 
         DeviceBox mmEpsilonBox = new DeviceBox();
         mmEpsilonBox.setController(sim.getController());
@@ -238,11 +244,11 @@ public class ColloidGraphic extends SimulationGraphic {
         potentialTabs.add(monomerPanel, "monomer");
 
         JPanel colloidPanel = new JPanel(new GridLayout(0,2));
-        DeviceBox colloidRangeBox = new DeviceBox();
-        colloidRangeBox.setController(sim.getController());
-        colloidRangeBox.setLabel("Wall range");
-        colloidRangeBox.setModifier(new WallRangeModifier(sim.p1WallColloid, null));
-        colloidPanel.add(colloidRangeBox.graphic());
+//        DeviceBox colloidRangeBox = new DeviceBox();
+//        colloidRangeBox.setController(sim.getController());
+//        colloidRangeBox.setLabel("Wall range");
+//        colloidRangeBox.setModifier(new WallRangeModifier(sim.p1WallColloid, null));
+//        colloidPanel.add(colloidRangeBox.graphic());
 
         DeviceBox colloidEpsilonBox = new DeviceBox();
         colloidEpsilonBox.setController(sim.getController());
@@ -327,10 +333,19 @@ public class ColloidGraphic extends SimulationGraphic {
         DataPumpListener pumpE2E = new DataPumpListener(meterE2E, avgE2E, 10);
         sim.integrator.getEventManager().addListener(pumpE2E);
         dataStreamPumps.add(pumpE2E);
-        DisplayTextBoxesCAE displayE2E = new DisplayTextBoxesCAE();
-        displayE2E.setAccumulator(avgE2E);
-        displayE2E.setLabel("end to end distance");
-        add(displayE2E);
+//        DisplayTextBoxesCAE displayE2E = new DisplayTextBoxesCAE();
+//        displayE2E.setAccumulator(avgE2E);
+//        displayE2E.setLabel("end to end distance");
+//        add(displayE2E);
+        
+        DataProcessorFunction sqrtE2E = new DataProcessorFunction(Function.Sqrt.INSTANCE);
+        avgE2E.addDataSink(sqrtE2E, new StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        AccumulatorHistory historyE2E = new AccumulatorHistory(new HistoryCollapsing());
+        sqrtE2E.setDataSink(historyE2E);
+        DisplayPlot runningAvgE2E = new DisplayPlot();
+        historyE2E.setDataSink(runningAvgE2E.getDataSet().makeDataSink());
+        runningAvgE2E.setLabel("End-to-End Distance");
+        add(runningAvgE2E);
     }
 
     public static class WallRangeModifier implements Modifier {
@@ -377,6 +392,8 @@ public class ColloidGraphic extends SimulationGraphic {
         }
         public void actionPerformed() {
             sim.setNumGraft(nGraft);
+            int n = sim.box.getLeafList().getAtomCount();
+            sim.integrator.setThermostatInterval((1000+(n-1))/n);
             getDisplayBox(sim.box).repaint();
         }
         protected final int nGraft;

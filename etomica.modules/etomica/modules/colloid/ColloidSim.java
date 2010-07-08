@@ -48,7 +48,7 @@ public class ColloidSim extends Simulation {
     public int nGraft;
     public int chainLength;
     public P1Wall p1WallMonomer, p1WallColloid;
-    public double epsWallWall = 4.0;
+    public double epsWallWall = 0.25;
     public CriterionPositionWall criterionWallMonomer;
     
     public ColloidSim(Space _space) {
@@ -73,7 +73,7 @@ public class ColloidSim extends Simulation {
 	    integrator.setTemperature(2);
 	    integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integrator.setThermostatInterval(50);
+        integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator,0,true);
         getController().addAction(activityIntegrate);
 
