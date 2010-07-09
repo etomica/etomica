@@ -36,12 +36,14 @@ public class HasArticulationPoint implements Property {
 class APVisitor implements TraversalVisitor {
 
   private Graph graph;
-  private int rootNodesVisited = 0;
   private boolean isArticulated = false;
   private boolean isArticulation = false;
   private Set<Byte> rootNodes = new HashSet<Byte>();
   private boolean isConnected = false;
   private Set<Byte> visitedNodes = new HashSet<Byte>();
+  private Set<Byte> bicomponent;
+  private Set<Set<Byte>> bicomponents = new HashSet<Set<Byte>>();
+  private Set<Byte> articulationPoints = new HashSet<Byte>();
 
   public APVisitor(Graph graph, Set<Byte> rootNodes) {
 
@@ -51,9 +53,12 @@ class APVisitor implements TraversalVisitor {
 
   public boolean visit(byte nodeID, byte status) {
 
+    if (status == STATUS_START_BICOMPONENT) {
+      bicomponent = new HashSet<Byte>();
+    }
     if (status == STATUS_VISITED_BICOMPONENT) {
-      isArticulated = isArticulated || (rootNodesVisited == 0);
-      rootNodesVisited = 0;
+      bicomponents.add(bicomponent);
+      bicomponent = null;
     }
     else if (status == STATUS_VISITED_COMPONENT) {
       isConnected = isConnected || (visitedNodes.size() == graph.nodeCount());
@@ -62,18 +67,17 @@ class APVisitor implements TraversalVisitor {
     // the next node is an articulation point and should not be processed
     else if (status == STATUS_ARTICULATION_POINT) {
       isArticulation = true;
+      isArticulated = true;
     }
     // visiting a node in the current biconnected component
     else if (status == STATUS_VISITED_NODE) {
       // if it is an articulation point, ignore it
       if (isArticulation) {
         isArticulation = !isArticulation;
+        articulationPoints.add(nodeID);
       }
       else {
         visitedNodes.add(nodeID);
-        if (graph.nodes().get(nodeID).getType() == TYPE_NODE_ROOT) {
-          rootNodesVisited++;
-        }
       }
     }
     return true;
@@ -81,38 +85,34 @@ class APVisitor implements TraversalVisitor {
 
   public boolean hasArticulationPoint() {
 
-    // // this graph is not connected
-    // if (!isConnected) {
-    // return true;
-    // }
-    // // this graph has no (graph-theoretical) articulation points
-    // if ((!isArticulated) || (rootNodes.size() == 0)) {
-    // return false;
-    // }
-    // // the root node of this graph is an articulation point
-    // if (rootNodes.size() == 1) {
-    // return articulationPoints.containsAll(rootNodes);
-    // }
-    // // some bicomponent has no root node, or has a single root node that is an
+    // this graph is not connected
+    if (!isConnected) {
+      return true;
+    }
+    // this graph has no (graph-theoretical) articulation points
+    if (rootNodes.size() < 2) {
+      return isArticulated;
+    }
+    // some bicomponent has no root node, or has a single root node that is an
     // articulation point
-    // for (Set<Integer> bc : bicomponents) {
-    // int rootPoints = 0;
-    // int singletonRootNode = -1;
-    // for (Integer node : bc) {
-    // if (rootNodes.contains(node)) {
-    // rootPoints++;
-    // singletonRootNode = node;
-    // }
-    // }
-    // // no root point is found in this bicomponent
-    // if (rootPoints == 0) {
-    // return true;
-    // }
-    // // the singleton root point in this bicomponent is an articulation point
-    // else if ((rootPoints == 1) && (articulationPoints.contains(singletonRootNode))) {
-    // return true;
-    // }
-    // }
+    for (Set<Byte> bc : bicomponents) {
+      int rootPoints = 0;
+      int singletonRootNode = -1;
+      for (Byte node : bc) {
+        if (rootNodes.contains(node)) {
+          rootPoints++;
+          singletonRootNode = node;
+        }
+      }
+      // no root point is found in this bicomponent
+      if (rootPoints == 0) {
+        return true;
+      }
+      // the singleton root point in this bicomponent is an articulation point
+      else if ((rootPoints == 1) && (articulationPoints.contains(singletonRootNode))) {
+        return true;
+      }
+    }
     // if we have not found bicomponents matching the articulation point
     // criteria, it is because this graph has no articulation points
     return false;
