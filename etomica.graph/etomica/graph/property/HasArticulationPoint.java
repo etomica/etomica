@@ -90,6 +90,10 @@ class APVisitor implements TraversalVisitor {
       return true;
     }
     // this graph has no (graph-theoretical) articulation points
+    if (!isArticulated) {
+      return false;
+    }
+    // if we don't have at least 2 root nodes, then we just care about the graph
     if (rootNodes.size() < 2) {
       return isArticulated;
     }
