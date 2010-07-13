@@ -38,6 +38,7 @@ import etomica.graph.operations.Factor;
 import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.IsoFree;
+import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
@@ -48,6 +49,7 @@ import etomica.graph.operations.ReeHoover.ReeHooverParameters;
 import etomica.graph.operations.Relabel;
 import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.Split;
+import etomica.graph.operations.SplitGraph;
 import etomica.graph.operations.SplitOne;
 import etomica.graph.operations.SplitOne.SplitOneParameters;
 import etomica.graph.operations.SplitParameters;
@@ -77,9 +79,9 @@ public class VirialDiagrams {
     protected char fBond, eBond, mBond;
 
     public static void main(String[] args) {
-        final int n = 4;
+        final int n = 5;
         boolean multibody = false;
-        boolean flex = false;
+        boolean flex = true;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(false);
         virialDiagrams.setDoShortcut(false);
@@ -238,7 +240,9 @@ public class VirialDiagrams {
             double[] thisW = w;
             ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
             populateEFBonds(g, allBonds, false);
-            populateEFBonds(g, allBonds, true);
+            if (flex) {
+                populateEFBonds(g, allBonds, true);
+            }
             if (flex && cancelMap.get(g) != null) {
                 Set<Graph> cgSet = cancelMap.get(g);
                 for (Graph cg : cgSet) {
@@ -278,6 +282,40 @@ public class VirialDiagrams {
             }
         }
         return dpn;
+    }
+
+    public HashMap<Graph,Set<Graph>> getSplitDisconnectedVirialGraphs(Set<Graph> disconnectedGraphs) {
+        HashMap<Graph,Set<Graph>> map = new HashMap<Graph,Set<Graph>>();
+        SplitGraph splitGraph = new SplitGraph();
+        MaxIsomorph maxIsomorph = new MaxIsomorph();
+        Relabel relabel = new Relabel();
+        for (Graph g : disconnectedGraphs) {
+            Set<Graph> gSplit = makeGraphList();
+            Set<Graph> gSplit1 = splitGraph.apply(g);
+            for (Graph gs : gSplit1) {
+                // the graph we get from splitting might not be in our preferred bonding arrangement
+                Graph gsmax = maxIsomorph.apply(gs);
+                HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
+                if (hap.check(gsmax)) {
+                    if (!hap.getArticulationPoints().contains(0)) {
+                        // the graph is articulated but not with the articulation point at 0.
+                        // we calculate the diagram with the articulation point at 0, so permute
+                        // now so that we can easily identify which graph this is
+                        byte[] permutations = new byte[gsmax.nodeCount()];
+                        for (int i=0; i<permutations.length; i++) {
+                            permutations[i] = (byte)i;
+                        }
+                        permutations[0] = hap.getArticulationPoints().get(0);
+                        permutations[hap.getArticulationPoints().get(0)] = 0;
+                        RelabelParameters rp = new RelabelParameters(permutations);
+                        gsmax = relabel.apply(gsmax, rp);
+                    }
+                }
+                gSplit.add(gsmax);
+            }
+            map.put(g, gSplit);
+        }
+        return map;
     }
 
     public GraphList<Graph> makeGraphList() {
