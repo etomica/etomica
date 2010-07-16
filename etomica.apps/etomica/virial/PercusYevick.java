@@ -97,7 +97,7 @@ public class PercusYevick {
 			
 			B[m] = Bm;
 
-            System.out.println("B"+(m+2) + " = "+ (Bm) );
+            //System.out.println("B"+(m+2) + " = "+ (Bm) );
 			
             /*******************************************
 			/*******************************************
