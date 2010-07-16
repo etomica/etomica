@@ -103,8 +103,11 @@ public class VirialOptimizer {
 		double[] allb = new double[3];
 		
 		double bGuess = minb;
+		int counter = 0;
 		
 		while (true){
+			
+			
 			calcpPade(K, L, bGuess);
 			
 			double TSS = 0.0;
@@ -192,6 +195,12 @@ public class VirialOptimizer {
 	                if (bGuess == allb[0] || bGuess == allb[1] || bGuess == allb[2]) {
 	                   	break;
 	                }
+	                ++counter;
+	                
+	                if(counter > 1e5){
+	                	System.out.println("<Java.VirialOptimizer> Could not find minimum!!");
+	                	break;
+	                }
 	            }
 			
 		}
@@ -220,8 +229,8 @@ public class VirialOptimizer {
 		VirialOptimizer vOpt = new VirialOptimizer(filenameP, filenameB);
 			
 		double x = vOpt.minimumScreening(K, L, -10, 10);
-		double min = (1-0.01)*x;
-		double max = (1+0.01)*x;
+		double min = (1-0.05)*x;
+		double max = (1+0.05)*x;
 		
 		vOpt.optimizeHigherbVirial(K, L, min, max);		
 	
@@ -233,8 +242,8 @@ public class VirialOptimizer {
 	protected double bGuess;
 	
 	public static class VirialParam extends ParameterBase {
-	        public String filenameP = "/tmp/dataExtrapolatedGauss_tmp1.dat";
-	        public String filenameB = "/tmp/b_tmp1.dat";
+	        public String filenameP = "/tmp/dataExtrapolatedGauss_tmp47.dat";
+	        public String filenameB = "/tmp/b_tmp47.dat";
 	        public int K = 5;
 	        public int L = 3;
 	}
