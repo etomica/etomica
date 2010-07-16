@@ -5,7 +5,7 @@ import etomica.util.SineTransform;
 
 /**
  * 
- * Calculates the Percus-Yevick (PY) virial coefficients of second to (m+1)th order for any spherically-symmetric Mayer function, fr.
+ * Calculates the Percus-Yevick (PY) virial coefficients of second to Mth order for any spherically-symmetric Mayer function, fr.
  * 
  * This class has only been tested for the hard sphere and Lennard-Jones potentials.
  * 
@@ -14,27 +14,17 @@ import etomica.util.SineTransform;
  */
 
 public class PercusYevick {
-	
-	
-	
+
 	public PercusYevick() {
 	}
 	
-	public double[] computeB(double[] fr, int M, int N, double del_r) {
+	public double[] computeB(double[] fr, int M, int N, double del_r, boolean DCF) {
 		
 		/*******************************************
 		/*******************************************
-		 * The method relies upon Fourier transforms.  The 3-D Fourier transform simplifies to the following form upon assuming spherical symmetry:
 		 * 
-		 * f(k) = integral over (constant*f(r)*r*sin(k*r)) dr
-		 * 
-		 * Following Duh and Haymet (1995), the transform becomes an an even simpler sine transform if one uses auxiliary functions of the form, F(r) = r*f(r)
-		 * 
-		 * f(k) = integral over (constant*F(r)*sin(k*r))dr
-		 * 
-		 * The limit as k-->0 or r-->0 is used to evaluated the zeroth modes.
-		 * 
-		 * The requisite transforms are carried out by SineTransform.java and FastFourierTrasnform.java.
+		 * Computes Percus-Yevick approximations of the virial coefficients up to Mth order.  
+		 * The second and third coefficients are fully accurate (the PY approximation is exact).
 		 * 
 		/*******************************************
 		/********************************************/
@@ -42,127 +32,90 @@ public class PercusYevick {
 		double[] B = new double[M];
 		
 		SineTransform dst = new SineTransform();
+		double del_k = Math.PI/(del_r*N);
 		
 		double[] dummy = new double[N];
-		
-		
 		dummy = fr;
-		double del_k = Math.PI/(del_r*N);
-		double[] fk = new double[N+1];
+		double[] fk = new double[N];
 		fk = dst.forward(dummy, del_r, del_k);
 		
-		// arrays to store the density expansion coefficients of the transforms of c(r) and h(r)
-		double[][] cmk = new double[M][N+1];
-		double[][] hmk = new double[M][N+1];
+		// Arrays to store the density expansion coefficients of c(r) and h(r)
+		double[][] cnr = new double[M][N];
+		double[][] hnr = new double[M][N];
 		
-		cmk[0] = fk; // m = 0, NOT k = 0
-		hmk[0] = fk; 
+		// Fill zeroth-order density expansion coefficients of c(r) and h(r)
+		for (int i=0;i<N;i++) {
+			cnr[0][i] = fr[i];
+			hnr[0][i] = fr[i];
+		}
 		
-		double B2 = -1.0/(2.0)*(cmk[0][0]);
+		double B2 = -1.0/(2.0)*(fk[0]);
 		
 		B[0] = B2;
 		
-		double Bm; // virial coefficients for clusters of (m+2) molecules
-		double md; // double version of m
-		
 		// System.out.println("B2 = " + (B2));
+		double[] cmr = new double[N];
 		
-		for (int m = 1; m < M; m++) {
+		//Compute B3 (from c1) up to BM (from c(M-2))
+		for (int m = 1; m <= M-2; m++) {
 			
+			/**************************************************************************************
+			/**************************************************************************************
+			 * Apply the Ornstein-Zernike relation to compute mth-order density expansion of t.
+			/**************************************************************************************
+			/***************************************************************************************/
+			
+			OrnsteinZernike oz = new OrnsteinZernike();
+			
+			double[] tmr = oz.tCompute(cnr, hnr, N, m, del_r);
+			
+			/**************************************************************************************
+			/**************************************************************************************
+			 * Apply the Percus-Yevick approximation to compute mth-order density expansion of c.
+			/**************************************************************************************
+			/***************************************************************************************/
+			
+			for (int i = 0; i < N; i++) {
+				
+				cnr[m][i] = fr[i]*tmr[i];
+				
+				cmr[i] = cnr[m][i];
+				
+ 			}
 			
 			/*******************************************
 			/*******************************************
-			 * Calculation of the mth order expansion 
-			 * coefficient of the transform of t
+			 * Calculate (m+2)th virial coefficient
 			/*******************************************
 			/********************************************/
 			
-			double[] tk_kvec = new double[N+1];
-			double[] tr_rvec = new double[N];
-			double[] cr_rvec = new double[N];
+			dummy = cmr;
+			double[] cmk = new double[N];
+			cmk = dst.forward(dummy, del_r, del_k);
 			
-		
-			for (int k = 0; k < N+1; k++) {
-				
-				double[] hk_mvec = new double[m];
-				double[] ck_mvec = new double[m];
-				
-				for (int j=0; j<m; j++){
-					
-					hk_mvec[j] = hmk[j][k];
-					ck_mvec[j] = cmk[j][k];
-				}
-				
-				/*******************************************
-				/*******************************************
-				 * Apply the Ornstein-Zernike relation
-				/*******************************************
-				/********************************************/
-				
-				tk_kvec[k] = 0;
-				
-				for (int i=0; i <= m-1; i++) {
-					
-					int j = m-1-i;
-					
-					tk_kvec[k] += hk_mvec[i]*ck_mvec[j];
-					
-				}
-					
-			}
-		
-			
-			/*******************************************
-			/*******************************************
-			 * Apply the Percus-Yevick approximation
-			 * This must be done in r-space
-			/*******************************************
-			/********************************************/
-			
-			dummy = tk_kvec;
-			tr_rvec = dst.reverse(dummy, del_r, del_k);
-		    
-			for (int n = 0; n < N; n++) {
-				cr_rvec[n] = fr[n]*tr_rvec[n];
-			}
-			
-			
-			/*******************************************
-			/*******************************************
-			 * Calculate (m+2)-order virial coefficient
-			/*******************************************
-			/********************************************/
-			
-			
-			dummy = cr_rvec;
-			cmk[m] = dst.forward(dummy, del_r, del_k);
-			
-			md = m;
-			
-			Bm = -1.0/(md+2.0)*(cmk[m][0]); // B3 for m = 1
+			double Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
 			
 			B[m] = Bm;
 
-            // System.out.println("B"+(m+2) + " = "+ (Bm) );
+            System.out.println("B"+(m+2) + " = "+ (Bm) );
 			
             /*******************************************
 			/*******************************************
 			 * Update h
 			/*******************************************
 			/********************************************/
-			
-			
-			for (int k=0; k<N+1; k++){
-				hmk[m][k] = cmk[m][k]+ tk_kvec[k]; 
+            
+            for (int i=0; i<N; i++){
+				hnr[m][i] = cnr[m][i]+ tmr[i]; 
 			}	
 		
 		}
 		
-		return B;
+		if (DCF) {
+			return cmr;
+		} else {
+			return B;
+		}
 	}
-	
-	
-	
-
 	
 }
