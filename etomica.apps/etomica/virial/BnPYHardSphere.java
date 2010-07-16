@@ -5,7 +5,7 @@ package etomica.virial;
  * This is just a main method for PercusYevick.java...
  * 
  * It creates a discretization of the hard-sphere Mayer function, which PercusYevick then employs to compute Percus-Yevick
- * approximations of the virial coefficients up to (m+1) order.  The second and third coefficients are fully accurate (the 
+ * approximations of the virial coefficients up to mth order.  The second and third coefficients are fully accurate (the 
  * PY approximation is exact).
  * 
  * @author kate
@@ -30,9 +30,10 @@ public static void main(String[] args) {
 		System.out.println("B11 = 0.2570954");
 		System.out.println("B12 = 0.16137562\n");
 		
-		int power = 18; // Defines discretization
-		double r_max = 25; // Defines range of separation distance, r = [0 rmax]
-		double sigma = 1; // Defines hard-sphere system
+		int power = 18; // log2(Number of Grid Points)
+        int m = 5; // the highest order of virial coefficient to be calculated
+        double sigma = 1.0; // hard-sphere diameter 
+		double r_max = ((double)m/2.0 + 1)*sigma; // maximum separation distance considered, r = [0 rmax]
 		
 		if (args.length == 0) {
 		}
@@ -44,11 +45,7 @@ public static void main(String[] args) {
         }
 		
 		// Number of grid points in the discretizations of r- and k-space
-		int N = (int) Math.pow(2, power) - 1;
-    	
-		// m+1 is the highest order of virial coefficient to be calculated
-        int m = 5; 
-        
+		int N = (int) Math.pow(2, power);
         double del_r = r_max/(N-1);
 
 		double r = 0.0;
@@ -68,11 +65,11 @@ public static void main(String[] args) {
 		}
 		
 		PercusYevick py = new PercusYevick(); 
-		double[] B = py.computeB(fr, m, N, del_r);
+		double[] B = py.computeB(fr, m, N, del_r, false);
 		
 		System.out.println("Values computed here:");
-		for (int i=0;i<m;i++) {
-			System.out.println("B" + (i+2) + " = " + B[i]);
+		for (int i=2;i<=m;i++) {
+			System.out.println("B" + (i) + " = " + B[i-2]);
 		}
 		
 
