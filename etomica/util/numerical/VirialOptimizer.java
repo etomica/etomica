@@ -1,5 +1,9 @@
 package etomica.util.numerical;
 
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
+import etomica.util.numerical.PadeApproximation.VirialParam;
+
 public class VirialOptimizer {
 	
 	public VirialOptimizer(String filenameP, String filenameB){
@@ -57,72 +61,156 @@ public class VirialOptimizer {
 		}
 	}
 	
-	public void optimizeHigherbVirial(int K, int L, double initbGuess){
+	public void optimizeHigherbVirial(int K, int L, double minb, double maxb){
 		
-		double interval = 0.0001;
-		bGuess = initbGuess;
-		calcpPade(K, L, initbGuess);
+		int bootstrap = 0;
+		double[] allTSS = new double[3];
+		double[] allb = new double[3];
 		
-		double TSS = 0.0;
+		double bGuess = minb;
 		
-		for (int i=0; i<pPade.length; i++){
-			diff = (pPade[i]-pSimData[i][1]);
-			TSS += diff*diff;
+		while (true){
+			//System.out.println("bGuess: " + bGuess);
+			calcpPade(K, L, bGuess);
+			
+			double TSS = 0.0;
+			for (int i=0; i<pPade.length; i++){
+				diff = (pPade[i]-pSimData[i][1]);
+				TSS += diff*diff;
+				
+			}
+			
+			if(bootstrap < 3){
+				allb[bootstrap] = bGuess;
+				allTSS[bootstrap] = TSS;
+				bootstrap++;
+				bGuess += 0.5*(maxb-minb);
+			}
+		    else {
+                if (bGuess > allb[2]) {
+                    allb[0] = allb[1];
+                    allb[1] = allb[2];
+                    allb[2] = bGuess;
+                    allTSS[0] = allTSS[1];
+                    allTSS[1] = allTSS[2];
+                    allTSS[2] = TSS;
+                }
+                else if (bGuess < allb[0]) {
+                    allb[2] = allb[1];
+                    allb[1] = allb[0];
+                    allb[0] = bGuess;
+                    allTSS[2] = allTSS[1];
+                    allTSS[1] = allTSS[0];
+                    allTSS[0] = TSS;
+                }
+                else if (allTSS[2] > allTSS[0]) {
+                    maxb = allb[2];
+                    if (bGuess > allb[1]) {
+                        allTSS[2] = TSS;
+                        allb[2] = bGuess;
+                    }
+                    else {
+                        allTSS[2] = allTSS[1];
+                        allb[2] = allb[1];
+                        allTSS[1] = TSS;
+                        allb[1] = bGuess;
+                    }
+                }
+                else {
+                    minb = allb[0];
+                    if (bGuess < allb[1]) {
+                        allTSS[0] = TSS;
+                        allb[0] = bGuess;
+                    }
+                    else {
+                        allTSS[0] = allTSS[1];
+                        allb[0] = allb[1];
+                        allTSS[1] = TSS;
+                        allb[1] = bGuess;
+                    }
+                }
+
+//                if (allTSS[1] > allTSS[0] && allTSS[1] > allTSS[2]) {
+//                   // return allb[1];
+//                	System.out.println(allTSS[1] +" "+ allTSS[0] + " " + allTSS[2]);
+//                	System.out.println("bGuess: " + bGuess + " TSS: " + TSS);
+//                	break;
+//                }
+            }
+		
+	         if (bootstrap == 3) {
+	                // now estimate minimum in U from the three points.
+	                double dc01 = allb[1]-allb[0];
+	                double dc12 = allb[2]-allb[1];
+	                double du01 = allTSS[1]-allTSS[0];
+	                double du12 = allTSS[2]-allTSS[1];
+	                double dudc01 = du01/dc01;
+	                double dudc12 = du12/dc12;
+	                double m = (dudc12-dudc01)/(0.5*(dc01+dc12));
+	                bGuess = 0.9*(0.5*(allb[1]+allb[2]) - dudc12/m) + 0.1*(0.5*(allb[0]+allb[2]));
+	                if (bGuess == allb[1] || bGuess == allb[2]) {
+	                    bGuess = 0.5*(allb[1] + allb[2]);
+	                }
+	                if (bGuess == allb[0] || bGuess == allb[1]) {
+	                    bGuess = 0.5*(allb[1] + allb[0]);
+	                }
+	                if (bGuess < minb) {
+	                    bGuess = 0.5*(minb + allb[0]);
+	                }
+	                if (bGuess > maxb) {
+	                    bGuess = 0.5*(maxb + allb[2]);
+	                }
+	                        
+	                if (bGuess == allb[0] || bGuess == allb[1] || bGuess == allb[2]) {
+	                    // we converged cf to numerical precision.
+	                    //System.out.println("c/a "+cf);
+	                    //return cf;
+	                	//System.out.println("bGuess: " + bGuess + " TSS: " + TSS);
+	                	break;
+	                }
+	            }
 			
 		}
 				
-		while(TSS > tol){
-			double TSSleft = 0.0;
-			double TSSright = 0.0;
-			double bGuessleft  = bGuess - interval;
-			double bGuessright = bGuess + interval;
-			
-			calcpPade(K, L, bGuessleft);
-			for (int i=0; i<pPade.length; i++){
-				diff = (pPade[i]-pSimData[i][1]);
-				TSSleft += diff*diff;	
-			}
-			
-			calcpPade(K, L, bGuessright);
-			for (int i=0; i<pPade.length; i++){
-				diff = (pPade[i]-pSimData[i][1]);
-				TSSright += diff*diff;	
-			}
-
-			if(Math.abs(TSSright) <= Math.abs(TSSleft)){
-				TSS = TSSright;
-				bGuess = bGuessright;
-			} else {
-				TSS = TSSleft;
-				bGuess = bGuessleft;
-			}
-			/*
-			 * extra check
-			 * break out from the while loop if the difference is small
-			 *  although TSS does not meet the tolerance condition
-			 */
-			if (Math.abs(TSSright-TSSleft) < 1e-9) break;
-		}
-		
-		
-		System.out.println(bGuess +" " + TSS);
+		System.out.println(bGuess);
 	}
 	
 	
 	public static void main(String[] args){
-		String filenameP = "/tmp/dataExtrapolated1.dat";
-		String filenameB = "/tmp/Bn6";
+		
+		VirialParam params = new VirialParam();
+	    String inputFilename = null;
+        if (args.length > 0) {
+            inputFilename = args[0];
+        }
+        if (inputFilename != null) {
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+        }
+        
+		String filenameP = params.filenameP;
+		String filenameB = params.filenameB;
+		int K = params.K;
+		int L = params.L;
 		
 		VirialOptimizer vOpt = new VirialOptimizer(filenameP, filenameB);
-		
-		vOpt.optimizeHigherbVirial(5, 3, 2.0);		
+		/*
+		 * 2.4 and 5.3 are the range of bGuess values
+		 */
+		vOpt.optimizeHigherbVirial(K, L, 2.4, 5.3);		
 	
 	}
 	
 	protected double diff;
 	protected double[] bVirial, rho, pPade;
 	protected double[][] pSimData, bVirialFromFile;
-	protected double tol = 1e-4;
+	protected double tol = 2e-4;
 	protected double bGuess;
 	
+	public static class VirialParam extends ParameterBase {
+	        public String filenameP = "/tmp/dataExtrapolated1.dat";
+	        public String filenameB = "/tmp/b_tmp3.dat";
+	        public int K = 5;
+	        public int L = 3;
+	}
 }
