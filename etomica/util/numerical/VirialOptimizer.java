@@ -61,6 +61,34 @@ public class VirialOptimizer {
 		}
 	}
 	
+	public double minimumScreening(int K, int L, double min, double max){
+		
+		int nPoint = 1000;
+		double globalMin = 50.0; //this is arbitrary value
+		double interval = (max-min)/nPoint;
+		double b = min;
+		double bOpt = min;
+		
+		for (int i=0; i<nPoint; i++){
+			
+			calcpPade(K, L, b);
+			
+			double TSS = 0.0;
+			for (int j=0; j<pPade.length; j++){
+				diff = (pPade[j]-pSimData[j][1]);
+				TSS += diff*diff;
+			}
+			if(TSS < globalMin){
+				globalMin = TSS;
+				bOpt = b;
+			}
+			b += interval;
+
+		}
+		
+		return bOpt;
+	}
+	
 	public void optimizeHigherbVirial(int K, int L, double minb, double maxb){
 		
 		int bootstrap = 0;
@@ -70,7 +98,6 @@ public class VirialOptimizer {
 		double bGuess = minb;
 		
 		while (true){
-			//System.out.println("bGuess: " + bGuess);
 			calcpPade(K, L, bGuess);
 			
 			double TSS = 0.0;
@@ -130,12 +157,6 @@ public class VirialOptimizer {
                     }
                 }
 
-//                if (allTSS[1] > allTSS[0] && allTSS[1] > allTSS[2]) {
-//                   // return allb[1];
-//                	System.out.println(allTSS[1] +" "+ allTSS[0] + " " + allTSS[2]);
-//                	System.out.println("bGuess: " + bGuess + " TSS: " + TSS);
-//                	break;
-//                }
             }
 		
 	         if (bootstrap == 3) {
@@ -194,22 +215,23 @@ public class VirialOptimizer {
 		int L = params.L;
 		
 		VirialOptimizer vOpt = new VirialOptimizer(filenameP, filenameB);
-		/*
-		 * 2.4 and 5.3 are the range of bGuess values
-		 */
-		vOpt.optimizeHigherbVirial(K, L, 2.4, 5.3);		
+			
+		double x = vOpt.minimumScreening(K, L, -10, 10);
+		double min = (1-0.01)*x;
+		double max = (1+0.01)*x;
+		
+		vOpt.optimizeHigherbVirial(K, L, min, max);		
 	
 	}
 	
 	protected double diff;
 	protected double[] bVirial, rho, pPade;
 	protected double[][] pSimData, bVirialFromFile;
-	protected double tol = 2e-4;
 	protected double bGuess;
 	
 	public static class VirialParam extends ParameterBase {
-	        public String filenameP = "/tmp/dataExtrapolated1.dat";
-	        public String filenameB = "/tmp/b_tmp3.dat";
+	        public String filenameP = "/tmp/dataExtrapolatedGauss_tmp1.dat";
+	        public String filenameB = "/tmp/b_tmp1.dat";
 	        public int K = 5;
 	        public int L = 3;
 	}
