@@ -2,8 +2,15 @@ package etomica.util.numerical;
 
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.util.numerical.PadeApproximation.VirialParam;
 
+/**
+ * 
+ * Class to determine B9 value that best fit the simulation results after 
+ *   Pade Approximation [K/L]  
+ * 
+ * @author Tai Boon Tan
+ *
+ */
 public class VirialOptimizer {
 	
 	public VirialOptimizer(String filenameP, String filenameB){
@@ -160,7 +167,7 @@ public class VirialOptimizer {
             }
 		
 	         if (bootstrap == 3) {
-	                // now estimate minimum in U from the three points.
+	        	 
 	                double dc01 = allb[1]-allb[0];
 	                double dc12 = allb[2]-allb[1];
 	                double du01 = allTSS[1]-allTSS[0];
@@ -183,11 +190,7 @@ public class VirialOptimizer {
 	                }
 	                        
 	                if (bGuess == allb[0] || bGuess == allb[1] || bGuess == allb[2]) {
-	                    // we converged cf to numerical precision.
-	                    //System.out.println("c/a "+cf);
-	                    //return cf;
-	                	//System.out.println("bGuess: " + bGuess + " TSS: " + TSS);
-	                	break;
+	                   	break;
 	                }
 	            }
 			
