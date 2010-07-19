@@ -49,7 +49,9 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     
     public void reset() {
         super.reset();
-        setDSVO(dsvo);
+        if (dsvo != null) {
+            setDSVO(dsvo);
+        }
     }
 
     /**
