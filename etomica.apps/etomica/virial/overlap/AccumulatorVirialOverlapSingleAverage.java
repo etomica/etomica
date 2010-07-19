@@ -20,19 +20,10 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 	
     public AccumulatorVirialOverlapSingleAverage(long blockSize, int aNBennetPoints, boolean aIsReference) {
 		super(blockSize);
-		nBennetPoints = aNBennetPoints;
         isReference = aIsReference;
-		if (nBennetPoints%2 == 0) {
-			throw new IllegalArgumentException("try again with an odd aNPoints");
-		}
-		overlapSum = new double[nBennetPoints];
-		blockOverlapSum = new double[nBennetPoints];
-        overlapSumBlockSquare = new double[nBennetPoints];
-        overlapSumSquare = new double[nBennetPoints];
-		expX = new double[nBennetPoints];
+        setNumAlpha(aNBennetPoints);
         setBennetParam(1.0,5);
         blockCounter = 0;
-    
     }
 	
 	/**
@@ -43,6 +34,8 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 	 */
 	public void setBennetParam(double aCenter, double aSpan) {
         if (aSpan < 0.0 || (aSpan == 0 && nBennetPoints > 1) || aCenter <= 0.0 ) throw new IllegalArgumentException("span and center must be positive");
+        alphaSpan = aSpan;
+        alphaCenter = aCenter;
 		if (nBennetPoints==1) {
 			expX[0] = aCenter;
 			return;
@@ -50,7 +43,34 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 		for (int i=0; i<nBennetPoints; i++) {
 			expX[i] = Math.exp(2.0*aSpan*(i-(nBennetPoints-1)/2)/(nBennetPoints-1))*aCenter;
 		}
+        reset();
 	}
+
+    public void setNumAlpha(int newNumAlpha) {
+        nBennetPoints = newNumAlpha;
+        if (nBennetPoints%2 == 0) {
+            throw new IllegalArgumentException("try again with an odd aNPoints");
+        }
+        overlapSum = new double[nBennetPoints];
+        blockOverlapSum = new double[nBennetPoints];
+        overlapSumBlockSquare = new double[nBennetPoints];
+        overlapSumSquare = new double[nBennetPoints];
+        expX = new double[nBennetPoints];
+        if (alphaCenter > 0) {
+            setBennetParam(alphaCenter, alphaSpan);
+        }
+        else {
+            reset();
+        }
+    }
+
+    public double getAlphaCenter() {
+        return alphaCenter;
+    }
+
+    public double getAlphaSpan() {
+        return alphaSpan;
+    }
 
     /**
      * Add the given values to the sums and block sums
@@ -183,15 +203,16 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     }
 
     private static final long serialVersionUID = 1L;
-    private final double[] blockOverlapSum;
-    private final double[] overlapSumBlockSquare, overlapSumSquare;
-    private final double[] overlapSum;
-    private final int nBennetPoints;
-    private final double[] expX;
+    private double[] blockOverlapSum;
+    private double[] overlapSumBlockSquare, overlapSumSquare;
+    private double[] overlapSum;
+    private int nBennetPoints;
+    private double[] expX;
     private final boolean isReference;
     protected double bennetUDiff;
     protected FileWriter fileWriter;
     protected long blockCounter;
     private String fnm;
+    protected double alphaCenter, alphaSpan;
 
 }
