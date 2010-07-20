@@ -70,7 +70,7 @@ public class VirialOptimizer {
 	
 	public double minimumScreening(int K, int L, double min, double max){
 		
-		int nPoint = 1000;
+		int nPoint = 50000;
 		double globalMin = 50.0; //this is arbitrary value
 		double interval = (max-min)/nPoint;
 		double b = min;
@@ -228,7 +228,7 @@ public class VirialOptimizer {
 		
 		VirialOptimizer vOpt = new VirialOptimizer(filenameP, filenameB);
 			
-		double x = vOpt.minimumScreening(K, L, -10, 10);
+		double x = vOpt.minimumScreening(K, L, -5, 5);
 		double min = (1-0.05)*x;
 		double max = (1+0.05)*x;
 		
@@ -242,8 +242,8 @@ public class VirialOptimizer {
 	protected double bGuess;
 	
 	public static class VirialParam extends ParameterBase {
-	        public String filenameP = "/tmp/dataExtrapolatedGauss_tmp47.dat";
-	        public String filenameB = "/tmp/b_tmp47.dat";
+	        public String filenameP = "/tmp/foo";
+	        public String filenameB = "/tmp/Bn9"; 
 	        public int K = 5;
 	        public int L = 3;
 	}
