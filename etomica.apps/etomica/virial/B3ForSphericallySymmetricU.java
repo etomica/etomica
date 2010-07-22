@@ -10,7 +10,7 @@ import etomica.util.SineTransform;
 
 /**
  * 
- * This method uses iteration and B3SphericallySymmetric.java to compute B3 for a spherically symmetric potential to within a given tolerance by 
+ * Compute B3 for a spherically symmetric potential to within a given tolerance, specified with getConvergece(), by 
  * either FFT or FFT and one layer of quadrature.
  * 
  * @author kate
@@ -30,8 +30,8 @@ public static void main(String[] args) {
 	
 	boolean allFFT = false;
 
+	// Minimum log2(N) and maximum separation distance to be considered:
 	int power = 6;
-	
 	double r_max = 100;
 	
 	Space space = Space3D.getInstance();
