@@ -97,7 +97,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 			
 			for(int j=1; j<i; j++){
 				a[j][i] = (a[j-1][i]*fac - a[j-1][i-1])/(fac-1);
-				//System.out.println(" a["+j+"]["+i+"] is: "+a[j][i]);
+				System.out.println(" a["+j+"]["+i+"] is: "+a[j][i]);
 				fac = con2*fac;
 				errt = Math.max(Math.abs(a[j][i]-a[j-1][i]), Math.abs(a[j][i]-a[j-1][i-1]));
 				//System.out.println("errt is: "+errt);

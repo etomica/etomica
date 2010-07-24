@@ -19,6 +19,8 @@ public class BisectionMethodMinimumBracket {
 	 * @param double[] x: takes in initial three elements of x; which are the ax, bx, and cx;
 	 * 					  cx in this case should be zero.								
 	 * 		  function  : from FunctionDifferentiable which is 1-D
+	 * 
+	 * Author: Tai Boon Tan
 	 */
 	
 	public void mnbrak(double[] x, FunctionDifferentiable function){

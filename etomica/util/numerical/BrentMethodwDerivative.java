@@ -18,6 +18,7 @@ import etomica.util.FunctionDifferentiable;
 	 * 	@ return   xmin   : the minimum double x-value, which is   dbrent[0]
 	 * 		      dbrent  : the minimum function value, which is   dbrent[1]
 	 * 
+	 * Author: Tai Boon Tan
 	 * 
 	 */
 

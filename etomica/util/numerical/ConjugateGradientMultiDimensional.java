@@ -16,6 +16,8 @@ public class ConjugateGradientMultiDimensional {
 	 *  
 	 *  
 	 * 	@ return   fret       : the value of function at the returned minimum location p
+	 * 
+	 * Author: Tai Boon Tan
 	 * 					
 	 */
 	
