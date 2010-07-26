@@ -27,6 +27,17 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         // call updateDimensions again so dimensionsHalf is updated
         updateDimensions();
     }
+    
+    /**
+     * Constructs cubic boundary for the given Space, with each edge of length boxSize.
+     */
+    public BoundaryRectangularPeriodic(ISpace _space, double[] boxSize) {
+        super(_space, boxSize);
+        dimensionsHalf = space.makeVector();
+        tempImage = space.makeVector();
+        // call updateDimensions again so dimensionsHalf is updated
+        updateDimensions();
+    }
 
     public void updateDimensions() {
         super.updateDimensions();
