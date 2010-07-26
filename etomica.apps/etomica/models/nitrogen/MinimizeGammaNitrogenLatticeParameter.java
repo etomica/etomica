@@ -1,5 +1,6 @@
 package etomica.models.nitrogen;
 
+import etomica.api.IBoundary;
 import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -56,7 +57,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		box.setNMolecules(species, numMolecule);		
 		int [] nCells = new int[]{1,1,1};
 				
-		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
+		IBoundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
 		Primitive primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -65,9 +66,9 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 		
 		box.setBoundary(boundary);
-		double rC = box.getBoundary().getBoxSize().getX(0)*0.5;
+		double rC = box.getBoundary().getBoxSize().getX(0)*0.485;
 		//System.out.println("Truncation Radius: " + rC);
-		potential = new P2NitrogenShellModel(space);
+		potential = new P2NitrogenShellModel(space, rC);
 		potential.setBox(box);
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
@@ -86,7 +87,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		
 		int [] nCells = new int[]{1,1,1};
 		
-		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
+		IBoundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
 		Primitive primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
 		box.setBoundary(boundary);
 		

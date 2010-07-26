@@ -3,12 +3,16 @@ package etomica.models.nitrogen;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataGroup;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -24,7 +28,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -46,8 +50,8 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	public SimulationGammaNitrogenModel(ISpace space, int numMolecule, double temperature, double pressure) {
 		super(space);
 		this.space = space;
-		double a = 3.957;
-		double c = 5.109;
+		double a = 3.878758;
+		double c = 5.31746452;
 		int nCell = (int)Math.round(Math.pow((numMolecule/2), 1.0/3.0));
 	
 		potentialMaster = new PotentialMaster();
@@ -56,7 +60,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 		
 		ConformationNitrogenShellModel conformation = new ConformationNitrogenShellModel(space);
-		SpeciesN2ShellModel species = new SpeciesN2ShellModel(space);
+		species = new SpeciesN2ShellModel(space);
 		species.setConformation(conformation);
 		addSpecies(species);
 		
@@ -71,8 +75,12 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		boxDim[1] = space.makeVector(new double[]{0, nCell*a, 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nCell*c});
 		
-		Boundary boundary = new BoundaryDeformablePeriodic(space,boxDim);
+		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
 		primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
+		
+		double volume = nCell*a*nCell*a*nCell*c;
+		System.out.println("density: " + numMolecule/volume);
+		//System.exit(1);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsGamma();
@@ -82,7 +90,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		box.setBoundary(boundary);
 		double rC = box.getBoundary().getBoxSize().getX(0)*0.5;
 		System.out.println("Truncation Radius: " + rC);
-		potential = new P2NitrogenShellModel(space);
+		potential = new P2NitrogenShellModel(space, rC);
 		potential.setBox(box);
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
@@ -113,9 +121,9 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int numMolecule =54;
+		int numMolecule =2000;
 		double temperature = 1.0; // in Unit Kelvin
-		double pressure = 0.0; //in Unit GPa
+		double pressure = 0.21; //in Unit GPa
 		long simSteps = 10000000;
 		
 		if(args.length > 1){
@@ -142,7 +150,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		
 		SimulationGammaNitrogenModel sim = new SimulationGammaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, pressure);
 
-	    /*
+	    
 	    // set up normal mode meter
 //	    MeterNormalMode meterNormalMode = new MeterNormalMode();
 //	    meterNormalMode.setCoordinateDefinition(sim.coordinateDef);
@@ -157,8 +165,18 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
-		System.out.println("Lattice Energy (per molecule): "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
-		//System.exit(1);
+		System.out.println("Lattice Energy (per molecule) in K: "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
+		
+		MeterPressure meterPressure = new MeterPressure(sim.space);
+		meterPressure.setIntegrator(sim.integrator);
+		
+		double staticPressure = meterPressure.getDataAsScalar();
+		System.out.println("Static Pressure: " + staticPressure);
+		
+		double volume = sim.getBox(0).getBoundary().volume();
+		System.out.println("Enthaply, H: " + (latticeEnergy + staticPressure*volume)/numMolecule);
+		
+		System.exit(1);
 		
 		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
 		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
@@ -206,11 +224,28 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		long endTime = System.currentTimeMillis();
 		System.out.println("End Time: " + endTime);
 		System.out.println("Time taken: " + (endTime - startTime));
-		*/
-		if(true){
+		
+
+		
+		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
+		    
+			DiameterHashByType diameter = new DiameterHashByType(sim);
+			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
+			diameter.setDiameter(sim.species.getPType(), 0.0);
+			
+			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
+			
+			System.out.println("Diameter is: " + diameter.getDiameter(sim.species.getPType()));
+		    
+				
+		
+		    
+		    ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+		    //colorScheme.setColor(sim.species.getNitrogenType(),java.awt.Color.red);
 		    simGraphic.makeAndDisplayFrame("Gamma-Phase Nitrogen Crystal Structure");
+		    
 			//sim.activityIntegrate.setMaxSteps(simSteps);
 			//sim.getController().actionPerformed();
 		}
@@ -225,5 +260,6 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	protected PotentialMolecular potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
+	protected SpeciesN2ShellModel species;
 	private static final long serialVersionUID = 1L;
 }

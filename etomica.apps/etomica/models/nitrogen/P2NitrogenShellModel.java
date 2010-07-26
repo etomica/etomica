@@ -19,10 +19,11 @@ import etomica.space.ISpace;
  */
 public class P2NitrogenShellModel extends PotentialMolecular {
 
-	public P2NitrogenShellModel(ISpace space) {
+	public P2NitrogenShellModel(ISpace space, double rC) {
 		super(2, space);
 		work = space.makeVector();
 		shift = space.makeVector();
+		this.rC = rC;
 		
         chargeCC = chargeC * chargeC;
         chargeCN = chargeC * chargeN;
@@ -62,9 +63,9 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 		final boolean zeroShift = shift.squared() < 0.1; 
 		r2 = work.squared();
 		
-//		if (r2 > rC*rC){ 
-//			return 0.0;
-//		}
+		if (r2 > rC*rC){ 
+			return 0.0;
+		}
 		//if(r2<1.6) return Double.POSITIVE_INFINITY;
 		
 		/*
@@ -432,6 +433,7 @@ public class P2NitrogenShellModel extends PotentialMolecular {
 	protected final double delta1 = 4.531; // unit A
 	protected final double delta2 = 3.457; // unit A
 	
+	protected double rC;
 	protected final IVectorMutable work, shift;
 
 }
