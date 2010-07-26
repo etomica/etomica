@@ -29,7 +29,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
     
     /**
-     * Constructs cubic boundary for the given Space, with each edge of length boxSize.
+     * Constructs rectangular boundary for the given Space, with each edge of length boxSize.
      */
     public BoundaryRectangularPeriodic(ISpace _space, double[] boxSize) {
         super(_space, boxSize);
