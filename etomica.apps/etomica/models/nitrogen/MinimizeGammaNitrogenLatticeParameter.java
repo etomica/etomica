@@ -12,7 +12,6 @@ import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
@@ -73,11 +72,6 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 
-//		MeterPotentialEnergy energyInt = new MeterPotentialEnergy(potentialMaster);
-//		energyInt.setBox(box);
-//		
-//		System.out.println("lattice energy: " + energyInt.getDataAsScalar()/numMolecule);
-		
 
 	}
 	
@@ -225,13 +219,14 @@ public double findOptRatio(double minRatio, double maxRatio){
 		double a = 3.957;
 		double c = 5.109;
 		double ratio = c/a;
-		int numMolecule =686;
+		int n = 14;
+		int numMolecule = n*n*n*2;
 
 		int nUnitCell = (int)Math.round(Math.pow((numMolecule/2), 1.0/3.0));
 		double density = numMolecule/(nUnitCell*nUnitCell*nUnitCell*a*a*c);
 		
 		System.out.println("Determine the lattice parameter for gamma-N2 " +
-				"by minimizing the lattice energy");
+				"by minimizing the lattice energy for " + numMolecule + " molecules.");
 		System.out.println("density: " + density);
 		System.out.println("intial a: " + a+ " ;c: " + c);
 		System.out.println();
