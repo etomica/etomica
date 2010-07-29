@@ -429,8 +429,6 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
         IVectorMutable Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
         IVectorMutable Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
         
-        double r2QQ = 0*2.25;
-        
         if (zeroShift) {
     		/*
     		 * 'for' loop for 4 pairs van der Waals interaction between the 
@@ -438,8 +436,6 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     		 */
     		
     		for (int i=0; i<2; i++){
-    			IVectorMutable dist = (nitrogena.getChildList().getAtom(i)).getPosition();
-    			
     			for (int j=0; j<2; j++){
     				work.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), nitrogenb.getChildList().getAtom(j).getPosition());
     				r2 = work.squared();
