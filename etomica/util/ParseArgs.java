@@ -43,7 +43,9 @@ public class ParseArgs {
      * This routine handles boolean, int, long, double, String.  Arrays are
      * handled if they are quoted.
      * 
-     * -alpha "0.3 0.5"
+     * -slanty -temperature 1 -alpha "0.3 0.5"
+     *  ==> slanty = true;
+     *  ==> temperature = 1;
      *  ==> alpha = {0.3, 0.5};
      */
     public void parseArgs(String[] args) {
