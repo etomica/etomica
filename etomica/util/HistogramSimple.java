@@ -11,7 +11,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected double deltaX;
-	private long sum;
+	protected long sum;
 	protected long[] counts;
 	protected double[] histogram;
     protected double xValues[];
