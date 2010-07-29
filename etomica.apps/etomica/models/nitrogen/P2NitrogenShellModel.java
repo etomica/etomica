@@ -413,6 +413,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
      * 
      */
 	public double virial(IMoleculeList pair) {
+		
 		IMolecule nitrogena = pair.getMolecule(0);
 		IMolecule nitrogenb = pair.getMolecule(1);
 		
@@ -424,7 +425,10 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		boundary.nearestImage(work);
 		
 		IVector[] grad = gradient(pair);
-		
+		//System.out.println("work: " + work.toString());
+		//System.out.println("grad[0]: " + grad[0].toString());
+		//System.out.println("grad[1]: " + grad[1].toString());
+		//System.exit(1);
 		return work.dot(grad[0]);
 	}
 
@@ -460,6 +464,7 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		
 		//Initial Gradient = 0.0
 		gradient[0].E(0.0);
+		gradient[1].E(0.0);
 		
 		//if(r2<1.6) return Double.POSITIVE_INFINITY;
 		
@@ -870,21 +875,8 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 	}
 
 	public IVector[] gradient(IMoleculeList pair, Tensor pressureTensor) {
-		// TODO Auto-generated method stub
 		return null;
 	}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     private double calcDisperOverlap(double r2, double alpha, double epsilon, double delta){
     	double r = Math.sqrt(r2);
