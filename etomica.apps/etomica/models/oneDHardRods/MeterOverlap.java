@@ -14,6 +14,7 @@ public class MeterOverlap implements IEtomicaDataSource {
     DataTag tag;
     DataInfo dataInfo;
     DataSourceScalar dataSourceA, dataSourceB;
+    double dsABase, dsBBase;
     double temperature;
     DataDoubleArray dda;
     
@@ -41,19 +42,10 @@ public class MeterOverlap implements IEtomicaDataSource {
     public DataDoubleArray getData(){
         double[] eAeB = dda.getData();
         
-        eAeB[1] = Math.exp(-dataSourceB.getDataAsScalar()/temperature)  
-                / Math.exp(-dataSourceA.getDataAsScalar()/temperature);
+        eAeB[1] = Math.exp(-(dataSourceB.getDataAsScalar() - dsBBase)/temperature)  
+                / Math.exp(-(dataSourceA.getDataAsScalar() - dsABase)/temperature);
         eAeB[0] = 1.0;
         
-        
-        
-//        if(Double.isNaN(eAeB[1])){
-//            System.out.println("AARH?");
-//            System.out.println("B: " +dataSourceB.getDataAsScalar());
-//            System.out.println("A: " +dataSourceA.getDataAsScalar());
-//        }
-        
-//        System.out.println("meter overlap getdata");
         return dda;
     }
     
@@ -62,5 +54,11 @@ public class MeterOverlap implements IEtomicaDataSource {
     }
     public DataTag getTag() {
         return tag;
+    }
+    public void setDsABase(double dsABase) {
+        this.dsABase = dsABase;
+    }
+    public void setDsBBase(double dsBBase) {
+        this.dsBBase = dsBBase;
     }
 }
