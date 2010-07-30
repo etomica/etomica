@@ -57,6 +57,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  * Treats modes as degrees of freedom; keeps one rod at each end that does not
  * move by central image.
  * 
+ * Uses MeterDifferentImageAdd1D and MeterDifferentImageSubtract1D
  * 
  * Uses overlap sampling.
  */
