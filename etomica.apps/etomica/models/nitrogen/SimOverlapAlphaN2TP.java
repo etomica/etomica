@@ -115,6 +115,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         meter.setAlpha(alpha);
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
+        
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);
@@ -286,14 +287,14 @@ public class SimOverlapAlphaN2TP extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 108;
+        public int numMolecules = 32;
         public double density = 0.0231485; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 1000000;
+        public long numSteps = 100000;
         public double temperature = 1.0; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{1.1};
+        public double[] otherTemperatures = new double[]{0.1};
         public double rc = 4.0;
     }
 }
