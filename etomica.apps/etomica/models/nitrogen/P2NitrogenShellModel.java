@@ -13,6 +13,11 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /** 
+ * CAUTION!!!!!! The potential DOES NOT really describe the ALPHA and GAMMA structure at
+ * 				 NON-ZERO temperature condition!!
+ *       		  (through observation [SimulationGraphic]
+ *        and pressure calculation[MeterPressureMolecular])
+ * 
  * P2 shell-model potential for Nitrogen.  
  *  Reference: 1. Fabianski R. et al, Calculations on the stability of low temperature solid nitrogen
  *              	phases, JCP 112(15) 6745 (2000)
