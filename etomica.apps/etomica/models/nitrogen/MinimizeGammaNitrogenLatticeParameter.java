@@ -46,9 +46,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 		Basis basisBCC = new BasisCubicBcc();
 		Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 		
-		ConformationNitrogenShellModel conformation = new ConformationNitrogenShellModel(space);
 		species = new SpeciesN2ShellModel(space);
-		species.setConformation(conformation);
 		addSpecies(species);
 		
 		box = new Box(space);
