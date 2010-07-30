@@ -50,7 +50,6 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
         deltaU = new double[coordinateDim];
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
-        
     }
     
     public double getDataAsScalar(){
@@ -59,8 +58,8 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
         uOld = new double[cells.length][coordinateDim];
         double normalization = 1/Math.sqrt(cells.length);
         int numWV = comparedWVs.length;
-        double[] realCoord = new double[numWV];
-        double[] imagCoord = new double[numWV];
+        double[][] realCoord = new double[numWV][coordinateDim];
+        double[][] imagCoord = new double[numWV][coordinateDim];
         energyHardRod = 0.0;
         energyHarmonic = 0.0;
         
@@ -75,12 +74,12 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
         // store them in realCoord and imagCoord for further use.
         for(int wvcount = 0; wvcount < numWV; wvcount++){
             coordinateDefinition.calcT(waveVectors[comparedWVs[wvcount]], realT, imagT);
-            realCoord[wvcount] = 0.0;
-            imagCoord[wvcount] = 0.0;
-            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+            for(int iMode = 0; iMode < coordinateDim; iMode++){  //Loop would go away
+                realCoord[wvcount][iMode] = 0.0;
+                imagCoord[wvcount][iMode] = 0.0;
                 for(int j = 0; j < coordinateDim; j++){
-                    realCoord[wvcount] += eigenVectors[comparedWVs[wvcount]][i][j] * realT[j];
-                    imagCoord[wvcount] += eigenVectors[comparedWVs[wvcount]][i][j] * imagT[j];
+                    realCoord[wvcount][iMode] += eigenVectors[comparedWVs[wvcount]][iMode][j] * realT[j];
+                    imagCoord[wvcount][iMode] += eigenVectors[comparedWVs[wvcount]][iMode][j] * imagT[j];
                 }
             }
         }
@@ -103,12 +102,13 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
                 double kR = waveVectors[comparedWVs[wvcount]].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for(int i = 0; i < coordinateDim; i++){  //Loop would go away
+                for(int iMode = 0; iMode < coordinateDim; iMode++){  //Loop would go away
                     //Calculate the current coordinates.
                     for(int j = 0; j < coordinateDim; j++){
                         deltaU[j] -= sqrtWVC[comparedWVs[wvcount]] * 
-                            eigenVectors[comparedWVs[wvcount]][i][j] * 
-                            (realCoord[wvcount] * coskR - imagCoord[wvcount]*sinkR);
+                                eigenVectors[comparedWVs[wvcount]][iMode][j] * 
+                                (realCoord[wvcount][iMode] * coskR - 
+                                imagCoord[wvcount][iMode] * sinkR);
                     }
                 }
 
@@ -143,14 +143,14 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
         
         //Calculate the energy due to the compared modes
         for(int wvcount = 0; wvcount < numWV; wvcount++){
-            for(int i = 0; i < coordinateDim; i++){  //Loop would go away
-                if(Double.isInfinite(omegaSquared[comparedWVs[wvcount]][i])){
+            for(int iMode = 0; iMode < coordinateDim; iMode++){
+                if(Double.isInfinite(omegaSquared[comparedWVs[wvcount]][iMode])){
                     continue;
                 }
-                double normalCoord = realCoord[wvcount]*realCoord[wvcount] + 
-                    imagCoord[wvcount] * imagCoord[wvcount];
+                double normalCoord = realCoord[wvcount][iMode]*realCoord[wvcount][iMode] + 
+                    imagCoord[wvcount][iMode] * imagCoord[wvcount][iMode];
                 energyHarmonic += waveVectorCoefficients[comparedWVs[wvcount]] * normalCoord 
-                    * omegaSquared[comparedWVs[wvcount]][i];
+                    * omegaSquared[comparedWVs[wvcount]][iMode];
             }
         }
         

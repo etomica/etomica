@@ -103,16 +103,22 @@ public class MCMoveCompareMultipleWV extends MCMoveBoxStep {
                 double kR = waveVectors[comparedwv].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for (int i = 0; i < coordinateDim; i++) {// Calculate the current coordinate:
-                    double realCoord = 0.0;
-                    double imagCoord = 0.0;
+                double[][] realCoord = new double[waveVectors.length][coordinateDim];
+                double[][] imagCoord = new double[waveVectors.length][coordinateDim];
+                for (int iMode = 0; iMode < coordinateDim; iMode++) {// Calculate the current coordinate:
+                    realCoord[comparedwv][iMode] = 0.0;
+                    imagCoord[comparedwv][iMode] = 0.0;
                     for (int j = 0; j < coordinateDim; j++) {
-                        realCoord += eigenVectors[comparedwv][i][j] * realT[j];
-                        imagCoord += eigenVectors[comparedwv][i][j] * imagT[j];
+                        realCoord[comparedwv][iMode] += eigenVectors
+                                [comparedwv][iMode][j] * realT[j];
+                        imagCoord[comparedwv][iMode] += eigenVectors
+                                [comparedwv][iMode][j] * imagT[j];
                     }
                     for (int j = 0; j < coordinateDim; j++) {
-                        deltaU[j] -= sqrtWVC[comparedwv] * eigenVectors[comparedwv][i][j] * 
-                                (realCoord * coskR - imagCoord * sinkR);
+                        deltaU[j] -= sqrtWVC[comparedwv] * 
+                                eigenVectors[comparedwv][iMode][j] * 
+                                (realCoord[comparedwv][iMode] * coskR 
+                                - imagCoord[comparedwv][iMode] * sinkR);
                     }
                 }
                 for (int i = 0; i < coordinateDim; i++) {
