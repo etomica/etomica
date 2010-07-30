@@ -115,21 +115,16 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
     }
 
     public boolean doTrial() {
-//        System.out.println("MCMoveChangeMode doTrial");
-        
         energyOld = energyMeter.getDataAsScalar();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
         
         // assume that the first cell is the same as every other cell.
         BasisCell cell = cells[0];
-//        double[] calcedU = coordinateDefinition.calcU(cell.molecules);
         uOld = new double[cells.length][coordinateDim];
         
         // Select the wave vector whose eigenvectors will be changed.
         changedWV = changeableWVs[random.nextInt(changeableWVs.length)];
-
-//        System.out.println( changedWV );
         
         //calculate the new positions of the atoms.
         //Store old positions
