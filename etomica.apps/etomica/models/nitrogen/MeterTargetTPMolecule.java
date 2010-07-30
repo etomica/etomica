@@ -23,6 +23,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.P1ConstraintNbr;
 import etomica.space.ISpace;
+import etomica.units.Kelvin;
 import etomica.units.Null;
 
 /**
@@ -99,7 +100,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
         double[] newU = new double[coordinateDefinition.getCoordinateDim()];
         
         for (int i=0; i<otherTemperatures.length; i++) {
-            double fac = Math.sqrt(otherTemperatures[i]/temperature);
+            double fac = Math.sqrt(Kelvin.UNIT.toSim(otherTemperatures[i])/temperature);
         
             /*
              * Re-scaling the coordinate deviation
@@ -109,13 +110,15 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
             }
                   
             coordinateDefinition.setToU(pretendMolecules, newU);
-
+            
             double otherEnergy = 0;
-
-            double ai = (otherEnergy-latticeEnergy)/otherTemperatures[i];
-          
+            otherEnergy += meterPotential.getDataAsScalar();
+            
+            double ai = (otherEnergy-latticeEnergy)/Kelvin.UNIT.toSim(otherTemperatures[i]);
+            //System.out.println("ai: " + ai);
+            
             for (int j=0; j<numAlpha; j++) {
-                if (temperature>otherTemperatures[i]) {
+                if (temperature>Kelvin.UNIT.toSim(otherTemperatures[i])) {
                     x[i*numAlpha+j] = 1.0/(alpha[i][j]+Math.exp(ai-a0));
                 }
                 else {
