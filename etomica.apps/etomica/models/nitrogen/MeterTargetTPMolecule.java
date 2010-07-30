@@ -54,7 +54,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     protected DataDoubleArray data;
     protected final DataTag tag;
     protected final IBox pretendBox;
-    protected CoordinateDefinition coordinateDefinition;
+    protected CoordinateDefinitionNitrogen coordinateDefinition;
     protected final ISpecies species;
     protected double[][] alpha;
     protected double[] alphaCenter;
@@ -81,8 +81,9 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     }
 
     public IData getData() {
-        IBox realBox = coordinateDefinition.getBox();
+    	IBox realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
+        
         double energy = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
         
@@ -93,7 +94,6 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
         IMoleculeList pretendMolecules = pretendBox.getMoleculeList();
         
         double a0 = (energy-latticeEnergy)/temperature;
-
         double[] x = data.getData();
         
         double[] u = coordinateDefinition.calcU(molecules);
@@ -101,22 +101,20 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
         
         for (int i=0; i<otherTemperatures.length; i++) {
             double fac = Math.sqrt(Kelvin.UNIT.toSim(otherTemperatures[i])/temperature);
-        
+            double otherEnergy = 0;
             /*
              * Re-scaling the coordinate deviation
              */
+            
             for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
-            	newU[i] = fac*u[i];
+            	newU[iCoord] = fac*u[iCoord];
             }
                   
             coordinateDefinition.setToU(pretendMolecules, newU);
-            
-            double otherEnergy = 0;
-            otherEnergy += meterPotential.getDataAsScalar();
+            otherEnergy = meterPotential.getDataAsScalar();
             
             double ai = (otherEnergy-latticeEnergy)/Kelvin.UNIT.toSim(otherTemperatures[i]);
-            //System.out.println("ai: " + ai);
-            
+           
             for (int j=0; j<numAlpha; j++) {
                 if (temperature>Kelvin.UNIT.toSim(otherTemperatures[i])) {
                     x[i*numAlpha+j] = 1.0/(alpha[i][j]+Math.exp(ai-a0));
@@ -233,9 +231,9 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
         return coordinateDefinition;
     }
 
-    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+    public void setCoordinateDefinition(CoordinateDefinitionNitrogen newCoordinateDefinition) {
         this.coordinateDefinition = newCoordinateDefinition;
 
     }
-
+    
 }
