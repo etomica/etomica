@@ -9,11 +9,8 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -38,6 +35,7 @@ import etomica.normalmode.WaveVectorFactory;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -45,7 +43,6 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -60,6 +57,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  * Treats modes as degrees of freedom; keeps one rod at each end that does not
  * move by central image.
  * 
+ * Uses MeterDifferentImageAdd and MeterDifferentImageSubtract, not the 1D versions
  * 
  * Uses overlap sampling.
  */
@@ -67,7 +65,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 /*
  * Starts in notes 7/09
  */
-public class SimDifferentImage extends Simulation {
+public class SimDifferentImage1D extends Simulation {
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDifferentImage";
@@ -96,7 +94,7 @@ public class SimDifferentImage extends Simulation {
     MeterDifferentImageSubtract meterRefInTarg;
     
     
-    public SimDifferentImage(Space _space, int numAtoms, double density, 
+    public SimDifferentImage1D(Space _space, int numAtoms, double density, 
             int blocksize, double tems) {
         super(_space);
         System.out.println("Running " + APP_NAME);
@@ -179,16 +177,16 @@ public class SimDifferentImage extends Simulation {
         mcMoveAtom.setStepSize(0.01);
         integratorTarget.getMoveManager().addMCMove(mcMoveAtom);
         
-        mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
-        mcMoveMode.setCoordinateDefinition(cDefTarget);
-        mcMoveMode.setEigenVectors(nmTarg.getEigenvectors());
-        mcMoveMode.setOmegaSquared(nmTarg.getOmegaSquared());
-        mcMoveMode.setWaveVectorCoefficients(
-                nmTarg.getWaveVectorFactory().getCoefficients());
-        mcMoveMode.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
-        String all = new String("all");
-        mcMoveMode.addChangeableWV(all);
-        integratorTarget.getMoveManager().addMCMove(mcMoveMode);
+//        mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
+//        mcMoveMode.setCoordinateDefinition(cDefTarget);
+//        mcMoveMode.setEigenVectors(nmTarg.getEigenvectors());
+//        mcMoveMode.setOmegaSquared(nmTarg.getOmegaSquared());
+//        mcMoveMode.setWaveVectorCoefficients(
+//                nmTarg.getWaveVectorFactory().getCoefficients());
+//        mcMoveMode.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
+//        String all = new String("all");
+//        mcMoveMode.addChangeableWV(all);
+//        integratorTarget.getMoveManager().addMCMove(mcMoveMode);
         
         meterTargInTarg = new MeterPotentialEnergy(potentialMasterTarget);
         meterTargInTarg.setBox(boxTarget);
@@ -253,16 +251,16 @@ public class SimDifferentImage extends Simulation {
         mcMoveAtom.setStepSize(0.01);
         integratorRef.getMoveManager().addMCMove(mcMoveAtom);
         
-        mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterRef, random);
-        mcMoveMode.setBox(boxRef);
-        mcMoveMode.setCoordinateDefinition(cDefRef);
-        mcMoveMode.setEigenVectors(nmRef.getEigenvectors());
-        mcMoveMode.setOmegaSquared(nmRef.getOmegaSquared());
-        mcMoveMode.setWaveVectorCoefficients(
-                nmRef.getWaveVectorFactory().getCoefficients());
-        mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
-        mcMoveMode.addChangeableWV(all);
-        integratorRef.getMoveManager().addMCMove(mcMoveMode);
+//        mcMoveMode = new MCMoveChangeMultipleWV(potentialMasterRef, random);
+//        mcMoveMode.setBox(boxRef);
+//        mcMoveMode.setCoordinateDefinition(cDefRef);
+//        mcMoveMode.setEigenVectors(nmRef.getEigenvectors());
+//        mcMoveMode.setOmegaSquared(nmRef.getOmegaSquared());
+//        mcMoveMode.setWaveVectorCoefficients(
+//                nmRef.getWaveVectorFactory().getCoefficients());
+//        mcMoveMode.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
+//        mcMoveMode.addChangeableWV(all);
+//        integratorRef.getMoveManager().addMCMove(mcMoveMode);
         
         meterRefInRef = new MeterPotentialEnergy(potentialMasterRef);
         meterRefInRef.setBox(boxRef);
@@ -270,15 +268,16 @@ public class SimDifferentImage extends Simulation {
         
 //JOINT
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
-                temperature, cDefRef, nmRef, boxTarget, potentialMasterRef,
-                new int[targAtoms], nmTarg);
+                temperature, cDefRef, nmRef, boxTarget, 
+                (PotentialMaster)potentialMasterTarget, new int[targAtoms], nmTarg);
         MeterOverlapSameGaussian meterOverlapInRef = new 
                 MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
                 meterRefInRef, meterTargInRef, temperature);
 
         
         meterRefInTarg = new MeterDifferentImageSubtract(this, space, 
-                cDefTarget, nmTarg, boxRef, potentialMasterTarget, new int[refAtoms], nmRef);
+                cDefTarget, nmTarg, boxRef, (PotentialMaster)potentialMasterRef, 
+                new int[refAtoms], nmRef);
         MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
 
@@ -310,6 +309,8 @@ public class SimDifferentImage extends Simulation {
 //        pump = new DataPump(meterTargInRef, accTargInRef);                    
 //        pumpListener = new IntegratorListenerAction(pump);                    
 //        integratorRef.getEventManager().addListener(pumpListener);            
+
+        System.out.println("scaling: " + meterTargInRef.getScaling());
     }
     public void setBennettParameter(double benParamCenter, double span) {
         bennettParam = benParamCenter;
@@ -500,9 +501,10 @@ public class SimDifferentImage extends Simulation {
         String refFileName = args.length > 0 ? filename+"_ref" : null;
         
         // instantiate simulation
-        SimDifferentImage sim = new SimDifferentImage(Space.getInstance(D), nA, 
+        SimDifferentImage1D sim = new SimDifferentImage1D(Space.getInstance(D), nA, 
                 density, runBlockSize, temperature);
         System.out.println("Ref system is " +nA + " atoms at density " + density);
+        System.out.println("Targ system is " +(nA+1) + " atoms at density " + density);
         System.out.println(runNumSteps + " steps, " + runBlockSize + " blocksize");
         System.out.println("input data from " + inputFilename);
         System.out.println("output data to " + filename);System.out.println("instantiated");
@@ -590,8 +592,8 @@ public class SimDifferentImage extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 10;  //number of atoms in the reference system.
-        public double density = 0.50;
+        public int numAtoms = 32;  //number of atoms in the reference system.
+        public double density = 0.70;
         public int D = 1;
         public double harmonicFudge = 1.0;
         public String filename = "HR1D_";
@@ -604,6 +606,6 @@ public class SimDifferentImage extends Simulation {
         public int subBlockSize = 1000;    //# of steps in subintegrator per integrator step
         
         public int eqNumSteps = 10000;  
-        public int bennettNumSteps = 5000;
+        public int bennettNumSteps = 50000;
     }
 }
