@@ -11,7 +11,6 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -19,9 +18,9 @@ import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.statmech.LennardJones;
 import etomica.units.Energy;
 import etomica.util.FunctionGeneral;
+import etomica.util.ParameterBase;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and 
@@ -131,21 +130,21 @@ public class HarmonicCrystalSsFccNxy {
     }
 
     public static void main(String[] args) {
-        double T = 0.01;
-        double rho = 1.1964;
-        int nC = 2;
-        int[] nCells = new int[] {nC, nC, nC+1};
+        Params params = new Params();
+        
+        double T = params.T;
+        double rho = params.rho;
+        int[] nCells = params.shape;
         int nA = (nCells[0] * nCells[1] * nCells[2] * 4);
-        String filename = "inputSSDB_" + nA;
+        String filename = params.filename + nA;
+        double rc = params.rc ;
         
         Space sp = Space3D.getInstance();
         Potential2SoftSpherical potentialBase = new P2SoftSphere(sp, 1.0,
                 1.0, 12);
-        double rc = 2.2 ;
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
                 sp, potentialBase, rc);
         potential.setTruncationRadius(rc);
-        
         
         Primitive primitive = new PrimitiveCubic(sp);
         Basis basis = new BasisCubicFcc();
@@ -170,5 +169,14 @@ public class HarmonicCrystalSsFccNxy {
     private Potential2SoftSpherical potential;
     private final ISpace space;
     private static final long serialVersionUID = 1L;
+    
+    
+    public static class Params extends ParameterBase {
+        public double T = 0.01;
+        public double rho = 1.1964;
+        public int[] shape = new int[] {2, 2, 2};
+        public String filename = "inputSSDB_";
+        public double rc = 2.2 ;
+    }
     
 }
