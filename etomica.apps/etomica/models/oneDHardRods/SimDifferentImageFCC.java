@@ -591,7 +591,7 @@ public class SimDifferentImageFCC extends Simulation {
                         StatType.RATIO_ERROR.index)).getData()[1]);
     
         System.out.println("calculated diff " + (-Math.log(ratio * sim.meterTargInRef.getScaling()) 
-                - 0.5 * Math.log(2*Math.PI) 
+                - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI) 
                 - 0.5 * Math.log(nTargA)
                 + 0.5 * Math.log(nRefA)));
         
@@ -607,13 +607,13 @@ public class SimDifferentImageFCC extends Simulation {
         public int D = 3;
         public double harmonicFudge = 1.0;
         public double temperature = 0.01;
-        int exponent = 12;
+        public int exponent = 12;
         
         
         public String inputFile = "inputSSDB_";
         public String filename = "output";
         
-        public int numSteps = 100000;
+        public int numSteps = 1000000;
         public int runBlockSize = 10000;
         public int subBlockSize = 10000;    //# of steps in subintegrator per integrator step
         
