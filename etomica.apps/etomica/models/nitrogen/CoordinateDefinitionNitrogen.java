@@ -3,7 +3,6 @@ package etomica.models.nitrogen;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -13,9 +12,9 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
@@ -76,7 +75,6 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         
         IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(space.D()+1);
         int[] iteratorDimensions = new int[space.D()+1];
-        
         
         System.arraycopy(nCells, 0, iteratorDimensions, 0, nCells.length);
         iteratorDimensions[nCells.length] = basisSize;
@@ -326,15 +324,28 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	     * 
     	     */
     	    
-    	    if (orientation[0].getX(0) > 0 ){
-    	    	orientation[2].E(new double[]{-orientation[0].getX(0), 0 ,orientation[0].getX(2)});
-    	    	orientation[2].normalize();
-    	    	
-    	    } 
-    	    else {
-    	    	orientation[2].E(new double[]{ orientation[0].getX(0), 0 ,orientation[0].getX(2)});
-    	    	orientation[2].normalize();
-    	    	
+    	    if(isAlpha){
+	    	    if (orientation[0].getX(0) > 0 ){
+	    	    	orientation[2].E(new double[]{-orientation[0].getX(0), 0 ,orientation[0].getX(2)});
+	    	    	orientation[2].normalize();
+	    	    	
+	    	    } 
+	    	    else {
+	    	    	orientation[2].E(new double[]{ orientation[0].getX(0), 0 ,orientation[0].getX(2)});
+	    	    	orientation[2].normalize();
+	    	    	
+	    	    }
+    	    }
+    	    
+    	    if(isGamma){
+    	    	if (orientation[0].getX(1) > 0){
+    	    		orientation[2].E(new double[]{-orientation[0].getX(0), orientation[0].getX(1), 0.0 });
+    	    		orientation[2].normalize();
+    	    		
+    	    	} else {
+    	    		orientation[2].E(new double[]{ orientation[0].getX(0), -orientation[0].getX(1), 0.0 });
+    	    		orientation[2].normalize();
+    	    	}
     	    }
     	    orientation[1].E(orientation[2]);
     	    orientation[1].XE(orientation[0]);
@@ -373,13 +384,13 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	 *  
     	 */
     	//for (int i=0; i<rScale.length; i++){
-    		double currentDimi = box.getBoundary().getBoxSize().getX(0);
-    		rScale = initVolume.getX(0)/currentDimi; //rescale the fluctuation to the initial volume
+    	//	double currentDimi = box.getBoundary().getBoxSize().getX(0);
+    	//	rScale = initVolume.getX(0)/currentDimi; //rescale the fluctuation to the initial volume
     		
     	//}
     	
-    	inflate.setScale(rScale);
-    	inflate.actionPerformed();
+//    	inflate.setScale(rScale);
+//    	inflate.actionPerformed();
     	
         int j=3;
         
