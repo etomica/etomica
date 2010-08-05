@@ -12,9 +12,9 @@ public interface IAtomType {
     public void setIndex(int newIndex);
 
     /**
-     * Returns the index for this IAtomTypeLeaf, within the context of an
-     * ISimulation.  The index is the IAtomTypeLeaf' position in the list of
-     * species and atom types in the simulation.
+     * Returns the index for this IAtomType, within the context of an
+     * ISimulation.  The index is the IAtomType's position in the list of
+     * atom types in the simulation.
      */
     public int getIndex();
     
