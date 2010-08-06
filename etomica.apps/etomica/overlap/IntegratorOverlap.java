@@ -173,11 +173,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         stepFrac[1] = 1-f;
     }
     
-    public double getRefStepFraction() {
+    public double getIdealRefStepFraction() {
         return stepFrac[0];
     }
     
-    public double getActualRefStepFraction() {
+    public double getRefStepFraction() {
         return totNumSubSteps[0]/(double)(totNumSubSteps[0]+totNumSubSteps[1]);
     }
     
