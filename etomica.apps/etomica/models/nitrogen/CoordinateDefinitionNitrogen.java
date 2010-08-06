@@ -253,37 +253,43 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	double u4 = axis.dot(siteOrientation[2]); 
 	    	double ratio = Math.abs(u3/u4);
 	    	
-	    	double a = axis.dot(siteOrientation[0]);
-	    	double theta = Math.acos(a);
-	    	/*
-	    	 * 
-	    	 */
-	    	if(Degree.UNIT.fromSim(theta) > 179.999){
-	    		u[j] = Math.sqrt(2);
-	    		u[j+1] = Math.sqrt(2);
-	    		
+	    	if(Math.abs(u3)< 1e-12 && Math.abs(u4) < 1e-12){
+	    		u[j] = 0.0;
+	    		u[j+1] = 0.0;
 	    	} else {
-		    	
-		    	if(Math.abs(u4) > -1e-10 && Math.abs(u4) < 1e-10){
+	    	
+		    	double a = axis.dot(siteOrientation[0]);
+		    	double theta = Math.acos(a);
+		    	/*
+		    	 * 
+		    	 */
+		    	if(Degree.UNIT.fromSim(theta) > 179.99999){
+		    		u[j] = Math.sqrt(2);
+		    		u[j+1] = Math.sqrt(2);
 		    		
-		    		u[j] = Math.sqrt(2*(1-Math.cos(theta)));;
-		    		if(u3 < 0.0){
-		    			u[j] = -u[j];
-		    		}
-		    		
-		    		u[j+1] = u4;
 		    	} else {
-		    		if(u4 < 0.0){
-		    			u[j+1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-		    		} else {
-		    			u[j+1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-		    		}
-		    		
-		    		if (u3 < 0.0){
-		    			u[j] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-		    		} else {
-		    			u[j] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-		    		}
+			    	
+			    	if(Math.abs(u4) > -1e-10 && Math.abs(u4) < 1e-10){
+			    		
+			    		u[j] = Math.sqrt(2*(1-Math.cos(theta)));;
+			    		if(u3 < 0.0){
+			    			u[j] = -u[j];
+			    		}
+			    		
+			    		u[j+1] = u4;
+			    	} else {
+			    		if(u4 < 0.0){
+			    			u[j+1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			    		} else {
+			    			u[j+1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			    		}
+			    		
+			    		if (u3 < 0.0){
+			    			u[j] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			    		} else {
+			    			u[j] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			    		}
+			    	}
 		    	}
 	    	}
 	    	j += coordinateDim/molecules.getMoleculeCount();
@@ -483,7 +489,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     		 */
         	if((Math.abs(u3) > (Math.sqrt(2)+1e-10) || Math.abs(u4) > (Math.sqrt(2)+1e-10)) 
         			&& (check > 3.99999999)){
-        		//System.out.println("FREE ROTOR");
+        		System.out.println("FREE ROTOR");
         		double randU3 = random.nextDouble();
         		double randU4 = random.nextDouble();
         		
