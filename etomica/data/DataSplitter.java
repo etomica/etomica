@@ -63,7 +63,12 @@ public class DataSplitter implements IDataSink {
     public void putDataInfo(IEtomicaDataInfo incomingDataInfo) {
         if (dataSinks.length != incomingDataInfo.getLength()) {
             dataSinks = new IDataSink[incomingDataInfo.getLength()];
-            
+            if (dataSinkFactory != null) {
+                for (int i=0; i<incomingDataInfo.getLength(); i++) {
+                    dataSinks[i] = dataSinkFactory.makeDataSink(i);
+                }
+            }
+
             //do we really need a separate out data for each value?
             outData = new DataDouble[incomingDataInfo.getLength()];
             for (int i=0; i<outData.length; i++) {
@@ -80,8 +85,17 @@ public class DataSplitter implements IDataSink {
         }
     }
 
+    public void setDataSinkFactory(IDataSinkFactory factory) {
+        dataSinkFactory = factory;
+    }
+
     protected IDataSink[] dataSinks;
     protected DataDouble[] outData;
     protected DataInfo dataInfo;
     protected final DataTag tag;
+    protected IDataSinkFactory dataSinkFactory;
+
+    public static interface IDataSinkFactory {
+        public IDataSink makeDataSink(int i);
+    }
 }
