@@ -7,14 +7,11 @@ import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -23,6 +20,8 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.overlap.DataOverlap;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -40,7 +39,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Main method that constructs an overlap sampling module to calculate the free
@@ -197,22 +195,24 @@ public class SimOverlapLJModule {
 
         SimOverlapModule module = new SimOverlapModule(boxHarmonic, boxTarget, integrators[0], integrators[1], 
                 potentialReference, potentialTarget, temperature);
-        module.setTargetDataInterval(32);
+        module.setTargetDataInterval(numMolecules);
         module.setReferenceDataInterval(1);
+        module.integratorOverlap.setDoAdjustOnTime(false);
+        module.integratorOverlap.setAgressiveAdjustStepFraction(true);
 
         //start simulation
         module.getIntegratorOverlap().setNumSubSteps(1000);
         numSteps /= 1000;
 
         module.initRefPref(refFileName, numSteps/20);
-        double refPref = module.getRefPref();
+        double refPref = module.getAlphaCenter();
         if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
         System.out.flush();
         
-        module.equilibrate(refFileName, numSteps/10);
-        refPref = module.getRefPref();
+        module.equilibrate(numSteps/10);
+        refPref = module.getAlphaCenter();
         if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
@@ -223,7 +223,7 @@ public class SimOverlapLJModule {
         module.getActivityIntegrate().setMaxSteps(numSteps);
         module.getController().actionPerformed();
 
-        System.out.println("final reference optimal step frequency "+module.getIntegratorOverlap().getStepFreq0()+" (actual: "+module.getIntegratorOverlap().getActualStepFreq0()+")");
+        System.out.println("final reference optimal step fraction "+module.getIntegratorOverlap().getIdealRefStepFraction()+" (actual: "+module.getIntegratorOverlap().getRefStepFraction()+")");
         
         double[][] omega2 = normalModes.getOmegaSquared();
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
@@ -248,21 +248,17 @@ public class SimOverlapLJModule {
         AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
 
-        double[] ratioAndError = module.getDsvo().getOverlapAverageAndError();
-        double ratio = ratioAndError[0];
-        double error = ratioAndError[1];
-        System.out.println("ratio average: "+ratio+", error: "+error);
-        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+", error: "+temperature*(error/ratio));
+        DataOverlap dataOverlap = module.getDataOverlap();
+        double ratio = dataOverlap.getOverlapAverageAndError()[0];
+        double lnError = dataOverlap.getLogAverageAndError(ratio)[1];
+        System.out.println("ratio average: "+ratio);
+        System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+", error: "+temperature*lnError);
         System.out.println("target free energy: "+temperature*(AHarmonic-Math.log(ratio)));
-        DataGroup allYourBase = (DataGroup)module.getAccumulators()[0].getData(module.getDsvo().minDiffLocation());
-        System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        double[] refData = dataOverlap.getAverageAndError(true, ratio);
+        System.out.println("harmonic ratio average: "+refData[0]+" error: "+refData[1]);
         
-        allYourBase = (DataGroup)module.getAccumulators()[1].getData(module.getDsvo().minDiffLocation());
-        System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        double[] targetData = dataOverlap.getAverageAndError(false, ratio);
+        System.out.println("target ratio average: "+targetData[0]+" error: "+targetData[1]);
     }
 
     private static final long serialVersionUID = 1L;
