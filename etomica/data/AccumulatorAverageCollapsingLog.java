@@ -4,15 +4,18 @@ import java.util.ArrayList;
 
 import etomica.api.IRandom;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Null;
 import etomica.units.Quantity;
 import etomica.util.Arrays;
+import etomica.util.Histogram;
+import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGenerator;
+import etomica.util.RandomNumberGeneratorUnix;
 
 
 /**
@@ -40,8 +43,38 @@ import etomica.util.RandomNumberGenerator;
  */
 public class AccumulatorAverageCollapsingLog extends DataAccumulator implements DataSourceIndependent {
 
+    public AccumulatorAverageCollapsingLog() {
+        this(2);
+    }
+    
+    /**
+     * With this constructor, the accumulator will use an internal RNG with a
+     * set seed such that each resampling of the data will be identical (the
+     * same set of samples will go into the averages and the standard
+     * deviations, etc).
+     * @param nMoments the number of moments handled by the accumulator. 
+     *           should be 2 (standard deviation) or 3 (stdev + skew).
+     */
+    public AccumulatorAverageCollapsingLog(int nMoments) {
+        this(new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()), nMoments);
+        initialSeed = random.nextInt(1<<30);
+    }
+    
     public AccumulatorAverageCollapsingLog(IRandom random) {
+        this(random, 2);
+    }
+    
+    /**
+     * @param nMoments the number of moments handled by the accumulator. 
+     *           should be 2 (standard deviation) or 3 (stdev + skew).
+     */
+    public AccumulatorAverageCollapsingLog(IRandom random, int nMoments) {
+        if (nMoments < 2 || nMoments > 3) {
+            throw new IllegalArgumentException("nMoments should be 2 or 3");
+        }
+        this.nMoments = nMoments;
         this.random = random;
+        initialSeed = -1;
         setPushInterval(100);
         setNumRawDataDoubles(14);
         nTag = new DataTag();
@@ -87,6 +120,9 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         if (data.isNaN())
             return;
         double value = data.getValue(0);
+        if (value == 0 || value == Double.POSITIVE_INFINITY) {
+            throw new RuntimeException("got "+value);
+        }
         if (rawDataBlockSize == 0) {
             // special case early part where we keep every sample as raw data
             rawData[nRawData] = value;
@@ -152,16 +188,23 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             blockSums[i] = 0;
         }
     }
-    
+
+    public long getCount() {
+        return count;
+    }
+
     protected void resizeData(int newSize) {
         blockSums = Arrays.resizeArray(blockSums, newSize+1);
         sums = (double[][])Arrays.resizeArray(sums, newSize);
-        sums[newSize-1] = new double[3];
+        sums[newSize-1] = new double[nMoments];
         lSums = (double[][])Arrays.resizeArray(lSums, newSize);
-        lSums[newSize-1] = new double[3];
+        lSums[newSize-1] = new double[nMoments];
         averages = new DataFunction(new int[]{newSize});
         stdev = new DataFunction(new int[]{newSize});
-        avgDataInfo = new DataInfoFunction(avgDataInfo.getLabel(), avgDataInfo.getDimension(), this);
+        if (nMoments > 2) {
+            skew = new DataFunction(new int[]{newSize});
+        }
+        dataInfo = new DataInfoFunction(dataInfo.getLabel(), dataInfo.getDimension(), this);
         nDataInfo = new DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{newSize});
         nDataInfo.addTag(nTag);
         nData = new DataDoubleArray(newSize);
@@ -171,7 +214,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         }
         
         if (dataSink != null) {
-            dataSink.putDataInfo(avgDataInfo);
+            dataSink.putDataInfo(dataInfo);
         }
     }
 
@@ -188,7 +231,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     public IData getAverages() {
         double[] av = averages.getData();
         for (int i=0; i<rawDataBlockSize; i++) {
-            av[i] = sums[i][1] / (count/(1L<<i));
+            av[i] = sums[i][0] / (count>>i);
         }
         int n = averages.getLength();
         double iSum = 0;
@@ -207,8 +250,14 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
      */
     public IData getAverageLogs() {
         double[] av = averages.getData();
+        if (av.length == 0) {
+            return averages;
+        }
+        if (initialSeed >= 0) {
+            ((RandomMersenneTwister)random).setSeed(initialSeed);
+        }
         for (int i=0; i<rawDataBlockSize; i++) {
-            av[i] = lSums[i][1] / (count/(1L<<i));
+            av[i] = lSums[i][0] / (count>>i);
         }
         double lSum = 0;
         for (int j=0; j<nRawData; j++) {
@@ -231,18 +280,31 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
      * Reblock data from rawData2 into rawData3, then copy it back to rawData2 
      */
     protected void reblockData() {
-        intArrayList.clear();
-        for (int j=0; j<nRawData; j++) {
+        if (!withReplacement) {
+            // remove elements as we select them
+            intArrayList.clear();
+            for (int j=0; j<nRawData; j++) {
+                ensureHappyIntArrayList();
+                int idxidx1 = random.nextInt(intArrayList.size());
+                int idx1 = intArrayList.get(idxidx1);
+                intArrayList.remove(idxidx1);
+                ensureHappyIntArrayList();
+                int idxidx2 = random.nextInt(intArrayList.size());
+                int idx2 = intArrayList.get(idxidx2);
+                intArrayList.remove(idxidx2);
+                double sum12 = (rawData2[idx1] + rawData2[idx2])/2;
+                rawData3[j] = sum12;
+            }
+        }
+        else {
+            // with replacement
             ensureHappyIntArrayList();
-            int idxidx1 = random.nextInt(intArrayList.size());
-            int idx1 = intArrayList.get(idxidx1);
-            intArrayList.remove(idxidx1);
-            ensureHappyIntArrayList();
-            int idxidx2 = random.nextInt(intArrayList.size());
-            int idx2 = intArrayList.get(idxidx2);
-            intArrayList.remove(idxidx2);
-            double sum12 = (rawData2[idx1] + rawData2[idx2])/2;
-            rawData3[j] = sum12;
+            for (int j=0; j<nRawData; j++) {
+                int idx1 = random.nextInt(nRawData);
+                int idx2 = random.nextInt(nRawData);
+                double sum12 = (rawData2[idx1] + rawData2[idx2])/2;
+                rawData3[j] = sum12;
+            }
         }
         for (int j=0; j<nRawData; j++) {
             rawData2[j] = rawData3[j];
@@ -265,10 +327,20 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
      * sizes.
      */
     public IData getStdev() {
+        if (initialSeed >= 0) {
+            ((RandomMersenneTwister)random).setSeed(initialSeed);
+        }
         double[] std = stdev.getData();
+        if (std.length == 0) {
+            return stdev;
+        }
         for (int i=0; i<rawDataBlockSize; i++) {
-            double av = sums[i][1] / (count/(1L<<i));
-            std[i] = Math.sqrt(sums[i][2] / (count/(1L<<i)) - av*av);
+            long iCount = count >> i;
+            double av = sums[i][0] / iCount;
+            std[i] = Math.sqrt(sums[i][0] / iCount - av*av);
+            if (Double.isNaN(std[i])) {
+                std[i] = 0;
+            }
         }
         double iSum = 0, iSum2 = 0;
         for (int j=0; j<nRawData; j++) {
@@ -276,7 +348,15 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             iSum2 += rawData[j]*rawData[j];
             rawData2[j] = rawData[j];
         }
-        std[rawDataBlockSize] = Math.sqrt(iSum2/nRawData - (iSum*iSum)/(nRawData*nRawData));
+        iSum /= nRawData;
+        iSum2 /= nRawData;
+        double diff = iSum2 - iSum*iSum;
+        if (diff < 0) {
+            std[rawDataBlockSize] = 0;
+        }
+        else {
+            std[rawDataBlockSize] = Math.sqrt(diff);
+        }
         for (int i=rawDataBlockSize+1; i<rawDataBlockSize+(32-Integer.numberOfLeadingZeros(nRawData)); i++) {
             iSum = 0;
             iSum2 = 0;
@@ -285,7 +365,15 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
                 iSum += rawData2[j];
                 iSum2 += rawData2[j]*rawData2[j];
             }
-            std[i] = Math.sqrt(iSum2/nRawData - (iSum*iSum)/(nRawData*nRawData));
+            iSum /= nRawData;
+            iSum2 /= nRawData;
+            diff = iSum2 - iSum*iSum;
+            if (diff < 0) {
+                std[rawDataBlockSize] = 0;
+            }
+            else {
+                std[i] = Math.sqrt(diff);
+            }
         }
         return stdev;
     }
@@ -295,10 +383,14 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
      * block sizes.
      */
     public IData getStdevLog() {
+        if (initialSeed >= 0) {
+            ((RandomMersenneTwister)random).setSeed(initialSeed);
+        }
         double[] std = stdev.getData();
         for (int i=0; i<rawDataBlockSize; i++) {
-            double av = lSums[i][1] / (count/(1L<<i));
-            std[i] = Math.sqrt(lSums[i][2] / (count/(1L<<i)) - av*av);
+            long iCount = count >> i;
+            double av = lSums[i][0] / iCount;
+            std[i] = Math.sqrt(lSums[i][1] / iCount - av*av);
         }
         double iSum = 0, iSum2 = 0;
         for (int j=0; j<nRawData; j++) {
@@ -321,12 +413,64 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         }
         return stdev;
     }
+
+    /**
+     * Returns the standard deviation of the log of the block averages, for all
+     * block sizes.
+     */
+    public IData getSkewLog() {
+        if (initialSeed >= 0) {
+            ((RandomMersenneTwister)random).setSeed(initialSeed);
+        }
+        if (nMoments < 3) {
+            throw new RuntimeException("skew not handled");
+        }
+        double[] std = skew.getData();
+        for (int i=0; i<rawDataBlockSize; i++) {
+            long iCount = count >> i;
+            double av = lSums[i][0] / iCount;
+            double av2 = lSums[i][1] / iCount;
+            double std3 = Math.pow(av2 - av*av, 1.5);
+            std[i] = (lSums[i][2]/iCount - 3*av*av2 + 2*av*av*av)/std3;
+        }
+        double iSum = 0, iSum2 = 0, iSum3 = 0;
+        for (int j=0; j<nRawData; j++) {
+            double l = Math.log(rawData[j]);
+            iSum += l;
+            iSum2 += l*l;
+            iSum3 += l*l*l;
+            rawData2[j] = rawData[j];
+        }
+        double av = iSum / nRawData;
+        double av2 = iSum2 / nRawData;
+        double std3 = Math.pow(av2 - av*av, 1.5);
+        std[rawDataBlockSize] = (iSum3/nRawData - 3*av*av2 + 2*av*av*av) / std3;
+        int iMax = rawDataBlockSize+(32-Integer.numberOfLeadingZeros(nRawData));
+        for (int i=rawDataBlockSize+1; i<iMax; i++) {
+            iSum = 0;
+            iSum2 = 0;
+            iSum3 = 0;
+            reblockData();
+            for (int j=0; j<nRawData; j++) {
+                double l = Math.log(rawData2[j]);
+                iSum += l;
+                iSum2 += l*l;
+                iSum3 += l*l*l;
+            }
+            av = iSum / nRawData;
+            av2 = iSum2 / nRawData;
+            std3 = Math.pow(av2 - av*av, 1.5);
+            std[i] = (iSum3/nRawData - 3*av*av2 + 2*av*av*av) / std3;
+        }
+        return skew;
+    }
+
     /**
      * Performs the block sum after
      */
     protected void doSums(double[] subSums, double v) {
         double vpj = 1;
-        for (int i=1; i<3; i++) {
+        for (int i=0; i<nMoments; i++) {
             vpj *= v;
             subSums[i] += vpj;
         }
@@ -337,12 +481,15 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     public void reset() {
         count = 0;
         blockSums = new double[1];
-        sums = new double[0][3];
-        lSums = new double[0][3];
+        sums = new double[0][nMoments];
+        lSums = new double[0][nMoments];
         averages = new DataFunction(new int[]{0});
         stdev = new DataFunction(new int[]{0});
-        if (avgDataInfo != null) {
-            avgDataInfo = new DataInfoFunction(avgDataInfo.getLabel(), avgDataInfo.getDimension(), this);
+        if (nMoments > 2) {
+            skew = new DataFunction(new int[]{0});
+        }
+        if (dataInfo != null) {
+            dataInfo = new DataInfoFunction(dataInfo.getLabel(), dataInfo.getDimension(), this);
         }
         nDataInfo = new DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{0});
         nDataInfo.addTag(nTag);
@@ -354,9 +501,9 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     }
 
     public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
-        avgDataInfo = new DataInfoFunction(incomingDataInfo.getLabel(), incomingDataInfo.getDimension(), this);
+        dataInfo = new DataInfoFunction(incomingDataInfo.getLabel(), incomingDataInfo.getDimension(), this);
         reset();
-        return avgDataInfo;
+        return dataInfo;
     }
     
     public int getIndependentArrayDimension() {
@@ -379,8 +526,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     protected long count;
     protected double[] blockSums;
     protected double[][] sums, lSums;
-    protected DataFunction averages, stdev;
-    protected DataInfoFunction avgDataInfo;
+    protected DataFunction averages, stdev, skew;
     protected DataInfoDoubleArray nDataInfo;
     protected DataDoubleArray nData;
     protected final DataTag nTag;
@@ -389,6 +535,9 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     protected int nRawDataDoubles;
     protected ArrayList<Integer> intArrayList;
     protected final IRandom random;
+    protected final int nMoments;
+    protected int initialSeed;
+    protected final boolean withReplacement = false;
     
     public static void main(String[] args) {
         AccumulatorAverageCollapsingLog ac = new AccumulatorAverageCollapsingLog(new RandomNumberGenerator());
