@@ -106,12 +106,12 @@ public class MeterOverlap implements IEtomicaDataSource, DataOverlap.AlphaSource
             x[i] = isReference ? eTarget : eRef;
             x[i] /= (alpha[i] * eRef + eTarget);
             if (x[i] == 0) {
+                // we can't take ln(0), so take x=MIN_VALUE insetad.
                 // this won't cause real problems because it will go away when we sum it up,
-                //   foo + x[i] = foo
-                // but it means we can take the log in AccumulatorAverageCollapsingLog
-                x[i] = Double.MIN_NORMAL;
-                // if Double.MIN_NORMAL is actually a value that can make a significant contribution
-                // then your calculation is broken anyway because you need a data type that can handle
+                //   foo + MIN_VALUE = foo
+                x[i] = Double.MIN_VALUE;
+                // if Double.MIN_VALUE is actually a value that can make a significant contribution
+                // then your calculation is almost certainly broken anyway because you need a data type that can handle
                 // smaller numbers.
             }
         }
