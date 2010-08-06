@@ -3,25 +3,25 @@ package etomica.virial.overlap;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.overlap.IntegratorOverlap.ReferenceFracSource;
+import etomica.util.Debug;
 import etomica.util.numerical.AkimaSpline;
 
 /**
  * Measures ratio of two cluster integrals using overlap sampling.  The resulting ratio is 
  * formed from the ratio of a target and reference ratio from two different sub-simulations. 
  */
-public class DataSourceVirialOverlap {
+public class DataSourceVirialOverlap implements ReferenceFracSource {
 
     private static final long serialVersionUID = 1L;
-    private AccumulatorVirialOverlapSingleAverage refAccumulator, targetAccumulator;
-	private final int nBennetPoints;
+    protected final AccumulatorVirialOverlapSingleAverage refAccumulator, targetAccumulator;
 	
 	public DataSourceVirialOverlap(AccumulatorVirialOverlapSingleAverage aRefAccumulator, 
 			AccumulatorVirialOverlapSingleAverage aTargetAccumulator) {
 		refAccumulator = aRefAccumulator;
 		targetAccumulator = aTargetAccumulator;
-		nBennetPoints = aRefAccumulator.getNBennetPoints();
 	}
-    
+
     public AccumulatorVirialOverlapSingleAverage[] getAccumulators() {
         return new AccumulatorVirialOverlapSingleAverage[]{refAccumulator, targetAccumulator};
     }
@@ -38,6 +38,7 @@ public class DataSourceVirialOverlap {
      * values, linear interpolation is used.  
      */
 	public double[] getOverlapAverageAndError() {
+	    int nBennetPoints = refAccumulator.getNBennetPoints();
 	    if (nBennetPoints == 1) {
 	        return new double[]{getAverage(0), getError(0)};
 	    }
@@ -60,12 +61,12 @@ public class DataSourceVirialOverlap {
         double newAlpha = 0, newErr = 0;
         if (lnAlphaDiff[0] < 0) {
             // first new alpha is less than initial first alpha
-            newAlpha = Math.exp(lnAlphaDiff[0] + lnAlpha[0]);
-            newErr = newAlpha*err[0];
+            newAlpha = Math.exp(lnAlpha[0]); //Math.exp(lnAlphaDiff[0] + lnAlpha[0]);
+            newErr = Double.NaN; //newAlpha*err[0];
         }
         else if (lnAlphaDiff[nBennetPoints-1] > 0) {
-            newAlpha = Math.exp(lnAlphaDiff[nBennetPoints-1] + lnAlpha[nBennetPoints-1]);
-            newErr = newAlpha*err[nBennetPoints-1];
+            newAlpha = Math.exp(lnAlpha[nBennetPoints-1]); //Math.exp(lnAlphaDiff[nBennetPoints-1] + lnAlpha[nBennetPoints-1]);
+            newErr = Double.NaN; //newAlpha*err[nBennetPoints-1];
         }
         else if (nBennetPoints > 4) {
             AkimaSpline spline = new AkimaSpline();
@@ -107,22 +108,61 @@ public class DataSourceVirialOverlap {
             }
         }
 
-        if (refAccumulator instanceof AccumulatorRatioAverage) {
-            double targetAvg = ((DataGroup)targetAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(0); 
-            double refAvg = ((DataGroup)refAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(0);
-            double ratio = targetAvg/refAvg;
-            newAlpha *= ratio;
-            double refErr = ((DataGroup)refAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.ERROR.index).getValue(0);
-            double targetErr = ((DataGroup)targetAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.ERROR.index).getValue(0);
-            double refErrRatio = refErr/refAvg;
-            double targetErrRatio = targetErr/targetAvg;
-            newErr = Math.sqrt(newErr*newErr + ratio*ratio*(refErrRatio*refErrRatio + targetErrRatio*targetErrRatio));
-        }
+        double targetAvg = ((DataGroup)targetAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(0); 
+        double refAvg = ((DataGroup)refAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(0);
+        double ratio = targetAvg/refAvg;
+        newAlpha *= ratio;
+        double refErr = ((DataGroup)refAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.ERROR.index).getValue(0);
+        double targetErr = ((DataGroup)targetAccumulator.getData(0)).getData(AccumulatorRatioAverage.StatType.ERROR.index).getValue(0);
+        double refErrRatio = refErr/refAvg;
+        double targetErrRatio = targetErr/targetAvg;
+        newErr = Math.sqrt(newErr*newErr + ratio*ratio*(refErrRatio*refErrRatio + targetErrRatio*targetErrRatio));
 
         return new double[]{newAlpha, newErr};
 	}
     
-    /**
+    public double getAverageForAlpha(double alpha) {
+        int nBennetPoints = refAccumulator.getNBennetPoints();
+
+        if (nBennetPoints == 1) {
+            throw new RuntimeException("need more than one alpha");
+        }
+
+        double[] lnAlpha = new double[nBennetPoints];
+        double[] lnRatio = new double[nBennetPoints];
+
+        for (int j=0; j<nBennetPoints; j++) {
+            double refOverlap = ((DataDoubleArray)((DataGroup)refAccumulator.getData(j)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index)).getData()[1];
+            double targetOverlap = ((DataDoubleArray)((DataGroup)targetAccumulator.getData(j)).getData(AccumulatorRatioAverage.StatType.AVERAGE.index)).getData()[1];
+            lnRatio[j] = Math.log(refOverlap/targetOverlap);
+
+            double jAlpha = refAccumulator.getBennetBias(j);
+            lnAlpha[j] = Math.log(jAlpha);
+        }
+
+        double newRatio = 0;
+        double lnNewAlpha = Math.log(alpha);
+        if (lnNewAlpha < lnAlpha[0] || lnNewAlpha > lnAlpha[nBennetPoints-1]) {
+            throw new RuntimeException("alpha value must be within bounds of existing alpha range");
+        }
+        if (nBennetPoints > 4) {
+            AkimaSpline spline = new AkimaSpline();
+            spline.setInputData(lnAlpha, lnRatio);
+            newRatio = Math.exp(spline.doInterpolation(new double[]{lnNewAlpha})[0]);
+        }
+        else {
+            //linear interpolation (only 3 points)
+            for (int i=0; i<nBennetPoints; i++) {
+                if (lnAlpha[i] >= lnNewAlpha && lnAlpha[i+1] <= lnNewAlpha) {
+                    double ix = lnRatio[i] + (lnRatio[i+1] - lnRatio[i]) / (lnAlpha[i+1] - lnAlpha[i]) * (lnNewAlpha - lnAlpha[i]);
+                    newRatio = Math.exp(ix);
+                }
+            }
+        }
+        return newRatio;
+    }
+
+	/**
      * Returns the ratio of the reference to target overlap-to-virial ratios
      * (which reduces to target/reference) for the given value of the Bennet
      * parameter.
@@ -139,6 +179,7 @@ public class DataSourceVirialOverlap {
      * parameter should be optimal for overlap sampling.
 	 */
     public int minDiffLocation() {
+        int nBennetPoints = refAccumulator.getNBennetPoints();
 		int minDiffLoc = 0;
         double ratio = refAccumulator.getBennetAverage(0)/targetAccumulator.getBennetAverage(0);
         double bias = refAccumulator.getBennetBias(0);
@@ -154,7 +195,40 @@ public class DataSourceVirialOverlap {
 		}
 		return minDiffLoc;
 	}
-	
+
+    public double getIdealRefFraction(double oldFrac) {
+        int minDiffLoc = minDiffLocation();
+
+        DataGroup refData = (DataGroup)refAccumulator.getData(minDiffLoc);
+        double refError = ((DataDoubleArray)refData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+        double refErrorRatio = refError/Math.abs(((DataDoubleArray)refData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
+        if (Debug.ON && Debug.DEBUG_NOW) {
+            System.out.println("0 "+Math.abs(refError)+" "+Math.abs(refError/refErrorRatio));
+        }
+        if (Double.isNaN(refErrorRatio) || refErrorRatio > 1) {
+            // if we don't have enough data to calc the error, assume it's 100%
+            // if apparent error is > 100%, cap it there (>100% just means our estimate for ratio is bad)
+            refErrorRatio = 1.0;
+        }
+
+        DataGroup targetData = (DataGroup)targetAccumulator.getData(minDiffLoc);
+        double targetError = ((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+        double targetErrorRatio = targetError/Math.abs(((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
+        if (Debug.ON && Debug.DEBUG_NOW) {
+            System.out.println("1 "+Math.abs(targetError)+" "+Math.abs(targetError/targetErrorRatio));
+        }
+        if (Double.isNaN(targetErrorRatio) || targetErrorRatio > 1) {
+            targetErrorRatio = 1.0;
+        }
+        double refFrac = 1.0 / (1 + targetErrorRatio/refErrorRatio * Math.sqrt((1-oldFrac)/(oldFrac)));
+
+        if (Debug.ON && Debug.DEBUG_NOW) {
+            System.out.println("error ratios "+refErrorRatio+" "+targetErrorRatio);
+            System.out.println("frac "+refFrac);
+        }
+        return refFrac;
+    }
+
     /**
      * Returns the error in the ratio of the reference to target 
      * overlap-to-virial ratios (which reduces to target/reference) 
