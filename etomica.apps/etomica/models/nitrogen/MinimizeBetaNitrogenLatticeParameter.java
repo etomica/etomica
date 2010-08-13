@@ -304,7 +304,7 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
                     }
                 }
 
-                if (energy[1] > energy[0] && energy[1] > energy[2]) {
+                if ((energy[1] > energy[0] && energy[1] > energy[2]) || (energy[1] < energy[0] && energy[1] < energy[2])){
                     // we found a maximum, due to numerical precision failure
                     // just bail and pretend that the middle point is the global minimum
                     return allValue[1];
@@ -365,7 +365,9 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 	public static void main(String[] args){
 		int[] nC = new int[]{6,6,6};
 		double density = 0.025001374;
-		
+		/*
+		 * with 10 parameters
+		 */
 //		double[] valMin = new double[]{1.631,  0.525, -0.358,  -0.76447, 1.1032, 
 //				                              -0.76461, -1.1610,   0.537,  -0.022};
 //		double[] valMax = new double[]{1.631,  0.636, -0.351, -0.76441,  1.251,
@@ -374,6 +376,7 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 //				 -0.764479724569394, -1.1606699722156573, 0.574052007093417, 0.0357423850524004};
 		/*
 		 * nA=432
+		 * 0.5 * box length
 		 */
 		double[] valMin = new double[]{1.631, -0.0179, -0.044, -0.0001,  0.565, -0.0515,  
 				0.017,  0.026, -0.0001, -0.796, 1.146, 
@@ -388,6 +391,10 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 //				 0.018503328245454753, -0.037739156902926424, -1.43806022202562E-5, -0.7620319487586951, -1.1496948988796698, 
 //				 -0.01778226339270643, 0.03796606350686372, 4.786431025978644E-6, 0.5764589036086002, 0.05087509389025041};
 
+		/*
+		 * nA=432
+		 * 0.475 * box length
+		 */
 //		double[] valMin = new double[]{1.631, -0.0379, -0.074, -0.0001,  0.365, -0.1515,  
 //				0.007, -0.026, -0.0001, -0.996, 0.846, 
 //                0.007, -0.042, -0.0004, -0.996, -1.353,   
