@@ -7,10 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -47,7 +45,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -82,6 +79,7 @@ public class SimDifferentImageFCC extends Simulation {
     WaveVectorFactory waveVectorFactoryRef, waveVectorFactoryTarg;
     
     MCMoveAtomCoupled mcMoveAtom;
+//    MCMoveChangeMultipleWV mcMoveAtom;
     
     double bennettParam;       //adjustable parameter - Bennett's parameter
     public IntegratorOverlap integratorSim; //integrator for the whole simulation
@@ -150,8 +148,7 @@ public class SimDifferentImageFCC extends Simulation {
             double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
             primitive = new PrimitiveCubic(space);
             basis = new BasisCubicFcc();
-            primitive.scaleSize(1.0/Math.pow(density / 
-                    basis.getScaledCoordinates().length, 1.0/3.0));
+            primitive.scaleSize(primitiveLength);
             bdryRef = new BoundaryRectangularPeriodic(space, 1.0);
             IVector edges = new Vector3D();
             double[] lengths = new double[3];
@@ -196,6 +193,21 @@ public class SimDifferentImageFCC extends Simulation {
         
         mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), random, space);
         mcMoveAtom.setPotential(potential);
+        
+        
+//        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMasterRef, random);
+//        mcMoveAtom.setCoordinateDefinition(cDefRef);
+//        mcMoveAtom.setEigenVectors(nmRef.getEigenvectors());
+//        mcMoveAtom.setOmegaSquared(nmRef.getOmegaSquared());
+//        mcMoveAtom.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
+//        mcMoveAtom.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
+//        int[] changeMe = new int[1];
+//        changeMe[0] = 1;
+//        mcMoveAtom.addChangeableWV(changeMe);
+        
+        
+        
+        
         mcMoveAtom.setBox(boxRef);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
@@ -274,6 +286,17 @@ public class SimDifferentImageFCC extends Simulation {
         
         mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarget), random, space);
         mcMoveAtom.setPotential(potential);
+        
+//        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
+//        mcMoveAtom.setCoordinateDefinition(cDefTarget);
+//        mcMoveAtom.setEigenVectors(nmTarg.getEigenvectors());
+//        mcMoveAtom.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
+//        mcMoveAtom.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
+//        mcMoveAtom.setOmegaSquared(nmTarg.getOmegaSquared());
+//        mcMoveAtom.addChangeableWV(changeMe);
+        
+        
+        
         mcMoveAtom.setBox(boxTarget);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
@@ -513,6 +536,8 @@ public class SimDifferentImageFCC extends Simulation {
         SimDifferentImageFCC sim = new SimDifferentImageFCC(Space.getInstance(D),
                 nRefA, nTargA, refCells, targCells, density, runBlockSize,
                 temperature, exp, inputFile);
+        System.out.println("Dimension " + sim.space.D());
+        System.out.println("Temperature " + temperature);
         System.out.println("Ref system is " +nRefA + " atoms at density " + density);
         System.out.println("Targ system is " +nTargA + " atoms at density " + density);
         System.out.println("Add scaling: " + sim.meterTargInRef.getScaling());
@@ -590,10 +615,10 @@ public class SimDifferentImageFCC extends Simulation {
                 ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.
                         StatType.RATIO_ERROR.index)).getData()[1]);
     
-        System.out.println("calculated diff " + (-Math.log(ratio * sim.meterTargInRef.getScaling()) 
+        System.out.println("calculated diff " + (-temperature*(Math.log(ratio * sim.meterTargInRef.getScaling()) 
                 - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI) 
                 - 0.5 * Math.log(nTargA)
-                + 0.5 * Math.log(nRefA)));
+                + 0.5 * Math.log(nRefA))));
         
         System.out.println("Fini.");
     }
