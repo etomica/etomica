@@ -38,12 +38,13 @@ import etomica.units.Degree;
 public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 	
 
-	public MinimizeBetaNitrogenTranslationDOF(ISpace space, int[] nC, double density, String fname){
+	public MinimizeBetaNitrogenTranslationDOF(ISpace space, int[] nC, double density, String fname, double tol){
 		super(space);
 		this.space = space;
 		this.density = density;
 		this.nC = nC;
 		this.fname = fname;
+		this.tolerance = tol;
 		
     	energy = new double[3];
     	allValue = new double[3];
@@ -112,9 +113,7 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		double initParam = 0.0;
 		double[] minVal = new double[parameter.length];
 		double[] maxVal = new double[parameter.length];
-		double tol = 1e-8;
-		FileWriter fileWriter;
-		
+	
 		for (int i=0; i<parameter.length; i++){
 			minVal[i] = parameter[i] *(1 - 0.0011);
 			maxVal[i] = parameter[i] *(1 + 0.0012);
@@ -132,8 +131,8 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 				parameters[iVar] = findOptParameter(minVal[iVar], maxVal[iVar], parameters, iVar);
 				
 				afterEnergy = getEnergy(parameters);
-				//System.out.println("afterEnergy: " + afterEnergy/numMolecule);
-					
+				//System.out.println("diff: "+ (afterEnergy-initEnergy));
+				
 				if(afterEnergy < initEnergy){
 				
 		            if(Math.abs(parameters[iVar]) < 1e-8){
@@ -145,36 +144,18 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 						maxVal[iVar] = parameter[iVar] *(1+0.003/Math.sqrt(numIter));
 			        
 		            }
-		            
-					
-					try {
-						fileWriter = new FileWriter(fname+".out", false);
-						for (int i=0; i<parameters.length; i++){
-							fileWriter.write(parameters[i] + " ");
-							
-							if(i>1 && i%10==9){
-								fileWriter.write("\n");
-							}
-						}
-						
-						fileWriter.close();
-						
-					} catch(IOException e){
-						throw new RuntimeException("Failed to write coord data normalize coord U" + e);
-					
-					}
+		 
 					//System.out.println("Write FILE DONE");
 		            
 				} else {
 					parameters[iVar] = initParam;
 					
-					if(Math.abs(afterEnergy - initEnergy)< tol){
-						System.out.println("Minimum found! with tolerance of " + tol);
+					if(Math.abs(afterEnergy - initEnergy)< tolerance){
+						System.out.println("Minimum found! with tolerance of " + tolerance);
 						System.out.println("after: "+ afterEnergy/numMolecule + " before:" + initEnergy/numMolecule);
 						return;
 					}
 				}
-
 			}
 			++numIter;
 	
@@ -198,9 +179,9 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
         while (true) {
         	
             latticeEnergy = getEnergy(param);
-            //System.out.println("<findOpt> ivar: "+iVar +" ; " +value+" ;lattice energy: " + latticeEnergy/numMolecule);
-			//System.out.println(allValue[0]+" "+allValue[1]+" "+allValue[2]);
-			//System.out.println(energy[0]+" "+energy[1]+" "+energy[2]);
+//          System.out.println("<findOpt> ivar: "+iVar +" ; " +value+" ;lattice energy: " + latticeEnergy/numMolecule);
+//			System.out.println(allValue[0]+" "+allValue[1]+" "+allValue[2]);
+//			System.out.println(energy[0]+" "+energy[1]+" "+energy[2]);
            
 			if (bootstrap < 3) {
                 allValue[bootstrap] = value;
@@ -292,12 +273,33 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
                     param[iVar] = value;
                 }
                         
-                if (value == allValue[0] || value == allValue[1] || value == allValue[2]) {
+                if (value == allValue[0] || value == allValue[1] || value == allValue[2] ) {
                     // we converged value to numerical precision.
                     //System.out.println("value "+ value);
                 	
                 	//System.out.println("***"+value + " ;a: " + a+ " ;c: " + c);
                     return value;
+                }
+                if (Math.abs(energy[0]-energy[1])<1e-10 || Math.abs(energy[1]-energy[2])<1e-10 ||Math.abs(energy[0]-energy[2])<1e-10) {
+                	
+                	if(energy[0]< energy[1]){
+                		value = allValue[0];
+                	} else {
+                		value = allValue[1];
+                	}
+                	
+                	if(energy[1]< energy[2]){
+                		value = allValue[1];
+                	} else {
+                		value = allValue[2];
+                	}
+                	
+                	if(energy[0]< energy[2]){
+                		value = allValue[0];
+                	} else {
+                		value = allValue[2];
+                	}
+                	return value;
                 }
             }
         }
@@ -311,10 +313,15 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 	public static void main(String[] args){
 		double density = 0.025;
 		int nCell = 6;
+		double tol = 1e-10;
 		
 		if(args.length > 0){
 			nCell = Integer.parseInt(args[0]);
 		}
+		if(args.length > 1){
+			tol = Double.parseDouble(args[1]);
+		}
+		
 		
 		int[] nC = new int[]{nCell, nCell, nCell};
 		String fname = "parameterN2beta_nCell"+nC[0];
@@ -330,13 +337,30 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		
 		System.out.println("Running lattice energy minimization algorithm for beta-N2");
 		System.out.println("with nCell: " + nCell + " in each dimension at density of " + density);
+		System.out.println("with tolerance of " + tol);
 		System.out.println("output file to: " + fname + ".out\n");
 		
-		MinimizeBetaNitrogenTranslationDOF func = new MinimizeBetaNitrogenTranslationDOF(Space.getInstance(3), nC, density, fname);
+		MinimizeBetaNitrogenTranslationDOF func = new MinimizeBetaNitrogenTranslationDOF(Space.getInstance(3), nC, density, fname, tol);
 		
 		func.doFindMinimum(parameters);
 		System.out.println("Minimum lattice energy (per molecule): " + func.getEnergy(func.parameters)/func.numMolecule);
 		
+		try {
+			FileWriter fileWriter = new FileWriter(fname+".out", false);
+			for (int i=0; i<parameters.length; i++){
+				fileWriter.write(parameters[i] + " ");
+				
+				if(i>1 && i%10==9){
+					fileWriter.write("\n");
+				}
+			}
+			
+			fileWriter.close();
+			
+		} catch(IOException e){
+			throw new RuntimeException("Failed to write coord data normalize coord U" + e);
+		
+		}
 	}
 	
 	
@@ -356,6 +380,7 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 	protected String fname;
  	protected double[] energy;
 	protected double[] allValue;
+	protected double tolerance;
 	
 	protected double latticeEnergy;
 	protected int numMolecule;

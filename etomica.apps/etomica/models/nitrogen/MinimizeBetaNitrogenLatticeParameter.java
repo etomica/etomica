@@ -43,7 +43,7 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 		this.density = density;
 		this.nC = nC;
 		
-		double ratio = Math.sqrt(8.0/3.0);
+		double ratio = 1.631;
 		aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		cDim = aDim*ratio;
 		numMolecule = nC[0]*nC[1]*nC[2]*2;
@@ -88,37 +88,10 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 
 	public double getEnergy (double[] u){
 		
-		double ratio = u[0];
-		aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		cDim = aDim*ratio; 
-		
-		boxDim[0] = space.makeVector(new double[]{nC[0]*aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC[0]*aDim*Math.cos(Degree.UNIT.toSim(60)), 
-												   nC[1]*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*cDim});
-	    
-		primitive = new PrimitiveHexagonal(space, nC[0]*aDim, nC[2]*cDim);
-
-        boundary = new BoundaryDeformablePeriodic(space, boxDim);
-        Basis basisHCP = new BasisHcp();
-        BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
-    	
-    	coordinateDefinition = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDefinition.setIsGamma();
-		coordinateDefinition.setOrientationVectorGamma(space);
-		coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
-		
-        box.setBoundary(boundary);
-    	meterPotential = new MeterPotentialEnergy(potentialMaster);
-    	meterPotential.setBox(box);
-		/*
-		 * 
-		 */
-		
 		int numCells =  coordinateDefinition.getBasisCells().length;
 		int numDOF = coordinateDefinition.getCoordinateDim();
 		int dofPerMol = numDOF/numMolecule; 
-		int nCelldofinZ = nC[2]*basisHCP.getScaledCoordinates().length*dofPerMol;
+		int nCelldofinZ = nC[2]*2*dofPerMol;
 		double[] newU = new double[numDOF];
 
 		boolean isUnitCellA = true;
@@ -239,8 +212,8 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 		 */
 		
     	int bootstrap = 0;
-    	double[] energy = new double[3];
-    	double[] allValue = new double[3];
+    	energy = new double[3];
+    	allValue = new double[3];
        	
     	double value = min;
     	param[iVar] = value;
@@ -348,6 +321,28 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
                 	//System.out.println("***"+value + " ;a: " + a+ " ;c: " + c);
                     return value;
                 }
+                
+                if (Math.abs(energy[0]-energy[1])<1e-10 || Math.abs(energy[1]-energy[2])<1e-10 ||Math.abs(energy[0]-energy[2])<1e-10) {
+                	
+                	if(energy[0]< energy[1]){
+                		value = allValue[0];
+                	} else {
+                		value = allValue[1];
+                	}
+                	
+                	if(energy[1]< energy[2]){
+                		value = allValue[1];
+                	} else {
+                		value = allValue[2];
+                	}
+                	
+                	if(energy[0]< energy[2]){
+                		value = allValue[0];
+                	} else {
+                		value = allValue[2];
+                	}
+                	return value;
+                }
             }
         }
     }
@@ -364,7 +359,7 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 	
 	public static void main(String[] args){
 		int[] nC = new int[]{6,6,6};
-		double density = 0.025001374;
+		double density = 0.025;
 		/*
 		 * with 10 parameters
 		 */
@@ -413,11 +408,6 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 		
 		func.doFindMinimum(valMin, valMax, parameters);
 		
-//		System.out.println("lattice: "+func.getEnergy(new double[]{1.336,-0.01,-0.2, 0.01, 0.2}));
-//		System.out.println("lattice: "+func.getEnergy(new double[]{1.339,-0.11,-0.2, 0.01, 0.2}));
-//		
-//		System.out.println("lattice: "+func.getEnergy(new double[]{1.339,-0.01,-0.2, 0.01, 0.2}));
-//		
 	}
 	
 	
@@ -434,6 +424,8 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 	protected double aDim, cDim;
 	protected double [] parameters;  
 	protected int[] nC;
+	protected double[] energy;
+	protected double[] allValue;
 	
 	protected double latticeEnergy;
 	protected int numMolecule;
