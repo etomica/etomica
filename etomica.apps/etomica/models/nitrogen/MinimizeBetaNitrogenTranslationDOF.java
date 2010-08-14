@@ -157,8 +157,26 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 					}
 				}
 			}
+			System.out.println("after " +numIter + " loop; energy: "+ afterEnergy/numMolecule);
+			
 			++numIter;
-	
+			
+			try {
+				FileWriter fileWriter = new FileWriter(fname+".out", false);
+				for (int i=0; i<parameters.length; i++){
+					fileWriter.write(parameters[i] + " ");
+					
+					if(i>1 && i%10==9){
+						fileWriter.write("\n");
+					}
+				}
+				
+				fileWriter.close();
+				
+			} catch(IOException e){
+				throw new RuntimeException("Failed to write coord data normalize coord U" + e);
+			
+			}
 		}
 	
 	}
