@@ -341,6 +341,7 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		System.out.println("output file to: " + fname + ".out\n");
 		
 		MinimizeBetaNitrogenTranslationDOF func = new MinimizeBetaNitrogenTranslationDOF(Space.getInstance(3), nC, density, fname, tol);
+		System.out.println("Initial Minimum lattice energy (per molecule): " + func.getEnergy(parameters)/func.numMolecule);
 		
 		func.doFindMinimum(parameters);
 		System.out.println("Minimum lattice energy (per molecule): " + func.getEnergy(func.parameters)/func.numMolecule);
