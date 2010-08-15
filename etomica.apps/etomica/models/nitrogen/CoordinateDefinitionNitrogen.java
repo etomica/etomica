@@ -161,6 +161,64 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
     
+    public void setGammaPositionAndOrientation(IMoleculeList molecules){
+    	
+    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    		
+    		IVectorMutable[] orientation = new IVectorMutable[3]; 
+    		IVectorMutable orientationMol2 = space.makeVector();
+    		
+    		orientation[0] = space.makeVector();
+    		orientation[1] = space.makeVector();
+    		orientation[2] = space.makeVector();
+    		
+    		IMolecule molecule = molecules.getMolecule(i);
+    		IMolecule molecule2;
+    		
+    		if(i%2 == 0){
+	    		molecule2 = molecules.getMolecule(i+1);
+    		
+    		} else {
+    			molecule2 = molecules.getMolecule(i-1);
+        			
+    		}
+    		
+    	   	IVectorMutable molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	   	IVectorMutable molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	 
+    	  	IVectorMutable mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
+    	   	IVectorMutable mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
+    	   	
+    	   	
+    	   	
+    	   	orientation[0].Ev1Mv2(molleafPos1, molleafPos0);
+    	    orientation[0].normalize();
+  
+    	    orientationMol2.Ev1Mv2(mol2leafPos1, mol2leafPos0);
+    	    orientationMol2.normalize();
+    	    
+    	    if(i%2 == 0){
+    	    	orientation[2].E(orientation[0]);
+    	    	orientation[2].XE(orientationMol2);
+    	    	orientation[2].normalize();
+    	    	
+    	    } else {
+    	    	orientation[2].E(orientationMol2);
+    	    	orientation[2].XE(orientation[0]);
+    	    	orientation[2].normalize();
+    	    	
+    	    }
+    	    
+    	    orientation[1].E(orientation[2]);
+    	    orientation[1].XE(orientation[0]);
+    	    orientation[1].normalize();
+    	    
+    	    orientationManager.setAgent(molecule, orientation);
+    	    moleculeSiteManager.setAgent(molecule, positionDefinition.position(molecule));	
+    	}
+
+    }
+    
     public void setConfiguration(Configuration configuration){
         this.configuration = configuration;
     }
