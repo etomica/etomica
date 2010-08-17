@@ -3,6 +3,7 @@ package etomica.models.nitrogen;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -214,8 +215,12 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    orientation[1].normalize();
     	    
     	    orientationManager.setAgent(molecule, orientation);
-    	    moleculeSiteManager.setAgent(molecule, positionDefinition.position(molecule));	
+    	    moleculeSiteManager.setAgent(molecule, positionDefinition.position(molecule));
+    	   
     	}
+    	
+    	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
 
     }
     
