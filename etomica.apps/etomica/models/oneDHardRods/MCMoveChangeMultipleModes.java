@@ -47,6 +47,8 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         this.random = random;
         iterator = new AtomIteratorLeafAtoms();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        
+        System.out.println("MCMoveChangeMultipleModes has not been tested");
     }
 
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
