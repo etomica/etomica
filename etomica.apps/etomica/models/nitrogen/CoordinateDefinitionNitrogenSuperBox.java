@@ -112,7 +112,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         int oneThirdPlane = (nC*numBasis*3)*nC; 
         
         segment = new int[3*nC];
-        innersegment = new int[nC][3*nC*nC];
+        innersegment = new int[nC][3*nC];
         
         int counter =0;
         for(int i=0; i<segment.length; i++){
@@ -140,7 +140,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
             boolean inCenterCell = false;
             
             for(int i=0; i<innersegment.length; i++){
-            	for(int j=0; j<innersegment[0].length; j+=nC*3){
+            	for(int j=0; j<innersegment[0].length; j+=3){
             
             		if(innersegment[i][j]<= ii[3] && ii[3] < innersegment[i][j+1]){
             			inCenterCell = true;
@@ -214,7 +214,6 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
             }
             currentList.add(molecule);
         }
-        
         initNominalU(cells[totalCells-1].molecules);
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
