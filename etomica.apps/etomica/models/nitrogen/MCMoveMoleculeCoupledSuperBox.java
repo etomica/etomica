@@ -21,8 +21,11 @@ import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
 /**
- * Standard Monte Carlo molecule-displacement trial move.  Two molecules are moved at a
- * time in such a way that the geometric center of the system is not changed.
+ * Standard Monte Carlo molecule-displacement trial move for superbox. Two molecules are 
+ * moved at a time in such a way that the geometric center of the system is not changed.
+ *
+ * When move one molecule in the center cell; the same molecule in the other 26 unit cells 
+ * will move too!
  *
  * @author Tai Boon Tan
  */
@@ -129,11 +132,10 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
     }
 
     public boolean doTrial() {
-//        System.out.println("doTrial MCMoveMoleculeCoupled called");
         
         randomMol0 = random.nextInt(nA);
         randomMol1 = random.nextInt(nA);
-        //System.out.println("randomMol: " + randomMol0 + " " + randomMol1);
+
         molecule0 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol0]);
         molecule1 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol1]);
         
