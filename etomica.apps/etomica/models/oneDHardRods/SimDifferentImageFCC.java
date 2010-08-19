@@ -78,9 +78,6 @@ public class SimDifferentImageFCC extends Simulation {
     public CoordinateDefinition cDefTarget, cDefRef;
     WaveVectorFactory waveVectorFactoryRef, waveVectorFactoryTarg;
     
-    MCMoveAtomCoupled mcMoveAtom;
-//    MCMoveChangeMultipleWV mcMoveAtom;
-    
     double bennettParam;       //adjustable parameter - Bennett's parameter
     public IntegratorOverlap integratorSim; //integrator for the whole simulation
     public DataSourceVirialOverlap dsvo;
@@ -95,8 +92,8 @@ public class SimDifferentImageFCC extends Simulation {
     MeterDifferentImageSubtract meterRefInTarg;
     
     
-    public SimDifferentImageFCC(Space _space, int numRefAtoms, int numTargAtoms,
-            int[] nCellsRef, int[] nCellsTarget, double density, int blocksize, 
+    public SimDifferentImageFCC(Space _space, int[] nCellsRef, 
+            int[] nCellsTarget, double density, int blocksize, 
             double tems, int exponent, String inputFile) {
         super(_space);
         System.out.println("Running " + APP_NAME);
@@ -106,8 +103,15 @@ public class SimDifferentImageFCC extends Simulation {
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
         
-        int targAtoms = numTargAtoms;
-        int refAtoms = numRefAtoms;
+        int targAtoms = 1;
+        int refAtoms = 1;
+        for(int i = 0; i < space.D(); i++){
+            refAtoms *= nCellsRef[i];
+            targAtoms *= nCellsTarget[i];
+        }
+        refAtoms *= 4;     //definitely fcc
+        targAtoms *= 4;    //definitely fcc
+        
         double temperature = tems;
         String rIn = inputFile + refAtoms;
         String tIn = inputFile + targAtoms;
@@ -191,18 +195,17 @@ public class SimDifferentImageFCC extends Simulation {
         double latticeEnergyRef = meterRefInRef.getDataAsScalar();
         System.out.println("Reference system lattice energy: " +latticeEnergyRef);
         
-        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), random, space);
+        MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), random, space);
         mcMoveAtom.setPotential(potential);
         
-        
-//        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMasterRef, random);
+//        MCMoveChangeMultipleWV mcMoveAtom = new MCMoveChangeMultipleWV(potentialMasterRef, random);
 //        mcMoveAtom.setCoordinateDefinition(cDefRef);
 //        mcMoveAtom.setEigenVectors(nmRef.getEigenvectors());
 //        mcMoveAtom.setOmegaSquared(nmRef.getOmegaSquared());
 //        mcMoveAtom.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
 //        mcMoveAtom.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
 //        int[] changeMe = new int[1];
-//        changeMe[0] = 1;
+//        changeMe[0] = 0;
 //        mcMoveAtom.addChangeableWV(changeMe);
         
         
@@ -294,8 +297,7 @@ public class SimDifferentImageFCC extends Simulation {
 //        mcMoveAtom.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
 //        mcMoveAtom.setOmegaSquared(nmTarg.getOmegaSquared());
 //        mcMoveAtom.addChangeableWV(changeMe);
-        
-        
+                
         
         mcMoveAtom.setBox(boxTarget);
         mcMoveAtom.setStepSizeMin(0.001);
@@ -511,14 +513,12 @@ public class SimDifferentImageFCC extends Simulation {
             readParameters.readParameters();
         }
         
-        int nRefA = params.refNumAtoms;
-        int nTargA = params.targNumAtoms;
         double density = params.density;
         int D = params.D;
         double harmonicFudge = params.harmonicFudge;
         String filename = params.filename;
         if(filename.length() == 0){
-            filename = "nmi_3DLJ_FCC_";
+            filename = "nmi_3DSS_FCC_";
         }
         String inputFile = params.inputFile;
         double temperature = params.temperature;
@@ -528,14 +528,24 @@ public class SimDifferentImageFCC extends Simulation {
         int eqNumSteps = params.eqNumSteps;
         int benNumSteps = params.bennettNumSteps;
         int exp = params.exponent;
+        boolean first = params.first;
         int[] refCells = params.refShape;
         int[] targCells = params.targShape;
+        int nRefA = 1;
+        int nTargA = 1;
+        for(int i = 0; i < D; i++){
+            nRefA *= refCells[i];
+            nTargA *= targCells[i];
+        }
+        nRefA *= 4;     //definitely fcc
+        nTargA *= 4;    //definitely fcc
+        
         filename = filename + "_" + nRefA + "_" + nTargA + "_" + temperature;
         
         // instantiate simulation
         SimDifferentImageFCC sim = new SimDifferentImageFCC(Space.getInstance(D),
-                nRefA, nTargA, refCells, targCells, density, runBlockSize,
-                temperature, exp, inputFile);
+                refCells, targCells, density, runBlockSize, temperature, 
+                exp, inputFile);
         System.out.println("Dimension " + sim.space.D());
         System.out.println("Temperature " + temperature);
         System.out.println("Ref system is " +nRefA + " atoms at density " + density);
@@ -563,22 +573,30 @@ public class SimDifferentImageFCC extends Simulation {
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
-        System.out.println("Init Bennett");
-        sim.initBennettParameter(filename, benNumSteps, runBlockSize);
-        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
-                Double.isInfinite(sim.bennettParam)){
-            throw new RuntimeException("Simulation failed to find a valid " +
-                    "Bennett parameter");
+        if(first){
+            System.out.println("Init Bennett");
+            sim.initBennettParameter(filename, benNumSteps, runBlockSize);
+            if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                    Double.isInfinite(sim.bennettParam)){
+                throw new RuntimeException("Simulation failed to find a valid " +
+                        "Bennett parameter");
+            }
+            
+            System.out.println("equilibrate");
+            sim.equilibrate("bennett" , eqNumSteps, runBlockSize);
+            if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                    Double.isInfinite(sim.bennettParam)){
+                throw new RuntimeException("Simulation failed to find a valid " +
+                        "Bennett parameter");
+            }
+            System.out.println("equilibration finished.");
+        } else {
+            System.out.println("Init Bennett");
+            sim.initBennettParameter("bennett", benNumSteps, runBlockSize);
+            System.out.println("equilibrate");
+            sim.equilibrate(null, eqNumSteps, runBlockSize);
+            System.out.println("equilibration finished.");
         }
-        
-        System.out.println("equilibrate");
-        sim.equilibrate("bennett" , eqNumSteps, runBlockSize);
-        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
-                Double.isInfinite(sim.bennettParam)){
-            throw new RuntimeException("Simulation failed to find a valid " +
-                    "Bennett parameter");
-        }
-        System.out.println("equilibration finished.");
         
         // start simulation
         sim.setAccumulatorBlockSize((int)runBlockSize);
@@ -620,12 +638,13 @@ public class SimDifferentImageFCC extends Simulation {
                 - 0.5 * Math.log(nTargA)
                 + 0.5 * Math.log(nRefA))));
         
+        System.out.println("alpha term " + (Math.log(ratio * sim.meterTargInRef.getScaling())));
+        
         System.out.println("Fini.");
     }
     
     public static class SimParam extends ParameterBase {
-        public int refNumAtoms = 32;  //number of atoms in the reference system.
-        public int targNumAtoms = 48;
+        public boolean first = true;
         public int[] refShape = {2, 2, 2};
         public int[] targShape = {2, 2, 3};
         public double density = 1.1964;
@@ -633,7 +652,6 @@ public class SimDifferentImageFCC extends Simulation {
         public double harmonicFudge = 1.0;
         public double temperature = 0.01;
         public int exponent = 12;
-        
         
         public String inputFile = "inputSSDB_";
         public String filename = "output";
