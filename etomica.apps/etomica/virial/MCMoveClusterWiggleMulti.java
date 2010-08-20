@@ -205,6 +205,10 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         return true;
     }
     
+    public void acceptNotify() {
+        ((BoxCluster)box).acceptNotify();
+    }
+
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
