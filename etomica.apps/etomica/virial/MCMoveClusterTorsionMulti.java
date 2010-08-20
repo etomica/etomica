@@ -74,7 +74,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     public void setTemperature(double temperature) {
         int nBins = probabilityBins.length - 1;
         int nSubBins = 100;
-        beta = 1.0/temperature;
+        double beta = 1.0/temperature;
         // numerically integrate P = exp(-beta U) from cosphi=1 to cosphi=-1 (0 to pi radians)
         double totP = 0.5 * Math.exp(-beta*torsionPotential.energyAtAngle(1));
         for (int i=1; i<nSubBins * nBins; i++) {
@@ -144,7 +144,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 //                    System.out.println(phi+" "+ torsionPotential.energyAtAngle(Math.cos(phi))+" "+(probabilityBins[iBin-1]-probabilityBins[iBin]));
                     // we'll use this to correct acceptance (which is not correct due
                     // to energy inhomogeniety within the bin)
-                    binSize[iBin-1] = (probabilityBins[iBin]-probabilityBins[iBin-1])/(Math.PI/nBins);;
+                    binSize[iBin-1] = (probabilityBins[iBin]-probabilityBins[iBin-1])/(Math.PI/nBins);
                     for (int j=lastMapBin+1; j<nBins+1; j++) {
                         probabilityReverseMap[j] = iBin-1;
 //                        System.out.println(j+" "+Math.acos(-1.0+(2.0*j)/nBins)+" "+(iBin-1));
@@ -417,5 +417,4 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected IVectorMutable[][] oldPositions;
     protected final IVectorMutable oldCenter;
     protected double wOld, wNew, bias;
-    protected double beta;
 }
