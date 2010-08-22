@@ -3,7 +3,6 @@ package etomica.models.nitrogen;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -72,6 +71,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         for (int i=0; i<primitiveVectors.length; i++) {
             offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
         }
+        
         offset.TE(-0.5);
         
         IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(space.D()+1);
@@ -114,7 +114,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	                
 	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
 	                atomGroupAction.actionPerformed(molecule);
-	            
+	                
 	            }
             }
             
@@ -134,6 +134,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             int[] ii = indexIterator.next();
             // ii[0] and ii[1] = unit Cell number
             // ii[2] = molecule number in unit cell
+        	//System.out.println(ii[0] +" " + ii[1] + " " + ii[2] + " " + ii[3] );
             
             position.E((IVectorMutable)lattice.site(ii));
             position.PE(offset);
@@ -162,7 +163,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
     
-    public void setGammaPositionAndOrientation(IMoleculeList molecules){
+
+	public void setGammaPositionAndOrientation(IMoleculeList molecules){
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
@@ -277,6 +279,15 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	xzOrientationTensor[3].E(rotationTensor);
     	
     }
+    
+    public Tensor[] getXzOrientationTensor() {
+		return xzOrientationTensor;
+	}
+
+	public Tensor[] getyOrientationTensor() {
+		return yOrientationTensor;
+	}
+
     
     /*
      * 
