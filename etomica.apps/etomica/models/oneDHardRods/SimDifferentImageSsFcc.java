@@ -27,16 +27,16 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveAtomCoupled;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -67,7 +67,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 /*
  * Starts in notes 5/21/10
  */
-public class SimDifferentImageFCC extends Simulation {
+public class SimDifferentImageSsFcc extends Simulation {
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDifferentImageFCC";
@@ -92,7 +92,7 @@ public class SimDifferentImageFCC extends Simulation {
     MeterDifferentImageSubtract meterRefInTarg;
     
     
-    public SimDifferentImageFCC(Space _space, int[] nCellsRef, 
+    public SimDifferentImageSsFcc(Space _space, int[] nCellsRef, 
             int[] nCellsTarget, double density, int blocksize, 
             double tems, int exponent, String inputFile) {
         super(_space);
@@ -130,24 +130,14 @@ public class SimDifferentImageFCC extends Simulation {
         addBox(boxRef);
         boxRef.setNMolecules(species, refAtoms);
         
-        PotentialMasterMonatomic potentialMasterRef = new 
-        PotentialMasterMonatomic(this);
-        Potential2SoftSpherical potentialBase = new P2SoftSphere(
-                space, 1.0, 1.0, exponent);
-        double rc = 2.2 ;
-        System.out.println("Reference truncation at " + rc);
-        P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
-                space, potentialBase, rc);
-        potential.setTruncationRadius(rc);
-        potential.setBox(boxRef);
-        potentialMasterRef.addPotential(potential, new IAtomType[] {
-                species.getLeafType(), species.getLeafType()});
-        
+        double[] lengths;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             bdryRef = new BoundaryRectangularPeriodic(space, refAtoms/ density);
             nCellsRef = new int[] { refAtoms };
             basis = new BasisMonatomic(space);
+            lengths = new double[1];
+            lengths[0] = refAtoms/density;
         } else {
             double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
             primitive = new PrimitiveCubic(space);
@@ -155,7 +145,7 @@ public class SimDifferentImageFCC extends Simulation {
             primitive.scaleSize(primitiveLength);
             bdryRef = new BoundaryRectangularPeriodic(space, 1.0);
             IVector edges = new Vector3D();
-            double[] lengths = new double[3];
+            lengths = new double[3];
             lengths[0] = nCellsRef[0]*primitiveLength;
             lengths[1] = nCellsRef[1]*primitiveLength;
             lengths[2] = nCellsRef[2]*primitiveLength;
@@ -164,10 +154,35 @@ public class SimDifferentImageFCC extends Simulation {
         }
         boxRef.setBoundary(bdryRef);
         
+//      PotentialMasterMonatomic potentialMasterRef = new PotentialMasterMonatomic(this);
+//      Potential2SoftSpherical potentialBase = new P2SoftSphere(
+//              space, 1.0, 1.0, exponent);
+//      double rc = 1.45;
+//      System.out.println("Reference truncation at " + rc);
+//      P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
+//              space, potentialBase, rc);
+//      potential.setTruncationRadius(rc);
+//      potential.setBox(boxRef);
+//      potentialMasterRef.addPotential(potential, new IAtomType[] {
+//              species.getLeafType(), species.getLeafType()});
+        
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
+        //nan N.B. set for a 2x2x2 or 2x2x3 box; if that changes, this may have to
+        double neighborRange = 0.495 * lengths[0];
+        Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 
+                1.0, exponent);
+        P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
+                space, potentialBase, neighborRange);
+        potentialMaster.addPotential(potential, new IAtomType[] {
+                species.getLeafType(), species.getLeafType()});
+        potentialMaster.setRange(neighborRange);
+        
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         cDefRef.initializeCoordinates(nCellsRef);
+        potentialMaster.getNeighborManager(boxRef).reset();
+        potential.setTruncationRadius(3000.0);
         
-        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
+        IntegratorMC integratorRef = new IntegratorMC(potentialMaster, 
                 random, temperature);
         integratorRef.setBox(boxRef);
         integrators[0] = integratorRef;
@@ -190,23 +205,23 @@ public class SimDifferentImageFCC extends Simulation {
                         omega[iWV][iMode]);
             }
         }
-        meterRefInRef = new MeterPotentialEnergy(potentialMasterRef);
+        meterRefInRef = new MeterPotentialEnergy(potentialMaster);
         meterRefInRef.setBox(boxRef);
         double latticeEnergyRef = meterRefInRef.getDataAsScalar();
         System.out.println("Reference system lattice energy: " +latticeEnergyRef);
         
-        MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), random, space);
-        mcMoveAtom.setPotential(potential);
+//        MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), random, space);
+//        mcMoveAtom.setPotential(potential);
         
-//        MCMoveChangeMultipleWV mcMoveAtom = new MCMoveChangeMultipleWV(potentialMasterRef, random);
-//        mcMoveAtom.setCoordinateDefinition(cDefRef);
-//        mcMoveAtom.setEigenVectors(nmRef.getEigenvectors());
-//        mcMoveAtom.setOmegaSquared(nmRef.getOmegaSquared());
-//        mcMoveAtom.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
-//        mcMoveAtom.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
+        MCMoveChangeMultipleWV mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);
+        mcMoveAtom.setCoordinateDefinition(cDefRef);
+        mcMoveAtom.setEigenVectors(nmRef.getEigenvectors());
+        mcMoveAtom.setOmegaSquared(nmRef.getOmegaSquared());
+        mcMoveAtom.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
+        mcMoveAtom.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
 //        int[] changeMe = new int[1];
 //        changeMe[0] = 0;
-//        mcMoveAtom.addChangeableWV(changeMe);
+        mcMoveAtom.addChangeableWV("all");
         
         
         
@@ -224,20 +239,13 @@ public class SimDifferentImageFCC extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, targAtoms);
         
-        PotentialMasterMonatomic potentialMasterTarget = new 
-                PotentialMasterMonatomic(this);
-        potentialBase = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        potential = new P2SoftSphericalTruncated(space, potentialBase, rc);
-        potential.setTruncationRadius(rc);
-        potential.setBox(boxTarget);
-        potentialMasterTarget.addPotential(potential, new IAtomType[] {
-                species.getLeafType(), species.getLeafType()});
-        
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             bdryTarget = new BoundaryRectangularPeriodic(space, targAtoms/ density);
             nCellsTarget = new int[] { targAtoms };
             basis = new BasisMonatomic(space);
+            lengths = new double[1];
+            lengths[0] = refAtoms/density;
         } else {
             double primitiveLength = Math.pow(basis.getScaledCoordinates().length / density,
                     1.0 / 3.0);
@@ -247,7 +255,7 @@ public class SimDifferentImageFCC extends Simulation {
             
             bdryTarget = new BoundaryRectangularPeriodic(space, 1.0);
             IVector edges = new Vector3D();
-            double[] lengths = new double[3];
+            lengths = new double[3];
             lengths[0] = nCellsTarget[0]*primitiveLength;
             lengths[1] = nCellsTarget[1]*primitiveLength;
             lengths[2] = nCellsTarget[2]*primitiveLength;
@@ -256,10 +264,24 @@ public class SimDifferentImageFCC extends Simulation {
         }
         boxTarget.setBoundary(bdryTarget);
         
+        
+//      PotentialMasterMonatomic potentialMasterTarget = new 
+//              PotentialMasterMonatomic(this);
+//      potentialBase = new P2SoftSphere(space, 1.0, 1.0, exponent);
+//      potential = new P2SoftSphericalTruncated(space, potentialBase, rc);
+//      potential.setTruncationRadius(rc);
+//      potential.setBox(boxTarget);
+//      potentialMasterTarget.addPotential(potential, new IAtomType[] {
+//              species.getLeafType(), species.getLeafType()});
+        
+
+        potential.setTruncationRadius(neighborRange);
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         cDefTarget.initializeCoordinates(nCellsTarget);
+        potentialMaster.getNeighborManager(boxTarget).reset();
+        potential.setTruncationRadius(3000.0);
         
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget,
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMaster,
                 random, temperature);
         integrators[1] = integratorTarget;
         integratorTarget.setBox(boxTarget);
@@ -282,21 +304,21 @@ public class SimDifferentImageFCC extends Simulation {
             }
         }
         
-        meterTargInTarg = new MeterPotentialEnergy(potentialMasterTarget);
+        meterTargInTarg = new MeterPotentialEnergy(potentialMaster);
         meterTargInTarg.setBox(boxTarget);
         double latticeEnergyTarget = meterTargInTarg.getDataAsScalar();
         System.out.println("Target system lattice energy: " +latticeEnergyTarget);
         
-        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarget), random, space);
-        mcMoveAtom.setPotential(potential);
+//        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarget), random, space);
+//        mcMoveAtom.setPotential(potential);
         
-//        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
-//        mcMoveAtom.setCoordinateDefinition(cDefTarget);
-//        mcMoveAtom.setEigenVectors(nmTarg.getEigenvectors());
-//        mcMoveAtom.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
-//        mcMoveAtom.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
-//        mcMoveAtom.setOmegaSquared(nmTarg.getOmegaSquared());
-//        mcMoveAtom.addChangeableWV(changeMe);
+        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);
+        mcMoveAtom.setCoordinateDefinition(cDefTarget);
+        mcMoveAtom.setEigenVectors(nmTarg.getEigenvectors());
+        mcMoveAtom.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
+        mcMoveAtom.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
+        mcMoveAtom.setOmegaSquared(nmTarg.getOmegaSquared());
+        mcMoveAtom.addChangeableWV("all");
                 
         
         mcMoveAtom.setBox(boxTarget);
@@ -309,7 +331,7 @@ public class SimDifferentImageFCC extends Simulation {
 //JOINT
         //measuring potential of target in reference system
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
-                temperature, cDefRef, nmRef, boxTarget, potentialMasterTarget, 
+                temperature, cDefRef, nmRef, boxTarget, potentialMaster, 
                 nCellsTarget, nmTarg, tIn);
         MeterOverlapSameGaussian meterOverlapInRef = new 
                 MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
@@ -319,12 +341,15 @@ public class SimDifferentImageFCC extends Simulation {
         
         //measuring reference potential in target system
         meterRefInTarg = new MeterDifferentImageSubtract(this, space, cDefTarget,
-                nmTarg, boxRef, potentialMasterRef, nCellsRef, nmRef, rIn);
+                nmTarg, boxRef, potentialMaster, nCellsRef, nmRef, rIn);
         MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
         meterOverlapInTarget.setDsABase(latticeEnergyTarget);
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
-       
+        
+        //Just to be sure!
+        potential.setTruncationRadius(3000.0);
+        
         meters[1] = meterOverlapInTarget;
         meters[0] = meterOverlapInRef;
         
@@ -543,7 +568,7 @@ public class SimDifferentImageFCC extends Simulation {
         filename = filename + "_" + nRefA + "_" + nTargA + "_" + temperature;
         
         // instantiate simulation
-        SimDifferentImageFCC sim = new SimDifferentImageFCC(Space.getInstance(D),
+        SimDifferentImageSsFcc sim = new SimDifferentImageSsFcc(Space.getInstance(D),
                 refCells, targCells, density, runBlockSize, temperature, 
                 exp, inputFile);
         System.out.println("Dimension " + sim.space.D());
@@ -614,8 +639,6 @@ public class SimDifferentImageFCC extends Simulation {
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
-        System.out.println("free energy difference: " + (-Math.log(ratio)) + 
-                ", error: "+(error/ratio));
         DataGroup allYourBase = 
             (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
         System.out.println("reference ratio average (unscaled): " + 
