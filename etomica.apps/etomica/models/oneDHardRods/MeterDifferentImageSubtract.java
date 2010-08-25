@@ -9,17 +9,14 @@ import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.potential.PotentialMaster;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
-import etomica.space3d.Vector3D;
 import etomica.units.Null;
 
 
@@ -60,13 +57,13 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     
     public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox,
-            PotentialMaster potentialMaster, int[] otherNCells, NormalModes otherNM){
+            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes otherNM){
         this(sim, space, simCD, simNM, otherBox, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
     public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox, 
-            PotentialMaster potentialMaster, int[] otherNCells, NormalModes 
+            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes 
             otherNM, String otherFilename){
         super("MeterSubtract", Null.DIMENSION);
         this.random = sim.getRandom();
@@ -153,6 +150,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             }
         }
         
+        potentialMaster.getNeighborManager(box).reset();
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         

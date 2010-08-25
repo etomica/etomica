@@ -1,6 +1,5 @@
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IRandom;
@@ -10,18 +9,16 @@ import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.NormalModes;
-import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.potential.PotentialMaster;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
-import etomica.space3d.Vector3D;
 import etomica.units.Null;
 
 
@@ -61,16 +58,21 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private double sqrtTemperature;
     
     
+    MeterPotentialEnergy spareMeter;
+    MeterHarmonicEnergy mHE32, mHE48;
+    
+    
+    
     public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox, 
-            PotentialMaster potentialMaster, int[] otherNCells, NormalModes otherNM) {
+            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes otherNM) {
         this(sim, space, temp, simCD, simNM, otherBox, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
     
     public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox,
-            PotentialMaster potentialMaster, int[] otherNCells, NormalModes 
+            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes 
             otherNM, String otherFilename){
         
         super("MeterAdd", Null.DIMENSION);
@@ -157,6 +159,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             }
         }
         
+        potentialMaster.getNeighborManager(box).reset();
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
@@ -258,6 +261,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                                     * (etas[etaCount] * coskR);
                             }
                             etaCount += 1;
+                            
                         }
                     }
                 }
@@ -270,7 +274,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             
             cDef.setToU(cells[iCell].molecules, newU);
         }
-        
         return meterPE.getDataAsScalar();
     }
     
