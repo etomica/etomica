@@ -57,12 +57,6 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private double scaling;
     private double sqrtTemperature;
     
-    
-    MeterPotentialEnergy spareMeter;
-    MeterHarmonicEnergy mHE32, mHE48;
-    
-    
-    
     public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
             CoordinateDefinition simCD, NormalModes simNM, IBox otherBox, 
             PotentialMasterList potentialMaster, int[] otherNCells, NormalModes otherNM) {
