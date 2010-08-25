@@ -389,7 +389,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
     protected boolean initialized;
     protected boolean doApplyPBC;
 
-    public Class getAgentClass() {
+    public Class getMoleculeAgentClass() {
         return MoleculeNeighborLists.class;
     }
     
@@ -467,10 +467,5 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
 
     }
 
-	@Override
-	public Class getMoleculeAgentClass() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

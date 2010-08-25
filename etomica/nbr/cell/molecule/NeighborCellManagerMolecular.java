@@ -242,7 +242,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         return new MyMCMoveListener(box,this, space);
     }
     
-    public Class getAgentClass() {
+    public Class getMoleculeAgentClass() {
         return CellMolecular.class;
     }
 
@@ -317,9 +317,5 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
        
     }
 
-	@Override
-	public Class getMoleculeAgentClass() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 }
