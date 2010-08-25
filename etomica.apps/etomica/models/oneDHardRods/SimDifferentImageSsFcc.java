@@ -27,10 +27,10 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MCMoveAtomCoupled;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -179,8 +179,8 @@ public class SimDifferentImageSsFcc extends Simulation {
         
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         cDefRef.initializeCoordinates(nCellsRef);
+        potentialMaster.lrcMaster().setEnabled(false);
         potentialMaster.getNeighborManager(boxRef).reset();
-        potential.setTruncationRadius(3000.0);
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMaster, 
                 random, temperature);
@@ -210,18 +210,18 @@ public class SimDifferentImageSsFcc extends Simulation {
         double latticeEnergyRef = meterRefInRef.getDataAsScalar();
         System.out.println("Reference system lattice energy: " +latticeEnergyRef);
         
-//        MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), random, space);
-//        mcMoveAtom.setPotential(potential);
+        MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
+        mcMoveAtom.setPotential(potential);
         
-        MCMoveChangeMultipleWV mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);
-        mcMoveAtom.setCoordinateDefinition(cDefRef);
-        mcMoveAtom.setEigenVectors(nmRef.getEigenvectors());
-        mcMoveAtom.setOmegaSquared(nmRef.getOmegaSquared());
-        mcMoveAtom.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
-        mcMoveAtom.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
-//        int[] changeMe = new int[1];
-//        changeMe[0] = 0;
-        mcMoveAtom.addChangeableWV("all");
+//        MCMoveChangeMultipleWV mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);
+//        mcMoveAtom.setCoordinateDefinition(cDefRef);
+//        mcMoveAtom.setEigenVectors(nmRef.getEigenvectors());
+//        mcMoveAtom.setOmegaSquared(nmRef.getOmegaSquared());
+//        mcMoveAtom.setWaveVectors(nmRef.getWaveVectorFactory().getWaveVectors());
+//        mcMoveAtom.setWaveVectorCoefficients(nmRef.getWaveVectorFactory().getCoefficients());
+////        int[] changeMe = new int[1];
+////        changeMe[0] = 0;
+//        mcMoveAtom.addChangeableWV("all");
         
         
         
@@ -274,12 +274,9 @@ public class SimDifferentImageSsFcc extends Simulation {
 //      potentialMasterTarget.addPotential(potential, new IAtomType[] {
 //              species.getLeafType(), species.getLeafType()});
         
-
-        potential.setTruncationRadius(neighborRange);
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         cDefTarget.initializeCoordinates(nCellsTarget);
         potentialMaster.getNeighborManager(boxTarget).reset();
-        potential.setTruncationRadius(3000.0);
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMaster,
                 random, temperature);
@@ -309,16 +306,16 @@ public class SimDifferentImageSsFcc extends Simulation {
         double latticeEnergyTarget = meterTargInTarg.getDataAsScalar();
         System.out.println("Target system lattice energy: " +latticeEnergyTarget);
         
-//        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarget), random, space);
-//        mcMoveAtom.setPotential(potential);
+        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
+        mcMoveAtom.setPotential(potential);
         
-        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);
-        mcMoveAtom.setCoordinateDefinition(cDefTarget);
-        mcMoveAtom.setEigenVectors(nmTarg.getEigenvectors());
-        mcMoveAtom.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
-        mcMoveAtom.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
-        mcMoveAtom.setOmegaSquared(nmTarg.getOmegaSquared());
-        mcMoveAtom.addChangeableWV("all");
+//        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);
+//        mcMoveAtom.setCoordinateDefinition(cDefTarget);
+//        mcMoveAtom.setEigenVectors(nmTarg.getEigenvectors());
+//        mcMoveAtom.setWaveVectors(nmTarg.getWaveVectorFactory().getWaveVectors());
+//        mcMoveAtom.setWaveVectorCoefficients(nmTarg.getWaveVectorFactory().getCoefficients());
+//        mcMoveAtom.setOmegaSquared(nmTarg.getOmegaSquared());
+//        mcMoveAtom.addChangeableWV("all");
                 
         
         mcMoveAtom.setBox(boxTarget);
