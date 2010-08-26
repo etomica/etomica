@@ -77,20 +77,14 @@ public class ExternalVirialDiagrams extends VirialDiagrams{
 	       }
 	        ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
 	        ArrayList<Double> weights = new ArrayList<Double>();
-	        Set<Graph> pn = getMSMCGraphs(false);
-	        for (Graph g : pn) {
+	        Set<Graph> rhon = getMSMCGraphsEX(false);
+	        for (Graph g : rhon) {
 	            populateEFBonds(g, allBonds, false);
-	            if (flex) {
-	                populateEFBonds(g, allBonds, true);
-	            }
+	            
 	            double w = ((double)g.coefficient().getNumerator())/g.coefficient().getDenominator();
-	            if (flex) {
-	                w *= 0.5;
-	            }
+	           
 	            weights.add(w);
-	            if (flex) {
-	                weights.add(w);
-	            }
+	            
 	        }
 	        double[] w = new double[weights.size()];
 	        for (int i=0; i<w.length; i++) {
@@ -103,6 +97,21 @@ public class ExternalVirialDiagrams extends VirialDiagrams{
 		           return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f});
 		       }
 	        
+	    }
+	 public Set<Graph> getMSMCGraphsEX(boolean connectedOnly) {
+	        if (rho == null) {
+	            makeRhoDiagrams();
+	        }
+	        GraphList<Graph> rhon = makeGraphList();
+	       
+	        for (Graph g : rho) {
+	            
+	            
+	            if (g.nodeCount()==n) {
+	                rhon.add(g);
+	            }
+	        }
+	        return rhon;
 	    }
 
 }      
