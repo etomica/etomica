@@ -159,7 +159,16 @@ public class HarmonicCrystalSsFccNxy {
         
         System.out.println("Density: " + rho);
         System.out.println("Temperature: " + T);
-        
+        double a = harmonicCrystal.getHelmholtzFreeEnergy(T);
+        double u = harmonicCrystal.getLatticeEnergy();
+                
+        System.out.println("\nLattice Energy: " + u);
+        System.out.println("Helmholtz Free Energy at T "+T+ " is: "+a);
+        System.out.println("Harmonic-reference free energy: "+ (a-u));
+      
+        System.out.println("\nCalcHarmonicA from file (Temperature-independent)");
+        CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, T, basis.getScaledCoordinates().length);
+
     }
     
     private NormalModesPotential normalModes;
@@ -174,7 +183,7 @@ public class HarmonicCrystalSsFccNxy {
     public static class Params extends ParameterBase {
         public double T = 0.01;
         public double rho = 1.1964;
-        public int[] shape = new int[] {2, 2, 2};
+        public int[] shape = new int[] {2, 2, 4};
         public String filename = "inputSSDB_";
         public double rc = 2.2 ;
     }
