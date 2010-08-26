@@ -1,0 +1,27 @@
+package etomica.virial;
+
+import etomica.api.IPotentialMaster;
+import etomica.data.meter.MeterPotentialEnergy;
+
+public class ClusterSumExternalField extends ClusterSum {
+
+	public ClusterSumExternalField(ClusterBonds[] subClusters,
+			double[] subClusterWeights, MayerFunction[] fArray) {
+		super(subClusters, subClusterWeights, fArray);
+		// TODO Auto-generated constructor stub
+	}
+	public void setPotentialMaster(IPotentialMaster potentialMaster){
+		meterPE=new MeterPotentialEnergy(potentialMaster);
+	}
+	public double value(BoxCluster box) {
+		meterPE.setBox(box);
+		return super.value(box);
+	}
+	protected void calcValue() {
+		super.calcValue();
+	
+		double u=meterPE.getDataAsScalar();
+		value*=Math.exp(-u*beta)-1;
+	}
+	protected MeterPotentialEnergy meterPE; 
+}
