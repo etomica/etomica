@@ -1,27 +1,27 @@
 package etomica.virial.simulations;
 
+import java.io.File;
+
 import etomica.api.IAtomType;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.graph.model.impl.MetadataImpl;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.util.Arrays;
 import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumExternalField;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerFunction;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.ExternalVirialDiagrams;
@@ -34,14 +34,20 @@ public class VirialExternalField {
 
 
     public static void main(String[] args) {
-
+    	MetadataImpl.rootPointsSpecial=true;
     	VirialExternalFieldParam params = new VirialExternalFieldParam();
-        if (args.length > 0) {
-           
-            ReadParameters readParameters = new ReadParameters(args[0], params);
-            readParameters.readParameters();
-        }
-        
+    	if (args.length > 0) {
+	        if (new File(args[0]).exists()) {
+	           
+	            ReadParameters readParameters = new ReadParameters(args[0], params);
+	            readParameters.readParameters();
+	            args = (String[])Arrays.removeObject(args, args[0]);
+	        }
+	        if (args.length > 0) {
+	        	ParseArgs parseArgs = new ParseArgs(params);
+	        	parseArgs.parseArgs(args);
+	        }
+    	}        
         runVirial(params);
     }
     
@@ -123,7 +129,7 @@ public class VirialExternalField {
         ClusterSum refCluster = refDiagrams.makeRhoCluster(fRef, false);
 
         ExternalVirialDiagrams targetDiagrams = new ExternalVirialDiagrams(nPoints, false, false);
-        ClusterSum targetCluster = targetDiagrams.makeRhoCluster(fRef, true);
+        ClusterSumExternalField targetCluster = (ClusterSumExternalField)targetDiagrams.makeRhoCluster(fRef, true);
         
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
@@ -180,10 +186,9 @@ public class VirialExternalField {
      * Inner class for parameters
      */
     public static class VirialExternalFieldParam extends ParameterBase {
-        public int nPoints = 2;
+        public int nPoints = 3;
         public double temperature = 1.5;
         public long numSteps = 100000;
-        public double z0=-4.5;
-        
+        public double z0=-4.5;        
     }
 }
