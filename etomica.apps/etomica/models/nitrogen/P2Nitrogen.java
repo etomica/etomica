@@ -82,14 +82,22 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
          */
 		
 		work.Ev1Mv2(com1, com2);
-		shift.Ea1Tv1(-1,work);
-		boundary.nearestImage(work);
-		shift.PE(work);
-	
-		final boolean zeroShift = shift.squared() < 0.1; 
+		//System.out.println("<P2Nitrogen> distance: " + Math.sqrt(work.squared()));
+		final boolean zeroShift;
+		
+		if(enablePBC){
+			shift.Ea1Tv1(-1,work);
+			boundary.nearestImage(work);
+			shift.PE(work);
+			zeroShift = shift.squared() < 0.1;
+		} else {
+			zeroShift = true;
+		}
+		
 		r2 = work.squared();
 		
 		if (r2 > rC*rC){ 
+			//System.out.println("TRUNCATED!!!");
 			return 0.0;
 		}
 		//if(r2<1.6) return Double.POSITIVE_INFINITY;
@@ -183,7 +191,6 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
             sum += chargeP1P2/Math.sqrt(r2);
             r2 = Pa1r.Mv1Squared(Pb1r);
             sum += chargeP1P1/Math.sqrt(r2);
-                    
         } 
         
         else {
@@ -216,7 +223,6 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     			}
     			shift.ME(dist);
     			shift.TE(-1.0);
-    			
     		}
     		
         	shift.TE(-1.0);
@@ -338,7 +344,6 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
         	shift.TE(-1.0);
             
         }
-      
         return sum;																					        
 	}
     
@@ -755,18 +760,14 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     	return -(alpha2*r)*A2*Math.exp(-alpha2*r) - (-6)*B1/(r2*r2*r2);
     	
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+	public boolean isEnablePBC() {
+		return enablePBC;
+	}
+
+	public void setEnablePBC(boolean enablePBC) {
+		this.enablePBC = enablePBC;
+	}
     
     
     public double getRange() {
@@ -794,6 +795,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 	
 	protected final IVectorMutable work, shift;
 	protected final IVectorMutable com1, com2;
-	public double rC, r2;
+	protected double rC, r2;
+	protected boolean enablePBC = true;
 
 }
