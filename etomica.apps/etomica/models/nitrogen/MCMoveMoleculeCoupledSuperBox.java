@@ -7,15 +7,17 @@ import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IRandom;
-import etomica.atom.AtomArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculePair;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.atom.iterator.MoleculeIterator;
+import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -27,9 +29,12 @@ import etomica.space.IVectorRandom;
  * When move one molecule in the center cell; the same molecule in the other 26 unit cells 
  * will move too!
  *
+ * The potential master that being passed in this class is a "full-strength" potential without
+ *  multiplying by 0.5 for the speciesA and speciesB interaction.
+ * 
  * @author Tai Boon Tan
  */
-public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
+public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMoveMolecular{
 
     
     public MCMoveMoleculeCoupledSuperBox(IPotentialMaster potentialMaster, IRandom nRandom,
@@ -48,8 +53,8 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setBox(box);
         
-        affectedMoleculeList = new AtomArrayList();
-        affectedMoleculeIterator = new AtomIteratorArrayListSimple(affectedMoleculeList);
+        affectedMoleculeIterator = new MoleculeIteratorArrayListSimple();
+        affectedMoleculeList = new MoleculeArrayList();
         
         singleAction = new AtomActionTranslateBy(_space);
         groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
@@ -119,12 +124,22 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
     }
     
     public AtomIterator affectedAtoms() {
-        affectedMoleculeList.clear();
-        affectedMoleculeList.addAll(molecule0.getChildList());
-        affectedMoleculeList.addAll(molecule1.getChildList());
-        return affectedMoleculeIterator;
+    	/*
+    	 * I'm NOT USING THIS METHOD!!!
+    	 */
+    	System.err.println("<MCMoveMoleculeCoupledSuperBox> I'm not using AtomIterator but MoleculIterator!!");
+        return null;
     }
 
+	public MoleculeIterator affectedMolecules(IBox aBox) {
+		   if (box == aBox) {
+			   affectedMoleculeIterator.setList(affectedMoleculeList);
+			   return affectedMoleculeIterator;
+	        }
+		    
+		   return null;
+	}
+    
     public double energyChange() {return uNew - uOld;}
 
     public void acceptNotify() {
@@ -132,12 +147,16 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
     }
 
     public boolean doTrial() {
-        
+    	
         randomMol0 = random.nextInt(nA);
         randomMol1 = random.nextInt(nA);
 
         molecule0 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol0]);
         molecule1 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol1]);
+
+        affectedMoleculeList.clear();
+        affectedMoleculeList.add(molecule0);
+        affectedMoleculeList.add(molecule1);
         
         if(molecule0==null || molecule1==null || molecule0==molecule1) return false;
         
@@ -145,32 +164,32 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
         uOld = energyMeter.getDataAsScalar();
         
         //molSpeciesA
-        
-        double uCorrect = 0;
-        for(int i=0; i<molIndex[0].length; i++){
-        	molSpeciesA = basisCell[0].molecules.getMolecule(molIndex[13][i]);
-        	pairAB.atom0 = molSpeciesA;
+        /*
+         * uCorrect is account for the double-counting of the molecular energy
+         */
+        uCorrect = 0.0;
+        pairAB.atom0 = molecule0;
+        for(int i=0; i<molIndex.length; i++){
+        	if(i==13) continue;
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	uCorrect += potential.energy(pairAB);
         	
-        	if(molSpeciesA == molecule0 || molSpeciesA == molecule1) continue;
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	uCorrect += potential.energy(pairAB);
+        }
+        pairAB.atom0 = molecule1;
+        for(int i=0; i<molIndex.length; i++){
+        	if(i==13) continue;
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	uCorrect += potential.energy(pairAB);
         	
-        	for(int nCellBox=0; nCellBox<molIndex.length; nCellBox++){
-        		if(nCellBox != 13){
-        			molSpeciesB = basisCell[0].molecules.getMolecule(molIndex[nCellBox][randomMol0]);
-        			pairAB.atom1 = molSpeciesB;
-        			uCorrect += potential.energy(pairAB)/2;
-        			
-        			molSpeciesB = basisCell[0].molecules.getMolecule(molIndex[nCellBox][randomMol1]);
-        			pairAB.atom1 = molSpeciesB;
-        			uCorrect += potential.energy(pairAB)/2;
-        		}
-        		
-        	}
-        	
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	uCorrect += potential.energy(pairAB);
         }
         
         energyMeter.setTarget(molecule1);
         uOld += energyMeter.getDataAsScalar();
-        uOld += uCorrect;
+        uOld -= 0.5*uCorrect;
         pair.atom0 = molecule0;
         pair.atom1 = molecule1;
         uOld -= potential.energy(pair);
@@ -190,32 +209,32 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
         	moveMoleculeAction.actionPerformed(basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]));
         }
   
-        uCorrect = 0;
-        for(int i=0; i<molIndex[0].length; i++){
-        	molSpeciesA = basisCell[0].molecules.getMolecule(molIndex[13][i]);
-        	pairAB.atom0 = molSpeciesA;
+        molecule0 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol0]);
+        molecule1 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol1]);
+
+        uCorrect = 0.0;
+        pairAB.atom0 = molecule0;
+        for(int i=0; i<molIndex.length; i++){
+        	if(i==13) continue;
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	uCorrect += potential.energy(pairAB);
         	
-        	if(molSpeciesA == molecule0 || molSpeciesA == molecule1) continue;
-        	
-        	for(int nCellBox=0; nCellBox<molIndex.length; nCellBox++){
-        		if(nCellBox != 13){
-        			molSpeciesB = basisCell[0].molecules.getMolecule(molIndex[nCellBox][randomMol0]);
-        			pairAB.atom1 = molSpeciesB;
-        			uCorrect += potential.energy(pairAB)/2;
-        			
-        			molSpeciesB = basisCell[0].molecules.getMolecule(molIndex[nCellBox][randomMol1]);
-        			pairAB.atom1 = molSpeciesB;
-        			uCorrect += potential.energy(pairAB)/2;
-        		}
-        		
-        	}
-        	
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	uCorrect += potential.energy(pairAB);
         }
-        
+        pairAB.atom0 = molecule1;
+        for(int i=0; i<molIndex.length; i++){
+        	if(i==13) continue;
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	uCorrect += potential.energy(pairAB);
+        	
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	uCorrect += potential.energy(pairAB);
+        }
         
         energyMeter.setTarget(molecule0);
         uNew = energyMeter.getDataAsScalar();
-        uNew += uCorrect;
+        uNew -= 0.5*uCorrect;
         energyMeter.setTarget(molecule1);
         uNew += energyMeter.getDataAsScalar();
         uNew -= potential.energy(pair);
@@ -225,7 +244,6 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
          * setting uNew equal to zero, and accepting the move.
          */
        // if(Double.isInfinite(uNew)) {return true;}  
-       
         
         return true;
     }
@@ -239,7 +257,6 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
     }
 
     public void rejectNotify() {
-    	
         for(int i=0; i<molIndex.length; i++){
         	moveMoleculeAction.actionPerformed(basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]));
         }
@@ -258,8 +275,8 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
     protected MoleculeSource moleculeSource;
     protected double uOld, uNew;
     protected final IRandom random;
-    protected final AtomIteratorArrayListSimple affectedMoleculeIterator;
-    protected final AtomArrayList affectedMoleculeList;
+    protected MoleculeIteratorArrayListSimple affectedMoleculeIterator;
+    protected MoleculeArrayList affectedMoleculeList;
     protected final AtomActionTranslateBy singleAction;
     protected final MoleculePair pair, pairAB;
     protected IPotentialMolecular potential;
@@ -268,5 +285,6 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep {
     protected IMolecule molSpeciesA, molSpeciesB;
     protected int nA;
     protected BasisCell[] basisCell;
+    protected double uCorrect;
     
 }

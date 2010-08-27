@@ -1,13 +1,20 @@
 package etomica.models.nitrogen;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
+import etomica.api.IPotentialMolecular;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.MoleculeArrayList;
+import etomica.atom.MoleculePair;
+import etomica.atom.iterator.MoleculeIterator;
+import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
+import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.ISpace;
@@ -17,11 +24,13 @@ import etomica.space.RotationTensor;
 /**
  * MC Rotate Move 3D for superbox
  * 
- * 
- * @author taitan
+ * The potential master that being passed in this class is a "full-strength" potential without
+ *  multiplying by 0.5 for the speciesA and speciesB interaction.
+ *  
+ * @author Tai Boon Tan
  *
  */
-public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule {
+public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MCMoveMolecular{
     
     private static final long serialVersionUID = 2L;
     protected transient IVectorMutable r0;
@@ -38,6 +47,12 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule {
     protected BasisCell[] basisCell;
     protected IMolecule affectedMol;
     protected CoordinateDefinitionNitrogenSuperBox coordinateDef;
+    protected MoleculeIteratorArrayListSimple affectedMoleculeIterator;
+    protected MoleculeArrayList affectedMoleculeList;
+    protected MoleculePair pairAB;
+    protected IPotentialMolecular potentialAA;
+    protected double uOldPE, uNewPE;
+    protected double uCorrect;
     
     public MCMoveRotateMolecule3DSuperBox(IPotentialMaster potentialMaster, IRandom random,
     		                      ISpace _space, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef) {
@@ -45,11 +60,17 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule {
         this.basisCell = coordinateDef.getBasisCells();
         this.random = random;
         this.coordinateDef = coordinateDef;
+        box = coordinateDef.getBox();
+        setBox(coordinateDef.getBox());
+        
+        affectedMoleculeIterator = new MoleculeIteratorArrayListSimple();
+        affectedMoleculeList = new MoleculeArrayList();
+        positionDefinition = new AtomPositionGeometricCenter(space);
         
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();
-        positionDefinition = new AtomPositionGeometricCenter(space);
-        
+        pairAB = new MoleculePair();
+   
         nA = (nC*nC*nC)*basis;
         molIndex = new int[27][nA];
         
@@ -96,20 +117,29 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule {
 		        }
 	        }
         }
-        
-        
+       
     }
      
     public boolean doTrial() {
-//        System.out.println("doTrial MCMoveRotateMolecule called");
-        
+    	
         if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
             
         molNum = random.nextInt(nA);
-        molecule = basisCell[0].molecules.getMolecule(molNum);
-        
+        molecule = basisCell[0].molecules.getMolecule(molIndex[13][molNum]);
+      
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
+        
+        uCorrect = 0.0;
+        pairAB.atom0 = molecule;
+        for(int i=0; i<molIndex.length; i++){
+        	if(i==13) continue;
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	uCorrect += potentialAA.energy(pairAB);
+     
+        }
+        
+        uOld -= 0.5*uCorrect;
         
         if(Double.isInfinite(uOld)) {
             throw new RuntimeException("Overlap in initial state");
@@ -117,16 +147,53 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule {
         
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
-
+        
+        affectedMoleculeList.clear();
+        
         for(int i=0; i<molIndex.length; i++){
-        	affectedMol = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
-	        r0.E(coordinateDef.getLatticePosition(affectedMol));
-	        doTransform(affectedMol, r0);
+        	molecule = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	affectedMoleculeList.add(affectedMol);
+        	r0.E(positionDefinition.position(molecule));
+        	doTransform(molecule, r0);
         }
         
+        /*
+         * After the rotational move
+         */
+      
+        molecule = basisCell[0].molecules.getMolecule(molIndex[13][molNum]);
         energyMeter.setTarget(molecule);
+        uNew = energyMeter.getDataAsScalar();
+        
+        /*
+         * uCorrect is account for the double-counting of the molecular energy
+         */
+        uCorrect = 0.0;
+        pairAB.atom0 = molecule;
+        for(int i=0; i<molIndex.length; i++){
+        	if(i==13) continue;
+        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	uCorrect += potentialAA.energy(pairAB);
+
+        }
+        uNew -= 0.5*uCorrect;
+        
         return true;
     }
+
+    public double getB(){
+    	return -(uNew - uOld);
+    }
+    
+	public MoleculeIterator affectedMolecules(IBox aBox) {
+	   if (box == aBox) {
+		   affectedMoleculeIterator.setList(affectedMoleculeList);
+		   return affectedMoleculeIterator;
+        }
+	    
+	   return null;
+	   
+	}
     
     protected void doTransform(IMolecule molecule, IVector r0) {
         IAtomList childList = molecule.getChildList();
@@ -141,13 +208,16 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule {
     }
     
     public void rejectNotify() {
-    	
-        for(int i=0; i<molIndex.length; i++){
-        	affectedMol = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
-        	r0.E(coordinateDef.getLatticePosition(affectedMol));
-	        rotationTensor.invert();
-	        doTransform(affectedMol, r0);
-        }
-        
+    	rotationTensor.invert();
+    	for(int i=0; i<molIndex.length; i++){
+        	molecule = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	r0.E(positionDefinition.position(molecule));
+	        doTransform(molecule, r0);
+    	}
     }
+
+    public void setPotential(IPotentialMolecular newPotential){
+        potentialAA = newPotential;
+    }
+    
 }
