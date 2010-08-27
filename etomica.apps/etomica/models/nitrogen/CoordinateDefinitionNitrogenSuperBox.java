@@ -107,7 +107,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         }
         
         int nA = box.getNMolecules(speciesA); //number of molecules of the initial box
-        int nC = (int)Math.pow(nA/4, 1.0/3.0); //number of unit cell (in each dimension) of the initial box
+        int nC = (int)Math.pow(nA/4, 1.000000000001/3.0); //number of unit cell (in each dimension) of the initial box
         int first9Block = 9*nA;
         int oneThirdPlane = (nC*numBasis*3)*nC; 
         
