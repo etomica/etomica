@@ -97,6 +97,13 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         	configuration.initializeCoordinates(box);
         }
 
+        
+        /*
+         * this initialization only applied to beta phase crystal
+         * [isUnitCellA]
+         */
+        boolean isUnitCellA = true;
+        
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             
@@ -131,6 +138,56 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	            }
             }
             
+            if(isBeta){
+            	int nCell = (int)Math.pow(moleculeList.getMoleculeCount()/2, 1.000001/3.0);
+            	int numMolinZ = 2*nCell;
+            	
+            	if(iMolecule>0 && iMolecule%numMolinZ == 0){
+            		isUnitCellA = !isUnitCellA;
+            		
+            	}
+            	
+            	int rotationNum; 
+            	if(isUnitCellA){
+            		rotationNum = iMolecule % 2;
+            		
+            		if (configuration == null) {
+        	               
+            			// initialize the coordinate
+       	               	molecule.getType().initializeConformation(molecule);
+       	                
+       	                // do the orientation
+       	                
+       	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(yOrientationTensor[rotationNum]);
+       	                atomGroupAction.actionPerformed(molecule);
+       	                
+       	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
+       	                atomGroupAction.actionPerformed(molecule);
+       	                
+       	            }
+            	} else {
+            		rotationNum = (iMolecule % 2) + 2;
+            		
+            		if (configuration == null) {
+        	               
+            			// initialize the coordinate
+       	               	molecule.getType().initializeConformation(molecule);
+       	                
+       	                // do the orientation
+       	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(yOrientationTensor[rotationNum]);
+       	                atomGroupAction.actionPerformed(molecule);
+       	                
+       	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
+       	                atomGroupAction.actionPerformed(molecule);
+       	                
+       	            }	
+            		
+            	}
+            	
+            	
+            }
+            
+            
             int[] ii = indexIterator.next();
             // ii[0] and ii[1] = unit Cell number
             // ii[2] = molecule number in unit cell
@@ -163,8 +220,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
     
-
-	public void setGammaPositionAndOrientation(IMoleculeList molecules){
+/*
+ * abandoned method!!
+ */
+	public void setBetaPositionAndOrientation(IMoleculeList molecules){
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
@@ -226,6 +285,33 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
     }
     
+	public void setTest(IMoleculeList molecules){
+    	
+    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    		
+    		IVectorMutable[] orientation = new IVectorMutable[3]; 
+    		
+    		orientation[0] = space.makeVector();
+    		orientation[1] = space.makeVector();
+    		orientation[2] = space.makeVector();
+    		
+    		IMolecule molecule = molecules.getMolecule(i);
+    		
+    	    orientation[0].E(new double[]{1.0, 0.0, 0.0});
+    		orientation[1].E(new double[]{0.0, 1.0, 0.0});
+    		orientation[2].E(new double[]{0.0, 0.0, 1.0});
+  	    
+    	    orientationManager.setAgent(molecule, orientation);
+    	    moleculeSiteManager.setAgent(molecule, positionDefinition.position(molecule));
+    	   
+    	}
+    	
+    	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+
+    }
+	
+	
     public void setConfiguration(Configuration configuration){
         this.configuration = configuration;
     }
@@ -276,6 +362,48 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	xzOrientationTensor[2].E(rotationTensor);
     	
     	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(35.26438968));
+    	xzOrientationTensor[3].E(rotationTensor);
+    	
+    }
+    
+    public void setOrientationVectorBeta(ISpace space){
+    	/*
+    	 * Through minimized structure.
+    	 * 
+    	 * this is probably not convenient and a little confusing in term of the notation.
+    	 * yOrientation is actually z-Orientation and
+    	 * xzOrientation is actually xyOrientation.
+    	 * 
+    	 * rotation in clockwise (with rotation axis pointing at you/ out of the page) takes in positive angle
+    	 */
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(41.68009045677981));
+    	yOrientationTensor[0].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(41.675704190880026));
+    	yOrientationTensor[1].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(-41.6665632114643));
+    	yOrientationTensor[2].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(-41.679153227700894));
+    	yOrientationTensor[3].E(rotationTensor);
+    	
+    	/*
+    	 * rotation Axis about (x, -y, 0)
+    	 */
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.6649708673741139, -0.7468692961581154, 0.0}), Math.toRadians(-33.44359507638775));
+    	xzOrientationTensor[0].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.6649136890095793, -0.7469202006691695, 0.0}), Math.toRadians(33.45253957035785));
+    	xzOrientationTensor[1].E(rotationTensor);
+    
+    	/*
+    	 * rotation Axis about (-x, -y, 0)
+    	 */
+       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-0.6647945167590543, -0.7470262716177362, 0.0}),  Math.toRadians(33.46313235674357));
+    	xzOrientationTensor[2].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-0.6649586501964135, -0.7468801734742754, 0.0}),  Math.toRadians(-33.447623057331526));
     	xzOrientationTensor[3].E(rotationTensor);
     	
     }
@@ -378,6 +506,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
      * initNomial is the method to define the initial orientation of the molecule
      */
     public void initNominalU(IMoleculeList molecules) {
+    	IVectorMutable orientationMol2 = space.makeVector();
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
@@ -427,6 +556,43 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    		orientation[2].normalize();
     	    	}
     	    }
+    	    
+    	    if(isBeta){
+        		IMolecule molecule2;
+        		
+        		if(i%2 == 0){
+    	    		molecule2 = molecules.getMolecule(i+1);
+        		
+        		} else {
+        			molecule2 = molecules.getMolecule(i-1);
+            			
+        		}
+        		
+        	   	IVectorMutable molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
+        	   	IVectorMutable molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+        	 
+        	  	IVectorMutable mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
+        	   	IVectorMutable mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
+        	   	
+        	   	orientation[0].Ev1Mv2(molleafPos1, molleafPos0);
+        	    orientation[0].normalize();
+      
+        	    orientationMol2.Ev1Mv2(mol2leafPos1, mol2leafPos0);
+        	    orientationMol2.normalize();
+        	    
+        	    if(i%2 == 0){
+        	    	orientation[2].E(orientation[0]);
+        	    	orientation[2].XE(orientationMol2);
+        	    	orientation[2].normalize();
+        	    	
+        	    } else {
+        	    	orientation[2].E(orientationMol2);
+        	    	orientation[2].XE(orientation[0]);
+        	    	orientation[2].normalize();
+        	    	
+        	    }
+    	    }
+    	    
     	    orientation[1].E(orientation[2]);
     	    orientation[1].XE(orientation[0]);
     	    orientation[1].normalize();
@@ -444,6 +610,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	isAlpha = true;
     }
 
+    public void setIsBeta(){
+    	isBeta = true;
+    }
+    
     public IVectorMutable[] getMoleculeOrientation(IMolecule molecule) {
        /*
         * return the initial Orientation of the molecule
@@ -637,6 +807,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     protected final MoleculeChildAtomAction atomGroupAction;
     public boolean isAlpha=false;
     public boolean isGamma=false;
+    public boolean isBeta=false;
     protected IRandom random;
 
     protected static class OrientationAgentSource implements MoleculeAgentSource, Serializable {
