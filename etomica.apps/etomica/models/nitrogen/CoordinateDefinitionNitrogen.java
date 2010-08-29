@@ -2,6 +2,7 @@ package etomica.models.nitrogen;
 
 import java.io.Serializable;
 
+import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -47,6 +48,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	xzOrientationTensor = new Tensor[4];
     	yOrientationTensor = new Tensor[4];
     	
+    	positionVector = new IVectorMutable[4];
+
     	for(int i=0; i<xzOrientationTensor.length; i++){
     		xzOrientationTensor[i] = space.makeTensor();
     	}
@@ -54,10 +57,20 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	for(int i=0; i<yOrientationTensor.length; i++){
     		yOrientationTensor[i] = space.makeTensor();
     	}
+    	
+    	positionVector[0] = space.makeVector(new double[]{-0.01769046232605003, -0.036932136480007434, -5.9585171577170365E-5});
+    	positionVector[1] = space.makeVector(new double[]{ 0.018633051735877395, 0.037645190581725024, -5.3840682197738796E-5});
+    	positionVector[2] = space.makeVector(new double[]{ 0.01859592800815902, -0.036939857722296486, -6.615619904963137E-5});
+    	positionVector[3] = space.makeVector(new double[]{-0.017669323683296188, 0.03766804096641073, -6.834032947314052E-5});
+    	
     	axis = space.makeVector();
     	
         orientationManager = new MoleculeAgentManager(sim, box, new OrientationAgentSource());
         atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
+        
+        translateBy = new AtomActionTranslateBy(space);
+        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
+        
         random = new RandomNumberGenerator();
     }
 
@@ -163,7 +176,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
        	                
        	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
        	                atomGroupAction.actionPerformed(molecule);
-       	                
+       	             
        	            }
             	} else {
             		rotationNum = (iMolecule % 2) + 2;
@@ -180,7 +193,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
        	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
        	                atomGroupAction.actionPerformed(molecule);
        	                
-       	            }	
+            		}	
             		
             	}
             	
@@ -211,6 +224,25 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
                 cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
+            /*
+             * Translate the lattice position of molecules
+             * ONLY apply for beta phase nitrogen
+             */
+            if(isBeta){
+            	
+            	int rotationNum; 
+            	if(isUnitCellA){
+            		rotationNum = iMolecule % 2;
+            		translateBy.setTranslationVector(positionVector[rotationNum]);
+            		atomGroupActionTranslate.actionPerformed(molecule);
+	             
+            	} else {
+            		rotationNum = (iMolecule % 2) + 2;
+            		translateBy.setTranslationVector(positionVector[rotationNum]);
+            		atomGroupActionTranslate.actionPerformed(molecule);
+            	}
+            }
+            
             currentList.add(molecule);
         }
         
@@ -800,11 +832,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     protected final RotationTensor3D rotationTensor;
     protected final Tensor[] xzOrientationTensor;
     protected final Tensor[] yOrientationTensor;
+    protected IVectorMutable[] positionVector;
 	protected final Tensor3D tensor = new Tensor3D(new double [][]{{1.0, 0.0, 0.0},{0.0, 1.0, 0.0},{0.0, 0.0, 1.0}});
     protected final IVectorMutable axis;
     protected Configuration configuration;
     protected MoleculeAgentManager orientationManager; 
     protected final MoleculeChildAtomAction atomGroupAction;
+    protected AtomActionTranslateBy translateBy;
+    protected MoleculeChildAtomAction atomGroupActionTranslate;
     public boolean isAlpha=false;
     public boolean isGamma=false;
     public boolean isBeta=false;
