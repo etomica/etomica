@@ -67,7 +67,7 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
     
     protected void addRangedPotential(IPotentialMolecular potential, ISpecies species) {
         
-        PotentialArray potentialAtomType = (PotentialArray)speciesAgentManager.getAgent(species);
+        PotentialArrayMolecular potentialAtomType = (PotentialArrayMolecular)speciesAgentManager.getAgent(species);
         potentialAtomType.addPotential(potential);
         boolean found = false;
         for (int i=0; i<allPotentials.length; i++) {
@@ -110,11 +110,11 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
     }
     
     public Class getSpeciesAgentClass() {
-        return PotentialArray.class;
+        return PotentialArrayMolecular.class;
     }
     
     public Object makeAgent(ISpecies species) {
-        return new PotentialArray();
+        return new PotentialArrayMolecular();
     }
     
     public void releaseAgent(Object agent, ISpecies type) {

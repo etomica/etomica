@@ -4,6 +4,7 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.space.ISpace;
 
 /**
@@ -29,6 +30,10 @@ public class BoxAgentSourceCellManagerListMolecular extends BoxAgentSourceCellMa
         return cellManager;
     }
 
+    public Class getAgentClass() {
+        return NeighborCellManagerListMolecular.class;
+    }
+    
     private static final long serialVersionUID = 1L;
     protected PotentialMasterListMolecular potentialMaster;
 }

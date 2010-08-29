@@ -15,16 +15,14 @@ import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.box.BoxAgentManager;
-import etomica.nbr.CriterionAdapter;
-import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
+import etomica.nbr.molecule.CriterionAdapterMolecular;
 import etomica.nbr.molecule.CriterionSimpleMolecular;
 import etomica.nbr.molecule.CriterionSpeciesPair;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
 import etomica.nbr.molecule.PotentialMasterNbrMolecular;
-import etomica.potential.PotentialArray;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.potential.PotentialCalculationMolecular;
 import etomica.space.ISpace;
@@ -44,7 +42,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * Default constructor uses range of 1.0.
      */
     public PotentialMasterListMolecular(ISimulation sim, ISpace _space) {
-        this(sim,1.0, _space);
+        this(sim, 1.0, _space);
     }
     
     /**
@@ -121,7 +119,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
-            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
+            NeighborCellManagerMolecular cellManager = (NeighborCellManagerMolecular)iterator.next();
             cellManager.setPotentialRange(range);
         }
 
@@ -225,7 +223,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         rangedPotentialIterator.reset();
         maxPotentialRange = 0;
         while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
             IPotential[] potentials = potentialArray.getPotentials();
             for (int i=0; i<potentials.length; i++) {
                 if (potentials[i].getRange() > maxPotentialRange) {
@@ -259,12 +257,12 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
         rangedPotentialIterator.reset();
         while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
             IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
+            NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
             // this will double (or more) count criteria that apply to multiple atom types, but it won't hurt us
             for (int j=0; j<criteria.length; j++) {
-                CriterionSimple rangedCriterion = getRangedCriterion(criteria[j]);
+                CriterionSimpleMolecular rangedCriterion = getRangedCriterion(criteria[j]);
                 if (rangedCriterion != null) {
                     double newRange = maxDisplacement/safetyFactor + potentials[j].getRange();
                     rangedCriterion.setNeighborRange(newRange);
@@ -279,10 +277,10 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * Returns the criterion used by to determine what atoms interact with the
      * given potential.
      */
-    public NeighborCriterion getCriterion(IPotentialAtomic potential) {
+    public NeighborCriterionMolecular getCriterion(IPotentialMolecular potential) {
         rangedPotentialIterator.reset();
         while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
@@ -297,12 +295,12 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * Convenience method to return the wrapped range-dependent criterion, if 
      * one exists
      */
-    private static CriterionSimple getRangedCriterion(NeighborCriterion criterion) {
-        if (criterion instanceof CriterionSimple) {
-            return (CriterionSimple)criterion;
+    private static CriterionSimpleMolecular getRangedCriterion(NeighborCriterionMolecular criterion) {
+        if (criterion instanceof CriterionSimpleMolecular) {
+            return (CriterionSimpleMolecular)criterion;
         }
-        if (criterion instanceof CriterionAdapter) {
-            return getRangedCriterion(((CriterionAdapter)criterion).getWrappedCriterion());
+        if (criterion instanceof CriterionAdapterMolecular) {
+            return getRangedCriterion(((CriterionAdapterMolecular)criterion).getWrappedCriterion());
         }
         return null;
     }
@@ -314,8 +312,8 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * criterion.  The potential passed to this method must be a potential 
      * handled by this instance.
      */
-    public void setCriterion(IPotentialAtomic potential, NeighborCriterion criterion) {
-        NeighborCriterion oldCriterion = getCriterion(potential);
+    public void setCriterion(IPotentialMolecular potential, NeighborCriterionMolecular criterion) {
+        NeighborCriterionMolecular oldCriterion = getCriterion(potential);
         if (oldCriterion != null) {
             // remove the criterion to all existing NeighborListManagers
             allCriteria = (NeighborCriterionMolecular[]) Arrays.removeObject(allCriteria, criterion);
@@ -323,7 +321,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         rangedPotentialIterator.reset();
         boolean success = false;
         while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
             IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
@@ -524,7 +522,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
-            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
+            NeighborCellManagerMolecular cellManager = (NeighborCellManagerMolecular)iterator.next();
             cellManager.setCellRange(cellRange);
         }
     }
