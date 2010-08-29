@@ -32,7 +32,7 @@ public class SimulationEventManager implements ISimulationEventManager {
 //        if (intervalListeners.contains(listener)) {
 //            throw new RuntimeException(listener+" is already an interval action");
 //        }
-        intervalListeners.add(0, listener);
+        intervalListeners.add(listener);
     }
 
     public synchronized void boxAdded(IBox box) {
