@@ -186,9 +186,9 @@ public class VirialExternalField {
      * Inner class for parameters
      */
     public static class VirialExternalFieldParam extends ParameterBase {
-        public int nPoints = 3;
+        public int nPoints = 4;
         public double temperature = 1.5;
-        public long numSteps = 100000;
+        public long numSteps = 10000000;
         public double z0=-4.5;        
     }
 }
