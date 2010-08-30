@@ -167,7 +167,7 @@ public class HarmonicCrystalSsFccNxy {
         System.out.println("Harmonic-reference free energy: "+ (a-u));
       
         System.out.println("\nCalcHarmonicA from file (Temperature-independent)");
-        CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, T, basis.getScaledCoordinates().length);
+        CalcHarmonicA.doit(harmonicCrystal.getNormalModes(), 3, T, nA);
 
     }
     
@@ -183,9 +183,9 @@ public class HarmonicCrystalSsFccNxy {
     public static class Params extends ParameterBase {
         public double T = 0.01;
         public double rho = 1.1964;
-        public int[] shape = new int[] {2, 2, 4};
+        public int[] shape = new int[] {2, 2, 2};
         public String filename = "inputSSDB_";
-        public double rc = 2.2 ;
+        public double rc = 1.4803453945760225 ;
     }
     
 }
