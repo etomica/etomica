@@ -153,6 +153,8 @@ public class SimDifferentImageSsFcc extends Simulation {
             bdryRef.setBoxSize(edges);
         }
         boxRef.setBoundary(bdryRef);
+        cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
+        cDefRef.initializeCoordinates(nCellsRef);
         
 //      PotentialMasterMonatomic potentialMasterRef = new PotentialMasterMonatomic(this);
 //      Potential2SoftSpherical potentialBase = new P2SoftSphere(
@@ -176,9 +178,6 @@ public class SimDifferentImageSsFcc extends Simulation {
         potentialMaster.addPotential(potential, new IAtomType[] {
                 species.getLeafType(), species.getLeafType()});
         potentialMaster.setRange(neighborRange);
-        
-        cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
-        cDefRef.initializeCoordinates(nCellsRef);
         potentialMaster.lrcMaster().setEnabled(false);
         potentialMaster.getNeighborManager(boxRef).reset();
         
@@ -227,14 +226,13 @@ public class SimDifferentImageSsFcc extends Simulation {
         
         
         mcMoveAtom.setBox(boxRef);
-        mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         integratorRef.getMoveManager().addMCMove(mcMoveAtom);
         integratorRef.setMeterPotentialEnergy(meterRefInRef);
         
         
 //TARGET
-        // Set up target system - A, 1
+        // Set up target system
         boxTarget = new Box(space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, targAtoms);
@@ -263,6 +261,9 @@ public class SimDifferentImageSsFcc extends Simulation {
             bdryTarget.setBoxSize(edges);
         }
         boxTarget.setBoundary(bdryTarget);
+        cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
+        cDefTarget.initializeCoordinates(nCellsTarget);
+        
         
         
 //      PotentialMasterMonatomic potentialMasterTarget = new 
@@ -274,8 +275,6 @@ public class SimDifferentImageSsFcc extends Simulation {
 //      potentialMasterTarget.addPotential(potential, new IAtomType[] {
 //              species.getLeafType(), species.getLeafType()});
         
-        cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        cDefTarget.initializeCoordinates(nCellsTarget);
         potentialMaster.getNeighborManager(boxTarget).reset();
         
         IntegratorMC integratorTarget = new IntegratorMC(potentialMaster,
@@ -319,7 +318,6 @@ public class SimDifferentImageSsFcc extends Simulation {
                 
         
         mcMoveAtom.setBox(boxTarget);
-        mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
         integratorTarget.getMoveManager().addMCMove(mcMoveAtom);
         integratorTarget.setMeterPotentialEnergy(meterTargInTarg);
@@ -653,7 +651,8 @@ public class SimDifferentImageSsFcc extends Simulation {
                 ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.
                         StatType.RATIO_ERROR.index)).getData()[1]);
     
-        System.out.println("calculated diff " + (-temperature*(Math.log(ratio * sim.meterTargInRef.getScaling()) 
+        System.out.println("calculated diff " + (-temperature*
+                (Math.log(ratio * sim.meterTargInRef.getScaling()) 
                 - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI) 
                 - 0.5 * Math.log(nTargA)
                 + 0.5 * Math.log(nRefA))));
