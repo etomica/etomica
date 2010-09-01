@@ -771,7 +771,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     
     
     public double getRange() {
-        return Double.POSITIVE_INFINITY;
+        return rC;
     }
     
     private static final long serialVersionUID = 1L;
