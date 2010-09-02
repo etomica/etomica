@@ -3,7 +3,6 @@ package etomica.models.nitrogen;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
@@ -17,7 +16,6 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
@@ -72,9 +70,6 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 		
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
-		
-		
-		
 		
 //		potential.setEnablePBC(false);
 //		
@@ -242,14 +237,13 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int numMolecule =256;
+		int numMolecule =108;
 		double density = 0.025;
 		HarmonicAlphaNitrogenModel test = new HarmonicAlphaNitrogenModel(Space3D.getInstance(3), numMolecule, density);
 		
+		long startTime = System.currentTimeMillis();
 		double[] newU = new double[test.coordinateDef.getCoordinateDim()];
-		
 		double[][]testArray = test.get2ndDerivative(test.coordinateDef);
-		//System.exit(1);
 		
 		String fname = new String (numMolecule+"_2ndDer_d"+density+"_new");
 		try {
@@ -272,9 +266,9 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 			
 		}
 	
-//		System.out.println("d2phi_du2: " + cm2ndD.d2phi_du2(new int[]{5,54}, newU));
-//		System.out.println("d2phi_du2: " + cm2ndD.d2phi_du2(new int[]{54,5}, newU));
 
+		long endTime = System.currentTimeMillis();
+		System.out.println("Time taken (s): " + (endTime-startTime)/1000);
 	}
 	
 	
