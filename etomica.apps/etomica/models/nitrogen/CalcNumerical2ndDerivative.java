@@ -43,17 +43,8 @@ public class CalcNumerical2ndDerivative{
 			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, newU);
 		}
-				
-		double energy = meterPotential.getDataAsScalar();
 		
-		for (int i=0; i<newU.length; i++){
-			newU[i] = 0.0;
-		}
-		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
-			coordinateDefinition.setToU(molecules, newU);
-		}
-		return energy;
+		return meterPotential.getDataAsScalar();
 	}
 
 	public double dphi_du(int[] d, double u[]) {
@@ -149,6 +140,7 @@ public class CalcNumerical2ndDerivative{
 			double fMinus= f(u);
 			u[d[0]] = 0.0;
 			
+			setToInitialPosition();
 			return (fPlus - fMinus)/(2.0*deltaU);
 			
 		} else {
@@ -176,6 +168,7 @@ public class CalcNumerical2ndDerivative{
 				double f_um1 = f(u);
 				u[d[0]] = u[d[1]] = 0;
 				
+				setToInitialPosition();
 				return (f_up1 - 2*f_init + f_um1)/(deltaU*deltaU);  
 			
 			} else {
@@ -204,8 +197,18 @@ public class CalcNumerical2ndDerivative{
 				double f_im1jp1 = f(u);
 				
 				u[d[0]] = u[d[1]] = 0;
+				
+				setToInitialPosition();
 				return (f_ip1jp1 - f_ip1jm1 - f_im1jp1 + f_im1jm1)/(4*deltaU*deltaU);
 			}
+		}
+	}
+	
+	public void setToInitialPosition(){
+		double newU[] = new double[coordinateDefinition.getCoordinateDim()];
+		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
+			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			coordinateDefinition.setToU(molecules, newU);
 		}
 	}
 	
