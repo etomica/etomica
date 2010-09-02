@@ -36,7 +36,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 		
 		
 		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
+		double unitCellLength = 5.661;//Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
 		System.out.println("a: " + unitCellLength);
 		System.out.println("nCell: " + nCell);
 		
@@ -70,36 +70,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 		
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
-		
-//		potential.setEnablePBC(false);
-//		
-//		FunctionGeneral function = new FunctionGeneral() {
-//			public IData f(Object obj) {
-//				data.x = potential.energy((IMoleculeList)obj);
-//				return data;
-//			}
-//			public IDataInfo getDataInfo() {
-//				return dataInfo;
-//			}
-//			final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
-//			final DataDouble data = new DataDouble();
-//		};
-//		
-//		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basisFCC);
-//		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
-//		latticeSum.setMaxLatticeShell(2);
-//		
-//		double sum = 0;
-//	    double basisDim = lattice.getBasis().getScaledCoordinates().length;
-//		DataGroupLSC data = (DataGroupLSC)latticeSum.calculateSum(function);
-//        for(int j=0; j<basisDim; j++) {
-//            for(int jp=0; jp<basisDim; jp++) {
-//                sum += ((DataDouble)data.getDataReal(j,jp)).x; 
-//            }
-//        }
-//        System.out.println("lattice:  " + 0.5*sum/basisDim);
-//		System.exit(1);
-		
+
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 
 	}
@@ -128,8 +99,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 				/*
 				 * working within the 5x5 Matrix
 				 */
-				
-				// Analytical solution for 3x3 Translational second Derivative
+				// Analytical calculation for 3x3 Translational second Derivative
 				pair.atom1 = box.getMoleculeList().getMolecule(molec1);
 		
 				transTensor.E(potential.secondDerivative(pair));
@@ -138,30 +108,14 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 						array[molec0*dofPerMol + i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
 					}
 				}
-				// Numerical Solution for 3x2 Cross (trans and rotation) second Derivative
-				for(int i=0; i<3; i++){
-					for(int j=3; j<dofPerMol; j++){
+				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+				for(int i=0; i<dofPerMol; i++){
+					for(int j=0; j<dofPerMol; j++){
+						if(i<3 && j<3) continue;
 						array[molec0*dofPerMol + i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{(molec0*dofPerMol + i),(molec1*dofPerMol + j)}, newU);
 			
 					}
 				}
-				
-				// Assignment of the lower 2x3 Cross (trans and rotation) second Derivative
-				for(int i=3; i<dofPerMol; i++){
-					for(int j=0; j<3; j++){
-						array[molec0*dofPerMol + i][molec1*dofPerMol + j] = array[molec0*dofPerMol + j][molec1*dofPerMol + i];
-					}
-				}
-				
-				// Numerical Solution for 2x2 rotation second Derivative
-				for(int i=3; i<dofPerMol; i++){
-					for(int j=i; j<dofPerMol; j++){
-						array[molec0*dofPerMol + i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{(molec0*dofPerMol + i),(molec1*dofPerMol + j)}, newU);
-					}
-				}
-				// Assignment 5th-row and 4th-column element of the rotation second Derivative
-				array[molec0*dofPerMol + 4][molec1*dofPerMol + 3] = array[molec0*dofPerMol + 3][molec1*dofPerMol + 4];
-				
 			}
 		}
 		
@@ -201,33 +155,14 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
     			}
     		}
     	}
+		
 		for(int molec0=0; molec0<numMolecule; molec0++){
-			for(int molec1=0; molec1<numMolecule; molec1++){
-    			if(molec0==molec1){
-    				// Numerical Solution for 3x2 Cross (trans and rotation) second Derivative
-    				for(int i=0; i<3; i++){
-    					for(int j=3; j<dofPerMol; j++){
-    						array[molec0*dofPerMol + i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{(molec0*dofPerMol + i),(molec1*dofPerMol + j)}, newU);
-    			
-    					}
-    				}
-    				
-    				// Assignment of the lower 2x3 Cross (trans and rotation) second Derivative
-    				for(int i=3; i<dofPerMol; i++){
-    					for(int j=0; j<3; j++){
-    						array[molec0*dofPerMol + i][molec1*dofPerMol + j] = array[molec0*dofPerMol + j][molec1*dofPerMol + i];
-    					}
-    				}
-    				
-    				// Numerical Solution for 2x2 rotation second Derivative
-    				for(int i=3; i<dofPerMol; i++){
-    					for(int j=i; j<dofPerMol; j++){
-    						array[molec0*dofPerMol + i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{(molec0*dofPerMol + i),(molec1*dofPerMol + j)}, newU);
-    					}
-    				}
-    				// Assignment 5th-row and 4th-column element of the rotation second Derivative
-    				array[molec0*dofPerMol + 4][molec1*dofPerMol + 3] = array[molec0*dofPerMol + 3][molec1*dofPerMol + 4];
-    			}
+			// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+			for(int i=0; i<dofPerMol; i++){
+				for(int j=0; j<dofPerMol; j++){
+					if(i<3 && j<3) continue;
+					array[molec0*dofPerMol + i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{(molec0*dofPerMol + i),(molec0*dofPerMol + j)}, newU);
+				}    		
     		}
     	}
 		
@@ -237,7 +172,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int numMolecule =108;
+		int numMolecule =32;
 		double density = 0.025;
 		HarmonicAlphaNitrogenModel test = new HarmonicAlphaNitrogenModel(Space3D.getInstance(3), numMolecule, density);
 		
