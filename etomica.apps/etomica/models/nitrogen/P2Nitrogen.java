@@ -7,10 +7,12 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.data.types.DataTensor;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialMolecularSoft;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
+import etomica.space3d.Tensor3D;
 import etomica.units.Kelvin;
 
 /** 
@@ -34,6 +36,8 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 		shift = space.makeVector();
 		com1 = space.makeVector();
 		com2 = space.makeVector();
+		vectorR = space.makeVector();
+		
 		C = new double[5];
 		C[0] = Kelvin.UNIT.toSim( 415.73107);  //[K]
 		C[1] = Kelvin.UNIT.toSim(-1446.74414); //[KA^-1]
@@ -704,12 +708,497 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 		return gradient;
 	}
 
+    public DataTensor secondDerivative(IMoleculeList pair){
+    	
+    	DataTensor tensor = new DataTensor(space);
+    	DataTensor sumTensor = new DataTensor(space);
+    	
+    	double r;
+		double r2 = 0.0;
 
+		IMolecule nitrogena = pair.getMolecule(0);
+		IMolecule nitrogenb = pair.getMolecule(1);
+		
+		// to compute the midpoint distance between the two
+		IVectorMutable pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
+		IVectorMutable pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
+		
+		com1.E(pos1);
+		com2.E(pos2);
+		
+		IVectorMutable diff1 = space.makeVector();
+		IVectorMutable diff2 = space.makeVector();
+		
+		diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
+		diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
+					
+		com1.PEa1Tv1(-0.5, diff1); 		
+		com2.PEa1Tv1(-0.5, diff2);
+		
+	    /*
+         *  to check for the nearest image
+         *  if it is not nearest image, zeroShift will return 0.0
+         */
+		
+		work.Ev1Mv2(com1, com2);
+		//System.out.println("<P2Nitrogen> distance: " + Math.sqrt(work.squared()));
+		final boolean zeroShift;
+		
+		if(enablePBC){
+			shift.Ea1Tv1(-1,work);
+			boundary.nearestImage(work);
+			shift.PE(work);
+			zeroShift = shift.squared() < 0.1;
+		} else {
+			zeroShift = true;
+		}
+		
+		r2 = work.squared();
+		
+		if (r2 > rC*rC){ 
+			//System.out.println("TRUNCATED!!!");
+			return sumTensor;
+		}
+		//if(r2<1.6) return Double.POSITIVE_INFINITY;
+		
+		/*
+		 * for the point/ atomic assignment
+		 * refer to SpeciesN2.java class
+		 * 
+		 */
+        IVectorMutable Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
+        IVectorMutable Pa2l = nitrogena.getChildList().getAtom(3).getPosition();                                                                        
+        IVectorMutable Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
+        IVectorMutable Pa2r = nitrogena.getChildList().getAtom(5).getPosition();
+        
+        IVectorMutable Pb1l = nitrogenb.getChildList().getAtom(2).getPosition();
+        IVectorMutable Pb2l = nitrogenb.getChildList().getAtom(3).getPosition();
+        IVectorMutable Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
+        IVectorMutable Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
+        
+        double r2QQ = 0*2.25;
+        
+        if (zeroShift) {
+    		/*
+    		 * 'for' loop for 4 pairs van der Waals interaction between the 
+    		 * 	non-bonded atoms between the 2 molecules 
+    		 */
+    		
+    		for (int i=0; i<2; i++){
+    			IVectorMutable dist = (nitrogena.getChildList().getAtom(i)).getPosition();
+    			
+    			for (int j=0; j<2; j++){
+    				
+    				vectorR.Ev1Mv2(dist, (nitrogenb.getChildList().getAtom(j)).getPosition());
+    				double distr2 = vectorR.squared();
+    				tensor.x.Ev1v2(vectorR, vectorR);
+    				
+    				if(Math.sqrt(distr2) > R1){            // R > R1
+    					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
+    					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
+    					sumTensor.PE(tensor);
+    				
+    				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
+    					tensor.TE(1.0/(distr2*distr2)*(dUR1gtRgteqR0(distr2) - d2UR1gtRgteqR0(distr2)));
+    					tensor.x.PEa1Tt1(-dUR1gtRgteqR0(distr2)/distr2, identity);
+    					sumTensor.PE(tensor);
+    					
+    				} else if (Math.sqrt(distr2) < R0){   	// R < R0
+    					tensor.TE(1.0/(distr2*distr2)*(dURltR0(distr2) - d2URltR0(distr2)));
+    					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
+    					sumTensor.PE(tensor);
+    				}
+    			}
+    			
+    		}
+    		        	
+        	//Pa1l
+    		vectorR.Ev1Mv2(Pa1l, Pb1l);
+			r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+			
+			
+            vectorR.Ev1Mv2(Pa1l, Pb2l);
+        	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+			
+			
+            vectorR.Ev1Mv2(Pa1l, Pb2r);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+            vectorR.Ev1Mv2(Pa1l, Pb1r);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+        
+            //Pa2l
+            vectorR.Ev1Mv2(Pa2l, Pb1l);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+
+            vectorR.Ev1Mv2(Pa2l, Pb2l);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+			vectorR.Ev1Mv2(Pa2l, Pb2r);
+		   	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+			
+            
+			vectorR.Ev1Mv2(Pa2l, Pb1r);
+		   	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+		
+            //Pa2r
+            vectorR.Ev1Mv2(Pa2r, Pb1l);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+            vectorR.Ev1Mv2(Pa2r, Pb2l);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+            vectorR.Ev1Mv2(Pa2r, Pb2r);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+            vectorR.Ev1Mv2(Pa2r, Pb1r);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+       
+            //Pa1r
+            vectorR.Ev1Mv2(Pa1r, Pb1l);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+            vectorR.Ev1Mv2(Pa1r, Pb2l);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+            
+            vectorR.Ev1Mv2(Pa1r, Pb2r);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+            
+            vectorR.Ev1Mv2(Pa1r, Pb1r);
+           	r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+        } 
+        
+        else {
+        	
+    		/*
+    		 * 'for' loop for 4 pairs van der Waals interaction between the 
+    		 * 	non-bonded atoms between the 2 molecules 
+    		 * 
+    		 * 
+    		 */
+        	
+    		for (int i=0; i<2; i++){
+    			IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			shift.TE(-1.0);
+    			shift.PE(dist);
+    			
+    			for (int j=0; j<2; j++){
+    				
+    				vectorR.Ev1Mv2((nitrogena.getChildList().getAtom(j)).getPosition(), shift);
+    				double distr2 = vectorR.squared();
+    				tensor.x.Ev1v2(vectorR, vectorR);
+    				
+    				if(Math.sqrt(distr2) > R1){            // R > R1
+    					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
+    					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
+    					sumTensor.PE(tensor);
+    				
+    				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
+    					tensor.TE(1.0/(distr2*distr2)*(dUR1gtRgteqR0(distr2) - d2UR1gtRgteqR0(distr2)));
+    					tensor.x.PEa1Tt1(-dUR1gtRgteqR0(distr2)/distr2, identity);
+    					sumTensor.PE(tensor);
+    					
+    				} else if (Math.sqrt(distr2) < R0){   	// R < R0
+    					tensor.TE(1.0/(distr2*distr2)*(dURltR0(distr2) - d2URltR0(distr2)));
+    					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
+    					sumTensor.PE(tensor);
+    				}
+    				    				
+    			}
+    			shift.ME(dist);
+    			shift.TE(-1.0);
+    		}
+    		
+        	shift.TE(-1.0);
+        	shift.PE(Pb1l);
+            vectorR.Ev1Mv2(Pa1l, shift);
+            shift.ME(Pb1l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb1l);      
+            vectorR.Ev1Mv2(Pa2l, shift);
+            shift.ME(Pb1l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb1l);
+            vectorR.Ev1Mv2(Pa2r, shift);
+            shift.ME(Pb1l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb1l);
+            vectorR.Ev1Mv2(Pa1r, shift);
+            shift.ME(Pb1l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+            
+            ////////////
+        	shift.TE(-1.0);
+            shift.PE(Pb2l);
+            vectorR.Ev1Mv2(Pa1l, shift);
+            shift.ME(Pb2l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb2l);
+            vectorR.Ev1Mv2(Pa2l, shift);
+            shift.ME(Pb2l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb2l);
+            vectorR.Ev1Mv2(Pa2r, shift);
+            shift.ME(Pb2l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+            
+
+        	shift.TE(-1.0);
+            shift.PE(Pb2l);
+            vectorR.Ev1Mv2(Pa1r, shift);
+            shift.ME(Pb2l);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+            
+            //////////////////////
+        	shift.TE(-1.0);
+            shift.PE(Pb2r);
+            vectorR.Ev1Mv2(Pa1l, shift);
+            shift.ME(Pb2r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb2r);
+            vectorR.Ev1Mv2(Pa2l, shift);
+            shift.ME(Pb2r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb2r);
+            vectorR.Ev1Mv2(Pa2r, shift);
+            shift.ME(Pb2r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP2P2/r) - (2*chargeP2P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP2P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb2r);
+            vectorR.Ev1Mv2(Pa1r, shift);
+            shift.ME(Pb2r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+            
+            /////////////
+        	shift.TE(-1.0);
+            shift.PE(Pb1r);
+            vectorR.Ev1Mv2(Pa1l, shift);
+            shift.ME(Pb1r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb1r);
+            vectorR.Ev1Mv2(Pa2l, shift);
+            shift.ME(Pb1r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb1r);
+            vectorR.Ev1Mv2(Pa2r, shift);
+            shift.ME(Pb1r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P2/r) - (2*chargeP1P2/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P2/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+
+        	shift.TE(-1.0);
+            shift.PE(Pb1r);
+            vectorR.Ev1Mv2(Pa1r, shift);
+            shift.ME(Pb1r);
+            r2 = vectorR.squared();
+			r = Math.sqrt(r2);
+			tensor.x.Ev1v2(vectorR, vectorR);
+			tensor.TE(1.0/(r2*r2)*( (-chargeP1P1/r) - (2*chargeP1P1/r)));
+			tensor.x.PEa1Tt1(-(-chargeP1P1/r)/r2, identity);
+			sumTensor.PE(tensor);
+        	shift.TE(-1.0);
+            
+        }
+        return sumTensor;																					        
+	}
+	
+	
 	public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	/*
+	 * energy potential
+	 */
     private double URgtR1(double r2){
     	return A1*Math.exp(-alpha1*Math.sqrt(r2)) - B1/(r2*r2*r2);
     
@@ -733,8 +1222,9 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     	return A2*Math.exp(-alpha2*Math.sqrt(r2)) - B1/(r2*r2*r2);
     	
     }
-    
-    
+    /*
+     * first derivative
+     */
     private double dURgtR1(double r2){
     	double r = Math.sqrt(r2);
     	return -(alpha1*r)*A1*Math.exp(-alpha1*r) - (-6)*B1/(r2*r2*r2);
@@ -761,6 +1251,30 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     	
     }
 
+    /*
+     * second derivative
+     */
+    
+    private double d2URgtR1(double r2){
+    	double r = Math.sqrt(r2);
+    	return  (alpha1*alpha1*r*r)*A1*Math.exp(-alpha1*r) - (6*7)*B1/(r2*r2*r2);
+    
+    }
+    
+    private double d2UR1gtRgteqR0(double r2){
+    	double r = Math.sqrt(r2);
+    	double rDiff = (r-R0); 
+    	double sumU = 12*C[4]*rDiff*rDiff + 6*C[3]*rDiff + 2*C[2];
+    	
+    	return r*r*sumU - (6*7)*B1/(r2*r2*r2);
+    }
+    
+    private double d2URltR0(double r2){
+    	double r = Math.sqrt(r2);
+    	return (alpha2*alpha2*r*r)*A2*Math.exp(-alpha2*r) - (6*7)*B1/(r2*r2*r2);
+    	
+    }
+    
 	public boolean isEnablePBC() {
 		return enablePBC;
 	}
@@ -794,8 +1308,8 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 	protected double[] C;
 	
 	protected final IVectorMutable work, shift;
-	protected final IVectorMutable com1, com2;
+	protected final IVectorMutable com1, com2, vectorR;
 	protected double rC, r2;
 	protected boolean enablePBC = true;
-
+	protected final Tensor identity = new Tensor3D(new double[][]{{1.0,0.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}});
 }
