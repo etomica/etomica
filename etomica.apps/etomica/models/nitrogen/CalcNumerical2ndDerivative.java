@@ -38,13 +38,22 @@ public class CalcNumerical2ndDerivative{
 	}
  	
 	public double f(double[] newU) {
-		
+	
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
 			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, newU);
 		}
 				
-		return meterPotential.getDataAsScalar();
+		double energy = meterPotential.getDataAsScalar();
+		
+		for (int i=0; i<newU.length; i++){
+			newU[i] = 0.0;
+		}
+		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
+			IMoleculeList molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			coordinateDefinition.setToU(molecules, newU);
+		}
+		return energy;
 	}
 
 	public double dphi_du(int[] d, double u[]) {
@@ -199,7 +208,7 @@ public class CalcNumerical2ndDerivative{
 			}
 		}
 	}
-
+	
 	protected CoordinateDefinition coordinateDefinition;
 	protected MeterPotentialEnergy meterPotential;
 	protected IBox box;
