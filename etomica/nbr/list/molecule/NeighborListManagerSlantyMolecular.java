@@ -4,6 +4,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
+import etomica.api.IPotentialMolecular;
 import etomica.atom.MoleculePair;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular.NeighborListAgentSourceMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
@@ -66,7 +67,7 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
             IMolecule molecule0 = moleculeList.getMolecule(iMolecule);
             pair.atom0 = molecule0;
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
+            IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
 
             for (int jMolecule=iMolecule+1; jMolecule<moleculeList.getMoleculeCount(); jMolecule++) {
@@ -108,7 +109,7 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
         pair.atom0 = molecule;
         IMoleculeList moleculeList = box.getMoleculeList();
         PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule.getType());
-        IPotential[] potentials = potentialArray.getPotentials();
+        IPotentialMolecular[] potentials = potentialArray.getPotentials();
         NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
         for (int jMolecule=0; jMolecule<moleculeList.getMoleculeCount(); jMolecule++) {
             if (jMolecule == molecule.getIndex()) {

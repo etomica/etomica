@@ -9,6 +9,7 @@ import etomica.api.IIntegratorListener;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
+import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeArrayList;
@@ -48,7 +49,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
         iieCount = updateInterval;
         pbcEnforcer = new BoxImposePbc(space);
         pbcEnforcer.setBox(box);
-        pbcEnforcer.setApplyToMolecules(false);
+        pbcEnforcer.setApplyToMolecules(true);
         potentialMaster = potentialMasterList;
         cellNbrIterator = new MpiAACell(space.D(), range, box);
         cell1ANbrIterator = new Mpi1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
@@ -104,7 +105,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
         // the NeighborCellManager might not have existed during construction
         // so we couldn't set the lattice.  It better exist now.
         cellNbrIterator.setLattice(potentialMaster.getNbrCellManager(box).getLattice());
-
+     
         NeighborCriterionMolecular[] criteriaArray = potentialMaster.getNeighborCriteria();
         if (oldCriteria != criteriaArray) {
             // if the array of criteria is different, a potential was added or
@@ -239,7 +240,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
-
+            
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() != 1) {
                     continue;
@@ -252,7 +253,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
         NeighborCellManagerMolecular cellManager = potentialMaster.getNbrCellManager(box);
         cellManager.setDoApplyPBC(!doApplyPBC);
         cellManager.assignCellAll();
-
+      
         cellNbrIterator.reset();
         //TODO change looping scheme so getPotentials isn't called for every pair
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
@@ -261,8 +262,9 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
             IMolecule molecule0 = pair.getMolecule(0);
             IMolecule molecule1 = pair.getMolecule(1);
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
+            IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
+            
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {
                     continue;
@@ -302,7 +304,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
             IMolecule molecule0 = pair.getMolecule(0);
             IMolecule molecule1 = pair.getMolecule(1);
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
+            IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {

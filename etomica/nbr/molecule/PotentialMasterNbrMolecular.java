@@ -58,17 +58,17 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
         for (int i=0; i<species.length; i++) {
             addRangedPotential(potential,species[i]);
         }
-        addRangedPotentialForTypes(potential, species);
+        addRangedPotentialForSpecies(potential, species);
     }
 
     
 
-    protected abstract void addRangedPotentialForTypes(IPotentialMolecular subPotential, ISpecies[] species);
+    protected abstract void addRangedPotentialForSpecies(IPotentialMolecular subPotential, ISpecies[] species);
     
     protected void addRangedPotential(IPotentialMolecular potential, ISpecies species) {
         
-        PotentialArrayMolecular potentialAtomType = (PotentialArrayMolecular)speciesAgentManager.getAgent(species);
-        potentialAtomType.addPotential(potential);
+        PotentialArrayMolecular potentialMoleculeSpecies = (PotentialArrayMolecular)rangedAgentManager.getAgent(species);
+        potentialMoleculeSpecies.addPotential(potential);
         boolean found = false;
         for (int i=0; i<allPotentials.length; i++) {
             if (allPotentials[i] == potential) {
@@ -83,15 +83,15 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
     public void removePotential(IPotentialMolecular potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
-            speciesPotentialIterator.reset();
-            while (speciesPotentialIterator.hasNext()) {
-                ((PotentialArray)speciesPotentialIterator.next()).removePotential(potential);
+            rangedPotentialIterator.reset();
+            while (rangedPotentialIterator.hasNext()) {
+                ((PotentialArrayMolecular)rangedPotentialIterator.next()).removePotential(potential);
             }
         }
         else if (potential instanceof PotentialGroup) {
             speciesPotentialIterator.reset();
             while (speciesPotentialIterator.hasNext()) {
-                ((PotentialArray)speciesPotentialIterator.next()).removePotential(potential);
+                ((PotentialArrayMolecular)speciesPotentialIterator.next()).removePotential(potential);
             }
         }
         allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);

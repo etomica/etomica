@@ -123,8 +123,8 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	public boolean accept(IMoleculeList pair) {
 		dr.E(moleculeSite.position(pair.getMolecule(1)));
 		dr.ME(moleculeSite.position(pair.getMolecule(0)));
-		
-        boundary.nearestImage(dr);
+
+		boundary.nearestImage(dr);
 //        if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
 //            throw new IllegalStateException("neighbor radius "+Math.sqrt(neighborRadius2)+" is less than interaction range "+interactionRange);
 //        }
@@ -134,7 +134,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 //				System.out.println("Atom "+pair.getAtom(0)+" and "+pair.getAtom(1)+" are "+(r2l < neighborRadius2 ? "" : "not ")+"neighbors, r2="+r2l);
 //            }
 //		}
-		return dr.squared() < neighborRadius2;
+       return dr.squared() < neighborRadius2;
 	}
 	
 	public void reset(IMolecule molecule) {

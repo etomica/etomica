@@ -4,7 +4,6 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -15,8 +14,6 @@ import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.box.BoxAgentManager;
-import etomica.nbr.NeighborCriterion;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.molecule.CriterionAdapterMolecular;
 import etomica.nbr.molecule.CriterionSimpleMolecular;
@@ -182,7 +179,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(IPotentialMolecular potential, ISpecies[] species) {
+    protected void addRangedPotentialForSpecies(IPotentialMolecular potential, ISpecies[] species) {
         // we'll fix the neighbor range later in recomputeCriteriaRanges
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
@@ -200,7 +197,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         allCriteria = (NeighborCriterionMolecular[]) Arrays.addObject(allCriteria, criterion);
         
         for (int i=0; i<species.length; i++) {
-            ((PotentialArrayMolecular)speciesAgentManager.getAgent(species[i])).setCriterion(potential, criterion);
+            ((PotentialArrayMolecular)rangedAgentManager.getAgent(species[i])).setCriterion(potential, criterion);
         }
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();
@@ -257,7 +254,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
         rangedPotentialIterator.reset();
         while (rangedPotentialIterator.hasNext()) {
-            PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
+        	PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
             // this will double (or more) count criteria that apply to multiple atom types, but it won't hurt us
@@ -339,7 +336,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
     }
     
-    public void removePotential(IPotentialAtomic potential) {
+    public void removePotential(IPotentialMolecular potential) {
         rangedPotentialIterator.reset();
         while (rangedPotentialIterator.hasNext()) {
             PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedPotentialIterator.next();
