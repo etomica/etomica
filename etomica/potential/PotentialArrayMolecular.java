@@ -4,15 +4,14 @@
  */
 package etomica.potential;
 
-import etomica.api.IPotential;
-import etomica.nbr.NeighborCriterion;
+import etomica.api.IPotentialMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
 import etomica.util.Arrays;
 
 /**
- * Instances of this class are created by AtomType classes to
+ * Instances of this class are created by MoleculeType classes to
  * store the list of potentials and criteria that apply to 
- * the atoms of that type.
+ * the molecules of that type.
  */
 public class PotentialArrayMolecular implements java.io.Serializable {
 
@@ -27,7 +26,7 @@ public class PotentialArrayMolecular implements java.io.Serializable {
      * @param potential The potential of interest
      * @return index associated with potential
      */
-    public int getPotentialIndex(IPotential potential) {
+    public int getPotentialIndex(IPotentialMolecular potential) {
         if(mostRecentIndex > -1 && potentials[mostRecentIndex]==potential) return mostRecentIndex;
 
         mostRecentIndex = -1;
@@ -48,11 +47,11 @@ public class PotentialArrayMolecular implements java.io.Serializable {
      * @param newPotential the potential being added
      * @return the new or previously assigned index for the potential
      */
-    public int addPotential(IPotential newPotential) {
+    public int addPotential(IPotentialMolecular newPotential) {
     	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
-        potentials = (IPotential[])Arrays.addObject(potentials, newPotential);
+        potentials = (IPotentialMolecular[])Arrays.addObject(potentials, newPotential);
         // make room for a criterion to be added via setCriterion
         criteria = (NeighborCriterionMolecular[])Arrays.resizeArray(criteria, potentials.length);
     	return potentials.length-1;
@@ -61,7 +60,7 @@ public class PotentialArrayMolecular implements java.io.Serializable {
     /**
      * Sets the criterion associated with the given potential
      */
-    public void setCriterion(IPotential potential, NeighborCriterionMolecular criterion) {
+    public void setCriterion(IPotentialMolecular potential, NeighborCriterionMolecular criterion) {
         criteria[getPotentialIndex(potential)] = criterion;
     }
     
@@ -71,10 +70,10 @@ public class PotentialArrayMolecular implements java.io.Serializable {
      * it.  If the potential was not previously added to this instance, returns
      * -1.
      */
-    public int removePotential(IPotential potential) {
+    public int removePotential(IPotentialMolecular potential) {
         for (int i=0; i<potentials.length; i++) {
     		if (potentials[i] == potential) {
-    	    	Potential[] newPotentials = new Potential[potentials.length-1];
+    	    	PotentialMolecular[] newPotentials = new PotentialMolecular[potentials.length-1];
     	    	System.arraycopy(potentials,0,newPotentials,0,i);
     	    	System.arraycopy(potentials,i+1,newPotentials,i,potentials.length-i-1);
     	    	potentials = newPotentials;
@@ -89,7 +88,7 @@ public class PotentialArrayMolecular implements java.io.Serializable {
     	return -1;
     }
     
-    public final IPotential[] getPotentials() {
+    public final IPotentialMolecular[] getPotentials() {
     	return potentials;
     }
     
@@ -98,7 +97,7 @@ public class PotentialArrayMolecular implements java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    private IPotential[] potentials = new IPotential[0];
+    private IPotentialMolecular[] potentials = new IPotentialMolecular[0];
     private NeighborCriterionMolecular[] criteria = new NeighborCriterionMolecular[0];
     private int mostRecentIndex = -1;
 
