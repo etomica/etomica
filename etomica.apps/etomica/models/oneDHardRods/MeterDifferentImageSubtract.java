@@ -18,6 +18,7 @@ import etomica.normalmode.WaveVectorFactory;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.units.Null;
+import etomica.normalmode.BasisBigCell;
 
 
 /**
@@ -105,7 +106,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         
         cDef = new CoordinateDefinitionLeaf(box, simCDef.getPrimitive(), 
                 simCDef.getBasis(), space);
-        cDef.initializeCoordinates(otherNCells);
+        if (simCDef.getBasis() instanceof BasisBigCell){
+            cDef.initializeCoordinates(new int[] { 1, 1, 1});
+        } else {
+            cDef.initializeCoordinates(otherNCells);
+        }
         cDim = cDef.getCoordinateDim();
         
         nm = otherNM;
@@ -188,6 +193,8 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             }
         }
         
+        
+        //nan is using cDim in these loops okay?
         //Scale and transfer the normal mode coordinates to etas.
         int etaCount = 0;
         for (int iWV = 0; iWV < simWaveVectors.length; iWV++){

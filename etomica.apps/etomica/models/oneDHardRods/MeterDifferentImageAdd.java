@@ -11,15 +11,14 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.potential.PotentialMaster;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.units.Null;
+import etomica.normalmode.BasisBigCell;
 
 
 /**
@@ -37,7 +36,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     public int nInsert, counter;
     private MeterPotentialEnergy meterPE;
     private CoordinateDefinition cDef, simCDef;
-    private int cDim;
+    private int cDim, simCDim;
     private IVectorMutable[] waveVectors, simWaveVectors;
     private double[] simRealT, simImagT;
     protected double temperature;
@@ -75,7 +74,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         
         simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
-        cDim = simCD.getCoordinateDim();
+        simCDim = simCD.getCoordinateDim();
         simEigenVectors = simNM.getEigenvectors();
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
         simRealT = new double[cDim];
@@ -107,7 +106,11 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         
         cDef = new CoordinateDefinitionLeaf(box, simCDef.getPrimitive(), 
                 simCDef.getBasis(), space);
-        cDef.initializeCoordinates(otherNCells);
+        if(simCDef.getBasis() instanceof BasisBigCell){
+            cDef.initializeCoordinates(new int[] {1, 1, 1});
+        } else{
+            cDef.initializeCoordinates(otherNCells);
+        }
         cDim = cDef.getCoordinateDim();
         
         nm = otherNM;
@@ -178,10 +181,10 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         double[][] imagCoord = new double[waveVectors.length][cDim];
         for (int iWV = 0; iWV < simWaveVectors.length; iWV++){
             simCDef.calcT(simWaveVectors[iWV], simRealT, simImagT);
-            for (int iMode = 0; iMode < cDim; iMode++){
+            for (int iMode = 0; iMode < simCDim; iMode++){
                 realCoord[iWV][iMode] = 0.0;
                 imagCoord[iWV][iMode] = 0.0;
-                for (int j = 0; j < cDim; j++){
+                for (int j = 0; j < simCDim; j++){
                     realCoord[iWV][iMode] += simEigenVectors[iWV][iMode][j] * simRealT[j];
                     imagCoord[iWV][iMode] += simEigenVectors[iWV][iMode][j] * simImagT[j];
                 }
@@ -196,7 +199,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         int etaCount = 0;
         for (int iWV = 0; iWV < simWaveVectors.length; iWV++){
             if(simWVCoeff[iWV] == 1.0){
-                for (int iMode = 0; iMode < cDim; iMode++){
+                for (int iMode = 0; iMode < simCDim; iMode++){
                     if(!(sqrtSimOmega2[iWV][iMode] == Double.POSITIVE_INFINITY)){
                         etas[etaCount] = realCoord[iWV][iMode] * 
                                 sqrtSimOmega2[iWV][iMode];
@@ -206,7 +209,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                     }
                 }
             } else {
-                for (int iMode = 0; iMode < cDim; iMode++){
+                for (int iMode = 0; iMode < simCDim; iMode++){
                     if(!(sqrtSimOmega2[iWV][iMode] == Double.POSITIVE_INFINITY)){
                         etas[etaCount] = realCoord[iWV][iMode] * 
                                 sqrtSimOmega2[iWV][iMode];
