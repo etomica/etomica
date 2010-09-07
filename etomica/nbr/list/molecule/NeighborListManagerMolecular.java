@@ -238,7 +238,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
             }
 
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
+            IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
             
             for (int i = 0; i < potentials.length; i++) {
