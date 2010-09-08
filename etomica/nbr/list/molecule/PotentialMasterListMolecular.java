@@ -16,7 +16,9 @@ import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.molecule.CriterionAdapterMolecular;
+import etomica.nbr.molecule.CriterionAllMolecular;
 import etomica.nbr.molecule.CriterionSimpleMolecular;
+import etomica.nbr.molecule.CriterionSpecies;
 import etomica.nbr.molecule.CriterionSpeciesPair;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
 import etomica.nbr.molecule.PotentialMasterNbrMolecular;
@@ -184,14 +186,18 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
         NeighborCriterionMolecular criterion;
-        //if (species.length == 2) {
+        if (species.length == 2) {
             CriterionSimpleMolecular rangedCriterion = new CriterionSimpleMolecular(getSimulation(), space, potential.getRange(), 0.0);
             criterion = new CriterionSpeciesPair(rangedCriterion, species[0], species[1]);
          
             if (species[0] == species[1]) {
                 criterion = new CriterionSimpleMolecular(getSimulation(), space, potential.getRange(), 0.0);
             }
-        //}
+        } else if(species.length == 1){
+        	criterion = new CriterionSpecies(new CriterionAllMolecular(), species[0]);
+        } else {
+        	throw new RuntimeException("<PotentialMasterListMolecular> setRangedPotential!!!! ");
+        }
         
         // add the criterion to all existing NeighborListManagers
         allCriteria = (NeighborCriterionMolecular[]) Arrays.addObject(allCriteria, criterion);
