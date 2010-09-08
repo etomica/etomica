@@ -1,0 +1,55 @@
+package etomica.nbr.molecule;
+
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
+
+/**
+ * Specifies that all atoms pairs are to be considered neighbors.  Should
+ * not be used for species in which atoms are being added/removed by integrator.
+ */
+public class CriterionAllMolecular implements NeighborCriterionMolecular, java.io.Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Always returns false, indicating that neighbor list never needs updating.
+     * This is appropriate if atoms are never added to or removed from box,
+     * because all atoms are always on neighbor list.
+     */
+    public boolean needUpdate(IMolecule molecule) {
+        return false;
+    }
+
+    /**
+     * Performs no action.
+     */
+    public void setBox(IBox box) {
+    }
+
+    /**
+     * Always returns false, indicating that neighbor list never needs updating.
+     * This is appropriate if atoms are never added to or removed from box,
+     * because all atoms are always on neighbor list.
+     */
+    public boolean unsafe() {
+        return false;
+    }
+
+    /**
+     * Performs no action.
+     */
+    public void reset(IMolecule molecule) {
+    }
+
+    /**
+     * Always returns true, indicating that all atoms pairs are neighbors.
+     */
+    public boolean accept(IMoleculeList pair) {
+        return true;
+    }
+    
+}
