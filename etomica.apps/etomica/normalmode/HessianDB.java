@@ -11,7 +11,6 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -40,7 +39,7 @@ public class HessianDB extends Simulation {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public HessianDB(Space _space, int numAtoms, double density, double temperature, int exponent, String filename, boolean getFile) {
+	public HessianDB(Space _space, int numAtoms, double density, double temperature, int exponent, String filename) {
         super(_space);
 
         /*
@@ -76,40 +75,6 @@ public class HessianDB extends Simulation {
         
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
-        
-        if (!getFile){
-       
-        MeterPotentialEnergy pe = new MeterPotentialEnergy(potentialMaster);
-        pe.setBox(box);
-        latticeEnergy = pe.getDataAsScalar();
-        
-        nm = new NormalModesFromFile(filename, space.D());
-        
-        move = new MCMoveHarmonic(getRandom());
-        move.setCoordinateDefinition(coordinateDefinition);
-        move.setEigenVectors(nm.getEigenvectors());
-        move.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-        move.setOmegaSquared(nm.getOmegaSquared());
-        move.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
-        move.setTemperature(temperature);
-        move.setBox(box);
-        
-        
-        /*
-         * 1-body Potential to Constraint the atom from moving too far 
-         * 	away from its lattice-site
-         */
-       P1Constraint p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
-       potentialMaster.addPotential(p1Constraint, new IAtomType[]{sphereType});
-       
-       
-       integrator.getMoveManager().addMCMove(move);
-       activityIntegrate = new ActivityIntegrate(integrator);
-       integrator.setBox(box);
-       getController().addAction(activityIntegrate);
-        } 
-         
-        else {
         
         IVectorMutable pos1 = space.makeVector();
         IVectorMutable pos2 = space.makeVector();
@@ -243,8 +208,6 @@ public class HessianDB extends Simulation {
         catch (IOException e){
         	throw new RuntimeException(e);
         }
-        
-        }
     }
 	
 	public Tensor3D derivative2nd(IVectorMutable r, Potential2SoftSpherical potential){
@@ -273,8 +236,7 @@ public class HessianDB extends Simulation {
         int exponent = 12 ;
         String filename = "inputSSDB"+nA;//+"_d0962";
         // construct simulation
-        boolean getInitFile = true;
-        HessianDB sim = new HessianDB(Space.getInstance(D), nA, density, temperature, exponent, filename, getInitFile);
+        HessianDB sim = new HessianDB(Space.getInstance(D), nA, density, temperature, exponent, filename);
         
         
        // SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
