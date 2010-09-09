@@ -116,7 +116,7 @@ public class SimUmbrella extends Simulation {
          *  
          */
 
-        P1Constraint p1Constraint = new P1Constraint(space, primitive, box, coordinateDefinition);
+        P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
         potentialMasterMonatomic.addPotential(p1Constraint, new IAtomType[] {sphereType});
         
         

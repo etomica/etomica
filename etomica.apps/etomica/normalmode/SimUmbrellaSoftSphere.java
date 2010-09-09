@@ -128,7 +128,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
          *  
          */
 
-        P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell, box, coordinateDefinition);
+        P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new IAtomType[] {sphereType});
         potentialMaster.lrcMaster().setEnabled(false);
         

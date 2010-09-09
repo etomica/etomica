@@ -111,7 +111,7 @@ public class SimOverlapLJ extends Simulation {
 		 * 1-body Potential to Constraint the atom from moving too far away from
 		 * its lattice-site
 		 */
-		p1Constraint = new P1Constraint(space, primitiveUnitCell , boxTarget, coordinateDefinitionTarget);
+		p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], boxTarget, coordinateDefinitionTarget);
 		potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] { sphereType });
         
         if (potentialMasterTarget instanceof PotentialMasterList) {

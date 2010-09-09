@@ -123,7 +123,7 @@ public class SimOverlapSoftSphere extends Simulation {
          *  
          */
 
-        P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell, boxTarget, coordinateDefinitionTarget);
+        P1Constraint p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], boxTarget, coordinateDefinitionTarget);
         potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] {sphereType});
         potentialMasterTarget.lrcMaster().setEnabled(false);
     

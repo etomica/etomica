@@ -120,7 +120,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
          *  
          */
 
-        P1Constraint p1Constraint = new P1Constraint(space, primitive, boxTarget, coordinateDefinitionTarget);
+        P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], boxTarget, coordinateDefinitionTarget);
         potentialMasterTarget.addPotential(p1Constraint, new IAtomType[] {sphereType});
         
         potentialMasterTarget.lrcMaster().setEnabled(false);

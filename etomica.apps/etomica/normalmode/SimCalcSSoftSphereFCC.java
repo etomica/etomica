@@ -118,7 +118,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		 * 1-body Potential to Constraint the atom from moving too far away from
 		 * its lattice-site
 		 */
-		p1Constraint = new P1Constraint(space, primitiveUnitCell , box, coordinateDefinition);
+		p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
 		potentialMaster.addPotential(p1Constraint, new IAtomType[] { sphereType });
 
 		if (potentialMaster instanceof PotentialMasterList) {
