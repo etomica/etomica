@@ -21,7 +21,7 @@ public class ConformationMethanol implements IConformation {
     public void initializePositions(IAtomList list){
     	
     	double bondCH3O = 1.43; // Angstroms
-    	double bondOH = 0.95; // Angstroms
+    	double bondOH = 0.945; // Angstroms  (Chen et al report 0.945 Angstroms..., the website says 0.95 Angstroms)
     	double angleEq = 108.50*Math.PI/180; // equilibrium bond angle in radians (mcWiggle will change this appropriately)
     	
     	IAtom cH3 = list.getAtom(SpeciesMethanol.indexCH3);
