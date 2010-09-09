@@ -172,7 +172,7 @@ public class SimDifferentImage extends Simulation {
             System.out.println(i + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
         }
         
-        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarget), random, space);
+        mcMoveAtom = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(boxTarget);
         mcMoveAtom.setStepSizeMin(0.001);
@@ -246,7 +246,7 @@ public class SimDifferentImage extends Simulation {
             System.out.println(i + " wvc " + wvc[i] + " omega2 " + omega[i][0]);
         }
         
-        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), random, space);
+        mcMoveAtom = new MCMoveAtomCoupled(potentialMasterRef, new MeterPotentialEnergy(potentialMasterRef), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(boxRef);
         mcMoveAtom.setStepSizeMin(0.001);

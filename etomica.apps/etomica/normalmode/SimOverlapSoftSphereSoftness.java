@@ -70,7 +70,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         boxTarg.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
-        atomMoveTarg = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterTarg), getRandom(), space);
+        atomMoveTarg = new MCMoveAtomCoupled(potentialMasterTarg, new MeterPotentialEnergy(potentialMasterTarg), getRandom(), space);
         atomMoveTarg.setStepSize(0.1);
         atomMoveTarg.setStepSizeMax(0.5);
         atomMoveTarg.setDoExcludeNonNeighbors(true);
@@ -151,7 +151,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         boxRef.setNMolecules(species, numAtoms);
         
         IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, getRandom(), temperature);
-        atomMoveRef = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMasterRef), getRandom(), space);
+        atomMoveRef = new MCMoveAtomCoupled(potentialMasterRef, new MeterPotentialEnergy(potentialMasterRef), getRandom(), space);
         atomMoveRef.setStepSize(0.1);
         atomMoveRef.setStepSizeMax(0.5);
         atomMoveRef.setDoExcludeNonNeighbors(true);

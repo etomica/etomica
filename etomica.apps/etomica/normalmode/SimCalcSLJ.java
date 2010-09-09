@@ -50,7 +50,7 @@ public class SimCalcSLJ extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), getRandom(), space);
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);
         move.setDoExcludeNonNeighbors(true);

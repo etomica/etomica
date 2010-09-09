@@ -156,7 +156,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         MeterPotentialEnergyComposite meterPEComposite = new MeterPotentialEnergyComposite(potentialMasterHarmonic, potentialMaster, latticeEnergy);
         meterPEComposite.setBox(box);
         meterPEComposite.setFrac(frac);
-        atomMove = new MCMoveAtomCoupled(meterPEComposite, getRandom(), space);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPEComposite, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);

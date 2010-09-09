@@ -131,7 +131,7 @@ public class TestDifferentImage1DHRSubtract extends Simulation {
         double[] wvc= nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared();
         
-        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
+        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

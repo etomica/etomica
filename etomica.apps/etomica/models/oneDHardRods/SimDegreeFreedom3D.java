@@ -142,7 +142,7 @@ public class SimDegreeFreedom3D extends Simulation {
         System.out.println("Number of wave vectors " + 
                 waveVectorFactory.getWaveVectors().length);
         
-        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
+        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

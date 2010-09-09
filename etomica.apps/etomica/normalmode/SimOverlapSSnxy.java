@@ -143,7 +143,7 @@ public class SimOverlapSSnxy extends Simulation {
         integratorTarget.setBox(boxTarget);
         integrators[1] = integratorTarget;
         
-        atomMove = new MCMoveAtomCoupled(new 
+        atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new 
                 MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);

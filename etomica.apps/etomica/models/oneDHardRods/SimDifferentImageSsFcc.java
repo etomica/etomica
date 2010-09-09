@@ -209,7 +209,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         double latticeEnergyRef = meterRefInRef.getDataAsScalar();
         System.out.println("Reference system lattice energy: " +latticeEnergyRef);
         
-        MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
+        MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         
 //        MCMoveChangeMultipleWV mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);
@@ -305,7 +305,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         double latticeEnergyTarget = meterTargInTarg.getDataAsScalar();
         System.out.println("Target system lattice energy: " +latticeEnergyTarget);
         
-        mcMoveAtom = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), random, space);
+        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         
 //        mcMoveAtom = new MCMoveChangeMultipleWV(potentialMaster, random);

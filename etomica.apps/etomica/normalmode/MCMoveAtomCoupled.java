@@ -4,6 +4,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
@@ -43,9 +44,9 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected boolean doExcludeNonNeighbors, doIncludePair;
     protected IPotentialAtomic constraintPotential;
 
-    public MCMoveAtomCoupled(MeterPotentialEnergy energyMeter, IRandom random,
-    		                 ISpace _space) {
-        super(null);
+    public MCMoveAtomCoupled(IPotentialMaster potentialMaster, MeterPotentialEnergy energyMeter,
+                             IRandom random, ISpace _space) {
+        super(potentialMaster);
         this.random = random;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);

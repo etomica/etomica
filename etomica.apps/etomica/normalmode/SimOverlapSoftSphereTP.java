@@ -63,7 +63,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        atomMove = new MCMoveAtomCoupled(new MeterPotentialEnergy(potentialMaster), getRandom(), space);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
