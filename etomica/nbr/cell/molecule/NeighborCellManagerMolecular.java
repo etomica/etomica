@@ -178,7 +178,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
                     // box was too small for the potentials too.  doh.
                     // Perhaps the direction is not periodic or we're in the middle
                     // of multiple changes which will (in the end) be happy.
-                    System.err.println("range is greater than half the box length in direction "+i);
+                    System.err.println("<NeighborCellManagerMolecular> range is greater than half the box length in direction "+i);
                 }
             }
             latticeNeedsUpdate = latticeNeedsUpdate || oldSize[i] != numCells[i];
@@ -201,7 +201,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         // dimension take effect.  checkDimensions can call us, but if that
         // happens, our call into checkDimensions should 
         checkDimensions();
-
+        
         Object[] allCells = lattice.sites();
         for (int i=0; i<allCells.length; i++) {
             ((CellMolecular)allCells[i]).occupants().clear();
