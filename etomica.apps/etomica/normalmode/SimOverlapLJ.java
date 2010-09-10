@@ -27,6 +27,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -41,7 +42,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Simulation to run sampling with the LJ potential, but measuring
@@ -233,7 +233,7 @@ public class SimOverlapLJ extends Simulation {
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
     
@@ -423,7 +423,7 @@ public class SimOverlapLJ extends Simulation {
         System.out.println(" ");
         
         
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];

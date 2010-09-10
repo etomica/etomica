@@ -29,6 +29,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1HarmonicSite;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -46,7 +47,6 @@ import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Overlap sampling simulation whose target system has a composite energy
@@ -220,8 +220,8 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         meterHarmonic.setLatticeEnergy(latticeEnergy);
         meters[0] = meterHarmonic;
         
-        integratorOverlap.setStepFreq0(0.5);
-        integratorOverlap.setAdjustStepFreq(false);
+        integratorOverlap.setRefStepFraction(0.5);
+        integratorOverlap.setAdjustStepFraction(false);
        
         activityIntegrate = new ActivityIntegrate(integratorOverlap);
         
@@ -258,7 +258,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
 
