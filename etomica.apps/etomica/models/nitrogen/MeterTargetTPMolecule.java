@@ -16,7 +16,6 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.normalmode.CoordinateDefinition;
 import etomica.space.ISpace;
 import etomica.units.Kelvin;
 import etomica.units.Null;
@@ -37,6 +36,9 @@ import etomica.units.Null;
  * 
  * ep/(e0 + alpha*ep)  if  Tp > T0
  * e0/(ep + alpha*e0)  if  T0 > Tp
+ * 
+ * @author taitan
+ *
  */
 public class MeterTargetTPMolecule implements IEtomicaDataSource {
 
@@ -56,18 +58,23 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     protected double alphaSpan;
     protected int numAlpha = 1;
     protected FileWriter fw;
+    protected boolean isBetaPhase = false;
     
-    public MeterTargetTPMolecule(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim) {
+    public MeterTargetTPMolecule(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.potentialMaster = potentialMaster;
+        this.coordinateDefinition = coordinateDef;
+        
         meterPotential = new MeterPotentialEnergy(potentialMaster);
+        
         this.species = species;
         pretendBox = new Box(space);
+        pretendBox.setBoundary(coordinateDef.getBox().getBoundary());
+        
         sim.addBox(pretendBox);
-
         tag = new DataTag();
     }
-    
-    public IEtomicaDataInfo getDataInfo() {
+
+	public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -101,9 +108,21 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
              * Re-scaling the coordinate deviation
              */
             
-            for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
-            	newU[iCoord] = fac*u[iCoord];
-            }
+          	if(isBetaPhase){
+          		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
+          			// NOT Scaling the rotational angle for the beta-phase
+          			if(iCoord>0 && (iCoord%3==0 || iCoord%4==0)){
+          				newU[iCoord] = u[iCoord];
+                    }
+          			newU[iCoord] = fac*u[iCoord];
+                    
+          		}
+           	} else {
+           		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
+          			newU[iCoord] = fac*u[iCoord];
+                }	
+           	}
+            
                   
             coordinateDefinition.setToU(pretendMolecules, newU);
             otherEnergy = meterPotential.getDataAsScalar();
@@ -221,14 +240,14 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
         numAlpha = newNumAlpha;
         initAlpha();
     }
-
-    public CoordinateDefinition getCoordinateDefinition() {
-        return coordinateDefinition;
-    }
-
-    public void setCoordinateDefinition(CoordinateDefinitionNitrogen newCoordinateDefinition) {
-        this.coordinateDefinition = newCoordinateDefinition;
-
-    }
     
+    
+    public boolean isBetaPhase() {
+		return isBetaPhase;
+	}
+
+	public void setBetaPhase(boolean isBetaPhase) {
+		this.isBetaPhase = isBetaPhase;
+	}
+
 }
