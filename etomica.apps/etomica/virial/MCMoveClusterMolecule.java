@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -13,7 +12,6 @@ import etomica.space.ISpace;
 public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     private static final long serialVersionUID = 1L;
-    private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMolecule(ISimulation sim, IPotentialMaster potentialMaster,
     		                     ISpace _space) {
@@ -22,13 +20,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     public MCMoveClusterMolecule(IPotentialMaster potentialMaster, IRandom random,
     		                     ISpace _space, double stepSize) {
-        super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
-        weightMeter = new MeterClusterWeight(potential);
-    }
-    
-    public void setBox(IBox p) {
-        super.setBox(p);
-        weightMeter.setBox(p);
+        super(potentialMaster, random,_space, stepSize, Double.POSITIVE_INFINITY);
     }
     
     public boolean doTrial() {
@@ -39,23 +31,18 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
             molecule = moleculeSource.getMolecule();
         }
         
-        uOld = weightMeter.getDataAsScalar();
+        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         groupTranslationVector.setRandomCube(random);
         groupTranslationVector.TE(stepSize);
         moveMoleculeAction.actionPerformed(molecule);
-        uNew = Double.NaN;
-//        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)boxs[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
         ((BoxCluster)box).trialNotify();
+        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
     
     public double getB() {return 0.0;}
     
     public double getA() {
-        uNew = weightMeter.getDataAsScalar();
-//        if (Simulation.random.nextInt(200000) == 5) {
-//            System.out.println("uOld "+uOld+" uNew "+uNew);
-//        }
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
     

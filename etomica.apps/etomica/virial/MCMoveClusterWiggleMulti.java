@@ -45,7 +45,6 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI);
-        weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
         work1 = _space.makeVector();
         work2 = _space.makeVector();
@@ -59,7 +58,6 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         for (int i=0; i<translationVectors.length; i++) {
             translationVectors[i] = space.makeVector();
         }
-        weightMeter.setBox(p);
         energyMeter.setBox(p);
     }
     
@@ -70,7 +68,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = energyMeter.getDataAsScalar();
-        wOld = weightMeter.getDataAsScalar();
+        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
@@ -200,7 +198,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             }
         }
         ((BoxCluster)box).trialNotify();
-        wNew = weightMeter.getDataAsScalar();
+        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         uNew = energyMeter.getDataAsScalar();
         return true;
     }
@@ -233,7 +231,6 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     }
 	
     private static final long serialVersionUID = 1L;
-    protected final MeterClusterWeight weightMeter;
     protected final MeterPotentialEnergy energyMeter;
     protected IAtom[] selectedAtoms;
     protected final IVectorMutable work1, work2, work3;

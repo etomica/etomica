@@ -1,8 +1,6 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -15,33 +13,26 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomRotateMulti(IRandom random, IPotentialMaster potentialMaster,
-    		                            ISpace _space, int nAtoms) {
-        super(potentialMaster, random, _space, 1.0, Math.PI, false);
+    public MCMoveClusterAtomRotateMulti(IRandom random, ISpace _space, int nAtoms) {
+        super(null, random, _space, 1.0, Math.PI, false);
         selectedAtoms = new IAtomOriented[nAtoms];
         oldOrientations = new IOrientation[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             oldOrientations[i] = _space.makeOrientation();
         }
-        weightMeter = new MeterClusterWeight(potential);
         setStepSize(1.2);
 	}
 	
-    public void setBox(IBox p) {
-        super.setBox(p);
-        weightMeter.setBox(p);
-    }
-    
 	//note that total energy is calculated
 	public boolean doTrial() {
 		if (selectedAtoms[0] == null) selectAtoms();
-        uOld = weightMeter.getDataAsScalar();
+        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         for(int i=0; i<selectedAtoms.length; i++) {
             oldOrientations[i].E(selectedAtoms[i].getOrientation());
             selectedAtoms[i].getOrientation().randomRotation(random, stepSize);
         }
 		((BoxCluster)box).trialNotify();
-        uNew = weightMeter.getDataAsScalar();
+        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
 	
@@ -73,7 +64,6 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
     }
 
     private static final long serialVersionUID = 1L;
-    private final MeterClusterWeight weightMeter;
     private final IAtomOriented[] selectedAtoms;
     private final IOrientation[] oldOrientations;
 }

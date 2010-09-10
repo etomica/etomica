@@ -1,12 +1,10 @@
 package etomica.virial;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.ISpace;
 
@@ -25,12 +23,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             IRandom random, ISpace _space) {
         super(potentialMaster, random, _space);
         this.space = _space;
-        weightMeter = new MeterClusterWeight(potential);
     }
 
     public void setBox(IBox p) {
         super.setBox(p);
-        weightMeter.setBox(p);
         IMoleculeList moleculeList = box.getMoleculeList();
         rotationAxis = new int[moleculeList.getMoleculeCount()];
         theta = new double[rotationAxis.length];
@@ -47,7 +43,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
 
     public boolean doTrial() {
-        uOld = weightMeter.getDataAsScalar();
+        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
 //            throw new RuntimeException("oops, illegal initial configuration");
 //        }
@@ -77,7 +73,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         }
 
         ((BoxCluster)box).trialNotify();
-        uNew = weightMeter.getDataAsScalar();
+        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
 
@@ -108,7 +104,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             doTransform();
         }
         ((BoxCluster)box).rejectNotify();
-        if (weightMeter.getDataAsScalar() == 0) {
+        if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {
             throw new RuntimeException("oops oops, reverted to illegal configuration");
         }
     }
@@ -119,7 +115,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     private static final long serialVersionUID = 1L;
     protected int[] constraintMap;
-    private final MeterClusterWeight weightMeter;
     protected int[] rotationAxis;
     protected double[] theta;
     private int trialCount, relaxInterval = 100;

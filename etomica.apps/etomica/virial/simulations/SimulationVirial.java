@@ -1,9 +1,5 @@
 package etomica.virial.simulations;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
@@ -29,9 +25,7 @@ import etomica.virial.MCMoveClusterReptateMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirial;
-import etomica.virial.P0Cluster;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 
 /**
  * Generic simulation using Mayer sampling to evaluate cluster integrals
@@ -69,7 +63,7 @@ public class SimulationVirial extends Simulation {
 		
 		
         if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
-            mcMoveTranslate = new MCMoveClusterAtomMulti(this, potentialMaster, space);
+            mcMoveTranslate = new MCMoveClusterAtomMulti(this, space);
         }
         else {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
@@ -86,9 +80,6 @@ public class SimulationVirial extends Simulation {
             integrator.getMoveManager().addMCMove(mcMoveRotate);
         }
         integrator.getMoveManager().addMCMove(mcMoveTranslate);
-		
-		P0Cluster p0 = new P0Cluster(space);
-		potentialMaster.addPotential(p0,new ISpecies[]{});
 		
         ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.initializeCoordinates(box);

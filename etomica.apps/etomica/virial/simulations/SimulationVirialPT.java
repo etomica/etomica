@@ -26,7 +26,6 @@ import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MeterVirial;
-import etomica.virial.P0Cluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.paralleltempering.MCMoveSwapCluster;
 
@@ -91,7 +90,7 @@ public class SimulationVirialPT extends Simulation {
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
-                mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
+                mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, space);
                 moveManager.addMCMove(mcMoveMulti[iTemp]);
             }
             else {
@@ -114,8 +113,6 @@ public class SimulationVirialPT extends Simulation {
                 meterAcceptP[iTemp-1] = new DataSourceAcceptanceProbability(swapMove);
             }
         }
-        P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.addPotential(p0,new ISpecies[]{});
 	}
 	
     private static final long serialVersionUID = 1L;

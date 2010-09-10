@@ -29,7 +29,6 @@ import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirial;
-import etomica.virial.P0Cluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -94,9 +93,6 @@ public class SimulationVirialOverlap extends Simulation {
             mcMoveWiggle = new MCMoveBoxStep[sampleClusters.length];
         }
         
-        P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.addPotential(p0,new ISpecies[]{});
-        
         blockSize = 1000;
         
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
@@ -115,11 +111,11 @@ public class SimulationVirialOverlap extends Simulation {
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
             if (!multiAtomic) {
-                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (doRotate) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, space, aValueClusters[0].pointCount()-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, aValueClusters[0].pointCount()-1);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
@@ -130,7 +126,14 @@ public class SimulationVirialOverlap extends Simulation {
                 mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
-                    if (box[iBox].getMoleculeList().getMolecule(0).getChildList().getAtomCount() == 3) {
+                    // we can use the bending move if none of the molecules has more than 3 atoms
+                    boolean doBend = true;
+                    for (int i=0; i<species.length; i++) {
+                        if (box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().getAtomCount() > 3) {
+                            doBend = false;
+                        }
+                    }
+                    if (doBend) {
                         mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(potentialMaster, random, 0.5, space);
                     }
                     else {

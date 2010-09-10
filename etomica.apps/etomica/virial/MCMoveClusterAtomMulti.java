@@ -2,7 +2,6 @@ package etomica.virial;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
@@ -16,16 +15,13 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomMulti(ISimulation sim, IPotentialMaster potentialMaster,
-    		                      ISpace _space) {
-        super(sim, potentialMaster, _space);
-        weightMeter = new MeterClusterWeight(potential);
+    public MCMoveClusterAtomMulti(ISimulation sim, ISpace _space) {
+        super(sim, null, _space);
         setStepSize(1.2);
 	}
 	
     public void setBox(IBox p) {
         super.setBox(p);
-        weightMeter.setBox(p);
         translationVectors = new IVectorRandom[box.getMoleculeList().getMoleculeCount()-1];
         for (int i=0; i<box.getMoleculeList().getMoleculeCount()-1; i++) {
             translationVectors[i] = (IVectorRandom)space.makeVector();
@@ -34,7 +30,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     
 	//note that total energy is calculated
 	public boolean doTrial() {
-        uOld = weightMeter.getDataAsScalar();
+        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IAtomList leafAtoms = box.getLeafList();
         for(int i=1; i<leafAtoms.getAtomCount(); i++) {
             translationVectors[i-1].setRandomCube(random);
@@ -42,12 +38,11 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
             leafAtoms.getAtom(i).getPosition().PE(translationVectors[i-1]);
         }
 		((BoxCluster)box).trialNotify();
-		uNew = Double.NaN;
+        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
 	
     public double getA() {
-        uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 
@@ -68,6 +63,5 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     }
 
     private static final long serialVersionUID = 1L;
-    private final MeterClusterWeight weightMeter;
     private IVectorRandom[] translationVectors;
 }

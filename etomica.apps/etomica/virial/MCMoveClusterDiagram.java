@@ -1,9 +1,3 @@
-/*
- * Created on Oct 1, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.virial;
 
 import etomica.api.IBox;
@@ -13,23 +7,17 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
 
 /**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Move that attempts to perform changes in the cluster diagram.
  */
 public class MCMoveClusterDiagram extends MCMoveBox {
 
     private static final long serialVersionUID = 1L;
-    private MeterClusterWeight weightMeter;
     public MCMoveClusterDiagram(IPotentialMaster potentialMaster) {
         super(potentialMaster);
-        weightMeter = new MeterClusterWeight(potentialMaster);
     }
     
     public void setBox(IBox p) {
         super.setBox(p);
-        weightMeter.setBox(p);
         ClusterAbstract sampleCluster = ((BoxCluster)p).getSampleCluster();
         ClusterAbstract cluster1;
         if (sampleCluster instanceof ClusterWeightAbs) {
@@ -48,13 +36,13 @@ public class MCMoveClusterDiagram extends MCMoveBox {
     
     public boolean doTrial() {
         // don't notify the box.  we're not moving any atoms.
-        uOld = weightMeter.getDataAsScalar();
+        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         cluster.randomizeDiagram();
+        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
     
     public double getA() {
-        uNew = weightMeter.getDataAsScalar();
 //        System.out.println("uNew "+uNew+" uOld "+uOld);
         foo += uNew * uOld;
         foo2 += uOld * uOld;

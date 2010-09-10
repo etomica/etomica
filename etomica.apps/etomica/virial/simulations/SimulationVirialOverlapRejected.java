@@ -30,7 +30,6 @@ import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirialRejected;
-import etomica.virial.P0Cluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.overlap.DataSourceVirialOverlapRejected;
 import etomica.virial.overlap.IntegratorOverlapRejected;
@@ -78,10 +77,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
         if (doWiggle) {
             mcMoveWiggle = new MCMoveClusterWiggleMulti[sampleClusters.length];
         }
-        
-        P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.addPotential(p0,new ISpecies[]{});
-        
+
         blockSize = 1000;
         
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
@@ -98,11 +94,11 @@ public class SimulationVirialOverlapRejected extends Simulation {
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
-                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (species instanceof SpeciesSpheresRotating) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, space, nMolecules-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, nMolecules-1);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }

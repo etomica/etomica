@@ -3,24 +3,19 @@ package etomica.virial;
 import etomica.action.MoleculeAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.ISpace;
 
-
+/**
+ * MC move for Mayer Sampling that rotates a single molecule
+ */
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
     public MCMoveClusterRotateMolecule3D(IPotentialMaster potentialMaster,
             IRandom random, ISpace _space) {
         super(potentialMaster, random, _space);
-        weightMeter = new MeterClusterWeight(potential);
-    }
-    
-    public void setBox(IBox p) {
-        super.setBox(p);
-        weightMeter.setBox(p);
     }
 
     public boolean doTrial() {
@@ -28,7 +23,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         while (molecule.getIndex() == 0) {
             molecule = moleculeSource.getMolecule();
         }
-        uOld = weightMeter.getDataAsScalar();
+        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(random.nextInt(3),dTheta);
@@ -43,8 +38,8 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
             trialCount = relaxInterval;
         }
 
-        uNew = weightMeter.getDataAsScalar();
         ((BoxCluster)box).trialNotify();
+        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         return true;
     }
     
@@ -71,7 +66,6 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     }
     
     private static final long serialVersionUID = 1L;
-    private final MeterClusterWeight weightMeter;
     protected int trialCount, relaxInterval = 100;
     protected MoleculeAction relaxAction;
 }

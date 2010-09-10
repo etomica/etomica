@@ -24,7 +24,6 @@ import etomica.space3d.Vector3D;
 public class MCMoveClusterReptateMulti extends MCMoveBox {
 
     private static final long serialVersionUID = 2L;
-    private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
     protected final IRandom random;
 
@@ -50,14 +49,12 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
             oldPositions[i] = new Vector3D();
         }
         forward = new boolean[nAtoms];
-        weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
         work1 = new Vector3D();
     }
 
     public void setBox(IBox p) {
         super.setBox(p);
-        weightMeter.setBox(p);
         energyMeter.setBox(p);
     }
     
@@ -73,7 +70,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         }
 //        Potential2HardSpherical.foo = false;
 //        System.out.println("old energy done");
-        wOld = weightMeter.getDataAsScalar();
+        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         for(int i=0; i<selectedMolecules.length; i++) {
             forward[i] = random.nextInt(2) == 0;
             IAtomList childList = selectedMolecules[i].getChildList();
@@ -129,7 +126,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
             }
         }
         ((BoxCluster)box).trialNotify();
-        wNew = weightMeter.getDataAsScalar();
+        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        System.out.println("now energy");
 //        Potential2HardSpherical.foo = true;
         uNew = energyMeter.getDataAsScalar();

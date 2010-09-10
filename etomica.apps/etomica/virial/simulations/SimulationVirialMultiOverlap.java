@@ -39,7 +39,6 @@ import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
-import etomica.virial.P0Cluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
@@ -91,9 +90,6 @@ public class SimulationVirialMultiOverlap extends Simulation {
             mcMoveWiggle = new MCMoveClusterWiggleMulti[sampleClusters.length];
         }
         
-        P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.addPotential(p0,new ISpecies[]{});
-        
         blockSize = 1000;
         
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
@@ -112,12 +108,12 @@ public class SimulationVirialMultiOverlap extends Simulation {
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
             if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {
-                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, space);
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, space);
                 mcMoveTranslate[iBox].setStepSize(0.41);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (species[0] instanceof SpeciesSpheresRotating) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, space, nMolecules-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, nMolecules-1);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }

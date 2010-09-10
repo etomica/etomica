@@ -2,7 +2,6 @@ package etomica.virial;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
@@ -13,26 +12,23 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterAtom extends MCMoveAtom {
 
-    public MCMoveClusterAtom(ISimulation sim, IPotentialMaster potentialMaster,
-    		                 ISpace _space) {
-        super(sim, potentialMaster, _space);
-        weightMeter = new MeterClusterWeight(potentialMaster);
+    public MCMoveClusterAtom(ISimulation sim, ISpace _space) {
+        super(sim, null, _space);
 	}
 	
     public void setBox(IBox p) {
         super.setBox(p);
-        weightMeter.setBox(p);
     }
     
 	public boolean doTrial() {
         IAtomList leafList = box.getLeafList();
 		atom = leafList.getAtom(random.nextInt(1+leafList.getAtomCount()-1));
-		uOld = weightMeter.getDataAsScalar();
+        uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         atom.getPosition().PE(translationVector);
 		((BoxCluster)box).trialNotify();
-		uNew = Double.NaN;
+        uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		return true;
 	}
 	
@@ -41,7 +37,6 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     }
     
     public double getA() {
-        uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 
@@ -56,5 +51,4 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     }
 
     private static final long serialVersionUID = 1L;
-    private MeterClusterWeight weightMeter;
 }

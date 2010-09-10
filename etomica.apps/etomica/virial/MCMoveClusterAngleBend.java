@@ -42,7 +42,6 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         setStepSize(stepSize);
         perParticleFrequency = true;
 
-        weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
         energyMeter.setIncludeLrc(false);
         work1 = _space.makeVector();
@@ -52,7 +51,6 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 
     public void setBox(IBox p) {
         super.setBox(p);
-        weightMeter.setBox(p);
         energyMeter.setBox(p);
         dTheta = new double[p.getMoleculeList().getMoleculeCount()];
     }
@@ -63,7 +61,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 
     public boolean doTrial() {
         uOld = energyMeter.getDataAsScalar();
-        wOld = weightMeter.getDataAsScalar();
+        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
@@ -79,7 +77,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
             transform(molecule, dt);
         }
         ((BoxCluster)box).trialNotify();
-        wNew = weightMeter.getDataAsScalar();
+        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         uNew = energyMeter.getDataAsScalar();
         return true;
     }
@@ -178,7 +176,6 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
-    protected final MeterClusterWeight weightMeter;
     protected final MeterPotentialEnergy energyMeter;
     protected final IVectorMutable work1, work2, work3;
     protected double[] dTheta;

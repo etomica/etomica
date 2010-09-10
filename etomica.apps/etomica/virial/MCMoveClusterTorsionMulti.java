@@ -54,7 +54,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         probabilityReverseMap = new int[nBins+1];
         this.torsionPotential = torsionPotential;
         setStepSizeMax(Math.PI);
-        weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
         work1 = space.makeVector();
         work2 = space.makeVector();
@@ -67,7 +66,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
     public void setBox(IBox p) {
         super.setBox(p);
-        weightMeter.setBox(p);
         energyMeter.setBox(p);
     }
     
@@ -166,7 +164,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     public boolean doTrial() {
         if (selectedMolecules == null) selectMolecules();
         uOld = energyMeter.getDataAsScalar();
-        wOld = weightMeter.getDataAsScalar();
+        wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         bias = 1;
 
         for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
@@ -348,7 +346,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
             }
         }
         ((BoxCluster)box).trialNotify();
-        wNew = weightMeter.getDataAsScalar();
+        wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         uNew = energyMeter.getDataAsScalar();
 //        System.out.println(uOld+" => "+uNew+"   "+wOld+" => "+wNew+" "+bias+" "+stepSize);
         return true;
@@ -403,7 +401,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     }
 	
     private static final long serialVersionUID = 1L;
-    protected final MeterClusterWeight weightMeter;
     protected final MeterPotentialEnergy energyMeter;
     protected final P4BondTorsion torsionPotential;
     protected IAtomPositionDefinition positionDefinition;
