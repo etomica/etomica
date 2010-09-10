@@ -23,7 +23,6 @@ public class PRotConstraint extends PotentialMolecular{
 		this.box = box;
 		int numMolec = box.getMoleculeList().getMoleculeCount();
 		
-		System.out.println("Imposed Rotation constraint at 90 deg angle");
 		molecOrientation = space.makeVector();
 		initMolecOrientation = new IVectorMutable[numMolec][3];
 		/*
@@ -51,11 +50,12 @@ public class PRotConstraint extends PotentialMolecular{
 		
 		double cosangle = molecOrientation.dot(initMolecOrientation[index][0]);
 		if(cosangle <= Math.cos(Degree.UNIT.toSim(constraintAngle))){
-			
+			++ counter;
 			return Double.POSITIVE_INFINITY;
+		
 		}
 		
-		return 0;
+		return 0.0;
 	}
 
 
@@ -77,6 +77,7 @@ public class PRotConstraint extends PotentialMolecular{
 	private IVectorMutable molecOrientation;
 	private IBox box;
 	protected double constraintAngle = 90.0; //in degree
+	protected int counter=0;
 
 	
 }
