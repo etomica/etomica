@@ -113,9 +113,9 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
           			// NOT Scaling the rotational angle for the beta-phase
           			if(iCoord>0 && (iCoord%3==0 || iCoord%4==0)){
           				newU[iCoord] = u[iCoord];
+                    } else {
+                    	newU[iCoord] = fac*u[iCoord];
                     }
-          			newU[iCoord] = fac*u[iCoord];
-                    
           		}
            	} else {
            		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
