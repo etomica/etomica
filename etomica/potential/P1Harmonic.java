@@ -50,10 +50,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     public Dimension getX0Dimension() {
         return Length.DIMENSION;
     }
-    /**
-     * Not implemented correctly.  
-     * Should be energy/length^2.
-     */
+
     public Dimension getSpringConstantDimension() {
         return new CompoundDimension(new Dimension[]{Energy.DIMENSION,Length.DIMENSION},new double[]{1,-2});
     }
