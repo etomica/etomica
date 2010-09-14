@@ -98,7 +98,7 @@ public class IntegratorMC extends IntegratorBox {
     	double chi = move.getA() * Math.exp(move.getB()/temperature);
     	if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
             if (dodebug) {
-                System.out.println("move "+move+" rejected");
+                System.out.println(stepCount+" move "+move+" rejected");
             }
             move.getTracker().updateCounts(false, chi);
     		move.rejectNotify();
@@ -106,7 +106,7 @@ public class IntegratorMC extends IntegratorBox {
             moveEventManager.fireEvent(rejectedEvent);
     	} else {
             if (dodebug) {
-                System.out.println("move "+move+" accepted");
+                System.out.println(stepCount+" move "+move+" accepted");
             }
             move.getTracker().updateCounts(true, chi);
     		move.acceptNotify();
