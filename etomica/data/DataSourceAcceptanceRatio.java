@@ -1,5 +1,4 @@
 package etomica.data;
-import etomica.EtomicaInfo;
 import etomica.integrator.mcmove.MCMove;
 import etomica.units.Decimal;
 import etomica.units.Fraction;
@@ -26,12 +25,7 @@ public class DataSourceAcceptanceRatio extends DataSourceScalar {
         super("AcceptanceRatio", Fraction.DIMENSION);
         setMove(move);
     }
-   
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Records the acceptance rate performed by the MCMove");
-        return info;
-    }
-    
+
     /**
      * @return Decimal.UNIT
      */

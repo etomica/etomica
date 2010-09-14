@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;

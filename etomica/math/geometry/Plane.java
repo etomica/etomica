@@ -2,8 +2,8 @@
 //(maybe should put this in a Space package hierarchy)
 package etomica.math.geometry;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 

@@ -8,7 +8,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.Molecule;
 import etomica.atom.MoleculeSetSinglet;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;

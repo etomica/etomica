@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -24,11 +23,6 @@ public class MeterPotentialEnergy extends DataSourceScalar {
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
         iteratorDirective.setDirection(IteratorDirective.Direction.UP);
-    }
-      
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total intermolecular potential energy in a box");
-        return info;
     }
 
     /**

@@ -1,6 +1,5 @@
 package etomica.space3d;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBoundary;
 import etomica.api.IVectorMutable;
 import etomica.space.RotationTensor;
@@ -75,11 +74,6 @@ public final class Space3D extends Space {
 
     public RotationTensor makeRotationTensor() {
         return new RotationTensor3D();
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Three-dimensional space");
-        return info;
     }
 
     /**

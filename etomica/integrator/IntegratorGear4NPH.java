@@ -1,10 +1,9 @@
 // includes a main method
 
 package etomica.integrator;
-import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -12,8 +11,8 @@ import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -22,7 +21,6 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
@@ -70,12 +68,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         forceSumNPH = new ForceSumNPH(space);
         inflate = new BoxInflate(space);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Gear4 MD at constant pressure and enthalpy");
-        return info;
-    }
-    
+
     public void setTimeStep(double t) {
         super.setTimeStep(t);
         kp = 1.0/(rrp*t);

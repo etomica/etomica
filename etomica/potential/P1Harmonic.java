@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -32,12 +31,6 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         force = new IVectorMutable[]{space.makeVector()};
         x0 = space.makeVector();
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Harmonic potential at the box boundaries");
-        return info;
-    }
-
     public void setSpringConstant(double springConstant) {
         w = springConstant;
     }

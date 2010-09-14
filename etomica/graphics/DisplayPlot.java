@@ -16,14 +16,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import etomica.EtomicaInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataSet;
+import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.DataSetListener;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -106,12 +105,7 @@ public class DisplayPlot extends Display implements DataSetListener {
         popupMenu.addPopupMenuListener(popupMenuListener);
         plot.addMouseListener(new PopupListener(popupMenu));
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("X-Y graphical plot of data");
-        return info;
-    }
-    
+
     /**
      * Returns the DataSinkTable instance that specifies the plot data.
      * Data sets are added to the plot by piping them to a new data sink

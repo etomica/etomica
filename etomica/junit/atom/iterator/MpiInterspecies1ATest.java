@@ -8,8 +8,8 @@ import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculeArrayList;
-import etomica.atom.iterator.MpiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.iterator.MpiInterspecies1A;
 import etomica.junit.UnitTestUtil;
 import etomica.junit.atom.MoleculesetAction;
 

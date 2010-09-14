@@ -1,5 +1,4 @@
 package etomica.modules.osmosis;
-import etomica.EtomicaInfo;
 import etomica.api.IVector;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
@@ -20,12 +19,7 @@ public class MeterOsmoticPressure extends MeterPressureHard {
         super(space);
         this.boundaryPotentials = boundaryPotentials;
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Records the number of simulation cycles performed by the integrator");
-        return info;
-    }
-    
+
     /**
      * Sets the collision radius used to calculate accessible "area"
      * assuming that the relevant hard "boundaries" form right-angles with

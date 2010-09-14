@@ -1,12 +1,11 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**
@@ -28,11 +27,6 @@ public class P2TriangleWell extends Potential2 {
         setEpsilon(epsilon);
         force = space.makeVector();
         dr = space.makeVector();
-    }
-  
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard core with a surrounding region of constant-force attraction");
-        return info;
     }
 
     public double energy(IAtomList pair) {

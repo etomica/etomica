@@ -7,7 +7,6 @@ import etomica.api.ISpecies;
 import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
-import etomica.potential.PotentialArray;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;

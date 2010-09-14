@@ -2,8 +2,8 @@ package etomica.junit.atom;
 
 import junit.framework.TestCase;
 import etomica.api.IAtom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomsetArray;
 import etomica.space.ISpace;
 import etomica.space.Space;

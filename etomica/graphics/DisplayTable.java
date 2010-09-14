@@ -13,7 +13,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
-import etomica.EtomicaInfo;
 import etomica.data.DataSet;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
@@ -67,12 +66,6 @@ public class DisplayTable extends Display implements DataTableListener {
         panel.setSize(100, 150);
         if (!fitToWindow)
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo(
-                "Tabular display of data from several sources");
-        return info;
     }
 
     public DataSinkTable getDataTable() {

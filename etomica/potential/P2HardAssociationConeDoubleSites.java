@@ -1,10 +1,9 @@
 package etomica.potential;
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -44,12 +43,7 @@ public class P2HardAssociationConeDoubleSites extends Potential2 implements Pote
         setWellEpsilon(wellConstant*getEpsilon());
         setTheta(etomica.units.Degree.UNIT.toSim(27.0));
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Lennard-Jones core with an anisotropic, cone-shaped region of square-well two attraction sites");
-        return info;
-    }
-    
+
     /**
      * Returns infinity.
      */

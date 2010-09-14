@@ -2,9 +2,8 @@
 
 package etomica.integrator;
 
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -14,7 +13,6 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
 
@@ -57,11 +55,6 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         work2 = space.makeVector();
 
         setTimeStep(timeStep);
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using Gear 4th-order predictor/corrector algorithm");
-        return info;
     }
 
     public void setBox(IBox p) {

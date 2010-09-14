@@ -4,7 +4,6 @@ import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.EtomicaInfo;
 import etomica.action.IAction;
 import etomica.action.activity.IController;
 import etomica.exception.ConfigurationOverlapException;
@@ -100,13 +99,7 @@ public class DeviceThermoSelector extends Device {
             }
         };
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Select isothermal at a set of temperatures, or adiabatic");
-        return info;
-    }
-    
+
     public javax.swing.JComboBox getSelector() {return selector;}
     public javax.swing.JLabel getLabel() {return label;}
     

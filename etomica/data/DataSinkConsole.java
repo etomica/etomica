@@ -1,8 +1,6 @@
 package etomica.data;
 import java.io.PrintStream;
 
-import etomica.EtomicaInfo;
-
 /**
  * Writes data to console or another print stream.
  */
@@ -22,12 +20,7 @@ public class DataSinkConsole implements IDataSink, java.io.Serializable {
     public DataSinkConsole(PrintStream outputStream) {
         this.out = outputStream;
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Pipes data to console");
-        return info;
-    }
-    
+
     /**
      * Returns null, indicating that any type of Data can be put here without casting.
      */

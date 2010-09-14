@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
@@ -25,11 +24,6 @@ public class MeterRadiusGyration extends DataSourceScalar {
         cm = space.makeVector();
         realPos = space.makeVector();
         dr = space.makeVector();
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Calculates radius of gyration");
-        return info;
     }
 
     /**

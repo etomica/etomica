@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IVectorMutable;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
@@ -33,12 +32,6 @@ public class P2Exp6 extends Potential2SoftSpherical {
         setA(AA);
         setB(BB);
         setC(CC);
-
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Exp-6 potential");
-        return info;
     }
 
     /**

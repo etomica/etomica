@@ -2,8 +2,8 @@ package etomica.space3d;
 
 
 import etomica.api.IFunction;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.Tensor;
 import etomica.util.Debug;
 

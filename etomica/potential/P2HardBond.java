@@ -1,8 +1,7 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -32,11 +31,6 @@ public class P2HardBond extends Potential2HardSpherical {
         lastCollisionVirialTensor = space.makeTensor();
         dv = space.makeVector();
         this.ignoreOverlap = ignoreOverlap;
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard bond between atoms");
-        return info;
     }
 
     /**

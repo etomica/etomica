@@ -1,11 +1,9 @@
 package etomica.models.rowley;
 
-import etomica.EtomicaInfo;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
-import etomica.units.Length;
 
 /**
  * Purely repulsive potential from Rowley et al (2006) used for interactions between satellite sites, X.
@@ -25,11 +23,6 @@ public final class P2RepRowley extends Potential2SoftSpherical {
         setBXX(BXX);
         setCXX(CXX);
 
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Purely repulsive potential from Rowley et al 2006");
-        return info;
     }
 
     /**

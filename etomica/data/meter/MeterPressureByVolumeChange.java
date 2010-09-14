@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
 import etomica.api.IBox;
@@ -68,12 +67,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
         inflater = pid;
         scale = space.makeVector();
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Pressure measured by trial volume perturbations");
-        return info;
-    }
-    
+
     /**
      * Sets the integrator associated with this instance.  The pressure is 
      * calculated for the box the integrator acts on and the integrator's 

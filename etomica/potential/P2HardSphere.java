@@ -1,8 +1,7 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -46,11 +45,6 @@ public class P2HardSphere extends Potential2HardSpherical {
         this.ignoreOverlap = ignoreOverlap;
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple hard-sphere potential");
-        return info;
-    }
-    
     public double getRange() {
     	return collisionDiameter;
     }

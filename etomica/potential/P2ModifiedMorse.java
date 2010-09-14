@@ -1,5 +1,4 @@
 package etomica.potential;
-import etomica.EtomicaInfo;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -36,11 +35,6 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
         setZ1(z1);
         setZ2(z2);
         this.coulombicCutoff = coulombicCutoff;
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple Lennard-Jones potential");
-        return info;
     }
 
     /**

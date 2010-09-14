@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -103,11 +102,6 @@ public class MeterStructureFactor extends DataSourceScalar {
 	public void setAtoms(IMoleculeList moleculeList){
 		this.moleculeList = moleculeList;
 	}
-	
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Structure factor");
-        return info;
-    }
 
 	//this is really the square of the magnitude of the structure factor
     public double[] getDataAsArray() {

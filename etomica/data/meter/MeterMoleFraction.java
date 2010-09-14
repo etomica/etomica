@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
@@ -24,11 +23,6 @@ public class MeterMoleFraction extends DataSourceScalar {
         species = s;
     }
     public ISpecies getSpecies() {return species;}
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Species mole fraction in a box");
-        return info;
-    }
 
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");

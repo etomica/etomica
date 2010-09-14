@@ -1,6 +1,6 @@
 package etomica.lattice.crystal;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.math.geometry.Polytope;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;

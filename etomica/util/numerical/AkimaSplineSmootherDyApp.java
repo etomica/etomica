@@ -25,24 +25,24 @@ import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceIndependentSimple;
 import etomica.data.IDataSink;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.graphics.DeviceBox;
+import etomica.graphics.DeviceBox.LabelType;
 import etomica.graphics.DeviceControllerButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.Integrator;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Null;
+import etomica.util.Constants.CompassDirection;
 import etomica.util.HistoryScrolling;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGeneratorUnix;
-import etomica.util.Constants.CompassDirection;
 
 /**
  * App to drive AkimaSplineSmoother

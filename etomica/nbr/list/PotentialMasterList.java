@@ -30,7 +30,6 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
 import etomica.util.Debug;

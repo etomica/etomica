@@ -1,5 +1,4 @@
 package etomica.potential;
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
@@ -44,11 +43,6 @@ public class P2SquareWell extends Potential2HardSpherical {
         dv = space.makeVector();
         lastCollisionVirialTensor = space.makeTensor();
         this.ignoreOverlap = ignoreOverlap;
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple hard repulsive core with a square-well region of attraction");
-        return info;
     }
 
     public double getRange() {

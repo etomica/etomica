@@ -1,7 +1,5 @@
 package etomica.potential;
 
-import java.util.Random;
-
 import etomica.space.ISpace;
 
 /**

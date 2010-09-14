@@ -1,8 +1,6 @@
 package etomica.association;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
 import etomica.space.Boundary;
 import etomica.space.ISpace;
@@ -23,11 +21,6 @@ public class MeterDimerMoleFraction extends DataSourceScalar {
         box = _box;
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a box");
-        return info;
-    }
-    
     public void setAssociationManager(AssociationManager associationManager){
     	this.associationManager = associationManager;
     }

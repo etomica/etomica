@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
@@ -29,11 +28,6 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
         shapeOrigin = space.makeVector();
         iterator.setBox(box);
         setShape(((Boundary)box.getBoundary()).getShape());
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a box");
-        return info;
     }
 
     /**

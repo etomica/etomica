@@ -3,8 +3,8 @@
  */
 package etomica.data.meter;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;

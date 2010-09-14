@@ -2,7 +2,6 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.EtomicaInfo;
 import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
 import etomica.action.IAction;
@@ -34,12 +33,6 @@ public class DeviceToggleButton extends DeviceButton {
         setModifier(modifier, trueText, falseText);
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Button that toggles a boolean value");
-        return info;
-    }
-    
     public void setModifier(ModifierBoolean modifier, String trueText, String falseText) {
         toggleAction = new ActionToggle(modifier, trueText, falseText);
         setAction(new ActionGroupSeries(new IAction[] { toggleAction, relabelButton }));

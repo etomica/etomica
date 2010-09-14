@@ -3,22 +3,12 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.exception.MethodNotImplementedException;
-import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Tensor;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Coulomb;
-import etomica.units.Debye;
-import etomica.units.Kelvin;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Lennard Jones molecule with a quadrupole.

@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaInfo;
 import etomica.api.IIntegrator;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
@@ -18,12 +17,6 @@ public class IntegratorGEMC extends IntegratorManagerMC {
     public IntegratorGEMC(IRandom random, ISpace _space) {
         super(random);
         _space = space;
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo(
-                "Gibbs-ensemble Monte Carlo simulation of box coexistence");
-        return info;
     }
 
     public void addIntegrator(IIntegrator newIntegrator) {

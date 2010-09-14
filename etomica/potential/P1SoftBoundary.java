@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -31,12 +30,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 		gradient[0] = space.makeVector();
 		setRadius(radius);
 	}
-    
-	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo("PotentialSoft repulsive potential at the box boundaries");
-		return info;
-	}
-    
+
 	public double energy(IAtomList a) {
 		IVector dimensions = boundary.getBoxSize();
 		double rx = a.getAtom(0).getPosition().getX(0);

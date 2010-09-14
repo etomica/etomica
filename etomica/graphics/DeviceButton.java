@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import etomica.EtomicaInfo;
 import etomica.action.IAction;
 import etomica.action.activity.IController;
 
@@ -40,12 +39,6 @@ public class DeviceButton extends Device {
         return button;
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Button that causes an elementary action to be performed");
-        return info;
-    }
-    
     /**
      * Performs the button's action. Same effect as if the button were pressed
      * in the user interface.

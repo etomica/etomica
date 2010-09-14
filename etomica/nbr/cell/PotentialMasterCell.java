@@ -4,7 +4,6 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager;
-import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.space.ISpace;
 

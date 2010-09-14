@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
@@ -26,12 +25,7 @@ public class MeterPressure extends DataSourceScalar {
         iteratorDirective.includeLrc = true;
         virial = new PotentialCalculationVirialSum();
     }
-      
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total pressure in a box (requires soft-potential model)");
-        return info;
-    }
-    
+
     /**
      * Sets the integrator associated with this instance.  The pressure is 
      * calculated for the box the integrator acts on and integrator's 

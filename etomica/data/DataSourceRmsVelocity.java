@@ -2,14 +2,14 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.DimensionRatio;
 import etomica.units.Length;

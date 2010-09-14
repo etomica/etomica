@@ -1,6 +1,5 @@
 package etomica.yukawa;
 
-import etomica.EtomicaInfo;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.ISpace;
 
@@ -26,12 +25,7 @@ public final class P2Yukawa extends Potential2SoftSpherical {
 		setKappa(kappa);
 		setVZero(vzero);
 	}
-	
-	public static EtomicaInfo getEtomicaInfo(){
-		EtomicaInfo info = new EtomicaInfo("Yukawa potential.");
-		return info;
-	}
-	
+
 	/**
 	 * Energy method.  u(double r) form.
 	 */

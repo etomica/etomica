@@ -2,8 +2,8 @@ package etomica.math.geometry;
 
 import java.util.LinkedList;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 
 /**

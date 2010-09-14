@@ -1,6 +1,5 @@
 package etomica.yukawa;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -59,12 +58,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical {
 	public void setBox(IBox box) {
 		nearestImageTransformer = box.getBoundary();
 	}
-	
-	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo("Hard-core plus two Yukawa fluid potential");
-		return info;
-	}
-	
+
 	/**
 	 * Energy method.  u(double r) form.
 	 */

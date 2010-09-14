@@ -3,8 +3,8 @@ package etomica.junit.space;
 import junit.framework.TestCase;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.box.Box;
 import etomica.graphics.DisplayBox;
@@ -17,7 +17,6 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
-import etomica.util.RandomNumberGenerator;
 
 public class BoundaryDeformablePeriodicTest extends TestCase {
 

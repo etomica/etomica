@@ -3,7 +3,6 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.GridLayout;
 
-import etomica.EtomicaInfo;
 import etomica.util.EventManager;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -46,13 +45,7 @@ public class DeviceTernarySelector extends Device {
         setPrecision(3);
         eventManager = new MyEventManager();
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Select fractions in a ternary system");
-        return info;
-    }
-    
+
     public void addListener(DeviceTernarySelector.Listener listener) {
         eventManager.addListener(listener);
     }

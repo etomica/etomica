@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Formatter;
+
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;

@@ -1,7 +1,7 @@
 package etomica.lattice;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.Space;
 

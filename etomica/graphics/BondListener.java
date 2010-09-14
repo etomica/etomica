@@ -15,8 +15,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.MoleculeIteratorMolecule;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.atom.iterator.MoleculeIteratorMolecule;
 import etomica.chem.models.Model;
 
 /**

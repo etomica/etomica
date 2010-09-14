@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;

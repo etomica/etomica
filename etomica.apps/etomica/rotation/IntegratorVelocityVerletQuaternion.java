@@ -3,7 +3,6 @@ package etomica.rotation;
 import java.awt.Color;
 import java.io.Serializable;
 
-import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
@@ -19,15 +18,15 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.IMoleculePositioned;
 import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.OrientationCalcQuaternion;
 import etomica.atom.SpeciesAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -110,12 +109,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         translator = new MoleculeChildAtomAction(translateBy);
         printInterval = 10;
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using velocity Verlet integration algorithm");
-        return info;
-    }
-    
+
     public void setBox(Box p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener

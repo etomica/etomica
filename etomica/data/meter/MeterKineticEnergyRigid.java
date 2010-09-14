@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
@@ -39,11 +38,6 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         this.box = box;
         this.sim = sim;
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total kinetic energy of molecular motion in a box");
-        return info;
     }
 
 	/**

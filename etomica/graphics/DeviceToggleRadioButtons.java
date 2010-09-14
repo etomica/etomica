@@ -4,7 +4,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
 
 /**
@@ -63,13 +62,7 @@ public class DeviceToggleRadioButtons extends Device {
         
         if(title != null /*&& !title.equals("")*/) setTitle(title);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Button that toggles a boolean value");
-        return info;
-    }
-    
+
     /**
      * Sets the button to the given state.
      */

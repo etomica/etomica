@@ -1,8 +1,7 @@
 package etomica.integrator;
 
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -12,7 +11,6 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -50,11 +48,6 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         workTensor = space.makeTensor();
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using basic Verlet algorithm");
-        return info;
-    }
-        
     public final void setTimeStep(double t) {
         super.setTimeStep(t);
         t2 = timeStep * timeStep;

@@ -1,7 +1,6 @@
 package etomica.potential;
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -28,11 +27,6 @@ public class P2Tether extends Potential2HardSpherical {
         this.ignoreOverlap = ignoreOverlap;
         lastCollisionVirialTensor = space.makeTensor();
         dv = space.makeVector();
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard string between adjacent atoms, hard sphere for non-adjacents");
-        return info;
     }
 
     /**

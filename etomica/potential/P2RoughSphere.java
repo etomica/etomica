@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
@@ -35,11 +34,6 @@ public class P2RoughSphere extends P2HardSphere {
         v12Par = new Vector3D();
         v12Perp = new Vector3D();
         impulse = new Vector3D();
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard spheres with a roughness that allows collisions to transfer momentum to/from rotational motion");
-        return info;
     }
 
     /**

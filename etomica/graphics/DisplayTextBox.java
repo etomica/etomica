@@ -4,7 +4,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import etomica.EtomicaInfo;
 import etomica.data.DataPipe;
 import etomica.data.IData;
 import etomica.data.IDataSink;
@@ -97,12 +96,7 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
         if(dataInfo instanceof DataInfoDouble) return null;
         return new CastToDouble();
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple display of one data source's value with a label");
-        return info;
-    }
-    
+
     /** 
      * calls doUpdate method.  Implementation of ChangeListener interface.
      */

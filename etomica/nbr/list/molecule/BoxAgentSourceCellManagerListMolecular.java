@@ -4,7 +4,6 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.space.ISpace;
 
 /**

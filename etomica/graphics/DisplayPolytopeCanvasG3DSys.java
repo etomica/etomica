@@ -1,16 +1,16 @@
 package etomica.graphics;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Panel;
-
-import javax.vecmath.Point3f;
-
 import etomica.api.IVector;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import g3dsys.control.G3DSys;
 import g3dsys.images.Line;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Panel;
+
+import javax.vecmath.Point3f;
 
 public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 

@@ -1,8 +1,8 @@
 package etomica.util.numerical;
 
+import Jama.Matrix;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import Jama.Matrix;
 
 /**
  * 

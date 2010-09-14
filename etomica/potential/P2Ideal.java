@@ -2,8 +2,8 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 

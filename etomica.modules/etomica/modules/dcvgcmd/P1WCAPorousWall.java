@@ -1,6 +1,5 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -38,12 +37,6 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         gradient[0] = space.makeVector();
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo(
-                "WCA LJ Potential in the Z-Coordinate");
-        return info;
-    }
-    
     public double getRange() {
         return cutoff;
     }

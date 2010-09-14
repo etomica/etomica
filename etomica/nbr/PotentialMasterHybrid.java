@@ -2,7 +2,6 @@ package etomica.nbr;
 
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISimulation;

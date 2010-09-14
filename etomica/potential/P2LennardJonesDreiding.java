@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
@@ -30,11 +29,6 @@ public class P2LennardJonesDreiding extends Potential2SoftSpherical {
         setSigma(sigma);
         setEpsilon(epsilon);
     
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Dreiding Lennard-Jones potential");
-        return info;
     }
 
     /**

@@ -6,8 +6,8 @@ import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataTable;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 
 /**

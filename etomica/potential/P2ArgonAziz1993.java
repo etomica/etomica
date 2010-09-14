@@ -1,8 +1,5 @@
 package etomica.potential;
 import etomica.space.ISpace;
-import etomica.units.Dimension;
-import etomica.units.Energy;
-import etomica.units.Length;
 
 /**
  * Pair potential for argon from Aziz (1993) JCP 99(6): 4518.  This is a true pair potential, rather than a pairwise-additive potential.

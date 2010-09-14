@@ -1,6 +1,5 @@
 package etomica.space2d;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBoundary;
 import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
@@ -82,11 +81,6 @@ public final class Space2D extends Space {
 
     public double[] makeArrayD(double d) {
         return new double[] { d, d };
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Two-dimensional space");
-        return info;
     }
 
     /**

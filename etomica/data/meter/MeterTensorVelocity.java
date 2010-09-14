@@ -1,7 +1,6 @@
 package etomica.data.meter;
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -33,12 +32,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Velocity tensor, formed from averaging dyad of velocity vector for each atom");
-        return info;
-    }
-    
+
     public IDataInfo getDataInfo() {
         return dataInfo;
     }

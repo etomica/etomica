@@ -18,7 +18,6 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.space.ISpace;

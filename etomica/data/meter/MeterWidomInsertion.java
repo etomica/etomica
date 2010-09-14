@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -41,12 +40,6 @@ public class MeterWidomInsertion extends DataSourceScalar {
         setResidual(true);
         atomTranslator = new MoleculeActionTranslateTo(space);
         positionSource = new RandomPositionSourceRectangular(space, random);
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo(
-            "Chemical potential via Widom's ghost-particle insertion method");
-        return info;
     }
 
     /**

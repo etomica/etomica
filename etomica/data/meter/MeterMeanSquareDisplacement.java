@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.EtomicaInfo;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IVector;
@@ -47,12 +46,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
 //        integrator.setIntervalActionPriority(afterPbc, 200);
 */
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Mean squared displacement, suitable for diffusion calculations");
-        return info;
-    }
-    
+
     public void setIterator(AtomIteratorBoxDependent iterator) {
         if(iterator == null) {
             throw new NullPointerException("Cannot give a null iterator");

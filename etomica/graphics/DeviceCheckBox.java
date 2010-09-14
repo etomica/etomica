@@ -2,7 +2,6 @@
 package etomica.graphics;
 import javax.swing.JCheckBox;
 
-import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
 
 /**
@@ -37,13 +36,7 @@ public class DeviceCheckBox extends Device {
             }
         });
     }
-        
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Check box that toggles a boolean value");
-        return info;
-    }
-    
+
     /**
      * Sets the button to the given state.
      */

@@ -4,8 +4,8 @@
  */
 package etomica.math.geometry;
 
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
 

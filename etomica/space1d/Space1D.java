@@ -1,6 +1,5 @@
 package etomica.space1d;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBoundary;
 import etomica.api.IVectorMutable;
 import etomica.space.RotationTensor;
@@ -75,11 +74,6 @@ public final class Space1D extends Space {
 
     public double[] makeArrayD(double d) {
         return new double[] { d };
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("One-dimensional space");
-        return info;
     }
 
     /**

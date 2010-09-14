@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.data.DataTag;
@@ -51,12 +50,7 @@ public class IntegratorPT extends IntegratorManagerMC {
         setGlobalMoveInterval(100);
         mcMoveSwapFactory = swapFactory;
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Parallel-tempering Monte Carlo simulation");
-        return info;
-    }
-    
+
     /**
      * Adds the given integrator to those managed by this integrator, and
      * includes integrator's box to the set among which configurations are

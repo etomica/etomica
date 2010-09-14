@@ -1,13 +1,13 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
+import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.box.Box;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;

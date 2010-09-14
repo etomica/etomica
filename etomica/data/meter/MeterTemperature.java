@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -43,12 +42,6 @@ public class MeterTemperature extends DataSourceScalar {
     public void setKineticEnergyMeter(DataSourceScalar meterKineticEnergy) {
         meterKE = meterKineticEnergy;
     }
-
-	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo(
-				"Records temperature as given via kinetic energy");
-		return info;
-	}
 
 	public double getDataAsScalar() {
 	    int totalD = box.getLeafList().getAtomCount() * dim;

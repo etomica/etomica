@@ -6,7 +6,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import etomica.EtomicaInfo;
 import etomica.action.IAction;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -90,12 +89,7 @@ public class DisplayPolytope extends Display implements IAction {
         
  //        ((javax.swing.JPanel)graphic()).setLayout(null);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a box as the simulation proceeds");
-        return info;
-    }
-    
+
     public void setSize(int width, int height) {
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setMinimumSize(temp);

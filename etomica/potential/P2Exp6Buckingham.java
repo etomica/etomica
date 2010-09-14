@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IVectorMutable;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
@@ -43,11 +42,6 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
 	public void setRmax(double rmax) {
 		this.rmax = rmax;
 	}
-
-	public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Buckinham Exp-6 potential");
-        return info;
-    }
 
     /**
      * The energy u

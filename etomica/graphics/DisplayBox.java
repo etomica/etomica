@@ -10,7 +10,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
-import etomica.EtomicaInfo;
 import etomica.action.activity.Controller;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
@@ -120,16 +119,6 @@ public class DisplayBox extends Display {
 
         setBox(box);
         setPixelUnit(new Pixel(10));
-    }
-
-    /**
-     * Returns a very brief description of Etomica.
-     * 
-     * @return static EtomicaInfo
-     */
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a box as the simulation proceeds");
-        return info;
     }
 
     /**

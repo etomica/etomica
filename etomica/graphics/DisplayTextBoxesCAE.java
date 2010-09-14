@@ -7,13 +7,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPipe;
 import etomica.data.DataPump;
 import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;

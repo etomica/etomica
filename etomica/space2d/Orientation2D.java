@@ -3,8 +3,8 @@ package etomica.space2d;
 import java.io.Serializable;
 
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.util.Constants;

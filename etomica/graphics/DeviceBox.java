@@ -10,7 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import etomica.EtomicaInfo;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifyAction;
 import etomica.units.systems.UnitSystem;
@@ -73,11 +72,6 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
         setPrecision(4);
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple textbox editor of a single value");
-        return info;
-    }
-    
     /** 
      * calls doUpdate method.  Implementation of ChangeListener interface.
      */

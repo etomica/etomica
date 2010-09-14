@@ -12,7 +12,6 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Null;
 import etomica.units.Quantity;
 import etomica.util.Arrays;
-import etomica.util.Histogram;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGenerator;
 import etomica.util.RandomNumberGeneratorUnix;

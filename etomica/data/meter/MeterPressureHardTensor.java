@@ -1,7 +1,6 @@
 package etomica.data.meter;
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.data.DataTag;
@@ -26,11 +25,6 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
         dataInfo.addTag(tag);
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Pressure tensor measured via components of virial averaged over hard collisions");
-        return info;
-    }
-    
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }

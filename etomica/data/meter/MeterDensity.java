@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.data.DataSourceScalar;
@@ -19,11 +18,6 @@ public class MeterDensity extends DataSourceScalar {
         super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(space.D())));
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Number density (molecules/volume) in a box");
-        return info;
-    }
-    
     public void setSpecies(ISpecies s) {
         species = s;
     }

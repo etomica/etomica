@@ -1,8 +1,8 @@
 package etomica.space;
 
 import etomica.api.IFunction;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 
 
 public interface Tensor extends Cloneable {

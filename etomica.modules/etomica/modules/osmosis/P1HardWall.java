@@ -1,6 +1,5 @@
 package etomica.modules.osmosis;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
@@ -25,11 +24,6 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     public P1HardWall(ISpace space, double sigma) {
         super(space);
         collisionRadius = sigma;
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Harmonic potential at the box boundaries");
-        return info;
     }
 
     public double energy(IAtomList a) {

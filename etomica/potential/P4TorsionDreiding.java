@@ -1,11 +1,11 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;

@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -31,11 +30,6 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
         setL(6);
         setR2Cut(rCut*rCut);
         dr = _space.makeVector();
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Order parameter used to identify crystallinity of boxs (3-D only)");
-        return info;
     }
 
     /**

@@ -1,8 +1,7 @@
 package etomica.integrator;
 
-import etomica.EtomicaInfo;
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotential;
@@ -12,7 +11,6 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.Potential1;
 import etomica.space.ISpace;
 
@@ -53,11 +51,6 @@ public final class IntegratorHardField extends IntegratorHard {
         });
         upList.addCriterion(noFieldsCriterion);
         downList.addCriterion(noFieldsCriterion);
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Collision-based MD simulation in the presence of a constant external field");
-        return info;
     }
 
     /**

@@ -1,14 +1,12 @@
 package etomica.potential;
-import etomica.EtomicaInfo;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
 import etomica.space3d.IOrientationFull3D;
-import etomica.space3d.OrientationFull3D;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -46,12 +44,7 @@ public class P2HardAssociationConeFourSitesSW extends Potential2 {
         setWellEpsilon(wellConstant*getEpsilon());
         setTheta(etomica.units.Degree.UNIT.toSim(27.0));
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("an anisotropic, cone-shaped square-well attraction potential");
-        return info;
-    }
-    
+
     /**
      * Returns infinity.
      */

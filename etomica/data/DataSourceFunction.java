@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import etomica.api.IFunction;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Dimension;
 import etomica.units.Null;

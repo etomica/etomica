@@ -1,8 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;

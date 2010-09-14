@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
@@ -35,12 +34,7 @@ public class MeterPressureTensor implements IEtomicaDataSource, java.io.Serializ
         iteratorDirective.includeLrc = true;
         pc = new PotentialCalculationPressureTensor(space);
     }
-      
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total pressure in a box (requires soft-potential model)");
-        return info;
-    }
-    
+
     public DataTag getTag() {
         return tag;
     }

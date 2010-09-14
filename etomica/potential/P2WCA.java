@@ -1,5 +1,4 @@
 package etomica.potential;
-import etomica.EtomicaInfo;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -27,12 +26,7 @@ public class P2WCA extends Potential2SoftSpherical {
         setSigma(sigma);
         setEpsilon(epsilon);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Weeks-Chandler-Andersen potential");
-        return info;
-    }
-    
+
     /**
      * Returns the range of the potential, which is the point of truncation.  This
      * is equal to 2^(1/6) * sigma.

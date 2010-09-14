@@ -3,7 +3,6 @@ package etomica.integrator;
 import java.awt.Color;
 import java.io.Serializable;
 
-import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
@@ -21,16 +20,16 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.IMoleculeOrientedKinetic;
 import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.atom.OrientationCalc;
 import etomica.atom.SpeciesAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -123,12 +122,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         omegaTolerance = 1.e-30;
         meterKE = new MeterKineticEnergyRigid(space, sim);
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using velocity Verlet integration algorithm");
-        return info;
-    }
-    
+
     public void setBox(IBox p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener

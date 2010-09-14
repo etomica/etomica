@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
@@ -27,11 +26,6 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
         }
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a box");
-        return info;
-    }
-    
     public void setShape(Polytope shape) {
         this.shape = shape;
     }

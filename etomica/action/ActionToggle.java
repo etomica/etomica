@@ -1,6 +1,5 @@
 package etomica.action;
 
-import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
 
 /**
@@ -34,11 +33,6 @@ public class ActionToggle implements IAction, java.io.Serializable {
      */
     public void actionPerformed() {
         modifier.setBoolean(!modifier.getBoolean());
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Action that toggles a boolean value");
-        return info;
     }
 
     /**

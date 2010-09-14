@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
@@ -44,12 +43,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         virialSum = 0.0;
         this.ignoreOverlap = ignoreOverlap;
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard moving wall");
-        return info;
-    }
-    
+
     public void setWallPosition(double p) {
         wallPosition = p;
     }
