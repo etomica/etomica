@@ -20,12 +20,10 @@ import etomica.units.Null;
  */
 public class MeterBoltzmann implements IEtomicaDataSource {
     
-    public MeterBoltzmann(IntegratorBox integrator, MeterPotentialEnergy meterPotentialEnergy, double ulatSampled, double ulatMeasured) {
+    public MeterBoltzmann(IntegratorBox integrator, MeterPotentialEnergy meterPotentialEnergy) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
         this.integrator = integrator;
         this.meterPotentialEnergy = meterPotentialEnergy;
-        this.ulatSampled = ulatSampled;
-        this.ulatMeasured = ulatMeasured;
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("Scaled Energies", Null.DIMENSION, new int[]{2});
         data.getData()[0] = 1.0;
@@ -33,9 +31,9 @@ public class MeterBoltzmann implements IEtomicaDataSource {
     }
 
     public IData getData() {
-    	double uSampled = meterEnergy.getDataAsScalar() - ulatSampled;
-    	double uMeasured = meterPotentialEnergy.getDataAsScalar() - ulatMeasured;
-        data.getData()[1] = Math.exp(-(uMeasured - uSampled) / integrator.getTemperature());
+    	double uSampled = meterEnergy.getDataAsScalar();
+    	double uMeasured = meterPotentialEnergy.getDataAsScalar();
+    	data.getData()[1] = Math.exp(-(uMeasured - uSampled) / integrator.getTemperature());
         return data;
     }
     
@@ -52,6 +50,5 @@ public class MeterBoltzmann implements IEtomicaDataSource {
     protected final IntegratorBox integrator;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
-    protected final double ulatSampled, ulatMeasured;
     protected final DataTag tag;
 }
