@@ -1,0 +1,205 @@
+package etomica.models.nitrogen;
+
+import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
+import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorRatioAverage;
+import etomica.data.DataPump;
+import etomica.data.IEtomicaDataSource;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisHcp;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.normalmode.BasisBigCell;
+import etomica.normalmode.MCMoveMoleculeCoupled;
+import etomica.normalmode.MeterBoltzmann;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.Space;
+import etomica.units.Degree;
+import etomica.units.Kelvin;
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
+import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
+import etomica.virial.overlap.DataSourceVirialOverlap;
+import etomica.virial.overlap.IntegratorOverlap;
+
+/**
+ * Direct Sampling for Rotational Perturbation
+ *   
+ * @author Tai Boon Tan
+ */
+public class SimDirectBetaN2RP extends Simulation {
+
+    public SimDirectBetaN2RP(Space space, int numMolecules, double density, double temperature, double[] angle) {
+        super(space);
+        
+        PotentialMaster potentialMasterTarg = new PotentialMaster();
+        PotentialMaster potentialMasterRef = new PotentialMaster();
+        
+        SpeciesN2 species = new SpeciesN2(space);
+		addSpecies(species);
+
+        // TARGET
+        Box boxTarg = new Box(space);
+        addBox(boxTarg);
+        boxTarg.setNMolecules(species, numMolecules);
+
+    	double ratio = 1.631;
+		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
+		double cDim = aDim*ratio;
+		System.out.println("\n\naDim: " + aDim + " ;cDim: " + cDim);
+		int nC = (int)Math.pow(numMolecules/1.999999999, 1.0/3.0);
+		
+		Basis basisHCP = new BasisHcp();
+		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
+        
+		IVector[] boxDim = new IVector[3];
+		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
+		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
+		
+		int[] nCells = new int[]{1,1,1};
+		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+		Primitive primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
+		
+		CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
+		coordinateDefTarg.setIsBeta();
+		coordinateDefTarg.setOrientationVectorBeta(space);
+		coordinateDefTarg.initializeCoordinates(nCells);
+		
+	    boxTarg.setBoundary(boundary);
+	    
+		double rCScale = 0.475;
+		double rc = aDim*nC*rCScale;
+		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
+		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
+		potentialTarg.setBox(boxTarg);
+
+		PRotConstraint pRotConstraintTarg = new PRotConstraint(space,coordinateDefTarg, boxTarg);
+		pRotConstraintTarg.setConstraintAngle(angle[0]);
+		
+		potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
+		potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
+		
+		MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg, getRandom(),space);
+		moveTarg.setBox(boxTarg);
+		moveTarg.setPotential(potentialTarg);
+		
+		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
+		rotateTarg.setBox(boxTarg);
+		
+        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
+        integratorTarg.getMoveManager().addMCMove(moveTarg);
+		integratorTarg.getMoveManager().addMCMove(rotateTarg);
+	    
+		integratorTarg.setBox(boxTarg);
+		
+	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
+        meterPETarg.setBox(boxTarg);
+        System.out.println("lattice energy (sim unit): " + meterPETarg.getDataAsScalar());
+        
+        // Reference System
+
+		PRotConstraint pRotConstraintRef = new PRotConstraint(space,coordinateDefTarg, boxTarg);
+		pRotConstraintRef.setConstraintAngle(angle[1]);
+		
+		potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
+		potentialMasterRef.addPotential(pRotConstraintRef,new ISpecies[]{species} );
+		        
+	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
+        meterPERef.setBox(boxTarg);
+        
+        MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
+        boltzmannAverage = new AccumulatorAverageFixed(100);
+        
+        DataPump boltzmannPump = new DataPump(meterBoltzmann, boltzmannAverage);
+        IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
+        integratorTarg.getEventManager().addListener(boltzmannPumpListener);
+
+        activityIntegrate = new ActivityIntegrate(integratorTarg);
+        getController().addAction(activityIntegrate);
+    }
+
+    /**
+     * @param args filename containing simulation parameters
+     * @see SimDirectBetaN2RP.SimOverlapParam
+     */
+    public static void main(String[] args) {
+        //set up simulation parameters
+        SimOverlapParam params = new SimOverlapParam();
+        
+        String inputFilename = null;
+        if (args.length > 0) {
+            inputFilename = args[0];
+        }
+        if (inputFilename != null) {
+            ReadParameters readParameters = new ReadParameters(inputFilename, params);
+            readParameters.readParameters();
+        }
+        
+        double density = params.density;
+        double[] angle = params.angle;
+        long numSteps = params.numSteps;
+        int numMolecules = params.numMolecules;
+        double temperature = params.temperature;
+  
+        System.out.println("Running beta-phase Nitrogen RP direct sampling simulation");
+        System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
+        System.out.print("perturbing from angle=" + angle[0] + " into " +angle[1]);
+        
+        SimDirectBetaN2RP sim = new SimDirectBetaN2RP(Space.getInstance(3), numMolecules, density, Kelvin.UNIT.toSim(temperature), angle);
+
+        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        sim.getController().actionPerformed();     
+        System.out.println("equilibration finished");
+        sim.getController().reset();
+     
+ 
+        long startTime = System.currentTimeMillis();
+        System.out.println("Start Time: " + startTime);
+       
+        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().actionPerformed();
+
+        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+        
+        System.out.println("boltzmann average: " + average + " ;err: " + error);
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("\nEnd Time: " + endTime);
+        System.out.println("Time taken (s): " + (endTime - startTime)/1000);
+       
+    }
+
+    private static final long serialVersionUID = 1L;
+    protected ActivityIntegrate activityIntegrate;
+    protected AccumulatorAverageFixed boltzmannAverage;
+    
+    /**
+     * Inner class for parameters understood by the SimOverlapBetaN2RP constructor
+     */
+    public static class SimOverlapParam extends ParameterBase {
+        public int numMolecules = 128;
+        public double density = 0.025;
+        public double[] angle = new double[]{120, 110};
+        public int D = 3;
+        public long numSteps =50000;
+        public double temperature = 40;
+    }
+}
