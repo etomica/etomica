@@ -6,6 +6,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -19,10 +20,8 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.normalmode.MeterBoltzmann;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -66,7 +65,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     	double ratio = 1.631;
 		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double cDim = aDim*ratio;
-		System.out.println("\n\na: " + aDim + " ;cDim: " + cDim);
+		System.out.println("\n\naDim: " + aDim + " ;cDim: " + cDim);
 		int nC = (int)Math.pow(numMolecules/1.999999999, 1.0/3.0);
 		
 		Basis basisHCP = new BasisHcp();
@@ -100,7 +99,7 @@ public class SimOverlapBetaN2RP extends Simulation {
 		potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
 		potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
 		
-		MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg,getRandom(),space);
+		MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg, getRandom(),space);
 		moveTarg.setBox(boxTarg);
 		moveTarg.setPotential(potentialTarg);
 		
@@ -114,9 +113,8 @@ public class SimOverlapBetaN2RP extends Simulation {
 		integratorTarg.setBox(boxTarg);
 		integrators[1] = integratorTarg;
 		
-	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
-        meterPETarg.setBox(boxTarg);
-    
+
+        
         // Reference System
         boxRef = new Box(space);
         addBox(boxRef);
@@ -153,18 +151,31 @@ public class SimOverlapBetaN2RP extends Simulation {
 		integrators[0] = integratorRef;
         
 	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
-        meterPERef.setBox(boxRef);
+        meterPERef.setBox(boxTarg);
+        //System.out.println("lattice energy (sim unit): " + meterPERef.getDataAsScalar());
+        
+	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
+        meterPETarg.setBox(boxRef);
+        //System.out.println("lattice energy (sim unit): " + meterPETarg.getDataAsScalar());
         
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorRef, integratorTarg});
 
         etomica.models.nitrogen.MeterBoltzmann meterTarg = new etomica.models.nitrogen.MeterBoltzmann(integratorTarg, meterPERef);
-        meters[1] = meterTarg;
+       meters[1] = meterTarg;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, false), 1);
-        
-        etomica.models.nitrogen.MeterBoltzmann meterRef = new etomica.models.nitrogen.MeterBoltzmann(integratorRef, meterPETarg);
+
+        etomica.models.nitrogen.MeterBoltzmann meterRef =  new etomica.models.nitrogen.MeterBoltzmann(integratorRef, meterPETarg);
         meters[0] = meterRef;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, true), 0);
+
+        
+//        AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(1);
+//        DataPump dataPump = new DataPump(meterRef, accumulator);
+//        IntegratorListenerAction listener = new IntegratorListenerAction(dataPump);
+//        listener.setInterval(1);
+//        integratorRef.getEventManager().addListener(listener);
+        
         
         setRefPref(alpha, alphaSpan);
         
@@ -183,14 +194,14 @@ public class SimOverlapBetaN2RP extends Simulation {
 
         accumulators[iBox] = newAccumulator;
     
-        newAccumulator.setBlockSize(200); // setting the block size = 300
+        newAccumulator.setBlockSize(100); // setting the block size = 300
         
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
            
-            pumpListener.setInterval(boxTarg.getMoleculeList().getMoleculeCount());            
+            pumpListener.setInterval(100);//boxTarg.getMoleculeList().getMoleculeCount());            
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -248,17 +259,23 @@ public class SimOverlapBetaN2RP extends Simulation {
   
         System.out.println("Running beta-phase Nitrogen RP overlap simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
-        System.out.print("perturbing from angle=" + angle[0] + " into " +angle[1]);
+        System.out.println("perturbing from angle=" + angle[0] + " into " +angle[1]);
+        System.out.println("with " + numSteps + " steps (1000 substeps)");
         
         SimOverlapBetaN2RP sim = new SimOverlapBetaN2RP(Space.getInstance(3), numMolecules, density, Kelvin.UNIT.toSim(temperature), 
         		angle, alpha, alphaSpan, numAlpha);
         
         //start simulation
+        
+//        sim.integratorOverlap.setNumSubSteps(1000);
+//        sim.integratorOverlap.setAdjustStepFreq(false);
+//        sim.activityIntegrate.setMaxSteps(100000000);
+//        sim.getController().actionPerformed();
+//        System.exit(1);
+        
         sim.integratorOverlap.setNumSubSteps(1000);
         sim.integratorOverlap.setAdjustStepFreq(false);
         numSteps /= 1000;
-        
-        System.out.flush();
         
         sim.equilibrate(numSteps);       
         System.out.println("equilibration finished");
@@ -272,7 +289,6 @@ public class SimOverlapBetaN2RP extends Simulation {
          
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
-        
         System.out.println("numPoint: " +sim.accumulators[0].getNBennetPoints()+ "\n");
         
         System.out.println("ratio averages: \n");
@@ -280,8 +296,8 @@ public class SimOverlapBetaN2RP extends Simulation {
       
         for (int i=0; i<numAlpha; i++){
         	
-        	double ratio = sim.dsvo.getAverage(i);
-        	double ratio_err = sim.dsvo.getError(i);
+//        	double ratio = sim.dsvo.getAverage(i);
+//        	double ratio_err = sim.dsvo.getError(i);
         	
         	DataGroup dataRatio0 = (DataGroup)sim.accumulators[0].getData(i);
         	double ratio0 = ((DataDoubleArray)dataRatio0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
@@ -292,7 +308,7 @@ public class SimOverlapBetaN2RP extends Simulation {
         	double ratio1_err = ((DataDoubleArray)dataRatio1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
         	
         	System.out.println("    "+sim.accumulators[0].getBennetBias(i)+
-        			" "+ ratio  + " " + ratio_err +
+        			" "+ (ratio0/ratio1)  +//+ " " + ratio_err +
         			" "+ ratio0 + " " + ratio0_err + 
         			" "+ ratio1 + " " + ratio1_err);
       
@@ -342,12 +358,12 @@ public class SimOverlapBetaN2RP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 128;
         public double density = 0.025;
-        public double[] angle = new double[]{179, 178};
+        public double[] angle = new double[]{160, 156};
         public int D = 3;
         public double alpha =1.0;
         public double alphaSpan = 1.0;
         public int numAlpha = 11;
-        public long numSteps = 100000;
+        public long numSteps =100000;
         public double temperature = 40;
     }
 }

@@ -1,8 +1,8 @@
 package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
+import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
@@ -83,10 +83,14 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 
 		box.setBoundary(boundary);
-		double rC = a*nC[0]*0.5;
+		double rC = a*nC[0]*0.475;
 		System.out.println("Truncation Radius: " + rC);
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
+		
+		PRotConstraint pRot= new PRotConstraint(space, coordinateDef, box);
+		pRot.setBox(box);
+		pRot.setConstraintAngle(70);
 		
 		BoxInflate boxInflate = new BoxInflate(box, space);
 		boxInflate.setScale(newScale);
@@ -96,6 +100,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //		configFile.initializeCoordinates(box);
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+		potentialMaster.addPotential(pRot, new ISpecies[]{species});
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
@@ -123,10 +128,10 @@ public class SimulationBetaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int nC0 =3; 
-		int nC1 =3; 
-		int nC2 =3;
-		double temperature =10; // in Unit Kelvin
+		int nC0 =6; 
+		int nC1 =6; 
+		int nC2 =6;
+		double temperature =40; // in Unit Kelvin
 		double pressure = 0.0; //in Unit GPa
 		long simSteps = 100000;
 		double newScale = 1.0;
@@ -170,9 +175,9 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 		SimulationBetaNitrogenModel sim = new SimulationBetaNitrogenModel(Space3D.getInstance(3), nC, temperature, pressure, newScale, density);
 	    
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
+		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
-		System.out.println("Lattice Energy (per molecule): "+ meterPotentialEnergy.getDataAsScalar()/numMolecule);
+		System.out.println("Lattice Energy (per molecule): "+ meterPotentialEnergy.getDataAsScalar());
 		//System.exit(1);
 		
 		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
@@ -197,7 +202,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 		if(true){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
-		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(20));
+		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
 		    
 		    DiameterHashByType diameter = new DiameterHashByType(sim);
@@ -205,6 +210,19 @@ public class SimulationBetaNitrogenModel extends Simulation{
 			diameter.setDiameter(sim.species.getPType(), 0.0);
 			
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
+			
+			IAction output = new IAction(){
+
+				public void actionPerformed() {
+					System.out.println("energy: " + (meterPotentialEnergy.getDataAsScalar()+329916.40502540825));
+					
+				}
+				
+			};
+			
+//			IntegratorListenerAction outListener = new IntegratorListenerAction(output);
+//			outListener.setInterval(numMolecule);
+//			sim.integrator.getEventManager().addListener(outListener);
 			return;
 		}
 		

@@ -178,7 +178,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         double rc = params.rc;
         
         System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
-        System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature + " K");
+        System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
         System.out.print("perturbing into: ");
         for(int i=0; i<otherTemperatures.length; i++){
         	System.out.print(otherTemperatures[i]+" ");
@@ -307,14 +307,14 @@ public class SimOverlapAlphaN2TP extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 32;
+        public int numMolecules = 256;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 1000;
-        public double temperature = 0.5; // in unit Kelvin
-        public double[] alpha = new double[]{1.0, 1.0};
+        public long numSteps = 10000;
+        public double temperature = 0.1; // in unit Kelvin
+        public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{0.49, 0.51};
+        public double[] otherTemperatures = new double[]{0.2};
         public double rc = 4.0;
     }
 }

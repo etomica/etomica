@@ -27,14 +27,10 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.nbr.list.BoxAgentSourceCellManagerList;
-import etomica.nbr.list.NeighborListManagerSlanty;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
-import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
-import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -98,23 +94,23 @@ public class SimOverlapBetaN2TP extends Simulation {
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
 		pRotConstraint.setConstraintAngle(70);
 		
-		//potentialMaster = new PotentialMasterListMolecular(this, space);
-		potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
+		potentialMaster = new PotentialMaster();
+		//potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		
-	    int cellRange = 6;
-        potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); 
-        potentialMaster.getNeighborManager(box).reset();
-        
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-        }
-	
-        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-        System.out.println("numNeigh: " + numNeigh);
+//	    int cellRange = 6;
+//        potentialMaster.setRange(rc);
+//        potentialMaster.setCellRange(cellRange); 
+//        potentialMaster.getNeighborManager(box).reset();
+//        
+//        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+//        if (potentialCells < cellRange*2+1) {
+//            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+//        }
+//	
+//        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+//        System.out.println("numNeigh: " + numNeigh);
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
@@ -197,7 +193,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         double alphaSpan = params.alphaSpan;
         double rc = params.rc;
         
-        System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
+        System.out.println("Running beta-phase Nitrogen TP overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature + " K");
         System.out.print("perturbing into: ");
         for(int i=0; i<otherTemperatures.length; i++){
@@ -315,7 +311,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     public AccumulatorAverageFixed accumulator;
     public DataPumpListener accumulatorPump;
     public MeterTargetTPMolecule meter;
-    protected PotentialMasterListMolecular potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected SpeciesN2 species;
     protected CoordinateDefinitionNitrogen coordinateDef;
@@ -328,12 +324,12 @@ public class SimOverlapBetaN2TP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 10000;
-        public double temperature = 0.5; // in unit Kelvin
-        public double[] alpha = new double[]{1.0, 1.0};
+        public long numSteps = 1000000;
+        public double temperature = 0.2; // in unit Kelvin
+        public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{0.45, 0.55};
+        public double[] otherTemperatures = new double[]{0.3};
         public double rc = 4.0;
     }
 }
