@@ -139,10 +139,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             ((P2SoftSphericalTruncated)potentialTarg).setTruncationRadius(0.6*boundaryTarg.getBoxSize().getX(0));
 		}
         
-        MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
-        meterPETarg.setBox(boxTarg);
-        latticeEnergyTarg = meterPETarg.getDataAsScalar();
-        System.out.println("lattice energy/N (targ n="+exponent[1]+"): " + latticeEnergyTarg/numAtoms);
+
        
         // Reference System
         boundaryRef = new BoundaryRectangularPeriodic(space);
@@ -206,7 +203,12 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             ((P2SoftSphericalTruncated)potentialRef).setTruncationRadius(0.6*boundaryRef.getBoxSize().getX(0));
 		}
         
-	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
+        MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterRef);
+        meterPETarg.setBox(boxTarg);
+        latticeEnergyTarg = meterPETarg.getDataAsScalar();
+        System.out.println("lattice energy/N (targ n="+exponent[1]+"): " + latticeEnergyTarg/numAtoms);
+		
+	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterTarg);
         meterPERef.setBox(boxRef);
         latticeEnergyRef = meterPERef.getDataAsScalar();
         System.out.println("lattice energy/N (ref n="+exponent[0]+"): " + latticeEnergyRef/numAtoms);
@@ -416,14 +418,14 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 256;
-        public double density = 1.0409;
-        public int[] exponentN = new int[]{65, 64};
+        public int numMolecules = 108;
+        public double density = 1.1964;
+        public int[] exponentN = new int[]{12, 14};
         public int D = 3;
-        public double alpha =0.26;
+        public double alpha =1.0000000000000002;
         public double alphaSpan = 1.0;
         public int numAlpha = 11;
-        public long numSteps = 1000000;
+        public long numSteps = 10000000;
         public double harmonicFudge = 1;
         public double temperature = 0.01;
     }
