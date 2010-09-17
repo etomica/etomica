@@ -53,7 +53,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     	double ratio = 1.631;
 		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double cDim = aDim*ratio;
-		System.out.println("\n\naDim: " + aDim + " ;cDim: " + cDim);
+		System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
 		int nC = (int)Math.pow(numMolecules/1.999999999, 1.0/3.0);
 		
 		Basis basisHCP = new BasisHcp();
@@ -150,16 +150,18 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		
         System.out.println("Running beta-phase Nitrogen RP direct sampling simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
-        System.out.print("perturbing from angle=" + angle + " into no rotational d.o.f.");
+        System.out.println("perturbing from angle=" + angle + " into no rotational d.o.f.");
+        System.out.println("with numStep of "+ numSteps);
         
         SimDirectBetaN2RPAngleToNoAngle sim = new SimDirectBetaN2RPAngleToNoAngle(Space.getInstance(3), numMolecules, density, Kelvin.UNIT.toSim(temperature), angle);
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        long equiStep = (numMolecules*numSteps/1000);
+        System.out.println("equilibration step: " + equiStep);
+        sim.activityIntegrate.setMaxSteps(equiStep);
         sim.getController().actionPerformed();     
         System.out.println("equilibration finished");
         sim.getController().reset();
      
- 
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
