@@ -124,24 +124,29 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
      * @see SimDirectBetaN2RPAngleToNoAngle.SimOverlapParam
      */
     public static void main(String[] args) {
-        //set up simulation parameters
-        SimOverlapParam params = new SimOverlapParam();
-        
-        String inputFilename = null;
-        if (args.length > 0) {
-            inputFilename = args[0];
-        }
-        if (inputFilename != null) {
-            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-            readParameters.readParameters();
-        }
-        
-        double density = params.density;
-        double angle = params.angle;
-        long numSteps = params.numSteps;
-        int numMolecules = params.numMolecules;
-        double temperature = params.temperature;
-  
+
+        double temperature = 40; //in UNIT KELVIN
+        double density = 0.025;
+        double angle = 5;
+        long numSteps = 100000;
+        int numMolecules = 432;
+
+    	if(args.length > 0){
+			temperature = Double.parseDouble(args[0]);
+		}
+		if(args.length > 1){
+			density = Double.parseDouble(args[1]);
+		}
+		if(args.length > 2){
+			angle = Double.parseDouble(args[2]);
+		}
+		if(args.length > 3){
+			numSteps = Long.parseLong(args[3]);
+		}
+		if(args.length > 4){
+			numMolecules = Integer.parseInt(args[4]);
+		}
+		
         System.out.println("Running beta-phase Nitrogen RP direct sampling simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
         System.out.print("perturbing from angle=" + angle + " into no rotational d.o.f.");
@@ -174,16 +179,5 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     private static final long serialVersionUID = 1L;
     protected ActivityIntegrate activityIntegrate;
     protected AccumulatorAverageFixed boltzmannAverage;
-    
-    /**
-     * Inner class for parameters understood by the SimOverlapBetaN2RP constructor
-     */
-    public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 432;
-        public double density = 0.025;
-        public double angle = 1;
-        public int D = 3;
-        public long numSteps =50000;
-        public double temperature = 40;
-    }
+
 }
