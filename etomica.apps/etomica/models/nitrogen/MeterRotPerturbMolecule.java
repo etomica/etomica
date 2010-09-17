@@ -25,9 +25,8 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 	private static final long serialVersionUID = 1L;
 	protected final MeterPotentialEnergy meterPotentialMeasured;
 	protected final MeterPotentialEnergyFromIntegrator meterPotentialSampled;
-    protected double temperature;
-    protected double[] otherTemperatures;
     protected final IBox secondaryBox;
+    protected double latticeEnergy;
     protected CoordinateDefinitionNitrogen primaryCoordDef, secondaryCoordDef;
     
     public MeterRotPerturbMolecule(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
@@ -36,18 +35,17 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
         
         IBox realBox = coordinateDef.getBox();
         secondaryBox = new Box(space);
-        secondaryBox.setBoundary(realBox.getBoundary());
-        secondaryBox.setNMolecules(species, realBox.getMoleculeList().getMoleculeCount());
         sim.addBox(secondaryBox);
-        
+        System.out.println("num: " + realBox.getMoleculeList().getMoleculeCount());
+        secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
+        secondaryBox.setBoundary(realBox.getBoundary());
+     
         secondaryCoordDef = new CoordinateDefinitionNitrogen(sim, secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), space);
         secondaryCoordDef.setIsBeta();
         secondaryCoordDef.setOrientationVectorBeta(space);
         secondaryCoordDef.initializeCoordinates(new int[]{1,1,1});
         
         meterPotentialMeasured = new MeterPotentialEnergy(potentialMaster);
-        meterPotentialMeasured.setBox(secondaryBox);
-        
         meterPotentialSampled = new MeterPotentialEnergyFromIntegrator(integrator);
         
     }
@@ -56,25 +54,30 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 		
 		double[] sampledCoord = primaryCoordDef.calcU(primaryCoordDef.getBox().getMoleculeList());
 		double[] transCoord = new double[sampledCoord.length];
-		       
+				
 		for(int i=0; i<sampledCoord.length; i++){
 			if(i==0 && (i%3==0 || i%4==0)){
 				transCoord[i] = 0.0;
 				
-			}else{
+			} else{
 				transCoord[i] = sampledCoord[i];
 				
 			}
 		}
 		
 		secondaryCoordDef.setToU(secondaryBox.getMoleculeList(), transCoord);
+		meterPotentialMeasured.setBox(secondaryBox);
 		
 		double sampledEnergy = meterPotentialSampled.getDataAsScalar();
 		double measuredEnergy = meterPotentialMeasured.getDataAsScalar();
-		
+	
 		double chi = Math.exp(-(measuredEnergy-sampledEnergy)/meterPotentialSampled.getIntegrator().getTemperature()); 
-		
+		System.out.println(chi+" "+sampledEnergy +" " + measuredEnergy + " " + (sampledEnergy-measuredEnergy));
 		return chi;
+	}
+	
+	public void setLatticeEnergy(double latticeEnergy){
+		this.latticeEnergy = latticeEnergy;
 	}
 
 }
