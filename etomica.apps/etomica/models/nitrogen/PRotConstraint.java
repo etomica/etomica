@@ -24,6 +24,7 @@ public class PRotConstraint extends PotentialMolecular{
 		int numMolec = box.getMoleculeList().getMoleculeCount();
 		
 		molecOrientation = space.makeVector();
+		opMolecOrientation = space.makeVector();
 		initMolecOrientation = new IVectorMutable[numMolec][3];
 		/*
 		 * initializing the initial orientation of the molecule
@@ -48,14 +49,19 @@ public class PRotConstraint extends PotentialMolecular{
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
 		
+		opMolecOrientation.Ea1Tv1(-1, molecOrientation);
+		
 		double cosangle = molecOrientation.dot(initMolecOrientation[index][0]);
-		if(cosangle <= Math.cos(Degree.UNIT.toSim(constraintAngle))){
+		double opcosangle = opMolecOrientation.dot(initMolecOrientation[index][0]);
+		
+		if(cosangle >= Math.cos(Degree.UNIT.toSim(constraintAngle)) 
+				||opcosangle >= Math.cos(Degree.UNIT.toSim(constraintAngle))){
+			return 0.0;
+		
+		} else {
 			++ counter;
 			return Double.POSITIVE_INFINITY;
-		
 		}
-		
-		return 0.0;
 	}
 
 
@@ -74,7 +80,7 @@ public class PRotConstraint extends PotentialMolecular{
 	}
 
 	private IVectorMutable[][] initMolecOrientation;
-	private IVectorMutable molecOrientation;
+	private IVectorMutable molecOrientation, opMolecOrientation;
 	private IBox box;
 	protected double constraintAngle = 90.0; //in degree
 	protected int counter=0;
