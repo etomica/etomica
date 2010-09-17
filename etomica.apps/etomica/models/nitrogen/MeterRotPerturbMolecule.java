@@ -36,7 +36,7 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
         IBox realBox = coordinateDef.getBox();
         secondaryBox = new Box(space);
         sim.addBox(secondaryBox);
-        System.out.println("num: " + realBox.getMoleculeList().getMoleculeCount());
+       
         secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
         secondaryBox.setBoundary(realBox.getBoundary());
      
@@ -72,7 +72,7 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 		double measuredEnergy = meterPotentialMeasured.getDataAsScalar();
 	
 		double chi = Math.exp(-(measuredEnergy-sampledEnergy)/meterPotentialSampled.getIntegrator().getTemperature()); 
-		System.out.println(chi+" "+sampledEnergy +" " + measuredEnergy + " " + (sampledEnergy-measuredEnergy));
+		
 		return chi;
 	}
 	

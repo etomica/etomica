@@ -103,7 +103,8 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
         meterPETarg.setBox(boxTarg);
         double latticeEnergy = meterPETarg.getDataAsScalar();
-        System.out.println("lattice energy (sim unit): " + latticeEnergy);
+        System.out.println("lattice energy per mol(Kelvin): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
+        System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
         
         // Reference System
 		potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
