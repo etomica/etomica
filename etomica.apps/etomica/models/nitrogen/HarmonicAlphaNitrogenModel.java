@@ -180,7 +180,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 		double[] newU = new double[test.coordinateDef.getCoordinateDim()];
 		double[][]testArray = test.get2ndDerivative(test.coordinateDef);
 		
-		String fname = new String (numMolecule+"_2ndDer_d"+density+"_new");
+		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
 		try {
 			FileWriter fileWriter = new FileWriter(fname);
 			
