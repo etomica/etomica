@@ -3,6 +3,9 @@ package etomica.models.nitrogen;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
+
 import etomica.api.ISpecies;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
@@ -214,6 +217,49 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		return array;
 	}
 	
+	public void doEigenDecomposeAndFile(double[][] array, String filename){
+		
+		try{
+			
+			FileWriter fileWriterVal = new FileWriter(filename+".val");
+			FileWriter fileWriterVec = new FileWriter(filename+".vec");
+			
+				
+			Matrix matrix = new Matrix(array);
+			EigenvalueDecomposition ed = matrix.eig();
+			double[] eVals = ed.getRealEigenvalues();
+			double[][] eVecs = ed.getV().getArray();
+				
+			// output .val file
+			for (int ival=0; ival<eVals.length; ival++){
+				if (eVals[ival] < 1E-10){
+					fileWriterVal.write("0.0 ");
+				} else {
+					fileWriterVal.write(1/eVals[ival]+ " ");
+                }
+			}
+			fileWriterVal.write("\n");
+
+			// output .vec file
+			for (int ivec=0; ivec<eVecs.length; ivec++ ){
+				for(int jvec=0; jvec<eVecs[0].length; jvec++){
+					if (Math.abs(eVecs[jvec][ivec])<1e-10){
+						fileWriterVec.write("0.0 ");
+					} else {
+                		fileWriterVec.write(eVecs[jvec][ivec] + " ");
+               		}
+               	}
+               	fileWriterVec.write("\n");
+			}
+		
+			fileWriterVal.close();
+            fileWriterVec.close();
+		
+		} catch (IOException e) {
+			
+		}
+	}
+	
 	public static void main (String[] args){
 		
 		int numMolecule =32;
@@ -230,7 +276,8 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		if(args.length > 2){
 			isCombineFile = Boolean.parseBoolean(args[2]);
 		}
-		String filename = numMolecule+"_2ndDer_d"+density;
+		String filename = "alpha"+numMolecule+"_2ndDer_d"+density;
+		boolean doEigenDecompose = true;
 		
 		System.out.println("Running Hessian Matrix Construction Program for Alpha-phase Nitrogen Model");
 		System.out.println("with density of " + density);
@@ -239,6 +286,13 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		HarmonicAlphaNitrogenModelDecomposed test = new HarmonicAlphaNitrogenModelDecomposed(Space3D.getInstance(3), numMolecule, density);
 	
 		long startTime = System.currentTimeMillis();
+		
+		if(doEigenDecompose){
+			double[][] array = ArrayReader1D.getFromFile(filename+"_all");
+			test.doEigenDecomposeAndFile(array, filename);
+			
+			return;
+		}
 		
 		if(isCombineFile){
 			double[][] array = test.contructFullMatrix(test.coordinateDef, filename);
