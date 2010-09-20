@@ -107,11 +107,11 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
             /*
              * Re-scaling the coordinate deviation
              */
-            
+          
           	if(isBetaPhase){
           		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
           			// NOT Scaling the rotational angle for the beta-phase
-          			if(iCoord>0 && (iCoord%3==0 || iCoord%4==0)){
+          			if(iCoord>0 && (iCoord%5==3 || iCoord%5==4)){
           				newU[iCoord] = u[iCoord];
                     } else {
                     	newU[iCoord] = fac*u[iCoord];
@@ -126,7 +126,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
                   
             coordinateDefinition.setToU(pretendMolecules, newU);
             otherEnergy = meterPotential.getDataAsScalar();
-            
+         
             double ai = (otherEnergy-latticeEnergy)/Kelvin.UNIT.toSim(otherTemperatures[i]);
            
             for (int j=0; j<numAlpha; j++) {
