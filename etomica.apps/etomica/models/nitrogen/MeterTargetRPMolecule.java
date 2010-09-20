@@ -34,8 +34,10 @@ import etomica.units.Null;
  */
 public class MeterTargetRPMolecule implements IEtomicaDataSource {
 
-    protected final MeterPotentialEnergy meterPotential;
-    protected final IPotentialMaster potentialMaster;
+    protected MeterPotentialEnergy meterPotentialSampled; 
+    protected MeterPotentialEnergy[] meterPotentialMeasured;
+    protected IPotentialMaster potentialMasterSampled;
+    protected IPotentialMaster[] potentialMasterMeasured;
     protected double latticeEnergy;
     protected double temperature;
     protected double angle;
@@ -51,12 +53,19 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     protected double alphaSpan;
     protected int numAlpha = 1;
     
-    public MeterTargetRPMolecule(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
-        this.potentialMaster = potentialMaster;
+    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, IPotentialMaster[] potentialMasterMeasured, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+        this.potentialMasterSampled = potentialMasterSampled;
+        this.potentialMasterMeasured = potentialMasterMeasured;
         this.coordinateDefinition = coordinateDef;
         
-        meterPotential = new MeterPotentialEnergy(potentialMaster);
+        System.out.println("potentialMaster: " + potentialMasterMeasured[0]);
+        System.out.println("num: " + potentialMasterMeasured.length);
+        meterPotentialSampled = new MeterPotentialEnergy(potentialMasterSampled);
+        meterPotentialMeasured = new MeterPotentialEnergy[potentialMasterMeasured.length];
         
+        for (int i=0; i<meterPotentialMeasured.length; i++){
+        	meterPotentialMeasured[i] = new MeterPotentialEnergy(potentialMasterMeasured[i]);
+        }
         this.species = species;
         pretendBox = new Box(space);
         pretendBox.setBoundary(coordinateDef.getBox().getBoundary());
@@ -75,10 +84,10 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 
     public IData getData() {
     	IBox realBox = coordinateDefinition.getBox();
-        meterPotential.setBox(realBox);
+        meterPotentialSampled.setBox(realBox);
         
-        double energy = meterPotential.getDataAsScalar();
-        meterPotential.setBox(pretendBox);
+        double energy = meterPotentialSampled.getDataAsScalar();
+    
         
         pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
@@ -93,26 +102,28 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         double[] newU = new double[coordinateDefinition.getCoordinateDim()];
         
         for (int i=0; i<otherAngles.length; i++) {
-            double fac = otherAngles[i]/angle;
+            double fac = 1;//(otherAngles[i]/angle);
             double otherEnergy = 0;
             /*
              * Re-scaling the coordinate deviation
              */
       		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
       			// Scaling the rotational angle for the beta-phase
-      			if(iCoord>0 && (iCoord%3==0 || iCoord%4==0)){
+      			if(iCoord>0 && (iCoord%5==3 || iCoord%5==4)){
       				newU[iCoord] = fac*u[iCoord];
       			} else {
       				newU[iCoord] = u[iCoord];
       			}
       		}
-                  
+
             coordinateDefinition.setToU(pretendMolecules, newU);
-            otherEnergy = meterPotential.getDataAsScalar();
-            //System.out.println((energy-latticeEnergy)+" "+(otherEnergy-latticeEnergy) + " " + (otherEnergy-energy));
+            meterPotentialMeasured[i].setBox(pretendBox);
+            otherEnergy = meterPotentialMeasured[i].getDataAsScalar();
+            System.out.println((energy-latticeEnergy)+" "+(otherEnergy-latticeEnergy) + " " + (otherEnergy-energy));
             
             double ai = (otherEnergy-latticeEnergy)/temperature;
-            //System.out.println(fac+" "+a0+ " " + ai + " "+ (ai-a0));
+           // System.out.println(fac+" "+a0+ " " + ai + " "+ (ai-a0));
+            
             for (int j=0; j<numAlpha; j++) {
                 if (angle> otherAngles[i]) {
                     x[i*numAlpha+j] = 1.0/(alpha[i][j]+Math.exp(ai-a0));
