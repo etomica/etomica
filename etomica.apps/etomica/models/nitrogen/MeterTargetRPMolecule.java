@@ -102,7 +102,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         double[] newU = new double[coordinateDefinition.getCoordinateDim()];
         
         for (int i=0; i<otherAngles.length; i++) {
-            double fac = 1;//(otherAngles[i]/angle);
+            double fac = (otherAngles[i]/angle);
             double otherEnergy = 0;
             /*
              * Re-scaling the coordinate deviation
