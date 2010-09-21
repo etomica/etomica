@@ -49,7 +49,7 @@ import etomica.util.ReadParameters;
 public class SimOverlapBetaN2RPScaling extends Simulation {
 
     public SimOverlapBetaN2RPScaling(Space space, int numMolecules, double density, double temperature, double[] otherAngles,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double angle) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double angle, boolean doScaling) {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
@@ -207,10 +207,12 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         double[] alpha = params.alpha;
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
+        boolean doScaling = params.doScaling;
         
-        System.out.println("Running beta-phase Nitrogen RP overlap simulation with scaling");
+        System.out.println("Running beta-phase Nitrogen RP overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature + " K");
-        System.out.print("perturbing from angle: " + angle + " into ");
+        System.out.println("perturbing from angle: " + angle + " into ");
+        System.out.println("doScaling: " + doScaling);
         for(int i=0; i<otherAngles.length; i++){
         	System.out.print(otherAngles[i]+" ");
         }
@@ -222,7 +224,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 
         //instantiate simulation
         final SimOverlapBetaN2RPScaling sim = new SimOverlapBetaN2RPScaling(Space.getInstance(3), numMolecules, density, temperature, otherAngles, 
-        		alpha, numAlpha, alphaSpan, numSteps, angle);
+        		alpha, numAlpha, alphaSpan, numSteps, angle, doScaling);
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -341,12 +343,13 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 100000;
+        public long numSteps = 1000000;
         public double temperature = 40.0; // in unit Kelvin
-        public double angle = 2.0;
+        public double angle = 50.0;
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherAngles = new double[]{1.0};
+        public double[] otherAngles = new double[]{45};
+        public boolean doScaling = true;
     }
 }

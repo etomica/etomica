@@ -1,8 +1,5 @@
 package etomica.models.nitrogen;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -17,7 +14,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.space.ISpace;
-import etomica.units.Kelvin;
 import etomica.units.Null;
 
 /**
@@ -52,14 +48,13 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     protected double[] alphaCenter;
     protected double alphaSpan;
     protected int numAlpha = 1;
+    protected boolean doScaling = true;
     
     public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, IPotentialMaster[] potentialMasterMeasured, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.potentialMasterSampled = potentialMasterSampled;
         this.potentialMasterMeasured = potentialMasterMeasured;
         this.coordinateDefinition = coordinateDef;
         
-        System.out.println("potentialMaster: " + potentialMasterMeasured[0]);
-        System.out.println("num: " + potentialMasterMeasured.length);
         meterPotentialSampled = new MeterPotentialEnergy(potentialMasterSampled);
         meterPotentialMeasured = new MeterPotentialEnergy[potentialMasterMeasured.length];
         
@@ -88,7 +83,6 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         
         double energy = meterPotentialSampled.getDataAsScalar();
     
-        
         pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         
@@ -102,7 +96,12 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         double[] newU = new double[coordinateDefinition.getCoordinateDim()];
         
         for (int i=0; i<otherAngles.length; i++) {
-            double fac = (otherAngles[i]/angle);
+        	double fac;
+        	if(doScaling){
+        		fac = (otherAngles[i]/angle);
+        	} else {
+        		fac = 1.0;
+        	}
             double otherEnergy = 0;
             /*
              * Re-scaling the coordinate deviation
@@ -119,10 +118,10 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
             coordinateDefinition.setToU(pretendMolecules, newU);
             meterPotentialMeasured[i].setBox(pretendBox);
             otherEnergy = meterPotentialMeasured[i].getDataAsScalar();
-            System.out.println((energy-latticeEnergy)+" "+(otherEnergy-latticeEnergy) + " " + (otherEnergy-energy));
+            //System.out.println((energy-latticeEnergy)+" "+(otherEnergy-latticeEnergy) + " " + (otherEnergy-energy));
             
             double ai = (otherEnergy-latticeEnergy)/temperature;
-           // System.out.println(fac+" "+a0+ " " + ai + " "+ (ai-a0));
+            //System.out.println(fac+" "+a0+ " " + ai + " "+ (ai-a0));
             
             for (int j=0; j<numAlpha; j++) {
                 if (angle> otherAngles[i]) {
@@ -161,7 +160,15 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         this.otherAngles = otherAngles;
     }
     
-    protected void initAlpha() {
+    public boolean isDoScaling() {
+		return doScaling;
+	}
+
+	public void setDoScaling(boolean doScaling) {
+		this.doScaling = doScaling;
+	}
+
+	protected void initAlpha() {
         if (alphaCenter == null) {
             return;
         }
