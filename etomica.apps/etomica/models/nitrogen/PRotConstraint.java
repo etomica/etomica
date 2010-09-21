@@ -71,7 +71,6 @@ public class PRotConstraint extends PotentialMolecular{
 			return 0.0;
 		
 		} else {
-			System.out.print(" rejected");
 			++ counter;
 			return Double.POSITIVE_INFINITY;
 		}
