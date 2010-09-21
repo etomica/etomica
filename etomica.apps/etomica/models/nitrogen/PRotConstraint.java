@@ -54,11 +54,24 @@ public class PRotConstraint extends PotentialMolecular{
 		double cosangle = molecOrientation.dot(initMolecOrientation[index][0]);
 		double opcosangle = opMolecOrientation.dot(initMolecOrientation[index][0]);
 		
+		if (cosangle > 1.0){
+			cosangle = 1.0;
+		} else if(cosangle < -1.0){
+			cosangle = -1.0;
+		}
+		
+		if (opcosangle > 1.0){
+			opcosangle = 1.0;
+		} else if(opcosangle < -1.0){
+			opcosangle = -1.0;
+		}
+		
 		if(cosangle >= Math.cos(Degree.UNIT.toSim(constraintAngle)) 
 				||opcosangle >= Math.cos(Degree.UNIT.toSim(constraintAngle))){
 			return 0.0;
 		
 		} else {
+			System.out.print(" rejected");
 			++ counter;
 			return Double.POSITIVE_INFINITY;
 		}
