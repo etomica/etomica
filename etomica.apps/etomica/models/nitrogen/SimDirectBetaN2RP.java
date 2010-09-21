@@ -1,19 +1,14 @@
 package etomica.models.nitrogen;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
@@ -21,10 +16,8 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.normalmode.MeterBoltzmann;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -34,9 +27,6 @@ import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
-import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Direct Sampling for Rotational Perturbation
@@ -84,7 +74,7 @@ public class SimDirectBetaN2RP extends Simulation {
 		
 	    boxTarg.setBoundary(boundary);
 	    
-		double rCScale = 0.475;
+		double rCScale = 0.485;
 		double rc = aDim*nC*rCScale;
 		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
 		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
@@ -179,7 +169,7 @@ public class SimDirectBetaN2RP extends Simulation {
         double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
         
-        System.out.println("boltzmann average: " + average + " ;err: " + error);
+        System.out.println("boltzmann average "+angle[0] +" to "+angle[1]+": " + average + " ;err: " + error);
         
         long endTime = System.currentTimeMillis();
         System.out.println("\nEnd Time: " + endTime);
@@ -197,9 +187,9 @@ public class SimDirectBetaN2RP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 128;
         public double density = 0.025;
-        public double[] angle = new double[]{120, 110};
+        public double[] angle = new double[]{40, 38};
         public int D = 3;
-        public long numSteps =50000;
+        public long numSteps =300000;
         public double temperature = 40;
     }
 }
