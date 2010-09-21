@@ -208,7 +208,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
         
-        System.out.println("Running beta-phase Nitrogen TP overlap simulation");
+        System.out.println("Running beta-phase Nitrogen RP overlap simulation with scaling");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature + " K");
         System.out.print("perturbing from angle: " + angle + " into ");
         for(int i=0; i<otherAngles.length; i++){
@@ -343,10 +343,10 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
         public double temperature = 40.0; // in unit Kelvin
-        public double angle = 5.0;
+        public double angle = 2.0;
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherAngles = new double[]{4.0};
+        public double[] otherAngles = new double[]{1.0};
     }
 }
