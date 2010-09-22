@@ -7,7 +7,6 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
 import etomica.data.types.DataTensor;
@@ -28,6 +27,7 @@ import etomica.units.Degree;
 /**
  * 
  * Beta-phase Nitrogen Harmonic Approximation
+ * with only 3 translational degrees of freedom
  * 
  * @author Tai Boon Tan
  *
