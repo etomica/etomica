@@ -56,7 +56,7 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 		double[] transCoord = new double[sampledCoord.length];
 				
 		for(int i=0; i<sampledCoord.length; i++){
-			if(i==0 && (i%3==0 || i%4==0)){
+			if(i>0 && (i%3==0 || i%4==0)){
 				transCoord[i] = 0.0;
 				
 			} else{
@@ -70,7 +70,8 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 		
 		double sampledEnergy = meterPotentialSampled.getDataAsScalar();
 		double measuredEnergy = meterPotentialMeasured.getDataAsScalar();
-	
+		
+		//System.out.println(sampledEnergy+" "+measuredEnergy + " "+(measuredEnergy-sampledEnergy));
 		double chi = Math.exp(-(measuredEnergy-sampledEnergy)/meterPotentialSampled.getIntegrator().getTemperature()); 
 		
 		return chi;
