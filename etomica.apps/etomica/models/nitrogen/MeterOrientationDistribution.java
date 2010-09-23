@@ -1,5 +1,7 @@
 package etomica.models.nitrogen;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 
 import etomica.action.IAction;
@@ -146,6 +148,29 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
         return tag;
     }
     
+	public void writeUdistribution(String filename){
+		DataGroup uData = (DataGroup)getData();
+		
+		for (int i=0; i<uData.getNData(); i++){
+			String fName = filename+"U"+i+".orient";
+			try {
+				FileWriter fileWriter = new FileWriter(fName,false);
+				
+				DataDoubleArray uDistribution = (DataDoubleArray)uData.getData(i);
+				
+				for (int j=0; j<uDistribution.getLength()/uDistribution.getArrayDimension(); j++){
+					fileWriter.write(uDistribution.getValue(new int[]{0,j})+" "+ uDistribution.getValue(new int[]{1,j}) + "\n");
+				}
+			
+				fileWriter.close();
+				
+			} catch(IOException e){
+				throw new RuntimeException("Failed to write coord data orientation U" + e);
+			
+			}
+		}
+		
+	}
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinitionNitrogen coordinateDefinition;
     private final DataTag tag;
