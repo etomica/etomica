@@ -56,14 +56,14 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
         axes[1].E(new double[]{0.0, 1.0, 0.0});
         axes[2].E(new double[]{0.0, 0.0, 1.0});
         
-       	dof = coordDef.getCoordinateDim() /newBox.getNMolecules(species) - 3;
+       	dof = (coordDef.getCoordinateDim() /newBox.getNMolecules(species)) - 3;
         
         uDistributions = new DataDoubleArray[dof];
         uDistributionsInfo = new DataInfoDoubleArray[dof];
         
         histogramU = new HistogramExpanding[dof];
         for (int i=0; i<dof; i++){
-        	histogramU[i] = new HistogramExpanding(0.005);
+        	histogramU[i] = new HistogramExpanding(0.05);
         }
     }
 
@@ -75,16 +75,17 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
      * Assigning the histogram to data
      */
     public void actionPerformed() {
-
+    
         BasisCell[] cells = coordinateDefinition.getBasisCells();
                 
         for (int iCell = 0; iCell<cells.length; iCell++) {
-        	
+      
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
             int numMolecules = molecules.getMoleculeCount();
             
             for (int iMol=0; iMol<numMolecules; iMol++){
+            	
 	          	IMolecule molecule = molecules.getMolecule(iMol);
 	          	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
 		    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
@@ -103,10 +104,8 @@ public class MeterOrientationDistribution implements IEtomicaDataSource, IAction
 		       	
 		       	c.Ea1Tv1(Math.sqrt(molAxis.squared()), b);
 		       	angle[0] = Degree.UNIT.fromSim(Math.acos(c.dot(axes[0])));
-		       	
 	            for (int i=0; i<dof; i++){ 
-	            		histogramU[i].addValue(angle[i]);
-	            	
+	            	histogramU[i].addValue(angle[i]);
 	            }           
             }
         } //end of cell; there is only 1 cell
