@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
@@ -55,6 +56,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  * 3D Lennard Jones
  * FCC crystal
  * No graphic display
+ * Uses wavevector approach
  * Calculate free energy of solid using normal mode insertion method
  * 
  * Treats coupling of modes as overlap variable; 
@@ -326,7 +328,7 @@ public class SimDifferentImageSsFcc extends Simulation {
 //JOINT
         //measuring potential of target in reference system
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
-                temperature, cDefRef, nmRef, boxTarget, potentialMaster, 
+                temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
                 nCellsTarget, nmTarg, tIn);
         MeterOverlapSameGaussian meterOverlapInRef = new 
                 MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
@@ -336,7 +338,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         
         //measuring reference potential in target system
         meterRefInTarg = new MeterDifferentImageSubtract(this, space, cDefTarget,
-                nmTarg, boxRef, potentialMaster, nCellsRef, nmRef, rIn);
+                nmTarg, cDefRef, potentialMaster, nCellsRef, nmRef, rIn);
         MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
         meterOverlapInTarget.setDsABase(latticeEnergyTarget);
@@ -651,12 +653,11 @@ public class SimDifferentImageSsFcc extends Simulation {
                 ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.
                         StatType.RATIO_ERROR.index)).getData()[1]);
     
-        System.out.println("calculated diff " + (-temperature*
-                (Math.log(ratio * sim.meterTargInRef.getScaling()) 
-                - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI) 
-                - 0.5 * Math.log(nTargA)
-                + 0.5 * Math.log(nRefA))));
-        
+        System.out.println("calculated diff " + (temperature*
+                (-Math.log(ratio * sim.meterTargInRef.getScaling()) 
+                - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI*temperature) 
+                - 0.5 * sim.space.D() * Math.log(nTargA)
+                + 0.5 * sim.space.D() * Math.log(nRefA))));       
         System.out.println("alpha term " + (Math.log(ratio * sim.meterTargInRef.getScaling())));
         
         System.out.println("Fini.");

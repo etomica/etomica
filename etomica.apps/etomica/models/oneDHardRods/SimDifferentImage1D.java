@@ -268,7 +268,7 @@ public class SimDifferentImage1D extends Simulation {
         
 //JOINT
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
-                temperature, cDefRef, nmRef, boxTarget, 
+                temperature, cDefRef, nmRef, cDefTarget, 
                 potentialMasterTarget, new int[targAtoms], nmTarg);
         MeterOverlapSameGaussian meterOverlapInRef = new 
                 MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
@@ -276,7 +276,7 @@ public class SimDifferentImage1D extends Simulation {
 
         
         meterRefInTarg = new MeterDifferentImageSubtract(this, space, 
-                cDefTarget, nmTarg, boxRef, potentialMasterRef, 
+                cDefTarget, nmTarg, cDefRef, potentialMasterRef, 
                 new int[refAtoms], nmRef);
         MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);

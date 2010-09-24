@@ -57,21 +57,23 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     
     
     public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
-            CoordinateDefinition simCD, NormalModes simNM, IBox otherBox,
-            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes otherNM){
-        this(sim, space, simCD, simNM, otherBox, potentialMaster, 
+            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
+            NormalModes otherNM){
+        this(sim, space, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
     public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
-            CoordinateDefinition simCD, NormalModes simNM, IBox otherBox, 
-            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes 
-            otherNM, String otherFilename){
+            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
+            NormalModes otherNM, String otherFilename){
         super("MeterSubtract", Null.DIMENSION);
         this.random = sim.getRandom();
         
         simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
+        cDim = otherCD.getCoordinateDim();
         simEigenVectors = simNM.getEigenvectors();
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
         simRealT = new double[simCDim];
@@ -90,7 +92,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         
         double density = simCDef.getBox().getLeafList().getAtomCount() / 
             simCDef.getBox().getBoundary().volume();
-        numAtoms = otherBox.getLeafList().getAtomCount();
+        numAtoms = otherCD.getBox().getLeafList().getAtomCount();
         box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(sim.getSpecies(0), numAtoms);
@@ -99,19 +101,18 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms/ density);
         } else {
             bdry = new BoundaryRectangularPeriodic(space, 1.0);
-            IVector edges = otherBox.getBoundary().getBoxSize();
+            IVector edges = otherCD.getBox().getBoundary().getBoxSize();
             bdry.setBoxSize(edges);
         }
         box.setBoundary(bdry);
         
-        cDef = new CoordinateDefinitionLeaf(box, simCDef.getPrimitive(), 
-                simCDef.getBasis(), space);
-        if (simCDef.getBasis() instanceof BasisBigCell){
+        cDef = new CoordinateDefinitionLeaf(box, otherCD.getPrimitive(), 
+                otherCD.getBasis(), space);
+        if (cDef.getBasis() instanceof BasisBigCell){
             cDef.initializeCoordinates(new int[] { 1, 1, 1});
         } else {
             cDef.initializeCoordinates(otherNCells);
         }
-        cDim = cDef.getCoordinateDim();
         
         nm = otherNM;
         waveVectorFactory = nm.getWaveVectorFactory();
@@ -135,7 +136,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         //Create the scaling factor
         scaling = 1.0;
         for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
-            for(int iMode = 0; iMode < cDim; iMode++){
+            for(int iMode = 0; iMode < simCDim; iMode++){
                 if(!Double.isInfinite(sqrtSimOmega2[iWV][iMode])){
                     scaling *= sqrtSimOmega2[iWV][iMode];
                     if(simWVCoeff[iWV] == 1.0){
@@ -175,8 +176,8 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         
         //Calculate normal mode coordinates of simulation system.
         // First index is wavevector, second index is mode.
-        double[][] realCoord = new double[simWaveVectors.length][cDim];
-        double[][] imagCoord = new double[simWaveVectors.length][cDim];
+        double[][] realCoord = new double[simWaveVectors.length][simCDim];
+        double[][] imagCoord = new double[simWaveVectors.length][simCDim];
         for (int iWV = 0; iWV < simWaveVectors.length; iWV++){
             simCDef.calcT(simWaveVectors[iWV], simRealT, simImagT);
             for (int iMode = 0; iMode < simCDim; iMode++){
@@ -193,13 +194,11 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             }
         }
         
-        
-        //nan is using cDim in these loops okay?
         //Scale and transfer the normal mode coordinates to etas.
         int etaCount = 0;
         for (int iWV = 0; iWV < simWaveVectors.length; iWV++){
             if(simWVCoeff[iWV] == 1.0){
-                for (int iMode = 0; iMode < cDim; iMode++){
+                for (int iMode = 0; iMode < simCDim; iMode++){
                     if(!(sqrtSimOmega2[iWV][iMode] == Double.POSITIVE_INFINITY)){
                         etas[etaCount] = realCoord[iWV][iMode] * 
                                 sqrtSimOmega2[iWV][iMode];
@@ -209,7 +208,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
                     }
                 }
             } else {
-                for (int iMode = 0; iMode < cDim; iMode++){
+                for (int iMode = 0; iMode < simCDim; iMode++){
                     if(!(sqrtSimOmega2[iWV][iMode] == Double.POSITIVE_INFINITY)){
                         etas[etaCount] = realCoord[iWV][iMode] * 
                                 sqrtSimOmega2[iWV][iMode];

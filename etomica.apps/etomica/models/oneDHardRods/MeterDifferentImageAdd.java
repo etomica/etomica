@@ -57,16 +57,17 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private double sqrtTemperature;
     
     public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
-            CoordinateDefinition simCD, NormalModes simNM, IBox otherBox, 
-            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes otherNM) {
-        this(sim, space, temp, simCD, simNM, otherBox, potentialMaster, 
+            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition 
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
+            NormalModes otherNM) {
+        this(sim, space, temp, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
     
     public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
-            CoordinateDefinition simCD, NormalModes simNM, IBox otherBox,
-            PotentialMasterList potentialMaster, int[] otherNCells, NormalModes 
-            otherNM, String otherFilename){
+            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition 
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
+            NormalModes otherNM, String otherFilename){
         
         super("MeterAdd", Null.DIMENSION);
         this.random = sim.getRandom();
@@ -75,10 +76,11 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
+        cDim = otherCD.getCoordinateDim();
         simEigenVectors = simNM.getEigenvectors();
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
-        simRealT = new double[cDim];
-        simImagT = new double[cDim];
+        simRealT = new double[simCDim];
+        simImagT = new double[simCDim];
         double[][] omegaTemp = simNM.getOmegaSquared();
         
         sqrtSimOmega2 = new double[omegaTemp.length][omegaTemp[0].length];
@@ -90,28 +92,28 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         
         double density = simCDef.getBox().getLeafList().getAtomCount() / 
                 simCDef.getBox().getBoundary().volume();
-        numAtoms = otherBox.getLeafList().getAtomCount();
+        numAtoms = otherCD.getBox().getLeafList().getAtomCount();
         box = new Box(space);
         sim.addBox(box);
+        //nan this will be an issue if we have more than one species.
         box.setNMolecules(sim.getSpecies(0), numAtoms);
         
         if (space.D() == 1) {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms/ density);
         } else {
             bdry = new BoundaryRectangularPeriodic(space, 1.0);
-            IVector edges = otherBox.getBoundary().getBoxSize();
+            IVector edges = otherCD.getBox().getBoundary().getBoxSize();
             bdry.setBoxSize(edges);
         }
         box.setBoundary(bdry);
         
-        cDef = new CoordinateDefinitionLeaf(box, simCDef.getPrimitive(), 
-                simCDef.getBasis(), space);
-        if(simCDef.getBasis() instanceof BasisBigCell){
+        cDef = new CoordinateDefinitionLeaf(box, otherCD.getPrimitive(), 
+                otherCD.getBasis(), space);
+        if(cDef.getBasis() instanceof BasisBigCell){
             cDef.initializeCoordinates(new int[] {1, 1, 1});
         } else{
             cDef.initializeCoordinates(otherNCells);
         }
-        cDim = cDef.getCoordinateDim();
         
         nm = otherNM;
 
@@ -136,7 +138,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         //Create the scaling factor
         scaling = 1.0;
         for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
-            for(int iMode = 0; iMode < cDim; iMode++){
+            for(int iMode = 0; iMode < simCDim; iMode++){
                 if(!Double.isInfinite(sqrtSimOmega2[iWV][iMode])){
                     scaling *= sqrtSimOmega2[iWV][iMode];
                     if(simWVCoeff[iWV] == 1.0){
@@ -145,13 +147,14 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                 }
             }
         }
+        
         for(int iWV = 0; iWV < waveVectors.length; iWV++){
             for(int iMode = 0; iMode < cDim; iMode++){
                 if(!(oneOverSqrtOmega2[iWV][iMode] == 0.0)){
                     scaling *= oneOverSqrtOmega2[iWV][iMode];
                     if (wvCoeff[iWV] == 1.0){
                         scaling *= oneOverSqrtOmega2[iWV][iMode];
-                    }
+                   }
                 }
             }
         }
@@ -161,7 +164,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         meterPE.setBox(box);
         
         etas = new double[space.D() * (numAtoms - 1)];
-        gaussCoord = new double[space.D() *(numAtoms - 
+        gaussCoord = new double[space.D() * (numAtoms - 
                 simCDef.getBox().getLeafList().getAtomCount())];
     }
     
