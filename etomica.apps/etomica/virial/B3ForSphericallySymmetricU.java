@@ -1,11 +1,14 @@
 package etomica.virial;
 
-import etomica.potential.P2ArgonAziz1993;
+import etomica.potential.P2ArgonTangAndToennies2003;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2QChemInterpolated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.util.ParameterBase;
 import etomica.util.SineTransform;
+import etomica.virial.simulations.BnFlexibleContributionTraPPEUAMethanol.VirialParam;
 
 
 /**
@@ -18,6 +21,7 @@ import etomica.util.SineTransform;
  */
 
 
+
 public class B3ForSphericallySymmetricU {
 	
 	public B3ForSphericallySymmetricU() {
@@ -26,9 +30,27 @@ public class B3ForSphericallySymmetricU {
 	
 public static void main(String[] args) {
 
+	
+	DampingParams params = new DampingParams();
+    
+   
+	if (args.length == 4 ) {
+		params.a1 = Integer.parseInt(args[0]);
+		params.a2 = Integer.parseInt(args[1]);
+		params.basis = Integer.parseInt(args[2]);
+		params.tempSet = Integer.parseInt(args[3]);
+    } 
+	
+	int a1 = params.a1;
+	int a2 = params.a2;
+	int basis = params.basis;
+	int tempSet = params.tempSet;
+	
 	boolean printapalooza = false;
 	
 	boolean allFFT = false;
+	
+	boolean qm = true;
 
 	// Minimum log2(N) and maximum separation distance to be considered:
 	int power = 6;
@@ -36,26 +58,37 @@ public static void main(String[] args) {
 	
 	Space space = Space3D.getInstance();
 	
-	boolean argon = false;
+	boolean argon = true;
 	
 	double[] temps;
 	
-	Potential2SoftSpherical p2; 
+	//P2QChemInterpolated p2 = new P2QChemInterpolated(space);
+	//p2.setDampingParams(a1,a2,basis);
+	
+	
+	P2ArgonTangAndToennies2003 p2 = new P2ArgonTangAndToennies2003(space);
+	//Potential2SoftSpherical p2; 
 	
 	if (argon) {
-		p2 = new P2ArgonAziz1993(space);
-		//P2QChemInterpolated p2 = new P2QChemInterpolated(space);
-	
+		//p2 = new P2ArgonAziz1993(space);
+	   
+		//
+		//System.out.println("BJ w /aug-cc-pV"+basis+"Z, a1 = " + a1 + ", a2 = " + a2 + "\n");
 		// Temperatures for argon potentials:
-		temps = new double[] { 100, 133.15, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000 }; // Kelvin
+		if (tempSet == 2) {
+			temps = new double[] { 100, 133.15, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000 }; // Kelvin
+		} else {
+			// Primarily temperatures considered by Malejevsky et al:  
+			temps = new double[] { 130, 135, 140,145,150,155, 160, 170, 180, 190, 200, 220, 250, 265, 280, 295, 310, 325, 340, 398, 423, 473, 573, 673};
+		}
+		
 		// Some of the temperatures considered by Mas, Lotrich, and Szalewicz (1999):  
 		//double[] temps = { 113.15, 133.15, 150.65, 203.15, 323.15, 423.15, 573.16, 673.16, 773.15, 923.15 }; // Kelvin
-		// Primarily temperatures considered by Malejevsky et al:  
-		//double[] temps = { 130, 135, 140,145,150,155, 160, 170, 180, 190, 200, 220, 250, 265, 280, 295, 310, 325, 340, 398, 423, 473, 573, 673};
+		
 
 	} else {
 		
-		p2 = new P2LennardJones(space,1.0,1.0);
+		//p2 = new P2LennardJones(space,1.0,1.0);
 		temps =  new double[] { 1.0 }; 
 	}
 	
@@ -65,8 +98,15 @@ public static void main(String[] args) {
 		System.out.println("For B3, Trapezoidal rule employed to compute integral over r12\n");
 	}
 	
+	
+	
 	System.out.println();
-	System.out.println("T (K)    B2      abs(B2(r_max)-B2(r_max/2))     B3       abs(B3(N)-B3(N/2))     log2(N)     rmax");
+	if (qm) {
+		System.out.println("T(K)    B2      B2C      abs(B2C(r_max)-B2C(r_max/2))     	B2QM	B3       abs(B3(N)-B3(N/2))     log2(N)     rmax	del_r");
+	} else {
+		System.out.println("T(K)    B2      abs(B2(r_max)-B2(r_max/2))     B3       abs(B3(N)-B3(N/2))     log2(N)     rmax");
+	}
+	
 	System.out.println();
 	
 	for (int t=0; t<temps.length; t++) {
@@ -75,8 +115,22 @@ public static void main(String[] args) {
    
 		double[] results = getConvergence((Potential2SoftSpherical) p2, power, r_max, temp,  printapalooza, allFFT);
 
-		System.out.println(temp + "    "  + results[0] + "    " + results[1] + "    "+ results[3] + "    " + results[4] + "   " + results[5] + "   " + results[2]);
-	
+		double B2 = results[0];;
+		double B2Error = results[1];
+		double r_maxF = results[2];
+		double B3 = results[3];
+		double B3Error = results[4];
+		double powerF = results[5];
+		double NF = Math.pow(2,powerF);
+		double del_rF = r_maxF/(NF-1);
+		
+		if (qm) {
+			double qmB2 = computeB2QM((int)NF, del_rF, p2, temp);
+			double totalB2 = B2 + qmB2;
+			System.out.println(temp + "    "  + totalB2 + "    " + B2 + "    "+ B2Error + "    "+ qmB2 +"    " +B3 + "    " + B3Error + "   " + powerF + "   " + r_maxF+ "   " +del_rF);
+		} else {
+			System.out.println(temp + "    "  + B2 + "    " + B2Error + "    "+ B3 + "    " + B3Error + "   " + powerF + "   " + r_maxF);
+		}
 	}
 	
 
@@ -141,6 +195,54 @@ public static void main(String[] args) {
 	
 		return B;
 	}
+	
+	public static double computeB2QM(int N, double del_r, Potential2SoftSpherical p2, double temp) {
+
+		 double h = 6.62606896e-34; //J*s
+		 double k = 1.3806504e-23; // J/K
+	     double m = 39.948*(1.660538782e-27); //kg
+	     double constant =  h*h/(24*Math.PI*m*k*k*k*temp*temp*temp);
+	     // constant [=] J*J*s*s/(kg*J*J*J) [=] s*s/(J*kg) 
+	     // 	J = kg*m*m/(s*s); (s*s) = kg*m*m/J
+	     // constant [=] (kg*m*m/J)/(J*kg) = m*m/(J*J)
+	     // but u will be given in Kelvin and r in Angstroms
+	     
+	     constant = constant*(1e20)*k*k;
+
+	     double r12=2.5+del_r;
+	     double u12Backward=p2.u(r12*r12);
+	     double u12;
+	     double slope;
+	     double e12;
+	     double integrand = 0;
+	     double qmB2 = 0;
+	     while(r12 < 10) {
+	    	 
+	    	 r12=r12+del_r;
+			 
+			 u12 = p2.u(r12*r12);
+			 
+			 slope = (u12-u12Backward)/del_r;
+
+			 e12 = Math.exp(-u12/temp);
+	        
+		     integrand = e12*slope*slope*r12*r12;
+		     
+		    
+		     qmB2 = qmB2 + integrand*del_r;
+		     
+	    	 u12Backward=u12;
+	     }
+
+	     u12 = p2.u(r12*r12);
+	     slope = (u12-u12Backward)/del_r;
+	     e12 = Math.exp(-u12/temp);
+	     integrand = e12*slope*slope*r12*r12;
+	     qmB2 = qmB2 + 0.5*integrand*del_r;
+
+	     return qmB2*constant*0.60221214;
+
+	}
 
 	public static double[] getConvergence (Potential2SoftSpherical p2, int power, double r_max, double temp, boolean printapalooza, boolean allFFT) {
 		
@@ -151,7 +253,7 @@ public static void main(String[] args) {
 		double[] B = new double [2];
 		double[] errors = new double [2];
 		double error = 1.0;
-		boolean molPerL = false;
+		boolean molPerL = true;
 		
 		/* 
 		 * Two variables need to be explored: rmax and the number of grid points, N.
@@ -162,7 +264,7 @@ public static void main(String[] args) {
 		double r_maxNew = r_max;
 		int N = (int) Math.pow(2, power);
 		
-		double tol = 1e-3;
+		double tol = 1e-2;
 		
 		while (error > tol) {  // increase r_max to improve accuracy of B2
 			
@@ -286,5 +388,19 @@ public static void main(String[] args) {
 		return fr;
 		
 	}
+	
+	 public static class DampingParams extends ParameterBase {
+		    //TZ
+	    	public int a1 = 79;	        
+	        public int a2 = 136;   
+	        public int basis = 3; 
+	        
+	        //DZ
+	        //public int a1 = 80;	        
+	        //public int a2 = 149;   
+	        //public int basis = 2;
+	        
+	        public int tempSet = 2; 
+	    }
 
 }
