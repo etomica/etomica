@@ -583,7 +583,8 @@ public class SimDifferentImage1D extends Simulation {
 //        double[][] o2 = sim.nmTarg.getOmegaSquared();
 //        System.out.println("TinR " + sim.meterTargInRef.getScaling());
 //        System.out.println("RinT " + sim.meterRefInTarg.getScaling());
-        System.out.println("calculated diff " + (-Math.log(ratio * sim.meterTargInRef.getScaling()) 
+        System.out.println("calculated diff " + (-Math.log(ratio) 
+                - sim.meterTargInRef.getScaling() 
                 - 0.5 * Math.log(2*Math.PI) 
                 - 0.5 * Math.log(nA+1)
                 + 0.5 * Math.log(nA)));

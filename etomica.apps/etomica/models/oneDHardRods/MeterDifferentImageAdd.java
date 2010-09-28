@@ -136,13 +136,13 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         }
         
         //Create the scaling factor
-        scaling = 1.0;
+        scaling = 0.0;
         for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
             for(int iMode = 0; iMode < simCDim; iMode++){
                 if(!Double.isInfinite(sqrtSimOmega2[iWV][iMode])){
                     scaling *= sqrtSimOmega2[iWV][iMode];
                     if(simWVCoeff[iWV] == 1.0){
-                        scaling *= sqrtSimOmega2[iWV][iMode];
+                        scaling += Math.log(sqrtSimOmega2[iWV][iMode]);
                     }
                 }
             }
@@ -153,7 +153,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
                 if(!(oneOverSqrtOmega2[iWV][iMode] == 0.0)){
                     scaling *= oneOverSqrtOmega2[iWV][iMode];
                     if (wvCoeff[iWV] == 1.0){
-                        scaling *= oneOverSqrtOmega2[iWV][iMode];
+                        scaling -= Math.log(oneOverSqrtOmega2[iWV][iMode]);
                    }
                 }
             }
@@ -281,6 +281,9 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         return gaussCoord;
     }
 
+    /**
+     * @return the natural logarithm of the scaling
+     */
     public double getScaling() {
         return scaling;
     }

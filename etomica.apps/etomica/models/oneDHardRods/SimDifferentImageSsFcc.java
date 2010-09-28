@@ -654,7 +654,7 @@ public class SimDifferentImageSsFcc extends Simulation {
                         StatType.RATIO_ERROR.index)).getData()[1]);
     
         System.out.println("calculated diff " + (temperature*
-                (-Math.log(ratio * sim.meterTargInRef.getScaling()) 
+                (-Math.log(ratio) - sim.meterTargInRef.getScaling() 
                 - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI*temperature) 
                 - 0.5 * sim.space.D() * Math.log(nTargA)
                 + 0.5 * sim.space.D() * Math.log(nRefA))));       

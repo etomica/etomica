@@ -190,14 +190,14 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length
                 +" reference wave vectors.");
-        System.out.println("Reference Wave Vector Coefficients:");
-        System.out.println("Ref WV: ");
-        for (int iWV = 0; iWV < wvc.length; iWV++){
-            for(int iMode = 0; iMode < omega[0].length; iMode++){
-                System.out.println(iWV + " wvc " + wvc[iWV] + " omega2 " +
-                        omega[iWV][iMode]);
-            }
-        }
+//        System.out.println("Reference Wave Vector Coefficients:");
+//        System.out.println("Ref WV: ");
+//        for (int iWV = 0; iWV < wvc.length; iWV++){
+//            for(int iMode = 0; iMode < omega[0].length; iMode++){
+//                System.out.println(iWV + " wvc " + wvc[iWV] + " omega2 " +
+//                        omega[iWV][iMode]);
+//            }
+//        }
         
         
         
@@ -271,13 +271,13 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length 
                 +" target wave vectors.");
-        System.out.println("Target Wave Vector Coefficients:");
-        for (int iWV = 0; iWV < wvc.length; iWV++){
-            for(int iMode = 0; iMode < omega[0].length; iMode++){
-                System.out.println(iWV + " wvc " + wvc[iWV] + " omega2 " +
-                        omega[iWV][iMode]);
-            }
-        }
+//        System.out.println("Target Wave Vector Coefficients:");
+//        for (int iWV = 0; iWV < wvc.length; iWV++){
+//            for(int iMode = 0; iMode < omega[0].length; iMode++){
+//                System.out.println(iWV + " wvc " + wvc[iWV] + " omega2 " +
+//                        omega[iWV][iMode]);
+//            }
+//        }
         
         
         
@@ -642,7 +642,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
                         StatType.RATIO_ERROR.index)).getData()[1]);
         
         System.out.println("calculated diff " + (temperature*
-                (-Math.log(ratio * sim.meterTargInRef.getScaling()) 
+                (-Math.log(ratio) - sim.meterTargInRef.getScaling() 
                 - 0.5 * sim.space.D() * (nTargA - nRefA) * Math.log(2*Math.PI*temperature) 
                 - 0.5 * sim.space.D() * Math.log(nTargA)
                 + 0.5 * sim.space.D() * Math.log(nRefA))));
@@ -652,8 +652,8 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
     
     public static class SimParam extends ParameterBase {
         public boolean first = true;
-        public int[] refShape = {2, 2, 2};
-        public int[] targShape = {2, 2, 3};
+        public int[] refShape = {2, 4, 4};
+        public int[] targShape = {4, 4, 4};
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
@@ -663,7 +663,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         public String inputFile = "inputSSDB";
         public String filename = "output";
         
-        public int numSteps = 1000000;
+        public int numSteps = 10000000;
         public int runBlockSize = 10000;
         public int subBlockSize = 10000;    //# of steps in subintegrator per integrator step
         
