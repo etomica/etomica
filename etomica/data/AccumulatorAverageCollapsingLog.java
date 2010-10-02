@@ -336,7 +336,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         for (int i=0; i<rawDataBlockSize; i++) {
             long iCount = count >> i;
             double av = sums[i][0] / iCount;
-            std[i] = Math.sqrt(sums[i][0] / iCount - av*av);
+            std[i] = Math.sqrt(sums[i][1] / iCount - av*av);
             if (Double.isNaN(std[i])) {
                 std[i] = 0;
             }
@@ -386,6 +386,9 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             ((RandomMersenneTwister)random).setSeed(initialSeed);
         }
         double[] std = stdev.getData();
+        if (std.length == 0) {
+            return stdev;
+        }
         for (int i=0; i<rawDataBlockSize; i++) {
             long iCount = count >> i;
             double av = lSums[i][0] / iCount;
