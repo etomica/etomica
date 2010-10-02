@@ -211,6 +211,27 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             	
             }
             
+            if(isBetaLatticeSum){
+            	if(moleculeList.getMoleculeCount() != 4){
+            		throw new RuntimeException("<CoordinateDefinitionNitrogen> The method has been hard-coded to have 4-molecules ONLY!");
+            	}
+            		
+            	if (configuration == null) {
+        	               
+            		// initialize the coordinate
+       	          	molecule.getType().initializeConformation(molecule);
+       	                
+       	          	// do the orientation
+       	          	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(yOrientationTensor[iMolecule]);
+       	          	atomGroupAction.actionPerformed(molecule);
+       	                
+       	          	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[iMolecule]);
+       	          	atomGroupAction.actionPerformed(molecule);
+       	             
+       	      	}
+            	
+            }
+            
             
             int[] ii = indexIterator.next();
             // ii[0] and ii[1] = unit Cell number
@@ -252,6 +273,11 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             		translateBy.setTranslationVector(positionVector[rotationNum]);
             		atomGroupActionTranslate.actionPerformed(molecule);
             	}
+            }
+            
+            if(isBetaLatticeSum){
+            	translateBy.setTranslationVector(positionVector[iMolecule]);
+        		atomGroupActionTranslate.actionPerformed(molecule);
             }
             
             currentList.add(molecule);
@@ -604,7 +630,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    	}
     	    }
     	    
-    	    if(isBeta){
+    	    if(isBeta || isBetaLatticeSum){
         		IMolecule molecule2;
         		
         		if(i%2 == 0){
@@ -659,6 +685,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
     public void setIsBeta(){
     	isBeta = true;
+    }
+    
+    public void setIsBetaLatticeSum(){
+    	isBetaLatticeSum = true;
     }
     
     public IVectorMutable[] getMoleculeOrientation(IMolecule molecule) {
@@ -859,6 +889,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     public boolean isAlpha=false;
     public boolean isGamma=false;
     public boolean isBeta=false;
+    public boolean isBetaLatticeSum=false;
     protected IRandom random;
     public int rotDim;
 
