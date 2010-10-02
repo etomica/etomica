@@ -34,7 +34,7 @@ import etomica.util.FunctionGeneral;
 public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 
 	
-	public HarmonicBetaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density) {
+	public HarmonicBetaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, int iLayer) {
 		super(space);
 		this.space = space;
 		
@@ -43,13 +43,12 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 	  	double ratio = 1.631;
 		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double cDim = aDim*ratio;
-		System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
+		//System.out.println("aDim: " + aDim + " ;cDim: " + cDim);
 		
 		int [] nCells = new int[]{1,2,1};
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, nCells);
         
-		
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
 		SpeciesN2 species = new SpeciesN2(space);
 		species.setConformation(conformation);
@@ -67,19 +66,8 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		addBox(ghostBox);
 		ghostBox.setNMolecules(ghostSpecies, 1);
 		
-//		IVectorMutable[] boxDim = new IVectorMutable[3];
-//		boxDim[0] = space.makeVector(new double[]{nCells[0]*aDim, 0, 0});
-//		boxDim[1] = space.makeVector(new double[]{-nCells[0]*aDim*Math.cos(Degree.UNIT.toSim(60)), nCells[0]*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-//		boxDim[1].TE(2);
-//		boxDim[2] = space.makeVector(new double[]{0, 0, nCells[2]*cDim});
-		
-		//Primitive primitive = new PrimitiveHexagonal(space, aDim, cDim);
 		Primitive primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
-//		for(int i=0; i<3; i++){
-//			System.out.println("\nboxDim["+i+"]: "+ boxDim[i].toString());
-//			System.out.println("primitive["+i+"]: "+ primitive.vectors()[i].toString());
-//		}
-//		System.exit(1);
+
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBetaLatticeSum();
 		coordinateDef.setOrientationVectorBeta(space);
@@ -108,7 +96,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
 		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
-		latticeSum.setMaxLatticeShell(20);
+		latticeSum.setMaxLatticeShell(iLayer);
 		
 		double sum = 0;
 	    double basisDim = lattice.getBasis().getScaledCoordinates().length;
@@ -129,9 +117,10 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		int numMolecule =4;
 		double density = 0.025;
-
-		HarmonicBetaNitrogenModelLatticeSum test = new HarmonicBetaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density);
-		
+		for (int i=2; i<30; i++){	
+			System.out.print(i+" ");
+			HarmonicBetaNitrogenModelLatticeSum test = new HarmonicBetaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i);
+		}
 		System.exit(1);
 		
 //		CalcNumerical2ndDerivative cm2ndD = new CalcNumerical2ndDerivative(test.box, test.potentialMaster,test.coordinateDef);
