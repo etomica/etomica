@@ -1,5 +1,6 @@
 package etomica.models.nitrogen;
 
+import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
@@ -17,7 +18,6 @@ import etomica.lattice.IndexIteratorTriangular;
 import etomica.lattice.IndexIteratorTriangularPermutations;
 import etomica.lattice.SpaceLattice;
 import etomica.paracetamol.AtomActionTransformed;
-import etomica.simulation.Simulation;
 import etomica.space.Tensor;
 import etomica.util.FunctionGeneral;
 
@@ -29,11 +29,10 @@ import etomica.util.FunctionGeneral;
  *
  */
 
-public class LatticeSumCrystalMolecular extends Simulation{
+public class LatticeSumCrystalMolecular{
 
 	public LatticeSumCrystalMolecular(BravaisLatticeCrystal lattice, CoordinateDefinitionNitrogen coordinateDef, IBox box) {
-        
-    	super(lattice.getSpace());
+       
     	this.lattice = lattice;
     	this.coordinateDef = coordinateDef;
 		this.ghostBox = box;
@@ -41,6 +40,10 @@ public class LatticeSumCrystalMolecular extends Simulation{
     	xzOrientationTensor = coordinateDef.getXzOrientationTensor();
     	yOrientationTensor = coordinateDef.getyOrientationTensor();
 
+    	if(coordinateDef.isBetaLatticeSum){
+    		positionVector = coordinateDef.positionVector;
+    	}
+    	
     	atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
          
         spaceDim = lattice.getSpace().D();
@@ -68,6 +71,8 @@ public class LatticeSumCrystalMolecular extends Simulation{
         basis0 = new IVectorMutable[basisDim];
         moleculeCell0 = new IMolecule[basisDim];
         
+        System.out.println("LatticeSum basisDim: "+basisDim );
+        
         for(int j=0; j<basisDim; j++) {
             siteIndex[spaceDim] = j;
             basis0[j] = lattice.getSpace().makeVector();
@@ -77,6 +82,9 @@ public class LatticeSumCrystalMolecular extends Simulation{
         }
         
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
+        
+        translateBy = new AtomActionTranslateBy(lattice.getSpace());
+        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
         
     }
 
@@ -93,19 +101,14 @@ public class LatticeSumCrystalMolecular extends Simulation{
             }
         }
         
-        //interactions among sites in origin cell
-        //do all pairs twice, contributing once to each site of pair
-        //cell-cell distance is zero, so exp(I k.r) = 1 + 0I
-        
         MoleculePair pair;
         for(int jp=0; jp<basisDim; jp++) {
             for(int j=0; j<basisDim; j++) {
                 if(jp==j) continue;
                 pair = new MoleculePair(moleculeCell0[j], moleculeCell0[jp]);
-                sumR[jp][j].PE(function.f(pair));//don't try to add to sumR[i0][i] for efficiency because we don't know what function does for -dr
+                sumR[jp][j].PE(function.f(pair));
             }
         }
-    	System.out.println("maxLatticeShell: " + getMaxLatticeShell());
 		//loop over shells
         for(int m=1; m<=maxLatticeShell; m++) {
             //loop over cells in shell
@@ -125,40 +128,26 @@ public class LatticeSumCrystalMolecular extends Simulation{
                     IMolecule ghostMol = ghostBox.getMoleculeList(ghostBox.getMoleculeList().getMolecule(0).getType()).getMolecule(0);
                     ghostMol.getType().initializeConformation(ghostMol);
                     
-         
                     int rotationNum = jp%4;
-//                    System.out.println("rotationNum: " + rotationNum);
                     ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(yOrientationTensor[rotationNum]);
 	                atomGroupAction.actionPerformed(ghostMol);
 	                
 	                ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(xzOrientationTensor[rotationNum]);
 	                atomGroupAction.actionPerformed(ghostMol);
                     
-	        
-//	                for(int i=0; i<moleculeCell0[jp].getChildList().getAtomCount(); i++){
-//                    	System.out.println("realMol(before)["+i+"]: " + moleculeCell0[jp].getChildList().getAtom(i).getPosition().toString());
-//                    }
-//                    for(int i=0; i<ghostMol.getChildList().getAtomCount(); i++){
-//                    	System.out.println("ghostMol(before)["+i+"]: " + ghostMol.getChildList().getAtom(i).getPosition().toString());
-//                    }
+	                //Putting the molecule to its lattice site
                     IVectorMutable site = (IVectorMutable)lattice.site(siteIndex);
                     position.E(site);
                     position.PE(offset);
-//                    System.out.println("jp: "+jp+ " position: " + position.toString());
                 
                     atomActionTranslateTo.setDestination(position);
                     atomActionTranslateTo.actionPerformed(ghostMol);  
-//                    for(int i=0; i<moleculeCell0[jp].getChildList().getAtomCount(); i++){
-//                    	System.out.println("realMol(after)["+i+"]: " + moleculeCell0[jp].getChildList().getAtom(i).getPosition().toString());
-//                    }
-//                    for(int i=0; i<ghostMol.getChildList().getAtomCount(); i++){
-//                    	System.out.println(jp + " ghostMol(after)["+i+"]: " + ghostMol.getChildList().getAtom(i).getPosition().toString());
-//                    }
-//                    System.out.println("");
-//                    //System.exit(1);
                     
+                    if(coordinateDef.isBetaLatticeSum){
+                    	translateBy.setTranslationVector(positionVector[rotationNum]);
+                		atomGroupActionTranslate.actionPerformed(ghostMol);
+                    }
                     
-                  //  System.out.println("siteIndex: " + siteIndex[0] + " " + siteIndex[1] + " "+ siteIndex[2] + " "+ siteIndex[3] + " ");
                     //loop over sites in origin cell
                     for(int j=0; j<basisDim; j++) {
                         dr.Ev1Mv2(site, basis0[j]);
@@ -170,38 +159,8 @@ public class LatticeSumCrystalMolecular extends Simulation{
                         }
 
                         MoleculePair molPair = new MoleculePair(moleculeCell0[j], ghostMol);
-                        
-//                        IVectorMutable leaf0Atom0 = molPair.atom0.getChildList().getAtom(0).getPosition();
-//                        IVectorMutable leaf0Atom1 = molPair.atom0.getChildList().getAtom(1).getPosition();
-//                        IVectorMutable leaf1Atom0 = molPair.atom1.getChildList().getAtom(0).getPosition();
-//                        IVectorMutable leaf1Atom1 = molPair.atom1.getChildList().getAtom(1).getPosition();
-
-//                      for(int i=0; i<moleculeCell0[jp].getChildList().getAtomCount(); i++){
-//                    	  System.out.println(j+" realMol["+i+"]: " + molPair.atom0.getChildList().getAtom(i).getPosition().toString());
-//                      }
-//                      System.out.println("");
-//                      for(int i=0; i<ghostMol.getChildList().getAtomCount(); i++){
-//                    	  System.out.println("ghostMol["+i+"]: " + molPair.atom1.getChildList().getAtom(i).getPosition().toString());
-//                      }
-                        
-//                        IVectorMutable delta = space.makeVector();
-//                        IVectorMutable diff = space.makeVector();
-//                        IVectorMutable comLeaf0 = space.makeVector();
-//                        delta.Ev1Mv2(leaf0Atom1, leaf0Atom0);
-//                        comLeaf0.E(leaf0Atom0);
-//                        comLeaf0.PEa1Tv1(0.5, delta);
-//                        
-//                        IVectorMutable comLeaf1 = space.makeVector();
-//                        delta.Ev1Mv2(leaf1Atom1, leaf1Atom0);
-//                        comLeaf1.E(leaf1Atom0);
-//                        comLeaf1.PEa1Tv1(0.5, delta);
-//                        diff.Ev1Mv2(comLeaf1, comLeaf0);
-//                        
-//                        System.out.println("\ndiff: " + diff.toString());
-//                        System.out.println("dr: " + dr.toString());
                     
                         IData value = function.f(molPair);
-                        //System.out.println("energy: " + value.getValue(0));
                         work.E(value);
                         work.TE(ckr);
                         sumR[jp][j].PE(work);
@@ -211,9 +170,7 @@ public class LatticeSumCrystalMolecular extends Simulation{
                         
                     }
                 }
-               // System.exit(1);
             }
-            //System.exit(1);
         }
         
         return new DataGroupLSC(sumR, sumI);
@@ -267,10 +224,13 @@ public class LatticeSumCrystalMolecular extends Simulation{
     protected final IMolecule[] moleculeCell0;
     protected IVectorMutable offset, position;
     protected final MoleculeActionTranslateTo atomActionTranslateTo;
+    protected final AtomActionTranslateBy translateBy;
+    protected MoleculeChildAtomAction atomGroupActionTranslate;
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected IBox ghostBox;
     protected Tensor[] xzOrientationTensor, yOrientationTensor;
     protected MoleculeChildAtomAction atomGroupAction;
+    protected IVectorMutable[] positionVector;
     
     /**
      * Helper class that encapsulates the complex basis-basis data in a manner that
