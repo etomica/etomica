@@ -70,9 +70,7 @@ public class LatticeSumCrystalMolecular{
         basisDim = lattice.getBasis().getScaledCoordinates().length;
         basis0 = new IVectorMutable[basisDim];
         moleculeCell0 = new IMolecule[basisDim];
-        
-        System.out.println("LatticeSum basisDim: "+basisDim );
-        
+                
         for(int j=0; j<basisDim; j++) {
             siteIndex[spaceDim] = j;
             basis0[j] = lattice.getSpace().makeVector();
