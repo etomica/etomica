@@ -369,14 +369,20 @@ public class SimOverlapSsNxy extends Simulation {
             ReadParameters readParameters = new ReadParameters(inputFilename, params);
             readParameters.readParameters();
         }
+//        boolean first = params.first;
         double density = params.density/10000;
         int exponentN = params.exponentN;
         long numSteps = params.numSteps;
-        final int numMolecules = params.numMolecules;
         double harmonicFudge = params.harmonicFudge;
         double temperature = params.temperature;
         int D = params.D;
         int[] shape = params.shape;
+        int zork = 1;
+        for(int i = 0; i < 3; i++){
+            zork *= shape[i];
+        }
+        zork *= 4;     //definitely fcc
+        final int numMolecules = zork;
         String filename = params.filename;
         if (filename.length() == 0) {
             System.err.println("Need input files!!!");
@@ -406,13 +412,13 @@ public class SimOverlapSsNxy extends Simulation {
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
 
-        sim.initRefPref(refFileName, numSteps/20);
+        sim.initRefPref("bennett", numSteps/20);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
         System.out.flush();
         
-        sim.equilibrate(refFileName, numSteps/10);
+        sim.equilibrate("bennett", numSteps/10);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
@@ -525,14 +531,13 @@ public class SimOverlapSsNxy extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 128;
         public double density = 11964;
         public int exponentN = 12;
         public int D = 3;
-        public long numSteps = 1000000;
+        public long numSteps = 10000000;
         public double harmonicFudge = 1;
-        public String filename = "inputSSDB128";
+        public String filename = "notehere";
         public double temperature = 0.01;
-        public int[] shape = {2, 4, 4};
+        public int[] shape = {2, 2, 3};
     }
 }
