@@ -8,7 +8,7 @@ import Jama.Matrix;
  * Class that compute 
  * 
  * Reference: NUMERICAL RECIPES in Fortran 2nd Ed.
- * 			  Levenberg-Mrquardt Method (Chapter 15)
+ * 			  Levenberg-Marquardt Method (Chapter 15)
  * 	          - combination of the use of 
  * 				(a) Inverse-Hessian Method  [Eq. 15.5.9]
  *              (b) Steepest Descent Method [Eq. 15.5.10]
