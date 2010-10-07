@@ -43,7 +43,7 @@ public class NonLinearCurveFitting {
 			sig[i] = value[i][2];
 		}
 		
-		this.ma = M+1+N;
+		this.ma = M+2+N;
 		a = new double[ma];
 		atry = new double[ma];
 	
@@ -58,6 +58,13 @@ public class NonLinearCurveFitting {
 			a[i] = 1.0;
 		}
 
+//		a = new double []{-7.31024, -1.27381, -0.000886577, 0.547795, 0.792523, 9.42721,
+//				-2.59723, 0.1966171, -0.00545969};
+		
+//		a = new double []{ -7.452276673894412, -1.3094746381838498, 6.874736383548552E-6,
+//		 6.462704508698963,  3.3763875456969044, -3.0994315757247377, 0.8136087818473433,
+//		-0.09739736843129196, 0.0046591513902466885};
+		
 		alamda = -1.0;
 		funcs = new FittingFunctionNonLinear(M, N);
 	}
@@ -66,6 +73,7 @@ public class NonLinearCurveFitting {
 
 		while(iterate){
 			mrqmin();
+			//System.out.println("chisq: " + chisq);
 		}
 		
 		alamda=0.0;
@@ -241,9 +249,9 @@ public class NonLinearCurveFitting {
 	}
 	
 	public static void main(String[] args){
-		String filename = "/tmp/foo_stat";
-		int M = 0;
-		int N = 1;
+		String filename = "betaAc.dat";
+		int M = 4;
+		int N = 10;
 		if(args.length > 0){
 			filename = args[0];
 		}
@@ -261,8 +269,9 @@ public class NonLinearCurveFitting {
 			System.out.println("a[" + i +"]: "+a[i]);
 		}
 		System.out.println("K: " + a[M]);
-		for(int i=M+1; i<M+1+N; i++){
-			System.out.println("b[" + (i-(M+1)) +"]: "+a[i]);
+		System.out.println("L: " + a[M+1]);
+		for(int i=M+2; i<M+2+N; i++){
+			System.out.println("b[" + (i-(M+2)) +"]: "+a[i]);
 		}
 		
 		double RMSD = nonLinFit.computeRMSD(a);

@@ -31,23 +31,29 @@ public class FittingFunctionNonLinear{
 	public double f(double[] a, double x) {
 		double sumPolyA = 0.0;
 		double sumPolyB = 0.0;
-		double expKx = Math.exp(-a[M]*x);
+		double expKxL = Math.exp(-a[M]*Math.pow(x,a[M+1]));
 
 		//polynomialA
 		double xMultiply = 1;
-		for(int i=0; i<(M-1); i++){
-			sumPolyA += a[i]*xMultiply;
+		for(int i=0; i<M; i++){
+			if(i==0){
+				sumPolyA += a[i]*(1-expKxL);
+				
+			} else{
+				sumPolyA += a[i]*xMultiply;
+			}
 			xMultiply *= x;
 		}
 		
 		//polynomialB
 		xMultiply = 1;
-		for(int i=(M+1); i<(M+N+1); i++){
-			sumPolyB += a[i]*xMultiply;
+		for(int i=(M+2); i<(M+N+2); i++){
 			xMultiply *= x;
+			sumPolyB += a[i]*xMultiply;
+		
 		}
 		
-		return sumPolyA + expKx*sumPolyB;
+		return sumPolyA + expKxL*sumPolyB;
 		
 	}
 
@@ -57,38 +63,49 @@ public class FittingFunctionNonLinear{
 	 * x is the x-value
 	 */
 	public double df(int d, double[] a, double x) {
-		double dsumPolyA = 0.0;
 		double dsumPolyB = 0.0;
-		double dexpKx = Math.exp(-a[M]*x);
+		double expKxL = Math.exp(-a[M]*Math.pow(x, a[M+1]));
 		double xMultiply;
 		
-		if(d==M){
-			dexpKx *= -x;
-		}
-		
-		//polynomialA
 		xMultiply = 1;
-		for(int i=0; i<(M-1); i++){
-			if(i==d){
-				dsumPolyA += xMultiply;
-			} else {
-				dsumPolyA += a[i]*xMultiply;
+		
+		if(d < M){
+			for(int i=0; i< M; i++){
+				if(d==0){
+					return (1-expKxL);
+				} else if(i==d){
+					return xMultiply;
+				}
+				xMultiply *= x;
 			}
-			xMultiply *= x;
-		}
-		
-		//polynomialB
-		xMultiply = 1;
-		for(int i=(M+1); i<(M+N+1); i++){
-			if(i==d){
-				dsumPolyB += xMultiply;
+			
+		} else if((d >= M) && (d < M+2)){
+			double coeff;
+			if(d==M){
+				coeff = -Math.pow(x,a[M+1])*expKxL;
 			} else {
+				coeff = -a[M]*Math.log(x)*Math.pow(x,a[M+1])*expKxL;
+			}
+			
+			for(int i=M+2; i<M+N+2; i++){
+				xMultiply *= x;
 				dsumPolyB += a[i]*xMultiply;
+				
 			}
-			xMultiply *= x;
-		}
+			
+			return coeff*(dsumPolyB-a[0]);
+			
+		} 
 		
-		return dsumPolyA + dexpKx*dsumPolyB;
+		for(int i=(M+2); i<(M+N+2); i++){
+			xMultiply *= x;
+			
+			if(d==i){
+				return xMultiply*expKxL;	
+			}
+		}
+		System.out.println("screw!");
+		return Double.NaN;
 
 	}
 	
