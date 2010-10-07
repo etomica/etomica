@@ -88,7 +88,7 @@ public class Mpi1ACell implements MoleculesetIteratorPDT, MoleculesetIteratorCel
             }
         }
         if (upListNow) {
-            pair.atom0 = innerMolecule;
+            pair.atom1 = innerMolecule;
             pair.atom0 = targetMolecule;
         }
         else {
