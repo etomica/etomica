@@ -28,7 +28,7 @@ import Jama.Matrix;
  *
  */
 public class NonLinearCurveFitting {
-	public NonLinearCurveFitting(String filename, int ma){
+	public NonLinearCurveFitting(String filename, int M, int N){
 
 		// Reading data values from file [x, y, sigma]
 		double[][] value = ArrayReader1D.getFromFile(filename);
@@ -43,7 +43,7 @@ public class NonLinearCurveFitting {
 			sig[i] = value[i][2];
 		}
 		
-		this.ma = ma;
+		this.ma = M+1+N;
 		a = new double[ma];
 		atry = new double[ma];
 	
@@ -59,7 +59,7 @@ public class NonLinearCurveFitting {
 		}
 
 		alamda = -1.0;
-		funcs = new FittingFunctionNonLinear();
+		funcs = new FittingFunctionNonLinear(M, N);
 	}
 	
 	public double[] findParameter(){
@@ -110,10 +110,11 @@ public class NonLinearCurveFitting {
 		Matrix xMatrix = lu.solve(bMatrix);
 		da = xMatrix.getColumnPackedCopy();
 		
-//		if(alamda == 0.0){
-//			covsrt(mfit, covar);
-//			return;
-//		}
+		// To determine the covariance matrix once the parameters
+		// have converged.
+		if(alamda == 0.0){
+			return;
+		}
 			
 		for (int l=0; l<ma; l++){
 			atry[l] = a[l] + da[l];
@@ -225,45 +226,55 @@ public class NonLinearCurveFitting {
 			}
 		}
 	}
-//	public void covsrt(int mfit, double[][] covar){
-//		for (int i=mfit+1; i<ma; i++){
-//			for (int j=0; j<i; j++){
-//				covar[i][j] = 0.0;
-//				covar[j][i] = 0.0;
-//			}
-//		}
-//		
-//		double swap;
-//		int k=mfit-1;
-//		
-//		for (int j=ma-1; j>=0; j--){
-//			if(ia[j] != 0){
-//				for (int i=0; i<ma; i++){
-//					swap = covar[i][k];
-//					covar[i][k] = covar[i][j];
-//					covar[i][j] = swap;
-//					
-//				}
-//				
-//				for (int i=0; i<ma; i++){
-//					swap = covar[k][i];
-//					covar[k][i] = covar[j][i];
-//					covar[j][i] = swap;
-//					
-//				}
-//				k -= 1;
-//			}
-//		}
-//	}
+	
+	public double computeRMSD(double[] a){
+		double RMSD = 0;
+		double diff;
+		
+		for(int i=0; i<ndata; i++){
+			diff = ((funcs.f(a, x[i])-y[i])/sig[i]);
+			RMSD += diff*diff;
+			
+		}
+		
+		return Math.sqrt(RMSD/ndata);
+	}
 	
 	public static void main(String[] args){
 		String filename = "/tmp/foo_stat";
-		int ma = 2;
-		NonLinearCurveFitting nonLinFit = new NonLinearCurveFitting(filename, ma);
+		int M = 0;
+		int N = 1;
+		if(args.length > 0){
+			filename = args[0];
+		}
+		if(args.length > 1){
+			M = Integer.parseInt(args[1]);
+		}
+		if(args.length > 2){
+			N = Integer.parseInt(args[2]);
+		}
+		
+		
+		NonLinearCurveFitting nonLinFit = new NonLinearCurveFitting(filename, M, N);
 		double[] a = nonLinFit.findParameter();
-		for(int i=0; i<a.length; i++){
+		for(int i=0; i<M; i++){
 			System.out.println("a[" + i +"]: "+a[i]);
 		}
+		System.out.println("K: " + a[M]);
+		for(int i=M+1; i<M+1+N; i++){
+			System.out.println("b[" + (i-(M+1)) +"]: "+a[i]);
+		}
+		
+		double RMSD = nonLinFit.computeRMSD(a);
+		System.out.println("RMSD: " + RMSD);
+		
+		//Covariance Matrix
+//		for(int i=0; i<nonLinFit.covar.length; i++){
+//			for(int j=0; j<nonLinFit.covar[0].length; j++){
+//				System.out.print(nonLinFit.covar[i][j]+" ");
+//			}	
+//			System.out.println();
+//		}
 	}
 	
 	protected FittingFunctionNonLinear funcs;
