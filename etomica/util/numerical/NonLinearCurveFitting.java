@@ -20,7 +20,7 @@ import Jama.Matrix;
  *   where the func and derivative are defined
  * - Calculates for beta[] and alpha[][] as defined in [Eq 15.5.8 through 15.5.11]
  * - Solves for da [Eq 15.5.14] 
- * - Return paramters, a[]
+ * - Return parameters, a[]
  * 
  * Note: Eqs. are from Reference
  * 
