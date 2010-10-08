@@ -4,17 +4,17 @@ package etomica.util.numerical;
 /**
  * 
  * This class is coded for specific nonlinear model that decribes the Equation:
- *  f(x) = polynomialA + exp(-Kx)*polynomialB
+ *  f(x) = polynomialA + exp(-Kx^L)*polynomialB
  * 
  * M and N are the input parameters that determine the order of polynomialA
  *  and polynomialB respectively
  *  
  * polynomialA is given as: 
- *                M-1
+ *                 M
  *  polynomialA = sum [ a_m * x^m ]
- *                m=0
+ *                m=1
  * 
- * for example, when M=3; polynomialA = a_0 + a_1 * x + a_2 * x^2
+ * for example, when M=3; polynomialA = a_1 * x + a_2 * x^2 + a_3 * x^3
  * 
  * 
  * Note: polynomialB has same form as polynomialA 
@@ -36,13 +36,9 @@ public class FittingFunctionNonLinear{
 		//polynomialA
 		double xMultiply = 1;
 		for(int i=0; i<M; i++){
-			if(i==0){
-				sumPolyA += a[i]*(1-expKxL);
-				
-			} else{
-				sumPolyA += a[i]*xMultiply;
-			}
 			xMultiply *= x;
+			sumPolyA += a[i]*xMultiply;
+			
 		}
 		
 		//polynomialB
@@ -68,15 +64,14 @@ public class FittingFunctionNonLinear{
 		double xMultiply;
 		
 		xMultiply = 1;
-		
 		if(d < M){
 			for(int i=0; i< M; i++){
-				if(d==0){
-					return (1-expKxL);
-				} else if(i==d){
+				xMultiply *= x;
+				
+				if(i==d){
 					return xMultiply;
 				}
-				xMultiply *= x;
+			
 			}
 			
 		} else if((d >= M) && (d < M+2)){
@@ -93,7 +88,7 @@ public class FittingFunctionNonLinear{
 				
 			}
 			
-			return coeff*(dsumPolyB-a[0]);
+			return coeff*dsumPolyB;
 			
 		} 
 		
