@@ -18,7 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
-import etomica.units.Kelvin;
+import etomica.units.Joule;
 import etomica.util.FunctionGeneral;
 
 
@@ -32,7 +32,7 @@ import etomica.util.FunctionGeneral;
 public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 
 	
-	public HarmonicAlphaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, int iLayer) {
+	public HarmonicAlphaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, int iLayer, double rC) {
 		super(space);
 				
 		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
@@ -70,7 +70,7 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 	
 		double rCScale = 0.475;
-		double rC = 1000;//box.getBoundary().getBoxSize().getX(0)*rCScale;
+		//double rC = 1000;//box.getBoundary().getBoxSize().getX(0)*rCScale;
 		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 		
 		final P2Nitrogen potential = new P2Nitrogen(space, rC);
@@ -102,7 +102,7 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
             }
         }
         double latEnergy = 0.5*sum/basisDim;
-        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[K]: " + Kelvin.UNIT.fromSim(latEnergy));
+        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[kJ]: " + Joule.UNIT.fromSim(latEnergy)/1000);
 	
 	}
 	
@@ -110,7 +110,8 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		
 		int numMolecule =4;
 		double density = 0.025;
-
+		double rC = 1000;
+		
 		int minLayer = 90;
 		int maxLayer = 121;
 		
@@ -120,14 +121,17 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		if(args.length > 1){
 			maxLayer = Integer.parseInt(args[1]);
 		}
+		if(args.length > 2){
+			rC = Double.parseDouble(args[2]);
+		}
 		
 		System.out.println("Lattice Energy Calculation of Alpha-phase Nitrogen");
-		System.out.println("Using lattice sum method with truncation of 1000A");
+		System.out.println("Using lattice sum method with truncation of " + rC + "A");
 		System.out.println("with density of:" + density);
 		
 		for (int i=minLayer; i<maxLayer; i++){	
 			System.out.print(i+" ");
-			HarmonicAlphaNitrogenModelLatticeSum test = new HarmonicAlphaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i);
+			HarmonicAlphaNitrogenModelLatticeSum test = new HarmonicAlphaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i, rC);
 		}
 
 	}

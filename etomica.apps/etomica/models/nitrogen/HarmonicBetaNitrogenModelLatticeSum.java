@@ -18,6 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
+import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.FunctionGeneral;
 
@@ -33,7 +34,7 @@ import etomica.util.FunctionGeneral;
 public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 
 	
-	public HarmonicBetaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, int iLayer) {
+	public HarmonicBetaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, int iLayer, double rC) {
 		super(space);
 						
 	  	double ratio = 1.631;
@@ -70,7 +71,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		coordinateDef.initializeCoordinates(new int[]{1,1,1});
 		
 		double rCScale = 0.475;
-		double rC = 1000;//box.getBoundary().getBoxSize().getX(0)*rCScale;
+		//double rC = 1000;//box.getBoundary().getBoxSize().getX(0)*rCScale;
 		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 		
 		final P2Nitrogen potential = new P2Nitrogen(space, rC);
@@ -102,7 +103,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
             }
         }
         double latEnergy = 0.5*sum/basisDim;
-        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[K]: " + Kelvin.UNIT.fromSim(latEnergy));
+        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[kJ]: " + Joule.UNIT.fromSim(latEnergy)/1000);
 	
 	}
 	
@@ -110,7 +111,8 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		int numMolecule =4;
 		double density = 0.025;
-
+		double rC = 1000;
+		
 		int minLayer = 90;
 		int maxLayer = 121;
 		
@@ -120,14 +122,17 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		if(args.length > 1){
 			maxLayer = Integer.parseInt(args[1]);
 		}
+		if(args.length > 2){
+			rC = Double.parseDouble(args[2]);
+		}
 		
 		System.out.println("Lattice Energy Calculation of Beta-phase Nitrogen");
-		System.out.println("Using lattice sum method with truncation of 1000A");
+		System.out.println("Using lattice sum method with truncation of " + rC + "A");
 		System.out.println("with density of:" + density);
 		
 		for (int i=minLayer; i<maxLayer; i++){	
 			System.out.print(i+" ");
-			HarmonicBetaNitrogenModelLatticeSum test = new HarmonicBetaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i);
+			HarmonicBetaNitrogenModelLatticeSum test = new HarmonicBetaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i, rC);
 		}
 
 	}
