@@ -110,12 +110,22 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		int numMolecule =4;
 		double density = 0.025;
+
+		int minLayer = 90;
+		int maxLayer = 121;
+		
+		if(args.length > 0){
+			minLayer = Integer.parseInt(args[0]);
+		}
+		if(args.length > 1){
+			maxLayer = Integer.parseInt(args[1]);
+		}
 		
 		System.out.println("Lattice Energy Calculation of Beta-phase Nitrogen");
 		System.out.println("Using lattice sum method with truncation of 1000A");
 		System.out.println("with density of:" + density);
 		
-		for (int i=90; i<121; i++){	
+		for (int i=minLayer; i<maxLayer; i++){	
 			System.out.print(i+" ");
 			HarmonicBetaNitrogenModelLatticeSum test = new HarmonicBetaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i);
 		}
