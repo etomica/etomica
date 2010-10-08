@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-
 import etomica.api.ISpecies;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
@@ -217,7 +216,7 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		return array;
 	}
 	
-	public void doEigenDecomposeAndFile(double[][] array, String filename){
+	public void doEigenDecompose(double[][] array, String filename){
 		
 		try{
 			
@@ -277,8 +276,7 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 			isCombineFile = Boolean.parseBoolean(args[2]);
 		}
 		String filename = "alpha"+numMolecule+"_2ndDer_d"+density;
-		boolean doEigenDecompose = true;
-		
+	
 		System.out.println("Running Hessian Matrix Construction Program for Alpha-phase Nitrogen Model");
 		System.out.println("with density of " + density);
 		System.out.println("isCombineFile: " +  isCombineFile);
@@ -286,14 +284,7 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		HarmonicAlphaNitrogenModelDecomposed test = new HarmonicAlphaNitrogenModelDecomposed(Space3D.getInstance(3), numMolecule, density);
 	
 		long startTime = System.currentTimeMillis();
-		
-		if(doEigenDecompose){
-			double[][] array = ArrayReader1D.getFromFile(filename+"_all");
-			test.doEigenDecomposeAndFile(array, filename);
-			
-			return;
-		}
-		
+
 		if(isCombineFile){
 			double[][] array = test.contructFullMatrix(test.coordinateDef, filename);
 			try {
@@ -332,6 +323,8 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 			} catch (IOException e) {
 				
 			}
+			
+			test.doEigenDecompose(array, filename);
 		}
 
 		long endTime = System.currentTimeMillis();

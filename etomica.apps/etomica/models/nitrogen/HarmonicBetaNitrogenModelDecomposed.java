@@ -221,7 +221,7 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 		return array;
 	}
 	
-	public void doEigenDecomposeAndFile(double[][] array, String filename){
+	public void doEigenDecompose(double[][] array, String filename){
 		
 		try{
 			
@@ -281,22 +281,14 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 			isCombineFile = Boolean.parseBoolean(args[2]);
 		}
 		String filename = "beta"+numMolecule+"_2ndDer_d"+density;
-		boolean doEigenDecompose = false;
 		
-		System.out.println("Running Hessian Matrix Construction Program for Alpha-phase Nitrogen Model");
+		System.out.println("Running Hessian Matrix Construction Program for Beta-phase Nitrogen Model");
 		System.out.println("with density of " + density);
 		System.out.println("isCombineFile: " +  isCombineFile);
 		System.out.println("output file to: " + filename);
 		HarmonicBetaNitrogenModelDecomposed test = new HarmonicBetaNitrogenModelDecomposed(Space3D.getInstance(3), numMolecule, density);
 	
 		long startTime = System.currentTimeMillis();
-		
-		if(doEigenDecompose){
-			double[][] array = ArrayReader1D.getFromFile(filename+"_all");
-			test.doEigenDecomposeAndFile(array, filename);
-			
-			return;
-		}
 		
 		if(isCombineFile){
 			double[][] array = test.contructFullMatrix(test.coordinateDef, filename);
@@ -315,6 +307,8 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 			} catch (IOException e) {
 				
 			}
+			
+			test.doEigenDecompose(array, filename);
 			
 		} else {
 			System.out.println("Contructing matrix for molecule " + iMolecule);
