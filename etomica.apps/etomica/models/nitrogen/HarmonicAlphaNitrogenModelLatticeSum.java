@@ -109,40 +109,15 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		
 		int numMolecule =4;
 		double density = 0.025;
+
+		System.out.println("Lattice Energy Calculation of Alpha-phase Nitrogen");
+		System.out.println("Using lattice sum method with truncation of 1000A");
+		System.out.println("with density of:" + density);
+		
 		for (int i=90; i<121; i++){	
 			System.out.print(i+" ");
 			HarmonicAlphaNitrogenModelLatticeSum test = new HarmonicAlphaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i);
 		}
-		System.exit(1);
-		
-//		CalcNumerical2ndDerivative cm2ndD = new CalcNumerical2ndDerivative(test.box, test.potentialMaster,test.coordinateDef);
-//		
-//		double[] newU = new double[test.coordinateDef.getCoordinateDim()];
-//		
-//		String fname = new String (numMolecule+"_2ndDer");
-//		try {
-//			FileWriter fileWriter = new FileWriter(fname);
-//			
-//			double value = 0;
-//			for (int i=0; i<newU.length; i++){
-//				for (int j=0; j<newU.length; j++){
-//					value = cm2ndD.d2phi_du2(new int[]{i,j}, newU);
-//					
-//					if(Math.abs(value) < 1e-6){
-//						value = 0.0;
-//					}
-//					fileWriter.write(value+ " ");
-//				}
-//				fileWriter.write("\n");
-//			}
-//			fileWriter.close();
-//			
-//		} catch (IOException e) {
-//			
-//		}
-	
-//		System.out.println("d2phi_du2: " + cm2ndD.d2phi_du2(new int[]{5,54}, newU));
-//		System.out.println("d2phi_du2: " + cm2ndD.d2phi_du2(new int[]{54,5}, newU));
 
 	}
 	
