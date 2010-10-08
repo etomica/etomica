@@ -302,6 +302,8 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 			} catch (IOException e) {
 				
 			}
+
+			test.doEigenDecompose(array, filename);
 			
 		} else {
 			System.out.println("Contructing matrix for molecule " + iMolecule);
@@ -324,7 +326,6 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 				
 			}
 			
-			test.doEigenDecompose(array, filename);
 		}
 
 		long endTime = System.currentTimeMillis();
