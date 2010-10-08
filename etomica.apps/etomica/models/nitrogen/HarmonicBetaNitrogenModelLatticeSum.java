@@ -19,7 +19,6 @@ import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Joule;
-import etomica.units.Kelvin;
 import etomica.util.FunctionGeneral;
 
 
@@ -103,7 +102,8 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
             }
         }
         double latEnergy = 0.5*sum/basisDim;
-        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[kJ]: " + Joule.UNIT.fromSim(latEnergy)/1000);
+        double avogradoConst = 6.0221415e23;
+        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[kJ/mol]: " + Joule.UNIT.fromSim(latEnergy)*avogradoConst/1000);
 	
 	}
 	
