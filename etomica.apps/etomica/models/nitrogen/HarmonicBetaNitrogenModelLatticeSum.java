@@ -2,7 +2,6 @@ package etomica.models.nitrogen;
 
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.IData;
@@ -25,6 +24,8 @@ import etomica.util.FunctionGeneral;
 
 
 /**
+ *  Lattice sum class for Beta-phase Nitrogen
+ * 
  * 
  * @author Tai Boon Tan
  *

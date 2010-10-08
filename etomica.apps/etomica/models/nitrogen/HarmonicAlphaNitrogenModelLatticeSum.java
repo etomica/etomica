@@ -24,6 +24,7 @@ import etomica.util.FunctionGeneral;
 
 
 /**
+ * Lattice sum class for Alpha-phase Nitrogen
  * 
  * @author Tai Boon Tan
  *
