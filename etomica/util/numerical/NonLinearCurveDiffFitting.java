@@ -29,7 +29,7 @@ public class NonLinearCurveDiffFitting {
 			sig[i] = value[i][3];
 		}
 		
-		this.ma = M+1+N;
+		this.ma = M+2+N;
 		a = new double[ma];
 		atry = new double[ma];
 	
@@ -43,7 +43,7 @@ public class NonLinearCurveDiffFitting {
 		for (int i=0; i<a.length; i++){
 			a[i] = 1.0;
 		}
-
+		
 		alamda = -1.0;
 		funcs = new FittingFunctionNonLinear(M, N);
 	}
@@ -52,6 +52,7 @@ public class NonLinearCurveDiffFitting {
 
 		while(iterate){
 			mrqmin();
+			//System.out.println("chisq: " + chisq);
 		}
 		
 		alamda=0.0;
@@ -227,9 +228,9 @@ public class NonLinearCurveDiffFitting {
 	}
 	
 	public static void main(String[] args){
-		String filename = "/tmp/foo_stat";
-		int M = 0;
-		int N = 1;
+		String filename = "Adiff10.dat";
+		int M = 3;
+		int N = 10;
 		if(args.length > 0){
 			filename = args[0];
 		}
@@ -243,16 +244,22 @@ public class NonLinearCurveDiffFitting {
 		
 		NonLinearCurveDiffFitting nonLinFit = new NonLinearCurveDiffFitting(filename, M, N);
 		double[] a = nonLinFit.findParameter();
-		for(int i=0; i<M; i++){
-			System.out.println("a[" + i +"]: "+a[i]);
-		}
-		System.out.println("K: " + a[M]);
-		for(int i=M+1; i<M+1+N; i++){
-			System.out.println("b[" + (i-(M+1)) +"]: "+a[i]);
-		}
+//		for(int i=0; i<M; i++){
+//			System.out.println("a[" + (i+1) +"]: "+a[i]);
+//		}
+//		System.out.println("K: " + a[M]);
+//		System.out.println("L: " + a[M+1]);
+//		for(int i=M+2; i<M+2+N; i++){
+//			System.out.println("b[" + (i-(M+1)) +"]: "+a[i]);
+//		}
+//		
+//		double RMSD = nonLinFit.computeRMSD(a);
+//		System.out.println("RMSD: " + RMSD);
 		
-		double RMSD = nonLinFit.computeRMSD(a);
-		System.out.println("RMSD: " + RMSD);
+		for (int i=0; i<a.length; i++){
+			System.out.printf("%3.10e", a[i]);
+			System.out.print(" ");
+		}
 		
 		//Covariance Matrix
 //		for(int i=0; i<nonLinFit.covar.length; i++){

@@ -250,8 +250,8 @@ public class NonLinearCurveFitting {
 	
 	public static void main(String[] args){
 		String filename = "betaAc.dat";
-		int M = 4;
-		int N = 10;
+		int M = 3;
+		int N = 8;
 		if(args.length > 0){
 			filename = args[0];
 		}
@@ -265,17 +265,22 @@ public class NonLinearCurveFitting {
 		
 		NonLinearCurveFitting nonLinFit = new NonLinearCurveFitting(filename, M, N);
 		double[] a = nonLinFit.findParameter();
-		for(int i=0; i<M; i++){
-			System.out.println("a[" + i +"]: "+a[i]);
-		}
-		System.out.println("K: " + a[M]);
-		System.out.println("L: " + a[M+1]);
-		for(int i=M+2; i<M+2+N; i++){
-			System.out.println("b[" + (i-(M+2)) +"]: "+a[i]);
-		}
+//		for(int i=0; i<M; i++){
+//			System.out.println("a[" + (i+1) +"]: "+a[i]);
+//		}
+//		System.out.println("K: " + a[M]);
+//		System.out.println("L: " + a[M+1]);
+//		for(int i=M+2; i<M+2+N; i++){
+//			System.out.println("b[" + (i-(M+1)) +"]: "+a[i]);
+//		}
+//		
+//		double RMSD = nonLinFit.computeRMSD(a);
+//		System.out.println("RMSD: " + RMSD);
 		
-		double RMSD = nonLinFit.computeRMSD(a);
-		System.out.println("RMSD: " + RMSD);
+		for (int i=0; i<a.length; i++){
+			System.out.printf("%3.10e", a[i]);
+			System.out.print(" ");
+		}
 		
 		//Covariance Matrix
 //		for(int i=0; i<nonLinFit.covar.length; i++){
