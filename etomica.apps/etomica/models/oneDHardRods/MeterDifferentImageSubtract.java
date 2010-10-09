@@ -138,7 +138,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
             for(int iMode = 0; iMode < simCDim; iMode++){
                 if(!Double.isInfinite(sqrtSimOmega2[iWV][iMode])){
-                    scaling *= sqrtSimOmega2[iWV][iMode];
+                    scaling += Math.log(sqrtSimOmega2[iWV][iMode]);
                     if(simWVCoeff[iWV] == 1.0){
                         scaling += Math.log(sqrtSimOmega2[iWV][iMode]);
                     }
@@ -148,9 +148,9 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         for (int iWV = 0; iWV < waveVectors.length; iWV++){
             for(int iMode = 0; iMode < cDim; iMode++){
                 if(!(oneOverSqrtOmega2[iWV][iMode] == 0.0)){
-                    scaling *= oneOverSqrtOmega2[iWV][iMode];
+                    scaling += Math.log(oneOverSqrtOmega2[iWV][iMode]);
                     if (wvCoeff[iWV] == 1.0){
-                        scaling -= Math.log(oneOverSqrtOmega2[iWV][iMode]);
+                        scaling += Math.log(oneOverSqrtOmega2[iWV][iMode]);
                     }
                 }
             }
