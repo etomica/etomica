@@ -41,6 +41,7 @@ public class TestRotationVector {
 		System.out.println("theta: " + Degree.UNIT.fromSim(theta));
 		
 		if(Degree.UNIT.fromSim(theta) > 179.999999){
+			System.out.println("%%%%%%% theta is greater than 180 deg");
 			u[0] = Math.sqrt(2);
 			u[1] = Math.sqrt(2);
 			for (int i=0; i<u.length; i++){
@@ -108,8 +109,9 @@ public class TestRotationVector {
 				System.out.println("*****Free Rotor******");
 				
 				IRandom random = new RandomNumberGenerator();
-				double randU0 = random.nextDouble();
-				double randU1 = random.nextDouble();
+				double randU0 = random.nextDouble()*Math.sqrt(2);
+				double randU1 = random.nextDouble()*Math.sqrt(2);
+				
 				u0 = randU0;
 				u1 = randU1;
 				if (u[1] < 0.0){
@@ -150,12 +152,16 @@ public class TestRotationVector {
 		TestRotationVector testVector = new TestRotationVector();
 		
 		IVectorMutable rVector = testVector.space.makeVector();
-		rVector.E(new double[]{-0.9602499999999995, -0.2791378691614606, -0.0014097872179871748});
+		rVector.E(new double[]{-0.99, 0.01, 0.01});
 		rVector.normalize();
 		System.out.println("Initial position: " + rVector.toString());
 		double[] u = testVector.calcU(rVector);
 
-		//u = new double[]{-1.98, -0.01};
+		System.out.println("check: " + (u[0]*u[0]+u[1]*u[1]));
+		for(int i=0; i<u.length; i++){
+			u[i]/=1.00884;
+		}
+		//u = new double[]{-1.95, -0.44};
 		System.out.println("sum u^2: " + (u[0]*u[0]+u[1]*u[1]));
 		testVector.setToU(u, rVector);
 
