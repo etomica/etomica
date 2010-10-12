@@ -25,9 +25,9 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -44,7 +44,7 @@ import etomica.util.ReadParameters;
 public class SimOverlapAlphaN2TP extends Simulation {
 
     public SimOverlapAlphaN2TP(Space space, int numMolecules, double density, double temperature, double[] otherTemperatures,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rc) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rcScale) {
         super(space);
         
       	int nCell = (int) Math.round(Math.pow((numMolecules/4), 1.0/3.0));
@@ -71,31 +71,30 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		coordinateDef.initializeCoordinates(nCells);
 		
         box.setBoundary(boundary);
-		double rCScale = 0.485;
-		double rC =box.getBoundary().getBoxSize().getX(0)*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
+		double rC =box.getBoundary().getBoxSize().getX(0)*rcScale;
+		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rC);
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(70);
+		pRotConstraint.setConstraintAngle(65);
 		
-		potentialMaster = new PotentialMasterListMolecular(this, space);
+		potentialMaster = new PotentialMaster();
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		
-	    int cellRange = 6;
-        potentialMaster.setRange(rC);
-        potentialMaster.setCellRange(cellRange); 
-        potentialMaster.getNeighborManager(box).reset();
-        
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-        }
-	
-        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-        System.out.println("numNeigh: " + numNeigh);
+//	    int cellRange = 6;
+//        potentialMaster.setRange(rC);
+//        potentialMaster.setCellRange(cellRange); 
+//        potentialMaster.getNeighborManager(box).reset();
+//        
+//        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+//        if (potentialCells < cellRange*2+1) {
+//            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+//        }
+//	
+//        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+//        System.out.println("numNeigh: " + numNeigh);
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
@@ -112,7 +111,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
+        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
         
         meter = new MeterTargetTPMolecule(potentialMaster, species, space, this, coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
@@ -157,7 +156,8 @@ public class SimOverlapAlphaN2TP extends Simulation {
      * @see SimOverlapAlphaN2TP.SimOverlapParam
      */
     public static void main(String[] args) {
-        //set up simulation parameters
+       	    	
+    	//set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         String inputFilename = null;
         if (args.length > 0) {
@@ -175,7 +175,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         double[] alpha = params.alpha;
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
-        double rc = params.rc;
+        double rcScale = params.rcScale;
         
         System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
@@ -189,9 +189,11 @@ public class SimOverlapAlphaN2TP extends Simulation {
         }
         System.out.println("\n"+numSteps+" steps");
 
+
+
         //instantiate simulation
         final SimOverlapAlphaN2TP sim = new SimOverlapAlphaN2TP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, 
-        		alpha, numAlpha, alphaSpan, numSteps, rc);
+        		alpha, numAlpha, alphaSpan, numSteps, rcScale);
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -244,11 +246,12 @@ public class SimOverlapAlphaN2TP extends Simulation {
         IData dataErr = data.getData(AccumulatorAverage.StatType.ERROR.index);
         IData dataAvg = data.getData(AccumulatorAverage.StatType.AVERAGE.index);
         IData dataCorrelation = data.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_CORRELATION.index);
+        
         for (int i=0; i<otherTemperatures.length; i++) {
         	if(otherTemperatures[i] < 10.0){
-        		System.out.println("0"+otherTemperatures[i]);
+        		System.out.printf("0"+ "%2.3f\n", otherTemperatures[i]);
             } else {
-        		System.out.println(otherTemperatures[i]);
+        		System.out.printf("%2.3f\n", otherTemperatures[i]);
         	}
             double[] iAlpha = sim.meter.getAlpha(i);
             for (int j=0; j<numAlpha; j++) {
@@ -296,7 +299,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
     public AccumulatorAverageFixed accumulator;
     public DataPumpListener accumulatorPump;
     public MeterTargetTPMolecule meter;
-    protected PotentialMasterListMolecular potentialMaster;
+    protected PotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected SpeciesN2 species;
     protected CoordinateDefinitionNitrogen coordinateDef;
@@ -309,12 +312,12 @@ public class SimOverlapAlphaN2TP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 256;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 10000;
-        public double temperature = 0.1; // in unit Kelvin
-        public double[] alpha = new double[]{1.0};
+        public long numSteps = 1000;
+        public double temperature = 5.0; // in unit Kelvin
+        public double[] alpha = new double[]{1.0, 1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{0.2};
-        public double rc = 4.0;
+        public double[] otherTemperatures = new double[]{4.566, 6.0};
+        public double rcScale = 0.475;
     }
 }

@@ -1,7 +1,9 @@
 package etomica.models.nitrogen;
 
 import java.awt.Color;
+import java.io.File;
 
+import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IBox;
@@ -9,6 +11,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
+import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -48,7 +51,7 @@ import etomica.util.ReadParameters;
 public class SimOverlapBetaN2TP extends Simulation {
 
     public SimOverlapBetaN2TP(Space space, int numMolecules, double density, double temperature, double[] otherTemperatures,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, boolean isBeta, boolean isBetaHCP) {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
@@ -80,10 +83,11 @@ public class SimOverlapBetaN2TP extends Simulation {
 		primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBeta();
-		coordinateDef.setOrientationVectorBeta(space);
+		if(isBeta){coordinateDef.setIsBeta();}
+		if(isBetaHCP){coordinateDef.setIsBetaHCP();}
+        coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
-				
+			
         box.setBoundary(boundary);
 		double rCScale = 0.475;
 		double rc = aDim*nC*rCScale;
@@ -92,12 +96,12 @@ public class SimOverlapBetaN2TP extends Simulation {
 		potential.setBox(box);
 
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(70);
+		pRotConstraint.setConstraintAngle(1);
 		
 		potentialMaster = new PotentialMaster();
 		//potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
+		//potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		
 //	    int cellRange = 6;
 //        potentialMaster.setRange(rc);
@@ -121,7 +125,7 @@ public class SimOverlapBetaN2TP extends Simulation {
 			
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
 		integrator.getMoveManager().addMCMove(move);
-		//integrator.getMoveManager().addMCMove(rotate);
+		if(isBetaHCP){integrator.getMoveManager().addMCMove(rotate);}
 		integrator.setBox(box);
 		
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
@@ -168,6 +172,19 @@ public class SimOverlapBetaN2TP extends Simulation {
 
     }
     
+    public void initializeConfigFromFile(String fname){
+        ConfigurationFile config = new ConfigurationFile(fname);
+        config.initializeCoordinates(box);
+    }
+    
+    public void writeConfiguration(String fname){
+        WriteConfiguration writeConfig = new WriteConfiguration(space);
+        writeConfig.setBox(box);
+        writeConfig.setConfName(fname);
+        writeConfig.actionPerformed();
+        System.out.println("\n***output configFile: "+ fname);
+    }
+    
     /**
      * @param args filename containing simulation parameters
      * @see SimOverlapBetaN2TP.SimOverlapParam
@@ -192,6 +209,9 @@ public class SimOverlapBetaN2TP extends Simulation {
         double[] alpha = params.alpha;
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
+        boolean isBeta = params.isBeta;
+        boolean isBetaHCP = params.isBetaHCP;
+        String configFileName = "configT"+temperature;
         
         System.out.println("Running beta-phase Nitrogen TP overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature + " K");
@@ -204,10 +224,12 @@ public class SimOverlapBetaN2TP extends Simulation {
         	System.out.print(alpha[i]+" ");
         }
         System.out.println("\n"+numSteps+" steps");
+        System.out.println("isBeta: " + isBeta);
+        System.out.println("isBetaHCP: " + isBetaHCP);
 
         //instantiate simulation
         final SimOverlapBetaN2TP sim = new SimOverlapBetaN2TP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, 
-        		alpha, numAlpha, alphaSpan, numSteps);
+        		alpha, numAlpha, alphaSpan, numSteps, isBeta, isBetaHCP);
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -243,8 +265,14 @@ public class SimOverlapBetaN2TP extends Simulation {
 
         //start simulation
 
-        long initStep = (1+(numMolecules/1000))*100*numMolecules;
-        sim.initialize(initStep);
+    	File configFile = new File(configFileName+".pos");
+		if(configFile.exists()){
+			System.out.println("\n***initialize coordinate from "+ configFile);
+        	sim.initializeConfigFromFile(configFileName);
+		} else {
+			long initStep = (1+(numMolecules/1000))*100*numMolecules;
+			sim.initialize(initStep);
+		}
         System.out.flush();
         
         final long startTime = System.currentTimeMillis();
@@ -253,6 +281,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         sim.getController().actionPerformed();
         
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);
+        sim.writeConfiguration(configFileName);
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
@@ -262,11 +291,11 @@ public class SimOverlapBetaN2TP extends Simulation {
         for (int i=0; i<otherTemperatures.length; i++) {
     
         	if(otherTemperatures[i] < 10.0){
-         		System.out.println("0"+otherTemperatures[i]);
-            
+        		System.out.printf("0"+ "%2.3f\n", otherTemperatures[i]);
+                 
             } else {
-        		System.out.println(otherTemperatures[i]);
-        	}
+            	System.out.printf("%2.3f\n", otherTemperatures[i]);
+            }
             double[] iAlpha = sim.meter.getAlpha(i);
             for (int j=0; j<numAlpha; j++) {
                 System.out.println("  "+iAlpha[j]+" "+dataAvg.getValue(i*numAlpha+j)
@@ -327,10 +356,12 @@ public class SimOverlapBetaN2TP extends Simulation {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
-        public double temperature = 0.5; // in unit Kelvin
+        public double temperature = 1.0; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{1.0};
+        public double[] otherTemperatures = new double[]{1.5};
+        public boolean isBeta = true;
+        public boolean isBetaHCP = false;
     }
 }
