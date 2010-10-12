@@ -14,6 +14,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.space.ISpace;
+import etomica.units.Degree;
 import etomica.units.Null;
 
 /**
@@ -98,7 +99,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         for (int i=0; i<otherAngles.length; i++) {
         	double fac;
         	if(doScaling){
-        		fac = (otherAngles[i]/angle);
+        		fac = Math.sqrt((1-Math.cos(Degree.UNIT.toSim(otherAngles[i])))/(1-Math.cos(Degree.UNIT.toSim(angle))));
         	} else {
         		fac = 1.0;
         	}
