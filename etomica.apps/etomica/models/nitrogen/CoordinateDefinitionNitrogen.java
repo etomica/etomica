@@ -810,24 +810,25 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    		 */
 	        	if((Math.abs(u3) > (Math.sqrt(2)+1e-10) || Math.abs(u4) > (Math.sqrt(2)+1e-10)) 
 	        			&& (check > 3.99999999)){
-	        		System.out.println("FREE ROTOR");
-	        		double randU3 = random.nextDouble();
-	        		double randU4 = random.nextDouble();
-	        		
-	        		u3 = randU3;
-	        		u4 = randU4;
-	        		
-	        		if(newU[j] < 0.0){
-	        			newU[j] = -u3;
-	        		} else {
-	        			newU[j] = u3;
-	        		}
-	        		
-	        		if(newU[j+1] < 0.0){
-	        			newU[j+1] = -u4;
-	        		} else {
-	        			newU[j+1] = u4;
-	        		}
+	        		System.out.println("FREE ROTOR " + u3 + " " + u4);
+	        		throw new RuntimeException("<CoordinateDefinitionNitrogen> in setToU method");
+//	        		double randU3 = random.nextDouble()*Math.sqrt(2);
+//	        		double randU4 = random.nextDouble()*Math.sqrt(2);
+//	        		
+//	        		u3 = randU3;
+//	        		u4 = randU4;
+//	        		
+//	        		if(newU[j] < 0.0){
+//	        			newU[j] = -u3;
+//	        		} else {
+//	        			newU[j] = u3;
+//	        		}
+//	        		
+//	        		if(newU[j+1] < 0.0){
+//	        			newU[j+1] = -u4;
+//	        		} else {
+//	        			newU[j+1] = u4;
+//	        		}
 	        	}
 		  	
 	  
