@@ -107,15 +107,30 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
             /*
              * Re-scaling the coordinate deviation
              */
-      		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
-      			// Scaling the rotational angle for the beta-phase
-      			if(iCoord>0 && (iCoord%5==3 || iCoord%5==4)){
-      				newU[iCoord] = fac*u[iCoord];
-      			} else {
-      				newU[iCoord] = u[iCoord];
+      		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord+=5){
+      			//NOT scaling the translational DOF
+      			for(int k=0; k<3; k++){
+      				newU[iCoord+k] = u[iCoord+k];
       			}
+      			
+      			// Scaling the rotational angle for the beta-phase
+      			double check = u[iCoord+3]*u[iCoord+3] + u[iCoord+4]*u[iCoord+4];
+      			
+      			//if theta is less or equal to 90deg 
+      			// 2.0 is from eq: u3^2 + u4^2 = 2*(1 -cos(theta)
+      			
+      			if(check <= 2.0){
+      				newU[iCoord+3] = fac*u[iCoord+3];
+      				newU[iCoord+4] = fac*u[iCoord+4];
+      				
+      			} else {
+      				newU[iCoord+3] = (1/fac)*u[iCoord+3];
+      				newU[iCoord+4] = (1/fac)*u[iCoord+4];
+      				
+      			}
+      			
       		}
-
+     
             coordinateDefinition.setToU(pretendMolecules, newU);
             meterPotentialMeasured[i].setBox(pretendBox);
             otherEnergy = meterPotentialMeasured[i].getDataAsScalar();
