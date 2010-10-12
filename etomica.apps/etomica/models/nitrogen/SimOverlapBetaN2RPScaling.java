@@ -53,7 +53,7 @@ import etomica.util.ReadParameters;
 public class SimOverlapBetaN2RPScaling extends Simulation {
 
     public SimOverlapBetaN2RPScaling(Space space, int numMolecules, double density, double temperature, double[] otherAngles,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double angle, boolean doScaling, String configFileName) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double angle, boolean doScaling) {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
@@ -88,13 +88,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 		coordinateDef.setIsBeta();
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
-				
-		File configFile = new File(configFileName+".pos");
-		if(configFile.exists()){
-			System.out.println("\n***initialize coordinate from "+ configFile);
-        	initializeConfigFromFile(configFileName);
-		}
-		
+
         box.setBoundary(boundary);
 		double rCScale = 0.475;
 		double rc = aDim*nC*rCScale;
@@ -250,7 +244,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 
         //instantiate simulation
         final SimOverlapBetaN2RPScaling sim = new SimOverlapBetaN2RPScaling(Space.getInstance(3), numMolecules, density, temperature, otherAngles, 
-        		alpha, numAlpha, alphaSpan, numSteps, angle, doScaling, configFileName);
+        		alpha, numAlpha, alphaSpan, numSteps, angle, doScaling);
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -286,8 +280,15 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 
         //start simulation
 
-        long initStep = (1+(numMolecules/1000))*100*numMolecules;
-        sim.initialize(initStep);
+		
+		File configFile = new File(configFileName+".pos");
+		if(configFile.exists()){
+			System.out.println("\n***initialize coordinate from "+ configFile);
+        	sim.initializeConfigFromFile(configFileName);
+		} else {
+			long initStep = (1+(numMolecules/1000))*100*numMolecules;
+			sim.initialize(initStep);
+		}
         System.out.flush();
         
         final long startTime = System.currentTimeMillis();
