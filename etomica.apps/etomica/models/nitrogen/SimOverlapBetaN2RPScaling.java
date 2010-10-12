@@ -1,7 +1,9 @@
 package etomica.models.nitrogen;
 
 import java.awt.Color;
+import java.io.File;
 
+import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IBox;
@@ -9,6 +11,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
+import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -41,15 +44,16 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
 /**
- * rotational-perturbation simulation for beta-phase Nitrogen
- * with angle scaling
+ * rotational-perturbation simulation for beta-phase Nitrogen with angle scaling
+ * however, one can set parameter "doScaling" to FALSE if scaling not desirable
+ * 
  * 
  * @author Tai Boon Tan
  */
 public class SimOverlapBetaN2RPScaling extends Simulation {
 
     public SimOverlapBetaN2RPScaling(Space space, int numMolecules, double density, double temperature, double[] otherAngles,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double angle, boolean doScaling) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double angle, boolean doScaling, String configFileName) {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
@@ -85,8 +89,14 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
 				
+		File configFile = new File(configFileName+".pos");
+		if(configFile.exists()){
+			System.out.println("\n***initialize coordinate from "+ configFile);
+        	initializeConfigFromFile(configFileName);
+		}
+		
         box.setBoundary(boundary);
-		double rCScale = 0.485;
+		double rCScale = 0.475;
 		double rc = aDim*nC*rCScale;
 		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
 		potential = new P2Nitrogen(space, rc);
@@ -142,8 +152,9 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
-        System.out.println("lattice energy per molecule: " + latticeEnergy);
+        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
         meter = new MeterTargetRPMolecule(potentialMaster, pMaster, species, space, this, coordinateDef);
+        meter.setDoScaling(doScaling);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
         meter.setAngle(angle);
@@ -182,6 +193,19 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 
     }
     
+    public void initializeConfigFromFile(String fname){
+        ConfigurationFile config = new ConfigurationFile(fname);
+        config.initializeCoordinates(box);
+    }
+    
+    public void writeConfiguration(String fname){
+        WriteConfiguration writeConfig = new WriteConfiguration(space);
+        writeConfig.setBox(box);
+        writeConfig.setConfName(fname);
+        writeConfig.actionPerformed();
+        System.out.println("\n***output configFile: "+ fname);
+    }
+    
     /**
      * @param args filename containing simulation parameters
      * @see SimOverlapBetaN2RPScaling.SimOverlapParam
@@ -208,11 +232,11 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
         boolean doScaling = params.doScaling;
+        String configFileName = "configT"+temperature+"_Angle"+angle;
         
         System.out.println("Running beta-phase Nitrogen RP overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature + " K");
-        System.out.println("perturbing from angle: " + angle + " into ");
-        System.out.println("doScaling: " + doScaling);
+        System.out.print("perturbing from angle: " + angle + " into ");
         for(int i=0; i<otherAngles.length; i++){
         	System.out.print(otherAngles[i]+" ");
         }
@@ -220,11 +244,13 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         for(int i=0; i<alpha.length; i++){
         	System.out.print(alpha[i]+" ");
         }
-        System.out.println("\n"+numSteps+" steps");
+        System.out.println("\nwith "+numSteps+" steps");
+        System.out.println("doScaling: " + doScaling);
+    
 
         //instantiate simulation
         final SimOverlapBetaN2RPScaling sim = new SimOverlapBetaN2RPScaling(Space.getInstance(3), numMolecules, density, temperature, otherAngles, 
-        		alpha, numAlpha, alphaSpan, numSteps, angle, doScaling);
+        		alpha, numAlpha, alphaSpan, numSteps, angle, doScaling, configFileName);
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -270,6 +296,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         sim.getController().actionPerformed();
         
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);
+        sim.writeConfiguration(configFileName);
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
@@ -320,6 +347,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
       
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken(s): " + (endTime - startTime)/1000.0);
+       
     }
 
     private static final long serialVersionUID = 1L;
@@ -343,13 +371,13 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 1000000;
-        public double temperature = 40.0; // in unit Kelvin
-        public double angle = 50.0;
+        public long numSteps = 1000;
+        public double temperature = 45.0; // in unit Kelvin
+        public double angle = 89.0;
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherAngles = new double[]{45};
+        public double[] otherAngles = new double[]{90};
         public boolean doScaling = true;
     }
 }
