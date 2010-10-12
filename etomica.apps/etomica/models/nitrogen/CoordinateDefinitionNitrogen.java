@@ -162,7 +162,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	            }
             }
             
-            if(isBeta){
+            if(isBeta || isBetaHCP){
             	int nCell = (int)Math.pow(moleculeList.getMoleculeCount()/2, 1.000001/3.0);
             	int numMolinZ = 2*nCell;
             	
@@ -630,7 +630,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    	}
     	    }
     	    
-    	    if(isBeta || isBetaLatticeSum){
+    	    if(isBeta || isBetaLatticeSum || isBetaHCP){
         		IMolecule molecule2;
         		
         		if(i%2 == 0){
@@ -685,6 +685,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
     public void setIsBeta(){
     	isBeta = true;
+    }
+    
+    public void setIsBetaHCP(){
+    	isBetaHCP = true;
     }
     
     public void setIsBetaLatticeSum(){
@@ -890,6 +894,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     public boolean isAlpha=false;
     public boolean isGamma=false;
     public boolean isBeta=false;
+    public boolean isBetaHCP=false;
     public boolean isBetaLatticeSum=false;
     protected IRandom random;
     public int rotDim;
