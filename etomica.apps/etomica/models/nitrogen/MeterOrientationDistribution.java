@@ -33,6 +33,8 @@ import etomica.util.HistogramExpanding;
  * 				and x-axis
  * angle[1]: is phi,   angle between the molecular axis vector and z-axis  
  * 
+ * @author Tai Boon Tan
+ *
  */
 public class MeterOrientationDistribution implements IEtomicaDataSource, IAction, Serializable {
 
