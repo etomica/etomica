@@ -97,39 +97,61 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         double[] newU = new double[coordinateDefinition.getCoordinateDim()];
         
         for (int i=0; i<otherAngles.length; i++) {
-        	double fac;
+        
         	if(doScaling){
-        		fac = Math.sqrt((1-Math.cos(Degree.UNIT.toSim(otherAngles[i])))/(1-Math.cos(Degree.UNIT.toSim(angle))));
+        		double fac;
+        		/*
+                 * Re-scaling the coordinate deviation
+                 */
+          		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord+=5){
+          			//NOT scaling the translational DOF
+          			for(int k=0; k<3; k++){
+          				newU[iCoord+k] = u[iCoord+k];
+          			}
+          			
+          			// Scaling the rotational angle for the beta-phase
+          			double check = u[iCoord+3]*u[iCoord+3] + u[iCoord+4]*u[iCoord+4];
+          			
+          			//if theta is less or equal to 90deg 
+          			// 2.0 is from eq: u3^2 + u4^2 = 2*(1 -cos(theta)
+          			
+          			//System.out.print("check: "+ check);
+          			if(check <= 2.0){
+          				fac = Math.sqrt((1-Math.cos(Degree.UNIT.toSim(otherAngles[i])))
+          						/(1-Math.cos(Degree.UNIT.toSim(angle))));
+          	        	
+          				//System.out.println(" less 2.0");
+          				newU[iCoord+3] = fac*u[iCoord+3];
+          				newU[iCoord+4] = fac*u[iCoord+4];
+          				
+          			} else if(check>2.0 && check <=4.0) {
+          				fac = Math.sqrt((1-Math.cos(Degree.UNIT.toSim(90+otherAngles[i])))
+          						/(1-Math.cos(90+Degree.UNIT.toSim(angle))));
+          	        
+          				//System.out.println(" ***********greater 2.0");
+          				newU[iCoord+3] = (1/fac)*u[iCoord+3];
+          				newU[iCoord+4] = (1/fac)*u[iCoord+4];
+          				
+          			} 
+          			
+          			if((newU[iCoord+3]*newU[iCoord+3] + newU[iCoord+4]*newU[iCoord+4]) >4.0){
+          				System.out.println("<MeterTargetRPMolecule> newU3^2+newU4^2 is GREATER THAN 4.0");
+          				System.out.println("otherAngle: " + otherAngles[i]);
+          				System.out.println("[newU3^2+newU4^2]: "+(newU[iCoord+3]*newU[iCoord+3] + newU[iCoord+4]*newU[iCoord+4]));
+          				System.out.println("u[3 & 4]: "+u[iCoord+3]+" "+u[iCoord+4]);
+          				System.out.println("newU[3 & 4]: "+newU[iCoord+3]+" "+newU[iCoord+4]);
+          				throw new RuntimeException("SO BUSTED!!");
+              		}
+          		}
+        	
+        	
         	} else {
-        		fac = 1.0;
+         		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
+        			newU[iCoord] = u[iCoord];
+        	
+          		}
         	}
             double otherEnergy = 0;
-            /*
-             * Re-scaling the coordinate deviation
-             */
-      		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord+=5){
-      			//NOT scaling the translational DOF
-      			for(int k=0; k<3; k++){
-      				newU[iCoord+k] = u[iCoord+k];
-      			}
-      			
-      			// Scaling the rotational angle for the beta-phase
-      			double check = u[iCoord+3]*u[iCoord+3] + u[iCoord+4]*u[iCoord+4];
-      			
-      			//if theta is less or equal to 90deg 
-      			// 2.0 is from eq: u3^2 + u4^2 = 2*(1 -cos(theta)
-      			
-      			if(check <= 2.0){
-      				newU[iCoord+3] = fac*u[iCoord+3];
-      				newU[iCoord+4] = fac*u[iCoord+4];
-      				
-      			} else {
-      				newU[iCoord+3] = (1/fac)*u[iCoord+3];
-      				newU[iCoord+4] = (1/fac)*u[iCoord+4];
-      				
-      			}
-      			
-      		}
      
             coordinateDefinition.setToU(pretendMolecules, newU);
             meterPotentialMeasured[i].setBox(pretendBox);
