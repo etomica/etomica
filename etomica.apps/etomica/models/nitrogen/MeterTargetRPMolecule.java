@@ -1,10 +1,13 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -50,6 +53,8 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     protected double alphaSpan;
     protected int numAlpha = 1;
     protected boolean doScaling = true;
+	private IVectorMutable[][] initMolecOrientation;
+	private IVectorMutable molecOrientation;
     
     public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, IPotentialMaster[] potentialMasterMeasured, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.potentialMasterSampled = potentialMasterSampled;
@@ -68,6 +73,17 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         
         sim.addBox(pretendBox);
         tag = new DataTag();
+        
+        int numMolec = sim.getBox(0).getNMolecules(species);
+        molecOrientation = space.makeVector();
+    	initMolecOrientation = new IVectorMutable[numMolec][3];
+    	/*
+		 * initializing the initial orientation of the molecule
+		 */
+		for (int i=0; i<numMolec; i++){
+			initMolecOrientation[i] = space.makeVectorArray(3);
+			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
+		}
     }
 
 	public IEtomicaDataInfo getDataInfo() {
@@ -99,47 +115,53 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         for (int i=0; i<otherAngles.length; i++) {
         
         	if(doScaling){
-        		double fac;
+        		double fac = Math.sqrt((1-Math.cos(Degree.UNIT.toSim(otherAngles[i])))
+  						/(1-Math.cos(Degree.UNIT.toSim(angle))));;
         		/*
                  * Re-scaling the coordinate deviation
                  */
-          		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord+=5){
+          		for (int iMolecule=0; iMolecule<molecules.getMoleculeCount(); iMolecule++){
           			//NOT scaling the translational DOF
           			for(int k=0; k<3; k++){
-          				newU[iCoord+k] = u[iCoord+k];
+          				newU[iMolecule*5+k] = u[iMolecule*5+k];
           			}
           			
           			// Scaling the rotational angle for the beta-phase
-          			double check = u[iCoord+3]*u[iCoord+3] + u[iCoord+4]*u[iCoord+4];
+          			double check = u[(iMolecule*5)+3]*u[(iMolecule*5)+3] + u[(iMolecule*5)+4]*u[(iMolecule*5)+4];
           			
           			//if theta is less or equal to 90deg 
           			// 2.0 is from eq: u3^2 + u4^2 = 2*(1 -cos(theta)
           			
           			//System.out.print("check: "+ check);
           			if(check <= 2.0){
-          				fac = Math.sqrt((1-Math.cos(Degree.UNIT.toSim(otherAngles[i])))
-          						/(1-Math.cos(Degree.UNIT.toSim(angle))));
-          	        	
-          				//System.out.println(" less 2.0");
-          				newU[iCoord+3] = fac*u[iCoord+3];
-          				newU[iCoord+4] = fac*u[iCoord+4];
+          	        	//System.out.println(" less 2.0");
+          				newU[(iMolecule*5)+3] = fac*u[(iMolecule*5)+3];
+          				newU[(iMolecule*5)+4] = fac*u[(iMolecule*5)+4];
           				
           			} else if(check>2.0 && check <=4.0) {
-          				fac = Math.sqrt((1-Math.cos(Degree.UNIT.toSim(90+otherAngles[i])))
-          						/(1-Math.cos(90+Degree.UNIT.toSim(angle))));
-          	        
+          			
+          				IMolecule molecule = molecules.getMolecule(iMolecule);
+          				IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+          				IVectorMutable leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
+          				//Flipping the molecule
+          				molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
+          				molecOrientation.TE(-1);
+          				molecOrientation.normalize();
+          				
+          				double [] uCalc = calcUMethod(molecOrientation, iMolecule);
+          				
           				//System.out.println(" ***********greater 2.0");
-          				newU[iCoord+3] = (1/fac)*u[iCoord+3];
-          				newU[iCoord+4] = (1/fac)*u[iCoord+4];
+          				newU[(iMolecule*5)+3] = fac*uCalc[0];
+          				newU[(iMolecule*5)+4] = fac*uCalc[1];
           				
           			} 
           			
-          			if((newU[iCoord+3]*newU[iCoord+3] + newU[iCoord+4]*newU[iCoord+4]) >4.0){
+          			if((newU[(iMolecule*5)+3]*newU[(iMolecule*5)+3] + newU[(iMolecule*5)+4]*newU[(iMolecule*5)+4]) >4.0){
           				System.out.println("<MeterTargetRPMolecule> newU3^2+newU4^2 is GREATER THAN 4.0");
           				System.out.println("otherAngle: " + otherAngles[i]);
-          				System.out.println("[newU3^2+newU4^2]: "+(newU[iCoord+3]*newU[iCoord+3] + newU[iCoord+4]*newU[iCoord+4]));
-          				System.out.println("u[3 & 4]: "+u[iCoord+3]+" "+u[iCoord+4]);
-          				System.out.println("newU[3 & 4]: "+newU[iCoord+3]+" "+newU[iCoord+4]);
+          				System.out.println("[newU3^2+newU4^2]: "+(newU[(iMolecule*5)+3]*newU[(iMolecule*5)+3] + newU[(iMolecule*5)+4]*newU[(iMolecule*5)+4]));
+          				System.out.println("u[3 & 4]: "+u[(iMolecule*5)+3]+" "+u[(iMolecule*5)+4]);
+          				System.out.println("newU[3 & 4]: "+newU[(iMolecule*5)+3]+" "+newU[(iMolecule*5)+4]);
           				throw new RuntimeException("SO BUSTED!!");
               		}
           		}
@@ -174,6 +196,38 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         return data;
     }
 
+    private double[] calcUMethod(IVector vector, int index){
+    	
+    	double[] u = new double[2];
+    	double u3 = vector.dot(initMolecOrientation[index][1]);
+		double u4 = vector.dot(initMolecOrientation[index][2]);
+		double ratio = Math.abs(u3/u4);
+		
+		double a = vector.dot(initMolecOrientation[index][0]);
+		double theta = Math.acos(a);
+		
+		if(Math.abs(u4) > -1e-10 && Math.abs(u4) < 1e-10){
+			u[0] = Math.sqrt(2*(1-Math.cos(theta)));
+			if(u3 <0.0){
+				u[0] = -u[0];
+			}
+			u[1] = u4;
+		} else {
+			if(u4 < 0.0){
+				u[1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			} else {
+				u[1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			}
+
+			if (u3 < 0.0){
+				u[0] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			} else {
+				u[0] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
+			}
+		}
+		return u; 
+    }
+    
     public double getLatticeEnergy() {
         return latticeEnergy;
     }
