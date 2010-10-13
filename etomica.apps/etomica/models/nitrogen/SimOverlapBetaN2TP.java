@@ -132,7 +132,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
-        System.out.println("lattice energy per molecule: " + latticeEnergy);
+        System.out.println("lattice energy per molecule: " + latticeEnergy/numMolecules);
         meter = new MeterTargetTPMolecule(potentialMaster, species, space, this, coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
         if(!scaleRot){meter.setBetaPhase(true);}
