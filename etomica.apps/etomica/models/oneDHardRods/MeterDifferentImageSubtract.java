@@ -1,5 +1,6 @@
 package etomica.models.oneDHardRods;
 
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IRandom;
@@ -108,11 +109,8 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         
         cDef = new CoordinateDefinitionLeaf(box, otherCD.getPrimitive(), 
                 otherCD.getBasis(), space);
-        if (cDef.getBasis() instanceof BasisBigCell){
-            cDef.initializeCoordinates(new int[] { 1, 1, 1});
-        } else {
-            cDef.initializeCoordinates(otherNCells);
-        }
+        cDef.initializeCoordinates(otherNCells);
+
         
         nm = otherNM;
         waveVectorFactory = nm.getWaveVectorFactory();
@@ -162,6 +160,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         
         etas = new double[space.D() * (simCDef.getBox().getLeafList().getAtomCount() - 1)];
         maxEta = space.D() * (numAtoms - 1); 
+        
     }
     
     public double getDataAsScalar() {

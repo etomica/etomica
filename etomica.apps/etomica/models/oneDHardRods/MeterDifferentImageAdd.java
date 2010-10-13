@@ -11,14 +11,13 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.units.Null;
-import etomica.normalmode.BasisBigCell;
 
 
 /**
@@ -109,11 +108,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         
         cDef = new CoordinateDefinitionLeaf(box, otherCD.getPrimitive(), 
                 otherCD.getBasis(), space);
-        if(cDef.getBasis() instanceof BasisBigCell){
-            cDef.initializeCoordinates(new int[] {1, 1, 1});
-        } else{
-            cDef.initializeCoordinates(otherNCells);
-        }
+        cDef.initializeCoordinates(otherNCells);
         
         nm = otherNM;
 
