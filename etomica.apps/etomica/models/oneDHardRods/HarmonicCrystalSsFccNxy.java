@@ -185,8 +185,8 @@ public class HarmonicCrystalSsFccNxy {
     public static class Params extends ParameterBase {
         public double T = 0.01;
         public double rho = 1.1964;
-        public int[] shape = new int[] {2, 2, 2};
-        public String filename = "inputSSDB_";
+        public int[] shape = new int[] {2, 2, 4};
+        public String filename = "inputSSDB_WV";
         public double rc = 1.4803453945760225 ;
     }
     

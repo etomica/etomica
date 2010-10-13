@@ -32,7 +32,7 @@ public class HarmonicCrystalSsFccBigCellNxy {
         double primitiveLength = 1.4952983783596188;
         System.out.println("MaxLatticeShell is "+maxLatticeShell);
         int nC = 2;
-        int[] shape = new int[] {nC, nC, nC+2};
+        int[] shape = new int[] {nC, nC, nC};
         int numAtom = 1;
         for(int i = 0; i < 3; i++){
             numAtom *= shape[i];
@@ -40,7 +40,7 @@ public class HarmonicCrystalSsFccBigCellNxy {
         numAtom *= 4;
         
         double temperature = 0.01;
-        String fileName = "inputSSDB"+ numAtom;
+        String fileName = "inputSSDB_BC"+ numAtom;
         
         if (args.length > 0) {
             rho = Double.parseDouble(args[0]);

@@ -673,7 +673,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         public double temperature = 0.01;
         public int exponent = 12;
         
-        public String inputFile = "inputSSDB_";
+        public String inputFile = "inputSSDB_WV";
         public String filename = "output";
         
         public int numSteps = 1000000;

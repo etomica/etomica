@@ -317,7 +317,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         //measuring potential of target in reference system
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
                 temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
-                nCellsTarget, nmTarg, tIn);
+                new int[] {1,1,1,}, nmTarg, tIn);
         MeterOverlapSameGaussian meterOverlapInRef = new 
                 MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
                 meterRefInRef, meterTargInRef, temperature);
@@ -326,7 +326,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         //measuring reference potential in target system
         meterRefInTarg = new MeterDifferentImageSubtract(this, space, cDefTarget,
-                nmTarg, cDefRef, potentialMaster, nCellsRef, nmRef, rIn);
+                nmTarg, cDefRef, potentialMaster, new int[] {1,1,1}, nmRef, rIn);
         MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
         meterOverlapInTarget.setDsABase(latticeEnergyTarget);
@@ -652,16 +652,16 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public boolean first = false;
-        public int[] refShape = {4, 4, 4};
-        public int[] targShape = {4, 4, 6};
+        public boolean first = true;
+        public int[] refShape = {2, 2, 2};
+        public int[] targShape = {2, 2, 4};
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
         public double temperature = 0.01;
         public int exponent = 12;
         
-        public String inputFile = "inputSSDB";
+        public String inputFile = "inputSSDB_BC";
         public String filename = "output";
         
         public int numSteps = 100000000;
