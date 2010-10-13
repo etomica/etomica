@@ -85,7 +85,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 		primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBeta();
+		coordinateDef.setIsBetaHCP();
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
 
@@ -195,6 +195,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
     public void writeConfiguration(String fname){
         WriteConfiguration writeConfig = new WriteConfiguration(space);
         writeConfig.setBox(box);
+        writeConfig.setDoApplyPBC(false);
         writeConfig.setConfName(fname);
         writeConfig.actionPerformed();
         System.out.println("\n***output configFile: "+ fname);
@@ -245,6 +246,18 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         //instantiate simulation
         final SimOverlapBetaN2RPScaling sim = new SimOverlapBetaN2RPScaling(Space.getInstance(3), numMolecules, density, temperature, otherAngles, 
         		alpha, numAlpha, alphaSpan, numSteps, angle, doScaling);
+        
+        //start simulation
+		File configFile = new File(configFileName+".pos");
+		if(configFile.exists()){
+			System.out.println("\n***initialize coordinate from "+ configFile);
+        	sim.initializeConfigFromFile(configFileName);
+		} else {
+			long initStep = (1+(numMolecules/1000))*100*numMolecules;
+			sim.initialize(initStep);
+		}
+        System.out.flush();
+        
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -278,18 +291,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
             return;
         }
 
-        //start simulation
 
-		
-		File configFile = new File(configFileName+".pos");
-		if(configFile.exists()){
-			System.out.println("\n***initialize coordinate from "+ configFile);
-        	sim.initializeConfigFromFile(configFileName);
-		} else {
-			long initStep = (1+(numMolecules/1000))*100*numMolecules;
-			sim.initialize(initStep);
-		}
-        System.out.flush();
         
         final long startTime = System.currentTimeMillis();
        
@@ -372,7 +374,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 1000;
+        public long numSteps = 10000;
         public double temperature = 45.0; // in unit Kelvin
         public double angle = 89.0;
         public double[] alpha = new double[]{1.0};

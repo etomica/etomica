@@ -180,6 +180,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     public void writeConfiguration(String fname){
         WriteConfiguration writeConfig = new WriteConfiguration(space);
         writeConfig.setBox(box);
+        writeConfig.setDoApplyPBC(false);
         writeConfig.setConfName(fname);
         writeConfig.actionPerformed();
         System.out.println("\n***output configFile: "+ fname);
@@ -232,6 +233,18 @@ public class SimOverlapBetaN2TP extends Simulation {
         //instantiate simulation
         final SimOverlapBetaN2TP sim = new SimOverlapBetaN2TP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, 
         		alpha, numAlpha, alphaSpan, numSteps, isBeta, isBetaHCP, scaleRot);
+        //start simulation
+
+    	File configFile = new File(configFileName+".pos");
+		if(configFile.exists()){
+			System.out.println("\n***initialize coordinate from "+ configFile);
+        	sim.initializeConfigFromFile(configFileName);
+		} else {
+			long initStep = (1+(numMolecules/1000))*100*numMolecules;
+			sim.initialize(initStep);
+		}
+        System.out.flush();
+        
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -265,17 +278,7 @@ public class SimOverlapBetaN2TP extends Simulation {
             return;
         }
 
-        //start simulation
 
-    	File configFile = new File(configFileName+".pos");
-		if(configFile.exists()){
-			System.out.println("\n***initialize coordinate from "+ configFile);
-        	sim.initializeConfigFromFile(configFileName);
-		} else {
-			long initStep = (1+(numMolecules/1000))*100*numMolecules;
-			sim.initialize(initStep);
-		}
-        System.out.flush();
         
         final long startTime = System.currentTimeMillis();
        
