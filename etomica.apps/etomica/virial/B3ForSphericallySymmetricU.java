@@ -1,14 +1,11 @@
 package etomica.virial;
 
-import etomica.potential.P2ArgonTangAndToennies2003;
-import etomica.potential.P2LennardJones;
 import etomica.potential.P2QChemInterpolated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.util.SineTransform;
-import etomica.virial.simulations.BnFlexibleContributionTraPPEUAMethanol.VirialParam;
 
 
 /**
@@ -34,16 +31,20 @@ public static void main(String[] args) {
 	DampingParams params = new DampingParams();
     
    
-	if (args.length == 4 ) {
+	if (args.length == 6 ) {
 		params.a1 = Integer.parseInt(args[0]);
 		params.a2 = Integer.parseInt(args[1]);
-		params.basis = Integer.parseInt(args[2]);
-		params.tempSet = Integer.parseInt(args[3]);
+		params.Rvdw = Double.parseDouble(args[2]);
+		params.basis = Integer.parseInt(args[3]);
+		params.fixedRvdw = Boolean.parseBoolean(args[4]);
+		params.tempSet = Integer.parseInt(args[5]);
     } 
 	
 	int a1 = params.a1;
 	int a2 = params.a2;
+	double Rvdw = params.Rvdw;
 	int basis = params.basis;
+	boolean fixedRvdw = params.fixedRvdw;
 	int tempSet = params.tempSet;
 	
 	boolean printapalooza = false;
@@ -53,7 +54,7 @@ public static void main(String[] args) {
 	boolean qm = true;
 
 	// Minimum log2(N) and maximum separation distance to be considered:
-	int power = 6;
+	int power = 8;
 	double r_max = 100;
 	
 	Space space = Space3D.getInstance();
@@ -62,15 +63,15 @@ public static void main(String[] args) {
 	
 	double[] temps;
 	
-	//P2QChemInterpolated p2 = new P2QChemInterpolated(space);
-	//p2.setDampingParams(a1,a2,basis);
+	P2QChemInterpolated p2 = new P2QChemInterpolated(space);
+	p2.setDampingParams(a1,a2,Rvdw,basis, fixedRvdw);
 	
 	
-	P2ArgonTangAndToennies2003 p2 = new P2ArgonTangAndToennies2003(space);
-	//Potential2SoftSpherical p2; 
+	//P2ArgonTangAndToennies2003 p2 = new P2ArgonTangAndToennies2003(space);
+	//Potential2SoftSpherical p2 = new P2ArgonAziz1993(space);
 	
 	if (argon) {
-		//p2 = new P2ArgonAziz1993(space);
+		//
 	   
 		//
 		//System.out.println("BJ w /aug-cc-pV"+basis+"Z, a1 = " + a1 + ", a2 = " + a2 + "\n");
@@ -102,9 +103,9 @@ public static void main(String[] args) {
 	
 	System.out.println();
 	if (qm) {
-		System.out.println("T(K)    B2      B2C      abs(B2C(r_max)-B2C(r_max/2))     	B2QM	B3       abs(B3(N)-B3(N/2))     log2(N)     rmax	del_r");
+		System.out.println("T(K)    B2      B2C      abs(B2C(N)-B2C(N/2))     	B2QM	B3       abs(B3(N)-B3(N/2))     log2(N)     rmax	del_r");
 	} else {
-		System.out.println("T(K)    B2      abs(B2(r_max)-B2(r_max/2))     B3       abs(B3(N)-B3(N/2))     log2(N)     rmax");
+		System.out.println("T(K)    B2      abs(B2(N)-B2(N/2))     B3       abs(B3(N)-B3(N/2))     log2(N)     rmax");
 	}
 	
 	System.out.println();
@@ -125,10 +126,13 @@ public static void main(String[] args) {
 		double del_rF = r_maxF/(NF-1);
 		
 		if (qm) {
-			double qmB2 = computeB2QM((int)NF, del_rF, p2, temp);
-			double totalB2 = B2 + qmB2;
+			double qmB2 = computeB2QM(p2, temp);
+			double totalB2 = qmB2 + B2;
 			System.out.println(temp + "    "  + totalB2 + "    " + B2 + "    "+ B2Error + "    "+ qmB2 +"    " +B3 + "    " + B3Error + "   " + powerF + "   " + r_maxF+ "   " +del_rF);
+			//System.out.println(temp + "    "+ qmB2 );
 		} else {
+			
+			
 			System.out.println(temp + "    "  + B2 + "    " + B2Error + "    "+ B3 + "    " + B3Error + "   " + powerF + "   " + r_maxF);
 		}
 	}
@@ -196,8 +200,10 @@ public static void main(String[] args) {
 		return B;
 	}
 	
-	public static double computeB2QM(int N, double del_r, Potential2SoftSpherical p2, double temp) {
+	public static double computeB2QM(Potential2SoftSpherical p2, double temp) {
 
+		
+		 double del_r = 0.0001;
 		 double h = 6.62606896e-34; //J*s
 		 double k = 1.3806504e-23; // J/K
 	     double m = 39.948*(1.660538782e-27); //kg
@@ -207,14 +213,13 @@ public static void main(String[] args) {
 	     // constant [=] (kg*m*m/J)/(J*kg) = m*m/(J*J)
 	     // but u will be given in Kelvin and r in Angstroms
 	     
-	     constant = constant*(1e20)*k*k;
+	     constant = constant*(1e20)*k*k; // A*A/(K*K)
 
 	     double r12=2.5+del_r;
 	     double u12Backward=p2.u(r12*r12);
 	     double u12;
 	     double slope;
 	     double e12;
-	     double integrand = 0;
 	     double qmB2 = 0;
 	     while(r12 < 10) {
 	    	 
@@ -222,14 +227,11 @@ public static void main(String[] args) {
 			 
 			 u12 = p2.u(r12*r12);
 			 
-			 slope = (u12-u12Backward)/del_r;
+			 slope = (u12-u12Backward)/del_r; // K/A
 
 			 e12 = Math.exp(-u12/temp);
-	        
-		     integrand = e12*slope*slope*r12*r12;
-		     
-		    
-		     qmB2 = qmB2 + integrand*del_r;
+
+		     qmB2 = qmB2 + e12*slope*slope*r12*r12*del_r; // K*K/(A*A)*A*A*A
 		     
 	    	 u12Backward=u12;
 	     }
@@ -237,116 +239,60 @@ public static void main(String[] args) {
 	     u12 = p2.u(r12*r12);
 	     slope = (u12-u12Backward)/del_r;
 	     e12 = Math.exp(-u12/temp);
-	     integrand = e12*slope*slope*r12*r12;
-	     qmB2 = qmB2 + 0.5*integrand*del_r;
+	     qmB2 = qmB2 + 0.5*e12*slope*slope*r12*r12*del_r;
 
-	     return qmB2*constant*0.60221214;
+	     return qmB2*constant*0.60221214;  // from A^3/molecule to cm^3/mole, 6.022e23/(1e24)
 
 	}
 
 	public static double[] getConvergence (Potential2SoftSpherical p2, int power, double r_max, double temp, boolean printapalooza, boolean allFFT) {
 		
-	
+		r_max = 200;
+
 		double [] results = new double[6];
-		double[] newB;
-		
-		double[] B = new double [2];
-		double[] errors = new double [2];
-		double error = 1.0;
-		boolean molPerL = true;
-		
-		/* 
-		 * Two variables need to be explored: rmax and the number of grid points, N.
-		 * 
-		 */
-		
-		int powerNew = power;
-		double r_maxNew = r_max;
+		double [] newB;
+		double B2Old=0;double B2 = 1;double B2Error=1;
+		double B3Old=0;double B3 = 1;double B3Error=1;
+
 		int N = (int) Math.pow(2, power);
-		
-		double tol = 1e-2;
-		
-		while (error > tol) {  // increase r_max to improve accuracy of B2
+
+		double error = 1.0;
+		double tol = 0.01;
+		while (error > tol) {  // increase N to improve accuracy of B2 and B3
 			
-			r_max = r_maxNew;
+			N = (int) Math.pow(2, power);
 			
-			powerNew = power;
-			B[0] = 0;
-			B[1] = 0;
+			double del_r = r_max/((double)(N-1));
+
+			double[] fr = getfr( p2, N, del_r,temp);	
 			
-			while (error > tol) {  // increase N to improve accuracy of B3
-				
-				powerNew = powerNew+1;
-				
-				N = (int) Math.pow(2, powerNew);
-				
-				double del_r = r_max/((double)(N-1));
-	
-				double[] fr = getfr( p2, N, del_r,temp);	
-				
-				newB = computeB(fr, N, r_max, allFFT);
-				
-				if (molPerL) {
-					newB[0]=newB[0]*0.60221415;
-					newB[1]=newB[1]*0.60221415*0.60221415;
-				}
-				
-				error = Math.abs(B[1]-newB[1]);
-				
-				errors[1] = error;
-				
-				B = newB;
-				
-				//System.out.println(power2 + "   " + B[0] +  "  " + error);
-				
-				if (printapalooza) {
-					
-					System.out.println(temp + "    "  + B[0] + "    " + errors[0] + "    "+ B[1] + "    " + errors[1] + "   " + powerNew + "   " + r_max);
-				}
-				
-				if (powerNew > 16) {
-					break;
-				}
-				
-			}
+			newB = computeB(fr, N, r_max, allFFT);	
+			B2 = newB[0]*0.60221415;
+			B3 = newB[1]*0.60221415*0.60221415;
 			
-			if (r_max < 300) {
-				r_maxNew = r_max*2;
-			}
-			
-			int NNew = N*2;
-		
-			double del_r = r_maxNew/((double)(NNew-1));
-	
-			double[] fr = getfr(p2, NNew, del_r,temp);
-	
-			newB = computeB(fr, NNew, r_maxNew, allFFT);
-			
-			if (molPerL) {
-				newB[0]=newB[0]*0.60221415;
-				newB[1]=newB[1]*0.60221415*0.60221415;
-			}			
-			
-			error = Math.abs(B[0]-newB[0]);
-			
-			
-			errors[0] = error;
-		
-			B = newB;
-			
+			B2Error = Math.abs(B2-B2Old);
+			B3Error = Math.abs(B3-B3Old);
+				
+			error = Math.max(B2Error, B3Error);
+				
+				
 			if (printapalooza) {
 				
-				System.out.println(temp + "    "  + B[0] + "    " + errors[0] + "    "+ B[1] + "    " + errors[1] + "   " + powerNew + "   " + r_max);
+				System.out.println(temp + "    "  + B2 + "    " + B2Error + "    "+ B3 + "    " + B3Error + "   " + power + "   " + r_max);
 			}
+				
+			power = power+1;
+			B2Old=B2;
+			B3Old=B3;
 				
 		}
 		
-		results[0] = B[0];
-		results[1] = errors[0];
-		results[2] = r_maxNew;
-		results[3] = B[1];
-		results[4] = errors[1];
-		results[5] = powerNew;
+		results[0] = B2;
+		results[1] = B2Error;
+		results[2] = r_max;
+		results[3] = B3;
+		results[4] = B3Error;
+		results[5] = power;
 		
 		return results;
 	}
@@ -391,16 +337,18 @@ public static void main(String[] args) {
 	
 	 public static class DampingParams extends ParameterBase {
 		    //TZ
+		 	
 	    	public int a1 = 79;	        
 	        public int a2 = 136;   
-	        public int basis = 3; 
-	        
+	        private double Rvdw = 3.61;
+	        private int basis = 3;
+	        private boolean fixedRvdw = false;
 	        //DZ
 	        //public int a1 = 80;	        
 	        //public int a2 = 149;   
-	        //public int basis = 2;
+	       // public int basis = 2;
 	        
-	        public int tempSet = 2; 
+	        public int tempSet = 3; 
 	    }
 
 }
