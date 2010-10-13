@@ -46,52 +46,7 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
     	if (r < 2.5) {
     		//System.out.println("r12 = "+r12Mag+" Angstroms, u12 set to Inf");
     		return Double.POSITIVE_INFINITY;
-    		
-    	} else  if (r > 10.0){
-		
-    		if (basis == 4) { //aug-cc-pVQZ
-    			//Before PW86 functional corrected
-	    		//C6 = 58.805;C8 = 2112.419;C10 = 71695;Rvdw = 3.596;
-    			
-    			//After PW86 functional corrected
-	    		//C6 = 59.333; C8 = 2148.957; C10 = 73751.2; Rvdw = 3.606;
-	    		
-    			//Using LDA SAD rather than HF
-	    		C6 = 57.789; C8 =  2093.031; C10 = 71832.1; Rc = 3.142;
-    			
-	    		
-	    	
-    		} else if (basis == 3) {  //aug-cc-pVTZ
-    			
-    			//After PW86 functional corrected, but before damping parameters corrected
-    			//C6 =  59.505; C8 = 2144.204; C10 = 72943.4; Rvdw = 1.917*2;
-	    		
-	    		//Using LDA SAD rather than HF
-    			C6 = 58.038; C8 = 2091.337; C10 = 71145.0; Rc = 3.132;
-    			
-    			
-    		} else if (basis == 2) {  //aug-cc-pVDZ
-    			
-    			//Using LDA SAD rather than HF
-    			C6 = 58.022; C8 = 2099.438; C10 = 73175.2; Rc = 3.154;
-    			
-    			
-    		} else {
-    		
-    		  	throw new RuntimeException("Specify different basis.");
-    		}
-    		
-    		if (!fixedRvdw) {
-     	    	Rvdw = (a1*Rc + a2)/100;
-     	    }
-    		
-    		double energy6  =  -C6/(Math.pow(Rvdw,6) + Math.pow(r,6)) *Math.pow(0.529177209,6);
-    	    double energy8  =  -C8/(Math.pow(Rvdw,8) + Math.pow(r,8)) *Math.pow(0.529177209,8);
-    	    double energy10 = -C10/(Math.pow(Rvdw,10)+ Math.pow(r,10))*Math.pow(0.529177209,10);
-    	    energy = energy6 + energy8 + energy10;
-    	   // System.out.println("r12 = "+r+" Angstroms, u12 = " + energy + " Hartrees");
-    	    
-    	   
+
     		
     	} else {
     		
@@ -127,21 +82,40 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
     	        
 	    	//System.out.println("r12 = "+r+" Angstroms, u12 = " + energy + " Hartrees");
     	
-    		boolean interp = true;
+    		int n = 0;
+    		
     		for (int i=0;i<rs.length; i++) {
     			
     			if (r == rs[i]) {
-    				interp = false;
-    				energy = u12NoDisp[i];
-    				C6 = C6s[i];
-    				C8 = C8s[i];
-    				C10 = C10s[i];
-    				Rc = Rcs[i];
+    				n = i;
+    			}	
+    			/*
+    			if (rs[i]==12) {
+    				System.out.println(i);
     			}
+    			*/
     		}
     		
-    		if (interp) {
+    		if (r > 10) {
     			
+    			
+    			//n = 83; // 8 Angstroms
+    			n = 103; // 10 Angstroms
+    			//n = 105; // 12 Angstroms
+	    		
+    		} 
+    		
+    		if (n != 0) {
+    			
+    			energy = u12NoDisp[n];
+				C6 = C6s[n];
+				C8 = C8s[n];
+				C10 = C10s[n];
+				Rc = Rcs[n];
+    			
+    		}
+    		else {
+	
     		
 	    		AkimaSpline splineU = new AkimaSpline();
 	    		splineU.setInputData(rs, u12NoDisp);
@@ -170,22 +144,34 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
 	    		Rc = RcA[0];
     		}
     	
+    		
+    		//System.out.println(energy);
     		if (!fixedRvdw) {
     			Rvdw = (a1*Rc + a2)/100;
     		}
 			double energy6  =  -C6/(Math.pow(Rvdw,6) + Math.pow(r,6)) *Math.pow(0.529177209,6);
 			double energy8  =  -C8/(Math.pow(Rvdw,8) + Math.pow(r,8)) *Math.pow(0.529177209,8);
 			double energy10 = -C10/(Math.pow(Rvdw,10)+ Math.pow(r,10))*Math.pow(0.529177209,10);
-			double dispEnergy = energy6 + energy8 + energy10;
-			energy = energy + dispEnergy;
+			double dispEnergy = energy6 + energy8 + energy10; //Hartrees
+			if (r > 8) {
+				energy = dispEnergy;
+			} else {
+				energy = energy + dispEnergy;//Hartrees
+			}
+			
     	
     	}
     	
-    	energy = energy*2625.5; //convert to kJ/mol
-		energy = energy*1000; //convert to J/mol
-		double energyOverR = energy/8.314; // Kelvin
-		//System.out.println("u12/k (K) = " + energyOverR);
-		return energyOverR;
+    	//double energy2 = energy*2625.5; //convert to kJ/mol
+    	//energy2 = energy2*1000; //convert to J/mol
+    	//double R = k*Na;
+		//double energyOverR = energy2/R; // Kelvin
+		//System.out.println("u12/R (K) = " + energyOverR);
+    	
+    	energy = energy*JPerHartree; // Joules;
+    	double energyOverkB = energy/k;//Kelvin
+		//System.out.println("u12/k (K) = " + energyOverkB + " "+ R);
+		return energyOverkB;
     }
 
     /**
@@ -242,40 +228,44 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
     	p2.setDampingParams(a1,a2,RvdwF, basis, fixedRvdw);
     	double r = 3.6;
     	double u;
-    	double k =  1.3806503e-23; // J/Kelvin
-    	double JPerHartree = 4.359743e-18; // J;
     	double umin=0;
     	double rmin=0;
+    	
     	while (r<4) {
-    		r = r + 0.05;
+    		r = r + 0.00001;
     		u = p2.u(r*r); // Kelvin
     		u = u*k/JPerHartree*1e6;
     		if (u < umin) {
     			umin = u;
     			rmin =r;
     		}
-    		System.out.println(Rvdw+"  "+r+"  "+u);
+    		//System.out.println(Rvdw+"  "+r+"  "+u);
     	}
     	
     	//Minimum energy
     	System.out.println(Rvdw+"	"+rmin+ "    " +umin);
     	
     	
+    	
+    	
     	//r=3.757178;
-    	r=3.7575;
+    	r=12;
     	System.out.println("r12=	"+r + ", u12 =    " +p2.u(r*r)*k/JPerHartree*1e6);
+    	
+    	
     }
    
 	public static class DampingParams extends ParameterBase {
-	    
+		/*
 		protected int a1 = 79;	        
 	    protected int a2 = 136;   
 	    protected int basis = 3;
-	    /*
+	    */
+	    
 	    protected int a1 = 80;	        
 	    protected int a2 = 149;   
 	    protected int basis = 2;
-	    */
+	    
 	    protected double RvdwF = 3.828;   
 	     
 	    protected boolean fixedRvdw = false; 
@@ -290,6 +280,9 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
     protected double RvdwF;   
     protected static double Rvdw; 
     protected boolean fixedRvdw ; 
+    protected static double k = 1.3806503e-23; //J/K   1.3806503e-23
+    protected static double JPerHartree = 4.359744e-18;  //4.359744e-18
+    protected static double Na = 6.0221415e23;  
     
     
     }
