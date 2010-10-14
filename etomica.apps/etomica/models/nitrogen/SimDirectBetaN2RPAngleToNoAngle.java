@@ -1,9 +1,14 @@
 package etomica.models.nitrogen;
 
+import java.io.File;
+
+import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
@@ -25,8 +30,6 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
-import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
 
 /**
  * Direct Sampling for Rotational Perturbation
@@ -75,7 +78,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		
 	    boxTarg.setBoundary(boundary);
 	    
-		double rCScale = 0.485;
+		double rCScale = 0.475;
 		double rc = aDim*nC*rCScale;
 		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
 		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
@@ -120,6 +123,21 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         getController().addAction(activityIntegrate);
     }
 
+    public void initializeConfigFromFile(String fname){
+        ConfigurationFile config = new ConfigurationFile(fname);
+        config.initializeCoordinates(boxTarg);
+    }
+    
+    public void writeConfiguration(String fname){
+        WriteConfiguration writeConfig = new WriteConfiguration(space);
+        writeConfig.setBox(boxTarg);
+        writeConfig.setDoApplyPBC(false);
+        writeConfig.setConfName(fname);
+        writeConfig.actionPerformed();
+        System.out.println("\n***output configFile: "+ fname);
+    }
+    
+    
     /**
      * @param args filename containing simulation parameters
      * @see SimDirectBetaN2RPAngleToNoAngle.SimOverlapParam
@@ -128,7 +146,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 
         double temperature = 40; //in UNIT KELVIN
         double density = 0.025;
-        double angle = 5;
+        double angle = 1.0;
         long numSteps = 100000;
         int numMolecules = 432;
 
@@ -147,27 +165,36 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		if(args.length > 4){
 			numMolecules = Integer.parseInt(args[4]);
 		}
-		
+		String configFileName = "configT"+temperature+"_Angle"+angle;
+	        
         System.out.println("Running beta-phase Nitrogen RP direct sampling simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
-        System.out.println("perturbing from angle=" + angle + " into no rotational d.o.f.");
+        System.out.println("perturbing from angle =" + angle + " into no rotational d.o.f.");
         System.out.println("with numStep of "+ numSteps);
         
         SimDirectBetaN2RPAngleToNoAngle sim = new SimDirectBetaN2RPAngleToNoAngle(Space.getInstance(3), numMolecules, density, Kelvin.UNIT.toSim(temperature), angle);
 
-        long equiStep = (numMolecules*numSteps/1000);
-        System.out.println("equilibration step: " + equiStep);
-        sim.activityIntegrate.setMaxSteps(equiStep);
-        sim.getController().actionPerformed();     
-        System.out.println("equilibration finished");
-        sim.getController().reset();
-     
+        
+        File configFile = new File(configFileName+".pos");
+        if(configFile.exists()){
+			System.out.println("\n***initialize coordinate from "+ configFile);
+        	sim.initializeConfigFromFile(configFileName);
+		} else {
+			long equiStep = (numMolecules*numSteps/1000);
+	        System.out.println("equilibration step: " + equiStep);
+	        sim.activityIntegrate.setMaxSteps(equiStep);
+	        sim.getController().actionPerformed();     
+	        System.out.println("equilibration finished");
+	        sim.getController().reset();
+		}
+        
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
 
+        sim.writeConfiguration(configFileName);
         double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
         
@@ -182,5 +209,6 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     private static final long serialVersionUID = 1L;
     protected ActivityIntegrate activityIntegrate;
     protected AccumulatorAverageFixed boltzmannAverage;
+    protected IBox boxTarg;
 
 }
