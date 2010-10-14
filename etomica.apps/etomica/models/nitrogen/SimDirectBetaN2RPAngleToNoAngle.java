@@ -49,7 +49,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		addSpecies(species);
 
         // TARGET
-        Box boxTarg = new Box(space);
+        boxTarg = new Box(space);
         addBox(boxTarg);
         boxTarg.setNMolecules(species, numMolecules);
 
@@ -72,7 +72,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		Primitive primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
 		
 		CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
-		coordinateDefTarg.setIsBeta();
+		coordinateDefTarg.setIsBetaHCP();
 		coordinateDefTarg.setOrientationVectorBeta(space);
 		coordinateDefTarg.initializeCoordinates(nCells);
 		
@@ -144,10 +144,10 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
      */
     public static void main(String[] args) {
 
-        double temperature = 40; //in UNIT KELVIN
+        double temperature = 45; //in UNIT KELVIN
         double density = 0.025;
         double angle = 1.0;
-        long numSteps = 100000;
+        long numSteps = 1000;
         int numMolecules = 432;
 
     	if(args.length > 0){
@@ -177,14 +177,14 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         
         File configFile = new File(configFileName+".pos");
         if(configFile.exists()){
-			System.out.println("\n***initialize coordinate from "+ configFile);
+			System.out.println("\n***Initialize coordinate from "+ configFile);
         	sim.initializeConfigFromFile(configFileName);
 		} else {
 			long equiStep = (numMolecules*numSteps/1000);
-	        System.out.println("equilibration step: " + equiStep);
+	        System.out.println("\nEquilibration step: " + equiStep);
 	        sim.activityIntegrate.setMaxSteps(equiStep);
 	        sim.getController().actionPerformed();     
-	        System.out.println("equilibration finished");
+	        System.out.println("Equilibration finished");
 	        sim.getController().reset();
 		}
         
