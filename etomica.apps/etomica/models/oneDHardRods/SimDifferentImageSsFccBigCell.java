@@ -190,31 +190,6 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length
                 +" reference wave vectors.");
-//        System.out.println("Reference Wave Vector Coefficients:");
-//        System.out.println("Ref WV: ");
-//        for (int iWV = 0; iWV < wvc.length; iWV++){
-//            for(int iMode = 0; iMode < omega[0].length; iMode++){
-//                System.out.println(iWV + " wvc " + wvc[iWV] + " omega2 " +
-//                        omega[iWV][iMode]);
-//            }
-//        }
-        
-        
-        
-        
-        refSumWVC = 0.0;
-        refModeCt = 0;
-        for (int iWV = 0; iWV < wvc.length; iWV++){
-            for(int iMode = 0; iMode < omega[0].length; iMode++){
-                if(!Double.isInfinite(omega[iWV][iMode])){
-                    refSumWVC += wvc[iWV];
-                    refModeCt++;
-                }
-            }
-        }
-        
-        
-        
         
         meterRefInRef = new MeterPotentialEnergy(potentialMaster);
         meterRefInRef.setBox(boxRef);
@@ -271,30 +246,6 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length 
                 +" target wave vectors.");
-//        System.out.println("Target Wave Vector Coefficients:");
-//        for (int iWV = 0; iWV < wvc.length; iWV++){
-//            for(int iMode = 0; iMode < omega[0].length; iMode++){
-//                System.out.println(iWV + " wvc " + wvc[iWV] + " omega2 " +
-//                        omega[iWV][iMode]);
-//            }
-//        }
-        
-        
-        
-        
-        targSumWVC = 0.0;
-        targModesCt = 0;
-        for (int iWV = 0; iWV < wvc.length; iWV++){
-            for(int iMode = 0; iMode < omega[0].length; iMode++){
-                if(!Double.isInfinite(omega[iWV][iMode])){
-                    targSumWVC += wvc[iWV];
-                    targModesCt++;
-                }
-            }
-        }
-        
-        
-        
         
         meterTargInTarg = new MeterPotentialEnergy(potentialMaster);
         meterTargInTarg.setBox(boxTarget);

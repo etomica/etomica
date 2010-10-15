@@ -269,7 +269,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         //measuring potential of target in reference system
         meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
                 temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
-                new int[] {1, 1, 2}, nmTarg, tIn);
+                size, nmTarg, tIn);
         MeterOverlapSameGaussian meterOverlapInRef = new 
                 MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
                 meterRefInRef, meterTargInRef, temperature);
@@ -610,15 +610,15 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
     
     public static class SimParam extends ParameterBase {
         public boolean first = true;
-        public int[] refShape = {2, 4, 4};
-        public int[] targShape = {4, 4, 4};
+        public int[] refShape = {2, 2, 4};
+        public int[] targShape = {2, 4, 4};
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
         public double temperature = 0.01;
         public int exponent = 12;
         
-        public String inputFile = "inputSSDB_M";
+        public String inputFile = "inputSSDB_DS";
         public String filename = "output";
         
         public int numSteps = 10000000;

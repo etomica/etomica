@@ -32,8 +32,8 @@ public class HarmonicCrystalSsFccDoubleSize {
         double primitiveLength = 1.4952983783596188;
         System.out.println("MaxLatticeShell is "+maxLatticeShell);
         int nC = 2;
-        int[] shape = new int[] {nC, nC+2, nC+2};  //shape is the number of atoms & how the lengths are set up
-        int[] nCells = new int [] {2, 1, 1};  //This is the number of "shapes" used 
+        int[] shape = new int[] {nC, nC, nC+2};  //shape is the number of atoms & how the lengths are set up
+        int[] nCells = new int [] {1, 2, 1};  //This is the number of "shapes" used 
         int numAtom = 1;
         for(int i = 0; i < 3; i++){
             numAtom *= shape[i] * nCells[i];
@@ -41,7 +41,7 @@ public class HarmonicCrystalSsFccDoubleSize {
         numAtom *= 4;
         
         double temperature = 0.01;
-        String fileName = "inputSSDB_M"+ numAtom;
+        String fileName = "inputSSDB_DS"+ numAtom;
         
         if (args.length > 0) {
             rho = Double.parseDouble(args[0]);
