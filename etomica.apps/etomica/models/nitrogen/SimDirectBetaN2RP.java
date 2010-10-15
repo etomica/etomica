@@ -41,18 +41,18 @@ public class SimDirectBetaN2RP extends Simulation {
         PotentialMaster potentialMasterTarg = new PotentialMaster();
         PotentialMaster potentialMasterRef = new PotentialMaster();
         
-        SpeciesN2 species = new SpeciesN2(space);
+        species = new SpeciesN2(space);
 		addSpecies(species);
 
         // TARGET
-        Box boxTarg = new Box(space);
+        boxTarg = new Box(space);
         addBox(boxTarg);
         boxTarg.setNMolecules(species, numMolecules);
 
     	double ratio = 1.631;
 		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double cDim = aDim*ratio;
-		System.out.println("\n\naDim: " + aDim + " ;cDim: " + cDim);
+		System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
 		int nC = (int)Math.pow(numMolecules/1.999999999, 1.0/3.0);
 		
 		Basis basisHCP = new BasisHcp();
@@ -67,14 +67,14 @@ public class SimDirectBetaN2RP extends Simulation {
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
 		Primitive primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
 		
-		CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
+		coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
 		coordinateDefTarg.setIsBeta();
 		coordinateDefTarg.setOrientationVectorBeta(space);
 		coordinateDefTarg.initializeCoordinates(nCells);
 		
 	    boxTarg.setBoundary(boundary);
 	    
-		double rCScale = 0.485;
+		double rCScale = 0.475;
 		double rc = aDim*nC*rCScale;
 		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
 		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
@@ -93,7 +93,7 @@ public class SimDirectBetaN2RP extends Simulation {
 		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
 		rotateTarg.setBox(boxTarg);
 		
-        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
+        integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
 		integratorTarg.getMoveManager().addMCMove(rotateTarg);
 	    
@@ -150,10 +150,16 @@ public class SimDirectBetaN2RP extends Simulation {
   
         System.out.println("Running beta-phase Nitrogen RP direct sampling simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
-        System.out.print("perturbing from angle=" + angle[0] + " into " +angle[1]);
+        System.out.println("perturbing from angle=" + angle[0] + " into " +angle[1]);
+        System.out.println("with simulation steps of " + numSteps);
         
         SimDirectBetaN2RP sim = new SimDirectBetaN2RP(Space.getInstance(3), numMolecules, density, Kelvin.UNIT.toSim(temperature), angle);
 
+        MeterOrientationDistribution meterOrient = new MeterOrientationDistribution(sim.boxTarg, sim.coordinateDefTarg, sim.species);
+        IntegratorListenerAction meterOrientListener = new IntegratorListenerAction(meterOrient);
+        meterOrientListener.setInterval(numMolecules);                                      
+        sim.integratorTarg.getEventManager().addListener(meterOrientListener);    
+        
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();     
         System.out.println("equilibration finished");
@@ -168,6 +174,7 @@ public class SimDirectBetaN2RP extends Simulation {
 
         double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+        meterOrient.writeUdistribution("rotDistA"+angle[0]);
         
         System.out.println("boltzmann average "+angle[0] +" to "+angle[1]+": " + average + " ;err: " + error);
         
@@ -180,6 +187,10 @@ public class SimDirectBetaN2RP extends Simulation {
     private static final long serialVersionUID = 1L;
     protected ActivityIntegrate activityIntegrate;
     protected AccumulatorAverageFixed boltzmannAverage;
+    protected Box boxTarg;
+    protected SpeciesN2 species;
+    protected CoordinateDefinitionNitrogen coordinateDefTarg;
+    protected IntegratorMC integratorTarg;
     
     /**
      * Inner class for parameters understood by the SimOverlapBetaN2RP constructor
@@ -187,9 +198,9 @@ public class SimDirectBetaN2RP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 128;
         public double density = 0.025;
-        public double[] angle = new double[]{40, 38};
+        public double[] angle = new double[]{86, 85.5};
         public int D = 3;
-        public long numSteps =300000;
+        public long numSteps =500000;
         public double temperature = 40;
     }
 }
