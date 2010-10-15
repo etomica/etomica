@@ -15,7 +15,6 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
@@ -88,34 +87,44 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		pRotConstraintTarg.setConstraintAngle(angle);
 		
 		potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
-		potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
+		//potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
 		
 		MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg, getRandom(),space);
 		moveTarg.setBox(boxTarg);
 		moveTarg.setPotential(potentialTarg);
 		
-		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
-		rotateTarg.setBox(boxTarg);
+//		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
+//		rotateTarg.setBox(boxTarg);
+		
+		MCMoveRotateMolecule3DConstraint rotateConst
+		= new MCMoveRotateMolecule3DConstraint(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
+		rotateConst.setBox(boxTarg);
 		
         IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
-		integratorTarg.getMoveManager().addMCMove(rotateTarg);
+		//integratorTarg.getMoveManager().addMCMove(rotateTarg);
+        integratorTarg.getMoveManager().addMCMove(rotateConst);
 	    
 		integratorTarg.setBox(boxTarg);
-		
-	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
-        meterPETarg.setBox(boxTarg);
-        double latticeEnergy = meterPETarg.getDataAsScalar();
-        System.out.println("lattice energy per mol(Kelvin): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
-        System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
+
         
         // Reference System
 		potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
-        MeterRotPerturbMolecule meterBoltzmannRotPerb = new MeterRotPerturbMolecule(integratorTarg, potentialMasterRef, species, space, this, coordinateDefTarg);
-        meterBoltzmannRotPerb.setLatticeEnergy(latticeEnergy);
+		potentialMasterRef.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
+		
+	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
+        meterPERef.setBox(boxTarg);
+        double latticeEnergy = meterPERef.getDataAsScalar();
+        System.out.println("lattice energy per mol(Kelvin): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
+        System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
+		
+		MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
+		
+//        MeterRotPerturbMolecule meterBoltzmannRotPerb = new MeterRotPerturbMolecule(integratorTarg, potentialMasterRef, species, space, this, coordinateDefTarg);
+//        meterBoltzmannRotPerb.setLatticeEnergy(latticeEnergy);
         boltzmannAverage = new AccumulatorAverageFixed(100);
         
-        DataPump boltzmannPump = new DataPump(meterBoltzmannRotPerb, boltzmannAverage);
+        DataPump boltzmannPump = new DataPump(meterBoltzmann, boltzmannAverage);
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);
 
@@ -147,7 +156,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         double temperature = 45; //in UNIT KELVIN
         double density = 0.025;
         double angle = 1.0;
-        long numSteps = 1000;
+        long numSteps = 100000;
         int numMolecules = 432;
 
     	if(args.length > 0){
