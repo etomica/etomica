@@ -162,7 +162,7 @@ public class SimOverlapBetaN2RP extends Simulation {
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorRef, integratorTarg});
 
         etomica.models.nitrogen.MeterBoltzmann meterTarg = new etomica.models.nitrogen.MeterBoltzmann(integratorTarg, meterPERef);
-       meters[1] = meterTarg;
+        meters[1] = meterTarg;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, numAlpha, false), 1);
 
         etomica.models.nitrogen.MeterBoltzmann meterRef =  new etomica.models.nitrogen.MeterBoltzmann(integratorRef, meterPETarg);

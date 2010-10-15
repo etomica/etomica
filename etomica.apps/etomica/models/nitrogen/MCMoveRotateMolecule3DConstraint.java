@@ -14,7 +14,6 @@ import etomica.space.ISpace;
 import etomica.space.RotationTensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
-import etomica.units.Degree;
 
 
 /**
