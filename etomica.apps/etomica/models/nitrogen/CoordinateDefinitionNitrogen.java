@@ -813,7 +813,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    		 *  Free Rotor
 	    		 */
 	        	if((Math.abs(u3) > (Math.sqrt(2)+1e-10) || Math.abs(u4) > (Math.sqrt(2)+1e-10)) 
-	        			&& (check > 3.99999999)){
+	        			&& (check > 4.0)){
 	        		System.out.println("FREE ROTOR " + u3 + " " + u4);
 	        		throw new RuntimeException("<CoordinateDefinitionNitrogen> in setToU method");
 //	        		double randU3 = random.nextDouble()*Math.sqrt(2);
