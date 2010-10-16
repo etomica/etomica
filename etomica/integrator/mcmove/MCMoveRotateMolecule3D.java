@@ -16,10 +16,6 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     protected transient IVectorMutable r0;
     protected transient RotationTensor rotationTensor;
     protected IAtomPositionDefinition positionDefinition;
-    public int count;
-    public int count1;
-    public boolean flag = false;
-    public boolean flag1 = false;
     
     public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random,
     		                      ISpace _space) {
@@ -37,10 +33,10 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
         molecule = moleculeSource.getMolecule();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
+        
         if(Double.isInfinite(uOld)) {
             throw new RuntimeException("Overlap in initial state");
         }
-        
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
 
