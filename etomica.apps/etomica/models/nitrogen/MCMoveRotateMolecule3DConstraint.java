@@ -78,14 +78,14 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
         if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
         int iMolecule = random.nextInt(box.getMoleculeList().getMoleculeCount());
         
+        molecule = coordinateDef.getBox().getMoleculeList().getMolecule(iMolecule);
+        r0.E(positionDefinition.position(molecule));
+        
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(uOld)) {
             throw new RuntimeException("Overlap in initial state");
         }
-        
-        molecule = coordinateDef.getBox().getMoleculeList().getMolecule(iMolecule);
-        r0.E(positionDefinition.position(molecule));
         
         IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
 		IVectorMutable leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
