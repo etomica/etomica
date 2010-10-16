@@ -76,7 +76,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
         if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
-        int iMolecule = 0;//random.nextInt(box.getMoleculeList().getMoleculeCount());
+        int iMolecule = random.nextInt(box.getMoleculeList().getMoleculeCount());
         
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
