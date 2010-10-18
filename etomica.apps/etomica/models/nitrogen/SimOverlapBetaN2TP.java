@@ -25,7 +25,6 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
@@ -96,12 +95,12 @@ public class SimOverlapBetaN2TP extends Simulation {
 		potential.setBox(box);
 
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(1);
+		pRotConstraint.setConstraintAngle(1.0);
 		
 		potentialMaster = new PotentialMaster();
 		//potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		if(scaleRot){potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );}
+		if(isBeta && !scaleRot){potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );}
 		
 //	    int cellRange = 6;
 //        potentialMaster.setRange(rc);
@@ -120,12 +119,12 @@ public class SimOverlapBetaN2TP extends Simulation {
 		move.setBox(box);
 		move.setPotential(potential);
 		
-		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+		rotate = new MCMoveRotateMolecule3DN2(potentialMaster, getRandom(), space, coordinateDef, box, 1.0);
 		rotate.setBox(box);
 			
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
 		integrator.getMoveManager().addMCMove(move);
-		if(isBetaHCP|| scaleRot){integrator.getMoveManager().addMCMove(rotate);}
+		integrator.getMoveManager().addMCMove(rotate);
 		integrator.setBox(box);
 		
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
@@ -286,6 +285,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         sim.getController().actionPerformed();
         
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);
+        System.out.println("Times of hitting wall("+sim.rotate.getAngle()+"): " + sim.rotate.getCounter());
         sim.writeConfiguration(configFileName);
         System.out.println("\nratio averages:\n");
 
@@ -353,6 +353,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected P2Nitrogen potential;
     protected PRotConstraint pRotConstraint;
+    protected MCMoveRotateMolecule3DN2 rotate;
     
     /**
      * Inner class for parameters understood by the SimOverlapBetaN2TP constructor
@@ -361,13 +362,13 @@ public class SimOverlapBetaN2TP extends Simulation {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
-        public double temperature = 1.0; // in unit Kelvin
+        public double temperature = 0.001; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{1.5};
+        public double[] otherTemperatures = new double[]{0.002};
         public boolean isBeta = true;
         public boolean isBetaHCP = false;
-        public boolean scaleRot = false;
+        public boolean scaleRot = true;
     }
 }
