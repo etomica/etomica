@@ -41,10 +41,12 @@ public class MeterOverlap implements IEtomicaDataSource {
     
     public DataDoubleArray getData(){
         double[] eAeB = dda.getData();
-        
-        eAeB[1] = Math.exp(-(dataSourceB.getDataAsScalar() - dsBBase)/temperature)  
-                / Math.exp(-(dataSourceA.getDataAsScalar() - dsABase)/temperature);
         eAeB[0] = 1.0;
+        
+        double numerator = -(dataSourceB.getDataAsScalar() - dsBBase);
+        double denominator = -(dataSourceA.getDataAsScalar() - dsABase);
+        double power = (numerator - denominator) / temperature;
+        eAeB[1] = Math.exp(power);
         
         return dda;
     }
