@@ -7,9 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -25,7 +25,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
@@ -47,6 +46,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -485,7 +485,6 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         String inputFile = params.inputFile;
         double temperature = params.temperature;
         int runNumSteps = params.numSteps;
-        int runBlockSize = params.runBlockSize;
         int subBlockSize = params.subBlockSize;
         int eqNumSteps = params.eqNumSteps;
         int benNumSteps = params.bennettNumSteps;
@@ -503,6 +502,13 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         nTargA *= 4;    //definitely fcc
         
         filename = filename + "_" + nRefA + "_" + nTargA + "_" + temperature;
+        
+        
+        
+        //        int numberOfBlocks = params.numberOfBlocks;
+//        int runNumSteps = nTargA * runBlockSize * numberOfBlocks * 2;
+        int runBlockSize = runNumSteps / nTargA /100;
+        
         
         // instantiate simulation
         SimDifferentImageSsFccDoubleSize sim = new SimDifferentImageSsFccDoubleSize(
@@ -621,10 +627,8 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         public String inputFile = "inputSSDB_DS";
         public String filename = "output";
         
-        public int numSteps = 10000000;
-        public int runBlockSize = 10000;
+        public int numSteps = 1000000;     //overall # of steps of subintegrators
         public int subBlockSize = 10000;    //# of steps in subintegrator per integrator step
-        
         public int eqNumSteps = 100000;  
         public int bennettNumSteps = 50000;
     }
