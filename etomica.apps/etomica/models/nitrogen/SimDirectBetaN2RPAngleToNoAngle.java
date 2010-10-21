@@ -8,6 +8,7 @@ import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -20,9 +21,11 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
+import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -38,11 +41,14 @@ import etomica.units.Kelvin;
  */
 public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 
-    public SimDirectBetaN2RPAngleToNoAngle(Space space, int numMolecules, double density, double temperature, double angle) {
+    public SimDirectBetaN2RPAngleToNoAngle(Space space, int numMolecules, double density, double temperature, double angle, long numSteps) {
         super(space);
         
-        PotentialMaster potentialMasterTarg = new PotentialMaster();
-        PotentialMaster potentialMasterRef = new PotentialMaster();
+        BoxAgentSourceCellManagerListMolecular boxAgentSourceTarg = new BoxAgentSourceCellManagerListMolecular(this, null, space);
+        BoxAgentManager boxAgentManagerTarg = new BoxAgentManager(boxAgentSourceTarg);
+ 
+        BoxAgentSourceCellManagerListMolecular boxAgentSourceRef = new BoxAgentSourceCellManagerListMolecular(this, null, space);
+        BoxAgentManager boxAgentManagerRef = new BoxAgentManager(boxAgentSourceRef);
         
         SpeciesN2 species = new SpeciesN2(space);
 		addSpecies(species);
@@ -86,16 +92,18 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		PRotConstraint pRotConstraintTarg = new PRotConstraint(space,coordinateDefTarg, boxTarg);
 		pRotConstraintTarg.setConstraintAngle(angle);
 		
+		PotentialMasterListMolecular potentialMasterTarg = 
+			new PotentialMasterListMolecular(this, rc, boxAgentSourceTarg, boxAgentManagerTarg, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 		potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
 		//potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
-		
+	       
 		MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg, getRandom(),space);
 		moveTarg.setBox(boxTarg);
 		moveTarg.setPotential(potentialTarg);
+		moveTarg.setDoExcludeNonNeighbors(true);
 		
 //		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
 //		rotateTarg.setBox(boxTarg);
-		
 		MCMoveRotateMolecule3DConstraint rotateConst
 		= new MCMoveRotateMolecule3DConstraint(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
 		rotateConst.setBox(boxTarg);
@@ -107,22 +115,40 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 	    
 		integratorTarg.setBox(boxTarg);
 
-        
         // Reference System
+		PotentialMasterListMolecular potentialMasterRef = 
+			new PotentialMasterListMolecular(this, rc, boxAgentSourceRef, boxAgentManagerRef, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 		potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
 		potentialMasterRef.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
 		
+		int cellRange = 6;
+	    potentialMasterTarg.setRange(rc);
+	    potentialMasterTarg.setCellRange(cellRange); 
+	    potentialMasterTarg.getNeighborManager(boxTarg).reset();
+	        
+//	    int potentialCells = potentialMasterTarg.getNbrCellManager(boxTarg).getLattice().getSize()[0];
+//	    if (potentialCells < cellRange*2+1) {
+//	      throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+//	    }
+	    potentialMasterRef.setRange(rc);
+	    potentialMasterRef.setCellRange(cellRange); 
+	    potentialMasterRef.getNeighborManager(boxTarg).reset();
+	     
 	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
         meterPERef.setBox(boxTarg);
         double latticeEnergy = meterPERef.getDataAsScalar();
-        System.out.println("lattice energy per mol(Kelvin): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
         System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
 		
 		MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
 		
 //        MeterRotPerturbMolecule meterBoltzmannRotPerb = new MeterRotPerturbMolecule(integratorTarg, potentialMasterRef, species, space, this, coordinateDefTarg);
 //        meterBoltzmannRotPerb.setLatticeEnergy(latticeEnergy);
-        boltzmannAverage = new AccumulatorAverageFixed(100);
+		int numBlock = 100;
+		int interval = numMolecules;
+		long blockSize = numSteps/(numBlock*interval);
+        if (blockSize == 0) blockSize = 1;
+        System.out.println("block size "+blockSize+" interval "+interval);
+        boltzmannAverage = new AccumulatorAverageFixed(blockSize);
         
         DataPump boltzmannPump = new DataPump(meterBoltzmann, boltzmannAverage);
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
@@ -155,7 +181,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 
         double temperature = 45; //in UNIT KELVIN
         double density = 0.025;
-        double angle = 1.0;
+        double angle = 0.05;
         long numSteps = 100000;
         int numMolecules = 432;
 
@@ -178,10 +204,10 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 	        
         System.out.println("Running beta-phase Nitrogen RP direct sampling simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
-        System.out.println("perturbing from angle =" + angle + " into no rotational d.o.f.");
+        System.out.println("perturbing from no rotational energy into rotational dof of angle= "+angle);
         System.out.println("with numStep of "+ numSteps);
         
-        SimDirectBetaN2RPAngleToNoAngle sim = new SimDirectBetaN2RPAngleToNoAngle(Space.getInstance(3), numMolecules, density, Kelvin.UNIT.toSim(temperature), angle);
+        SimDirectBetaN2RPAngleToNoAngle sim = new SimDirectBetaN2RPAngleToNoAngle(Space.getInstance(3), numMolecules, density, Kelvin.UNIT.toSim(temperature), angle, numSteps);
 
         
         File configFile = new File(configFileName+".pos");
@@ -206,8 +232,10 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         sim.writeConfiguration(configFileName);
         double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+        double blockCorrelation = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
         
-        System.out.println("boltzmann average: " + average + " ;err: " + error);
+        System.out.println("blockCorrelation: " + blockCorrelation);
+        System.out.println("boltzmann average: " + average + " ;err: " + error +" ;errC: "+ error*Math.sqrt((1+blockCorrelation)/(1-blockCorrelation)));
         
         long endTime = System.currentTimeMillis();
         System.out.println("\nEnd Time: " + endTime);
