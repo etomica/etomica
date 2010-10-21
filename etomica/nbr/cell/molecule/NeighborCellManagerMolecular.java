@@ -209,7 +209,6 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         
         IMoleculeList moleculeList = box.getMoleculeList();
         int count = moleculeList.getMoleculeCount();
-        System.out.println("<NeighborCellManagerMolecular> count: " + count);
         for (int i=0; i<count; i++) {
             IMolecule molecule = moleculeList.getMolecule(i);
             assignCell(molecule);
