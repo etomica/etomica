@@ -178,7 +178,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
                     // box was too small for the potentials too.  doh.
                     // Perhaps the direction is not periodic or we're in the middle
                     // of multiple changes which will (in the end) be happy.
-                    System.err.println("<NeighborCellManagerMolecular> range is greater than half the box length in direction "+i);
+                    System.err.println("<NeighborCellManagerMolecular> range is greater than half the box length in direction "+i + "; " + dimensions.getX(i)/2);
                 }
             }
             latticeNeedsUpdate = latticeNeedsUpdate || oldSize[i] != numCells[i];
@@ -209,6 +209,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         
         IMoleculeList moleculeList = box.getMoleculeList();
         int count = moleculeList.getMoleculeCount();
+        System.out.println("<NeighborCellManagerMolecular> count: " + count);
         for (int i=0; i<count; i++) {
             IMolecule molecule = moleculeList.getMolecule(i);
             assignCell(molecule);
