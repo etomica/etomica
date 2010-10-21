@@ -43,7 +43,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected final AtomArrayList affectedMoleculeList;
     protected final AtomActionTranslateBy singleAction;
     protected final MoleculePair pair;
-    protected IPotentialMolecular potential;
+    protected IPotentialMolecular pairPotential;
     protected boolean doExcludeNonNeighbors, doIncludePair;
     
     public MCMoveMoleculeCoupled(IPotentialMaster potentialMaster, IRandom nRandom,
@@ -75,7 +75,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     }
     
     public void setPotential(IPotentialMolecular newPotential){
-        potential = newPotential;
+        pairPotential = newPotential;
     }
     
     public AtomIterator affectedAtoms() {
@@ -109,6 +109,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         doIncludePair = true;
         
         if (doExcludeNonNeighbors && potential instanceof PotentialMasterListMolecular) {
+        	System.out.println("SHIT!");
+        	System.exit(1);
             doIncludePair = false;
             IMoleculeList[] list0 = ((PotentialMasterListMolecular)potential).getNeighborManager(box).getDownList(molecule0);
             for (int i=0; i<list0.length; i++) {
@@ -129,7 +131,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         }
         
         if(doIncludePair){
-        	uOld -= potential.energy(pair);
+        	uOld -= pairPotential.energy(pair);
         }
              
         if(uOld > 1e10){
@@ -154,7 +156,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         energyMeter.setTarget(molecule0);
         uNew += energyMeter.getDataAsScalar();
         if(!Double.isInfinite(uNew) && doIncludePair){
-            uNew -= potential.energy(pair);
+            uNew -= pairPotential.energy(pair);
         }
         
         return -(uNew - uOld);
