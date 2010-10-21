@@ -91,12 +91,12 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
         IVectorMutable offset = lattice.getSpace().makeVector();
-        IVector[] primitiveVectors = primitive.vectors();
-        for (int i=0; i<primitiveVectors.length; i++) {
-            offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
-        }
-        
-        offset.TE(-0.5);
+//        IVector[] primitiveVectors = primitive.vectors();
+//        for (int i=0; i<primitiveVectors.length; i++) {
+//            offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
+//        }
+//        
+//        offset.TE(-0.5);
         
         IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(space.D()+1);
         int[] iteratorDimensions = new int[space.D()+1];
@@ -121,6 +121,26 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         	configuration.initializeCoordinates(box);
         }
 
+        //Scale the lattice offset 
+        IVectorMutable vectorOfMax = space.makeVector();
+        IVectorMutable vectorOfMin = space.makeVector();
+        IVectorMutable site = space.makeVector();
+        vectorOfMax.E(Double.NEGATIVE_INFINITY);
+        vectorOfMin.E(Double.POSITIVE_INFINITY);
+        
+        while (indexIterator.hasNext()) {
+            site.E((IVectorMutable) lattice.site(indexIterator.next()));
+            for (int i=0; i<site.getD(); i++) {
+                vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
+                vectorOfMin.setX(i, Math.min(site.getX(i),vectorOfMin.getX(i)));
+            }
+        }
+        offset.Ev1Mv2(vectorOfMax, vectorOfMin);
+        offset.TE(-0.5);
+        offset.ME(vectorOfMin);
+        
+        
+        indexIterator.reset();
         
         /*
          * this initialization only applied to beta phase crystal
@@ -240,6 +260,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             
             position.E((IVectorMutable)lattice.site(ii));
             position.PE(offset);
+            
             if (configuration == null) {
                 atomActionTranslateTo.setDestination(position);
                 atomActionTranslateTo.actionPerformed(molecule);
@@ -641,15 +662,9 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             			
         		}
         		
-        	   	IVectorMutable molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-        	   	IVectorMutable molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
-        	 
         	  	IVectorMutable mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
         	   	IVectorMutable mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
-        	   	
-        	   	orientation[0].Ev1Mv2(molleafPos1, molleafPos0);
-        	    orientation[0].normalize();
-      
+        	   	      
         	    orientationMol2.Ev1Mv2(mol2leafPos1, mol2leafPos0);
         	    orientationMol2.normalize();
         	    
@@ -758,7 +773,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	 * b.
 		    	 */
 		    	
-		    	if (Math.abs(angle) > 1e-7){ // make sure we DO NOT cross-product vectors with very small angle
+		    	if (Math.abs(angle) > 5e-8){ // make sure we DO NOT cross-product vectors with very small angle
 		    		rotationAxis.E(axis);
 			    	rotationAxis.XE(siteOrientation[0]);
 			    	rotationAxis.normalize();
