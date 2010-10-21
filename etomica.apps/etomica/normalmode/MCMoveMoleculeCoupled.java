@@ -109,8 +109,6 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         doIncludePair = true;
         
         if (doExcludeNonNeighbors && potential instanceof PotentialMasterListMolecular) {
-        	System.out.println("SHIT!");
-        	System.exit(1);
             doIncludePair = false;
             IMoleculeList[] list0 = ((PotentialMasterListMolecular)potential).getNeighborManager(box).getDownList(molecule0);
             for (int i=0; i<list0.length; i++) {
