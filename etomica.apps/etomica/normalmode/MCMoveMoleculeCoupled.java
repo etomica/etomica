@@ -4,10 +4,12 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IRandom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculePair;
 import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
@@ -16,6 +18,7 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 
@@ -24,6 +27,7 @@ import etomica.space.IVectorRandom;
  * time in such a way that the geometric center of the system is not changed.
  *
  * @author Nancy Cribbin
+ * 	       Tai Boon Tan
  */
 public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
 
@@ -40,6 +44,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     protected final AtomActionTranslateBy singleAction;
     protected final MoleculePair pair;
     protected IPotentialMolecular potential;
+    protected boolean doExcludeNonNeighbors, doIncludePair;
     
     public MCMoveMoleculeCoupled(IPotentialMaster potentialMaster, IRandom nRandom,
     		                     ISpace _space){
@@ -60,7 +65,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         pair = new MoleculePair();
         
         perParticleFrequency = true;
-        energyMeter.setIncludeLrc(false);
+        //energyMeter.setIncludeLrc(false);
     }
 
     public void setBox(IBox newBox) {
@@ -100,9 +105,31 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         uOld = energyMeter.getDataAsScalar();
         energyMeter.setTarget(molecule1);
         uOld += energyMeter.getDataAsScalar();
-        uOld -= potential.energy(pair);
         
+        if (doExcludeNonNeighbors && potential instanceof PotentialMasterListMolecular) {
+            doIncludePair = false;
+            IMoleculeList[] list0 = ((PotentialMasterListMolecular)potential).getNeighborManager(box).getDownList(molecule0);
+            for (int i=0; i<list0.length; i++) {
+                if (((MoleculeArrayList)list0[i]).indexOf(molecule1)>-1) {
+                    doIncludePair = true;
+                    break;
+                }
+            }
+            if (!doIncludePair) {
+                list0 = ((PotentialMasterListMolecular)potential).getNeighborManager(box).getUpList(molecule0);
+                for (int i=0; i<list0.length; i++) {
+                    if (((MoleculeArrayList)list0[i]).indexOf(molecule1)>-1) {
+                        doIncludePair = true;
+                        break;
+                    }
+                }
+            }
+        }
         
+        if(doIncludePair){
+        	uOld -= potential.energy(pair);
+        }
+             
         if(uOld > 1e10){
             throw new ConfigurationOverlapException(box);
         }
@@ -112,19 +139,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         moveMoleculeAction.actionPerformed(molecule0);
         groupTransVect.TE(-1.0);
         moveMoleculeAction.actionPerformed(molecule1);
-        
-        energyMeter.setTarget(molecule0);
-        uNew = energyMeter.getDataAsScalar();
-        energyMeter.setTarget(molecule1);
-        uNew += energyMeter.getDataAsScalar();
-        /*
-         * Because we have uNew is infinity, and we don't want to have to 
-         * worry about the system subtracting infinity from infinity, and
-         * setting uNew equal to zero, and accepting the move.
-         */
-        if(Double.isInfinite(uNew)) {return true;}  
-        uNew -= potential.energy(pair);
-        
+    
         return true;
     }
 
@@ -133,6 +148,13 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
     }
 
     public double getB() {
+        uNew = energyMeter.getDataAsScalar();
+        energyMeter.setTarget(molecule0);
+        uNew += energyMeter.getDataAsScalar();
+        if(!Double.isInfinite(uNew) && doIncludePair){
+            uNew -= potential.energy(pair);
+        }
+        
         return -(uNew - uOld);
     }
 
@@ -140,6 +162,25 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         moveMoleculeAction.actionPerformed(molecule0);
         groupTransVect.TE(-1.0);
         moveMoleculeAction.actionPerformed(molecule1);
+    }
+    
+    /**
+     * Configures the move to not explicitly calculate the potential for atom
+     * pairs that are not neighbors (as determined by the potentialMaster).
+     * 
+     * Setting this has an effect only if the potentialMaster is an instance of
+     * PotentialMasterList
+     */
+    public void setDoExcludeNonNeighbors(boolean newDoExcludeNonNeighbors) {
+        doExcludeNonNeighbors = newDoExcludeNonNeighbors;
+    }
+
+    /**
+     * Returns true if the move does not explicitly calculate the potential for
+     * atom pairs that are not neighbors (as determined by the potentialMaster).
+     */
+    public boolean getDoExcludeNonNeighbors() {
+        return doExcludeNonNeighbors;
     }
     
 }
