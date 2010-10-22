@@ -23,6 +23,7 @@ import etomica.nbr.molecule.CriterionSpeciesPair;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
 import etomica.nbr.molecule.PotentialMasterNbrMolecular;
 import etomica.potential.PotentialArrayMolecular;
+import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationMolecular;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
@@ -392,7 +393,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculationMolecular pc) {
+    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IMolecule targetMolecule = id.getTargetMolecule();
         NeighborListManagerMolecular neighborManager = (NeighborListManagerMolecular)neighborListAgentManager.getAgent(box);
@@ -429,8 +430,9 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
     }
     
-    protected void calculate(IMolecule molecule, IteratorDirective.Direction direction, PotentialCalculationMolecular pc, NeighborListManagerMolecular neighborManager) {
-        singletIterator.setMolecule(molecule);
+    protected void calculate(IMolecule molecule, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManagerMolecular neighborManager) {
+    	//System.out.println("here");
+    	singletIterator.setMolecule(molecule);
         PotentialArrayMolecular potentialArray = (PotentialArrayMolecular)rangedAgentManager.getAgent(molecule.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         for(int i=0; i<potentials.length; i++) {
@@ -439,7 +441,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
                 boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(molecule).getInteractingList();
                 if (potential1BodyArray[i]) {
                     moleculeSetSinglet.atom = molecule;
-                    pc.doCalculation(moleculeSetSinglet, (IPotentialMolecular)potentials[i]);
+                    ((PotentialCalculationMolecular)pc).doCalculation(moleculeSetSinglet, (IPotentialMolecular)potentials[i]);
                 }
                 break;
             case 2:
@@ -449,7 +451,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
                     moleculePair.atom0 = molecule;
                     for (int j=0; j<nNeighbors; j++) {
                         moleculePair.atom1 = list.getMolecule(j);
-                        pc.doCalculation(moleculePair, (IPotentialMolecular)potentials[i]);
+                        ((PotentialCalculationMolecular)pc).doCalculation(moleculePair, (IPotentialMolecular)potentials[i]);
                     }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
@@ -458,7 +460,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
                     moleculePair.atom1 = molecule;
                     for (int j=0; j<nNeighbors; j++) {
                         moleculePair.atom0 = list.getMolecule(j);
-                        pc.doCalculation(moleculePair, (IPotentialMolecular)potentials[i]);
+                        ((PotentialCalculationMolecular)pc).doCalculation(moleculePair, (IPotentialMolecular)potentials[i]);
                     }
                 }
                 break;//switch
@@ -493,7 +495,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * Invokes the PotentialCalculationMolecular for the given Molecule with its up and down
      * neighbors as a single MoleculeSet.
      */
-    protected void doNBodyStuff(IMolecule molecule, PotentialCalculationMolecular pc, int potentialIndex, 
+    protected void doNBodyStuff(IMolecule molecule, PotentialCalculation pc, int potentialIndex, 
             IPotentialMolecular potential, NeighborListManagerMolecular neighborManager) {
         moleculeArrayList.add(molecule);
         IMoleculeList[] list = neighborManager.getUpList(molecule);
@@ -504,7 +506,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         if (potentialIndex < list.length) {
             moleculeArrayList.addAll(list[potentialIndex]);
         }
-        pc.doCalculation(moleculeArrayList, potential);
+        ((PotentialCalculationMolecular)pc).doCalculation(moleculeArrayList, potential);
         moleculeArrayList.clear();
     }
 
