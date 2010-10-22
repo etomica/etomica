@@ -7,7 +7,7 @@ import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.space.ISpace;
 
 /**
- * BoxAgentSource responsible for creating a NeighborCellManager.
+ * BoxAgentSource responsible for creating a NeighborCellManagerMolecular.
  *
  * @author Tai Boon Tan
  *
