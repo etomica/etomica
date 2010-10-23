@@ -99,20 +99,17 @@ public class SimOverlapBetaN2TP extends Simulation {
 		//potentialMaster = new PotentialMaster();
 		potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		//potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
-		
+	
 	    int cellRange = 6;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); 
         potentialMaster.getNeighborManager(box).reset();
-        
         potential.setRange(Double.POSITIVE_INFINITY);
         
-        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-        }
-	
+//        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+//        if (potentialCells < cellRange*2+1) {
+//            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+//        }
         int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
         System.out.println("numNeigh: " + numNeigh);
 
@@ -130,11 +127,12 @@ public class SimOverlapBetaN2TP extends Simulation {
 		}
 		integrator.setBox(box);
 		
-		potential.setRange(rc);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule: " + latticeEnergy/numMolecules);
+        
+    	potential.setRange(rc);
         meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
         meter.setCoordinateDefinition(coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
