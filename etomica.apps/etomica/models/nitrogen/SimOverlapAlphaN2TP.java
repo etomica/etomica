@@ -31,7 +31,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -80,7 +79,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 	
-
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
 		pRotConstraint.setConstraintAngle(65);
 		
@@ -94,7 +92,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
         potentialMaster.setCellRange(cellRange); 
         potentialMaster.getNeighborManager(box).reset();
         
-    
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
         if (potentialCells < cellRange*2+1) {
             throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
@@ -134,7 +131,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
         meter.setNumAlpha(numAlpha);
      	potential.setRange(Double.POSITIVE_INFINITY);
  
-        
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);
@@ -217,8 +213,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
         	System.out.print(alpha[i]+" ");
         }
         System.out.println("\n"+numSteps+" steps");
-
-
 
         //instantiate simulation
         final SimOverlapAlphaN2TP sim = new SimOverlapAlphaN2TP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, 

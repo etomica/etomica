@@ -235,18 +235,17 @@ public class SimOverlapBetaN2TP extends Simulation {
         		alpha, numAlpha, alphaSpan, numSteps, isBeta, isBetaHCP);
         //start simulation
 
-//    	File configFile = new File(configFileName+".pos");
-       	File configFile = new File("atestFoo1024.pos");
+    	File configFile = new File(configFileName+".pos");
 		if(configFile.exists()){
 			System.out.println("\n***initialize coordinate from "+ configFile);
-        	sim.initializeConfigFromFile("testFoo432");
+        	sim.initializeConfigFromFile(configFileName);
 		} else {
 			long initStep = (1+(numMolecules/1000))*100*numMolecules;
 			sim.initialize(initStep);
 		}
         System.out.flush();
         
-        if (true) {
+        if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
 //            simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 //		  
