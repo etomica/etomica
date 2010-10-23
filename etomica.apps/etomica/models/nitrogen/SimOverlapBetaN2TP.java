@@ -52,7 +52,7 @@ import etomica.util.ReadParameters;
 public class SimOverlapBetaN2TP extends Simulation {
 
     public SimOverlapBetaN2TP(Space space, int numMolecules, double density, double temperature, double[] otherTemperatures,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, boolean isBeta, boolean isBetaHCP) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, boolean isBeta, boolean isBetaHCP, double rcScale) {
         super(space);
         
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
@@ -90,9 +90,8 @@ public class SimOverlapBetaN2TP extends Simulation {
 		coordinateDef.initializeCoordinates(nCells);
 			
         box.setBoundary(boundary);
-		double rCScale = 0.475;
-		double rc = aDim*nC*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
+		double rc = aDim*nC*rcScale;
+		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rc);
 		potential = new P2Nitrogen(space, rc);
 		potential.setBox(box);
 
@@ -130,7 +129,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy per molecule: " + latticeEnergy/numMolecules);
+        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
         
     	potential.setRange(rc);
         meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
@@ -214,6 +213,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         double alphaSpan = params.alphaSpan;
         boolean isBeta = params.isBeta;
         boolean isBetaHCP = params.isBetaHCP;
+        double rcScale = params.rcScale;
         String configFileName = "configT"+temperature;
         
         System.out.println("Running beta-phase Nitrogen TP overlap simulation");
@@ -232,7 +232,7 @@ public class SimOverlapBetaN2TP extends Simulation {
 
         //instantiate simulation
         final SimOverlapBetaN2TP sim = new SimOverlapBetaN2TP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, 
-        		alpha, numAlpha, alphaSpan, numSteps, isBeta, isBetaHCP);
+        		alpha, numAlpha, alphaSpan, numSteps, isBeta, isBetaHCP, rcScale);
         //start simulation
 
     	File configFile = new File(configFileName+".pos");
@@ -375,5 +375,6 @@ public class SimOverlapBetaN2TP extends Simulation {
         public double[] otherTemperatures = new double[]{0.020};
         public boolean isBeta = true;
         public boolean isBetaHCP = false;
+        public double rcScale = 0.475;
     }
 }
