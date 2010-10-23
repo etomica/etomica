@@ -72,6 +72,10 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
         int boxCount = sim.getBoxCount();
+        if (agentSource == null) {
+            agents = new Object[boxCount];
+            return;
+        }
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),boxCount);
         for (int i=0; i<boxCount; i++) {
             addAgent(sim.getBox(i));
@@ -84,10 +88,14 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
      */
     public void dispose() {
         // remove ourselves as a listener to the old box
-        simEventManager.removeListener(this);
-        for (int i=0; i<agents.length; i++) {
-            if (agents[i] != null) {
-                agentSource.releaseAgent(agents[i]);
+        if (simEventManager != null) {
+            simEventManager.removeListener(this);
+        }
+        if (agentSource != null) {
+            for (int i=0; i<agents.length; i++) {
+                if (agents[i] != null) {
+                    agentSource.releaseAgent(agents[i]);
+                }
             }
         }
         agents = null;
@@ -102,7 +110,9 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
         // The given Box got removed.  The remaining boxes got shifted
         // down.
         int index = box.getIndex();
-        agentSource.releaseAgent(agents[index]);
+        if (agentSource != null) {
+            agentSource.releaseAgent(agents[index]);
+        }
         for (int i=index; i<agents.length-1; i++) {
             agents[i] = agents[i+1];
         }
@@ -118,7 +128,9 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
     
     protected void addAgent(IBox box) {
         agents = Arrays.resizeArray(agents,box.getIndex()+1);
-        agents[box.getIndex()] = agentSource.makeAgent(box);
+        if (agentSource != null) {
+            agents[box.getIndex()] = agentSource.makeAgent(box);
+        }
     }
     
     /**
