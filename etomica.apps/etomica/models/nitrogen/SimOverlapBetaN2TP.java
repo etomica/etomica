@@ -31,9 +31,10 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
+import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -95,42 +96,47 @@ public class SimOverlapBetaN2TP extends Simulation {
 		potential = new P2Nitrogen(space, rc);
 		potential.setBox(box);
 
-		potentialMaster = new PotentialMaster();
-		//potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
+		//potentialMaster = new PotentialMaster();
+		potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		//potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		
-//	    int cellRange = 6;
-//        potentialMaster.setRange(rc);
-//        potentialMaster.setCellRange(cellRange); 
-//        potentialMaster.getNeighborManager(box).reset();
-//        
-//        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-//        if (potentialCells < cellRange*2+1) {
-//            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-//        }
-//	
-//        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-//        System.out.println("numNeigh: " + numNeigh);
-		
+	    int cellRange = 6;
+        potentialMaster.setRange(rc);
+        potentialMaster.setCellRange(cellRange); 
+        potentialMaster.getNeighborManager(box).reset();
+        
+        potential.setRange(Double.POSITIVE_INFINITY);
+        
+        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+        if (potentialCells < cellRange*2+1) {
+            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        }
+	
+        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        System.out.println("numNeigh: " + numNeigh);
+
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
 		move.setPotential(potential);
-		
-		rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-		rotate.setBox(box);
-			
+		move.setDoExcludeNonNeighbors(true);
+
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
 		integrator.getMoveManager().addMCMove(move);
-		if(isBetaHCP){integrator.getMoveManager().addMCMove(rotate);}
+		if(isBetaHCP){
+			rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+			rotate.setBox(box);
+			integrator.getMoveManager().addMCMove(rotate);
+		}
 		integrator.setBox(box);
 		
+		potential.setRange(rc);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
         System.out.println("lattice energy per molecule: " + latticeEnergy/numMolecules);
-        meter = new MeterTargetTPMolecule(potentialMaster, species, space, this, coordinateDef);
+        meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
+        meter.setCoordinateDefinition(coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setBetaPhase(true);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
@@ -138,7 +144,8 @@ public class SimOverlapBetaN2TP extends Simulation {
         meter.setAlpha(alpha);
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
-       
+        potential.setRange(Double.POSITIVE_INFINITY);
+        
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);
@@ -150,7 +157,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         else {
             accumulator = new AccumulatorAverageFixed(blockSize);
         }
-        accumulatorPump = new DataPumpListener(meter, accumulator, interval);
+        accumulatorPump = new DataPumpListener(meter, accumulator, numMolecules);
         integrator.getEventManager().addListener(accumulatorPump);
        
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -230,19 +237,28 @@ public class SimOverlapBetaN2TP extends Simulation {
         		alpha, numAlpha, alphaSpan, numSteps, isBeta, isBetaHCP);
         //start simulation
 
-    	File configFile = new File(configFileName+".pos");
+//    	File configFile = new File(configFileName+".pos");
+       	File configFile = new File("atestFoo1024.pos");
 		if(configFile.exists()){
 			System.out.println("\n***initialize coordinate from "+ configFile);
-        	sim.initializeConfigFromFile(configFileName);
+        	sim.initializeConfigFromFile("testFoo432");
 		} else {
 			long initStep = (1+(numMolecules/1000))*100*numMolecules;
 			sim.initialize(initStep);
 		}
         System.out.flush();
         
-        if (false) {
+        if (true) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
-            simGraphic.setPaintInterval(sim.box, 1000);
+//            simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
+//		  
+//		    DiameterHashByType diameter = new DiameterHashByType(sim);
+//			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
+//			diameter.setDiameter(sim.species.getPType(), 0.0);
+//			
+//			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
+            
+            simGraphic.setPaintInterval(sim.box, 1000);           
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {
                     if (allColors==null) {
@@ -291,7 +307,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     
         	if(otherTemperatures[i] < 10.0){
         		System.out.printf("0"+ "%2.3f\n", otherTemperatures[i]);
-                 
+                       
             } else {
             	System.out.printf("%2.3f\n", otherTemperatures[i]);
             }
@@ -341,7 +357,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     public AccumulatorAverageFixed accumulator;
     public DataPumpListener accumulatorPump;
     public MeterTargetTPMolecule meter;
-    protected PotentialMaster potentialMaster;
+    protected PotentialMasterListMolecular potentialMaster;
     protected double latticeEnergy;
     protected SpeciesN2 species;
     protected CoordinateDefinitionNitrogen coordinateDef;
@@ -354,12 +370,12 @@ public class SimOverlapBetaN2TP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 10000;
-        public double temperature = 0.0001; // in unit Kelvin
+        public long numSteps = 100000;
+        public double temperature = 0.010; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{0.0002};
+        public double[] otherTemperatures = new double[]{0.020};
         public boolean isBeta = true;
         public boolean isBetaHCP = false;
     }

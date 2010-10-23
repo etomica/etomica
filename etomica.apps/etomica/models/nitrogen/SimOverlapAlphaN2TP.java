@@ -1,12 +1,15 @@
 package etomica.models.nitrogen;
 
 import java.awt.Color;
+import java.io.File;
 
+import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.box.Box;
+import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -25,6 +28,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -75,30 +79,34 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rC);
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
+	
 
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
 		pRotConstraint.setConstraintAngle(65);
 		
-		potentialMaster = new PotentialMaster();
+		//potentialMaster = new PotentialMaster();
+		potentialMaster = new PotentialMasterListMolecular(this, space);
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
+		//potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		
-//	    int cellRange = 6;
-//        potentialMaster.setRange(rC);
-//        potentialMaster.setCellRange(cellRange); 
-//        potentialMaster.getNeighborManager(box).reset();
-//        
-//        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-//        if (potentialCells < cellRange*2+1) {
-//            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-//        }
-//	
-//        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-//        System.out.println("numNeigh: " + numNeigh);
-		
+	    int cellRange = 6;
+        potentialMaster.setRange(rC);
+        potentialMaster.setCellRange(cellRange); 
+        potentialMaster.getNeighborManager(box).reset();
+        
+    
+        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+        if (potentialCells < cellRange*2+1) {
+            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        }
+	
+        int numNeigh = potentialMaster.getNeighborManager(box).getDownList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        System.out.println("numNeigh: " + numNeigh);
+
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
 		move.setPotential(potential);
+		move.setDoExcludeNonNeighbors(true);
 		
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
 		rotate.setBox(box);
@@ -108,19 +116,25 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		integrator.getMoveManager().addMCMove(rotate);
 		integrator.setBox(box);
 		
+	   	potential.setRange(Double.POSITIVE_INFINITY);
+		
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
-        
-        meter = new MeterTargetTPMolecule(potentialMaster, species, space, this, coordinateDef);
+		
+     	potential.setRange(rC);
+        meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
+        meter.setCoordinateDefinition(coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
         meter.setOtherTemperatures(otherTemperatures);
         meter.setAlpha(alpha);
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
-       
+     	potential.setRange(Double.POSITIVE_INFINITY);
+ 
+        
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);
@@ -151,6 +165,20 @@ public class SimOverlapAlphaN2TP extends Simulation {
 
     }
     
+    public void initializeConfigFromFile(String fname){
+        ConfigurationFile config = new ConfigurationFile(fname);
+        config.initializeCoordinates(box);
+    }
+    
+    public void writeConfiguration(String fname){
+        WriteConfiguration writeConfig = new WriteConfiguration(space);
+        writeConfig.setBox(box);
+        writeConfig.setDoApplyPBC(false);
+        writeConfig.setConfName(fname);
+        writeConfig.actionPerformed();
+        System.out.println("\n***output configFile: "+ fname);
+    }
+    
     /**
      * @param args filename containing simulation parameters
      * @see SimOverlapAlphaN2TP.SimOverlapParam
@@ -176,6 +204,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
         double rcScale = params.rcScale;
+        String configFileName = "configT"+temperature;
         
         System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
@@ -194,6 +223,18 @@ public class SimOverlapAlphaN2TP extends Simulation {
         //instantiate simulation
         final SimOverlapAlphaN2TP sim = new SimOverlapAlphaN2TP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, 
         		alpha, numAlpha, alphaSpan, numSteps, rcScale);
+        
+        //start simulation
+        File configFile = new File(configFileName+".pos");
+		if(configFile.exists()){
+			System.out.println("\n***initialize coordinate from "+ configFile);
+        	sim.initializeConfigFromFile(configFileName);
+		} else {
+	        long initStep = (1+(numMolecules/1000))*100*numMolecules;
+	        sim.initialize(initStep);
+		}
+		System.out.flush();
+	        
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -227,11 +268,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
             return;
         }
 
-        //start simulation
 
-        long initStep = (1+(numMolecules/1000))*100*numMolecules;
-        sim.initialize(initStep);
-        System.out.flush();
         
         final long startTime = System.currentTimeMillis();
        
@@ -240,6 +277,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);
+        sim.writeConfiguration(configFileName);
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
@@ -299,7 +337,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
     public AccumulatorAverageFixed accumulator;
     public DataPumpListener accumulatorPump;
     public MeterTargetTPMolecule meter;
-    protected PotentialMaster potentialMaster;
+    protected PotentialMasterListMolecular potentialMaster;
     protected double latticeEnergy;
     protected SpeciesN2 species;
     protected CoordinateDefinitionNitrogen coordinateDef;
@@ -313,11 +351,11 @@ public class SimOverlapAlphaN2TP extends Simulation {
         public int numMolecules = 256;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 1000;
-        public double temperature = 5.0; // in unit Kelvin
-        public double[] alpha = new double[]{1.0, 1.0};
+        public double temperature = 0.01; // in unit Kelvin
+        public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{4.566, 6.0};
+        public double[] otherTemperatures = new double[]{0.02};
         public double rcScale = 0.475;
     }
 }

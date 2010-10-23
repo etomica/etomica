@@ -1,5 +1,8 @@
 package etomica.models.nitrogen;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
@@ -7,10 +10,12 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -21,9 +26,11 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
+import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -47,19 +54,23 @@ import etomica.units.Pixel;
 public class SimulationBetaNitrogenModel extends Simulation{
 
 	
-	public SimulationBetaNitrogenModel(ISpace space, int[] nC, double temperature, double pressure, double newScale, double density) {
+	public SimulationBetaNitrogenModel(ISpace space, int numMolecule, double temperature, double pressure, double newScale, double density) {
 		super(space);
 		this.space = space;
+		
+		BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
+	    BoxAgentManager boxAgentManager = new BoxAgentManager(boxAgentSource);
+	     
 		
     	double ratio = 1.631;
 		double a = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double c = a*ratio;
-		System.out.println("\n\na: " + a + " ;cDim: " + c);
-		int numMolecule = nC[0]*nC[1]*nC[2]*2;
+		System.out.println("\na: " + a + " ;cDim: " + c);
 	
-		potentialMaster = new PotentialMaster();
+		int nC = (int)Math.pow(numMolecule/1.999999999, 1.0/3.0);
+	
 		Basis basisHCP = new BasisHcp();
-		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC[0], nC[1], nC[2]});
+		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
 		
 		species = new SpeciesN2(space);
 		addSpecies(species);
@@ -70,12 +81,12 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		int [] nCells = new int[]{1,1,1};
 		
 		IVector[] boxDim = new IVector[3];
-		boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC[1]*a*Math.cos(Degree.UNIT.toSim(60)), nC[1]*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*c});
+		boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
+		boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = space.makeVector(new double[]{0, 0, nC*c});
 		
 		Boundary boundary = new BoundaryDeformablePeriodic(space,boxDim);
-		primitive = new PrimitiveHexagonal(space, (nC[0])*a, nC[2]*c);
+		primitive = new PrimitiveHexagonal(space, (nC)*a, nC*c);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBeta();
@@ -83,14 +94,14 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 
 		box.setBoundary(boundary);
-		double rC = a*nC[0]*0.475;
+		double rC = a*nC*0.475;
 		System.out.println("Truncation Radius: " + rC);
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 		
 		PRotConstraint pRot= new PRotConstraint(space, coordinateDef, box);
 		pRot.setBox(box);
-		pRot.setConstraintAngle(70);
+		pRot.setConstraintAngle(0.1);
 		
 		BoxInflate boxInflate = new BoxInflate(box, space);
 		boxInflate.setScale(newScale);
@@ -99,8 +110,26 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //		ConfigurationFile configFile = new ConfigurationFile("configFile"+numMolecule);
 //		configFile.initializeCoordinates(box);
 		
+		//potentialMaster = new PotentialMaster();
+		potentialMaster = new PotentialMasterListMolecular(this, rC, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rC, space), space);
+	    
+		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		potentialMaster.addPotential(pRot, new ISpecies[]{species});
+		//potentialMaster.addPotential(pRot, new ISpecies[]{species});
+		
+	    int cellRange = 6;
+      potentialMaster.setRange(rC);
+      potentialMaster.setCellRange(cellRange); 
+      potentialMaster.getNeighborManager(box).reset();
+      
+      potential.setRange(Double.POSITIVE_INFINITY);
+      int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+      if (potentialCells < cellRange*2+1) {
+          throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+      }
+	
+      int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+      System.out.println("numNeigh: " + numNeigh);
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
@@ -116,9 +145,29 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 		integrator = new IntegratorMC(this, potentialMaster);
 		integrator.getMoveManager().addMCMove(move);
-		integrator.getMoveManager().addMCMove(rotate);
+		//integrator.getMoveManager().addMCMove(rotate);
 		//integrator.getMoveManager().addMCMove(mcMoveVolume);
 		integrator.setBox(box);
+		
+//		NormalModesFromFile nm = new NormalModesFromFile("beta"+numMolecule+"_2ndDer_d"+density, 3);
+//		MeterHarmonicEnergy meterHarm = new MeterHarmonicEnergy(coordinateDef, nm);
+//		
+//		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+//		meterPE.setBox(box);
+//		double latticeEnergy = meterPE.getDataAsScalar();
+//		double[] u = new double[coordinateDef.getCoordinateDim()];
+//		
+//		for (double i=-0.5; i<=0.51; i+=0.01){
+//			u[0] = i;
+//			coordinateDef.setToU(box.getMoleculeList(), u);
+//			double pe = meterPE.getDataAsScalar();
+//			double he = meterHarm.getDataAsScalar();
+//			System.out.println(i+" "+ (pe-latticeEnergy)/numMolecule + " " + he/numMolecule);
+//		}
+//		
+//		System.exit(1);
+//		
+		
 		
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 		
@@ -128,14 +177,12 @@ public class SimulationBetaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int nC0 =6; 
-		int nC1 =6; 
-		int nC2 =6;
-		double temperature =40; // in Unit Kelvin
+		double temperature =1; // in Unit Kelvin
 		double pressure = 0.0; //in Unit GPa
 		long simSteps = 100000;
 		double newScale = 1.0;
 		double density = 0.025;
+		int numMolecule = 6*6*6*2;
 		if(args.length > 1){
 			simSteps = Long.parseLong(args[1]);
 		}
@@ -143,25 +190,9 @@ public class SimulationBetaNitrogenModel extends Simulation{
 			temperature = Double.parseDouble(args[2]);
 		}
 		if(args.length > 3){
-			pressure = Double.parseDouble(args[3]);
+			numMolecule = Integer.parseInt(args[3]);
 		}
-		if(args.length > 4){
-			nC0 = Integer.parseInt(args[4]);
-		}
-		if(args.length > 5){
-			nC1 = Integer.parseInt(args[5]);
-		}
-		if(args.length > 6){
-			nC2 = Integer.parseInt(args[6]);
-		}
-		if(args.length > 7){
-			newScale = Double.parseDouble(args[7]);
-		}
-		
-		int[] nC = new int []{nC0,nC1,nC2};
-		int numMolecule =nC[0]*nC[1]*nC[2]*2;
-		
-		String filename = "betaN2_nA"+numMolecule+"_T"+Math.round(temperature);
+		String filename = "betaN2_nA"+numMolecule+"_T"+temperature;
 		
 		if(args.length > 0){
 			filename = args[0];
@@ -173,11 +204,14 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		System.out.println("Output file: " + filename + "\n");
 
 		
-		SimulationBetaNitrogenModel sim = new SimulationBetaNitrogenModel(Space3D.getInstance(3), nC, temperature, pressure, newScale, density);
+		SimulationBetaNitrogenModel sim = new SimulationBetaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, pressure, newScale, density);
 	    
 		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
-		System.out.println("Lattice Energy (per molecule): "+ meterPotentialEnergy.getDataAsScalar());
+		final double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
+		System.out.println("Lattice Energy (per molecule): "+ latticeEnergy/numMolecule);
+		//System.exit(1);
+		System.out.println("Lattice Energy: "+ latticeEnergy);
 		//System.exit(1);
 		
 		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
@@ -200,7 +234,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //		System.out.println("Static Pressure (GPa): " + Pascal.UNIT.fromSim(staticPressure)/1e9);
 		
 		
-		if(true){
+		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
@@ -214,19 +248,24 @@ public class SimulationBetaNitrogenModel extends Simulation{
 			IAction output = new IAction(){
 
 				public void actionPerformed() {
-					System.out.println("energy: " + (meterPotentialEnergy.getDataAsScalar()+329916.40502540825));
+					System.out.println("energy: " + (meterPotentialEnergy.getDataAsScalar()-latticeEnergy));
 					
 				}
 				
 			};
 			
-//			IntegratorListenerAction outListener = new IntegratorListenerAction(output);
-//			outListener.setInterval(numMolecule);
-//			sim.integrator.getEventManager().addListener(outListener);
+			IntegratorListenerAction outListener = new IntegratorListenerAction(output);
+			outListener.setInterval(numMolecule);
+			sim.integrator.getEventManager().addListener(outListener);
 			return;
 		}
 		
-		sim.activityIntegrate.setMaxSteps(simSteps/5);
+//		MeterOrientationDistribution meterOrient = new MeterOrientationDistribution(sim.box, sim.coordinateDef, sim.species);
+//        IntegratorListenerAction meterOrientListener = new IntegratorListenerAction(meterOrient);
+//        meterOrientListener.setInterval(numMolecule);                                      
+//        sim.integrator.getEventManager().addListener(meterOrientListener);       
+		
+        sim.activityIntegrate.setMaxSteps(simSteps/5);
 		sim.getController().actionPerformed();
 		System.out.println("****System Equilibrated (20% of SimSteps)****");
 		
@@ -239,6 +278,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		sim.activityIntegrate.setMaxSteps(simSteps);
 		sim.getController().actionPerformed();
 		
+//		sim.writeUdistribution(filename, meterOrient);
 		
 		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
@@ -251,11 +291,6 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //		System.out.println("Average pressure (GPa): " + Pascal.UNIT.fromSim(averagePressure)/1e9 
 //				+ " ;error: " + Pascal.UNIT.fromSim(errorPressure)/1e9);
 
-		double  a = sim.box.getBoundary().getEdgeVector(0).getX(0)/nC0;
-		double  c = sim.box.getBoundary().getEdgeVector(2).getX(2)/nC2;
-		System.out.println("\na: " +a + " ;c: "+c +" ;c/a: " + (c/a));
-		double scaling = sim.box.getBoundary().getEdgeVector(0).getX(0)/(nC0*3.854);
-	    System.out.println("scaling: " + scaling);
 	    long endTime = System.currentTimeMillis();
 		System.out.println("End Time: " + endTime);
 		System.out.println("Time taken: " + (endTime - startTime));
@@ -263,13 +298,36 @@ public class SimulationBetaNitrogenModel extends Simulation{
 
 			
 	}
-
+	
+	void writeUdistribution(String filename, MeterOrientationDistribution meterOrient){
+		DataGroup uData = (DataGroup)meterOrient.getData();
+		
+		for (int i=0; i<uData.getNData(); i++){
+			String fName = filename+"U"+i+".orient";
+			try {
+				FileWriter fileWriter = new FileWriter(fName,false);
+				
+				DataDoubleArray uDistribution = (DataDoubleArray)uData.getData(i);
+				
+				for (int j=0; j<uDistribution.getLength()/uDistribution.getArrayDimension(); j++){
+					fileWriter.write(uDistribution.getValue(new int[]{0,j})+" "+ uDistribution.getValue(new int[]{1,j}) + "\n");
+				}
+			
+				fileWriter.close();
+				
+			} catch(IOException e){
+				throw new RuntimeException("Failed to write coord data orientation U" + e);
+			
+			}
+		}
+		
+	}
 	protected Box box;
 	protected ISpace space;
-	protected PotentialMaster potentialMaster;
+	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;
-	protected PotentialMolecular potential;
+	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
 	protected SpeciesN2 species;

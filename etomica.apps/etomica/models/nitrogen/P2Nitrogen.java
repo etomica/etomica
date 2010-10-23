@@ -52,7 +52,11 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
         this.rC = rC;
 	}
 
-    public void setBox(IBox box) {
+	public void setRange(double rC) {
+		this.rC = rC;
+	}
+
+	public void setBox(IBox box) {
         boundary = box.getBoundary();
     }
 
@@ -101,7 +105,8 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 		r2 = work.squared();
 		
 		if (r2 > rC*rC){ 
-			//System.out.println("TRUNCATED!!!");
+//			System.out.println("TRUNCATED!!!");
+//			System.exit(1);
 			return 0.0;
 		}
 		//if(r2<1.6) return Double.POSITIVE_INFINITY;

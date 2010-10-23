@@ -16,6 +16,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.space.ISpace;
 import etomica.units.Kelvin;
 import etomica.units.Null;
@@ -59,18 +60,14 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     protected int numAlpha = 1;
     protected FileWriter fw;
     protected boolean isBetaPhase = false;
-    
-    public MeterTargetTPMolecule(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+   
+    public MeterTargetTPMolecule(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim) {
         this.potentialMaster = potentialMaster;
-        this.coordinateDefinition = coordinateDef;
-        
         meterPotential = new MeterPotentialEnergy(potentialMaster);
-        
         this.species = species;
         pretendBox = new Box(space);
-        pretendBox.setBoundary(coordinateDef.getBox().getBoundary());
-        
         sim.addBox(pretendBox);
+     
         tag = new DataTag();
     }
 
@@ -85,22 +82,19 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
     public IData getData() {
     	IBox realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
-        
         double energy = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
-        
-        pretendBox.setBoundary(realBox.getBoundary());
-        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
-        
+ 
+        pretendBox.setBoundary(realBox.getBoundary());      
         IMoleculeList molecules = realBox.getMoleculeList();
         IMoleculeList pretendMolecules = pretendBox.getMoleculeList();
-        
+ 
         double a0 = (energy-latticeEnergy)/temperature;
         double[] x = data.getData();
         
         double[] u = coordinateDefinition.calcU(molecules);
         double[] newU = new double[coordinateDefinition.getCoordinateDim()];
-        
+
         for (int i=0; i<otherTemperatures.length; i++) {
             double fac = Math.sqrt(Kelvin.UNIT.toSim(otherTemperatures[i])/temperature);
             double otherEnergy = 0;
@@ -111,6 +105,7 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
           	if(isBetaPhase){
           		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
           			// NOT Scaling the rotational angle for the beta-phase
+
           			if(iCoord>0 && (iCoord%5==3 || iCoord%5==4)){
           				newU[iCoord] = u[iCoord];
                     } else {
@@ -123,12 +118,12 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
                 }	
            	}
             
-                  
             coordinateDefinition.setToU(pretendMolecules, newU);
             otherEnergy = meterPotential.getDataAsScalar();
-         
+                        
             double ai = (otherEnergy-latticeEnergy)/Kelvin.UNIT.toSim(otherTemperatures[i]);
-           
+            //System.out.println("ai-a0: " + ai + " " + a0 + " "+ (ai-a0));
+            
             for (int j=0; j<numAlpha; j++) {
                 if (temperature>Kelvin.UNIT.toSim(otherTemperatures[i])) {
                     x[i*numAlpha+j] = 1.0/(alpha[i][j]+Math.exp(ai-a0));
@@ -249,5 +244,28 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
 	public void setBetaPhase(boolean isBetaPhase) {
 		this.isBetaPhase = isBetaPhase;
 	}
+
+    public CoordinateDefinitionNitrogen getCoordinateDefinition() {
+        return coordinateDefinition;
+    }
+
+    public void setCoordinateDefinition(CoordinateDefinitionNitrogen newCoordinateDefinition) {
+        this.coordinateDefinition = newCoordinateDefinition;
+
+        // insert molecules into the box at their lattice sites.
+        // we do this because want to find neighbors now (and then never again)
+        IBox realBox = coordinateDefinition.getBox();
+        pretendBox.setBoundary(realBox.getBoundary());
+        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
+        IMoleculeList pretendMolecules = pretendBox.getMoleculeList();
+        
+        double[] u = new double[coordinateDefinition.getCoordinateDim()];
+        coordinateDefinition.setToU(pretendMolecules, u);
+
+        if (potentialMaster instanceof PotentialMasterListMolecular) {
+            // find neighbors now.
+            ((PotentialMasterListMolecular)potentialMaster).getNeighborManager(pretendBox).reset();
+        }
+    }
 
 }
