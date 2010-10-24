@@ -80,12 +80,12 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		potential.setBox(box);
 	
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(65);
+		pRotConstraint.setConstraintAngle(75);
 		
 		//potentialMaster = new PotentialMaster();
 		potentialMaster = new PotentialMasterListMolecular(this, space);
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		//potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
+		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		
 	    int cellRange = 6;
         potentialMaster.setRange(rC);
