@@ -35,8 +35,7 @@ import etomica.units.Kelvin;
 
 /**
  * Direct Sampling for Rotational Perturbation
- *  from constraint angle to no rotational d.o.f.
- *   
+ * from NO rotational energy to constraint-angle rotational energy
  * @author Tai Boon Tan
  */
 public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
@@ -83,7 +82,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		
 	    boxTarg.setBoundary(boundary);
 	    
-		double rCScale = 0.475;
+		double rCScale = 0.465;
 		double rc = aDim*nC*rCScale;
 		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
 		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
@@ -104,14 +103,14 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		
 //		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
 //		rotateTarg.setBox(boxTarg);
-		MCMoveRotateMolecule3DConstraint rotateConst
-		= new MCMoveRotateMolecule3DConstraint(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
-		rotateConst.setBox(boxTarg);
+		MCMoveRotateMolecule3DFixedAngle rotateFixedAngle
+		= new MCMoveRotateMolecule3DFixedAngle(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
+		rotateFixedAngle.setBox(boxTarg);
 		
         IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
 		//integratorTarg.getMoveManager().addMCMove(rotateTarg);
-        integratorTarg.getMoveManager().addMCMove(rotateConst);
+        integratorTarg.getMoveManager().addMCMove(rotateFixedAngle);
 	    
 		integratorTarg.setBox(boxTarg);
 
@@ -125,6 +124,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 	    potentialMasterTarg.setRange(rc);
 	    potentialMasterTarg.setCellRange(cellRange); 
 	    potentialMasterTarg.getNeighborManager(boxTarg).reset();
+
 	        
 //	    int potentialCells = potentialMasterTarg.getNbrCellManager(boxTarg).getLattice().getSize()[0];
 //	    if (potentialCells < cellRange*2+1) {
@@ -133,11 +133,13 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 	    potentialMasterRef.setRange(rc);
 	    potentialMasterRef.setCellRange(cellRange); 
 	    potentialMasterRef.getNeighborManager(boxTarg).reset();
-	     
+	    potentialTarg.setRange(Double.POSITIVE_INFINITY); 
+	    
 	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
         meterPERef.setBox(boxTarg);
         double latticeEnergy = meterPERef.getDataAsScalar();
-        System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
+        System.out.println("lattice energy (sim unit): " + latticeEnergy);
+		System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
 		
 		MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
 		
@@ -181,8 +183,8 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 
         double temperature = 45; //in UNIT KELVIN
         double density = 0.025;
-        double angle = 0.05;
-        long numSteps = 100000;
+        double angle =0.1;
+        long numSteps = 1000000;
         int numMolecules = 432;
 
     	if(args.length > 0){
