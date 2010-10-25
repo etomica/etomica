@@ -27,7 +27,11 @@ public class MeterBoltzmannDirect extends DataSourceScalar {
 		double uSampled = meterEnergy.getDataAsScalar();
     	double uMeasured = meterPotentialEnergy.getDataAsScalar();
     	
-    	//System.out.println(uSampled + " " + uMeasured);
+    	if(Double.isNaN(uSampled) || Double.isNaN(uMeasured)){
+    		throw new RuntimeException("<MeterBoltzmannDirect> energy is NaN!!!!!!!!!!!!");
+    	}
+    	 
+    	//System.out.println(uSampled + " " + uMeasured + " "+ (uMeasured-uSampled) + " " + Math.exp(-(uMeasured - uSampled) / integrator.getTemperature()));
     	return Math.exp(-(uMeasured - uSampled) / integrator.getTemperature());
 	}
 	
