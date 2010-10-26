@@ -202,9 +202,9 @@ public class VirialCO2TraPPE {
      * Inner class for parameters
      */
     public static class VirialCO2TraPPEParam extends ParameterBase {
-        public int nPoints = 3;
+        public int nPoints = 2;
         public double temperature = 353.15;
-        public long numSteps = 10000;
+        public long numSteps = 100000;
         public double sigmaHSRef = 5*1.16;
         public double refFrac = -1;
     }
