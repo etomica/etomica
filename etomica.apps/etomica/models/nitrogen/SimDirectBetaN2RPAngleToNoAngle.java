@@ -96,7 +96,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
 		//potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
 	       
-		MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg, getRandom(),space);
+		MCMoveMoleculeCoupledInitPert moveTarg = new MCMoveMoleculeCoupledInitPert(potentialMasterTarg, getRandom(),space, coordinateDefTarg);
 		moveTarg.setBox(boxTarg);
 		moveTarg.setPotential(potentialTarg);
 		moveTarg.setDoExcludeNonNeighbors(true);
@@ -183,7 +183,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 
         double temperature = 45; //in UNIT KELVIN
         double density = 0.025;
-        double angle =0.1;
+        double angle =0.01;
         long numSteps = 1000000;
         int numMolecules = 432;
 
