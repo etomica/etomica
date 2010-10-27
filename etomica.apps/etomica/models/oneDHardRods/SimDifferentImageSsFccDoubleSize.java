@@ -9,7 +9,6 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -34,6 +33,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
+import etomica.normalmode.P1ConstraintNbr;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -46,7 +46,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -283,6 +282,22 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
         meterOverlapInTarget.setDsABase(latticeEnergyTarget);
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
+        
+        P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
+                primitiveLength/Math.sqrt(2.0), this);
+        potentialMaster.addPotential(nbrConstraint, new IAtomType[] {
+                species.getLeafType()});
+        nbrConstraint.initBox(boxRef);
+        nbrConstraint.initBox(boxTarget);
+        nbrConstraint.initBox(meterTargInRef.getBox());
+        nbrConstraint.initBox(meterRefInTarg.getBox());
+        potentialMaster.getNeighborManager(boxRef).reset();
+        potentialMaster.getNeighborManager(boxTarget).reset();
+        potentialMaster.getNeighborManager(meterTargInRef.getBox()).reset();
+        potentialMaster.getNeighborManager(meterRefInTarg.getBox()).reset();
+        
+        
+        
         
         //Just to be sure!
         potential.setTruncationRadius(3000.0);
@@ -616,8 +631,8 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
     
     public static class SimParam extends ParameterBase {
         public boolean first = true;
-        public int[] refShape = {2, 2, 4};
-        public int[] targShape = {2, 4, 4};
+        public int[] refShape = {2, 2, 2};
+        public int[] targShape = {2, 2, 4};
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
@@ -627,7 +642,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         public String inputFile = "inputSSDB_DS";
         public String filename = "output";
         
-        public int numSteps = 1000000;     //overall # of steps of subintegrators
+        public int numSteps = 10000000;     //overall # of steps of subintegrators
         public int subBlockSize = 10000;    //# of steps in subintegrator per integrator step
         public int eqNumSteps = 100000;  
         public int bennettNumSteps = 50000;

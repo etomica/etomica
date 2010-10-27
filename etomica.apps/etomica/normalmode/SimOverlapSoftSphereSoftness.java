@@ -116,7 +116,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *  
          */
 
-        P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L/Math.sqrt(2.0), boxTarg);
+        P1ConstraintNbr p1ConstraintTarg = new P1ConstraintNbr(space, L/Math.sqrt(2.0), this);
         atomMoveTarg.setConstraint(p1ConstraintTarg);
         potentialMasterTarg.lrcMaster().setEnabled(false);
     
@@ -179,7 +179,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
          *  
          */
 
-        P1ConstraintNbr p1ConstraintRef = new P1ConstraintNbr(space, L/Math.sqrt(2.0), boxRef);
+        P1ConstraintNbr p1ConstraintRef = new P1ConstraintNbr(space, L/Math.sqrt(2.0), this);
         //potentialMasterRef.addPotential(p1ConstraintRef, new IAtomType[] {sphereType});
         atomMoveRef.setConstraint(p1ConstraintRef);
         potentialMasterRef.lrcMaster().setEnabled(false);

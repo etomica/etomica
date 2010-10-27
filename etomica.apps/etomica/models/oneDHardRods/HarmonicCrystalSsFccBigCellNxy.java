@@ -32,7 +32,7 @@ public class HarmonicCrystalSsFccBigCellNxy {
         double primitiveLength = 1.4952983783596188;
         System.out.println("MaxLatticeShell is "+maxLatticeShell);
         int nC = 2;
-        int[] shape = new int[] {nC, nC, nC};
+        int[] shape = new int[] {nC, nC+2, nC+2};
         int numAtom = 1;
         for(int i = 0; i < 3; i++){
             numAtom *= shape[i];

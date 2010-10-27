@@ -279,6 +279,10 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     }
 
 
+    public IBox getBox(){
+        return box;
+    }
+    
     /**
      * @return the natural logarithm of the scaling
      */

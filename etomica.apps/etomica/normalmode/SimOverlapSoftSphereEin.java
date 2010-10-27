@@ -154,7 +154,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         atomMove.setPotential(potential);
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance, box);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance, this);
 //        atomMove.setConstraint(p1Constraint);
         integrator.getMoveManager().addMCMove(atomMove);
 //      ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);

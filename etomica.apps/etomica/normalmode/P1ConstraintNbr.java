@@ -5,8 +5,10 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
+import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
+import etomica.box.BoxAgentManager;
 import etomica.space.ISpace;
 
 public class P1ConstraintNbr implements IPotentialAtomic{
@@ -17,16 +19,26 @@ public class P1ConstraintNbr implements IPotentialAtomic{
     private static final long serialVersionUID = 1L;
 
     // this could take a NeighborListManager to try to speed up finding neighbors
-    public P1ConstraintNbr(ISpace space, double neighborDistance, IBox box) {
-        boundary = box.getBoundary();
-
+    public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim) {
+        boxManager = new BoxAgentManager(null, sim);
+        
         neighborRadiusSq = neighborDistance*neighborDistance;
-
-        IAtomList list = box.getLeafList();
-
+        
         //Check for neighboring sites
         drj = space.makeVector();
         drk = space.makeVector();
+    }
+    
+    /**
+     * Assigns & keeps track of a set of neighbors for each box
+     * @param box
+     */
+    public void initBox(IBox box){
+        //Does boxAgentManager already know what to do with this box?
+        if(boxManager.getAgent(box) != null){return;}
+        
+        boundary = box.getBoundary();
+        IAtomList list = box.getLeafList();
         neighborAtoms = new int[list.getAtomCount()][12];
         AtomArrayList tmpList = new AtomArrayList(12);
 
@@ -54,6 +66,8 @@ public class P1ConstraintNbr implements IPotentialAtomic{
                 tmpList.remove(indexj2);
             }
         }
+        
+        boxManager.setAgent(box, neighborAtoms);
     }
 
     public int nBody() {
@@ -65,7 +79,9 @@ public class P1ConstraintNbr implements IPotentialAtomic{
     }
 
     public void setBox(IBox box) {
+        boundary = box.getBoundary();
         leafList = box.getLeafList();
+        neighborAtoms = (int[][])boxManager.getAgent(box);
     }
 
     /**
@@ -88,6 +104,8 @@ public class P1ConstraintNbr implements IPotentialAtomic{
      * Returns sum of energy for all triplets containing the given atom
      */
 	public double energy(IAtomList atoms) {
+	    
+	    if (true) return 0;
 	    IAtom atom = atoms.getAtom(0);
 	    double u = energyi(atom);
 	    if (u == Double.POSITIVE_INFINITY) {
@@ -111,6 +129,10 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 */
 	public double energyi(IAtom atom) {
 
+	    if (true) return 0;
+	    
+	    
+	    
 	    IVectorMutable posAtom = atom.getPosition();
 
 	    int atomIndex = atom.getLeafIndex();
@@ -171,9 +193,10 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	    throw new RuntimeException("couldn't find "+atomj+" in "+atomi+" neighbors");
 	}
 
-	protected final int[][] neighborAtoms;
+	protected int[][] neighborAtoms;
 	protected final IVectorMutable drj, drk;
 	protected double neighborRadiusSq;
-	protected final IBoundary boundary;
+	protected IBoundary boundary;
 	protected IAtomList leafList;
+	protected BoxAgentManager boxManager;
 }

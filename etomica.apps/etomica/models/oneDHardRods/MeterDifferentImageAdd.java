@@ -154,7 +154,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             }
         }
         
-        potentialMaster.getNeighborManager(box).reset();
+        potentialMaster.getNeighborManager(box).reset();  //this line sets up neighborlists
         meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         
@@ -269,6 +269,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
             
             cDef.setToU(cells[iCell].molecules, newU);
         }
+        
         return meterPE.getDataAsScalar();
     }
     
@@ -276,6 +277,11 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         return gaussCoord;
     }
 
+    
+    public IBox getBox(){
+        return box;
+    }
+    
     /**
      * @return the natural logarithm of the scaling
      */

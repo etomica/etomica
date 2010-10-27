@@ -102,7 +102,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
          *  
          */
 
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, L/Math.sqrt(2), box);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, L/Math.sqrt(2), this);
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);

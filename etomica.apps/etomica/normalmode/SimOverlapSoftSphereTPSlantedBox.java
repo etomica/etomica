@@ -111,7 +111,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
          *  
          */
 
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitive.getSize()[0]/c, box);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitive.getSize()[0]/c, this);
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
