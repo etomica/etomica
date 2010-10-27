@@ -9,7 +9,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
@@ -688,6 +687,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    orientationManager.setAgent(molecule, orientation);
     	    	
     	}
+    	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
     }
     
     public void setIsGamma(){
