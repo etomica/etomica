@@ -96,10 +96,6 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
 
     public double energyChange() {return uNew - uOld;}
 
-    public void acceptNotify() {
-        // I do believe nothing needs to happen here.
-    }
-
     public boolean doTrial() {
 //        System.out.println("doTrial MCMoveMoleculeCoupled called");
         
@@ -175,6 +171,10 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
             uNew -= pairPotential.energy(pair);
         }
         
+        return -(uNew - uOld);
+    }
+
+    public void acceptNotify() {
         tempU = coordinateDef.calcU(box.getMoleculeList());
         for(int i=0; i<tempU.length; i++){
         	if(i>0 && (i%5==3 || i%5==4)){
@@ -182,10 +182,8 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
         	}
         }
         coordinateDef.setToU(box.getMoleculeList(), tempU);
-        
-        return -(uNew - uOld);
     }
-
+    
     public void rejectNotify() {
         moveMoleculeAction.actionPerformed(molecule0);
         groupTransVect.TE(-1.0);
