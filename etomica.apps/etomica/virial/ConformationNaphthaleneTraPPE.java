@@ -64,7 +64,7 @@ public class ConformationNaphthaleneTraPPE implements IConformation, java.io.Ser
 	protected static final double halfofthebondlength = 0.7;
 	protected static final double bondlength = halfofthebondlength * 2;
 
-	protected static final double sqrt3ofhalfofthebondlength = halfofthebondlength*Math.sqrt(halfofthebondlength);
+	protected static final double sqrt3ofhalfofthebondlength = halfofthebondlength * Math.sqrt(3);
 	protected static final double twicesqrt3ofhalfofthebondlength = sqrt3ofhalfofthebondlength * 2;
 	protected IVectorMutable vector;
 	
