@@ -10,6 +10,7 @@ import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
@@ -22,10 +23,9 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -55,10 +55,9 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		double a = Math.pow(numMolecule/density, 1.0/3.0)/nCell;
 		System.out.println("Unit Cell Length, a: " + a);
 		
-		potentialMaster = new PotentialMaster();
-	//	potentialMaster = new PotentialMasterListMolecular(this, space);
+		//potentialMaster = new PotentialMaster();
+		potentialMaster = new PotentialMasterListMolecular(this, space);
 				
-		
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 		
@@ -86,28 +85,30 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		potential.setBox(box);
 
 		PRotConstraint pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(70);
+		pRotConstraint.setConstraintAngle(75);
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		//potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
+		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		//potentialMaster.lrcMaster().isEnabled();
 		
-//	    int cellRange = 6;
-//      potentialMaster.setRange(rC);
-//      potentialMaster.setCellRange(cellRange); 
-//      potentialMaster.getNeighborManager(box).reset();
-//      
-//      int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-//      if (potentialCells < cellRange*2+1) {
-//          throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-//      }
-//	
-//      int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-//      System.out.println("numNeigh: " + numNeigh);
+	  int cellRange = 6;
+      potentialMaster.setRange(rC);
+      potentialMaster.setCellRange(cellRange); 
+      potentialMaster.getNeighborManager(box).reset();
+      
+      int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+      if (potentialCells < cellRange*2+1) {
+          throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+      }
+      potential.setRange(Double.POSITIVE_INFINITY);
+      
+      int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+      System.out.println("numNeigh: " + numNeigh);
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
 		move.setPotential(potential);
+		move.setDoExcludeNonNeighbors(true);
 		
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
 		rotate.setBox(box);
@@ -117,10 +118,10 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		integrator.getMoveManager().addMCMove(rotate);
 		integrator.setBox(box);
 		
-		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-		meterPE.setBox(box);
-		System.out.println("lattice: " + meterPE.getDataAsScalar()/numMolecule);
-		//System.exit(1);
+//		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+//		meterPE.setBox(box);
+//		System.out.println("lattice energy (sim unit): " + meterPE.getDataAsScalar()/numMolecule);
+//		//System.exit(1);
 		
 //		double[] u = new double[coordinateDef.getCoordinateDim()];
 //		
@@ -140,7 +141,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int numMolecule = 4*4*4*4;
+		int numMolecule = 5*5*5*4;
 		double temperature = 1; // in Unit Kelvin
 		long simSteps = 100000;
 		double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
@@ -164,7 +165,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
 		double latticeEnergySim = meterPotentialEnergy.getDataAsScalar();
-		System.out.println("Lattice Energy Sim (per molecule): "+ latticeEnergySim);
+		System.out.println("Lattice Energy per molecule (sim unit): "+ latticeEnergySim/numMolecule);
 					
 //		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species);
 //        IntegratorListenerAction meterCoordListener = new IntegratorListenerAction(meterCoord);
@@ -219,10 +220,10 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		}
 		//System.exit(1);
 			
-		AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
+		AccumulatorAverage energyAverage = new AccumulatorAverageFixed();
 		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
 		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
-		energyListener.setInterval((int)simSteps/100);
+		energyListener.setInterval(numMolecule);
 		sim.integrator.getEventManager().addListener(energyListener);
 			
 //		AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
@@ -288,10 +289,10 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 	
 	protected Box box;
 	protected ISpace space;
-	protected PotentialMaster potentialMaster;
+	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;
-	protected PotentialMolecular potential;
+	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
 	protected SpeciesN2 species;
