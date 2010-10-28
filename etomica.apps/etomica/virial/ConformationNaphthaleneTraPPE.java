@@ -45,10 +45,10 @@ public class ConformationNaphthaleneTraPPE implements IConformation, java.io.Ser
 		n7.getPosition().E(new double[] {sqrt3ofhalfofthebondlength, -bondlength, 0});
 		
 		IAtom n8 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH6);
-		n8.getPosition().E(new double[] {twicesqrt3ofhalfofthebondlength, -bondlength, 0});
+		n8.getPosition().E(new double[] {twicesqrt3ofhalfofthebondlength, -halfofthebondlength, 0});
 		
 		IAtom n9 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH7);
-		n9.getPosition().E(new double[] {twicesqrt3ofhalfofthebondlength, bondlength, 0});
+		n9.getPosition().E(new double[] {twicesqrt3ofhalfofthebondlength, halfofthebondlength, 0});
 		
 		IAtom n10 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH8);
 		n10.getPosition().E(new double[] {sqrt3ofhalfofthebondlength, bondlength, 0});
