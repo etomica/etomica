@@ -104,8 +104,7 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
 		IVectorMutable leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
-		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
-		molecOrientation.normalize();
+		
 		double angleMol = Math.acos(molecOrientation.dot(initMolecOrientation[iMolecule][0]));
 		
         energyMeter.setTarget(molecule);
