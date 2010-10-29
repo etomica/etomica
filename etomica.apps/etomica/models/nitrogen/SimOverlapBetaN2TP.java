@@ -7,7 +7,6 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
