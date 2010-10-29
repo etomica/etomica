@@ -7,6 +7,7 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -26,6 +27,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
@@ -88,7 +90,53 @@ public class SimOverlapBetaN2TP extends Simulation {
 		if(isBetaHCP){coordinateDef.setIsBetaHCP();}
         coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
+
+		
+		double[] u = new double[20];
+		if(numMolecules==432){
+			u = new double[]{1.6677658315292056E-5, 1.2381983061507986E-5, -9.051257881123597E-6, -7.73336282300391E-5, 1.3066028540654303E-5, 
+				-5.495930226259771E-6, 2.2347836010634787E-6, -1.4170546162434184E-5, -7.006485189148155E-5, -4.397455987223204E-5, 
+				 3.02340607794937E-5, 2.0597271687441905E-5, -2.5366102929885726E-6, 2.56463233129677E-4, -1.8441782352945877E-4, 
+				-2.8785835577606926E-6, -2.0149325821505538E-5, -1.0218617536889018E-6, 6.981367943987349E-6, -1.2052895056778386E-6};
+		} 
+		if(numMolecules==1024){
+			u = new double[]{3.943623675439537E-5, -7.774687777255597E-5, -1.253954091950439E-6, -5.821076381066166E-4, -1.1426375628492568E-4, 
+			  -3.413464215138422E-5, 1.576735518174415E-4, -6.290086612653883E-6, 4.3312591345254193E-4, -1.6695297891638808E-4, 
+			   2.308775438977747E-6, -7.003860375718278E-5, 3.6468107523589976E-6, -2.5064580018316097E-4, -3.260837904268126E-4, 
+			   2.0040370120364808E-5, 1.3522603075083E-4, 3.979941964634359E-6, 5.208391332508404E-4, -1.197854022044697E-4};
+
+		}
+		
+		int numDOF = coordinateDef.getCoordinateDim();
+		double[] newU = new double[numDOF];
+		if(true){
+			for(int j=0; j<numDOF; j+=10){
+				if(j>0 && j%(nC*10)==0){
+					j+=nC*10;
+					if(j>=numDOF){
+						break;
+					}
+				}
+				for(int k=0; k<10;k++){
+					newU[j+k]= u[k];
+				}
+			}
 			
+			for(int j=nC*10; j<numDOF; j+=10){
+				if(j>nC*10 && j%(nC*10)==0){
+					j+=nC*10;
+					if(j>=numDOF){
+						break;
+					}
+				}
+				for(int k=0; k<10;k++){
+					newU[j+k]= u[k+10];
+				}
+			}
+		}
+		coordinateDef.setToU(box.getMoleculeList(), newU);
+		coordinateDef.initNominalU(box.getMoleculeList());
+	
         box.setBoundary(boundary);
 		double rc = aDim*nC*rcScale;
 		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rc);
@@ -112,11 +160,13 @@ public class SimOverlapBetaN2TP extends Simulation {
         int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
         System.out.println("numNeigh: " + numNeigh);
 
-		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
+		move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
 		move.setPotential(potential);
 		move.setDoExcludeNonNeighbors(true);
-
+		move.setStepSize(Kelvin.UNIT.toSim(temperature));
+		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+		
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
 		integrator.getMoveManager().addMCMove(move);
 		if(isBetaHCP){
@@ -294,6 +344,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         sim.getController().actionPerformed();
         
         sim.writeConfiguration(configFileName);
+        System.out.println("step size: " + sim.move.getStepSize());
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
@@ -360,6 +411,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected P2Nitrogen potential;
     protected MCMoveRotateMolecule3D rotate;
+    protected MCMoveMoleculeCoupled move;
     
     /**
      * Inner class for parameters understood by the SimOverlapBetaN2TP constructor
@@ -367,7 +419,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 432;
         public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 100000;
+        public long numSteps = 10000;
         public double temperature = 0.010; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
