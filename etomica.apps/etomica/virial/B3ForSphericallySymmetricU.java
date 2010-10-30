@@ -54,7 +54,7 @@ public static void main(String[] args) {
 	boolean qm = true;
 
 	// Minimum log2(N) and maximum separation distance to be considered:
-	int power = 8;
+	int power = 10;
 	double r_max = 100;
 	
 	Space space = Space3D.getInstance();
@@ -63,8 +63,12 @@ public static void main(String[] args) {
 	
 	double[] temps;
 	
+	
 	P2QChemInterpolated p2 = new P2QChemInterpolated(space);
 	p2.setDampingParams(a1,a2,Rvdw,basis, fixedRvdw);
+	p2.setDisp(true);
+	p2.setSCF(true);
+	p2.initialize();
 	
 	
 	//P2ArgonTangAndToennies2003 p2 = new P2ArgonTangAndToennies2003(space);
@@ -234,12 +238,19 @@ public static void main(String[] args) {
 		     qmB2 = qmB2 + e12*slope*slope*r12*r12*del_r; // K*K/(A*A)*A*A*A
 		     
 	    	 u12Backward=u12;
+	    	 
+	    	
+	    	
 	     }
 
+	     
 	     u12 = p2.u(r12*r12);
 	     slope = (u12-u12Backward)/del_r;
 	     e12 = Math.exp(-u12/temp);
 	     qmB2 = qmB2 + 0.5*e12*slope*slope*r12*r12*del_r;
+	     
+	     //System.out.println(qmB2*constant*0.60221214);
+	     //System.exit(0);
 
 	     return qmB2*constant*0.60221214;  // from A^3/molecule to cm^3/mole, 6.022e23/(1e24)
 
@@ -311,6 +322,7 @@ public static void main(String[] args) {
 				//fr[n]=-1.0;
 				
 			//} else {
+			
 				
 				double u = p2.u(r*r); // returned in Kelvin
 
@@ -325,11 +337,20 @@ public static void main(String[] args) {
 					
 					fr[n] = Math.exp(x)-1.0;
 					
+					
 				}
+				
+				/*
+				if (Double.isNaN(fr[n])){
+					System.out.println(r+" "+u*k/JPerHartree*1e6+" "+fr[n]);
+				}
+				*/
+				
 				
 			///}
 			
 		}
+
 		
 		return fr;
 		
@@ -338,17 +359,20 @@ public static void main(String[] args) {
 	 public static class DampingParams extends ParameterBase {
 		    //TZ
 		 	
-	    	public int a1 = 79;	        
-	        public int a2 = 136;   
-	        private double Rvdw = 3.61;
-	        private int basis = 3;
+	    	public int a1 = 80;	        
+	        public int a2 = 149;   
+	        private double Rvdw = 3.688;
+	        private int basis = 2;
 	        private boolean fixedRvdw = false;
 	        //DZ
 	        //public int a1 = 80;	        
 	        //public int a2 = 149;   
-	       // public int basis = 2;
+	        // public int basis = 2;
 	        
-	        public int tempSet = 3; 
-	    }
+	        public int tempSet = 2; 
+	  }
+	 
+	 protected static double k = 1.3806503e-23; //J/K   1.3806503e-23
+	    protected static double JPerHartree = 4.359744e-18;  //4.359744e-18
 
 }
