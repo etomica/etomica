@@ -63,10 +63,6 @@ public class MCMoveMolecule extends MCMoveBoxStep {
         
         //set directive to exclude intramolecular contributions to the energy
 
-        //TODO enable meter to do this
-        //       iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
- //           public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
- //       });
         MoleculeSourceRandomMolecule randomMoleculeSource = new MoleculeSourceRandomMolecule();
         randomMoleculeSource.setRandom(random);
         setMoleculeSource(randomMoleculeSource);
