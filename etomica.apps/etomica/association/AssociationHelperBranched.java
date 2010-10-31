@@ -76,7 +76,7 @@ public class AssociationHelperBranched implements IAssociationHelper {
         validateBondList(atom, bondList, mightBeBroken);
         for (int i=0; i<bondList.getAtomCount(); i++) {
             if (smerList.indexOf(bondList.getAtom(i)) == -1) {
-                if (populate(smerList, atom, mightBeBroken) == 1) {
+                if (populate(smerList, bondList.getAtom(i), mightBeBroken) == 1) {
                     return 1;
                 }
             }
