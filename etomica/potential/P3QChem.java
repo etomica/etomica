@@ -69,7 +69,7 @@ public class P3QChem {
 					String datum = line.split("\t")[k-1];
 					//System.out.println(k+"\n"+ datum + y3);
 					
-					if (datum.isEmpty()) {
+					if (datum.length()==0) {
 						u123SCF = Double.NaN;
 					} else {
 						u123SCF = Double.parseDouble(datum); // Hartrees
