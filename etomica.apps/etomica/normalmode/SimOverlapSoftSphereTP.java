@@ -7,6 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -20,10 +21,14 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveBoxSize;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.nbr.list.BoxAgentSourceCellManagerList;
+import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -32,8 +37,10 @@ import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
+import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -49,10 +56,17 @@ import etomica.util.ReadParameters;
  */
 public class SimOverlapSoftSphereTP extends Simulation {
 
-    public SimOverlapSoftSphereTP(Space _space, int numAtoms, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
+    public SimOverlapSoftSphereTP(Space _space, int numAtoms, boolean slanty, boolean flex, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
         
-        potentialMaster = new PotentialMasterList(this, space);
+        if (slanty) {
+            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+            BoxAgentManager boxAgentManager = new BoxAgentManager(boxAgentSource);
+            potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
+        }
+        else {
+            potentialMaster = new PotentialMasterList(this, space);
+        }
         
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -63,21 +77,44 @@ public class SimOverlapSoftSphereTP extends Simulation {
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        atomMove = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+        meterPE.setBox(box);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
         
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        primitive = new PrimitiveCubic(space, n*L);
-        
-        nCells = new int[]{n,n,n};
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
-        Basis basisFCC = new BasisCubicFcc();
-        basis = new BasisBigCell(space, basisFCC, nCells);
+        double nbrDistance = 0;
+        if (slanty) {
+            int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            nCells = new int[]{c,c,c};
+            
+            double L = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
+            nbrDistance = L;
+            double angle = Math.PI/3;
+          
+//            primitive = new PrimitiveFcc(space, L*c);
+            primitive = new PrimitiveTriclinic(space, L*c,L*c,L*c, angle,angle,angle);
+         
+            boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
+            ((BoundaryDeformablePeriodic)boundary).setTruncationRadius(rc);
+            Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
+            basis = new BasisBigCell(space, basisSimple, nCells);
+        }
+        else {
+            
+            double L = Math.pow(4.0/density, 1.0/3.0);
+            nbrDistance = L / Math.sqrt(2);
+            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            primitive = new PrimitiveCubic(space, n*L);
+            
+            nCells = new int[]{n,n,n};
+            boundary = new BoundaryRectangularPeriodic(space, n * L);
+            Basis basisFCC = new BasisCubicFcc();
+            basis = new BasisBigCell(space, basisFCC, nCells);
+        }
 
         box.setBoundary(boundary);
 
@@ -95,14 +132,20 @@ public class SimOverlapSoftSphereTP extends Simulation {
         atomMove.setPotential(potential);
         IAtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new IAtomType[] {sphereType, sphereType });
-        
+
+        if (flex) {
+            MCMoveBoxSize moveBoxSize = new MCMoveBoxSize(potentialMaster, random, space);
+            integrator.getMoveManager().addMCMove(moveBoxSize);
+        }
+
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site
          *  
          */
 
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, L/Math.sqrt(2), this);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance, this);
+        p1Constraint.initBox(box);
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
@@ -121,8 +164,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
             }
 		}
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+		// this is the meterPE we gave to the MCMove but it hasn't called setTarget yet, so we're OK
         latticeEnergy = meterPE.getDataAsScalar();
 
         meter = new MeterTargetTP(potentialMaster, species, space, this);
@@ -133,6 +175,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         meter.setAlpha(alpha);
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
+        meter.setConstraint(p1Constraint);
         int numBlocks = 100;
         int interval = numAtoms;
         long blockSize = numSteps/(numBlocks*interval);
@@ -189,6 +232,8 @@ public class SimOverlapSoftSphereTP extends Simulation {
         int exponentN = params.exponentN;
         long numSteps = params.numSteps;
         final int numMolecules = params.numMolecules;
+        boolean slanty = params.slanty;
+        boolean flex = params.flex;
         double temperature = params.temperature;
         double[] otherTemperatures = params.otherTemperatures;
         double[] alpha = params.alpha;
@@ -202,7 +247,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         System.out.println(numSteps+" steps");
 
         //instantiate simulation
-        final SimOverlapSoftSphereTP sim = new SimOverlapSoftSphereTP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
+        final SimOverlapSoftSphereTP sim = new SimOverlapSoftSphereTP(Space.getInstance(3), numMolecules, slanty, flex, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -236,18 +281,47 @@ public class SimOverlapSoftSphereTP extends Simulation {
             return;
         }
 
+//        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+//        meterPE.setBox(sim.box);
+//        meterPE.setIncludeLrc(false);
+//        IVectorMutable l = sim.space.makeVector();
+//        IVectorMutable l0 = sim.space.makeVector();
+//        l0.E(sim.box.getBoundary().getBoxSize());
+//        BoxInflate boxInflater = new BoxInflate(sim.space);
+//        boxInflater.setBox(sim.box);
+//        for (int i=-10; i<11; i++) {
+//            double lntheta = i/100.0;
+//            double theta = Math.exp(lntheta);
+//            l.setX(0, Math.sqrt(theta));
+//            l.setX(1, 1.0/Math.sqrt(theta));
+//            l.setX(2, 1);
+//            boxInflater.setVectorScale(l);
+//            boxInflater.actionPerformed();
+//            double u1 = (meterPE.getDataAsScalar()-sim.latticeEnergy);
+//            boxInflater.undo();
+//            l.setX(1, 1.0/Math.pow(theta, 0.25));
+//            l.setX(2, l.getX(1));
+//            boxInflater.setVectorScale(l);
+//            boxInflater.actionPerformed();
+//            double u2 = (meterPE.getDataAsScalar()-sim.latticeEnergy);
+//            boxInflater.undo();
+//            System.out.println(lntheta+" "+u1+" "+u2);
+//        }
+//        System.exit(0);
+        
         //start simulation
 
-        sim.initialize(numSteps/10);
+        sim.initialize(numMolecules*50);
         System.out.flush();
         
         final long startTime = System.currentTimeMillis();
        
         sim.activityIntegrate.setMaxSteps(numSteps);
+
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
-        
+
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
@@ -313,14 +387,16 @@ public class SimOverlapSoftSphereTP extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 500;
-        public double density = 1.256;
+        public boolean slanty = false;
+        public boolean flex = true;
+        public double density = 1.1964;
         public int exponentN = 12;
-        public long numSteps = 100000000;
+        public long numSteps = 1000000;
         public double temperature = 1.2;
         public double[] alpha = new double[]{0.011};
         public int numAlpha = 11;
         public double alphaSpan = 1;
         public double[] otherTemperatures = new double[]{1.1};
-        public double rc = 2.0;
+        public double rc = 2.2;
     }
 }
