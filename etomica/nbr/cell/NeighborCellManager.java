@@ -242,6 +242,8 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * cell's atom list.
      */
     public Object makeAgent(IAtom atom) {
+        // if we have no cells, there's no point in trying here.  cell assignment will happen later
+        if (numCells[0] == 0) return null;
         IVectorMutable position = atom.getPosition();
         v.E(position);
         if (doApplyPBC) {
