@@ -31,13 +31,15 @@ public static void main(String[] args) {
 	DampingParams params = new DampingParams();
     
    
-	if (args.length == 6 ) {
+	if (args.length == 8 ) {
 		params.a1 = Integer.parseInt(args[0]);
 		params.a2 = Integer.parseInt(args[1]);
 		params.Rvdw = Double.parseDouble(args[2]);
 		params.basis = Integer.parseInt(args[3]);
 		params.fixedRvdw = Boolean.parseBoolean(args[4]);
 		params.tempSet = Integer.parseInt(args[5]);
+		params.rmax = Double.parseDouble(args[6]);
+		params.rmin = Double.parseDouble(args[7]);
     } 
 	
 	int a1 = params.a1;
@@ -46,6 +48,8 @@ public static void main(String[] args) {
 	int basis = params.basis;
 	boolean fixedRvdw = params.fixedRvdw;
 	int tempSet = params.tempSet;
+	double rmax = params.rmax;
+	double rmin = params.rmin;
 	
 	Space space = Space3D.getInstance();
 	
@@ -85,7 +89,7 @@ public static void main(String[] args) {
 		
 		double temp = temps[t];
   
-		 double B3NonAdd = computeB3NonAdd(p2,p3,p3Add,temp);
+		 double B3NonAdd = computeB3NonAdd(p2,p3,p3Add,temp, rmax, rmin);
 			
 		System.out.println(temp + "    "  +  B3NonAdd);
 
@@ -94,18 +98,22 @@ public static void main(String[] args) {
 
 	}
 
-	public static double computeB3NonAdd(P2QChemInterpolated p2, P3QChem p3, P3AdditiveQChem p3Add, double temp) {
+	public static double computeB3NonAdd(P2QChemInterpolated p2, P3QChem p3, P3AdditiveQChem p3Add, double temp, double rmax, double rmin) {
 		
 		double B3NonAdd = 0;
-		for (int i = 25; i<=80; i++) {
+		for (int i = 25; i<=100; i++) {
 			
 			double r12 = i*0.1;  //4*Pi*r12*r12 symmetry
 			
-			for (int j = 1; j<=80; j++) {
+			if (r12 > rmax || r12 < rmin) {
+				continue;
+			}
+			
+			for (int j = 1; j<=100; j++) {
 				
 				double x3 = j*0.1;  // 2*Pi*x symmetry (cylindrical symmetry about y-axis)
 				
-				for (int k = 0; k<=80; k++) {
+				for (int k = 0; k<=100; k++) {
 					
 					double y3 = k*0.1;  
 					
@@ -113,11 +121,11 @@ public static void main(String[] args) {
 						
 						double r13 = Math.sqrt(x3*x3 + y3*y3);
 						
-						if ((r13 < 8) && (r13 > 2.5) ) {
+						if ((r13 <= rmax) && (r13 > rmin) ) {
 							
-							double r23 = Math.sqrt(x3*x3 - (y3-r12)*(y3-r12));
+							double r23 = Math.sqrt(x3*x3 + (y3-r12)*(y3-r12));
 					
-							if ((r23 < 8) && (r23 > 2.5) ) {
+							if ((r23 <= rmax) && (r23 > rmin) ) {
 						
 								//System.out.println(r12+ " " + x3 + "  " + y3);
 								
@@ -127,7 +135,7 @@ public static void main(String[] args) {
 								double u123Disp = p3Add.getU123ADD(p2, r12, x3, y3);
 								
 								
-								double u123SCF = p3.getU123SCF(r12, x3, y3); // Hartrees
+								double u123SCF = p3.getU123SCF(r12, x3, k); // Hartrees
 								
 								p2.setSCF(true); // this is set to false to get dispersion energy above
 								p2.setDisp(false);
@@ -211,6 +219,8 @@ public static void main(String[] args) {
 	       // public int basis = 2;
 	        
 	        public int tempSet = 3; 
+	        public double rmax = 10;
+	        public double rmin = 2.5;
 	    }
 	 
 	 static double kB = 1.3806503e-23; //J/K  
