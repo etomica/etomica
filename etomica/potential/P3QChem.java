@@ -11,23 +11,7 @@ import etomica.util.ParameterBase;
 
 public class P3QChem {
 	
-	
-	public double getU123Disp(P2QChemInterpolated p2, double r12, double x3, double y3) {
-		
-		p2.setSCF(false);
-	
-		double r13 = Math.sqrt(x3*x3 + y3*y3);
-		double r23 = Math.sqrt(x3*x3 + (y3-r12)*(y3-r12));
-		
-		double u12 = p2.u(r12*r12)*kB/JPerHartree;
-		double u13 = p2.u(r13*r13)*kB/JPerHartree;
-		double u23 = p2.u(r23*r23)*kB/JPerHartree;
-    	
-		return (u12+u13+u23); // Hartrees
-    	
-	}
-	
-	public double getU123SCF(double r12, double x3, double y3) {
+	public double getU123SCF(double r12, double x3, int k) {
 		
 		//////////////////////////////////////////////////////
 		// Triplet SCF energy (no dispersion)
@@ -63,13 +47,13 @@ public class P3QChem {
 				
 				if (x3 == x) {
 				
-					int k = (int)(y3/0.1);
+					//int k = (int)Math.round(y3/0.1);
 					
 					//System.out.println(line);
 					String datum = line.split("\t")[k-1];
 					//System.out.println(k+"\n"+ datum + y3);
 					
-					if (datum.length()==0) {
+					if (datum.length() == 0) {
 						u123SCF = Double.NaN;
 					} else {
 						u123SCF = Double.parseDouble(datum); // Hartrees
@@ -142,6 +126,9 @@ public class P3QChem {
 			p2.initialize();
 		}
 		
+		P3AdditiveQChem p3Add = new P3AdditiveQChem();
+		
+		
 		
 	    for (int j=1;j<=100;j++) {
 	    	
@@ -151,10 +138,10 @@ public class P3QChem {
 		
 	    		 double y3 = k*0.1;
 	    		 
-	    		 double u123 = p3.getU123SCF(r12, x3, y3);
+	    		 double u123 = p3.getU123SCF(r12, x3, k);
 
 	    		 if (disp) {
-	    			 u123  = u123 + p3.getU123Disp(p2, r12, x3, y3);
+	    			 u123  = u123 + p3Add.getU123ADD(p2, r12,x3,y3);
 	    		 }
 	    		 
 			    	
