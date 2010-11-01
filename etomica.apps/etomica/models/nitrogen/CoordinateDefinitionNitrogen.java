@@ -894,6 +894,149 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         super.setToU(molecules, newU);
     }
 
+    
+    public void setToUMoleculei(int moleculei, double[] newU) {
+    	
+    	if(newU.length != 5){
+    		throw new RuntimeException("<CoordinateDefinitionNitrogen> setToUMoleculei method, newU[] length should be 5!");
+    	}
+    	
+		IMolecule molecule = box.getMoleculeList().getMolecule(moleculei);
+		IVectorMutable[] siteOrientation = (IVectorMutable[])orientationManager.getAgent(molecule);
+		    	
+		IVectorMutable rotationAxis = space.makeVector();
+		RotationTensor3D rotation = new RotationTensor3D();
+		rotation.E(tensor);
+	            /*
+		    	 *   STEP 1
+		    	 * 
+		    	 * Determine the Orientation of Each Molecule
+		    	 * a. To fine the angle between the molecule orientation and
+		    	 * 		orientation[0] (its initial position)
+		    	 * b. Take the cross product of the 2 vectors to find its rotation axis
+		    	 * c. Use RotationTensor3D to rotate the molecule back to its initial position
+		    	 */
+	         
+		IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+		IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+		    	
+		/*
+         * a.
+         */
+    	axis.Ev1Mv2(leafPos1, leafPos0);
+    	axis.normalize();
+		    		    	
+    	double angle = Math.acos(axis.dot(siteOrientation[0]));
+		    	
+    	/*
+    	 * b.
+    	 */
+		    	
+    	if (Math.abs(angle) > 5e-8){ // make sure we DO NOT cross-product vectors with very small angle
+    		rotationAxis.E(axis);
+	    	rotationAxis.XE(siteOrientation[0]);
+	    	rotationAxis.normalize();
+			    	
+	    	/*
+	    	 * c. rotating clockwise.
+	    	 */
+	    	rotation.setRotationAxis(rotationAxis, angle);
+			    	
+	      	if(rotation.isNaN()){
+	    		System.out.println("Step 1 Rotation tensor is BAD!");
+	    		System.out.println("Rotation Angle is too small, angle: "+ angle);
+	    		System.out.println("Rotation is not necessary");
+	    		System.out.println(rotation);
+	    		throw new RuntimeException();
+	    	}
+	        ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
+            atomGroupAction.actionPerformed(molecule);
+    	}
+	                    
+	 	/*	  
+	 	 *     STEP  2
+		 * 
+	   	 * 
+	   	 *  First we find the component for siteOrientation[1] by the following equation
+	   	 *  x = sqrt(1 - u[j]^2 - u[j+1]^2)  ---eq
+	   	 *  All the vectors used are normalized
+	   	 *  
+	   	 *  a. determine the 'new orientation vector' for the molecule
+	   	 *  	by using the components computed in the equation
+	   	 *  b. find the rotation axis by crossing vector 'new orientation vector' 
+	   	 *  	with siteOrientation[0]
+	   	 *  c. rotate the molecule to the given position
+	   	 *  
+	   	 *  the rotation angle is determine through the equation that satisfies the 
+	   	 *  equation below:
+	   	 *       u3^2 + u4^2 = 2[ 1- cos(theta) ]
+	   	 *  at small theta limit, the equation becomes:
+	   	 *       u3^2 + u4^2 = theta^2
+	   	 *  
+	   	 *  
+	   	 */
+	
+    	double u3 = newU[3];
+	    double u4 = newU[4];
+	    double check = u3*u3 + u4*u4;
+	        	
+	   	/*
+	   	 * scale u3 and u4 accordingly so that they will satisfy the
+	     *  condition u3^2 + u4^2 < 4.0
+	     *  
+	     *  Free Rotor
+	     */
+	    if((Math.abs(u3) > (Math.sqrt(2)+1e-10) || Math.abs(u4) > (Math.sqrt(2)+1e-10)) 
+	    	&& (check > 4.0)){
+	    	System.out.println("FREE ROTOR " + u3 + " " + u4);
+	    	throw new RuntimeException("<CoordinateDefinitionNitrogen> in setToU method");
+	    }
+		  	
+	  
+        if (Math.abs(newU[3])>1e-7 || Math.abs(newU[4])>1e-7){
+        	
+        	/*
+	         * a.	
+	         */
+        	axis.E(0);
+	    	axis.Ea1Tv1(newU[3], siteOrientation[1]);
+	    	axis.PEa1Tv1(newU[4], siteOrientation[2]);
+	    	axis.normalize();
+			    	
+	    	/*
+	    	 * b.
+	    	 */
+	    	angle = Math.acos(1.0000000000000004 - (newU[3]*newU[3] + newU[4]*newU[4])*0.5);
+	    	if(Math.abs(angle) > 1e-7){
+		    	rotationAxis.E(0);
+		    	rotationAxis.E(axis);
+		    	rotationAxis.XE(siteOrientation[0]);
+		    	rotationAxis.normalize();
+				    	
+		    	rotation.setRotationAxis(rotationAxis, -angle);
+				    	
+		    	if(rotation.isNaN()){
+		    		System.out.println("Step 2 Rotation tensor is BAD!");
+		    		System.out.println("Rotation Angle is too small, angle: "+ angle);
+		    		System.out.println("Rotation is not necessary");
+		    		System.out.println(rotation);
+		    		throw new RuntimeException();
+		    	}
+				    	
+		    	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
+		        atomGroupAction.actionPerformed(molecule);
+	    	}
+        }
+		        
+        IVectorMutable site = getLatticePosition(molecule);
+        for (int k = 0; k < site.getD(); k++) {
+        	work1.setX(k, site.getX(k) + newU[k]);
+        }
+		            
+        atomActionTranslateTo.setDestination(work1);
+        atomActionTranslateTo.actionPerformed(molecule);
+    }
+    
     private static final long serialVersionUID = 1L;
 
     protected final RotationTensor3D rotationTensor;
