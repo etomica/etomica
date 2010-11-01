@@ -60,30 +60,34 @@ public class AssociationHelperBranched implements IAssociationHelper {
 
     public boolean populateList(AtomArrayList smerList, IAtom atom, boolean mightBeBroken){
         smerList.clear();
-        if (populate(smerList, atom, mightBeBroken) == 1) {
+        if (populate(smerList, atom, mightBeBroken)) {
             return true;
         }
         // all is well
         return false;
     }
 
-    // return value indicates status
-    // 0: encountered only valid bonds
-    // 1: encountered invalid bonds (multiple atoms on one site)
-    protected int populate(AtomArrayList smerList, IAtom atom, boolean mightBeBroken) {
+    // return true indicates invalid bonding encountered
+    // return false indicates no invalid bonding encountered
+    protected boolean populate(AtomArrayList smerList, IAtom atom, boolean mightBeBroken) {
         smerList.add(atom);
         IAtomList bondList = associationManager.getAssociatedAtoms(atom);
-        validateBondList(atom, bondList, mightBeBroken);
+        if (!validateBondList(atom, bondList, mightBeBroken)) {
+            return true;
+        }
         for (int i=0; i<bondList.getAtomCount(); i++) {
             if (smerList.indexOf(bondList.getAtom(i)) == -1) {
-                if (populate(smerList, bondList.getAtom(i), mightBeBroken) == 1) {
-                    return 1;
+                if (populate(smerList, bondList.getAtom(i), mightBeBroken)) {
+                    return true;
                 }
             }
         }
-        return 0;
+        return false;
     }
 
+    /**
+     * Returns false if invalid bonding is recognized
+     */
     protected boolean validateBondList(IAtom atom, IAtomList bondList, boolean mightBeBroken) {
         if (bondList.getAtomCount() > maxBonds){
             if (mightBeBroken) {
@@ -102,7 +106,7 @@ public class AssociationHelperBranched implements IAssociationHelper {
                     boundary.nearestImage(dr);
                     if (dr.squared() < minR2) {
                         if (mightBeBroken) {
-                            return true;
+                            return false;
                         }
                         System.out.println(atom+" has multiple bonds at one site");
                         System.out.println(bondList);
