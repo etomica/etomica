@@ -127,7 +127,7 @@ public class DataTensor implements IData, java.io.Serializable {
      */
     public double getValue(int i) {
         int D = x.D();
-        if (i < 0 || i >= D)
+        if (i < 0 || i >= D*D)
             throw new IllegalArgumentException("Index out of bounds: " + i);
         int j = i / D;
         i -= D * j;
