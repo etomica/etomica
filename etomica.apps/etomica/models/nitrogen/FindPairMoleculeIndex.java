@@ -11,7 +11,7 @@ import etomica.space.ISpace;
 /**
  * 
  * 
- * @author taitan
+ * @author Tai Boon Tan
  *
  */
 public class FindPairMoleculeIndex {
@@ -87,9 +87,9 @@ public class FindPairMoleculeIndex {
 				int orientB = getOrientationIndex(tempOrientB);
 				
 				//System.out.println(x+" "+y+ " " + z+ " "+orientA + " " + orientB);
-				counter[x][y][z][orientA][orientB]++;
 				indices[x][y][z][orientA][orientB][counter[x][y][z][orientA][orientB]][0] = i;
 				indices[x][y][z][orientA][orientB][counter[x][y][z][orientA][orientB]][1] = j;
+				counter[x][y][z][orientA][orientB]++;
 				//System.out.println(i +" " +j +" vector: " + tempVec.getX(0)+ " " + getOrientationIndex(tempOrient));
 //				System.out.println(i +" " +j +" vector: " + siteIndex[0] +" " + siteIndex[1] +" " +siteIndex[2] 
 //				              + " " + orientA+ " " + orientB);
