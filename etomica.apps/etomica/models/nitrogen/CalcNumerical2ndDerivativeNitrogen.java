@@ -36,7 +36,12 @@ public class CalcNumerical2ndDerivativeNitrogen{
 	public double f(int[] moleculei, double[][] newU) {
 		
 		if(moleculei[0] == moleculei[1]){
-			coordinateDefinition.setToUMoleculei(moleculei[0], newU[0]);
+			double[] u = new double[5];
+			for(int i=0; i<newU[0].length; i++){
+				u[i] += newU[0][i];
+				u[i] += newU[1][i];
+			}
+			coordinateDefinition.setToUMoleculei(moleculei[0], u);
 			
 		} else{
 			coordinateDefinition.setToUMoleculei(moleculei[0], newU[0]);
@@ -121,7 +126,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		 *  f is the energy function
 		 */
 		
-		if(moleculei[0]==moleculei[1]){
+		if(moleculei[0]==moleculei[1] && d[0]==d[1]){
 			/*
 			 * 
 			 *  when u_i = u_j
@@ -132,38 +137,20 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			 *  
 			 */
 				
-			if(d[0]==d[1]){
-				double f_init = f(moleculei, generalizedCoord);
+			double f_init = f(moleculei, generalizedCoord);
 				
-				generalizedCoord[0][d[0]] = deltaU[0];
-				double f_up1 = f(moleculei, generalizedCoord);
+			generalizedCoord[0][d[0]] = deltaU[0];
+			double f_up1 = f(moleculei, generalizedCoord);
 	
-				generalizedCoord[0][d[0]] = -deltaU[0];
-				double f_um1 = f(moleculei, generalizedCoord);
+			generalizedCoord[0][d[0]] = -deltaU[0];
+			double f_um1 = f(moleculei, generalizedCoord);
 				
-				generalizedCoord[0][d[0]] = 0.0;
-				generalizedCoord[1][d[1]] = 0.0;
+			generalizedCoord[0][d[0]] = 0.0;
+			generalizedCoord[1][d[1]] = 0.0;
 				
-				setToInitialPosition(moleculei);
-				return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[1]);  
-				
-			} else {
-				double f_init = f(moleculei, generalizedCoord);
-				
-				generalizedCoord[0][d[0]] = deltaU[0];
-				generalizedCoord[1][d[1]] = deltaU[1];
-				double f_up1 = f(moleculei, generalizedCoord);
-
-				generalizedCoord[0][d[0]] = -deltaU[0];
-				generalizedCoord[1][d[1]] = -deltaU[1];
-				double f_um1 = f(moleculei, generalizedCoord);
-				
-				generalizedCoord[0][d[0]] = 0.0;
-				generalizedCoord[1][d[1]] = 0.0;
-				
-				setToInitialPosition(moleculei);
-				return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[1]);  
-			}
+			setToInitialPosition(moleculei);
+			return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[1]);  
+		
 			
 		} else {
 				
@@ -180,19 +167,19 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			generalizedCoord[0][d[0]] =  deltaU[0];
 			generalizedCoord[1][d[1]] =  deltaU[1];
 			double f_ip1jp1 = f(moleculei, generalizedCoord);
-			
+
 			generalizedCoord[0][d[0]] =  deltaU[0];
 			generalizedCoord[1][d[1]] = -deltaU[1];
 			double f_ip1jm1 = f(moleculei, generalizedCoord);
-			
+
 			generalizedCoord[0][d[0]] = -deltaU[0];
 			generalizedCoord[1][d[1]] = -deltaU[1];
 			double f_im1jm1 = f(moleculei, generalizedCoord);
-				
+
 			generalizedCoord[0][d[0]] = -deltaU[0];
 			generalizedCoord[1][d[1]] =  deltaU[1];
 			double f_im1jp1 = f(moleculei, generalizedCoord);
-			
+
 			generalizedCoord[0][d[0]] = 0.0;
 			generalizedCoord[1][d[1]] = 0.0;
 			
