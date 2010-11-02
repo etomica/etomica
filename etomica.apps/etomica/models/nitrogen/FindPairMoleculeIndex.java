@@ -1,7 +1,6 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
@@ -9,15 +8,27 @@ import etomica.space.ISpace;
 
 
 /**
+ * Class to identify the pair of molecules that are the same in terms of displacement vector and orientation
  * 
+ * This is done to speed up the construction of the Hessian Matrix such that we do not have to recalculate
+ * 	the block matrix that is the same.
  * 
+ * The index field is a 5-dimensional array
+ * 	index[0] is x-direction displacement
+ *  index[1] is y-direction displacement
+ *  index[2] is z-direction displacement
+ *  index[3] is the orientation of moleculeA 
+ *  index[4] is the orientation of moleculeB
+ *  
+ * The isNewPair array is to keep track whether the pair with index[][][][][] 
+ * has been looped over or not.
+ *   
  * @author Tai Boon Tan
  *
  */
 public class FindPairMoleculeIndex {
 	public FindPairMoleculeIndex(ISpace space, CoordinateDefinitionNitrogen coordinateDefination){
 		this.coordinateDef = coordinateDefination;
-		molecules = coordinateDefination.getBox().getMoleculeList();
 		positionDefinition = new AtomPositionGeometricCenter(space);
 		tempVec = space.makeVector();
 		tempOrientA = space.makeVector();
@@ -26,7 +37,12 @@ public class FindPairMoleculeIndex {
 		molAVec = space.makeVector();
 		molBVec = space.makeVector();
 		
-		nCell = (int) Math.round(Math.pow((molecules.getMoleculeCount()/4), 1.0/3.0));
+		int numMolecule = coordinateDefination.getBox().getMoleculeList().getMoleculeCount();
+		nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
+		if(nCell > 20){
+			throw new RuntimeException("<FindPairMoleculeIndex> nCell is greater than 20!!! " +
+					"YOU ARE CRASHING JAVA MEMORY!! Live long and prosper!");
+		}
 		halfUnitCellLength = coordinateDefination.getBox().getBoundary().getBoxSize().getX(0)/(2.0*nCell);
 		
 		int nSites = 2*nCell+1;
@@ -37,66 +53,51 @@ public class FindPairMoleculeIndex {
 			orientation[i] = space.makeVector();
 		}
 
-		indices = new int [nSites][nSites][nSites][4][4][molecules.getMoleculeCount()][2];
-		counter = new int [nSites][nSites][nSites][4][4];
+		index = new int[5];
+		isNewPair = new boolean[nSites][nSites][nSites][4][4];
 		
-		for (int a=0; a<counter.length; a++){
-			for (int b=0; b<counter[0].length; b++){
-				for (int c=0; c<counter[0][0].length; c++){
-					for (int d=0; d<counter[0][0][0].length; d++){
-						for (int e=0; e<counter[0][0][0][0].length; e++){
-							counter[a][b][c][d][e] = 0;
+		for(int a=0; a<isNewPair.length; a++){
+			for(int b=0; b<isNewPair[0].length; b++){
+				for(int c=0; c<isNewPair[0][0].length; c++){
+					for(int d=0; d<isNewPair[0][0][0].length; d++){
+						for(int e=0; e<isNewPair[0][0][0][0].length; e++){
+							isNewPair[a][b][c][d][e] = true;
 						}	
 					}	
 				}	
 			}	
 		}
-		
+				
 	}
 	
-	public void screenMolecules(){
-		int numMol = molecules.getMoleculeCount();
-		
-		for (int i=0; i<numMol; i++){
-			IMolecule moleculeA = molecules.getMolecule(i);
-			molAVec.E(positionDefinition.position(moleculeA));
+	public int[] getPairMoleculesIndex(IMolecule moleculeA, IMolecule moleculeB){
+	
+		molAVec.E(positionDefinition.position(moleculeA));
 			
-			IVectorMutable molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
-    	   	IVectorMutable molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
+		IVectorMutable molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
+    	IVectorMutable molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
     	 
-			tempOrientA.Ev1Mv2(molAleafPos1, molAleafPos0);
-			tempOrientA.normalize();
+		tempOrientA.Ev1Mv2(molAleafPos1, molAleafPos0);
+		tempOrientA.normalize();
     	   	
-			for(int j=i; j<numMol; j++){
-				IMolecule moleculeB = molecules.getMolecule(j);
-				molBVec.E(positionDefinition.position(moleculeB));
-				tempVec.Ev1Mv2(molBVec, molAVec);
-				coordinateDef.getBox().getBoundary().nearestImage(tempVec);
+		molBVec.E(positionDefinition.position(moleculeB));
+		tempVec.Ev1Mv2(molBVec, molAVec);
+		coordinateDef.getBox().getBoundary().nearestImage(tempVec);
 				
-				IVectorMutable molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
-	    	   	IVectorMutable molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
+		IVectorMutable molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
+	    IVectorMutable molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
 	    	 
-				tempOrientB. Ev1Mv2(molBleafPos1, molBleafPos0);
-				tempOrientB.normalize();
+		tempOrientB. Ev1Mv2(molBleafPos1, molBleafPos0);
+		tempOrientB.normalize();
 				
-				int[] siteIndex = getSiteDisplacementIndex(tempVec);
-				int x = siteIndex[0];
-				int y = siteIndex[1];
-				int z = siteIndex[2];
-				int orientA = getOrientationIndex(tempOrientA);
-				int orientB = getOrientationIndex(tempOrientB);
+		int[] siteIndex = getSiteDisplacementIndex(tempVec);
+		index[0] = siteIndex[0];
+		index[1] = siteIndex[1];
+		index[2] = siteIndex[2];
+		index[3] = getOrientationIndex(tempOrientA);
+		index[4] = getOrientationIndex(tempOrientB);
 				
-				//System.out.println(x+" "+y+ " " + z+ " "+orientA + " " + orientB);
-				indices[x][y][z][orientA][orientB][counter[x][y][z][orientA][orientB]][0] = i;
-				indices[x][y][z][orientA][orientB][counter[x][y][z][orientA][orientB]][1] = j;
-				counter[x][y][z][orientA][orientB]++;
-				//System.out.println(i +" " +j +" vector: " + tempVec.getX(0)+ " " + getOrientationIndex(tempOrient));
-//				System.out.println(i +" " +j +" vector: " + siteIndex[0] +" " + siteIndex[1] +" " +siteIndex[2] 
-//				              + " " + orientA+ " " + orientB);
-			}
-			//System.out.println("**************\n");
-		}
-		
+		return index;
 	}
 	
 	public int[] getSiteDisplacementIndex(IVectorMutable siteDisplacement){
@@ -105,7 +106,26 @@ public class FindPairMoleculeIndex {
 		index[1] = (int)Math.round(tempVec.getX(1)/halfUnitCellLength) + nCell;
 		index[2] = (int)Math.round(tempVec.getX(2)/halfUnitCellLength) + nCell;
 		
-		return index;
+		return index; 
+	}
+	
+	public void updateNewMoleculePair(int[] index){
+		isNewPair[index[0]][index[1]][index[2]][index[3]][index[4]]=false;
+		
+	}
+	
+	public void resetNewMoleculePair(){
+		for(int a=0; a<isNewPair.length; a++){
+			for(int b=0; b<isNewPair[0].length; b++){
+				for(int c=0; c<isNewPair[0][0].length; c++){
+					for(int d=0; d<isNewPair[0][0][0].length; d++){
+						for(int e=0; e<isNewPair[0][0][0][0].length; e++){
+							isNewPair[a][b][c][d][e] = true;
+						}	
+					}	
+				}	
+			}	
+		}
 	}
 	
 	public int getOrientationIndex(IVectorMutable orientation){
@@ -128,30 +148,17 @@ public class FindPairMoleculeIndex {
 		}
 	}
 	
-	public int[][][][][][][] getIndices() {
-		return indices;
+	public boolean getIsNewPair(int[] index) {
+		return isNewPair[index[0]][index[1]][index[2]][index[3]][index[4]];
 	}
-
-	public void setIndices(int[][][][][][][] indices) {
-		this.indices = indices;
-	}
-
-	public int[][][][][] getCounter() {
-		return counter;
-	}
-
-	public void setCounter(int[][][][][] counter) {
-		this.counter = counter;
-	}
-
-	protected int[][][][][][][] indices;
-	protected int[][][][][] counter;
+	
+	protected int[] index;
 	protected CoordinateDefinitionNitrogen coordinateDef;
-	protected IMoleculeList molecules;
 	protected IAtomPositionDefinition positionDefinition;
 	protected IVectorMutable tempVec, tempOrientA, tempOrientB, molAVec, molBVec;
 	protected IVectorMutable[] orientation;
 	protected double halfUnitCellLength;
 	protected double[][][] siteDisplacement;
+	protected boolean[][][][][] isNewPair;
 	protected int nCell;
 }
