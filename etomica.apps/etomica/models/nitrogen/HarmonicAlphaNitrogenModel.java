@@ -75,7 +75,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 
 	}
 	
-	public double[][] get2ndDerivative(CoordinateDefinition coordinateDef){
+	public double[][] get2ndDerivative(){
 		
 		double[][] array = new double[coordinateDef.getCoordinateDim()][coordinateDef.getCoordinateDim()];
 		double[] newU = new double[coordinateDef.getCoordinateDim()];
@@ -178,7 +178,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 		
 		long startTime = System.currentTimeMillis();
 		double[] newU = new double[test.coordinateDef.getCoordinateDim()];
-		double[][]testArray = test.get2ndDerivative(test.coordinateDef);
+		double[][]testArray = test.get2ndDerivative();
 		
 		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
 		try {
