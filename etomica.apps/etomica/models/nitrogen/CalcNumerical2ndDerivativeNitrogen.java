@@ -1,9 +1,8 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IBox;
+import etomica.api.IMoleculeList;
 import etomica.atom.MoleculePair;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.potential.PotentialMaster;
 
 /**
  *  Determine the second derivative of the atomic/ molecular potential energy w.r.t. to
@@ -35,11 +34,35 @@ public class CalcNumerical2ndDerivativeNitrogen{
 	}
  	
 	public double f(int[] moleculei, double[][] newU) {
-		coordinateDefinition.setToUMoleculei(moleculei[0], newU[0]);
-		coordinateDefinition.setToUMoleculei(moleculei[1], newU[1]);
 		
-		MoleculePair pair = new MoleculePair(coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[0]), 
-				coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[1]));
+		if(moleculei[0] == moleculei[1]){
+			coordinateDefinition.setToUMoleculei(moleculei[0], newU[0]);
+			
+		} else{
+			coordinateDefinition.setToUMoleculei(moleculei[0], newU[0]);
+			coordinateDefinition.setToUMoleculei(moleculei[1], newU[1]);
+		}
+		
+		MoleculePair pair = new MoleculePair();
+		
+		if(moleculei[0] == moleculei[1]){
+			double sum = 0.0;
+			IMoleculeList moleculeList = coordinateDefinition.getBox().getMoleculeList();
+			int numMolecule = moleculeList.getMoleculeCount();
+			
+			pair.atom0 = moleculeList.getMolecule(moleculei[0]);
+			for (int i=0; i<numMolecule; i++){
+				if(i==moleculei[0]) continue; 
+				pair.atom1 =moleculeList.getMolecule(i);
+				sum += potential.energy(pair);
+				
+			}
+			return sum;
+		}
+		
+		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[0]);
+		pair.atom1 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[1]);
+		
 		return potential.energy(pair);
 		
 	}
@@ -98,7 +121,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		 *  f is the energy function
 		 */
 		
-		if(moleculei[0]==moleculei[1] && d[0]==d[1]){
+		if(moleculei[0]==moleculei[1]){
 			/*
 			 * 
 			 *  when u_i = u_j
@@ -109,21 +132,38 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			 *  
 			 */
 				
-			double f_init = f(moleculei, generalizedCoord);
-			
-			generalizedCoord[0][d[0]] = deltaU[0];
-			generalizedCoord[1][d[1]] = deltaU[1];
-			double f_up1 = f(moleculei, generalizedCoord);
+			if(d[0]==d[1]){
+				double f_init = f(moleculei, generalizedCoord);
+				
+				generalizedCoord[0][d[0]] = deltaU[0];
+				double f_up1 = f(moleculei, generalizedCoord);
+	
+				generalizedCoord[0][d[0]] = -deltaU[0];
+				double f_um1 = f(moleculei, generalizedCoord);
+				
+				generalizedCoord[0][d[0]] = 0.0;
+				generalizedCoord[1][d[1]] = 0.0;
+				
+				setToInitialPosition(moleculei);
+				return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[1]);  
+				
+			} else {
+				double f_init = f(moleculei, generalizedCoord);
+				
+				generalizedCoord[0][d[0]] = deltaU[0];
+				generalizedCoord[1][d[1]] = deltaU[1];
+				double f_up1 = f(moleculei, generalizedCoord);
 
-			generalizedCoord[0][d[0]] = -deltaU[0];
-			generalizedCoord[1][d[1]] = -deltaU[1];
-			double f_um1 = f(moleculei, generalizedCoord);
-			
-			generalizedCoord[0][d[0]] = 0.0;
-			generalizedCoord[1][d[1]] = 0.0;
-			
-			setToInitialPosition(moleculei);
-			return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[1]);  
+				generalizedCoord[0][d[0]] = -deltaU[0];
+				generalizedCoord[1][d[1]] = -deltaU[1];
+				double f_um1 = f(moleculei, generalizedCoord);
+				
+				generalizedCoord[0][d[0]] = 0.0;
+				generalizedCoord[1][d[1]] = 0.0;
+				
+				setToInitialPosition(moleculei);
+				return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[1]);  
+			}
 			
 		} else {
 				
