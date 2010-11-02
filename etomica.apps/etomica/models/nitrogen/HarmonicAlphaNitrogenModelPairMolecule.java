@@ -36,7 +36,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 		
 		
 		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-		double unitCellLength = 5.661;//Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
+		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
 		System.out.println("a: " + unitCellLength);
 		System.out.println("nCell: " + nCell);
 		
