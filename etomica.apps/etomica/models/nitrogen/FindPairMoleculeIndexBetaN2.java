@@ -64,8 +64,10 @@ public class FindPairMoleculeIndexBetaN2 {
 		lengthY = tempVec.getX(1);
 		lengthZ = tempVec.getX(2);
 		
-		int nSites = 2*nCell+1;
-		siteDisplacement = new double[nSites][nSites][nSites];
+		int xSites = 2*nCell+1;
+		int ySites = 4*nCell+1;
+		int zSites = 2*nCell+1;
+		siteDisplacement = new double[xSites][ySites][zSites];
 		orientation = new IVectorMutable[4];
 		
 		for (int i=0; i<orientation.length; i++){
@@ -73,7 +75,7 @@ public class FindPairMoleculeIndexBetaN2 {
 		}
 
 		index = new int[5];
-		isNewPair = new boolean[nSites][nSites][nSites][4][4];
+		isNewPair = new boolean[xSites][ySites][zSites][4][4];
 		
 		for(int a=0; a<isNewPair.length; a++){
 			for(int b=0; b<isNewPair[0].length; b++){
@@ -123,6 +125,7 @@ public class FindPairMoleculeIndexBetaN2 {
 		coordinateDef.getBox().getBoundary().nearestImage(tempVec);
 		int[] siteIndex = getSiteDisplacementIndex(tempVec);
 		
+		//System.out.println("tempVec: " + tempVec.toString());
 		index[0] = siteIndex[0];
 		index[1] = siteIndex[1];
 		index[2] = siteIndex[2];
@@ -136,15 +139,15 @@ public class FindPairMoleculeIndexBetaN2 {
 			index[4] = getOrientationIndex(tempOrientB);
 				
 		}
-		
+		//System.out.println(index[0]+"  "+index[1]+"  "+index[2]);
 		return index;
 	}
 		
 	public int[] getSiteDisplacementIndex(IVectorMutable siteDisplacement){
 		int[] index = new int[3];
-		index[0] = (int)Math.round(tempVec.getX(0)/lengthX) + nCell;
-		index[1] = (int)Math.round(tempVec.getX(1)/lengthY) + nCell;
-		index[2] = (int)Math.round(tempVec.getX(2)/lengthZ) + nCell;
+		index[0] = (int)Math.round(tempVec.getX(0)/lengthX) +  nCell;
+		index[1] = (int)Math.round(tempVec.getX(1)/lengthY) + (nCell*2);
+		index[2] = (int)Math.round(tempVec.getX(2)/lengthZ) +  nCell;
 		
 		return index; 
 	}
