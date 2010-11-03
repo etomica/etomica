@@ -15,7 +15,6 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.normalmode.BasisBigCell;
-import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -65,13 +64,13 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		
 		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space, 0);
 		coordinateDef.setIsBeta();
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
 		
 		box.setBoundary(boundary);
-		double rCScale = 0.485;
+		double rCScale = 0.475;
 		double rC = aDim*nC*rCScale;
 		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 		
@@ -82,7 +81,7 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 
 	}
 	
-	public double[][] get2ndDerivative(CoordinateDefinition coordinateDef){
+	public double[][] get2ndDerivative(){
 	
 		int numMolecule = box.getMoleculeList().getMoleculeCount();
 		int dofTrans = 3;
@@ -234,13 +233,13 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 		HarmonicBetaNitrogenModel test = new HarmonicBetaNitrogenModel(Space3D.getInstance(3), numMolecule, density);
 
 		long startTime = System.currentTimeMillis();
-		double[][]testArray = test.get2ndDerivative(test.coordinateDef);
+		double[][]testArray = test.get2ndDerivative();
 		String filename = new String ("beta"+numMolecule+"_2ndDer_d"+density);
 
 		test.get2ndDerivativeFile(testArray, filename);
 		System.out.println("***get second derivative file done!");
-		test.doEigenDecomposeAndFile(testArray, filename);
-		System.out.println("***do decomposition done!");
+//		test.doEigenDecomposeAndFile(testArray, filename);
+//		System.out.println("***do decomposition done!");
 		
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time taken (s): " + (endTime-startTime)/1000);
