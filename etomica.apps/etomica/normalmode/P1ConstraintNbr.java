@@ -20,6 +20,10 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 
     // this could take a NeighborListManager to try to speed up finding neighbors
     public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim) {
+        this(space, neighborDistance, sim, 3.0);
+    }
+    
+    public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim, double constraint) {
         boxManager = new BoxAgentManager(null, sim);
         
         neighborRadiusSq = neighborDistance*neighborDistance;
@@ -27,6 +31,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
         //Check for neighboring sites
         drj = space.makeVector();
         drk = space.makeVector();
+        this.constraint = constraint;
     }
     
     /**
@@ -54,6 +59,11 @@ public class P1ConstraintNbr implements IPotentialAtomic{
                     tmpList.add(atomj);
                 }
             }
+            if (i == 56){
+                System.out.println(tmpList);
+            }
+            
+            
             for (int j=0; j<6; j++) {
                 IAtom atomj = tmpList.getAtom(0);
                 drj.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
@@ -65,7 +75,13 @@ public class P1ConstraintNbr implements IPotentialAtomic{
                 neighborAtoms[i][j*2+1] = tmpList.getAtom(indexj2).getLeafIndex();
                 tmpList.remove(indexj2);
             }
+            
+            
+            
+            
         }
+        
+        
         
         boxManager.setAgent(box, neighborAtoms);
     }
@@ -82,6 +98,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
         boundary = box.getBoundary();
         leafList = box.getLeafList();
         neighborAtoms = (int[][])boxManager.getAgent(box);
+        boxIndex = box.getIndex();
     }
 
     /**
@@ -105,7 +122,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
      */
 	public double energy(IAtomList atoms) {
 	    
-	    if (true) return 0;
+	    if (false) return 0;
 	    IAtom atom = atoms.getAtom(0);
 	    double u = energyi(atom);
 	    if (u == Double.POSITIVE_INFINITY) {
@@ -129,7 +146,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 */
 	public double energyi(IAtom atom) {
 
-	    if (true) return 0;
+	    if (false) return 0;
 	    
 	    
 	    
@@ -144,12 +161,12 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	        boundary.nearestImage(drj);
 	        // second-nearest neighbor should be at 2.66, 3rd nearest around 3.5
 	        // 3 seems to work OK
-	        if (drj.squared() > neighborRadiusSq*3.0) {
+	        if (drj.squared() > neighborRadiusSq*constraint) {
 	            return Double.POSITIVE_INFINITY;
 	        }
 	        drk.Ev1Mv2(posAtom, atomk.getPosition());
 	        boundary.nearestImage(drk);
-	        if (drk.squared() > neighborRadiusSq*3.0) {
+	        if (drk.squared() > neighborRadiusSq*constraint) {
 	            return Double.POSITIVE_INFINITY;
 	        }
 	        if (drj.dot(drk) > 0) {
@@ -199,4 +216,6 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	protected IBoundary boundary;
 	protected IAtomList leafList;
 	protected BoxAgentManager boxManager;
+	protected int boxIndex;
+	protected double constraint;
 }

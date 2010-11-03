@@ -1,5 +1,6 @@
 package etomica.models.oneDHardRods;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -7,8 +8,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -19,6 +22,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.graphics.ColorScheme;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
@@ -46,6 +50,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -95,11 +100,12 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
     
     double refSumWVC, targSumWVC;
     int targModesCt, refModeCt;
+    double constraint; 
     
     
     public SimDifferentImageSsFccDoubleSize(Space _space, int[] nCellsRef, 
             int[] nCellsTarget, double density, int blocksize, 
-            double tems, int exponent, String inputFile) {
+            double tems, int exponent, String inputFile, double constraint) {
         super(_space);
         System.out.println("Running " + APP_NAME);
         
@@ -118,6 +124,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         targAtoms *= 4;    //definitely fcc
         
         double temperature = tems;
+        this.constraint = constraint;
         String rIn = inputFile + refAtoms;
         String tIn = inputFile + targAtoms;
         
@@ -163,6 +170,10 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
             neighborRange = 0.495 * lengths[1];
         }else {
             neighborRange = 0.495 * lengths[2];
+        }
+        
+        if(refAtoms >= 256){
+            neighborRange = 2.2;
         }
         
         Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 
@@ -284,7 +295,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
         
         P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
-                primitiveLength/Math.sqrt(2.0), this);
+                primitiveLength/Math.sqrt(2.0), this, constraint);
         potentialMaster.addPotential(nbrConstraint, new IAtomType[] {
                 species.getLeafType()});
         nbrConstraint.initBox(boxRef);
@@ -504,6 +515,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         int eqNumSteps = params.eqNumSteps;
         int benNumSteps = params.bennettNumSteps;
         int exp = params.exponent;
+        double constr = params.constraint;
         boolean first = params.first;
         int[] refCells = params.refShape;
         int[] targCells = params.targShape;
@@ -528,7 +540,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         // instantiate simulation
         SimDifferentImageSsFccDoubleSize sim = new SimDifferentImageSsFccDoubleSize(
                 Space.getInstance(D), refCells, targCells, density, runBlockSize,
-                temperature, exp, inputFile);
+                temperature, exp, inputFile, constr);
         System.out.println("Dimension " + sim.space.D());
         System.out.println("Temperature " + temperature);
         System.out.println("Ref system is " +nRefA + " atoms at density " + density);
@@ -541,9 +553,52 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         System.out.println("instantiated");
         
         if(false) {
-            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space, 
-                    sim.getController());
-            graphic.makeAndDisplayFrame();
+//            SimulationGraphic graphic = new SimulationGraphic(sim, sim.space, 
+//                    sim.getController());
+//            graphic.makeAndDisplayFrame();
+//            return;
+            
+            
+            
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, 
+                    SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            ColorScheme colorScheme = new ColorScheme() {
+                public Color getAtomColor(IAtom a) {
+                    if(a.getLeafIndex() == 56) return Color.WHITE;
+                    if(a.getLeafIndex() == 57) return Color.YELLOW;
+                    if(a.getLeafIndex() == 58) return Color.CYAN;
+                    if(a.getLeafIndex() == 59) return Color.BLUE;
+                    if(a.getLeafIndex() == 42) return Color.GREEN;
+                    if(a.getLeafIndex() == 43) return Color.GRAY;
+                    if(a.getLeafIndex() == 50) return Color.GREEN;
+                    if(a.getLeafIndex() == 49) return Color.MAGENTA;
+                    if(a.getLeafIndex() == 34) return Color.CYAN;
+                    if(a.getLeafIndex() == 31) return Color.GRAY;
+                    if(a.getLeafIndex() == 29) return Color.MAGENTA;
+                    if(a.getLeafIndex() == 21) return Color.YELLOW;
+                    if(a.getLeafIndex() == 15) return Color.BLUE;
+                    
+                    
+                    if(true) return Color.red;
+                    if (allColors==null) {
+                        allColors = new Color[768];
+                        for (int i=0; i<256; i++) {
+                            allColors[i] = new Color(255-i,i,0);
+                        }
+                        for (int i=0; i<256; i++) {
+                            allColors[i+256] = new Color(0,255-i,i);
+                        }
+                        for (int i=0; i<256; i++) {
+                            allColors[i+512] = new Color(i,0,255-i);
+                        }
+                    }
+                    return allColors[(16*a.getLeafIndex()) % 768];
+                }
+                protected Color[] allColors;
+            };
+            simGraphic.getDisplayBox(sim.boxRef).setColorScheme(colorScheme);
+            simGraphic.getDisplayBox(sim.boxTarget).setColorScheme(colorScheme);
+            simGraphic.makeAndDisplayFrame();
             return;
         }
         
@@ -636,8 +691,9 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
-        public double temperature = 0.01;
+        public double temperature = 1.0;
         public int exponent = 12;
+        public double constraint = 2.0;
         
         public String inputFile = "inputSSDB_DS";
         public String filename = "output";
