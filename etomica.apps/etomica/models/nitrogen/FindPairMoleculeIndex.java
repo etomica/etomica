@@ -70,7 +70,7 @@ public class FindPairMoleculeIndex {
 				
 	}
 	
-	public int[] getPairMoleculesIndex(IMolecule moleculeA, IMolecule moleculeB){
+	public int[] getPairMoleculesIndex(IMolecule moleculeA, IMolecule moleculeB, boolean isReverseOrder){
 	
 		molAVec.E(positionDefinition.position(moleculeA));
 			
@@ -81,7 +81,12 @@ public class FindPairMoleculeIndex {
 		tempOrientA.normalize();
     	   	
 		molBVec.E(positionDefinition.position(moleculeB));
-		tempVec.Ev1Mv2(molBVec, molAVec);
+		
+		if(isReverseOrder){
+			tempVec.Ev1Mv2(molAVec, molBVec);
+		} else {
+			tempVec.Ev1Mv2(molBVec, molAVec);	
+		}
 		coordinateDef.getBox().getBoundary().nearestImage(tempVec);
 				
 		IVectorMutable molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
@@ -94,9 +99,16 @@ public class FindPairMoleculeIndex {
 		index[0] = siteIndex[0];
 		index[1] = siteIndex[1];
 		index[2] = siteIndex[2];
-		index[3] = getOrientationIndex(tempOrientA);
-		index[4] = getOrientationIndex(tempOrientB);
+		
+		if(isReverseOrder){
+			index[3] = getOrientationIndex(tempOrientB);
+			index[4] = getOrientationIndex(tempOrientA);
+			
+		} else{
+			index[3] = getOrientationIndex(tempOrientA);
+			index[4] = getOrientationIndex(tempOrientB);
 				
+		}
 		return index;
 	}
 	

@@ -105,7 +105,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 				// Analytical calculation for 3x3 Translational second Derivative
 				pair.atom1 = box.getMoleculeList().getMolecule(molec1);
 		
-				int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1);
+				int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, false);
 				boolean isNewPair = findPair.getIsNewPair(index);
 				
 				if(isNewPair){
@@ -175,7 +175,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 
 		for(int molec0=0; molec0<numMolecule; molec0++){
 			IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
-			int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0);
+			int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0, false);
 			boolean isNewPair = findPair.getIsNewPair(index);
 			
 			if(isNewPair){
@@ -195,7 +195,6 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
     					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[molec0*dofPerMol + i][molec0*dofPerMol + j];
     				}
 				}
-    			findPair.updateNewMoleculePair(index);
     			
 			} else {
 				
@@ -208,12 +207,10 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 			}
 			
     	}
-		
-		findPair.resetNewMoleculePair();
-		
+				
 		for(int molec0=0; molec0<numMolecule; molec0++){
 			IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
-			int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0);
+			int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0, false);
 			boolean isNewPair = findPair.getIsNewPair(index);
 			
 			// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
@@ -245,7 +242,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int nC=6;
+		int nC=2;
 		if(args.length > 0){
 			nC = Integer.parseInt(args[0]);
 		}
@@ -258,7 +255,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 		double[] newU = new double[test.coordinateDef.getCoordinateDim()];
 		double[][]testArray = test.get2ndDerivative();
 		
-		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
+		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_newPair");
 		try {
 			FileWriter fileWriter = new FileWriter(fname);
 			
