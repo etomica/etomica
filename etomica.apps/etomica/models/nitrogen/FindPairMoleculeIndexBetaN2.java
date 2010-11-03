@@ -40,7 +40,7 @@ public class FindPairMoleculeIndexBetaN2 {
 		molBVec = space.makeVector();
 		
 		int numMolecule = coordinateDefination.getBox().getMoleculeList().getMoleculeCount();
-		int nCell = (int) Math.round(Math.pow((numMolecule/1.999999999), 1.0/3.0));
+		nCell = (int) Math.round(Math.pow((numMolecule/1.999999999), 1.0/3.0));
 		if(nCell > 20){
 			throw new RuntimeException("<FindPairMoleculeIndexBetaNitrogen> nCell is greater than 20!!! " +
 					"YOU ARE CRASHING JAVA MEMORY!! Live long and prosper!");
@@ -142,9 +142,9 @@ public class FindPairMoleculeIndexBetaN2 {
 		
 	public int[] getSiteDisplacementIndex(IVectorMutable siteDisplacement){
 		int[] index = new int[3];
-		index[0] = (int)Math.round(tempVec.getX(0)/lengthX);
-		index[1] = (int)Math.round(tempVec.getX(1)/lengthY);
-		index[2] = (int)Math.round(tempVec.getX(2)/lengthZ);
+		index[0] = (int)Math.round(tempVec.getX(0)/lengthX) + nCell;
+		index[1] = (int)Math.round(tempVec.getX(1)/lengthY) + nCell;
+		index[2] = (int)Math.round(tempVec.getX(2)/lengthZ) + nCell;
 		
 		return index; 
 	}
@@ -200,4 +200,5 @@ public class FindPairMoleculeIndexBetaN2 {
 	protected double lengthX, lengthY, lengthZ;
 	protected double[][][] siteDisplacement;
 	protected boolean[][][][][] isNewPair;
+	protected int nCell;
 }
