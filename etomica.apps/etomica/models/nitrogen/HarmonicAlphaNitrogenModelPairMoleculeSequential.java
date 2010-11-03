@@ -239,26 +239,30 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		
 	}
 	
-	public void constructHessianMatrix(String fname, int numMolecules){
+	public void constructHessianMatrix(String fname, int nCell){
 		
-		double[][] array = new double[5][coordinateDef.getCoordinateDim()];
+		int numMolecules = nCell*nCell*nCell*4;
+		int interval = nCell*4;
+		double[][][] array = new double[interval][5][coordinateDef.getCoordinateDim()];
 		
 		try {
 			FileWriter fileWriter = new FileWriter(fname);
 			
-			for (int iMol=0; iMol<numMolecules; iMol++){
-				array = get2ndDerivative(iMol);
-				
-				for (int iRow=0; iRow< array.length; iRow++){
-					for (int jCol=0; jCol< array[0].length; jCol++){
-						
-						double value = array[iRow][jCol];
-						if(Math.abs(value) < 1e-6){
-							value = 0.0;
+			for (int iMol=0; iMol<numMolecules; iMol+=interval){
+				for(int i=0; i<interval; i++){
+					array[i] = get2ndDerivative(iMol+i);
+				}
+				for(int i=0; i<interval; i++){
+					for (int iRow=0; iRow< array[0].length; iRow++){
+						for (int jCol=0; jCol< array[0][0].length; jCol++){
+							double value = array[i][iRow][jCol];
+//							if(Math.abs(value) < 1e-6){
+//								value = 0.0;
+//							}
+							fileWriter.write(value+ " ");
 						}
-						fileWriter.write(value+ " ");
+						fileWriter.write("\n");
 					}
-					fileWriter.write("\n");
 				}
 			}
 			
@@ -296,8 +300,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		
 		long startTime = System.currentTimeMillis();
 		
-		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_newSeq");
-		test.constructHessianMatrix(fname, numMolecule);
+		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
+		test.constructHessianMatrix(fname, nC);
 		
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time taken (s): " + (endTime-startTime)/1000);
