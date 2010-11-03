@@ -229,12 +229,12 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 	public static void main (String[] args){
 		
 		int nCell = 4;
-		int numMolecule = nCell*nCell*nCell*2;
 		double density = 0.025;
 		
 		if(args.length > 0){
 			nCell = Integer.parseInt(args[0]);
 		}
+		int numMolecule = nCell*nCell*nCell*2;
 		System.out.println("Running simulation to construct Hessian Matrix for beta-phase nitrogen");
 		System.out.println("with numMolecule of "+numMolecule + " at density of " + density);
 		
