@@ -199,7 +199,7 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 		
 		int dofTrans = array.length;
 		try {
-			FileWriter fileWriter = new FileWriter(filename+".hes");
+			FileWriter fileWriter = new FileWriter(filename);//+".hes");
 			
 			for (int i=0; i<dofTrans; i++){
 				for (int j=0; j<dofTrans; j++){
@@ -217,16 +217,13 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int numMolecule =432;
+		int nCell = 8;
 		double density = 0.025;
 		
 		if(args.length > 0){
-			numMolecule = Integer.parseInt(args[0]);
+			nCell = Integer.parseInt(args[0]);
 		}
-		if(args.length > 1){
-			density = Double.parseDouble(args[1]);
-		}
-		
+		int numMolecule = nCell*nCell*nCell*2;
 		System.out.println("Running simulation to construct Hessian Matrix for beta-phase nitrogen");
 		System.out.println("with numMolecule of "+numMolecule + " at density of " + density);
 		
@@ -234,7 +231,7 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 
 		long startTime = System.currentTimeMillis();
 		double[][]testArray = test.get2ndDerivative();
-		String filename = new String ("beta"+numMolecule+"_2ndDer_d"+density);
+		String filename = new String ("beta"+numMolecule+"_2ndDer_d"+density+"_new");
 
 		test.get2ndDerivativeFile(testArray, filename);
 		System.out.println("***get second derivative file done!");
