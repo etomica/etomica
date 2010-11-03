@@ -59,11 +59,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
                     tmpList.add(atomj);
                 }
             }
-            if (i == 56){
-                System.out.println(tmpList);
-            }
-            
-            
+
             for (int j=0; j<6; j++) {
                 IAtom atomj = tmpList.getAtom(0);
                 drj.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
@@ -75,14 +71,8 @@ public class P1ConstraintNbr implements IPotentialAtomic{
                 neighborAtoms[i][j*2+1] = tmpList.getAtom(indexj2).getLeafIndex();
                 tmpList.remove(indexj2);
             }
-            
-            
-            
-            
         }
-        
-        
-        
+
         boxManager.setAgent(box, neighborAtoms);
     }
 
@@ -121,8 +111,6 @@ public class P1ConstraintNbr implements IPotentialAtomic{
      * Returns sum of energy for all triplets containing the given atom
      */
 	public double energy(IAtomList atoms) {
-	    
-	    if (false) return 0;
 	    IAtom atom = atoms.getAtom(0);
 	    double u = energyi(atom);
 	    if (u == Double.POSITIVE_INFINITY) {
@@ -145,11 +133,6 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	 * neighbors (but not for i as a neighbor)
 	 */
 	public double energyi(IAtom atom) {
-
-	    if (false) return 0;
-	    
-	    
-	    
 	    IVectorMutable posAtom = atom.getPosition();
 
 	    int atomIndex = atom.getLeafIndex();
