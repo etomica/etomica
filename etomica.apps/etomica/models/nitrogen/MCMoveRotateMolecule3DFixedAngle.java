@@ -213,7 +213,7 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
 //    	if(Double.isInfinite(energy)){
 //    		return -1.0;
 //    	}
-        return 1.0; //always accept the rotational move, See the acceptance criteria in IntegratorMC
+        return 0.0; //always accept the rotational move, See the acceptance criteria in IntegratorMC
     }
     
     public double energyChange() { return 0.0;}
