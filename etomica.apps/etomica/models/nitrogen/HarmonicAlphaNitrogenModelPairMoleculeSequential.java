@@ -78,7 +78,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		
 		int nSites = 2*nCell+1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
-				
+		
+		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
+		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
@@ -89,10 +91,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		int numMolecule = coordinateDef.getBox().getMoleculeList().getMoleculeCount();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		double[][] array = new double[dofPerMol][coordinateDef.getCoordinateDim()];
-		
-		CalcNumerical2ndDerivativeNitrogen cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
-		FindPairMoleculeIndex findPair = new FindPairMoleculeIndex(space, coordinateDef);
-	
+			
 		/*
 		 *	Constructing the upper diagonal of the matrix
 		 *	(Skipping the molec1 == molec2) 
@@ -207,7 +206,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 				
 			for(int i=0; i<3; i++){
    				for (int j=0; j<3; j++){
-   					array[i][molec0*dofPerMol + j]= pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][molec0*dofPerMol + j];
+   					array[i][molec0*dofPerMol + j]= pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
    				}
 			}
 			
@@ -229,7 +228,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 			for(int i=0; i<dofPerMol; i++){
 				for(int j=0; j<dofPerMol; j++){
 					if(i<3 && j<3) continue;
-					array[i][molec0*dofPerMol + j] =  pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][molec0*dofPerMol + j];
+					array[i][molec0*dofPerMol + j] =  pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
 				}    		
 	   		}
 			
@@ -300,7 +299,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		
 		long startTime = System.currentTimeMillis();
 		
-		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
+		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_newtest");
 		test.constructHessianMatrix(fname, nC);
 		
 		long endTime = System.currentTimeMillis();
@@ -315,5 +314,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
+	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+	protected FindPairMoleculeIndex findPair;
 	private static final long serialVersionUID = 1L;
 }

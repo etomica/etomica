@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.MoleculePair;
@@ -83,6 +82,8 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		int ySites = 4*nCell+1;
 		int zSites = 2*nCell+1;
 		pairMatrix = new double[xSites][ySites][zSites][4][4][3][3];
+		
+		findPair = new FindPairMoleculeIndexBetaN2(space, coordinateDef);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
@@ -90,8 +91,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		int numMolecule = box.getMoleculeList().getMoleculeCount();
 		int dofTrans = 3;
 		double[][] array = new double[dofTrans][dofTrans*numMolecule];
-		
-		FindPairMoleculeIndexBetaN2 findPair = new FindPairMoleculeIndexBetaN2(space, coordinateDef);
+	
 		
 		DataTensor transTensor = new DataTensor(space);
 		MoleculePair pair = new MoleculePair();	
@@ -182,7 +182,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 				
 			for(int i=0; i<3; i++){
    				for (int j=0; j<3; j++){
-   					array[i][molec0*dofTrans + j]= pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][molec0*dofTrans + j];
+   					array[i][molec0*dofTrans + j]= pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
    				}
 			}
 			
@@ -256,5 +256,6 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
+	protected FindPairMoleculeIndexBetaN2 findPair;
 	private static final long serialVersionUID = 1L;
 }
