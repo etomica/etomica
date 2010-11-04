@@ -94,7 +94,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			
             fac = con2;
 			
-			for(int j=1; j<i; j++){
+			for(int j=1; j<=i; j++){
 				a[j][i] = (a[j-1][i]*fac - a[j-1][i-1])/(fac-1);
 				fac = con2*fac;
 				errt = Math.max(Math.abs(a[j][i]-a[j-1][i]), Math.abs(a[j][i]-a[j-1][i-1]));
@@ -195,12 +195,20 @@ public class CalcNumerical2ndDerivativeNitrogen{
 
 	}
 	
+	public double getFixedDeltaU() {
+		return fixedDeltaU;
+	}
+
+	public void setFixedDeltaU(double fixedDeltaU) {
+		this.fixedDeltaU = fixedDeltaU;
+	}
+
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
 	protected double errt, fac;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;
-	final double fixedDeltaU = 0.1;
+	double fixedDeltaU = 0.1;
 	final int ntab = 10;
 	final double con = 1.4;
 	final double con2 = con*con;

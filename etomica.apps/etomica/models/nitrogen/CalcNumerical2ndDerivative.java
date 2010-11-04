@@ -34,7 +34,6 @@ public class CalcNumerical2ndDerivative{
 		meterPotential.setBox(box);
 		
 		a = new double[ntab][ntab];
-		
 	}
  	
 	public double f(double[] newU) {
@@ -106,7 +105,7 @@ public class CalcNumerical2ndDerivative{
 			
             fac = con2;
 			
-			for(int j=1; j<i; j++){
+			for(int j=1; j<=i; j++){
 				a[j][i] = (a[j-1][i]*fac - a[j-1][i-1])/(fac-1);
 				fac = con2*fac;
 				errt = Math.max(Math.abs(a[j][i]-a[j-1][i]), Math.abs(a[j][i]-a[j-1][i-1]));
@@ -212,12 +211,22 @@ public class CalcNumerical2ndDerivative{
 		}
 	}
 	
+	
+	
+	public double getFixedDeltaU() {
+		return fixedDeltaU;
+	}
+
+	public void setFixedDeltaU(double fixedDeltaU) {
+		this.fixedDeltaU = fixedDeltaU;
+	}
+
 	protected CoordinateDefinition coordinateDefinition;
 	protected MeterPotentialEnergy meterPotential;
 	protected IBox box;
 	protected double deltaU, errt, fac;
 	protected double [][] a;
-	final double fixedDeltaU = 0.1;
+	double fixedDeltaU = 0.1;
 	final int ntab = 10;
 	final double con = 1.4;
 	final double con2 = con*con;
