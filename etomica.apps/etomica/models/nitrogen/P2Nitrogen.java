@@ -428,6 +428,10 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 		gradient[0].E(0.0);
 		gradient[1].E(0.0);
 		
+		if (r2 > rC*rC){ 
+			//System.out.println("TRUNCATED!!!");
+			return gradient;
+		}
 		/*
 		 * for the point/ atomic assignment
 		 * refer to SpeciesN2.java class
