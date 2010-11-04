@@ -285,21 +285,10 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		double density = 0.025;
 		System.out.println("numMolecules: " + numMolecule + " with density: " + density);
 		HarmonicAlphaNitrogenModelPairMoleculeSequential test = new HarmonicAlphaNitrogenModelPairMoleculeSequential(Space3D.getInstance(3), numMolecule, density);
-	
-//		FindPairMoleculeIndex findPair = new FindPairMoleculeIndex(test.space, test.coordinateDef);
-//		
-//		IMoleculeList molecules = test.coordinateDef.getBox().getMoleculeList();
-//		int[] index = new int[5];
-//		index=findPair.getPairMoleculesIndex(molecules.getMolecule(2), molecules.getMolecule(4), false);
-//		System.out.println(index[0]+" "+ index[1]+" "+ index[2]+" "+ index[3]+" "+ index[4]);
-//		index=findPair.getPairMoleculesIndex(molecules.getMolecule(4), molecules.getMolecule(2), true);
-//		System.out.println(index[0]+" "+ index[1]+" "+ index[2]+" "+ index[3]+" "+ index[4]);
-//		
-//		System.exit(1);
-		
+
 		long startTime = System.currentTimeMillis();
-		
-		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_newtest");
+	
+		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
 		test.constructHessianMatrix(fname, nC);
 		
 		long endTime = System.currentTimeMillis();
