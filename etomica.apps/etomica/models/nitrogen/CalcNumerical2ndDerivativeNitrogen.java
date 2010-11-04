@@ -208,7 +208,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 	protected double errt, fac;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;
-	double fixedDeltaU = 0.1;
+	double fixedDeltaU = 0.01;
 	final int ntab = 10;
 	final double con = 1.4;
 	final double con2 = con*con;

@@ -226,7 +226,7 @@ public class CalcNumerical2ndDerivative{
 	protected IBox box;
 	protected double deltaU, errt, fac;
 	protected double [][] a;
-	double fixedDeltaU = 0.1;
+	double fixedDeltaU = 0.01;
 	final int ntab = 10;
 	final double con = 1.4;
 	final double con2 = con*con;
