@@ -40,8 +40,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		
 		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
 		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
-		System.out.println("a: " + unitCellLength);
-		System.out.println("nCell: " + nCell);
+//		System.out.println("a: " + unitCellLength);
+//		System.out.println("nCell: " + nCell);
 		
 		potentialMaster = new PotentialMaster();
 				
@@ -69,7 +69,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		box.setBoundary(boundary);
 		double rCScale = 0.475;
 		double rC =box.getBoundary().getBoxSize().getX(0)*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
+//		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 		
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
@@ -273,26 +273,55 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	
 	}
 	
+	public void constructHessianMatrix(int nCell){
+		
+		int numMolecules = nCell*nCell*nCell*2;
+		int interval = nCell*2;
+		double[][][] array = new double[interval][3][coordinateDef.getCoordinateDim()];
+	
+			
+		for (int iMol=0; iMol<numMolecules; iMol+=interval){
+			for(int i=0; i<interval; i++){
+				array[i] = get2ndDerivative(iMol+i);
+			}
+			for(int i=0; i<interval; i++){
+				for (int iRow=0; iRow< array[0].length; iRow++){
+					for (int jCol=0; jCol< array[0][0].length; jCol++){
+						double value = array[i][iRow][jCol];
+//							if(Math.abs(value) < 1e-6){
+//								value = 0.0;
+//							}
+						System.out.print(value+ " ");
+					}
+					System.out.println("");
+				}
+			}
+		}
+			
+	
+	}
 	
 	public static void main (String[] args){
 		
-		int nC=2;
+		int nC=4;
 		if(args.length > 0){
 			nC = Integer.parseInt(args[0]);
 		}
 		
 		int numMolecule =nC*nC*nC*4;
 		double density = 0.025;
-		System.out.println("numMolecules: " + numMolecule + " with density: " + density);
+		//System.out.println("numMolecules: " + numMolecule + " with density: " + density);
 		HarmonicAlphaNitrogenModelPairMoleculeSequential test = new HarmonicAlphaNitrogenModelPairMoleculeSequential(Space3D.getInstance(3), numMolecule, density);
 
 		long startTime = System.currentTimeMillis();
 	
 		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
+		
 		test.constructHessianMatrix(fname, nC);
+		test.constructHessianMatrix(nC);
 		
 		long endTime = System.currentTimeMillis();
-		System.out.println("Time taken (s): " + (endTime-startTime)/1000);
+	//	System.out.println("Time taken (s): " + (endTime-startTime)/1000);
 	
 	}
 	

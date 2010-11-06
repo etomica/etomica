@@ -41,7 +41,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 	  	double ratio = 1.631;
 		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double cDim = aDim*ratio;
-		System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
+		//System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
 		int nCell = (int)Math.pow(numMolecule/1.999999999, 1.0/3.0);
 		
 		Basis basisHCP = new BasisHcp();
@@ -71,7 +71,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		box.setBoundary(boundary);
 		double rCScale = 0.475;
 		double rC = aDim*nCell*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
+		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 		
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
@@ -226,6 +226,34 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 	
 	}
 	
+	public void constructHessianMatrix(int nCell){
+		
+		int numMolecules = nCell*nCell*nCell*2;
+		int interval = nCell*2;
+		double[][][] array = new double[interval][3][coordinateDef.getCoordinateDim()];
+	
+			
+		for (int iMol=0; iMol<numMolecules; iMol+=interval){
+			for(int i=0; i<interval; i++){
+				array[i] = get2ndDerivative(iMol+i);
+			}
+			for(int i=0; i<interval; i++){
+				for (int iRow=0; iRow< array[0].length; iRow++){
+					for (int jCol=0; jCol< array[0][0].length; jCol++){
+						double value = array[i][iRow][jCol];
+//							if(Math.abs(value) < 1e-6){
+//								value = 0.0;
+//							}
+						System.out.print(value+ " ");
+					}
+					System.out.println("");
+				}
+			}
+		}
+			
+	
+	}
+	
 	public static void main (String[] args){
 		
 		int nCell = 4;
@@ -235,18 +263,18 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 			nCell = Integer.parseInt(args[0]);
 		}
 		int numMolecule = nCell*nCell*nCell*2;
-		System.out.println("Running simulation to construct Hessian Matrix for beta-phase nitrogen");
-		System.out.println("with numMolecule of "+numMolecule + " at density of " + density);
+//		System.out.println("Running simulation to construct Hessian Matrix for beta-phase nitrogen");
+//		System.out.println("with numMolecule of "+numMolecule + " at density of " + density);
 		
 		HarmonicBetaNitrogenModelPairMoleculeSequential test = new HarmonicBetaNitrogenModelPairMoleculeSequential(Space3D.getInstance(3), numMolecule, density);
 		
 		long startTime = System.currentTimeMillis();
 		String filename = new String ("beta"+numMolecule+"_2ndDer_d"+density+"_new");
 
-		test.constructHessianMatrix(filename, nCell);
-		
+		//test.constructHessianMatrix(filename, nCell);
+		test.constructHessianMatrix(nCell);
 		long endTime = System.currentTimeMillis();
-		System.out.println("Time taken (s): " + (endTime-startTime)/1000);
+		//System.out.println("Time taken (s): " + (endTime-startTime)/1000);
 	}
 	
 	
