@@ -30,14 +30,15 @@ import etomica.atom.MoleculePair;
 public class CalcNumerical2ndDerivativeNitrogen{
 	
 	public CalcNumerical2ndDerivativeNitrogen(IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition){
-		this(box, potential, coordinateDefinition, false);
+		this(box, potential, coordinateDefinition, false, potential.getRange());
 	}
 	
 	public CalcNumerical2ndDerivativeNitrogen(IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition,
-			boolean doLatticeSum){
+			boolean doLatticeSum, double rC){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
 		this.doLatticeSum = doLatticeSum;
+		this.rC = rC;
 		
 		if(doLatticeSum){
 			potential.setEnablePBC(false);
@@ -70,8 +71,10 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			coordinateDefinition.setToUMoleculei(moleculei[1], newU[1]);
 		}
 		
+		double rX = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(0);
+		int nLayer = (int)(rC/rX + 0.5);
+		
 		MoleculePair pair = new MoleculePair();
-		int nLayer= 10;
 		double sum = 0.0;
 		
 		//	pair of identical molecules 
@@ -276,7 +279,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
 	protected IVectorMutable lsPosition;
-	protected double errt, fac, xVecBox, yVecBox, zVecBox;
+	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;
 	protected boolean doLatticeSum = false;
