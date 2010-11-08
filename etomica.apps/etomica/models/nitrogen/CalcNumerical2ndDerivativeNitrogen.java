@@ -37,6 +37,8 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			boolean doLatticeSum){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
+		this.doLatticeSum = doLatticeSum;
+		
 		if(doLatticeSum){
 			potential.setEnablePBC(false);
 		}
