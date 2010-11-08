@@ -1,7 +1,11 @@
 package etomica.models.nitrogen;
 
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
 
 /**
@@ -26,10 +30,26 @@ import etomica.atom.MoleculePair;
 public class CalcNumerical2ndDerivativeNitrogen{
 	
 	public CalcNumerical2ndDerivativeNitrogen(IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition){
+		this(box, potential, coordinateDefinition, false);
+	}
+	
+	public CalcNumerical2ndDerivativeNitrogen(IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition,
+			boolean doLatticeSum){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
-		a = new double[ntab][ntab];
+		if(doLatticeSum){
+			potential.setEnablePBC(false);
+		}
+		translateBy = new AtomActionTranslateBy(coordinateDefinition.getPrimitive().getSpace());
+        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
+		lsPosition = coordinateDefinition.getPrimitive().getSpace().makeVector();
+        
+        a = new double[ntab][ntab];
 		generalizedCoord = new double[2][5];
+
+		xVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(0);
+		yVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(1);
+		zVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(2); 
 		
 	}
  	
@@ -49,26 +69,72 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		}
 		
 		MoleculePair pair = new MoleculePair();
+		int nLayer= 10;
+		double sum = 0.0;
 		
+		//	pair of identical molecules 
 		if(moleculei[0] == moleculei[1]){
-			double sum = 0.0;
 			IMoleculeList moleculeList = coordinateDefinition.getBox().getMoleculeList();
 			int numMolecule = moleculeList.getMoleculeCount();
 			
 			pair.atom0 = moleculeList.getMolecule(moleculei[0]);
 			for (int i=0; i<numMolecule; i++){
 				if(i==moleculei[0]) continue; 
-				pair.atom1 =moleculeList.getMolecule(i);
-				sum += potential.energy(pair);
+				IMolecule molecule1 = moleculeList.getMolecule(i); 
+				pair.atom1 = molecule1;
+				
+				if(doLatticeSum){
+					for(double x=-xVecBox*nLayer; x<=xVecBox*nLayer; x+=xVecBox){
+						for(double y=-yVecBox*nLayer; y<=yVecBox*nLayer; y+=yVecBox){
+							for(double z=-zVecBox*nLayer; z<=zVecBox*nLayer; z+=zVecBox){
+								lsPosition.E(new double[]{x, y, z});
+								translateBy.setTranslationVector(lsPosition);
+								atomGroupActionTranslate.actionPerformed(molecule1);
+			
+								sum += potential.energy(pair);
+								
+								lsPosition.TE(-1);
+								translateBy.setTranslationVector(lsPosition);
+								atomGroupActionTranslate.actionPerformed(molecule1);
+							}	
+						}	
+					}
+					
+				} else {
+		
+					sum += potential.energy(pair);
+				}
 				
 			}
 			return sum;
 		}
 		
+		//pair of non identical molecules 
 		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[0]);
-		pair.atom1 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[1]);
+		IMolecule molecule1 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[1]); 
+		pair.atom1 = molecule1;
+
+		if(doLatticeSum){
+			for(double x=-xVecBox*nLayer; x<=xVecBox*nLayer; x+=xVecBox){
+				for(double y=-yVecBox*nLayer; y<=yVecBox*nLayer; y+=yVecBox){
+					for(double z=-zVecBox*nLayer; z<=zVecBox*nLayer; z+=zVecBox){
+						lsPosition.E(new double[]{x, y, z});
+						translateBy.setTranslationVector(lsPosition);
+						atomGroupActionTranslate.actionPerformed(molecule1);
+	
+						sum += potential.energy(pair);
+						
+						lsPosition.TE(-1);
+						translateBy.setTranslationVector(lsPosition);
+						atomGroupActionTranslate.actionPerformed(molecule1);
+					}	
+				}	
+			}
+		} else {
+			sum += potential.energy(pair);
+		}
 		
-		return potential.energy(pair);
+		return sum;
 		
 	}
 	
@@ -205,9 +271,13 @@ public class CalcNumerical2ndDerivativeNitrogen{
 
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
-	protected double errt, fac;
+	protected AtomActionTranslateBy translateBy;
+	protected MoleculeChildAtomAction atomGroupActionTranslate;
+	protected IVectorMutable lsPosition;
+	protected double errt, fac, xVecBox, yVecBox, zVecBox;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;
+	protected boolean doLatticeSum = false;
 	double fixedDeltaU = 0.01;
 	final int ntab = 10;
 	final double con = 1.4;
