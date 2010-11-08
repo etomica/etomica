@@ -42,6 +42,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		
 		if(doLatticeSum){
 			potential.setEnablePBC(false);
+			potential.setRange(rC);
 		}
 		translateBy = new AtomActionTranslateBy(coordinateDefinition.getPrimitive().getSpace());
         atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
