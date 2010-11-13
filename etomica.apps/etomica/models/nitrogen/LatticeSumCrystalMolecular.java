@@ -56,15 +56,7 @@ public class LatticeSumCrystalMolecular{
         dr = lattice.getSpace().makeVector();
         siteIndex = new int[lattice.D()];//lattice.D() should be spaceDim+1
         
-        offset = lattice.getSpace().makeVector();
         position = lattice.getSpace().makeVector();
-        
-        IVector[] primitiveVectors = lattice.getPrimitive().vectors();
-        for (int i=0; i<primitiveVectors.length; i++) {
-            offset.PEa1Tv1(1,primitiveVectors[i]);
-        }
-        
-        offset.TE(-0.5);
         
         //get coordinates of basis at the origin
         basisDim = lattice.getBasis().getScaledCoordinates().length;
@@ -136,7 +128,6 @@ public class LatticeSumCrystalMolecular{
 	                //Putting the molecule to its lattice site
                     IVectorMutable site = (IVectorMutable)lattice.site(siteIndex);
                     position.E(site);
-                    position.PE(offset);
                 
                     atomActionTranslateTo.setDestination(position);
                     atomActionTranslateTo.actionPerformed(ghostMol);  
