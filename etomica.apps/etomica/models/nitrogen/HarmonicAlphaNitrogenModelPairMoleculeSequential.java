@@ -275,7 +275,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	
 	public void constructHessianMatrix(int nCell){
 		
-		int numMolecules = nCell*nCell*nCell*2;
+		int numMolecules = nCell*nCell*nCell*4;
 		int interval = nCell*2;
 		double[][][] array = new double[interval][3][coordinateDef.getCoordinateDim()];
 	
@@ -303,13 +303,16 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	
 	public static void main (String[] args){
 		
-		int nC=4;
+		int nC=2;
+		double density = 0.025;
 		if(args.length > 0){
 			nC = Integer.parseInt(args[0]);
 		}
+		if(args.length > 1){
+			density = Double.parseDouble(args[1]);
+		}
 		
 		int numMolecule =nC*nC*nC*4;
-		double density = 0.025;
 		//System.out.println("numMolecules: " + numMolecule + " with density: " + density);
 		HarmonicAlphaNitrogenModelPairMoleculeSequential test = new HarmonicAlphaNitrogenModelPairMoleculeSequential(Space3D.getInstance(3), numMolecule, density);
 
@@ -317,7 +320,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	
 		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
 		
-		test.constructHessianMatrix(fname, nC);
+		//test.constructHessianMatrix(fname, nC);
 		test.constructHessianMatrix(nC);
 		
 		long endTime = System.currentTimeMillis();
