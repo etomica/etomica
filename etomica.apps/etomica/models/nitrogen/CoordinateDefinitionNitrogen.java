@@ -9,6 +9,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
@@ -120,24 +121,25 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         	configuration.initializeCoordinates(box);
         }
 
-        //Scale the lattice offset 
-        IVectorMutable vectorOfMax = space.makeVector();
-        IVectorMutable vectorOfMin = space.makeVector();
-        IVectorMutable site = space.makeVector();
-        vectorOfMax.E(Double.NEGATIVE_INFINITY);
-        vectorOfMin.E(Double.POSITIVE_INFINITY);
-        
-        while (indexIterator.hasNext()) {
-            site.E((IVectorMutable) lattice.site(indexIterator.next()));
-            for (int i=0; i<site.getD(); i++) {
-                vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
-                vectorOfMin.setX(i, Math.min(site.getX(i),vectorOfMin.getX(i)));
-            }
+        //Scale the lattice offset
+        if(!isDoLatticeSum){
+	        IVectorMutable vectorOfMax = space.makeVector();
+	        IVectorMutable vectorOfMin = space.makeVector();
+	        IVectorMutable site = space.makeVector();
+	        vectorOfMax.E(Double.NEGATIVE_INFINITY);
+	        vectorOfMin.E(Double.POSITIVE_INFINITY);
+	        
+	        while (indexIterator.hasNext()) {
+	            site.E((IVectorMutable) lattice.site(indexIterator.next()));
+	            for (int i=0; i<site.getD(); i++) {
+	                vectorOfMax.setX(i, Math.max(site.getX(i),vectorOfMax.getX(i)));
+	                vectorOfMin.setX(i, Math.min(site.getX(i),vectorOfMin.getX(i)));
+	            }
+	        }
+	        offset.Ev1Mv2(vectorOfMax, vectorOfMin);
+	        offset.TE(-0.5);
+	        offset.ME(vectorOfMin);
         }
-        offset.Ev1Mv2(vectorOfMax, vectorOfMin);
-        offset.TE(-0.5);
-        offset.ME(vectorOfMin);
-        
         
         indexIterator.reset();
         
@@ -711,7 +713,11 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	isBetaLatticeSum = true;
     }
     
-    public IVectorMutable[] getMoleculeOrientation(IMolecule molecule) {
+    public void setIsDoLatticeSum() {
+		isDoLatticeSum = true;
+	}
+
+	public IVectorMutable[] getMoleculeOrientation(IMolecule molecule) {
        /*
         * return the initial Orientation of the molecule
         */
@@ -1055,6 +1061,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     public boolean isBeta=false;
     public boolean isBetaHCP=false;
     public boolean isBetaLatticeSum=false;
+    public boolean isDoLatticeSum=false;
     protected IRandom random;
     public int rotDim;
 
