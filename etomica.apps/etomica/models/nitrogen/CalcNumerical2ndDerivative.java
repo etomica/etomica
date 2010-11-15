@@ -66,7 +66,7 @@ public class CalcNumerical2ndDerivative{
             
 			fac = con2;
 			
-			for(int j=1; j<i; j++){
+			for(int j=1; j<=i; j++){
 				a[j][i] = (a[j-1][i]*fac - a[j-1][i-1])/(fac-1);
 				fac = con2*fac;
 				errt = Math.max(Math.abs(a[j][i]-a[j-1][i]), Math.abs(a[j][i]-a[j-1][i-1]));
