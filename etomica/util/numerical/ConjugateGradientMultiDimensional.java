@@ -31,8 +31,8 @@ public class ConjugateGradientMultiDimensional {
 	public void conjugateGradient(double[] p, double ftol, FunctionMultiDimensionalDifferentiable function){
 		int j, its;
 		int n = p.length;
-		int ITMAX = 300;
-		double EPS = Math.pow(10, -10);
+		int ITMAX = 100;
+		double EPS = 1E-10;
 		
 		this.minimumCoordinate = p;
 		
@@ -48,30 +48,27 @@ public class ConjugateGradientMultiDimensional {
 		for (j=0; j<n; j++){
 			
 			derivative[j] = 1;
-			
-			df[j] = function.df(derivative,p);
-			System.out.println("The d["+j+"] is: "+ df[j]);
+			df[j] = function.df(derivative, p);
 			derivative[j] = 0;
-		}
 		
+		} 
+
 		for (j=0; j<n; j++){
 			g[j] = -df[j];
 			df[j] = h[j] = g[j];
 		}
 		
+		System.out.println("<ConjugateGradient>");
 		for (its=0; its<ITMAX; its++){
 			
-			this.iteration = its;
+			iteration = its;
 			
-			for (int i=0; i<p.length; i++){
-				System.out.println("The number of iteration: "+its);
-				System.out.println("u["+i+"] is: "+p[i]);
-			}
-			
+			System.out.println("<CG> itereation# "+iteration);
+			System.out.println("\n+++++++++++<ConjugateGradient> begin line minimization+++++++++");
 			fret = lineMinimization.dLineMinimization(p, df, function);
-			
-			//System.out.println("x value is: "+ p[0]);
-			//System.out.println("y value is: "+ p[1]);
+			System.out.println("++++++++++<ConjugateGradient> after line minimization++++++++++++\n");
+//			System.out.println("x value is: "+ p[0]);
+//			System.out.println("y value is: "+ p[1]);
 			//System.out.println("Minimum value is: "+ fret);
 			
 			if (2.0*Math.abs(fret-fp) <= ftol*(Math.abs(fret)+Math.abs(fp)+EPS)){
@@ -81,9 +78,7 @@ public class ConjugateGradientMultiDimensional {
 			fp = fret;
 			
 			for (j=0; j<n; j++){
-				
 				derivative[j] = 1;
-				
 				df[j] = function.df(derivative,p);
 				derivative[j] = 0;
 			}
@@ -123,7 +118,7 @@ public class ConjugateGradientMultiDimensional {
 		return this.minimumCoordinate;
 	}
 	
-	public double getNumIterations(){
+	public int getNumIterations(){
 		return this.iteration;
 	}
 	
