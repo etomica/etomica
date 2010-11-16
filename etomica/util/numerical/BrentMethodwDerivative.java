@@ -32,7 +32,7 @@ public class BrentMethodwDerivative {
 		
 		double xmin = 0.0;
 		int ITMAX = 100;
-		double ZEPS = Math.pow(10, -10);
+		double ZEPS = 1e-9;
 		
 		int iter; 
 		boolean ok1, ok2;
@@ -62,9 +62,10 @@ public class BrentMethodwDerivative {
 			xm = 0.5*(a+b);
 			tol1 = tol*Math.abs(axe)+ZEPS;
 			tol2 = 2.0*tol1;
-			
-			if(Math.abs(axe-xm) <= (tol2-0.5*(b-a))){
+			System.out.println("<dbrent> ****iter: " + iter +" " +Math.abs(axe-xm) +" " +0.5*(tol2-0.5*(b-a)));
+			if(Math.abs(axe-xm) <= 0.5*(tol2-0.5*(b-a))){
 				xmin = axe;
+				System.out.println("you bailed (axe-xm)<tol2");
 				return new double[]{xmin, fx};
 			}
 			
@@ -88,7 +89,7 @@ public class BrentMethodwDerivative {
 				 *  but if double d's are acceptable, only pick the smallest d
 				 */
 				if(ok1 || ok2){
-					if(ok1 &&ok2){
+					if(ok1 && ok2){
 						d = (Math.abs(d1) < Math.abs(d2) ? d1:d2);
 					} else if (ok1) {
 						d = d1;
@@ -112,6 +113,7 @@ public class BrentMethodwDerivative {
 			} else {
 				d = 0.5*(e=(dx >= 0.0 ? a-axe : b-axe));
 			}
+			
 			if (Math.abs(d) >= tol1){
 				u = axe+d;
 				fu = function.f(u);
@@ -134,6 +136,7 @@ public class BrentMethodwDerivative {
 			}
 			
 			du = function.df(1, u);
+			
 			if (fu <= fx){
 				if (u >= axe){
 					a = axe;
@@ -180,7 +183,6 @@ public class BrentMethodwDerivative {
 		}
 		
 		throw new RuntimeException("Too many iterations in dbrent method!!!");
-		//return 0.0;
 	}
 	
 }
