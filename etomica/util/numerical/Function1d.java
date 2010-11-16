@@ -14,11 +14,11 @@ public class Function1d implements etomica.util.FunctionDifferentiable{
 	
 	
 	public double f(double t){
-		int j;
+
 		double f;
 		double[] xt = new double[ncom];
 		
-		for (j=0; j<ncom; j++){
+		for (int j=0; j<ncom; j++){
 			xt[j] = pcom[j] + t*xicom[j];
 			
 		}
@@ -28,17 +28,16 @@ public class Function1d implements etomica.util.FunctionDifferentiable{
 	}
 	
 	public double df(int d, double t){
-		int j;
-		d = 1;
+	
 		double df1 =0.0;
 		double[] xt = new double[ncom];
 		int[] derivative = new int[ncom];
 		
-		for (j=0; j<ncom; j++){
+		for (int j=0; j<ncom; j++){
 			xt[j] = pcom[j] + t*xicom[j];
 		}
 	
-		for (j=0; j<ncom; j++){
+		for (int j=0; j<ncom; j++){
 			
 			derivative[j] = d;
 			
