@@ -45,7 +45,7 @@ public class LineMinimization {
 		for(int j=0; j<n; j++){
 			pcom[j] = p[j];
 			xicom[j] = xi[j];
-			System.out.println("<lineMinimize>: pcom: " + pcom[j] + " ;xicom: " + xicom[j]);
+			//System.out.println("<lineMinimize>: pcom: " + pcom[j] + " ;xicom: " + xicom[j]);
 		}
 		
 		// Values for bracketing
@@ -59,27 +59,23 @@ public class LineMinimization {
 
 		double[] x = new double[] {ax, xx, bx}; 
 		
-		System.out.println("\n<lineMinimize> BEGIN ******BRACKETING****");
+		// BisectionMethodMinimization
+		System.out.println(" <LineMinimization> BEGIN ******BRACKETING****");
 		x=bisectionMethodMinimizationBracket.mnbrak(x, f1dim);
-		System.out.println("<lineMinimize> END ******BRACKETING****");
-		System.out.println("bracketing the minimum: " +x[0]+" "+x[1]+" "+x[2]);
-//		System.out.println("exit in LineMinimization");
-//		System.exit(1);
-		System.out.println("\n<lineMinimize> BEGIN *******dbrent******");
+		System.out.println(" <LineMinimization> END ******BRACKETING****");
+		
+		// BrentMethodwDerivative
+		System.out.println("\n <LineMinimization> BEGIN *******dbrent******");
 		double[] dbrentValue = brentMethodwDerivative.dbrent(x, f1dim, TOL);
-		System.out.println("<lineMinimize> END *******dbrent******");
-		System.out.println("dbrentvalue: " + dbrentValue[0] +" "+dbrentValue[1]);
-	
+		System.out.println(" <LineMinimization> END *******dbrent******");
 
 		xmin = dbrentValue[0];
-		System.out.println("\n<lineMinimize>*******for loop*******");
-		System.out.println("<lineMinimize> xmin: " + xmin);
 		for (int j=0; j<n; j++){
 			xi[j] *= xmin;
 			p[j] += xi[j];
-			//System.out.println("<lineMinimize>#########LineMinimization: xi: " + xi[j] + " ;p[j]: " + p[j]);
 		}
 	
+		System.out.println();
 		for (int j=0; j<n; j++){
 			System.out.print(p[j] + ", ");
 			if (j>0&&(j+1)%5==0){

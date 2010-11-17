@@ -66,7 +66,7 @@ public class BrentMethodwDerivative {
 			tol1 = tol*Math.abs(axe)+ZEPS;
 			tol2 = 2.0*tol1;
 			//System.out.println("<dbrent> **** xm: "+xm +" axe:"+ axe+" a:"+ a+" b: " + b);
-			System.out.println("<dbrent> ****iter: " + iter +" " +Math.abs(axe-xm) +" " +0.02*(tol2-0.5*(b-a)));
+			//System.out.println("<dbrent> ****iter: " + iter +" " +Math.abs(axe-xm) +" " +0.02*(tol2-0.5*(b-a)));
 		  
 			//Bail out if it can't find a minimum
 			diff = (xm - axe);
@@ -74,7 +74,7 @@ public class BrentMethodwDerivative {
 				++counter;
 				if(counter>=5){
 					xmin = axe;
-					System.out.println("you bailed [(xm - axe) constant for 5 times] condition");
+					System.out.println("  <dbrent> you bailed [(xm - axe) constant for 5 times] condition");
 					counter =0;
 					return new double[]{xmin, fx};
 				}
@@ -85,7 +85,7 @@ public class BrentMethodwDerivative {
 			
 			if(Math.abs(axe-xm) <= 0.02*(tol2-0.5*(b-a))){
 				xmin = axe;
-				System.out.println("you bailed (axe-xm)<tol2");
+				System.out.println("  <dbrent> you bailed (axe-xm)<tol2");
 				return new double[]{xmin, fx};
 			}
 			
@@ -151,7 +151,7 @@ public class BrentMethodwDerivative {
 				 */
 				if (fu > fx){
 					xmin = axe;
-					System.out.println("bailled at (fu > fx)");
+					System.out.println("  <dbrent> bailled at (fu > fx)");
 					return new double[] {xmin, fx};
 				}
 			}
