@@ -73,6 +73,7 @@ public class LineMinimization {
 		for (int j=0; j<n; j++){
 			xi[j] *= xmin;
 			p[j] += xi[j];
+			pcom[j] = p[j];
 		}
 	
 		System.out.println();
@@ -82,10 +83,20 @@ public class LineMinimization {
 				System.out.println("");
 			}
 		}
+		
 		System.out.println("Lowest Energy found: "+ dbrentValue[1]);
 		return dbrentValue[1];
 	}
 	
+	public double[] getPcom() {
+		return pcom;
+	}
+
+
+	public void setPcom(double[] pcom) {
+		this.pcom = pcom;
+	}
+
 	protected int ncom;
 	protected double[] pcom, xicom, nrfunc;
 	protected BisectionMethodMinimumBracket bisectionMethodMinimizationBracket;
