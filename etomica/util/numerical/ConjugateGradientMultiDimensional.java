@@ -59,14 +59,15 @@ public class ConjugateGradientMultiDimensional {
 		}
 		
 		System.out.println("<ConjugateGradient>");
-		for (its=0; its<ITMAX; its++){
+		for (its=1; its<ITMAX; its++){
 			
 			iteration = its;
 			
-			System.out.println("<CG> itereation# "+iteration);
-			System.out.println("\n+++++++++++<ConjugateGradient> begin line minimization+++++++++");
+			System.out.println("\n<CG> itereation# "+iteration);
+			System.out.println("+++++++++++<ConjugateGradient> begin line minimization+++++++++");
 			fret = lineMinimization.dLineMinimization(p, df, function);
 			System.out.println("++++++++++<ConjugateGradient> after line minimization++++++++++++\n");
+			minimumCoordinate = lineMinimization.getPcom();
 //			System.out.println("x value is: "+ p[0]);
 //			System.out.println("y value is: "+ p[1]);
 			//System.out.println("Minimum value is: "+ fret);
