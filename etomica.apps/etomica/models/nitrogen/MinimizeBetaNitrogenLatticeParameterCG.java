@@ -27,6 +27,7 @@ import etomica.util.numerical.ConjugateGradientMultiDimensional;
 /**
  * Lattice Energy Minimization Routine for beta-phase nitrogen using
  *  Conjugate Gradient. 
+ *  
  * @author taitan
  *
  */
@@ -87,8 +88,8 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 	}
 	
 	public static void main(String args[]){
-		String filename = "/tmp/inputd0.0250";
-		double density = 0.025;
+		String filename = "/tmp/inputd0.0248";
+		double density = 0.0248;
 		int nCells = 6;
 		
 	    if(args.length > 0){
@@ -108,7 +109,7 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 		
 		double[] parameters = new double[20];
 		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
-		for (int i=0; i<parameters.length-1;i++){
+		for (int i=0; i<parameters.length;i++){
 			parameters[i] = paramFromFile[i][0];
 		}
 		
@@ -125,9 +126,10 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 //				0.13474085174082737, -7.362751408992318E-5, 2.2355286629845394E-4, 2.4940426703535894E-4, -1.870678763479276E-4, 
 //				0.1347235701316199, -1.1600382173691587E-4, 2.3020012530647829E-4, 1.643752779412067E-5, 3.0229264499046215E-6
 //		};
+				
 		MinimizeBetaNitrogenLatticeParameterCG testFunction = new MinimizeBetaNitrogenLatticeParameterCG(Space.getInstance(3), nC, density);
 		System.out.println("Initial Energy value: "+ testFunction.f(parameters));
-		
+	
 		ConjugateGradientMultiDimensional conjugateGradient = new ConjugateGradientMultiDimensional();
 		conjugateGradient.conjugateGradient(parameters, 1.2e-9, testFunction);
 		
@@ -136,10 +138,11 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 		
 		parameters = conjugateGradient.getMinimumCoordinates();
 //		for(int i=0; i<parameters.length; i++){
-//			System.out.println(parameters[i]);
+//			System.out.print(parameters[i]+", ");
+//			if (i>0 && (i+1)%5==0)System.out.println();
 //		}
 //		System.out.println(minLatEnergy/numMolecules);
-		System.out.println("Number of iteration is: "+ conjugateGradient.getNumIterations());
+		System.out.println("Number of iteration is: "+ conjugateGradient.getNumIterations()+"\n");
 
 		try {
 			FileWriter fileWriter = new FileWriter(filename,false);
