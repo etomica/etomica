@@ -60,9 +60,7 @@ public class LineMinimization {
 		double[] x = new double[] {ax, xx, bx}; 
 		
 		// BisectionMethodMinimization
-		System.out.println(" <LineMinimization> BEGIN ******BRACKETING****");
 		x=bisectionMethodMinimizationBracket.mnbrak(x, f1dim);
-		System.out.println(" <LineMinimization> END ******BRACKETING****");
 		
 		// BrentMethodwDerivative
 		System.out.println("\n <LineMinimization> BEGIN *******dbrent******");
@@ -84,7 +82,7 @@ public class LineMinimization {
 			}
 		}
 		
-		System.out.println("Lowest Energy found: "+ dbrentValue[1]);
+		System.out.println("Lower Energy found: "+ dbrentValue[1]);
 		return dbrentValue[1];
 	}
 	
