@@ -6,12 +6,12 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -50,7 +50,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -95,8 +94,8 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
     public IBox boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
     MeterPotentialEnergy meterTargInTarg, meterRef, meterRefInRef;
-    MeterDifferentImageAdd meterTargInRef;
-    MeterDifferentImageSubtract meterRefInTarg;
+    MeterDifferentImageAddDoubleSize meterTargInRef;
+    MeterDifferentImageSubtractDoubleSize meterRefInTarg;
     
     double refSumWVC, targSumWVC;
     int targModesCt, refModeCt;
@@ -277,8 +276,8 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         
 //JOINT
         //measuring potential of target in reference system
-        meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
-                temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
+        meterTargInRef = new MeterDifferentImageAddDoubleSize((ISimulation)this,
+                space,  temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
                 size, nmTarg, tIn);
         MeterOverlapSameGaussian meterOverlapInRef = new 
                 MeterOverlapSameGaussian("MeterOverlapInB", Null.DIMENSION, 
@@ -287,8 +286,9 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         meterOverlapInRef.setDsBBase(latticeEnergyTarget);
         
         //measuring reference potential in target system
-        meterRefInTarg = new MeterDifferentImageSubtract(this, space, cDefTarget,
-                nmTarg, cDefRef, potentialMaster, new int[] {1,1,1}, nmRef, rIn);
+        meterRefInTarg = new MeterDifferentImageSubtractDoubleSize(this, space, 
+                cDefTarget, nmTarg, cDefRef, potentialMaster, new int[] {1,1,1},
+                nmRef, rIn);
         MeterOverlap meterOverlapInTarget = new MeterOverlap("MeterOverlapInA", 
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
         meterOverlapInTarget.setDsABase(latticeEnergyTarget);
@@ -414,7 +414,14 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             pumpListener.setInterval(getBox(iBox).getLeafList().getAtomCount());
-            integrators[iBox].getEventManager().addListener(pumpListener);
+            
+            
+            
+            
+            
+            
+            
+//            integrators[iBox].getEventManager().addListener(pumpListener);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -491,6 +498,9 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
      */
     public static void main(String[] args) {
 
+        Date date = new Date();
+        System.out.println("start " + date.getTime());
+        
         SimParam params = new SimParam();
         String inputFilename = null;
         if(args.length > 0) {
@@ -607,6 +617,10 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         eqNumSteps /= (int)subBlockSize;
         benNumSteps /= subBlockSize;
         
+        
+//        sim.integratorSim.setAdjustStepFreq(false);
+//        sim.integratorSim.setStepFreq0(0.5);
+        
         //start simulation & equilibrate
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps(subBlockSize);
@@ -681,17 +695,17 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
 //        System.out.println("old " +(-Math.log(ratio*)));
         
         
-        System.out.println("Fini.");
+        System.out.println("Fini. " + date.getTime());
     }
     
     public static class SimParam extends ParameterBase {
-        public boolean first = true;
-        public int[] refShape = {2, 2, 2};
-        public int[] targShape = {2, 2, 4};
+        public boolean first = false;
+        public int[] refShape = {4, 4, 4};
+        public int[] targShape = {4, 4, 8};
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
-        public double temperature = 1.0;
+        public double temperature = 0.01;
         public int exponent = 12;
         public double constraint = 2.0;
         
