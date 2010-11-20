@@ -39,12 +39,21 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 		vectorR = space.makeVector();
 		
 		C = new double[5];
-		C[0] = Kelvin.UNIT.toSim( 415.73107);  //[K]
-		C[1] = Kelvin.UNIT.toSim(-1446.74414); //[KA^-1]
-		C[2] = Kelvin.UNIT.toSim( 2480.73711); //[KA^-2]
-		C[3] = Kelvin.UNIT.toSim(-2766.5419); //[KA^-3]`
-		C[4] = Kelvin.UNIT.toSim( 1574.2809); //[KA^-4]
+		// Published values according to the above reference, however found discontinuity 
+		//  in the potential
+//		C[0] = Kelvin.UNIT.toSim( 415.73107);  //[K]
+//		C[1] = Kelvin.UNIT.toSim(-1446.74414); //[KA^-1]
+//		C[2] = Kelvin.UNIT.toSim( 2480.73711); //[KA^-2]
+//		C[3] = Kelvin.UNIT.toSim(-2766.5419); //[KA^-3]`
+//		C[4] = Kelvin.UNIT.toSim( 1574.2809); //[KA^-4]
 		
+		// Refit the energy to remove discontinuity
+		C[0] = Kelvin.UNIT.toSim(415.7168933551);//415.73107);  //[K]
+		C[1] = Kelvin.UNIT.toSim( -1446.7366463624);//-1446.74414); //[KA^-1]
+		C[2] = Kelvin.UNIT.toSim(2480.7405961429);//2480.73711); //[KA^-2]
+		C[3] = Kelvin.UNIT.toSim(  -2766.5403682242);//-2766.5419); //[KA^-3]`
+		C[4] = Kelvin.UNIT.toSim( 1574.2815730466);//1574.2809); //[KA^-4]
+				
         chargeP1P1 = chargeP1 * chargeP1;
         chargeP1P2 = chargeP1 * chargeP2;
         chargeP2P2 = chargeP2 * chargeP2;
