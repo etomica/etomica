@@ -88,9 +88,9 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 	}
 	
 	public static void main(String args[]){
-		String filename = "/tmp/inputd0.0248";
-		double density = 0.0248;
-		int nCells = 6;
+		String filename = "/usr/users/taitan/workspace/etomica.Apps1/bin/inputd0.0240";
+		double density = 0.0240; 
+		int nCells = 8;
 		
 	    if(args.length > 0){
 			filename = args[0];
@@ -109,10 +109,14 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 		
 		double[] parameters = new double[20];
 		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
-		for (int i=0; i<parameters.length;i++){
-			parameters[i] = paramFromFile[i][0];
+		int k=0;
+		for (int i=0; i<paramFromFile.length;i++){
+			for (int j=0; j<paramFromFile[0].length;j++){
+				
+				parameters[k]=paramFromFile[i][j];
+				k++;
+			}	
 		}
-		
 		
 //		double[] parameters = new double[]{
 //				-1.4621203267796472E-4, -7.171444595461441E-5, -2.37287496966035E-5, -2.910494246533862E-5, -2.1177506743927406E-5, 
@@ -141,16 +145,19 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 //			System.out.print(parameters[i]+", ");
 //			if (i>0 && (i+1)%5==0)System.out.println();
 //		}
-//		System.out.println(minLatEnergy/numMolecules);
-		System.out.println("Number of iteration is: "+ conjugateGradient.getNumIterations()+"\n");
 
 		try {
 			FileWriter fileWriter = new FileWriter(filename,false);
 			
 			for (int i=0; i<parameters.length; i++){
-				fileWriter.write(parameters[i]+ "\n");
+				fileWriter.write(parameters[i]+" ");
+				
+				if(i>0&&(i+1)%5==0){
+					fileWriter.write("\n");
+						
+				}
 			}
-			fileWriter.write(minLatEnergy/numMolecules+"\n");
+			//fileWriter.write(minLatEnergy/numMolecules+"\n");
 			fileWriter.close();
 			
 		} catch(IOException e){
