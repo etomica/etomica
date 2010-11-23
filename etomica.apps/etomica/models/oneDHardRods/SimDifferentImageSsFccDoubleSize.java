@@ -12,6 +12,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
@@ -50,6 +51,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.ParameterBase;
+import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
@@ -310,6 +312,13 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         
         
         
+        
+
+        nbrConstraint.initBox(meterRefInTarg.test.getBox());
+        potentialMaster.getNeighborManager(meterRefInTarg.test.getBox()).reset();
+        
+        
+        
         //Just to be sure!
         potential.setTruncationRadius(3000.0);
         
@@ -414,14 +423,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             pumpListener.setInterval(getBox(iBox).getLeafList().getAtomCount());
-            
-            
-            
-            
-            
-            
-            
-//            integrators[iBox].getEventManager().addListener(pumpListener);
+            integrators[iBox].getEventManager().addListener(pumpListener);
         }
         else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
@@ -699,9 +701,9 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public boolean first = false;
-        public int[] refShape = {4, 4, 4};
-        public int[] targShape = {4, 4, 8};
+        public boolean first = true;
+        public int[] refShape = {2, 2, 2};
+        public int[] targShape = {2, 2, 4};
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
