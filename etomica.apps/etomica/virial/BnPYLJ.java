@@ -29,37 +29,60 @@ public static void main(String[] args) {
 		System.out.println("B5PY = -37.402 (Barker et al 1966)\n");
 		
 		
-		int power = 20; // Defines discretization
-		double reducedTemp = 1.0; // kT/epsilon
-		double r_max = 150; // Defines range of separation distance, r = [0 rmax]
+		int power = 14; // Defines discretization
 		
+		double r_max = 100; // Defines range of separation distance, r = [0 rmax]
+		
+		int N = (int) Math.pow(2, power);
+		double del_r = r_max/(N-1);
+		
+		int m = 6; // highest order of virial coefficient to be calculated
+		double reducedTemp;
 		if (args.length == 0) {
 		}
-		else if (args.length == 2) {
+		else if (args.length == 4) {
 			power = Integer.parseInt(args[0]);
 			r_max = Double.parseDouble(args[1]);
+			reducedTemp = Double.parseDouble(args[2]);
+			m = Integer.parseInt(args[3]);
 		} else {
         	throw new IllegalArgumentException("Incorrect number of arguments passed.");
         }
 		
-		// Number of grid points in the discretizations of r- and k-space
-		int N = (int) Math.pow(2, power);
-		double del_r = r_max/(N-1);
 		
-		// Get Mayer function for this discretization
-		double[] fr = getfr( N, del_r,reducedTemp);
-	
+		double [] reducedTemps = new double[] { 0.6, 0.8, 1.0, 1.05, 1.1, 1.15, 1.2, 1.3, 1.4, 1.6, 2, 2.5, 3, 5, 10, 15, 20, 30, 50, 100, 500};
+		//double [] reducedTemps = new double[] { 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2, 2.5, 3, 5, 10, 15, 20, 50, 100};
+
+
 		
-        int m = 6; // highest order of virial coefficient to be calculated
-        
-		PercusYevick py = new PercusYevick(); 
-		double[] B = py.computeB(fr, m, N, del_r, false);
+		for (int i=0;i<reducedTemps.length;i++) {
+			reducedTemp = reducedTemps[i];
+			
+			// Number of grid points in the discretizations of r- and k-space
+			
+			
+			// Get Mayer function for this discretization
+			double[] fr = getfr( N, del_r,reducedTemp);
 		
-		System.out.println("Values computed here at T* = " + reducedTemp + ":");
-		
-		for (int i=2;i<=m;i++) {
-			System.out.println("B" + i + " = " + B[i-2]);
+			
+	        
+	        
+			PercusYevick py = new PercusYevick(); 
+			double[] B = py.computeB(fr, m, N, del_r, false);
+			
+			
+			
+			/*
+			System.out.println("Values computed here at T* = " + reducedTemp + ":");
+			System.out.println("r_max = " + r_max + ", log2N = " + power);
+			for (int i=2;i<=m;i++) {
+				System.out.println("B" + i + " = " + B[i-2]);
+			}
+			*/
+			
+			System.out.println(reducedTemp + "  " + B[4-2]);
 		}
+		
 		
 
 	}
