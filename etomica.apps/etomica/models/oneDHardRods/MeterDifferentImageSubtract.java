@@ -31,30 +31,30 @@ import etomica.normalmode.BasisBigCell;
  *
  */
 public class MeterDifferentImageSubtract extends DataSourceScalar {
-    private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "MeterDifferentImageSubtract";
+    protected static final long serialVersionUID = 1L;
+    protected static final String APP_NAME = "MeterDifferentImageSubtract";
     
     public int nInsert, counter;
-    private MeterPotentialEnergy meterPE;
-    private CoordinateDefinition cDef, simCDef;
-    private int cDim, simCDim;
-    private IVectorMutable[] waveVectors, simWaveVectors;
-    private double[] simRealT, simImagT;
+    protected MeterPotentialEnergy meterPE;
+    protected CoordinateDefinition cDef, simCDef;
+    protected int cDim, simCDim;
+    protected IVectorMutable[] waveVectors, simWaveVectors;
+    protected double[] simRealT, simImagT;
     protected double temperature;
-    private double[] newU;
-    private double[] wvCoeff, simWVCoeff, sqrtWVC;
-    private double[][][] eigenVectors, simEigenVectors;
-    private double[][] sqrtSimOmega2, oneOverSqrtOmega2;
+    protected double[] newU;
+    protected double[] wvCoeff, simWVCoeff, sqrtWVC;
+    protected double[][][] eigenVectors, simEigenVectors;
+    protected double[][] sqrtSimOmega2, oneOverSqrtOmega2;
 
     protected final IRandom random;
-    private IBox box;
-    private int numAtoms;
-    private IBoundary bdry;
-    private NormalModes nm;
+    protected IBox box;
+    protected int numAtoms;
+    protected IBoundary bdry;
+    protected NormalModes nm;
     WaveVectorFactory waveVectorFactory;
-    private double etas[];
-    private int maxEta;
-    private double scaling;
+    protected double etas[];
+    protected int maxEta;
+    protected double scaling;
     
     
     public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
@@ -274,6 +274,10 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             }
             cDef.setToU(cells[iCell].molecules, newU);
         }
+        
+        
+
+        System.out.println("testPE " + meterPE.getDataAsScalar() +" "+ " testHarmonic " + harmonic);
         
         return meterPE.getDataAsScalar() + harmonic;
     }
