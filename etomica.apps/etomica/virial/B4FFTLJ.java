@@ -19,13 +19,13 @@ public class B4FFTLJ {
 	
 public static void main(String[] args) {
 	
-	double[] temps = {0.6,0.8,1.0,1.1, 1.2, 1.3, 1.4};
+	double [] temps = new double[] { 0.6, 0.8, 1.0, 1.05, 1.1, 1.15, 1.2, 1.3, 1.4, 1.6, 2, 2.5, 3, 5, 10, 15, 20, 30, 50, 100, 500};
 	
 	for (int t=0; t<temps.length; t++) {
 		
 		double reducedTemp = temps[t]; // kT/epsilon
 		
-		int power = 11; // Defines discretization
+		int power = 14; // Defines discretization
 		double r_max = 100; // Defines range of separation distance, r = [0 rmax]
 		int N = (int) Math.pow(2, power);  // Number of grid points in the discretizations of r- and k-space
 	
@@ -105,7 +105,7 @@ public static void main(String[] args) {
 		//System.out.println("D2B*(T* = "+ reducedTemp + ") = "+ D2B/(b*b*b));
 		//System.out.println("D2* (T* = "+ reducedTemp + ") = "+ (D2A+D2B)/(b*b*b));
 		
-		System.out.println(reducedTemp + "   " + D1/(b*b*b) + "    " + (D2A+D2B)/(b*b*b));
+		System.out.println(reducedTemp + "   " + (D1 + (D2A+D2B)) );
 		
 	}
 	}
