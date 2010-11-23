@@ -33,27 +33,27 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     private static final String APP_NAME = "MeterDifferentImageAdd";
     
     public int nInsert, counter;
-    private MeterPotentialEnergy meterPE;
-    private CoordinateDefinition cDef, simCDef;
-    private int cDim, simCDim;
-    private IVectorMutable[] waveVectors, simWaveVectors;
-    private double[] simRealT, simImagT;
+    protected MeterPotentialEnergy meterPE;
+    protected CoordinateDefinition cDef, simCDef;
+    protected int cDim, simCDim;
+    protected IVectorMutable[] waveVectors, simWaveVectors;
+    protected double[] simRealT, simImagT;
     protected double temperature;
-    private double[] newU;
-    private double[] wvCoeff, simWVCoeff, sqrtWVC;
-    private double[][] oneOverSqrtOmega2, sqrtSimOmega2; //These are already made sqrt.
-    private double[][][] eigenVectors, simEigenVectors;
+    protected double[] newU;
+    protected double[] wvCoeff, simWVCoeff, sqrtWVC;
+    protected double[][] oneOverSqrtOmega2, sqrtSimOmega2; //These are already made sqrt.
+    protected double[][][] eigenVectors, simEigenVectors;
     double[] gaussCoord;
     
     protected final IRandom random;
     public IBox box;
-    private int numAtoms;
-    private IBoundary bdry;
-    private NormalModes nm;
+    protected int numAtoms;
+    protected IBoundary bdry;
+    protected NormalModes nm;
     WaveVectorFactory waveVectorFactory;
-    private double etas[];
-    private double scaling;
-    private double sqrtTemperature;
+    protected double etas[];
+    protected double scaling;
+    protected double sqrtTemperature;
     
     public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
             CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition 
