@@ -29,14 +29,14 @@ public static void main(String[] args) {
 		System.out.println("B5PY = -37.402 (Barker et al 1966)\n");
 		
 		
-		int power = 14; // Defines discretization
+		int power = 15; // Defines discretization
 		
 		double r_max = 100; // Defines range of separation distance, r = [0 rmax]
 		
-		int N = (int) Math.pow(2, power);
+		int N = 1<<power;
 		double del_r = r_max/(N-1);
 		
-		int m = 6; // highest order of virial coefficient to be calculated
+		int m = 4; // highest order of virial coefficient to be calculated
 		double reducedTemp;
 		if (args.length == 0) {
 		}
@@ -53,7 +53,7 @@ public static void main(String[] args) {
 		double [] reducedTemps = new double[] { 0.6, 0.8, 1.0, 1.05, 1.1, 1.15, 1.2, 1.3, 1.4, 1.6, 2, 2.5, 3, 5, 10, 15, 20, 30, 50, 100, 500};
 		//double [] reducedTemps = new double[] { 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2, 2.5, 3, 5, 10, 15, 20, 50, 100};
 
-
+		//double [] reducedTemps = new double[] { 1.0};
 		
 		for (int i=0;i<reducedTemps.length;i++) {
 			reducedTemp = reducedTemps[i];
@@ -75,8 +75,8 @@ public static void main(String[] args) {
 			/*
 			System.out.println("Values computed here at T* = " + reducedTemp + ":");
 			System.out.println("r_max = " + r_max + ", log2N = " + power);
-			for (int i=2;i<=m;i++) {
-				System.out.println("B" + i + " = " + B[i-2]);
+			for (int j=2;j<=m;j++) {
+				System.out.println("B" + j + " = " + B[j-2]);
 			}
 			*/
 			
@@ -97,11 +97,13 @@ public static void main(String[] args) {
 		
 		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
 		
-		double r = 0.0;
+		
 		
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		
 		for (int n = 0; n<N; n++) {
+			
+			double r = n*del_r;
 			
 			double u = p2.u(r*r);
 			
@@ -116,8 +118,6 @@ public static void main(String[] args) {
 				fr[n] = Math.exp(x)-1.0;
 				
 			}
-			
-			r += del_r; 
 	
 		}
 		
