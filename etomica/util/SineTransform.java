@@ -19,6 +19,8 @@ public class SineTransform {
 	
 	public double[] forward(double[] f, double del_r, double r_max) {
 	
+		
+		double del_k = Math.PI/r_max;
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// Make auxiliary vector, Fr = r*fr, not including the zeroth mode (r=0)
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -85,22 +87,22 @@ public class SineTransform {
 		    // Special consideration of zeroth mode, fk(k=0):
 	    	// Even if there were an Fk(k=0) we could not utilize it in the regular way
 		     
-		    // fk[0] = fk[0] + 4.0*Math.PI*(Fr[i-1]*(i-1)*del_r)*del_r;
-	    	// fk[0] = fk[0] + (4.0*Math.PI*del_r)*(Fr[i-1]*(i-1)*del_r);
+		    // fk[0] = fk[0] + 4.0*Math.PI*(Fr[i-1]*(i)*del_r)*del_r;
+	    	// fk[0] = fk[0] + (4.0*Math.PI*del_r)*(Fr[i-1]*(i)*del_r);
 	    	
 	    	fk[0] = fk[0] + (Fr[i-1]*(i)*del_r);
 	    	
 	    	
 		    // Modes 1 through N-1: 
 	    	
-		    // fk[i] = 4.0*Math.PI*(Fk[i-1]/((i)*del_k))*del_r; 
+		     fk[i] = 4.0*Math.PI*(Fk[i-1]/((i)*del_k))*del_r; 
 	    	// fk[i] = 4.0*Math.PI*(Fk[i-1]/(i))/del_k*del_r; 
 	    	// fk[i] = 4.0*Math.PI*(Fk[i-1]/(i))*(r_max/pi)*del_r; 
 		    // fk[i] = 4.0*(Fk[i-1]/(i))*r_max*del_r; 
 	    	
 		    // Fk[0] corresponds to k=1.
 		    
-	    	 fk[i] = 4.0*(Fk[i-1]/(i))*r_max*del_r; // 1/del_k = r_max/pi
+	    	// fk[i] = 4.0*(Fk[i-1]/(i))*r_max*del_r; // 1/del_k = r_max/pi
 
 		}
 	    
@@ -110,6 +112,8 @@ public class SineTransform {
 	}
 	
 	public double[] reverse(double[] fk, double del_r, double r_max) {
+		
+		double del_k = Math.PI/r_max;
 		
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		//% Make auxiliary vector, Fk = k*fk, ignoring the k=0 mode  
@@ -121,9 +125,9 @@ public class SineTransform {
 		
 		for (int i=0;i<N-1;i++) {
 		    
-		   // Fk[i] = fk[i+1]*(i+1)*del_k; 
+		    Fk[i] = fk[i+1]*(i+1)*del_k; 
 			
-			  Fk[i] = fk[i+1]*(i+1)*Math.PI/r_max;
+			//  Fk[i] = fk[i+1]*(i+1)*Math.PI/r_max;
 		    
 		}
 		
@@ -176,15 +180,15 @@ public class SineTransform {
 		for (int i=1; i<N; i++) {
 
 		    //Special consideration for zeroth mode
-		    // fr[0] = fr[0] + 1/(2*Math.PI*Math.PI)*(Fk[i]*i*del_k)*del_k;
+		    fr[0] = fr[0] + 1/(2*Math.PI*Math.PI)*(Fk[i-1]*i*del_k)*del_k;
 			
-			fr[0] = fr[0] + (Fk[i-1]*i); //del_k = pi/r_max
+			//fr[0] = fr[0] + (Fk[i-1]*i); //del_k = pi/r_max
 
-		    //fr[i] = 1.0/(2.0*Math.PI*Math.PI)*(Fr[i]/(i*del_r))*del_k;
+		    fr[i] = 1.0/(2.0*Math.PI*Math.PI)*(Fr[i-1]/(i*del_r))*del_k;
 			
-			// fr[i] = 1.0/(2.0*Math.PI)*(Fr[i]/(i*del_r))/r_max;  //del_k = pi/r_max
+			// fr[i] = 1.0/(2.0*Math.PI)*(Fr[i-1]/(i*del_r))/r_max;  //del_k = pi/r_max
 			
-			fr[i] = 1.0/(2.0*Math.PI)*(Fr[i-1]/(i*del_r))/r_max;  //del_k = pi/r_max
+			//fr[i] = 1.0/(2.0*Math.PI)*(Fr[i-1]/(i*del_r))/r_max;  //del_k = pi/r_max
 
 			
 			//fr[i] = 1.0/(2.0*Math.PI)*(Fr[i]/(i))/r_max/r_max;  // 1/(r_max*del_r) = 1/(r_max*r_max/(N-1)) = (N-1)/(r_max^2)
