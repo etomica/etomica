@@ -309,16 +309,6 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         potentialMaster.getNeighborManager(meterTargInRef.getBox()).reset();
         potentialMaster.getNeighborManager(meterRefInTarg.getBox()).reset();
         
-        
-        
-        
-        
-
-        nbrConstraint.initBox(meterRefInTarg.test.getBox());
-        potentialMaster.getNeighborManager(meterRefInTarg.test.getBox()).reset();
-        
-        
-        
         //Just to be sure!
         potential.setTruncationRadius(3000.0);
         

@@ -23,10 +23,6 @@ public class MeterDifferentImageSubtractDoubleSize extends MeterDifferentImageSu
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "MeterDifferentImageSubtractDoubleSize";
     
-    
-    MeterDifferentImageSubtract test;
-    
-    
     public MeterDifferentImageSubtractDoubleSize(ISimulation sim, ISpace space, 
             CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
@@ -40,12 +36,6 @@ public class MeterDifferentImageSubtractDoubleSize extends MeterDifferentImageSu
             NormalModes otherNM, String otherFilename){
         super(sim, space, simCD, simNM, otherCD, potentialMaster, otherNCells,
                 otherNM, otherFilename);
-        
-        
-        test = new MeterDifferentImageSubtract(sim, space, simCD, simNM, otherCD, potentialMaster, otherNCells,
-                otherNM, otherFilename);
-        
-        
     }
     
     public double getDataAsScalar() {
@@ -110,10 +100,6 @@ public class MeterDifferentImageSubtractDoubleSize extends MeterDifferentImageSu
             newU[i] *= normalization;
         }
         cDef.setToU(cDef.getBasisCells()[0].molecules, newU);
-        
-        
-//        test.getDataAsScalar();
-//        System.out.println("thisPE "+ meterPE.getDataAsScalar() + " thisHarmonic "+ harmonic);
         
         return meterPE.getDataAsScalar() + harmonic;
     }
