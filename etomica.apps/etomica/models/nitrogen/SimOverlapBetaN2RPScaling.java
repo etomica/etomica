@@ -31,6 +31,8 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
+import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -99,8 +101,8 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
 		pRotConstraint.setConstraintAngle(angle);
 		
-		potentialMaster = new PotentialMaster();
-		//potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
+		//potentialMaster = new PotentialMaster();
+		potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		
@@ -117,18 +119,18 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 		}
 		
 		
-//	    int cellRange = 6;
-//        potentialMaster.setRange(rc);
-//        potentialMaster.setCellRange(cellRange); 
-//        potentialMaster.getNeighborManager(box).reset();
-//        
-//        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-//        if (potentialCells < cellRange*2+1) {
-//            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-//        }
-//	
-//        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-//        System.out.println("numNeigh: " + numNeigh);
+	    int cellRange = 6;
+        potentialMaster.setRange(rc);
+        potentialMaster.setCellRange(cellRange); 
+        potentialMaster.getNeighborManager(box).reset();
+        
+        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+        if (potentialCells < cellRange*2+1) {
+            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        }
+	
+        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        System.out.println("numNeigh: " + numNeigh);
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
@@ -361,7 +363,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
     public AccumulatorAverageFixed accumulator;
     public DataPumpListener accumulatorPump;
     public MeterTargetRPMolecule meter;
-    protected PotentialMaster potentialMaster;
+    protected PotentialMasterListMolecular potentialMaster;
     protected double latticeEnergy;
     protected SpeciesN2 species;
     protected CoordinateDefinitionNitrogen coordinateDef;
