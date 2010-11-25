@@ -98,30 +98,30 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 				}
 				
 				if(isUnitCellA){
-					newU[i] = u[1];
-					newU[i+1] = u[2];
-					newU[i+2] = u[3];
-					newU[i+3] = u[4];
-					newU[i+4] = u[5];
+					newU[i] = u[0];
+					newU[i+1] = u[1];
+					newU[i+2] = u[2];
+					newU[i+3] = u[3];
+					newU[i+4] = u[4];
 				
-					newU[i+5] = u[6];
-					newU[i+6] = u[7];
-					newU[i+7] = u[8];
-					newU[i+8] = u[9];
-					newU[i+9] = u[10];
+					newU[i+5] = u[5];
+					newU[i+6] = u[6];
+					newU[i+7] = u[7];
+					newU[i+8] = u[8];
+					newU[i+9] = u[9];
 				
 				} else {
-					newU[i] = u[11];
-					newU[i+1] = u[12];
-					newU[i+2] = u[13];
-					newU[i+3] = u[14];
-					newU[i+4] = u[15];
+					newU[i] = u[10];
+					newU[i+1] = u[11];
+					newU[i+2] = u[12];
+					newU[i+3] = u[13];
+					newU[i+4] = u[14];
 				
-					newU[i+5] = u[16];
-					newU[i+6] = u[17];
-					newU[i+7] = u[18];
-					newU[i+8] = u[19];
-					newU[i+9] = u[20];
+					newU[i+5] = u[15];
+					newU[i+6] = u[16];
+					newU[i+7] = u[17];
+					newU[i+8] = u[18];
+					newU[i+9] = u[19];
 				}
 			}
 		}
@@ -171,30 +171,30 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 				}
 				
 				if(isUnitCellA){
-					newU[i] = u[1];
-					newU[i+1] = u[2];
-					newU[i+2] = u[3];
-					newU[i+3] = u[4];
-					newU[i+4] = u[5];
+					newU[i] = u[0];
+					newU[i+1] = u[1];
+					newU[i+2] = u[2];
+					newU[i+3] = u[3];
+					newU[i+4] = u[4];
 				
-					newU[i+5] = u[6];
-					newU[i+6] = u[7];
-					newU[i+7] = u[8];
-					newU[i+8] = u[9];
-					newU[i+9] = u[10];
+					newU[i+5] = u[5];
+					newU[i+6] = u[6];
+					newU[i+7] = u[7];
+					newU[i+8] = u[8];
+					newU[i+9] = u[9];
 				
 				} else {
-					newU[i] = u[11];
-					newU[i+1] = u[12];
-					newU[i+2] = u[13];
-					newU[i+3] = u[14];
-					newU[i+4] = u[15];
+					newU[i] = u[10];
+					newU[i+1] = u[11];
+					newU[i+2] = u[12];
+					newU[i+3] = u[13];
+					newU[i+4] = u[14];
 				
-					newU[i+5] = u[16];
-					newU[i+6] = u[17];
-					newU[i+7] = u[18];
-					newU[i+8] = u[19];
-					newU[i+9] = u[20];
+					newU[i+5] = u[15];
+					newU[i+6] = u[16];
+					newU[i+7] = u[17];
+					newU[i+8] = u[18];
+					newU[i+9] = u[19];
 				}
 			}
 		}
@@ -236,8 +236,16 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 				//System.out.println("afterEnergy: " + afterEnergy/numMolecule);
 					
 				if(afterEnergy < initEnergy && afterEnergy<initLat){
-					//System.out.println("**************** LOWER ENERGY LATTICE STRUCTURE FOUND! *******************");
-					System.out.println(numIter + " "+ iVar+" lattice energy (sim unit): " + getEnergy(parameters)/numMolecule);
+					System.out.println("**************** LOWER ENERGY LATTICE STRUCTURE FOUND! *******************");
+					for(int i=0; i<parameter.length; i++){
+						System.out.print(parameters[i]+", ");
+						if((i+1)%5==0){
+							System.out.println("");
+						}
+					}
+					System.out.println(numIter + " "+ iVar+" lower lattice energy (sim unit): " + getEnergy(parameters));
+					
+					
 					if(Math.abs(parameters[iVar]) < 1e-8){
 		            	minVal[iVar] = parameter[iVar] - 0.1;
 						maxVal[iVar] = parameter[iVar] + 0.1;
@@ -415,8 +423,8 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 	
 	public static void main(String[] args){
 		
-		String filename = "/tmp/inputd0.021";
-		double density = 0.021;
+		String filename = "/tmp/inputd0.0240";
+		double density = 0.0240;
 		int nCells = 8;
 		double scale = 1.2;
 		
@@ -434,25 +442,34 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 		}
         
 		int[] nC = new int[]{nCells,nCells,nCells};
-		double[] parameters = new double[21];
-		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
-		for (int i=0; i<parameters.length;i++){
-			parameters[i] = paramFromFile[i][0];
-		}
+//		double[] parameters = new double[21];
+//		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
+//		for (int i=0; i<parameters.length;i++){
+//			parameters[i] = paramFromFile[i][0];
+//		}
 		
-//		double[] parameters = new double[]{1.631, 
-//				0.00967627511673874, -4.0335087762077794E-4, -4.979390112773919E-4, -0.00621165210733723, -0.026684242064978696,
-//				 -0.010964121568701888, -8.89076558191218E-4, -5.103540297036002E-4, 0.006075743547189045, -0.02662786102380948,
-//				 -0.010897042866236585, -3.862882969924215E-4, -4.957174274794356E-4, -0.00589031685970485, -0.026762492129711716,
-//				 0.00965324315670293, -9.269032792479676E-4, -4.8760886758373234E-4, 0.006107404986730156, -0.026621244306518587
+		double[] parameters = new double[20];
+		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
+		int k=0;
+		for (int i=0; i<paramFromFile.length;i++){
+			for (int j=0; j<paramFromFile[0].length;j++){
+				
+				parameters[k]=paramFromFile[i][j];
+				k++;
+			}	
+		}
+
+//		double[] parameters = new double[]{
+//				-0.0017349962317506412, -0.0027974828318609105, -7.581565740963482E-4, -5.990823064685293E-4, -0.006128325020981227, 
+//				-0.010735605943185744, -0.002905292285103777, -7.627908319184331E-4, 4.5596690494304235E-4, -0.006167489620882418, 
+//				-0.010704530857973842, -0.0027910750784169635, -7.53367430608352E-4, -3.301427639567425E-4, -0.006326628793386818, 
+//				-0.0017488913792137787, -0.002926886490898403, -7.53907992363013E-4, 5.467042274882102E-4, -0.006117407091993217
 //
 //		};
 
-		
-		
 		double[] valMin = new double[parameters.length];
 		double[] valMax = new double[parameters.length];
-		
+	
 		double minScale = scale;
 		double maxScale = scale;
 		
@@ -501,13 +518,18 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 			
 			for (int i=0; i<parameters.length; i++){
 			
-				fileWriter.write(parameters[i]+ "\n");
+				fileWriter.write(parameters[i]+" ");
+				
+				if(i>0&&(i+1)%5==0){
+					fileWriter.write("\n");
+						
+				}
+				//fileWriter.write(parameters[i]+ "\n");
 			}
-			fileWriter.write(func.getEnergy(parameters)/func.numMolecule + "\n");
 			fileWriter.close();
 			
 		} catch(IOException e){
-			throw new RuntimeException("Failed to write coord data normalize coord U" + e);
+			throw new RuntimeException("Failed to write file!!" + e);
 		
 		}
 	}
