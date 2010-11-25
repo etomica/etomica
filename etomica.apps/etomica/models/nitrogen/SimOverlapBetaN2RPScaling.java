@@ -289,7 +289,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
             sim.integrator.getEventManager().addListener(counterPump);
             simGraphic.getPanel().controlPanel.add(timer.graphic());
             
-            simGraphic.makeAndDisplayFrame("TP Alpha Nitrogen");
+            simGraphic.makeAndDisplayFrame("TP Beta Nitrogen");
             return;
         }
 
