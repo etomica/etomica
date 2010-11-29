@@ -55,7 +55,7 @@ public static void main(String[] args) {
 
 	// Minimum log2(N) and maximum separation distance to be considered:
 	int power = 10;
-	double r_max = 100;
+	double r_max = 200;
 	
 	Space space = Space3D.getInstance();
 	
@@ -171,7 +171,7 @@ public static void main(String[] args) {
 		
 		double[] dummy = fr;
 		
-		double[] fk = dst.forward(dummy, del_r, r_max);
+		double[] fk = dst.forward(dummy, del_r);
 		
 		double B2 = -1.0/(2.0)*(fk[0]);
 		
@@ -183,7 +183,7 @@ public static void main(String[] args) {
 		}
 			
 		dummy = ffk;
-		double[] ffr = dst.reverse(dummy, del_r, r_max);
+		double[] ffr = dst.reverse(dummy, del_r);
 			
 		// Trapezoidal rule:
 		
@@ -358,16 +358,22 @@ public static void main(String[] args) {
 	
 	 public static class DampingParams extends ParameterBase {
 		    //TZ
-		 	
+		 /*
+		 	public int a1 = 79;	        
+	        public int a2 = 136;   
+	        private double Rvdw = 3.65;
+	        private int basis = 3;
+	        private boolean fixedRvdw = false;
+		 	*/
+	        
+		 	//DZ
 	    	public int a1 = 80;	        
 	        public int a2 = 149;   
 	        private double Rvdw = 3.688;
 	        private int basis = 2;
 	        private boolean fixedRvdw = false;
-	        //DZ
-	        //public int a1 = 80;	        
-	        //public int a2 = 149;   
-	        // public int basis = 2;
+	        
+	    
 	        
 	        public int tempSet = 2; 
 	  }

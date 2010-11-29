@@ -26,18 +26,18 @@ public static void main(String[] args) {
 		
 		double reducedTemp = temps[t]; // kT/epsilon
 		
-		int power = 14; // Defines discretization
+		int power = 17; // Defines discretization
 		double r_max = 200; // Defines range of separation distance, r = [0 rmax]
-		int N = (int) Math.pow(2, power);  // Number of grid points in the discretizations of r- and k-space
+		//int N = (int) Math.pow(2, power);  // Number of grid points in the discretizations of r- and k-space
+		int N = 1<<power;
 	
         double del_r = r_max/(N-1);
-        double del_k = Math.PI/r_max;
 		
 		double[] fr = getfr( N, del_r,reducedTemp);
 		
 		SineTransform dst = new SineTransform();
 
-		double[] fk = dst.forward(fr, del_r, r_max);
+		double[] fk = dst.forward(fr, del_r);
 		
 		double[] ffk = new double[N];
 		double[] fffk = new double[N];
@@ -50,9 +50,9 @@ public static void main(String[] args) {
 			ffffk[i] = fk[i]*fk[i]*fk[i]*fk[i];
 		}
 		
-		double[] ffffr = dst.reverse(ffffk, del_r, r_max);
-		double[] fffr  = dst.reverse(fffk, del_r, r_max);
-		double[] ffr   = dst.reverse(ffk, del_r, r_max);
+		double[] ffffr = dst.reverse(ffffk, del_r);
+		double[] fffr  = dst.reverse(fffk, del_r);
+		double[] ffr   = dst.reverse(ffk, del_r);
 		
 		double[] E6ar = new double[N];
 		double[] E6br = new double[N];
@@ -68,7 +68,7 @@ public static void main(String[] args) {
 			
 		}
 		
-		double[] E7ack = dst.forward(E7acr, del_r, r_max);
+		double[] E7ack = dst.forward(E7acr, del_r);
 		double[] E7ac1k = new double[N];
 		
 		for (int i = 0;i<N; i++) {
@@ -76,12 +76,14 @@ public static void main(String[] args) {
 			E7ac1k[i] = fk[i]*E7ack[i];
 		}
 		
-		double[] E7ac1r = dst.reverse(E7ac1k, del_r, r_max);
+		double[] E7ac1r = dst.reverse(E7ac1k, del_r);
 		
 		for (int i = 1;i<(N-1); i++) {
 			
 				E7ac1r[i] = fr[i]*ffr[i]*E7ac1r[i];
 		}
+		
+		// Trapezoid rule for final layer of integration
 		
 		double E5 = 0;
 		double E6B = 0;
@@ -102,15 +104,15 @@ public static void main(String[] args) {
 			E7G = E7G + E7gr[i]*(i*del_r)*(i*del_r)*del_r;
 		}
 		
-	    	E5 = E5 + 0.5*( fffr[N-1]*ffr[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r; 
-	    	
-	    	E6B = E6B + 0.5*( E6br[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
-	    	
-	    	E6A = E6A + 0.5*( E6ar[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
-	    	
-	    	E7A = E7A + 0.5*( E7ac1r[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
-	    	
-	    	E7G = E7G + 0.5*( E7gr[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
+    	E5 = E5 + 0.5*( fffr[N-1]*ffr[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r; 
+    	
+    	E6B = E6B + 0.5*( E6br[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
+    	
+    	E6A = E6A + 0.5*( E6ar[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
+    	
+    	E7A = E7A + 0.5*( E7ac1r[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
+    	
+    	E7G = E7G + 0.5*( E7gr[N-1] )*(N-1)*del_r*(N-1)*del_r*del_r;
 
 		
 		E5 = -2.0/(5.0)*4.0*Math.PI*E5;	
@@ -170,11 +172,13 @@ public static void main(String[] args) {
 		P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
 		double u;
 		
-		double r = 0.0;
+	
 		
 		double[] fr = new double[N];  // Holds discretization of Mayer function in r-space
 		
 		for (int n = 0; n<N; n++) {
+			
+			double r = n*del_r;
 			
 			u = p2.u(r*r);
 			
@@ -193,8 +197,6 @@ public static void main(String[] args) {
 			
 			// fr[n] = Math.exp(x)-1.0;
 			
-			
-			r += del_r; 
 	
 		}
 		

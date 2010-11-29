@@ -37,7 +37,7 @@ public class HypernettedChain {
 		double[] dummy = new double[N];
 		dummy = fr;
 		double[] fk = new double[N];
-		fk = dst.forward(dummy, del_r, del_k);
+		fk = dst.forward(dummy, del_r);
 		
 		// Arrays to store the density expansion coefficients of c(r) and h(r)
 		double[][] cnr = new double[M][N];
@@ -103,7 +103,7 @@ public class HypernettedChain {
 			
 			dummy = cmr;
 			double[] cmk = new double[N];
-			cmk = dst.forward(dummy, del_r, del_k);
+			cmk = dst.forward(dummy, del_r);
 			
 			double Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
 			

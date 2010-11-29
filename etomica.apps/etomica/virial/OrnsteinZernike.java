@@ -51,7 +51,8 @@ public class OrnsteinZernike {
 		double[] hnkCopy = new double[N];
 		
 		SineTransform dst = new SineTransform();
-		double del_k = Math.PI/(del_r*N);
+		
+		double r_max = del_r*(N-1);
 		
 		for (int n=0; n<(m); n++) {
 			
@@ -62,9 +63,9 @@ public class OrnsteinZernike {
 				hnrCopy[i] = hnr[n][i];
 			}
 			
-			cnkCopy = dst.forward(cnrCopy, del_r, del_k);
+			cnkCopy = dst.forward(cnrCopy, del_r);
 			
-			hnkCopy = dst.forward(hnrCopy, del_r, del_k);
+			hnkCopy = dst.forward(hnrCopy, del_r);
 		
 			for (int i=0; i<N; i++) {
 				
@@ -102,7 +103,7 @@ public class OrnsteinZernike {
 		}
 		
 		double[] tm = new double[N];
-		tm = dst.reverse(tmk, del_r, del_k);
+		tm = dst.reverse(tmk, del_r);
 	    
 		return tm;	
 		

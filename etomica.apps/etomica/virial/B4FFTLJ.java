@@ -4,7 +4,6 @@ import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.SineTransform;
-import etomica.virial.cluster.Standard;
 
 /**
  * 
@@ -25,17 +24,36 @@ public static void main(String[] args) {
 		
 		double reducedTemp = temps[t]; // kT/epsilon
 		
-		int power = 17; // Defines discretization
+		int power = 13; // Defines discretization
 		double r_max = 100; // Defines range of separation distance, r = [0 rmax]
 		int N = 1<<power;  // Number of grid points in the discretizations of r- and k-space
-	
-        double del_r = r_max/(N-1);
+		
+		
+		//N = N -1;
+		SineTransform dst = new SineTransform();
+        
+		double del_r = r_max/(N-1);
 		
 		double[] fr = getfr( N, del_r,reducedTemp);
 		
-		SineTransform dst = new SineTransform();
 
-		double[] fk = dst.forward(fr, del_r, r_max);
+		double[] fk = dst.forward(fr, del_r);
+		
+		double[] fr2 = dst.reverse(fk, del_r);
+		 
+		
+		
+		if (t == -1 ) {
+			for (int i = 0;i<10; i=i+1) {
+				System.out.println((del_r*i) + "   " + fr[i] + "   " + fr2[i] + "   " + (fr2[i]-fr[i]) );
+			}
+			
+			for (int i = 10;i<N; i=i+50) {
+				System.out.println((del_r*i) + "   " + fr[i] + "   " + fr2[i] + "   " + (fr2[i]-fr[i]) );
+			}
+			//System.exit(0);
+		}
+		
 		
 		double[] ffk = new double[N];
 		double[] fffk = new double[N];
@@ -44,9 +62,9 @@ public static void main(String[] args) {
 			fffk[i] = fk[i]*fk[i]*fk[i]; 
 		}
 		
-		double[] ffr = dst.reverse(ffk, del_r, r_max);
+		double[] ffr = dst.reverse(ffk, del_r);
 		
-		double[] ffk2 = dst.forward(ffr, del_r, r_max);
+		double[] ffk2 = dst.forward(ffr, del_r);
 		
 		double[] fffk2 = new double [N];
 		for (int i = 0;i<N; i++) {
@@ -59,7 +77,7 @@ public static void main(String[] args) {
 		 * not all of the error is removed by this ah hoc procedure, which would indicate that even faster convergence is possible.
 		 */
 		
-		double[] d1r = dst.reverse(fffk2, del_r, r_max);
+		double[] d1r = dst.reverse(fffk, del_r);
 		
 		double[] d2b1r = new double[N];
 		for (int i = 0;i<N; i++) {
@@ -67,7 +85,7 @@ public static void main(String[] args) {
 			d2b1r[i] = fr[i]*ffr[i];
 		}
 		
-		double[] d2b1k = dst.forward(d2b1r, del_r, r_max);
+		double[] d2b1k = dst.forward(d2b1r, del_r);
 		
 		double[] d2bk = new double[N];
 		for (int i = 0;i<N; i++) {
@@ -75,7 +93,7 @@ public static void main(String[] args) {
 			d2bk[i] = fk[i]*d2b1k[i];
 		}
 		
-		double[] d2br = dst.reverse(d2bk, del_r, r_max);
+		double[] d2br = dst.reverse(d2bk, del_r);
 		
 		
 		
@@ -135,9 +153,9 @@ public static void main(String[] args) {
 		D2B = -1.0/(8.0)*4.0*Math.PI*D2B;
 		
 		
-		double [] c1k = dst.forward(cB3, del_r, r_max);
+		double [] c1k = dst.forward(cB3, del_r);
 		
-		double [] c2k = dst.forward(cB4Approx, del_r, r_max);
+		double [] c2k = dst.forward(cB4Approx, del_r);
 			
 		double B3F = -1.0/(3.0)*(c1k[0]); // B3 for m = 1
 		
