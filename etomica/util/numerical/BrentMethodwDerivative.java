@@ -151,7 +151,7 @@ public class BrentMethodwDerivative {
 				 */
 				if (fu > fx){
 					xmin = axe;
-					System.out.println("  <dbrent> bailled at (fu > fx)");
+					System.out.println("  <dbrent> bailed at (fu > fx)");
 					return new double[] {xmin, fx};
 				}
 			}
