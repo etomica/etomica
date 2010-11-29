@@ -375,7 +375,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
     }
     
-	public void setTest(IMoleculeList molecules){
+	public void setNominalReference(IMoleculeList molecules){
     	
     	for (int i=0; i < molecules.getMoleculeCount() ; i++){
     		
@@ -452,6 +452,42 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	xzOrientationTensor[2].E(rotationTensor);
     	
     	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(35.26438968));
+    	xzOrientationTensor[3].E(rotationTensor);
+    	
+    }
+    
+    public void setOrientationVectorBetaInitial(ISpace space){
+    	/*
+    	 * To determine the minimum energy structure.
+    	 */
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(90.0));
+    	yOrientationTensor[0].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(90.0));
+    	yOrientationTensor[1].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians( 0.0));
+    	yOrientationTensor[2].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians( 0.0));
+    	yOrientationTensor[3].E(rotationTensor);
+    	
+    	/*
+    	 * rotation Axis about (x, -y, 0)
+    	 */
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.6649708673741139, -0.7468692961581154, 0.0}), Math.toRadians(0.0));
+    	xzOrientationTensor[0].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.6649136890095793, -0.7469202006691695, 0.0}), Math.toRadians(0.0));
+    	xzOrientationTensor[1].E(rotationTensor);
+    
+    	/*
+    	 * rotation Axis about (-x, -y, 0)
+    	 */
+       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-0.6647945167590543, -0.7470262716177362, 0.0}),  Math.toRadians(0.0));
+    	xzOrientationTensor[2].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-0.6649586501964135, -0.7468801734742754, 0.0}),  Math.toRadians(0.0));
     	xzOrientationTensor[3].E(rotationTensor);
     	
     }
