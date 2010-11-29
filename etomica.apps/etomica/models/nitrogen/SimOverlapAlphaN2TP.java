@@ -79,8 +79,10 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 	
+		double constraintAngle = 65;
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(75);
+		pRotConstraint.setConstraintAngle(constraintAngle);
+		System.out.println("set constraint angle to = "+ constraintAngle);
 		
 		//potentialMaster = new PotentialMaster();
 		potentialMaster = new PotentialMasterListMolecular(this, space);
@@ -224,7 +226,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
 			System.out.println("\n***initialize coordinate from "+ configFile);
         	sim.initializeConfigFromFile(configFileName);
 		} else {
-	        long initStep = (1+(numMolecules/1000))*100*numMolecules;
+	        long initStep = (1+(numMolecules/500))*100*numMolecules;
 	        sim.initialize(initStep);
 		}
 		System.out.flush();
@@ -343,8 +345,8 @@ public class SimOverlapAlphaN2TP extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 256;
-        public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 1000;
+        public double density = 0.0222; //0.02204857502170207 (intial from literature with a = 5.661)
+        public long numSteps = 100000;
         public double temperature = 0.01; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
