@@ -17,38 +17,39 @@ public class SineTransform {
 	}
 	
 	
-	public double[] forward(double[] f, double del_r, double r_max) {
+	public double[] forward(double[] f, double del_r) {
 	
 		
-		double del_k = Math.PI/r_max;
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		// Make auxiliary vector, Fr = r*fr, not including the zeroth mode (r=0)
+		// Make auxiliary vector, Fr = r*fr
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		
 		int N = f.length;
 		
-		double[] Fr = new double[N-1]; 
+		double[] Fr = new double[N]; 
+	
 		
-		
-		for (int n=0; n < N-1; n++) {
+		for (int n=0; n < N; n++) {
 			
-			Fr[n] = (n+1)*del_r*f[n+1];
+			Fr[n] = (n)*del_r*f[n];
 			
 		}
 		
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		// Make auxiliary vector, Fr2 = [0,Fr,*0*,reverse(-Fr)], to evaluate DST with DFT
+		// Make auxiliary vector, Fr2 = [0,Fr[1:N-1],*0*,reverse(-Fr[1:N-1])], to evaluate DST with DFT
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		
 		double[] Fr2 = new double[2*(N)];
 		
-		Fr2[0] = 0; 
-		Fr2[N] = 0;
-		for (int i = 0; i<N-1; i++) {
-			Fr2[i+1] = Fr[i];           // from elements 1 to N-1
-		    Fr2[2*N-1-i] = -Fr[i];      // from elements 2*N-1 to N+1   
+		// Fr2[0] = 0; Fr2[N] = 0;
+
+		for (int i = 1; i<N; i++) {
+			Fr2[i] = Fr[i];           
+			Fr2[N+i] = -Fr[N-i]; 
 		}
-	
+		
+		
+		
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// Perform DFT on auxiliary vector Fr2
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -67,11 +68,13 @@ public class SineTransform {
 		//% Extract the DST, Fk, from Fk2 = -1/N*[#,Fk,#,#]
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
+		double del_k = Math.PI/((N)*del_r);
+		
 		double[] Fk = new double[N];
 		
-		for (int i = 0; i<N-1; i++) {
+		for (int i = 0; i<N; i++) {
 			
-			 Fk[i] = -(N)*Fk2[i+1]; 
+			 Fk[i] = -(N)*Fk2[i]; 
 			
 		}
 		
@@ -86,53 +89,42 @@ public class SineTransform {
 		    
 		    // Special consideration of zeroth mode, fk(k=0):
 	    	// Even if there were an Fk(k=0) we could not utilize it in the regular way
-		     
-		    // fk[0] = fk[0] + 4.0*Math.PI*(Fr[i-1]*(i)*del_r)*del_r;
-	    	// fk[0] = fk[0] + (4.0*Math.PI*del_r)*(Fr[i-1]*(i)*del_r);
-	    	
-	    	fk[0] = fk[0] + (Fr[i-1]*(i)*del_r);
+	    	fk[0] = fk[0] + 4.0*Math.PI*(Fr[i]*(i)*del_r)*del_r;
 	    	
 	    	
 		    // Modes 1 through N-1: 
 	    	
-		     fk[i] = 4.0*Math.PI*(Fk[i-1]/((i)*del_k))*del_r; 
-	    	// fk[i] = 4.0*Math.PI*(Fk[i-1]/(i))/del_k*del_r; 
-	    	// fk[i] = 4.0*Math.PI*(Fk[i-1]/(i))*(r_max/pi)*del_r; 
-		    // fk[i] = 4.0*(Fk[i-1]/(i))*r_max*del_r; 
-	    	
+		     fk[i] = 4.0*Math.PI*(Fk[i]/((i)*del_k))*del_r; 
 		    // Fk[0] corresponds to k=1.
-		    
-	    	// fk[i] = 4.0*(Fk[i-1]/(i))*r_max*del_r; // 1/del_k = r_max/pi
 
 		}
 	    
-	    fk[0] = fk[0]*4.0*Math.PI*del_r;
 		
 		return fk;
 	}
 	
-	public double[] reverse(double[] fk, double del_r, double r_max) {
-		
-		double del_k = Math.PI/r_max;
+	public double[] reverse(double[] fk, double del_r) {
 		
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		//% Make auxiliary vector, Fk = k*fk, ignoring the k=0 mode  
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		
 		int N = fk.length;
-
-	    double[] Fk = new double[N-1];
 		
-		for (int i=0;i<N-1;i++) {
+		double del_k = Math.PI/((N)*del_r);
+
+	    double[] Fk = new double[N];
+		
+		for (int i=0;i<N;i++) {
 		    
-		    Fk[i] = fk[i+1]*(i+1)*del_k; 
+		    Fk[i] = fk[i]*(i)*del_k; 
 			
 			//  Fk[i] = fk[i+1]*(i+1)*Math.PI/r_max;
 		    
 		}
 		
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		// Make auxiliary vector, Fk2 = [0,Fk,0,reverse(-Fk)], to evaluate DST with DFT
+		// Make auxiliary vector, Fk2 = [0,Fk[1:N-1],0,reverse(-Fk[1:N-1])], to evaluate DST with DFT
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		
 		double[] Fk2 = new double[2*(N)];
@@ -140,9 +132,9 @@ public class SineTransform {
 		Fk2[0] = 0;
 		Fk2[N] = 0; 
 		
-		for (int i=0; i<N-1; i++) {
-			Fk2[i+1] = Fk[i]; 
-			Fk2[2*N-1-i] = -Fk[i];    
+		for (int i=1; i<N; i++) {
+			Fk2[i] = Fk[i]; 
+			Fk2[2*N-i] = -Fk[i];    
 		}
 		
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -163,11 +155,11 @@ public class SineTransform {
 		//% Extract Fr from Fr2
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		
-		double[] Fr = new double[N-1];
+		double[] Fr = new double[N];
 		
-		for (int i=0; i<N-1; i++) {
+		for (int i=0; i<N; i++) {
 
-			  Fr[i] = -(N)*Fr2[i+1]; 
+			  Fr[i] = -(N)*Fr2[i]; 
 
 		}
 
@@ -180,24 +172,13 @@ public class SineTransform {
 		for (int i=1; i<N; i++) {
 
 		    //Special consideration for zeroth mode
-		    fr[0] = fr[0] + 1/(2*Math.PI*Math.PI)*(Fk[i-1]*i*del_k)*del_k;
-			
-			//fr[0] = fr[0] + (Fk[i-1]*i); //del_k = pi/r_max
+		    fr[0] = fr[0] + 1.0/(2.0*Math.PI*Math.PI)*(Fk[i]*(i)*del_k)*del_k;
 
-		    fr[i] = 1.0/(2.0*Math.PI*Math.PI)*(Fr[i-1]/(i*del_r))*del_k;
+		    fr[i] = 1.0/(2.0*Math.PI*Math.PI)*(Fr[i]/(i*del_r))*del_k;
 			
-			// fr[i] = 1.0/(2.0*Math.PI)*(Fr[i-1]/(i*del_r))/r_max;  //del_k = pi/r_max
-			
-			//fr[i] = 1.0/(2.0*Math.PI)*(Fr[i-1]/(i*del_r))/r_max;  //del_k = pi/r_max
-
-			
-			//fr[i] = 1.0/(2.0*Math.PI)*(Fr[i]/(i))/r_max/r_max;  // 1/(r_max*del_r) = 1/(r_max*r_max/(N-1)) = (N-1)/(r_max^2)
-			
-			//fr[i] = 1.0/(2.0*Math.PI)*(Fr[i]/(i))/r_max/r_max;
 		    
 		}
 		
-		fr[0] = fr[0]/(2.0*r_max*r_max);
 		
 		return fr;
 	}
