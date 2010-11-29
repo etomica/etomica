@@ -63,7 +63,7 @@ public class ConjugateGradientMultiDimensional {
 			
 			iteration = its;
 			
-			System.out.println("\n<CG> itereation# "+iteration);
+			System.out.println("\n<CG> iteration# "+iteration);
 			System.out.println("+++++++++++<ConjugateGradient> begin line minimization+++++++++");
 			fret = lineMinimization.dLineMinimization(p, df, function);
 			System.out.println("++++++++++<ConjugateGradient> after line minimization++++++++++++\n");
