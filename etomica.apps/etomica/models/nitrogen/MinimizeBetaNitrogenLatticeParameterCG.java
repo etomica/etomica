@@ -6,8 +6,11 @@ import java.io.IOException;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
@@ -20,6 +23,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Degree;
+import etomica.units.Pixel;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.numerical.ArrayReader1D;
 import etomica.util.numerical.ConjugateGradientMultiDimensional;
@@ -44,10 +48,10 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
 		
-		SpeciesN2 species = new SpeciesN2(space);
+		species = new SpeciesN2(space);
 		addSpecies(species);
 		
-		IBox box = new Box(space);
+		box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numMolecule);
 		
@@ -71,6 +75,7 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 		coordinateDefinition.setIsBeta();
 		coordinateDefinition.setOrientationVectorBeta(space);
 		coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+		//coordinateDefinition.setNominalReference(box.getMoleculeList());
 		
 		derivativeFunc = new FiniteDifferenceDerivativeCGNitrogenBeta(box, potentialMaster, coordinateDefinition);
 	}
@@ -88,7 +93,7 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 	}
 	
 	public static void main(String args[]){
-		String filename = "/usr/users/taitan/workspace/etomica.Apps1/bin/inputd0.0240";
+		String filename = "/tmp/inputd0.0240";
 		double density = 0.0240; 
 		int nCells = 8;
 		
@@ -133,7 +138,19 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 				
 		MinimizeBetaNitrogenLatticeParameterCG testFunction = new MinimizeBetaNitrogenLatticeParameterCG(Space.getInstance(3), nC, density);
 		System.out.println("Initial Energy value: "+ testFunction.f(parameters));
-	
+		if(false){
+			SimulationGraphic simGraphic = new SimulationGraphic(testFunction, SimulationGraphic.TABBED_PANE, testFunction.space, testFunction.getController());
+			simGraphic.add(new DisplayBox(testFunction, testFunction.box, testFunction.space, testFunction.getController()));
+			simGraphic.getDisplayBox(testFunction.box).setPixelUnit(new Pixel(10));
+			
+			DiameterHashByType diameter = new DiameterHashByType(testFunction);
+			diameter.setDiameter(testFunction.species.getNitrogenType(), 3.1);
+			diameter.setDiameter(testFunction.species.getPType(), 0.0);
+			
+			simGraphic.getDisplayBox(testFunction.box).setDiameterHash(diameter);
+		    simGraphic.makeAndDisplayFrame("Alpha Crystal Structure");
+		    return;
+		}
 		ConjugateGradientMultiDimensional conjugateGradient = new ConjugateGradientMultiDimensional();
 		conjugateGradient.conjugateGradient(parameters, 1.2e-9, testFunction);
 		
@@ -170,6 +187,8 @@ public class MinimizeBetaNitrogenLatticeParameterCG extends Simulation implement
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected MeterPotentialEnergy meterPotential;
 	protected PotentialMaster potentialMaster;
+	protected IBox box;
+	protected SpeciesN2 species;
 	
 	private static final long serialVersionUID = 1L;
 
