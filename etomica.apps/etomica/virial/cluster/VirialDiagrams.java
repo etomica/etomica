@@ -112,7 +112,7 @@ public class VirialDiagrams {
     
     public void setDoShortcut(boolean newDoShortcut) {
         doShortcut = newDoShortcut;
-        if (multibody) {
+        if (multibody && doShortcut) {
             throw new RuntimeException("shortcut only works for pairwise models");
         }
     }
