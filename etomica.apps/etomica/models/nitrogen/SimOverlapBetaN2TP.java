@@ -305,7 +305,7 @@ public class SimOverlapBetaN2TP extends Simulation {
 			System.out.println("\n***initialize coordinate from "+ configFile);
         	sim.initializeConfigFromFile(configFileName);
 		} else {
-			long initStep = (1+(numMolecules/1000))*100*numMolecules;
+			long initStep = (1+(numMolecules/500))*100*numMolecules;
 			sim.initialize(initStep);
 		}
         System.out.flush();
