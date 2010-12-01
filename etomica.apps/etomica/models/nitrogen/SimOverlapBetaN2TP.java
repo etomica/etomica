@@ -93,29 +93,19 @@ public class SimOverlapBetaN2TP extends Simulation {
 
 		
 		double[] u = new double[20];
-//		if(numMolecules==432){
-//			u = new double[]{1.6677658315292056E-5, 1.2381983061507986E-5, -9.051257881123597E-6, -7.73336282300391E-5, 1.3066028540654303E-5, 
-//				-5.495930226259771E-6, 2.2347836010634787E-6, -1.4170546162434184E-5, -7.006485189148155E-5, -4.397455987223204E-5, 
-//				 3.02340607794937E-5, 2.0597271687441905E-5, -2.5366102929885726E-6, 2.56463233129677E-4, -1.8441782352945877E-4, 
-//				-2.8785835577606926E-6, -2.0149325821505538E-5, -1.0218617536889018E-6, 6.981367943987349E-6, -1.2052895056778386E-6};
-//		} 
-//		if(numMolecules==1024){
-//			u = new double[]{3.943623675439537E-5, -7.774687777255597E-5, -1.253954091950439E-6, -5.821076381066166E-4, -1.1426375628492568E-4, 
-//			  -3.413464215138422E-5, 1.576735518174415E-4, -6.290086612653883E-6, 4.3312591345254193E-4, -1.6695297891638808E-4, 
-//			   2.308775438977747E-6, -7.003860375718278E-5, 3.6468107523589976E-6, -2.5064580018316097E-4, -3.260837904268126E-4, 
-//			   2.0040370120364808E-5, 1.3522603075083E-4, 3.979941964634359E-6, 5.208391332508404E-4, -1.197854022044697E-4};
-//
-//		}
 
-		
-		if(isBeta){
-			String filename = "inputd"+density;
-			double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
+		if(isBeta || isBetaHCP){
+			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+			double[][] param = parameters.getParameter(density);
 			
 			int kParam=0;
-			for (int i=0; i<paramFromFile.length;i++){
-				for (int j=0; j<paramFromFile[0].length;j++){
-					u[kParam]=paramFromFile[i][j];
+			for (int i=0; i<param.length;i++){
+				for (int j=0; j<param[0].length;j++){
+					if(isBetaHCP&&(j<3)){
+						u[kParam]=0.0;
+					} else {
+						u[kParam]=param[i][j];
+					}
 					kParam++;
 				}	
 			}
@@ -123,7 +113,7 @@ public class SimOverlapBetaN2TP extends Simulation {
 			System.out.println("*************Parameters*************");
 			for (int i=0; i<u.length;i++){
 				System.out.print(u[i] +", ");
-				if(i%5==0){
+				if((i+1)%5==0){
 					System.out.println();
 				}
 			}
@@ -204,7 +194,8 @@ public class SimOverlapBetaN2TP extends Simulation {
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
-        
+        System.out.println("lattice energy (sim unit): " + latticeEnergy);
+
     	potential.setRange(rc);
         meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
         meter.setCoordinateDefinition(coordinateDef);
@@ -441,8 +432,8 @@ public class SimOverlapBetaN2TP extends Simulation {
      * Inner class for parameters understood by the SimOverlapBetaN2TP constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 432;
-        public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
+        public int numMolecules = 1024;
+        public double density = 0.0230; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
         public double temperature = 0.14; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
