@@ -154,7 +154,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     			
     			for (int j=0; j<2; j++){
     				double distr2 =dist.Mv1Squared((nitrogenb.getChildList().getAtom(j)).getPosition());
-    				if(Math.sqrt(distr2) > R1){            // R > R1
+    				if(Math.sqrt(distr2) >= R1){            // R >= R1
     					sum += URgtR1(distr2);
     				
     				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
@@ -234,7 +234,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     			for (int j=0; j<2; j++){
     				double distr2 = (nitrogena.getChildList().getAtom(j)).getPosition().Mv1Squared(shift);
     				
-    				if(Math.sqrt(distr2) >= R1){            // R > R1
+    				if(Math.sqrt(distr2) >= R1){            // R >= R1
     					sum += URgtR1(distr2);
     				
     				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
@@ -473,7 +473,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     				work.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), nitrogenb.getChildList().getAtom(j).getPosition());
     				r2 = work.squared();
     				
-    				if(Math.sqrt(r2) >= R1){            // R > R1
+    				if(Math.sqrt(r2) >= R1){            // R >= R1
     					gradient[0].PEa1Tv1(dURgtR1(r2)/r2, work);
     				
     				} else if (Math.sqrt(r2) < R1 && Math.sqrt(r2) >= R0){  // R1 > R >= R0
@@ -576,7 +576,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     				work.Ev1Mv2(nitrogena.getChildList().getAtom(j).getPosition(), shift);
     				r2 = work.squared();
     				
-    				if(Math.sqrt(r2) >= R1){            // R > R1
+    				if(Math.sqrt(r2) >= R1){            // R >= R1
     					gradient[0].PEa1Tv1(dURgtR1(r2)/r2, work);
     				
     				} else if (Math.sqrt(r2) < R1 && Math.sqrt(r2) >= R0){  // R1 > R >= R0
@@ -817,7 +817,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     				double distr2 = vectorR.squared();
     				tensor.x.Ev1v2(vectorR, vectorR);
     				
-    				if(Math.sqrt(distr2) >= R1){            // R > R1
+    				if(Math.sqrt(distr2) >= R1){            // R >= R1
     					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
     					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
     					sumTensor.PE(tensor);
@@ -994,7 +994,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     				double distr2 = vectorR.squared();
     				tensor.x.Ev1v2(vectorR, vectorR);
     				
-    				if(Math.sqrt(distr2) >= R1){            // R > R1
+    				if(Math.sqrt(distr2) >= R1){            // R >= R1
     					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
     					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
     					sumTensor.PE(tensor);
