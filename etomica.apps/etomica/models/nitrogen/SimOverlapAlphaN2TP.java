@@ -157,7 +157,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         System.out.println("\nEquilibration Steps: " + initSteps);
     	activityIntegrate.setMaxSteps(initSteps);
         getController().actionPerformed();
-        //getController().reset();
+        getController().reset();
         
         accumulator.reset();
 
