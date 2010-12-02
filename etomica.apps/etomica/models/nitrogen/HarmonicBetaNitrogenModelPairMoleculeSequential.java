@@ -63,10 +63,56 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		
 		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space, 0);
+		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBeta();
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
+		
+		double[] u = new double[20];
+		if(true){
+			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+			double[][] param = parameters.getParameter(density);
+			
+			int kParam=0;
+			for (int i=0; i<param.length;i++){
+				for (int j=0; j<param[0].length;j++){
+					u[kParam]=param[i][j];
+					kParam++;
+				}	
+			}
+			
+			int numDOF = coordinateDef.getCoordinateDim();
+			double[] newU = new double[numDOF];
+			if(true){
+				for(int j=0; j<numDOF; j+=10){
+					if(j>0 && j%(nCell*10)==0){
+						j+=nCell*10;
+						if(j>=numDOF){
+							break;
+						}
+					}
+					for(int k=0; k<10;k++){
+						newU[j+k]= u[k];
+					}
+				}
+				
+				for(int j=nCell*10; j<numDOF; j+=10){
+					if(j>nCell*10 && j%(nCell*10)==0){
+						j+=nCell*10;
+						if(j>=numDOF){
+							break;
+						}
+					}
+					for(int k=0; k<10;k++){
+						newU[j+k]= u[k+10];
+					}
+				}
+			}
+
+			coordinateDef.setToU(box.getMoleculeList(), newU);
+			coordinateDef.initNominalU(box.getMoleculeList());
+			
+		}
 		
 		box.setBoundary(boundary);
 		double rCScale = 0.475;
@@ -195,7 +241,8 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		
 		int numMolecules = nCell*nCell*nCell*2;
 		int interval = nCell*2;
-		double[][][] array = new double[interval][3][coordinateDef.getCoordinateDim()];
+		int dof = 3;
+		double[][][] array = new double[interval][dof][numMolecules*dof];
 		
 		try {
 			FileWriter fileWriter = new FileWriter(fname);
@@ -230,7 +277,8 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		
 		int numMolecules = nCell*nCell*nCell*2;
 		int interval = nCell*2;
-		double[][][] array = new double[interval][3][coordinateDef.getCoordinateDim()];
+		int dof = 3;
+		double[][][] array = new double[interval][dof][numMolecules*dof];
 	
 			
 		for (int iMol=0; iMol<numMolecules; iMol+=interval){
@@ -256,11 +304,15 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 	
 	public static void main (String[] args){
 		
-		int nCell = 4;
+		int nCell =4;
 		double density = 0.025;
 		
 		if(args.length > 0){
 			nCell = Integer.parseInt(args[0]);
+		}
+		
+		if(args.length > 1){
+			density = Double.parseDouble(args[1]);
 		}
 		int numMolecule = nCell*nCell*nCell*2;
 //		System.out.println("Running simulation to construct Hessian Matrix for beta-phase nitrogen");
