@@ -44,7 +44,6 @@ import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.util.numerical.ArrayReader1D;
 
 /**
  * Temperature-perturbation simulation for beta-phase Nitrogen
@@ -432,7 +431,7 @@ public class SimOverlapBetaN2TP extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 1024;
-        public double density = 0.0250; //0.02204857502170207 (intial from literature with a = 5.661)
+        public double density = 0.0240; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
         public double temperature = 15; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
