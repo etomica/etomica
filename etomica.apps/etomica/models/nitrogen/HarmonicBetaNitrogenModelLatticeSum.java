@@ -125,7 +125,9 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		if(args.length > 2){
 			rC = Double.parseDouble(args[2]);
 		}
-		
+		if(args.length > 3){
+			density = Double.parseDouble(args[3]);
+		}
 		System.out.println("Lattice Energy Calculation of Beta-phase Nitrogen");
 		System.out.println("Using lattice sum method with truncation of " + rC + "A");
 		System.out.println("with density of:" + density);
