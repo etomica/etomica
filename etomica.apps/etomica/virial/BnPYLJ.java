@@ -72,8 +72,9 @@ public static void main(String[] args) {
 	        
 			PercusYevick py = new PercusYevick(); 
 			py.setRoute(false);
+			py.setrdfdr(rdfdr);
 			
-			double[] B = py.computeB(fr, rdfdr, m, N, del_r, false);
+			double[] B = py.computeB(fr, m, N, del_r, false);
 			
 			
 			

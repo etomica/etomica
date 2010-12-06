@@ -24,7 +24,7 @@ public class PercusYevick {
 		this.compressibility=compressibility;
 	}
 	
-	public double[] computeB(double[] fr, double[] rdfdr, int M, int N, double del_r, boolean DCF) {
+	public double[] computeB(double[] fr, int M, int N, double del_r, boolean DCF) {
 		
 		/*******************************************
 		/*******************************************
@@ -154,5 +154,10 @@ public class PercusYevick {
 		}
 	}
 	
+	public void setrdfdr(double[] rdfdr) {
+		this.rdfdr = rdfdr; 
+	}
+	
 	public boolean compressibility = true;
+	public double[] rdfdr;
 }
