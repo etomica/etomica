@@ -67,8 +67,9 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
 		coordinateDef.setOrientationVectorAlpha(space);
+		coordinateDef.setIsDoLatticeSum();
 		coordinateDef.initializeCoordinates(nCells);
-	
+		
 		double rCScale = 0.475;
 		//double rC = 1000;//box.getBoundary().getBoxSize().getX(0)*rCScale;
 		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
@@ -111,9 +112,9 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		
 		int numMolecule =4;
 		double density = 0.025;
-		double rC = 1000;
+		double rC = 100;
 		
-		int minLayer = 90;
+		int minLayer = 30;
 		int maxLayer = 121;
 		
 		if(args.length > 0){
@@ -124,6 +125,9 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		}
 		if(args.length > 2){
 			rC = Double.parseDouble(args[2]);
+		}
+		if(args.length > 3){
+			density = Double.parseDouble(args[3]);
 		}
 		
 		System.out.println("Lattice Energy Calculation of Alpha-phase Nitrogen");
