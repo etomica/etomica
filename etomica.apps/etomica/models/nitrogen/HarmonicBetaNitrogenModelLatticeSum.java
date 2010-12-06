@@ -66,7 +66,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 
 		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBetaLatticeSum();
-		coordinateDef.setOrientationVectorBeta(space);
+		coordinateDef.setOrientationVectorBetaLatticeSum(space, density);
 		coordinateDef.initializeCoordinates(new int[]{1,1,1});
 		
 		double rCScale = 0.475;
