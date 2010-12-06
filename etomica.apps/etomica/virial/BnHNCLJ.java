@@ -12,6 +12,8 @@ import etomica.space3d.Space3D;
  * approximations of the virial coefficients up to mth order.  The second and third coefficients are fully accurate (the 
  * HNC approximation is exact).
  * 
+ * Use the setRoute() method in HypernettedChain to select whether the compressibility-route or virial-route approximation is used.
+ * 
  * @author kate
  *
  */

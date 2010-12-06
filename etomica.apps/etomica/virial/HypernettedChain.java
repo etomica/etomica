@@ -5,7 +5,9 @@ import etomica.util.SineTransform;
 
 /**
  * 
- * Calculates the Percus-Yevick (PY) virial coefficients of second to Mth order for any spherically-symmetric Mayer function, fr.
+ * Calculates the hypernetted-chain (HNC) virial coefficients of second to Mth order for any spherically-symmetric Mayer function, fr.
+ * 
+ * These values differ above third order for the compressilibility and virial routes.
  * 
  * This class has only been tested for the hard sphere and Lennard-Jones potentials.
  * 
