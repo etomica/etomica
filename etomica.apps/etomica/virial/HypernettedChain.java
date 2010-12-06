@@ -18,6 +18,10 @@ public class HypernettedChain {
 	public HypernettedChain() {
 	}
 	
+	public void setRoute(boolean compressibility) {
+		this.compressibility=compressibility;
+	}
+	
 	public double[] computeB(double[] fr, int M, int N, double del_r, boolean DCF) {
 		
 		/*******************************************
@@ -105,12 +109,27 @@ public class HypernettedChain {
 			double[] cmk = new double[N];
 			cmk = dst.forward(dummy, del_r);
 			
-			double Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
+			double Bm = 0;
+			if (compressibility) { //virial route
+				Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
+			} else { //virial route
+				
+				for (int i=0;i<N-1;i++) {
+					double r = del_r*i;
+					Bm = Bm + hnr[m][i]*(rdfdr[i])*r*r;
+				}
+				
+				double r = del_r*(N-1);
+				Bm = Bm + 0.5*hnr[m][N-1]*(rdfdr[N-1])*r*r;
+				Bm = Bm*4.0*Math.PI/6.0*del_r;
+			}
+			
 			
 			B[m] = Bm;
 
             //System.out.println("B"+(m+2) + " = "+ (Bm) );
 		
+			
 		
 		}
 		
@@ -120,5 +139,12 @@ public class HypernettedChain {
 			return B;
 		}
 	}
+	
+	public void setrdfdr(double[] rdfdr) {
+		this.rdfdr = rdfdr; 
+	}
+	
+	public boolean compressibility = true;
+	public double[] rdfdr;
 	
 }
