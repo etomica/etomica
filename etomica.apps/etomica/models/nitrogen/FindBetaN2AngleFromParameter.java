@@ -61,10 +61,11 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		coordinateDef.initializeCoordinates(nCells);
 
 		double[] u = new double[20];
-
+		
+		double[][] param;
 		if(true){
 			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
-			double[][] param = parameters.getParameter(density);
+			param = parameters.getParameter(density);
 			
 			int kParam=0;
 			for (int i=0; i<param.length;i++){
@@ -109,6 +110,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		IVectorMutable[] aVector = new IVectorMutable[4];
 		IVectorMutable[] cVector = new IVectorMutable[4];
 		rotationAxis = new IVectorMutable[4];
+		deviationVector = new IVectorMutable[4];
 		
 		IVectorMutable temp1 = space.makeVector();	
 		IVectorMutable temp2 = space.makeVector();
@@ -118,6 +120,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 			aVector[i] = space.makeVector();
 			cVector[i] = space.makeVector();
 			rotationAxis[i] = space.makeVector();
+			deviationVector[i] = space.makeVector();
 		}
 		
 		alpha = new double[4];
@@ -166,20 +169,23 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 	    	beta [i] = contB*Degree.UNIT.fromSim(beta[i]);
 	    	
 	    	rotationAxis[i].E(new double[]{ cVector[i].getX(1), -cVector[i].getX(0), 0.0});
-		   
+		    deviationVector[i].E(new double[]{param[i][0], param[i][1], param[i][2]});
 	    	
 //	    	System.out.println("aVector["+i+"]   : " + aVector[i].toString());
 //	    	System.out.println("cVector["+i+"]   : " + cVector[i].toString());
 //	    	System.out.println("alpha["+i+"](deg): " + alpha[i]);
 //	    	System.out.println(" beta["+i+"](deg): " + beta[i]);
 //	    	System.out.println("rotation["+i+"]: " + rotationAxis[i]);
+//		    System.out.println("xyz:["+i+"]: "+ deviationVector[i].toString());
 //	    	System.out.println();
 	    }
 	 
 	}
 	
-	
-	
+	public IVectorMutable[] getDeviationVector() {
+		return deviationVector;
+	}
+
 	public double[] getAlpha() {
 		return alpha;
 	}
@@ -203,5 +209,6 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 
 	protected double[] alpha, beta;
 	protected IVectorMutable[] rotationAxis;
+	protected IVectorMutable[] deviationVector;
 	private static final long serialVersionUID = 1L;
 }
