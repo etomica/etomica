@@ -548,10 +548,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	
     	for(int i=0; i<4; i++){
     		rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(alpha[i]));
-    		yOrientationTensor[0].E(rotationTensor);
+    		yOrientationTensor[i].E(rotationTensor);
     		
         	rotationTensor.setRotationAxis(rotationAxis[i], Math.toRadians(beta[i]));
-        	xzOrientationTensor[0].E(rotationTensor);
+        	xzOrientationTensor[i].E(rotationTensor);
         	
         	positionVector[i].PE(deviationVector[i]);
     	}
