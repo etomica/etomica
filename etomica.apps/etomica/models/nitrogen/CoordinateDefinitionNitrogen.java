@@ -534,6 +534,30 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	
     }
     
+    public void setOrientationVectorBetaLatticeSum(ISpace space, double density){
+    	/*
+    	 * 
+    	 *
+    	 */
+    	
+    	FindBetaN2AngleFromParameter parameters = new FindBetaN2AngleFromParameter(space, density);
+    	double[] alpha = parameters.getAlpha();
+    	double[] beta  = parameters.getBeta();
+    	IVectorMutable[] rotationAxis = parameters.getRotationAxis(); 
+    	IVectorMutable[] deviationVector = parameters.getDeviationVector();
+    	
+    	for(int i=0; i<4; i++){
+    		rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(alpha[i]));
+    		yOrientationTensor[0].E(rotationTensor);
+    		
+        	rotationTensor.setRotationAxis(rotationAxis[i], Math.toRadians(beta[i]));
+        	xzOrientationTensor[0].E(rotationTensor);
+        	
+        	positionVector[i].PE(deviationVector[i]);
+    	}
+    	
+    }
+    
     public Tensor[] getXzOrientationTensor() {
 		return xzOrientationTensor;
 	}
