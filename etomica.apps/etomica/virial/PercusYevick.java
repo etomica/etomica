@@ -7,6 +7,8 @@ import etomica.util.SineTransform;
  * 
  * Calculates the Percus-Yevick (PY) virial coefficients of second to Mth order for any spherically-symmetric Mayer function, fr.
  * 
+ * These values differ above third order for the compressilibility and virial routes.
+ * 
  * This class has only been tested for the hard sphere and Lennard-Jones potentials.
  * 
  * @author kate
@@ -18,7 +20,11 @@ public class PercusYevick {
 	public PercusYevick() {
 	}
 	
-	public double[] computeB(double[] fr, int M, int N, double del_r, boolean DCF) {
+	public void setRoute(boolean compressibility) {
+		this.compressibility=compressibility;
+	}
+	
+	public double[] computeB(double[] fr, double[] rdfdr, int M, int N, double del_r, boolean DCF) {
 		
 		/*******************************************
 		/*******************************************
@@ -49,7 +55,23 @@ public class PercusYevick {
 			hnr[0][i] = fr[i];
 		}
 		
-		double B2 = -1.0/(2.0)*(fk[0]);
+		double B2;
+		
+		if (compressibility) { //virial route
+			B2 = -1.0/(2.0)*(fk[0]);
+		} else { //virial route
+			B2 = 0;
+			for (int i=0;i<N-1;i++) {
+				double r = del_r*i;
+				double g0 = fr[i]+1;
+				B2 = B2+ g0*(rdfdr[i])*r*r;
+			}
+			
+			double r = del_r*(N-1);
+			double g0 = fr[N-1]+1;
+			B2 = B2 + 0.5*g0*(rdfdr[N-1])*r*r;
+			B2 = B2*4.0*Math.PI/6.0*del_r;
+		}
 		
 		B[0] = B2;
 		
@@ -85,6 +107,16 @@ public class PercusYevick {
 			
 			/*******************************************
 			/*******************************************
+			 * Update h
+			/*******************************************
+			/********************************************/
+            
+            for (int i=0; i<N; i++){
+				hnr[m][i] = cnr[m][i]+ tmr[i]; 
+			}	
+			
+			/*******************************************
+			/*******************************************
 			 * Calculate (m+2)th virial coefficient
 			/*******************************************
 			/********************************************/
@@ -93,21 +125,25 @@ public class PercusYevick {
 			double[] cmk = new double[N];
 			cmk = dst.forward(dummy, del_r);
 			
-			double Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
+			double Bm = 0;
+			if (compressibility) { //virial route
+				Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
+			} else { //virial route
+				
+				for (int i=0;i<N-1;i++) {
+					double r = del_r*i;
+					Bm = Bm + hnr[m][i]*(rdfdr[i])*r*r;
+				}
+				
+				double r = del_r*(N-1);
+				Bm = Bm + 0.5*hnr[m][N-1]*(rdfdr[N-1])*r*r;
+				Bm = Bm*4.0*Math.PI/6.0*del_r;
+			}
 			
-			B[m] = Bm;
-
+			B[m]=Bm;
             //System.out.println("B"+(m+2) + " = "+ (Bm) );
 			
-            /*******************************************
-			/*******************************************
-			 * Update h
-			/*******************************************
-			/********************************************/
             
-            for (int i=0; i<N; i++){
-				hnr[m][i] = cnr[m][i]+ tmr[i]; 
-			}	
 		
 		}
 		
@@ -118,4 +154,5 @@ public class PercusYevick {
 		}
 	}
 	
+	public boolean compressibility = true;
 }
