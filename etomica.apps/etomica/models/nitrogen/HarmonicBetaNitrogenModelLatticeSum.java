@@ -66,6 +66,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 
 		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBetaLatticeSum();
+		coordinateDef.setIsDoLatticeSum();
 		coordinateDef.setOrientationVectorBetaLatticeSum(space, density);
 		coordinateDef.initializeCoordinates(new int[]{1,1,1});
 		
@@ -104,17 +105,17 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
         double latEnergy = 0.5*sum/basisDim;
         double avogradoConst = 6.0221415e23;
         System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[kJ/mol]: " + Joule.UNIT.fromSim(latEnergy)*avogradoConst/1000);
-	
+
 	}
 	
 	public static void main (String[] args){
 		
 		int numMolecule =4;
-		double density = 0.025;
-		double rC = 1000;
+		double density = 0.0250;
+		double rC = 100;
 		
-		int minLayer = 90;
-		int maxLayer = 121;
+		int minLayer = 20;
+		int maxLayer = 22;
 		
 		if(args.length > 0){
 			minLayer = Integer.parseInt(args[0]);
@@ -134,7 +135,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		for (int i=minLayer; i<maxLayer; i++){	
 			System.out.print(i+" ");
-			HarmonicBetaNitrogenModelLatticeSum test = new HarmonicBetaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i, rC);
+			HarmonicBetaNitrogenModelLatticeSum sim = new HarmonicBetaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i, rC);
 		}
 
 	}
