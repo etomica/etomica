@@ -171,14 +171,13 @@ public static void main(String[] args) {
     	E7AX = E7AX + 0.5*(E7axr[N-1])*c;
 
 
+    	double B5HNCC = -2.0/5.0*E5 + -8.0/5.0*E6A + -7.0/5.0*E7A + -7.0/30.0*(E6B+E7G);
+    	
 		double B5HNCV = (-2.0/5.0*E5 + -2.0*(E6A + E7A) + -1.0/(3.0)*(E6B+E7G));
-		
-		double B5HNCC = -2.0/5.0*E5 + -8.0/5.0*E6A + -7.0/5.0*E7A + -7.0/30.0*(E6B+E7G);
-		
-		double B5PYV = -2.0/5.0*E5 + -2.0*(E6A + E7A) + -1.0/(6.0)*(E6AX + 2.0*E7AX);
 		
 		double B5PYC = (-1.0/5.0*E5 - E6A - E7A);
 		
+		double B5PYV = -2.0/5.0*E5 + -2.0*(E6A + E7A) + -1.0/(6.0)*(E6AX + 2.0*E7AX);
 
 		System.out.println(temps[t] + "   "  + (B5HNCC)+ "   "  + (B5HNCV)+ "   "  + (B5PYC)+ "   "  + (B5PYV));
 	
