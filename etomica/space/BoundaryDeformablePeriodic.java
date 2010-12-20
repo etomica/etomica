@@ -229,6 +229,16 @@ public class BoundaryDeformablePeriodic extends Boundary {
         update();
 	}
 
+	public void setBoxSizeAngleFluctuation(IVector[] v){
+		for(int i=0; i<edgeVectors.length; i++) {
+            edgeVectors[i].E(v[i]);
+            //System.out.println("edgeVector["+i+"]: "+edgeVectors[i].toString());
+        }
+		//System.out.println();
+        update();
+	}
+	
+	
 	/**
 	 * Sets the boundary tensor to equal the given tensor.
 	 */
