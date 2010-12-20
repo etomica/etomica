@@ -176,7 +176,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         this.configuration = configuration;
     }
       
-    public void setOrientationVectorAlpha(ISpace space){
+    public void setOrientationVectorAlpha(){
     	/*
     	 * Reference : A. Di Nola et al Acta Cryst. (1970) A26, 144 Fig1
     	 */
@@ -211,6 +211,47 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(35.26438968));
     	xzOrientationTensor[3].E(rotationTensor);
     	
+    }
+    
+    public void setOrientationVectorCP2(){
+    	/*
+    	 *  Vega, Paras and Monson, JCP 96(12), 9060 (1992)
+    	 *  
+    	 *  arcsin (Pi/2 - 0.6/ sqrt(3) ) 
+    	 */
+    	
+    	
+    	double arcsinValue = Math.PI/2 - Math.asin((1.0 / Math.sqrt(3))); 
+    		
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	yOrientationTensor[0].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	yOrientationTensor[1].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	yOrientationTensor[2].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	yOrientationTensor[3].E(rotationTensor);
+    	
+    	/*
+    	 * DO NOTHING
+    	 */
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(0.0));
+    	xzOrientationTensor[0].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(0.0));
+    	xzOrientationTensor[1].E(rotationTensor);
+    
+    	/*
+    	 *DO NOTHING
+    	 */
+       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(0.0));
+    	xzOrientationTensor[2].E(rotationTensor);
+    	
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(0.0));
+    	xzOrientationTensor[3].E(rotationTensor);
     }
     
     public Tensor[] getXzOrientationTensor() {
