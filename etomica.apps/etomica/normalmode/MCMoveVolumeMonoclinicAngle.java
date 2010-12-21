@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.action.BoxInflate;
 import etomica.action.BoxInflateAnisotropic;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
@@ -13,15 +12,14 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
-import etomica.units.Degree;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
- *  for monoclinic primitive, where unit cell lengths: a, b and c will
- *  fluctuate independently to maintain a constant volume
- * 
+ *  for monoclinic primitive, where the x-component of c-Vector is varied to sample
+ *  box with angle fluctuation between a-Vecvtor and c-Vector and also 
+ *  maintaining a constant volume
  * 
  * @author Tai Boon Tan
  */
@@ -38,8 +36,8 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
     private transient double uNew = Double.NaN;
 
     public MCMoveVolumeMonoclinicAngle(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0);
+    		            ISpace _space, IBox box) {
+        this(potentialMaster, sim.getRandom(), _space, 1.0, box);
     }
     
     /**
@@ -47,10 +45,10 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeMonoclinicAngle(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure) {
+    		            ISpace _space, double pressure, IBox box) {
         super(potentialMaster);
         this.random = random;
-        inflate = new BoxInflateAnisotropic(_space);
+        inflate = new BoxInflateAnisotropic(box, _space);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
@@ -72,26 +70,11 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
                 
-        IVectorMutable vecAOld = Space3D.makeVector(3);
-        IVectorMutable vecBOld = Space3D.makeVector(3);
         IVectorMutable vecCOld = Space3D.makeVector(3);
-        
-        IVectorMutable vecCNew = Space3D.makeVector(3);
-        
-        vecAOld.E(box.getBoundary().getEdgeVector(0));
-        vecBOld.E(box.getBoundary().getEdgeVector(1));
         vecCOld.E(box.getBoundary().getEdgeVector(2));
         
-        IVectorMutable edgeVec0 = Space3D.makeVector(3);
-        edgeVec0.E(vecAOld);
-        edgeVec0.normalize();
-        
-        IVectorMutable edgeVec2 = Space3D.makeVector(3);
-        edgeVec2.E(vecCOld);
-        edgeVec2.normalize();
-                
         double scale = Math.exp((2.*random.nextDouble()-1.)*stepSize);
-        
+        IVectorMutable vecCNew = Space3D.makeVector(3);
         vecCNew.E(new double[]{scale*vecCOld.getX(0), vecCOld.getX(1), vecCOld.getX(2)});
 
         inflate.setCVector(vecCNew);
