@@ -6,9 +6,10 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.ISpace;
+import etomica.space3d.Space3D;
 
 /**
- * 
+ * Class that perform anisotropic angle fluctuation 
  * 
  * @author Tai Boon Tan
  *
@@ -21,18 +22,19 @@ public class BoxInflateAnisotropic extends BoxInflate{
         cVector = space.makeVector();
     	edgeVectorOld = new IVectorMutable[3];
         edgeVectorNew = new IVectorMutable[3];
-        
+
         for(int i=0; i<edgeVectorOld.length; i++){
          	edgeVectorOld[i] = space.makeVector();
             edgeVectorNew[i] = space.makeVector();
         }
+        
     }
     
     public BoxInflateAnisotropic(IBox box, ISpace space){
     	this(space);
     	setBox(box);
+    	deltaX = new double[box.getMoleculeList().getMoleculeCount()];
     }
-    
     
     /**
      * Performs anisotropic inflation.
@@ -40,40 +42,30 @@ public class BoxInflateAnisotropic extends BoxInflate{
     public void actionPerformed() {
         if(box == null) return;
         
-        // substract 1 from each dimension so that multiplying by it yields
-        // the amount each coordinate is to be translated *by* (not to).
-    
-        IVectorMutable translationVector = translator.getTranslationVector();
+        translationVector = translator.getTranslationVector();
         
         for(int i=0; i<edgeVectorOld.length; i++){
          	edgeVectorOld[i].E(box.getBoundary().getEdgeVector(i));
         }
-
+        
         double cx = cVector.getX(0);
         double deltacx = (cx-edgeVectorOld[2].getX(0));
         double cz = cVector.getX(2);
         double slope = deltacx/cz;
         
-        //System.out.println("cVector: " + cVector.toString());
-        
         IMoleculeList molecules = box.getMoleculeList();
+        IVectorMutable comVector = Space3D.makeVector(3);
         for(int i=0; i<molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            translationVector.E(moleculeCenter.position(molecule));
-            double h = translationVector.getX(2);
-//            if(h<0.0){
-//            	slope *= -1;
-//            }
-            scaleVector.E(new double[]{0.5*h*slope, 0.0, 0.0});
-            System.out.println(" vector: " + translationVector.toString());
-            System.out.println(h+ " scaleVector: " + scaleVector.toString());
-            scaleVector.PE(-1.0);
+            comVector.E(moleculeCenter.position(molecule));
             
-            translationVector.TE(scaleVector);
+            // delta_x = slope * z
+            double h = comVector.getX(2);
+            deltaX[i] = slope*h;
+            
+            translationVector.E(new double[]{deltaX[i], 0.0, 0.0});
             groupScaler.actionPerformed(molecule);
         }
-//        System.exit(1);
-        scaleVector.PE(1.0);
 
         // set the edgeVectors according to the scaling before passing it to BoundaryDeformablePeriodic
         // only scale the x-, y- and z-axes
@@ -84,19 +76,21 @@ public class BoxInflateAnisotropic extends BoxInflate{
         edgeVectorNew[1].E(edgeVectorOld[1]);
         edgeVectorNew[2].E(cVector);
         
-//        dimVector.E(box.getBoundary().getBoxSize());
-//        System.out.println("dimVector: " + dimVector.toString());
-//        dimVector.TE(scaleVector);
-//        System.out.println("dimVector: " + dimVector.toString());
-        
         ((BoundaryDeformablePeriodic)box.getBoundary()).setBoxSizeAngleFluctuation(edgeVectorNew);
     }
     
     
     public void undo(){
-    	System.out.println("*******************************UNDO!!!!!!!!");
-    	setCVector(edgeVectorOld[2]);
-    	actionPerformed();
+    	IMoleculeList molecules = box.getMoleculeList();
+    	
+    	for(int i=0; i<molecules.getMoleculeCount(); i++) {
+    		IMolecule molecule = molecules.getMolecule(i);
+    		translationVector.E(new double[]{-deltaX[i], 0.0, 0.0});
+    		groupScaler.actionPerformed(molecule);
+    	}
+    	
+    	((BoundaryDeformablePeriodic)box.getBoundary()).setBoxSizeAngleFluctuation(edgeVectorOld);
+    	
     }
         
     public void setCVector(IVectorMutable cVec){
@@ -104,6 +98,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
     }
     
     protected IVectorMutable[] edgeVectorOld, edgeVectorNew;
-    protected IVectorMutable cVector;
+    protected IVectorMutable cVector, translationVector;
+    protected double[] deltaX;
 	private static final long serialVersionUID = 1L;
 }

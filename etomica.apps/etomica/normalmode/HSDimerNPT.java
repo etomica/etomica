@@ -121,7 +121,7 @@ public class HSDimerNPT extends Simulation {
         mcMove.setBox(box);
         mcMove.setDoExcludeNonNeighbors(true);
         //mcMove.setStepSize(0.01);
-        //integrator.getMoveManager().addMCMove(mcMove);
+        integrator.getMoveManager().addMCMove(mcMove);
 
         MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
         rotate.setBox(box);
@@ -146,7 +146,7 @@ public class HSDimerNPT extends Simulation {
         double p = z * rho;
 
         // hard coded pressure for rho=1.2
-        p =200;//23.3593;
+        p =10000;//23.3593;
         
         MCMove mcMoveVolume;
         if (false) {
@@ -159,15 +159,15 @@ public class HSDimerNPT extends Simulation {
             mcMoveVolume = new MCMoveVolume(potentialMaster, getRandom(), space, p);
         }
         ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
-        //integrator.getMoveManager().addMCMove(mcMoveVolume);
+        integrator.getMoveManager().addMCMove(mcMoveVolume);
         
         MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
         mcMoveVolMonoclinic.setBox(box);
         mcMoveVolMonoclinic.setStepSize(0.001);
         ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
-        //integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
+        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
         
-        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p);
+        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
         mcMoveVolMonoclinicAngle.setBox(box);
         mcMoveVolMonoclinicAngle.setStepSize(0.001);
         ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
