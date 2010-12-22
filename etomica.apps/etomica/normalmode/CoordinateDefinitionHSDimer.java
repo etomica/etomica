@@ -10,14 +10,14 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.paracetamol.AtomActionTransformed;
+import etomica.models.nitrogen.AtomActionTransformed;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
@@ -176,43 +176,6 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         this.configuration = configuration;
     }
       
-    public void setOrientationVectorAlpha(){
-    	/*
-    	 * Reference : A. Di Nola et al Acta Cryst. (1970) A26, 144 Fig1
-    	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(-45));
-    	yOrientationTensor[0].E(rotationTensor);
-    	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(-45));
-    	yOrientationTensor[1].E(rotationTensor);
-    	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(45));
-    	yOrientationTensor[2].E(rotationTensor);
-    	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(45));
-    	yOrientationTensor[3].E(rotationTensor);
-    	
-    	/*
-    	 * rotation Axis about (-x, 0, z)
-    	 * ROTATION ANGLE: arctan(1/sqrt(2)) = 35.26438968deg
-    	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(-35.26438968));
-    	xzOrientationTensor[0].E(rotationTensor);
-    	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(35.26438968));
-    	xzOrientationTensor[1].E(rotationTensor);
-    
-    	/*
-    	 * rotation Axis about (-x, 0, -z)
-    	 */
-       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(-35.26438968));
-    	xzOrientationTensor[2].E(rotationTensor);
-    	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(35.26438968));
-    	xzOrientationTensor[3].E(rotationTensor);
-    	
-    }
-    
     public void setOrientationVectorCP2(){
     	/*
     	 *  Vega, Paras and Monson, JCP 96(12), 9060 (1992)
@@ -221,7 +184,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	 */
     	
     	
-    	double arcsinValue = Math.PI/2 - Math.asin((1.0 / Math.sqrt(3))); 
+    	double arcsinValue = Math.PI/2 - Math.asin((1.0 / Math.sqrt(3.0))); 
     		
     	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
     	yOrientationTensor[0].E(rotationTensor);
@@ -236,22 +199,23 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	yOrientationTensor[3].E(rotationTensor);
     	
     	/*
-    	 * DO NOTHING
+    	 * Rotational Axis at Z-Direction
     	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(0.0));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
     	xzOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(0.0));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
     	xzOrientationTensor[1].E(rotationTensor);
     
-    	/*
-    	 *DO NOTHING
-    	 */
-       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(0.0));
+       	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
     	xzOrientationTensor[2].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(0.0));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
     	xzOrientationTensor[3].E(rotationTensor);
+    }
+    
+    public void setRotationAngle(double angle){
+    	rotationAngle = angle;
     }
     
     public Tensor[] getXzOrientationTensor() {
@@ -730,6 +694,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     protected Configuration configuration;
     protected MoleculeAgentManager orientationManager; 
     protected final MoleculeChildAtomAction atomGroupAction;
+    protected double rotationAngle;
 
     protected static class OrientationAgentSource implements MoleculeAgentSource, Serializable {
         

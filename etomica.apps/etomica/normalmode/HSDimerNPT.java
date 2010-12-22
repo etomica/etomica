@@ -32,6 +32,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.units.Degree;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -61,16 +62,28 @@ public class HSDimerNPT extends Simulation {
         double a = Math.pow( (2.0/(contB*contC*rho))/Math.sin(theta), 1.0/3.0);        
         double b = contB*a;
         double c = contC*a;
-        a = 1.2;
+        
+        a = 1.155;
         b = Math.sqrt(3)*a;
-        c = Math.sqrt(3)*a;
+        c = 1.67;
         
         System.out.println("a: " + a);
         System.out.println("b: " + b);
         System.out.println("c: " + c);
+		
+    	
         
-        double sigma = 1.0;
-        
+		double k = 1.0/Math.sqrt(3.0);
+		System.out.println("k: " +k);
+		
+		
+		
+		
+		double angle = 0.0;// Math.acos((0.5*a)/k); 
+		System.out.println("angle: "+ Degree.UNIT.fromSim(angle));
+
+		double sigma = 1.0;
+        //System.exit(1);
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(2.5);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
@@ -90,9 +103,17 @@ public class HSDimerNPT extends Simulation {
         IVectorMutable[] boxDim = new IVectorMutable[3];
         boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0.0, 0.0});
         boxDim[1] = space.makeVector(new double[]{0.0, nC[1]*b, 0.0});
-        boxDim[2] = space.makeVector(new double[]{nC[2]*c*Math.cos(Math.PI/2+Math.asin(1.0/Math.sqrt(3.0))), 0.0, nC[2]*c*Math.sin(Math.PI/2+Math.asin(1.0/Math.sqrt(3.0)))});
+        boxDim[2] = space.makeVector(new double[]{
+        		nC[2]*c*Math.cos(Math.PI/2+Math.asin(0.0/Math.sqrt(3.0))), 
+        		0.0, 
+        		nC[2]*c*Math.sin(Math.PI/2+Math.asin(0.0/Math.sqrt(3.0)))});
+//        boxDim[2] = space.makeVector(new double[]{
+//        		nC[2]*c*Math.cos(Math.PI/2+phi), 
+//        		0.0, 
+//        		nC[2]*c*Math.sin(Math.PI/2+phi)});
         
-		Primitive primitive = new PrimitiveMonoclinic(space, nC[0]*a, nC[1]*b, nC[2]*c, (Math.PI/2+Math.asin(1.0/Math.sqrt(3.0))));
+		Primitive primitive = new PrimitiveMonoclinic(space, nC[0]*a, nC[1]*b, nC[2]*c, 
+				(Math.PI/2+Math.asin(0.0/Math.sqrt(3.0))));
 		
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Basis basisHCPBase = new BasisHcpBaseCentered();
@@ -107,7 +128,9 @@ public class HSDimerNPT extends Simulation {
 		System.out.println("1: " + box.getBoundary().getBoxSize().getX(1));
 		System.out.println("2: " + box.getBoundary().getBoxSize().getX(2));
 //		System.exit(1);
+	
         coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
+        coordinateDefinition.setRotationAngle(0.0);
         coordinateDefinition.setOrientationVectorCP2();
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
         integrator.setBox(box);
@@ -146,7 +169,7 @@ public class HSDimerNPT extends Simulation {
         double p = z * rho;
 
         // hard coded pressure for rho=1.2
-        p =10000;//23.3593;
+        p =1000;//23.3593;
         
         MCMove mcMoveVolume;
         if (false) {
@@ -159,19 +182,19 @@ public class HSDimerNPT extends Simulation {
             mcMoveVolume = new MCMoveVolume(potentialMaster, getRandom(), space, p);
         }
         ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
-        integrator.getMoveManager().addMCMove(mcMoveVolume);
+        //integrator.getMoveManager().addMCMove(mcMoveVolume);
         
-        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
-        mcMoveVolMonoclinic.setBox(box);
-        mcMoveVolMonoclinic.setStepSize(0.001);
-        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
-        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
+//        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
+//        mcMoveVolMonoclinic.setBox(box);
+//        mcMoveVolMonoclinic.setStepSize(0.001);
+//        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
         
-        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
-        mcMoveVolMonoclinicAngle.setBox(box);
-        mcMoveVolMonoclinicAngle.setStepSize(0.001);
-        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
-        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
+//        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
+//        mcMoveVolMonoclinicAngle.setBox(box);
+//        mcMoveVolMonoclinicAngle.setStepSize(0.001);
+//        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
+//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
     }
     
     /**
