@@ -63,9 +63,14 @@ public class HSDimerNPT extends Simulation {
         double b = contB*a;
         double c = contC*a;
         
-        a = 1.155;
-        b = Math.sqrt(3)*a;
-        c = 1.67;
+//        a = 1.14;
+//        b = Math.sqrt(3)*a;
+//        c = 1.65;
+        
+        a = 3.00064526/2.99;
+        b = 5.197718742/2.99;
+        c = 4.89976724464/2.99;
+        
         
         System.out.println("a: " + a);
         System.out.println("b: " + b);
@@ -78,8 +83,8 @@ public class HSDimerNPT extends Simulation {
 		
 		
 		
-		
-		double angle = 0.0;// Math.acos((0.5*a)/k); 
+		double arcsinAngle =  Degree.UNIT.toSim(54.719124284471924);
+		double angle = Degree.UNIT.toSim(180-150.0093589894406);//Math.acos((0.445*a)/k); 
 		System.out.println("angle: "+ Degree.UNIT.fromSim(angle));
 
 		double sigma = 1.0;
@@ -130,7 +135,8 @@ public class HSDimerNPT extends Simulation {
 //		System.exit(1);
 	
         coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
-        coordinateDefinition.setRotationAngle(0.0);
+        coordinateDefinition.setRotationAngle(angle);
+        coordinateDefinition.setArcSinAngle(arcsinAngle);
         coordinateDefinition.setOrientationVectorCP2();
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
         integrator.setBox(box);
@@ -148,7 +154,7 @@ public class HSDimerNPT extends Simulation {
 
         MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
         rotate.setBox(box);
-        //integrator.getMoveManager().addMCMove(rotate);
+        integrator.getMoveManager().addMCMove(rotate);
        
         
 //        BoxInflateAnisotropic boxInfateAnis = new BoxInflateAnisotropic(box, space);
@@ -169,7 +175,7 @@ public class HSDimerNPT extends Simulation {
         double p = z * rho;
 
         // hard coded pressure for rho=1.2
-        p =1000;//23.3593;
+        p =50000;//23.3593;
         
         MCMove mcMoveVolume;
         if (false) {
@@ -182,13 +188,13 @@ public class HSDimerNPT extends Simulation {
             mcMoveVolume = new MCMoveVolume(potentialMaster, getRandom(), space, p);
         }
         ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
-        //integrator.getMoveManager().addMCMove(mcMoveVolume);
+        integrator.getMoveManager().addMCMove(mcMoveVolume);
         
-//        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
-//        mcMoveVolMonoclinic.setBox(box);
-//        mcMoveVolMonoclinic.setStepSize(0.001);
-//        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
-//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
+        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
+        mcMoveVolMonoclinic.setBox(box);
+        mcMoveVolMonoclinic.setStepSize(0.001);
+        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
         
 //        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
 //        mcMoveVolMonoclinicAngle.setBox(box);
@@ -265,49 +271,67 @@ public class HSDimerNPT extends Simulation {
             
             graphic.makeAndDisplayFrame();
             
+            sim.activityIntegrate.setMaxSteps(50000000);
+            sim.getController().actionPerformed();
+            
+            System.out.println("a: " + sim.box.getBoundary().getEdgeVector(0).toString());
+            System.out.println("b: " + sim.box.getBoundary().getEdgeVector(1).toString());
+            System.out.println("c: " + sim.box.getBoundary().getEdgeVector(2).toString());
+            
+            IVectorMutable vec1 = Space3D.makeVector(3);
+            IVectorMutable vec2 = Space3D.makeVector(3);
+           
+            vec1.E(sim.box.getMoleculeList().getMolecule(0).getChildList().getAtom(0).getPosition());
+            vec1.ME(sim.box.getMoleculeList().getMolecule(0).getChildList().getAtom(1).getPosition());
+            System.out.println("vec1: " + vec1.toString());
+            
+            vec2.E(sim.box.getMoleculeList().getMolecule(0).getChildList().getAtom(1).getPosition());
+            vec2.ME(sim.box.getMoleculeList().getMolecule(0).getChildList().getAtom(0).getPosition());
+            System.out.println("vec2: " + vec2.toString());
+      
             return;
         }
-        sim.activityIntegrate.setMaxSteps(params.numSteps/10);
-        sim.activityIntegrate.actionPerformed();
-        volumeAvg.reset();
-        System.out.println("equilibration finished");
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.activityIntegrate.actionPerformed();
-//        try {
-//            FileWriter fw = new FileWriter("disp"+params.rho+".dat");
-//            IData data = meterDisplacement.getData();
-//            IData xData = meterDisplacement.getIndependentData(0);
-//            for (int i=0; i<data.getLength(); i++) {
-//                fw.write(xData.getValue(i)+" "+data.getValue(i)+"\n");
-//            }
-//            fw.close();
-//        }
-//        catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-        
-        double vavg = volumeAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double verr = volumeAvg.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        double vstdev = volumeAvg.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
-        System.out.println("avg density "+numMolecules/vavg+" "+numMolecules/(vavg*vavg)*verr);
-        System.out.println("avg volume "+vavg+" stdev "+vstdev);
-
-//        double davg = displacementAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-//        double dstdev = displacementAvg.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
-//        System.out.println("displacement avg "+davg+" stdev "+dstdev);
+//        sim.activityIntegrate.setMaxSteps(params.numSteps/10);
+//        sim.activityIntegrate.actionPerformed();
+//        volumeAvg.reset();
+//        System.out.println("equilibration finished");
+//        sim.activityIntegrate.setMaxSteps(params.numSteps);
+//        sim.activityIntegrate.actionPerformed();
+////        try {
+////            FileWriter fw = new FileWriter("disp"+params.rho+".dat");
+////            IData data = meterDisplacement.getData();
+////            IData xData = meterDisplacement.getIndependentData(0);
+////            for (int i=0; i<data.getLength(); i++) {
+////                fw.write(xData.getValue(i)+" "+data.getValue(i)+"\n");
+////            }
+////            fw.close();
+////        }
+////        catch (IOException e) {
+////            throw new RuntimeException(e);
+////        }
+//        
+//        double vavg = volumeAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+//        double verr = volumeAvg.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+//        double vstdev = volumeAvg.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+//        System.out.println("avg density "+numMolecules/vavg+" "+numMolecules/(vavg*vavg)*verr);
+//        System.out.println("avg volume "+vavg+" stdev "+vstdev);
 //
-//        double dmaxavg = displacementMax.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-//        double dmaxstdev = displacementMax.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
-//        System.out.println("displacement max avg "+dmaxavg+" stdev "+dmaxstdev);
-//
-//        double emaxavg = maxExpansionAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-//        double emaxstdev = maxExpansionAvg.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
-//        System.out.println("max expansion avg "+emaxavg+" stdev "+emaxstdev);
+////        double davg = displacementAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+////        double dstdev = displacementAvg.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+////        System.out.println("displacement avg "+davg+" stdev "+dstdev);
+////
+////        double dmaxavg = displacementMax.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+////        double dmaxstdev = displacementMax.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+////        System.out.println("displacement max avg "+dmaxavg+" stdev "+dmaxstdev);
+////
+////        double emaxavg = maxExpansionAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+////        double emaxstdev = maxExpansionAvg.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+////        System.out.println("max expansion avg "+emaxavg+" stdev "+emaxstdev);
     }
     
     public static class HSMD3DParameters extends ParameterBase {
         public double rho = 1.2;
-        public int[] nC = new int[]{4,4,4};
+        public int[] nC = new int[]{3,3,3};
         public long numSteps = 10000000;
     }
 }
