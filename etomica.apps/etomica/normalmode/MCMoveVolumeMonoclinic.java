@@ -12,7 +12,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
-import etomica.units.Degree;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 
@@ -83,10 +82,9 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         vecCOld.E(box.getBoundary().getEdgeVector(2));
         
         /*
-         * anisotropic scaling: scalecx and scalecz
-         * they are the x- and z-component of the c-VECTOR
+         * anisotropic scaling: scaleb and scalec
+         * they are scale for b-VECTOR and c-VECTOR
          * 
-         * scaleb is the scaling for b-VECTOR
          */
         double scaleb = Math.exp((2.*random.nextDouble()-1.)*stepSize);
         double scalec = Math.exp((2.*random.nextDouble()-1.)*stepSize);
