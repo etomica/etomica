@@ -184,8 +184,9 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	 */
     	
     	
-    	double arcsinValue = Math.PI/2 - Math.asin((1.0 / Math.sqrt(3.0))); 
-    		
+    	double arcsinValue = arcsinAngle;//Math.PI/2 - Math.asin((1.0 / Math.sqrt(3.0))); 
+    
+    	
     	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
     	yOrientationTensor[0].E(rotationTensor);
     	
@@ -201,21 +202,25 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	/*
     	 * Rotational Axis at Z-Direction
     	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -rotationAngle);
     	xzOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -rotationAngle);
     	xzOrientationTensor[1].E(rotationTensor);
     
-       	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
+       	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -rotationAngle);
     	xzOrientationTensor[2].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -Math.PI/2);
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), -rotationAngle);
     	xzOrientationTensor[3].E(rotationTensor);
     }
     
     public void setRotationAngle(double angle){
     	rotationAngle = angle;
+    }
+    
+    public void setArcSinAngle(double angle){
+    	arcsinAngle = angle;
     }
     
     public Tensor[] getXzOrientationTensor() {
@@ -694,7 +699,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     protected Configuration configuration;
     protected MoleculeAgentManager orientationManager; 
     protected final MoleculeChildAtomAction atomGroupAction;
-    protected double rotationAngle;
+    protected double rotationAngle, arcsinAngle;
 
     protected static class OrientationAgentSource implements MoleculeAgentSource, Serializable {
         
