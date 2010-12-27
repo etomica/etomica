@@ -90,27 +90,22 @@ public class HSDimerNPT extends Simulation {
         double c = contC*a;
         
         
-//        a = 3.000070097339371/2.98;
-//        b = 5.196260909541926/2.98;
-//        c = 4.899084514727896/2.98;
+        a = 3.000070097339371/2.999;
+        b = 5.196260909541926/2.999;
+        c = 4.899084514727896/2.999;
         
-        a = 1.0 +0.01;
-        b = 2*Math.sqrt(3.0/4.0) + 0.01;
-        c = 2*Math.sqrt(2.0/3.0) + 0.01;
+//        a = 1.0 +0.01;
+//        b = 2*Math.sqrt(3.0/4.0) + 0.01;
+//        c = 2*Math.sqrt(2.0/3.0) + 0.01;
         
         System.out.println("a: " + a);
         System.out.println("b: " + b);
         System.out.println("c: " + c);
-		
-    	
-        
-		double k = 1.0/Math.sqrt(3.0);
-		System.out.println("k: " +k);
-		
-		
-		
-		double arcsinAngle =  Math.PI/2 - 0.99/Math.sqrt(3.0);
-		double angle = Degree.UNIT.toSim(180-150.00);//Math.acos((0.445*a)/k); 
+				
+		double arcsinAngle =  Math.PI/2 - 0.6/Math.sqrt(3.0); //
+		System.out.println("ArcsinAngle: " + Degree.UNIT.fromSim(arcsinAngle));
+		//double arcsinAngle =  Degree.UNIT.toSim(54.73710385551559);
+		double angle = Degree.UNIT.toSim(180-150.0);//150.0033316180124; 
 		System.out.println("angle: "+ Degree.UNIT.fromSim(angle));
 
 		double sigma = 1.0;
@@ -131,20 +126,22 @@ public class HSDimerNPT extends Simulation {
         addBox(box);
         box.setNMolecules(species, numMolecules);
         
+        
+        double boxAngle = Degree.UNIT.toSim(116.06);
         IVectorMutable[] boxDim = new IVectorMutable[3];
         boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0.0, 0.0});
         boxDim[1] = space.makeVector(new double[]{0.0, nC[1]*b, 0.0});
         boxDim[2] = space.makeVector(new double[]{
-        		nC[2]*c*Math.cos(Math.PI/2+Math.asin(0.0/Math.sqrt(3.0))), 
+        		nC[2]*c*Math.cos(boxAngle), 
         		0.0, 
-        		nC[2]*c*Math.sin(Math.PI/2+Math.asin(0.0/Math.sqrt(3.0)))});
+        		nC[2]*c*Math.sin(boxAngle)});
 //        boxDim[2] = space.makeVector(new double[]{
 //        		nC[2]*c*Math.cos(Math.PI/2+phi), 
 //        		0.0, 
 //        		nC[2]*c*Math.sin(Math.PI/2+phi)});
         
 		Primitive primitive = new PrimitiveMonoclinic(space, nC[0]*a, nC[1]*b, nC[2]*c, 
-				(Math.PI/2+Math.asin(0.0/Math.sqrt(3.0))));
+				boxAngle);
 		
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Basis basisHCPBase = new BasisHcpBaseCentered();
@@ -201,7 +198,14 @@ public class HSDimerNPT extends Simulation {
         double p = z * rho;
 
         // hard coded pressure for rho=1.2
-        p =30;//23.3593;
+        /*
+         * for L*=0.6; d= (1792/1000)^(1/3) = (1.792)^(1/3)
+         * 
+         * p* = pd^3/kT, kT=1.0
+         * p = (p*)/ d^3
+         */
+        double d3 = 1.792;
+        p = 40/d3;
         
         MCMove mcMoveVolume;
         if (false) {
@@ -222,11 +226,11 @@ public class HSDimerNPT extends Simulation {
         ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
         
-//        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
-//        mcMoveVolMonoclinicAngle.setBox(box);
-//        mcMoveVolMonoclinicAngle.setStepSize(0.001);
-//        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
-//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
+        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
+        mcMoveVolMonoclinicAngle.setBox(box);
+        mcMoveVolMonoclinicAngle.setStepSize(0.001);
+        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
+        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
     }
     
     /**
