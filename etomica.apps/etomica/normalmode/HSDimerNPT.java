@@ -53,6 +53,32 @@ public class HSDimerNPT extends Simulation {
 
     public HSDimerNPT(Space space, int numMolecules, double rho, int[] nC) {
         super(space);
+        
+        if(false){
+	        IVectorMutable aVec = space.makeVector(new double[]{-0.5000051767896645, 0.288672284963261, 0.816494418277053});
+	        IVectorMutable bVec = space.makeVector(new double[]{0.0, 0.0, 1.0});
+	        aVec.normalize();
+	
+	        IVectorMutable temp = space.makeVector();
+	        temp.E(aVec);
+	        temp.XE(bVec);
+	        temp.normalize();
+	
+	        bVec.XE(temp);
+	        bVec.normalize();
+	
+	        IVectorMutable cVec = space.makeVector();
+	        cVec.Ea1Tv1(Math.sqrt(aVec.squared()), bVec);
+	        cVec.normalize();
+	        System.out.println("cVector: " + cVec.toString());
+	
+	        IVectorMutable xVec = space.makeVector(new double[]{1.0, 0.0, 0.0});
+	        System.out.println("beta: "  + Degree.UNIT.fromSim(Math.acos(aVec.dot(cVec))));
+	        System.out.println("alpha: " + Degree.UNIT.fromSim(Math.acos(cVec.dot(xVec))));
+	
+	
+	        System.exit(1);
+        }
         potentialMaster = new PotentialMasterList(this, space);
         
         // Just initial setting
@@ -63,14 +89,14 @@ public class HSDimerNPT extends Simulation {
         double b = contB*a;
         double c = contC*a;
         
-//        a = 1.14;
-//        b = Math.sqrt(3)*a;
-//        c = 1.65;
         
-        a = 3.00064526/2.99;
-        b = 5.197718742/2.99;
-        c = 4.89976724464/2.99;
+//        a = 3.000070097339371/2.98;
+//        b = 5.196260909541926/2.98;
+//        c = 4.899084514727896/2.98;
         
+        a = 1.0 +0.01;
+        b = 2*Math.sqrt(3.0/4.0) + 0.01;
+        c = 2*Math.sqrt(2.0/3.0) + 0.01;
         
         System.out.println("a: " + a);
         System.out.println("b: " + b);
@@ -83,8 +109,8 @@ public class HSDimerNPT extends Simulation {
 		
 		
 		
-		double arcsinAngle =  Degree.UNIT.toSim(54.719124284471924);
-		double angle = Degree.UNIT.toSim(180-150.0093589894406);//Math.acos((0.445*a)/k); 
+		double arcsinAngle =  Math.PI/2 - 0.99/Math.sqrt(3.0);
+		double angle = Degree.UNIT.toSim(180-150.00);//Math.acos((0.445*a)/k); 
 		System.out.println("angle: "+ Degree.UNIT.fromSim(angle));
 
 		double sigma = 1.0;
@@ -175,7 +201,7 @@ public class HSDimerNPT extends Simulation {
         double p = z * rho;
 
         // hard coded pressure for rho=1.2
-        p =50000;//23.3593;
+        p =30;//23.3593;
         
         MCMove mcMoveVolume;
         if (false) {
@@ -271,8 +297,8 @@ public class HSDimerNPT extends Simulation {
             
             graphic.makeAndDisplayFrame();
             
-            sim.activityIntegrate.setMaxSteps(50000000);
-            sim.getController().actionPerformed();
+//            sim.activityIntegrate.setMaxSteps(10000000);
+//            sim.getController().actionPerformed();
             
             System.out.println("a: " + sim.box.getBoundary().getEdgeVector(0).toString());
             System.out.println("b: " + sim.box.getBoundary().getEdgeVector(1).toString());
