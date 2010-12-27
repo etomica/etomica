@@ -30,7 +30,7 @@ public class ConformationHSDimer implements IConformation, java.io.Serializable{
 	}
 		
 	protected final ISpace space;
-	protected static final double L = 1.0;
+	protected static final double L = 0.6;
 	
 	protected IVectorMutable vector;
 	
