@@ -1,13 +1,11 @@
 package etomica.normalmode;
 
-import etomica.action.BoxInflateAnisotropic;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -90,9 +88,9 @@ public class HSDimerNPT extends Simulation {
         double c = contC*a;
         
         
-        a = 3.000070097339371/2.999;
-        b = 5.196260909541926/2.999;
-        c = 4.899084514727896/2.999;
+        b = 1.0+1e-9;//3.000070097339371/2.999;
+        a = 2*Math.sqrt(3.0/4.0);//5.196260909541926/2.999;
+        c = 1.586455;//4.899084514727896/3.06;
         
 //        a = 1.0 +0.01;
 //        b = 2*Math.sqrt(3.0/4.0) + 0.01;
@@ -105,7 +103,7 @@ public class HSDimerNPT extends Simulation {
 		double arcsinAngle =  Math.PI/2 - 0.6/Math.sqrt(3.0); //
 		System.out.println("ArcsinAngle: " + Degree.UNIT.fromSim(arcsinAngle));
 		//double arcsinAngle =  Degree.UNIT.toSim(54.73710385551559);
-		double angle = Degree.UNIT.toSim(180-150.0);//150.0033316180124; 
+		double angle = 0.0;//Degree.UNIT.toSim(180-150.0);//150.0033316180124; 
 		System.out.println("angle: "+ Degree.UNIT.fromSim(angle));
 
 		double sigma = 1.0;
@@ -127,7 +125,7 @@ public class HSDimerNPT extends Simulation {
         box.setNMolecules(species, numMolecules);
         
         
-        double boxAngle = Degree.UNIT.toSim(116.06);
+        double boxAngle = Degree.UNIT.toSim(119.494);
         IVectorMutable[] boxDim = new IVectorMutable[3];
         boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0.0, 0.0});
         boxDim[1] = space.makeVector(new double[]{0.0, nC[1]*b, 0.0});
@@ -135,10 +133,6 @@ public class HSDimerNPT extends Simulation {
         		nC[2]*c*Math.cos(boxAngle), 
         		0.0, 
         		nC[2]*c*Math.sin(boxAngle)});
-//        boxDim[2] = space.makeVector(new double[]{
-//        		nC[2]*c*Math.cos(Math.PI/2+phi), 
-//        		0.0, 
-//        		nC[2]*c*Math.sin(Math.PI/2+phi)});
         
 		Primitive primitive = new PrimitiveMonoclinic(space, nC[0]*a, nC[1]*b, nC[2]*c, 
 				boxAngle);
@@ -205,7 +199,7 @@ public class HSDimerNPT extends Simulation {
          * p = (p*)/ d^3
          */
         double d3 = 1.792;
-        p = 40/d3;
+        p = 60/d3;
         
         MCMove mcMoveVolume;
         if (false) {
@@ -361,7 +355,7 @@ public class HSDimerNPT extends Simulation {
     
     public static class HSMD3DParameters extends ParameterBase {
         public double rho = 1.2;
-        public int[] nC = new int[]{3,3,3};
+        public int[] nC = new int[]{4,4,4};
         public long numSteps = 10000000;
     }
 }
