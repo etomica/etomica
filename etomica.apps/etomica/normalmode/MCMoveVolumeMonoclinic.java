@@ -74,7 +74,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         IVectorMutable vecBOld = Space3D.makeVector(3);
         IVectorMutable vecCOld = Space3D.makeVector(3);
         
-        IVectorMutable vecBNew = Space3D.makeVector(3);
+        IVectorMutable vecANew = Space3D.makeVector(3);
         IVectorMutable vecCNew = Space3D.makeVector(3);
         
         vecAOld.E(box.getBoundary().getEdgeVector(0));
@@ -86,15 +86,15 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
          * they are scale for b-VECTOR and c-VECTOR
          * 
          */
-        double scaleb = Math.exp((2.*random.nextDouble()-1.)*stepSize);
+        double scalea = Math.exp((2.*random.nextDouble()-1.)*stepSize);
         double scalec = Math.exp((2.*random.nextDouble()-1.)*stepSize);
         
-        vecBNew.Ea1Tv1(scaleb, vecBOld);
+        vecANew.Ea1Tv1(scalea, vecAOld);
         vecCNew.Ea1Tv1(scalec, vecCOld);
         
         //System.out.println("\nbefore: " + box.getBoundary().volume());
         IVectorMutable rScale = Space3D.makeVector(3);
-        rScale.E(new double[]{1/(scaleb*scalec), scaleb, scalec});
+        rScale.E(new double[]{scalea, 1/(scalea*scalec), scalec});
         inflate.setVectorScale(rScale);
         inflate.actionPerformed();
 
