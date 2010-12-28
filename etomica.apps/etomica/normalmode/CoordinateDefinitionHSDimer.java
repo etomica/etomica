@@ -187,16 +187,16 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	double arcsinValue = arcsinAngle;//Math.PI/2 - Math.asin((1.0 / Math.sqrt(3.0))); 
     
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), -arcsinValue);
     	yOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), -arcsinValue);
     	yOrientationTensor[1].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), -arcsinValue);
     	yOrientationTensor[2].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), arcsinValue);
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), -arcsinValue);
     	yOrientationTensor[3].E(rotationTensor);
     	
     	/*
