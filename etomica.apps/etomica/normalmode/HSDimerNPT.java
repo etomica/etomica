@@ -90,7 +90,7 @@ public class HSDimerNPT extends Simulation {
         
         b = 1.0+1e-9;//3.000070097339371/2.999;
         a = 2*Math.sqrt(3.0/4.0);//5.196260909541926/2.999;
-        c = 1.586455;//4.899084514727896/3.06;
+        c = 1.43052;//4.899084514727896/3.06;
         
 //        a = 1.0 +0.01;
 //        b = 2*Math.sqrt(3.0/4.0) + 0.01;
@@ -125,7 +125,7 @@ public class HSDimerNPT extends Simulation {
         box.setNMolecules(species, numMolecules);
         
         
-        double boxAngle = Degree.UNIT.toSim(119.494);
+        double boxAngle = Degree.UNIT.toSim(105.14);
         IVectorMutable[] boxDim = new IVectorMutable[3];
         boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0.0, 0.0});
         boxDim[1] = space.makeVector(new double[]{0.0, nC[1]*b, 0.0});
@@ -199,7 +199,7 @@ public class HSDimerNPT extends Simulation {
          * p = (p*)/ d^3
          */
         double d3 = 1.792;
-        p = 60/d3;
+        p = 50/d3;
         
         MCMove mcMoveVolume;
         if (false) {
@@ -355,7 +355,7 @@ public class HSDimerNPT extends Simulation {
     
     public static class HSMD3DParameters extends ParameterBase {
         public double rho = 1.2;
-        public int[] nC = new int[]{4,4,4};
+        public int[] nC = new int[]{2,2,2};
         public long numSteps = 10000000;
     }
 }
