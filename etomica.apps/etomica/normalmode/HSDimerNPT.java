@@ -81,13 +81,13 @@ public class HSDimerNPT extends Simulation {
         
         double a = 2*Math.sqrt(3.0/4.0);//5.196260909541926/2.999;
         double b = 1.0+1e-9;//3.000070097339371/2.999;
-        double c = 1.4305186792;//4.899084514727896/3.06;
+        double c = 1.42804117195;//4.899084514727896/3.06;
         
         System.out.println("a: " + a);
         System.out.println("b: " + b);
         System.out.println("c: " + c);
 				
-		double arcsinAngle =  Math.PI/2 - 0.6/Math.sqrt(3.0); //
+		double arcsinAngle =  Math.PI/2 - Math.asin(0.6/Math.sqrt(3.0)); //
 		System.out.println("ArcsinAngle: " + Degree.UNIT.fromSim(arcsinAngle));
 		double angle = 0.0;//Degree.UNIT.toSim(180-150.0);//150.0033316180124; 
 		System.out.println("angle: "+ Degree.UNIT.fromSim(angle));
@@ -109,7 +109,7 @@ public class HSDimerNPT extends Simulation {
         addBox(box);
         box.setNMolecules(species, numMolecules);
         
-        double boxAngle = Degree.UNIT.toSim(105.14);
+        double boxAngle = Degree.UNIT.toSim(105);
         IVectorMutable[] boxDim = new IVectorMutable[3];
         boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0.0, 0.0});
         boxDim[1] = space.makeVector(new double[]{0.0, nC[1]*b, 0.0});
@@ -148,9 +148,9 @@ public class HSDimerNPT extends Simulation {
         //mcMove.setStepSize(0.01);
         integrator.getMoveManager().addMCMove(mcMove);
 
-        MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-        rotate.setBox(box);
-        integrator.getMoveManager().addMCMove(rotate);
+//        MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+//        rotate.setBox(box);
+//        integrator.getMoveManager().addMCMove(rotate);
          
         /*
          * for L*=0.6; d= (1792/1000)^(1/3) = (1.792)^(1/3)
@@ -159,10 +159,10 @@ public class HSDimerNPT extends Simulation {
          * p = (p*)/ d^3
          */
         double d3 = 1.792;
-        double p = 50/d3;
+        double p = 50e5/d3;
         
         MCMove mcMoveVolume;
-        if (true) {
+        if (false) {
         	// fancy move
             mcMoveVolume = new MCMoveVolumeSolidNPTMolecular(potentialMaster, coordinateDefinition, getRandom(), space, p);
             ((MCMoveVolumeSolidNPTMolecular)mcMoveVolume).setTemperature(1.0);
@@ -315,7 +315,7 @@ public class HSDimerNPT extends Simulation {
     
     public static class HSMD3DParameters extends ParameterBase {
         public double rho = 1.2;
-        public int[] nC = new int[]{3,3,3};
+        public int[] nC = new int[]{2,2,2};
         public long numSteps = 10000000;
     }
 }
