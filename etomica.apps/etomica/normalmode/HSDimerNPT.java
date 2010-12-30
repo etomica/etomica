@@ -81,7 +81,7 @@ public class HSDimerNPT extends Simulation {
         
         double a = 2*Math.sqrt(3.0/4.0);//5.196260909541926/2.999;
         double b = 1.0+1e-9;//3.000070097339371/2.999;
-        double c = 1.43052;//4.899084514727896/3.06;
+        double c = 1.4305186792;//4.899084514727896/3.06;
         
         System.out.println("a: " + a);
         System.out.println("b: " + b);
