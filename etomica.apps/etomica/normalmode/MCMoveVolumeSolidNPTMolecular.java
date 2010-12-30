@@ -3,7 +3,6 @@ package etomica.normalmode;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -17,7 +16,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
-import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 import etomica.util.Function;
@@ -42,9 +40,9 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     protected double temperature;
     protected final CoordinateDefinitionMolecule coordinateDefinition;
     protected IVectorMutable dr, r0;
-    protected final IVectorMutable nominalBoxSize;
+    protected final IVectorMutable nominalBoxSize, translationVector, comOld, comNew;
 
-    protected final AtomActionTranslateBy translator;
+    protected final AtomActionTranslateBy translatorBy;
     protected final MoleculeChildAtomAction groupScaler;
     protected final AtomPositionGeometricCenter moleculeCenter;
     
@@ -76,8 +74,11 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
         
-        translator = new AtomActionTranslateBy(space);
-        groupScaler = new MoleculeChildAtomAction(translator);
+        translationVector = space.makeVector();
+        comOld = space.makeVector();
+        comNew = space.makeVector();
+        translatorBy = new AtomActionTranslateBy(space);
+        groupScaler = new MoleculeChildAtomAction(translatorBy);
         moleculeCenter = new AtomPositionGeometricCenter(space);
 
     }
@@ -129,60 +130,27 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         latticeScale = Math.exp((pressure*(vNew-vOld)+(uLatNew-uLatOld))/(nMolecules*temperature*D))/rScale;
 
         IVector boxSize = box.getBoundary().getBoxSize();
-        IVectorMutable translationVector = translator.getTranslationVector();
         
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             IMolecule moleculei = moleculeList.getMolecule(i);
             
-            IVectorMutable[] pos = new IVectorMutable[2];
-            for(int k=0; k<2;k++){
-            	pos[k] = Space3D.makeVector(3);
-            }
-            IVectorMutable dist =Space3D.makeVector(3);
-            IVectorMutable com =Space3D.makeVector(3);
-            
-            pos[0].E(moleculei.getChildList().getAtom(0).getPosition());
-            pos[1].E(moleculei.getChildList().getAtom(1).getPosition());
-            dist.E(pos[1]);
-            dist.ME(pos[0]);
-            System.out.println("dist: " + Math.sqrt(dist.squared()));
-           
-            
-            System.out.println("latticeScale: " + latticeScale);
-            
-            
             IVector site = coordinateDefinition.getLatticePosition(moleculei);
             dr.E(site);
-            System.out.println("dr(site): " + dr.toString());
             dr.TE(boxSize);
-            System.out.println("dr(boxSize): " + dr.toString());
             dr.DE(nominalBoxSize);
-            System.out.println("dr(nominalBoxSize): " + dr.toString());
             // dr is now the new lattice site
             dr.TE(1-latticeScale);
-            System.out.println("dr(latticeScale): " + dr.toString());
             
-            translationVector.E(moleculeCenter.position(moleculei));
-            translationVector.TE(latticeScale);
-            translationVector.PE(dr);
+            comOld.E(moleculeCenter.position(moleculei));
+            comNew.Ea1Tv1(latticeScale, comOld);
+            translationVector.Ev1Mv2(comNew, comOld);
+            translatorBy.setTranslationVector(translationVector);
             groupScaler.actionPerformed(moleculei);
-//            for(int j=0; j<moleculei.getChildList().getAtomCount(); j++){
-//	            IAtom atomj = moleculei.getChildList().getAtom(j);
-//            	atomj.getPosition().TE(latticeScale);
-//	            atomj.getPosition().PE(dr);
-//	            pos[j].E(atomj.getPosition());
-//            }
             
+            translationVector.E(dr);
+            translatorBy.setTranslationVector(translationVector);
+            groupScaler.actionPerformed(moleculei);
 
-            pos[0].E(moleculei.getChildList().getAtom(0).getPosition());
-            pos[1].E(moleculei.getChildList().getAtom(1).getPosition());
-            dist.E(pos[1]);
-            dist.ME(pos[0]);
-            System.out.println("dist: " + Math.sqrt(dist.squared()));  
-            
-            
-            
-            System.exit(1);
         }
         
         uNew = energyMeter.getDataAsScalar();
@@ -218,11 +186,16 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
             // dr is now the new lattice site
             dr.TE(1.0-latticeScale);
             
-            for(int j=0; j<moleculei.getChildList().getAtomCount(); j++){
-	            IAtom atomj = moleculei.getChildList().getAtom(j);
-            	atomj.getPosition().TE(latticeScale);
-	            atomj.getPosition().PE(dr);
-            }
+            comOld.E(moleculeCenter.position(moleculei));
+            comNew.Ea1Tv1(latticeScale, comOld);
+            translationVector.Ev1Mv2(comNew, comOld);
+            translatorBy.setTranslationVector(translationVector);
+            groupScaler.actionPerformed(moleculei);
+            
+            translationVector.E(dr);
+            translatorBy.setTranslationVector(translationVector);
+            groupScaler.actionPerformed(moleculei);
+            
         }
         
         inflate.undo();
