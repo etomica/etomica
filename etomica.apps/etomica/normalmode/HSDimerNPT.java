@@ -148,9 +148,9 @@ public class HSDimerNPT extends Simulation {
         //mcMove.setStepSize(0.01);
         integrator.getMoveManager().addMCMove(mcMove);
 
-//        MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-//        rotate.setBox(box);
-//        integrator.getMoveManager().addMCMove(rotate);
+        MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+        rotate.setBox(box);
+        integrator.getMoveManager().addMCMove(rotate);
          
         /*
          * for L*=0.6; d= (1792/1000)^(1/3) = (1.792)^(1/3)
@@ -159,10 +159,10 @@ public class HSDimerNPT extends Simulation {
          * p = (p*)/ d^3
          */
         double d3 = 1.792;
-        double p = 50e5/d3;
+        double p = 50/d3;
         
         MCMove mcMoveVolume;
-        if (false) {
+        if (true) {
         	// fancy move
             mcMoveVolume = new MCMoveVolumeSolidNPTMolecular(potentialMaster, coordinateDefinition, getRandom(), space, p);
             ((MCMoveVolumeSolidNPTMolecular)mcMoveVolume).setTemperature(1.0);
