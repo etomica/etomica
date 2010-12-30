@@ -79,18 +79,9 @@ public class HSDimerNPT extends Simulation {
         }
         potentialMaster = new PotentialMasterList(this, space);
         
-        // Just initial setting
-        double contB = 1.2;
-        double contC = 1.4;
-        double theta = Math.PI/2 - Math.asin(0.6/Math.sqrt(3.0));
-        double a = Math.pow( (2.0/(contB*contC*rho))/Math.sin(theta), 1.0/3.0);        
-        double b = contB*a;
-        double c = contC*a;
-        
-        
-        b = 1.0+1e-9;//3.000070097339371/2.999;
-        a = 2*Math.sqrt(3.0/4.0);//5.196260909541926/2.999;
-        c = 1.43052;//4.899084514727896/3.06;
+        double a = 2*Math.sqrt(3.0/4.0);//5.196260909541926/2.999;
+        double b = 1.0+1e-9;//3.000070097339371/2.999;
+        double c = 1.43052;//4.899084514727896/3.06;
         
 //        a = 1.0 +0.01;
 //        b = 2*Math.sqrt(3.0/4.0) + 0.01;
@@ -102,12 +93,10 @@ public class HSDimerNPT extends Simulation {
 				
 		double arcsinAngle =  Math.PI/2 - 0.6/Math.sqrt(3.0); //
 		System.out.println("ArcsinAngle: " + Degree.UNIT.fromSim(arcsinAngle));
-		//double arcsinAngle =  Degree.UNIT.toSim(54.73710385551559);
 		double angle = 0.0;//Degree.UNIT.toSim(180-150.0);//150.0033316180124; 
 		System.out.println("angle: "+ Degree.UNIT.fromSim(angle));
 
 		double sigma = 1.0;
-        //System.exit(1);
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(2.5);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
@@ -123,7 +112,6 @@ public class HSDimerNPT extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numMolecules);
-        
         
         double boxAngle = Degree.UNIT.toSim(105.14);
         IVectorMutable[] boxDim = new IVectorMutable[3];
@@ -145,12 +133,7 @@ public class HSDimerNPT extends Simulation {
 		for (int i=0; i<3; i++){
 			System.out.println("boxDim["+i+"]: " + boxDim[i]);
 		}
-		
-		System.out.println("0: " + box.getBoundary().getBoxSize().getX(0));
-		System.out.println("1: " + box.getBoundary().getBoxSize().getX(1));
-		System.out.println("2: " + box.getBoundary().getBoxSize().getX(2));
-//		System.exit(1);
-	
+
         coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
         coordinateDefinition.setRotationAngle(angle);
         coordinateDefinition.setArcSinAngle(arcsinAngle);
@@ -172,26 +155,7 @@ public class HSDimerNPT extends Simulation {
         MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
         rotate.setBox(box);
         integrator.getMoveManager().addMCMove(rotate);
-       
-        
-//        BoxInflateAnisotropic boxInfateAnis = new BoxInflateAnisotropic(box, space);
-//        IVectorMutable scaleVec = space.makeVector(new double[]{0.9, 0.9, 0.9});
-//        boxInfateAnis.setVectorScale(scaleVec);
-//        boxInfateAnis.actionPerformed();
-//        
-//        System.exit(1);
-        
-        
-        
-        
-        // using Carnahan-Starling EOS.  the pressure will be too high because
-        // we have a solid, but OK.
-        double eta = rho * Math.PI / 6;
-        double den = 1-eta;
-        double z = (1 + eta + eta*eta - eta*eta*eta) / (den*den*den);
-        double p = z * rho;
-
-        // hard coded pressure for rho=1.2
+         
         /*
          * for L*=0.6; d= (1792/1000)^(1/3) = (1.792)^(1/3)
          * 
@@ -199,7 +163,7 @@ public class HSDimerNPT extends Simulation {
          * p = (p*)/ d^3
          */
         double d3 = 1.792;
-        p = 50/d3;
+        double p = 50/d3;
         
         MCMove mcMoveVolume;
         if (true) {
@@ -214,17 +178,17 @@ public class HSDimerNPT extends Simulation {
         ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
         
-//        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
-//        mcMoveVolMonoclinic.setBox(box);
-//        mcMoveVolMonoclinic.setStepSize(0.001);
-//        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
-//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
+        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
+        mcMoveVolMonoclinic.setBox(box);
+        mcMoveVolMonoclinic.setStepSize(0.001);
+        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
         
-//        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
-//        mcMoveVolMonoclinicAngle.setBox(box);
-//        mcMoveVolMonoclinicAngle.setStepSize(0.001);
-//        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
-//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
+        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
+        mcMoveVolMonoclinicAngle.setBox(box);
+        mcMoveVolMonoclinicAngle.setStepSize(0.001);
+        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
+        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
     }
     
     /**
@@ -355,7 +319,7 @@ public class HSDimerNPT extends Simulation {
     
     public static class HSMD3DParameters extends ParameterBase {
         public double rho = 1.2;
-        public int[] nC = new int[]{2,2,2};
+        public int[] nC = new int[]{3,3,3};
         public long numSteps = 10000000;
     }
 }
