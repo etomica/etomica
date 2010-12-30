@@ -202,10 +202,10 @@ public class HSDimerNPT extends Simulation {
         p = 50/d3;
         
         MCMove mcMoveVolume;
-        if (false) {
-            // fancy move
-            mcMoveVolume = new MCMoveVolumeSolid(potentialMaster, coordinateDefinition, getRandom(), space, p);
-            ((MCMoveVolumeSolid)mcMoveVolume).setTemperature(1.0);
+        if (true) {
+        	// fancy move
+            mcMoveVolume = new MCMoveVolumeSolidNPTMolecular(potentialMaster, coordinateDefinition, getRandom(), space, p);
+            ((MCMoveVolumeSolidNPTMolecular)mcMoveVolume).setTemperature(1.0);
         }
         else {
             // standard move
@@ -214,17 +214,17 @@ public class HSDimerNPT extends Simulation {
         ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
         
-        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
-        mcMoveVolMonoclinic.setBox(box);
-        mcMoveVolMonoclinic.setStepSize(0.001);
-        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
-        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
+//        MCMoveVolumeMonoclinic mcMoveVolMonoclinic = new MCMoveVolumeMonoclinic(potentialMaster, getRandom(), space, p);
+//        mcMoveVolMonoclinic.setBox(box);
+//        mcMoveVolMonoclinic.setStepSize(0.001);
+//        ((MCMoveStepTracker)mcMoveVolMonoclinic.getTracker()).setNoisyAdjustment(true);
+//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinic);
         
-        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
-        mcMoveVolMonoclinicAngle.setBox(box);
-        mcMoveVolMonoclinicAngle.setStepSize(0.001);
-        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
-        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
+//        MCMoveVolumeMonoclinicAngle mcMoveVolMonoclinicAngle = new MCMoveVolumeMonoclinicAngle(potentialMaster, getRandom(), space, p, box);
+//        mcMoveVolMonoclinicAngle.setBox(box);
+//        mcMoveVolMonoclinicAngle.setStepSize(0.001);
+//        ((MCMoveStepTracker)mcMoveVolMonoclinicAngle.getTracker()).setNoisyAdjustment(true);
+//        integrator.getMoveManager().addMCMove(mcMoveVolMonoclinicAngle);
     }
     
     /**
