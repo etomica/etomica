@@ -315,7 +315,7 @@ public class HSDimerNPT extends Simulation {
     
     public static class HSMD3DParameters extends ParameterBase {
         public double rho = 1.2;
-        public int[] nC = new int[]{2,2,2};
+        public int[] nC = new int[]{3,3,3};
         public long numSteps = 10000000;
     }
 }
