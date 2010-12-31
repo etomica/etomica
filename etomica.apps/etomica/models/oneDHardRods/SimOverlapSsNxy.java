@@ -118,7 +118,9 @@ public class SimOverlapSsNxy extends Simulation {
         coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
 
         Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.495;
+        double truncationRadius = 1.4803453945760225;
+        if( numAtoms > 255) { truncationRadius = 2.2;}
+        System.out.println("truncation "+truncationRadius);
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(space, potentialBase, truncationRadius);
 
         atomMove.setPotential(potential);

@@ -31,8 +31,8 @@ public class HarmonicCrystalSsFccBigCellNxy {
         int maxLatticeShell = 1;
         double primitiveLength = 1.4952983783596188;
         System.out.println("MaxLatticeShell is "+maxLatticeShell);
-        int nC = 2;
-        int[] shape = new int[] {nC, nC+2, nC+2};
+        int nC = 8;
+        int[] shape = new int[] {nC, nC, nC};
         int numAtom = 1;
         for(int i = 0; i < 3; i++){
             numAtom *= shape[i];
@@ -77,7 +77,8 @@ public class HarmonicCrystalSsFccBigCellNxy {
         double rc = 15 ; //(maxLatticeShell*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
         //nan  Set for myself
         rc = 0.495 * 2 * primitiveLength;
-        System.out.println("truncation at "+rc);
+        if( numAtom > 255) { rc = 2.2;}
+        System.out.println("truncation "+rc);
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(sp, potential, rc);
         
         int[] nCells = new int[] {1, 1, 1};

@@ -77,7 +77,8 @@ public class HarmonicCrystalSsFccDoubleSize {
         double rc = 15 ; //(maxLatticeShell*2)*nC*Math.pow(4.0/rho, 1.0/3.0)*0.495;
         //nan  Set for myself
         rc = 0.495 * 2 * primitiveLength;
-        System.out.println("truncation at "+rc);
+        if( numAtom > 255) { rc = 2.2;}
+        System.out.println("truncation "+rc);
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(sp, potential, rc);
         
         pTruncated.setTruncationRadius(rc);

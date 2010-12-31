@@ -141,6 +141,8 @@ public class HarmonicCrystalSsFccNxy {
         String filename = params.filename + nA;
         double rc = params.rc ;
         
+        System.out.println("truncation " + rc);
+        
         Space sp = Space3D.getInstance();
         Potential2SoftSpherical potentialBase = new P2SoftSphere(sp, 1.0,
                 1.0, 12);
