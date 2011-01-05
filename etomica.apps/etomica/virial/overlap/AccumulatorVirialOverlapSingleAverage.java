@@ -56,6 +56,9 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         overlapSumBlockSquare = new double[nBennetPoints];
         overlapSumSquare = new double[nBennetPoints];
         expX = new double[nBennetPoints];
+        overlapFirstBlock = new double[nBennetPoints];
+        overlapMostRecentBlock = new double[nBennetPoints];
+        overlapCorrelationSum = new double[nBennetPoints];
         if (alphaCenter > 0) {
             setBennetParam(alphaCenter, alphaSpan);
         }
@@ -120,6 +123,15 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             overlapSum[j] += blockOverlapSum[j];
 			// this is actually blockSum[1], but for all the various values of the overlap parameter
             overlapSumBlockSquare[j] += blockOverlapSum[j]*blockOverlapSum[j] / blockSizeSq;
+
+            if (!mostRecentBlock.isNaN()) {
+                overlapCorrelationSum[j] += overlapMostRecentBlock[j] * blockOverlapSum[j];
+            }
+            else {
+                overlapFirstBlock[j] = blockOverlapSum[j];
+            }
+
+            overlapMostRecentBlock[j] = blockOverlapSum[j];
             blockOverlapSum[j] = 0.0;
 		}
 
@@ -165,6 +177,9 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             ((DataDoubleArray)currentBlockSum).getData()[1] = blockOverlapSum[iParam];
             ((DataDoubleArray)sumBlockSquare).getData()[1] = overlapSumBlockSquare[iParam];
             ((DataDoubleArray)sumSquare).getData()[1] = overlapSumSquare[iParam];
+            ((DataDoubleArray)firstBlock).getData()[1] = overlapFirstBlock[iParam];
+            ((DataDoubleArray)mostRecentBlock).getData()[1] = overlapMostRecentBlock[iParam];
+            ((DataDoubleArray)correlationSum).getData()[1] = overlapCorrelationSum[iParam];
             // let AccumulatorRatioAverage do the work for us
             super.getData();
         }
@@ -206,6 +221,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     private double[] blockOverlapSum;
     private double[] overlapSumBlockSquare, overlapSumSquare;
     private double[] overlapSum;
+    protected double[] overlapFirstBlock, overlapMostRecentBlock, overlapCorrelationSum;
     private int nBennetPoints;
     private double[] expX;
     private final boolean isReference;
