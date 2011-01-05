@@ -276,9 +276,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         }
         
         
-
-        System.out.println("testPE " + meterPE.getDataAsScalar() +" "+ " testHarmonic " + harmonic);
-        
         return meterPE.getDataAsScalar() + harmonic;
     }
 
