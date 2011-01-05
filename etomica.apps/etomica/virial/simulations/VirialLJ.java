@@ -76,6 +76,12 @@ public class VirialLJ {
 		
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
+        
+        int blocksize = 100;
+        sim.setAccumulatorBlockSize(blocksize);
+        System.out.println(blocksize+" steps per block");
+        
+        
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -120,6 +126,13 @@ public class VirialLJ {
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
+        System.out.println("hard sphere autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[0]);
+        
+        System.out.println("hard sphere overlap autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[1]);
+        
+        System.out.println();
+        
+        
         allYourBase = (DataGroup)sim.accumulators[1].getData(0);
         System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
@@ -129,15 +142,21 @@ public class VirialLJ {
         System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-	}
+
+        System.out.println("lennard jones autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[0]);
+        
+        System.out.println("lennard jones overlap autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[1]);
+    
+    
+    }
 
     /**
      * Inner class for parameters
      */
     public static class VirialLJParam extends ParameterBase {
-        public int nPoints = 3;
-        public double temperature = 1.5;
-        public long numSteps = 100000;
+        public int nPoints = 4;
+        public double temperature = 0.6;
+        public long numSteps = 10000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
     }
