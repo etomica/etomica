@@ -217,9 +217,9 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 		double afterEnergy = 0.0;
 		double initParam = 0.0;
 		
-		while(numIter < 30){
+		while(numIter < 20){
 		
-			for (int iVar=1; iVar<parameter.length; iVar++){
+			for (int iVar=0; iVar<parameter.length; iVar++){
 		//	for(int iVar=parameter.length-1; iVar>0; iVar--){
 				initEnergy = getEnergy(parameters);
 				initParam = parameters[iVar];
@@ -423,10 +423,10 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 	
 	public static void main(String[] args){
 		
-		String filename = "/tmp/inputd0.02400";
-		double density = 0.02400;
+		String filename = "/tmp/inputd0.02300";
+		double density = 0.02300;
 		int nCells = 8;
-		double scale = 5e-3;
+		double scale = 6e-1;
 		
 	    if(args.length > 0){
 			filename = args[0];
@@ -448,16 +448,16 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 //			parameters[i] = paramFromFile[i][0];
 //		}
 		
-//		double[] parameters = new double[20];
-//		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
-//		int k=0;
-//		for (int i=0; i<paramFromFile.length;i++){
-//			for (int j=0; j<paramFromFile[0].length;j++){
-//				
-//				parameters[k]=paramFromFile[i][j];
-//				k++;
-//			}	
-//		}
+		double[] parameters = new double[20];
+		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
+		int k=0;
+		for (int i=0; i<paramFromFile.length;i++){
+			for (int j=0; j<paramFromFile[0].length;j++){
+				
+				parameters[k]=paramFromFile[i][j];
+				k++;
+			}	
+		}
 
 		//rho = 0.02300
 //		double[] parameters = new double[]{
@@ -500,12 +500,13 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 //		};
 		
 		//rho = 0.02400
-		double[] parameters = new double[]{
-				0.004145316356587442, -9.97188385687702E-4, 0.0010652863572599772, -6.111757291552174E-4, -0.006099678343603974, 
-				-0.004860191100274785, -0.0011184372646839426, 0.0010591048051743549, 4.556229648632361E-4, -0.006156713775670309, 
-				-0.004822918569318898, -9.896000906163874E-4, 0.001072405237441662, -2.7171155047637206E-4, -0.006288187978589316, 
-				0.004124528285182966, -0.0011414286354795309, 0.001074732339805428, 5.412368161856786E-4, -0.006105718687480315
-		};
+//		double[] parameters = new double[]{
+//				0.004145316356587442, -9.97188385687702E-4, 0.0010652863572599772, -6.111757291552174E-4, -0.006099678343603974, 
+//				-0.004860191100274785, -0.0011184372646839426, 0.0010591048051743549, 4.556229648632361E-4, -0.006156713775670309, 
+//				-0.004822918569318898, -9.896000906163874E-4, 0.001072405237441662, -2.7171155047637206E-4, -0.006288187978589316, 
+//				0.004124528285182966, -0.0011414286354795309, 0.001074732339805428, 5.412368161856786E-4, -0.006105718687480315
+		
+//		};
 		
 		double[] valMin = new double[parameters.length];
 		double[] valMax = new double[parameters.length];
@@ -517,7 +518,7 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 		boolean reScale = false;
 		double reScaleValue = 0.2;
 		
-		for (int i=1; i<valMin.length; i++){
+		for (int i=0; i<valMin.length; i++){
 			if(reScale){
 				if(i%20==0||i%20==1||i%20==2||i%20==5||i%20==6||i%20==7
 						||i%20==10||i%20==11||i%20==12||i%20==15||i%20==16||i%20==17){
@@ -531,7 +532,7 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 			}
 		}
 		
-		for (int i=1; i<valMax.length; i++){
+		for (int i=0; i<valMax.length; i++){
 			if(reScale){
 				if(i%20==0||i%20==1||i%20==2||i%20==5||i%20==6||i%20==7
 						||i%20==10||i%20==11||i%20==12||i%20==15||i%20==16||i%20==17){
