@@ -178,7 +178,7 @@ public class SimOverlapBetaN2TP extends Simulation {
 		move.setPotential(potential);
 		move.setDoExcludeNonNeighbors(true);
 		//move.setStepSize(Kelvin.UNIT.toSim(temperature));
-		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+		//((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
 		
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
 		integrator.getMoveManager().addMCMove(move);
@@ -433,11 +433,11 @@ public class SimOverlapBetaN2TP extends Simulation {
         public int numMolecules = 1024;
         public double density = 0.0240; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
-        public double temperature = 15; // in unit Kelvin
+        public double temperature = 0.02; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{16};
+        public double[] otherTemperatures = new double[]{0.03};
         public boolean isBeta = true;
         public boolean isBetaHCP = false;
         public double rcScale = 0.475;
