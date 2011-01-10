@@ -13,15 +13,17 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
@@ -47,30 +49,32 @@ import etomica.units.Pixel;
 public class SimulationAlphaNitrogenModel extends Simulation{
 
 	
-	public SimulationAlphaNitrogenModel(ISpace space, int numMolecule, double temperature, double density) {
+	public SimulationAlphaNitrogenModel(ISpace space, int[] nC, double temperature, double density) {
 		super(space);
 		this.space = space;
-		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-			
-		double a = Math.pow(numMolecule/density, 1.0/3.0)/nCell;
+
+		double a = Math.pow(4.0/density, 1.0/3.0);
 		System.out.println("Unit Cell Length, a: " + a);
 		
 		//potentialMaster = new PotentialMaster();
 		potentialMaster = new PotentialMasterListMolecular(this, space);
 				
 		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
+		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
 		
 		species = new SpeciesN2(space);
 		addSpecies(species);
 		
+		int numMolecule = 4*nC[0]*nC[1]*nC[2];
 		box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		
 		
 		int [] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space,nCell*a);
-		primitive = new PrimitiveCubic(space, nCell*a);
+
+		double[] boxSize = new double[]{nC[0]*a, nC[1]*a, nC[2]*a};
+		Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
+		primitive = new PrimitiveTetragonal(space, nC[0]*a, nC[2]*a);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
@@ -85,25 +89,25 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		potential.setBox(box);
 
 		PRotConstraint pRotConstraint = new PRotConstraint(space,coordinateDef,box);
-		pRotConstraint.setConstraintAngle(75);
+		pRotConstraint.setConstraintAngle(65);
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		//potentialMaster.lrcMaster().isEnabled();
 		
-	  int cellRange = 6;
-      potentialMaster.setRange(rC);
-      potentialMaster.setCellRange(cellRange); 
-      potentialMaster.getNeighborManager(box).reset();
+		int cellRange = 6;
+		potentialMaster.setRange(rC);
+		potentialMaster.setCellRange(cellRange); 
+		potentialMaster.getNeighborManager(box).reset();
       
-      int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-      if (potentialCells < cellRange*2+1) {
-          throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-      }
-      potential.setRange(Double.POSITIVE_INFINITY);
-      
-      int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-      System.out.println("numNeigh: " + numNeigh);
+		int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+		if (potentialCells < cellRange*2+1) {
+			throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+		}
+	    potential.setRange(Double.POSITIVE_INFINITY);
+	      
+	    int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+	    System.out.println("numNeigh: " + numNeigh);
 		
 		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
 		move.setBox(box);
@@ -112,7 +116,10 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
 		rotate.setBox(box);
-			
+		
+//		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);	
+//		((MCMoveStepTracker)rotate.getTracker()).setNoisyAdjustment(true);
+
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
@@ -140,11 +147,13 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 	}
 	
 	public static void main (String[] args){
+		int nCx = 6;
+		int nCy = 6;
+		int nCz = 6;
 		
-		int numMolecule = 5*5*5*4;
-		double temperature = 1; // in Unit Kelvin
+		double temperature = 0.002; // in Unit Kelvin
 		long simSteps = 100000;
-		double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
+		double density = 0.0236; //0.02204857502170207 (intial from literature with a = 5.661)
 		
 		if(args.length > 0){
 			simSteps = Long.parseLong(args[0]);
@@ -153,20 +162,31 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 			temperature = Double.parseDouble(args[1]);
 		}
 		if(args.length > 2){
-			numMolecule = Integer.parseInt(args[2]);
+			nCx = Integer.parseInt(args[2]);
 		}
+		if(args.length > 3){
+			nCy = Integer.parseInt(args[3]);
+		}
+		if(args.length > 4){
+			nCz = Integer.parseInt(args[4]);
+		}
+		
+		int[] nC = new int[]{nCx, nCy, nCz};
+		int numMolecule = 4*nC[0]*nC[1]*nC[2];
+		
 		String filename = "alphaN2_nA"+numMolecule+"_T"+temperature;
 		System.out.println("Running alpha-N2 NVT simulation with " + simSteps + " steps" );
 		System.out.println("number Molecules: " + numMolecule+ " ; temperature: " + temperature
 				+"K ; density: "+ density +"\n");
 
-		SimulationAlphaNitrogenModel sim = new SimulationAlphaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, density);
+		SimulationAlphaNitrogenModel sim = new SimulationAlphaNitrogenModel(Space3D.getInstance(3), nC, temperature, density);
 	 
 		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
-		double latticeEnergySim = meterPotentialEnergy.getDataAsScalar();
+		final double latticeEnergySim = meterPotentialEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy per molecule (sim unit): "+ latticeEnergySim/numMolecule);
-					
+		System.out.println("Lattice Energy: "+ latticeEnergySim);			
+		
 //		MeterNormalizedCoord meterCoord = new MeterNormalizedCoord(sim.box, sim.coordinateDef, sim.species);
 //        IntegratorListenerAction meterCoordListener = new IntegratorListenerAction(meterCoord);
 //        meterCoordListener.setInterval(numMolecule);                                      
@@ -177,60 +197,47 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 //        meterOrientListener.setInterval(numMolecule);                                      
 //        sim.integrator.getEventManager().addListener(meterOrientListener);
 		
-//		MeterPressureMolecular meterPressure = new MeterPressureMolecular(sim.space);
-//		meterPressure.setIntegrator(sim.integrator);
-//						
-//		double staticPressure = meterPressure.getDataAsScalar();
-//		System.out.println("Static Pressure (GPa): " + Pascal.UNIT.fromSim(staticPressure)/1e9);
-
-		if(false){
+		MeterPressureMolecular meterPressure = new MeterPressureMolecular(sim.space);
+		meterPressure.setIntegrator(sim.integrator);
+						
+		double staticPressure = meterPressure.getDataAsScalar();
+		System.out.println("Static Pressure (sim unit): " + staticPressure);
+		
+		double volume = sim.box.getBoundary().volume();
+		System.out.println("volume: " + volume);
+		
+		if(true){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    	    
-		    
 			DiameterHashByType diameter = new DiameterHashByType(sim);
 			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(sim.species.getPType(), 0.0);
-			
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			
 		    simGraphic.makeAndDisplayFrame("Alpha-Phase Nitrogen Crystal Structure");
 		    
 			
 			IAction output = new IAction(){
-
 				public void actionPerformed() {
-					System.out.println("energy: " + (meterPotentialEnergy.getDataAsScalar()+82512.1706428608));
+					System.out.println("energy: " + (meterPotentialEnergy.getDataAsScalar()-latticeEnergySim));
 					
 				}
 				
 			};
 			
 			IntegratorListenerAction outListener = new IntegratorListenerAction(output);
-			outListener.setInterval(1);
+			outListener.setInterval(100);
 			sim.integrator.getEventManager().addListener(outListener);
 			
 //			double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //			double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 			
-			//sim.activityIntegrate.setMaxSteps(1000000);
-			//sim.getController().actionPerformed();
+			sim.activityIntegrate.setMaxSteps(1000000);
+			sim.getController().actionPerformed();
 		    return;
 		    
 		}
-		//System.exit(1);
-			
-		AccumulatorAverage energyAverage = new AccumulatorAverageFixed();
-		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
-		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
-		energyListener.setInterval(numMolecule);
-		sim.integrator.getEventManager().addListener(energyListener);
-			
-//		AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
-//		DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
-//		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
-//		pressureListener.setInterval((int)simSteps/100);
-//		sim.integrator.getEventManager().addListener(pressureListener);
 			
 		sim.activityIntegrate.setMaxSteps(simSteps/5);
 		sim.getController().actionPerformed();
@@ -238,23 +245,35 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
-			
-		sim.integrator.getMoveManager().setEquilibrating(false);
+		
 		sim.getController().reset();
 	
+		AccumulatorAverage energyAverage = new AccumulatorAverageFixed();
+		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
+		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
+		energyListener.setInterval(numMolecule);
+		sim.integrator.getEventManager().addListener(energyListener);
+			
+		AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
+		DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
+		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
+		pressureListener.setInterval((int)simSteps/200);
+		sim.integrator.getEventManager().addListener(pressureListener);
+		
 		sim.activityIntegrate.setMaxSteps(simSteps);
 		sim.getController().actionPerformed();
 
-//		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-//		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-		
 		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+
+		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 		
 		System.out.println("Average energy (per molecule): " + (averageEnergy)/numMolecule  
 				+ " ;error: " + errorEnergy/numMolecule);
-//		System.out.println("Average pressure (GPa): " + Pascal.UNIT.fromSim(averagePressure)/1e9 
-//				+ " ;error: " + Pascal.UNIT.fromSim(errorPressure)/1e9);
+		System.out.println("Average pressure (sim unit): " + averagePressure
+				+ " ;error: " + errorPressure);
+		
 //		sim.writeUdistribution(filename, meterCoord);
 //		meterOrient.writeUdistribution(filename+"Ort");
 		long endTime = System.currentTimeMillis();
