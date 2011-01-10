@@ -47,7 +47,7 @@ import etomica.util.ReadParameters;
 public class SimOverlapAlphaN2TP extends Simulation {
 
     public SimOverlapAlphaN2TP(Space space, int[] nC, double density, double temperature, double[] otherTemperatures,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rcScale) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rcScale, double constraintAngle) {
         super(space);
         
         int numMolecules = nC[0]*nC[1]*nC[2]*4;
@@ -81,7 +81,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 	
-		double constraintAngle = 65;
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
 		pRotConstraint.setConstraintAngle(constraintAngle);
 		System.out.println("set constraint angle to = "+ constraintAngle);
@@ -205,6 +204,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
         double rcScale = params.rcScale;
+        double constraintAngle = params.constraintAngle;
         String configFileName = "configT"+temperature;
         
         System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
@@ -221,7 +221,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
 
         //instantiate simulation
         final SimOverlapAlphaN2TP sim = new SimOverlapAlphaN2TP(Space.getInstance(3), nC, density, temperature, otherTemperatures, 
-        		alpha, numAlpha, alphaSpan, numSteps, rcScale);
+        		alpha, numAlpha, alphaSpan, numSteps, rcScale, constraintAngle);
         
         //start simulation
         File configFile = new File(configFileName+".pos");
@@ -357,5 +357,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
         public double alphaSpan = 1;
         public double[] otherTemperatures = new double[]{0.02};
         public double rcScale = 0.475;
+        public double constraintAngle = 65;
     }
 }
