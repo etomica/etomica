@@ -27,7 +27,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
@@ -46,16 +46,17 @@ import etomica.util.ReadParameters;
  */
 public class SimOverlapAlphaN2TP extends Simulation {
 
-    public SimOverlapAlphaN2TP(Space space, int numMolecules, double density, double temperature, double[] otherTemperatures,
+    public SimOverlapAlphaN2TP(Space space, int[] nC, double density, double temperature, double[] otherTemperatures,
     		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rcScale) {
         super(space);
         
-      	int nCell = (int) Math.round(Math.pow((numMolecules/4), 1.0/3.0));
-		double a = Math.pow(numMolecules/density, 1.0/3.0)/nCell;
+        int numMolecules = nC[0]*nC[1]*nC[2]*4;
+      	
+		double a = Math.pow(4.0/density, 1.0/3.0);
 		System.out.println("Unit Cell Length, a: " + a);
         
 		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
+		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
 		
 		species = new SpeciesN2(space);
 		addSpecies(species);
@@ -65,8 +66,9 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		box.setNMolecules(species, numMolecules);
         
 		int[] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space,nCell*a);
-		primitive = new PrimitiveCubic(space, nCell*a);
+		double[] boxSize = new double[]{nC[0]*a, nC[1]*a, nC[2]*a};
+		Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
+		primitive = new PrimitiveTetragonal(space, nC[0]*a, nC[2]*a);
 		
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
@@ -199,6 +201,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         double temperature = params.temperature;
         double[] otherTemperatures = params.otherTemperatures;
         double[] alpha = params.alpha;
+        int[] nC = params.nC;
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
         double rcScale = params.rcScale;
@@ -217,7 +220,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         System.out.println("\n"+numSteps+" steps");
 
         //instantiate simulation
-        final SimOverlapAlphaN2TP sim = new SimOverlapAlphaN2TP(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, 
+        final SimOverlapAlphaN2TP sim = new SimOverlapAlphaN2TP(Space.getInstance(3), nC, density, temperature, otherTemperatures, 
         		alpha, numAlpha, alphaSpan, numSteps, rcScale);
         
         //start simulation
@@ -345,6 +348,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 256;
+        public int[] nC = new int[]{6,6,7};
         public double density = 0.0222; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
         public double temperature = 0.01; // in unit Kelvin
