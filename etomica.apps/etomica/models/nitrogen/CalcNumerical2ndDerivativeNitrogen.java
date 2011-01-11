@@ -90,13 +90,14 @@ public class CalcNumerical2ndDerivativeNitrogen{
 				pair.atom1 = molecule1;
 				
 				if(doLatticeSum){
-					for(double x=-xVecBox*nLayer; x<=xVecBox*nLayer; x+=xVecBox){
-						for(double y=-yVecBox*nLayer; y<=yVecBox*nLayer; y+=yVecBox){
-							for(double z=-zVecBox*nLayer; z<=zVecBox*nLayer; z+=zVecBox){
-								lsPosition.E(new double[]{x, y, z});
+					for(int x=-nLayer; x<=nLayer; x++){
+						for(int y=-nLayer; y<=nLayer; y++){
+							for(int z=-nLayer; z<=nLayer; z++){
+								if(i==moleculei[0] && x==0 && y==0 && z==0) continue;
+								lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
 								translateBy.setTranslationVector(lsPosition);
 								atomGroupActionTranslate.actionPerformed(molecule1);
-			
+								
 								sum += potential.energy(pair);
 								
 								lsPosition.TE(-1);
@@ -121,10 +122,10 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		pair.atom1 = molecule1;
 
 		if(doLatticeSum){
-			for(double x=-xVecBox*nLayer; x<=xVecBox*nLayer; x+=xVecBox){
-				for(double y=-yVecBox*nLayer; y<=yVecBox*nLayer; y+=yVecBox){
-					for(double z=-zVecBox*nLayer; z<=zVecBox*nLayer; z+=zVecBox){
-						lsPosition.E(new double[]{x, y, z});
+			for(int x=-nLayer; x<=nLayer; x++){
+				for(int y=-nLayer; y<=nLayer; y++){
+					for(int z=-nLayer; z<=nLayer; z++){
+						lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
 						translateBy.setTranslationVector(lsPosition);
 						atomGroupActionTranslate.actionPerformed(molecule1);
 	
