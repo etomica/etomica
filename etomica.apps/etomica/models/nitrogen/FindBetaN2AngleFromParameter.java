@@ -29,7 +29,7 @@ import etomica.units.Degree;
  */
 public class FindBetaN2AngleFromParameter extends Simulation{
 
-	public FindBetaN2AngleFromParameter(ISpace space, double density) {
+	public FindBetaN2AngleFromParameter(ISpace space, double density, double[][]param) {
 		super(space);
 		double ratio = 1.631;
 		double a = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
@@ -62,51 +62,44 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 
 		double[] u = new double[20];
 		
-		double[][] param;
-		if(true){
-			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
-			param = parameters.getParameter(density);
-			
-			int kParam=0;
-			for (int i=0; i<param.length;i++){
-				for (int j=0; j<param[0].length;j++){
-					u[kParam]=param[i][j];
-					kParam++;
-				}	
-			}
-						
-			int numDOF = coordinateDef.getCoordinateDim();
-			double[] newU = new double[numDOF];
-			if(true){
-				for(int j=0; j<numDOF; j+=10){
-					if(j>0 && j%(nC*10)==0){
-						j+=nC*10;
-						if(j>=numDOF){
-							break;
-						}
-					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k];
-					}
-				}
-				
-				for(int j=nC*10; j<numDOF; j+=10){
-					if(j>nC*10 && j%(nC*10)==0){
-						j+=nC*10;
-						if(j>=numDOF){
-							break;
-						}
-					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k+10];
-					}
-				}
-			}
-
-			coordinateDef.setToU(box.getMoleculeList(), newU);
-			coordinateDef.initNominalU(box.getMoleculeList());
-			
+		int kParam=0;
+		for (int i=0; i<param.length;i++){
+			for (int j=0; j<param[0].length;j++){
+				u[kParam]=param[i][j];
+				kParam++;
+			}	
 		}
+					
+		int numDOF = coordinateDef.getCoordinateDim();
+		double[] newU = new double[numDOF];
+		
+		for(int j=0; j<numDOF; j+=10){
+			if(j>0 && j%(nC*10)==0){
+				j+=nC*10;
+				if(j>=numDOF){
+					break;
+				}
+			}
+			for(int k=0; k<10;k++){
+				newU[j+k]= u[k];
+			}
+		}
+		
+		for(int j=nC*10; j<numDOF; j+=10){
+			if(j>nC*10 && j%(nC*10)==0){
+				j+=nC*10;
+				if(j>=numDOF){
+					break;
+				}
+			}
+			for(int k=0; k<10;k++){
+				newU[j+k]= u[k+10];
+			}
+		}
+		
+		coordinateDef.setToU(box.getMoleculeList(), newU);
+		coordinateDef.initNominalU(box.getMoleculeList());
+		
 		IVectorMutable[] aVector = new IVectorMutable[4];
 		IVectorMutable[] cVector = new IVectorMutable[4];
 		rotationAxis = new IVectorMutable[4];
@@ -152,7 +145,6 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		    temp1.E(new double[]{1.0, 0.0, 0.0});
 		    alpha[i] = Math.acos(cVector[i].dot(temp1));
 		    beta[i]  = Math.acos(aVector[i].dot(cVector[i]));
-		    
 		    
 		}
 		
@@ -201,9 +193,11 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 	public static void main (String[] args){
 		
 		int[] nC = new int []{2,2,2};
-		double density = 0.0250;
+		double density = 0.0230;
+		BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+		double[][] param = parameters.getParameter(density);
 		
-		final FindBetaN2AngleFromParameter sim = new FindBetaN2AngleFromParameter(Space3D.getInstance(3), density);
+		final FindBetaN2AngleFromParameter sim = new FindBetaN2AngleFromParameter(Space3D.getInstance(3), density, param);
 
 	}
 
