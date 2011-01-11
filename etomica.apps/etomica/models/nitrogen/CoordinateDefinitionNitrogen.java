@@ -540,11 +540,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	 *
     	 */
     	
-    	FindBetaN2AngleFromParameter parameters = new FindBetaN2AngleFromParameter(space, density);
-    	double[] alpha = parameters.getAlpha();
-    	double[] beta  = parameters.getBeta();
-    	IVectorMutable[] rotationAxis = parameters.getRotationAxis(); 
-    	IVectorMutable[] deviationVector = parameters.getDeviationVector();
+    	BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+		double[][] param = parameters.getParameter(density);
+		    	
+    	FindBetaN2AngleFromParameter fromParams = new FindBetaN2AngleFromParameter(space, density, param);
+    	double[] alpha = fromParams.getAlpha();
+    	double[] beta  = fromParams.getBeta();
+    	IVectorMutable[] rotationAxis = fromParams.getRotationAxis(); 
+    	IVectorMutable[] deviationVector = fromParams.getDeviationVector();
     	
     	for(int i=0; i<4; i++){
     		rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(alpha[i]));
