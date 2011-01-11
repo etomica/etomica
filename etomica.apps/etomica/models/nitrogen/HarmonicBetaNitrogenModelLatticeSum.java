@@ -114,7 +114,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 	public static void main (String[] args){
 		
 		int numMolecule =4;
-		double density = 0.0250;
+		double density = 0.0230;
 		double rC = 80;
 		
 		int minLayer = 20;
