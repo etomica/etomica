@@ -64,10 +64,13 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		Primitive primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
 
+    	BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+		double[][] param = parameters.getParameter(density);
+		
 		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBetaLatticeSum();
 		coordinateDef.setIsDoLatticeSum();
-		coordinateDef.setOrientationVectorBetaLatticeSum(space, density);
+		coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
 		coordinateDef.initializeCoordinates(new int[]{1,1,1});
 		
 		double rCScale = 0.475;
@@ -112,7 +115,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		int numMolecule =4;
 		double density = 0.0250;
-		double rC = 100;
+		double rC = 80;
 		
 		int minLayer = 20;
 		int maxLayer = 22;

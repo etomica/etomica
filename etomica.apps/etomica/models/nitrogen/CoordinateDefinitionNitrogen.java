@@ -534,14 +534,11 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	
     }
     
-    public void setOrientationVectorBetaLatticeSum(ISpace space, double density){
+    public void setOrientationVectorBetaLatticeSum(ISpace space, double density, double[][] param){
     	/*
     	 * 
     	 *
     	 */
-    	
-    	BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
-		double[][] param = parameters.getParameter(density);
 		    	
     	FindBetaN2AngleFromParameter fromParams = new FindBetaN2AngleFromParameter(space, density, param);
     	double[] alpha = fromParams.getAlpha();
