@@ -74,7 +74,10 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		box.setBoundary(boundary);
 //		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 		
+		this.rC = rC;
+		
 		potential = new P2Nitrogen(space, rC);
+		potential.setEnablePBC(false);
 		potential.setBox(box);
 
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
@@ -82,8 +85,6 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		int nSites = 2*nCell+1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
 		
-
-		this.rC = rC;
 		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef, true, rC);
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 		
@@ -97,10 +98,14 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
 		this.nLayer = (int)(rC/rX + 0.5);
+		
+		System.out.println("nLayer: " + nLayer);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
 	
+		//molec0 =0;
+		
 		DataTensor transTensor = new DataTensor(space);
 		MoleculePair pair = new MoleculePair();
 	
@@ -139,14 +144,22 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 				transTensor.E(0.0);
 				
 				//do Lattice sum
-				for(double x=-xVecBox*nLayer; x<=xVecBox*nLayer; x+=xVecBox){
-					for(double y=-yVecBox*nLayer; y<=yVecBox*nLayer; y+=yVecBox){
-						for(double z=-zVecBox*nLayer; z<=zVecBox*nLayer; z+=zVecBox){
-							lsPosition.E(new double[]{x, y, z});
+				for(int x=-nLayer; x<=nLayer; x++){
+					for(int y=-nLayer; y<=nLayer; y++){
+						for(int z=-nLayer; z<=nLayer; z++){
+							lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
 							translateBy.setTranslationVector(lsPosition);
 							atomGroupActionTranslate.actionPerformed(molecule1);
 		
 							transTensor.PE(potential.secondDerivative(pair));
+							
+//							for (int k=0;k<3;k++){
+//								for (int l=0;l<3;l++){
+//									System.out.print(transTensor.x.component(k, l)+" ");
+//								}	
+//								System.out.println("");
+//							}
+//							System.out.println("");
 							
 							lsPosition.TE(-1);
 							translateBy.setTranslationVector(lsPosition);
@@ -169,6 +182,14 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
 					}
 				}
+				
+//				for (int irow=0;irow<5; irow++){
+//					for (int icol=0;icol<5; icol++){
+//						System.out.print(array[icol][molec1*dofPerMol + irow]+" ");
+//					}	
+//					System.out.println("");
+//				}
+//				System.exit(1);
 					
 				findPair.updateNewMoleculePair(index);
 					
@@ -354,13 +375,13 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 
 		long startTime = System.currentTimeMillis();
 	
-		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_new");
+		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_newLS");
 		
-		//test.constructHessianMatrix(fname, nC);
-		test.constructHessianMatrix(nC);
+		test.constructHessianMatrix(fname, nC);
+		//test.constructHessianMatrix(nC);
 		
 		long endTime = System.currentTimeMillis();
-	//	System.out.println("Time taken (s): " + (endTime-startTime)/1000);
+		System.out.println("Time taken (s): " + (endTime-startTime)/1000);
 	
 	}
 	
