@@ -8,7 +8,6 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculePair;
 import etomica.space3d.Space3D;
 
@@ -51,10 +50,11 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		
 		translateBy = new AtomActionTranslateBy(coordinateDefinition.getPrimitive().getSpace());
         atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-        atomActionTranslateTo = new MoleculeActionTranslateTo(coordinateDefinition.getPrimitive().getSpace());
+        pos = new AtomPositionGeometricCenter(coordinateDefinition.getPrimitive().getSpace());
+        translator = new MoleculeActionTranslateTo(coordinateDefinition.getPrimitive().getSpace());
+        translator.setAtomPositionDefinition(pos);
         
 		lsPosition = Space3D.makeVector(3);
-		selfMolecInitialPos = Space3D.makeVector(3);
 		destination = Space3D.makeVector(3);
         
         a = new double[ntab][ntab];
@@ -99,8 +99,6 @@ public class CalcNumerical2ndDerivativeNitrogen{
 				
 				
 				if(i==moleculei[0]){
-					positionCOM = new AtomPositionGeometricCenter(Space3D.getInstance());
-					destination.E(positionCOM.position(pair.atom0));
 					
 					//THIS IS A HACK!
 					int molNum;
@@ -109,15 +107,16 @@ public class CalcNumerical2ndDerivativeNitrogen{
 					} else{
 						molNum = (i+4);
 					}
-
+					
 					molecule1 = moleculeList.getMolecule(molNum);
-					selfMolecInitialPos.E(positionCOM.position(molecule1));
-					
-					atomActionTranslateTo.setDestination(destination);
-					atomActionTranslateTo.actionPerformed(molecule1); 
-					
-					coordinateDefinition.setToUMoleculei(molNum, u);
 					pair.atom1 = molecule1;
+
+					//rotate the "borrowed" molecule 
+					coordinateDefinition.setToUMoleculei(molNum, u);
+					
+					destination.E(pos.position(pair.atom0));
+					translator.setDestination(destination);
+					translator.actionPerformed(pair.atom1); 
 					
 				} else {
 					molecule1 = moleculeList.getMolecule(i); 
@@ -154,9 +153,8 @@ public class CalcNumerical2ndDerivativeNitrogen{
 						for(int y=0; y<u.length; y++){
 							u[y] = 0.0;
 						}
-						atomActionTranslateTo.setDestination(selfMolecInitialPos);
-						atomActionTranslateTo.actionPerformed(molecule1); 
-						
+						// putting the molecule back its own lattice site
+						// and rotate back to original orientation
 						coordinateDefinition.setToUMoleculei(molNum, u);
 					}
 					
@@ -329,13 +327,14 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		this.fixedDeltaU = fixedDeltaU;
 	}
 
-	protected IAtomPositionDefinition positionCOM;
-	protected MoleculeActionTranslateTo atomActionTranslateTo;
+	protected IBox box;
+	protected AtomPositionGeometricCenter pos;
+	protected MoleculeActionTranslateTo translator;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition, selfMolecInitialPos, destination;
+	protected IVectorMutable lsPosition, destination;
 	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;
