@@ -97,33 +97,33 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			IMolecule molecule1;
 			for (int i=0; i<numMolecule; i++){
 				
+				if(i==moleculei[0] && !doLatticeSum) continue;
 				
-				if(i==moleculei[0]){
-					
-					//THIS IS A HACK!
-					int molNum;
-					if((numMolecule-i)<5){
-						molNum = (i-4);
-					} else{
-						molNum = (i+4);
-					}
-					
-					molecule1 = moleculeList.getMolecule(molNum);
-					pair.atom1 = molecule1;
-
-					//rotate the "borrowed" molecule 
-					coordinateDefinition.setToUMoleculei(molNum, u);
-					
-					destination.E(pos.position(pair.atom0));
-					translator.setDestination(destination);
-					translator.actionPerformed(pair.atom1); 
-					
-				} else {
-					molecule1 = moleculeList.getMolecule(i); 
-					pair.atom1 = molecule1;
-				}
+				molecule1 = moleculeList.getMolecule(i); 
+				pair.atom1 = molecule1;
 				
 				if(doLatticeSum){
+					
+					if(i==moleculei[0]){
+						//THIS IS A HACK!
+						int molNum;
+						if((numMolecule-i)<5){
+							molNum = (i-4);
+						} else{
+							molNum = (i+4);
+						}
+						
+						molecule1 = moleculeList.getMolecule(molNum);
+						pair.atom1 = molecule1;
+	
+						//rotate the "borrowed" molecule 
+						coordinateDefinition.setToUMoleculei(molNum, u);
+						
+						destination.E(pos.position(pair.atom0));
+						translator.setDestination(destination);
+						translator.actionPerformed(pair.atom1); 
+					}
+					
 					for(int x=-nLayer; x<=nLayer; x++){
 						for(int y=-nLayer; y<=nLayer; y++){
 							for(int z=-nLayer; z<=nLayer; z++){
