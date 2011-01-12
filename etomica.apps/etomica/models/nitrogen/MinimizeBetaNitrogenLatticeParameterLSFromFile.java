@@ -5,12 +5,10 @@ import java.io.IOException;
 
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
@@ -19,13 +17,10 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
 import etomica.normalmode.BasisBigCell;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Energy;
-import etomica.units.Joule;
 import etomica.util.FunctionGeneral;
 
 /**
@@ -47,8 +42,7 @@ import etomica.util.FunctionGeneral;
  */
 public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 	
-
-	public MinimizeBetaNitrogenLatticeParameterLSFromFile(ISpace space, double density, double[] u){
+	public MinimizeBetaNitrogenLatticeParameterLSFromFile(ISpace space, double density, double[] u, double rC){
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -71,6 +65,7 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		ghostSpecies.setConformation(conformation);
 		addSpecies(ghostSpecies);
 		
+		int numMolecule = 4;
 		box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		
@@ -81,7 +76,6 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		
 		primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
 
-		
 		double param[][] = new double[4][5];
 		for(int i=0; i<4; i++){
 			for(int j=0; j<5; j++){
@@ -90,41 +84,17 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 			}	
 		}
 		
-		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBetaLatticeSum();
 		coordinateDef.setIsDoLatticeSum();
 		coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
 		coordinateDef.initializeCoordinates(new int[]{1,1,1});
 		
-		double rCScale = 0.475;
-		//double rC = 1000;//box.getBoundary().getBoxSize().getX(0)*rCScale;
-		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
-		double rC = 10;
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 		potential.setEnablePBC(false);
 		
-	}
-	
-
-	public double getEnergy (double[] u){
-
-		double param[][] = new double[4][5];
-		for(int i=0; i<4; i++){
-			for(int j=0; j<5; j++){
-				param[i][j] = u[i*5+j];
-					
-			}	
-		}
-		
-		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBetaLatticeSum();
-		coordinateDef.setIsDoLatticeSum();
-		coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
-		coordinateDef.initializeCoordinates(new int[]{1,1,1});
-		
-		this.coordinateDefinition = coordinateDef;
+		this.nLayer = (int)(rC/aDim+0.5);
 		
 		FunctionGeneral function = new FunctionGeneral() {
 			public IData f(Object obj) {
@@ -138,8 +108,6 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 			final DataDouble data = new DataDouble();
 		};
 		
-		int nLayer = 3;
-		
 		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
 		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
 		latticeSum.setMaxLatticeShell(nLayer);
@@ -152,12 +120,53 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
                 sum += ((DataDouble)data.getDataReal(j,jp)).x; 
             }
         }
-        double latEnergy = 0.5*sum/basisDim;
-        double avogradoConst = 6.0221415e23;
-        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[kJ/mol]: " + Joule.UNIT.fromSim(latEnergy)*avogradoConst/1000);
 
-    
-		return latEnergy;
+		System.out.println("initial energy: " + (0.5*sum/basisDim));
+	}
+	
+
+	public double getEnergy (double[] u){
+
+		double param[][] = new double[4][5];
+		for(int i=0; i<4; i++){
+			for(int j=0; j<5; j++){
+				param[i][j] = u[i*5+j];
+					
+			}	
+		}
+		
+		CoordinateDefinitionNitrogen coordDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordDef.setIsBetaLatticeSum();
+		coordDef.setIsDoLatticeSum();
+		coordDef.setOrientationVectorBetaLatticeSum(space, density, param);
+		coordDef.initializeCoordinates(new int[]{1,1,1});
+		
+		FunctionGeneral function = new FunctionGeneral() {
+			public IData f(Object obj) {
+				data.x = potential.energy((IMoleculeList)obj);
+				return data;
+			}
+			public IDataInfo getDataInfo() {
+				return dataInfo;
+			}
+			final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
+			final DataDouble data = new DataDouble();
+		};
+		
+		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
+		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordDef, ghostBox);
+		latticeSum.setMaxLatticeShell(nLayer);
+		
+		double sum = 0;
+	    double basisDim = lattice.getBasis().getScaledCoordinates().length;
+		DataGroupLSC data = (DataGroupLSC)latticeSum.calculateSum(function);
+        for(int j=0; j<basisDim; j++) {
+            for(int jp=0; jp<basisDim; jp++) {
+                sum += ((DataDouble)data.getDataReal(j,jp)).x; 
+            }
+        }
+
+		return 0.5*sum/basisDim;
 	}
 	
 
@@ -169,24 +178,16 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		double initParam = 0.0;
 		
 		while(numIter < 50){
-			System.out.println("numIter: " + numIter);
 			for (int iVar=0; iVar<parameter.length; iVar++){
-		//	for(int iVar=parameter.length-1; iVar>0; iVar--){
+
 				initEnergy = getEnergy(parameters);
 				initParam = parameters[iVar];
-				//System.out.println("iVar: "+ iVar);
-
-//				System.out.println(parameters[0]+",\n "+parameters[1]+", "+parameters[2]+", "+parameters[3]+", "+parameters[4]+", "+parameters[5]+", "
-//	              +"\n "+parameters[6]+", "+parameters[7]+", "+parameters[8]+", "+parameters[9]+", "+parameters[10]+", "
-//	              +"\n "+parameters[11]+", "+parameters[12]+", "+parameters[13]+", "+parameters[14]+", "+parameters[15]+", "
-//	              +"\n "+parameters[16]+", "+parameters[17]+", "+parameters[18]+", "+parameters[19]+", "+parameters[20]+", ");
-//				System.out.println("initEnergy: " + initEnergy/numMolecule);
+				
 				parameters[iVar] = findOptParameter(minVal[iVar], maxVal[iVar], parameters, iVar);
 				
 				afterEnergy = getEnergy(parameters);
-				//System.out.println("afterEnergy: " + afterEnergy/numMolecule);
-					
-				if(afterEnergy < initEnergy && afterEnergy<initLat){
+				
+				if(afterEnergy < initEnergy){
 					System.out.println("**************** LOWER ENERGY LATTICE STRUCTURE FOUND! *******************");
 					for(int i=0; i<parameter.length; i++){
 						System.out.print(parameters[i]+", ");
@@ -215,12 +216,6 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 			
 			++numIter;
 		}
-	
-//		for (int i=0; i<parameters.length;i++){
-//			System.out.println(parameters[i]);
-//		}
-//		System.out.println(getEnergy(parameters)/numMolecule);
-		//System.out.println("value: " + value + " ; latticeEnergy: " + latticeEnergy/numMolecule);
 		
 	}
 	
@@ -238,13 +233,11 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
        	
     	double value = min;
     	param[iVar] = value;
-    	
+
         while (true) {
         	
             latticeEnergy = getEnergy(param);
-            //System.out.println("<findOpt> ivar: "+iVar +" ; " +value+" ;lattice energy: " + latticeEnergy/numMolecule);
-			
-           // System.exit(1);
+
             if (bootstrap < 3) {
                 allValue[bootstrap] = value;
                 energy[bootstrap] = latticeEnergy;
@@ -380,7 +373,6 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
         }
     }
 	
-	
 	public double getLatticeEnergy(){
 		return latticeEnergy;
 	}
@@ -388,11 +380,11 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 	public static void main(String[] args){
 		
 		String filename = "/tmp/inputd0.02400";
-		double density = 0.02340;
-		int nCells = 8;
+		double density = 0.0230;
 		double scale = 0.001;
 		boolean reScale = true;
-		double reScaleValue = 0.0052;
+		double reScaleValue = 0.03;
+		double rC = 100;
 		
 	    if(args.length > 0){
 			filename = args[0];
@@ -401,13 +393,9 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 			density = Double.parseDouble(args[1]);
 		}
 		if(args.length > 2){
-			nCells = Integer.parseInt(args[2]);
-		}
-		if(args.length > 3){
 			scale = Double.parseDouble(args[3]);
 		}
         
-		int[] nC = new int[]{nCells,nCells,nCells};
 //		double[] parameters = new double[21];
 //		double[][] paramFromFile = ArrayReader1D.getFromFile(filename);
 //		for (int i=0; i<parameters.length;i++){
@@ -434,13 +422,25 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 //		
 //		System.exit(1);
 		//rho = 0.02300
-//		double[] parameters = new double[]{		
-//				//initial energy: -839945.2665296119
-//				0.008643467781612603, 0.0026271868875943002, 0.0019564392850298443, -0.005368542841198517, -0.01963128167700018, 
+		double[] parameters = new double[]{		
+				//initial energy: -839945.2665296119
+//				0.008643467781612603, 0.0026271868875943002+0.02, 0.0019564392850298443, -0.005368542841198517, -0.01963128167700018, 
 //				-0.007220434499475046, 7.968809489413192E-4, 0.0019507333095460664, 0.0052101555943571045, -0.019695510442517328, 
 //				-0.00718296472671309, 0.002634905247602907, 0.001963151739179857, -0.005024039971913238, -0.019828787213698948, 
 //				0.008622065304767177, 7.740172242212951E-4, 0.0019653547372104462, 0.005300512113324435, -0.019643975672095665
-//		};
+				
+//				0.008638157179678502, 0.0026096108999515712, 0.001965450797937235, -0.005199377307519452, -0.01949139253429572, 
+//				-0.00722492380384562, 7.955824100638133E-4, 0.001959658798801882, 0.005040994127700166, -0.019555913209941954, 
+//				-0.007187648130651289, 0.002616949038447896, 0.001971577869489544, -0.0048573388140697666, -0.019690309240519566, 
+//				0.008617185563945931, 7.729517745915459E-4, 0.001973779393155908, 0.005133992160722994, -0.01950522916318097, 
+//				5 10 lower lattice energy (sim unit): -828.8472214747077 rC = 50A
+				
+				0.008638117252648039, 0.0026098221638465213, 0.001965450797937235, -0.005199377307519452, -0.019493660807368918, 
+				-0.007224745508806694, 7.955824100638133E-4, 0.001959658798801882, 0.005040994127700166, -0.01955839055207974, 
+				-0.007187940376854142, 0.0026171774020743097, 0.001971577869489544, -0.004856835391208816, -0.019691546165277733, 
+				0.008617185563945931, 7.729517745915459E-4, 0.001973779393155908, 0.005133992160722994, -0.019506503805163895, 
+//				3 13 lower lattice energy (sim unit): -829.0483133532979
+		};
 		
 		//rho = 0.02320
 //		double[] parameters = new double[]{
@@ -452,14 +452,14 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 //		};
 		
 		//rho = 0.02340
-		double[] parameters = new double[]{
-				//initial energy: -836355.0136543293
-				0.0075027058787762516, 0.0033989513550305036, 4.8687083861097063E-4, -0.0036299483934711984, -0.01392707117422452, 
-				-0.006498710169229157, 0.00221226100907468, 4.811043882164454E-4, 0.003471764164319288, -0.013991813503532121, 
-				-0.0064612608166665095, 0.0034066524637804117, 4.934453566205766E-4, -0.0032860156263545826, -0.014124884852503673, 
-				0.007481336660995784, 0.002189447294110959, 4.956782260127964E-4, 0.0035610933667526786, -0.013940641137692313
-				
-		};
+//		double[] parameters = new double[]{
+//				//initial energy: -836355.0136543293
+//				0.0075027058787762516, 0.0033989513550305036, 4.8687083861097063E-4, -0.0036299483934711984, -0.01392707117422452, 
+//				-0.006498710169229157, 0.00221226100907468, 4.811043882164454E-4, 0.003471764164319288, -0.013991813503532121, 
+//				-0.0064612608166665095, 0.0034066524637804117, 4.934453566205766E-4, -0.0032860156263545826, -0.014124884852503673, 
+//				0.007481336660995784, 0.002189447294110959, 4.956782260127964E-4, 0.0035610933667526786, -0.013940641137692313
+//				
+//		};
 
 		//rho = 0.02360
 //		double[] parameters = new double[]{
@@ -527,16 +527,9 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 			}
 		}
 		
-//		double[] parameters = new double[]{1.631, 
-//				0.00, 0.00, 0.0, 0.0, 0.0, 
-//				0.00, 0.00, 0.0, 0.0, 0.0,  
-//				0.00, 0.00, 0.0, 0.0, 0.0, 
-//				0.00, 0.00, 0.0, 0.0, 0.0};
 		
+		MinimizeBetaNitrogenLatticeParameterLSFromFile func = new MinimizeBetaNitrogenLatticeParameterLSFromFile(Space.getInstance(3), density, parameters, rC);
 		
-		MinimizeBetaNitrogenLatticeParameterLSFromFile func = new MinimizeBetaNitrogenLatticeParameterLSFromFile(Space.getInstance(3), density, parameters);
-		System.out.println("initial energy: " + func.getEnergy(parameters));
-
 		func.doFindMinimum(valMin, valMax, parameters);
 
 		try {
@@ -560,24 +553,20 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 		}
 	}
 	
-	protected CoordinateDefinitionNitrogen coordinateDefinition;
-	protected PotentialMaster potentialMaster;
+	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected P2Nitrogen potential;
 	protected IBox box, ghostBox;
 	protected SpeciesN2 species;
 	protected double density;
+	protected Basis basis;
 	protected ISpace space;
 	protected Primitive primitive;
-	protected BasisBigCell basis;
-	protected Boundary boundary;
-	protected IVector[] boxDim; 
-	protected double aDim, cDim;
 	protected double [] parameters;  
 	protected int[] nC;
 	protected double[] energy;
 	protected double[] allValue;
+	protected int nLayer;
 	
-	protected double initLat, latticeEnergy;
-	protected int numMolecule;
+	protected double latticeEnergy;
 	private static final long serialVersionUID = 1L;
 }
