@@ -272,9 +272,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 				for (int iRow=0; iRow< array[0].length; iRow++){
 					for (int jCol=0; jCol< array[0][0].length; jCol++){
 						double value = array[i][iRow][jCol];
-							if(Math.abs(value) < 1e-6){
-								value = 0.0;
-							}
+//							if(Math.abs(value) < 1e-6){
+//								value = 0.0;
+//							}
 						System.out.print(value+ " ");
 					}
 					System.out.println("");
