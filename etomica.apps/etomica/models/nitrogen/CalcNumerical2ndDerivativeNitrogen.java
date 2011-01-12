@@ -1,12 +1,16 @@
 package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
+import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculePair;
+import etomica.space3d.Space3D;
 
 /**
  *  Determine the second derivative of the atomic/ molecular potential energy w.r.t. to
@@ -44,9 +48,14 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			potential.setEnablePBC(false);
 			potential.setRange(rC);
 		}
+		
 		translateBy = new AtomActionTranslateBy(coordinateDefinition.getPrimitive().getSpace());
         atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-		lsPosition = coordinateDefinition.getPrimitive().getSpace().makeVector();
+        atomActionTranslateTo = new MoleculeActionTranslateTo(coordinateDefinition.getPrimitive().getSpace());
+        
+		lsPosition = Space3D.makeVector(3);
+		selfMolecInitialPos = Space3D.makeVector(3);
+		destination = Space3D.makeVector(3);
         
         a = new double[ntab][ntab];
 		generalizedCoord = new double[2][5];
@@ -59,8 +68,9 @@ public class CalcNumerical2ndDerivativeNitrogen{
  	
 	public double f(int[] moleculei, double[][] newU) {
 		
+		double[] u = new double[5];
+		
 		if(moleculei[0] == moleculei[1]){
-			double[] u = new double[5];
 			for(int i=0; i<newU[0].length; i++){
 				u[i] += newU[0][i];
 				u[i] += newU[1][i];
@@ -74,7 +84,6 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		
 		double rX = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(0);
 		int nLayer = (int)(rC/rX + 0.5);
-		
 		MoleculePair pair = new MoleculePair();
 		double sum = 0.0;
 		
@@ -84,10 +93,36 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			int numMolecule = moleculeList.getMoleculeCount();
 			
 			pair.atom0 = moleculeList.getMolecule(moleculei[0]);
+			
+			IMolecule molecule1;
 			for (int i=0; i<numMolecule; i++){
-				if(i==moleculei[0]) continue; 
-				IMolecule molecule1 = moleculeList.getMolecule(i); 
-				pair.atom1 = molecule1;
+				
+				
+				if(i==moleculei[0]){
+					positionCOM = new AtomPositionGeometricCenter(Space3D.getInstance());
+					destination.E(positionCOM.position(pair.atom0));
+					
+					//THIS IS A HACK!
+					int molNum;
+					if((numMolecule-i)<5){
+						molNum = (i-4);
+					} else{
+						molNum = (i+4);
+					}
+
+					molecule1 = moleculeList.getMolecule(molNum);
+					selfMolecInitialPos.E(positionCOM.position(molecule1));
+					
+					atomActionTranslateTo.setDestination(destination);
+					atomActionTranslateTo.actionPerformed(molecule1); 
+					
+					coordinateDefinition.setToUMoleculei(molNum, u);
+					pair.atom1 = molecule1;
+					
+				} else {
+					molecule1 = moleculeList.getMolecule(i); 
+					pair.atom1 = molecule1;
+				}
 				
 				if(doLatticeSum){
 					for(int x=-nLayer; x<=nLayer; x++){
@@ -105,6 +140,24 @@ public class CalcNumerical2ndDerivativeNitrogen{
 								atomGroupActionTranslate.actionPerformed(molecule1);
 							}	
 						}	
+					}
+					
+					//PUTTING the HACK molecule back to its initial position
+					if(i==moleculei[0]){
+						int molNum;
+						if((numMolecule-i)<5){
+							molNum = (i-4);
+						} else{
+							molNum = (i+4);
+						}
+						
+						for(int y=0; y<u.length; y++){
+							u[y] = 0.0;
+						}
+						atomActionTranslateTo.setDestination(selfMolecInitialPos);
+						atomActionTranslateTo.actionPerformed(molecule1); 
+						
+						coordinateDefinition.setToUMoleculei(molNum, u);
 					}
 					
 				} else {
@@ -276,11 +329,13 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		this.fixedDeltaU = fixedDeltaU;
 	}
 
+	protected IAtomPositionDefinition positionCOM;
+	protected MoleculeActionTranslateTo atomActionTranslateTo;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition;
+	protected IVectorMutable lsPosition, selfMolecInitialPos, destination;
 	protected double errt, fac, xVecBox, yVecBox, zVecBox, rC;
 	protected double[] deltaU = new double[2];
 	protected double [][] a, generalizedCoord;
