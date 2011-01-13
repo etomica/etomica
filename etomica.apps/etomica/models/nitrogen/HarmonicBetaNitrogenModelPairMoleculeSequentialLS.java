@@ -140,10 +140,10 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
         atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
 		lsPosition = coordinateDef.getPrimitive().getSpace().makeVector();
         
-		xVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
-		yVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(1);
-		zVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(2); 
-		
+		xVecBox = Math.sqrt(box.getBoundary().getEdgeVector(0).squared());
+		yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
+		zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared());
+			
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
 		this.nLayer = (int)(rC/rX + 0.5);
 		
@@ -194,7 +194,9 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 				for(int x=-nLayer; x<=nLayer; x++){
 					for(int y=-nLayer; y<=nLayer; y++){
 						for(int z=-nLayer; z<=nLayer; z++){
-							lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
+							lsPosition.E(new double[]{x*xVecBox-y*yVecBox*Math.cos(Degree.UNIT.toSim(60)), 
+									 y*yVecBox*Math.sin(Degree.UNIT.toSim(60)), 
+									 z*zVecBox});
 							translateBy.setTranslationVector(lsPosition);
 							atomGroupActionTranslate.actionPerformed(molecule1);
 		
