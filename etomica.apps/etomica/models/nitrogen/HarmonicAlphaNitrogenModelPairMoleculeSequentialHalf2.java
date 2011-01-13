@@ -89,11 +89,6 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 		
 		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
-		
-		IntegratorMC integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(0.));
-		integrator.setBox(box);
-		activityIntegrate = new ActivityIntegrate(integrator);
-		getController().addAction(activityIntegrate);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
@@ -329,6 +324,5 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
 	protected FindPairMoleculeIndex findPair;
 	protected SpeciesN2 species;
-	protected ActivityIntegrate activityIntegrate;
 	private static final long serialVersionUID = 1L;
 }
