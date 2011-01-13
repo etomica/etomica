@@ -437,7 +437,17 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 		boundary.nearestImage(work);
 		shift.PE(work);
 	
-		final boolean zeroShift = shift.squared() < 0.1; 
+		final boolean zeroShift; 
+		
+		if(enablePBC){
+			shift.Ea1Tv1(-1,work);
+			boundary.nearestImage(work);
+			shift.PE(work);
+			zeroShift = shift.squared() < 0.1;
+		} else {
+			zeroShift = true;
+		}
+		
 		r2 = work.squared();
 	
 		gradient[0].E(0.0);
