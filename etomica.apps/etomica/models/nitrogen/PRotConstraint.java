@@ -24,7 +24,6 @@ public class PRotConstraint extends PotentialMolecular{
 		int numMolec = box.getMoleculeList().getMoleculeCount();
 		
 		molecOrientation = space.makeVector();
-		opMolecOrientation = space.makeVector();
 		initMolecOrientation = new IVectorMutable[numMolec][3];
 		/*
 		 * initializing the initial orientation of the molecule
@@ -49,25 +48,17 @@ public class PRotConstraint extends PotentialMolecular{
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
 		
-		opMolecOrientation.Ea1Tv1(-1, molecOrientation);
-		
 		double cosangle = molecOrientation.dot(initMolecOrientation[index][0]);
-		double opcosangle = opMolecOrientation.dot(initMolecOrientation[index][0]);
 		
-		if (cosangle > 1.0){
+		// to take care of machine precision issue
+		// if cosangle = 1.0000000008; just set it to 1.0
+		if (cosangle > 1.0 && cosangle < 1.0+1e-8){ 
 			cosangle = 1.0;
-		} else if(cosangle < -1.0){
-			cosangle = -1.0;
-		}
+		} 
 		
-		if (opcosangle > 1.0){
-			opcosangle = 1.0;
-		} else if(opcosangle < -1.0){
-			opcosangle = -1.0;
-		}
+		double angle = Math.acos(cosangle);
 		
-		if(cosangle >= Math.cos(Degree.UNIT.toSim(constraintAngle)) 
-				||opcosangle >= Math.cos(Degree.UNIT.toSim(constraintAngle))){
+		if(  Degree.UNIT.fromSim(angle)<= constraintAngle ){
 			return 0.0;
 		
 		} else {
@@ -92,7 +83,7 @@ public class PRotConstraint extends PotentialMolecular{
 	}
 
 	private IVectorMutable[][] initMolecOrientation;
-	private IVectorMutable molecOrientation, opMolecOrientation;
+	private IVectorMutable molecOrientation;
 	private IBox box;
 	protected double constraintAngle = 90.0; //in degree
 	protected int counter=0;
