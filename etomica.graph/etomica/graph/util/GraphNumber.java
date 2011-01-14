@@ -15,6 +15,11 @@ public class GraphNumber {
       System.exit(1);
     }
     long graphNum = Integer.parseInt(args[0]);
+    Graph g = makeGraph(graphNum);
+    System.out.println(g.nodeCount()+" "+g.edgesToString());
+  }
+
+  public static Graph makeGraph(long graphNum) {
     int numBits = 64-Long.numberOfLeadingZeros(graphNum);
     byte nodeCount = 1;
     boolean success = false;
@@ -34,7 +39,6 @@ public class GraphNumber {
     }
     bitmapString += Long.toBinaryString(graphNum);
     Bitmap bitmap = BitmapFactory.createBitmap(bitmapString);
-    Graph graph = GraphFactory.createGraph(nodeCount, bitmap);
-    System.out.println(nodeCount+" "+graph.edgesToString());
+    return GraphFactory.createGraph(nodeCount, bitmap);
   }
 }
