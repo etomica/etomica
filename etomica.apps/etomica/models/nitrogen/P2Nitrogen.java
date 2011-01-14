@@ -8,8 +8,8 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.types.DataTensor;
+import etomica.potential.IPotentialMolecularTorque;
 import etomica.potential.PotentialMolecular;
-import etomica.potential.PotentialMolecularSoft;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Tensor3D;
@@ -23,7 +23,7 @@ import etomica.units.Kelvin;
  * 
  * @author Tai Boon Tan
  */
-public class P2Nitrogen extends PotentialMolecular implements PotentialMolecularSoft{
+public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecularTorque {
 
 	public P2Nitrogen(ISpace space, double rC) {
 		super(2, space);
@@ -31,8 +31,20 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 		gradient = new IVectorMutable[2];
 		gradient[0] = space.makeVector();
 		gradient[1] = space.makeVector();
-		
+
+		torque = new IVectorMutable[2];
+	    torque[0] = space.makeVector();
+	    torque[1] = space.makeVector();
+
+	    gradientAndTorque = new IVectorMutable[2][2];
+	    gradientAndTorque[0] = gradient;
+	    gradientAndTorque[1] = torque;
+
 		work = space.makeVector();
+        duWork = space.makeVector();
+        tWork = space.makeVector();
+        dr1 = space.makeVector();
+        dr2 = space.makeVector();
 		shift = space.makeVector();
 		com1 = space.makeVector();
 		com2 = space.makeVector();
@@ -407,58 +419,64 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 
 
 	public IVector[] gradient(IMoleculeList pair) {
-		
-		IMolecule nitrogena = pair.getMolecule(0);
-		IMolecule nitrogenb = pair.getMolecule(1);
-		
-		// to compute the midpoint distance between the two
-		IVectorMutable pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
-		IVectorMutable pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
-		
-		com1.E(pos1);
-		com2.E(pos2);
-		
-		IVectorMutable diff1 = space.makeVector();
-		IVectorMutable diff2 = space.makeVector();
-		
-		diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
-		diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
-					
-		com1.PEa1Tv1(-0.5, diff1); 		
-		com2.PEa1Tv1(-0.5, diff2);
-		
-	    /*
+	    return gradientAndTorque(pair)[0];
+	}
+
+    public IVector[][] gradientAndTorque(IMoleculeList pair) {
+        IMolecule nitrogena = pair.getMolecule(0);
+        IMolecule nitrogenb = pair.getMolecule(1);
+
+        // to compute the midpoint distance between the two
+        IVectorMutable pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
+        IVectorMutable pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
+
+        com1.E(pos1);
+        com2.E(pos2);
+
+        IVectorMutable diff1 = space.makeVector();
+        IVectorMutable diff2 = space.makeVector();
+
+        diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
+        diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
+
+        com1.PEa1Tv1(-0.5, diff1);      
+        com2.PEa1Tv1(-0.5, diff2);
+
+        /*
          *  to check for the nearest image
          *  if it is not nearest image, zeroShift will return 0.0
          */
-		
-		work.Ev1Mv2(com1, com2);
-		shift.Ea1Tv1(-1,work);
-		boundary.nearestImage(work);
-		shift.PE(work);
-	
-		final boolean zeroShift; 
-		
-		if(enablePBC){
-			zeroShift = shift.squared() < 0.1;
-		} else {
-			zeroShift = true;
-		}
-		
-		r2 = work.squared();
-	
-		gradient[0].E(0.0);
-		gradient[1].E(0.0);
-		
-		if (r2 > rC*rC){ 
-			//System.out.println("TRUNCATED!!!");
-			return gradient;
-		}
-		/*
-		 * for the point/ atomic assignment
-		 * refer to SpeciesN2.java class
-		 * 
-		 */
+        
+        work.Ev1Mv2(com1, com2);
+        shift.Ea1Tv1(-1,work);
+        boundary.nearestImage(work);
+        shift.PE(work);
+
+        final boolean zeroShift;
+
+        if(enablePBC){
+            zeroShift = shift.squared() < 0.1;
+        } else {
+            zeroShift = true;
+        }
+
+        r2 = work.squared();
+
+        gradient[0].E(0.0);
+        gradient[1].E(0.0);
+
+        torque[0].E(0);
+        torque[1].E(0);
+
+        if (r2 > rC*rC){ 
+            //System.out.println("TRUNCATED!!!");
+            return gradientAndTorque;
+        }
+        /*
+         * for the point/ atomic assignment
+         * refer to SpeciesN2.java class
+         * 
+         */
         IVectorMutable Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
         IVectorMutable Pa2l = nitrogena.getChildList().getAtom(3).getPosition();                                                                        
         IVectorMutable Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
@@ -470,274 +488,154 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
         IVectorMutable Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
         
         if (zeroShift) {
-    		/*
-    		 * 'for' loop for 4 pairs van der Waals interaction between the 
-    		 * 	non-bonded atoms between the 2 molecules 
-    		 */
-    		
-    		for (int i=0; i<2; i++){
-    			for (int j=0; j<2; j++){
-    				work.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), nitrogenb.getChildList().getAtom(j).getPosition());
-    				r2 = work.squared();
-    				
-    				if(Math.sqrt(r2) >= R1){            // R >= R1
-    					gradient[0].PEa1Tv1(dURgtR1(r2)/r2, work);
-    				
-    				} else if (Math.sqrt(r2) < R1 && Math.sqrt(r2) >= R0){  // R1 > R >= R0
-    					gradient[0].PEa1Tv1(dUR1gtRgteqR0(r2)/r2, work);
-    					
-    				} else if (Math.sqrt(r2) < R0){   	// R < R0
-    					gradient[0].PEa1Tv1(dURltR0(r2)/r2, work);
-    					
-    				}
-    			}
-    			
-    		}
-    		        	
-        	//Pa1l
-            work.Ev1Mv2(Pa1l, Pb1l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
+            /*
+             * 'for' loop for 4 pairs van der Waals interaction between the 
+             *  non-bonded atoms between the 2 molecules 
+             */
             
-            work.Ev1Mv2(Pa1l, Pb2l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa1l, Pb2r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa1l, Pb1r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
-        
-            //Pa2l
-            work.Ev1Mv2(Pa2l, Pb1l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa2l, Pb2l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa2l, Pb2r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa2l, Pb1r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-       
-            //Pa2r
-            work.Ev1Mv2(Pa2r, Pb1l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa2r, Pb2l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa2r, Pb2r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa2r, Pb1r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-       
-            //Pa1r
-            work.Ev1Mv2(Pa1r, Pb1l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa1r, Pb2l);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa1r, Pb2r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-            
-            work.Ev1Mv2(Pa1r, Pb1r);
-            r2 = work.squared();
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
+            for (int i=0; i<2; i++){
+                dr1.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), com1);
+                for (int j=0; j<2; j++){
+                    work.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), nitrogenb.getChildList().getAtom(j).getPosition());
+                    dr2.Ev1Mv2(nitrogenb.getChildList().getAtom(j).getPosition(), com2);
+                    r2 = work.squared();
                     
-        } 
-        
+                    if(Math.sqrt(r2) >= R1){            // R >= R1
+                        duWork.Ea1Tv1(dURgtR1(r2)/r2, work);
+                    } else if (Math.sqrt(r2) < R1 && Math.sqrt(r2) >= R0){  // R1 > R >= R0
+                        duWork.Ea1Tv1(dUR1gtRgteqR0(r2)/r2, work);
+                    } else if (Math.sqrt(r2) < R0){     // R < R0
+                        duWork.Ea1Tv1(dURltR0(r2)/r2, work);
+                    }
+                    gradient[0].PE(duWork);
+                    tWork.E(dr1);
+                    tWork.XE(duWork);
+                    torque[0].ME(tWork);
+                    tWork.E(dr2);
+                    tWork.XE(duWork);
+                    torque[1].PE(tWork);
+                }
+            }
+                        
+            doGradientNoShift(Pa1l, Pb1l, chargeP1P1);
+            doGradientNoShift(Pa2l, Pb1l, chargeP1P2);
+            doGradientNoShift(Pa2r, Pb1l, chargeP1P2);
+            doGradientNoShift(Pa1r, Pb1l, chargeP1P1);
+            
+            doGradientNoShift(Pa1l, Pb2l, chargeP1P2);
+            doGradientNoShift(Pa2l, Pb2l, chargeP2P2);
+            doGradientNoShift(Pa2r, Pb2l, chargeP2P2);
+            doGradientNoShift(Pa1r, Pb2l, chargeP1P2);
+            
+            doGradientNoShift(Pa1l, Pb2r, chargeP1P2);
+            doGradientNoShift(Pa2l, Pb2r, chargeP2P2);
+            doGradientNoShift(Pa2r, Pb2r, chargeP2P2);
+            doGradientNoShift(Pa1r, Pb2r, chargeP1P2);
+
+            doGradientNoShift(Pa1l, Pb1r, chargeP1P1);
+            doGradientNoShift(Pa2l, Pb1r, chargeP1P2);
+            doGradientNoShift(Pa2r, Pb1r, chargeP1P2);
+            doGradientNoShift(Pa1r, Pb1r, chargeP1P1);
+        }
         else {
-        	
-    		/*
-    		 * 'for' loop for 4 pairs van der Waals interaction between the 
-    		 * 	non-bonded atoms between the 2 molecules 
-    		 * 
-    		 * 
-    		 */
-        	
-    		for (int i=0; i<2; i++){
-    			IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
-    			shift.TE(-1.0);
-    			shift.PE(dist);
-    			
-    			for (int j=0; j<2; j++){
-    				
-    				work.Ev1Mv2(nitrogena.getChildList().getAtom(j).getPosition(), shift);
-    				r2 = work.squared();
-    				
-    				if(Math.sqrt(r2) >= R1){            // R >= R1
-    					gradient[0].PEa1Tv1(dURgtR1(r2)/r2, work);
-    				
-    				} else if (Math.sqrt(r2) < R1 && Math.sqrt(r2) >= R0){  // R1 > R >= R0
-    					gradient[0].PEa1Tv1(dUR1gtRgteqR0(r2)/r2, work);
-    					
-    				} else if (Math.sqrt(r2) < R0){   	// R < R0
-    					gradient[0].PEa1Tv1(dURltR0(r2)/r2, work);
-    					
-    				}
-    			}
-    			shift.ME(dist);
-    			shift.TE(-1.0);
-    			
-    		}
-    		
-        	shift.TE(-1.0);
-        	shift.PE(Pb1l);
-            work.Ev1Mv2(Pa1l, shift);
-            r2 = work.squared();
-            shift.ME(Pb1l);
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb1l);      
-            work.Ev1Mv2(Pa2l, shift);
-            r2 = work.squared();
-            shift.ME(Pb1l);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb1l);
-            work.Ev1Mv2(Pa2r, shift);
-            r2 = work.squared();
-            shift.ME(Pb1l);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb1l);
-            work.Ev1Mv2(Pa1r, shift);
-            r2 = work.squared();
-            shift.ME(Pb1l);
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
             
-            ////////////
-        	shift.TE(-1.0);
-            shift.PE(Pb2l);
-            work.Ev1Mv2(Pa1l, shift);
-            r2 = work.squared();
-            shift.ME(Pb2l);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb2l);
-            work.Ev1Mv2(Pa2l, shift);
-            r2 = work.squared();
-            shift.ME(Pb2l);
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb2l);
-            work.Ev1Mv2(Pa2r, shift);
-            r2 = work.squared();
-            shift.ME(Pb2l);
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
+            /*
+             * 'for' loop for 4 pairs van der Waals interaction between the 
+             *  non-bonded atoms between the 2 molecules 
+             * 
+             * 
+             */
             
-
-        	shift.TE(-1.0);
-            shift.PE(Pb2l);
-            work.Ev1Mv2(Pa1r, shift);
-            r2 = work.squared();
-            shift.ME(Pb2l);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
+            for (int i=0; i<2; i++){
+                dr2.Ev1Mv2(nitrogenb.getChildList().getAtom(i).getPosition(), com2);
+                IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+                shift.TE(-1.0);
+                shift.PE(dist);
+                
+                for (int j=0; j<2; j++){
+                    dr1.Ev1Mv2(nitrogena.getChildList().getAtom(j).getPosition(), com1);
+                    work.Ev1Mv2(nitrogena.getChildList().getAtom(j).getPosition(), shift);
+                    r2 = work.squared();
+                    
+                    if(Math.sqrt(r2) >= R1){            // R >= R1
+                        duWork.Ea1Tv1(dURgtR1(r2)/r2, work);
+                    } else if (Math.sqrt(r2) < R1 && Math.sqrt(r2) >= R0){  // R1 > R >= R0
+                        duWork.Ea1Tv1(dUR1gtRgteqR0(r2)/r2, work);
+                    } else if (Math.sqrt(r2) < R0){     // R < R0
+                        duWork.Ea1Tv1(dURltR0(r2)/r2, work);
+                    }
+                    
+                    gradient[0].PE(duWork);
+                    tWork.E(dr1);
+                    tWork.XE(duWork);
+                    torque[0].ME(tWork);
+                    tWork.E(dr2);
+                    tWork.XE(duWork);
+                    torque[1].PE(tWork);
+                }
+                shift.ME(dist);
+                shift.TE(-1.0);
+            }
             
+            doGradientShift(Pa1l, Pb1l, chargeP1P1);
+            doGradientShift(Pa2l, Pb1l, chargeP1P2);
+            doGradientShift(Pa2r, Pb1l, chargeP1P2);
+            doGradientShift(Pa1r, Pb1l, chargeP1P1);
             
-            //////////////////////
-        	shift.TE(-1.0);
-            shift.PE(Pb2r);
-            work.Ev1Mv2(Pa1l, shift);
-            r2 = work.squared();
-            shift.ME(Pb2r);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb2r);
-            work.Ev1Mv2(Pa2l, shift);
-            r2 = work.squared();
-            shift.ME(Pb2r);
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb2r);
-            work.Ev1Mv2(Pa2r, shift);
-            r2 = work.squared();
-            shift.ME(Pb2r);
-            gradient[0].PEa1Tv1(-chargeP2P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb2r);
-            work.Ev1Mv2(Pa1r, shift);
-            r2 = work.squared();
-            shift.ME(Pb2r);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
+            doGradientShift(Pa1l, Pb2l, chargeP1P2);
+            doGradientShift(Pa2l, Pb2l, chargeP2P2);
+            doGradientShift(Pa2r, Pb2l, chargeP2P2);
+            doGradientShift(Pa1r, Pb2l, chargeP1P2);
             
-            /////////////
-        	shift.TE(-1.0);
-            shift.PE(Pb1r);
-            work.Ev1Mv2(Pa1l, shift);
-            r2 = work.squared();
-            shift.ME(Pb1r);
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
+            doGradientShift(Pa1l, Pb2r, chargeP1P2);
+            doGradientShift(Pa2l, Pb2r, chargeP2P2);
+            doGradientShift(Pa2r, Pb2r, chargeP2P2);
+            doGradientShift(Pa1r, Pb2r, chargeP1P2);
 
-        	shift.TE(-1.0);
-            shift.PE(Pb1r);
-            work.Ev1Mv2(Pa2l, shift);
-            r2 = work.squared();
-            shift.ME(Pb1r);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb1r);
-            work.Ev1Mv2(Pa2r, shift);
-            r2 = work.squared();
-            shift.ME(Pb1r);
-            gradient[0].PEa1Tv1(-chargeP1P2/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-
-        	shift.TE(-1.0);
-            shift.PE(Pb1r);
-            work.Ev1Mv2(Pa1r, shift);
-            r2 = work.squared();
-            shift.ME(Pb1r);
-            gradient[0].PEa1Tv1(-chargeP1P1/(r2*Math.sqrt(r2)), work);
-        	shift.TE(-1.0);
-            
+            doGradientShift(Pa1l, Pb1r, chargeP1P1);
+            doGradientShift(Pa2l, Pb1r, chargeP1P2);
+            doGradientShift(Pa2r, Pb1r, chargeP1P2);
+            doGradientShift(Pa1r, Pb1r, chargeP1P1);
         }
         
         gradient[1].Ea1Tv1(-1, gradient[0]);
       
-		return gradient;
-	}
+        return gradientAndTorque;
+    }
+
+    protected void doGradientShift(IVector v1, IVector v2, double cc) {
+        shift.TE(-1.0);
+        shift.PE(v2);
+        work.Ev1Mv2(v1, shift);
+        r2 = work.squared();
+        shift.ME(v2);
+        duWork.Ea1Tv1(-cc/(r2*Math.sqrt(r2)), work);
+        gradient[0].PE(duWork);
+        dr1.Ev1Mv2(v1, com1);
+        tWork.E(dr1);
+        tWork.XE(duWork);
+        torque[0].ME(tWork);
+        dr2.Ev1Mv2(v2, com2);
+        tWork.E(dr2);
+        tWork.XE(duWork);
+        torque[1].PE(tWork);
+        shift.TE(-1.0);
+    }
+
+    protected void doGradientNoShift(IVector v1, IVector v2, double cc) {
+        work.Ev1Mv2(v1, v2);
+        r2 = work.squared();
+        duWork.Ea1Tv1(-cc/(r2*Math.sqrt(r2)), work);
+        gradient[0].PE(duWork);
+        dr1.Ev1Mv2(v2, com1);
+        tWork.E(dr1);
+        tWork.XE(duWork);
+        torque[0].ME(tWork);
+        dr2.Ev1Mv2(v2, com2);
+        tWork.E(dr2);
+        tWork.XE(duWork);
+        torque[1].PE(tWork);
+    }
 
     public DataTensor secondDerivative(IMoleculeList pair){
     	
@@ -1222,7 +1120,6 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
         return sumTensor;																					        
 	}
 	
-	
 	public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
 		// TODO Auto-generated method stub
 		return null;
@@ -1321,7 +1218,9 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
     
     private static final long serialVersionUID = 1L;
     
-    protected IVectorMutable[] gradient;
+    protected final IVectorMutable[] gradient;
+    protected final IVectorMutable[] torque;
+    protected final IVectorMutable[][] gradientAndTorque;
 	protected IBoundary boundary;
 	protected final double chargeP1 = ConformationNitrogen.Echarge[SpeciesN2.indexP1left];
 	protected final double chargeP2 = ConformationNitrogen.Echarge[SpeciesN2.indexP2left];
@@ -1338,7 +1237,7 @@ public class P2Nitrogen extends PotentialMolecular implements PotentialMolecular
 	
 	protected double[] C;
 	
-	protected final IVectorMutable work, shift;
+	protected final IVectorMutable work, shift, duWork, tWork, dr1, dr2;
 	protected final IVectorMutable com1, com2, vectorR;
 	protected double rC, r2;
 	protected boolean enablePBC = true;
