@@ -120,7 +120,8 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 					for(int i=0; i<dofPerMol; i++){
 						for(int j=0; j<dofPerMol; j++){
 							if(i<3 && j<3) continue;
-							array[molec0*dofPerMol + i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{i,j});
+							// j i because it got switched molecule A and molecule B
+							array[molec0*dofPerMol + i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
 							pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[molec0*dofPerMol + i][molec1*dofPerMol + j];
 						}
 					}
@@ -219,7 +220,8 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 				for(int i=0; i<dofPerMol; i++){
 					for(int j=0; j<dofPerMol; j++){
 						if(i<3 && j<3) continue;
-						array[molec0*dofPerMol + i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,j});
+						// j i because it got switched molecule A and molecule B
+						array[molec0*dofPerMol + i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec0}, new int[]{j,i});
 						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[molec0*dofPerMol + i][molec0*dofPerMol + j];
 					}    		
 	    		}

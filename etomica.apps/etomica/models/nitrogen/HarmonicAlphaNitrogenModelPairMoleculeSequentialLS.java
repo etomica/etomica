@@ -99,6 +99,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
 		this.nLayer = (int)(rC/rX + 0.5);
 		
+		System.out.println("rX: " + rX);
 		System.out.println("nLayer: " + nLayer);
 	}
 	
@@ -178,7 +179,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 				for(int i=0; i<dofPerMol; i++){
 					for(int j=0; j<dofPerMol; j++){
 						if(i<3 && j<3) continue;
-						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{i,j});
+						// j i because it got switched molecule A and molecule B
+						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
 						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
 					}
 				}
@@ -274,7 +276,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 			for(int i=0; i<dofPerMol; i++){
 				for(int j=0; j<dofPerMol; j++){
 					if(i<3 && j<3) continue;
-					array[i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,j});
+					// j i because it got switched molecule A and molecule B
+					array[i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec0}, new int[]{j,i});
 					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec0*dofPerMol + j];
 				}    		
 	    	}
@@ -375,7 +378,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 
 		long startTime = System.currentTimeMillis();
 	
-		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"_newLS");
+		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"rC"+rC+"_newLS");
 		
 		test.constructHessianMatrix(fname, nC);
 		//test.constructHessianMatrix(nC);
