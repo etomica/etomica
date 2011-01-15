@@ -118,9 +118,24 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
                 }	
            	}
             
-            coordinateDefinition.setToU(pretendMolecules, newU);
-            otherEnergy = meterPotential.getDataAsScalar();
-                        
+          	boolean notOverScale = true;
+          	for(int iU=0; iU<newU.length; iU+=5){
+          		double u3 = newU[iU+3];
+          		double u4 = newU[iU+4];
+          		double check = u3*u3 + u4*u4;
+          		
+          		if((Math.abs(u3) > (Math.sqrt(2)) || Math.abs(u4) > (Math.sqrt(2))) 
+	        			&& (check > 4.0)){
+          			otherEnergy = Double.POSITIVE_INFINITY;
+          			notOverScale = false;
+          			break;
+          		}
+          	}
+          	
+          	if(notOverScale){
+          		coordinateDefinition.setToU(pretendMolecules, newU);
+            	otherEnergy = meterPotential.getDataAsScalar();
+          	}       
             double ai = (otherEnergy-latticeEnergy)/Kelvin.UNIT.toSim(otherTemperatures[i]);
             //System.out.println("ai-a0: " + ai + " " + a0 + " "+ (ai-a0));
             
