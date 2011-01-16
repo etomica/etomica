@@ -51,6 +51,15 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
 	    for(int i=0; i<workVec.length; i++){
 	    	workVec[i] = space.makeVector();
 	    }
+	    
+	    workTorqVec = new IVectorMutable[3];
+	    for(int i=0; i<workTorqVec.length; i++){
+	    	workTorqVec[i] = space.makeVector();
+	    }
+	    
+	    workdTorq = new double[3][3];
+	    q = new double[3][3];
+	    
 	    tensorWork = new DataTensor(space);
 	    
 		work = space.makeVector();
@@ -190,7 +199,6 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     					
     				}
     			}
-    			
     		}
     		        	
         	//Pa1l
@@ -527,6 +535,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
                     tWork.E(dr2);
                     tWork.XE(duWork);
                     torque[1].PE(tWork);
+                    
                 }
             }
                         
@@ -751,7 +760,6 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     					sumTensor.PE(tensor);
     				}
     			}
-    			
     		}
     		        	
         	//Pa1l
@@ -1228,55 +1236,29 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     				if(Math.sqrt(distr2) >= R1){            // R >= R1
     					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
     					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
-    					
-    					for(int iloop=0; iloop<3; iloop++){
-    						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
-    												  tensor.x.component(iloop, 1), 
-    								                  tensor.x.component(iloop, 2)});
-    						workVec[1].Ea1Tv1(-1,workVec[0]);
-    						workVec[0].XE(dr1);
-    						workVec[1].XE(dr2);
-    						
-    						secDerXr[0][iloop].PE(workVec[0]);
-    						secDerXr[1][iloop].PE(workVec[1]);
-    					}
-    					
-    					
+    				    					
     				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
     					tensor.TE(1.0/(distr2*distr2)*(dUR1gtRgteqR0(distr2) - d2UR1gtRgteqR0(distr2)));
     					tensor.x.PEa1Tt1(-dUR1gtRgteqR0(distr2)/distr2, identity);
-    					
-    					for(int iloop=0; iloop<3; iloop++){
-    						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
-    												  tensor.x.component(iloop, 1), 
-    								                  tensor.x.component(iloop, 2)});
-    						workVec[1].Ea1Tv1(-1,workVec[0]);
-    						workVec[0].XE(dr1);
-    						workVec[1].XE(dr2);
-    						
-    						secDerXr[0][iloop].PE(workVec[0]);
-    						secDerXr[1][iloop].PE(workVec[1]);
-    					}
-    					
+    					    					
     				} else if (Math.sqrt(distr2) < R0){   	// R < R0
     					tensor.TE(1.0/(distr2*distr2)*(dURltR0(distr2) - d2URltR0(distr2)));
     					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
     					
-    					for(int iloop=0; iloop<3; iloop++){
-    						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
-    												  tensor.x.component(iloop, 1), 
-    								                  tensor.x.component(iloop, 2)});
-    						workVec[1].Ea1Tv1(-1,workVec[0]);
-    						workVec[0].XE(dr1);
-    						workVec[1].XE(dr2);
-    						
-    						secDerXr[0][iloop].PE(workVec[0]);
-    						secDerXr[1][iloop].PE(workVec[1]);
-    					}
-    					
     				}
+    				
+    				for(int iloop=0; iloop<3; iloop++){
+						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
+												  tensor.x.component(iloop, 1), 
+								                  tensor.x.component(iloop, 2)});
+						workVec[1].E(workVec[0]);
+						workVec[0].XE(dr1);
+						workVec[1].XE(dr2);
+						
+						secDerXr[0][iloop].PE(workVec[0]);
+						secDerXr[1][iloop].PE(workVec[1]);
+					}
     			}
-    			
     		}
     		        	
         	//Pa1l
@@ -1331,55 +1313,28 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     				if(Math.sqrt(distr2) >= R1){            // R >= R1
     					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
     					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
-    					
-    					for(int iloop=0; iloop<3; iloop++){
-    						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
-    												  tensor.x.component(iloop, 1), 
-    								                  tensor.x.component(iloop, 2)});
-    						workVec[1].Ea1Tv1(-1,workVec[0]);
-    						workVec[0].XE(dr1);
-    						workVec[1].XE(dr2);
-    						
-    						secDerXr[0][iloop].PE(workVec[0]);
-    						secDerXr[1][iloop].PE(workVec[1]);
-    					}
-    					
     				
     				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
     					tensor.TE(1.0/(distr2*distr2)*(dUR1gtRgteqR0(distr2) - d2UR1gtRgteqR0(distr2)));
     					tensor.x.PEa1Tt1(-dUR1gtRgteqR0(distr2)/distr2, identity);
     					
-    					for(int iloop=0; iloop<3; iloop++){
-    						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
-    												  tensor.x.component(iloop, 1), 
-    								                  tensor.x.component(iloop, 2)});
-    						workVec[1].Ea1Tv1(-1,workVec[0]);
-    						workVec[0].XE(dr1);
-    						workVec[1].XE(dr2);
-    						
-    						secDerXr[0][iloop].PE(workVec[0]);
-    						secDerXr[1][iloop].PE(workVec[1]);
-    					}
-    					
-    					
     				} else if (Math.sqrt(distr2) < R0){   	// R < R0
     					tensor.TE(1.0/(distr2*distr2)*(dURltR0(distr2) - d2URltR0(distr2)));
     					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
     					
-    					for(int iloop=0; iloop<3; iloop++){
-    						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
-    												  tensor.x.component(iloop, 1), 
-    								                  tensor.x.component(iloop, 2)});
-    						workVec[1].Ea1Tv1(-1,workVec[0]);
-    						workVec[0].XE(dr1);
-    						workVec[1].XE(dr2);
-    						
-    						secDerXr[0][iloop].PE(workVec[0]);
-    						secDerXr[1][iloop].PE(workVec[1]);
-    					}
-    					
     				}
-    				    				
+    				
+    				for(int iloop=0; iloop<3; iloop++){
+						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
+												  tensor.x.component(iloop, 1), 
+								                  tensor.x.component(iloop, 2)});
+						workVec[1].E(workVec[0]);
+						workVec[0].XE(dr1);
+						workVec[1].XE(dr2);
+						
+						secDerXr[0][iloop].PE(workVec[0]);
+						secDerXr[1][iloop].PE(workVec[1]);
+					}				
     			}
     			shift.ME(dist);
     			shift.TE(-1.0);
@@ -1428,7 +1383,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
 			workVec[0].E(new double[]{tensorWork.x.component(iloop, 0),
 									  tensorWork.x.component(iloop, 1), 
 					                  tensorWork.x.component(iloop, 2)});
-			workVec[1].Ea1Tv1(-1,workVec[0]);
+			workVec[1].E(workVec[0]);
 			workVec[0].XE(dr1);
 			workVec[1].XE(dr2);
 			
@@ -1458,7 +1413,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
 			workVec[0].E(new double[]{tensorWork.x.component(iloop, 0),
 									  tensorWork.x.component(iloop, 1), 
 					                  tensorWork.x.component(iloop, 2)});
-			workVec[1].Ea1Tv1(-1,workVec[0]);
+			workVec[1].E(workVec[0]);
 			workVec[0].XE(dr1);
 			workVec[1].XE(dr2);
 			
@@ -1469,6 +1424,347 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     }
     
     
+    public Tensor secondDerivativeXrRotRot(IMoleculeList pair){
+    	
+    	DataTensor tensor = new DataTensor(space);
+    	Tensor tensorq = space.makeTensor(); 
+    	
+    	//  secDerXr[0] returns quantity for (molA - molB)
+    	//  secDerXr[1] returns quantity for (molB - molA)
+    	for(int i=0; i<secDerXr.length; i++){
+  	    	for(int j=0; j<secDerXr[0].length; j++){
+  		    	secDerXr[i][j].E(0.0);
+  		    }	
+  	    }
+    	
+    	for(int i=0; i<q.length; i++){
+  	    	for(int j=0; j<q[0].length; j++){
+  		    	q[i][j] = 0.0;
+  		    }	
+  	    }
+    	
+		double r2 = 0.0;
+
+		IMolecule nitrogena = pair.getMolecule(0);
+		IMolecule nitrogenb = pair.getMolecule(1);
+		
+		// to compute the midpoint distance between the two
+		IVectorMutable pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
+		IVectorMutable pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
+		
+		com1.E(pos1);
+		com2.E(pos2);
+		
+		IVectorMutable diff1 = space.makeVector();
+		IVectorMutable diff2 = space.makeVector();
+		
+		diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
+		diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
+					
+		com1.PEa1Tv1(-0.5, diff1); 		
+		com2.PEa1Tv1(-0.5, diff2);
+		
+	    /*
+         *  to check for the nearest image
+         *  if it is not nearest image, zeroShift will return 0.0
+         */
+		
+		work.Ev1Mv2(com1, com2);
+		shift.Ea1Tv1(-1,work);
+		boundary.nearestImage(work);
+		shift.PE(work);
+
+		final boolean zeroShift;
+		
+		if(enablePBC){
+			zeroShift = shift.squared() < 0.1;
+		} else {
+			zeroShift = true;
+		}
+		
+		r2 = work.squared();
+		
+		if (r2 > rC*rC){ 
+			return tensorq;
+		}
+		
+		/*
+		 * for the point/ atomic assignment
+		 * refer to SpeciesN2.java class
+		 * 
+		 */
+        IVectorMutable Pa1l = nitrogena.getChildList().getAtom(2).getPosition();
+        IVectorMutable Pa2l = nitrogena.getChildList().getAtom(3).getPosition();                                                                        
+        IVectorMutable Pa1r = nitrogena.getChildList().getAtom(4).getPosition();
+        IVectorMutable Pa2r = nitrogena.getChildList().getAtom(5).getPosition();
+        
+        IVectorMutable Pb1l = nitrogenb.getChildList().getAtom(2).getPosition();
+        IVectorMutable Pb2l = nitrogenb.getChildList().getAtom(3).getPosition();
+        IVectorMutable Pb1r = nitrogenb.getChildList().getAtom(4).getPosition();
+        IVectorMutable Pb2r = nitrogenb.getChildList().getAtom(5).getPosition();
+        
+        double r2QQ = 0*2.25;
+        
+        if (zeroShift) {
+    		/*
+    		 * 'for' loop for 4 pairs van der Waals interaction between the 
+    		 * 	non-bonded atoms between the 2 molecules 
+    		 */
+    		
+    		for (int i=0; i<2; i++){
+    			dr1.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), com1);
+    			
+    			for(int iTorq=0; iTorq<3; iTorq++){ //iTorq = row
+    	  	    	for(int jTorq=0; jTorq<3; jTorq++){ //jTorq = column
+    	  		    	workdTorq[iTorq][jTorq] = 0.0;
+    	  		    }	
+    	  	    }
+    			
+    			for (int j=0; j<2; j++){
+    				
+    				vectorR.Ev1Mv2((nitrogena.getChildList().getAtom(i)).getPosition(), (nitrogenb.getChildList().getAtom(j)).getPosition());
+    				dr2.Ev1Mv2(nitrogenb.getChildList().getAtom(j).getPosition(), com2);
+    				
+    				double distr2 = vectorR.squared();
+    				tensor.x.Ev1v2(vectorR, vectorR);
+    				
+    				if(Math.sqrt(distr2) >= R1){            // R >= R1
+    					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
+    					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
+    				    					
+    				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
+    					tensor.TE(1.0/(distr2*distr2)*(dUR1gtRgteqR0(distr2) - d2UR1gtRgteqR0(distr2)));
+    					tensor.x.PEa1Tt1(-dUR1gtRgteqR0(distr2)/distr2, identity);
+    					    					
+    				} else if (Math.sqrt(distr2) < R0){   	// R < R0
+    					tensor.TE(1.0/(distr2*distr2)*(dURltR0(distr2) - d2URltR0(distr2)));
+    					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
+    					
+    				}
+    				
+    				for(int iloop=0; iloop<3; iloop++){
+						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
+												  tensor.x.component(iloop, 1), 
+								                  tensor.x.component(iloop, 2)});
+						workVec[1].E(workVec[0]);
+						//workVec[0].XE(dr1);
+						workVec[1].XE(dr2);
+						
+						workdTorq[0][iloop] += workVec[1].getX(0);
+						workdTorq[1][iloop] += workVec[1].getX(1);
+						workdTorq[2][iloop] += workVec[1].getX(2);
+						
+					}
+    				
+    			}
+    			
+    			for(int iq=0; iq<3; iq++){	
+    				tWork.E(workdTorq[iq]);
+	    			tWork.XE(dr1);
+	    			for(int jq=0; jq<3; jq++){
+	    				q[iq][jq] += tWork.getX(jq); 
+	    			}
+    			}
+    			
+    			
+    		}
+    		        	
+    		
+    		
+        	//Pa1l
+    		doSecDerXrRotRotNoShift(Pa1l, Pb1l, chargeP1P1);
+    		doSecDerXrRotRotNoShift(Pa1l, Pb2l, chargeP1P2);
+        	doSecDerXrRotRotNoShift(Pa1l, Pb2r, chargeP1P2);
+           	doSecDerXrRotRotNoShift(Pa1l, Pb1r, chargeP1P1);
+        
+            //Pa2l
+           	doSecDerXrRotRotNoShift(Pa2l, Pb1l, chargeP1P2);
+           	doSecDerXrRotRotNoShift(Pa2l, Pb2l, chargeP2P2);
+           	doSecDerXrRotRotNoShift(Pa2l, Pb2r, chargeP2P2);
+		   	doSecDerXrRotRotNoShift(Pa2l, Pb1r, chargeP1P2);
+		
+            //Pa2r
+		   	doSecDerXrRotRotNoShift(Pa2r, Pb1l, chargeP1P2);
+           	doSecDerXrRotRotNoShift(Pa2r, Pb2l, chargeP2P2);
+           	doSecDerXrRotRotNoShift(Pa2r, Pb2r, chargeP2P2);
+           	doSecDerXrRotRotNoShift(Pa2r, Pb1r, chargeP1P2);
+        
+            //Pa1r
+           	doSecDerXrRotRotNoShift(Pa1r, Pb1l, chargeP1P1);
+           	doSecDerXrRotRotNoShift(Pa1r, Pb2l, chargeP1P2);
+           	doSecDerXrRotRotNoShift(Pa1r, Pb2r, chargeP1P2);
+           	doSecDerXrRotRotNoShift(Pa1r, Pb1r, chargeP1P1);
+           	
+        } 
+        
+        else {
+        	
+    		/*
+    		 * 'for' loop for 4 pairs van der Waals interaction between the 
+    		 * 	non-bonded atoms between the 2 molecules 
+    		 * 
+    		 * 
+    		 */
+        	
+    		for (int i=0; i<2; i++){
+    			IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
+    			shift.TE(-1.0);
+    			shift.PE(dist);
+    			
+    			dr1.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), com1);
+    			
+    			for (int j=0; j<2; j++){
+    				
+    				vectorR.Ev1Mv2((nitrogena.getChildList().getAtom(j)).getPosition(), shift);
+    				double distr2 = vectorR.squared();
+    				tensor.x.Ev1v2(vectorR, vectorR);
+    				dr2.Ev1Mv2(nitrogenb.getChildList().getAtom(j).getPosition(), com2);
+        				
+    				if(Math.sqrt(distr2) >= R1){            // R >= R1
+    					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
+    					tensor.x.PEa1Tt1(-dURgtR1(distr2)/distr2, identity);
+    				
+    				} else if (Math.sqrt(distr2) < R1 && Math.sqrt(distr2) >= R0){  // R1 > R >= R0
+    					tensor.TE(1.0/(distr2*distr2)*(dUR1gtRgteqR0(distr2) - d2UR1gtRgteqR0(distr2)));
+    					tensor.x.PEa1Tt1(-dUR1gtRgteqR0(distr2)/distr2, identity);
+    					
+    				} else if (Math.sqrt(distr2) < R0){   	// R < R0
+    					tensor.TE(1.0/(distr2*distr2)*(dURltR0(distr2) - d2URltR0(distr2)));
+    					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
+    					
+    				}
+    				
+    				for(int iloop=0; iloop<3; iloop++){
+						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
+												  tensor.x.component(iloop, 1), 
+								                  tensor.x.component(iloop, 2)});
+						workVec[1].E(workVec[0]);
+						//workVec[0].XE(dr1);
+						workVec[1].XE(dr2);
+						
+						workdTorq[0][iloop] += workVec[1].getX(0);
+						workdTorq[1][iloop] += workVec[1].getX(1);
+						workdTorq[2][iloop] += workVec[1].getX(2);
+					}		
+    			}
+    			
+    			for(int iq=0; iq<3; iq++){	
+    				tWork.E(workdTorq[iq]);
+	    			tWork.XE(dr1);
+	    			for(int jq=0; jq<3; jq++){
+	    				q[iq][jq] += tWork.getX(jq); 
+	    			}
+    			}
+    			
+    			
+    			
+    			shift.ME(dist);
+    			shift.TE(-1.0);
+    		}
+    		
+        	doSecDerXrRotRotWShift(Pa1l, Pb1l, chargeP1P1);
+            doSecDerXrRotRotWShift(Pa2l, Pb1l, chargeP1P2);
+            doSecDerXrRotRotWShift(Pa2r, Pb1l, chargeP1P2);
+            doSecDerXrRotRotWShift(Pa1r, Pb1l, chargeP1P1);
+            
+            ////////////
+            doSecDerXrRotRotWShift(Pa1l, Pb2l, chargeP1P2);
+            doSecDerXrRotRotWShift(Pa2l, Pb2l, chargeP2P2);
+            doSecDerXrRotRotWShift(Pa2r, Pb2l, chargeP2P2);
+            doSecDerXrRotRotWShift(Pa1r, Pb2l, chargeP1P2);
+            
+            //////////////////////
+        	doSecDerXrRotRotWShift(Pa1l, Pb2r, chargeP1P2);
+            doSecDerXrRotRotWShift(Pa2l, Pb2r, chargeP2P2);
+            doSecDerXrRotRotWShift(Pa2r, Pb2r, chargeP2P2);
+            doSecDerXrRotRotWShift(Pa1r, Pb2r, chargeP1P2);
+            
+            /////////////
+        	doSecDerXrRotRotWShift(Pa1l, Pb1r, chargeP1P1);
+            doSecDerXrRotRotWShift(Pa2l, Pb1r, chargeP1P2);
+            doSecDerXrRotRotWShift(Pa2r, Pb1r, chargeP1P2);
+            doSecDerXrRotRotWShift(Pa1r, Pb1r, chargeP1P1);
+            
+        }
+        
+        tensorq.E(q);
+        
+        return tensorq;																					        
+	
+    }
+    
+    public void doSecDerXrRotRotNoShift(IVector v1, IVector v2, double cc){
+    	vectorR.Ev1Mv2(v1, v2);
+		r2 = vectorR.squared();
+		double r = Math.sqrt(r2);
+		tensorWork.x.Ev1v2(vectorR, vectorR);
+		tensorWork.TE(1.0/(r2*r2)*( (-cc/r) - (2*cc/r)));
+		tensorWork.x.PEa1Tt1(-(-cc/r)/r2, identity);
+		
+		dr1.Ev1Mv2(v1, com1);
+		dr2.Ev1Mv2(v2, com2);
+		
+		for(int iloop=0; iloop<3; iloop++){
+			workVec[0].E(new double[]{tensorWork.x.component(iloop, 0),
+									  tensorWork.x.component(iloop, 1), 
+					                  tensorWork.x.component(iloop, 2)});
+			workVec[1].E(workVec[0]);
+			//workVec[0].XE(dr1);
+			workVec[1].XE(dr2);
+			
+			workdTorq[0][iloop] = workVec[1].getX(0);
+			workdTorq[1][iloop] = workVec[1].getX(1);
+			workdTorq[2][iloop] = workVec[1].getX(2);			
+		}
+		
+		for(int iq=0; iq<3; iq++){	
+			tWork.E(workdTorq[iq]);
+			tWork.XE(dr1);
+			for(int jq=0; jq<3; jq++){
+				q[iq][jq] += tWork.getX(jq); 
+			}
+		}
+    	
+    }
+    
+    public void doSecDerXrRotRotWShift(IVector v1, IVector v2, double cc){
+    	shift.TE(-1.0);
+    	shift.PE(v2);
+        vectorR.Ev1Mv2(v1, shift);
+        shift.ME(v2);
+        shift.TE(-1.0);
+        
+        r2 = vectorR.squared();
+		double r = Math.sqrt(r2);
+		tensorWork.x.Ev1v2(vectorR, vectorR);
+		tensorWork.TE(1.0/(r2*r2)*( (-cc/r) - (2*cc/r)));
+		tensorWork.x.PEa1Tt1(-(-cc/r)/r2, identity);
+		
+		dr1.Ev1Mv2(v1, com1);
+		dr2.Ev1Mv2(v2, com2);
+		
+		for(int iloop=0; iloop<3; iloop++){
+			workVec[0].E(new double[]{tensorWork.x.component(iloop, 0),
+									  tensorWork.x.component(iloop, 1), 
+					                  tensorWork.x.component(iloop, 2)});
+			workVec[1].E(workVec[0]);
+			//workVec[0].XE(dr1);
+			workVec[1].XE(dr2);
+			
+			workdTorq[0][iloop] = workVec[1].getX(0);
+			workdTorq[1][iloop] = workVec[1].getX(1);
+			workdTorq[2][iloop] = workVec[1].getX(2);
+		}
+		
+		for(int iq=0; iq<3; iq++){	
+			tWork.E(workdTorq[iq]);
+			tWork.XE(dr1);
+			for(int jq=0; jq<3; jq++){
+				q[iq][jq] += tWork.getX(jq); 
+			}
+		}
+    	
+    }
     
 	public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
 		// TODO Auto-generated method stub
@@ -1571,6 +1867,8 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     protected final IVectorMutable[] gradient;
     protected final IVectorMutable[] torque;
     protected final IVectorMutable[] workVec;
+    protected final IVectorMutable[] workTorqVec;
+    protected final double [][] workdTorq, q;
     protected final IVectorMutable[][] gradientAndTorque, secDerXr;
 	protected IBoundary boundary;
 	protected DataTensor tensorWork;
