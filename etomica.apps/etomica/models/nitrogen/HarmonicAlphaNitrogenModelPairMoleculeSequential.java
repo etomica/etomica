@@ -79,7 +79,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		int nSites = 2*nCell+1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
 		
-		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
+//		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef);
+		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef);
 		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef);
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 	}
@@ -251,7 +252,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 			for(int i=0; i<dofPerMol; i++){
 				for(int j=0; j<dofPerMol; j++){
 					if(i<3 && j<3) continue;
-					array[i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,j});
+					array[i][molec0*dofPerMol + j] = cAN2nD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,j});
 					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec0*dofPerMol + j];
 				}    		
 	    	}
@@ -367,7 +368,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
-	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+//	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+	protected CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen cAN2nD;
 	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
 	private static final long serialVersionUID = 1L;
