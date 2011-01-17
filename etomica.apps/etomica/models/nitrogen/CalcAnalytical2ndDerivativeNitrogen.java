@@ -11,17 +11,17 @@ import etomica.atom.MoleculePair;
 import etomica.data.types.DataTensor;
 import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space.Tensor;
 
 /**
  *  Determine the second derivative of the atomic/ molecular potential energy w.r.t. to
  *   its generalized coordinates, u, where u is defined as the relative deviation of the 
  *   atom/ molecule from its nominal position 
+ * 	
+ *  Analytic expression of the derivative for interparticle interaction ONLY
+ *  - this DOES NOT include the self-term
  * 
- *  The class use <CoordinateDefinition> class SetToU method to put the atom/ molecule in
- *   space and the calculate the change in potential energy. 
- *   
- * 
- * @author taitan
+ * @author Tai Boon Tan & Andrew Schultz
  *
  */
 public class CalcAnalytical2ndDerivativeNitrogen{
@@ -35,7 +35,6 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
 		this.doLatticeSum = doLatticeSum;
-		this.rC = rC;
 		this.space = space;
 		
 		this.potential = potential;
@@ -44,21 +43,7 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 			potential.setRange(rC);
 		}
 		
-		translateBy = new AtomActionTranslateBy(coordinateDefinition.getPrimitive().getSpace());
-        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-        pos = new AtomPositionGeometricCenter(coordinateDefinition.getPrimitive().getSpace());
-        translator = new MoleculeActionTranslateTo(coordinateDefinition.getPrimitive().getSpace());
-        translator.setAtomPositionDefinition(pos);
-        
-		lsPosition = space.makeVector();
-		destination = space.makeVector();
-		com1 = space.makeVector();
-		com2 = space.makeVector();
-		dr = space.makeVector();
-		
-		xVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(0);
-		yVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(1);
-		zVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(2); 
+		workVec = space.makeVector();
 		
 		secDerXr = new IVectorMutable[2][3];
 		for(int i=0; i<secDerXr.length; i++){
@@ -126,50 +111,20 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 			d2r[4][i] = initMolecOrientation[moleculei[1]][1].dot(secDerXr[1][i]); 
 			
 		}	
-//		IMolecule nitrogena = pair.getMolecule(0);
-//		IMolecule nitrogenb = pair.getMolecule(1);
-//		
-//		IVectorMutable pos1 = (nitrogena.getChildList().getAtom(1)).getPosition();
-//		IVectorMutable pos2 = (nitrogenb.getChildList().getAtom(1)).getPosition();
-//		
-//		com1.E(pos1);
-//		com2.E(pos2);
-//		
-//		IVectorMutable diff1 = space.makeVector();
-//		IVectorMutable diff2 = space.makeVector();
-//		
-//		diff1.Ev1Mv2(com1, nitrogena.getChildList().getAtom(0).getPosition());
-//		diff2.Ev1Mv2(com2, nitrogenb.getChildList().getAtom(0).getPosition());
-//					
-//		com1.PEa1Tv1(-0.5, diff1); 		
-//		com2.PEa1Tv1(-0.5, diff2);
-//		
-//		// Vertical 3x2 matrix  (upper right corner)
-//		//dudrU3MolA
-//		dUdRotA[0].E(new double[]{ d2r[0][3], d2r[1][3], d2r[2][3] }); 
-//		//dudrU4MolA
-//		dUdRotA[1].E(new double[]{ d2r[0][4], d2r[1][4], d2r[2][4] }); 
-//		
-//		
-//		// Horizontal 2x3 matrix (bottom left corner)
-//		//dudrU3MolB
-//		dUdRotB[0].E(new double[]{ d2r[3][0], d2r[3][1], d2r[3][2] }); 
-//		//dudrU4MolB
-//		dUdRotB[1].E(new double[]{ d2r[4][0], d2r[4][1], d2r[4][2] }); 
-//		
-//		IVectorMutable workVec = space.makeVector();
-//		IVectorMutable sumVec = space.makeVector();
-//		
-//		for(int i=0; i<2; i++){
-//			sumVec.E(0.0);
-//			for(int iAtomNB=0; iAtomNB<nitrogenb.getChildList().getAtomCount(); iAtomNB++){
-//				dr.Ev1Mv2(nitrogenb.getChildList().getAtom(iAtomNB).getPosition(), com2);
-//				workVec.E(dUdRotA[i]);
-//				workVec.XE(dr);
-//				sumVec.PE(workVec);
-//			}
-//			d2r[3][3+i] = sumVec.dot(initMolecOrientation[][]);
-//		}
+				
+		Tensor tensor = potential.secondDerivativeXrRotRot(pair);
+	
+		for(int i=0; i<2; i++){
+			for(int j=0; j<2; j++){
+					
+				workVec.E(initMolecOrientation[moleculei[1]][2-j]);
+				tensor.transform(workVec);
+
+				d2r[3+j][3+i] = workVec.dot(initMolecOrientation[moleculei[0]][2-i]);
+				if(i!=j) d2r[3+j][3+i] *= -1;
+				
+			}
+		}
 		
 		return d2r;
 	}
@@ -179,27 +134,9 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 	protected IVectorMutable[] dUdRotA, dUdRotB;
 	protected IBox box;
 	protected ISpace space;
-	protected AtomPositionGeometricCenter pos;
-	protected MoleculeActionTranslateTo translator;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;
-	protected AtomActionTranslateBy translateBy;
-	protected MoleculeChildAtomAction atomGroupActionTranslate;
-	protected IVectorMutable lsPosition, destination, com1, com2, dr;
-	protected double xVecBox, yVecBox, zVecBox, rC;
+	protected IVectorMutable workVec;
 	protected boolean doLatticeSum = false;
-	
-	
-	
-
-	public void test(IMoleculeList pair){
-	
-
-	
-	    
-	  						        
-
-	}
-	
 	
 }
