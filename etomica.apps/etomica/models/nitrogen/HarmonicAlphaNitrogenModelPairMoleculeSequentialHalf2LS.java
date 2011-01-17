@@ -2,17 +2,11 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.atom.DiameterHashByType;
 import etomica.atom.MoleculePair;
 import etomica.box.Box;
-import etomica.data.types.DataTensor;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -24,8 +18,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
-import etomica.units.Kelvin;
-import etomica.units.Pixel;
 
 /**
  * This class is created to take care of Java out of memory problem when creating
@@ -92,6 +84,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
 		
 		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef, true, rC);
+		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef, true, rC);
+		
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 		
 		translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
@@ -105,13 +99,13 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
 		this.nLayer = (int)(rC/rX + 0.5);
 		
-		System.out.println("rX: " + rX);
-		System.out.println("nLayer: " + nLayer);
+//		System.out.println("rX: " + rX);
+//		System.out.println("nLayer: " + nLayer);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
 	
-		DataTensor transTensor = new DataTensor(space);
+//		DataTensor transTensor = new DataTensor(space);
 		MoleculePair pair = new MoleculePair();
 	
 		int numBasis = coordinateDef.getBasis().getScaledCoordinates().length;
@@ -141,29 +135,64 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 				isReverseOrder = false;
 			}
 			
-			pair.atom1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
-		
+			IMolecule molecule1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
+			pair.atom1 = molecule1;
+			
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);
 				
 			if(isNewPair){
-				transTensor.E(potential.secondDerivative(pair));
-				for(int i=0; i<3; i++){
-					for(int j=0; j<3; j++){
-						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
-						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
-					}
+//				transTensor.E(0.0);
+				
+				double[][] sumA = new double[5][5];
+				//do Lattice sum
+				for(int x=-nLayer; x<=nLayer; x++){
+					for(int y=-nLayer; y<=nLayer; y++){
+						for(int z=-nLayer; z<=nLayer; z++){
+							lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
+							translateBy.setTranslationVector(lsPosition);
+							atomGroupActionTranslate.actionPerformed(molecule1);
+							
+							//For Numerical derivative
+//							transTensor.PE(potential.secondDerivative(pair));
+							
+							double[][] a = cA2nD.d2phi_du2(new int[]{molec0,molec1});
+							for(int i=0; i<dofPerMol; i++){
+								for(int j=0; j<dofPerMol; j++){
+									sumA[i][j] += a[i][j];
+								}
+							}
+						
+							lsPosition.TE(-1);
+							translateBy.setTranslationVector(lsPosition);
+							atomGroupActionTranslate.actionPerformed(molecule1);
+						}	
+					}	
 				}
-				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+				
+//				for(int i=0; i<3; i++){
+//					for(int j=0; j<3; j++){
+//						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
+//						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
+//					}
+//				}
+//				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+//				for(int i=0; i<dofPerMol; i++){
+//					for(int j=0; j<dofPerMol; j++){
+//						if(i<3 && j<3) continue;
+//						// j i because it got switched molecule A and molecule B
+//						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
+//						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
+//					}
+//				}
+				
 				for(int i=0; i<dofPerMol; i++){
 					for(int j=0; j<dofPerMol; j++){
-						if(i<3 && j<3) continue;
-						// j i because it got switched molecule A and molecule B
-						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
+						array[i][molec1*dofPerMol + j] = sumA[i][j];
 						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
 					}
 				}
-					
+				
 				findPair.updateNewMoleculePair(index);
 					
 			} else {
@@ -302,7 +331,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 	
 	public static void main (String[] args){
 		
-		int nC=4;
+		int nC=2;
 		double density = 0.0230;
 		double rC = 100;
 		if(args.length > 0){
@@ -311,27 +340,14 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		if(args.length > 1){
 			density = Double.parseDouble(args[1]);
 		}
+		if(args.length > 2){
+			rC = Double.parseDouble(args[2]);
+		}
 		
 		int numMolecule =nC*nC*nC*4;
 
 		HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS test = new HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS(Space3D.getInstance(3), numMolecule, density, rC);
 		test.constructHessianMatrix(nC);
-	
-		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(test, SimulationGraphic.TABBED_PANE, test.space, test.getController());
-			simGraphic.add(new DisplayBox(test, test.box, test.space, test.getController()));
-			simGraphic.getDisplayBox(test.box).setPixelUnit(new Pixel(10));
-			
-			DiameterHashByType diameter = new DiameterHashByType(test);
-			diameter.setDiameter(test.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(test.species.getPType(), 0.0);
-			
-			simGraphic.getDisplayBox(test.box).setDiameterHash(diameter);
-			
-	
-		    simGraphic.makeAndDisplayFrame("Alpha Crystal Structure");
-		    return;
-		}
 		
 	}
 	
@@ -343,6 +359,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
 	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
 	protected SpeciesN2 species;
 	protected AtomActionTranslateBy translateBy;

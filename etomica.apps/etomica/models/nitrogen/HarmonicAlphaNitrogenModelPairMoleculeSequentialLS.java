@@ -86,6 +86,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
 		
 		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef, true, rC);
+		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef, true, rC);
+	
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 		
 		translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
@@ -99,15 +101,13 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
 		this.nLayer = (int)(rC/rX + 0.5);
 		
-		System.out.println("rX: " + rX);
-		System.out.println("nLayer: " + nLayer);
+//		System.out.println("rX: " + rX);
+//		System.out.println("nLayer: " + nLayer);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
-	
-		//molec0 =0;
-		
-		DataTensor transTensor = new DataTensor(space);
+
+//		DataTensor transTensor = new DataTensor(space);
 		MoleculePair pair = new MoleculePair();
 	
 		int numMolecule = coordinateDef.getBox().getMoleculeList().getMoleculeCount();
@@ -142,8 +142,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 			boolean isNewPair = findPair.getIsNewPair(index);
 				
 			if(isNewPair){
-				transTensor.E(0.0);
+//				transTensor.E(0.0);
 				
+				double[][] sumA = new double[5][5];
 				//do Lattice sum
 				for(int x=-nLayer; x<=nLayer; x++){
 					for(int y=-nLayer; y<=nLayer; y++){
@@ -151,17 +152,17 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 							lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
 							translateBy.setTranslationVector(lsPosition);
 							atomGroupActionTranslate.actionPerformed(molecule1);
-		
-							transTensor.PE(potential.secondDerivative(pair));
 							
-//							for (int k=0;k<3;k++){
-//								for (int l=0;l<3;l++){
-//									System.out.print(transTensor.x.component(k, l)+" ");
-//								}	
-//								System.out.println("");
-//							}
-//							System.out.println("");
+							//For Numerical derivative
+//							transTensor.PE(potential.secondDerivative(pair));
 							
+							double[][] a = cA2nD.d2phi_du2(new int[]{molec0,molec1});
+							for(int i=0; i<dofPerMol; i++){
+								for(int j=0; j<dofPerMol; j++){
+									sumA[i][j] += a[i][j];
+								}
+							}
+						
 							lsPosition.TE(-1);
 							translateBy.setTranslationVector(lsPosition);
 							atomGroupActionTranslate.actionPerformed(molecule1);
@@ -169,29 +170,52 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 					}	
 				}
 				
-				for(int i=0; i<3; i++){
-					for(int j=0; j<3; j++){
-						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
-						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
-					}
-				}
-				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+//				for(int i=0; i<3; i++){
+//					for(int j=0; j<3; j++){
+//						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
+//						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
+//					}
+//				}
+//				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+//				for(int i=0; i<dofPerMol; i++){
+//					for(int j=0; j<dofPerMol; j++){
+//						if(i<3 && j<3) continue;
+//						// j i because it got switched molecule A and molecule B
+//						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
+//						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
+//					}
+//				}
+				
 				for(int i=0; i<dofPerMol; i++){
 					for(int j=0; j<dofPerMol; j++){
-						if(i<3 && j<3) continue;
-						// j i because it got switched molecule A and molecule B
-						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
+						array[i][molec1*dofPerMol + j] = sumA[i][j];
 						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
 					}
 				}
-				
-//				for (int irow=0;irow<5; irow++){
-//					for (int icol=0;icol<5; icol++){
-//						System.out.print(array[icol][molec1*dofPerMol + irow]+" ");
+								
+//				/*
+//				 * TEST
+//				 */
+//				System.out.println("\n******** ANALYTIC *********");
+//				//double[][] newArray = cA2nD.d2phi_du2(new int[]{molec0, molec1});
+//				for(int i=0; i<5; i++){
+//					for(int j=0; j<5; j++){
+//						System.out.print(sumA[i][j] + " ");
 //					}	
-//					System.out.println("");
+//					System.out.println();
 //				}
+//				
+//
+//				System.out.println("\n******** NUMERIC *********");
+//				for(int i=0; i<5; i++){
+//					for(int j=0; j<5; j++){
+//						System.out.print(array[i][molec1*dofPerMol + j] + " ");
+//					}	
+//					System.out.println();
+//				}
+//				
 //				System.exit(1);
+				
 					
 				findPair.updateNewMoleculePair(index);
 					
@@ -371,6 +395,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		if(args.length > 1){
 			density = Double.parseDouble(args[1]);
 		}
+		if(args.length > 2){
+			rC = Double.parseDouble(args[2]);
+		}
 		
 		int numMolecule =nC*nC*nC*4;
 		//System.out.println("numMolecules: " + numMolecule + " with density: " + density);
@@ -380,11 +407,11 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 	
 		String fname = new String ("alpha"+numMolecule+"_2ndDer_d"+density+"rC"+rC+"_newLS");
 		
-		test.constructHessianMatrix(fname, nC);
-		//test.constructHessianMatrix(nC);
+		//test.constructHessianMatrix(fname, nC);
+		test.constructHessianMatrix(nC);
 		
 		long endTime = System.currentTimeMillis();
-		System.out.println("Time taken (s): " + (endTime-startTime)/1000);
+		//System.out.println("Time taken (s): " + (endTime-startTime)/1000);
 	
 	}
 	
@@ -396,6 +423,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
 	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
