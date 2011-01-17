@@ -535,7 +535,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
                     tWork.E(dr2);
                     tWork.XE(duWork);
                     torque[1].PE(tWork);
-                    
+
                 }
             }
                         
@@ -554,6 +554,8 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
             doGradientNoShift(Pa2r, Pb2r, chargeP2P2);
             doGradientNoShift(Pa1r, Pb2r, chargeP1P2);
 
+   		 
+			
             doGradientNoShift(Pa1l, Pb1r, chargeP1P1);
             doGradientNoShift(Pa2l, Pb1r, chargeP1P2);
             doGradientNoShift(Pa2r, Pb1r, chargeP1P2);
@@ -759,7 +761,9 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
     					sumTensor.PE(tensor);
     				}
+
     			}
+
     		}
     		        	
         	//Pa1l
@@ -1301,14 +1305,16 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     			shift.TE(-1.0);
     			shift.PE(dist);
     			
-    			dr1.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), com1);
+    			dr2.Ev1Mv2(nitrogenb.getChildList().getAtom(i).getPosition(), com2);
     			
     			for (int j=0; j<2; j++){
+    				
+    				dr1.Ev1Mv2(nitrogena.getChildList().getAtom(j).getPosition(), com1);
     				
     				vectorR.Ev1Mv2((nitrogena.getChildList().getAtom(j)).getPosition(), shift);
     				double distr2 = vectorR.squared();
     				tensor.x.Ev1v2(vectorR, vectorR);
-    				dr2.Ev1Mv2(nitrogenb.getChildList().getAtom(j).getPosition(), com2);
+    				
         				
     				if(Math.sqrt(distr2) >= R1){            // R >= R1
     					tensor.TE(1.0/(distr2*distr2)*(dURgtR1(distr2) - d2URgtR1(distr2)));
@@ -1541,7 +1547,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     					tensor.x.PEa1Tt1(-dURltR0(distr2)/distr2, identity);
     					
     				}
-    				
+
     				for(int iloop=0; iloop<3; iloop++){
 						workVec[0].E(new double[]{tensor.x.component(iloop, 0),
 												  tensor.x.component(iloop, 1), 
@@ -1558,19 +1564,17 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     				
     			}
     			
-    			for(int iq=0; iq<3; iq++){	
+    			for(int iq=0; iq<3; iq++){
+    				
     				tWork.E(workdTorq[iq]);
 	    			tWork.XE(dr1);
 	    			for(int jq=0; jq<3; jq++){
-	    				q[iq][jq] += tWork.getX(jq); 
+	    				q[jq][iq] += tWork.getX(jq); 
 	    			}
     			}
     			
-    			
     		}
     		        	
-    		
-    		
         	//Pa1l
     		doSecDerXrRotRotNoShift(Pa1l, Pb1l, chargeP1P1);
     		doSecDerXrRotRotNoShift(Pa1l, Pb2l, chargeP1P2);
@@ -1607,15 +1611,20 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     		 */
         	
     		for (int i=0; i<2; i++){
-    			IVectorMutable dist = (nitrogenb.getChildList().getAtom(i)).getPosition();
-    			shift.TE(-1.0);
+    			IVectorMutable dist = (nitrogena.getChildList().getAtom(i)).getPosition();
     			shift.PE(dist);
     			
     			dr1.Ev1Mv2(nitrogena.getChildList().getAtom(i).getPosition(), com1);
     			
+    			for(int iTorq=0; iTorq<3; iTorq++){ //iTorq = row
+    	  	    	for(int jTorq=0; jTorq<3; jTorq++){ //jTorq = column
+    	  		    	workdTorq[iTorq][jTorq] = 0.0;
+    	  		    }	
+    	  	    }
+    			
     			for (int j=0; j<2; j++){
     				
-    				vectorR.Ev1Mv2((nitrogena.getChildList().getAtom(j)).getPosition(), shift);
+    				vectorR.Ev1Mv2((nitrogenb.getChildList().getAtom(j)).getPosition(), shift);
     				double distr2 = vectorR.squared();
     				tensor.x.Ev1v2(vectorR, vectorR);
     				dr2.Ev1Mv2(nitrogenb.getChildList().getAtom(j).getPosition(), com2);
@@ -1652,14 +1661,11 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
     				tWork.E(workdTorq[iq]);
 	    			tWork.XE(dr1);
 	    			for(int jq=0; jq<3; jq++){
-	    				q[iq][jq] += tWork.getX(jq); 
+	    				q[jq][iq] += tWork.getX(jq); 
 	    			}
     			}
     			
-    			
-    			
     			shift.ME(dist);
-    			shift.TE(-1.0);
     		}
     		
         	doSecDerXrRotRotWShift(Pa1l, Pb1l, chargeP1P1);
@@ -1721,7 +1727,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
 			tWork.E(workdTorq[iq]);
 			tWork.XE(dr1);
 			for(int jq=0; jq<3; jq++){
-				q[iq][jq] += tWork.getX(jq); 
+				q[jq][iq] += tWork.getX(jq); 
 			}
 		}
     	
@@ -1760,7 +1766,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
 			tWork.E(workdTorq[iq]);
 			tWork.XE(dr1);
 			for(int jq=0; jq<3; jq++){
-				q[iq][jq] += tWork.getX(jq); 
+				q[jq][iq] += tWork.getX(jq); 
 			}
 		}
     	
@@ -1862,7 +1868,13 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
         return rC;
     }
     
+    public void setCoordinateDef(CoordinateDefinitionNitrogen coordinateDef){
+    	this.coordinateDef = coordinateDef;
+    }
+    
     private static final long serialVersionUID = 1L;
+    
+    protected CoordinateDefinitionNitrogen coordinateDef;
     
     protected final IVectorMutable[] gradient;
     protected final IVectorMutable[] torque;
