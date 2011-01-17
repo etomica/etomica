@@ -32,12 +32,12 @@ import etomica.util.FunctionGeneral;
 public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 
 	
-	public HarmonicAlphaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, int iLayer, double rC) {
+	public HarmonicAlphaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, double rC) {
 		super(space);
 				
 		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
 		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
-//		System.out.println("a: " + unitCellLength);
+		System.out.println("a: " + unitCellLength);
 //		System.out.println("nCell: " + nCell);
 
 		Basis basisFCC = new BasisCubicFcc();
@@ -90,9 +90,14 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 			final DataDouble data = new DataDouble();
 		};
 		
+		double rX = unitCellLength*nCell;
+		int nLayer = (int)(rC/rX + 0.5);
+		System.out.println("rX: " + rX);
+		System.out.println("nLayer: " + nLayer);
+		
 		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
 		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
-		latticeSum.setMaxLatticeShell(iLayer);
+		latticeSum.setMaxLatticeShell(nLayer);
 		
 		double sum = 0;
 	    double basisDim = lattice.getBasis().getScaledCoordinates().length;
@@ -111,18 +116,9 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 	public static void main (String[] args){
 		
 		int numMolecule =4;
-		double density = 0.025;
-		double rC = 100;
+		double density = 0.0230;
+		double rC = 1200;
 		
-		int minLayer = 30;
-		int maxLayer = 121;
-		
-		if(args.length > 0){
-			minLayer = Integer.parseInt(args[0]);
-		}
-		if(args.length > 1){
-			maxLayer = Integer.parseInt(args[1]);
-		}
 		if(args.length > 2){
 			rC = Double.parseDouble(args[2]);
 		}
@@ -134,11 +130,8 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		System.out.println("Using lattice sum method with truncation of " + rC + "A");
 		System.out.println("with density of:" + density);
 		
-		for (int i=minLayer; i<maxLayer; i++){	
-			System.out.print(i+" ");
-			HarmonicAlphaNitrogenModelLatticeSum test = new HarmonicAlphaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, i, rC);
-		}
-
+		HarmonicAlphaNitrogenModelLatticeSum test = new HarmonicAlphaNitrogenModelLatticeSum(Space3D.getInstance(3), numMolecule, density, rC);
+		
 	}
 	
 	private static final long serialVersionUID = 1L;
