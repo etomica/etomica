@@ -80,6 +80,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
 		
 		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
+		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef);
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 	}
 	
@@ -119,22 +120,54 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 			boolean isNewPair = findPair.getIsNewPair(index);
 				
 			if(isNewPair){
-				transTensor.E(potential.secondDerivative(pair));
-				for(int i=0; i<3; i++){
-					for(int j=0; j<3; j++){
-						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
-						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
-					}
-				}
-				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+				double[][] a = cA2nD.d2phi_du2(new int[]{molec0,molec1});
 				for(int i=0; i<dofPerMol; i++){
 					for(int j=0; j<dofPerMol; j++){
-						if(i<3 && j<3) continue;
-						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{i,j});
+						array[i][molec1*dofPerMol + j] = a[i][j];
 						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
 					}
 				}
-					
+				
+				// Numerical Derivative
+//				transTensor.E(potential.secondDerivative(pair));
+//				for(int i=0; i<3; i++){
+//					for(int j=0; j<3; j++){
+//						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
+//						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
+//					}
+//				}
+//				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+//				for(int i=0; i<dofPerMol; i++){
+//					for(int j=0; j<dofPerMol; j++){
+//						if(i<3 && j<3) continue;
+//						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
+//						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
+//					}
+//				}
+				
+//				/*
+//				 * TEST
+//				 */
+//				System.out.println("\n******** ANALYTIC *********");
+//				double[][] newArray = cA2nD.d2phi_du2(new int[]{molec0, molec1});
+//				for(int i=0; i<5; i++){
+//					for(int j=0; j<5; j++){
+//						System.out.print(newArray[i][j] + " ");
+//					}	
+//					System.out.println();
+//				}
+//				
+//
+//				System.out.println("\n******** NUMERIC *********");
+//				for(int i=0; i<5; i++){
+//					for(int j=0; j<5; j++){
+//						System.out.print(array[i][molec1*dofPerMol + j] + " ");
+//					}	
+//					System.out.println();
+//				}
+//				
+//				System.exit(1);
+				
 				findPair.updateNewMoleculePair(index);
 					
 			} else {
@@ -304,7 +337,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	public static void main (String[] args){
 		
 		int nC=2;
-		double density = 0.025;
+		double density = 0.0230;
 		if(args.length > 0){
 			nC = Integer.parseInt(args[0]);
 		}
@@ -327,8 +360,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	//	System.out.println("Time taken (s): " + (endTime-startTime)/1000);
 	
 	}
-	
-	
+
 	protected Box box;
 	protected ISpace space;
 	protected P2Nitrogen potential;
@@ -336,6 +368,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
 	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
 	private static final long serialVersionUID = 1L;
 }
