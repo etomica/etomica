@@ -1868,14 +1868,8 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
         return rC;
     }
     
-    public void setCoordinateDef(CoordinateDefinitionNitrogen coordinateDef){
-    	this.coordinateDef = coordinateDef;
-    }
-    
     private static final long serialVersionUID = 1L;
-    
-    protected CoordinateDefinitionNitrogen coordinateDef;
-    
+        
     protected final IVectorMutable[] gradient;
     protected final IVectorMutable[] torque;
     protected final IVectorMutable[] workVec;
