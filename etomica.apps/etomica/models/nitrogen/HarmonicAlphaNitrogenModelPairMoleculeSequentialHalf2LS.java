@@ -100,7 +100,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		zVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(2); 
 		
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
-		this.nLayer = (int)(rC/rX + 0.5);
+		this.nLayer = (int)Math.round(rC/rX + 0.5);
 		if (this.nLayer < 1){
 			throw new RuntimeException("<HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS> nLayer is "+ this.nLayer);
 		}
