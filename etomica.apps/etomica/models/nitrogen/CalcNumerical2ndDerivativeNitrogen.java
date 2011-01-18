@@ -273,7 +273,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 			generalizedCoord[1][d[1]] = 0.0;
 				
 			setToInitialPosition(moleculei);
-			return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[1]);  
+			return (f_up1 - 2*f_init + f_um1)/(deltaU[0]*deltaU[0]);  
 		
 			
 		} else {
