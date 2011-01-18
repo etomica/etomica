@@ -63,7 +63,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		box.setNMolecules(species, numMolecule);		
 		
 		int [] nCells = new int[]{division,division,division};
-		Boundary boundary = new BoundaryRectangularPeriodic(space,nCell*unitCellLength);
+		Boundary boundary = new BoundaryRectangularPeriodicSwitch(space);
+		boundary.setBoxSize(space.makeVector(new double[]{nCell*unitCellLength,nCell*unitCellLength,nCell*unitCellLength}));
 		Primitive primitive = new PrimitiveCubic(space, (nCell/division)*unitCellLength);
 	
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -82,8 +83,10 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		
 		int nSites = 2*nCell+1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
+		isFoundReverse = new boolean[nSites][nSites][nSites][4][4]; //default to false
 		
-		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef, true, rC);
+//		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef, true, rC);
+		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef, true, rC);
 		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef, true, rC);
 		
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
@@ -98,7 +101,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
 		this.nLayer = (int)(rC/rX + 0.5);
-		
+		if (this.nLayer < 1){
+			throw new RuntimeException("<HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS> nLayer is "+ this.nLayer);
+		}
 //		System.out.println("rX: " + rX);
 //		System.out.println("nLayer: " + nLayer);
 	}
@@ -141,9 +146,13 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);
 				
+			if(isReverseOrder && isNewPair){
+				isFoundReverse[index[0]][index[1]][index[2]][index[3]][index[4]] = true;
+			}
+			
 			if(isNewPair){
 //				transTensor.E(0.0);
-				
+				((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(false);
 				double[][] sumA = new double[5][5];
 				//do Lattice sum
 				for(int x=-nLayer; x<=nLayer; x++){
@@ -169,7 +178,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 						}	
 					}	
 				}
-				
+				((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(true);
 //				for(int i=0; i<3; i++){
 //					for(int j=0; j<3; j++){
 //						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
@@ -197,34 +206,23 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 					
 			} else {
 				
+				if(isFoundReverse[index[0]][index[1]][index[2]][index[3]][index[4]]==true){
+					isReverseOrder = !isReverseOrder; 
+				}
+				
 				if(isReverseOrder){
-					for(int i=0; i<3; i++){
-						for(int j=0; j<3; j++){
+					for(int i=0; i<5; i++){
+						for(int j=0; j<5; j++){
 							array[i][molec1*dofPerMol + j] 
 							                            = pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][j][i];
 						}
 					}
-					// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
-					for(int i=0; i<dofPerMol; i++){
-						for(int j=0; j<dofPerMol; j++){
-							if(i<3 && j<3) continue;
-							array[i][molec1*dofPerMol + j] = 
-								pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][j][i];
-						}
-					}
+					
 				} else {
-					for(int i=0; i<3; i++){
-						for(int j=0; j<3; j++){
+					for(int i=0; i<5; i++){
+						for(int j=0; j<5; j++){
 							array[i][molec1*dofPerMol + j] 
 							                            = pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
-						}
-					}
-					// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
-					for(int i=0; i<dofPerMol; i++){
-						for(int j=0; j<dofPerMol; j++){
-							if(i<3 && j<3) continue;
-							array[i][molec1*dofPerMol + j] = 
-								pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
 						}
 					}
 				}
@@ -273,14 +271,17 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
 			
 		if(isNewPair){
+			((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(false);
 			for(int i=0; i<dofPerMol; i++){
-				for(int j=0; j<dofPerMol; j++){
-					if(i<3 && j<3) continue;
+//				for(int j=0; j<dofPerMol; j++){
+//					if(i<3 && j<3) continue;
 					// j i because it got switched molecule A and molecule B
-					array[i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec0}, new int[]{j,i});
-					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec0*dofPerMol + j];
-				}    		
+					//setting the off-diagonal element to zero
+					array[i][molec0*dofPerMol + i] = cAN2nD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,i});
+					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][i] = array[i][molec0*dofPerMol + i];
+//				}    		
 	    	}
+			((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(true);
 			findPair.updateNewMoleculePair(index);
 				
 		} else {
@@ -358,7 +359,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
-	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+//	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+	protected CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen cAN2nD;
 	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
 	protected SpeciesN2 species;
@@ -367,6 +369,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 	protected IVectorMutable lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
+	protected boolean[][][][][] isFoundReverse;
 	
 	
 	private static final long serialVersionUID = 1L;
