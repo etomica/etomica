@@ -133,6 +133,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 		int ySites = 4*nCell+1;
 		int zSites = 2*nCell+1;
 		pairMatrix = new double[xSites][ySites][zSites][4][4][3][3];
+		isFoundReverse = new boolean[xSites][ySites][zSites][4][4]; //default to false
 		
 		findPair = new FindPairMoleculeIndexBetaN2(space, coordinateDef);
 		
@@ -144,12 +145,13 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 		yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
 		zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared());
 			
-		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
-		this.nLayer = (int)(rC/rX + 0.5);
+//		System.out.println(xVecBox+" "+yVecBox+ " " + zVecBox);
+		double rX = xVecBox;
+		this.nLayer = (int)Math.round(rC/rX + 0.5);
 		
-		System.out.println("rX: " + rX);
-		System.out.println("nLayer: " + nLayer);
-		
+//		System.out.println("rX: " + rX);
+//		System.out.println("nLayer: " + nLayer);
+//		System.exit(1);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
@@ -186,6 +188,10 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);
 			
+			if(isReverseOrder && isNewPair){
+				isFoundReverse[index[0]][index[1]][index[2]][index[3]][index[4]] = true;
+			}
+			
 			if(isNewPair){
 				
 				transTensor.E(0.0);
@@ -218,6 +224,11 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 				
 				findPair.updateNewMoleculePair(index);
 			} else {
+				
+				if(isFoundReverse[index[0]][index[1]][index[2]][index[3]][index[4]]==true){
+					isReverseOrder = !isReverseOrder; 
+				}
+				
 				if(isReverseOrder){
 					for(int i=0; i<3; i++){
 						for(int j=0; j<3; j++){
@@ -346,7 +357,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 	
 	public static void main (String[] args){
 		
-		int nCell =4;
+		int nCell =8;
 		double density = 0.0230;
 		double rC = 100;
 		
@@ -385,6 +396,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 	protected IVectorMutable lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
+	protected boolean[][][][][] isFoundReverse;
 	
 	private static final long serialVersionUID = 1L;
 }

@@ -133,6 +133,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 		int ySites = 4*nCell+1;
 		int zSites = 2*nCell+1;
 		pairMatrix = new double[xSites][ySites][zSites][4][4][3][3];
+		isFoundReverse = new boolean[xSites][ySites][zSites][4][4]; //default to false
 		
 		findPair = new FindPairMoleculeIndexBetaN2(space, coordinateDef);
 		
@@ -145,10 +146,10 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 		zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared()); 
 		
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
-		this.nLayer = (int)(rC/rX + 0.5);
+		this.nLayer = (int)Math.round(rC/rX + 0.5);
 		
-		System.out.println("rX: " + rX);
-		System.out.println("nLayer: " + nLayer);
+//		System.out.println("rX: " + rX);
+//		System.out.println("nLayer: " + nLayer);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
@@ -185,6 +186,10 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);
 			
+			if(isReverseOrder && isNewPair){
+				isFoundReverse[index[0]][index[1]][index[2]][index[3]][index[4]] = true;
+			}
+			
 			if(isNewPair){
 				
 				transTensor.E(0.0);
@@ -217,6 +222,11 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 				
 				findPair.updateNewMoleculePair(index);
 			} else {
+				
+				if(isFoundReverse[index[0]][index[1]][index[2]][index[3]][index[4]]==true){
+					isReverseOrder = !isReverseOrder; 
+				}
+				
 				if(isReverseOrder){
 					for(int i=0; i<3; i++){
 						for(int j=0; j<3; j++){
@@ -347,6 +357,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 	protected IVectorMutable lsPosition;
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
+	protected boolean[][][][][] isFoundReverse;
 	
 	private static final long serialVersionUID = 1L;
 }
