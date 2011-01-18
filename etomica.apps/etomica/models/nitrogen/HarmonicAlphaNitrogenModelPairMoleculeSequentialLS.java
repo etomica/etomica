@@ -276,6 +276,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 //				for(int j=0; j<dofPerMol; j++){
 //					if(i!=j || i<3) continue;
 					// j i because it got switched molecule A and molecule B
+					//setting the off-diagonal element to zero
 					array[i][molec0*dofPerMol + i] = cAN2nD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,i});
 					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][i] = array[i][molec0*dofPerMol + i];
 //				}    		
