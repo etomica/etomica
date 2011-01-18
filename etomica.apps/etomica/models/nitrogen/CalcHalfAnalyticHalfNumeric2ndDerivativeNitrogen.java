@@ -71,7 +71,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		
 		double[] u = newU;
 		
-		coordinateDefinition.setToUMoleculei(moleculei[1], newU);
+		coordinateDefinition.setToUMoleculei(moleculei[0], newU);
 		
 		double rX = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(0);
 		int nLayer = (int)(rC/rX + 0.5);
@@ -84,13 +84,14 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		pair.atom0 = moleculeList.getMolecule(moleculei[0]);
 		
 		IMolecule molecule1;
+		IVector[][] gradTorq;
+		
 		for (int i=0; i<numMolecule; i++){
 			
 			if(i==moleculei[0] && !doLatticeSum) continue;
 			
 			molecule1 = moleculeList.getMolecule(i); 
 			pair.atom1 = molecule1;
-			IVector[][] gradTorq = potential.gradientAndTorque(pair);
 			
 			if(doLatticeSum){
 				
@@ -118,12 +119,17 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 					for(int y=-nLayer; y<=nLayer; y++){
 						for(int z=-nLayer; z<=nLayer; z++){
 							if(i==moleculei[0] && x==0 && y==0 && z==0) continue;
+
 							lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
 							translateBy.setTranslationVector(lsPosition);
 							atomGroupActionTranslate.actionPerformed(molecule1);
+
+							gradTorq = potential.gradientAndTorque(pair);
 							
 							if(dxi < 3){
-								df += gradTorq[0][0].getX(dxi);
+								if(i!=moleculei[0]){
+									df += gradTorq[0][0].getX(dxi);
+								}
 							
 							} else{ // rotation dof
 								workVec.E(gradTorq[1][0]);
@@ -131,12 +137,15 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 								
 								double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.atom0)[rotAxisi]);
 								if(dxi==3) dot*= -1;
-								df += dot;	
+								if(i==moleculei[0]) dot *= 2;
+								df += dot;
+
 							}
-							
+
 							lsPosition.TE(-1);
 							translateBy.setTranslationVector(lsPosition);
 							atomGroupActionTranslate.actionPerformed(molecule1);
+						
 						}	
 					}	
 				}
@@ -159,6 +168,8 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 				}
 				
 			} else 	{   
+				gradTorq = potential.gradientAndTorque(pair);
+				
 				// Cartesian x-, y- and z-
 				if(dxi < 3){
 					df += gradTorq[0][0].getX(dxi);
