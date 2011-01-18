@@ -1,0 +1,80 @@
+package etomica.virial;
+
+import etomica.api.IAtomList;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.units.Null;
+
+/**
+ * Measures value of clusters in a box and returns the values
+ * divided by the sampling bias from the sampling cluster.
+ */
+public class MeterVirialExternalField implements IEtomicaDataSource, java.io.Serializable {
+
+    /**
+	 * Constructor for MeterVirial.
+	 */
+	public MeterVirialExternalField(ClusterAbstract aCluster, double[] wallposition) {
+		cluster = aCluster;
+		this.wallPosition = wallposition;
+        data = new DataDoubleArray(wallposition.length+1);
+        dataInfo = new DataInfoDoubleArray("Cluster Value",Null.DIMENSION, new int[]{wallposition.length+1});
+        tag = new DataTag();
+        dataInfo.addTag(tag);
+	}
+
+	public IEtomicaDataInfo getDataInfo() {
+        return dataInfo;
+    }
+    
+    public DataTag getTag() {
+        return tag;
+    }
+    
+    public IData getData() {
+        double pi = box.getSampleCluster().value(box);
+        double x[] = data.getData();
+        IAtomList atoms = box.getLeafList();
+        double lowestatom = 0;
+        for (int i=1; i<atoms.getAtomCount();i++){
+        	double z = atoms.getAtom(i).getPosition().getX(2);
+        	if (z<lowestatom){
+        		lowestatom = z;
+        		
+        	}
+        }
+        double v=cluster.value(box)/pi;
+        for (int i=0; i<wallPosition.length; i++) {
+            if (lowestatom-0.5 < wallPosition[i]){
+            	x[i] = 0;
+            }
+            else x[i]=v;
+        }
+        x[x.length-1]=(atoms.getAtomCount()-1+lowestatom)*v;
+        return data;
+    }
+    
+    public ClusterAbstract getCluster() {
+        return cluster;
+    }
+    
+    public BoxCluster getBox() {
+        return box;
+    }
+    
+    public void setBox(BoxCluster newBox) {
+        box = newBox;
+    }
+
+    protected final ClusterAbstract cluster;
+	private final DataDoubleArray data;
+	private final IEtomicaDataInfo dataInfo;
+    private final DataTag tag;
+    private final double [] wallPosition;
+    private BoxCluster box;
+    private static final long serialVersionUID = 1L;
+}
