@@ -15,7 +15,6 @@ import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 
