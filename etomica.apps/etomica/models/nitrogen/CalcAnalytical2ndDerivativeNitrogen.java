@@ -1,12 +1,7 @@
 package etomica.models.nitrogen;
 
-import etomica.action.AtomActionTranslateBy;
-import etomica.action.MoleculeActionTranslateTo;
-import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IBox;
-import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculePair;
 import etomica.data.types.DataTensor;
 import etomica.space.ISpace;
