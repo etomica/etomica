@@ -91,7 +91,7 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		};
 		
 		double rX = unitCellLength*nCell;
-		int nLayer = (int)(rC/rX + 0.5);
+		int nLayer = (int)Math.round(rC/rX + 0.5);
 		System.out.println("rX: " + rX);
 		System.out.println("nLayer: " + nLayer);
 		
