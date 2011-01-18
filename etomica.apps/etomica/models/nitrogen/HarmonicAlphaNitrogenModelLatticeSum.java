@@ -119,11 +119,11 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 		double density = 0.0230;
 		double rC = 1200;
 		
-		if(args.length > 2){
-			rC = Double.parseDouble(args[2]);
+		if(args.length > 0){
+			rC = Double.parseDouble(args[0]);
 		}
-		if(args.length > 3){
-			density = Double.parseDouble(args[3]);
+		if(args.length > 1){
+			density = Double.parseDouble(args[1]);
 		}
 		
 		System.out.println("Lattice Energy Calculation of Alpha-phase Nitrogen");
