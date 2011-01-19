@@ -59,24 +59,25 @@ public class MeterVirialExternalFieldConfined implements IEtomicaDataSource, jav
             if (lowestatom-0.5 < wallPosition[i]){
             	x[i*n] -= 0.5*v;
             }
+            if (-highestatom-0.5 < wallPosition[i]){
+            	x[i*n] -= 0.5*v; 
+            }
             for (int j=0; j<wallDistance.length; j++){
-            	x[i*n+j+1]=x[i*n];
-            	if (highestatom+0.5 > wallPosition[i]+wallDistance[j]){
-            		x[i*n+j+1] -= 0.5*v;
+            	x[i*n+j+1]=v;
+            	if (lowestatom-0.5 < wallPosition[i]||highestatom+0.5 > wallPosition[i]+wallDistance[j]){
+            		x[i*n+j+1] = 0;
             	}
             }
-            if (-highestatom-0.5 < wallPosition[i]){
-            	x[i*n] -= 0.5*v;
-            }
+            
         }
         
         for (int j=0; j<wallDistance.length; j++){
-        	x[n*wallPosition.length+j]=((wallDistance[j]-1)-(-lowestatom+highestatom)*v);
-        	if (x[n*wallPosition.length+j]<0){
-        		x[n*wallPosition.length+j]=0;
-        	
-        	}
+        	double l=(wallDistance[j]-1)-(-lowestatom+highestatom);
+        	x[n*wallPosition.length+j+1]=l<0 ? 0 : l*v;
+
         }
+        x[n*wallPosition.length]=(atoms.getAtomCount()-1+0.5*(lowestatom-highestatom))*v;
+        
         return data;
     }
     
