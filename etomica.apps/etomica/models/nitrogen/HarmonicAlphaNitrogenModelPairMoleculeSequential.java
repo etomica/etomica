@@ -276,7 +276,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		
 		int numMolecules = nCell*nCell*nCell*4;
 		int interval = nCell*4;
-		double[][][] array = new double[interval][5][coordinateDef.getCoordinateDim()];
+		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecules;
+		double[][][] array = new double[interval][dofPerMol][coordinateDef.getCoordinateDim()];
 		
 		try {
 			FileWriter fileWriter = new FileWriter(fname);
@@ -311,7 +312,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		
 		int numMolecules = nCell*nCell*nCell*4;
 		int interval = nCell*2;
-		double[][][] array = new double[interval][3][coordinateDef.getCoordinateDim()];
+		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecules;
+		double[][][] array = new double[interval][dofPerMol][coordinateDef.getCoordinateDim()];
 	
 			
 		for (int iMol=0; iMol<numMolecules; iMol+=interval){
