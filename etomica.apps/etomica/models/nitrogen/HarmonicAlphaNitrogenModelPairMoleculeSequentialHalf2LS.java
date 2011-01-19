@@ -271,7 +271,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 			
 		if(isNewPair){
 			((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(false);
-			for(int i=0; i<dofPerMol; i++){
+			for(int i=3; i<dofPerMol; i++){
 //				for(int j=0; j<dofPerMol; j++){
 //					if(i<3 && j<3) continue;
 					// j i because it got switched molecule A and molecule B
