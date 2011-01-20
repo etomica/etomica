@@ -368,6 +368,10 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 		if(args.length > 1){
 			density = Double.parseDouble(args[1]);
 		}
+		if(args.length > 2){
+			rC = Double.parseDouble(args[2]);
+		}
+		
 		int numMolecule = nCell*nCell*nCell*2;
 //		System.out.println("Running simulation to construct Hessian Matrix for beta-phase nitrogen");
 //		System.out.println("with numMolecule of "+numMolecule + " at density of " + density);
