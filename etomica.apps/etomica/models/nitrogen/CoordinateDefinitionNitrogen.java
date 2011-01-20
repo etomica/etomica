@@ -183,7 +183,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             }
             
             if(isBeta || isBetaHCP){
-            	int nCell = (int)Math.pow(moleculeList.getMoleculeCount()/2, 1.000001/3.0);
+            	int nCell = (int)Math.pow(moleculeList.getMoleculeCount()/2, 1.000001/3.0)/nCells[2];
             	int numMolinZ = 2*nCell;
             	
             	if(iMolecule>0 && iMolecule%numMolinZ == 0){
