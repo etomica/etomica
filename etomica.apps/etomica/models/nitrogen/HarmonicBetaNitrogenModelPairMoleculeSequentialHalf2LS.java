@@ -13,8 +13,8 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.normalmode.ArrayReader1D;
 import etomica.normalmode.BasisBigCell;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -35,13 +35,12 @@ import etomica.units.Degree;
  */
 public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simulation{
 	
-	public HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS(ISpace space, int numMolecule, String densityStr, double rC) {
+	public HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS(ISpace space, int numMolecule, double density, double rC) {
 		super(space);
 		this.space = space;
 		
 		potentialMaster = new PotentialMaster();
 		
-		double density = Double.parseDouble(densityStr);
 		int division = 2;
 	  	double ratio = 1.631;
 		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
@@ -88,39 +87,49 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 			}
 			
 			int numDOF = coordinateDef.getCoordinateDim();
+			int divnCell = nCell/division;
+
 			double[] newU = new double[numDOF];
 			if(true){
-				for(int j=0; j<numDOF; j+=10){
-					if(j>0 && j%(nCell*10)==0){
-						j+=nCell*10;
-						if(j>=numDOF){
-							break;
-						}
-					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k];
-					}
-				}
+				//UNIT CELL A
+				for(int iBasisCell=0; iBasisCell<coordinateDef.getBasisCells().length; iBasisCell++){
 				
-				for(int j=nCell*10; j<numDOF; j+=10){
-					if(j>nCell*10 && j%(nCell*10)==0){
-						j+=nCell*10;
-						if(j>=numDOF){
-							break;
+					BasisCell basisCell = coordinateDef.getBasisCells()[iBasisCell];
+					
+					for(int j=0; j<numDOF; j+=10){
+						if(j>0 && j%(divnCell*10)==0){
+							j+=divnCell*10;
+							if(j>=numDOF){
+								break;
+							}
+						}
+
+						for(int k=0; k<10;k++){
+							newU[j+k]= u[k];
 						}
 					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k+10];
+					
+					for(int j=divnCell*10; j<numDOF; j+=10){
+						if(j>divnCell*10 && j%(divnCell*10)==0){
+							j+=divnCell*10;
+							if(j>=numDOF){
+								break;
+							}
+						}
+
+						for(int k=0; k<10;k++){
+							newU[j+k]= u[k+10];
+						}
 					}
+					
+					coordinateDef.setToU(basisCell.molecules, newU);
+					coordinateDef.initNominalU(basisCell.molecules);
 				}
 			}
-
-			coordinateDef.setToU(box.getMoleculeList(), newU);
-			coordinateDef.initNominalU(box.getMoleculeList());
-			
 		}
-		
+
 		box.setBoundary(boundary);
+		this.rC = rC;
 		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 		
 		potential = new P2Nitrogen(space, rC);
@@ -145,7 +154,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 		yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
 		zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared()); 
 		
-		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
+		double rX = xVecBox;
 		this.nLayer = (int)Math.round(rC/rX + 0.5);
 		
 //		System.out.println("rX: " + rX);
@@ -319,24 +328,27 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 	
 	public static void main (String[] args){
 		
-		int nCell =2;
-		String densityStr = "0.02330";
+		int nCell =4;
+		double density = 0.0230;
 		double rC = 100;
 		if(args.length > 0){
 			nCell = Integer.parseInt(args[0]);
 		}
-		
 		if(args.length > 1){
-			densityStr = args[1];
+			density = Double.parseDouble(args[1]);
 		}
+		if(args.length > 2){
+			rC = Double.parseDouble(args[2]);
+		}
+		
 		int numMolecule = nCell*nCell*nCell*2;
 //		System.out.println("Running simulation to construct Hessian Matrix for beta-phase nitrogen");
 //		System.out.println("with numMolecule of "+numMolecule + " at density of " + density);
 		
-		HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS test = new HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS(Space3D.getInstance(3), numMolecule, densityStr, rC);
-		
+		HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS test = new HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS(Space3D.getInstance(3), numMolecule, density, rC);
+
 		long startTime = System.currentTimeMillis();
-		String filename = new String ("beta"+numMolecule+"_2ndDer_d"+densityStr+"_new");
+		String filename = new String ("beta"+numMolecule+"_2ndDer_d"+density+"_new");
 
 		//test.constructHessianMatrix(filename, nCell);
 		test.constructHessianMatrix(nCell);
