@@ -38,13 +38,20 @@ public class MCMoveAtom extends MCMoveBoxStep {
     
     public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random,
     		          ISpace _space, double stepSize, double stepSizeMax,
+    		          boolean fixOverlap) {
+        this(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, _space,
+                stepSize, stepSizeMax, fixOverlap);
+    }
+
+    public MCMoveAtom(IPotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
+            ISpace _space, double stepSize, double stepSizeMax,
             boolean fixOverlap) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        this.energyMeter = meterPE;
         translationVector = (IVectorRandom)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
