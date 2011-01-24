@@ -439,19 +439,20 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	 * rotation Axis about (-x, 0, z)
     	 * ROTATION ANGLE: arctan(1/sqrt(2)) = 35.26438968deg
     	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(-35.26438968));
+    	double angle = Math.atan(1/Math.sqrt(2));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), -angle);
     	xzOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(35.26438968));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), angle);
     	xzOrientationTensor[1].E(rotationTensor);
     
     	/*
     	 * rotation Axis about (-x, 0, -z)
     	 */
-       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(-35.26438968));
+       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  -angle);
     	xzOrientationTensor[2].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(35.26438968));
+    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  angle);
     	xzOrientationTensor[3].E(rotationTensor);
     	
     }
