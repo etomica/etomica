@@ -474,7 +474,7 @@ public class SimDifferentImage1DHR extends Simulation {
             ReadParameters readParameters = new ReadParameters(inputFilename, params);
             readParameters.readParameters();
         }
-        
+        boolean first = params.first;
         int nA = params.numAtoms;
         double density = params.density;
         int D = params.D;
@@ -509,20 +509,45 @@ public class SimDifferentImage1DHR extends Simulation {
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
-        System.out.println("Init Bennett");
-        sim.initBennettParameter(filename, benNumSteps, runBlockSize);
-        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
-                Double.isInfinite(sim.bennettParam)){
-            throw new RuntimeException("Simulation failed to find a valid " +
-                    "Bennett parameter");
-        }
+//        System.out.println("Init Bennett");
+//        sim.initBennettParameter(filename, benNumSteps, runBlockSize);
+//        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+//                Double.isInfinite(sim.bennettParam)){
+//            throw new RuntimeException("Simulation failed to find a valid " +
+//                    "Bennett parameter");
+//        }
+//        
+//        System.out.println("equilibrate");
+//        sim.equilibrate(refFileName, eqNumSteps, runBlockSize);
+//        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+//                Double.isInfinite(sim.bennettParam)){
+//            throw new RuntimeException("Simulation failed to find a valid " +
+//                    "Bennett parameter");
+//        }
         
-        System.out.println("equilibrate");
-        sim.equilibrate(refFileName, eqNumSteps, runBlockSize);
-        if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
-                Double.isInfinite(sim.bennettParam)){
-            throw new RuntimeException("Simulation failed to find a valid " +
-                    "Bennett parameter");
+        if(first){
+            System.out.println("Init Bennett");
+            sim.initBennettParameter(filename, benNumSteps, runBlockSize);
+            if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                    Double.isInfinite(sim.bennettParam)){
+                throw new RuntimeException("Simulation failed to find a valid " +
+                        "Bennett parameter");
+            }
+            
+            System.out.println("equilibrate");
+            sim.equilibrate("bennett" , eqNumSteps, runBlockSize);
+            if(Double.isNaN(sim.bennettParam) || sim.bennettParam == 0 || 
+                    Double.isInfinite(sim.bennettParam)){
+                throw new RuntimeException("Simulation failed to find a valid " +
+                        "Bennett parameter");
+            }
+            System.out.println("equilibration finished.");
+        } else {
+            System.out.println("Init Bennett");
+            sim.initBennettParameter("bennett", benNumSteps, runBlockSize);
+            System.out.println("equilibrate");
+            sim.equilibrate(null, eqNumSteps, runBlockSize);
+            System.out.println("equilibration finished.");
         }
         System.out.println("equilibration finished.");
         
@@ -582,7 +607,9 @@ public class SimDifferentImage1DHR extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public int numAtoms = 2;  //number of atoms in the reference system.
+
+        public boolean first = true;
+        public int numAtoms = 10;  //number of atoms in the reference system.
         public double density = 0.50;
         public int D = 1;
         public double harmonicFudge = 1.0;
