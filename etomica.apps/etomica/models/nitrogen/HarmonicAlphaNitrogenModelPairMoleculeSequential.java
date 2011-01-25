@@ -121,7 +121,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 			boolean isNewPair = findPair.getIsNewPair(index);
 				
 			if(isNewPair){
-				double[][] a = cA2nD.d2phi_du2(new int[]{molec0,molec1});
+				double[][] a = cA2nD.d2phi_du2(new int[]{molec1,molec0});
 				for(int i=0; i<dofPerMol; i++){
 					for(int j=0; j<dofPerMol; j++){
 						array[i][molec1*dofPerMol + j] = a[i][j];

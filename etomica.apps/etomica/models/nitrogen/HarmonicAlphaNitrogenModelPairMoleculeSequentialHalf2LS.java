@@ -164,7 +164,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 							//For Numerical derivative
 //							transTensor.PE(potential.secondDerivative(pair));
 							
-							double[][] a = cA2nD.d2phi_du2(new int[]{molec0,molec1});
+							double[][] a = cA2nD.d2phi_du2(new int[]{molec1,molec0});
 							for(int i=0; i<dofPerMol; i++){
 								for(int j=0; j<dofPerMol; j++){
 									sumA[i][j] += a[i][j];
