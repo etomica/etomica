@@ -1,6 +1,5 @@
 package etomica.models.nitrogen;
 
-import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
@@ -9,7 +8,6 @@ import etomica.box.Box;
 import etomica.data.types.DataTensor;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -21,7 +19,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
-import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
 /**
