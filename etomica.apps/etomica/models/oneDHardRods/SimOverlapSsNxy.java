@@ -72,7 +72,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapSsNxy extends Simulation {
 
-    public SimOverlapSsNxy(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent, int[] shape) {
+    public SimOverlapSsNxy(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent, int[] shape, double tr) {
         super(_space);
         this.fname = filename;
         
@@ -118,8 +118,9 @@ public class SimOverlapSsNxy extends Simulation {
         coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
 
         Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        double truncationRadius = 1.4803453945760225;
-        if( numAtoms > 255) { truncationRadius = 2.2;}
+        double truncationRadius = tr;
+//        1.4803453945760225;
+//        if( numAtoms > 255) { truncationRadius = 2.2;}
         System.out.println("truncation "+truncationRadius);
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(space, potentialBase, truncationRadius);
 
@@ -379,6 +380,7 @@ public class SimOverlapSsNxy extends Simulation {
         double temperature = params.temperature;
         int D = params.D;
         int[] shape = params.shape;
+        double trunc = params.truncationRadius;
         int zork = 1;
         for(int i = 0; i < 3; i++){
             zork *= shape[i];
@@ -401,7 +403,7 @@ public class SimOverlapSsNxy extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        final SimOverlapSsNxy sim = new SimOverlapSsNxy(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN, shape);
+        final SimOverlapSsNxy sim = new SimOverlapSsNxy(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN, shape, trunc);
         
         if(false) {
             SimulationGraphic graphic = new SimulationGraphic(sim, sim.space, 
@@ -539,7 +541,8 @@ public class SimOverlapSsNxy extends Simulation {
         public long numSteps = 10000000;
         public double harmonicFudge = 1;
         public String filename = "notehere";
-        public double temperature = 0.01;
-        public int[] shape = {2, 2, 3};
+        public double temperature = 1.0;
+        public int[] shape = {2, 2, 2};
+        public double truncationRadius = 2.2;
     }
 }
