@@ -84,7 +84,10 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 		int nSites = 2*nCell+1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
 		
-		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
+//		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
+		
+		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef);
+		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef);
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 	}
 	
@@ -126,23 +129,14 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 			boolean isNewPair = findPair.getIsNewPair(index);
 				
 			if(isNewPair){
-				transTensor.E(potential.secondDerivative(pair));
-				for(int i=0; i<3; i++){
-					for(int j=0; j<3; j++){
-						array[i][molec1*dofPerMol + j] = transTensor.x.component(i, j);
-						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
-					}
-				}
-				// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+				double[][] a = cA2nD.d2phi_du2(new int[]{molec1,molec0});
 				for(int i=0; i<dofPerMol; i++){
 					for(int j=0; j<dofPerMol; j++){
-						if(i<3 && j<3) continue;
-						// j i because it got switched molecule A and molecule B
-						array[i][molec1*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec1}, new int[]{j,i});
+						array[i][molec1*dofPerMol + j] = a[i][j];
 						pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec1*dofPerMol + j];
 					}
 				}
-					
+									
 				findPair.updateNewMoleculePair(index);
 					
 			} else {
@@ -227,7 +221,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 				for(int j=0; j<dofPerMol; j++){
 					if(i<3 && j<3) continue;
 					// j i because it got switched molecule A and molecule B
-					array[i][molec0*dofPerMol + j] = cm2ndD.d2phi_du2(new int[]{molec0,molec0}, new int[]{j,i});
+					array[i][molec0*dofPerMol + j] = cAN2nD.d2phi_du2(new int[]{molec0,molec0}, new int[]{j,i});
 					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec0*dofPerMol + j];
 				}    		
 	    	}
@@ -320,7 +314,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;
 	protected double[][][][][][][] pairMatrix;
-	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+//	protected CalcNumerical2ndDerivativeNitrogen cm2ndD;
+	protected CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen cAN2nD;
+	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
 	protected SpeciesN2 species;
 	private static final long serialVersionUID = 1L;
