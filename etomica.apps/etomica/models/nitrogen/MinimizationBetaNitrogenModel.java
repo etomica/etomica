@@ -16,12 +16,10 @@ import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.atom.MoleculePair;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataTensor;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorRigidIterative;
@@ -54,26 +52,22 @@ import etomica.units.Pixel;
 
 
 /**
- * Simulation class for nitrogen molecules
- * beta-N2 crystal Structure
- * 
+ * Lattice-Energy Minimization for Beta-Nitrogen Structure
+ * using gradient
+ *  
  * @author Tai Boon Tan
  *
  */
 public class MinimizationBetaNitrogenModel extends Simulation{
 
-	public MinimizationBetaNitrogenModel(ISpace space, int[] nC, double temperature, double pressure, double newScale) {
+	public MinimizationBetaNitrogenModel(ISpace space, int[] nC, double density) {
 		super(space);
 		this.space = space;
-//		double a = 3.840259;//3.854;
-//		double c = 6.263463;//6.284; 
 		
 		BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
 	    BoxAgentManager boxAgentManager = new BoxAgentManager(boxAgentSource);
 	     
-		
 		double ratio = 1.631;
-		double density = 0.0236;
 		double a = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double c = a*ratio;
 		int numMolecule = nC[0]*nC[1]*nC[2]*2;
@@ -118,16 +112,23 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 				}	
 			}
 			
-//			System.out.println("*************Parameters*************");
-//			for (int i=0; i<u.length;i++){
-//				System.out.print(u[i] +", ");
-//				if((i+1)%5==0){
-//					System.out.println();
-//				}
-//			}
-			
 			int numDOF = coordinateDef.getCoordinateDim();
 			double[] newU = new double[numDOF];
+			
+//			double[] deviation = new double[]{
+//					-1.898068924113261E-4, 9.86615834932536E-5, 1.1427886833814682E-4, -0.0, -0.0, 
+//					1.7622553241736227E-4, -8.399450130980313E-6, 5.276642295370948E-5, 0.0, -0.0, 
+//					-1.7719627196299825E-4, -6.038293356702695E-5, -1.3280775950974544E-4, -0.0, -0.0, 
+//					1.9077763197827835E-4, -2.9879199817450797E-5, -3.423753185316514E-5, -1.7157581151746692E-9, 2.1003461237145532E-8
+//			};
+//			
+//			for(int i=0; i<u.length; i++){
+//				u[i] += deviation[i];
+//				System.out.print(u[i]+", ");
+//				if(i%5==4) System.out.println();
+//			}
+//			
+//			System.exit(1);
 			if(true){
 				for(int j=0; j<numDOF; j+=10){
 					if(j>0 && j%(nCa*10)==0){
@@ -166,8 +167,6 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 		
-		
-		
 		potentialMaster = new PotentialMasterListMolecular(this, rC, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rC, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 	    int cellRange = 6;
@@ -181,143 +180,23 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 	    	throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
 	    }
 		
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster);
-		meterPotentialEnergy.setBox(box);
-		double latticeEnergy = 0; // meterPotentialEnergy.getDataAsScalar();
-		System.out.println("Lattice Energy: "+ latticeEnergy);
-
-
-//		NormalModesFromFile nm = new NormalModesFromFile("beta"+numMolecule+"_2ndDer_d"+density, 3);
-//		meterHarm = new MeterHarmonicEnergy(coordinateDef, nm);
-		
-//		meterPE = new MeterPotentialEnergy(potentialMaster);
-//		meterPE.setBox(box);
-//		double[] uCoord = new double[coordinateDef.getCoordinateDim()];
-//		
-//		for (double i=-0.1; i<=0.101; i+=0.002){
-//			u = new double[]{i, 0, 0, 0, 0,
-//					         0, 0, 0, 0, 0, 
-//					         0, 0, 0, 0, 0, 
-//					         0, 0, 0, 0, 0};
-//			//uCoord[89] = i;
-//			int numDOF = coordinateDef.getCoordinateDim();
-//			if(true){
-//				for(int j=0; j<numDOF; j+=10){
-//					if(j>0 && j%(nCa*10)==0){
-//						j+=nCa*10;
-//						if(j>=numDOF){
-//							break;
-//						}
-//					}
-//					for(int k=0; k<10;k++){
-//						uCoord[j+k]= u[k];
-//					}
-//				}
-//				
-//				for(int j=nCa*10; j<numDOF; j+=10){
-//					if(j>nCa*10 && j%(nCa*10)==0){
-//						j+=nCa*10;
-//						if(j>=numDOF){
-//							break;
-//						}
-//					}
-//					for(int k=0; k<10;k++){
-//						uCoord[j+k]= u[k+10];
-//					}
-//				}
-//			}
-			
-			
-//			coordinateDef.setToU(box.getMoleculeList(), uCoord);
-//			double pe = meterPE.getDataAsScalar();
-//		//	double he = meterHarm.getDataAsScalar();
-//			System.out.println(i+" "+ (pe-latticeEnergy)/numMolecule);
-//		}
-//		
-//		System.exit(1);
-		
-		
-		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
-		move.setBox(box);
-		move.setPotential(potential);
-		move.setDoExcludeNonNeighbors(true);
-		//move.setStepSize(Kelvin.UNIT.toSim(temperature));
-		//((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-		   
-		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-		rotate.setBox(box);
-		
-		MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMaster, space);
-		mcMoveVolume.setBox(box);
-		pressure *= 1e9;
-		mcMoveVolume.setPressure(Pascal.UNIT.toSim(pressure));
-		
-		integrator = new IntegratorMC(this, potentialMaster);
-		integrator.getMoveManager().addMCMove(move);
-		integrator.getMoveManager().addMCMove(rotate);
-		//integrator.getMoveManager().addMCMove(mcMoveVolume);
-		integrator.setBox(box);
-		
-		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
-		
-		activityIntegrate = new ActivityIntegrate(integrator);
-		getController().addAction(activityIntegrate);
 	}
 	
 	public static void main (String[] args){
-//		System.out.println("pressure " + Pascal.UNIT.fromSim(31.48928359791796)/1e9);
-//		System.exit(1);
+
 		int nC0 = 8; 
 		int nC1 = 8; 
 		int nC2 = 8;
-		double temperature =0.002; // in Unit Kelvin
-		double pressure = 0.0; //in Unit GPa
-		long simSteps = 100000;
-		double newScale = 1.0;
-		if(args.length > 1){
-			simSteps = Long.parseLong(args[1]);
-		}
-		if(args.length > 2){
-			temperature = Double.parseDouble(args[2]);
-		}
-		if(args.length > 3){
-			pressure = Double.parseDouble(args[3]);
-		}
-		if(args.length > 4){
-			nC0 = Integer.parseInt(args[4]);
-		}
-		if(args.length > 5){
-			nC1 = Integer.parseInt(args[5]);
-		}
-		if(args.length > 6){
-			nC2 = Integer.parseInt(args[6]);
-		}
-		if(args.length > 7){
-			newScale = Double.parseDouble(args[7]);
-		}
-		
 		int[] nC = new int []{nC0,nC1,nC2};
 		int numMolecule =nC[0]*nC[1]*nC[2]*2;
-		
-		String filename = "betaN2_nA"+numMolecule+"_T"+temperature;
-		
-		if(args.length > 0){
-			filename = args[0];
-		} 
-//		System.out.println("Running beta-N2 crystal structure simulation with " + simSteps + " steps" );
-//		System.out.println("num Molecules: " + numMolecule+ " ; temperature: " + temperature
-//				+"K ; pressure: "+ pressure+"GPa");
-//		System.out.println("With volume scaling of " + newScale);
-//		System.out.println("Output file: " + filename + "\n");
 
 		double density = 0.0230;
-		final SimulationAlphaNitrogenModel sim = new SimulationAlphaNitrogenModel(Space3D.getInstance(3), nC, temperature, density);
+		final MinimizationBetaNitrogenModel sim = new MinimizationBetaNitrogenModel(Space3D.getInstance(3), nC, density);
 	    
 		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
-		final double latticeEnergy = 0; //meterPotentialEnergy.getDataAsScalar();
-//		System.out.println("Lattice Energy (per molecule): "+ latticeEnergy/numMolecule);
-
+		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
+		
 		PotentialCalculationTorqueSum pcForce = new PotentialCalculationTorqueSum();
         MoleculeAgentSource molAgentSource = new MoleculeAgentSource() {
             
@@ -332,6 +211,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
                 return IntegratorRigidIterative.MoleculeAgent.class;
             }
         };
+        
         MoleculeAgentManager molAgentManager = new MoleculeAgentManager(sim, sim.box, molAgentSource);
         pcForce.setMoleculeAgentManager(molAgentManager);
         double[] d = new double[16];
@@ -348,122 +228,14 @@ public class MinimizationBetaNitrogenModel extends Simulation{
             axes[i] = sim.space.makeVector();
             torques[i] = sim.space.makeVector();
         }
-        for (int outer = 0; outer < 30; outer++) {
+        for (int outer = 0; outer < 400; outer++) {
             System.out.println("**** "+outer+" ****");
-        double totalD = 0;
-        double step = 0;
-        double radianFac = 1e5;
-//        System.out.println("box size "+sim.box.getBoundary().getBoxSize());
-        IMolecule mol0 = sim.box.getMoleculeList().getMolecule(0);
-//        new ConformationNitrogen(sim.space).initializePositions(mol0.getChildList());
-//        IVectorMutable com = sim.space.makeVector(new double[]{-10,0,0});
-//        translator.setDestination(com);
-//        translator.actionPerformed(mol0);
-        IMolecule mol1 = sim.box.getMoleculeList().getMolecule(1);
-//        new ConformationNitrogen(sim.space).initializePositions(mol1.getChildList());
-//        com = sim.space.makeVector(new double[]{10,0,0});
-//        translator.setDestination(com);
-//        translator.actionPerformed(mol1);
-        RotationTensor3D rTensor = new RotationTensor3D();
-//        rTensor.setAxial(1, 2);
-//        doTransform(mol1, pos, rTensor);
-//        double u01 = sim.potential.energy(new MoleculePair(mol0, mol1));
-//        System.out.println("u01 "+u01);
-        IVector torque = null; //sim.potential.gradientAndTorque(new MoleculePair(mol0, mol1))[1][0];
-//        System.out.println("torque01 "+torque);
-        IteratorDirective id0 = new IteratorDirective(null, mol0);
-//        sim.potentialMaster.calculate(sim.box, id0, pcForce);
-//        System.out.println("torque0 "+torque);
-//        pcForce.reset();
-        meterPotentialEnergy.setTarget(mol0);
-//        double u0 = meterPotentialEnergy.getDataAsScalar();
-//        System.out.println("u0 "+u0);
-        rTensor.setAxial(1, 0.01);
-        IVectorMutable com = sim.space.makeVector();
-        com.E(pos.position(mol0));
-        
-//        torque = sim.potential.gradientAndTorque(new MoleculePair(mol0, mol1))[1][0];
-//        System.out.println("torque01 "+torque);
-//        for  (int i=0; i<2; i++) {
-//            com.setX(0, com.getX(0) + 0.01);
-//            translator.setDestination(com);
-//            translator.actionPerformed(mol0);
-//            System.out.println("u01 "+sim.potential.energy(new MoleculePair(mol0, mol1)));
-//            torque = sim.potential.gradientAndTorque(new MoleculePair(mol0, mol1))[1][0];
-//            System.out.println("torque01 "+torque);
-//            if (i==0) {
-//                DataTensor d2 = sim.potential.secondDerivative(new MoleculePair(mol0, mol1));
-//                System.out.println(d2);
-//            }
-//        }
-//        com.setX(0, com.getX(0) - 0.02);
-//        translator.setDestination(com);
-//        translator.actionPerformed(mol0);
-//        System.out.println("\n\n\n");
+	        double totalD = 0;
+	        double step = 0;
+	        double radianFac = 2e3; //????
 
-        
-        IVectorMutable uAxis = sim.coordinateDef.getMoleculeOrientation(mol0)[2];
-        System.out.println("uAxis: " + uAxis);
-//        IVectorMutable uAxis = sim.space.makeVector(new double[]{0.2, 0.4, 0.6});
-      
-        
+	        RotationTensor3D rTensor = new RotationTensor3D();
 
-//        uAxis.normalize();
-//        sim.potential.uAxis = uAxis;
-        
-        double dx = 0.001;
-        double dtheta = dx;
-        double d0 = 0;
-//        for (int i=0; i<3; i++) {
-//            rTensor.setRotationAxis(uAxis, dtheta);
-//            double u0 = 0;
-//            for (int j=0; j<3; j++) {
-//                double u = sim.potential.energy(new MoleculePair(mol0, mol1));
-//                if  (j==0) {
-//                    u0 = u;
-//                }
-//                else if (j==2) {
-//                    double du = (u-u0)/(2*dx);
-//                    System.out.println("d "+du);
-//                    if (i==0) {
-//                        d0 = du;
-//                    }
-//                    else if (i==2) {
-//                        System.out.println("d2 "+(du-d0)/(2*dtheta));
-//                    }
-//                }
-//                System.out.println(i+" "+j+" u01 "+u);
-//                torque = sim.potential.gradientAndTorque(new MoleculePair(mol0, mol1))[1][0];
-//                System.out.println(i+" "+j+" torque01 "+torque+" "+torque.dot(uAxis));
-//                if (i==1 && j==1) {
-//                    DataTensor d2 = sim.potential.secondDerivative(new MoleculePair(mol0, mol1));
-//                    d2.x.TE(2*dx);
-//                    System.out.println(d2);
-//                }
-//                doTransform(mol0, pos, rTensor);
-//            }
-//            rTensor.setRotationAxis(uAxis, -3*dtheta);
-//            doTransform(mol0, pos, rTensor);
-//
-//            com.setX(0, com.getX(0) + dx);
-//            translator.setDestination(com);
-//            translator.actionPerformed(mol0);
-//        }
-        
-        
-//        System.exit(1);
-//	        for  (int i=0; i<2; i++) {
-//	            doTransform(mol0, pos, rTensor);
-//	            System.out.println("u01 "+sim.potential.energy(new MoleculePair(mol0, mol1)));
-//	            torque = sim.potential.gradientAndTorque(new MoleculePair(mol0, mol1))[1][0];
-//	            System.out.println("torque01 "+torque);
-//	            System.out.println("u0 "+meterPotentialEnergy.getDataAsScalar());
-//	            sim.potentialMaster.calculate(sim.box, id0, pcForce);
-//	            torque = ((IntegratorRigidIterative.MoleculeAgent)molAgentManager.getAgent(mol0)).torque;
-//	            System.out.println("torque0 "+torque);
-//	            pcForce.reset();
-//	        }
-//        System.exit(1);
 		    for (int iter=0; iter<3; iter++) {
 		        double[] g = new double[12];
 		        double t = 0;
@@ -477,7 +249,8 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		                t += g[i*3+j]*g[i*3+j];
 		            }
 		            torques[i].E(((IntegratorRigidIterative.MoleculeAgent)molAgentManager.getAgent(iMol)).torque);
-		            System.out.println(torques[i]);
+//		            System.out.println(torques[i]);
+		            
 		            if (iter == 0) {
 		                double t2 = torques[i].squared();
 		                double sqrtT = Math.sqrt(t2);
@@ -502,20 +275,8 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		                totalD -= d[j]*torques[j-12].dot(axes[j-12])/radianFac;
 		            }
 		            System.out.println(Arrays.toString(d));
-		//                for (int j=0; j<3; j++) {
-		//                    t2[j] /= 4;
-		//                }
-		//                t = 0;
-		//                for (int j=0; j<12; j++) {
-		//                    d[j] -= t2[j%3];
-		//                    t += d[j]*d[j];
-		//                }
-		//                t = Math.sqrt(t);
-		//                for (int j=0; j<12; j++) {
-		//                    d[j] /= t;
-		//                }
-		//                System.out.println("[COM] "+Arrays.toString(d));
 		            System.out.println("totalD "+totalD);
+		        
 		            if (step1 == 0) {
 		                step = 0.0000001;
 		            }
@@ -563,9 +324,17 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		    }
         }
         
-        
-        
+
         //DONE with minimization
+        
+        double[] newU = sim.coordinateDef.calcU(sim.box.getMoleculeList());
+        for(int i=0; i<4; i++){
+        	int iMolec = i<2 ? i : i+(nA-2);
+        	for (int k=0; k<5; k++){
+        		System.out.print(newU[iMolec*5+k]+", ");
+        	}
+        	System.out.println();
+        }
         
         
         double[] xf = new double[12];
@@ -580,10 +349,14 @@ public class MinimizationBetaNitrogenModel extends Simulation{
                 disp += dx*dx;
             }
         }
+        
         disp = Math.sqrt(disp);
         System.out.println("disp "+disp);
         double newLatticeEnergy = meterPotentialEnergy.getDataAsScalar();
-        System.out.println("Lattice Energy (per molecule): "+newLatticeEnergy/numMolecule);
+        System.out.println("Old Lattice Energy (per molecule): "+latticeEnergy/numMolecule);
+        System.out.println("New Lattice Energy (per molecule): "+newLatticeEnergy/numMolecule);
+        
+        System.exit(1);
         for (int l=0; l<201; l++) {
             for (int i=0; i<4; i++) {
                 for (int k=i%2; k<numMolecule; k+=2) {
@@ -620,138 +393,6 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         }            
         System.exit(1);
 
-//		FileWriter fileWriter;
-//		try{
-//        	fileWriter = new FileWriter(filename+"_energy");
-//        	
-//        } catch (IOException e){
-//        	fileWriter = null;
-//        }
-//        final FileWriter fileWriterEnergy = fileWriter;
-//        
-//        
-//        IAction outputAction = new IAction(){
-//        	public void actionPerformed(){
-//        		double pe = sim.meterPE.getDataAsScalar();
-//        		double he = sim.meterHarm.getDataAsScalar();
-//        		System.out.println("(pe-latticeEnergy): " + (pe-latticeEnergy));
-////        		try {
-////        			fileWriterEnergy.write((pe-latticeEnergy) + " " + he +"\n");
-////        			
-////        		} catch (IOException e){
-////        			
-////        		}
-//        		
-//        	}
-//        };
-//        
-//        IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
-//        outputActionListener.setInterval((int)simSteps/400);
-//        sim.integrator.getEventManager().addListener(outputActionListener);
-		
-//		MeterNormalizedCoordBeta meterCoord = new MeterNormalizedCoordBeta(sim.box, sim.coordinateDef, sim.species);
-//		IntegratorListenerAction meterCoordListener = new IntegratorListenerAction(meterCoord);
-//		meterCoordListener.setInterval(1000);                                      
-//		sim.integrator.getEventManager().addListener(meterCoordListener);       
-		
-//		AccumulatorAverage energyAverage = new AccumulatorAverageFixed();
-//		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);
-//		
-//		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
-//		energyListener.setInterval(numMolecule);
-//		sim.integrator.getEventManager().addListener(energyListener);
-		
-//		MeterPressureMolecular meterPressure = new MeterPressureMolecular(sim.space);
-//		meterPressure.setIntegrator(sim.integrator);
-//						
-//		AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
-//		DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
-//		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
-//		pressureListener.setInterval((int)simSteps/100);
-//		sim.integrator.getEventManager().addListener(pressureListener);
-			
-//		double staticPressure = meterPressure.getDataAsScalar();
-//		System.out.println("Static Pressure (GPa): " + Pascal.UNIT.fromSim(staticPressure)/1e9);
-		
-		
-		if(true){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
-		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
-		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
-		    
-		    DiameterHashByType diameter = new DiameterHashByType(sim);
-			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(sim.species.getPType(), 0.0);
-			
-			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
-			
-			IAction output = new IAction(){
-
-				public void actionPerformed() {
-					System.out.println("energy: " + (meterPotentialEnergy.getDataAsScalar()-latticeEnergy));
-					
-				}
-				
-			};
-			
-			IntegratorListenerAction outListener = new IntegratorListenerAction(output);
-			outListener.setInterval(500);
-			sim.integrator.getEventManager().addListener(outListener);
-			
-			return;
-		}
-		
-		sim.activityIntegrate.setMaxSteps(simSteps/5);
-		sim.getController().actionPerformed();
-		System.out.println("****System Equilibrated (20% of SimSteps)****");
-		
-		long startTime = System.currentTimeMillis();
-		System.out.println("\nStart Time: " + startTime);
-		sim.getController().reset();
-
-		
-		sim.activityIntegrate.setMaxSteps(simSteps);
-		sim.getController().actionPerformed();
-		
-//		try{
-//			fileWriterEnergy.close();
-//	        
-//		} catch (IOException e){
-//	        	
-//		}
-//		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-//		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-		
-//		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-//		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-		
-//		System.out.println("Average energy (per molecule): "   + averageEnergy/numMolecule  
-//				+ " ;error: " + errorEnergy/numMolecule);
-//		System.out.println("Average pressure (GPa): " + Pascal.UNIT.fromSim(averagePressure)/1e9 
-//				+ " ;error: " + Pascal.UNIT.fromSim(errorPressure)/1e9);
-		
-//		double[] u = sim.coordinateDef.calcU(sim.box.getMoleculeList());
-//		
-//		for (int i=0; i<u.length; i++){
-//			
-//			System.out.print (u[i] + ", ");
-//			if(i>1 && i%20==19){
-//				System.out.println("");
-//			}
-//		}
-		
-		
-//		double  a = sim.box.getBoundary().getEdgeVector(0).getX(0)/nC0;
-//		double  c = sim.box.getBoundary().getEdgeVector(2).getX(2)/nC2;
-//		System.out.println("\na: " +a + " ;c: "+c +" ;c/a: " + (c/a));
-//		double scaling = sim.box.getBoundary().getEdgeVector(0).getX(0)/(nC0*3.854);
-//	    System.out.println("scaling: " + scaling);
-//	    long endTime = System.currentTimeMillis();
-//		System.out.println("End Time: " + endTime);
-//		System.out.println("Time taken: " + (endTime - startTime));
-			
-//		meterCoord.writeUdistribution(filename);
-			
 	}
 	
     protected static void doTransform(IMolecule molecule, IAtomPositionDefinition posDef, Tensor rotationTensor) {
@@ -770,8 +411,6 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 	protected Box box;
 	protected ISpace space;
 	protected PotentialMasterListMolecular potentialMaster;
-	protected IntegratorMC integrator;
-	protected ActivityIntegrate activityIntegrate;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
