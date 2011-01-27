@@ -2,9 +2,7 @@ package etomica.models.nitrogen;
 
 import java.util.Arrays;
 
-import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
@@ -12,7 +10,6 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -20,21 +17,15 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
-import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.simulation.Simulation;
@@ -45,9 +36,6 @@ import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
-import etomica.units.Kelvin;
-import etomica.units.Pascal;
-import etomica.units.Pixel;
 
 
 
@@ -55,7 +43,7 @@ import etomica.units.Pixel;
  * Lattice-Energy Minimization for Beta-Nitrogen Structure
  * using gradient
  *  
- * @author Tai Boon Tan
+ * @author Andrew Schultz
  *
  */
 public class MinimizationBetaNitrogenModel extends Simulation{
