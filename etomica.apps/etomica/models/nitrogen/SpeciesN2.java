@@ -2,6 +2,7 @@ package etomica.models.nitrogen;
 
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
+import etomica.api.IVector;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeLeaf;
@@ -63,6 +64,11 @@ public class SpeciesN2 extends Species {
 
      public int getNumLeafAtoms() {
          return 6;
+     }
+     
+
+     public void initializeConformation(IMolecule molecule, IVector v) {
+         ((ConformationNitrogen)conformation).initializePositions(molecule.getChildList(), v);
      }
     
     public final static int indexN1 = 0;

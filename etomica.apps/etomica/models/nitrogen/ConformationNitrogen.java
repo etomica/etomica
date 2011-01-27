@@ -2,6 +2,7 @@ package etomica.models.nitrogen;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.config.IConformation;
 import etomica.space.ISpace;
@@ -43,6 +44,28 @@ public class ConformationNitrogen implements IConformation, java.io.Serializable
 		 
 		
 	}
+	
+	public void initializePositions(IAtomList atomList, IVector v) {
+        
+        IAtom n1 = atomList.getAtom(SpeciesN2.indexN1);
+        n1.getPosition().Ea1Tv1(-bondOrigN, v);
+        
+        IAtom n2 = atomList.getAtom(SpeciesN2.indexN2);
+        n2.getPosition().Ea1Tv1(bondOrigN, v);
+        
+        IAtom p1Left = atomList.getAtom(SpeciesN2.indexP1left);
+        p1Left.getPosition().Ea1Tv1(-bondOrigP1, v);
+        
+        IAtom p2Left = atomList.getAtom(SpeciesN2.indexP2left);
+        p2Left.getPosition().Ea1Tv1(-bondOrigP2, v);
+        
+        IAtom p1Right = atomList.getAtom(SpeciesN2.indexP1right);
+        p1Right.getPosition().Ea1Tv1(bondOrigP1, v);
+        
+        IAtom p2Right = atomList.getAtom(SpeciesN2.indexP2right);
+        p2Right.getPosition().Ea1Tv1(bondOrigP2, v);
+         
+    }
 	
     public final static double [] Echarge = new double [6];
     static {
