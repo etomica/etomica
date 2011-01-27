@@ -74,6 +74,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	positionVector[3] = space.makeVector(new double[]{-0.017669323683296188, 0.03766804096641073, -6.834032947314052E-5});
     	
     	axis = space.makeVector();
+    	orientVector = space.makeVector();
     	
         orientationManager = new MoleculeAgentManager(sim, box, new OrientationAgentSource());
         atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
@@ -608,47 +609,29 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	
 	       	double u3 = axis.dot(siteOrientation[1]);  
 	    	double u4 = axis.dot(siteOrientation[2]); 
-	    	double ratio = Math.abs(u3/u4);
 	    	
-	    	if(Math.abs(u3)< 1e-12 && Math.abs(u4) < 1e-12){
-	    		u[j] = 0.0;
-	    		u[j+1] = 0.0;
+	    	double l = Math.sqrt(axis.Mv1Squared(siteOrientation[0]));
+	    	
+	    	if(u4==0.0){
+	    		
+	    		u[j] = l;
+	    		u[j+1] = 0;
+	    		
 	    	} else {
-	    	
-		    	double a = axis.dot(siteOrientation[0]);
-		    	double theta = Math.acos(a);
-		    	/*
-		    	 * 
-		    	 */
-		    	if(Degree.UNIT.fromSim(theta) > 179.99999){
-		    		u[j] = Math.sqrt(2);
-		    		u[j+1] = Math.sqrt(2);
-		    		
-		    	} else {
-			    	
-			    	if(Math.abs(u4) > -1e-10 && Math.abs(u4) < 1e-10){
-			    		
-			    		u[j] = Math.sqrt(2*(1-Math.cos(theta)));;
-			    		if(u3 < 0.0){
-			    			u[j] = -u[j];
-			    		}
-			    		
-			    		u[j+1] = u4;
-			    	} else {
-			    		if(u4 < 0.0){
-			    			u[j+1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			    		} else {
-			    			u[j+1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			    		}
-			    		
-			    		if (u3 < 0.0){
-			    			u[j] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			    		} else {
-			    			u[j] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			    		}
-			    	}
-		    	}
+	            double ratio = Math.abs(u3/u4);
+
+	            u[j+1] =  l/Math.sqrt(ratio*ratio+1);
+	    		
+                u[j] =  ratio*l/Math.sqrt(ratio*ratio+1);
 	    	}
+
+	    	if(u4 < 0.0){
+                u[j+1] *= -1;
+            }
+            if (u3 < 0.0){
+                u[j] *= -1;
+            }
+
 	    	j += coordinateDim/molecules.getMoleculeCount();
         }
         return u;
@@ -810,56 +793,20 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	        for (int i=0; i < molecules.getMoleculeCount() ; i++){
 	        	
 	        	IMolecule molecule = molecules.getMolecule(i);
-	            IVectorMutable[] siteOrientation = (IVectorMutable[])orientationManager.getAgent(molecule);
-		    	
-	            IVectorMutable rotationAxis = space.makeVector();
-		    	RotationTensor3D rotation = new RotationTensor3D();
-		    	rotation.E(tensor);
-	            /*
-		    	 *   STEP 1
-		    	 * 
-		    	 * Determine the Orientation of Each Molecule
-		    	 * a. To fine the angle between the molecule orientation and
-		    	 * 		orientation[0] (its initial position)
-		    	 * b. Take the cross product of the 2 vectors to find its rotation axis
-		    	 * c. Use RotationTensor3D to rotate the molecule back to its initial position
-		    	 */
-	         
-		    	IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
-		    	
-		        /*
-		         * a.
-		         */
-		    	axis.Ev1Mv2(leafPos1, leafPos0);
-		    	axis.normalize();
-		    		    	
-		    	double angle = Math.acos(axis.dot(siteOrientation[0]));
-		    	
-		    	/*
-		    	 * b.
-		    	 */
-		    	
-		    	if (Math.abs(angle) > 5e-8){ // make sure we DO NOT cross-product vectors with very small angle
-		    		rotationAxis.E(axis);
-			    	rotationAxis.XE(siteOrientation[0]);
-			    	rotationAxis.normalize();
-			    	
-			    	/*
-			    	 * c. rotating clockwise.
-			    	 */
-			    	rotation.setRotationAxis(rotationAxis, angle);
-			    	
-			      	if(rotation.isNaN()){
-			    		System.out.println("Step 1 Rotation tensor is BAD!");
-			    		System.out.println("Rotation Angle is too small, angle: "+ angle);
-			    		System.out.println("Rotation is not necessary");
-			    		System.out.println(rotation);
-			    		throw new RuntimeException();
-			    	}
-			        ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
-		            atomGroupAction.actionPerformed(molecule);
-		    	}
+	        	
+	        	IVectorMutable[] siteOrientation = (IVectorMutable[])orientationManager.getAgent(molecule);
+
+                double u3 = newU[j];
+                double u4 = newU[j+1];
+                double check = u3*u3 + u4*u4;
+                
+	        	//Putting the molecule back to its nominal orientation
+	        	// when u3 and u4 equal to zero
+	        	if(check==0.0){
+	        	    ((ConformationNitrogen)((SpeciesN2)molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
+	        	    j+= coordinateDim/molecules.getMoleculeCount();
+	        	    continue;
+	        	}
 	                    
 		    	/*
 		    	 *    STEP  2
@@ -884,10 +831,6 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	 *  
 		    	 */
 	
-		    	double u3 = newU[j];
-	        	double u4 = newU[j+1];
-	        	double check = u3*u3 + u4*u4;
-	        	
 	        	/*
 	    		 * scale u3 and u4 accordingly so that they will satisfy the
 	    		 *  condition u3^2 + u4^2 < 4.0
@@ -898,61 +841,27 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	        			&& (check > 4.0)){
 	        		System.out.println("FREE ROTOR " + u3 + " " + u4);
 	        		throw new RuntimeException("<CoordinateDefinitionNitrogen> in setToU method");
-//	        		double randU3 = random.nextDouble()*Math.sqrt(2);
-//	        		double randU4 = random.nextDouble()*Math.sqrt(2);
-//	        		
-//	        		u3 = randU3;
-//	        		u4 = randU4;
-//	        		
-//	        		if(newU[j] < 0.0){
-//	        			newU[j] = -u3;
-//	        		} else {
-//	        			newU[j] = u3;
-//	        		}
-//	        		
-//	        		if(newU[j+1] < 0.0){
-//	        			newU[j+1] = -u4;
-//	        		} else {
-//	        			newU[j+1] = u4;
-//	        		}
 	        	}
-		  	
-	  
-		        if (Math.abs(newU[j])>1e-7 || Math.abs(newU[j+1])>1e-7){
-		        	//System.out.println((j+1) +" " + (j+2) +" perform the rotation");
-		        	
-		        	/*
-			         * a.	
-			         */
-		        	axis.E(0);
-			    	axis.Ea1Tv1(newU[j], siteOrientation[1]);
-			    	axis.PEa1Tv1(newU[j+1], siteOrientation[2]);
-			    	axis.normalize();
-			    	
-			    	/*
-			    	 * b.
-			    	 */
-			    	angle = Math.acos(1.0000000000000004 - (newU[j]*newU[j] + newU[j+1]*newU[j+1])*0.5);
-			    	if(Math.abs(angle) > 1e-7){
-				    	rotationAxis.E(0);
-				    	rotationAxis.E(axis);
-				    	rotationAxis.XE(siteOrientation[0]);
-				    	rotationAxis.normalize();
-				    	
-				    	rotation.setRotationAxis(rotationAxis, -angle);
-				    	
-				    	if(rotation.isNaN()){
-				    		System.out.println("Step 2 Rotation tensor is BAD!");
-				    		System.out.println("Rotation Angle is too small, angle: "+ angle);
-				    		System.out.println("Rotation is not necessary");
-				    		System.out.println(rotation);
-				    		throw new RuntimeException();
-				    	}
-				    	
-				    	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
-				        atomGroupAction.actionPerformed(molecule);
-			    	}
-		        }
+			
+	        	/*
+		         * a.	
+		         */
+		    	axis.Ea1Tv1(u3, siteOrientation[1]);
+		    	axis.PEa1Tv1(u4, siteOrientation[2]);
+		    	axis.normalize();
+		    	
+		    	/*
+		    	 * b.
+		    	 */
+		    	double x = check*0.5;
+		    	double costheta = 1. - x; 
+                double sintheta = Math.sqrt((2-x)*x);  // sqrt(1 - (1-x)^2) = sqrt(1 - 1 + 2x - x^2) = sqrt(2x - x^2)
+		    	
+		    	orientVector.Ea1Tv1(costheta, siteOrientation[0]);
+		    	orientVector.PEa1Tv1(sintheta, axis);
+		    	if (orientVector.isNaN()) throw new RuntimeException();
+		    	((ConformationNitrogen)((SpeciesN2)molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), orientVector);
+			    
 		    	j += coordinateDim/molecules.getMoleculeCount();
 		    	
 	        }
@@ -968,131 +877,73 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	}
     	
 		IMolecule molecule = box.getMoleculeList().getMolecule(moleculei);
-		IVectorMutable[] siteOrientation = (IVectorMutable[])orientationManager.getAgent(molecule);
-		    	
-		IVectorMutable rotationAxis = space.makeVector();
-		RotationTensor3D rotation = new RotationTensor3D();
-		rotation.E(tensor);
-	            /*
-		    	 *   STEP 1
-		    	 * 
-		    	 * Determine the Orientation of Each Molecule
-		    	 * a. To fine the angle between the molecule orientation and
-		    	 * 		orientation[0] (its initial position)
-		    	 * b. Take the cross product of the 2 vectors to find its rotation axis
-		    	 * c. Use RotationTensor3D to rotate the molecule back to its initial position
-		    	 */
-	         
-		IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
-		    	
-		/*
-         * a.
-         */
-    	axis.Ev1Mv2(leafPos1, leafPos0);
-    	axis.normalize();
-		    		    	
-    	double angle = Math.acos(axis.dot(siteOrientation[0]));
-		    	
-    	/*
-    	 * b.
-    	 */
-		    	
-    	if (Math.abs(angle) > 5e-8){ // make sure we DO NOT cross-product vectors with very small angle
-    		rotationAxis.E(axis);
-	    	rotationAxis.XE(siteOrientation[0]);
-	    	rotationAxis.normalize();
-			    	
-	    	/*
-	    	 * c. rotating clockwise.
-	    	 */
-	    	rotation.setRotationAxis(rotationAxis, angle);
-			    	
-	      	if(rotation.isNaN()){
-	    		System.out.println("Step 1 Rotation tensor is BAD!");
-	    		System.out.println("Rotation Angle is too small, angle: "+ angle);
-	    		System.out.println("Rotation is not necessary");
-	    		System.out.println(rotation);
-	    		throw new RuntimeException();
-	    	}
-	        ((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
-            atomGroupAction.actionPerformed(molecule);
-    	}
-	                    
-	 	/*	  
-	 	 *     STEP  2
-		 * 
-	   	 * 
-	   	 *  First we find the component for siteOrientation[1] by the following equation
-	   	 *  x = sqrt(1 - u[j]^2 - u[j+1]^2)  ---eq
-	   	 *  All the vectors used are normalized
-	   	 *  
-	   	 *  a. determine the 'new orientation vector' for the molecule
-	   	 *  	by using the components computed in the equation
-	   	 *  b. find the rotation axis by crossing vector 'new orientation vector' 
-	   	 *  	with siteOrientation[0]
-	   	 *  c. rotate the molecule to the given position
-	   	 *  
-	   	 *  the rotation angle is determine through the equation that satisfies the 
-	   	 *  equation below:
-	   	 *       u3^2 + u4^2 = 2[ 1- cos(theta) ]
-	   	 *  at small theta limit, the equation becomes:
-	   	 *       u3^2 + u4^2 = theta^2
-	   	 *  
-	   	 *  
-	   	 */
-	
-    	double u3 = newU[3];
-	    double u4 = newU[4];
-	    double check = u3*u3 + u4*u4;
-	        	
-	   	/*
-	   	 * scale u3 and u4 accordingly so that they will satisfy the
-	     *  condition u3^2 + u4^2 < 4.0
-	     *  
-	     *  Free Rotor
-	     */
-	    if((Math.abs(u3) > (Math.sqrt(2)+1e-10) || Math.abs(u4) > (Math.sqrt(2)+1e-10)) 
-	    	&& (check > 4.0)){
-	    	System.out.println("FREE ROTOR " + u3 + " " + u4);
-	    	throw new RuntimeException("<CoordinateDefinitionNitrogen> in setToU method");
-	    }
-		  	
-	  
-        if (Math.abs(newU[3])>1e-7 || Math.abs(newU[4])>1e-7){
-        	
-        	/*
-	         * a.	
-	         */
-        	axis.E(0);
-	    	axis.Ea1Tv1(newU[3], siteOrientation[1]);
-	    	axis.PEa1Tv1(newU[4], siteOrientation[2]);
-	    	axis.normalize();
-			    	
-	    	/*
-	    	 * b.
-	    	 */
-	    	angle = Math.acos(1.0000000000000004 - (newU[3]*newU[3] + newU[4]*newU[4])*0.5);
-	    	if(Math.abs(angle) > 1e-7){
-		    	rotationAxis.E(0);
-		    	rotationAxis.E(axis);
-		    	rotationAxis.XE(siteOrientation[0]);
-		    	rotationAxis.normalize();
-				    	
-		    	rotation.setRotationAxis(rotationAxis, -angle);
-				    	
-		    	if(rotation.isNaN()){
-		    		System.out.println("Step 2 Rotation tensor is BAD!");
-		    		System.out.println("Rotation Angle is too small, angle: "+ angle);
-		    		System.out.println("Rotation is not necessary");
-		    		System.out.println(rotation);
-		    		throw new RuntimeException();
-		    	}
-				    	
-		    	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotation);
-		        atomGroupAction.actionPerformed(molecule);
-	    	}
+        
+        IVectorMutable[] siteOrientation = (IVectorMutable[])orientationManager.getAgent(molecule);
+
+
+        double u3 = newU[3];
+        double u4 = newU[4];
+        double check = u3*u3 + u4*u4;
+        
+        //Putting the molecule back to its nominal orientation
+        // when u3 and u4 equal to zero
+        if(check==0.0){
+            ((ConformationNitrogen)((SpeciesN2)molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
+            return;
         }
+                
+        /*
+         *    STEP  2
+         * 
+         * 
+         *  First we find the component for siteOrientation[1] by the following equation
+         *  x = sqrt(1 - u[j]^2 - u[j+1]^2)  ---eq
+         *  All the vectors used are normalized
+         *  
+         *  a. determine the 'new orientation vector' for the molecule
+         *      by using the components computed in the equation
+         *  b. find the rotation axis by crossing vector 'new orientation vector' 
+         *      with siteOrientation[0]
+         *  c. rotate the molecule to the given position
+         *  
+         *  the rotation angle is determine through the equation that satisfies the 
+         *  equation below:
+         *       u3^2 + u4^2 = 2[ 1- cos(theta) ]
+         *  at small theta limit, the equation becomes:
+         *       u3^2 + u4^2 = theta^2
+         *  
+         *  
+         */
+
+        /*
+         * scale u3 and u4 accordingly so that they will satisfy the
+         *  condition u3^2 + u4^2 < 4.0
+         *  
+         *  Free Rotor
+         */
+        if((Math.abs(u3) > (Math.sqrt(2)+1e-10) || Math.abs(u4) > (Math.sqrt(2)+1e-10)) 
+                && (check > 4.0)){
+            System.out.println("FREE ROTOR " + u3 + " " + u4);
+            throw new RuntimeException("<CoordinateDefinitionNitrogen> in setToU method");
+        }
+    
+        /*
+         * a.   
+         */
+        axis.Ea1Tv1(u3, siteOrientation[1]);
+        axis.PEa1Tv1(u4, siteOrientation[2]);
+        axis.normalize();
+        
+        /*
+         * b.
+         */
+        double x = check*0.5;
+        double costheta = 1. - x;    // 
+        double sintheta = Math.sqrt((2-x)*x);  // sqrt(1 - (1-x)^2) = sqrt(1 - 1 + 2x - x^2) = sqrt(2x - x^2)
+        
+        orientVector.Ea1Tv1(costheta, siteOrientation[0]);
+        orientVector.PEa1Tv1(sintheta, axis);
+        ((ConformationNitrogen)((SpeciesN2)molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), orientVector);
 		        
         IVectorMutable site = getLatticePosition(molecule);
         for (int k = 0; k < site.getD(); k++) {
@@ -1110,7 +961,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     protected final Tensor[] yOrientationTensor;
     protected IVectorMutable[] positionVector;
 	protected final Tensor3D tensor = new Tensor3D(new double [][]{{1.0, 0.0, 0.0},{0.0, 1.0, 0.0},{0.0, 0.0, 1.0}});
-    protected final IVectorMutable axis;
+    protected final IVectorMutable axis, orientVector;
     protected Configuration configuration;
     protected MoleculeAgentManager orientationManager; 
     protected final MoleculeChildAtomAction atomGroupAction;
