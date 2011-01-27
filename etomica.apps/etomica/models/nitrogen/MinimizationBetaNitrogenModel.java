@@ -27,6 +27,7 @@ import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MeterHarmonicEnergy;
+import etomica.potential.PotentialCalculationEnergySumBigDecimal;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -36,6 +37,7 @@ import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
+import etomica.units.Pascal;
 
 
 
@@ -104,10 +106,10 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 			double[] newU = new double[numDOF];
 			
 //			double[] deviation = new double[]{
-//					-1.898068924113261E-4, 9.86615834932536E-5, 1.1427886833814682E-4, -0.0, -0.0, 
-//					1.7622553241736227E-4, -8.399450130980313E-6, 5.276642295370948E-5, 0.0, -0.0, 
-//					-1.7719627196299825E-4, -6.038293356702695E-5, -1.3280775950974544E-4, -0.0, -0.0, 
-//					1.9077763197827835E-4, -2.9879199817450797E-5, -3.423753185316514E-5, -1.7157581151746692E-9, 2.1003461237145532E-8
+//					1.2780887459484802E-10, -7.492459985769528E-10, 1.4581758023268776E-10, 2.4394273825234006E-8, 8.42930716693827E-9, 
+//					-1.3034284762625248E-10, 7.715463823387836E-10, -1.397282289872237E-10, -2.4096713784662293E-8, -9.245658416530434E-9, 
+//					-1.4337864229219122E-10, -7.749569874704321E-10, -1.4337686593535182E-10, 3.1120726966510594E-8, -1.1904762815825307E-8, 
+//					1.4595613606616098E-10, 7.526033130034193E-10, 1.3732659454035456E-10, -0.0, 0.0
 //			};
 //			
 //			for(int i=0; i<u.length; i++){
@@ -147,7 +149,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 			coordinateDef.initNominalU(box.getMoleculeList());
 			
 		}
-
+		this.initialU = u;
 		
 		box.setBoundary(boundary);
 		double rC = a*nC[0]*0.475;
@@ -171,19 +173,25 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 	}
 	
 	public static void main (String[] args){
-
+		System.out.println("pressure: " + Pascal.UNIT.fromSim(31.48928359791796 )/1e9);
+		System.exit(1);
 		int nC0 = 8; 
 		int nC1 = 8; 
 		int nC2 = 8;
 		int[] nC = new int []{nC0,nC1,nC2};
 		int numMolecule =nC[0]*nC[1]*nC[2]*2;
 
-		double density = 0.0230;
+		double density = 0.0200;
 		final MinimizationBetaNitrogenModel sim = new MinimizationBetaNitrogenModel(Space3D.getInstance(3), nC, density);
 	    
 		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
+		meterPotentialEnergy.setPotentialCalculation(new PotentialCalculationEnergySumBigDecimal(18));
+		long start = System.currentTimeMillis();
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
+		long end = System.currentTimeMillis();
+		System.out.println("diff: " + (end-start)/(1000.0));
+		System.exit(1);
 		
 		PotentialCalculationTorqueSum pcForce = new PotentialCalculationTorqueSum();
         MoleculeAgentSource molAgentSource = new MoleculeAgentSource() {
@@ -210,17 +218,22 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         int nA = 16;
         double step1 = 0;
         double[] x0 = new double[12];
+        
+        IVectorMutable[] orient0 = new IVectorMutable[4];
+        IVectorMutable[] orientf = new IVectorMutable[4];
         IVectorMutable[] torques = new IVectorMutable[4];
         IVectorMutable[] axes = new IVectorMutable[4];
         for (int i=0; i<4; i++) {
             axes[i] = sim.space.makeVector();
             torques[i] = sim.space.makeVector();
+            orient0[i] = sim.space.makeVector();
+            orientf[i] = sim.space.makeVector();
         }
-        for (int outer = 0; outer < 400; outer++) {
+        for (int outer = 0; outer < 30; outer++) {
             System.out.println("**** "+outer+" ****");
 	        double totalD = 0;
 	        double step = 0;
-	        double radianFac = 2e3; //????
+	        double radianFac = 1; //????
 
 	        RotationTensor3D rTensor = new RotationTensor3D();
 
@@ -252,10 +265,9 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		        System.out.println(Arrays.toString(g));
 		        if (iter == 0) {
 		            t = Math.sqrt(t);
-		//                double[] t2 = new double[3];
+
 		            for (int j=0; j<12; j++) {
 		                d[j] = -g[j]/t;
-		//                    t2[j%3] += d[j];
 		                totalD += g[j]*d[j];
 		            }
 		            for (int j=12; j<16; j++) {
@@ -274,19 +286,35 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		            System.out.println("step "+step);
 		        }
 		        else {
-		            double newTotalD = 0;
-		            for (int j=0; j<12; j++) {
-		                newTotalD += g[j]*d[j];
-		            }
-		            System.out.println("totalD "+newTotalD);
-		//                System.out.println(totalD + " "+step+" "+newTotalD+" "+totalD);
-		            double oldStep = step; 
-		            step = - newTotalD * step / (newTotalD - totalD);
-		            if (iter == 1) {
-		                step1 = oldStep + step;
-		            }
-		            totalD = newTotalD;
-		            System.out.println("step "+step);
+		        	double newTotalD = 0;
+	                for (int j=0; j<12; j++) {
+	                    newTotalD += g[j]*d[j];
+	                }
+
+	                for (int j=12; j<16; j++) {
+	                	newTotalD -= d[j]*torques[j-12].dot(axes[j-12])/radianFac;
+	                }
+	                
+	                System.out.println("totalD "+newTotalD);
+	                
+
+	                double oldStep = step; 
+	                if(newTotalD > totalD || totalD > 0.0){
+	                	
+	                	step = - newTotalD * step / (newTotalD - totalD);
+	                	if (iter == 1) {
+		                    step1 = oldStep + step;
+		                }
+	                } else {
+	                	
+	                	step = step *2;
+	                	if (iter == 1) {
+		                    step1 = step*4;
+		                }
+	                }
+
+	                totalD = newTotalD;
+	                System.out.println("step "+step);
 		        }
 		
 		        for (int i=0; i<4; i++) {
@@ -305,7 +333,13 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		                translator.setDestination(p);
 		                translator.actionPerformed(iMol);
 		                
-		                rTensor.setRotationAxis(axes[i], d[12+i]/radianFac);
+		                if (orient0[i].isZero()) {
+	                        orient0[i].E(iMol.getChildList().getAtom(0).getPosition());
+	                        orient0[i].ME(pos.position(iMol));
+	                        orient0[i].normalize();
+	                    }
+		                
+		                rTensor.setRotationAxis(axes[i], step*d[12+i]/radianFac);
 		                doTransform(iMol, pos, rTensor);
 		            }
 		        }
@@ -316,34 +350,53 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         //DONE with minimization
         
         double[] newU = sim.coordinateDef.calcU(sim.box.getMoleculeList());
+        double[] deviation = new double[20];
         for(int i=0; i<4; i++){
         	int iMolec = i<2 ? i : i+(nA-2);
         	for (int k=0; k<5; k++){
+        		deviation[i*5+k] = newU[iMolec*5+k];
         		System.out.print(newU[iMolec*5+k]+", ");
         	}
         	System.out.println();
         }
-        
-        
+    
         double[] xf = new double[12];
-        double disp = 0;
+        double disp = 0.0;
+        double angleDisp = 0.0;
         for (int i=0; i<4; i++) {
             IMolecule iMol = sim.box.getMoleculeList().getMolecule(i<2 ? i : i+(nA-2));
             p.E(pos.position(iMol));
             for (int j=0; j<3; j++) {
-                System.out.println(x0[i*3+j]+" => "+p.getX(j)+"    "+(p.getX(j)-x0[i*3+j]));
+//                System.out.println(x0[i*3+j]+" => "+p.getX(j)+"    "+(p.getX(j)-x0[i*3+j]));
                 xf[i*3+j] = p.getX(j);
                 double dx = xf[i*3+j] - x0[i*3+j];
                 disp += dx*dx;
             }
+            
+            orientf[i].E(iMol.getChildList().getAtom(0).getPosition());
+            orientf[i].ME(pos.position(iMol));
+            orientf[i].normalize();
+            angleDisp += orientf[i].Mv1Squared(orient0[i]);
+            System.out.println("     "+Math.sqrt(orientf[i].Mv1Squared(orient0[i])));
         }
         
         disp = Math.sqrt(disp);
-        System.out.println("disp "+disp);
+        angleDisp = Math.sqrt(angleDisp);
+        System.out.println("disp "+disp+"  angleDisp "+angleDisp);
         double newLatticeEnergy = meterPotentialEnergy.getDataAsScalar();
         System.out.println("Old Lattice Energy (per molecule): "+latticeEnergy/numMolecule);
         System.out.println("New Lattice Energy (per molecule): "+newLatticeEnergy/numMolecule);
         
+		for(int i=0; i<initialU.length; i++){
+			if(i%5==0) System.out.print("{");
+			initialU[i] += deviation[i];
+			System.out.print(initialU[i]);
+			if(i%5==4) {
+				System.out.println("},");
+			} else {
+				System.out.print(", ");
+			}
+		}
         System.exit(1);
         for (int l=0; l<201; l++) {
             for (int i=0; i<4; i++) {
@@ -405,5 +458,6 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 	protected SpeciesN2 species;
 	protected MeterHarmonicEnergy meterHarm;
 	protected MeterPotentialEnergy meterPE;
+	protected static double[] initialU;
 	private static final long serialVersionUID = 1L;
 }

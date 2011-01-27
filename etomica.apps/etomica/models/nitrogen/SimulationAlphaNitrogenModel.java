@@ -92,7 +92,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		pRotConstraint.setConstraintAngle(65);
 		
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
+//		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		//potentialMaster.lrcMaster().isEnabled();
 		
 		int cellRange = 6;
@@ -153,7 +153,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		
 		double temperature = 0.002; // in Unit Kelvin
 		long simSteps = 100000;
-		double density = 0.0236; //0.02204857502170207 (intial from literature with a = 5.661)
+		double density = 0.0230; //0.02204857502170207 (intial from literature with a = 5.661)
 		
 		if(args.length > 0){
 			simSteps = Long.parseLong(args[0]);
@@ -170,6 +170,10 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		if(args.length > 4){
 			nCz = Integer.parseInt(args[4]);
 		}
+		if(args.length > 5){
+			density = Double.parseDouble(args[5]);
+		}
+		
 		
 		int[] nC = new int[]{nCx, nCy, nCz};
 		int numMolecule = 4*nC[0]*nC[1]*nC[2];
@@ -206,7 +210,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		double volume = sim.box.getBoundary().volume();
 		System.out.println("volume: " + volume);
 		
-		if(true){
+		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    	    
