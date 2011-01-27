@@ -173,8 +173,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 	}
 	
 	public static void main (String[] args){
-		System.out.println("pressure: " + Pascal.UNIT.fromSim(31.48928359791796 )/1e9);
-		System.exit(1);
+
 		int nC0 = 8; 
 		int nC1 = 8; 
 		int nC2 = 8;
@@ -229,7 +228,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
             orient0[i] = sim.space.makeVector();
             orientf[i] = sim.space.makeVector();
         }
-        for (int outer = 0; outer < 30; outer++) {
+        for (int outer = 0; outer < 50; outer++) {
             System.out.println("**** "+outer+" ****");
 	        double totalD = 0;
 	        double step = 0;
