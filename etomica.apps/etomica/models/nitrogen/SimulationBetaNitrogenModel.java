@@ -168,26 +168,25 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 		double temperature =45; // in Unit Kelvin
 		long simSteps = 100000;
-		double density = 0.025;
+		double density = 0.023;
 		int numMolecule = 8*8*8*2;
+		if(args.length > 0){
+			simSteps = Long.parseLong(args[0]);
+		}
 		if(args.length > 1){
-			simSteps = Long.parseLong(args[1]);
+			temperature = Double.parseDouble(args[1]);
 		}
 		if(args.length > 2){
-			temperature = Double.parseDouble(args[2]);
+			numMolecule = Integer.parseInt(args[2]);
 		}
 		if(args.length > 3){
-			numMolecule = Integer.parseInt(args[3]);
+			density = Double.parseDouble(args[3]);
 		}
-		String filename = "betaN2_nA"+numMolecule+"_T"+temperature;
 		
-		if(args.length > 0){
-			filename = args[0];
-		} 
 		System.out.println("Running beta-N2 crystal structure simulation with " + simSteps + " steps" );
 		System.out.println("num Molecules: " + numMolecule+ " ; temperature: " + temperature+"K ");
-		System.out.println("Output file: " + filename + "\n");
-
+		System.out.println("density: " + density);
+		
 		
 		SimulationBetaNitrogenModel sim = new SimulationBetaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, density);
 	    
@@ -206,7 +205,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		double volume = sim.box.getBoundary().volume();
 		System.out.println("volume: " + volume);
 		
-		if(true){
+		if(false){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
