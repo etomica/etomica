@@ -186,12 +186,9 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPotentialEnergy.setBox(sim.box);
 		meterPotentialEnergy.setPotentialCalculation(new PotentialCalculationEnergySumBigDecimal(18));
-		long start = System.currentTimeMillis();
+	
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
-		long end = System.currentTimeMillis();
-		System.out.println("diff: " + (end-start)/(1000.0));
-		System.exit(1);
-		
+	
 		PotentialCalculationTorqueSum pcForce = new PotentialCalculationTorqueSum();
         MoleculeAgentSource molAgentSource = new MoleculeAgentSource() {
             
@@ -350,6 +347,8 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         
         double[] newU = sim.coordinateDef.calcU(sim.box.getMoleculeList());
         double[] deviation = new double[20];
+        
+        System.out.println("\ndeviation in newU");
         for(int i=0; i<4; i++){
         	int iMolec = i<2 ? i : i+(nA-2);
         	for (int k=0; k<5; k++){
@@ -376,12 +375,12 @@ public class MinimizationBetaNitrogenModel extends Simulation{
             orientf[i].ME(pos.position(iMol));
             orientf[i].normalize();
             angleDisp += orientf[i].Mv1Squared(orient0[i]);
-            System.out.println("     "+Math.sqrt(orientf[i].Mv1Squared(orient0[i])));
+//            System.out.println("     "+Math.sqrt(orientf[i].Mv1Squared(orient0[i])));
         }
         
         disp = Math.sqrt(disp);
         angleDisp = Math.sqrt(angleDisp);
-        System.out.println("disp "+disp+"  angleDisp "+angleDisp);
+        System.out.println("\ndisp "+disp+"  angleDisp "+angleDisp);
         double newLatticeEnergy = meterPotentialEnergy.getDataAsScalar();
         System.out.println("Old Lattice Energy (per molecule): "+latticeEnergy/numMolecule);
         System.out.println("New Lattice Energy (per molecule): "+newLatticeEnergy/numMolecule);
