@@ -26,7 +26,6 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
@@ -93,7 +92,7 @@ public class SimOverlapBetaN2TP extends Simulation {
 		
 		double[] u = new double[20];
 
-		if(isBeta || isBetaHCP){
+		if(isBeta){
 			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
 			double[][] param = parameters.getParameter(density);
 			
