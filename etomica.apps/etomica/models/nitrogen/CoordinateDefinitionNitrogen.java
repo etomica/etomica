@@ -25,7 +25,6 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
-import etomica.units.Degree;
 import etomica.util.RandomNumberGenerator;
 
 /**
@@ -889,6 +888,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         // when u3 and u4 equal to zero
         if(check==0.0){
             ((ConformationNitrogen)((SpeciesN2)molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
+            IVectorMutable site = getLatticePosition(molecule);
+                		            
+            atomActionTranslateTo.setDestination(site);
+            atomActionTranslateTo.actionPerformed(molecule);
             return;
         }
                 
