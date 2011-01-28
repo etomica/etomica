@@ -38,26 +38,30 @@ public class PotentialCalculationTorqueSum implements PotentialCalculationMolecu
      */
     public void reset(){
         
-        leafAgentIterator.reset();
-        while(leafAgentIterator.hasNext()){
-            Object agent = leafAgentIterator.next();
-            if (agent instanceof Integrator.Torquable) {
-                ((Integrator.Torquable)agent).torque().E(0);
-                ((Integrator.Forcible)agent).force().E(0);
-            }
-            else if (agent instanceof Integrator.Forcible) {
-                ((Integrator.Forcible)agent).force().E(0);
+        if (leafAgentIterator != null) {
+            leafAgentIterator.reset();
+            while(leafAgentIterator.hasNext()){
+                Object agent = leafAgentIterator.next();
+                if (agent instanceof Integrator.Torquable) {
+                    ((Integrator.Torquable)agent).torque().E(0);
+                    ((Integrator.Forcible)agent).force().E(0);
+                }
+                else if (agent instanceof Integrator.Forcible) {
+                    ((Integrator.Forcible)agent).force().E(0);
+                }
             }
         }
-        moleculeAgentIterator.reset();
-        while(moleculeAgentIterator.hasNext()){
-            Object agent = moleculeAgentIterator.next();
-            if (agent instanceof Integrator.Torquable) {
-                ((Integrator.Torquable)agent).torque().E(0);
-                ((Integrator.Forcible)agent).force().E(0);
-            }
-            else if (agent instanceof Integrator.Forcible) {
-                ((Integrator.Forcible)agent).force().E(0);
+        if (moleculeAgentIterator != null) {
+            moleculeAgentIterator.reset();
+            while(moleculeAgentIterator.hasNext()){
+                Object agent = moleculeAgentIterator.next();
+                if (agent instanceof Integrator.Torquable) {
+                    ((Integrator.Torquable)agent).torque().E(0);
+                    ((Integrator.Forcible)agent).force().E(0);
+                }
+                else if (agent instanceof Integrator.Forcible) {
+                    ((Integrator.Forcible)agent).force().E(0);
+                }
             }
         }
 
