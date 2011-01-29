@@ -235,7 +235,7 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
         if (x.length == 3) {
             double xNew = x[1] * u.getX(2) - x[2] * u.getX(1);
             double yNew = x[2] * u.getX(0) - x[0] * u.getX(2);
-            x[2] = x[0] * u.getX(2) - x[1] * u.getX(0);
+            x[2] = x[0] * u.getX(1) - x[1] * u.getX(0);
             x[1] = yNew;
             x[0] = xNew;
         }
