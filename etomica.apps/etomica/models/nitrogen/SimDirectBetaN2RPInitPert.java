@@ -153,7 +153,7 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
 
         double temperature = 45; //in UNIT KELVIN
         double density = 0.025;
-        double angle =0.5;
+        double angle =1;
         long numSteps = 100000;
         int numMolecules = 432;
 
@@ -172,7 +172,7 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
 		if(args.length > 4){
 			numMolecules = Integer.parseInt(args[4]);
 		}
-		String configFileName = "configT"+temperature+"_Angle"+angle;
+		String configFileName = "configT"+temperature+"_d"+density;
 	        
         System.out.println("Running beta-phase Nitrogen RP direct sampling simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
