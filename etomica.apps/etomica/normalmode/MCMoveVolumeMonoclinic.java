@@ -11,7 +11,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
-import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 
@@ -30,6 +29,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
     private MeterPotentialEnergy energyMeter;
     protected final BoxInflate inflate;
     private IRandom random;
+    protected final IVectorMutable scaleVector;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
     private transient double uOld, hOld, hNew;
@@ -56,8 +56,9 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         setPressure(pressure);
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
+        scaleVector = _space.makeVector();
     }
-    
+
     public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
@@ -70,17 +71,6 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
                 
-        IVectorMutable vecAOld = Space3D.makeVector(3);
-        IVectorMutable vecBOld = Space3D.makeVector(3);
-        IVectorMutable vecCOld = Space3D.makeVector(3);
-        
-        IVectorMutable vecANew = Space3D.makeVector(3);
-        IVectorMutable vecCNew = Space3D.makeVector(3);
-        
-        vecAOld.E(box.getBoundary().getEdgeVector(0));
-        vecBOld.E(box.getBoundary().getEdgeVector(1));
-        vecCOld.E(box.getBoundary().getEdgeVector(2));
-        
         /*
          * anisotropic scaling: scaleb and scalec
          * they are scale for b-VECTOR and c-VECTOR
@@ -89,13 +79,12 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         double scalea = Math.exp((2.*random.nextDouble()-1.)*stepSize);
         double scalec = Math.exp((2.*random.nextDouble()-1.)*stepSize);
         
-        vecANew.Ea1Tv1(scalea, vecAOld);
-        vecCNew.Ea1Tv1(scalec, vecCOld);
-        
         //System.out.println("\nbefore: " + box.getBoundary().volume());
-        IVectorMutable rScale = Space3D.makeVector(3);
-        rScale.E(new double[]{scalea, 1/(scalea*scalec), scalec});
-        inflate.setVectorScale(rScale);
+        scaleVector.setX(0, scalea);
+        scaleVector.setX(1, 1/(scalea*scalec));
+        scaleVector.setX(2, scalec);
+        
+        inflate.setVectorScale(scaleVector);
         inflate.actionPerformed();
 
         uNew = energyMeter.getDataAsScalar();
