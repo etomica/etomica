@@ -13,6 +13,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
+import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 import etomica.util.Function;
@@ -43,6 +44,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     private transient double uNew = Double.NaN, latticeScale;
     
     protected Function uLatFunction = uLat0;
+    protected Function uLatTruncFunction = uLat0;
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
@@ -97,6 +99,19 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         return uLatFunction;
     }
     
+    /**
+     * Sets a function that returns the lattice energy for a given density
+     * using the same truncation as the potentials in the system.  If not set,
+     * the default lattice energy is taken to be 0 for all densities.
+     */
+    public void setULatTruncFunction(Function newULatTruncFunction) {
+        uLatTruncFunction = newULatTruncFunction;
+    }
+
+    public Function getULatTruncFunction() {
+        return uLatTruncFunction;
+    }
+
     public boolean doTrial() {
         vOld = box.getBoundary().volume();
         uOld = energyMeter.getDataAsScalar();
@@ -136,8 +151,8 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     
     public double getB() {
         int nAtoms = box.getLeafList().getAtomCount();
-        double uLatOld = nAtoms*uLatFunction.f(nAtoms/vOld);
-        double uLatNew = nAtoms*uLatFunction.f(nAtoms/vNew);
+        double uLatOld = nAtoms*uLatTruncFunction.f(nAtoms/vOld);
+        double uLatNew = nAtoms*uLatTruncFunction.f(nAtoms/vNew);
         return -((uNew-uLatNew) - (uOld-uLatOld));
     }
     
@@ -177,7 +192,5 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     /**
      * Nominal function for lattice energy
      */
-    public static Function uLat0 = new Function() {
-        public double f(double x) {return 0;}
-    };
+    public final static Function uLat0 = new Function.Constant(0);
 }
