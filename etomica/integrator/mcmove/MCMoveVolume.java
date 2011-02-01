@@ -22,7 +22,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
     private static final long serialVersionUID = 2L;
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
-    protected final BoxInflate inflate;
+    protected BoxInflate inflate;
     private final int D;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
@@ -54,6 +54,11 @@ public class MCMoveVolume extends MCMoveBoxStep {
         affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
+    public void setInflater(BoxInflate newInflate) {
+        inflate = newInflate;
+        inflate.setBox(box);
+    }
+
     public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
