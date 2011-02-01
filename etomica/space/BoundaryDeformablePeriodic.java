@@ -229,12 +229,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
         update();
 	}
 
-	public void setBoxSizeAngleFluctuation(IVector[] v){
-		for(int i=0; i<edgeVectors.length; i++) {
-            edgeVectors[i].E(v[i]);
-            //System.out.println("edgeVector["+i+"]: "+edgeVectors[i].toString());
-        }
-		//System.out.println();
+	public void setEdgeVector(int i, IVector v){
+	    edgeVectors[i].E(v);
         update();
 	}
 	

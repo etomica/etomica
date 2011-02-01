@@ -20,13 +20,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
     	super(space);
     	
         cVector = space.makeVector();
-    	edgeVectorOld = new IVectorMutable[3];
-        edgeVectorNew = new IVectorMutable[3];
-
-        for(int i=0; i<edgeVectorOld.length; i++){
-         	edgeVectorOld[i] = space.makeVector();
-            edgeVectorNew[i] = space.makeVector();
-        }
+        cVectorOld = space.makeVector();
         
     }
     
@@ -40,16 +34,14 @@ public class BoxInflateAnisotropic extends BoxInflate{
      * Performs anisotropic inflation.
      */
     public void actionPerformed() {
-        if(box == null) return;
+        if(box == null) throw new RuntimeException("oops");
         
         translationVector = translator.getTranslationVector();
         
-        for(int i=0; i<edgeVectorOld.length; i++){
-         	edgeVectorOld[i].E(box.getBoundary().getEdgeVector(i));
-        }
+        cVectorOld.E(box.getBoundary().getEdgeVector(2));
         
         double cx = cVector.getX(0);
-        double deltacx = (cx-edgeVectorOld[2].getX(0));
+        double deltacx = (cx-cVectorOld.getX(0));
         double cz = cVector.getX(2);
         double slope = deltacx/cz;
         
@@ -62,8 +54,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
             // delta_x = slope * z
             double h = comVector.getX(2);
             deltaX[i] = slope*h;
-            
-            translationVector.E(new double[]{deltaX[i], 0.0, 0.0});
+            translationVector.setX(0, deltaX[i]);
             groupScaler.actionPerformed(molecule);
         }
 
@@ -72,11 +63,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
         // for the x-component of edgeVector[2], it is not being scale. This is done so as to fluctuate
         // the beta-angle
         
-        edgeVectorNew[0].E(edgeVectorOld[0]);
-        edgeVectorNew[1].E(edgeVectorOld[1]);
-        edgeVectorNew[2].E(cVector);
-        
-        ((BoundaryDeformablePeriodic)box.getBoundary()).setBoxSizeAngleFluctuation(edgeVectorNew);
+        ((BoundaryDeformablePeriodic)box.getBoundary()).setEdgeVector(2, cVector);
     }
     
     
@@ -89,16 +76,14 @@ public class BoxInflateAnisotropic extends BoxInflate{
     		groupScaler.actionPerformed(molecule);
     	}
     	
-    	((BoundaryDeformablePeriodic)box.getBoundary()).setBoxSizeAngleFluctuation(edgeVectorOld);
-    	
+        ((BoundaryDeformablePeriodic)box.getBoundary()).setEdgeVector(2, cVectorOld);
     }
         
     public void setCVector(IVectorMutable cVec){
     	cVector = cVec;
     }
     
-    protected IVectorMutable[] edgeVectorOld, edgeVectorNew;
-    protected IVectorMutable cVector, translationVector;
+    protected IVectorMutable cVector, cVectorOld, translationVector;
     protected double[] deltaX;
 	private static final long serialVersionUID = 1L;
 }
