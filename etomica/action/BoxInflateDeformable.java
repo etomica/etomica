@@ -21,7 +21,6 @@ public class BoxInflateDeformable extends BoxInflate{
         super(space);
         tempTens = space.makeTensor();
         tempTensInv = space.makeTensor();
-        dimVector = space.makeVector();
     }
     
     public BoxInflateDeformable(IBox box, ISpace space){
@@ -38,9 +37,9 @@ public class BoxInflateDeformable extends BoxInflate{
         //First scale the locations of the molecules.
         
         //get the edge vectors, and invert the tensor with them in it.
-        tempTensInv.E(((BoundaryDeformablePeriodic)box.getBoundary()).getBoundaryTensor());
+        tempTens.E(((BoundaryDeformablePeriodic)box.getBoundary()).getBoundaryTensor());
+        tempTensInv.E(tempTens);
         tempTensInv.invert();
-        tempTens.E(((BoundaryDeformablePeriodic)box.getBoundary()).getBoundaryTensor());        
         
         
         /*
@@ -66,12 +65,13 @@ public class BoxInflateDeformable extends BoxInflate{
         //Reverse the subtraction to the scaleVector
         scaleVector.PE(1.0);
 //      Then scale the boundary
-        dimVector.E(box.getBoundary().getBoxSize());
-        dimVector.TE(scaleVector);
-        box.getBoundary().setBoxSize(dimVector);
+        for (int i=0; i<scaleVector.getD(); i++) {
+            dimVector.E(box.getBoundary().getEdgeVector(i));
+            dimVector.TE(scaleVector.getX(i));
+            ((BoundaryDeformablePeriodic)box.getBoundary()).setEdgeVector(i, dimVector);
+        }
     }
 
     protected final Tensor tempTens;
     protected final Tensor tempTensInv;
-    protected final IVectorMutable dimVector;
 }
