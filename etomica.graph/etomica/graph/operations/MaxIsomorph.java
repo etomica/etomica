@@ -1,5 +1,6 @@
 package etomica.graph.operations;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,20 +41,37 @@ public class MaxIsomorph implements Unary {
     
     Relabel relabel = new Relabel();
     RelabelParameters rp = new RelabelParameters(labels);
-    int[] swaps = new int[nodeCount-1];
+    // swaps is the number of times we have swapped node i since the last time we swapped node i-1
+    // we'll need to swap nodeCount-1-i times
+    byte[] swaps = new byte[nodeCount-1];
     while (true) {
       boolean success = false;
       for (byte iNode = (byte)(nodeCount-2); iNode>-1; iNode--) {
         if (swaps[iNode] < nodeCount-iNode-1) {
           byte tmp = labels[iNode];
-          labels[iNode] = labels[nodeCount-1];
-          labels[nodeCount-1] = tmp;
-          swaps[iNode]++;
-          for (byte jNode = (byte)(iNode+1); jNode<(byte)(nodeCount-1); jNode++) {
-            swaps[jNode] = 0;
+          byte minMax = nodeCount;
+          byte swapNode = -1;
+          // we want to swap with the node at a higher index with the next highest value...
+          // we'll have to find it
+          for (byte jNode=(byte)(iNode+1); jNode<nodeCount; jNode++) {
+            if (labels[jNode] > tmp && labels[jNode] < minMax) {
+              minMax = labels[jNode];
+              swapNode = jNode;
+            }
           }
-          success = true;
-          break;
+          if (swapNode > -1) {
+            labels[iNode] = labels[swapNode];
+            labels[swapNode] = tmp;
+            swaps[iNode]++;
+            for (byte jNode = (byte)(iNode+1); jNode<(byte)(nodeCount-1); jNode++) {
+              swaps[jNode] = 0;
+            }
+            if (iNode+1 < nodeCount-1) {
+              Arrays.sort(labels, iNode+1, nodeCount);
+            }
+            success = true;
+            break;
+          }
         }
       }
       if (!success) {
