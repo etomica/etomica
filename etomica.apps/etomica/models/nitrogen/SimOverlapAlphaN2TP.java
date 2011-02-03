@@ -83,12 +83,12 @@ public class SimOverlapAlphaN2TP extends Simulation {
 	
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
 		pRotConstraint.setConstraintAngle(constraintAngle);
-		System.out.println("set constraint angle to = "+ constraintAngle);
 		
 		//potentialMaster = new PotentialMaster();
 		potentialMaster = new PotentialMasterListMolecular(this, space);
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		if(!noRotScale){
+			System.out.println("set constraint angle to = "+ constraintAngle);
 			potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
 		}
 		
@@ -365,7 +365,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         public double alphaSpan = 1;
         public double[] otherTemperatures = new double[]{0.02};
         public double rcScale = 0.475;
-        public double constraintAngle = 65;
+        public double constraintAngle = 70;
         public boolean noRotScale = false;
     }
 }
