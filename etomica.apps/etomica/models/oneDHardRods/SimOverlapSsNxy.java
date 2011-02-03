@@ -362,6 +362,8 @@ public class SimOverlapSsNxy extends Simulation {
      * @see SimOverlapSoftSphere.SimOverlapParam
      */
     public static void main(String[] args) {
+        System.out.println("OverallStart: " + System.currentTimeMillis());
+        
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         String inputFilename = null;
@@ -422,6 +424,7 @@ public class SimOverlapSsNxy extends Simulation {
         }
         System.out.flush();
         
+        System.out.println("EquilStart: " + System.currentTimeMillis());
         sim.equilibrate("bennett", numSteps/10);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
@@ -468,12 +471,14 @@ public class SimOverlapSsNxy extends Simulation {
         System.out.println("Start Time: " + startTime);
        
         sim.activityIntegrate.setMaxSteps(numSteps);
+        System.out.println("RunStart: " + System.currentTimeMillis());
         sim.getController().actionPerformed();
         
         int totalCells = 1;
         for (int i=0; i<D; i++) {
             totalCells *= shape[i];
         }
+        System.out.println("EndCalcStart: " + System.currentTimeMillis());
         double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, numMolecules);
         System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numMolecules);
         System.out.println(" ");

@@ -524,7 +524,8 @@ public class SimDifferentImageSsFcc extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-
+        System.out.println("OverallStart: " + System.currentTimeMillis());
+        
         SimParam params = new SimParam();
         String inputFilename = null;
         if(args.length > 0) {
@@ -595,6 +596,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
+        System.out.println("EquilStart: " + System.currentTimeMillis());
         if(first){
             System.out.println("Init Bennett");
             sim.initBennettParameter(filename, benNumSteps, runBlockSize);
@@ -624,6 +626,8 @@ public class SimDifferentImageSsFcc extends Simulation {
         sim.setAccumulatorBlockSize((int)runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
+        
+        System.out.println("RunStart: " + System.currentTimeMillis());
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
                 sim.integratorSim.getStepFreq0() + " (actual: " + 
@@ -631,7 +635,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         
         
         //CALCULATION OF HARMONIC ENERGY
-        
+        System.out.println("EndCalcStart: " + System.currentTimeMillis());
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
@@ -661,6 +665,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         System.out.println("alpha term " + (Math.log(ratio * sim.meterTargInRef.getScaling())));
         
         System.out.println("Fini.");
+        System.out.println("End Time: " + System.currentTimeMillis());
     }
     
     public static class SimParam extends ParameterBase {

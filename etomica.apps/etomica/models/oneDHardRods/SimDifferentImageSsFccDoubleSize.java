@@ -489,9 +489,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-
-        Date date = new Date();
-        System.out.println("start " + date.getTime());
+        System.out.println("OverallStart: " + System.currentTimeMillis());
         
         SimParam params = new SimParam();
         String inputFilename = null;
@@ -617,6 +615,8 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
+        
+        System.out.println("EquilStart: " + System.currentTimeMillis());
         if(first){
             System.out.println("Init Bennett");
             sim.initBennettParameter(filename, benNumSteps, runBlockSize);
@@ -643,6 +643,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         }
         
         // start simulation
+        System.out.println("RunStart: " + System.currentTimeMillis());
         sim.setAccumulatorBlockSize((int)runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
@@ -653,7 +654,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         
         
         //CALCULATION OF HARMONIC ENERGY
-        
+        System.out.println("EndCalcStart: " + System.currentTimeMillis());
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
@@ -687,7 +688,8 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
 //        System.out.println("old " +(-Math.log(ratio*)));
         
         
-        System.out.println("Fini. " + date.getTime());
+        System.out.println("Fini. ");
+        System.out.println("End Time: " + System.currentTimeMillis());
     }
     
     public static class SimParam extends ParameterBase {

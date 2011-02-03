@@ -463,7 +463,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-
+        System.out.println("OverallStart: " + System.currentTimeMillis());
         SimParam params = new SimParam();
         String inputFilename = null;
         if(args.length > 0) {
@@ -534,6 +534,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         sim.integratorSim.getMoveManager().setEquilibrating(true);
         sim.integratorSim.setNumSubSteps(subBlockSize);
         
+        System.out.println("EquilStart: " + System.currentTimeMillis());
         if(first){
             System.out.println("Init Bennett");
             sim.initBennettParameter(filename, benNumSteps, runBlockSize);
@@ -560,6 +561,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         }
         
         // start simulation
+        System.out.println("RunStart: " + System.currentTimeMillis());
         sim.setAccumulatorBlockSize((int)runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
@@ -569,8 +571,8 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
                 sim.integratorSim.getActualStepFreq0() + ")");
         
         
-        //CALCULATION OF HARMONIC ENERGY
-        
+        //CALCULATION OF HARMONIC ENERGY        
+        System.out.println("EndCalcStart: " + System.currentTimeMillis());
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
@@ -600,7 +602,9 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
                 + 0.5 * sim.space.D() * Math.log(nRefA))));
         
         System.out.println("Fini.");
-    }
+        
+        System.out.println("End Time: " + System.currentTimeMillis());
+        }
     
     public static class SimParam extends ParameterBase {
         public boolean first = true;
