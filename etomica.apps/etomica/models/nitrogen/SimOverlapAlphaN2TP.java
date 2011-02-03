@@ -47,7 +47,7 @@ import etomica.util.ReadParameters;
 public class SimOverlapAlphaN2TP extends Simulation {
 
     public SimOverlapAlphaN2TP(Space space, int[] nC, double density, double temperature, double[] otherTemperatures,
-    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rcScale, double constraintAngle) {
+    		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double rcScale, double constraintAngle, boolean noRotScale) {
         super(space);
         
         int numMolecules = nC[0]*nC[1]*nC[2]*4;
@@ -88,7 +88,9 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		//potentialMaster = new PotentialMaster();
 		potentialMaster = new PotentialMasterListMolecular(this, space);
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
+		if(!noRotScale){
+			potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
+		}
 		
 	    int cellRange = 6;
         potentialMaster.setRange(rC);
@@ -133,7 +135,12 @@ public class SimOverlapAlphaN2TP extends Simulation {
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
      	potential.setRange(Double.POSITIVE_INFINITY);
- 
+     	
+     	if(noRotScale){
+     		System.out.println("**** NOT SCALING THE ROTATION!");
+     		meter.setBetaPhase(true);
+     	}
+     	
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);
@@ -205,6 +212,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         double alphaSpan = params.alphaSpan;
         double rcScale = params.rcScale;
         double constraintAngle = params.constraintAngle;
+        boolean noRotScale = params.noRotScale;
         String configFileName = "configT"+temperature;
         
         System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
@@ -221,7 +229,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
 
         //instantiate simulation
         final SimOverlapAlphaN2TP sim = new SimOverlapAlphaN2TP(Space.getInstance(3), nC, density, temperature, otherTemperatures, 
-        		alpha, numAlpha, alphaSpan, numSteps, rcScale, constraintAngle);
+        		alpha, numAlpha, alphaSpan, numSteps, rcScale, constraintAngle, noRotScale);
         
         //start simulation
         File configFile = new File(configFileName+".pos");
@@ -349,7 +357,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 864;
         public int[] nC = new int[]{6,6,6};
-        public double density = 0.0222; //0.02204857502170207 (intial from literature with a = 5.661)
+        public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
         public double temperature = 0.01; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
@@ -358,5 +366,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
         public double[] otherTemperatures = new double[]{0.02};
         public double rcScale = 0.475;
         public double constraintAngle = 65;
+        public boolean noRotScale = false;
     }
 }
