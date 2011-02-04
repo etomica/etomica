@@ -484,7 +484,6 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         String inputFile = params.inputFile;
         double temperature = params.temperature;
         int runNumSteps = params.numSteps;
-        int runBlockSize = params.runBlockSize;
         int subBlockSize = params.subBlockSize;
         int eqNumSteps = params.eqNumSteps;
         int benNumSteps = params.bennettNumSteps;
@@ -502,6 +501,9 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         nTargA *= 4;    //definitely fcc
         
         filename = filename + "_" + nRefA + "_" + nTargA + "_" + temperature;
+        
+        int runBlockSize = runNumSteps / nTargA /100;
+        
         
         // instantiate simulation
         SimDifferentImageSsFccBigCell sim = new SimDifferentImageSsFccBigCell(
@@ -620,9 +622,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         public String filename = "output";
         
         public int numSteps = 100000000;
-        public int runBlockSize = 10000;
         public int subBlockSize = 10000;    //# of steps in subintegrator per integrator step
-        
         public int eqNumSteps = 100000;  
         public int bennettNumSteps = 50000;
     }
