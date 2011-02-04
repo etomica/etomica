@@ -7,7 +7,7 @@ import etomica.units.Energy;
 import etomica.units.Length;
 
 /**
- * Pair potential for argon from Aziz (1993) JCP 99(6): 4518.  This is a true pair potential, rather than a pairwise-additive potential.
+ * Pair potential for argon from Tang and Toennies 2003.  This is a true pair potential, rather than a pairwise-additive potential.
  * 
  * In this class, only the pair potential is valid, not the gradients, etc.  I am unlikely to ever include those...
  *
@@ -26,8 +26,8 @@ public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
     public double u(double r2) {
     	
     	double r = Math.sqrt(r2);
-    	r = r/(0.52917720859); // Bohr radius
-    	
+    
+    	r = r/rBohr; // Bohr radius
     	
     	
     	//Parameters
@@ -35,10 +35,7 @@ public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
     	double C8 = 1623;
     	double C10 = 49060;
     	double A =748.3; // Kelvin
-    	double b = 2.031; // inverse Angstroms squared
-    	
-    	double sum;
-    	double C2n;
+    	double b = 2.031; // Born range parameter
     	
     	double x = b*r;
     	
@@ -48,6 +45,8 @@ public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
 			if (k>0) {kfac=kfac*k;}
 			sum6=sum6+Math.pow(x,k)/kfac;
 		}
+    	
+    	//System.out.println(kfac);
     	
     	double sum8 = sum6;
     	for (int k=7;k<=8;k++) {
@@ -69,7 +68,7 @@ public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
  
         double u = A*Math.exp(-b*r) - (f6*C6/Math.pow(r,6)) - (f8*C8/Math.pow(r,8)) - (f10*C10/Math.pow(r,10)); // Kelvin 
         
-        u = u*(4.35974417E5/1.3806503); // Kelvin
+        u = u*KPerHartree; // Kelvin
        
         return u; // Kelvin
     }
@@ -104,28 +103,47 @@ public class P2ArgonTangAndToennies2003 extends Potential2SoftSpherical {
     	Space space = Space3D.getInstance();
     	P2ArgonTangAndToennies2003 p2 = new P2ArgonTangAndToennies2003(space);
     	
-    	//Minimum of the potential:
-    	
-    	double Rm=7.10*(0.52917720859); //Angstroms
-    	double epsilon = 4.54e-4*1e6;  // microHartree (convert to energy through Boltzmann's constant...)
-    	
+    	//Minimum of the potential published by Tang and Toennies (2003):
+    	double Rm=7.10*rBohr; //Angstroms
+    	double epsilon = 4.54e-4*1e6;  // microHartree (convert to energy through Boltzmann's constant...)	
     	System.out.println(Rm+"   "+epsilon);
     	
-    	double r = 2.0;
+    	double r = 10;
     	double u;
-    	double k =  1.3806503e-23; // J/Kelvin
-    	double JPerHartree = 4.359743e-18; // J;
-    	while (r<10.0) {
-    		r = r + 0.05;
+    	
+    	
+    	double umin = 0;
+    	double rmin = 0;
+    	while (r<20) {
+    		r = r + 0.01;
     		u = p2.u(r*r); // Kelvin
-    		u = u*k/JPerHartree*1e6;// microHartree
+    		u = u/KPerHartree*1e6;// microHartree
+    		if (u < umin) {
+    			
+    			umin = u;
+    			rmin =r;
+    		}
     		System.out.println(r+"  "+u);
     	}
+    	
+    	//Minimum
+    	//System.out.println(rmin+"  "+umin);
+    	
+    	
+    	r = 3.757178;
+		u = p2.u(r*r); // Kelvin
+		u = u/KPerHartree*1e6;// microHartree
+		System.out.println(r+"  "+u);
+		
+    	
     }
    
 
-   
-   
+    private static final double rBohr = 0.5292; // Rounding provided by Tang and Toennies
+    private static final double KPerHartree = 3.158e5; // Rounding provided by Tang and Toennies
+    //private static final double kB =  1.3806503e-23;// 1.38e-23; // 1.3806503e-23 J/Kelvin
+    //private static final double JPerHartree = 4.359743e-18; // 4.359743e-18 J;
+    //private static final double KPerHartree = 4.359743e-18/1.3806503e-23; // Rounding provided by Tang and Toennies 
     private static final long serialVersionUID = 1L;
     
 }
