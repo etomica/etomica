@@ -75,7 +75,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 		
 		double[] u = new double[20];
 		if(true){
-			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+			BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
 			double[][] param = parameters.getParameter(density);
 			
 			int kParam=0;

@@ -64,7 +64,7 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		
 		Primitive primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
 
-    	BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+    	BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
 		double[][] param = parameters.getParameter(density);
 		
 		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
