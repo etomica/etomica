@@ -65,6 +65,10 @@ public abstract class MCMoveBox extends MCMove {
         return perParticleFrequency;
     }
 
+    public String toString() {
+        return super.toString() +" "+box;
+    }
+
     /**
      * Flag indicating whether nominal frequency is interpreted as a
      * perParticleFrequency, or as a full frequency. Default is false, but may

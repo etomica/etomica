@@ -109,6 +109,10 @@ public abstract class MCMove implements java.io.Serializable {
 	public final int getNominalFrequency() {
 		return nominalFrequency;
 	}
+	
+	public String toString() {
+	    return getClass().toString();
+	}
 
     protected final IPotentialMaster potential;
 

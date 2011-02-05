@@ -49,11 +49,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 stepSize *= adjustStep;
                 stepSize = Math.min(stepSize, mcMove.getStepSizeMax());
                 if (noisyAdjustment) {
-                    System.out.print(mcMove.getClass());
-                    if (mcMove instanceof MCMoveBox) {
-                        System.out.print(" "+((MCMoveBox)mcMove).getBox());
-                    }
-                    System.out.println(" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                    System.out.println(mcMove+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
                 if (lastAdjust < 1) {
                     lastAdjust = 1;
@@ -80,11 +76,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 stepSize /= adjustStep;
                 stepSize = Math.max(stepSize, mcMove.getStepSizeMin());
                 if (noisyAdjustment) {
-                    System.out.print(mcMove.getClass());
-                    if (mcMove instanceof MCMoveBox) {
-                        System.out.print(" "+((MCMoveBox)mcMove).getBox());
-                    }
-                    System.out.println(" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                    System.out.println(mcMove+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
                 if (lastAdjust > -1) {
                     lastAdjust = -1;
