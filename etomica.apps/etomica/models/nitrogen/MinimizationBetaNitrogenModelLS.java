@@ -55,6 +55,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		double ratio = 1.631;
 		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
 		double cDim = aDim*ratio;
+		System.out.println("density: " + density);
 		System.out.println("aDim: " + aDim + " ;cDim: " + cDim);
 		
 		int [] nCells = new int[]{1,2,1};
@@ -89,7 +90,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
 		box.setBoundary(boundary);
 	
-		BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+		BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
 		double[][] param = parameters.getParameter(density);
 		
 		double[] u = new double[20];
@@ -200,11 +201,16 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 	}
 	
 	public static void main (String[] args){
-
-		double rC = 100.0;
-		double density = 0.0220;
+	
+		double rC = 250.0;
+		double density = 0.0223;
+		if(args.length > 0){
+			density = Double.parseDouble(args[0]);
+		}
+		
 		final MinimizationBetaNitrogenModelLS sim = new MinimizationBetaNitrogenModelLS(Space3D.getInstance(3), density, rC);
 	
+		
         double[] d = new double[16];
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
         AtomPositionGeometricCenter pos = new AtomPositionGeometricCenter(sim.space);
@@ -232,7 +238,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
             orientf[i] = sim.space.makeVector();
         }
         
-        for (int outer = 0; outer < 10; outer++) {
+        for (int outer = 0; outer < 15; outer++) {
             System.out.println("**** "+outer+" ****");
 	        double totalD = 0;
 	        double step = 0;
