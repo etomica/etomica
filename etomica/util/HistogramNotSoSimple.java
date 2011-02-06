@@ -14,7 +14,8 @@ public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected double deltaX;
-	private long sum;
+	protected long count;
+	protected double totalSum;
 	protected int[] counts;
 	protected double[] sums;
 	protected double[] histogram;
@@ -22,6 +23,7 @@ public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
     protected double xMin;
     protected double xMax;
     protected int nBins;
+    protected boolean doAveraging = true;
 
     /**
      * Makes a new histogram instance, with the range of x values given by
@@ -46,7 +48,8 @@ public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
 	
 	public void reset() {
         //resets all histogram values and counts to zero
-	    sum = 0;
+	    count = 0;
+	    totalSum = 0;
 	    for(int i=0; i<nBins; i++) {
 	        counts[i] = 0;
 	        sums[i] = 0;
@@ -62,7 +65,8 @@ public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
             counts[i]++;
             sums[i] += y;
 	    }
-	    sum++;
+	    count++;
+	    totalSum += y;
     }
     
     public void addValue(double x) {
@@ -97,16 +101,29 @@ public class HistogramNotSoSimple implements Histogram, java.io.Serializable {
     
     public double[] getHistogram() {
         //returns an array representing the present histogram
-        if (sum != 0) {
+        if (count != 0) {
 		    for(int i=0; i<nBins; i++) {
-		        histogram[i] = sums[i]/counts[i];
+		        histogram[i] = sums[i]/(doAveraging ? counts[i] : (totalSum*deltaX));
 		    }
         }
 	    return histogram;
     }
-    
+
+    /**
+     * turns "averaging" on or off.  With averaging, the value of the histogram
+     * is the average value of y for that x.  Without averaging, the y value is
+     * used to weight the histogram
+     */
+    public void setDoAveraging(boolean doAveraging) {
+        this.doAveraging = doAveraging;
+    }
+
+    public boolean getDoAveraging() {
+        return doAveraging;
+    }
+
     public long getCount() {
-        return sum;
+        return count;
     }
  
     public double[] xValues() {
