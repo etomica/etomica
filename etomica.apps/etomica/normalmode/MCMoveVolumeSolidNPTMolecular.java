@@ -160,7 +160,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         double uLatOld = nMolecules*uLatFunction.f(nMolecules/vOldLocal);
         double uLatNew = nMolecules*uLatFunction.f(nMolecules/vNewLocal);
 
-        latticeScale = Math.exp((pressure*(vNewLocal-vOldLocal)+(uLatNew-uLatOld))/(nMolecules*temperature*D))/rScale;
+        latticeScale = Math.exp((pressure*(vNewLocal-vOldLocal)+(uLatNew-uLatOld))/(nMolecules*temperature*D));
 
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             IMolecule moleculei = moleculeList.getMolecule(i);
