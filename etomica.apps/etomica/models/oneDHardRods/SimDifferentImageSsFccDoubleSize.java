@@ -607,7 +607,9 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         eqNumSteps /= (int)subBlockSize;
         benNumSteps /= subBlockSize;
         
-        
+        System.out.println("run " + runNumSteps);
+        System.out.println("ben " + benNumSteps);
+        System.out.println(" ea " + eqNumSteps);
 //        sim.integratorSim.setAdjustStepFreq(false);
 //        sim.integratorSim.setStepFreq0(0.5);
         

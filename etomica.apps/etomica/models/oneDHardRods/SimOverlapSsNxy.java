@@ -258,7 +258,7 @@ public class SimOverlapSsNxy extends Simulation {
         setRefPref(newRefPref,1);
     }
     
-    public void initRefPref(String fileName, long initSteps) {
+    public void initRefPref(String fileName, long initSteps, int initBlockSize) {
         // refPref = -1 indicates we are searching for an appropriate value
         refPref = -1.0;
         if (fileName != null) {
@@ -286,8 +286,8 @@ public class SimOverlapSsNxy extends Simulation {
             getController().reset();
             System.out.println("target equilibration finished");
 
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,41,false),1);
             setRefPref(1,200);
             activityIntegrate.setMaxSteps(initSteps);
             getController().actionPerformed();
@@ -314,7 +314,7 @@ public class SimOverlapSsNxy extends Simulation {
 
     }
     
-    public void equilibrate(String fileName, long initSteps) {
+    public void equilibrate(String fileName, long initSteps, int initBlockSize) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         activityIntegrate.setMaxSteps(initSteps);
@@ -333,11 +333,11 @@ public class SimOverlapSsNxy extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,true),0);
             
             System.out.println("block size (equilibrate) "+accumulators[0].getBlockSize());
             
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(initBlockSize,1,false),1);
             setRefPref(refPref,1);
             if (fileName != null) {
                 try {
@@ -364,6 +364,14 @@ public class SimOverlapSsNxy extends Simulation {
     public static void main(String[] args) {
         System.out.println("OverallStart: " + System.currentTimeMillis());
         
+        
+        
+        int subSteps = 10000;
+        
+        
+        
+        
+        
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         String inputFilename = null;
@@ -383,12 +391,12 @@ public class SimOverlapSsNxy extends Simulation {
         int D = params.D;
         int[] shape = params.shape;
         double trunc = params.truncationRadius;
-        int zork = 1;
+        int molecNum = 1;
         for(int i = 0; i < 3; i++){
-            zork *= shape[i];
+            molecNum *= shape[i];
         }
-        zork *= 4;     //definitely fcc
-        final int numMolecules = zork;
+        molecNum *= 4;     //definitely fcc
+        final int numMolecules = molecNum;
         String filename = params.filename;
         if (filename.length() == 0) {
             System.err.println("Need input files!!!");
@@ -401,7 +409,7 @@ public class SimOverlapSsNxy extends Simulation {
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN +" and harmonic fudge: "+harmonicFudge);
-        System.out.println((numSteps/1000)+" total steps of 1000");
+        System.out.println((numSteps/subSteps)+" total steps of " + subSteps);
         System.out.println("output data to "+filename);
 
         //instantiate simulation
@@ -415,17 +423,26 @@ public class SimOverlapSsNxy extends Simulation {
         }
         
         //start simulation
-        sim.integratorOverlap.setNumSubSteps(1000);
-        numSteps /= 1000;
+        sim.integratorOverlap.setNumSubSteps(subSteps);
+        System.out.println("NumSubSteps " + subSteps);
+        numSteps /= subSteps;
+        int runBlockSize = (int)numSteps/numMolecules/100;
+        int benNumSteps = (int)numSteps/200;
+        int eqNumSteps = (int)numSteps/100;
 
-        sim.initRefPref("bennett", numSteps/20);
+        System.out.println("runsteps " + numSteps);
+        System.out.println("bennetsteps " + benNumSteps);
+        System.out.println("Equilsteps " + eqNumSteps);
+        
+        
+        sim.initRefPref("bennett", benNumSteps, runBlockSize);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
         System.out.flush();
         
         System.out.println("EquilStart: " + System.currentTimeMillis());
-        sim.equilibrate("bennett", numSteps/10);
+        sim.equilibrate("bennett", numSteps/100, runBlockSize);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
@@ -471,6 +488,7 @@ public class SimOverlapSsNxy extends Simulation {
         System.out.println("Start Time: " + startTime);
        
         sim.activityIntegrate.setMaxSteps(numSteps);
+        System.out.println("runsteps " +numSteps);
         System.out.println("RunStart: " + System.currentTimeMillis());
         sim.getController().actionPerformed();
         
