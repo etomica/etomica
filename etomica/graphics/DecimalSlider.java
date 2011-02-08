@@ -84,13 +84,13 @@ public class DecimalSlider extends javax.swing.JSlider {
         
     public int getDecimalSliderMajorTickSpacing(){return super.getMajorTickSpacing();}
     public void setDecimalSliderMajorTickSpacing(double s){
-        spacing = (int)(s*precision);
+        spacing = (int)Math.round(s*precision);
         super.setMajorTickSpacing(spacing);
     }
     
     public int getDecimalSliderMinorTickSpacing(){return super.getMinorTickSpacing();}
     public void setDecimalSliderMinorTickSpacing(double hs){
-        halfSpacing = (int)(hs*precision);
+        halfSpacing = (int)Math.round(hs*precision);
         super.setMinorTickSpacing(halfSpacing);
     }
         
@@ -103,7 +103,7 @@ public class DecimalSlider extends javax.swing.JSlider {
     }
    
     public Hashtable createDecimalSliderStandardLabels(double n){
-        standardSpacingLabel = Math.max((int)(n*precision),1);
+        standardSpacingLabel = Math.max((int)Math.round(n*precision),1);
         return super.createStandardLabels(standardSpacingLabel);
     }
         
