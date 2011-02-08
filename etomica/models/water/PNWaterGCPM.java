@@ -91,7 +91,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         if(r2<=core) {
             return Double.POSITIVE_INFINITY;
         }
-        
+
         IVectorMutable H11r = water1Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
         IVectorMutable H12r = water1Atoms.getAtom(SpeciesWater4P.indexH2).getPosition();
         IVectorMutable H21r = water2Atoms.getAtom(SpeciesWater4P.indexH1).getPosition();
@@ -105,8 +105,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         double sigma2OverR2 = 1/(rOverSigma*rOverSigma);
         double sixOverGamma = 6/gamma;
    
-        double sum = epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);
-        
+        double sum = epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);//exp-6 potential(Udisp)
+
         r2 = H11r.Mv1Squared(H21r);
         sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
@@ -176,7 +176,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             comWi.Ea1Tv1(massH, H11r);
             comWi.PEa1Tv1(massO, O1r);
             comWi.PEa1Tv1(massH, H12r);
-            comWi.TE(1.0/totalMass);
+            comWi.TE(1.0/totalMass);//c.o.m of molecule i
             
             for (int j=0; j<atoms.getMoleculeCount(); j++) {
                 if  (i == j) continue;
@@ -185,7 +185,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                 IVectorMutable Ojr = jLeafAtoms.getAtom(SpeciesWater4P.indexO).getPosition();
                 IVectorMutable Hj1r = jLeafAtoms.getAtom(SpeciesWater4P.indexH1).getPosition();
                 IVectorMutable Hj2r = jLeafAtoms.getAtom(SpeciesWater4P.indexH2).getPosition();
-
+                
                 double comWtoH1 = Math.sqrt(comWi.Mv1Squared(Hj1r));
                 double comWtoH2 = Math.sqrt(comWi.Mv1Squared(Hj2r));
                 double comWtoM = Math.sqrt(comWi.Mv1Squared(Mjr));
@@ -216,7 +216,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
                 myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.getX(2));
-                
+                     
                 if (i<j) {
                     double OOr2 = O1r.Mv1Squared(Ojr);
                     if (OOr2 < core) {
@@ -238,7 +238,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                     double g = (1-SpecialFunctions.erfc(r12/(2*sigmaM)))-(r12/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r12*r12/(4*sigmaM*sigmaM));
                     
                     // Filling the unit matrix I
-                    Tij.Ev1v2(rijVector,rijVector);
+                    Tij.Ev1v2(rijVector,rijVector);//Each tensor Tij is a 3X3 matrix
                     
                     Tij.TE(3*f/(r12*r12));
                     
@@ -268,7 +268,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         //For x to be P, the A of the Ax=b actually needs an extra factor of
         //alphaPol.  We'll add that bit in when we calculate UpolAtkins.  
 
-        Matrix x = myA.solve(myEq);
+        Matrix x = myA.solve(myEq);//myA*x=myEq
 
         if (false) {
             // this is (mathematically) what we want.  But Jama is slow.
@@ -281,7 +281,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             }
             UpolAtkins *= -0.5*alphaPol;
         }
-
+        
         // only needed for more complicated Eq8 from Cummings paper 
         if (false) {
             
@@ -315,23 +315,23 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
 
     private static final long serialVersionUID = 1L;
     protected final MoleculePair pair;
-    private final double sigma;
-    private final double epsilon, gamma;
-    private final double chargeH, chargeM;
-    private final double core; // = 4.41; //4.41 = 2.1^2; value according to Cummings
-    private Matrix[] Eq, A;
-    private IVectorMutable comWi, comWj;
-    private final IVectorMutable rijVector;
-    private final IVectorMutable work;
-    private final Tensor Tunit, Tij;
-    private final double sigmaM;
-    private final double sigmaH;
-    private final double sqrtHMsigmas;
-    private final double massH;
-    private final double massO;
-    private final double totalMass;
-    private final double sqrtPiHMsigmas;
-    private final double sqrtPiMMsigmas;
-    private final double alphaPol;
+    protected final double sigma;
+    protected final double epsilon, gamma;
+    protected final double chargeH, chargeM;
+    protected final double core; // = 4.41; //4.41 = 2.1^2; value according to Cummings
+    protected Matrix[] Eq, A;
+    protected IVectorMutable comWi, comWj;
+    protected final IVectorMutable rijVector;
+    protected final IVectorMutable work;
+    protected final Tensor Tunit, Tij;
+    protected final double sigmaM;
+    protected final double sigmaH;
+    protected final double sqrtHMsigmas;
+    protected final double massH;
+    protected final double massO;
+    protected final double totalMass;
+    protected final double sqrtPiHMsigmas;
+    protected final double sqrtPiMMsigmas;
+    protected final double alphaPol;
     private double UpolAtkins;
 }
