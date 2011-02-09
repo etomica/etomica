@@ -24,6 +24,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.listener.IntegratorListenerAction;
 import etomica.simulation.SimulationContainer;
+import etomica.simulation.prototypes.HSMD2D;
 import etomica.space.ISpace;
 import etomica.space.Space;
 
@@ -459,7 +460,7 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
 //        final etomica.simulation.prototypes.HSMD3DNoNbr sim = new etomica.simulation.prototypes.HSMD3DNoNbr();
 //        etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
+        HSMD2D sim = new HSMD2D();
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
         Space space = Space.getInstance(2);

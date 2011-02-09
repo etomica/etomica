@@ -22,6 +22,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDoubleArray;
+import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
@@ -522,7 +523,7 @@ public class DisplayTable extends Display implements DataTableListener {
     	final String APP_NAME = "Display Table";
 
     	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        final etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
+        final HSMD2D sim = new HSMD2D();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,sp, sim.getController());
         sim.integrator.setIsothermal(true);
 

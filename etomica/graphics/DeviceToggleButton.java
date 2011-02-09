@@ -7,6 +7,7 @@ import etomica.action.ActionToggle;
 import etomica.action.IAction;
 import etomica.action.activity.IController;
 import etomica.modifier.ModifierBoolean;
+import etomica.simulation.prototypes.HSMD2D;
 
 /**
  * Button that toggles a boolean value. This device can connect to any object
@@ -104,7 +105,7 @@ public class DeviceToggleButton extends DeviceButton {
     	final String APP_NAME = "Device Toggle Button";
 
     	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        final etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
+        final HSMD2D sim = new HSMD2D();
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME,sp, sim.getController());
 
         //here's the part unique to this class

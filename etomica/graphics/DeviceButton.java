@@ -7,6 +7,7 @@ import javax.swing.JButton;
 
 import etomica.action.IAction;
 import etomica.action.activity.IController;
+import etomica.simulation.prototypes.HSMD2D;
 
 /**
  * Button that causes an action to be performed.
@@ -101,7 +102,7 @@ public class DeviceButton extends Device {
     	final String APP_NAME = "Device Button";
 
     	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
+        HSMD2D sim = new HSMD2D();
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
         
         //here's the part unique to this class
