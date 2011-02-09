@@ -16,7 +16,7 @@ import etomica.nbr.list.PotentialMasterList;
  */
 public class ColorSchemeNeighbor extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, IBox box, int dim) {
+    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, IBox box) {
         super(box);
         typeColorScheme = new ColorSchemeByType(sim);
         leafList = box.getLeafList();
