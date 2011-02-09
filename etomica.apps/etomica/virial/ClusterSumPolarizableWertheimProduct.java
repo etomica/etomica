@@ -9,7 +9,7 @@ import etomica.util.Arrays;
 public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, java.io.Serializable {
 
     /**
-     * Constructor for ClusterSum.
+     * Constructor for ClusterSum for Wertheim diagram including three body term.
      */
     public ClusterSumPolarizableWertheimProduct(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
@@ -86,9 +86,6 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
         int thisCPairID = cPairs.getID();
         
         PotentialPolarizable scfPotential = null;
-        for(int k=0; k<f.length; k++) {
-            scfPotential = (PotentialPolarizable) f[k].getPotential();
-        }
 
         // deltaD and deltaE run into precision problems for long distances
         
@@ -120,6 +117,19 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
         
         calcValue();
         
+        for(int i=0; i<nPoints-1; i++) {
+            for(int j=i+1; j<nPoints; j++) {
+                double r2 = cPairs.getr2(i,j);
+                f[0].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                    scfPotential = (PotentialPolarizable) f[0].getPotential();
+                    uijPol[i][j] = scfPotential.getLastPolarizationEnergy();
+                    if(Double.isNaN(uijPol[i][j])){//pair is overlapped
+                    	value = 0;
+                    	return value;
+                    }
+            }
+        }
+        
         scfAtoms.clear();
         scfAtoms.add(atomSet.getMolecule(0));
         scfAtoms.add(atomSet.getMolecule(1));
@@ -139,8 +149,10 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
         else {
             expBetaU123 = Math.exp(-beta*deltau123)-1;
         }
+      value *=expBetaU123;
       
-        return value*expBetaU123;
+      System.out.println("value "+value+" beta "+beta+" exp "+expBetaU123);
+        return value;
     }
     
     protected void calcValue() {

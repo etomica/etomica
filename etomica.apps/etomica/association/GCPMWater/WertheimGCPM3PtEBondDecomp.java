@@ -122,7 +122,7 @@ public class WertheimGCPM3PtEBondDecomp {
 		
 		MayerEGeneral eRRef = new MayerEGeneral(pCARef);
 		
-		int nBondTypes = 4;//fR,FAC,FCA,eR
+		int nBondTypes = 5;//fR,FAC,FCA,FBC,eR
 		ClusterBonds[] clusters = new ClusterBonds[0];
 		int[][][] bondList = new int[nBondTypes][][];
 		int [][][]refBondList = new int[nBondTypes][][];
@@ -130,13 +130,15 @@ public class WertheimGCPM3PtEBondDecomp {
 
             		
 		if (numDiagram == 5 && diagramIndex == 2) {
-			HSB[3] = -35.238*-35.238;//This value is from direct sampling
-			refBondList[0] = new int [][]{{0,1}};
-			refBondList[2] = new int [][]{{1,2}};
-			System.out.println("Diagram5-2");
-			bondList[0] = new int [][]{{2,0}};
-			bondList[1] = new int [][]{{0,1}};
-			bondList[3] = new int [][]{{1,2}};
+//			HSB[3] = -35.238*-35.238;//This value is from direct sampling
+//			refBondList[0] = new int [][]{{0,1}};
+//			refBondList[2] = new int [][]{{1,2}};
+//			System.out.println("Diagram5-2");
+//			bondList[0] = new int [][]{{2,0}};
+//			bondList[1] = new int [][]{{0,1}};
+//			bondList[3] = new int [][]{{1,2}};
+			refBondList[3] = new int [][]{{0,1},{1,2}};
+			bondList[4] = new int [][]{{0,1},{1,2},{2,0}};//eR bond 3 pt diagram
 			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
 			targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,FBC,eR});
 			
@@ -268,7 +270,7 @@ public class WertheimGCPM3PtEBondDecomp {
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 600;//reduced temperature
 		public double sigmaHSRef = 3.2;
-		public long numSteps = 10000;
+		public long numSteps = 100000;
 		public double associationEnergy = 3000.0;
 		public int numDiagram = 5;
 		public int diagramIndex = 2;
