@@ -89,9 +89,8 @@ public class DeviceSlider extends Device {
     private GridBagLayout gbLayout;    
     private GridBagConstraints gbConst; 
     private boolean showBorder = false;
-    private int nMajor = 3;
+    private int nMajor = 3, nMinor = 1;
     protected IAction targetAction;
-    private boolean showMinorTicks = false;
     protected boolean suppressAction = false;
 
     public DeviceSlider(IController controller) {
@@ -243,26 +242,27 @@ public class DeviceSlider extends Device {
         modifyAction = tmpModifier;
     }
     
-    public void setShowMinorTicks(boolean b){
-        showMinorTicks = b;
-    }
-    
     public void setNMajor(int n) {
         nMajor = n;
         setTicks();
     }
     public int getNMajor() {return nMajor;}
     
+    public void setNMinor(int n) {
+        if (n<0 || n>10) throw new RuntimeException("oh no you don't");
+        nMinor = n;
+        setTicks();
+    }
+    public int getNMinor() {return nMinor;}
+
     private void setTicks() {
-        double minorTick = 1.0 ;
-        if(showMinorTicks){ minorTick = 2.0;}
         double spacing = (getMaximum()-getMinimum())/nMajor; 
         if(spacing <= 0) return;
         slider.setDecimalSliderMajorTickSpacing(spacing);
-        slider.setDecimalSliderMinorTickSpacing(spacing/minorTick);
+        slider.setDecimalSliderMinorTickSpacing(spacing/nMinor);
         //need to do the following because JSlider does not automatically
         //reset labels if they have been set before
-        slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(spacing/minorTick));
+        slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(spacing));
     }
 
     public boolean getShowSlider() { return showSlider; }
