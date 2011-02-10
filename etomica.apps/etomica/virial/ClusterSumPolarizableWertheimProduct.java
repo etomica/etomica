@@ -85,7 +85,7 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
         IMoleculeList atomSet = box.getMoleculeList();
         int thisCPairID = cPairs.getID();
         
-        PotentialPolarizable scfPotential = null;
+        PotentialPolarizable scfPotential = (PotentialPolarizable) f[0].getPotential();
 
         // deltaD and deltaE run into precision problems for long distances
         
@@ -118,11 +118,8 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
         calcValue();
         
         for(int i=0; i<nPoints-1; i++) {
-            for(int j=i+1; j<nPoints; j++) {
-                double r2 = cPairs.getr2(i,j);
-                f[0].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                    scfPotential = (PotentialPolarizable) f[0].getPotential();
-                    uijPol[i][j] = scfPotential.getLastPolarizationEnergy();
+            for(int j=i+1; j<nPoints; j++) {       	
+                    uijPol[i][j] = scfPotential.getPolarizationEnergy(aPairs.getAPair(i, j));
                     if(Double.isNaN(uijPol[i][j])){//pair is overlapped
                     	value = 0;
                     	return value;
@@ -150,8 +147,9 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
             expBetaU123 = Math.exp(-beta*deltau123)-1;
         }
       value *=expBetaU123;
-      
-      System.out.println("value "+value+" beta "+beta+" exp "+expBetaU123);
+//      if (Double.isNaN(value)){
+//    	  System.out.println("value "+value+" beta "+beta+" exp "+expBetaU123+" delta "+deltau123+" u123Pol "+u123Pol+" uijPol "+uijPol[0][1]+" "+uijPol[0][2]+" "+uijPol[1][2]);
+//      }
         return value;
     }
     
