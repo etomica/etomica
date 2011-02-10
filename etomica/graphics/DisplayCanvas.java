@@ -1,6 +1,9 @@
 package etomica.graphics;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
 
 import etomica.action.activity.Controller;
 import etomica.units.Pixel;
@@ -58,6 +61,21 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
     public DisplayCanvas(Controller controller) {
         this.controller = controller;
         setBackground(java.awt.Color.white);
+    }
+
+    public void dispose() {
+        ComponentListener[] listeners = getComponentListeners();
+        for (int i=0; i<listeners.length; i++) {
+            removeComponentListener(listeners[i]);
+        }
+        MouseListener[] mlisteners = getMouseListeners();
+        for (int i=0; i<mlisteners.length; i++) {
+            removeMouseListener(mlisteners[i]);
+        }
+        KeyListener[] klisteners = getKeyListeners();
+        for (int i=0; i<klisteners.length; i++) {
+            removeKeyListener(klisteners[i]);
+        }
     }
 
     protected void ensureOffScreen () {
