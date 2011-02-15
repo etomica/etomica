@@ -67,6 +67,8 @@ public class HypernettedChain {
 		//Compute B3 (from c1) up to BM (from c(M-2))
 		for (int m = 1; m <= M-2; m++) {
 			
+			
+			
 			/**************************************************************************************
 			/**************************************************************************************
 			 * Apply the Ornstein-Zernike relation to compute mth-order density expansion of t.
@@ -85,15 +87,145 @@ public class HypernettedChain {
 			
 			for (int i = 0; i < N; i++) {
 				
-				tnr[m][i] = tmr[i];
 				
-				if (m == 1) {
-					hnr[m][i] = (fr[i]+1) * tnr[1][i];
-				} else if (m == 2) {
-					hnr[m][i] = (fr[i]+1) * (tnr[2][i] + 0.5*tnr[1][i]*tnr[1][i]);
-				} else if (m == 3) {
-					hnr[m][i] = (fr[i]+1) * (tnr[3][i]+tnr[1][i]*tnr[2][i]+(1.0/6.0)*tnr[1][i]*tnr[1][i]*tnr[1][i]);
-				} 
+				/*
+				 *    m       i
+				 *    
+				 *    1       1
+				 *    
+				 *    2       2;  1+1
+				 *    
+				 *    3       3;  2+1          ; 1+1+1
+				 *    
+				 *    4       4;  3+1, 2+2     ; 2+1+1;  1+1+1+1
+				 *    
+				 *    5       5;  4+1, 3+2     ; 3+1+1, 2+2+1; 2+1+1+1;  1+1+1+1+1  
+				 *    
+				 *    6       6;  5+1, 4+2, 3+3; 4+1+1, 3+
+				 */
+				
+				tnr[m][i] = tmr[i];
+				boolean specialCased = false;
+				if (specialCased) {
+				
+					if (m == 1) {
+						hnr[m][i] = (fr[i]+1) * tnr[1][i];
+					} else if (m == 2) {
+						hnr[m][i] = (fr[i]+1) * (tnr[2][i] + (1.0/2.0)*tnr[1][i]*tnr[1][i]);
+					} else if (m == 3) {
+						hnr[m][i] = (fr[i]+1) * (tnr[3][i]+tnr[1][i]*tnr[2][i]+(1.0/6.0)*tnr[1][i]*tnr[1][i]*tnr[1][i]);
+					} 	
+					else if (m == 4) {
+						hnr[m][i] = (fr[i]+1) * (tnr[4][i] + tnr[1][i]*tnr[3][i] + (1.0/2.0)*tnr[2][i]*tnr[2][i] + (1.0/2.0)*tnr[2][i]*tnr[1][i]*tnr[1][i] + (1.0/24.0)*tnr[1][i]*tnr[1][i]*tnr[1][i]*tnr[1][i]);
+					} 
+				} else {
+				
+				
+					int[] parts = new int[m];
+					for (int p=0; p<m; p++) {			
+						parts[p]=1;		
+					}
+					
+					double[] tnri = new double[m+1];
+					for (int p=1; p<=m; p++) {			
+						tnri[p]=tnr[p][i];
+					}
+				
+					//How many ways can we condense m 1's to 1 m?
+				    int last = m-1;
+				    boolean incomplete = true;
+				    hnr[m][i]=0;
+					while (incomplete) {
+						
+						// count like components that are not zero
+						int[] count = new int[m];
+						int[] duplicate = new int[m];
+						int total = 0;
+						for (int p=0; p<m; p++) {  
+							if (duplicate[p] == 0) {
+							for (int a=p; a<m; a++) {  
+								if (parts[a] == parts[p]) {
+									count[p] = count[p] + 1;
+									total=total+1;
+									duplicate[a]=1;
+									if (total == m) {
+										break;
+									}
+								} 
+							}
+							}
+							if (total == m) {
+								break;
+							}
+						}
+						
+						if (i==1){
+							
+							for (int b=0;b<m; b++) {
+								
+								System.out.print(parts[b]+"\t");
+								
+							}
+							
+							System.out.println();
+						}
+						
+						//add to hnr[m][i]
+						
+						double plus=1.0;
+						for (int p=0; p<m; p++) {  
+							if (count[p] != 0 && parts[p] != 0) {	
+								double tnra=1.0;
+								double afactorial=1.0;
+								for (int a=1; a<=count[p]; a++) {
+									tnra = tnra*tnr[parts[p]][i];
+									afactorial = afactorial*(double)a;
+								}
+							
+								plus = plus *tnra/afactorial;
+								
+								if (i==1){
+									System.out.print(afactorial+"\t");
+								}
+							}
+						}
+						hnr[m][i] = hnr[m][i] + (fr[i]+1)*plus;
+						if (i==1){
+							System.out.println();
+						}
+	
+						if (parts[0]==m) {
+							incomplete = false;
+						}
+						
+						// if incomplete, move 1 from last nonzero element to the leftmost, smallest nonzero element that is not the last nonzero element
+						
+						int least = m;
+						int toID = 0;;
+						for (int a=0; a<last; a++) {
+							if (parts[a] < least) {
+							
+								least = parts[a];
+								toID = a;
+							}
+							
+							
+						}
+						
+						parts[toID] = parts[toID] + 1;
+						parts[last]= parts[last] - 1;
+						if (parts[last] == 0) {
+							
+							last = last -1;
+							
+						}
+
+					}
+
+					
+				}
+				
+				
 			
 				cnr[m][i] = hnr[m][i] - tnr[m][i];
 				
@@ -146,6 +278,8 @@ public class HypernettedChain {
 		this.rdfdr = rdfdr; 
 	}
 	
+
+
 	public boolean compressibility = true;
 	public double[] rdfdr;
 	
