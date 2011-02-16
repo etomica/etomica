@@ -116,7 +116,7 @@ public class GraphImpl implements Graph {
     if (nodes.length == otherNodes.size()) {
       List<Edge> otherEdges = other.edges();
       List<Edge> myEdges = edges();
-      if (edgeCount() == otherEdges.size()) {
+      if (myEdges.size() == otherEdges.size()) {
         // check store
         int storeOrder = store.compareTo(other.getStore());
         if (storeOrder != 0) {
@@ -139,14 +139,14 @@ public class GraphImpl implements Graph {
         }
         return 0;
       }
-      else if (edges().size() < otherEdges.size()) {
+      else if (myEdges.size() < otherEdges.size()) {
         return -1;
       }
       else {
         return 1;
       }
     }
-    else if (nodes().size() < otherNodes.size()) {
+    else if (nodes.length < otherNodes.size()) {
       return -1;
     }
     else {

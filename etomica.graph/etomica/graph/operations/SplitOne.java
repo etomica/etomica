@@ -40,7 +40,7 @@ public class SplitOne implements Unary {
     List<Byte> edges = new ArrayList<Byte>();
     byte nodeCount = graph.nodeCount();
     for (byte edgeId = 0; edgeId < nodeCount*(nodeCount-1)/2; edgeId++) {
-      if (graph.getEdge(edgeId) == null) {
+      if (!graph.hasEdge(edgeId)) {
         edges.add(edgeId);
       }
     }
