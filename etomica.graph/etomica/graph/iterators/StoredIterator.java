@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -34,8 +37,22 @@ public class StoredIterator implements GraphIterator {
     }
     URL url = getClass().getResource(GRAPH_BASE + ZIP_FILE);
     try {
-      FileInputStream fis = new FileInputStream(new File(url.toURI()));
-      ZipInputStream zis = new ZipInputStream(fis);
+      ZipInputStream zis = null;
+      if (url.getProtocol().equals("jar")) {
+      	URL myURL = new URL(url.getPath());
+      	// myURL.getPath() will be something like
+      	// jar:file:/usr/users/bob/ex_vir_hs.jar!/etomica/graph/model/impl/graph6fmt.zip
+      	String jarFileName = myURL.getPath().split("!")[0];
+      	JarFile jarFile = new JarFile(jarFileName);
+      	// strip off leading slash
+      	JarEntry jarEntry = jarFile.getJarEntry(myURL.getPath().split("!")[1].substring(1));
+      	InputStream jis = jarFile.getInputStream(jarEntry);
+        zis = new ZipInputStream(jis);
+      }
+      else {
+        FileInputStream fis = new FileInputStream(new File(url.toURI()));
+        zis = new ZipInputStream(fis);
+      }
       ZipEntry ze;
       String gf = GRAPH_FILE + nodeCount + 'a';
       do {
