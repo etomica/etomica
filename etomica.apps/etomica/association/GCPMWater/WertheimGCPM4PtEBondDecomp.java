@@ -61,7 +61,7 @@ public class WertheimGCPM4PtEBondDecomp {
 		
 		int numDiagram=params.numDiagram;
 		int diagramIndex=params.diagramIndex;
-		final int nBody = 4;
+		final int nBody = 4;//B4
 		double temperature=params.temperature;
 		double sigmaHSRef = params.sigmaHSRef;
 		double associationEnergy = params.associationEnergy;
@@ -127,14 +127,14 @@ public class WertheimGCPM4PtEBondDecomp {
 		pBCRef.setBondType(2);
 		MayerGeneral fBCRef4mer = new MayerGeneral(pBCRef);
 		
-		MayerEGeneral eRRef = new MayerEGeneral(pCARef);
-		
 		int nBondTypes = 6;//fR,FCA,FAC,FCB,FBC,eR
 		ClusterBonds[] clusters = new ClusterBonds[0];
 		int[][][] bondList = new int[nBondTypes][][];
 		int [][][]refBondList = new int[nBondTypes][][];
-		ClusterAbstract targetCluster = null;
+		ClusterSumPolarizableWertheimProduct targetCluster = null;
+		
 		System.out.println("Diagram "+numDiagram+"-"+diagramIndex+"E");
+		
 		if (numDiagram == 12 ||numDiagram == 19||numDiagram == 26||numDiagram == 34){
 			HSB[4] = -35.238*-35.238*-35.238;//This value is from direct sampling
 			System.out.println("use hard-chain reference && value = -35.238*-35.238*-35.258 = 43755.611101272");
@@ -607,9 +607,9 @@ public class WertheimGCPM4PtEBondDecomp {
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 600;//reduced temperature
 		public double sigmaHSRef = 3.2;
-		public long numSteps = 10000;
+		public long numSteps = 1000;
 		public double associationEnergy = 3000.0;
-		public int numDiagram = 19;
+		public int numDiagram = 8;
 		public int diagramIndex = 1;
 		
 	}

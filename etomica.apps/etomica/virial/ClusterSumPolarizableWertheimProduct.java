@@ -127,29 +127,104 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
             }
         }
         
-        scfAtoms.clear();
-        scfAtoms.add(atomSet.getMolecule(0));
-        scfAtoms.add(atomSet.getMolecule(1));
-        scfAtoms.add(atomSet.getMolecule(2));
-        double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-        double deltau123 = u123Pol-(uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
-        double betaU123 = beta*deltau123;
-        double expBetaU123;
-        
-        if (Math.abs(betaU123) < 1.e-8) {
-            // for small x, exp(-x)-1 ~= -x
-            // for x < 1E-8, the approximation is value within machine precision
-            // for x < 1E-15, exp(-x) is 1, so the approximation is more accurate
-            //   than simply doing the math.
-            expBetaU123 = -betaU123;
+        if (nPoints == 3) {
+        	scfAtoms.clear();
+            scfAtoms.add(atomSet.getMolecule(0));
+            scfAtoms.add(atomSet.getMolecule(1));
+            scfAtoms.add(atomSet.getMolecule(2));
+            double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+            double deltau123 = u123Pol-(uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
+            double betaU123 = beta*deltau123;
+            double expBetaU123;
+            
+            if (Math.abs(betaU123) < 1.e-8) {
+                // for small x, exp(-x)-1 ~= -x
+                // for x < 1E-8, the approximation is value within machine precision
+                // for x < 1E-15, exp(-x) is 1, so the approximation is more accurate
+                //   than simply doing the math.
+                expBetaU123 = -betaU123;
+            }
+            else {
+                expBetaU123 = Math.exp(-beta*deltau123)-1;
+            }
+
+	      value *=expBetaU123;
+	//      if (Double.isNaN(value)){
+	//    	  System.out.println("value "+value+" beta "+beta+" exp "+expBetaU123+" delta "+deltau123+" u123Pol "+u123Pol+" uijPol "+uijPol[0][1]+" "+uijPol[0][2]+" "+uijPol[1][2]);
+	//      }
         }
-        else {
-            expBetaU123 = Math.exp(-beta*deltau123)-1;
+        else if (nPoints == 4) {
+            // if 12 13 or 23 is overlapped, then we can't calculate u123Pol and
+            // couldn't calculate the uijPol.  Fortunately, gij is 0, so the 123
+            // term is 0.
+        	scfAtoms.clear();
+            // we need to properly construct these lists even if we don't use them
+            // (due to overlaps) because the next list is obtained by removing/adding
+            // atoms from this one.
+            scfAtoms.add(atomSet.getMolecule(0));
+            scfAtoms.add(atomSet.getMolecule(1));
+            scfAtoms.add(atomSet.getMolecule(2));
+
+            double deltaD = 0;
+            // if 12 13 or 23 is overlapped, then we can't calculate u123Pol and
+            // couldn't calculate the uijPol.  Fortunately, gij is 0, so the 123
+            // term is 0.
+                double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU123 = u123Pol - (uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
+                double betaU123 = beta*deltaU123;
+                // for small x, exp(-x)-1 ~= -x
+                // for x < 1E-8, the approximation is value within machine precision
+                // for x < 1E-15, exp(-x) is 1, so the approximation is more accurate
+                //   than simply doing the math.
+                double expBetaU123 = -betaU123;
+                if (Math.abs(betaU123) > 1E-8) {
+                    expBetaU123 = Math.exp(-betaU123) - 1;
+                }
+
+            scfAtoms.remove(2);
+            scfAtoms.add(atomSet.getMolecule(3));
+                double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
+                double betaU124 = beta*deltaU124;
+                double expBetaU124 = -betaU124;
+                if (Math.abs(betaU124) > 1E-8) {
+                    expBetaU124 = Math.exp(-betaU124) - 1;
+                }
+
+            scfAtoms.remove(1);
+            scfAtoms.add(atomSet.getMolecule(2));
+
+                double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
+                double betaU134 = beta*deltaU134;
+                double expBetaU134 = -betaU134;
+                if (Math.abs(betaU134) > 1E-8) {
+                    expBetaU134 = Math.exp(-betaU134) - 1;
+                }
+
+            scfAtoms.remove(0);
+            scfAtoms.add(atomSet.getMolecule(1));
+                double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
+                double betaU234 = beta*deltaU234;
+                double expBetaU234 = -betaU234;
+                if (Math.abs(betaU234) > 1E-8) {
+                    expBetaU234 = Math.exp(-betaU234) - 1;
+                }
+                
+            scfAtoms.add(atomSet.getMolecule(0));
+                double u1234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU1234 = u1234Pol-(uijPol[0][1]+uijPol[0][2]+uijPol[0][3]+uijPol[1][2]+uijPol[1][3]+uijPol[2][3]); //-deltaU123-deltaU124-deltaU134-deltaU234;
+                double betaU1234 = beta*deltaU1234; //deltaU123+deltaU124+deltaU134+deltaU234+deltaU1234);
+                double expBetaU1234 = -betaU1234;
+                if (Math.abs(betaU1234) > 1E-8) {
+                    expBetaU1234 = Math.exp(-betaU1234) - 1;
+                }
+              value *= (((expBetaU123+expBetaU124+expBetaU134+expBetaU234)+(expBetaU123*expBetaU124+expBetaU123*expBetaU134+expBetaU123*expBetaU234+
+            		  expBetaU124*expBetaU134+expBetaU124*expBetaU234+expBetaU134*expBetaU234+expBetaU123*expBetaU124*expBetaU134+expBetaU123*expBetaU124*expBetaU234+
+            		  expBetaU123*expBetaU134*expBetaU234+expBetaU124*expBetaU134*expBetaU234+expBetaU123*expBetaU124*expBetaU134*expBetaU234))*(1+expBetaU1234)+expBetaU1234
+            		  );  
         }
-      value *=expBetaU123;
-//      if (Double.isNaN(value)){
-//    	  System.out.println("value "+value+" beta "+beta+" exp "+expBetaU123+" delta "+deltau123+" u123Pol "+u123Pol+" uijPol "+uijPol[0][1]+" "+uijPol[0][2]+" "+uijPol[1][2]);
-//      }
         return value;
     }
     
