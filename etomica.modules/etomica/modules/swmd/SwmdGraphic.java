@@ -485,7 +485,7 @@ public class SwmdGraphic extends SimulationGraphic {
         velocityButton.setLabel("Show Velocities");
         velocityButton.setAction(new ActionVelocityWindow(sim.box));
 
-        IAction resetAction = new IAction() {
+        final IAction resetAction = new IAction() {
         	public void actionPerformed() {
         	    sim.integrator.reset();
 
@@ -515,7 +515,12 @@ public class SwmdGraphic extends SimulationGraphic {
         	}
         };
 
-        this.getController().getReinitButton().setPostAction(resetAction);
+        this.getController().getReinitButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                sim.integrator.doThermostat();
+                resetAction.actionPerformed();
+            }
+        });
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
