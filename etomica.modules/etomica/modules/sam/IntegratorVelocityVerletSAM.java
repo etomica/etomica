@@ -86,7 +86,7 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
         pressureTensor.TE(1/box.getBoundary().volume());
 
         if(isothermal) {
-            doThermostat();
+            doThermostatInternal();
         }
     }
     

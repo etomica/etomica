@@ -268,7 +268,7 @@ public class IntegratorHard extends IntegratorMD
             }
         }
 
-        if(isothermal) doThermostat();
+        if(isothermal) doThermostatInternal();
     }//end of doStep
 
     public int getCollisionCount() {

@@ -247,7 +247,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         }
 
         if(isothermal) {
-            doThermostat();
+            doThermostatInternal();
         }
 
         if (printInterval > 0 && stepCount%printInterval == 0) {

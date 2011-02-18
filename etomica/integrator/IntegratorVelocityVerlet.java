@@ -120,7 +120,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         pressureTensor.TE(1/box.getBoundary().volume());
 
         if(isothermal) {
-            doThermostat();
+            doThermostatInternal();
         }
     }
 

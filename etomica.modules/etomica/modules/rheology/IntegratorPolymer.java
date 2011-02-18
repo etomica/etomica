@@ -30,7 +30,7 @@ public class IntegratorPolymer extends IntegratorMD {
     }
 
     /* no point in trying to thermostat */
-    public void doThermostat() {}
+    protected void doThermostatInternal() {}
 
     public void doStepInternal() {
         super.doStepInternal();

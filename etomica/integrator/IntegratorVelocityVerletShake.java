@@ -254,7 +254,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         currentKineticEnergy *= 0.5;
         
         if(isothermal) {
-            doThermostat();
+            doThermostatInternal();
         }
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();

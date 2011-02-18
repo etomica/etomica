@@ -373,7 +373,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         }
 
         if (isothermal) {
-            doThermostat();
+            doThermostatInternal();
         }
     }
 

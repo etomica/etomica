@@ -73,7 +73,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         super.setup();
         currentTime = 0;
         thermostatCount = 1;
-        doThermostat();
+        doThermostatInternal();
     }
 
     public void resetStepCount() {
@@ -118,7 +118,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         if (initialized && isothermal) {
             // trigger immediate thermostat
             thermostatCount = 1;
-            doThermostat();
+            doThermostatInternal();
         }
     }
     
@@ -129,7 +129,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             atomActionRandomizeVelocity.setTemperature(temperature);
             // trigger immediate thermostat
             thermostatCount = 1;
-            doThermostat();
+            doThermostatInternal();
         }
     }
     
@@ -185,49 +185,56 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     }
 
     /**
+     * Fires the thermostat if the appropriate interval has been reached.
+     */
+    protected void doThermostatInternal() {
+        if (--thermostatCount == 0) {
+            doThermostat();
+        }
+    }
+
+    /**
      * thermostat implementation.  This method takes whatever action is appropriate
      * for the integrator's thermostat and updates the state of the integrator.
      */
     public void doThermostat() {
-        if (--thermostatCount == 0) {
-            thermostatCount = thermostatInterval;
-            if (thermostat == ThermostatType.ANDERSEN || thermostat == ThermostatType.ANDERSEN_NODRIFT || !initialized) {
-                // if initializing the system always randomize the velocity
-                randomizeMomenta();
-                if (thermostat == ThermostatType.ANDERSEN) {
-                    currentKineticEnergy = meterKE.getDataAsScalar();
+        thermostatCount = thermostatInterval;
+        if (thermostat == ThermostatType.ANDERSEN || thermostat == ThermostatType.ANDERSEN_NODRIFT || !initialized) {
+            // if initializing the system always randomize the velocity
+            randomizeMomenta();
+            if (thermostat == ThermostatType.ANDERSEN) {
+                currentKineticEnergy = meterKE.getDataAsScalar();
+            }
+        }
+        if (thermostat == ThermostatType.VELOCITY_SCALING || thermostat == ThermostatType.ANDERSEN_NODRIFT || !isothermal) {
+            shiftMomenta();
+            if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
+                scaleMomenta();
+            }
+            else {
+                // shifting changes the kinetic energy, so we need to recalculate it
+                // (scaleMomenta does this on its own)
+                currentKineticEnergy = meterKE.getDataAsScalar();
+            }
+        }
+        else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
+            if (initialized) {
+                IAtomList atomList = box.getLeafList();
+                int atomCount = atomList.getAtomCount();
+                if (atomCount > 0) {
+                    int index = random.nextInt(atomList.getAtomCount());
+                    IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
+                    double m = ((IAtom)a).getType().getMass();
+                    if (m == Double.POSITIVE_INFINITY) return;
+                    currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
+                    randomizeMomentum(a);
+                    currentKineticEnergy += 0.5*m*a.getVelocity().squared();
                 }
             }
-            if (thermostat == ThermostatType.VELOCITY_SCALING || thermostat == ThermostatType.ANDERSEN_NODRIFT || !isothermal) {
-                shiftMomenta();
-                if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
-                    scaleMomenta();
-                }
-                else {
-                    // shifting changes the kinetic energy, so we need to recalculate it
-                    // (scaleMomenta does this on its own)
-                    currentKineticEnergy = meterKE.getDataAsScalar();
-                }
-            }
-            else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
-                if (initialized) {
-                    IAtomList atomList = box.getLeafList();
-                    int atomCount = atomList.getAtomCount();
-                    if (atomCount > 0) {
-                        int index = random.nextInt(atomList.getAtomCount());
-                        IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
-                        double m = ((IAtom)a).getType().getMass();
-                        if (m == Double.POSITIVE_INFINITY) return;
-                        currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
-                        randomizeMomentum(a);
-                        currentKineticEnergy += 0.5*m*a.getVelocity().squared();
-                    }
-                }
-            }
-            // ANDERSEN was handled at the start
-            else if (thermostat != ThermostatType.ANDERSEN) {
-                throw new RuntimeException("Unknown thermostat: "+thermostat);
-            }
+        }
+        // ANDERSEN was handled at the start
+        else if (thermostat != ThermostatType.ANDERSEN) {
+            throw new RuntimeException("Unknown thermostat: "+thermostat);
         }
     }
     

@@ -341,7 +341,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         pressureTensor.TE(1/box.getBoundary().volume());
 
         if(isothermal) {
-            doThermostat();
+            doThermostatInternal();
         }
     }
 

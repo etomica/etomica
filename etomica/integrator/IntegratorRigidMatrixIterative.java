@@ -283,7 +283,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
 //            pressureTensor.E(((PotentialCalculationForcePressureSum)forceSum).getPressureTensor());
 //        }
         if (isothermal) {
-            doThermostat();
+            doThermostatInternal();
         }
         
         torqueSum.reset();
