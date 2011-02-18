@@ -47,5 +47,5 @@ public class PotentialCalculationEnergySum implements PotentialCalculation, Pote
     }
 	
     private static final long serialVersionUID = 1L;
-	private  double sum = 0.0;
+	protected double sum = 0.0;
 }
