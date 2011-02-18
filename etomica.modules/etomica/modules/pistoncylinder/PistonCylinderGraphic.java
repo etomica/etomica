@@ -45,6 +45,7 @@ import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ActionVelocityWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
+import etomica.graphics.DeviceBox.LabelType;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
@@ -59,7 +60,6 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.IntegratorMD;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
@@ -825,7 +825,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // display boxes and repaint the boxes.
         getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
+                pc.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
                 pc.integrator.doThermostat();
+                pc.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
                 pc.integrator.resetPiston();
                 try {
                     pc.integrator.reset();

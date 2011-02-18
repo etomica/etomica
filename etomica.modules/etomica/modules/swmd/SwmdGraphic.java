@@ -61,6 +61,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.integrator.IntegratorMD;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -517,7 +518,9 @@ public class SwmdGraphic extends SimulationGraphic {
 
         this.getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
+                sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
                 sim.integrator.doThermostat();
+                sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
                 resetAction.actionPerformed();
             }
         });
