@@ -825,6 +825,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // display boxes and repaint the boxes.
         getController().getReinitButton().setPostAction(new IAction() {
             public void actionPerformed() {
+                pc.integrator.doThermostat();
                 pc.integrator.resetPiston();
                 try {
                     pc.integrator.reset();
