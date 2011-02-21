@@ -120,8 +120,6 @@ public class WertheimGCPM3PtEBondDecomp {
 		pBCRef.setBondType(2);
 		MayerGeneral fBCRef4mer = new MayerGeneral(pBCRef);
 		
-		MayerEGeneral eRRef = new MayerEGeneral(pCARef);
-		
 		int nBondTypes = 5;//fR,FAC,FCA,FBC,eR
 		ClusterBonds[] clusters = new ClusterBonds[0];
 		int[][][] bondList = new int[nBondTypes][][];
@@ -206,13 +204,16 @@ public class WertheimGCPM3PtEBondDecomp {
 		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody>3, eRef, true);
 		if ((numDiagram == 5 ||numDiagram == 6 ||numDiagram == 7)){
 			ClusterBonds refBonds = new ClusterBonds(4,refBondList, false);
-			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer,eRRef});
+			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer});
 		}
         refCluster.setTemperature(temperature);
         targetCluster.setTemperature(temperature);
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
 		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC );
-		if (numDiagram == 3 || numDiagram == 4 ) {
+		if (numDiagram == 3 ) {
+			configuration.initializeCoordinatesER(sim.box[1]);
+		}
+		if (numDiagram == 4 ) {
 			configuration.initializeCoordinates(sim.box[1]);
 		}
 
@@ -354,7 +355,7 @@ public class WertheimGCPM3PtEBondDecomp {
 		public double sigmaHSRef = 3.2;
 		public long numSteps = 10000;
 		public double associationEnergy = 3000.0;
-		public int numDiagram = 4;
+		public int numDiagram = 3;
 		public int diagramIndex = 0;
 		
 	}
