@@ -71,6 +71,19 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	
+	public void initializeCoordinatesER(IBox box) {
+		super.initializeCoordinates(box);
+		associationPotential.setBox(box);
+		BoxCluster clusterBox =(BoxCluster) box;
+		double[] d = new double[] {3.5,0,0};
+		double[] e = new double[] {5.0,5.0,0};
+		double[] f = new double[] {0,5.0,0};
+		translation(d,e,f,box);
+		clusterBox.trialNotify();
+		clusterBox.acceptNotify();
+		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
+	}
+	
 	public void initializeCoordinates2(IBox box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
