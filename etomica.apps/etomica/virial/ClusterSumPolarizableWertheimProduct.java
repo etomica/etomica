@@ -9,7 +9,8 @@ import etomica.util.Arrays;
 public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, java.io.Serializable {
 
     /**
-     * Constructor for ClusterSum for Wertheim diagram including three body term.
+     * Constructor for ClusterSum for Wertheim diagram including multi body term.
+     * @author Hye Min Kim
      */
     public ClusterSumPolarizableWertheimProduct(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
@@ -166,6 +167,9 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
             scfAtoms.add(atomSet.getMolecule(1));
             scfAtoms.add(atomSet.getMolecule(2));
             scfAtoms.add(atomSet.getMolecule(3));
+            
+            if (g12*g13*g14*g23*g24*g34 != 0)
+            {
 
                 double u1234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU1234 = u1234Pol-(uijPol[0][1]+uijPol[0][2]+uijPol[0][3]+uijPol[1][2]+uijPol[1][3]+uijPol[2][3]); //-deltaU123-deltaU124-deltaU134-deltaU234;
@@ -174,105 +178,116 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
                 if (Math.abs(betaU1234) > 1E-8) {
                     expBetaU1234 = Math.exp(-betaU1234) - 1;
                 }
-              value *= expBetaU1234;
-
-//          	scfAtoms.remove(0);
-//            double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-//            double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
-//            double beta234 = beta*deltaU234;
-//            double exp234 = -beta234;
-//            if (Math.abs(beta234) > 1E-8) {
-//                exp234 = Math.exp(-beta234) - 1;
+                scfAtoms.remove(3);
+                double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU123 = u123Pol - (uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
+                double beta123 = beta*deltaU123;
+                double expBetaU123 = -beta123;
+                if (Math.abs(beta123) > 1E-8) {
+                    expBetaU123 = Math.exp(-beta123) - 1;
+                }
+                scfAtoms.remove(2);
+                scfAtoms.add(atomSet.getMolecule(3));
+                double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
+                double beta124 = beta*deltaU124;
+                double expBetaU124 = -beta124;
+                if (Math.abs(beta124) > 1E-8) {
+                    expBetaU124 = Math.exp(-beta124) - 1;
+                }
+                scfAtoms.remove(1);
+                scfAtoms.add(atomSet.getMolecule(2));
+                double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
+                double beta134 = beta*deltaU134;
+                double expBetaU134 = -beta134;
+                if (Math.abs(beta134) > 1E-8) {
+                    expBetaU134 = Math.exp(-beta134) - 1;
+                }
+                scfAtoms.remove(0);
+                scfAtoms.add(atomSet.getMolecule(1));
+                double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
+                double beta234 = beta*deltaU234;
+                double expBetaU234 = -beta234;
+                if (Math.abs(beta234) > 1E-8) {
+                    expBetaU234 = Math.exp(-beta234) - 1;
+                }
+              value *= (expBetaU1234-expBetaU123/g14/g34/g24-expBetaU124/g13/g23/g34-expBetaU134/g12/g23/g24-expBetaU234/g12/g13/g14);
+//              if (value !=0){
+//            	  //System.out.println(expBetaU1234+" "+expBetaU123/g14/g34/g24+" "+expBetaU124/g13/g23/g34+" "+expBetaU134/g12/g23/g24+" "+expBetaU234/g12/g13/g14);
+//            	  System.out.println(expBetaU123/g14/g34/g24+" "+expBetaU124/g13/g23/g34+" "+expBetaU134/g12/g23/g24+" "+expBetaU234/g12/g13/g14);
+//            	  System.out.println("g: "+g12+" "+g13+" "+g14+" "+g23+" "+g24+" "+g34);
+//              }
+            }
+//            if (g12 == 0 || g13== 0 || g14== 0){
+//                double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+//                double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
+//                double beta234 = beta*deltaU234;
+//                double expBetaU234 = -beta234;
+//                if (Math.abs(beta234) > 1E-8) {
+//                    expBetaU234 = Math.exp(-beta234) - 1;
+//                }
+//            	value += expBetaU234*g23*g24*g34*4;
 //            }
-//            value += -exp234*g23*g24*g34;
-//            
-//          	scfAtoms.remove(1);
-//            scfAtoms.add(atomSet.getMolecule(0));
-//            double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-//            double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
-//            double beta134 = beta*deltaU134;
-//            double exp134 = -beta134;
-//            if (Math.abs(beta134) > 1E-8) {
-//                exp134 = Math.exp(-beta134) - 1;
-//            }
-//            value += -exp134*g13*g14*g34;
-//            
-//          	scfAtoms.remove(2);
-//            scfAtoms.add(atomSet.getMolecule(1));
-//            double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-//            double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
-//            double beta124 = beta*deltaU124;
-//            double exp124 = -beta124;
-//            if (Math.abs(beta124) > 1E-8) {
-//                exp124 = Math.exp(-beta124) - 1;
-//            }
-//            value +=  -exp124*g12*g14*g24;
-//            
-//          	scfAtoms.remove(3);
-//            scfAtoms.add(atomSet.getMolecule(2));
-//            double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-//            double deltaU123 = u123Pol - (uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
-//            double beta123 = beta*deltaU123;
-//            double exp123 = -beta123;
-//            if (Math.abs(beta123) > 1E-8) {
-//                exp123 = Math.exp(-beta123) - 1;
-//            }
-//            value += -exp123*g12*g13*g23;
-              scfAtoms.clear();
-              scfAtoms.add(atomSet.getMolecule(0));
-              scfAtoms.add(atomSet.getMolecule(1));
-              scfAtoms.add(atomSet.getMolecule(2));
 
-
-              if (g12*g13*g23 != 0) {
-                  double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                  double deltaU123 = u123Pol - (uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
-                  double beta123 = beta*deltaU123;
-                  double exp123 = -beta123;
-                  if (Math.abs(beta123) > 1E-8) {
-                      exp123 = Math.exp(-beta123) - 1;
-                  }
-                  value += -exp123*g12*g13*g23;
-              }
-
-              scfAtoms.remove(2);
-              scfAtoms.add(atomSet.getMolecule(3));
-              if (g12*g14*g24 != 0) {
-                  double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                  double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
-                  double beta124 = beta*deltaU124;
-                  double exp124 = -beta124;
-                  if (Math.abs(beta124) > 1E-8) {
-                      exp124 = Math.exp(-beta124) - 1;
-                  }
-                  value +=  -exp124*g12*g14*g24;
-              }
-
-              scfAtoms.remove(1);
-              scfAtoms.add(atomSet.getMolecule(2));
-              if (g13*g14*g34 != 0) {
-                  double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                  double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
-                  double beta134 = beta*deltaU134;
-                  double exp134 = -beta134;
-                  if (Math.abs(beta134) > 1E-8) {
-                      exp134 = Math.exp(-beta134) - 1;
-                  }
-                  value += -exp134*g13*g14*g34;
-              }
-
-              scfAtoms.remove(0);
-              scfAtoms.add(atomSet.getMolecule(1));
-              if (g23*g24*g34 != 0) {
-                  double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                  double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
-                  double beta234 = beta*deltaU234;
-                  double exp234 = -beta234;
-                  if (Math.abs(beta234) > 1E-8) {
-                      exp234 = Math.exp(-beta234) - 1;
-                  }
-                  value += -exp234*g23*g24*g34;
-              }
+//              scfAtoms.clear();
+//              scfAtoms.add(atomSet.getMolecule(0));
+//              scfAtoms.add(atomSet.getMolecule(1));
+//              scfAtoms.add(atomSet.getMolecule(2));
+//
+//              
+//              if (g12*g13*g23 != 0) {
+//                  double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+//                  double deltaU123 = u123Pol - (uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
+//                  double beta123 = beta*deltaU123;
+//                  double expBetaU123 = -beta123;
+//                  if (Math.abs(beta123) > 1E-8) {
+//                      expBetaU123 = Math.exp(-beta123) - 1;
+//                  }
+//                  value += -expBetaU123*g12*g13*g23;
+//              }
+//              
+//              
+//
+//              scfAtoms.remove(2);
+//              scfAtoms.add(atomSet.getMolecule(3));
+//              if (g12*g14*g24 != 0) {
+//                  double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+//                  double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
+//                  double beta124 = beta*deltaU124;
+//                  double expBetaU124 = -beta124;
+//                  if (Math.abs(beta124) > 1E-8) {
+//                      expBetaU124 = Math.exp(-beta124) - 1;
+//                  }
+//                  value +=  -expBetaU124*g12*g14*g24;
+//              }
+//
+//              scfAtoms.remove(1);
+//              scfAtoms.add(atomSet.getMolecule(2));
+//              if (g13*g14*g34 != 0) {
+//                  double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+//                  double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
+//                  double beta134 = beta*deltaU134;
+//                  double exp134 = -beta134;
+//                  if (Math.abs(beta134) > 1E-8) {
+//                      exp134 = Math.exp(-beta134) - 1;
+//                  }
+//                  value += -exp134*g13*g14*g34;
+//              }
+//
+//              scfAtoms.remove(0);
+//              scfAtoms.add(atomSet.getMolecule(1));
+//              if (g23*g24*g34 != 0) {
+//                  double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+//                  double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
+//                  double beta234 = beta*deltaU234;
+//                  double exp234 = -beta234;
+//                  if (Math.abs(beta234) > 1E-8) {
+//                      exp234 = Math.exp(-beta234) - 1;
+//                  }
+//                  value += -exp234*g23*g24*g34;
+//              }
         }
         return value;
     }

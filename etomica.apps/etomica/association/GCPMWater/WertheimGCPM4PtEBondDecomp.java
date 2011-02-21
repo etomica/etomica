@@ -105,6 +105,8 @@ public class WertheimGCPM4PtEBondDecomp {
 		pBC.setBondType(2);
 		pCB.setBondType(4);
 		MayerEGeneral eR = new MayerEGeneral(pR);//repulsion eR function
+        final IPotentialMolecular pTarget = new PNWaterGCPM(space);
+        //MayerEGeneral eR = new MayerEGeneral(pTarget);
 		MayerGeneral fR = new MayerGeneral(pR);//Mayer f function of reference part
 		MayerGeneral fAC = new MayerGeneral(pAC);//Mayer f function of association part
 		MayerGeneral fCA = new MayerGeneral(pCA);//Mayer f function of association part
@@ -467,6 +469,7 @@ public class WertheimGCPM4PtEBondDecomp {
         
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
 		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA);
+		if (numDiagram == 8) configuration.initializeCoordinatesER(sim.box[1]);
 		if (numDiagram == 9 || numDiagram == 15 || numDiagram == 21|| numDiagram == 29)configuration.initializeCoordinates(sim.box[1]);
 		if ((numDiagram == 10 || numDiagram == 16 || numDiagram == 17 || numDiagram == 22 || numDiagram == 30)){
 			if (diagramIndex == 1){
@@ -546,7 +549,11 @@ public class WertheimGCPM4PtEBondDecomp {
         sim.initRefPref(refFileName, numSteps/40);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, numSteps/20);    
+        sim.equilibrate(refFileName, numSteps/20);  
+        
+        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+            throw new RuntimeException("oops");
+        }
         sim.setAccumulatorBlockSize((int)numSteps);
                 
         System.out.println("equilibration finished");
@@ -606,8 +613,8 @@ public class WertheimGCPM4PtEBondDecomp {
 	
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 600;//reduced temperature
-		public double sigmaHSRef = 3.2;
-		public long numSteps = 1000;
+		public double sigmaHSRef = 5.0;
+		public long numSteps = 5000;
 		public double associationEnergy = 3000.0;
 		public int numDiagram = 8;
 		public int diagramIndex = 1;
