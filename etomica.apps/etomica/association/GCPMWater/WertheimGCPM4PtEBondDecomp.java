@@ -105,8 +105,6 @@ public class WertheimGCPM4PtEBondDecomp {
 		pBC.setBondType(2);
 		pCB.setBondType(4);
 		MayerEGeneral eR = new MayerEGeneral(pR);//repulsion eR function
-        final IPotentialMolecular pTarget = new PNWaterGCPM(space);
-        //MayerEGeneral eR = new MayerEGeneral(pTarget);
 		MayerGeneral fR = new MayerGeneral(pR);//Mayer f function of reference part
 		MayerGeneral fAC = new MayerGeneral(pAC);//Mayer f function of association part
 		MayerGeneral fCA = new MayerGeneral(pCA);//Mayer f function of association part
@@ -180,8 +178,8 @@ public class WertheimGCPM4PtEBondDecomp {
 					refBondList[2] = new int [][]{{1,2}};
 					bondList[5]=new int [][]{{3,0}};
 					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{2,3}};
 					bondList[4]=new int [][]{{1,2}};
+					bondList[2]=new int [][]{{2,3}};
 				}	else if (diagramIndex == 3){
 					refBondList[0] = new int [][]{{1,2}};
 					refBondList[1] = new int [][]{{0,1}};
@@ -255,8 +253,14 @@ public class WertheimGCPM4PtEBondDecomp {
 					bondList[4]=new int [][]{{1,2}};
 				}	
 		}	else if (numDiagram == 18){
-			bondList[5]=new int [][]{{1,2},{3,0},{0,2}};
-			bondList[1]=new int [][]{{0,1},{2,3}};
+			if (diagramIndex == 1){
+				bondList[5]=new int [][]{{1,2},{3,0},{0,2}};
+				bondList[1]=new int [][]{{0,1},{2,3}};
+			} else if (diagramIndex == 2){
+				bondList[5]=new int [][]{{1,2},{3,0},{0,2}};
+				bondList[2]=new int [][]{{0,1}};
+				bondList[1]=new int [][]{{2,3}};
+			}
 		}	else if (numDiagram == 19){
 				if (diagramIndex == 1){
 					refBondList[0] = new int [][]{{0,1},{1,2},{2,3}};			
@@ -271,14 +275,6 @@ public class WertheimGCPM4PtEBondDecomp {
 					refBondList[1] = new int [][]{{2,3}};
 					refBondList[2] = new int [][]{{1,2}};			
 					bondList[5]=new int [][]{{3,0},{0,2}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{2,3}};
-					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 2){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{2,3}};
-					refBondList[2] = new int [][]{{1,2}};			
-					bondList[5]=new int [][]{{3,0},{1,3}};
 					bondList[1]=new int [][]{{0,1}};
 					bondList[2]=new int [][]{{2,3}};
 					bondList[4]=new int [][]{{1,2}};
@@ -483,9 +479,13 @@ public class WertheimGCPM4PtEBondDecomp {
 			}	
 			configuration.initializeCoordinates2(sim.box[1]);
 			}
-		if (numDiagram == 11 || numDiagram == 18 || numDiagram == 36){
+		if (numDiagram == 11 || (numDiagram == 18 && diagramIndex == 1) || numDiagram == 36){
 			configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
 			configuration.initializeCoordinates4(sim.box[1]);	
+			}
+		if (numDiagram == 18 && diagramIndex == 2){
+			configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
+			configuration.initializeCoordinates5(sim.box[1]);	
 			}
 		if (numDiagram == 12 || numDiagram == 19 || numDiagram == 26|| numDiagram == 34){
 			if (diagramIndex == 1){
@@ -614,9 +614,9 @@ public class WertheimGCPM4PtEBondDecomp {
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 600;//reduced temperature
 		public double sigmaHSRef = 5.0;
-		public long numSteps = 5000;
+		public long numSteps = 10000;
 		public double associationEnergy = 3000.0;
-		public int numDiagram = 8;
+		public int numDiagram = 18;
 		public int diagramIndex = 1;
 		
 	}
