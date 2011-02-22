@@ -169,6 +169,29 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	
+	public void initializeCoordinates5(IBox box) {
+		super.initializeCoordinates(box);
+		associationPotential.setBox(box);
+		associationPotential2.setBox(box);
+		BoxCluster clusterBox =(BoxCluster) box;
+		IMoleculeList list = box.getMoleculeList();
+		MoleculePair pair1 = new MoleculePair();
+		MoleculePair pair2 = new MoleculePair();
+		pair1.atom0 = list.getMolecule(0);
+		pair1.atom1 = list.getMolecule(1);
+		pair2.atom0= list.getMolecule(2);
+		pair2.atom1= list.getMolecule(3);
+		double[] d = new double[] {3.5,0,0};
+		double[] e = new double[] {3.5,10.0,0};
+		double[] f = new double[] {0,10.0,0};
+		translation(d,e,f,box);
+		association(pair1,box);
+		association3(pair2,box);
+		clusterBox.trialNotify();
+		clusterBox.acceptNotify();
+		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
+	}
+	
 	public void translation(double[] d,double[] e,double[] f, IBox box){//place molecule1,2,3 at some position
 		IMoleculeList list = box.getMoleculeList();
         MoleculeActionTranslateTo translationA = new MoleculeActionTranslateTo(space);
