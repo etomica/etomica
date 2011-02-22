@@ -129,71 +129,43 @@ public class WertheimGCPM3PtEBondDecomp {
 		System.out.println("Digaram "+numDiagram+"-"+diagramIndex+"E");
 		
 		if (numDiagram == 5 ||numDiagram == 6||numDiagram == 7){
-			HSB[4] = -35.238*-35.238;//This value is from direct sampling
+			HSB[3] = -35.238*-35.238;//This value is from direct sampling
 			System.out.println("use hard-chain reference && value = -35.238*-35.238");
 		}
 		
 		if (numDiagram == 3) {
-			bondList[2]=new int [][]{{0,1},{1,2},{2,0}};
-			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-			targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,eR});
+			bondList[4]=new int [][]{{0,1},{1,2},{2,0}};
 			
 		}  else if (numDiagram == 6){
 			if (diagramIndex == 1) {
 				refBondList[1] = new int [][]{{0,1}};
 				refBondList[0] = new int [][]{{1,2}};
-				bondList[2] = new int [][]{{0,1}};
-				bondList[1] = new int [][]{{1,2}};
-				bondList[3] = new int [][]{{2,0}};
-			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-			targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
+				bondList[1] = new int [][]{{0,1}};
+				bondList[3] = new int [][]{{1,2}};
+				bondList[4] = new int [][]{{2,0}};
 			}
 			else if (diagramIndex == 2) {
 				refBondList[0] = new int [][]{{0,1}};
 				refBondList[1] = new int [][]{{1,2}};
-				bondList[1] = new int [][]{{0,1}};
-				bondList[2] = new int [][]{{1,2}};
-				bondList[3] = new int [][]{{2,0}};
-				clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-				targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
+				bondList[3] = new int [][]{{0,1}};
+				bondList[1] = new int [][]{{1,2}};
+				bondList[4] = new int [][]{{2,0}};
 			}
-		}  	else if (numDiagram == 7){
-			if (diagramIndex == 1){
-			refBondList[0] = new int [][]{{0,1},{1,2}};
-			bondList[1] = new int [][]{{0,1},{1,2}};
-			bondList[2] = new int [][]{{2,0}};
-			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-			targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
-		}
-		else if (diagramIndex == 2){
-			refBondList[0] = new int [][]{{0,1}};
-			refBondList[1] = new int [][]{{1,2}};
-			bondList[1] = new int [][]{{0,1},{0,2}};
-			bondList[2] = new int [][]{{1,2}};
-			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-			targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
-		}
-		}
+		}  	
 		else if (numDiagram ==4){
-			bondList[2] = new int [][]{{1,2},{2,0}};
+			bondList[4] = new int [][]{{1,2},{2,0}};
 			bondList[1] = new int [][]{{0,1}};
-			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-			targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FAC,eR});
 		}	else if (numDiagram ==5){
 			if (diagramIndex == 1) {
 				refBondList[0] = new int [][]{{0,1},{1,2}};
-				bondList[2] = new int [][]{{2,0}};
-				bondList[1] = new int [][]{{0,1},{1,2}};
-				clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-				targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,eR});
+				bondList[4] = new int [][]{{2,0}};
+				bondList[3] = new int [][]{{0,1},{1,2}};
 			}	else if (diagramIndex == 2) {
 				refBondList[0] = new int [][]{{0,1}};
 				refBondList[2] = new int [][]{{1,2}};
 				bondList[4] = new int [][]{{2,0}};
-				bondList[1] = new int [][]{{0,1}};
-				bondList[3] = new int [][]{{1,2}};
-				clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-				targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,FBC,eR});
+				bondList[3] = new int [][]{{0,1}};
+				bondList[2] = new int [][]{{1,2}};
 			}
 		}
 			else {
@@ -207,6 +179,8 @@ public class WertheimGCPM3PtEBondDecomp {
 			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer});
 		}
         refCluster.setTemperature(temperature);
+		clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+		targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FAC,FBC,FCA,eR});
         targetCluster.setTemperature(temperature);
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
 		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC );
@@ -237,17 +211,7 @@ public class WertheimGCPM3PtEBondDecomp {
 				configuration.initializeCoordinates3(sim.box[0]);	
 				configuration.initializeCoordinates3(sim.box[1]);	
 			}
-			if (numDiagram ==7 &&diagramIndex==1){//diagram 7-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA );
-				configuration.initializeCoordinates3(sim.box[0]);	
-				configuration.initializeCoordinates5(sim.box[1]);	
-			}
-			if (numDiagram ==7 &&diagramIndex==2){//diagram 7-2
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA);
-				configuration.initializeCoordinates3(sim.box[0]);	
-				configuration.initializeCoordinates5(sim.box[1]);		
-		}
-			
+						
 		sim.setAccumulatorBlockSize((int)numSteps*10);
 		sim.integratorOS.setNumSubSteps(1000);	
 
@@ -352,11 +316,11 @@ public class WertheimGCPM3PtEBondDecomp {
 	
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 600;//reduced temperature
-		public double sigmaHSRef = 3.2;
+		public double sigmaHSRef = 5.0;
 		public long numSteps = 10000;
 		public double associationEnergy = 3000.0;
 		public int numDiagram = 3;
-		public int diagramIndex = 0;
+		public int diagramIndex = 1;
 		
 	}
 
