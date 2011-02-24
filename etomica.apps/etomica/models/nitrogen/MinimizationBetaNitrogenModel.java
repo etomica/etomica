@@ -37,7 +37,6 @@ import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
-import etomica.units.Pascal;
 
 
 
@@ -180,7 +179,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		int[] nC = new int []{nC0,nC1,nC2};
 		int numMolecule =nC[0]*nC[1]*nC[2]*2;
 
-		double density = 0.0200;
+		double density = 0.0210;
 		final MinimizationBetaNitrogenModel sim = new MinimizationBetaNitrogenModel(Space3D.getInstance(3), nC, density);
 	    
 		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
@@ -225,7 +224,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
             orient0[i] = sim.space.makeVector();
             orientf[i] = sim.space.makeVector();
         }
-        for (int outer = 0; outer < 50; outer++) {
+        for (int outer = 0; outer < 20; outer++) {
             System.out.println("**** "+outer+" ****");
 	        double totalD = 0;
 	        double step = 0;
