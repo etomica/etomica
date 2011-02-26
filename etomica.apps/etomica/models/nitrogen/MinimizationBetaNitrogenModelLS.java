@@ -238,7 +238,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
             orientf[i] = sim.space.makeVector();
         }
         
-        for (int outer = 0; outer < 15; outer++) {
+        for (int outer = 0; outer < 20; outer++) {
             System.out.println("**** "+outer+" ****");
 	        double totalD = 0;
 	        double step = 0;
@@ -438,10 +438,18 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
         disp = Math.sqrt(disp);
         angleDisp = Math.sqrt(angleDisp);
         System.out.println("\ndisp "+disp+"  angleDisp "+angleDisp);
-        
-		for(int i=0; i<sim.u.length; i++){
-			if(i%5==0) System.out.print("{");
+           
+        for(int i=0; i<sim.u.length; i++){
 			sim.u[i] += deviation[i];
+		}
+        
+        double newLatticeEnergy = sim.getEnergy(sim.u);
+        System.out.println("\ndensity: " + density);
+        System.out.println("Old Lattice Energy (per molecule): "+sim.initialLatticeEnergy);
+        System.out.println("New Lattice Energy (per molecule): "+newLatticeEnergy);
+        
+        for(int i=0; i<sim.u.length; i++){
+			if(i%5==0) System.out.print("{");
 			System.out.print(sim.u[i]);
 			if(i%5==4) {
 				System.out.println("},");
@@ -449,11 +457,6 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 				System.out.print(", ");
 			}
 		}
-        
-        double newLatticeEnergy = sim.getEnergy(sim.u);
-        System.out.println("Old Lattice Energy (per molecule): "+sim.initialLatticeEnergy);
-        System.out.println("New Lattice Energy (per molecule): "+newLatticeEnergy);
-        
 
         System.exit(1);
 //        for (int l=0; l<201; l++) {
