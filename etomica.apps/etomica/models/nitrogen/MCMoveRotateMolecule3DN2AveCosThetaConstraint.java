@@ -1,0 +1,129 @@
+package etomica.models.nitrogen;
+import etomica.api.IAtom;
+import etomica.api.IAtomList;
+import etomica.api.IMoleculeList;
+import etomica.api.IPotentialMaster;
+import etomica.api.IRandom;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomPositionDefinition;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.space.ISpace;
+import etomica.space.RotationTensor;
+
+
+/**
+ * Impose constraint to prevent the alpha-N2 phase from becoming orientationally-disordered
+ *  the constraint imposed is the average cosine theta, where
+ *  theta is the orientation angle off the molecular nominal orientation
+ * 
+ * @author taitan
+ *
+ */
+public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecule {
+    
+    private static final long serialVersionUID = 2L;
+    protected transient IVectorMutable r0, molAxis;
+    protected transient RotationTensor rotationTensor;
+    protected IAtomPositionDefinition positionDefinition;
+    protected CoordinateDefinitionNitrogen coordinateDef;
+    protected IVectorMutable[] initMolecOrientation;
+    protected int numMolecule;
+    protected double aveCosTheta = 0.0;
+    protected double newTotalCosTheta, oldTotalCosTheta;
+    protected double cosThetaConstraint;
+    
+    public MCMoveRotateMolecule3DN2AveCosThetaConstraint(IPotentialMaster potentialMaster, IRandom random,
+    		                      ISpace _space, CoordinateDefinitionNitrogen coordinateDef, double cosThetaConstraint) {
+        super(potentialMaster, random, _space, Math.PI/2, Math.PI);
+        rotationTensor = _space.makeRotationTensor();
+        r0 = _space.makeVector();
+        this.coordinateDef = coordinateDef;
+        this.cosThetaConstraint = cosThetaConstraint;
+        
+        positionDefinition = new AtomPositionGeometricCenter(space);
+        
+        IMoleculeList moleculeList = coordinateDef.getBox().getMoleculeList();
+        numMolecule = moleculeList.getMoleculeCount();
+        initMolecOrientation = new IVectorMutable[numMolecule];
+        molAxis = space.makeVector();
+        
+        for (int i=0; i<numMolecule; i++){
+			initMolecOrientation[i] = space.makeVector();
+			initMolecOrientation[i] = coordinateDef.getMoleculeOrientation(moleculeList.getMolecule(i))[0];
+		}
+        
+    }
+     
+    public boolean doTrial() {
+//        System.out.println("doTrial MCMoveRotateMolecule called");
+        
+        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
+           
+        int iMol = random.nextInt(numMolecule);
+        molecule = coordinateDef.getBox().getMoleculeList().getMolecule(iMol);
+        
+        energyMeter.setTarget(molecule);
+        uOld = energyMeter.getDataAsScalar();
+        
+        IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
+    	IVectorMutable leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+
+    	molAxis.Ev1Mv2(leafPos1, leafPos0);
+       	molAxis.normalize();
+       	
+        double l = Math.sqrt(molAxis.Mv1Squared(initMolecOrientation[iMol]));
+        double oldWorkTotalCosTheta = aveCosTheta*numMolecule - (1.0 - 0.5*l*l);
+        
+        if(Double.isInfinite(uOld)) {
+            throw new RuntimeException("Overlap in initial state");
+        }
+        double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
+        rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
+
+        r0.E(positionDefinition.position(molecule));
+        doTransform();
+        energyMeter.setTarget(molecule);
+        
+        molAxis.Ev1Mv2(leafPos1, leafPos0);
+       	molAxis.normalize();
+        
+       	l = Math.sqrt(molAxis.Mv1Squared(initMolecOrientation[iMol]));
+       	
+        double workAveCosTheta = (oldWorkTotalCosTheta + (1.0 - 0.5*l*l))/numMolecule;
+       	
+        // hitting the constraint
+        if(workAveCosTheta<cosThetaConstraint){
+       		uNew = Double.POSITIVE_INFINITY;
+       	
+        } else {
+       		uNew = energyMeter.getDataAsScalar();
+       		aveCosTheta = workAveCosTheta;
+    
+       	}
+        
+        return true;
+    }
+    
+    public double getB() {
+        return -(uNew - uOld);
+        
+    }
+    
+    protected void doTransform() {
+        IAtomList childList = molecule.getChildList();
+        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
+            IAtom a = childList.getAtom(iChild);
+            IVectorMutable r = a.getPosition();
+            r.ME(r0);
+            box.getBoundary().nearestImage(r);
+            rotationTensor.transform(r);
+            r.PE(r0);
+        }
+    }
+    
+    public void rejectNotify() {
+        rotationTensor.invert();
+        doTransform();
+    }
+}
