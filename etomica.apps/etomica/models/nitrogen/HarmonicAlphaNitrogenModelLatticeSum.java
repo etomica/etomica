@@ -109,7 +109,7 @@ public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
         }
         double latEnergy = 0.5*sum/basisDim;
         double avogradoConst = 6.0221415e23;
-        System.out.println("lattice energy [sim unit]:  " + latEnergy + " ;[kJ/mol]: " + Joule.UNIT.fromSim(latEnergy)*avogradoConst/1000);
+        System.out.println(density + " lattice energy [sim unit]:  " + latEnergy + " ;[kJ/mol]: " + Joule.UNIT.fromSim(latEnergy)*avogradoConst/1000);
 	
 	}
 	
