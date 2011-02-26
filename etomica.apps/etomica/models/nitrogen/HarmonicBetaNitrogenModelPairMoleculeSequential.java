@@ -303,9 +303,9 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 	}
 	
 	public static void main (String[] args){
-		
+
 		int nCell =4;
-		double density = 0.025;
+		double density = 0.023;
 		
 		if(args.length > 0){
 			nCell = Integer.parseInt(args[0]);
