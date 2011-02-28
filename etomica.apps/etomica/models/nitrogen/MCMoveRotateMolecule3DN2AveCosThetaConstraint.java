@@ -29,9 +29,9 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected IVectorMutable[] initMolecOrientation;
     protected int numMolecule;
-    protected double aveCosTheta = 0.0;
+    protected double aveCosTheta = 1.0;
     protected double newTotalCosTheta, oldTotalCosTheta;
-    protected double cosThetaConstraint;
+    protected double cosThetaConstraint, workAveCosTheta;
     
     public MCMoveRotateMolecule3DN2AveCosThetaConstraint(IPotentialMaster potentialMaster, IRandom random,
     		                      ISpace _space, CoordinateDefinitionNitrogen coordinateDef, double cosThetaConstraint) {
@@ -72,8 +72,10 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     	molAxis.Ev1Mv2(leafPos1, leafPos0);
        	molAxis.normalize();
        	
-        double l = Math.sqrt(molAxis.Mv1Squared(initMolecOrientation[iMol]));
-        double oldWorkTotalCosTheta = aveCosTheta*numMolecule - (1.0 - 0.5*l*l);
+        double l2 = molAxis.Mv1Squared(initMolecOrientation[iMol]);
+        double oldWorkTotalCosTheta;
+       
+       	oldWorkTotalCosTheta = aveCosTheta*numMolecule - (1.0 - 0.5*l2);
         
         if(Double.isInfinite(uOld)) {
             throw new RuntimeException("Overlap in initial state");
@@ -84,24 +86,25 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
         r0.E(positionDefinition.position(molecule));
         doTransform();
         energyMeter.setTarget(molecule);
-        
+                
         molAxis.Ev1Mv2(leafPos1, leafPos0);
        	molAxis.normalize();
         
-       	l = Math.sqrt(molAxis.Mv1Squared(initMolecOrientation[iMol]));
+       	l2 = molAxis.Mv1Squared(initMolecOrientation[iMol]);
        	
-        double workAveCosTheta = (oldWorkTotalCosTheta + (1.0 - 0.5*l*l))/numMolecule;
-       	
+   		workAveCosTheta = (oldWorkTotalCosTheta + (1.0 - 0.5*l2))/numMolecule;
+
+//       	System.out.println("workAveCosTheta: " + workAveCosTheta);
         // hitting the constraint
         if(workAveCosTheta<cosThetaConstraint){
        		uNew = Double.POSITIVE_INFINITY;
+//       		System.out.println("hit constraint");
        	
         } else {
        		uNew = energyMeter.getDataAsScalar();
-       		aveCosTheta = workAveCosTheta;
     
        	}
-        
+
         return true;
     }
     
@@ -125,5 +128,9 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     public void rejectNotify() {
         rotationTensor.invert();
         doTransform();
+    }
+    
+    public void acceptNotify() { 
+    	aveCosTheta = workAveCosTheta;
     }
 }
