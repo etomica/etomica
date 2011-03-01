@@ -1,6 +1,7 @@
 package etomica.models.nitrogen;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -132,5 +133,23 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     
     public void acceptNotify() { 
     	aveCosTheta = workAveCosTheta;
+    }
+    
+    public void calcAveCosThetaInitial(){
+        double totalCosTheta = 0.0;
+        for (int i=0; i<numMolecule; i++){
+		    IMolecule molec = coordinateDef.getBox().getMoleculeList().getMolecule(i);
+		        
+		    IVectorMutable leafPos0 = molec.getChildList().getAtom(0).getPosition();
+		    IVectorMutable leafPos1 = molec.getChildList().getAtom(1).getPosition();
+
+		    molAxis.Ev1Mv2(leafPos1, leafPos0);
+		    molAxis.normalize();
+		       	
+		    double l2 = molAxis.Mv1Squared(initMolecOrientation[i]);
+		    totalCosTheta += (1.0 - 0.5*l2);
+        }
+        
+        aveCosTheta = totalCosTheta/numMolecule;
     }
 }
