@@ -340,7 +340,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		int numMolecules = nCell*nCell*nCell*4;
 		int interval = nCell*2;
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecules;
-		double[][][] array = new double[interval][dofPerMol][coordinateDef.getCoordinateDim()];
+		array = new double[interval][dofPerMol][coordinateDef.getCoordinateDim()];
 	
 		for (int iMol=0; iMol<numMolecules; iMol+=interval){
 			for(int i=0; i<interval; i++){
@@ -411,6 +411,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
 	protected boolean[][][][][] isFoundReverse;
+	protected double[][][] array;
 	
 	private static final long serialVersionUID = 1L;
 }

@@ -302,7 +302,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 		int numMolecules = nCell*nCell*nCell*2;
 		int interval = nCell*2;
 		int dof = 3;
-		double[][][] array = new double[interval][dof][numMolecules*dof];
+		array = new double[interval][dof][numMolecules*dof];
 	
 			
 		for (int iMol=0; iMol<numMolecules; iMol+=interval){
@@ -370,6 +370,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
 	protected boolean[][][][][] isFoundReverse;
+	protected double[][][] array;
 	
 	private static final long serialVersionUID = 1L;
 }
