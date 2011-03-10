@@ -87,16 +87,15 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         }
         double value1 = ((DataDoubleArray)value).getData()[1];
         for (int j=0; j<nBennetPoints; j++) {
-            double v;
             // this is actually blockSum[1], but for all the various values of the overlap parameter
             // this doesn't look right, but it is.
             // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
-            v = 1;
+            double v;
             if (isReference) {
-                v /= (1.0 + expX[j]/value1);
+                v = 1.0 / (1.0 + expX[j]/value1);
             }
             else {
-                v /= (expX[j] + 1.0/value1);
+                v = 1.0 / (expX[j] + 1.0/value1);
             }
             blockOverlapSum[j] += v;
             overlapSumSquare[j] += v*v;
@@ -118,11 +117,11 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     		}
     	}
     	
-        long blockSizeSq = blockSize * blockSize;
         for (int j=0; j<nBennetPoints; j++) {
             overlapSum[j] += blockOverlapSum[j];
+            blockOverlapSum[j] /= blockSize;
 			// this is actually blockSum[1], but for all the various values of the overlap parameter
-            overlapSumBlockSquare[j] += blockOverlapSum[j]*blockOverlapSum[j] / blockSizeSq;
+            overlapSumBlockSquare[j] += blockOverlapSum[j]*blockOverlapSum[j];
 
             if (!mostRecentBlock.isNaN()) {
                 overlapCorrelationSum[j] += overlapMostRecentBlock[j] * blockOverlapSum[j];
@@ -155,7 +154,6 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      * getData for a specific Bennet parameter.
      */
     public IData getData() {
-//        System.out.println("AVOSA getData");
         return getData((nBennetPoints-1)/2);
     }
     
@@ -195,26 +193,25 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             overlapSumBlockSquare[i] = 0.0;
             blockOverlapSum[i] = 0.0;
             overlapSumSquare[i] = 0.0;
+            overlapCorrelationSum[i] = 0.0;
         }
         super.reset();
     }
     
     public void setFile(String fName){
-        this.fnm = fName;
+        this.fnm = fName;   
         try {
             fileWriter = new FileWriter(fName);
         } catch (IOException e){
             fileWriter = null;
         }
     }
- 
-    
+
     public void closeFile(){
         try{
             fileWriter.close();
-        } catch (IOException e){
-            
-        }
+        } catch (IOException e){}
+        fileWriter = null;
     }
 
     private static final long serialVersionUID = 1L;
