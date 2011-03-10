@@ -101,24 +101,10 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 		pRotConstraint = new PRotConstraint(space,coordinateDef,box);
 		pRotConstraint.setConstraintAngle(angle);
 		
-		//potentialMaster = new PotentialMaster();
 		potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
-		
-		PotentialMaster[] pMaster = new PotentialMaster[otherAngles.length];
-		PRotConstraint[] pRot = new PRotConstraint[otherAngles.length];
-		
-		for (int i=0; i<otherAngles.length; i++){
-			pMaster[i] = new PotentialMaster();
-			pRot[i] = new PRotConstraint(space, coordinateDef, box);
-			pRot[i].setConstraintAngle(otherAngles[i]);
-			
-			pMaster[i].addPotential(potential, new ISpecies[]{species, species});
-			pMaster[i].addPotential(pRot[i], new ISpecies[]{species});
-		}
-		
-		
+	
 	    int cellRange = 6;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); 
@@ -149,7 +135,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
-        meter = new MeterTargetRPMolecule(potentialMaster, pMaster, species, space, this, coordinateDef);
+        meter = new MeterTargetRPMolecule(potentialMaster, species, space, this, coordinateDef, pRotConstraint);
         meter.setDoScaling(doScaling);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
@@ -173,6 +159,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
        
+        potential.setRange(Double.POSITIVE_INFINITY);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
      
@@ -374,15 +361,15 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
      * Inner class for parameters understood by the SimOverlapBetaN2TP constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 432;
-        public double density = 0.025; //0.02204857502170207 (intial from literature with a = 5.661)
-        public long numSteps = 10000;
+        public int numMolecules = 1024;
+        public double density = 0.0224; //0.02204857502170207 (intial from literature with a = 5.661)
+        public long numSteps = 100000;
         public double temperature = 45.0; // in unit Kelvin
-        public double angle = 89.0;
-        public double[] alpha = new double[]{1.0};
+        public double angle = 86.0;
+        public double[] alpha = new double[]{5.678271503871926e-01,5.678271503871926e-01};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherAngles = new double[]{90};
+        public double[] otherAngles = new double[]{85.8, 86.2};
         public boolean doScaling = true;
     }
 }

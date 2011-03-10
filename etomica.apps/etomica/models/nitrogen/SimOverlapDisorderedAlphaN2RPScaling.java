@@ -31,7 +31,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -92,19 +91,7 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
 		potentialMaster = new PotentialMasterListMolecular(this, space);
 	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		potentialMaster.addPotential(pRotConstraint,new ISpecies[]{species} );
-		
-		PotentialMaster[] pMaster = new PotentialMaster[otherAngles.length];
-		PRotConstraint[] pRot = new PRotConstraint[otherAngles.length];
-		
-		for (int i=0; i<otherAngles.length; i++){
-			pMaster[i] = new PotentialMaster();
-			pRot[i] = new PRotConstraint(space, coordinateDef, box);
-			pRot[i].setConstraintAngle(otherAngles[i]);
-			
-			pMaster[i].addPotential(potential, new ISpecies[]{species, species});
-			pMaster[i].addPotential(pRot[i], new ISpecies[]{species});
-		}
-		
+	
 	    int cellRange = 6;
         potentialMaster.setRange(rC);
         potentialMaster.setCellRange(cellRange); 
@@ -135,7 +122,7 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy per molecule (K): " + Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules);
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
-        meter = new MeterTargetRPMolecule(potentialMaster, pMaster, species, space, this, coordinateDef);
+        meter = new MeterTargetRPMolecule(potentialMaster, species, space, this, coordinateDef, pRotConstraint);
         meter.setDoScaling(doScaling);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
@@ -144,7 +131,9 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
         meter.setAlpha(alpha);
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
-       
+        
+        potential.setRange(Double.POSITIVE_INFINITY);
+        
         int numBlocks = 100;
         int interval = numMolecules;
         long blockSize = numSteps/(numBlocks*interval);

@@ -39,6 +39,10 @@ public class PRotConstraint extends PotentialMolecular{
 	
 	public double energy(IMoleculeList molecules) {
 						
+		if(!onSwitch){
+			return 0.0;
+		}
+		
 		IMolecule molecule = molecules.getMolecule(0);
 		int index = molecule.getIndex();
 				
@@ -82,11 +86,17 @@ public class PRotConstraint extends PotentialMolecular{
 		this.constraintAngle = angle;
 	}
 
+	public void setSwitch(boolean switchOn){
+		onSwitch = switchOn; 
+	}
+	
+	
 	private IVectorMutable[][] initMolecOrientation;
 	private IVectorMutable molecOrientation;
 	private IBox box;
 	protected double constraintAngle = 90.0; //in degree
 	protected int counter=0;
+	protected boolean onSwitch = true;
 
 	
 }

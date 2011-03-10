@@ -1,12 +1,10 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IBox;
-import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.data.DataTag;
@@ -16,6 +14,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.space.ISpace;
 import etomica.units.Degree;
 import etomica.units.Null;
@@ -34,10 +33,8 @@ import etomica.units.Null;
  */
 public class MeterTargetRPMolecule implements IEtomicaDataSource {
 
-    protected MeterPotentialEnergy meterPotentialSampled; 
-    protected MeterPotentialEnergy[] meterPotentialMeasured;
-    protected IPotentialMaster potentialMasterSampled;
-    protected IPotentialMaster[] potentialMasterMeasured;
+    protected MeterPotentialEnergy meterPotential; 
+    protected IPotentialMaster potentialMaster;
     protected double latticeEnergy;
     protected double temperature;
     protected double angle;
@@ -54,19 +51,15 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     protected int numAlpha = 1;
     protected boolean doScaling = true;
 	private IVectorMutable[][] initMolecOrientation;
-	private IVectorMutable molecOrientation;
+	protected PRotConstraint pRotConstraint;
     
-    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, IPotentialMaster[] potentialMasterMeasured, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
-        this.potentialMasterSampled = potentialMasterSampled;
-        this.potentialMasterMeasured = potentialMasterMeasured;
+    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, ISpecies species, ISpace space, ISimulation sim, 
+    		CoordinateDefinitionNitrogen coordinateDef, PRotConstraint pRotConstraint) {
+        this.potentialMaster = potentialMasterSampled;
         this.coordinateDefinition = coordinateDef;
+        this.pRotConstraint = pRotConstraint;
         
-        meterPotentialSampled = new MeterPotentialEnergy(potentialMasterSampled);
-        meterPotentialMeasured = new MeterPotentialEnergy[potentialMasterMeasured.length];
-        
-        for (int i=0; i<meterPotentialMeasured.length; i++){
-        	meterPotentialMeasured[i] = new MeterPotentialEnergy(potentialMasterMeasured[i]);
-        }
+        meterPotential = new MeterPotentialEnergy(potentialMasterSampled);
         this.species = species;
         pretendBox = new Box(space);
         pretendBox.setBoundary(coordinateDef.getBox().getBoundary());
@@ -75,7 +68,6 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         tag = new DataTag();
         
         int numMolec = sim.getBox(0).getNMolecules(species);
-        molecOrientation = space.makeVector();
     	initMolecOrientation = new IVectorMutable[numMolec][3];
     	/*
 		 * initializing the initial orientation of the molecule
@@ -84,6 +76,16 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 			initMolecOrientation[i] = space.makeVectorArray(3);
 			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
 		}
+		
+		IBox realBox = coordinateDef.getBox();
+		pretendBox.setBoundary(realBox.getBoundary());
+        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
+        
+        IMoleculeList pretendMolecule = pretendBox.getMoleculeList();
+        double[] initU = new double[coordinateDef.getCoordinateDim()];
+        coordinateDef.setToU(pretendMolecule, initU);
+        ((PotentialMasterListMolecular)potentialMasterSampled).getNeighborManager(pretendBox).reset();
+		
     }
 
 	public IEtomicaDataInfo getDataInfo() {
@@ -96,9 +98,9 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 
     public IData getData() {
     	IBox realBox = coordinateDefinition.getBox();
-        meterPotentialSampled.setBox(realBox);
+        meterPotential.setBox(realBox);
         
-        double energy = meterPotentialSampled.getDataAsScalar();
+        double energy = meterPotential.getDataAsScalar();
     
         pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
@@ -110,7 +112,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         double[] x = data.getData();
         
         double[] u = coordinateDefinition.calcU(molecules);
-        double[] newU = new double[coordinateDefinition.getCoordinateDim()];
+        double[] newU = new double[u.length];
         
         for (int i=0; i<otherAngles.length; i++) {
         
@@ -126,38 +128,11 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
           				newU[iMolecule*5+k] = u[iMolecule*5+k];
           			}
           			
-          			// Scaling the rotational angle for the beta-phase
-          			double check = u[(iMolecule*5)+3]*u[(iMolecule*5)+3] + u[(iMolecule*5)+4]*u[(iMolecule*5)+4];
+          			newU[(iMolecule*5)+3] = fac*u[(iMolecule*5)+3];
+      				newU[(iMolecule*5)+4] = fac*u[(iMolecule*5)+4];
           			
-          			//if theta is less or equal to 90deg 
-          			// 2.0 is from eq: u3^2 + u4^2 = 2*(1 -cos(theta)
-          			
-          			//System.out.print("check: "+ check);
-          			if(check <= 2.0){
-          	        	//System.out.println(" less 2.0");
-          				newU[(iMolecule*5)+3] = fac*u[(iMolecule*5)+3];
-          				newU[(iMolecule*5)+4] = fac*u[(iMolecule*5)+4];
-          				
-          			} else if(check>2.0 && check <=4.0) {
-          			
-          				IMolecule molecule = molecules.getMolecule(iMolecule);
-          				IVectorMutable leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-          				IVectorMutable leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
-          				//Flipping the molecule
-          				molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
-          				molecOrientation.TE(-1);
-          				molecOrientation.normalize();
-          				
-          				double [] uCalc = calcUMethod(molecOrientation, iMolecule);
-          				
-          				//System.out.println(" ***********greater 2.0");
-          				newU[(iMolecule*5)+3] = fac*uCalc[0];
-          				newU[(iMolecule*5)+4] = fac*uCalc[1];
-          				
-          			} 
-          			
-          			if((newU[(iMolecule*5)+3]*newU[(iMolecule*5)+3] + newU[(iMolecule*5)+4]*newU[(iMolecule*5)+4]) >4.0){
-          				System.out.println("<MeterTargetRPMolecule> newU3^2+newU4^2 is GREATER THAN 4.0");
+          			if((newU[(iMolecule*5)+3]*newU[(iMolecule*5)+3] + newU[(iMolecule*5)+4]*newU[(iMolecule*5)+4]) >2.0){
+          				System.out.println("<MeterTargetRPMolecule> newU3^2+newU4^2 is GREATER THAN 2.0");
           				System.out.println("otherAngle: " + otherAngles[i]);
           				System.out.println("[newU3^2+newU4^2]: "+(newU[(iMolecule*5)+3]*newU[(iMolecule*5)+3] + newU[(iMolecule*5)+4]*newU[(iMolecule*5)+4]));
           				System.out.println("u[3 & 4]: "+u[(iMolecule*5)+3]+" "+u[(iMolecule*5)+4]);
@@ -176,13 +151,14 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
             double otherEnergy = 0;
      
             coordinateDefinition.setToU(pretendMolecules, newU);
-            meterPotentialMeasured[i].setBox(pretendBox);
-            otherEnergy = meterPotentialMeasured[i].getDataAsScalar();
-            //System.out.println((energy-latticeEnergy)+" "+(otherEnergy-latticeEnergy) + " " + (otherEnergy-energy));
+            
+            pRotConstraint.setSwitch(false);
+            meterPotential.setBox(pretendBox);
+            otherEnergy = meterPotential.getDataAsScalar();
+            pRotConstraint.setSwitch(true);
             
             double ai = (otherEnergy-latticeEnergy)/temperature;
-            //System.out.println(fac+" "+a0+ " " + ai + " "+ (ai-a0));
-            
+//            System.exit(1);
             for (int j=0; j<numAlpha; j++) {
                 if (angle> otherAngles[i]) {
                     x[i*numAlpha+j] = 1.0/(alpha[i][j]+Math.exp(ai-a0));
@@ -194,38 +170,6 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
         }
         
         return data;
-    }
-
-    private double[] calcUMethod(IVector vector, int index){
-    	
-    	double[] u = new double[2];
-    	double u3 = vector.dot(initMolecOrientation[index][1]);
-		double u4 = vector.dot(initMolecOrientation[index][2]);
-		double ratio = Math.abs(u3/u4);
-		
-		double a = vector.dot(initMolecOrientation[index][0]);
-		double theta = Math.acos(a);
-		
-		if(Math.abs(u4) > -1e-10 && Math.abs(u4) < 1e-10){
-			u[0] = Math.sqrt(2*(1-Math.cos(theta)));
-			if(u3 <0.0){
-				u[0] = -u[0];
-			}
-			u[1] = u4;
-		} else {
-			if(u4 < 0.0){
-				u[1] = -Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			} else {
-				u[1] = Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			}
-
-			if (u3 < 0.0){
-				u[0] = -ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			} else {
-				u[0] = ratio*Math.sqrt(2*(1-Math.cos(theta))/(ratio*ratio+1));
-			}
-		}
-		return u; 
     }
     
     public double getLatticeEnergy() {
