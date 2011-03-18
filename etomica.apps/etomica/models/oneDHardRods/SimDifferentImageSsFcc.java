@@ -34,6 +34,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
+import etomica.normalmode.P1ConstraintNbr;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -92,11 +93,11 @@ public class SimDifferentImageSsFcc extends Simulation {
     MeterPotentialEnergy meterTargInTarg, meterRef, meterRefInRef;
     MeterDifferentImageAdd meterTargInRef;
     MeterDifferentImageSubtract meterRefInTarg;
-    
+    double constraint;
     
     public SimDifferentImageSsFcc(Space _space, int[] nCellsRef, 
             int[] nCellsTarget, double density, int blocksize, 
-            double tems, int exponent, String inputFile) {
+            double tems, int exponent, String inputFile, double constraint) {
         super(_space);
         System.out.println("Running " + APP_NAME);
         
@@ -115,6 +116,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         targAtoms *= 4;    //definitely fcc
         
         double temperature = tems;
+        this.constraint = constraint;
         String rIn = inputFile + refAtoms;
         String tIn = inputFile + targAtoms;
         
@@ -132,6 +134,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         addBox(boxRef);
         boxRef.setNMolecules(species, refAtoms);
         
+        double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
         double[] lengths;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
@@ -141,7 +144,6 @@ public class SimDifferentImageSsFcc extends Simulation {
             lengths = new double[1];
             lengths[0] = refAtoms/density;
         } else {
-            double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
             primitive = new PrimitiveCubic(space);
             basis = new BasisCubicFcc();
             primitive.scaleSize(primitiveLength);
@@ -171,8 +173,21 @@ public class SimDifferentImageSsFcc extends Simulation {
 //              species.getLeafType(), species.getLeafType()});
         
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
-        //nan N.B. set for a 2x2x2 or 2x2x3 box; if that changes, this may have to
-        double neighborRange = 0.495 * lengths[0];
+        //Choose the smallest side to define the neighborRange.
+        double neighborRange = 0.0;
+        if(nCellsRef[0] <= nCellsRef[1] && nCellsRef[0] <= nCellsRef[2]){
+            neighborRange = 0.495 * lengths[0];
+        } else if(nCellsRef[1] <= nCellsRef[2]) {
+            neighborRange = 0.495 * lengths[1];
+        }else {
+            neighborRange = 0.495 * lengths[2];
+        }
+        
+        if(refAtoms >= 256){
+            neighborRange = 2.2;
+        }
+        
+        System.out.println("truncation " + neighborRange);
         Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 
                 1.0, exponent);
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
@@ -246,8 +261,9 @@ public class SimDifferentImageSsFcc extends Simulation {
             basis = new BasisMonatomic(space);
             lengths = new double[1];
             lengths[0] = refAtoms/density;
+            primitiveLength = lengths[0];
         } else {
-            double primitiveLength = Math.pow(basis.getScaledCoordinates().length / density,
+            primitiveLength = Math.pow(basis.getScaledCoordinates().length / density,
                     1.0 / 3.0);
             primitive = new PrimitiveCubic(space);
             basis = new BasisCubicFcc();
@@ -343,6 +359,20 @@ public class SimDifferentImageSsFcc extends Simulation {
                 Null.DIMENSION, meterTargInTarg, meterRefInTarg, temperature);
         meterOverlapInTarget.setDsABase(latticeEnergyTarget);
         meterOverlapInTarget.setDsBBase(latticeEnergyRef);
+        
+        P1ConstraintNbr nbrConstraint = new P1ConstraintNbr(space, 
+                primitiveLength/Math.sqrt(2.0), this, constraint);
+        potentialMaster.addPotential(nbrConstraint, new IAtomType[] {
+                species.getLeafType()});
+        nbrConstraint.initBox(boxRef);
+        nbrConstraint.initBox(boxTarget);
+        nbrConstraint.initBox(meterTargInRef.getBox());
+        nbrConstraint.initBox(meterRefInTarg.getBox());
+        potentialMaster.getNeighborManager(boxRef).reset();
+        potentialMaster.getNeighborManager(boxTarget).reset();
+        potentialMaster.getNeighborManager(meterTargInRef.getBox()).reset();
+        potentialMaster.getNeighborManager(meterRefInTarg.getBox()).reset();
+        
         
         //Just to be sure!
         potential.setTruncationRadius(3000.0);
@@ -447,7 +477,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
-            pumpListener.setInterval(1);
+            pumpListener.setInterval(getBox(iBox).getLeafList().getAtomCount());
             integrators[iBox].getEventManager().addListener(pumpListener);
         }
         else {
@@ -550,6 +580,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         int eqNumSteps = params.eqNumSteps;
         int benNumSteps = params.bennettNumSteps;
         int exp = params.exponent;
+        double constr = params.constraint;
         boolean first = params.first;
         int[] refCells = params.refShape;
         int[] targCells = params.targShape;
@@ -565,13 +596,16 @@ public class SimDifferentImageSsFcc extends Simulation {
         filename = filename + "_" + nRefA + "_" + nTargA + "_" + temperature;
         
         int runBlockSize = runNumSteps / nTargA /100;
+        System.out.println("RBS "+ runBlockSize);
+        
         
         // instantiate simulation
         SimDifferentImageSsFcc sim = new SimDifferentImageSsFcc(Space.getInstance(D),
                 refCells, targCells, density, runBlockSize, temperature, 
-                exp, inputFile);
+                exp, inputFile, constr);
         System.out.println("Dimension " + sim.space.D());
         System.out.println("Temperature " + temperature);
+        System.out.println("Constraint " + constr);
         System.out.println("Ref system is " +nRefA + " atoms at density " + density);
         System.out.println("Targ system is " +nTargA + " atoms at density " + density);
         System.out.println("Add scaling: " + sim.meterTargInRef.getScaling());
@@ -592,6 +626,10 @@ public class SimDifferentImageSsFcc extends Simulation {
         runNumSteps /= (int)subBlockSize;
         eqNumSteps /= (int)subBlockSize;
         benNumSteps /= subBlockSize;
+        
+        System.out.println("run " + runNumSteps);
+        System.out.println("ben " + benNumSteps);
+        System.out.println(" ea " + eqNumSteps);
         
         //start simulation & equilibrate
         sim.integratorSim.getMoveManager().setEquilibrating(true);
@@ -672,11 +710,12 @@ public class SimDifferentImageSsFcc extends Simulation {
     public static class SimParam extends ParameterBase {
         public boolean first = true;
         public int[] refShape = {2, 2, 2};
-        public int[] targShape = {2, 2, 3};
+        public int[] targShape = {2, 2, 4};
         public double density = 1.1964;
         public int D = 3;
         public double harmonicFudge = 1.0;
         public double temperature = 0.01;
+        public double constraint = 2.0;
         public int exponent = 12;
         
         public String inputFile = "inputSSDB_WV";

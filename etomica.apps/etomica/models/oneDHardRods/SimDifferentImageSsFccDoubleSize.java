@@ -177,6 +177,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
             neighborRange = 2.2;
         }
         
+        System.out.println("truncation " + neighborRange);
         Potential2SoftSpherical potentialBase = new P2SoftSphere(space, 1.0, 
                 1.0, exponent);
         P2SoftSphericalTruncated potential = new P2SoftSphericalTruncated(
@@ -490,7 +491,6 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
      */
     public static void main(String[] args) {
         System.out.println("OverallStart: " + System.currentTimeMillis());
-        
         SimParam params = new SimParam();
         String inputFilename = null;
         if(args.length > 0) {
@@ -535,6 +535,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         //        int numberOfBlocks = params.numberOfBlocks;
 //        int runNumSteps = nTargA * runBlockSize * numberOfBlocks * 2;
         int runBlockSize = runNumSteps / nTargA /100;
+        System.out.println("RBS "+ runBlockSize);
         
         
         // instantiate simulation
@@ -543,6 +544,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
                 temperature, exp, inputFile, constr);
         System.out.println("Dimension " + sim.space.D());
         System.out.println("Temperature " + temperature);
+        System.out.println("Constraint " + constr);
         System.out.println("Ref system is " +nRefA + " atoms at density " + density);
         System.out.println("Targ system is " +nTargA + " atoms at density " + density);
         System.out.println("Add scaling: " + sim.meterTargInRef.getScaling());
@@ -695,7 +697,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
     }
     
     public static class SimParam extends ParameterBase {
-        public boolean first = true;
+        public boolean first = false;
         public int[] refShape = {2, 2, 2};
         public int[] targShape = {2, 2, 4};
         public double density = 1.1964;
@@ -708,7 +710,7 @@ public class SimDifferentImageSsFccDoubleSize extends Simulation {
         public String inputFile = "inputSSDB_DS";
         public String filename = "output";
         
-        public int numSteps = 10000000;     //overall # of steps of subintegrators
+        public int numSteps = 100000000;     //overall # of steps of subintegrators
         public int subBlockSize = 10000;    //# of steps in subintegrator per integrator step
         public int eqNumSteps = 100000;  
         public int bennettNumSteps = 50000;

@@ -72,7 +72,9 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlapSsNxy extends Simulation {
 
-    public SimOverlapSsNxy(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent, int[] shape, double tr) {
+    public SimOverlapSsNxy(Space _space, int numAtoms, double density, double 
+            temperature, String filename, double harmonicFudge, int exponent, 
+            int[] shape, double tr) {
         super(_space);
         this.fname = filename;
         
@@ -166,7 +168,7 @@ public class SimOverlapSsNxy extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
         
-        String inFile = "inputSSDB"+numAtoms;
+        String inFile = "inputSSDB_WV"+numAtoms;
         normalModes = new NormalModesFromFile(inFile, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         /*
@@ -390,7 +392,6 @@ public class SimOverlapSsNxy extends Simulation {
         double temperature = params.temperature;
         int D = params.D;
         int[] shape = params.shape;
-        double trunc = params.truncationRadius;
         int molecNum = 1;
         for(int i = 0; i < 3; i++){
             molecNum *= shape[i];
@@ -405,7 +406,11 @@ public class SimOverlapSsNxy extends Simulation {
         //String refFileName = args.length > 0 ? filename+"_ref" : null;
         String refFileName = filename+"_ref";
         
-        
+        //Set up the truncation 
+        double trunc = 1.4803453945760225;
+        if( molecNum >= 256){
+            trunc = 2.2;
+        }
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" soft sphere overlap simulation");
         System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN +" and harmonic fudge: "+harmonicFudge);
@@ -413,7 +418,9 @@ public class SimOverlapSsNxy extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        final SimOverlapSsNxy sim = new SimOverlapSsNxy(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN, shape, trunc);
+        final SimOverlapSsNxy sim = new SimOverlapSsNxy(Space.getInstance(D), 
+                numMolecules, density, temperature, filename, harmonicFudge, 
+                exponentN, shape, trunc);
         
         if(false) {
             SimulationGraphic graphic = new SimulationGraphic(sim, sim.space, 
@@ -566,6 +573,5 @@ public class SimOverlapSsNxy extends Simulation {
         public String filename = "notehere";
         public double temperature = 1.0;
         public int[] shape = {2, 2, 2};
-        public double truncationRadius = 2.2;
     }
 }
