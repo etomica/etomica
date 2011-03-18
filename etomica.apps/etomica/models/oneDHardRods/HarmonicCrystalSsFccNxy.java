@@ -185,11 +185,12 @@ public class HarmonicCrystalSsFccNxy {
     
     
     public static class Params extends ParameterBase {
-        public double T = 0.01;
+        public double T = 0.1;
         public double rho = 1.1964;
-        public int[] shape = new int[] {2, 2, 4};
+        public int[] shape = new int[] {16, 16, 16};
         public String filename = "inputSSDB_WV";
-        public double rc = 1.4803453945760225 ;
+       // public double rc = 1.4803453945760225 ;
+        public double rc = 2.2;
     }
     
 }
