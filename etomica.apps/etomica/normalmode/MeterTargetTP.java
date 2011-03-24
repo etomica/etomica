@@ -261,5 +261,6 @@ public class MeterTargetTP implements IEtomicaDataSource {
 
     public void setConstraint(P1ConstraintNbr p1) {
         this.p1 = p1;
+        p1.initBox(pretendBox);
     }
 }
