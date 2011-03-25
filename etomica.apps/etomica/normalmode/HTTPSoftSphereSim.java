@@ -31,7 +31,6 @@ public class HTTPSoftSphereSim extends Simulation {
     public HTTPSoftSphereSim(Space _space, int numAtoms,  double temperature) {
         super(_space);
         
-        double rc = 2.2;
         double density = 1.1964;
         
         potentialMaster = new PotentialMasterList(this, space);
@@ -57,6 +56,7 @@ public class HTTPSoftSphereSim extends Simulation {
         double nbrDistance = L / Math.sqrt(2);
         int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
         Primitive primitive = new PrimitiveCubic(space, n*L);
+        double rc = 0.495*n*L;
         
         int[] nCells = new int[]{n,n,n};
         Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
