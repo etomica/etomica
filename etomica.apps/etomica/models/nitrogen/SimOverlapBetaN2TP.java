@@ -96,6 +96,9 @@ public class SimOverlapBetaN2TP extends Simulation {
 			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
 			double[][] param = parameters.getParameter(density);
 			
+//			BetaPhaseLatticeParameterNA parameters = new BetaPhaseLatticeParameterNA();
+//			double[][] param = parameters.getParameter(numMolecules);
+			
 			int kParam=0;
 			for (int i=0; i<param.length;i++){
 				for (int j=0; j<param[0].length;j++){
