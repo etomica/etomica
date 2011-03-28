@@ -102,6 +102,8 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
              * Re-scaling the coordinate deviation
              */
           
+        	boolean notOverScale = true;
+        	
           	if(isBetaPhase){
           		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
           			// NOT Scaling the rotational angle for the beta-phase
@@ -116,26 +118,42 @@ public class MeterTargetTPMolecule implements IEtomicaDataSource {
            		for (int iCoord=0; iCoord<coordinateDefinition.getCoordinateDim(); iCoord++){
           			newU[iCoord] = fac*u[iCoord];
                 }	
+           		
+           	  	double totalCosTheta = 0.0;
+              	
+              	for(int iU=0; iU<newU.length; iU+=5){
+              		double u3 = newU[iU+3];
+              		double u4 = newU[iU+4];
+              		
+              		double costheta = 1- 0.5*(u3*u3 + u4*u4);
+              		
+              		totalCosTheta += costheta;
+              		
+              		// checking for the validity of orientation scaling
+              		if(costheta < 0.0 ){
+//              			System.out.println("***** "+costheta + " " +u3+" " + u4);
+              			otherEnergy = Double.POSITIVE_INFINITY;
+              			notOverScale = false;
+              			break;
+              		}
+              	}
+              	
+              	// checking for the disorderness of alpha phase
+              	if(notOverScale){
+              		double aveCosTheta = totalCosTheta/molecules.getMoleculeCount();
+                  	if(aveCosTheta < 0.8 ){
+                  		otherEnergy = Double.POSITIVE_INFINITY;
+                  		notOverScale = false;
+                  	}  
+              	}
+              	
            	}
             
-//          	boolean notOverScale = true;
-//          	for(int iU=0; iU<newU.length; iU+=5){
-//          		double u3 = newU[iU+3];
-//          		double u4 = newU[iU+4];
-//          		
-//          		double costheta = 1- 0.5*(u3*u3 + u4*u4);
-//          		if(costheta < 0.0 ){
-//          			System.out.println("***** "+costheta + " " +u3+" " + u4);
-//          			otherEnergy = Double.POSITIVE_INFINITY;
-//          			notOverScale = false;
-//          			break;
-//          		}
-//          	}
-//          	
-//          	if(notOverScale){
+          	if(notOverScale){
           		coordinateDefinition.setToU(pretendMolecules, newU);
             	otherEnergy = meterPotential.getDataAsScalar();
-//          	}       
+          	} 
+        
             double ai = (otherEnergy-latticeEnergy)/Kelvin.UNIT.toSim(otherTemperatures[i]);
             //System.out.println("ai-a0: " + ai + " " + a0 + " "+ (ai-a0));
             
