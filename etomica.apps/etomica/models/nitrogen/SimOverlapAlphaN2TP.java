@@ -14,6 +14,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorRatioAverageCovariance;
+import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
@@ -23,11 +24,11 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
@@ -110,7 +111,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		move.setPotential(potential);
 		move.setDoExcludeNonNeighbors(true);
 		
-		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+		rotate = new MCMoveRotateMolecule3DN2AveCosThetaConstraint(potentialMaster, getRandom(), space, coordinateDef, 0.8);
 		rotate.setBox(box);
 			
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
@@ -214,7 +215,8 @@ public class SimOverlapAlphaN2TP extends Simulation {
         double constraintAngle = params.constraintAngle;
         boolean noRotScale = params.noRotScale;
         String configFileName = "configT"+temperature;
-        
+        String filename = "alphaN2d"+density+"_T"+temperature+"Cons0.8";
+		
         System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
         System.out.println(numMolecules+" molecules at density "+density+" and temperature "+temperature + " K");
         System.out.print("perturbing into: ");
@@ -236,12 +238,14 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		if(configFile.exists()){
 			System.out.println("\n***initialize coordinate from "+ configFile);
         	sim.initializeConfigFromFile(configFileName);
+            sim.rotate.calcAveCosThetaInitial();    
 		} else {
 	        long initStep = (1+(numMolecules/500))*100*numMolecules;
 	        sim.initialize(initStep);
 		}
 		System.out.flush();
-	        
+	
+		
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -279,6 +283,20 @@ public class SimOverlapAlphaN2TP extends Simulation {
         
         final long startTime = System.currentTimeMillis();
        
+    	MeterRotationDistributionGroup meterRotation = new MeterRotationDistributionGroup(sim.box, sim.coordinateDef);
+		IntegratorListenerAction meterRotationListener = new IntegratorListenerAction(meterRotation);
+		meterRotationListener.setInterval(numMolecules);                                      
+		sim.integrator.getEventManager().addListener(meterRotationListener);
+        
+		MeterOrientationOrderParameter meterOrientationOrderParameter = new MeterOrientationOrderParameter(sim.coordinateDef);
+		
+		AccumulatorAverage orderParameterAverage = new AccumulatorAverageFixed();
+		DataPump orderParameterPump = new DataPump(meterOrientationOrderParameter, orderParameterAverage);
+		IntegratorListenerAction orderParameterListener = new IntegratorListenerAction(orderParameterPump);
+		orderParameterListener.setInterval(numMolecules);
+		sim.integrator.getEventManager().addListener(orderParameterListener);
+		
+		
         sim.activityIntegrate.setMaxSteps(numSteps);
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         sim.getController().actionPerformed();
@@ -330,8 +348,11 @@ public class SimOverlapAlphaN2TP extends Simulation {
                 break;
             }
         }
-        
-      
+        meterRotation.writeUdistribution(filename);
+		double averageOrderParameter = ((DataGroup)orderParameterAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+//		System.out.println("orientational order parameter: "+ averageOrderParameter/(numMolecules*numMolecules));
+		
+		System.out.println("orientational order parameter: "+ 0.5*averageOrderParameter);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken(s): " + (endTime - startTime)/1000.0);
     }
@@ -350,6 +371,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected P2Nitrogen potential;
     protected PRotConstraint pRotConstraint;
+    protected MCMoveRotateMolecule3DN2AveCosThetaConstraint rotate;
     
     /**
      * Inner class for parameters understood by the HSMD3D constructor
