@@ -77,6 +77,65 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
 		
+		double[] u = new double[20];
+		BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+		double[][] param = parameters.getParameter(density);
+		
+//			BetaPhaseLatticeParameterNA parameters = new BetaPhaseLatticeParameterNA();
+//			double[][] param = parameters.getParameter(numMolecules);
+		
+		int kParam=0;
+		for (int i=0; i<param.length;i++){
+			for (int j=0; j<param[0].length;j++){
+				if(j<3){
+					u[kParam]=0.0;
+				} else {
+					u[kParam]=param[i][j];
+				}
+				kParam++;
+			}	
+		}
+		
+		System.out.println("*************Parameters*************");
+		for (int i=0; i<u.length;i++){
+			System.out.print(u[i] +", ");
+			if((i+1)%5==0){
+				System.out.println();
+			}
+		}
+		
+		int numDOF = coordinateDef.getCoordinateDim();
+		double[] newU = new double[numDOF];
+		if(true){
+			for(int j=0; j<numDOF; j+=10){
+				if(j>0 && j%(nC*10)==0){
+					j+=nC*10;
+					if(j>=numDOF){
+						break;
+					}
+				}
+				for(int k=0; k<10;k++){
+					newU[j+k]= u[k];
+				}
+			}
+			
+			for(int j=nC*10; j<numDOF; j+=10){
+				if(j>nC*10 && j%(nC*10)==0){
+					j+=nC*10;
+					if(j>=numDOF){
+						break;
+					}
+				}
+				for(int k=0; k<10;k++){
+					newU[j+k]= u[k+10];
+				}
+			}
+		}
+
+		coordinateDef.setToU(box.getMoleculeList(), newU);
+		coordinateDef.initNominalU(box.getMoleculeList());
+		
+		
 	    box.setBoundary(boundary);
 	    
 		double rCScale = 0.475;
@@ -104,6 +163,9 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
 	    potentialMaster.setCellRange(cellRange); 
 	    potentialMaster.getNeighborManager(box).reset();
 	    potential.setRange(Double.POSITIVE_INFINITY); 
+	    
+	    int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        System.out.println("numNeigh: " + numNeigh);
 	    
 	    MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
@@ -152,10 +214,10 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
     public static void main(String[] args) {
 
         double temperature = 45; //in UNIT KELVIN
-        double density = 0.025;
+        double density = 0.023;
         double angle =1;
         long numSteps = 100000;
-        int numMolecules = 432;
+        int numMolecules = 1024;
 
     	if(args.length > 0){
 			temperature = Double.parseDouble(args[0]);
