@@ -24,8 +24,8 @@ public class LJDefaultParametersModel {
 	private static final double INITIAL_SigmaBBValueMixture3= 0.768;
 	private static final double INITIAL_EpsilonValueBBMixture3 = 0.597;
 	
-	private static final double INITIAL_EpsilonValueABMixture4 = Sqrt.INSTANCE(0.5);
-	private static final double INITIAL_EpsilonValueBBMixture4 = Sqrt.INSTANCE(0.5);
+	private static final double INITIAL_EpsilonValueABMixture4 = 0.5;
+	private static final double INITIAL_EpsilonValueBBMixture4 = 0.5;
 	
 	private double SigmaValue;
 	private double EpsilonValue;
