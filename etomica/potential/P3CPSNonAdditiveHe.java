@@ -1,25 +1,20 @@
 package etomica.potential;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.atom.AtomArrayList;
+import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
-import etomica.box.Box;
-import etomica.box.RandomPositionSourceRectangular;
-import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.atom.AtomArrayList;
 import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Energy;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Ab initio non-additive trimer potential for He developed by Cencek, Patkowski, and Szalewicz JCP 131 064105 2009. 
@@ -37,6 +32,8 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
+        
+        
     }
 
     public void setBox(IBox box) {
@@ -44,20 +41,38 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
     }
 
     public double energy(IAtomList atomSet) {
+    	
+    	setA();
+        setAlpha();
+        setBeta3();
+        setZ3();
+        setBeta4220();
+        setBeta4211();
+        setZ4220();
+        setZ4211();
+        
         IAtom atomA = atomSet.getAtom(0);
         IAtom atomB = atomSet.getAtom(1);
         IAtom atomC = atomSet.getAtom(2);
+        
+        atomA.getPosition().Ea1Tv1(1.0/AngstromPerBohrRadius, atomA.getPosition());
+        atomB.getPosition().Ea1Tv1(1.0/AngstromPerBohrRadius, atomB.getPosition());
+        atomC.getPosition().Ea1Tv1(1.0/AngstromPerBohrRadius, atomC.getPosition());
+        
         drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());
         drAC.Ev1Mv2(atomA.getPosition(),atomC.getPosition());
         drBC.Ev1Mv2(atomB.getPosition(),atomC.getPosition());
         
-        double RAB = Math.sqrt(drAB.squared())/0.5291772;
-        double RAC = Math.sqrt(drAC.squared())/0.5291772;
-        double RBC = Math.sqrt(drAB.squared())/0.5291772;
+        double RAB = Math.sqrt(drAB.squared());
+        double RAC = Math.sqrt(drAC.squared());
+        double RBC = Math.sqrt(drBC.squared());
+        System.out.println (RAB + " " + RBC+ " " + RAC);
         
-        double costhetaA = -drAB.dot(drAC)/(RAB*RAC);
-        double costhetaB =  drAB.dot(drBC)/(RAB*RBC);
-        double costhetaC = -drAC.dot(drBC)/(RAC*RBC);
+        double costhetaA =  drAB.dot(drAC)/(RAB*RAC);
+        double costhetaB = -drAB.dot(drBC)/(RAB*RBC);
+        double costhetaC =  drAC.dot(drBC)/(RAC*RBC);
+        
+        
         
         double theta1; double theta2; double theta3;
         
@@ -73,11 +88,13 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         else if (costhetaC < -1) {theta3 = Math.PI;}
         else {theta3 = Math.acos(costhetaC);}
         
+        System.out.println(theta1 + " " + theta2 + " " + theta3 + "  " + (theta1+theta2+theta3)/Math.PI);
+        
         double Vexp = 0;
 
-        for (int k3 = 1; k3<4; k3++) {
-        	for (int k2 = 1; k2<k3; k2++) {
-        		for (int k1 = 1; k1<=k2; k1++) {
+        for (int k3 = 0; k3<=4; k3++) {
+        	for (int k2 = 0; k2<=k3; k2++) {
+        		for (int k1 = 0; k1<=k2; k1++) {
         			
         			double P = legendreP(k1,costhetaA)*legendreP(k2,costhetaB)*legendreP(k3,costhetaC);
         			P =    P + legendreP(k1,costhetaA)*legendreP(k2,costhetaC)*legendreP(k3,costhetaB);
@@ -87,6 +104,8 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         			P =    P + legendreP(k1,costhetaC)*legendreP(k2,costhetaB)*legendreP(k3,costhetaA);
         			
         			Vexp = Vexp + A[k1][k2][k3]*Math.exp(-alpha[k1][k2][k3]*(RAB+RBC+RAC))*P;
+        			
+        			//System.out.println(k1 + " " + k2 + " " + k3 + "  " + alpha[k1][k2][k3]);
         		}
         	}
         }
@@ -94,34 +113,35 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         //V3Disp
         
         double W111 = 3.0*Math.pow(RAB,-3)*Math.pow(RBC,-3)*Math.pow(RAC,-3);
-               W111 = W111*(1.0+3.0*costhetaA*costhetaB*costhetaC);
-        double n111AB = 3; double n111AC = 3; double n111BC = 3;
-        
+               W111 = W111*(1.0 + (3.0*Math.cos(theta1)*Math.cos(theta2)*Math.cos(theta3) ));
+        double n111AB = 3; double n111BC = 3; double n111AC = 3;
+      
         double W112 = 3.0/16.0*Math.pow(RAB,-3)*Math.pow(RBC,-4)*Math.pow(RAC,-4);
         double term112 = (9.0*Math.cos(theta3)-25.0*Math.cos(3.0*theta3));
-               term112 = term112 + 6.0*Math.cos(theta1-theta2)*(3.0+5.0*Math.cos(2.0*theta3));
+               term112 = term112 + (6.0*Math.cos(theta1-theta2)*(3.0+5.0*Math.cos(2.0*theta3)));
                W112 = W112*term112;
-        double n112AB = 3; double n112AC = 4; double n112BC = 4;
+        double n112AB = 3; double n112BC = 4; double n112AC = 4;
         
+       
         double W122 = 15.0/64.0*Math.pow(RAB,-4)*Math.pow(RBC,-5)*Math.pow(RAC,-4);
         double term122 = 3*(Math.cos(theta1)+5.0*Math.cos(3*theta1));
         	   term122 = term122 + 20.0*Math.cos(theta2-theta3)*(1.0-3.0*Math.cos(2*theta1));
         	   term122 = term122 + 70.0*Math.cos(2.0*(theta2-theta3))*Math.cos(theta1);
         	   W122 = W122*term122;
-        double n122AB = 4; double n122AC = 5; double n122BC = 4;	   
+        double n122AB = 4; double n122BC = 5; double n122AC = 4;	   
         
         double W222 = 15.0/128.0*Math.pow(RAB,-5)*Math.pow(RBC,-5)*Math.pow(RAC,-5);
         double term222 = -27.0 + 220.0*Math.cos(theta1)*Math.cos(theta2)*Math.cos(theta3);
                term222 = term222 + 490.0*Math.cos(2.0*theta1)*Math.cos(theta2)*Math.cos(theta3);
                term222 = term222 + 175.0*(Math.cos(2.0*(theta1-theta2))+Math.cos(2.0*(theta2-theta3))+Math.cos(2.0*(theta3-theta1)));
                W222 = W222*term222;
-        double n222AB = 5; double n222AC = 5; double n222BC = 5;	
+        double n222AB = 5; double n222BC = 5; double n222AC = 5;	
         
         double W113 = 5.0/32.0*Math.pow(RAB,-3)*Math.pow(RBC,-5)*Math.pow(RAC,-5);
         double term113 = 9.0 + 8.0*Math.cos(2.0*theta3) - 49.0*Math.cos(4.0*theta3);
-               term113 = term113 + 6*Math.cos(theta1-theta2)*(9.0*Math.cos(theta3)+7.0*Math.cos(3.0*theta3));
+               term113 = term113 + 6.0*Math.cos(theta1-theta2)*(9.0*Math.cos(theta3)+7.0*Math.cos(3.0*theta3));
                W113 = W113*term113;
-        double n113AB = 3; double n113AC = 5; double n113BC = 5;
+        double n113AB = 3; double n113BC = 5; double n113AC = 5;
        
         double D111 = getD(beta3[1][1][1],RAB,n111AB)*getD(beta3[1][1][1],RBC,n111BC)*getD(beta3[1][1][1],RAC,n111AC);
         double D112 = getD(beta3[1][1][2],RAB,n112AB)*getD(beta3[1][1][2],RBC,n112BC)*getD(beta3[1][1][2],RAC,n112AC);
@@ -130,10 +150,10 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         double D113 = getD(beta3[1][1][3],RAB,n113AB)*getD(beta3[1][1][3],RBC,n113BC)*getD(beta3[1][1][3],RAC,n113AC);
        
         double V3disp =   D111*W111*Z3[1][1][1];
-        V3disp = V3disp + D112*W112*Z3[1][1][2];
-        V3disp = V3disp + D122*W122*Z3[1][2][2];
+        V3disp = V3disp + 3.0*D112*W112*Z3[1][1][2];
+        V3disp = V3disp + 3.0*D122*W122*Z3[1][2][2];
         V3disp = V3disp + D222*W222*Z3[2][2][2];
-        V3disp = V3disp + D113*W113*Z3[1][1][3];
+        V3disp = V3disp + 3.0*D113*W113*Z3[1][1][3];
 
         //V4Disp
         double W1111_211 = 36.0/128.0*Math.pow(RAB,-6)*Math.pow(RBC,-3)*Math.pow(RAC,-3);
@@ -143,15 +163,15 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
                W1111_211 = W1111_211*term1111_211;
    	    double D1111_211 = getD(beta4211[1][1][1][1],RAB,6)*getD(beta4211[1][1][1][1],RBC,3)*getD(beta4211[1][1][1][1],RAC,3);     
    	    
-   	    double W1111_220 = (1.0+Math.cos(theta1)*Math.cos(theta1))*Math.pow(RAB,-6)*Math.pow(RBC,-6);
+   	    double W1111_220 =             (1.0+Math.cos(theta1)*Math.cos(theta1))*Math.pow(RAB,-6)*Math.pow(RBC,-6);
    	           W1111_220 = W1111_220 + (1.0+Math.cos(theta2)*Math.cos(theta2))*Math.pow(RBC,-6)*Math.pow(RAC,-6);
    	           W1111_220 = W1111_220 + (1.0+Math.cos(theta3)*Math.cos(theta3))*Math.pow(RAB,-6)*Math.pow(RAC,-6);
                W1111_220 = W1111_220*9.0;
         double D1111_220 = getD(beta4220[1][1][1][1],RAB,6)*getD(beta4220[1][1][1][1],RBC,6)*getD(beta4220[1][1][1][1],RAC,6);
 	    
         double W1112_211 = 1.0/32.0*Math.pow(RAB,-7)*Math.pow(RBC,-3)*Math.pow(RAC,-4);
-        double term1112_211 = -144.0*Math.cos(theta1) - 36.0*Math.cos(theta2 + theta3);
-               term1112_211 = term1112_211 + 216.0*Math.cos(theta2-theta3) + 120.0*Math.cos(3.0*theta3);
+        double term1112_211 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
+               term1112_211 = term1112_211 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta3);
                term1112_211 = term1112_211 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2*theta2);
                W1112_211 = W1112_211*term1112_211;
    	    double D1112_211 = getD(beta4211[1][1][1][2],RAB,7)*getD(beta4211[1][1][1][2],RBC,3)*getD(beta4211[1][1][1][2],RAC,4); 
@@ -159,21 +179,20 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
    	    
    	    double W1121_211 = 1.0/32.0*Math.pow(RAB,-6)*Math.pow(RBC,-4)*Math.pow(RAC,-4);
    	    double term1121_211 = -111.0*Math.cos(theta3) - 750.0*Math.cos(3.0*theta3);
-            term1121_211 = term1121_211 + 180.0*Math.cos(theta1+theta3) + 108.0*Math.cos(theta1-theta2);
-            term1121_211 = term1121_211 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2*theta2);
-            W1121_211 = W1121_211*term1121_211;
+               term1121_211 = term1121_211 + 180.0*Math.cos(theta1+theta3) + 108.0*Math.cos(theta1-theta2);
+               term1121_211 = term1121_211 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2*theta2);
+                  W1121_211 = W1121_211*term1121_211;
 	    double D1121_211 = getD(beta4211[1][1][2][1],RAB,6)*getD(beta4211[1][1][2][1],RBC,4)*getD(beta4211[1][1][2][1],RAC,4); 
 	    
    	    
-   	    double W2111_211 = 9.0/2.0*Math.pow(RAB,-8)*Math.pow(RBC,-3)*Math.pow(RAC,-3);
+   	    double W2111_211 = -9.0/2.0*Math.pow(RAB,-8)*Math.pow(RBC,-3)*Math.pow(RAC,-3);
    	    double term2111_211 = Math.cos(2.0*theta1) + Math.cos(2.0*theta2) + 6.0*Math.cos(2.0*theta3);
-            term2111_211 = term2111_211 + 180.0*Math.cos(theta1+theta3) + 108.0*Math.cos(theta1-theta2);
-            W2111_211 = W2111_211*term2111_211;
+                  W2111_211 = W2111_211*term2111_211;
 	    double D2111_211 = getD(beta4211[2][1][1][1],RAB,8)*getD(beta4211[2][1][1][1],RBC,3)*getD(beta4211[2][1][1][1],RAC,3);     
                
-	    double W1211_220 = 1.0/64.0*Math.pow(RAB,-7)*Math.pow(RBC,-7);
+	    double W1211_220 = -1.0/64.0*Math.pow(RAB,-7)*Math.pow(RBC,-7);
                W1211_220 = W1211_220 * (1485.0*Math.cos(theta3)+ 384.0*Math.cos(3.0*theta3));
-        double D1211_220 = getD(beta4220[1][2][1][1],RAB,7)*getD(beta4220[1][2][1][1],RBC,7)*getD(beta4220[1][2][1][1],RAC,0);
+        double D1211_220 = getD(beta4220[1][2][1][1],RAB,7)*getD(beta4220[1][2][1][1],RBC,7);
  
         double W2111_220 = 0.25*Math.pow(RAB,-8)*Math.pow(RBC,-6);
         	   W2111_220 = W2111_220 * (369.0 + 288.0*Math.cos(theta3)*Math.cos(theta3));
@@ -183,35 +202,34 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         double V4disp =   D1111_211*W1111_211*Z4211[1][1][1][1];
         V4disp = V4disp + D1111_220*W1111_220*Z4220[1][1][1][1];
 
-        V4disp = V4disp + D1112_211*W1112_211*Z4211[1][1][1][2];
+        V4disp = V4disp + 6.0*D1112_211*W1112_211*Z4211[1][1][1][2];
         
-        V4disp = V4disp + D1121_211*W1121_211*Z4211[1][1][2][1];
+        V4disp = V4disp + 3.0*D1121_211*W1121_211*Z4211[1][1][2][1];
         
-        V4disp = V4disp + D2111_211*W2111_211*Z4211[2][1][1][1];
-        V4disp = V4disp + D2111_220*W2111_220*Z4220[2][1][1][1];
+        V4disp = V4disp + 3.0*D2111_211*W2111_211*Z4211[2][1][1][1];
+        V4disp = V4disp + 6.0*D2111_220*W2111_220*Z4220[2][1][1][1];
         
-        V4disp = V4disp + D1211_220*W1211_220*Z4220[1][2][1][1];
+        V4disp = V4disp + 3.0*D1211_220*W1211_220*Z4220[1][2][1][1];
         
-        return Vexp+V3disp+V4disp;
+        //return (Vexp+V3disp+V4disp)*KPerHartree; //Kelvin
+        return (Vexp+V3disp+V4disp)*KPerHartree; //Kelvin
+        
     }
     
 
     
     public double getD(double beta, double RXY, double nXY) {
     	
-    	double D = 0;
-    	
-    	double factorial = 1;
-    	for (int n=0;n<=nXY;n++) {
+    	double D = 1.0;	
+    	double factorial = 1.0;
+    	for (int n=1;n<=nXY;n++) {
     		
-    		if (n != 0) {
-    			factorial = factorial*n;
-    		}
+    		factorial = factorial*n;
     		
     		D = D + Math.pow(beta*RXY,n)/factorial;
     	}
     	
-    	D = 1.0-Math.exp(-beta*RXY)*D;
+    	D = 1.0 - (Math.exp(-beta*RXY)*D);
     	
     	return D;
     }
@@ -221,7 +239,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
     public double legendreP (int i, double x) {
     	
     	if (i == 0) {
-    		return 1;
+    		return 1.0;
     	} else if (i == 1) {
     		return x;
     	} else if (i == 2) {
@@ -421,53 +439,50 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable[] gradient;
     public static boolean bigAngle;
-    protected double[][][] alpha;
-    protected double[][][] A;
-    protected double[][][] beta3;
-    protected double[][][] Z3;
-    protected double[][][][] beta4220;
-    protected double[][][][] Z4220;
-    protected double[][][][] beta4211;
-    protected double[][][][] Z4211;
+    protected double[][][] alpha = new double [5][5][5];
+    protected double[][][] A = new double [5][5][5];
+    protected double[][][] beta3 = new double [3][3][4];
+    protected double[][][] Z3 = new double [3][3][4];
+    protected double[][][][] beta4220= new double [3][3][3][3];
+    protected double[][][][] Z4220= new double [3][3][3][3];
+    protected double[][][][] beta4211= new double [3][3][3][3];
+    protected double[][][][] Z4211= new double [3][3][3][3];
+    private static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
+    private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
     
     
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
-        RandomNumberGenerator random = new RandomNumberGenerator();
-        P3BondAngle potential = new P3BondAngle(space);
-        potential.setEpsilon(1.0);
-        potential.setAngle(Math.PI/2.0);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, random);
-        positionSource.setBox(box);
-        potential.setBox(box);
+
+        P3CPSNonAdditiveHe potential = new P3CPSNonAdditiveHe(space);
+      
         Atom atom0 = new Atom(space);
-        atom0.getPosition().setX(0, 1);
         Atom atom1 = new Atom(space);
         Atom atom2 = new Atom(space);
+        
+        // Equilateral triange 
+        double a = 7.0*AngstromPerBohrRadius;
+        IVector r0 = (IVector)space.makeVector(new double[] {0,0,0});
+        IVector r1 = (IVector)space.makeVector(new double[] {a,0,0});
+        IVector r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+       
+        
+        atom0.getPosition().E(r0);
+        atom1.getPosition().E(r1);
+        atom2.getPosition().E(r2);
+        
         AtomArrayList atoms = new AtomArrayList(3);
         atoms.add(atom0);
         atoms.add(atom1);
         atoms.add(atom2);
-        int n = 100;
-        double U = 0;
+            
+        double U = potential.energy(atoms);
+
+        System.out.println(U*1000); //millikelvin
+            
+            
         
-        IVectorRandom dr = (IVectorRandom)space.makeVector();
-       
-
-        System.out.println("all random");
-        for (int i=0; i<n; i++) {
-            atom0.getPosition().E(positionSource.randomPosition());
-            atom1.getPosition().E(positionSource.randomPosition());
-            atom2.getPosition().E(positionSource.randomPosition());
-            
-            U = potential.energy(atoms);
-
-            System.out.println(U);
-            
-            
-        }
     }
     
 
