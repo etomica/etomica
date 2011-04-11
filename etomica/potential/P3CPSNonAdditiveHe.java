@@ -51,9 +51,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         drAC.Ev1Mv2(atomA.getPosition(),atomC.getPosition());
         drBC.Ev1Mv2(atomB.getPosition(),atomC.getPosition());
         
-        double RAB = Math.sqrt(drAB.squared());
-        double RAC = Math.sqrt(drAC.squared());
-        double RBC = Math.sqrt(drAB.squared());
+        double RAB = Math.sqrt(drAB.squared())/0.5291772;
+        double RAC = Math.sqrt(drAC.squared())/0.5291772;
+        double RBC = Math.sqrt(drAB.squared())/0.5291772;
         
         double costhetaA = -drAB.dot(drAC)/(RAB*RAC);
         double costhetaB =  drAB.dot(drBC)/(RAB*RBC);
@@ -159,9 +159,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
    	    
    	    double W1121_211 = 1.0/32.0*Math.pow(RAB,-6)*Math.pow(RBC,-4)*Math.pow(RAC,-4);
    	    double term1121_211 = -111.0*Math.cos(theta3) - 750.0*Math.cos(3.0*theta3);
-            term1121_211 = term1112_211 + 180.0*Math.cos(theta1+theta3) + 108.0*Math.cos(theta1-theta2);
-            term1121_211 = term1112_211 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2*theta2);
-            W1121_211 = W1121_211*term1112_211;
+            term1121_211 = term1121_211 + 180.0*Math.cos(theta1+theta3) + 108.0*Math.cos(theta1-theta2);
+            term1121_211 = term1121_211 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2*theta2);
+            W1121_211 = W1121_211*term1121_211;
 	    double D1121_211 = getD(beta4211[1][1][2][1],RAB,6)*getD(beta4211[1][1][2][1],RBC,4)*getD(beta4211[1][1][2][1],RAC,4); 
 	    
    	    
