@@ -28,7 +28,7 @@ public class P2HePCKLJ extends Potential2SoftSpherical {
     	
     	double r = Math.sqrt(r2);
         
-    	r = r/rBohrPerAngstrom; // Bohr radius
+    	r = r/AngstromPerBohrRadius; // Bohr radius
     	
     	
     	//Parameters
@@ -132,20 +132,33 @@ public class P2HePCKLJ extends Potential2SoftSpherical {
     	double u;
     	
     	
-    	for (int i=0;i<7;i++) {
-    		double r = rA[i]*rBohrPerAngstrom; //Angstrom
+     	for (int i=0;i<7;i++) {
+    		double r = rA[i]*AngstromPerBohrRadius; //Angstrom
     		u = p2.u(r*r); // Kelvin
     		
     	
     		System.out.println(r+"  "+u);
     	}
+    	
+    	/*double r = 1;
+    	while (r < 20) {
+    		r = r + 0.2; //Angstrom
+    		u = p2.u(r*r); // Kelvin
+    		double e = Math.exp(-u/1000);
+    	
+    		System.out.println(r+"  "+u + "  " + e);
+    	}*/
+    	
+    	double r = 7.0*AngstromPerBohrRadius;
+    	u = p2.u(r*r)*1000; // milliKelvin
+    	System.out.println(r+"  "+3*u );
 
 		
     	
     }
    
 
-    private static final double rBohrPerAngstrom = 0.529177; // Rounding provided by Pryzbytek et al. 2010
+    private static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
     private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
     private static final long serialVersionUID = 1L;
     
