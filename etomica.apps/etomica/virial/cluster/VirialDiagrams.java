@@ -674,6 +674,10 @@ public class VirialDiagrams {
                     newP.clear();
                 }
             }
+            newP.clear();
+            MaxIsomorph maxIsomorph = new MaxIsomorph();
+            newP.addAll(maxIsomorph.apply(p, null));
+            p = newP;
         }
         else {
             HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
