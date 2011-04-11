@@ -67,7 +67,11 @@ public class MulFlexible implements Binary {
     Node myNode1 = null;
     Node myNode2 = null;
     for (Node node1 : g1.nodes()) {
-      boolean success = true;
+      if (params.node1ID > -1) {
+        // only check the specified node
+        node1 = g1.getNode(params.node1ID);
+      }
+      boolean flex1Unhappy = false;
       boolean flexColor = false;
       for (int i=0; i<params.flexColors.length; i++) {
         if (params.flexColors[i] == node1.getColor()) {
@@ -75,58 +79,49 @@ public class MulFlexible implements Binary {
         }
       }
       if (flexColor) {
+        // we want node1 to be unbonded
         for (Node node2 : g1.nodes()) {
           if (node1 != node2 && g1.hasEdge(node1.getId(), node2.getId())) {
-            success = false;
+            flex1Unhappy = true;
             break;
           }
         }
       }
-      if (success) {
-        // check if the other graph has a node of the same color
-        for (Node node2 : g2.nodes()) {
-          if (node2.getColor() == node1.getColor() && (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT)) {
+      // check if the other graph has a node of the same color
+      for (Node node2 : g2.nodes()) {
+        if (params.node2ID > -1) {
+          // only check the specified node
+          node2 = g2.getNode(params.node2ID);
+        }
+        if (node1.getColor() == node2.getColor()) {
+          boolean success = true;
+          if (flex1Unhappy) {
+            // node1 was bonded.  node2 must unbonded
+            for (Node node3 : g2.nodes()) {
+              if (node3 != node2 && g2.hasEdge(node3.getId(), node2.getId())) {
+                // node2 was also bonded, so we can't superimpose these nodes
+                success = false;
+                break;
+              }
+            }
+          }
+          if (success && (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT)) {
+            // node1 and node2 are suitable for superimposing
             myNode1 = node1;
             myNode2 = node2;
             break;
           }
         }
-        if (myNode1 != null) break;
-      }
-    }
-    if (myNode1 == null) {
-      for (Node node1 : g2.nodes()) {
-        if (node1.getType() != TYPE_NODE_ROOT) continue;
-        boolean success = true;
-        boolean flexColor = false;
-        for (int i=0; i<params.flexColors.length; i++) {
-          if (params.flexColors[i] == node1.getColor()) {
-            flexColor = true;
-          }
-        }
-        if (flexColor) {
-          for (Node node2 : g2.nodes()) {
-            if (node1 != node2 && g2.hasEdge(node1.getId(), node2.getId())) {
-              success = false;
-              break;
-            }
-          }
-        }
-        if (success) {
-          // check if the other graph has a node of the same color
-          for (Node node2 : g1.nodes()) {
-            if (node2.getColor() == node1.getColor() && (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT)) {
-              Graph tmp = g1;
-              g1 = g2;
-              g2 = tmp;
-              myNode1 = node1;
-              myNode2 = node2;
-              break;
-            }
-          }
-          if (myNode1 != null) break;
+        if (params.node2ID > -1) {
+          // unable to superimpose specified node2, so bail
+          break;
         }
       }
+      if (params.node1ID > -1) {
+        // unable to superimpose specified node1, so bail
+        break;
+      }
+      if (myNode1 != null) break;
     }
 
     byte nodesOffset = g1.nodeCount();
@@ -189,9 +184,15 @@ public class MulFlexible implements Binary {
 
   public static class MulFlexibleParameters extends MulParameters {
     public final char[] flexColors;
+    public final byte node1ID, node2ID;
     public MulFlexibleParameters(char[] flexColors, byte nFieldNodes) {
+      this(flexColors, nFieldNodes, (byte)-1, (byte)-1);
+    }
+    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID) {
       super(nFieldNodes);
       this.flexColors = flexColors;
+      this.node1ID = node1ID;
+      this.node2ID = node2ID;
     }
   }
 }
