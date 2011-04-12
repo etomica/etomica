@@ -66,7 +66,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         double RAB = Math.sqrt(drAB.squared());
         double RAC = Math.sqrt(drAC.squared());
         double RBC = Math.sqrt(drBC.squared());
-        System.out.println (RAB + " " + RBC+ " " + RAC);
+        //System.out.println (RAB + " " + RBC+ " " + RAC);
         
         double costhetaA =  drAB.dot(drAC)/(RAB*RAC);
         double costhetaB = -drAB.dot(drBC)/(RAB*RBC);
@@ -74,21 +74,21 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         
         
         
-        double theta1; double theta2; double theta3;
+        double thetaA; double thetaB; double thetaC;
         
-        if (costhetaA > 1) { theta1 = 0;}
-        else if (costhetaA < -1) { theta1 = Math.PI;}
-        else {theta1 = Math.acos(costhetaA);}
+        if (costhetaA > 1) { thetaA = 0;}
+        else if (costhetaA < -1) { thetaA = Math.PI;}
+        else {thetaA = Math.acos(costhetaA);}
         
-        if (costhetaB > 1) {theta2 = 0;}
-        else if (costhetaB < -1) {theta2 = Math.PI;}
-        else {theta2 = Math.acos(costhetaB);}
+        if (costhetaB > 1) {thetaB = 0;}
+        else if (costhetaB < -1) {thetaB = Math.PI;}
+        else {thetaB = Math.acos(costhetaB);}
         
-        if (costhetaC > 1) {theta3 = 0;}
-        else if (costhetaC < -1) {theta3 = Math.PI;}
-        else {theta3 = Math.acos(costhetaC);}
+        if (costhetaC > 1) {thetaC = 0;}
+        else if (costhetaC < -1) {thetaC = Math.PI;}
+        else {thetaC = Math.acos(costhetaC);}
         
-        System.out.println(theta1 + " " + theta2 + " " + theta3 + "  " + (theta1+theta2+theta3)/Math.PI);
+        //System.out.println(thetaA + " " + thetaB + " " + thetaC + "  " + (thetaA+thetaB+thetaC)/Math.PI);
         
         double Vexp = 0;
 
@@ -110,31 +110,74 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         	}
         }
         
+        ///////////////////////////////////////////////////////////////////
         //V3Disp
+        ///////////////////////////////////////////////////////////////////
         
-        double W111 = 3.0*Math.pow(RAB,-3)*Math.pow(RBC,-3)*Math.pow(RAC,-3);
+        double R1=RAB; double R2 = RAC; double R3 = RBC;
+        double theta1=thetaA; double theta2=thetaB; double theta3=thetaC;
+        
+        // W111: all R and theta treated equivalently
+        double W111 = 3.0*Math.pow(R1,-3)*Math.pow(R2,-3)*Math.pow(R3,-3);
                W111 = W111*(1.0 + (3.0*Math.cos(theta1)*Math.cos(theta2)*Math.cos(theta3) ));
-        double n111AB = 3; double n111BC = 3; double n111AC = 3;
-      
-        double W112 = 3.0/16.0*Math.pow(RAB,-3)*Math.pow(RBC,-4)*Math.pow(RAC,-4);
+        double D111 = getD(beta3[1][1][1],R1,3)*getD(beta3[1][1][1],R2,3)*getD(beta3[1][1][1],R3,3);
+       
+        // W112: R1 and theta3 unique; let each R and theta get to be R1 and theta3
+        R1=RAB; R2 = RAC;R3 = RBC;
+        theta1=thetaA; theta2=thetaB; theta3=thetaC;
+        double W112 = 3.0/16.0*Math.pow(R1,-3)*Math.pow(R2,-4)*Math.pow(R3,-4);
         double term112 = (9.0*Math.cos(theta3)-25.0*Math.cos(3.0*theta3));
                term112 = term112 + (6.0*Math.cos(theta1-theta2)*(3.0+5.0*Math.cos(2.0*theta3)));
                W112 = W112*term112;
-        double n112AB = 3; double n112BC = 4; double n112AC = 4;
-        
+        double D112 = getD(beta3[1][1][2],R1,3)*getD(beta3[1][1][2],R2,4)*getD(beta3[1][1][2],R3,4);
+        // W112: Let RBC get the chance to be R1 (R2 and R3 treated equivalently)
+        R1=RBC; R2 = RAB; R3 = RAC;
+   	    theta1=thetaB; theta2=thetaC; theta3=thetaA;
+        double W121 = 3.0/16.0*Math.pow(R1,-3)*Math.pow(R2,-4)*Math.pow(R3,-4);
+        double term121 = (9.0*Math.cos(theta3)-25.0*Math.cos(3.0*theta3));
+               term121 = term121 + (6.0*Math.cos(theta1-theta2)*(3.0+5.0*Math.cos(2.0*theta3)));
+               W121 = W121*term121;
+        double D121 = getD(beta3[1][1][2],R1,3)*getD(beta3[1][1][2],R2,4)*getD(beta3[1][1][2],R3,4);
+        // W112: Let RAC get the chance to be R1 (R2 and R3 treated equivalently)
+        R1=RAC; R2 = RAB; R3 = RBC;
+        theta1=thetaA; theta2=thetaC; theta3=thetaB;
+        double W211 = 3.0/16.0*Math.pow(R1,-3)*Math.pow(R2,-4)*Math.pow(R3,-4);
+        double term211 = (9.0*Math.cos(theta3)-25.0*Math.cos(3.0*theta3));
+               term211 = term211 + (6.0*Math.cos(theta1-theta2)*(3.0+5.0*Math.cos(2.0*theta3)));
+               W211 = W211*term211;
+        double D211 = getD(beta3[1][1][2],R1,3)*getD(beta3[1][1][2],R2,4)*getD(beta3[1][1][2],R3,4);
        
-        double W122 = 15.0/64.0*Math.pow(RAB,-4)*Math.pow(RBC,-5)*Math.pow(RAC,-4);
-        double term122 = 3*(Math.cos(theta1)+5.0*Math.cos(3*theta1));
-        	   // As in Bukowski and Szalewicz 2001
-        	   //term122 = term122 + 20.0*Math.cos(theta2-theta3)*(1.0-3.0*Math.cos(2*theta1));
-               //term122 = term122 + 70.0*Math.cos(2.0*(theta2-theta3))*Math.cos(theta1);
-               // As in Cencek's et al's code
-        	   term122 = term122 +   20.0*Math.cos(theta3-theta2)*(1.0-3.0*Math.cos(2*theta1));
-        	   term122 = term122 + 70.0*Math.cos(2.0*(theta3-theta2))*Math.cos(theta1);
+        // W122: R2 and theta2 unique; let each R and theta get to be R2 and theta1
+        // R2 must be side opposite theta2
+        R1=RAC; R2 = RBC; R3 = RAB;
+        theta1=thetaC; theta2=thetaA; theta3=thetaB;
+        double W122 = 15.0/64.0*Math.pow(R1,-4)*Math.pow(R2,-5)*Math.pow(R3,-4);
+        double term122 = 3*(Math.cos(theta2)+5.0*Math.cos(3*theta2));
+        	   term122 = term122 +   20.0*Math.cos(theta1-theta3)*(1.0-3.0*Math.cos(2*theta2));
+        	   term122 = term122 + 70.0*Math.cos(2.0*(theta1-theta3))*Math.cos(theta2);
         	   W122 = W122*term122;
-        double n122AB = 4; double n122BC = 5; double n122AC = 4;	   
-        
-        double W222 = 15.0/128.0*Math.pow(RAB,-5)*Math.pow(RBC,-5)*Math.pow(RAC,-5);
+	    double D122 = getD(beta3[1][2][2],R1,4)*getD(beta3[1][2][2],R2,5)*getD(beta3[1][2][2],R3,4);   
+	    // W122: Let RBC get the chance to be R1 (R2 and R3 treated equivalently)
+        R1=RAC; R2 = RAB; R3 = RBC;
+   	    theta1=thetaA; theta2=thetaC; theta3=thetaB;
+   	    double W212 = 15.0/64.0*Math.pow(R1,-4)*Math.pow(R2,-5)*Math.pow(R3,-4);
+   	    double term212 = 3*(Math.cos(theta2)+5.0*Math.cos(3*theta2));
+     	   term212 = term212 +   20.0*Math.cos(theta1-theta3)*(1.0-3.0*Math.cos(2*theta2));
+     	   term212 = term212 + 70.0*Math.cos(2.0*(theta1-theta3))*Math.cos(theta2);
+     	   W212 = W212*term212;
+	    double D212 = getD(beta3[1][2][2],R1,4)*getD(beta3[1][2][2],R2,5)*getD(beta3[1][2][2],R3,4); 
+	    // W112: Let RAC get the chance to be R1 (R2 and R3 treated equivalently)
+        R1=RBC; R2 = RAC; R3 = RAB;
+        theta1=thetaC; theta2=thetaB; theta3=thetaA;
+        double W221 = 15.0/64.0*Math.pow(R1,-4)*Math.pow(R2,-5)*Math.pow(R3,-4);
+   	    double term221 = 3*(Math.cos(theta2)+5.0*Math.cos(3*theta2));
+     	   term221 = term221 +   20.0*Math.cos(theta1-theta3)*(1.0-3.0*Math.cos(2*theta2));
+     	   term221 = term221 + 70.0*Math.cos(2.0*(theta1-theta3))*Math.cos(theta2);
+     	   W221 = W221*term221;
+	    double D221 = getD(beta3[1][2][2],R1,4)*getD(beta3[1][2][2],R2,5)*getD(beta3[1][2][2],R3,4); 
+	    
+	    // W222: all R and theta treated equivalently
+        double W222 = 15.0/128.0*Math.pow(R1,-5)*Math.pow(R2,-5)*Math.pow(R3,-5);
         double term222 = -27.0 + 220.0*Math.cos(theta1)*Math.cos(theta2)*Math.cos(theta3);
         	   // As in Bukowski and Szalewicz 2001
                //term222 = term222 + 490.0*Math.cos(2.0*theta1)*Math.cos(theta2)*Math.cos(theta3);
@@ -142,82 +185,234 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         	   term222 = term222 +   490.0*Math.cos(2.0*theta1)*Math.cos(2.0*theta2)*Math.cos(2.0*theta3);
                term222 = term222 + 175.0*(Math.cos(2.0*(theta1-theta2))+Math.cos(2.0*(theta2-theta3))+Math.cos(2.0*(theta3-theta1)));
                W222 = W222*term222;
-        double n222AB = 5; double n222BC = 5; double n222AC = 5;	
+        double D222 = getD(beta3[2][2][2],R1,5)*getD(beta3[2][2][2],R2,5)*getD(beta3[2][2][2],R3,5);
         
-        double W113 = 5.0/32.0*Math.pow(RAB,-3)*Math.pow(RBC,-5)*Math.pow(RAC,-5);
+        // W113: R1 and theta3 unique; let each R and theta get to be R1 and theta3
+        // Permutation 1
+        R1=RAB; R2 = RBC; R3 = RAC;
+        theta1=thetaB; theta2=thetaA; theta3=thetaC;
+        double W113 = 5.0/32.0*Math.pow(R1,-3)*Math.pow(R2,-5)*Math.pow(R3,-5);
         double term113 = 9.0 + 8.0*Math.cos(2.0*theta3) - 49.0*Math.cos(4.0*theta3);
                term113 = term113 + 6.0*Math.cos(theta1-theta2)*(9.0*Math.cos(theta3)+7.0*Math.cos(3.0*theta3));
                W113 = W113*term113;
-        double n113AB = 3; double n113BC = 5; double n113AC = 5;
-       
-        double D111 = getD(beta3[1][1][1],RAB,n111AB)*getD(beta3[1][1][1],RBC,n111BC)*getD(beta3[1][1][1],RAC,n111AC);
-        double D112 = getD(beta3[1][1][2],RAB,n112AB)*getD(beta3[1][1][2],RBC,n112BC)*getD(beta3[1][1][2],RAC,n112AC);
-        double D122 = getD(beta3[1][2][2],RAB,n122AB)*getD(beta3[1][2][2],RBC,n122BC)*getD(beta3[1][2][2],RAC,n122AC);
-        double D222 = getD(beta3[2][2][2],RAB,n222AB)*getD(beta3[2][2][2],RBC,n222BC)*getD(beta3[2][2][2],RAC,n222AC);
-        double D113 = getD(beta3[1][1][3],RAB,n113AB)*getD(beta3[1][1][3],RBC,n113BC)*getD(beta3[1][1][3],RAC,n113AC);
-       
-   
-        double V3disp =   D111*W111*Z3[1][1][1];
-        V3disp = V3disp + 3.0*D112*W112*Z3[1][1][2];
-        V3disp = V3disp + 3.0*D122*W122*Z3[1][2][2];
-        V3disp = V3disp + D222*W222*Z3[2][2][2];
-        V3disp = V3disp + 3.0*D113*W113*Z3[1][1][3];
-		
-        //V4Disp
-        double W1111_211 = 36.0/128.0*Math.pow(RAB,-6)*Math.pow(RBC,-3)*Math.pow(RAC,-3);
-        double term1111_211 = -3.0 + Math.cos(theta2+theta3)*Math.cos(theta2+theta3);
-               term1111_211 = term1111_211 + Math.cos(theta1+theta3)*Math.cos(theta1+theta3);
-               term1111_211 = term1111_211 + 5.0*Math.cos(theta1+theta2)*Math.cos(theta1+theta2);
-               W1111_211 = W1111_211*term1111_211;
-   	    double D1111_211 = getD(beta4211[1][1][1][1],RAB,6)*getD(beta4211[1][1][1][1],RBC,3)*getD(beta4211[1][1][1][1],RAC,3);     
-   	    
-   	    
-     	// As in Bukowski and Szalewicz 2001
-   	   /* double W1111_220 =             (1.0+Math.cos(theta1)*Math.cos(theta1))*Math.pow(RAB,-6)*Math.pow(RBC,-6);
-   	           W1111_220 = W1111_220 + (1.0+Math.cos(theta2)*Math.cos(theta2))*Math.pow(RBC,-6)*Math.pow(RAC,-6);
-   	           W1111_220 = W1111_220 + (1.0+Math.cos(theta3)*Math.cos(theta3))*Math.pow(RAB,-6)*Math.pow(RAC,-6);
-               W1111_220 = W1111_220*9.0;
-        double D1111_220 = getD(beta4220[1][1][1][1],RAB,6)*getD(beta4220[1][1][1][1],RBC,6)*getD(beta4220[1][1][1][1],RAC,6);
-	    */
-   	    
-   	    // As Cencek et al code:
-    	double W1111_220a = 9.0*(1.0+Math.cos(theta1)*Math.cos(theta1))*Math.pow(RAB,-6)*Math.pow(RBC,-6);
-    	double W1111_220b = 9.0*(1.0+Math.cos(theta2)*Math.cos(theta2))*Math.pow(RBC,-6)*Math.pow(RAC,-6);
-    	double W1111_220c =  9.0*(1.0+Math.cos(theta3)*Math.cos(theta3))*Math.pow(RAB,-6)*Math.pow(RAC,-6);
-               
-        double D1111_220a = getD(beta4220[1][1][1][1],RAB,6)*getD(beta4220[1][1][1][1],RBC,6)*getD(beta4220[1][1][1][1],RAC,0);
-        double D1111_220b = getD(beta4220[1][1][1][1],RAB,0)*getD(beta4220[1][1][1][1],RBC,6)*getD(beta4220[1][1][1][1],RAC,6);
-        double D1111_220c = getD(beta4220[1][1][1][1],RAB,6)*getD(beta4220[1][1][1][1],RBC,0)*getD(beta4220[1][1][1][1],RAC,6);
-        
-        double W1112_211 = 1.0/32.0*Math.pow(RAB,-7)*Math.pow(RBC,-3)*Math.pow(RAC,-4);
-        double term1112_211 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
-               term1112_211 = term1112_211 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta3);
-               term1112_211 = term1112_211 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2*theta2);
-               W1112_211 = W1112_211*term1112_211;
-   	    double D1112_211 = getD(beta4211[1][1][1][2],RAB,7)*getD(beta4211[1][1][1][2],RBC,3)*getD(beta4211[1][1][1][2],RAC,4); 
-   	    
-   	    
-   	    double W1121_211 = 1.0/32.0*Math.pow(RAB,-6)*Math.pow(RBC,-4)*Math.pow(RAC,-4);
-   	    double term1121_211 = -111.0*Math.cos(theta3) - 750.0*Math.cos(3.0*theta3);
-               term1121_211 = term1121_211 + 180.0*Math.cos(theta1+theta3) + 108.0*Math.cos(theta1-theta2);
-               term1121_211 = term1121_211 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2*theta2);
-                  W1121_211 = W1121_211*term1121_211;
-	    double D1121_211 = getD(beta4211[1][1][2][1],RAB,6)*getD(beta4211[1][1][2][1],RBC,4)*getD(beta4211[1][1][2][1],RAC,4); 
+        double D113 = getD(beta3[1][1][3],R1,3)*getD(beta3[1][1][3],R2,5)*getD(beta3[1][1][3],R3,5);
+        // Permutation 2
+        R1=RBC; R2 = RAB; R3 = RAC;
+   	    theta1=thetaB; theta2=thetaC; theta3=thetaA;
+	   	double W131 = 5.0/32.0*Math.pow(R1,-3)*Math.pow(R2,-5)*Math.pow(R3,-5);
+	    double term131 = 9.0 + 8.0*Math.cos(2.0*theta3) - 49.0*Math.cos(4.0*theta3);
+	           term131 = term131 + 6.0*Math.cos(theta1-theta2)*(9.0*Math.cos(theta3)+7.0*Math.cos(3.0*theta3));
+	           W131 = W131*term131;
+	    double D131 = getD(beta3[1][1][3],R1,3)*getD(beta3[1][1][3],R2,5)*getD(beta3[1][1][3],R3,5);
+	    // Permutation 3
+	    R1=RAC; R2 = RAB; R3 = RBC;
+	    theta1=thetaA; theta2=thetaC; theta3=thetaB;
+	    double W311 = 5.0/32.0*Math.pow(R1,-3)*Math.pow(R2,-5)*Math.pow(R3,-5);
+	    double term311 = 9.0 + 8.0*Math.cos(2.0*theta3) - 49.0*Math.cos(4.0*theta3);
+	           term311 = term311 + 6.0*Math.cos(theta1-theta2)*(9.0*Math.cos(theta3)+7.0*Math.cos(3.0*theta3));
+	           W311 = W311*term311;
+	    double D311 = getD(beta3[1][1][3],R1,3)*getD(beta3[1][1][3],R2,5)*getD(beta3[1][1][3],R3,5);
 	    
+        double V3111 =   D111*W111*Z3[1][1][1];
+        double V3112 = (D112*W112 + D121*W121 + D211*W211)*Z3[1][1][2];
+        double V3122 = (D122*W122 + D212*W212 + D221*W221)*Z3[1][2][2];
+        double V3222 = D222*W222*Z3[2][2][2];
+        double V3113 = (D113*W113 + D131*W131 + D311*W311)*Z3[1][1][3];
+        double V3disp = V3111 + V3112 + V3122 + V3222 + V3113;
+        
+        if (verbose) {
+	        System.out.println();
+	        System.out.println("V3 111 " + V3111*KPerHartree + " K");
+	        System.out.println("V3 112 " + V3112*KPerHartree + " K");
+	        System.out.println("V3 122 " + V3122*KPerHartree + " K");
+	        System.out.println("V3 222 " + V3222*KPerHartree + " K");
+	        System.out.println("V3 113 " + V3113*KPerHartree + " K");
+        }
+		
+        
+        
+        
+        ///////////////////////////////////////////////////////////////////
+        //V4Disp
+        ///////////////////////////////////////////////////////////////////
+        
+   	    // W1111_220=W660: R3 and theta1 unique; let each R and theta get to be R3 and theta1
+   	    // Permutation 1
+	   	R1=RAB; R2 = RAC; R3 = RBC;
+	    theta1=thetaA; theta2=thetaB; theta3=thetaC;
+    	double W660 = 9.0*(1.0+Math.cos(theta1)*Math.cos(theta1))*Math.pow(R1,-6)*Math.pow(R2,-6);
+    	double D660 = getD(beta4220[1][1][1][1],R1,6)*getD(beta4220[1][1][1][1],R2,6);
+    	// Permutation 2
+    	R1=RBC; R2 = RAB; R3 = RAC;
+   	    theta1=thetaB; theta2=thetaC; theta3=thetaA;
+    	double W066 = 9.0*(1.0+Math.cos(theta1)*Math.cos(theta1))*Math.pow(R1,-6)*Math.pow(R2,-6);
+    	double D066 = getD(beta4220[1][1][1][1],R1,6)*getD(beta4220[1][1][1][1],R2,6);
+    	// Permutation 3
+    	R1=RBC; R2 = RAC; R3 = RAB;
+	    theta1=thetaC; theta2=thetaB; theta3=thetaA;
+    	double W606 = 9.0*(1.0+Math.cos(theta1)*Math.cos(theta1))*Math.pow(R1,-6)*Math.pow(R2,-6);
+        double D606 = getD(beta4220[1][1][1][1],R1,6)*getD(beta4220[1][1][1][1],R2,6);
+        
+        
+        // W1112_211=W734: Nothing treated equivalently
+        // W1112_211=W734: Permutation 1
+        R1=RAB; R2 = RAC; R3 = RBC;
+        theta1=thetaA; theta2=thetaB; theta3=thetaC;
+        double W734 = 1.0/32.0*Math.pow(R1,-7)*Math.pow(R2,-4)*Math.pow(R3,-3);
+        double term734 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
+               term734 = term734 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta1);
+               term734 = term734 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2.0*theta2);
+               W734 = W734*term734;  
+   	    double D734 = getD(beta4211[1][1][1][2],R1,7)*getD(beta4211[1][1][1][2],R2,4)*getD(beta4211[1][1][1][2],R3,3);
+   	    // W1112_211=W734: Permutation 2
+        R1=RAB; R2 = RBC; R3 = RAC;
+        theta1=thetaB; theta2=thetaA; theta3=thetaC;
+        double W743 = 1.0/32.0*Math.pow(R1,-7)*Math.pow(R2,-4)*Math.pow(R3,-3);
+        double term743 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
+               term743 = term743 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta1);
+               term743 = term743 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2.0*theta2);
+               W743 = W743*term743;  
+   	    double D743 = getD(beta4211[1][1][1][2],R1,7)*getD(beta4211[1][1][1][2],R2,4)*getD(beta4211[1][1][1][2],R3,3);
+   	    // W1112_211=W734: Permutation 3
+        R1=RBC; R2 = RAC; R3 = RAB;
+   	    theta1=thetaC; theta2=thetaB; theta3=thetaA;
+   	    double W374 = 1.0/32.0*Math.pow(R1,-7)*Math.pow(R2,-4)*Math.pow(R3,-3);
+        double term374 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
+               term374 = term374 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta1);
+               term374 = term374 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2.0*theta2);
+               W374 = W374*term374;  
+	    double D374 = getD(beta4211[1][1][1][2],R1,7)*getD(beta4211[1][1][1][2],R2,4)*getD(beta4211[1][1][1][2],R3,3);
+	    // W1112_211=W734: Permutation 4
+        R1=RBC; R2 = RAB; R3 = RAC;
+   	    theta1=thetaB; theta2=thetaC; theta3=thetaA;
+   	    double W347 = 1.0/32.0*Math.pow(R1,-7)*Math.pow(R2,-4)*Math.pow(R3,-3);
+        double term347 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
+               term347 = term347 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta1);
+               term347 = term347 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2.0*theta2);
+               W347 = W347*term347;  
+	    double D347 = getD(beta4211[1][1][1][2],R1,7)*getD(beta4211[1][1][1][2],R2,4)*getD(beta4211[1][1][1][2],R3,3);
+	    // W1112_211=W734: Permutation 5
+        R1=RAC; R2 = RAB; R3 = RBC;
+   	    theta1=thetaA; theta2=thetaC; theta3=thetaB;
+   	    double W473 = 1.0/32.0*Math.pow(R1,-7)*Math.pow(R2,-4)*Math.pow(R3,-3);
+        double term473 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
+               term473 = term473 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta1);
+               term473 = term473 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2.0*theta2);
+               W473 = W473*term473;  
+	    double D473 = getD(beta4211[1][1][1][2],R1,7)*getD(beta4211[1][1][1][2],R2,4)*getD(beta4211[1][1][1][2],R3,3);
+	    // W1112_211=W734: Permutation 6
+        R1=RAC; R2 = RBC; R3 = RAB;
+   	    theta1=thetaC; theta2=thetaA; theta3=thetaB;
+   	    double W437 = 1.0/32.0*Math.pow(R1,-7)*Math.pow(R2,-4)*Math.pow(R3,-3);
+        double term437 = -144.0*Math.cos(theta1) + 36.0*Math.cos(theta2 + theta3);
+               term437 = term437 + 216.0*Math.cos(theta2-theta3) - 120.0*Math.cos(3.0*theta1);
+               term437 = term437 - 720.0*Math.cos(theta1-2.0*theta3) - 72.0*Math.cos(theta1-2.0*theta2);
+               W437 = W437*term437;  
+	    double D437 = getD(beta4211[1][1][1][2],R1,7)*getD(beta4211[1][1][1][2],R2,4)*getD(beta4211[1][1][1][2],R3,3);
    	    
-   	    double W2111_211 = -9.0/2.0*Math.pow(RAB,-8)*Math.pow(RBC,-3)*Math.pow(RAC,-3);
-   	    double term2111_211 = Math.cos(2.0*theta1) + Math.cos(2.0*theta2) + 6.0*Math.cos(2.0*theta3);
-                  W2111_211 = W2111_211*term2111_211;
-	    double D2111_211 = getD(beta4211[2][1][1][1],RAB,8)*getD(beta4211[2][1][1][1],RBC,3)*getD(beta4211[2][1][1][1],RAC,3);     
+   	    // W1121_211=W644, R1 and theta3 are unique
+	    // Permutation 1
+	    R1=RAB; R2 = RAC; R3 = RBC;
+        theta1=thetaA; theta2=thetaB; theta3=thetaC;
+   	    double W644 = 1.0/32.0*Math.pow(R1,-6)*Math.pow(R2,-4)*Math.pow(R3,-4);
+   	    double term644 = -111.0*Math.cos(theta3) - 750.0*Math.cos(3.0*theta3);
+               term644 = term644 + 180.0*Math.cos(theta1+theta2) + 108.0*Math.cos(theta1-theta2);
+               term644 = term644 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2.0*theta2);
+                  W644 = W644*term644;
+	    double D644 = getD(beta4211[1][1][2][1],R1,6)*getD(beta4211[1][1][2][1],R2,4)*getD(beta4211[1][1][2][1],R3,4); 
+	    // Permutation 2
+	    R1=RAC; R2 = RAB; R3 = RBC;
+        theta1=thetaA; theta2=thetaC; theta3=thetaB;
+   	    double W464 = 1.0/32.0*Math.pow(R1,-6)*Math.pow(R2,-4)*Math.pow(R3,-4);
+   	    double term464 = -111.0*Math.cos(theta3) - 750.0*Math.cos(3.0*theta3);
+               term464 = term464 + 180.0*Math.cos(theta1+theta2) + 108.0*Math.cos(theta1-theta2);
+               term464 = term464 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2.0*theta2);
+                  W464 = W464*term464;
+	    double D464 = getD(beta4211[1][1][2][1],R1,6)*getD(beta4211[1][1][2][1],R2,4)*getD(beta4211[1][1][2][1],R3,4); 
+	    // Permutation 3
+	    R1=RBC; R2 = RAB; R3 = RAC;
+        theta1=thetaB; theta2=thetaC; theta3=thetaA;
+   	    double W446 = 1.0/32.0*Math.pow(R1,-6)*Math.pow(R2,-4)*Math.pow(R3,-4);
+   	    double term446 = -111.0*Math.cos(theta3) - 750.0*Math.cos(3.0*theta3);
+               term446 = term446 + 180.0*Math.cos(theta1+theta2) + 108.0*Math.cos(theta1-theta2);
+               term446 = term446 - 90.0*Math.cos(theta3-2.0*theta1) - 90.0*Math.cos(theta3-2.0*theta2);
+                  W446 = W446*term446;
+	    double D446 = getD(beta4211[1][1][2][1],R1,6)*getD(beta4211[1][1][2][1],R2,4)*getD(beta4211[1][1][2][1],R3,4); 
+	    
+	    // W2111_211=W833, R1 and theta3 are unique
+	    // Permutation 1
+	    R1=RAB; R2 = RAC; R3 = RBC;
+        theta1=thetaA; theta2=thetaB; theta3=thetaC;
+   	    double W833 = -9.0/2.0*Math.pow(R1,-8)*Math.pow(R2,-3)*Math.pow(R3,-3);
+   	    double term833 = Math.cos(2.0*theta1) + Math.cos(2.0*theta2) + 6.0*Math.cos(2.0*theta3);
+                  W833 = W833*term833;
+	    double D833 = getD(beta4211[2][1][1][1],R1,8)*getD(beta4211[2][1][1][1],R2,3)*getD(beta4211[2][1][1][1],R3,3);  
+	    // Permutation 2
+	    R1=RAC; R2 = RAB; R3 = RBC;
+        theta1=thetaA; theta2=thetaC; theta3=thetaB;
+   	    double W383 = -9.0/2.0*Math.pow(R1,-8)*Math.pow(R2,-3)*Math.pow(R3,-3);
+   	    double term383 = Math.cos(2.0*theta1) + Math.cos(2.0*theta2) + 6.0*Math.cos(2.0*theta3);
+                  W383 = W383*term383;
+	    double D383 = getD(beta4211[2][1][1][1],R1,8)*getD(beta4211[2][1][1][1],R2,3)*getD(beta4211[2][1][1][1],R3,3);
+	    // Permutation 3
+	    R1=RBC; R2 = RAB; R3 = RAC;
+        theta1=thetaB; theta2=thetaC; theta3=thetaA;
+   	    double W338 = -9.0/2.0*Math.pow(R1,-8)*Math.pow(R2,-3)*Math.pow(R3,-3);
+   	    double term338 = Math.cos(2.0*theta1) + Math.cos(2.0*theta2) + 6.0*Math.cos(2.0*theta3);
+                  W338 = W338*term338;
+	    double D338 = getD(beta4211[2][1][1][1],R1,8)*getD(beta4211[2][1][1][1],R2,3)*getD(beta4211[2][1][1][1],R3,3);
                
-	    double W1211_220 = -1.0/64.0*Math.pow(RAB,-7)*Math.pow(RBC,-7);
-               W1211_220 = W1211_220 * (1485.0*Math.cos(theta3)+ 384.0*Math.cos(3.0*theta3));
-        double D1211_220 = getD(beta4220[1][2][1][1],RAB,7)*getD(beta4220[1][2][1][1],RBC,7);
- 
-        double W2111_220 = 0.25*Math.pow(RAB,-8)*Math.pow(RBC,-6);
-        	   W2111_220 = W2111_220 * (369.0 + 288.0*Math.cos(theta3)*Math.cos(theta3));
-        double D2111_220 = getD(beta4220[2][1][1][1],RAB,8)*getD(beta4220[2][1][1][1],RBC,6)*getD(beta4220[2][1][1][1],RAC,0);
-
+	    // W1211_220=W770, R3 and theta1 are unique
+	    // Permutation 1
+	    R1=RAB; R2 = RAC; R3 = RBC;
+        theta1=thetaA; theta2=thetaB; theta3=thetaC;
+	    double W770 = -1.0/64.0*Math.pow(R1,-7)*Math.pow(R2,-7)*(1485.0*Math.cos(theta1)+ 384.0*Math.cos(3.0*theta1));
+        double D770 = getD(beta4220[1][2][1][1],R1,7)*getD(beta4220[1][2][1][1],R2,7);
+        // Permutation 2
+	    R1=RAC; R2 = RBC; R3 = RAB;
+        theta1=thetaC; theta2=thetaA; theta3=thetaB;
+	    double W707 = -1.0/64.0*Math.pow(R1,-7)*Math.pow(R2,-7)*(1485.0*Math.cos(theta1)+ 384.0*Math.cos(3.0*theta1));
+        double D707 = getD(beta4220[1][2][1][1],R1,7)*getD(beta4220[1][2][1][1],R2,7);
+        // Permutation 3
+	    R1=RBC; R2 = RAB; R3 = RAC;
+        theta1=thetaB; theta2=thetaC; theta3=thetaA;
+        double W077 = -1.0/64.0*Math.pow(R1,-7)*Math.pow(R2,-7)*(1485.0*Math.cos(theta1)+ 384.0*Math.cos(3.0*theta1));
+        double D077 = getD(beta4220[1][2][1][1],R1,7)*getD(beta4220[1][2][1][1],R2,7);
+        
+       
+        // W2111_220=W860: Nothing treated equivalently
+        // W2111_220=W860: Permutation 1
+        R1=RAB; R2 = RAC; R3 = RBC;
+        theta1=thetaA; theta2=thetaB; theta3=thetaC;
+        double W860 = 0.25*Math.pow(R1,-8)*Math.pow(R2,-6)*(369.0 + 288.0*Math.cos(theta1)*Math.cos(theta1));
+        double D860 = getD(beta4220[2][1][1][1],R1,8)*getD(beta4220[2][1][1][1],R2,6);
+        // W2111_220=W860: Permutation 2
+        R1=RAB; R2 = RBC; R3 = RAC;
+        theta1=thetaB; theta2=thetaA; theta3=thetaC;
+        double W806 = 0.25*Math.pow(R1,-8)*Math.pow(R2,-6)*(369.0 + 288.0*Math.cos(theta1)*Math.cos(theta1));
+        double D806 = getD(beta4220[2][1][1][1],R1,8)*getD(beta4220[2][1][1][1],R2,6);
+        // W2111_220=W860: Permutation 3
+        R1=RBC; R2 = RAC; R3 = RAB;
+   	    theta1=thetaC; theta2=thetaB; theta3=thetaA;
+        double W086 = 0.25*Math.pow(R1,-8)*Math.pow(R2,-6)*(369.0 + 288.0*Math.cos(theta1)*Math.cos(theta1));
+        double D086 = getD(beta4220[2][1][1][1],R1,8)*getD(beta4220[2][1][1][1],R2,6);
+	    // W2111_220=W860: Permutation 4
+        R1=RBC; R2 = RAB; R3 = RAC;
+   	    theta1=thetaB; theta2=thetaC; theta3=thetaA;
+   	    double W680 = 0.25*Math.pow(R1,-8)*Math.pow(R2,-6)*(369.0 + 288.0*Math.cos(theta1)*Math.cos(theta1));
+        double D680 = getD(beta4220[2][1][1][1],R1,8)*getD(beta4220[2][1][1][1],R2,6);
+	    // W2111_220=W860: Permutation 5
+        R1=RAC; R2 = RAB; R3 = RBC;
+   	    theta1=thetaA; theta2=thetaC; theta3=thetaB;
+   	    double W608 = 0.25*Math.pow(R1,-8)*Math.pow(R2,-6)*(369.0 + 288.0*Math.cos(theta1)*Math.cos(theta1));
+   	    double D608 = getD(beta4220[2][1][1][1],R1,8)*getD(beta4220[2][1][1][1],R2,6);
+	    // W2111_220=W860: Permutation 6
+        R1=RAC; R2 = RBC; R3 = RAB;
+   	    theta1=thetaC; theta2=thetaA; theta3=thetaB;
+   	    double W068 = 0.25*Math.pow(R1,-8)*Math.pow(R2,-6)*(369.0 + 288.0*Math.cos(theta1)*Math.cos(theta1));
+	    double D068 = getD(beta4220[2][1][1][1],R1,8)*getD(beta4220[2][1][1][1],R2,6);
+        
+        
         // As in Bukowski and Szalewicz 2001
         /*
         double V4disp =   D1111_211*W1111_211*Z4211[1][1][1][1]; 
@@ -234,21 +429,52 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         */
         
         //As in Cencek's code
-        double V4disp =   0;
-        V4disp = V4disp + D1111_220a*W1111_220a*Z4220[1][1][1][1];
-        V4disp = V4disp + D1111_220b*W1111_220b*Z4220[1][1][1][1];
-        V4disp = V4disp + D1111_220c*W1111_220c*Z4220[1][1][1][1];
+        
+        double V4d660 = D660*W660*Z4220[1][1][1][1]; // W1111_220=W660
+        V4d660 = V4d660 + D606*W606*Z4220[1][1][1][1];
+        V4d660 = V4d660 + D066*W066*Z4220[1][1][1][1];
 
-        V4disp = V4disp + 6.0*D1112_211*W1112_211*Z4211[1][1][1][2];
+        double V4d734 = D734*W734*Z4211[1][1][1][2]; // W1112_211=W734
+        V4d734 = V4d734 + D743*W743*Z4211[1][1][1][2];
+        V4d734 = V4d734 + D347*W347*Z4211[1][1][1][2];
+        V4d734 = V4d734 + D374*W374*Z4211[1][1][1][2];
+        V4d734 = V4d734 + D473*W473*Z4211[1][1][1][2];
+        V4d734 = V4d734 + D437*W437*Z4211[1][1][1][2];
         
-        V4disp = V4disp + 3.0*D1121_211*W1121_211*Z4211[1][1][2][1];
+        double V4d644 = D644*W644*Z4211[1][1][2][1]; // W1121_211=W644
+        V4d644 = V4d644 + D464*W464*Z4211[1][1][2][1];
+        V4d644 = V4d644 + D446*W446*Z4211[1][1][2][1];
         
-        V4disp = V4disp + 3.0*D2111_211*W2111_211*Z4211[2][1][1][1];
-        V4disp = V4disp + 6.0*D2111_220*W2111_220*Z4220[2][1][1][1];
+        double V4d833 = D833*W833*Z4211[2][1][1][1]; // W2111_211=W833
+        V4d833 = V4d833 + D383*W383*Z4211[2][1][1][1];
+        V4d833 = V4d833 + D338*W338*Z4211[2][1][1][1];
         
-        V4disp = V4disp + 3.0*D1211_220*W1211_220*Z4220[1][2][1][1];
+        double V4d770 = D770*W770*Z4220[1][2][1][1]; // W1211_220=W770
+        V4d770 = V4d770 + D707*W707*Z4220[1][2][1][1];
+        V4d770 = V4d770 + D077*W077*Z4220[1][2][1][1];
         
-        //return (Vexp+V3disp+V4disp)*KPerHartree; //Kelvin
+        double V4d860 = D860*W860*Z4220[2][1][1][1]; // W2111_220=W860:
+        V4d860 = V4d860 + D806*W806*Z4220[2][1][1][1];
+        V4d860 = V4d860 + D086*W086*Z4220[2][1][1][1];
+        V4d860 = V4d860 + D680*W680*Z4220[2][1][1][1];
+        V4d860 = V4d860 + D608*W608*Z4220[2][1][1][1];
+        V4d860 = V4d860 + D068*W068*Z4220[2][1][1][1];
+        
+        double V4disp = V4d660 + V4d734 + V4d644 + V4d833 + V4d770 + V4d860;
+        
+        if (verbose) {
+	        System.out.println();
+	        System.out.println("V4d660 " + V4d660*KPerHartree+ " K");
+	        System.out.println("V4d734 " + V4d734*KPerHartree+ " K");
+	        System.out.println("V4d644 " + V4d644*KPerHartree+ " K");
+	        System.out.println("V4d833 " + V4d833*KPerHartree+ " K");
+	        System.out.println("V4d770 " + V4d770*KPerHartree+ " K");
+	        System.out.println("V4d860 " + V4d860*KPerHartree+ " K");
+	        System.out.println();
+	        System.out.println("Vexp " + Vexp*KPerHartree + " K");
+	        System.out.println("V3disp " + V3disp*KPerHartree+ " K");
+	        System.out.println("V4disp " + V4disp*KPerHartree+ " K");
+        }
         return (Vexp+V3disp+V4disp)*KPerHartree; //Kelvin
         
     }
@@ -392,6 +618,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
     
     
     public void setBeta4211() {	
+    	// Error in data file provided by Cencek et al.
 /*    	beta4211[1][1][2][2]=2.22023197004267;
     	beta4211[1][2][2][1]=2.33977220590245;
     	beta4211[2][1][1][2]=1.96782469219456;*/
@@ -490,6 +717,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
     protected double[][][][] Z4211= new double [3][3][3][3];
     private static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
     private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
+    public boolean verbose = false;
     
     
     
@@ -507,13 +735,65 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         atoms.add(atom1);
         atoms.add(atom2);
         
-        // Equilateral triangle 
-        double a = 7.0*AngstromPerBohrRadius;
-        IVector r0 = (IVector)space.makeVector(new double[] {0,0,0});
-        IVector r1 = (IVector)space.makeVector(new double[] {a,0,0});
-        IVector r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        double a; double U; IVector r0; IVector r1; IVector r2;
         
-        // 4th config
+        System.out.println("Test configurations from Table 1 of Cencek et al. (2009)");
+        System.out.println();
+        System.out.println("Equilateral triangle 1, rij = 4 a0");  
+        a = 4.0*AngstromPerBohrRadius;
+        r0 = (IVector)space.makeVector(new double[] {0,0,0});
+        r1 = (IVector)space.makeVector(new double[] {a,0,0});
+        r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        
+        atom0.getPosition().E(r0);
+        atom1.getPosition().E(r1);
+        atom2.getPosition().E(r2);
+
+        U = potential.energy(atoms);
+
+        System.out.println("here: " + U*1000+ " mK");
+        System.out.println("paper   : -56277 mK"); 
+        System.out.println("he3fci.f: " +(-56.2770*1000)+" mK"); 
+        
+        System.out.println();
+        
+        System.out.println("Equilateral triangle 2, rij = 5.6 a0"); 
+        a = 5.6*AngstromPerBohrRadius;
+        r0 = (IVector)space.makeVector(new double[] {0,0,0});
+        r1 = (IVector)space.makeVector(new double[] {a,0,0});
+        r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        
+        atom0.getPosition().E(r0);
+        atom1.getPosition().E(r1);
+        atom2.getPosition().E(r2);
+
+        U = potential.energy(atoms);
+
+        System.out.println("here: " + U*1000+ " mK");
+        System.out.println("paper   : -88.31 mK"); 
+        System.out.println("he3fci.f: " +(-0.883118E-01*1000)+" mK"); 
+        
+        System.out.println();
+        
+        System.out.println("Equilateral triangle 3, rij = 7 a0"); 
+        a = 7.0*AngstromPerBohrRadius;
+        r0 = (IVector)space.makeVector(new double[] {0,0,0});
+        r1 = (IVector)space.makeVector(new double[] {a,0,0});
+        r2 = (IVector)space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        
+        atom0.getPosition().E(r0);
+        atom1.getPosition().E(r1);
+        atom2.getPosition().E(r2);
+
+        U = potential.energy(atoms);
+
+        System.out.println("here    : " + U*1000+ " mK");
+        System.out.println("paper   : 16.06 mK"); 
+        System.out.println("he3fci.f: " +(0.160550E-01*1000)+" mK"); 
+        
+        System.out.println();
+        
+        System.out.println("Line 1, r12 = 5.6 a0, r13 = 11.2 a0, r23 = 5.6 a0");
         a = 5.6*AngstromPerBohrRadius;
         r0 = (IVector)space.makeVector(new double[] {0,0,0});
         r1 = (IVector)space.makeVector(new double[] {a,0,0});
@@ -523,13 +803,47 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
         atom2.getPosition().E(r2);
-        
-        
-            
-        double U = potential.energy(atoms);
 
-        System.out.println(U*1000); //millikelvin
-            
+        U = potential.energy(atoms);
+
+        System.out.println("here    : " + U*1000 + " mK");
+        System.out.println("paper   : -18.59 mK"); 
+        System.out.println("he3fci.f: " +(-0.185904E-01*1000)+" mK"); 
+        
+        System.out.println();
+        System.out.println("Additional Tests");
+        System.out.println();
+        
+        System.out.println("r12=3.0a0, r23=5.0a0, r13=4.0a0");
+        a = AngstromPerBohrRadius;
+        r0 = (IVector)space.makeVector(new double[] {0,0,0});
+        r1 = (IVector)space.makeVector(new double[] {3*a,0,0});
+        r2 = (IVector)space.makeVector(new double[] {0,4*a,0});
+             
+        atom0.getPosition().E(r0);
+        atom1.getPosition().E(r1);
+        atom2.getPosition().E(r2);
+
+        U = potential.energy(atoms);
+
+        System.out.println("here    : " + U*1000 + " mK");
+        System.out.println("he3fci.f: " +(-41.3628*1000)+" mK"); 
+        System.out.println();
+        
+        System.out.println("r12=6.0a0, r23=5.0a0; r13=5.0a0");
+        r0 = (IVector)space.makeVector(new double[] {0,0,0});
+        r1 = (IVector)space.makeVector(new double[] {6*a,0,0});
+        r2 = (IVector)space.makeVector(new double[] {3*a,4*a,0});
+          
+        atom0.getPosition().E(r0);
+        atom1.getPosition().E(r1);
+        atom2.getPosition().E(r2);
+
+        U = potential.energy(atoms);
+        
+        System.out.println("here    : " + U*1000 + " mK");
+        System.out.println("he3fci.f: " +(-0.343994*1000)+" mK"); //millikelvin
+    
             
         
     }
