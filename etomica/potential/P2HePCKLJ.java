@@ -27,9 +27,13 @@ public class P2HePCKLJ extends Potential2SoftSpherical {
     public double u(double r2) {
     	
     	double r = Math.sqrt(r2);
-        
+
     	r = r/AngstromPerBohrRadius; // Bohr radius
     	
+    	//Potential is speciously negative at separations less than 3 a0.
+    	if (r < 0.3) {
+    		return Double.POSITIVE_INFINITY;
+    	}
     	
     	//Parameters
     	
@@ -49,12 +53,12 @@ public class P2HePCKLJ extends Potential2SoftSpherical {
     	
     	double C6BO = 1.460977837725; //pulled from potentials.f90...
     	
-    	double[] A = new double[6];
-    	A[1] = 8.454943177941253;
-    	A[2] = 15.552891567112597; 
-    	A[3] = 7.559160092169168; 
-    	A[4] = 1.417737689876350; 
-    	A[5] = 0.142506077478301; 
+    	double[] APaper = new double[6];
+    	APaper[1] = 8.454943177941253;
+    	APaper[2] = 15.552891567112597; 
+    	APaper[3] = 7.559160092169168; 
+    	APaper[4] = 1.417737689876350; 
+    	APaper[5] = 0.142506077478301; 
     	
     	
 
@@ -75,7 +79,7 @@ public class P2HePCKLJ extends Potential2SoftSpherical {
     	double K7 = 23.0/(4.0*Math.PI)*polarizability*polarizability/alpha;
     	double ratio = alpha*K7/C6BO;
 
-    	
+    	double[] A = new double[6];
     	A[1] = B[1];
         A[2] = B[2]-W4/C6BO;
         A[3] = B[3]-B[1]*W4/C6BO+AS3/C6BO;
