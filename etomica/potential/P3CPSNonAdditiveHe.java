@@ -51,9 +51,13 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         setZ4220();
         setZ4211();
         
-        IAtom atomA = atomSet.getAtom(0);
-        IAtom atomB = atomSet.getAtom(1);
-        IAtom atomC = atomSet.getAtom(2);
+        //Operate on duplicate of atomSet
+        
+        IAtomList atomSet2 = atomSet;
+        
+        IAtom atomA = atomSet2.getAtom(0);
+        IAtom atomB = atomSet2.getAtom(1);
+        IAtom atomC = atomSet2.getAtom(2);
         
         atomA.getPosition().TE(1.0/AngstromPerBohrRadius);
         atomB.getPosition().TE(1.0/AngstromPerBohrRadius);
@@ -66,7 +70,12 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         double RAB = Math.sqrt(drAB.squared());
         double RAC = Math.sqrt(drAC.squared());
         double RBC = Math.sqrt(drBC.squared());
-        //System.out.println (RAB + " " + RBC+ " " + RAC);
+        
+        //Supplementary hard core 
+        
+        if (RAB<2.1 && RAC<2.1 && RBC<2.1) {
+        	return Double.POSITIVE_INFINITY;
+        }
         
         double costhetaA =  drAB.dot(drAC)/(RAB*RAC);
         double costhetaB = -drAB.dot(drBC)/(RAB*RBC);
@@ -751,9 +760,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
 
         U = potential.energy(atoms);
 
-        System.out.println("here: " + U*1000+ " mK");
+        System.out.println("here    : " + U*1000+ " mK");
         System.out.println("paper   : -56277 mK"); 
-        System.out.println("he3fci.f: " +(-56.2770*1000)+" mK"); 
+        System.out.println("he3fci.f: " +(-56.276964668880169*1000)+" mK"); 
         
         System.out.println();
         
@@ -769,9 +778,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
 
         U = potential.energy(atoms);
 
-        System.out.println("here: " + U*1000+ " mK");
+        System.out.println("here    : " + U*1000+ " mK");
         System.out.println("paper   : -88.31 mK"); 
-        System.out.println("he3fci.f: " +(-0.883118E-01*1000)+" mK"); 
+        System.out.println("he3fci.f: " +(-0.88311765396772574E-01*1000)+" mK"); 
         
         System.out.println();
         
@@ -789,7 +798,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
 
         System.out.println("here    : " + U*1000+ " mK");
         System.out.println("paper   : 16.06 mK"); 
-        System.out.println("he3fci.f: " +(0.160550E-01*1000)+" mK"); 
+        System.out.println("he3fci.f: " +(0.16054998594895231E-01*1000)+" mK"); 
         
         System.out.println();
         
@@ -808,7 +817,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
 
         System.out.println("here    : " + U*1000 + " mK");
         System.out.println("paper   : -18.59 mK"); 
-        System.out.println("he3fci.f: " +(-0.185904E-01*1000)+" mK"); 
+        System.out.println("he3fci.f: " +(-0.18590407572441018E-01*1000)+" mK"); 
         
         System.out.println();
         System.out.println("Additional Tests");
@@ -827,7 +836,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         U = potential.energy(atoms);
 
         System.out.println("here    : " + U*1000 + " mK");
-        System.out.println("he3fci.f: " +(-41.3628*1000)+" mK"); 
+        System.out.println("he3fci.f: " +(-41.362849038365589*1000)+" mK"); 
         System.out.println();
         
         System.out.println("r12=6.0a0, r23=5.0a0; r13=5.0a0");
@@ -842,10 +851,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         U = potential.energy(atoms);
         
         System.out.println("here    : " + U*1000 + " mK");
-        System.out.println("he3fci.f: " +(-0.343994*1000)+" mK"); //millikelvin
-    
-            
+        System.out.println("he3fci.f: " +(-0.34399437417427647*1000)+" mK"); //millikelvin
         
+       
     }
     
 
