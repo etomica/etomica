@@ -1,17 +1,20 @@
 package etomica.virial;
 
-import etomica.potential.P2QChemInterpolated;
-import etomica.potential.P3AdditiveQChem;
-import etomica.potential.P3QChem;
+import etomica.api.IVector;
+import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
+import etomica.potential.P2HePCKLJ;
+import etomica.potential.P3CPSNonAdditiveHe;
+import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
-import etomica.util.SineTransform;
 
 
 /**
  * 
- * Computes a rough estimate for the classical, non-additive component of B3 for a spherically symmetric potential 
+ * Computes the classical, non-additive component of B3 for a spherically symmetric potential using quadrature.
  * 
  * @author kate
  *
@@ -28,57 +31,26 @@ public class B3NonAddForSphericallySymmetricU {
 public static void main(String[] args) {
 
 	
-	DampingParams params = new DampingParams();
-    
-   
-	if (args.length == 8 ) {
-		params.a1 = Integer.parseInt(args[0]);
-		params.a2 = Integer.parseInt(args[1]);
-		params.Rvdw = Double.parseDouble(args[2]);
-		params.basis = Integer.parseInt(args[3]);
-		params.fixedRvdw = Boolean.parseBoolean(args[4]);
-		params.tempSet = Integer.parseInt(args[5]);
-		params.rmax = Double.parseDouble(args[6]);
-		params.rmin = Double.parseDouble(args[7]);
-    } 
-	
-	int a1 = params.a1;
-	int a2 = params.a2;
-	double Rvdw = params.Rvdw;
-	int basis = params.basis;
-	boolean fixedRvdw = params.fixedRvdw;
-	int tempSet = params.tempSet;
-	double rmax = params.rmax;
-	double rmin = params.rmin;
-	
 	Space space = Space3D.getInstance();
 	
-	
-	
-	P2QChemInterpolated p2 = new P2QChemInterpolated(space);
-	p2.setDampingParams(a1,a2,Rvdw,basis, fixedRvdw);
-	p2.setDisp(true);
-	p2.setSCF(true);
-	p2.initialize();
-	
-	P3QChem p3 = new P3QChem();
-	
-	P3AdditiveQChem p3Add = new P3AdditiveQChem();
+	double temperature = 25; // Kelvin
+	if (args.length == 6 ) {
+
+		 r02Min = Double.parseDouble(args[0]); //Bohr radii
+		 r02Max = Double.parseDouble(args[1]); //Bohr radii
+		 delr02 = Double.parseDouble(args[2]); //Bohr radii
+		 r03Max = Double.parseDouble(args[3]); //Bohr radii
+		 delcostheta=Double.parseDouble(args[4]); //Radians
+		 temperature=Double.parseDouble(args[5]); //Kelvin
+		 
+    } 
 
 	
-	double[] temps;
-	if (tempSet == 2) {
-		temps = new double[] { 100, 133.15, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000 }; // Kelvin
-	} else {
-		// Primarily temperatures considered by Malejevsky et al:  
-		temps = new double[] { 130, 135, 140,145,150,155, 160, 170, 180, 190, 200, 220, 250, 265, 280, 295, 310, 325, 340, 398, 423, 473, 573, 673};
-	}
-		
-		// Some of the temperatures considered by Mas, Lotrich, and Szalewicz (1999):  
-		//double[] temps = { 113.15, 133.15, 150.65, 203.15, 323.15, 423.15, 573.16, 673.16, 773.15, 923.15 }; // Kelvin
-
+	double[] temps = new double[] { temperature }; // Kelvin
 	
+	P2HePCKLJ p2 = new P2HePCKLJ(space);
 	
+	P3CPSNonAdditiveHe p3 = new P3CPSNonAdditiveHe(space);
 	
 	System.out.println("T(K)    B3NonAdd (cm6/mol2)");
 	
@@ -89,7 +61,7 @@ public static void main(String[] args) {
 		
 		double temp = temps[t];
   
-		 double B3NonAdd = computeB3NonAdd(p2,p3,p3Add,temp, rmax, rmin);
+		 double B3NonAdd = computeB3NonAdd(p2,p3,space, temp);
 			
 		System.out.println(temp + "    "  +  B3NonAdd);
 
@@ -98,132 +70,129 @@ public static void main(String[] args) {
 
 	}
 
-	public static double computeB3NonAdd(P2QChemInterpolated p2, P3QChem p3, P3AdditiveQChem p3Add, double temp, double rmax, double rmin) {
-		
+	public static double computeB3NonAdd(Potential2SoftSpherical p2, PotentialSoft p3, Space space, double temp) {
+
+		Atom atom1 = new Atom(space);
+        Atom atom2 = new Atom(space);
+        Atom atom3 = new Atom(space);
+        
+        AtomArrayList atoms = new AtomArrayList(3);
+        atoms.add(atom1);
+        atoms.add(atom2);
+        atoms.add(atom3);
+	
+        double costhetaMax = 1.0;
+        
+        
+        double r03Min = 0; 
+        double costhetaMin = 0;
+        
+        
+        double delr03 = delr02; //Bohr radii
+        
+        
+        long Nr02 = Math.round((r02Max-r02Min)/delr02);
+        long Nr03 = Math.round((r03Max-r03Min)/delr03);
+        
+        
+        r02Min = r02Min*AngstromPerBohrRadius;
+		r02Max = r02Max*AngstromPerBohrRadius;
+		delr02 = delr02*AngstromPerBohrRadius;
+		r03Max = r03Max*AngstromPerBohrRadius;
+        r03Min = r03Min*AngstromPerBohrRadius;
+        
+        long Ncostheta = Math.round((costhetaMax-costhetaMin)/delcostheta);
+
 		double B3NonAdd = 0;
-		for (int i = 25; i<=100; i++) {
+		System.out.println("r12Max (a0)    B3NonAdd (cm6/mol2)");
+
+		for (int nr02=0; nr02 <= Nr02; nr02++) {
 			
-			double r12 = i*0.1;  //4*Pi*r12*r12 symmetry
+			double r02= r02Min + nr02*delr02; 
+			double r12 = 2.0*r02;
 			
-			if (r12 > rmax || r12 < rmin) {
-				continue;
-			}
-			
-			for (int j = 1; j<=100; j++) {
+			double Icostheta = 0;
+			for (int ncostheta=0; ncostheta <= Ncostheta; ncostheta++) {
 				
-				double x3 = j*0.1;  // 2*Pi*x symmetry (cylindrical symmetry about y-axis)
-				
-				for (int k = 0; k<=100; k++) {
+				// angle between origin and position of atom 3
+				double costheta = costhetaMin + delcostheta*ncostheta;
+			
+				double Ir03 = 0;
+				for (int nr03=0; nr03 <= Nr03; nr03++) {
 					
-					double y3 = k*0.1;  
+					double r03 = r03Min + nr03*delr03;
+
+					// origin halfway between atom 1 and atom 2
+					double x13 = r03*costheta;
+					double y13 = r03*Math.sqrt(1.0-costheta*costheta);
 					
-					if (y3 >= r12/2) {  // symmetry about r12/2 in xy-plane 
+					double integrand = 0;
+								
+					IVector r1 = (IVector)space.makeVector(new double[] {-r02,  0,  0});
+			        IVector r2 = (IVector)space.makeVector(new double[] { r02,  0,  0});
+			        IVector r3 = (IVector)space.makeVector(new double[] { x13,y13,  0});
+			        
+			        atom1.getPosition().E(r1);
+			        atom2.getPosition().E(r2);
+			        atom3.getPosition().E(r3);
+			        
+			        
+			        double r13 = Math.sqrt((r1.getX(0)-r3.getX(0))*(r1.getX(0)-r3.getX(0))+(r1.getX(1)-r3.getX(1))*(r1.getX(1)-r3.getX(1)));
+			        double r23 = Math.sqrt((r2.getX(0)-r3.getX(0))*(r2.getX(0)-r3.getX(0))+(r2.getX(1)-r3.getX(1))*(r2.getX(1)-r3.getX(1)));
+					double u123Add = p2.u(r12*r12) + p2.u(r13*r13) + p2.u(r23*r23); //Kelvin
+					double u123NonAdd = p3.energy(atoms); //Kelvin
+					double e123 = Math.exp(-(u123NonAdd+u123Add)/temp);
+					double e123Add = Math.exp(-u123Add/temp);			
 						
-						double r13 = Math.sqrt(x3*x3 + y3*y3);
-						
-						if ((r13 <= rmax) && (r13 > rmin) ) {
-							
-							double r23 = Math.sqrt(x3*x3 + (y3-r12)*(y3-r12));
+
+					integrand = e123-e123Add;
 					
-							if ((r23 <= rmax) && (r23 > rmin) ) {
-						
-								//System.out.println(r12+ " " + x3 + "  " + y3);
-								
-								
-								p2.setSCF(false);
-								p2.setDisp(true);
-								double u123Disp = p3Add.getU123ADD(p2, r12, x3, y3);
-								
-								
-								double u123SCF = p3.getU123SCF(r12, x3, k); // Hartrees
-								
-								p2.setSCF(true); // this is set to false to get dispersion energy above
-								p2.setDisp(false);
-								double u123SCFAdd = p3Add.getU123ADD(p2, r12, x3, y3); // Hartrees
-								
-								if (u123SCF < -1000) {
-									// r12 = 4.7, x3 = 3.1, y3 = 5.7
-									// r12 = 5.3, x3 = 3.4, y3 = 4.6
-									// r12 = 5.9, x3 = 5.1, y3 = 4.4
-									
-									u123SCF = Double.NaN;
-									
-								}
-								
-								double y3B = y3;
-								while (Double.isNaN(u123SCF)) {				
-									/*
-									y3B = y3B+0.1;
-									//System.out.println(y3B + " ");
-									if (y3B < y3+0.5) {
-										
-										u123 = p3.getU123SCF(r12, x3, y3B)+ p3.getU123Disp(p2, r12, x3, y3); // Hartrees
-										
-										if (u123 < -1000) {
-											// r12 = 4.7, x3 = 3.1, y3 = 5.7 : u123SCF = -2635.9 Hartrees --> Infinite e123
-											// r12 = 5.3, x3 = 3.4, y3 = 4.6 : u123SCF = -7414.9 Hartrees --> Infinite e123
-											// r12 = 5.9, x3 = 5.1, y3 = 4.4 : u123SCF = -3723.6 Hartrees --> Infinite e123
-											
-											u123 = Double.NaN;
-											
-										}
-										
-									} else {
-										u123 = u123Add;
-									}*/
-									u123SCF = u123SCFAdd;
-								}
-								
-								double e123SCF = Math.exp(-u123SCF*JPerH/kB/temp);
-								double e123SCFAdd = Math.exp(-u123SCFAdd*JPerH/kB/temp);
-								double e123Disp = Math.exp(-u123Disp*JPerH/kB/temp);
-								
-								double integrand = e123Disp*(e123SCF-e123SCFAdd)*(2*Math.PI*x3*0.1)*(2*0.1)*(4*Math.PI*r12*r12*0.1);
-								B3NonAdd = B3NonAdd + integrand;
-					
-								
-								//System.out.println(r12+ " " + x3 + "  " + y3+ "  " + (e123-e123Add));
-								
-								
-							}
-						}
-						
+					if (Double.isNaN(integrand)) {
+						integrand = e123-e123Add;
 					}
 					
-					//
+					
+					if (nr03 == 0 | nr03 == Nr03) {
+						
+						Ir03 = Ir03 + 0.5*integrand*(2*Math.PI*r03)*r03*delr03;
+						
+					} else {
+						
+						Ir03 = Ir03 + integrand*(2*Math.PI*r03)*r03*delr03;
+						
+					}
+								
 				}
 				
-				//System.out.println(r12 + " "+ i + " "+ x3 + " "+ j);
+				if (ncostheta == 0 | ncostheta == Ncostheta) {
+				
+					
+					Icostheta = Icostheta + 0.5*Ir03*2.0*delcostheta;
+			
+				} else {
+					
+					Icostheta = Icostheta +     Ir03*2.0*delcostheta;
+					
+				}
+
 			}
 			
-			//System.out.println(r12);
+			if (nr02 == 0 | nr02 == Nr02) {
+				B3NonAdd = B3NonAdd + 0.5*Icostheta*(4.0*Math.PI*r12*r12*2*delr02)/(-3.0);
+			} else {
+				B3NonAdd = B3NonAdd +     Icostheta*(4.0*Math.PI*r12*r12*2*delr02)/(-3.0);
+			}
+			
+			//System.out.println(r02/AngstromPerBohrRadius+" " + B3NonAdd*0.60221415*0.60221415);
 		}
-		
-		
-		return (-1.0/3.0)*B3NonAdd*0.60221415*0.60221415;
-	}
-	
-	
-	
-	 public static class DampingParams extends ParameterBase {
-		    //TZ
-		 	
-	    	public int a1 = 80;	        
-	        public int a2 = 149;   
-	        private double Rvdw = 3.61;
-	        private int basis = 2;
-	        private boolean fixedRvdw = false;
-	        //DZ
-	        //public int a1 = 80;	        
-	        //public int a2 = 149;   
-	       // public int basis = 2;
-	        
-	        public int tempSet = 3; 
-	        public double rmax = 10;
-	        public double rmin = 2.5;
-	    }
-	 
-	 static double kB = 1.3806503e-23; //J/K  
-	 static double JPerH = 4.359744e-18; 
 
+		return B3NonAdd*0.60221415*0.60221415; //cm6/mol2
+	 }
+	
+	 static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
+	 static double delcostheta=0.005;
+	 static double delr02 = 0.05; //Bohr radii
+	 static double r02Min = 1.0;  //Bohr radii
+	 static double r02Max = 20;   //Bohr radii
+	 static double r03Max = 20;   //Bohr radii
 }
