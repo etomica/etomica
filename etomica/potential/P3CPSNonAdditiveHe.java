@@ -59,22 +59,24 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         IAtom atomB = atomSet2.getAtom(1);
         IAtom atomC = atomSet2.getAtom(2);
         
-        atomA.getPosition().TE(1.0/AngstromPerBohrRadius);
-        atomB.getPosition().TE(1.0/AngstromPerBohrRadius);
-        atomC.getPosition().TE(1.0/AngstromPerBohrRadius);
-        
+       
         drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());
         drAC.Ev1Mv2(atomA.getPosition(),atomC.getPosition());
         drBC.Ev1Mv2(atomB.getPosition(),atomC.getPosition());
+        
+        drAB.TE(1.0/AngstromPerBohrRadius);
+        drAC.TE(1.0/AngstromPerBohrRadius);
+        drBC.TE(1.0/AngstromPerBohrRadius);
+        
         
         double RAB = Math.sqrt(drAB.squared());
         double RAC = Math.sqrt(drAC.squared());
         double RBC = Math.sqrt(drBC.squared());
         
-        //Supplementary hard core 
+        //Supplementary 0 energy region 
         
-        if (RAB<2.1 && RAC<2.1 && RBC<2.1) {
-        	return Double.POSITIVE_INFINITY;
+        if (RAB<2.23 || RAC<2.23 || RBC<2.23) {
+        	return 0.0;
         }
         
         double costhetaA =  drAB.dot(drAC)/(RAB*RAC);
