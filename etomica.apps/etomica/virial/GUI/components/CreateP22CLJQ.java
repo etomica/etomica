@@ -1,22 +1,18 @@
 package etomica.virial.GUI.components;
 
-import etomica.api.ISpecies;
+
 import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
-import etomica.potential.P2LJQ;
-import etomica.potential.P2LennardJones;
-import etomica.potential.P2LennardJonesDreiding;
-import etomica.potential.Potential;
-import etomica.potential.PotentialMolecular;
+
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactoryOrientedSpheres;
-import etomica.virial.SpeciesFactorySpheres;
-import etomica.virial.SpeciesFactoryTangentSpheres;
 
-public class CreateP22CLJQ implements ParameterMapping{
+import etomica.virial.SpeciesFactory;
+
+import etomica.virial.SpeciesFactoryTangentSpheres;
+import etomica.virial.GUI.models.ParametersDouble;
+
+public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	
 	private ISpace space;
 	private double sigma;
@@ -25,20 +21,44 @@ public class CreateP22CLJQ implements ParameterMapping{
 	private double bondLength;
 	private ConformationLinear conformation;
 	
+	private int id;
+	private static int numberOfInstances = 0;
+	
+	private String[] ParametersArray  = {"SIGMA","EPSILON", "MOMENT","BONDL"};
+	
+	
+	
 	//Potentials references are created as Private members
 	private P22CLJQ p22CLJQ;
 	
 	//Constructors for different Instantiations
 	
 	
-	CreateP22CLJQ(){
+	public CreateP22CLJQ(){
 		space = Space3D.getInstance();
 		this.sigma = 1.0;
 		this.epsilon = 1.0;
 		this.moment = 1.0;
 		this.bondLength = 1.0;
+		
+		id=++numberOfInstances;
 	}
 	
+	public int getId() {
+		return id;
+	}
+	
+	 public Object clone(){
+		 try{
+			 CreateP22CLJQ cloned = (CreateP22CLJQ)super.clone();
+			 return cloned;
+		  }
+		  catch(CloneNotSupportedException e){
+		     System.out.println(e);
+		     return null;
+		   }
+	 }
+
 	//Sets the LJ Molecular Potential
 	public void setP22CLJQ(){
 		this.p22CLJQ = new P22CLJQ(this.space);
@@ -114,7 +134,7 @@ public class CreateP22CLJQ implements ParameterMapping{
 		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString())){
 			setEpsilon(Double.parseDouble(ParameterValue)); 
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDLENGTH.toString())){
+		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			setEpsilon(Double.parseDouble(ParameterValue)); 
 		}
 		
@@ -133,8 +153,8 @@ public class CreateP22CLJQ implements ParameterMapping{
 		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString())){
 			Description = ParametersDouble.MOMENT.Description();
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDLENGTH.toString())){
-			Description = ParametersDouble.BONDLENGTH.Description();
+		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+			Description = ParametersDouble.BONDL.Description();
 		
 		}
 		return Description;
@@ -160,10 +180,16 @@ public class CreateP22CLJQ implements ParameterMapping{
 		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString())){
 			parameterValue = ParametersDouble.MOMENT.DefaultValue();
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDLENGTH.toString())){
-			parameterValue = ParametersDouble.BONDLENGTH.DefaultValue();
+		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+			parameterValue = ParametersDouble.BONDL.DefaultValue();
 		}
 		return parameterValue;
+	}
+
+
+
+	public String[] getParametersArray() {
+		return ParametersArray;
 	}
 	
 }

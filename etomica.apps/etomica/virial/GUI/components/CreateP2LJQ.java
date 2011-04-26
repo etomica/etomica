@@ -5,27 +5,35 @@ import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP2LJQ implements ParameterMapping{
+public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	
 	private ISpace space;
 	private double sigma;
 	private double epsilon;
 	private double momentSquare;
+	private int id;
+	private static int numberOfInstances = 0;
 	
-	
+	private String[] ParametersArray  = {"SIGMA","EPSILON","MOMENTSQR"};
 	//Potentials references are created as Private members
 	private P2LJQ p2LJQ;
 	
 	//Constructors for different Instantiations
 	
-	CreateP2LJQ(){
+	public CreateP2LJQ(){
 		space = Space3D.getInstance();
 		this.sigma = 1.0;
 		this.epsilon = 1.0;
 		this.momentSquare = 1.0;
+		id = ++numberOfInstances;
 	}
 	
+	public int getId() {
+		return id;
+	}
+
 	//Setter method for LJ atomic potentials
 	public void setP2LJQ(){
 		this.p2LJQ = new P2LJQ(this.space); 
@@ -36,6 +44,16 @@ public class CreateP2LJQ implements ParameterMapping{
 		return p2LJQ;
 	}
 	
+	 public Object clone(){
+		 try{
+			 CreateP2LJQ cloned = (CreateP2LJQ)super.clone();
+			 return cloned;
+		  }
+		  catch(CloneNotSupportedException e){
+		     System.out.println(e);
+		     return null;
+		   }
+	 }
 	
 	//Creates the LJAtom Species
 	public SpeciesFactory createP2LJQSpecies(){
@@ -93,7 +111,7 @@ public class CreateP2LJQ implements ParameterMapping{
 		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
 			setEpsilon(Double.parseDouble(ParameterValue)); 
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQUARED.toString())){
+		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQR.toString())){
 			setEpsilon(Double.parseDouble(ParameterValue)); 
 		}
 		
@@ -110,8 +128,8 @@ public class CreateP2LJQ implements ParameterMapping{
 			Description = ParametersDouble.EPSILON.Description();
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQUARED.toString())){
-			Description = ParametersDouble.MOMENTSQUARED.Description();
+		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQR.toString())){
+			Description = ParametersDouble.MOMENTSQR.Description();
 		}
 		
 		return Description;
@@ -129,11 +147,15 @@ public class CreateP2LJQ implements ParameterMapping{
 			parameterValue = ParametersDouble.EPSILON.DefaultValue();
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQUARED.toString())){
-			parameterValue = ParametersDouble.MOMENTSQUARED.DefaultValue();
+		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQR.toString())){
+			parameterValue = ParametersDouble.MOMENTSQR.DefaultValue();
 		}
 		
 		return parameterValue;
+	}
+	
+	public String[] getParametersArray() {
+		return ParametersArray;
 	}
 	
 }

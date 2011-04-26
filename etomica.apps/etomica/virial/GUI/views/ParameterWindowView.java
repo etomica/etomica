@@ -16,6 +16,7 @@ import etomica.virial.GUI.containers.ParameterTabs;
 import etomica.virial.GUI.containers.RunParam;
 import etomica.virial.GUI.containers.SingleSpeciesParam;
 import etomica.virial.GUI.containers.Species;
+import etomica.virial.GUI.containers.Species1;
 import etomica.virial.GUI.containers.SuperContainer;
 import etomica.virial.GUI.models.RunParametersModel;
 import etomica.virial.GUI.models.SingleSpeciesModel;
@@ -28,23 +29,17 @@ import etomica.virial.simulations.VirialLJ;
 public class ParameterWindowView {
 		
 	private ParameterTabs ParamTabs;
-	private Species SpeciesParameters;
-	private SingleSpeciesParam OneSpecies;
-	private BinaryMixtureParam TwoSpecies;
+	private Species1 SpeciesParameters;
 	private RunParam RunParameters;
 	private DialogBoxPanel DialogBox;
 	private LJDefaultViewPanel LJDefault;
 	private JFrame DialogFrame;
 	private JFrame DefaultViewFrame;
-	private SpeciesModel speciesmodel;
-	private SingleSpeciesModel onespeciesmodel;
+	
 	
 	public ParameterWindowView(MainFrame mixtureBuilder, SuperModel SM) {
 		
 		SuperContainer container = new SuperContainer();
-		speciesmodel = SM.getSm();
-		onespeciesmodel = SM.getSsm();
-		speciesmodel.setPureBinaryButtonValue(SpeciesModel.getIntialValuePureorbinaryrbuttonvalue());
 		
 		DialogBox = container.getDBox();
 		DialogFrame = new JFrame("Message");
@@ -62,39 +57,22 @@ public class ParameterWindowView {
 		mixtureBuilder.setLayout(new GridLayout(1,3));
 		
 		//Instantiate the MainFrame Panels - Parameters , Graphic and Console
-		MainFramePanel ParameterPanel = new MainFramePanel(510, 616);
+		MainFramePanel ParameterPanel = new MainFramePanel(700, 800);
 		mixtureBuilder.add(ParameterPanel);
 		
-		
-		OneSpecies = container.getSSP();
-		
-		
-		TwoSpecies = container.getBMP();
-		
-		
-		SpeciesParameters = container.getS();
-		SpeciesParameters.setOneSpecies(OneSpecies);
-		SpeciesParameters.setTwoSpecies(TwoSpecies);
-		SpeciesParameters.addCards(OneSpecies, TwoSpecies);
-		
+		SpeciesParameters = container.getS1();
 		RunParameters = container.getRP();
 	
-		ParamTabs = new ParameterTabs(4, 510);
+		ParamTabs = new ParameterTabs(4);
 		ParamTabs.MakeIndividualTabs(ParamTabs.getTabs(),4,SpeciesParameters,RunParameters);
 		
-		if(speciesmodel.getPureBinaryButtonValue()==0){
-			SpeciesParameters.getPure().setSelected(true);}
-		if(speciesmodel.getPureBinaryButtonValue()==1){
-			SpeciesParameters.getBinary().setSelected(true);}
 	    ParameterPanel.add(ParamTabs);
 	    
 	    
-	    MainFramePanel GraphicPanel = new MainFramePanel(280, 616);
+	    MainFramePanel GraphicPanel = new MainFramePanel(280, 800);
 	    mixtureBuilder.add(GraphicPanel);
 
 	    mixtureBuilder.SetFrameProperties();
-	  //  VirialAlkane.VirialSiepmannSpheresParam lj = new VirialAlkane.VirialSiepmannSpheresParam(3,3,300.0,1000,-1,false);
-	   // VirialAlkane.runVirialAlkane(lj, new JFrame());
 	    reset();
 	}
 
@@ -115,16 +93,7 @@ public class ParameterWindowView {
 	}
 
 	public void reset(){
-		OneSpecies.getPotentialCards().setVisible(false);
-		SingleSpeciesParam.getPotentialLabel().setVisible(false);
-		OneSpecies.setSigmaHSRefLJText(SingleSpeciesModel.getInitialValueSigmahsreflj());
-		OneSpecies.getSigmaHSRefLJField().setVisible(false);
-		SingleSpeciesParam.getSigmaHSRefLJLabel().setVisible(false);
-		OneSpecies.getDefaultValues().setVisible(false);
-		OneSpecies.getButtonText().setVisible(false);
-		OneSpecies.getResetLabel().setVisible(false);
-		OneSpecies.getReset().setVisible(false);
-		TwoSpecies.getComponentBCards().setVisible(false);
+		
 	}
 
 	public JFrame getDialogFrame() {
@@ -156,31 +125,15 @@ public class ParameterWindowView {
 		ParamTabs = paramTabs;
 	}
 
-
-	public Species getSpeciesParameters() {
+	
+	public Species1 getSpeciesParameters() {
 		return SpeciesParameters;
 	}
 
-	public void setSpeciesParameters(Species speciesParameters) {
+	public void setSpeciesParameters(Species1 speciesParameters) {
 		SpeciesParameters = speciesParameters;
 	}
-
-
-	public SingleSpeciesParam getOneSpecies() {
-		return OneSpecies;
-	}
-
-	public void setOneSpecies(SingleSpeciesParam oneSpecies) {
-		OneSpecies = oneSpecies;
-	}
-
-	public BinaryMixtureParam getTwoSpecies() {
-		return TwoSpecies;
-	}
-
-	public void setTwoSpecies(BinaryMixtureParam twoSpecies) {
-		TwoSpecies = twoSpecies;
-	}
+	
 
 	public RunParam getRunParameters() {
 		return RunParameters;
@@ -190,14 +143,6 @@ public class ParameterWindowView {
 		RunParameters = runParameters;
 	}
 
-
-	public SpeciesModel getSpeciesmodel() {
-		return speciesmodel;
-	}
-
-	public void setSpeciesmodel(SpeciesModel speciesmodel) {
-		this.speciesmodel = speciesmodel;
-	}
 
 	public ParameterTabs getParameterPanelTabs() {
 		return ParamTabs;

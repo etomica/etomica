@@ -6,12 +6,18 @@ import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP2LJ implements ParameterMapping{
+public class CreateP2LJ implements ParameterMapping,Cloneable{
 	
 	private ISpace space;
 	private double sigma;
 	private double epsilon;
+	private int id;
+	private static int numberOfInstances = 0;
+	
+	
+	private String[] ParametersArray  = {"SIGMA","EPSILON"};
 	
 	//Potentials references are created as Private members
 	private P2LennardJones p2LJ;
@@ -19,12 +25,18 @@ public class CreateP2LJ implements ParameterMapping{
 
 	//Constructors for different Instantiations
 	
-	CreateP2LJ(){
+	public CreateP2LJ(){
 		space = Space3D.getInstance();
 		sigma = 1.0;
 		epsilon = 1.0;
+		
+		id=++numberOfInstances;
 	}
 	
+	public int getId() {
+		return id;
+	}
+
 	//Setter method for LJ atomic potentials
 	public void setP2LJ(){
 		this.p2LJ = new P2LennardJones(this.space,this.sigma,this.epsilon); 
@@ -35,6 +47,16 @@ public class CreateP2LJ implements ParameterMapping{
 		return p2LJ;
 	}
 	
+	 public Object clone(){
+		 try{
+			 CreateP2LJ cloned = (CreateP2LJ)super.clone();
+			 return cloned;
+		  }
+		  catch(CloneNotSupportedException e){
+		     System.out.println(e);
+		     return null;
+		   }
+	 }
 
 	public double getSigma() {
 		return sigma;
@@ -103,6 +125,9 @@ public class CreateP2LJ implements ParameterMapping{
 		return parameterValue;
 	}
 	
+	public String[] getParametersArray() {
+		return ParametersArray;
+	}
 	
 	
 }

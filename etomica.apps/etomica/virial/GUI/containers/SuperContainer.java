@@ -4,6 +4,15 @@ public class SuperContainer {
 	private BinaryMixtureParam BMP;
 	private SingleSpeciesParam SSP;
 	private Species S;
+	private Species1 S1;
+	public Species1 getS1() {
+		return S1;
+	}
+
+	public void setS1(Species1 s1) {
+		S1 = s1;
+	}
+
 	private RunParam RP;
 	private DialogBoxPanel DBox;
 	private LJDefaultViewPanel LJD;
@@ -12,8 +21,9 @@ public class SuperContainer {
 		BMP = new BinaryMixtureParam();
 		SSP = new SingleSpeciesParam();
 		S = new Species();
+		S1 = new Species1();
 		RP = new RunParam();
-		DBox = new DialogBoxPanel();
+		DBox = new DialogBoxPanel("");
 		LJD = new LJDefaultViewPanel();
 	}
 

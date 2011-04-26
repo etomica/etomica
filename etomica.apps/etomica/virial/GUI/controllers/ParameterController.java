@@ -32,20 +32,20 @@ public class ParameterController {
 		SModel = SM.getSm();
 		SSModel = SM.getSsm();
 		LJDModel = SM.getLJD();
-		
+	/*	
 		PView.getSpeciesParameters().addChoosePureRadio(new ChoosePureRButtonListener());
 		PView.getSpeciesParameters().addChooseBinaryRadio(new ChooseBinaryRButtonListener());
 		PView.getOneSpecies().addChooseComponentListener(new ChooseComponentListener());
 		PView.getOneSpecies().addChooseLJListener(new ChooseLJListener());
 		PView.getOneSpecies().addChooseCO2Listener(new ChooseCO2Listener());
 		PView.getOneSpecies().addChooseResetListener(new ChooseResetListener());
-		PView.getOneSpecies().addChooseDefaultListener(new ChooseDefaultListener());
-		PView.getDialogBox().addChooseOkayButtonListener(new ChooseOkayButtonListener());
-		PView.getTwoSpecies().addChooseComponentAListener(new ChooseComponentAListener());
+		PView.getOneSpecies().addChooseDefaultListener(new ChooseDefaultListener());*/
+		//PView.getDialogBox().addChooseOkayButtonListener(new ChooseOkayButtonListener());
+	//	PView.getTwoSpecies().addChooseComponentAListener(new ChooseComponentAListener());
 		
 		
 	}
-	
+/*	
 	class ChoosePureRButtonListener implements ActionListener{
 		public void actionPerformed(ActionEvent E){
 			System.out.println("You ve chosen To run a simulation with Pure Species");
@@ -266,7 +266,7 @@ public class ParameterController {
 			 }
 		}
 		
-		
+		*/
 		
 	
 	

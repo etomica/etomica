@@ -17,8 +17,8 @@ public class DialogBoxPanel extends JPanel{
 	private JLabel Message;
 	private JButton CloseWindow;
 
-	DialogBoxPanel(){
-		Message = new JLabel("This Simulation cannot be run now. Please try again later");
+	DialogBoxPanel(String message){
+		Message = new JLabel(message);
 		CloseWindow = new JButton("Ok");
 		this.setLayout(new FlowLayout());
 		this.add(Message);
