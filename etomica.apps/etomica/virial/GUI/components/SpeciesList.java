@@ -1,5 +1,7 @@
 package etomica.virial.GUI.components;
 
+import java.util.ArrayList;
+
 
 
 
@@ -40,11 +42,23 @@ public class SpeciesList {
 		return SpeciesL[Index];
 	}
 	
-	public void displayList(){
+	public ArrayList<String> displayList(){
+		ArrayList<String> DisplayArray = new ArrayList<String>();
+		
 		for (int i=0;i<SpeciesL.length;i++){
 			if(SpeciesL[i] != null){
-				System.out.println(SpeciesL[i]);
+				if(SpeciesL[i] instanceof CreateP2LJ){
+					DisplayArray.add("LJ-Spherical2Body");
+				}
+				else if(SpeciesL[i] instanceof CreateP2LJQ){
+					DisplayArray.add("LJ-Spherical2BodyWithQ");
+				}
+				else if(SpeciesL[i] instanceof CreateP22CLJQ){
+					DisplayArray.add("2CenteredLJWithQ");
+				}
 			}
 		}
+		
+		return DisplayArray;
 	}
 }
