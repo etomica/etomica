@@ -81,7 +81,7 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	}
 	
 	//Creates the LJ Molecule Species
-	public SpeciesFactory createP22CLJQSpecies(){
+	public SpeciesFactory createSpeciesFactory(){
 		SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
 		return speciesFactory;
 	}
@@ -191,5 +191,7 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	public String[] getParametersArray() {
 		return ParametersArray;
 	}
+
+	
 	
 }

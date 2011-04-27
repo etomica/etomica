@@ -77,17 +77,17 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	}
 
 	//Creates the LJAtom Species
-	public SpeciesFactory createP2LJSpeciesFactory(){
+	public SpeciesFactory createSpeciesFactory(){
 		SpeciesFactory speciesFactory = new SpeciesFactorySpheres();
         return speciesFactory;
 	}
 
-	@Override
+
 	public int getParameterCount() {
 		return 2;
 	}
 
-	@Override
+
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
 		
@@ -99,7 +99,7 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 		}
 	}
 
-	@Override
+
 	public String getDescription(String Parameter) {
 		String Description = null;
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
@@ -111,7 +111,7 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 		return Description;
 	}
 
-	@Override
+
 	public Double getDoubleDefaultParameters(String Parameter) {
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
@@ -128,6 +128,7 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	public String[] getParametersArray() {
 		return ParametersArray;
 	}
+
 	
 	
 }

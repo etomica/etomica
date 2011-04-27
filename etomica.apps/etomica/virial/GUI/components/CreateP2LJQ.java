@@ -16,6 +16,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	private int id;
 	private static int numberOfInstances = 0;
 	
+	private String CustomClassName = "Spherical-2-Body-With-Quad";
 	private String[] ParametersArray  = {"SIGMA","EPSILON","MOMENTSQR"};
 	//Potentials references are created as Private members
 	private P2LJQ p2LJQ;
@@ -56,7 +57,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	 }
 	
 	//Creates the LJAtom Species
-	public SpeciesFactory createP2LJQSpecies(){
+	public SpeciesFactory createSpeciesFactory(){
 		SpeciesFactory speciesFactory;
 		speciesFactory = new SpeciesFactorySpheres();
         return speciesFactory;
@@ -96,12 +97,12 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	}
 	
 	
-	@Override
+
 	public int getParameterCount() {
 		return 3;
 	}
 
-	@Override
+	
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
 		
@@ -118,7 +119,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 		
 	}
 
-	@Override
+
 	public String getDescription(String Parameter) {
 		String Description = null;
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
@@ -135,7 +136,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 		return Description;
 	}
 
-	@Override
+
 	public Double getDoubleDefaultParameters(String Parameter) {
 		// TODO Auto-generated method stub
 		
@@ -157,5 +158,6 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	public String[] getParametersArray() {
 		return ParametersArray;
 	}
+
 	
 }
