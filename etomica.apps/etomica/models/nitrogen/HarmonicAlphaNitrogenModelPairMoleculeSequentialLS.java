@@ -237,41 +237,41 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
       	 *   however, the cross and rotation block have be determined numerically 
       	 */
 
-//		int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0, false);
-//		boolean isNewPair = findPair.getIsNewPair(index);
-//			
-//		if(isNewPair){
-//			for(int molec1=0; molec1<numMolecule; molec1++){
-//    			if(molec0==molec1) continue; // we might double sum the elements in array[a][a] if we don't skip the pair
-//	    			
-//    			for(int i=0; i<3; i++){
-//    				for (int j=0; j<3; j++){
-//    					array[i][molec0*dofPerMol + j] -= array[i][molec1*dofPerMol + j] ;         				
-//	    				
-//    				}
-//    			}
-//    		}
-//				
-//			for(int i=0; i<3; i++){
-//   				for (int j=0; j<3; j++){
-//   					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec0*dofPerMol + j];
-//   				}
-//			}
-//    			
-//		} else {
-//				
-//			for(int i=0; i<3; i++){
-//   				for (int j=0; j<3; j++){
-//   					array[i][molec0*dofPerMol + j]= pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
-//   				}
-//			}
-//			
-//		}
-//			
-//		// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
-//			
-//		if(isNewPair){
-//			((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(false);
+		int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0, false);
+		boolean isNewPair = findPair.getIsNewPair(index);
+			
+		if(isNewPair){
+			for(int molec1=0; molec1<numMolecule; molec1++){
+    			if(molec0==molec1) continue; // we might double sum the elements in array[a][a] if we don't skip the pair
+	    			
+    			for(int i=0; i<3; i++){
+    				for (int j=0; j<3; j++){
+    					array[i][molec0*dofPerMol + j] -= array[i][molec1*dofPerMol + j] ;         				
+	    				
+    				}
+    			}
+    		}
+				
+			for(int i=0; i<3; i++){
+   				for (int j=0; j<3; j++){
+   					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec0*dofPerMol + j];
+   				}
+			}
+    			
+		} else {
+				
+			for(int i=0; i<3; i++){
+   				for (int j=0; j<3; j++){
+   					array[i][molec0*dofPerMol + j]= pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
+   				}
+			}
+			
+		}
+			
+		// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+			
+		if(isNewPair){
+			((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(false);
 //			for(int i=3; i<dofPerMol; i++){
 ////				for(int j=0; j<dofPerMol; j++){
 ////					if(i!=j || i<3) continue;
@@ -281,43 +281,51 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 //					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][i] = array[i][molec0*dofPerMol + i];
 ////				}    		
 //	    	}
-//						
-//			((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(true);
-//			findPair.updateNewMoleculePair(index);
-//				
-//		} else {
-//			for(int i=0; i<dofPerMol; i++){
-//				for(int j=0; j<dofPerMol; j++){
-//					if(i<3 && j<3) continue;
-//					array[i][molec0*dofPerMol + j] =  pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
-//				}    		
-//	   		}
-//			
-//		}
-		
-		for(int molec1=0; molec1<numMolecule; molec1++){
-			if(molec0==molec1) continue; // we might double sum the elements in array[a][a] if we don't skip the pair
-			for(int i=0; i<3; i++){
-				for (int j=0; j<3; j++){
-					array[i][molec0*dofPerMol + j] -= array[i][molec1*dofPerMol + j] ;         				
-    				
-				}
-			}
+						
+			for(int i=0; i<dofPerMol; i++){
+				for(int j=0; j<dofPerMol; j++){
+					if(i<3 && j<3) continue;
+					array[i][molec0*dofPerMol + j] = cAN2nD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,j});
+					pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j] = array[i][molec0*dofPerMol + j];
+				}    		
+	    	}
+			
+			((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(true);
+			findPair.updateNewMoleculePair(index);
+				
+		} else {
+			for(int i=0; i<dofPerMol; i++){
+				for(int j=0; j<dofPerMol; j++){
+					if(i<3 && j<3) continue;
+					array[i][molec0*dofPerMol + j] =  pairMatrix[index[0]][index[1]][index[2]][index[3]][index[4]][i][j];
+				}    		
+	   		}
+			
 		}
 		
-		// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
-		
-		((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(false);
-		for(int i=0; i<dofPerMol; i++){
-			for(int j=0; j<dofPerMol; j++){
-				if(i<3 && j<3) continue;
-			// j i because it got switched molecule A and molecule B
-			//setting the off-diagonal element to zero
-				array[i][molec0*dofPerMol + j] = cAN2nD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,j});
-			}    		
-    	}
-					
-		((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(true);
+//		for(int molec1=0; molec1<numMolecule; molec1++){
+//			if(molec0==molec1) continue; // we might double sum the elements in array[a][a] if we don't skip the pair
+//			for(int i=0; i<3; i++){
+//				for (int j=0; j<3; j++){
+//					array[i][molec0*dofPerMol + j] -= array[i][molec1*dofPerMol + j] ;         				
+//    				
+//				}
+//			}
+//		}
+//		
+//		// Numerical calculation for the Cross (trans and rotation) and rotation second Derivative
+//		
+//		((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(false);
+//		for(int i=0; i<dofPerMol; i++){
+//			for(int j=0; j<dofPerMol; j++){
+//				if(i<3 && j<3) continue;
+//			// j i because it got switched molecule A and molecule B
+//			//setting the off-diagonal element to zero
+//				array[i][molec0*dofPerMol + j] = cAN2nD.d2phi_du2(new int[]{molec0,molec0}, new int[]{i,j});
+//			}    		
+//    	}
+//					
+//		((BoundaryRectangularPeriodicSwitch)box.getBoundary()).setDoPBC(true);
 		
 		return array;
 		
