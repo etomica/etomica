@@ -433,7 +433,7 @@ public class SimOverlapBetaN2TP extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 1024;
-        public double density = 0.0240; //0.02204857502170207 (intial from literature with a = 5.661)
+        public double density = 0.0230; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
         public double temperature = 0.02; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
