@@ -12,6 +12,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import javax.swing.BorderFactory;
@@ -52,8 +53,9 @@ import com.jgoodies.looks.plastic.theme.ExperienceGreen;
 import etomica.virial.GUI.components.CreateP22CLJQ;
 import etomica.virial.GUI.components.CreateP2LJ;
 import etomica.virial.GUI.components.CreateP2LJQ;
+import etomica.virial.GUI.components.ParameterMapping;
 import etomica.virial.GUI.components.SpeciesList;
-import etomica.virial.GUI.models.LJParametersTableModel;
+import etomica.virial.GUI.models.ParametersTableModel;
 import etomica.virial.GUI.models.ParametersDouble;
 
 
@@ -86,6 +88,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 	private String[] SpeciesList = {"LJ","CO2","Methanol","Ethanol","Methane","Ethane","Propane","Naphthalene"};
 
 	private String[] LJPotentialList = {"Spherical-2-Body","Spherical-2-Body-With-Q","2CLJQ"};
+	private Class[] LJPotentialClassList = {CreateP2LJ.class,CreateP2LJQ.class,CreateP22CLJQ.class};
 	private String[] CO2PotentialList = {"2CLJQ","TRAPPE-UnitedAtom","EPM2"};
 	
 	//For each species...
@@ -110,14 +113,12 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 	
 	
 	
-	private LJParametersTableModel LJP1;
-	private LJParametersTableModel LJP2;
+	private ParametersTableModel LJP1;
+	private ParametersTableModel LJP2;
 	
 	private ListSelectionModel cellSelectionModel;
+	private ParameterMapping potential;
 	
-	private CreateP2LJ p2LJ;
-	private CreateP2LJQ p2LJQ;
-	private CreateP22CLJQ p22CLJQ;
 	
 	private SpeciesList sList;
 	private int ParameterListenerCallCount = 0;
@@ -235,8 +236,8 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
     TablePane = new JPanel();
     TablePane.setBorder(BorderFactory.createLoweredBevelBorder());
     
-    LJP1 = new LJParametersTableModel();
-    LJP2 = new LJParametersTableModel();
+    LJP1 = new ParametersTableModel();
+    LJP2 = new ParametersTableModel();
     
     //table1 = new JTable(LJP1.getData(),LJP1.columnNames);
     table1 = new JTable();
@@ -436,19 +437,19 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 		PotentialJList = potentialJList;
 	}
 
-	public LJParametersTableModel getLJP1() {
+	public ParametersTableModel getLJP1() {
 		return LJP1;
 	}
 
-	public void setLJP1(LJParametersTableModel lJP1) {
+	public void setLJP1(ParametersTableModel lJP1) {
 		LJP1 = lJP1;
 	}
 
-	public LJParametersTableModel getLJP2() {
+	public ParametersTableModel getLJP2() {
 		return LJP2;
 	}
 
-	public void setLJP2(LJParametersTableModel lJP2) {
+	public void setLJP2(ParametersTableModel lJP2) {
 		LJP2 = lJP2;
 	}
 
@@ -492,7 +493,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 			if(SpeciesJList.getSelectedIndex() == 0){
 				Description.setText(" ");
 				Description.append("We now create a single LJ Molecule\n");
-				PotentialJList.setListData(LJPotentialList);
+				PotentialJList.setListData(LJPotentialClassList);
 				PotentialType = "LJ";
 			}
 			
@@ -519,32 +520,34 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 				sList.removeSpecies();
 				Description.append("You ve just removed the last added species!!\n");
 			}
-			
-
+			if(sList.getId() == 0){
+				//sList.removeSpecies();
+				potential = null;
+				Description.append("You dont have any molecules to remove!!\n");
+			}
 		}
 		
 		if(e.getSource().equals(AddSameSpecies)){
 			if(sList.getId() < 8){
-				if(sList.getObject(sList.getId()-1) instanceof CreateP2LJ){
-					CreateP2LJ clone = (CreateP2LJ)p2LJ.clone();
-					sList.addSpecies(clone);
-					
-				}
-				
-				if(sList.getObject(sList.getId()-1) instanceof CreateP2LJQ){
-					CreateP2LJQ clone = (CreateP2LJQ)p2LJQ.clone();
-					sList.addSpecies(clone);
-				}
-				
-				if(sList.getObject(sList.getId()-1) instanceof CreateP22CLJQ){
-					CreateP22CLJQ clone = (CreateP22CLJQ)p22CLJQ.clone();
-					sList.addSpecies(clone);
+				ParameterMapping clone = (ParameterMapping)potential.clone();
+				sList.addSpecies(clone);
+				Description.append("So far " + Integer.toString(sList.getId())+ " molecules have been added\n");
+				ArrayList<String> DisplayContents = sList.displayList();
+				for(int i = 0;i<DisplayContents.size();i++){
+					Description.append(DisplayContents.get(i)+"\n");
 				}
 			}
-			Description.append("So far " + Integer.toString(sList.getId())+ " molecules have been added\n");
+			if(sList.getId() == 0){
+				Description.append("Kindly choose Reset to go over the selection again");
+				potential = null;
+			}
+			
 		}
+		
+		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void valueChanged(ListSelectionEvent e){
 		
 			if(e.getSource().equals(PotentialJList)){
@@ -553,80 +556,38 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 					JList list = (JList)e.getSource();
 					EditVariables.setEnabled(true);
 					String[] ParameterArray = null;
-				
-				
-				
+					try{
+						if(potential == null){
+							potential = (ParameterMapping) LJPotentialClassList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+						}
+						else{
+							potential = null;
+							sList.removeSpecies();
+							potential = (ParameterMapping) LJPotentialClassList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+						}
+					}
+					catch(Exception E){
+						
+					}
 					if(list.getSelectedIndex() == 0){
 						Description.setText(" ");
 						Description.append("We now create a single LJ Molecule\n");
 						Description.append("With a Spherical-2-Body Potential\n");
-						try{
-							if(p2LJ == null){
-								p2LJ = new CreateP2LJ();
-								p2LJ.createP2LJSpeciesFactory();
-								
-							}
-							ParameterArray = p2LJ.getParametersArray();
-						}catch(Exception E){
-						}finally{
-							if(p2LJQ != null){
-								p2LJQ = null;
-								sList.removeSpecies();
-							}
-							if(p22CLJQ != null){
-								p22CLJQ = null;
-								sList.removeSpecies();
-							}
-							sList.addSpecies(p2LJ);
 						}
-					}
-				
+					
 					if(list.getSelectedIndex() == 1){
 						Description.setText(" ");
 						Description.append("We now create a single LJ Molecule\n");
 						Description.append("With a Spherical-2-Body-With-Quad Potential\n");
-						if(p2LJQ == null){
-							
-							if(p2LJ != null){
-								
-								p2LJ = null;
-								sList.removeSpecies();
-							}
-							if(p22CLJQ != null){
-								p22CLJQ = null;
-								sList.removeSpecies();
-							}
-							p2LJQ = new CreateP2LJQ();
-							p2LJQ.createP2LJQSpecies();
-							sList.addSpecies(p2LJQ);
-						}
-						ParameterArray = p2LJQ.getParametersArray();
 					}
-				
 					if(list.getSelectedIndex() == 2){
-					
 						Description.setText(" ");
 						Description.append("We now create a LJ Molecule\n");
 						Description.append("With a 2-Centred-With-Quad Potential\n");
-						if(p22CLJQ == null){
-							
-							if(p2LJ != null){
-								
-								p2LJ = null;
-								sList.removeSpecies();
-							}
-							if(p2LJQ != null){
-								p2LJQ = null;
-								sList.removeSpecies();
-							}
-							p22CLJQ = new CreateP22CLJQ();
-							p22CLJQ.createP22CLJQSpecies();
-							sList.addSpecies(p22CLJQ);
-						}
-					//LJP.UpdateObjectData(p22CLJQ.getParametersArray());
-						ParameterArray = p22CLJQ.getParametersArray();
-					
 					}
+					potential.createSpeciesFactory();
+					ParameterArray = potential.getParametersArray();
+					sList.addSpecies(potential);
 					NoOfVariables = ParameterArray.length;
 					LJP1.removeData();
 					for(int i = 0;i < NoOfVariables; i++){
@@ -691,7 +652,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
         	if(PotentialType == "LJ"){
         		if(PotentialJList.getSelectedIndex() == 0){	  
         			Description.append("You have now modified the default value!");
-        			p2LJ.setParameter((String)dataString, (String)dataValue);
+        			potential.setParameter((String)dataString, (String)dataValue);
         		}
         	}
         	}
