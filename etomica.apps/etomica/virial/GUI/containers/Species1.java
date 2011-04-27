@@ -609,6 +609,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 						Description.append("We now create a LJ Molecule\n");
 						Description.append("With a 2-Centred-With-Quad Potential\n");
 						if(p22CLJQ == null){
+							
 							if(p2LJ != null){
 								
 								p2LJ = null;
@@ -618,9 +619,9 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 								p2LJQ = null;
 								sList.removeSpecies();
 							}
-							p2LJQ = new CreateP2LJQ();
-							p2LJQ.createP2LJQSpecies();
-							sList.addSpecies(p2LJQ);
+							p22CLJQ = new CreateP22CLJQ();
+							p22CLJQ.createP22CLJQSpecies();
+							sList.addSpecies(p22CLJQ);
 						}
 					//LJP.UpdateObjectData(p22CLJQ.getParametersArray());
 						ParameterArray = p22CLJQ.getParametersArray();
