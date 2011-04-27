@@ -82,7 +82,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		
 	    boxTarg.setBoundary(boundary);
 	    
-		double rCScale = 0.465;
+		double rCScale = 0.475;
 		double rc = aDim*nC*rCScale;
 		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
 		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
@@ -183,7 +183,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 
         double temperature = 45; //in UNIT KELVIN
         double density = 0.025;
-        double angle =0.01;
+        double angle =1.0;
         long numSteps = 1000000;
         int numMolecules = 432;
 
