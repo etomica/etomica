@@ -85,7 +85,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		isFoundReverse = new boolean[nSites][nSites][nSites][4][4]; //default to false
 		
 //		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef, true, rC);
-		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef, true, rC);
+		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef, true, rC, true);
 		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef, true, rC);
 		
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
@@ -306,7 +306,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		int numMolecules = numBasis * numBasisCell;
 		
 		int dofPerMol = coordinateDef.getCoordinateDim()/numBasis;	
-		array = new double[interval][dofPerMol][numBasisCell*coordinateDef.getCoordinateDim()];
+		double[][][] array = new double[interval][dofPerMol][numBasisCell*coordinateDef.getCoordinateDim()];
 			
 		for (int iMol=0; iMol<numMolecules; iMol+=interval){
 			for(int i=0; i<interval; i++){
@@ -369,7 +369,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 	protected double xVecBox, yVecBox, zVecBox, rC;
 	protected int nLayer;
 	protected boolean[][][][][] isFoundReverse;
-	protected double[][][] array;
+	
 	
 	private static final long serialVersionUID = 1L;
 }

@@ -86,7 +86,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 		
 //		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
 		
-		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef);
+		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef, true);
 		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef);
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
 	}

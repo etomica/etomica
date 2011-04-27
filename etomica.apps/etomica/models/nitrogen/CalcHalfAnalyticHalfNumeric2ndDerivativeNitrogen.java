@@ -11,6 +11,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculePair;
 import etomica.space.ISpace;
+import etomica.units.Degree;
 
 /**
  *  Determine the second derivative of the atomic/ molecular potential energy w.r.t. to
@@ -32,16 +33,17 @@ import etomica.space.ISpace;
  */
 public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 	
-	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition){
-		this(space, box, potential, coordinateDefinition, false, potential.getRange());
+	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition, boolean isAlpha){
+		this(space, box, potential, coordinateDefinition, false, potential.getRange(), isAlpha);
 	}
 	
 	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition,
-			boolean doLatticeSum, double rC){
+			boolean doLatticeSum, double rC, boolean isAlpha){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
 		this.doLatticeSum = doLatticeSum;
 		this.rC = rC;
+		this.isAlpha = isAlpha;
 		
 		if(doLatticeSum){
 			potential.setEnablePBC(false);
@@ -61,10 +63,15 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
         a = new double[ntab][ntab];
 		generalizedCoord = new double[5];
 
-		xVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(0);
-		yVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(1);
-		zVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(2); 
-		
+		if(isAlpha){
+			xVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(0);
+			yVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(1);
+			zVecBox = coordinateDefinition.getBox().getBoundary().getBoxSize().getX(2); 
+		} else {
+			xVecBox = Math.sqrt(box.getBoundary().getEdgeVector(0).squared());
+			yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
+			zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared());
+		}
 	}
  	
 	public double df(int[] moleculei, int dxi, double[] newU) {
@@ -85,6 +92,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		
 		IMolecule molecule1;
 		IVector[][] gradTorq;
+		int firstRowMol = (int)Math.pow(numMolecule/1.99999, 1.0/3.0)*2;
 		
 		for (int i=0; i<numMolecule; i++){
 			
@@ -98,10 +106,22 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 				if(i==moleculei[0]){
 					//THIS IS A HACK!
 					int molNum;
-					if((numMolecule-i)<5){
-						molNum = (i-4);
-					} else{
-						molNum = (i+4);
+					
+					// alpha
+					if(isAlpha){
+						if((numMolecule-i)<5){
+							molNum = (i-4);
+						} else{
+							molNum = (i+4);
+						}
+					} else {
+						//beta
+//						System.out.println("firstRowMol: " + firstRowMol);
+						if(i%firstRowMol >=(firstRowMol-2)){
+							molNum = (i-2);
+						} else {
+							molNum = (i+2);
+						}
 					}
 					
 					molecule1 = moleculeList.getMolecule(molNum);
@@ -115,50 +135,101 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 					translator.actionPerformed(pair.atom1); 
 				}
 				
-				for(int x=-nLayer; x<=nLayer; x++){
-					for(int y=-nLayer; y<=nLayer; y++){
-						for(int z=-nLayer; z<=nLayer; z++){
-							if(i==moleculei[0] && x==0 && y==0 && z==0) continue;
-
-							lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
-							translateBy.setTranslationVector(lsPosition);
-							atomGroupActionTranslate.actionPerformed(molecule1);
-
-							gradTorq = potential.gradientAndTorque(pair);
-							
-							if(dxi < 3){
-								if(i!=moleculei[0]){
-									df += gradTorq[0][0].getX(dxi);
-								}
-							
-							} else{ // rotation dof
-								workVec.E(gradTorq[1][0]);
-								int rotAxisi = dxi==3 ? 2: 1;
+				if(isAlpha){
+				
+					for(int x=-nLayer; x<=nLayer; x++){
+						for(int y=-nLayer; y<=nLayer; y++){
+							for(int z=-nLayer; z<=nLayer; z++){
+								if(i==moleculei[0] && x==0 && y==0 && z==0) continue;
+	
+								lsPosition.E(new double[]{x*xVecBox, y*yVecBox, z*zVecBox});
+								translateBy.setTranslationVector(lsPosition);
+								atomGroupActionTranslate.actionPerformed(molecule1);
+	
+								gradTorq = potential.gradientAndTorque(pair);
 								
-								double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.atom0)[rotAxisi]);
-								if(dxi==3) dot*= -1;
-								if(i==moleculei[0]) dot *= 2;
-								df += dot;
-
-							}
-
-							lsPosition.TE(-1);
-							translateBy.setTranslationVector(lsPosition);
-							atomGroupActionTranslate.actionPerformed(molecule1);
-						
+								if(dxi < 3){
+									if(i!=moleculei[0]){
+										df += gradTorq[0][0].getX(dxi);
+									}
+								
+								} else{ // rotation dof
+									workVec.E(gradTorq[1][0]);
+									int rotAxisi = dxi==3 ? 2: 1;
+									
+									double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.atom0)[rotAxisi]);
+									if(dxi==3) dot*= -1;
+									if(i==moleculei[0]) dot *= 2;
+									df += dot;
+	
+								}
+	
+								lsPosition.TE(-1);
+								translateBy.setTranslationVector(lsPosition);
+								atomGroupActionTranslate.actionPerformed(molecule1);
+							
+							}	
 						}	
-					}	
+					}
+				} else {
+					for(int x=-nLayer; x<=nLayer; x++){
+						for(int y=-nLayer; y<=nLayer; y++){
+							for(int z=-nLayer; z<=nLayer; z++){
+								if(i==moleculei[0] && x==0 && y==0 && z==0) continue;
+								lsPosition.E(new double[]{x*xVecBox-y*yVecBox*Math.cos(Degree.UNIT.toSim(60)), 
+										 y*yVecBox*Math.sin(Degree.UNIT.toSim(60)), 
+										 z*zVecBox});
+								translateBy.setTranslationVector(lsPosition);
+								atomGroupActionTranslate.actionPerformed(molecule1);
+	
+								gradTorq = potential.gradientAndTorque(pair);
+								
+								if(dxi < 3){
+									if(i!=moleculei[0]){
+										df += gradTorq[0][0].getX(dxi);
+									}
+								
+								} else{ // rotation dof
+									workVec.E(gradTorq[1][0]);
+									int rotAxisi = dxi==3 ? 2: 1;
+									
+									double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.atom0)[rotAxisi]);
+									if(dxi==3) dot*= -1;
+									if(i==moleculei[0]) dot *= 2;
+									df += dot;
+	
+								}
+	
+								lsPosition.TE(-1);
+								translateBy.setTranslationVector(lsPosition);
+								atomGroupActionTranslate.actionPerformed(molecule1);
+							
+							}	
+						}	
+					}
+					
 				}
 				
 				//PUTTING the HACK molecule back to its initial position
 				if(i==moleculei[0]){
 					int molNum;
-					if((numMolecule-i)<5){
-						molNum = (i-4);
-					} else{
-						molNum = (i+4);
-					}
 					
+					//alpha
+					if(isAlpha){
+						if((numMolecule-i)<5){
+							molNum = (i-4);
+						} else{
+							molNum = (i+4);
+						}
+					} else {
+						//beta
+						
+						if(i%firstRowMol >=(firstRowMol-2)){
+							molNum = (i-2);
+						} else {
+							molNum = (i+2);
+						}
+					}
 					for(int y=0; y<u.length; y++){
 						u[y] = 0.0;
 					}
@@ -303,6 +374,6 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 	final double con2 = con*con;
 	final double big = Double.MAX_VALUE;
 	final double safe = 2.0;
-	
+	final boolean isAlpha;
 	
 }
