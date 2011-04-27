@@ -3,7 +3,6 @@ package etomica.models.nitrogen;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
@@ -22,7 +21,6 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
@@ -40,7 +38,6 @@ import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
-import etomica.units.Pascal;
 import etomica.units.Pixel;
 
 
@@ -100,6 +97,59 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 		
+		double[] u = new double[20];
+		if(true){
+//			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+//			double[][] param = parameters.getParameter(density);
+			
+			BetaPhaseLatticeParameterNA parameters = new BetaPhaseLatticeParameterNA();
+			double[][] param = parameters.getParameter(numMolecule);
+			
+//			BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
+//			double[][] param = parameters.getParameter(density);
+			
+			int kParam=0;
+			for (int i=0; i<param.length;i++){
+				for (int j=0; j<param[0].length;j++){
+					u[kParam]=param[i][j];
+					kParam++;
+				}	
+			}
+			
+			int numDOF = coordinateDef.getCoordinateDim();
+			double[] newU = new double[numDOF];
+
+			if(true){
+				for(int j=0; j<numDOF; j+=10){
+					if(j>0 && j%(nC*10)==0){
+						j+=nC*10;
+						if(j>=numDOF){
+							break;
+						}
+					}
+					for(int k=0; k<10;k++){
+						newU[j+k]= u[k];
+					}
+				}
+				
+				for(int j=nC*10; j<numDOF; j+=10){
+					if(j>nC*10 && j%(nC*10)==0){
+						j+=nC*10;
+						if(j>=numDOF){
+							break;
+						}
+					}
+					for(int k=0; k<10;k++){
+						newU[j+k]= u[k+10];
+					}
+				}
+			}
+
+			coordinateDef.setToU(box.getMoleculeList(), newU);
+			coordinateDef.initNominalU(box.getMoleculeList());
+			
+		}
+		
 //		PRotConstraint pRot= new PRotConstraint(space, coordinateDef, box);
 //		pRot.setBox(box);
 //		pRot.setConstraintAngle(0.1);
@@ -158,7 +208,34 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //		}
 //		
 //		System.exit(1);
+		
+      	
+//		MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+//		meterPE.setBox(box);
+//		double latticeEnergy = meterPE.getDataAsScalar();
+//		double[][] eigenvector = ArrayReader1D.getFromFile("/tmp/NoFindPair432eVecALL");
 //		
+//		int numComp = eigenvector[0].length;
+//
+////		for (int i=0; i<numComp; i++){
+////			System.out.println(i+" "+ eigenvector[1][i]);
+////		}
+////		System.exit(1);
+//		
+//		double interval = 0.01;
+//		double[] dev = new double[numComp];
+//		for (int i=-50; i<=50; i++){
+//			for(int y=0; y<numComp; y++){
+//				dev[y] = i*interval*eigenvector[0][y];
+//			}
+//			
+//			coordinateDef.setToU(box.getMoleculeList(), dev);
+//			double pe = meterPE.getDataAsScalar();
+//			System.out.println((i*interval)+" "+ (pe-latticeEnergy)/numMolecule);
+//		}
+//		
+//		System.exit(1);
+      
 		
 		activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
@@ -166,10 +243,11 @@ public class SimulationBetaNitrogenModel extends Simulation{
 	
 	public static void main (String[] args){
 		
-		double temperature =45; // in Unit Kelvin
+		double temperature =0.000001; // in Unit Kelvin
 		long simSteps = 100000;
 		double density = 0.023;
-		int numMolecule = 8*8*8*2;
+		int nC = 6;
+		int numMolecule = nC*nC*nC*2;
 		if(args.length > 0){
 			simSteps = Long.parseLong(args[0]);
 		}
@@ -195,7 +273,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		final double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy per molecule (sim unit): "+ latticeEnergy/numMolecule);
 		System.out.println("Lattice Energy: "+ latticeEnergy);
-
+//		System.exit(1);
 		MeterPressureMolecular meterPressure = new MeterPressureMolecular(sim.space);
 		meterPressure.setIntegrator(sim.integrator);
 			
@@ -205,7 +283,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		double volume = sim.box.getBoundary().volume();
 		System.out.println("volume: " + volume);
 		
-		if(false){
+		if(true){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
