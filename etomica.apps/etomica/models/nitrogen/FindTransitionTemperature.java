@@ -22,8 +22,8 @@ public class FindTransitionTemperature {
 		this.desiredPressure = desiredPressure;
 		this.tolerance = tolerance;
 		
-		alphaCoeffs = new double[density.length][7];
-		betaCoeffs  = new double[density.length][7];
+		alphaCoeffs = new double[density.length][6];
+		betaCoeffs  = new double[density.length][5];
 		
 		for(int i=0; i<density.length; i++){
 			alphaCoeffs[i] = ArrayReader1D.getFromFile(fname+"alphaCoeffd"+density[i])[0];
@@ -266,7 +266,7 @@ public class FindTransitionTemperature {
 //		System.exit(1);
 		
 		if(deltaG0 >=0.0){
-			T1 = 45;
+			T1 = 44;
 			
 		} else {
 			T1 = 36;
@@ -381,10 +381,11 @@ public class FindTransitionTemperature {
 	}
 	
 	public static void main (String[] args){
-		
-		String fname = "/usr/users/taitan/Research/NormalModes/N2/tp/findTransT/";
+
+		String fname = "/usr/users/taitan/Research/NormalModes/N2/tp/propagateUncertainty/";
+//		String fname = "/usr/users/taitan/Research/NormalModes/N2/tp/findTransT/";
 		double tolerance = 1e-6;
-		double pGPa = 5e-2;
+		double pGPa = 1e-4;
 		
 		double [] density = new double[]{0.0229,0.0228,0.0227,0.0226,0.0225,0.0224,0.0223,0.0221,0.022,
 				 						 0.0219,0.0218,0.0217,0.0216,0.0215,0.0214,0.0213,0.0212,0.0211};
@@ -409,7 +410,7 @@ public class FindTransitionTemperature {
 		double TransRhoAlpha = findTransTemp.rhoAlphaTrans;
 		double TransRhoBeta = findTransTemp.rhoBetaTrans;
 		System.out.println("\n********************** Transition Results *********************");
-		System.out.println(pGPa + " GPa; Transition Temperature found(K): " + TransTemp 
+		System.out.println("[I] "+pGPa + " GPa; Transition Temperature found(K): " + TransTemp 
 				+ " rhoAlpha: " + TransRhoAlpha + " rhoBeta: " + TransRhoBeta);
 		
 //		System.exit(1);
@@ -424,12 +425,12 @@ public class FindTransitionTemperature {
 		 double vmBeta = Constants.AVOGADRO*1e-24/TransRhoBeta;
 
 		 double TS = (uBeta - uAlpha) - (aBeta[0]-aAlpha[0]);
-		 System.out.println("\nvmAlpha (cm^3/mol): "+vmAlpha + " ; vmBeta: " + vmBeta + " ; " + (vmBeta-vmAlpha));
+		 System.out.println("\n[V] vmAlpha (cm^3/mol): "+vmAlpha + " ; vmBeta: " + vmBeta + " ; " + (vmBeta-vmAlpha));
 	
 		 System.out.println("Tdelta_S: " + TS);
 		 System.out.println("Tdelta_S (cal/mol): " + TS*2.390057243);
-		 System.out.println("delta_S (cal/mol.K): " + TS*2.390057243/TransTemp);
-		 System.out.println(pGPa+" " + TransTemp+" delta_S/delta_V (10^6 kg/(sm^2.K)): " + (TS*2.390057243/TransTemp)/(vmBeta-vmAlpha)*4.184);
+		 System.out.println("[S] delta_S (cal/mol.K): " + TS*2.390057243/TransTemp);
+		 System.out.println("[dS] "+pGPa+" " + TransTemp+" delta_S/delta_V (10^6 kg/(sm^2.K)): " + (TS*2.390057243/TransTemp)/(vmBeta-vmAlpha)*4.184);
 		 
 	}
 	
