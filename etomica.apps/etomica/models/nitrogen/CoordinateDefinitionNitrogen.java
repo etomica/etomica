@@ -892,6 +892,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
                 		            
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(molecule);
+            
+            for (int k = 0; k < site.getD(); k++) {
+            	work1.setX(k, site.getX(k) + newU[k]);
+            }
+    		            
+            atomActionTranslateTo.setDestination(work1);
+            atomActionTranslateTo.actionPerformed(molecule);
+            
             return;
         }
                 
