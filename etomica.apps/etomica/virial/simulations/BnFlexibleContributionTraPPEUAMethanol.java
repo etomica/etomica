@@ -491,14 +491,14 @@ public class BnFlexibleContributionTraPPEUAMethanol {
     public static class VirialParam extends ParameterBase {
     	
     	// number of molecules in simulation (e.g., 2 for B2 calculation)
-    	public int numMolecules = 4;
+    	public int numMolecules = 5;
         
         public double temperature = 300.0;   // Kelvin
         
         // number of overlap sampling steps
         // for each overlap sampling step, the simulation boxes are allotted
         // 1000 attempts for MC moves, total
-        public long numSteps = 100000;    
+        public long numSteps = 1000;    
         
         public double sigmaHSRef = 8.0;
 
