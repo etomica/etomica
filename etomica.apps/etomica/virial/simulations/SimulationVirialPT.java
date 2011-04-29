@@ -94,9 +94,9 @@ public class SimulationVirialPT extends Simulation {
                 moveManager.addMCMove(mcMoveMulti[iTemp]);
             }
             else {
-                mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
+                mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, space);
                 moveManager.addMCMove(mcMoveMulti[iTemp]);
-                mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
+                mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
                 moveManager.addMCMove(mcMoveRotate[iTemp]);
             }
             

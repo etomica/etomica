@@ -120,10 +120,10 @@ public class SimulationVirialOverlap extends Simulation {
                 }
             }
             else {
-                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
+                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
-                mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster, space);
+                mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
                     // we can use the bending move if none of the molecules has more than 3 atoms

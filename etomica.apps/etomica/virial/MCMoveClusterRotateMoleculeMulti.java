@@ -3,7 +3,6 @@ package etomica.virial;
 import etomica.action.MoleculeAction;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
-import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.space.ISpace;
@@ -19,9 +18,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
      * @param potentialMaster
      * @param space
      */
-    public MCMoveClusterRotateMoleculeMulti(IPotentialMaster potentialMaster,
-            IRandom random, ISpace _space) {
-        super(potentialMaster, random, _space);
+    public MCMoveClusterRotateMoleculeMulti(IRandom random, ISpace _space) {
+        super(null, random, _space);
         this.space = _space;
     }
 

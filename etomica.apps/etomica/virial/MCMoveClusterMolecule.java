@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -13,14 +12,12 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     private static final long serialVersionUID = 1L;
 
-    public MCMoveClusterMolecule(ISimulation sim, IPotentialMaster potentialMaster,
-    		                     ISpace _space) {
-    	this(potentialMaster,sim.getRandom(), _space, 1.0);
+    public MCMoveClusterMolecule(ISimulation sim, ISpace _space) {
+    	this(sim.getRandom(), _space, 1.0);
     }
     
-    public MCMoveClusterMolecule(IPotentialMaster potentialMaster, IRandom random,
-    		                     ISpace _space, double stepSize) {
-        super(potentialMaster, random,_space, stepSize, Double.POSITIVE_INFINITY);
+    public MCMoveClusterMolecule(IRandom random, ISpace _space, double stepSize) {
+        super(null, random,_space, stepSize, Double.POSITIVE_INFINITY);
     }
     
     public boolean doTrial() {

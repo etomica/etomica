@@ -22,9 +22,8 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     private IVectorRandom[] translationVectors;
     protected int[] constraintMap;
 
-    public MCMoveClusterMoleculeMulti(ISimulation sim, IPotentialMaster potentialMaster,
-    		                          ISpace _space) {
-    	this(potentialMaster, sim.getRandom(), _space, 1.0);
+    public MCMoveClusterMoleculeMulti(ISimulation sim, ISpace _space) {
+    	this(null, sim.getRandom(), _space, 1.0);
     }
     
     /**
