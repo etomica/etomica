@@ -7,6 +7,9 @@ import etomica.units.systems.LJ;
  * Collection of assorted physical constants.  All values
  * are in simulations units in which time is in picoseconds, length is in Angstroms,
  * and mass is in Daltons (amu).  Also defines several enumerated-type constants.
+ * 
+ * The values for most of these constants can be found at
+ *   http://physics.nist.gov/cuu/Constants/index.html
  */
 public final class Constants {
 
@@ -27,7 +30,7 @@ public final class Constants {
      * Avogadro's number, 6.0221415e23 molecules/mole.
      */
     // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
-    public static final double AVOGADRO = 6.0221415e23;
+    public static final double AVOGADRO = 6.02214179e23;
         
     
     /**
@@ -42,13 +45,18 @@ public final class Constants {
      */
     //  Boltzmann's constant, converted from J/K to D-A^2/ps^2/K (where it equals 0.8314)
     // (1.38e-23 kg-m^2/s^2/K/molecule)(1000 g/kg)(N_avo D/g)(10^10 A/m)^2 (10^-12 s/ps)^2  
-    public static final double BOLTZMANN_K = 1.380658e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; 
+    public static final double BOLTZMANN_K = 1.3806504e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; 
 
     /**
      * Planck's constant, in simulation units.  Specifically, equal to approximately 39.903127 D-A^2/ps.
      */
     //convert from J-s to simulation units
-    public static final double PLANCK_H = Joule.UNIT.toSim(6.6260693e-34) * 1e12;
+    public static final double PLANCK_H = Joule.UNIT.toSim(6.62606896e-34) * 1e12;
+
+    /**
+     * Rydberg's constant, in Angstroms.
+     */
+    public static final double RYDBERG_R = 1.0973731568527E-3;
     
     /**
      * The permittivity of a vacuum, in (sim units) (electron charge)^2. Specifically,
