@@ -7,17 +7,17 @@ import etomica.util.Debug;
 public class MoleculeArrayList implements IMoleculeList {
 
     protected float trimThreshold = 0.8f;
-    protected IMolecule[] atomList;
+    protected IMolecule[] molecules;
     protected static int DEFAULT_INIT_SIZE = 20;
     protected static float SIZE_INCREASE_RATIO = 0.3f;
     protected int itemsInList = 0;
 
     public MoleculeArrayList() {
-        atomList = new IMolecule[DEFAULT_INIT_SIZE];
+        molecules = new IMolecule[DEFAULT_INIT_SIZE];
     }
 
     public MoleculeArrayList(int initialSize) {
-        atomList = new IMolecule[initialSize];
+        molecules = new IMolecule[initialSize];
     }
 
     public static float getSizeIncreaseRatio() {
@@ -25,18 +25,18 @@ public class MoleculeArrayList implements IMoleculeList {
     }
 
     public void trimToSize() {
-        if(itemsInList < atomList.length) {
+        if(itemsInList < molecules.length) {
             IMolecule[] tempList = toArray();
             itemsInList = tempList.length;
-            atomList = tempList;
+            molecules = tempList;
         }
     }
 
     public void maybeTrimToSize() {
-        if(itemsInList < trimThreshold * atomList.length) {
+        if(itemsInList < trimThreshold * molecules.length) {
             IMolecule[] tempList = toArray();
             itemsInList = tempList.length;
-            atomList = tempList;
+            molecules = tempList;
         }
     }
 
@@ -49,13 +49,13 @@ public class MoleculeArrayList implements IMoleculeList {
     }
 
     public void ensureCapacity(int minCapacity) {
-        if(minCapacity > atomList.length) {
+        if(minCapacity > molecules.length) {
             IMolecule[] tempList = new IMolecule[minCapacity];
             for(int i = 0; i < itemsInList; i++) {
-                tempList[i] = atomList[i];
+                tempList[i] = molecules[i];
             }
-            atomList = null;
-            atomList = tempList;
+            molecules = null;
+            molecules = tempList;
         }
     }
 
@@ -67,25 +67,25 @@ public class MoleculeArrayList implements IMoleculeList {
         IMolecule[] tempList = new IMolecule[itemsInList];
 
         for(int i = 0; i < itemsInList; i++) {
-            tempList[i] = atomList[i];
+            tempList[i] = molecules[i];
         }
         return tempList;
     }
 
     public void clear() {
         for(int i = 0; i < itemsInList; i++) {
-            atomList[i] = null;
+            molecules[i] = null;
         }
         itemsInList = 0;
     }
 
     public int sizeOfArray() {
-        return atomList.length;
+        return molecules.length;
     }
 
     public int indexOf(IMolecule elem) {
         for(int i = 0; i < itemsInList; i++) {
-            if(elem == atomList[i]) {
+            if(elem == molecules[i]) {
                 return i;
             }
         }
@@ -96,7 +96,7 @@ public class MoleculeArrayList implements IMoleculeList {
         IMolecule[] tempList = new IMolecule[itemsInList];
 
         for(int i = 0; i < itemsInList; i++) {
-            tempList[i] = atomList[i];
+            tempList[i] = molecules[i];
         }
         return tempList;
     }
@@ -107,39 +107,39 @@ public class MoleculeArrayList implements IMoleculeList {
             throw new IndexOutOfBoundsException("MoleculeArrayList.set index out of bounds");
         }
 
-        oldAtom = atomList[index];
-        atomList[index] = element;
+        oldAtom = molecules[index];
+        molecules[index] = element;
 
         return oldAtom;
     }
 
     public boolean add(IMolecule atom) {
 
-        if(itemsInList == atomList.length) {
+        if(itemsInList == molecules.length) {
             IMolecule[] tempList = new IMolecule[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1)];
 
-            for(int i = 0; i < atomList.length; i++) {
-                tempList[i] = atomList[i];
+            for(int i = 0; i < molecules.length; i++) {
+                tempList[i] = molecules[i];
             }
-            atomList = tempList;
+            molecules = tempList;
         }
-        atomList[itemsInList] = atom; 
+        molecules[itemsInList] = atom; 
         itemsInList++;
 
         return true;
     }
 
     public void addAll(IMoleculeList atoms) {
-        if((itemsInList + atoms.getMoleculeCount()) > atomList.length) {
+        if((itemsInList + atoms.getMoleculeCount()) > molecules.length) {
             IMolecule[] tempList = new IMolecule[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) +
                                          atoms.getMoleculeCount()];
-            for(int i = 0; i < atomList.length; i++) {
-                tempList[i] = atomList[i];
+            for(int i = 0; i < molecules.length; i++) {
+                tempList[i] = molecules[i];
             }
-            atomList = tempList;
+            molecules = tempList;
         }
         for(int i = 0; i < atoms.getMoleculeCount(); i++) {
-            atomList[itemsInList] = atoms.getMolecule(i);
+            molecules[itemsInList] = atoms.getMolecule(i);
             itemsInList++;
         }
     }
@@ -151,11 +151,11 @@ public class MoleculeArrayList implements IMoleculeList {
             throw new IndexOutOfBoundsException("MoleculeArrayList.remove invalid index");
         }
 
-        atom = atomList[index];
+        atom = molecules[index];
         for(int i = index; i < itemsInList-1; i++) {
-            atomList[i] = atomList[i+1];
+            molecules[i] = molecules[i+1];
         }
-        atomList[itemsInList-1] = null;
+        molecules[itemsInList-1] = null;
         itemsInList--;
 
         return atom;
@@ -168,13 +168,13 @@ public class MoleculeArrayList implements IMoleculeList {
             throw new IndexOutOfBoundsException("MoleculeArrayList.remove invalid index");
         }
 
-        atom = atomList[index];
-        if(index == atomList.length-1) {
-            atomList[index] = null;
+        atom = molecules[index];
+        if(index == molecules.length-1) {
+            molecules[index] = null;
         }
         else {
-            atomList[index] = atomList[itemsInList-1];
-            atomList[itemsInList-1] = null;
+            molecules[index] = molecules[itemsInList-1];
+            molecules[itemsInList-1] = null;
         }
         itemsInList--;
 
@@ -189,6 +189,6 @@ public class MoleculeArrayList implements IMoleculeList {
         if (Debug.ON && (index < 0 || index >= itemsInList)) {
             throw new IndexOutOfBoundsException("MoleculeArrayList.remove invalid index");
         }
-        return atomList[index];
+        return molecules[index];
     }
 }
