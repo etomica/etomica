@@ -80,7 +80,7 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
 
     	double br = eta*r;
         double m = Math.exp(-br);
-        double term = m*br;
+        double term = m;
         sum[0] = term-1;
         for (int i=1; i<17; i++) {
             term *= br/i;
