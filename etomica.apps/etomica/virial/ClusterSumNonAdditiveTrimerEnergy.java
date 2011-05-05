@@ -14,6 +14,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
      * Adapted by Kate from ClusterSumPolarizable.
      * Currently only vetted for third order... fourth and fifth orders yield plausible results.
      * Currently special cased to a particular helium potential.
+     * Does NOT include pairwise additive component of diagrams.
      * 
      */
     public ClusterSumNonAdditiveTrimerEnergy(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
@@ -82,7 +83,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
 
         value = 0.0;
 
-
+        /* Skip this to do only additive
         for(int i=0; i<clusters.length; i++) {
             //System.out.println("clusters.length = " + clusters.length);
             // clusters.length = 1 for B3
@@ -91,7 +92,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             //System.out.println("value = " + value);
             //System.out.println("clusterWeights["+i+"] = " + clusterWeights[i]);
         }
-        
+        */
 
         
         Space space = Space3D.getInstance();
@@ -154,6 +155,16 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             double g23 = f23+1; //Math.exp(-beta*u23);
             double g24 = f24+1; //Math.exp(-beta*u24);
             double g34 = f34+1; //Math.exp(-beta*u34);
+            
+            if (no72B2B3NonAdd) {
+            	
+            	f12 = 0;
+                f13 = 0;
+                f14 = 0;
+                f23 = 0;
+                f24 = 0;
+                f34 = 0;
+            }
 
             atoms.clear();
             // we need to properly construct these lists even if we don't use them
@@ -698,6 +709,10 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
         return Math.sqrt(deltaCut2);
     }
     
+    public void setNo72B2B3NonAdd(boolean no72B2B3NonAdd) {
+    	this.no72B2B3NonAdd = no72B2B3NonAdd;
+    }
+    
     private static final long serialVersionUID = 1L;
     private final ClusterBonds[] clusters;
     private final double[] clusterWeights;
@@ -709,4 +724,5 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
     protected final AtomArrayList atoms;
     protected double deltaCut2 = Double.POSITIVE_INFINITY;
     public double pushR2 = 0;
+    private boolean no72B2B3NonAdd = false;
 }
