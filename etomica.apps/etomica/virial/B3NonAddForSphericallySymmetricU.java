@@ -3,13 +3,12 @@ package etomica.virial;
 import etomica.api.IVector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.potential.P2HePCKLJ;
+import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.util.ParameterBase;
 
 
 /**
@@ -48,7 +47,7 @@ public static void main(String[] args) {
 	
 	double[] temps = new double[] { temperature }; // Kelvin
 	
-	P2HePCKLJ p2 = new P2HePCKLJ(space);
+	P2HePCKLJS p2 = new P2HePCKLJS(space);
 	
 	P3CPSNonAdditiveHe p3 = new P3CPSNonAdditiveHe(space);
 	
@@ -178,12 +177,12 @@ public static void main(String[] args) {
 			}
 			
 			if (nr02 == 0 | nr02 == Nr02) {
-				B3NonAdd = B3NonAdd + 0.5*Icostheta*(4.0*Math.PI*r12*r12*2*delr02)/(-3.0);
+				B3NonAdd = B3NonAdd + 0.5*Icostheta*(4.0*Math.PI*r12*r12*2.0*delr02)/(-3.0);
 			} else {
-				B3NonAdd = B3NonAdd +     Icostheta*(4.0*Math.PI*r12*r12*2*delr02)/(-3.0);
+				B3NonAdd = B3NonAdd +     Icostheta*(4.0*Math.PI*r12*r12*2.0*delr02)/(-3.0);
 			}
 			
-			//System.out.println(r02/AngstromPerBohrRadius+" " + B3NonAdd*0.60221415*0.60221415);
+			System.out.println(r02/AngstromPerBohrRadius+" " + B3NonAdd*0.60221415*0.60221415);
 		}
 
 		return B3NonAdd*0.60221415*0.60221415; //cm6/mol2
