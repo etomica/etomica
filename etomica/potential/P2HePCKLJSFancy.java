@@ -119,7 +119,7 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
         if (UNIT) {
     		return  Hartree.UNIT.toSim(u1 + u2 + u3 + Vret);
     	} else {
-    		return (u1 + u2 + u3 + Vret)*KPerHartree;
+    		return (u1 + u2 + u3 + Vret)*KPerHartree; //Kelvin
     	}
     	
     }
@@ -138,7 +138,7 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
 
     	//Potential is speciously negative at separations less than 3 a0.
     	if (r < 0.3) {
-    		return Double.POSITIVE_INFINITY;
+    		return 0;
     	}
 
     	double u1 = (P[0] + P[1]*r + P[2]*r*r)*Math.exp(-a*r);
@@ -192,9 +192,9 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     	if (UNIT) {
     		dudr = Hartree.UNIT.toSim(du1dr + du2dr + du3dr + dVretdr);
     	} else {
-    		dudr = (du1dr + du2dr + du3dr + dVretdr)*KPerHartree;
+    		dudr = (du1dr + du2dr + du3dr + dVretdr)*KPerHartree; //Kelvin
     	}
-        return BohrRadius.UNIT.fromSim(dudr); //du returns dr in Bohr radii
+        return r*dudr;
         
         
     
@@ -270,20 +270,20 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
         System.out.println((t2-t1)/1000.0);*/
         
      	System.out.println();
-     	r=100.0; 
+     	r=0; 
      	double rmin = r;
      	double u1 = p2.u(r*r);
      	double delr = 0.000001;
-     	System.out.println("r(A) \t\t dudr \t\t\t deludelr \t\t\t\t u2");
+     	System.out.println("r(A) \t\t rdudr \t\t\t rdeludelr \t\t\t\t u2");
      	while (r<(rmin+0.00001)) {
 
      		r = r + delr;
     		double u2 = p2.u(r*r); //u2 expects Angstroms - r is Angstroms
-    		double dudr = p2.du(r*r);
-    		double deludelr = (u2-u1)/delr;
+    		double rdudr = p2.du(r*r);
+    		double rdeludelr = r*(u2-u1)/delr;
     		
     		//System.out.println(r+"   \t"+dudr+"  \t" +u2);
-    		System.out.println(r+"   \t"+dudr+"  \t" +deludelr+"  \t" +u2);
+    		System.out.println(r+"   \t"+rdudr+"  \t" +rdeludelr+"  \t" +u2);
     		u1=u2;
     	}
     }
@@ -296,7 +296,7 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     protected static final double a = 3.64890303652830;
     protected static final double b = 2.36824871743591;
     protected static final double eta = 4.09423805117871;
-    private static boolean UNIT = true; // set to false to use unit conversions below
+    private static boolean UNIT = false; // set to false to use unit conversions below
     private static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
     private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
 }
