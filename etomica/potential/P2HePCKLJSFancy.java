@@ -5,6 +5,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
+import etomica.units.Kelvin;
 
 /**
  * Slim-lined version of P2HePCKLJS.java; main method compares values from each version.
@@ -78,23 +79,24 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
 
     	double u2 = (Q[0] + Q[1]*r)*Math.exp(-b*r);
 
+    	double invr = 1.0/r;
+    	double invr3 = invr*invr*invr;
+    	
     	double br = eta*r;
         double m = Math.exp(-br);
-        double term = m;
-        sum[0] = term-1;
+        double term = 1.0;
+        sum[0] = term;
         for (int i=1; i<17; i++) {
             term *= br/i;
             sum[i] = sum[i-1] + term;
         }
-
-    	double invr = 1.0/r;
-    	double invr3 = invr*invr*invr;
-
+        
     	double u3 = 0;
+
     	// jump in to the sum at i=3, invri = 1/r^3
     	double invri = invr3;
     	for (int i=3; i<17; i++) {
-            u3 += sum[i]*C[i]*invri;
+            u3 += (-1.0+m*sum[i])*C[i]*invri;
             invri *= invr;
     	}
 
@@ -113,6 +115,7 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
         double g = sumA/sumB;
     	double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
         return Hartree.UNIT.toSim(u1 + u2 + u3 + Vret);
+    	
     }
 
     /**
@@ -120,7 +123,75 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
      */
     public double du(double r2) {
         
-        return 0;
+    	double r = Math.sqrt(r2);
+    	r = BohrRadius.UNIT.fromSim(r);
+
+    	//Potential is speciously negative at separations less than 3 a0.
+    	if (r < 0.3) {
+    		return Double.POSITIVE_INFINITY;
+    	}
+
+    	double u1 = (P[0] + P[1]*r + P[2]*r*r)*Math.exp(-a*r);
+    	double du1dr = (P[1] + P[2]*2.0*r)*Math.exp(-a*r) - a*u1;
+    	double u2 = (Q[0] + Q[1]*r)*Math.exp(-b*r);
+    	double du2dr = Q[1]*Math.exp(-b*r) - b*u2;
+
+    	
+    	double invr = 1.0/r;
+    	double invr3 = invr*invr*invr;
+    	
+    	
+    	double br = eta*r;
+        double m = Math.exp(-br);
+        double dmdr = -b*m;
+        double term = 1.0;
+        sum[0] = term;
+        dsumdr[0] = 0;
+        //double term = 1;
+        //sum[0] = term;
+        //dsumdr[0] = 0;
+        for (int i=1; i<17; i++) {
+            term *= br/i;
+            sum[i] = sum[i-1] + term;
+            dsumdr[i] = dsumdr[i-1] + term*invr*i;
+        }
+
+    	
+
+    	double u3 = 0;
+    	double du3dr = 0;
+    	// jump in to the sum at i=3, invri = 1/r^3
+    	double invri = invr3;
+    	for (int i=3; i<17; i++) {
+            u3 += (-1.0+m*sum[i])*C[i]*invri;
+            du3dr += (dmdr*sum[i] + m*dsumdr[i])*C[i]*invri + (-1.0+m*sum[i])*C[i]*invri*invr*(-i);
+            invri *= invr;
+    	}
+
+    	/// damp_ret ////
+
+        double sumA = 1.0;
+        double sumB = 1.0;
+        double dsumAdr = 0;
+        double dsumBdr = 0;
+
+        double x = alpha*r;
+        double xn=1.0;
+        for (int n=1;n<7;n++) {
+            xn *= x;
+            sumA += A[n]*xn;
+            sumB += B[n]*xn;
+            dsumAdr += A[n]*xn*invr*n;
+            dsumBdr += B[n]*xn*invr*n;
+        }
+        double g = sumA/sumB;
+        double dgdr = dsumAdr/sumB - sumA/sumB/sumB*dsumBdr;
+    	double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
+    	double dVretdr = (-3.0*C[3] -4.0*C[4]*invr -6.0*C6BO*(1.0-g)*invr3)*invr3*invr + C6BO*(-dgdr)*invr3*invr3;
+        double dudr = Hartree.UNIT.toSim(du1dr + du2dr + du3dr + dVretdr);
+        return BohrRadius.UNIT.fromSim(dudr); //du returns dr in Bohr radii
+        
+    
     }
 
    /**
@@ -160,21 +231,37 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
      	for (int i=0;i<rTest.length;i++) {
     		double r = BohrRadius.UNIT.toSim(rTest[i]); //*AngstromPerBohrRadius; //Angstrom
     		u = p2.u(r*r); // Kelvin
-    		uArrays = p2Arrays.u(r*r); // Kelvin
+    		uArrays = Kelvin.UNIT.toSim(p2Arrays.u(r*r)); // Kelvin
 
     		System.out.println(rTest[i]+"   \t"+u+"  \t" +uArrays+"  \t" +(u-uArrays) +" "+(u-uArrays)/(0.5*(u+uArrays)));
     	}
 
-     	long t1 = System.currentTimeMillis();
+     	/*long t1 = System.currentTimeMillis();
         for (double r = 1; r<10; r+=0.0000001) {
             p2.u(r*r);
         }
         long t2 = System.currentTimeMillis();
-        System.out.println((t2-t1)/1000.0);
+        System.out.println((t2-t1)/1000.0);*/
+     	double r=5; 
+     	double u1 = p2.u(r*r);
+     	double delr = 0.0000001;
+     	while (r<5.00001) {
+
+     		r = r + delr;
+    		double u2 = p2.u(r*r); //u2 expects Angstroms - r is Angstroms
+    		double dudr = p2.du(r*r);
+    		double deludelr = (u2-u1)/delr;
+    		
+    		//System.out.println(r+"   \t"+dudr+"  \t" +u2);
+    		System.out.println(r+"   \t"+dudr+"  \t" +deludelr+"  \t" +u2);
+    		u1=u2;
+    	}
     }
 
     private static final long serialVersionUID = 1L;
+    protected final double[] f = new double[17];
     protected final double[] sum = new double[17];
+    protected final double[] dsumdr = new double[17];
     protected final double[] C, A, B, P, Q;
     protected static final double C6BO = 1.460977837725; //pulled from potentials.f90...
     protected static final double alpha = 1.0/137.036; //fsalpha from potentials.f90...
