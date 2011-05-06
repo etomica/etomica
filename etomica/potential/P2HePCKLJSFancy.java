@@ -30,11 +30,11 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
 
         B = new double[7];
         B[1] = 8.454943177941253;
-        B[2] = 16.006586066260556;
-        B[3] = 10.378373954734820;
-        B[4] = 3.515803817223855;
-        B[5] = 0.591502377533792;
-        B[6] = 0.059455768329599;
+    	B[2] = 16.006586066260556;
+    	B[3] = 10.378373954734820;
+    	B[4] = 3.515803817223855;
+    	B[5] = 0.591502377533792;
+    	B[6] = 0.059455768329599;
 
         A = new double[7];
         A[1] = B[1];
@@ -46,20 +46,20 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
 
         C = new double[17];
         C[3] = 0.000000577235; 
-        C[4] = -0.000035322; 
-        C[5] = 0.000001377841; 
-        C[6] = 1.461830; 
-        C[8] = 14.12350; 
-        C[10] = 183.7497; 
-        C[11] = -0.7674*100; 
-        C[12] = 0.3372*1e4; 
-        C[13] = -0.3806*1e4; 
-        C[14] = 0.8534*1e5; 
-        C[15] = -0.1707*1e6;  
-        C[16] = 0.286*1e7; 
+    	C[4] = -0.000035322; 
+    	C[5] = 0.000001377841; 
+    	C[6] = 1.461830; 
+    	C[8] = 14.12350; 
+    	C[10] = 183.7497; 
+    	C[11] = -0.7674*100; 
+    	C[12] = 0.3372*1e4; 
+    	C[13] = -0.3806*1e4; 
+    	C[14] = 0.8534*1e5; 
+    	C[15] = -0.1707*1e6;  
+    	C[16] = 0.286*1e7; 
    
-        P = new double[] { -25.4701669416621, 269.244425630616, -56.3879970402079};
-        Q = new double[] {38.7957487310071, -2.76577136772754};
+    	P = new double[] { -25.4701669416621, 269.244425630616, -56.3879970402079};
+    	Q = new double[] {38.7957487310071, -2.76577136772754};
     }
 
     /**
@@ -68,7 +68,11 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     public double u(double r2) {
 
     	double r = Math.sqrt(r2);
-    	r = BohrRadius.UNIT.fromSim(r);
+    	if (UNIT) {
+    		r = BohrRadius.UNIT.fromSim(r);
+    	} else {
+    		r = r/AngstromPerBohrRadius; // Bohr radius
+    	}
 
     	//Potential is speciously negative at separations less than 3 a0.
     	if (r < 0.3) {
@@ -78,21 +82,20 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     	double u1 = (P[0] + P[1]*r + P[2]*r*r)*Math.exp(-a*r);
 
     	double u2 = (Q[0] + Q[1]*r)*Math.exp(-b*r);
-
+    	
     	double invr = 1.0/r;
-    	double invr3 = invr*invr*invr;
     	
     	double br = eta*r;
         double m = Math.exp(-br);
         double term = 1.0;
-        double sumi = term;
-        double invri = 1.0;
+        double sum = term;
+        double invri = invr;
         double u3 = 0;
         for (int i=1; i<17; i++) {
             term *= br/i;
+            sum = sum + term;
+            u3 += (-1.0+m*sum)*C[i]*invri;
             invri *= invr;
-            sumi += term;
-            u3 += (-1.0+m*sumi)*C[i]*invri;
         }
 
     	/// damp_ret ////
@@ -108,8 +111,16 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
             sumB += B[n]*xn;
         }
         double g = sumA/sumB;
+        
+        double invr3 = invr*invr*invr;
     	double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
-        return Hartree.UNIT.toSim(u1 + u2 + u3 + Vret);
+    	
+    	
+        if (UNIT) {
+    		return  Hartree.UNIT.toSim(u1 + u2 + u3 + Vret);
+    	} else {
+    		return (u1 + u2 + u3 + Vret)*KPerHartree;
+    	}
     	
     }
 
@@ -119,7 +130,11 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     public double du(double r2) {
         
     	double r = Math.sqrt(r2);
-    	r = BohrRadius.UNIT.fromSim(r);
+    	if (UNIT) {
+    		r = BohrRadius.UNIT.fromSim(r);
+    	} else {
+    		r = r/AngstromPerBohrRadius; // Bohr radius
+    	}
 
     	//Potential is speciously negative at separations less than 3 a0.
     	if (r < 0.3) {
@@ -133,35 +148,24 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
 
     	
     	double invr = 1.0/r;
-    	double invr3 = invr*invr*invr;
-    	
-    	
-    	double br = eta*r;
-        double m = Math.exp(-br);
-        double dmdr = -b*m;
+
+        double m = Math.exp(-eta*r);
+        double dmdr = -eta*m;
         double term = 1.0;
-        sum[0] = term;
-        dsumdr[0] = 0;
-        //double term = 1;
-        //sum[0] = term;
-        //dsumdr[0] = 0;
+        double sum = term;
+        double dsumdr = 0;
+        double u3 = 0;
+    	double du3dr = 0;
+        double invri = invr;
         for (int i=1; i<17; i++) {
-            term *= br/i;
-            sum[i] = sum[i-1] + term;
-            dsumdr[i] = dsumdr[i-1] + term*invr*i;
+            term *= eta*r/i;
+            sum = sum + term;
+            dsumdr = dsumdr + term*invr*i;
+            u3 += (-1.0+m*sum)*C[i]*invri;
+            du3dr += (dmdr*sum + m*dsumdr)*C[i]*invri + (-1.0+m*sum)*C[i]*invri*invr*(-i);
+            invri *= invr;
         }
 
-    	
-
-    	double u3 = 0;
-    	double du3dr = 0;
-    	// jump in to the sum at i=3, invri = 1/r^3
-    	double invri = invr3;
-    	for (int i=3; i<17; i++) {
-            u3 += (-1.0+m*sum[i])*C[i]*invri;
-            du3dr += (dmdr*sum[i] + m*dsumdr[i])*C[i]*invri + (-1.0+m*sum[i])*C[i]*invri*invr*(-i);
-            invri *= invr;
-    	}
 
     	/// damp_ret ////
 
@@ -169,7 +173,6 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
         double sumB = 1.0;
         double dsumAdr = 0;
         double dsumBdr = 0;
-
         double x = alpha*r;
         double xn=1.0;
         for (int n=1;n<7;n++) {
@@ -181,10 +184,18 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
         }
         double g = sumA/sumB;
         double dgdr = dsumAdr/sumB - sumA/sumB/sumB*dsumBdr;
-    	double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
+        double invr3 = invr*invr*invr;
+    	//double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
     	double dVretdr = (-3.0*C[3] -4.0*C[4]*invr -6.0*C6BO*(1.0-g)*invr3)*invr3*invr + C6BO*(-dgdr)*invr3*invr3;
-        double dudr = Hartree.UNIT.toSim(du1dr + du2dr + du3dr + dVretdr);
+        
+    	double dudr;
+    	if (UNIT) {
+    		dudr = Hartree.UNIT.toSim(du1dr + du2dr + du3dr + dVretdr);
+    	} else {
+    		dudr = (du1dr + du2dr + du3dr + dVretdr)*KPerHartree;
+    	}
         return BohrRadius.UNIT.fromSim(dudr); //du returns dr in Bohr radii
+        
         
     
     }
@@ -221,26 +232,50 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     	double[] VRet = new double [] {4.32830292764902966e-03 ,     1.89118193958213001e-03 ,     1.04620663571594000e-03 ,     6.58742191098119997e-04 ,     4.50215871792979995e-04 ,     3.25640627958039984e-04 ,     2.45529537389110018e-04 ,     1.91108471532230011e-04 ,     1.52536291030539990e-04 ,     1.34581476301949993e-04 ,     1.19516465915350001e-04 ,     1.02941088091070004e-04 ,     8.65018451842000018e-05 ,     7.35742361874499934e-05 ,     5.48520252273800021e-05 ,     4.22405527212700002e-05 ,     2.21042270531799994e-05};
     	double u; double uArrays;
 
+    	double r = 1.0/AngstromPerBohrRadius;
+    	u = p2.u(r*r); // Kelvin
+    	
     	System.out.println();
-    	System.out.println("r(a0) \t V(Tot+Ret) no arrays \t V(Tot+Ret) arrays \t no arrays-arrays (K)   ");
+    	System.out.println("r(a0) \t V(Tot+Ret) here \t V(Tot+Ret) slim \t here-slim (sim)   ");
      	for (int i=0;i<rTest.length;i++) {
-    		double r = BohrRadius.UNIT.toSim(rTest[i]); //*AngstromPerBohrRadius; //Angstrom
-    		u = p2.u(r*r); // Kelvin
-    		uArrays = Kelvin.UNIT.toSim(p2Arrays.u(r*r)); // Kelvin
+    		r = BohrRadius.UNIT.toSim(rTest[i]); //*AngstromPerBohrRadius; //Angstrom
+    		u = p2.u(r*r); // sim
+    		if (UNIT) {
+    		uArrays = Kelvin.UNIT.toSim(p2Arrays.u(r*r)); 
+    		} else {
+    		uArrays = (p2Arrays.u(r*r)); // Kelvin
+    		}
 
     		System.out.println(rTest[i]+"   \t"+u+"  \t" +uArrays+"  \t" +(u-uArrays) +" "+(u-uArrays)/(0.5*(u+uArrays)));
     	}
+     
+     	System.out.println();
+    	System.out.println("r(a0) \t V(Tot+Ret) test.f90 \t V(Tot+Ret) here \t here-test.f90 (K)   ");
+     	for (int i=0;i<rTest.length;i++) {
+    		r = rTest[i]*AngstromPerBohrRadius; //Angstrom
+    		u = p2.u(r*r); // sim
+    		double V = VTotRet[i];
+    		if (UNIT) {
+        		V = Kelvin.UNIT.toSim(V); 
+        	} 
+    	 
+    		System.out.println(rTest[i]+"   \t"+V+"  \t" +u+"  \t" +(u-V));
+    	}
 
-     	/*long t1 = System.currentTimeMillis();
-        for (double r = 1; r<10; r+=0.0000001) {
+/*     	long t1 = System.currentTimeMillis();
+        for (r = 1; r<10; r+=0.0000001) {
             p2.u(r*r);
         }
         long t2 = System.currentTimeMillis();
         System.out.println((t2-t1)/1000.0);*/
-     	double r=5; 
+        
+     	System.out.println();
+     	r=100.0; 
+     	double rmin = r;
      	double u1 = p2.u(r*r);
-     	double delr = 0.0000001;
-     	while (r<5.00001) {
+     	double delr = 0.000001;
+     	System.out.println("r(A) \t\t dudr \t\t\t deludelr \t\t\t\t u2");
+     	while (r<(rmin+0.00001)) {
 
      		r = r + delr;
     		double u2 = p2.u(r*r); //u2 expects Angstroms - r is Angstroms
@@ -253,14 +288,15 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     	}
     }
 
+    
     private static final long serialVersionUID = 1L;
-    protected final double[] f = new double[17];
-    protected final double[] sum = new double[17];
-    protected final double[] dsumdr = new double[17];
     protected final double[] C, A, B, P, Q;
     protected static final double C6BO = 1.460977837725; //pulled from potentials.f90...
     protected static final double alpha = 1.0/137.036; //fsalpha from potentials.f90...
     protected static final double a = 3.64890303652830;
     protected static final double b = 2.36824871743591;
     protected static final double eta = 4.09423805117871;
+    private static boolean UNIT = true; // set to false to use unit conversions below
+    private static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
+    private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
 }
