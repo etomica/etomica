@@ -85,20 +85,15 @@ public class P2HePCKLJSFancy extends Potential2SoftSpherical {
     	double br = eta*r;
         double m = Math.exp(-br);
         double term = 1.0;
-        sum[0] = term;
+        double sumi = term;
+        double invri = 1.0;
+        double u3 = 0;
         for (int i=1; i<17; i++) {
             term *= br/i;
-            sum[i] = sum[i-1] + term;
-        }
-        
-    	double u3 = 0;
-
-    	// jump in to the sum at i=3, invri = 1/r^3
-    	double invri = invr3;
-    	for (int i=3; i<17; i++) {
-            u3 += (-1.0+m*sum[i])*C[i]*invri;
             invri *= invr;
-    	}
+            sumi += term;
+            u3 += (-1.0+m*sumi)*C[i]*invri;
+        }
 
     	/// damp_ret ////
 
