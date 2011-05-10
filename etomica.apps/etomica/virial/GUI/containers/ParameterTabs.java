@@ -32,7 +32,7 @@ public class ParameterTabs extends JPanel{
 		Tabs.setTabPlacement(SwingConstants.LEFT);
 		Tabs.setAlignmentX((float)0.5);
 		Tabs.setAlignmentY((float)0.5);
-		Tabs.setPreferredSize(new Dimension(650,800));
+		Tabs.setPreferredSize(new Dimension(750,700));
 		Tabs.setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
 		//MakeIndividualTabs(this.Tabs,NoOfTabs);
 	}

@@ -12,6 +12,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -51,6 +52,8 @@ import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 import com.jgoodies.looks.plastic.theme.ExperienceGreen;
 
 import etomica.virial.GUI.components.CreateP22CLJQ;
+import etomica.virial.GUI.components.CreateP2CO22CLJQ;
+import etomica.virial.GUI.components.CreateP2CO2EMP2;
 import etomica.virial.GUI.components.CreateP2LJ;
 import etomica.virial.GUI.components.CreateP2LJQ;
 import etomica.virial.GUI.components.ParameterMapping;
@@ -78,18 +81,22 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 	private JButton AddAnotherSpecies;
 	private JButton Remove;
 	
+	private JButton AddPotential1;
+	private JButton AddPotential2;
+	
 	//This needs to be removed once this code is ready to be added to the main code
 	
-	private JPanel TablePane;
+	private JPanel TablePane1;
+	private JPanel TablePane2;
 	
 	private String[] IntialList = {"---No species selected---","Press \'Add\' to select a species"};
 	private String[] IntialPotentialList = {"---No potentials selected---","Press \'Add\' to select a potential"};
 	
 	private String[] SpeciesList = {"LJ","CO2","Methanol","Ethanol","Methane","Ethane","Propane","Naphthalene"};
 
-	private String[] LJPotentialList = {"Spherical-2-Body","Spherical-2-Body-With-Q","2CLJQ"};
 	private Class[] LJPotentialClassList = {CreateP2LJ.class,CreateP2LJQ.class,CreateP22CLJQ.class};
 	private String[] CO2PotentialList = {"2CLJQ","TRAPPE-UnitedAtom","EPM2"};
+	private Class[] CO2PotentialClassList = {CreateP2CO22CLJQ.class,CreateP2CO2EMP2.class};
 	
 	//For each species...
 	private String PotentialType = null;
@@ -117,8 +124,10 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 	private ParametersTableModel LJP2;
 	
 	private ListSelectionModel cellSelectionModel;
-	private ParameterMapping potential;
-	
+	private ParameterMapping potential1;
+	private ParameterMapping potential2;
+	private boolean AddFlag = false;
+	private boolean BondLFlag = false;
 	
 	private SpeciesList sList;
 	private int ParameterListenerCallCount = 0;
@@ -156,7 +165,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
     SpeciesListScroller.setPreferredSize(new Dimension(400,100));
     SpeciesListScroller.setBorder(BorderFactory.createLoweredBevelBorder());
     
-    JPanel listPane = new JPanel();
+    JPanel listPane = new JPanel();				
     listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
     
     JLabel label = new JLabel("Species");
@@ -230,11 +239,22 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
     ClearButton3 = new JButton(new ImageIcon("Button-Close-icon.png"));
     ClearButton3.setPreferredSize(new Dimension(50,50));
     
-    JPanel ParametersPane = new JPanel();
-    ParametersPane.setLayout(new BoxLayout(ParametersPane, BoxLayout.PAGE_AXIS));
+    JPanel ParametersPane1 = new JPanel();
+    ParametersPane1.setLayout(new BoxLayout(ParametersPane1, BoxLayout.PAGE_AXIS));
     
-    TablePane = new JPanel();
-    TablePane.setBorder(BorderFactory.createLoweredBevelBorder());
+    JPanel ParametersPane2 = new JPanel();
+    ParametersPane2.setLayout(new BoxLayout(ParametersPane2, BoxLayout.PAGE_AXIS));
+    
+    JPanel ParametersPane = new JPanel();
+    ParametersPane.setLayout(new GridLayout(0,2));
+    ParametersPane.add(ParametersPane1);
+    ParametersPane.add(ParametersPane2);
+    
+    TablePane1 = new JPanel();
+    TablePane1.setBorder(BorderFactory.createLoweredBevelBorder());
+    
+    TablePane2 = new JPanel();
+    TablePane2.setBorder(BorderFactory.createLoweredBevelBorder());
     
     LJP1 = new ParametersTableModel();
     LJP2 = new ParametersTableModel();
@@ -251,7 +271,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
     TableColumn column1 = null;
     for (int i = 0; i < 2; i++) {
         column1 = table1.getColumnModel().getColumn(i);
-        column1.setPreferredWidth(100);
+        column1.setPreferredWidth(150);
     }
     
     //table2 = new JTable(LJP2.getData(),LJP2.columnNames);
@@ -263,25 +283,46 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
     TableColumn column2 = null;
     for (int i = 0; i < 2; i++) {
         column2 = table2.getColumnModel().getColumn(i);
-        column2.setPreferredWidth(100);
+        column2.setPreferredWidth(150);
        
     }
     //table1.setBounds(x, y, width, height)
-    TablePane.add(table1);
-    TablePane.add(table2);
+    TablePane1.add(table1);
+    TablePane2.add(table2);
     
-    
+    /*JPanel TablePane = new JPanel();PotentialJList
+    TablePane.setLayout(new GridLayout(0,2));
+    TablePane.add(TablePane1);
+    TablePane.add(TablePane2);*/
     
     JLabel label3 = new JLabel("Parameters");
     label3.setForeground(Color.WHITE);
     JPanel labelPanel3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
     labelPanel3.setBackground(new Color(0,78,152));
-    labelPanel3.setBounds(ParametersPane.getBounds().x, ParametersPane.getBounds().y, 400, label3.getHeight());
+    
+    /*labelPanel3.setBounds(ParametersPane.getBounds().x, ParametersPane.getBounds().y, 400, label3.getHeight());*/
+    labelPanel3.setBounds(ParametersPane1.getBounds().x, ParametersPane2.getBounds().y, 400, label3.getHeight());
     labelPanel3.add(label3);
     
-    ParametersPane.add(labelPanel3);
-    ParametersPane.add(Box.createRigidArea(new Dimension(5,0)));
-    ParametersPane.add(TablePane);
+    JLabel label4 = new JLabel("Molecule List");
+    label4.setForeground(Color.WHITE);
+    JPanel labelPanel4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    labelPanel4.setBackground(new Color(0,78,152));
+    labelPanel4.setBounds(ParametersPane.getBounds().x + labelPanel3.getWidth(), ParametersPane.getBounds().y, 400, label4.getHeight());
+    labelPanel4.add(label4);
+    
+    JPanel labelPane = new JPanel();
+    labelPane.add(labelPanel3);
+    labelPane.add(labelPanel4);
+   
+    
+    ParametersPane1.add(labelPanel3);
+    ParametersPane1.add(Box.createRigidArea(new Dimension(5,0)));
+    ParametersPane1.add(TablePane1);
+    
+    ParametersPane2.add(labelPanel4);
+    ParametersPane2.add(Box.createRigidArea(new Dimension(5,0)));
+    ParametersPane2.add(TablePane2);
     
     Border compound3;
     compound3 = BorderFactory.createCompoundBorder(
@@ -296,6 +337,11 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
     Remove = new JButton("remove species");
     Remove.addActionListener(this);
     AddSameSpecies.addActionListener(this);
+    AddAnotherSpecies.addActionListener(this);
+    
+    
+    
+    
     DescriptionButtonPane.add(AddSameSpecies);
     DescriptionButtonPane.add(AddAnotherSpecies);
     DescriptionButtonPane.add(Remove);
@@ -364,14 +410,14 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 	public void setSpeciesList(String[] speciesList) {
 		SpeciesList = speciesList;
 	}
-
+/*
 	public String[] getLJPotentialList() {
 		return LJPotentialList;
 	}
 
 	public void setLJPotentialList(String[] lJPotentialList) {
 		LJPotentialList = lJPotentialList;
-	}
+	}*/
 
 	public String[] getCO2PotentialList() {
 		return CO2PotentialList;
@@ -470,7 +516,9 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 	public void addPressSpeciesButton(ActionListener B){
 		AddSpecies.addActionListener(B);
 	}
-	
+	if(!AddSameSpecies.isEnabled()){
+						AddSameSpecies.setEnabled(true);
+					}
 	public void addPressPotentialButton(ActionListener B){
 		AddPotential.addActionListener(B);
 	}
@@ -479,13 +527,18 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 		EditVariables.addActionListener(B);
 	}*/
 	
+	
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e){
 		
 		if(e.getSource().equals(AddSpecies)){
 			SpeciesJList.setListData(SpeciesList);
 			PotentialJList.setEnabled(true);
+			
 			AddPotential.setEnabled(true);
-			sList = new SpeciesList();
+			if(!AddFlag){
+				sList = new SpeciesList();
+			}
 		}
 		
 		if(e.getSource().equals(AddPotential)){
@@ -493,17 +546,16 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 			if(SpeciesJList.getSelectedIndex() == 0){
 				Description.setText(" ");
 				Description.append("We now create a single LJ Molecule\n");
-				PotentialJList.setListData(LJPotentialClassList);
-				PotentialType = "LJ";
+				setPotentialList(LJPotentialClassList,"LJ");
 			}
 			
 			if(SpeciesJList.getSelectedIndex() == 1){
 				Description.setText(" ");
 				Description.append("We now create a single CO2 Molecule\n");
-				PotentialJList.setListData(CO2PotentialList);
-				PotentialType = "CO2";
+				setPotentialList(CO2PotentialClassList,"CO2");
+				BondLFlag = false;
+				
 			}
-			
 		}
 		
 		
@@ -516,101 +568,213 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 		}
 		
 		if(e.getSource().equals(Remove)){
-			if(sList.getId() != 0){
+			if(sList.getId() > 1){
+				if(!AddSameSpecies.isEnabled()){
+					AddSameSpecies.setEnabled(true);
+				}
+				if(!AddAnotherSpecies.isEnabled()){
+					AddAnotherSpecies.setEnabled(true);
+				}
 				sList.removeSpecies();
+				displayMoleculeList();
 				Description.append("You ve just removed the last added species!!\n");
 			}
-			if(sList.getId() == 0){
+			if(sList.getId() <= 1){
 				//sList.removeSpecies();
-				potential = null;
-				Description.append("You dont have any molecules to remove!!\n");
+					//potential2 = null;
+					Description.append("You cannot remove the remaining molecule!!\n");
+					Remove.setEnabled(false);
+					AddFlag = false;
+					//AddSameSpecies.setEnabled(false);
 			}
 		}
-		
 		if(e.getSource().equals(AddSameSpecies)){
-			if(sList.getId() < 8){
-				ParameterMapping clone = (ParameterMapping)potential.clone();
-				sList.addSpecies(clone);
-				Description.append("So far " + Integer.toString(sList.getId())+ " molecules have been added\n");
-				ArrayList<String> DisplayContents = sList.displayList();
-				for(int i = 0;i<DisplayContents.size();i++){
-					Description.append(DisplayContents.get(i)+"\n");
+			if(sList.getId() < 9){
+				if(!Remove.isEnabled()){
+					Remove.setEnabled(true);
 				}
-			}
-			if(sList.getId() == 0){
-				Description.append("Kindly choose Reset to go over the selection again");
-				potential = null;
+				ParameterMapping clone;
+				clone = (ParameterMapping)potential1.clone();
+				
+				sList.addSpecies(clone);
+				Description.append("1 more Molecule added!\n");
+				Description.append("So far " + Integer.toString(sList.getId())+ " molecules in the sim box\n");
+				displayMoleculeList();
+				if(sList.getId() == 8){
+					Description.append("Sorry! You cannot add any more molecules!!\n");
+					AddSameSpecies.setEnabled(false);
+					AddAnotherSpecies.setEnabled(false);
+				}
 			}
 			
 		}
 		
-		
+		if(e.getSource().equals(AddAnotherSpecies)){
+			if(!AddFlag){
+				resetToAddAnotherSpecies();
+				AddFlag = true;
+				if(!Remove.isEnabled()){
+					Remove.setEnabled(true);
+				}
+			}
+			else{
+				
+				ParameterMapping clone = (ParameterMapping)potential2.clone();
+				sList.addSpecies(clone);
+				Description.append("1 more Molecule added!\n");
+				Description.append("So far " + Integer.toString(sList.getId())+ " molecules in the sim box\n");
+				displayMoleculeList();
+				if(sList.getId() == 8){
+					Description.append("Sorry! You cannot add any more molecules!!\n");
+					AddAnotherSpecies.setEnabled(false);
+					AddSameSpecies.setEnabled(false);
+					
+				}
+			
+			
+			}
+			
+		}
 	}
+	
+	
 	
 	@SuppressWarnings("unchecked")
 	public void valueChanged(ListSelectionEvent e){
 		
 			if(e.getSource().equals(PotentialJList)){
-				if( !e.getValueIsAdjusting()){
-				if(PotentialType == "LJ"){
+				if(!e.getValueIsAdjusting()){
 					JList list = (JList)e.getSource();
-					EditVariables.setEnabled(true);
+					
+					//Declarations within the scope of this 
+					Class[] potentialList = null;
+					int EnumArrayIndex = 0;
+					int[] EnumArrayIndexes = null;
 					String[] ParameterArray = null;
+					
+					String[][] PotentialSite = null;
+					
+					EditVariables.setEnabled(true);
+					if(PotentialType == "LJ"){
+						potentialList = LJPotentialClassList;
+						
+						if(list.getSelectedIndex() == 0){
+							Description.setText(" ");
+							Description.append("We now create a single LJ Molecule\n");
+							Description.append("With a Spherical-2-Body Potential\n");
+							}
+						
+						if(list.getSelectedIndex() == 1){
+							Description.setText(" ");
+							Description.append("We now create a single LJ Molecule\n");
+							Description.append("With a Spherical-2-Body-With-Quad Potential\n");
+						}
+						if(list.getSelectedIndex() == 2){
+							Description.setText(" ");
+							Description.append("We now create a LJ Molecule\n");
+							Description.append("With a 2-Centred-With-Quad Potential\n");
+						}
+					}
+					if(PotentialType == "CO2"){
+						potentialList = CO2PotentialClassList;
+						if(list.getSelectedIndex() == 0){
+							Description.setText(" ");
+							Description.append("We now create a single CO2 Molecule\n");
+							Description.append("With a 2-Centred-With-Quad Potential\n");
+							
+							}
+					
+						if(list.getSelectedIndex() == 0){
+							Description.setText(" ");
+							Description.append("We now create a single CO2 Molecule\n");
+							Description.append("Modeled as EPM2\n");
+							
+							}
+					}
+					if(!Remove.isEnabled()){
+						Remove.setEnabled(true);
+					}
+					if(!AddSameSpecies.isEnabled()){
+						AddSameSpecies.setEnabled(true);
+					}
+					if(!AddAnotherSpecies.isEnabled()){
+						AddAnotherSpecies.setEnabled(true);
+					}
 					try{
-						if(potential == null){
-							potential = (ParameterMapping) LJPotentialClassList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+						if(!AddFlag){
+							if(potential1 == null){
+								potential1 = (ParameterMapping) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+							}
+							else{
+								potential1 = null;
+								for(int i = 0;i < 8;i++){
+									if(sList.getObject(i) != null && AddFlag == false){
+										sList.removeSpeciesAtIndex(i);
+									}
+								}
+								potential1 = (ParameterMapping) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+							}
+							ParameterArray = potential1.getParametersArray();
+							potential1.createSpeciesFactory();
+							PotentialSite = potential1.getPotentialSites();
+							
 						}
 						else{
-							potential = null;
-							sList.removeSpecies();
-							potential = (ParameterMapping) LJPotentialClassList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
-						}
-					}
-					catch(Exception E){
-						
-					}
-					if(list.getSelectedIndex() == 0){
-						Description.setText(" ");
-						Description.append("We now create a single LJ Molecule\n");
-						Description.append("With a Spherical-2-Body Potential\n");
-						}
-					
-					if(list.getSelectedIndex() == 1){
-						Description.setText(" ");
-						Description.append("We now create a single LJ Molecule\n");
-						Description.append("With a Spherical-2-Body-With-Quad Potential\n");
-					}
-					if(list.getSelectedIndex() == 2){
-						Description.setText(" ");
-						Description.append("We now create a LJ Molecule\n");
-						Description.append("With a 2-Centred-With-Quad Potential\n");
-					}
-					potential.createSpeciesFactory();
-					ParameterArray = potential.getParametersArray();
-					sList.addSpecies(potential);
-					NoOfVariables = ParameterArray.length;
-					LJP1.removeData();
-					for(int i = 0;i < NoOfVariables; i++){
-						for(ParametersDouble parameters : ParametersDouble.values()){
-							if(ParameterArray[i]==parameters.toString()){
-								LJP1.setValueAt(parameters.toString().toLowerCase(Locale.ENGLISH), i, 0);
-								LJP1.setValueAt(Double.toString(parameters.DefaultValue()), i, 1);
+							potential2 = (ParameterMapping) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+							ParameterArray = potential2.getParametersArray();
+							potential2.createSpeciesFactory();
+							PotentialSite = potential2.getPotentialSites();
 							}
 						}
+					catch (Exception E){}
+					
+					
+					
+					if (!AddFlag){
+						sList.addSpecies(potential1);
+					}
+					if (AddFlag){
+						sList.addSpecies(potential2);
 					}
 					
-				}
-			
-				if(PotentialType == "CO2"){
-				}
-			
-				if(PotentialType == "Alkane"){
-				
-				}
-				if(PotentialType == "Alcohol"){
-				}
+					displayMoleculeList();
+					Description.append("1 Molecule added!\n");
+					NoOfVariables = ParameterArray.length;
+					LJP1.removeData();
+					int SiteLength = PotentialSite.length;
+					int tableLength = NoOfVariables*SiteLength;
+					int index = 0;
+					for(int k = 0; k < SiteLength;k++){
+						for(int i = 0;i < NoOfVariables; i++){
+							for(ParametersDouble parameters : ParametersDouble.values()){
+								if(ParameterArray[i]==parameters.toString()){
+										if(SiteLength != 1){
+											if(parameters.DefaultValue(Integer.parseInt(PotentialSite[k][1])) != 0.0){
+												LJP1.setValueAt(parameters.toString().toLowerCase(Locale.ENGLISH),index,0);
+											}
+											else{
+												LJP1.setValueAt(parameters.toString().toLowerCase(Locale.ENGLISH)+PotentialSite[k][0],index, 0);
+											}
+										}
+										else{
+											LJP1.setValueAt(parameters.toString().toLowerCase(Locale.ENGLISH),index, 0);
+										}
+										if(parameters.DefaultValue(Integer.parseInt(PotentialSite[k][1])) != 0.0){
+											LJP1.setValueAt(Double.toString(parameters.DefaultValue(Integer.parseInt(PotentialSite[k][1]))), index, 1);
+										}
+										if(index < tableLength){
+											index++;
+										}
+								}
+								
+							}
+						}
+						
+					}
 				}
 			}
+	
+			
 		
 		
 			if(e.getSource().equals(cellSelectionModel)){
@@ -628,13 +792,21 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 						}
 					}
 					catch(NullPointerException n){}
-					}  	
+					}
 			}
 			
+			
+	}
+	
+	public void resetToAddAnotherSpecies(){
 		
-		
-		
-		
+		SpeciesJList.setListData(IntialList);
+		PotentialType = null;
+		PotentialJList.setListData(IntialPotentialList);
+		AddPotential.setEnabled(false);
+		EditVariables.setEnabled(false);
+		LJP1.removeData();
+		displayMoleculeList();
 	}
 	
 	@Override
@@ -652,7 +824,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
         	if(PotentialType == "LJ"){
         		if(PotentialJList.getSelectedIndex() == 0){	  
         			Description.append("You have now modified the default value!");
-        			potential.setParameter((String)dataString, (String)dataValue);
+        			potential1.setParameter((String)dataString, (String)dataValue);
         		}
         	}
         	}
@@ -666,8 +838,46 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
         }
         
 	}
-
 	
+	public void displayMoleculeList(){
+		LJP2.removeData();
+		ArrayList<String> DisplayContents = sList.displayList();
+		for(int i = 0;i < DisplayContents.size() ; i++){
+			LJP2.setValueAt("Molecule " + Integer.toString(i + 1), i, 0);
+			LJP2.setValueAt(DisplayContents.get(i), i, 1);
+		}
+	}
+	
+	public void setPotentialList(Class[] potentialList,String potentialType){
+		String[] s = new String[potentialList.length];
+		for (int i=0; i<s.length; i++) {
+		   try {
+			try {
+				s[i] = (String)potentialList[i].getMethod("getCustomName", new Class[0]).invoke(potentialList[i].getConstructor().newInstance(new Object[0]),new Object[0]);
+			} catch (InstantiationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		} catch (IllegalArgumentException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SecurityException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (InvocationTargetException e1) {
+			// TODO Auto-generated catch blockPotentialJList
+			e1.printStackTrace();
+		} catch (NoSuchMethodException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		}
+		PotentialJList.setListData(s);
+		PotentialType = potentialType;
+	}
 	
 	
 	
@@ -680,15 +890,10 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 				frame.add(s);
 				frame.setVisible(true);
 				frame.setResizable(true);
-				frame.setMinimumSize(new Dimension(530,600));
-				frame.setBounds(0, 0, 530, 600);
+				frame.setMinimumSize(new Dimension(750,700));
+				frame.setBounds(0, 0,750, 700);
 				
 			}
 		});
     }
-
-	
-
-	
-
 }
