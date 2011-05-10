@@ -16,6 +16,7 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	private int id;
 	private static int numberOfInstances = 0;
 	
+	private String[][] PotentialSites = {{"LJ","0"}};
 	
 	private String[] ParametersArray  = {"SIGMA","EPSILON"};
 	
@@ -31,6 +32,15 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 		epsilon = 1.0;
 		
 		id=++numberOfInstances;
+	}
+	
+	
+
+	public String[] getPotentialSiteAtIndex(int index) {
+		String[] tempReturn = new String[2];
+		tempReturn[0]= PotentialSites[index][0];
+		tempReturn[1]= PotentialSites[index][1];
+		return tempReturn;
 	}
 	
 	public int getId() {
@@ -116,10 +126,10 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
-			parameterValue = ParametersDouble.SIGMA.DefaultValue();
+			parameterValue = ParametersDouble.SIGMA.DefaultValue(0);
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
-			parameterValue = ParametersDouble.EPSILON.DefaultValue();
+			parameterValue = ParametersDouble.EPSILON.DefaultValue(0);
 		}
 		
 		return parameterValue;
@@ -129,6 +139,18 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 		return ParametersArray;
 	}
 
+	@Override
+	public String getCustomName() {
+		// TODO Auto-generated method stub
+		return "Spherical-2-Body";
+	}
+
+
+	public String[][] getPotentialSites() {
+		return PotentialSites;
+	}
+
+	
 	
 	
 }

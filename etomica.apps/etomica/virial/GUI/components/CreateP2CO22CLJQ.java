@@ -12,7 +12,7 @@ import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactoryTangentSpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP22CLJQ implements ParameterMapping,Cloneable{
+public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	
 	private ISpace space;
 	private double sigma;
@@ -23,7 +23,7 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	
 	private int SpeciesID;
 	
-	private String[][] PotentialSites = {{"LJ","0"}};
+	private String[][] PotentialSites = {{"CO2","1"}};
 
 	public String[] getPotentialSiteAtIndex(int index) {
 		String[] tempReturn = new String[2];
@@ -45,13 +45,13 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	//Constructors for different Instantiations
 	
 	
-	public CreateP22CLJQ(){
+	public CreateP2CO22CLJQ(){
 		space = Space3D.getInstance();
 		this.sigma = 1.0;
 		this.epsilon = 1.0;
 		this.moment = 1.0;
 		this.bondLength = 1.0;
-		this.SpeciesID = 0;
+		this.SpeciesID = 1;
 		id=++numberOfInstances;
 	}
 	
@@ -61,7 +61,7 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	
 	 public Object clone(){
 		 try{
-			 CreateP22CLJQ cloned = (CreateP22CLJQ)super.clone();
+			 CreateP2CO22CLJQ cloned = (CreateP2CO22CLJQ)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -179,7 +179,7 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 
 	//Testing Class
 	public static void main(String[] args){
-		CreateP22CLJQ lj = new CreateP22CLJQ();
+		CreateP2CO22CLJQ lj = new CreateP2CO22CLJQ();
 		
 	}
 

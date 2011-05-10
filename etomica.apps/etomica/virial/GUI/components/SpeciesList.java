@@ -26,8 +26,22 @@ public class SpeciesList {
 	
 	
 	public void removeSpecies(){
-		SpeciesL[id] = null;
-		id--;
+		SpeciesL[id - 1] = null;
+		if(id > 0){
+			id--;
+		}
+		else{
+			id = 0;
+		}
+	}
+	public void removeSpeciesAtIndex(int index){
+		SpeciesL[index] = null;
+		if(id > 0){
+			id--;
+		}
+		else{
+			id = 0;
+		}
 	}
 	
 	public int getId() {
@@ -45,7 +59,7 @@ public class SpeciesList {
 	public ArrayList<String> displayList(){
 		ArrayList<String> DisplayArray = new ArrayList<String>();
 		
-		for (int i=0;i<SpeciesL.length;i++){
+		for (int i=0;i<id;i++){
 			if(SpeciesL[i] != null){
 				if(SpeciesL[i] instanceof CreateP2LJ){
 					DisplayArray.add("LJ-Spherical2Body");
@@ -55,6 +69,13 @@ public class SpeciesList {
 				}
 				else if(SpeciesL[i] instanceof CreateP22CLJQ){
 					DisplayArray.add("2CenteredLJWithQ");
+				}
+				
+				else if(SpeciesL[i] instanceof CreateP2CO22CLJQ){
+					DisplayArray.add("2CenteredLJWithQ");
+				}
+				else if(SpeciesL[i] instanceof CreateP2CO2EMP2){
+					DisplayArray.add("EPM2");
 				}
 			}
 		}

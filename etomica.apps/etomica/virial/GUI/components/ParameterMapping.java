@@ -21,4 +21,9 @@ public interface ParameterMapping {
 
 	public Object clone();
 	
+	public String getCustomName();
+	
+	public String[][] getPotentialSites();
+	
+	public String[] getPotentialSiteAtIndex(int index);
 }
