@@ -57,7 +57,7 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 		sigma[0] = 2.757;
 		sigma[1] = 3.033;
 		sigma[2] = 2.8921;
-		epsilon[0]= Kel;
+		epsilon[0]= 1.0;
 		epsilon[1] = 1.0;
 		epsilon[2] = 1.0;
 		charge[0] = 1.0;
