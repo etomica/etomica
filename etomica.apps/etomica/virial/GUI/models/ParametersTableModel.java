@@ -20,7 +20,7 @@ public class ParametersTableModel extends AbstractTableModel {
 	
 	
 	public ParametersTableModel(){
-		data = new String[6][2];
+		data = new String[12][2];
 		
 	}
 	
@@ -40,7 +40,7 @@ public class ParametersTableModel extends AbstractTableModel {
     }
 	
 	public void removeData(){
-		for (int i = 0; i<6;i++){
+		for (int i = 0; i<12;i++){
 			for (int j = 0;j<2;j++){
 				if(data[i][j] != null){
 				data[i][j] = null;
@@ -59,7 +59,7 @@ public class ParametersTableModel extends AbstractTableModel {
 	@Override
 	public int getRowCount() {
 		// TODO Auto-generated method stub
-		return 6;
+		return 12;
 	}
 
 	@Override
