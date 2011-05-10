@@ -57,7 +57,7 @@ public class ParameterWindowView {
 		mixtureBuilder.setLayout(new GridLayout(1,3));
 		
 		//Instantiate the MainFrame Panels - Parameters , Graphic and Console
-		MainFramePanel ParameterPanel = new MainFramePanel(700, 800);
+		MainFramePanel ParameterPanel = new MainFramePanel(900, 800);
 		mixtureBuilder.add(ParameterPanel);
 		
 		SpeciesParameters = container.getS1();
