@@ -11,7 +11,7 @@ import etomica.units.Kelvin;
  * 
  * Ab initio pair potential for helium from Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.  This is a true pair potential, rather than a pairwise-additive potential.
  * 
- * In this class, only the pair potential is the second derivative is valid.  
+ * The second derivative has not yet been included.  
  *
  * @author Kate Shaul
  */
