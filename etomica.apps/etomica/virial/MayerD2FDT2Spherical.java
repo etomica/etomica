@@ -1,0 +1,48 @@
+package etomica.virial;
+
+import etomica.api.IBox;
+import etomica.api.IMoleculeList;
+import etomica.api.IPotential;
+import etomica.potential.Potential2Spherical;
+/**
+ * Required for computing second derivatives  of virial coefficients w/r to temperature
+ * @author kate
+ */
+public class MayerD2FDT2Spherical implements MayerFunction {
+
+	/**
+	 * Constructor for MayerESpherical.
+	 */
+	public MayerD2FDT2Spherical(Potential2Spherical potential) {
+		this.potential = potential;
+	}
+
+	/**
+	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair, double, double)
+	 */
+	public double f(IMoleculeList pair, double r2, double beta) {
+		double u = potential.u(r2);
+		if (Double.isInfinite(u)) {
+			return 0;
+		}
+		
+		
+		double dfdkT = Math.exp(-beta*u)*u*beta*beta;
+		
+		double d2fdkT2 = dfdkT*(-2.0*beta + u*beta*beta);
+		
+		
+		return d2fdkT2;
+	}
+	
+	public void setBox(IBox newBox) {
+	    potential.setBox(newBox);
+	}
+
+	private final Potential2Spherical potential;
+
+	public IPotential getPotential() {
+		return potential;
+	}
+
+}
