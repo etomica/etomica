@@ -1,23 +1,20 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IMoleculeList;
 import etomica.atom.AtomArrayList;
-import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
+import etomica.potential.Potential;
 
 
 public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.io.Serializable {
 
     /**
-     * Adapted by Kate from ClusterSumPolarizable.
-     * Currently only vetted for third order... fourth and fifth orders yield plausible results.
-     * Currently special cased to a particular helium potential.
-     * Does NOT include pairwise additive component of diagrams.
-     * 
+     * Adapted by Kate from ClusterSumPolarizable (simplification for nonadditive trimer energy only).
+     * Thoroughly vetted for only third order... fourth and fifth orders yield plausible results.
+     * Unlike ClusterSumPolarizable, Does NOT include pairwise additive component of diagrams.
      */
-    public ClusterSumNonAdditiveTrimerEnergy(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
+	
+	
+    public ClusterSumNonAdditiveTrimerEnergy(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray, Potential p3NonAdd) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
         clusters = new ClusterBonds[subClusters.length];
         clusterWeights = subClusterWeights;
@@ -28,7 +25,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
         }
         f = fArray;
         fValues = new double[pointCount][pointCount][fArray.length];
-
+        this.p3NonAdd = p3NonAdd;
         atoms = new AtomArrayList(5); // USE THIS LIST FOR ALL ATOMS, WHETHER 3 OR 4; KMB, 8/16/06
     }
 
@@ -38,7 +35,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
     }
     
     public ClusterAbstract makeCopy() {
-        ClusterSumNonAdditiveTrimerEnergy copy = new ClusterSumNonAdditiveTrimerEnergy(clusters,clusterWeights,f);
+        ClusterSumNonAdditiveTrimerEnergy copy = new ClusterSumNonAdditiveTrimerEnergy(clusters,clusterWeights,f,p3NonAdd);
         copy.setTemperature(1/beta);
         copy.setDeltaCut(Math.sqrt(deltaCut2));
         return copy;
@@ -49,7 +46,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
         AtomPairSet aPairs = box.getAPairSet();
         IAtomList atomSet = box.getLeafList();
         int thisCPairID = cPairs.getID();
-//        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
+        //System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) return value;
         if (thisCPairID == lastCPairID) {
             // we went back to the previous cluster, presumably because the last
@@ -94,9 +91,6 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
         }
         */
 
-        
-        Space space = Space3D.getInstance();
-        P3CPSNonAdditiveHe p3NonAdd = new P3CPSNonAdditiveHe(space);
         
         if (nPoints == 3) {
             // check that no pair of molecules is overlapped (overlap => gij=0)
@@ -725,4 +719,5 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
     protected double deltaCut2 = Double.POSITIVE_INFINITY;
     public double pushR2 = 0;
     private boolean no72B2B3NonAdd = false;
+    private Potential p3NonAdd;
 }
