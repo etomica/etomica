@@ -14,6 +14,8 @@ import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Kelvin;
+import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSumNonAdditiveTrimerEnergy;
@@ -23,7 +25,15 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
-// Adapted by Kate from VirialGCPM
+/* 
+ * Adapted by Kate from VirialGCPM
+ * 
+ * Computes only the nonadditive component of either the third, fourth, or fifth virial coefficient for the
+ * ab initio non-additive trimer potential for He developed by Cencek, Patkowski, and Szalewicz (JCP 131 064105 2009). 
+ * 
+ * 
+ */
+
 
 public class VirialCPSHeliumNonAdditive {
 
@@ -31,26 +41,28 @@ public class VirialCPSHeliumNonAdditive {
 
         VirialParam params = new VirialParam();
         
-        double temperature; final int nPoints; double sigmaHSRef;
-        long steps;
+        double temperatureK; final int nPoints; double sigmaHSRef;
+        long steps; int nullRegionMethod;
         if (args.length == 0) {
         	
         	nPoints = params.nPoints;
-            temperature = params.temperature;
+            temperatureK = params.temperature;
             steps = params.numSteps;
             sigmaHSRef = params.sigmaHSRef;
+            nullRegionMethod = params.nullRegionMethod;
             
             // number of overlap sampling steps
             // for each overlap sampling step, the simulation boxes are allotted
             // 1000 attempts for MC moves, total
             
-        } else if (args.length == 4) {
+        } else if (args.length == 5) {
             //ReadParameters paramReader = new ReadParameters(args[0], params);
             //paramReader.readParameters();
         	nPoints = Integer.parseInt(args[0]);
-        	temperature = Double.parseDouble(args[1]);
+        	temperatureK = Double.parseDouble(args[1]);
             steps = Integer.parseInt(args[2]);
             sigmaHSRef = Double.parseDouble(args[3]);
+            nullRegionMethod = Integer.parseInt(args[4]);
             params.writeRefPref = true;
         	
         } else {
@@ -69,10 +81,9 @@ public class VirialCPSHeliumNonAdditive {
 
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
-        System.out.println("Helium overlap sampling B"+nPoints+"NonAdd at T="+temperature+ " K");
+        System.out.println("Helium overlap sampling B"+nPoints+"NonAdd at T="+temperatureK+ " K");
         
-        //Next line not needed because energy in Kelvin
-        //temperature = Kelvin.UNIT.toSim(temperature);
+        double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         System.out.println(steps+" steps ("+steps/1000+" blocks of 1000)");
         steps /= 1000;
@@ -83,26 +94,25 @@ public class VirialCPSHeliumNonAdditive {
         
         P2HePCKLJS p2 = new P2HePCKLJS(space);
         P3CPSNonAdditiveHe p3NonAdd = new P3CPSNonAdditiveHe(space);
+        p3NonAdd.setNullRegionMethod(nullRegionMethod);
     	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
-    	ClusterSumNonAdditiveTrimerEnergy targetCluster = Standard.virialNonAdditiveTrimerEnergy(nPoints, fTarget, nPoints>3, false);
-    	targetCluster.setNo72B2B3NonAdd(true);
+    	ClusterSumNonAdditiveTrimerEnergy targetCluster = Standard.virialNonAdditiveTrimerEnergy(nPoints, fTarget, p3NonAdd, nPoints>3, false);
+    	targetCluster.setNo72B2B3NonAdd(false);
+    	targetCluster.setTemperature(temperature);
+
     	
-    	MayerHardSphere fRef1 = new MayerHardSphere(sigmaHSRef);
-    	MayerHardSphere fRef2 = new MayerHardSphere(sigmaHSRef*3);
-    	//MayerEHardSphere eRef1 = new MayerEHardSphere(sigmaHSRef);
-    	//MayerEHardSphere eRef2 = new MayerEHardSphere(sigmaHSRef*3);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, (MayerFunction)fRef1, nPoints>3, null, false);
-        //ClusterAbstract refCluster = Standard.virialCluster2(nPoints, (MayerFunction)fRef1, (MayerFunction)fRef2, nPoints>3, null, null, false);
-        
-        targetCluster.setTemperature(temperature);
+    	MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, (MayerFunction)fRef, nPoints>3, null, false);
         refCluster.setTemperature(temperature);
 
 
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), 
                 temperature, refCluster,targetCluster, false);
         
-        /////////////////////////////
+        ///////////////////////////////////////////////
         // Initialize non-overlapped configuration
+        ///////////////////////////////////////////////
+        
         IAtomList atoms = sim.box[1].getLeafList();
         if (nPoints == 3) {
 	        for (int i=1;i<atoms.getAtomCount();i++) {
@@ -241,7 +251,7 @@ public class VirialCPSHeliumNonAdditive {
         
         System.out.println();
         System.out.println("cm"+((nPoints-1)*3)+"/mol"+(nPoints-1)+": ");
-        System.out.println("abs average: "+ratio*HSB[nPoints]*Math.pow(0.60221415,nPoints-1)+", error: "+error*HSB[nPoints]*Math.pow(0.60221415,nPoints-1));
+        System.out.println("abs average: "+ratio*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1)+", error: "+error*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1));
 	}
 
 
@@ -250,10 +260,11 @@ public class VirialCPSHeliumNonAdditive {
      * Inner class for parameters
      */
     public static class VirialParam extends ParameterBase {
-        public int nPoints = 4;
+        public int nPoints = 3;
         public double temperature = 25.0;   // Kelvin
-        public long numSteps = 100000;
-        public double sigmaHSRef = 5;
+        public long numSteps = 1000000;
+        public double sigmaHSRef = 3;
+        public int nullRegionMethod = 0;
         public boolean writeRefPref;
     }
 }
