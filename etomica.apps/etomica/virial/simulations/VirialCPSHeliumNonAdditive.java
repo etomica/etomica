@@ -82,6 +82,7 @@ public class VirialCPSHeliumNonAdditive {
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
         System.out.println("Helium overlap sampling B"+nPoints+"NonAdd at T="+temperatureK+ " K");
+        System.out.println("null region method = "+nullRegionMethod);
         
         double temperature = Kelvin.UNIT.toSim(temperatureK);
 
@@ -260,8 +261,8 @@ public class VirialCPSHeliumNonAdditive {
      * Inner class for parameters
      */
     public static class VirialParam extends ParameterBase {
-        public int nPoints = 3;
-        public double temperature = 25.0;   // Kelvin
+        public int nPoints = 4;
+        public double temperature = 500.0;   // Kelvin
         public long numSteps = 1000000;
         public double sigmaHSRef = 3;
         public int nullRegionMethod = 0;
