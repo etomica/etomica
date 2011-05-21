@@ -2,6 +2,7 @@ package etomica.virial.cluster;
 import java.util.ArrayList;
 
 import etomica.math.SpecialFunctions;
+import etomica.potential.Potential;
 import etomica.util.Arrays;
 import etomica.util.Rational;
 import etomica.virial.ClusterAbstract;
@@ -566,7 +567,7 @@ public final class Standard {
         return new ClusterSumPolarizable(clusters,weights,new MayerFunction[]{f});
     }
     
-    public static ClusterSumNonAdditiveTrimerEnergy virialNonAdditiveTrimerEnergy(int nBody, MayerFunction f, 
+    public static ClusterSumNonAdditiveTrimerEnergy virialNonAdditiveTrimerEnergy(int nBody, MayerFunction f, Potential p3NonAdd,
             boolean usePermutations, boolean uniqueOnly) {
         uniqueOnly = uniqueOnly && nBody > 3;
         int nBondTypes = 1;
@@ -613,11 +614,8 @@ public final class Standard {
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
-        return new ClusterSumNonAdditiveTrimerEnergy(clusters,weights,new MayerFunction[]{f});
+        return new ClusterSumNonAdditiveTrimerEnergy(clusters,weights,new MayerFunction[]{f}, p3NonAdd);
     }
-    
-    
-
     
 	public static final int[][] B2 = new int[][] {{0,1}};
 	public static final int[][] C3 = ring(3);
