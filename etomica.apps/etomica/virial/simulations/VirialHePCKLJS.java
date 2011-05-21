@@ -1,0 +1,224 @@
+package etomica.virial.simulations;
+
+
+import java.awt.Color;
+
+import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IData;
+import etomica.data.types.DataGroup;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.SimulationGraphic;
+import etomica.potential.P2HePCKLJS;
+import etomica.space.Space;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
+import etomica.units.Kelvin;
+import etomica.util.Constants;
+import etomica.util.ParameterBase;
+import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterWeight;
+import etomica.virial.ClusterWeightAbs;
+import etomica.virial.MayerESpherical;
+import etomica.virial.MayerGeneralSpherical;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.cluster.Standard;
+
+// Computes additive virial coefficients using the pair potential for He of Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.
+
+public class VirialHePCKLJS {
+
+    public static void main(String[] args) {
+
+        VirialParam params = new VirialParam();
+        
+        double temperatureK; final int nPoints; double sigmaHSRef;
+        long steps; int stepsPerBlock; long eqSteps;
+        if (args.length == 0) {
+        	
+        	nPoints = params.numMolecules;
+            temperatureK = params.temperature;
+            steps = params.numSteps;
+            stepsPerBlock = params.stepsPerBlock;
+            eqSteps = params.eqSteps;
+            sigmaHSRef = params.sigmaHSRef;
+            
+            // number of overlap sampling steps
+            // for each overlap sampling step, the simulation boxes are allotted
+            // 1000 attempts for MC moves, total
+            
+        } else if (args.length == 6) {
+            //ReadParameters paramReader = new ReadParameters(args[0], params);
+            //paramReader.readParameters();
+        	nPoints = Integer.parseInt(args[0]);
+        	temperatureK = Double.parseDouble(args[1]);
+            steps = Integer.parseInt(args[2]);
+            stepsPerBlock = Integer.parseInt(args[3]);
+            eqSteps = Integer.parseInt(args[4]);
+            sigmaHSRef = Double.parseDouble(args[5]);
+            params.writeRefPref = true;
+        	
+        }  else {
+        	throw new IllegalArgumentException("Incorrect number of arguments passed.");
+        }
+        
+
+        int numSubSteps = 1000;
+
+        final double[] HSB = new double[7];
+        HSB[2] = Standard.B2HS(sigmaHSRef);
+        HSB[3] = Standard.B3HS(sigmaHSRef);
+        HSB[4] = Standard.B4HS(sigmaHSRef);
+        HSB[5] = Standard.B5HS(sigmaHSRef);
+        HSB[6] = Standard.B6HS(sigmaHSRef);
+        
+
+        System.out.println("Target diagram: B"+nPoints+" for helium pair potential of Przybytek et al. (2010) at " + temperatureK + " K");
+        double temperature = Kelvin.UNIT.toSim(temperatureK);
+        
+        System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
+        System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
+        //Next line not needed because energy in Kelvin
+        //temperature = Kelvin.UNIT.toSim(temperature);
+
+        
+        Space space = Space3D.getInstance();
+
+        P2HePCKLJS p2 = new P2HePCKLJS(space); 
+    	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
+    	MayerESpherical eTarget = new MayerESpherical(p2);
+    	ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, false);
+   	    ClusterWeight sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
+
+    	MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
+        ClusterWeight refSample = ClusterWeightAbs.makeWeightCluster(refCluster);
+
+        targetCluster.setTemperature(temperature);
+        refCluster.setTemperature(temperature);
+        sampleCluster1.setTemperature(temperature);
+        refSample.setTemperature(temperature);
+
+        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), 
+                temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
+        
+        System.out.println((steps*1000)+" steps ("+steps+" IntegratorOverlap steps of 1000 steps)");
+        sim.integratorOS.setNumSubSteps(1000);
+        
+        // Keep 50-50 split between reference and target
+        sim.integratorOS.setAdjustStepFreq(false);
+       
+        sim.setAccumulatorBlockSize(stepsPerBlock);
+        System.out.println(stepsPerBlock+" steps per block");
+        
+        System.out.println();
+
+        if (false) {
+            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
+            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
+            SpeciesSpheresMono species = (SpeciesSpheresMono)sim.getSpecies(0);
+            ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
+            ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
+            simGraphic.makeAndDisplayFrame();
+    
+            sim.integratorOS.setNumSubSteps(numSubSteps);
+            sim.setAccumulatorBlockSize(1000);
+                
+            // if running interactively, set filename to null so that it doens't read
+            // (or write) to a refpref file
+            sim.getController().removeAction(sim.ai);
+//            sim.getController().addAction(new IAction() {
+//                public void actionPerformed() {
+//                    sim.initRefPref(null, 0);
+//                    sim.equilibrate(null,0);
+//                    sim.ai.setMaxSteps(Long.MAX_VALUE);
+//                }
+//            });
+            sim.getController().addAction(sim.ai);
+            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+                throw new RuntimeException("Oops");
+            }
+            
+            return;
+        }
+
+        // if running interactively, don't use the file
+        String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+params.temperature : null;
+        // this will either read the refpref in from a file or run a short simulation to find it
+        sim.initRefPref(refFileName, steps/40);
+        // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
+        // if it does continue looking for a pref, it will write the value to the file
+        sim.equilibrate(refFileName, eqSteps); // 5000 IntegratorOverlap steps = 5e6 steps
+        System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)"); 
+        
+        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+            throw new RuntimeException("oops");
+        }
+        
+        System.out.println("equilibration finished");
+        System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
+        System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
+
+        sim.integratorOS.getMoveManager().setEquilibrating(false);
+        sim.ai.setMaxSteps(steps);
+        sim.getController().actionPerformed();
+        System.out.println();
+        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
+        System.out.println("ratio average: "+ratio+", error: "+error);
+        System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
+        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
+        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
+        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
+        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
+        System.out.println("reference   average: "+averageData.getValue(0)
+                          +" stdev: "+stdevData.getValue(0)
+                          +" error: "+errorData.getValue(0));
+        System.out.println("reference overlap average: "+averageData.getValue(1)
+                          +" stdev: "+stdevData.getValue(1)
+                          +" error: "+errorData.getValue(1));
+        
+        ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
+        ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
+        averageData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+        stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
+        errorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
+        System.out.println("target average: "+averageData.getValue(0)
+                          +" stdev: "+stdevData.getValue(0)
+                          +" error: "+errorData.getValue(0));
+        System.out.println("target overlap average: "+averageData.getValue(1)
+                          +" stdev: "+stdevData.getValue(1)
+                          +" error: "+errorData.getValue(1));
+        
+        System.out.println();
+        System.out.println("cm"+((nPoints-1)*3)+"/mol"+(nPoints-1)+": ");
+        System.out.println("abs average: "+ratio*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1)+", error: "+error*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1));
+	}
+
+
+
+    /**
+     * Inner class for parameters
+     */
+    public static class VirialParam extends ParameterBase {
+
+        public int numMolecules = 4;
+        public double temperature = 250;
+        public long numSteps = 1000;
+        public int stepsPerBlock = 1000;
+        public long eqSteps=1000;
+        public double sigmaHSRef = 3;
+        public boolean writeRefPref = false;
+        
+    }
+}
