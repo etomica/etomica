@@ -147,6 +147,10 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
     public void setBox(IBox box) {
         boundary = box.getBoundary();
     }
+    
+    public void setNullRegionMethod(int nullRegionMethod) {
+    	this.nullRegionMethod = nullRegionMethod;
+    }
 
     public double energy(IAtomList atomSet) {
         
@@ -172,19 +176,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         double RAC = Math.sqrt(drAC.squared());
         double RBC = Math.sqrt(drBC.squared());
         
-        //Supplementary 0 energy region 
+       
         
-        if (RAB<3 || RAC<3 || RBC<3) {  //pair energy will be infinite s.t. nonadditive energy does not matter
-
-    		return 0;
-
-        }
-        
-        /*        if (RAB<4 && RAC<4 && RBC<4) {
-    	if (u < 0) {
-    		return 0;
-    	}
-    	}*/
+       
         
         double costhetaA =  drAB.dot(drAC)/(RAB*RAC);
         double costhetaB = -drAB.dot(drBC)/(RAB*RBC);
@@ -205,6 +199,16 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         if (costhetaC > 1) {thetaC = 0;}
         else if (costhetaC < -1) {thetaC = Math.PI;}
         else {thetaC = Math.acos(costhetaC);}
+        
+        //Supplementary 0 energy region 
+        
+        if (nullRegionMethod==0) {
+	        if (RAB<3 || RAC<3 || RBC<3) {  
+	        	//if (Math.abs(costhetaA-1.0)<0.2 || Math.abs(costhetaA-1.0)<0.2 || Math.abs(costhetaA-1.0)<0.2) {
+	        		return 0;
+	        	//}
+	        }
+        }
         
         //System.out.println(thetaA + " " + thetaB + " " + thetaC + "  " + (thetaA+thetaB+thetaC)/Math.PI);
         
@@ -596,7 +600,13 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
         
         double u = Hartree.UNIT.toSim(Vexp+V3disp+V4disp); 
         
-        
+        if (nullRegionMethod==1) {
+	        if (RAB<4 && RAC<4 && RBC<4) {
+	        	if (u < 0) {
+	        		return 0;
+	        	}
+	        }
+        }
         //System.out.println(u);
         return u;
         
@@ -866,6 +876,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft {
     private static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
     private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
     public boolean verbose = false;
+    private int nullRegionMethod = 1;
     
 
 }
