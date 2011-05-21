@@ -19,10 +19,10 @@ import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSum;
 import etomica.virial.MayerD2FDT2Spherical;
+import etomica.virial.MayerDFDTSpherical;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.Mayer_dfdbeta_Spherical;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
@@ -104,7 +104,7 @@ public class VirialHePCKLJSTempDeriv {
         
     	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
     	MayerESpherical eTarget = new MayerESpherical(p2);
-    	Mayer_dfdbeta_Spherical dfdTTarget = new Mayer_dfdbeta_Spherical(p2);
+    	MayerDFDTSpherical dfdTTarget = new MayerDFDTSpherical(p2);
     	MayerD2FDT2Spherical df2dT2Target = new MayerD2FDT2Spherical(p2);
 
     	
