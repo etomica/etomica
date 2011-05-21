@@ -32,6 +32,8 @@ import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
+import etomica.graph.operations.DifByConstant;
+import etomica.graph.operations.DifByConstant.DifByConstantParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
@@ -189,6 +191,101 @@ public class VirialDiagrams {
         return null;
     }
     
+    public ClusterSum makeVirialClusterTempDeriv(MayerFunction f, MayerFunction e, MayerFunction dfdT) {
+        if (p == null) {
+            makeVirialDiagrams();
+        }
+        ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
+        ArrayList<Double> weights = new ArrayList<Double>();
+        Set<Graph> pn = getMSMCGraphs(false);
+        char dfdTBond = 'a';
+        DifByConstantParameters params = new DifByConstantParameters(fBond,dfdTBond);
+        DifByConstant dif = new DifByConstant();
+        Set<Graph> pn2 = dif.apply(pn, params);
+        DifByConstantParameters params2 = new DifByConstantParameters(eBond,dfdTBond);
+        Set<Graph> pn3 = dif.apply(pn2, params2);
+        for (Graph g : pn3) {
+        	populateEFdfdTBonds(g, allBonds, false);
+            if (flex) {
+            	populateEFdfdTBonds(g, allBonds, true);
+            }
+            double w = ((double)g.coefficient().getNumerator())/g.coefficient().getDenominator();
+            if (flex) {
+                w *= 0.5;
+            }
+            weights.add(w);
+            if (flex) {
+                weights.add(w);
+            }
+        }
+        double[] w = new double[weights.size()];
+        for (int i=0; i<w.length; i++) {
+            w[i] = weights.get(i);
+        }
+        if (n > 3 && !flex && !multibody) {
+            return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f,e,dfdT});
+        }
+        else if (!multibody) {
+            return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f,dfdT});
+        }
+        return null;
+    }
+    
+    
+    public ClusterSum makeVirialClusterSecondTemperatureDerivative(MayerFunction f, MayerFunction e, MayerFunction dfdT, MayerFunction d2fdT2) {
+        if (p == null) {
+            makeVirialDiagrams();
+        }
+        ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
+        ArrayList<Double> weights = new ArrayList<Double>();
+        Set<Graph> pn = getMSMCGraphs(false);
+        char dfdTBond = 'a';
+        char df2dT2Bond = 'b';
+        DifByConstantParameters params = new DifByConstantParameters(fBond,dfdTBond);
+        DifByConstant dif = new DifByConstant();
+        Set<Graph> pn2 = dif.apply(pn, params);
+        DifByConstantParameters params2 = new DifByConstantParameters(eBond,dfdTBond);
+        Set<Graph> pn3 = dif.apply(pn2, params2);
+        
+        
+        
+        DifByConstantParameters params3 = new DifByConstantParameters(fBond,dfdTBond);
+        Set<Graph> pn4 = dif.apply(pn3, params3);
+        DifByConstantParameters params4 = new DifByConstantParameters(eBond,dfdTBond);
+        Set<Graph> pn5 = dif.apply(pn4, params4);
+        
+        DifByConstantParameters params5 = new DifByConstantParameters(dfdTBond,df2dT2Bond);
+        Set<Graph> pn6 = dif.apply(pn3, params5);
+        
+        pn6.addAll(pn5);       
+        
+        for (Graph g : pn6) {
+        	populateEFdfdTdf2dT2Bonds(g, allBonds, false);
+            if (flex) {
+            	populateEFdfdTdf2dT2Bonds(g, allBonds, true);
+            }
+            double w = ((double)g.coefficient().getNumerator())/g.coefficient().getDenominator();
+            if (flex) {
+                w *= 0.5;
+            }
+            weights.add(w);
+            if (flex) {
+                weights.add(w);
+            }
+        }
+        double[] w = new double[weights.size()];
+        for (int i=0; i<w.length; i++) {
+            w[i] = weights.get(i);
+        }
+        if (n > 3 && !flex && !multibody) {
+            return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f,e,dfdT,d2fdT2});
+        }
+        else if (!multibody) {
+            return new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f,dfdT,d2fdT2});
+        }
+        return null;
+    }
+    
     public void populateEFBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap) {
         ArrayList<int[]> fbonds = new ArrayList<int[]>();
         ArrayList<int[]> ebonds = new ArrayList<int[]>();
@@ -222,6 +319,92 @@ public class VirialDiagrams {
         }
         else {
             allBonds.add(new ClusterBonds(flex ? n+1 : n, new int[][][]{fbonds.toArray(new int[0][0])}));
+        }
+
+    }
+    
+    public void populateEFdfdTBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap) {
+        ArrayList<int[]> fbonds = new ArrayList<int[]>();
+        ArrayList<int[]> ebonds = new ArrayList<int[]>();
+        ArrayList<int[]> dfdTbonds = new ArrayList<int[]>();
+        for (Node node1 : g.nodes()) {
+            for (Node node2 : g.nodes()) {
+                if (node1.getId() > node2.getId()) continue;
+                if (g.hasEdge(node1.getId(), node2.getId())) {
+                    byte n1 = node1.getId();
+                    byte n2 = node2.getId();
+                    if (swap) {
+                        if (n1 == 0) n1 = (byte)n;
+                        else if (n1 == n) n1 = (byte)0;
+                        else if (n2 == 0) n2 = (byte)n;
+                        else if (n2 == n) n2 = (byte)0;
+                    }
+                    char edgeColor = g.getEdge(node1.getId(), node2.getId()).getColor();
+                    if (edgeColor == fBond) {
+                        fbonds.add(new int[]{n1,n2});
+                    }
+                    else if (edgeColor == eBond) {
+                        ebonds.add(new int[]{n1,n2});
+                    }
+                    else if (edgeColor == 'a') {
+                        dfdTbonds.add(new int[]{n1,n2});
+                    }
+                    else {
+                        throw new RuntimeException("oops, unknown bond "+edgeColor);
+                    }
+                }
+            }
+        }
+        if (!flex && n > 3) {
+            allBonds.add(new ClusterBonds(flex ? n+1 : n, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0]),dfdTbonds.toArray(new int[0][0])}));
+        }
+        else {
+            allBonds.add(new ClusterBonds(flex ? n+1 : n, new int[][][]{fbonds.toArray(new int[0][0]),dfdTbonds.toArray(new int[0][0])}));
+        }
+
+    }
+    
+    public void populateEFdfdTdf2dT2Bonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap) {
+        ArrayList<int[]> fbonds = new ArrayList<int[]>();
+        ArrayList<int[]> ebonds = new ArrayList<int[]>();
+        ArrayList<int[]> dfdTbonds = new ArrayList<int[]>();
+        ArrayList<int[]> d2fdT2bonds = new ArrayList<int[]>();
+        for (Node node1 : g.nodes()) {
+            for (Node node2 : g.nodes()) {
+                if (node1.getId() > node2.getId()) continue;
+                if (g.hasEdge(node1.getId(), node2.getId())) {
+                    byte n1 = node1.getId();
+                    byte n2 = node2.getId();
+                    if (swap) {
+                        if (n1 == 0) n1 = (byte)n;
+                        else if (n1 == n) n1 = (byte)0;
+                        else if (n2 == 0) n2 = (byte)n;
+                        else if (n2 == n) n2 = (byte)0;
+                    }
+                    char edgeColor = g.getEdge(node1.getId(), node2.getId()).getColor();
+                    if (edgeColor == fBond) {
+                        fbonds.add(new int[]{n1,n2});
+                    }
+                    else if (edgeColor == eBond) {
+                        ebonds.add(new int[]{n1,n2});
+                    }
+                    else if (edgeColor == 'a') {
+                        dfdTbonds.add(new int[]{n1,n2});
+                    }
+                    else if (edgeColor == 'b') {
+                        d2fdT2bonds.add(new int[]{n1,n2});
+                    }
+                    else {
+                        throw new RuntimeException("oops, unknown bond "+edgeColor);
+                    }
+                }
+            }
+        }
+        if (!flex && n > 3) {
+            allBonds.add(new ClusterBonds(flex ? n+1 : n, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0]),dfdTbonds.toArray(new int[0][0]),d2fdT2bonds.toArray(new int[0][0])}));
+        }
+        else {
+            allBonds.add(new ClusterBonds(flex ? n+1 : n, new int[][][]{fbonds.toArray(new int[0][0]),dfdTbonds.toArray(new int[0][0]),d2fdT2bonds.toArray(new int[0][0])}));
         }
 
     }
