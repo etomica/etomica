@@ -1,12 +1,9 @@
-package etomica.virial.simulations;
+package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-import etomica.potential.P2HePCKLJSFancy;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2Spherical;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -85,7 +82,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
     public static void main(String[] args) {
         ISpace space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(10);
-        final P2HePCKLJSFancy p2 = new P2HePCKLJSFancy(space);
+        final P2HePCKLJS p2 = new P2HePCKLJS(space);
         P2DiscreteFeynmanHibbs p2fh = new P2DiscreteFeynmanHibbs(space, p2);
         double heMass = 4.002602;
         p2fh.setMass(heMass);
