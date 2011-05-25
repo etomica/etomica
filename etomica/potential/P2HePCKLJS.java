@@ -5,7 +5,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
-import etomica.units.Kelvin;
 
 /**
  * 
@@ -187,8 +186,83 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-     
-        return 0;
+        double r = Math.sqrt(r2);
+        r = BohrRadius.UNIT.fromSim(r);
+
+        //Potential is speciously negative at separations less than 0.3 a0.
+        if (r < 0.3) {
+            return 0;
+        }
+
+        double expar = Math.exp(-a*r);
+        double u1 = (P[0] + P[1]*r + P[2]*r*r)*expar;
+//        double du1dr = (P[1] + P[2]*2.0*r)*Math.exp(-a*r) - a*u1;
+        double d2u1dr2 = 2*P[2]*expar -2*a*(P[1] + P[2]*2.0*r)*expar + a*a*u1;
+        double expbr = Math.exp(-b*r);
+        double u2 = (Q[0] + Q[1]*r)*expbr;
+//        double du2dr = Q[1]*expbr - b*u2;
+        double d2u2dr2 = -2*b*Q[1]*expbr + b*b*u2;
+
+        double invr = 1.0/r;
+        invr = 1.0/r;
+
+        double m = Math.exp(-eta*r);
+        double dmdr = -eta*m;
+        double d2mdr2 = -eta*dmdr;
+        double term = 1.0;
+        double sum = term;
+        double dsumdr = 0;
+        double d2sumdr2 = 0;
+        double d2u3dr2 = 0;
+        double invri = invr;
+        for (int i=1; i<17; i++) {
+            term *= eta*r/i;
+            sum = sum + term;
+            dsumdr = dsumdr + term*invr*i;
+            d2sumdr2 += term*invr*invr*i*(i-1);
+//            u3 += (-1.0+m*sum)*C[i]*invri;
+//            du3dr += (dmdr*sum + m*dsumdr)*C[i]*invri + (-1.0+m*sum)*C[i]*invri*invr*(-i);
+            d2u3dr2 += (d2mdr2*sum + 2*dmdr*dsumdr + m*d2sumdr2)*C[i]*invri
+                     + 2*(dmdr*sum + m*dsumdr)*C[i]*invri*invr*(-i)
+                     + (-1.0+m*sum)*C[i]*invri*invr*invr*(-i)*(-i-1);
+            invri *= invr;
+        }
+
+        /// damp_ret ////
+
+        double sumA = 1.0;
+        double sumB = 1.0;
+        double dsumAdr = 0;
+        double dsumBdr = 0;
+        double d2sumAdr2 = 0;
+        double d2sumBdr2 = 0;
+        double x = alpha*r;
+        double xn=1.0;
+        for (int n=1;n<7;n++) {
+            xn *= x;
+            double termA = A[n]*xn;
+            double termB = B[n]*xn;
+            sumA += termA;
+            sumB += termB;
+            termA *= invr*n;
+            termB *= invr*n;
+            dsumAdr += termA;
+            dsumBdr += termB;
+            termA *= invr*(n-1);
+            termB *= invr*(n-1);
+            d2sumAdr2 += termA;
+            d2sumBdr2 += termB;
+        }
+        double g = sumA/sumB;
+        double dgdr = dsumAdr/sumB - sumA/sumB/sumB*dsumBdr;
+        double d2gdr2 = (d2sumAdr2 - (2*dsumAdr*dsumBdr + sumA*d2sumBdr2 - 2*sumA*dsumBdr*dsumBdr/sumB)/sumB)/sumB;
+        double invr3 = invr*invr*invr;
+//        double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
+//        double dVretdr = (-3.0*C[3] -4.0*C[4]*invr -6.0*C6BO*(1.0-g)*invr3)*invr3*invr + C6BO*(-dgdr)*invr3*invr3;
+        double d2Vretdr2 = (12.0*C[3] +20.0*C[4]*invr +42.0*C6BO*(1.0-g)*invr3)*invr3*invr*invr + C6BO*(-d2gdr2 + 12*dgdr*invr)*invr3*invr3;
+
+        double d2udr2 = Hartree.UNIT.toSim(d2u1dr2 + d2u2dr2 + d2u3dr2 + d2Vretdr2);
+        return r*r*d2udr2;
     }
             
     /**
