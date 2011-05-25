@@ -5,14 +5,17 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
+import etomica.units.Kelvin;
 
 /**
  * 
- * Ab initio pair potential for helium from Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.  This is a true pair potential, rather than a pairwise-additive potential.
+ * Ab initio pair potential for helium from Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.   
  * 
- * The second derivative has not yet been included.  
+ * Potential is speciously negative at separations less than 0.3 a0.
+ * Second derivative (used for quadratic Feymann-Hibbs potential) goes through maximum at 0.2A~=0.4a0. 
+ * We apply a hard core of 0.4 a0.
  *
- * @author Kate Shaul
+ * @author Kate Shaul and Andrew Schultz
  */
 public class P2HePCKLJS extends Potential2SoftSpherical {
     
@@ -68,8 +71,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     	double r = Math.sqrt(r2);
     	r = BohrRadius.UNIT.fromSim(r);
 
-    	//Potential is speciously negative at separations less than 0.3 a0.
-    	if (r < 0.3) {
+    	if (r < sigmaHC) {
     		return Double.POSITIVE_INFINITY;
     	}
 
@@ -121,8 +123,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     	double r = Math.sqrt(r2);
     	r = BohrRadius.UNIT.fromSim(r);
 
-    	//Potential is speciously negative at separations less than 0.3 a0.
-    	if (r < 0.3) {
+    	if (r < sigmaHC) {
     		return 0;
     	}
 
@@ -131,7 +132,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     	double u2 = (Q[0] + Q[1]*r)*Math.exp(-b*r);
     	double du2dr = Q[1]*Math.exp(-b*r) - b*u2;
 
-    	
     	double invr = 1.0/r;
 
         double m = Math.exp(-eta*r);
@@ -189,8 +189,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         double r = Math.sqrt(r2);
         r = BohrRadius.UNIT.fromSim(r);
 
-        //Potential is speciously negative at separations less than 0.3 a0.
-        if (r < 0.3) {
+        if (r < sigmaHC) {
             return 0;
         }
 
@@ -200,9 +199,9 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         double d2u1dr2 = 2*P[2]*expar -2*a*(P[1] + P[2]*2.0*r)*expar + a*a*u1;
         double expbr = Math.exp(-b*r);
         double u2 = (Q[0] + Q[1]*r)*expbr;
-//        double du2dr = Q[1]*expbr - b*u2;
+//        double du2dr = Q[1]*Math.exp(-b*r) - b*(Q[0] + Q[1]*r)*Math.exp(-b*r);
         double d2u2dr2 = -2*b*Q[1]*expbr + b*b*u2;
-
+        
         double invr = 1.0/r;
         invr = 1.0/r;
 
@@ -294,6 +293,16 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     	 
     		System.out.println(rTest[i]+"   \t"+V+"  \t" +u+"  \t" +(u-V));
     	}
+     	
+     	r=5;
+     	while (r<6) {
+
+     		r = r + 0.1;
+    		double rA = BohrRadius.UNIT.toSim(r); //Angstrom
+    		u = Hartree.UNIT.fromSim(p2.u(rA*rA)); // sim
+    	 
+    		System.out.println(r+"   \t"+u);
+    	}
 
 /*     	long t1 = System.currentTimeMillis();
         for (r = 1; r<10; r+=0.0000001) {
@@ -320,6 +329,25 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     		System.out.println(r+"   \t"+rdudr+"  \t" +rdeludelr+"  \t" +u2);
     		u1=u2;
     	}
+     	
+     	//Sanity check on r2d2u/dr2
+     	System.out.println();
+     	r = 2; rmin=r; 
+
+     	double dudr1 = p2.du(r*r)/r;
+     	delr = 0.000001;
+     	System.out.println("r(A) \t\t d2udr2 \t\t\t del2udelr2 \t\t\t\t u2");
+     	while (r<(rmin+0.00001)) {
+
+     		r = r + delr;
+    		double dudr2 = p2.du(r*r)/r;
+    		double d2udr2 = p2.d2u(r*r)/r/r;
+    		double del2udelr2 = (dudr2-dudr1)/delr;
+    		
+    		//System.out.println(r+"   \t"+dudr+"  \t" +u2);
+    		System.out.println(r+"   \t"+d2udr2+"  \t" +del2udelr2+"  \t");
+    		dudr1=dudr2;
+    	}
     }
     
     private static final long serialVersionUID = 1L;
@@ -329,5 +357,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     protected static final double a = 3.64890303652830;
     protected static final double b = 2.36824871743591;
     protected static final double eta = 4.09423805117871;
+    protected static double sigmaHC = 0.4; //bohr radii
 
 }
