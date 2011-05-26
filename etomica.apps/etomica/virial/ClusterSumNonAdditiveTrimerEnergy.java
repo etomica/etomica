@@ -12,8 +12,6 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
      * Thoroughly vetted for only third order... fourth and fifth orders yield plausible results.
      * Unlike ClusterSumPolarizable, Does NOT include pairwise additive component of diagrams.
      */
-	
-	
     public ClusterSumNonAdditiveTrimerEnergy(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray, Potential p3NonAdd) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
         clusters = new ClusterBonds[subClusters.length];
@@ -72,7 +70,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             for(int j=i+1; j<nPoints; j++) {
                 double r2 = cPairs.getr2(i,j);
                 for(int k=0; k<f.length; k++) {
-                    fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                    fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),r2, beta);
                     fValues[j][i][k] = fValues[i][j][k];
                 }
             }
@@ -107,22 +105,23 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
                 atoms.add(atomSet.getAtom(0));
                 atoms.add(atomSet.getAtom(1));
                 atoms.add(atomSet.getAtom(2));
-                double u123NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                double u123NonAdd = p3NonAdd.energy(atoms);
 
                 //deltaC = Math.exp(-beta*u123) - Math.exp(-beta*(u12 + u13 + u23));
                 double betaU123NonAdd = beta*u123NonAdd;
-                double deltaC;
-                if (Math.abs(betaU123NonAdd) < 1.e-8) {
+                double f123;
+                if (Math.abs(betaU123NonAdd) < 0.01) {
                     // for small x, exp(-x)-1 ~= -x
                     // for x < 1E-8, the approximation is value within machine precision
                     // for x < 1E-15, exp(-x) is 1, so the approximation is more accurate
                     //   than simply doing the math.
-                	deltaC = -betaU123NonAdd*g12*g13*g23;
+                    double x = -betaU123NonAdd;
+                    f123 = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
                 }
                 else {
-                	deltaC = (Math.exp(-betaU123NonAdd)-1.0)*g12*g13*g23;
+                	f123 = Math.exp(-betaU123NonAdd)-1.0;
                 }
-                
+                double deltaC = f123*g12*g13*g23;
                 // deltaC has to be multiplied by clusterWeights, just like v was multiplied by
                 // clusterWeights above to get value
                 deltaC = deltaC*clusterWeights[0];
@@ -168,80 +167,94 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             atoms.add(atomSet.getAtom(1));
             atoms.add(atomSet.getAtom(2));
 
-            double deltaD = 0;
             // if 12 13 or 23 is overlapped, then we can't calculate u123Pol and
             // couldn't calculate the uijPol.  Fortunately, gij is 0, so the 123
             // term is 0.
             double exp123NonAdd = 1.0;
+            double f123 = 0, f124 = 0, f134 = 0, f234 = 0, f1234 = 0;
+            double d123 = 0, d124 = 0, d134 = 0, d234 = 0, d1234 = 0;
             if (g12*g13*g23 != 0) {
-            	double u123NonAdd = p3NonAdd.energy((IAtomList)atoms);
+            	double u123NonAdd = p3NonAdd.energy(atoms);
                 double betau123NonAdd = beta*u123NonAdd;
                 // for small x, exp(-x)-1 ~= -x
                 // for x < 1E-8, the approximation is value within machine precision
                 // for x < 1E-15, exp(-x) is 1, so the approximation is more accurate
                 //   than simply doing the math.
                 exp123NonAdd = Math.exp(-betau123NonAdd);
-                if (Math.abs(betau123NonAdd) < 1E-8) {
-                	deltaD += betau123NonAdd*g12*g13*g23*((f14+f24+f34)+1.0);
+                if (Math.abs(betau123NonAdd) < 0.01) {
+                    double x = -betau123NonAdd;
+                    f123 = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
                 } else {
-                	deltaD += -(exp123NonAdd-1.0)*g12*g13*g23*((f14+f24+f34)+1);
+                    f123 = exp123NonAdd-1;
                 }
+                d123 = -f123*g12*g13*g23*((f14+f24+f34)+1);
                 // original formula has g14+g24+g34-2 instead of f14+f24+f34+1.
                 // Using f should have better precision since
                 // the g's will all be close to 1 (or even equal to 1) for 
                 // systems with molecules having large separations.
-                
             }
 
             atoms.remove(2);
             atoms.add(atomSet.getAtom(3));
             double exp124NonAdd = 1.0;
             if (g12*g14*g24 != 0) {
-                double u124NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                double u124NonAdd = p3NonAdd.energy(atoms);
                 double betau124NonAdd = beta*u124NonAdd;
                 exp124NonAdd = Math.exp(-betau124NonAdd);
-                if (Math.abs(betau124NonAdd) < 1E-8) {
-                	deltaD += betau124NonAdd*g12*g14*g24*((f13+f23+f34)+1);
+                if (Math.abs(betau124NonAdd) < 0.01) {
+                    double x = -betau124NonAdd;
+                    f124 = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
                 } else {	
-                	deltaD += -(exp124NonAdd-1.0)*g12*g14*g24*((f13+f23+f34)+1);
+                    f124 = exp124NonAdd-1;
                 }
+                d124 = -f124*g12*g14*g24*((f13+f23+f34)+1);
             }
 
             atoms.remove(1);
             atoms.add(atomSet.getAtom(2));
             double exp134NonAdd = 1.0;
             if (g13*g14*g34 != 0) {
-                double u134NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                double u134NonAdd = p3NonAdd.energy(atoms);
                 double betau134NonAdd = beta*u134NonAdd;
                 exp134NonAdd = Math.exp(-betau134NonAdd);
-                if (Math.abs(betau134NonAdd) < 1E-8) {
-                	deltaD += betau134NonAdd*g13*g14*g34*((f12+f23+f24)+1);
+                if (Math.abs(betau134NonAdd) < 0.01) {
+                    double x = -betau134NonAdd;
+                    f134 = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
                 } else {
-                	deltaD += -(exp134NonAdd-1.0)*g13*g14*g34*((f12+f23+f24)+1);
+                    f134 = exp134NonAdd-1.0;
                 }
+                d134 = -f134*g13*g14*g34*((f12+f23+f24)+1);
             }
 
             atoms.remove(0);
             atoms.add(atomSet.getAtom(1));
             double exp234NonAdd = 1.0;
             if (g23*g24*g34 != 0) {
-                double u234NonAdd = p3NonAdd.energy((IAtomList)atoms);
+                double u234NonAdd = p3NonAdd.energy(atoms);
                 double betau234NonAdd = beta*u234NonAdd;
                 exp234NonAdd = Math.exp(-betau234NonAdd);
-                if (Math.abs(betau234NonAdd) < 1E-8) {
-                	deltaD += betau234NonAdd*g23*g24*g34*((f12+f13+f14)+1);
+                if (Math.abs(betau234NonAdd) < 0.01) {
+                    double x = -betau234NonAdd;
+                    f234 = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
                 } else {
-                	deltaD += -(exp234NonAdd-1.0)*g23*g24*g34*((f12+f13+f14)+1);
+                    f234 = exp234NonAdd - 1;
                 }
+                d234 = -f234*g23*g24*g34*((f12+f13+f14)+1);
             }
 
             
             atoms.add(atomSet.getAtom(0));
             if (g12*g13*g14*g23*g24*g34 != 0) {
-                double exp1234NonAdd = exp123NonAdd*exp124NonAdd*exp134NonAdd*exp234NonAdd;
-                deltaD += (exp1234NonAdd-1.0)*g12*g13*g14*g23*g24*g34;
+                double sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
+                // e123*e124*e134*e234 - 1 = sum(fij) + sum(pairs of fij) + sum(triplets of fij) + f123*f124*f134*f234
+                sum1 = f123 + f124 + f134 + f234;
+                sum2 = f123 * (f124 + f134 + f234) + f124 * (f134 + f234) + f134*f234;
+                sum3 = f123 * f124 * (f134 + f234) + f134 * f234 * (f123 + f124);
+                sum4 = f123 * f124 * f134 * f234;
+                f1234 = sum1 + sum2 + sum3 + sum4;
+                d1234 = f1234*g12*g13*g14*g23*g24*g34;
             }
-
+            double deltaD = d123 + d124 + d134 + d234 + d1234;
             // Mason and Spurling book deltaD; 5/11/07
 
             // deltaU1234 = u1234-u12-u13-u14-u23-u24-u34;
