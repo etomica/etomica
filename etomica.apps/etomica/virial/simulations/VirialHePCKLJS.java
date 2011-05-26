@@ -29,7 +29,11 @@ import etomica.virial.cluster.Standard;
 /**
  * Computes additive virial coefficients using the pair potential for He of Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.
  * 
- * Use QFH boolean to change pair potential to the quadratic Feymann-Hibbs potential
+ * Use QFH boolean to change pair potential to the quadratic Feymann-Hibbs potential.
+ * 
+ * If determining which option is most efficient via short calculations to estimate standard error, 
+ * maintain a 50-50 split of steps between reference and target during data collection with 
+ * with adjustStepFreqFrequency = false;
  * 
  * @author kate
  *
@@ -43,7 +47,7 @@ public class VirialHePCKLJS {
         VirialParam params = new VirialParam();
         
         double temperatureK; final int nPoints; double sigmaHSRef;
-        long steps; int stepsPerBlock; long eqSteps; boolean QFH;
+        long steps; int stepsPerBlock; long eqSteps; boolean QFH; boolean adjustStepFrequency;
         if (args.length == 0) {
         	
         	nPoints = params.numMolecules;
@@ -53,12 +57,13 @@ public class VirialHePCKLJS {
             eqSteps = params.eqSteps;
             sigmaHSRef = params.sigmaHSRef;
             QFH = params.QFH;
+            adjustStepFrequency = params.adjustStepFrequency;
             
             // number of overlap sampling steps
             // for each overlap sampling step, the simulation boxes are allotted
             // 1000 attempts for MC moves, total
             
-        } else if (args.length == 7) {
+        } else if (args.length == 8) {
             //ReadParameters paramReader = new ReadParameters(args[0], params);
             //paramReader.readParameters();
         	nPoints = Integer.parseInt(args[0]);
@@ -68,6 +73,7 @@ public class VirialHePCKLJS {
             eqSteps = Integer.parseInt(args[4]);
             sigmaHSRef = Double.parseDouble(args[5]);
             QFH = Boolean.parseBoolean(args[6]);
+            adjustStepFrequency = Boolean.parseBoolean(args[7]);
             params.writeRefPref = true;
         	
         }  else {
@@ -132,7 +138,7 @@ public class VirialHePCKLJS {
         sim.integratorOS.setNumSubSteps(1000);
         
         // Keep 50-50 split between reference and target
-        sim.integratorOS.setAdjustStepFreq(false);
+        sim.integratorOS.setAdjustStepFreq(adjustStepFrequency);
        
         sim.setAccumulatorBlockSize(stepsPerBlock);
         System.out.println(stepsPerBlock+" steps per block");
@@ -246,6 +252,6 @@ public class VirialHePCKLJS {
         public double sigmaHSRef = 3;
         public boolean writeRefPref = false;
         public boolean QFH = true;
-        
+        public boolean adjustStepFrequency = false;
     }
 }
