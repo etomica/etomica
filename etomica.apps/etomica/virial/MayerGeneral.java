@@ -21,15 +21,11 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
     }
 
     public double f(IMoleculeList pair, double r2, double beta) {
-        double betaU = beta*potential.energy(pair);
-        if (Math.abs(betaU) < 1.e-8) {
-            // for small betaU, exp(-betaU)-1 ~= -betaU
-            // for betaU < 1E-8, the approximation is value within machine precision
-            // for betaU < 1E-15, exp(-betaU) is 1, so the approximation is more accurate
-            //   than simply doing the math.
-            return -betaU;
+        double x = -beta*potential.energy(pair);
+        if (Math.abs(x) < 0.01) {
+            return x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
         }
-        return Math.exp(-betaU) - 1.0;
+        return Math.exp(x) - 1;
     }
 
     public IPotential getPotential() {
