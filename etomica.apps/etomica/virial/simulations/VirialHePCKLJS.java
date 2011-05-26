@@ -8,7 +8,9 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HePCKLJS;
+import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -24,7 +26,15 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
-// Computes additive virial coefficients using the pair potential for He of Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.
+/**
+ * Computes additive virial coefficients using the pair potential for He of Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.
+ * 
+ * Use QFH boolean to change pair potential to the quadratic Feymann-Hibbs potential
+ * 
+ * @author kate
+ *
+ */
+
 
 public class VirialHePCKLJS {
 
@@ -33,7 +43,7 @@ public class VirialHePCKLJS {
         VirialParam params = new VirialParam();
         
         double temperatureK; final int nPoints; double sigmaHSRef;
-        long steps; int stepsPerBlock; long eqSteps;
+        long steps; int stepsPerBlock; long eqSteps; boolean QFH;
         if (args.length == 0) {
         	
         	nPoints = params.numMolecules;
@@ -42,12 +52,13 @@ public class VirialHePCKLJS {
             stepsPerBlock = params.stepsPerBlock;
             eqSteps = params.eqSteps;
             sigmaHSRef = params.sigmaHSRef;
+            QFH = params.QFH;
             
             // number of overlap sampling steps
             // for each overlap sampling step, the simulation boxes are allotted
             // 1000 attempts for MC moves, total
             
-        } else if (args.length == 6) {
+        } else if (args.length == 7) {
             //ReadParameters paramReader = new ReadParameters(args[0], params);
             //paramReader.readParameters();
         	nPoints = Integer.parseInt(args[0]);
@@ -56,6 +67,7 @@ public class VirialHePCKLJS {
             stepsPerBlock = Integer.parseInt(args[3]);
             eqSteps = Integer.parseInt(args[4]);
             sigmaHSRef = Double.parseDouble(args[5]);
+            QFH = Boolean.parseBoolean(args[6]);
             params.writeRefPref = true;
         	
         }  else {
@@ -75,6 +87,9 @@ public class VirialHePCKLJS {
 
         System.out.println("Target diagram: B"+nPoints+" for helium pair potential of Przybytek et al. (2010) at " + temperatureK + " K");
         double temperature = Kelvin.UNIT.toSim(temperatureK);
+        if (QFH) {
+        	System.out.println("Quadratic Feymann-Hibbs version of potential employed.");
+        }
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
@@ -84,9 +99,20 @@ public class VirialHePCKLJS {
         
         Space space = Space3D.getInstance();
 
-        P2HePCKLJS p2 = new P2HePCKLJS(space); 
-    	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
-    	MayerESpherical eTarget = new MayerESpherical(p2);
+        MayerGeneralSpherical fTarget; MayerESpherical eTarget;
+        if (QFH) {
+        	P2HePCKLJS p20 = new P2HePCKLJS(space);
+        	P2EffectiveFeynmanHibbs p2 = new P2EffectiveFeynmanHibbs(Space3D.getInstance(),p20);
+			p2.setTemperature(temperature);		
+			p2.setMass(4.002602);
+			fTarget = new MayerGeneralSpherical(p2);
+	    	eTarget = new MayerESpherical(p2);
+        } else {
+        	P2HePCKLJS p2 = new P2HePCKLJS(space);
+        	fTarget = new MayerGeneralSpherical(p2);
+        	eTarget = new MayerESpherical(p2);
+        }
+    	
     	ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, false);
    	    ClusterWeight sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
 
@@ -219,6 +245,7 @@ public class VirialHePCKLJS {
         public long eqSteps=1000;
         public double sigmaHSRef = 3;
         public boolean writeRefPref = false;
+        public boolean QFH = true;
         
     }
 }
