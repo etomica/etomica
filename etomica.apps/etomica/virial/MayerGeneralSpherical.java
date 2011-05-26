@@ -21,7 +21,11 @@ public class MayerGeneralSpherical implements MayerFunction {
     }
 
     public double f(IMoleculeList pair, double r2, double beta) {
-        return Math.exp(-beta*potential.u(r2)) - 1.0;
+        double x = -beta*potential.u(r2);
+        if (Math.abs(x) < 0.01) {
+            return x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
+        }
+        return Math.exp(x) - 1.0;
     }
 
     public IPotential getPotential() {
