@@ -29,7 +29,7 @@ import etomica.virial.cluster.Standard;
 /**
  * Computes additive virial coefficients using the pair potential for He of Przybytek et al. (2010) Phys. Rev. Lett. 104, 183003.
  * 
- * Use QFH boolean to change pair potential to the quadratic Feymann-Hibbs potential.
+ * Use QFH boolean to change pair potential to the quadratic Feynman-Hibbs potential.
  * 
  * If determining which option is most efficient via short calculations to estimate standard error, 
  * maintain a 50-50 split of steps between reference and target during data collection with 
