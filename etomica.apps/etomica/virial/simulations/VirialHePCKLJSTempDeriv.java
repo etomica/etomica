@@ -9,6 +9,7 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HePCKLJS;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -31,6 +32,8 @@ import etomica.virial.cluster.VirialDiagrams;
  * Computes first or second temperatures (see firstDerivative variable) of additive virial coefficients using the 
  * ab initio pair potential for helium from Przybytek et al. (2010) (Phys. Rev. Lett. 104, 183003). 
  * 
+ * Use the boolean QFH to select whether the quadratic Feynman-Hibbs modification to the potential is used.
+ * 
  * @author kate 
  *
  */
@@ -43,7 +46,7 @@ public class VirialHePCKLJSTempDeriv {
         VirialParam params = new VirialParam();
         
         double temperatureK; final int nPoints; double sigmaHSRef;
-        long steps; boolean firstDerivative;
+        long steps; boolean firstDerivative; boolean QFH;
         if (args.length == 0) {
         	
         	nPoints = params.nPoints;
@@ -51,12 +54,13 @@ public class VirialHePCKLJSTempDeriv {
             steps = params.numSteps;
             sigmaHSRef = params.sigmaHSRef;
             firstDerivative = params.firstDerivative;
+            QFH = params.QFH;
             
             // number of overlap sampling steps
             // for each overlap sampling step, the simulation boxes are allotted
             // 1000 attempts for MC moves, total
             
-        } else if (args.length == 5) {
+        } else if (args.length == 6) {
             //ReadParameters paramReader = new ReadParameters(args[0], params);
             //paramReader.readParameters();
         	nPoints = Integer.parseInt(args[0]);
@@ -64,6 +68,7 @@ public class VirialHePCKLJSTempDeriv {
             steps = Integer.parseInt(args[2]);
             sigmaHSRef = Double.parseDouble(args[3]);
             firstDerivative = Boolean.parseBoolean(args[4]);
+            QFH = Boolean.parseBoolean(args[5]);
             params.writeRefPref = true;
         	
         } else {
@@ -87,6 +92,10 @@ public class VirialHePCKLJSTempDeriv {
         } else {
         	System.out.println("Helium overlap sampling d2B"+nPoints+"Add/dT2 at T="+temperatureK+ " K");
         }
+        if (QFH) {
+        	System.out.println("Quadratic Feymann-Hibbs version of potential employed.");
+        }
+        
         
         double temperature = Kelvin.UNIT.toSim(temperatureK);
         
@@ -98,14 +107,26 @@ public class VirialHePCKLJSTempDeriv {
 
         Space space = Space3D.getInstance();
 
+        MayerGeneralSpherical fTarget; MayerESpherical eTarget; 
+        MayerDFDTSpherical dfdTTarget; MayerD2FDT2Spherical df2dT2Target;
+        if (QFH) {
+        	P2HePCKLJS p20 = new P2HePCKLJS(space);
+        	P2EffectiveFeynmanHibbs p2 = new P2EffectiveFeynmanHibbs(Space3D.getInstance(),p20);
+			p2.setTemperature(temperature);		
+			p2.setMass(4.002602);
+			fTarget = new MayerGeneralSpherical(p2);
+	    	eTarget = new MayerESpherical(p2);
+	    	dfdTTarget = new MayerDFDTSpherical(p2);
+        	df2dT2Target = new MayerD2FDT2Spherical(p2);
+        } else {
+        	P2HePCKLJS p2 = new P2HePCKLJS(space);
+        	fTarget = new MayerGeneralSpherical(p2);
+        	eTarget = new MayerESpherical(p2);
+        	dfdTTarget = new MayerDFDTSpherical(p2);
+        	df2dT2Target = new MayerD2FDT2Spherical(p2);
+        }
         
-        
-        P2HePCKLJS p2 = new P2HePCKLJS(space);
-        
-    	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
-    	MayerESpherical eTarget = new MayerESpherical(p2);
-    	MayerDFDTSpherical dfdTTarget = new MayerDFDTSpherical(p2);
-    	MayerD2FDT2Spherical df2dT2Target = new MayerD2FDT2Spherical(p2);
+
 
     	
     	VirialDiagrams targetCluster1 = new VirialDiagrams(nPoints, false, false);
@@ -128,9 +149,14 @@ public class VirialHePCKLJSTempDeriv {
                 temperature,refCluster,targetCluster, false);
         
         IAtomList atoms = sim.box[1].getLeafList();
-        for (int i=1;i<atoms.getAtomCount();i++) {
-        	atoms.getAtom(i).getPosition().setX(0, i*10);
+        if (QFH) {
+        	
+        } else {
+        	for (int i=1;i<atoms.getAtomCount();i++) {
+            	atoms.getAtom(i).getPosition().setX(0, i*10);
+            }
         }
+        
         
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -247,10 +273,11 @@ public class VirialHePCKLJSTempDeriv {
      */
     public static class VirialParam extends ParameterBase {
         public int nPoints = 4;
-        public double temperature = 500.0;   // Kelvin
-        public long numSteps = 1000000;
+        public double temperature = 50.0;   // Kelvin
+        public long numSteps = 100000;
         public double sigmaHSRef = 3;
-        public boolean firstDerivative = false;
+        public boolean firstDerivative = true;
+        public boolean QFH = false;
         public boolean writeRefPref;
     }
 }
