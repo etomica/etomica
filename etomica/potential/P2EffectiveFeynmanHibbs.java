@@ -6,6 +6,7 @@ import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
+import etomica.units.Hartree;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -65,9 +66,28 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
 
     public double u(double r2) {
         double uc = p2Classy.u(r2);
+        if (Double.isInfinite(uc)) { return uc; }
+        double duc = p2Classy.du(r2); //multiplied by r
+        double d2uc = p2Classy.d2u(r2);  //multiplied by r*r
+        if (Double.isInfinite(uc + fac*(d2uc + 2*duc)/r2)) {
+        	throw new RuntimeException("fac*(d2uc + 2*duc)/r2 is infinite");
+        } 
+        if (Double.isInfinite(Math.exp(-(uc + fac*(d2uc + 2*duc)/r2))/temperature)) {
+        	//throw new RuntimeException("fij is infinite");
+        } 
+        return uc + fac*(d2uc + 2*duc)/r2;
+    }
+    
+    public double dudkT(double r2) {
+        double uc = p2Classy.u(r2);
+        if (Double.isInfinite(uc)) { return 0; }
         double duc = p2Classy.du(r2);
         double d2uc = p2Classy.d2u(r2);
-        return uc + fac*(d2uc + 2*duc)/r2;
+        if (Double.isInfinite(fac*(d2uc + 2*duc)/r2*(-2/temperature/temperature))) {
+        	throw new RuntimeException("fac*(d2uc + 2*duc)/r2 is infinite");
+        } 
+
+        return fac*(d2uc + 2*duc)/r2*(-2/temperature/temperature);  //fac includes temperature in the denominator
     }
 
     public void setBox(IBox box) {
@@ -81,16 +101,18 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
 
     public static void main(String[] args) {
         ISpace space = Space3D.getInstance();
-        double temperature = Kelvin.UNIT.toSim(10);
+        double temperature = Kelvin.UNIT.toSim(20);
         final P2HePCKLJS p2 = new P2HePCKLJS(space);
-        P2DiscreteFeynmanHibbs p2fh = new P2DiscreteFeynmanHibbs(space, p2);
+        P2EffectiveFeynmanHibbs p2fh = new P2EffectiveFeynmanHibbs(space, p2);
         double heMass = 4.002602;
         p2fh.setMass(heMass);
         p2fh.setTemperature(temperature);
-        for (int i=25;i<1000; i++) {
+        for (int i=22;i<2000; i++) {
             double r = i/100.0;
-            double u = p2fh.u(r*r);
+            double u = Hartree.UNIT.fromSim(p2fh.u(r*r));
             System.out.println(r+" "+u);
         }
+        
+
     }
 }
