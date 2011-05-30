@@ -80,12 +80,7 @@ public class MulFlexible implements Binary {
       }
       if (flexColor) {
         // we want node1 to be unbonded
-        for (Node node2 : g1.nodes()) {
-          if (node1 != node2 && g1.hasEdge(node1.getId(), node2.getId())) {
-            flex1Unhappy = true;
-            break;
-          }
-        }
+        flex1Unhappy = g1.getOutDegree(node1.getId()) > 0;
       }
       // check if the other graph has a node of the same color
       for (Node node2 : g2.nodes()) {
@@ -97,13 +92,7 @@ public class MulFlexible implements Binary {
           boolean success = true;
           if (flex1Unhappy) {
             // node1 was bonded.  node2 must unbonded
-            for (Node node3 : g2.nodes()) {
-              if (node3 != node2 && g2.hasEdge(node3.getId(), node2.getId())) {
-                // node2 was also bonded, so we can't superimpose these nodes
-                success = false;
-                break;
-              }
-            }
+            success = g2.getOutDegree(node2.getId()) == 0;
           }
           if (success && (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT)) {
             // node1 and node2 are suitable for superimposing
