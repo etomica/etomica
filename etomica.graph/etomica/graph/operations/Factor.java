@@ -52,7 +52,9 @@ public class Factor implements Unary {
     }
 
     for (int i=0; i<biComponents.size()-1; i++) {
-      for (byte iNodeID : biComponents.get(i)) {
+      List<Byte> iBiComponent = biComponents.get(i);
+      for (int k=0; k<iBiComponent.size(); k++) {
+        byte iNodeID = iBiComponent.get(k);
         for (int j=i+1; j<biComponents.size(); j++) {
           for (byte jNodeID : biComponents.get(j)) {
             if (iNodeID == jNodeID) {
