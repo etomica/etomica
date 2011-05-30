@@ -8,7 +8,9 @@ import java.util.Set;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
+import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
+import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.Mul.MulParameters;
 
 /**
@@ -66,6 +68,24 @@ public class MulFlexible implements Binary {
     Graph result;
     Node myNode1 = null;
     Node myNode2 = null;
+    // look for root nodes.  we might find superimposable nodes, neither of
+    // which are root nodes.  if possible, just swap out the root node.
+    byte g1RootNode = -1;
+    byte g2RootNode = -1;
+    for (Node node1 : g1.nodes()) {
+      if (node1.getType() == Metadata.TYPE_NODE_ROOT) {
+        g1RootNode = node1.getId();
+        break;
+      }
+    }
+    if (g1RootNode == -1) {
+      for (Node node2 : g2.nodes()) {
+        if (node2.getType() == Metadata.TYPE_NODE_ROOT) {
+          g2RootNode = node2.getId();
+          break;
+        }
+      }
+    }
     for (Node node1 : g1.nodes()) {
       if (params.node1ID > -1) {
         // only check the specified node
@@ -94,11 +114,24 @@ public class MulFlexible implements Binary {
             // node1 was bonded.  node2 must unbonded
             success = g2.getOutDegree(node2.getId()) == 0;
           }
-          if (success && (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT)) {
-            // node1 and node2 are suitable for superimposing
-            myNode1 = node1;
-            myNode2 = node2;
-            break;
+          if (success) {
+            if (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT) {
+              // node1 and node2 are suitable for superimposing
+              myNode1 = node1;
+              myNode2 = node2;
+              g1RootNode = -1;
+              g2RootNode = -1;
+              break;
+            }
+            else if (!MetadataImpl.rootPointsSpecial && (g1RootNode > -1 || g2RootNode > -1)) {
+              // node1 and node2 are suitable for superimposing
+              // but rootiness needs to come from somewhere else
+              // this actually short-circuits the brute force search for superimposable nodes
+              //   which is fine
+              myNode1 = node1;
+              myNode2 = node2;
+              break;
+            }
           }
         }
         if (params.node2ID > -1) {
@@ -118,13 +151,18 @@ public class MulFlexible implements Binary {
     if (myNode1 != null) {
       newNodeCount--;
     }
+    else {
+      // we didn't find color-happy nodes so don't go moving root nodes around
+      g1RootNode = -1;
+      g2RootNode = -1;
+    }
     result = GraphFactory.createGraph(newNodeCount);
     // add edges from g1
     for (Node node1 : g1.nodes()) {
-      if (node1 != myNode1) {
+      if (node1 != myNode1 && node1.getId() != g1RootNode) {
         result.getNode(node1.getId()).setType(node1.getType());
       }
-      else if (myNode1.getType() == TYPE_NODE_ROOT && myNode2.getType() == TYPE_NODE_ROOT) {
+      else if (myNode1 != null && (myNode1.getType() == TYPE_NODE_ROOT && myNode2.getType() == TYPE_NODE_ROOT)) {
         result.getNode(node1.getId()).setType(TYPE_NODE_ROOT);
       }
 
@@ -142,7 +180,9 @@ public class MulFlexible implements Binary {
         if (myNode1 != null && node1.getId() > myNode2.getId()) {
           newNodeId--;
         }
-        result.getNode(newNodeId).setType(node1.getType());
+        if (node1.getId() != g2RootNode) {
+          result.getNode(newNodeId).setType(node1.getType());
+        }
         result.getNode(newNodeId).setColor(node1.getColor());
       }
       else if (myNode1 != null) {
