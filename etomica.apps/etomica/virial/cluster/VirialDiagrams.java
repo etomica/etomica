@@ -80,6 +80,11 @@ public class VirialDiagrams {
     protected boolean doShortcut;
     protected char fBond, eBond, mBond;
 
+    protected static int[][] tripletStart = new int[0][0];
+    protected static int[][] quadStart = new int[0][0];
+    protected static int[][] quintStart = new int[0][0];
+    protected static int[][] sixStart = new int[0][0];
+
     public static void main(String[] args) {
         final int n = 5;
         boolean multibody = false;
@@ -945,5 +950,93 @@ public class VirialDiagrams {
         disconnectedPFinal.addAll(disconnectedP);
         disconnectedP = disconnectedPFinal;
 
+    }
+
+    /**
+     * Returns the triplet ID for the given indices (id0, id1, id2) and given
+     * number of molecules (n).  Triplets are ordered as
+     * (0,1,2), (0,1,3), (0,1,4)... (0,1,n-1)
+     * (0,2,3), (0,2,4), (0,2,5)... (0,2,n-1)
+     * ...
+     * (0,n-3,n-2),(0,n-3,n-1)
+     * (0,n-2,n-1)
+     * 
+     * Indices must be given in order.  If idx < 0 or idx >= n, the id returned
+     * will be nonsense (or there will be an exception).
+     */
+    public static int tripletId(int id0, int id1, int id2, int n) {
+        while (tripletStart.length <= n) {
+            tripletStart = (int[][])Arrays.addObject(tripletStart, new int[0]);
+        }
+        if (tripletStart[n].length == 0) {
+            int[] nTripletStart = new int[n-2];
+            int nTriplets = 0;
+            for (int i=1; i<n-1; i++) {
+                nTripletStart[i-1] = nTriplets;
+                nTriplets += (n-i)*(n-i-1)/2;
+            }
+            tripletStart[n] = nTripletStart;
+        }
+        return tripletStart[n][id0] + (2*n-id0-id1-2)*(id1-id0-1)/2 + (id2-id1-1);
+    }
+
+    /**
+     * Returns the quad ID for the given indices (id0, id1, id2, id3) and given
+     * number of molecules (n).  Quads are ordered the same as triplets.
+     */
+    public static int quadId(int id0, int id1, int id2, int id3, int n) {
+        while (quadStart.length <= n) {
+            quadStart = (int[][])Arrays.addObject(quadStart, new int[0]);
+        }
+        if (quadStart[n].length == 0) {
+            int[] nQuadStart = new int[n-3];
+            int nQuads = 0;
+            for (int i=1; i<n-2; i++) {
+                nQuadStart[i-1] = nQuads;
+                nQuads += tripletId(n-i-3, n-i-2, n-i-1, n-i)+1;
+            }
+            quadStart[n] = nQuadStart;
+        }
+        return quadStart[n][id0] + tripletId(id1-id0-1, id2-id0-1, id3-id0-1, n-id0-1);
+    }
+
+    /**
+     * Returns the quint ID for the given indices (id0, id1, id2, id3, id4) and given
+     * number of molecules (n).  Quints are ordered the same as triplets.
+     */
+    public static int quintId(int id0, int id1, int id2, int id3, int id4, int n) {
+        while (quintStart.length <= n) {
+            quintStart = (int[][])Arrays.addObject(quintStart, new int[0]);
+        }
+        if (quintStart[n].length == 0) {
+            int[] nQuintStart = new int[n-4];
+            int nQuints = 0;
+            for (int i=1; i<n-3; i++) {
+                nQuintStart[i-1] = nQuints;
+                nQuints += quadId(n-i-4, n-i-3, n-i-2, n-i-1, n-i)+1;
+            }
+            quintStart[n] = nQuintStart;
+        }
+        return quintStart[n][id0] + quadId(id1-id0-1, id2-id0-1, id3-id0-1, id4-id0-1, n-id0-1);
+    }
+
+    /**
+     * Returns the six-molecule ID for the given indices (id0, id1, id2, id3, id4, id5)
+     * and given number of molecules (n).  Sixes are ordered the same as triplets.
+     */
+    public static int sixId(int id0, int id1, int id2, int id3, int id4, int id5, int n) {
+        while (sixStart.length <= n) {
+            sixStart = (int[][])Arrays.addObject(sixStart, new int[0]);
+        }
+        if (sixStart[n].length == 0) {
+            int[] nSixStart = new int[n-5];
+            int nSixes = 0;
+            for (int i=1; i<n-4; i++) {
+                nSixStart[i-1] = nSixes;
+                nSixes += quintId(n-i-5, n-i-4, n-i-3, n-i-2, n-i-1, n-i)+1;
+            }
+            quintStart[n] = nSixStart;
+        }
+        return sixStart[n][id0] + quintId(id1-id0-1, id2-id0-1, id3-id0-1, id4-id0-1, id5-id0-1, n-id0-1);
     }
 }
