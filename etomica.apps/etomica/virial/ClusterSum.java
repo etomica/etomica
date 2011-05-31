@@ -102,7 +102,9 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 //        checkF(cPairs,aPairs);
         
         calcValue();
-      
+//        if (Double.isNaN(value) || Double.isInfinite(value)) {
+//            throw new RuntimeException("oops");
+//        }
         return value;
     }
     
@@ -172,6 +174,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     }
     
     public ClusterBonds[] getClusters() {return clusters;}
+    public double[] getWeights() {return clusterWeights;}
     /**
      * @return Returns the temperature.
      */
