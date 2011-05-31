@@ -36,7 +36,7 @@ public class ClusterBonds implements java.io.Serializable {
 		this.nPoints = n;
 		bondIndexArray = new int[n][n];
 		for(int i=0; i<n; i++) for(int j=0; j<n; j++) bondIndexArray[i][j] = -1;//index value that indicates no bond between pair
-		nBondTypes = bonds.length;
+		int nBondTypes = bonds.length;
 		for(int i=0; i<nBondTypes; i++) {
 			int[][] idx = bonds[i];
 			if(idx == null) continue;
@@ -47,7 +47,13 @@ public class ClusterBonds implements java.io.Serializable {
 				bondIndexArray[i1][i0] = i;
 			}
 		}
-		if(usePermutations) setUsePermutations(usePermutations);
+		setUsePermutations(usePermutations);
+	}
+	
+	public ClusterBonds(int[][] bondIndexArray, boolean usePermutations) {
+	    nPoints = bondIndexArray.length;
+	    this.bondIndexArray = bondIndexArray;
+	    setUsePermutations(usePermutations);
 	}
 
 	public int[][] getBondIndexArray() {
@@ -121,7 +127,7 @@ public class ClusterBonds implements java.io.Serializable {
 	 * @param beta
 	 * @return double
 	 */
-	private double valueUsingPermutations(double[][][] fValues) {
+	protected double valueUsingPermutations(double[][][] fValues) {
 		double sum = 0;
 		
 		//loop over permutations
@@ -151,15 +157,14 @@ public class ClusterBonds implements java.io.Serializable {
 	}//end valueUsingPermutations
 
     private static final long serialVersionUID = 1L;
-	private final int nPoints; //number of points (molecules) in cluster
+	protected final int nPoints; //number of points (molecules) in cluster
  	protected final int[][] bondIndexArray;//array giving bondGroup index of each bond in bondArray
 					                       //bondArray[i][j] = bondGroup[bondIndexArray[i][j]]
 					                       //bondIndexArray[i][j] < 0 indicates bondArray[i][j] == null
-	private final int nBondTypes; //length of bondGroup (usually 1, maybe 2)
-	private boolean usePermutations = false;//flag indicating if value is via prototype cluster only, or by average of all its permutations
-	private int[][] permutations;//array of permutations of atom indexes giving cluster different from prototype
-	private int nPermutations; //permutations.length
-	private double rPermutations; //reciprocal of nPermutations
+	protected boolean usePermutations = false;//flag indicating if value is via prototype cluster only, or by average of all its permutations
+	protected int[][] permutations;//array of permutations of atom indexes giving cluster different from prototype
+	protected int nPermutations; //permutations.length
+	protected double rPermutations; //reciprocal of nPermutations
 	
 	private void makePermutations() {
 		java.util.LinkedList pList = new java.util.LinkedList();//permutations giving unique arrays
@@ -205,7 +210,6 @@ public class ClusterBonds implements java.io.Serializable {
             makePermutations();
         }
         else {
-            nPermutations = 1;
             //discard the array
             permutations = null;
         }
