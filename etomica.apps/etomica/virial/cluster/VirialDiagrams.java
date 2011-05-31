@@ -60,6 +60,7 @@ import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.IsConnected;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
+import etomica.util.Arrays;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumEF;
