@@ -52,8 +52,10 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             ratio.TE(1/sum.getValue(0));
 
 
+            work.E(sum);
+            work.TE(1.0 / (count*blockSize));
             ratioError.E(error);
-            ratioError.DE(average);
+            ratioError.DE(work);
             ratioError.TE(ratioError);
             ratioError.PE(ratioError.getValue(0));
             otherErrorContribution = Math.sqrt(Math.abs(ratioError.getValue(1)))*Math.abs(ratio.getValue(1));
