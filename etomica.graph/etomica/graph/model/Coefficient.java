@@ -12,6 +12,8 @@ public interface Coefficient {
 
   public void multiply(Coefficient value);
 
+  public void divide(Coefficient value);
+
   public void setDenominator(int value);
 
   public void setNumerator(int value);

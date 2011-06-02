@@ -56,6 +56,17 @@ public class CoefficientImpl implements Coefficient {
     reduce();
   }
 
+  public void divide(Coefficient value) {
+
+    numerator = numerator * value.getDenominator();
+    denominator = denominator * value.getNumerator();
+    if (denominator < 0) {
+      numerator = -numerator;
+      denominator = -denominator;
+    }
+    reduce();
+  }
+
   protected void reduce() {
 outer: do {
       int min = Math.abs(numerator);
