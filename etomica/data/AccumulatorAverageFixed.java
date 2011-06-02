@@ -24,7 +24,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         // is non-zero due to roundoff and happens to be negative
         negativeChop = new IFunction(){
             public double f(double x) {
-                return x > 0 ? x : 0;
+                return !(x <= 0) ? x : 0;
             }
         };
     }
