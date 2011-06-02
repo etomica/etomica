@@ -85,7 +85,7 @@ public class FactorOnce implements Unary {
   // components in iComps will be combined together
   // components not in iComps will be combined together
   public Graph apply(Graph g, List<Integer> iComps, List<Integer> jComps) {
-    if (!hap.check(g) || !hap.isConnected()) {
+    if (!hap.check(g)) {
       throw new RuntimeException("unfactorable or disconnected");
     }
     if (iComps.size() == 0 || jComps.size() == 0) {
@@ -95,7 +95,14 @@ public class FactorOnce implements Unary {
     BCVisitor v = new BCVisitor(biComponents);
     new Biconnected().traverseAll(g, v);
 
-    while (biComponents.size() > 2) {
+    int lastSize = biComponents.size()+1;
+    boolean lastDitch = false;
+    
+    while (biComponents.size() > 2 && (biComponents.size() < lastSize || !lastDitch)) {
+      if (!lastDitch && biComponents.size() == lastSize) {
+        lastDitch = true;
+      }
+      lastSize = biComponents.size();
       for (int i=0; i<biComponents.size()-1; i++) {
         for (int in=0; in<biComponents.get(i).size(); in++) {
           byte iNodeID = biComponents.get(i).get(in);
@@ -107,9 +114,11 @@ public class FactorOnce implements Unary {
                 // i and j in jComps => true
                 // i iComps or jComps, j not in iComps or jComps => true
                 // j iComps or jComps, i not in iComps or jComps => true
+                // lastDitch (we've already condensed to iComps and jComps as much as possible), i and j both not in iComps or jComps
                 if ((iComps.contains(i) && iComps.contains(j)) || (jComps.contains(i) && jComps.contains(j)) ||
                     ((!iComps.contains(i) && !jComps.contains(i)) && (iComps.contains(j) || jComps.contains(j))) || 
-                    ((!iComps.contains(j) && !jComps.contains(j)) && (iComps.contains(i) || jComps.contains(i)))) {
+                    ((!iComps.contains(j) && !jComps.contains(j)) && (iComps.contains(i) || jComps.contains(i))) ||
+                    (lastDitch && !iComps.contains(i) && !jComps.contains(i) && !iComps.contains(j) && !jComps.contains(j))) {
                   // we want to keep these components together
                   for (byte jNodeID2 : biComponents.get(j)) {
                     if (jNodeID2 != iNodeID) {
@@ -164,10 +173,8 @@ public class FactorOnce implements Unary {
         for (int j=i+1; j<biComponents.size(); j++) {
           for (byte jNodeID : biComponents.get(j)) {
             if (iNodeID == jNodeID) {
-              if (g.getNode(iNodeID).getType() != TYPE_NODE_ROOT) {
-                // we'll separate these components
-                newRootNodes.get(j).add(iNodeID);
-              }
+              // we'll separate these components
+              newRootNodes.get(j).add(iNodeID);
               break;
             }
           }
