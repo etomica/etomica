@@ -34,7 +34,7 @@ public static void main(String[] args) {
 	
 		Space space = Space3D.getInstance();
 		double r_max = 100; // Defines range of separation distance, r = [0 rmax]
-        boolean LJ = true;
+        boolean LJ = false;
         double[] temps; double[] kTs;
         Potential2SoftSpherical p2;
 
@@ -56,7 +56,7 @@ public static void main(String[] args) {
 			convert = (3.0/(2.0*Math.PI*sigma*sigma*sigma)); 
 			
 			// to include mass dependence, if desired
-			convert2 = 2.74*2.74; 
+			//convert2 = 2.74*2.74; 
 			
 			//double lambda = Constants.PLANCK_H/(sigma*Math.pow(mass*epsilon, 0.5));
 			//mass = Constants.PLANCK_H*Constants.PLANCK_H/(sigma*sigma*epsilon*2.74*2.74);
@@ -71,9 +71,13 @@ public static void main(String[] args) {
 			for (int i=0;i<temps.length;i++) {
 				kTs[i] = Kelvin.UNIT.toSim(temps[i]);
 			}
-			
+			//r_max=200;
 			convert = Constants.AVOGADRO*1e-24;
 			mass = 4.002602; 
+			
+			// to include mass dependence, if desired
+			convert2 = Constants.PLANCK_H*Constants.PLANCK_H/(mass);
+
 			
         }
 
@@ -129,7 +133,7 @@ public static void main(String[] args) {
 		
 		
 		double error = 1.0;
-		double tol = 0.00001;
+		double tol = 0.0000001;
 		while (error > tol) {  // increase N to improve accuracy of B2 and B3
 			
 			double del_r = r_max/((double)(N-1));
@@ -190,7 +194,7 @@ public static void main(String[] args) {
 			
 			c = c*convert;
 
-			prefactor = prefactor*c*(sigma*sigma/epsilon);
+			prefactor = prefactor*c*(sigma*sigma/epsilon)*convert2;
 
 			B[i] = B[i]*prefactor;
 		}
