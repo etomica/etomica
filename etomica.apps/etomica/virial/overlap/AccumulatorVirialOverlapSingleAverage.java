@@ -3,7 +3,7 @@ package etomica.virial.overlap;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.util.Debug;
@@ -12,7 +12,7 @@ import etomica.util.Debug;
  * Accumulator for taking ratio between two sums (and pretend it's an "average")
  * Data added to this accumulator must be a 2-element DataDoubleArray
  */
-public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverage {
+public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverageCovariance {
 
     public AccumulatorVirialOverlapSingleAverage(int aNBennetPoints, boolean aIsReference) {
 		this(1000,aNBennetPoints, aIsReference);
@@ -59,6 +59,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         overlapFirstBlock = new double[nBennetPoints];
         overlapMostRecentBlock = new double[nBennetPoints];
         overlapCorrelationSum = new double[nBennetPoints];
+        overlapBlockCovSum = new double[nBennetPoints];
         if (alphaCenter > 0) {
             setBennetParam(alphaCenter, alphaSpan);
         }
@@ -130,6 +131,8 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
                 overlapFirstBlock[j] = blockOverlapSum[j];
             }
 
+            overlapBlockCovSum[j] += blockOverlapSum[j]*currentBlockSum.getValue(0)/blockSize;
+
             overlapMostRecentBlock[j] = blockOverlapSum[j];
             blockOverlapSum[j] = 0.0;
 		}
@@ -178,7 +181,11 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             ((DataDoubleArray)firstBlock).getData()[1] = overlapFirstBlock[iParam];
             ((DataDoubleArray)mostRecentBlock).getData()[1] = overlapMostRecentBlock[iParam];
             ((DataDoubleArray)correlationSum).getData()[1] = overlapCorrelationSum[iParam];
-            // let AccumulatorRatioAverage do the work for us
+            double[] x = blockCovSum.getData();
+            x[1] = overlapBlockCovSum[iParam];
+            x[2] = overlapBlockCovSum[iParam];
+            x[3] = overlapSumBlockSquare[iParam];
+            // let AccumulatorRatioAverageCovariance do the work for us
             super.getData();
         }
         return dataGroup;
@@ -194,12 +201,13 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             blockOverlapSum[i] = 0.0;
             overlapSumSquare[i] = 0.0;
             overlapCorrelationSum[i] = 0.0;
+            overlapBlockCovSum[i] = 0;
         }
         super.reset();
     }
     
     public void setFile(String fName){
-        this.fnm = fName;   
+        this.fnm = fName;
         try {
             fileWriter = new FileWriter(fName);
         } catch (IOException e){
@@ -219,6 +227,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     private double[] overlapSumBlockSquare, overlapSumSquare;
     private double[] overlapSum;
     protected double[] overlapFirstBlock, overlapMostRecentBlock, overlapCorrelationSum;
+    protected double[] overlapBlockCovSum;
     private int nBennetPoints;
     private double[] expX;
     private final boolean isReference;
