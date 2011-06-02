@@ -20,18 +20,13 @@ public class DeleteEdge implements Unary {
     assert (params instanceof DeleteEdgeParameters);
     Set<Graph> result = new HashSet<Graph>();
     for (Graph g : argument) {
-      Set<Graph> newSet = apply(g, (DeleteEdgeParameters) params);
-      if (newSet != null) {
-        result.addAll(newSet);
-      }
+      result.add(apply(g, (DeleteEdgeParameters) params));
     }
-    Unary isoFree = new IsoFree();
-    return isoFree.apply(result, params);
+    return result;
   }
 
-  public Set<Graph> apply(Graph g, DeleteEdgeParameters params) {
+  public Graph apply(Graph g, DeleteEdgeParameters params) {
 
-    Set<Graph> result = new HashSet<Graph>();
     Graph newGraph = g.copy();
     for (Edge edge : g.edges()) {
       if (edge.getColor() == params.color()) {
@@ -40,7 +35,6 @@ public class DeleteEdge implements Unary {
         newGraph.deleteEdge(fromNode, toNode);
       }
     }
-    result.add(newGraph);
-    return result;
+    return newGraph;
   }
 }
