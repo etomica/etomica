@@ -87,6 +87,6 @@ class SAPVisitor implements TraversalVisitor {
   }
   
   public boolean hasArticulationPoint() {
-    return (components > 1) || isArticulated;
+    return isArticulated;
   }
 }
