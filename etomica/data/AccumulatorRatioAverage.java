@@ -37,8 +37,8 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
     
     public IData getData() {
         if (sum == null) return null;
-        if (count > 0) {
-            super.getData();
+        super.getData();
+        if (count > 1) {
 
             double average0 = average.getValue(0);
             if (average0 == 0) {
@@ -51,16 +51,25 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
             ratio.E(sum);
             ratio.TE(1/sum.getValue(0));
 
+            work.E(sum);
+            work.TE(1.0 / (count*blockSize));
             double errorRatio0 = error.getValue(0)/average0;
             errorRatio0 *= errorRatio0;
             ratioError.E(error);
-            ratioError.DE(average);
+            ratioError.DE(work);
             ratioError.TE(ratioError);
             ratioError.PE(errorRatio0);
             ratioError.TE(ratio);
             ratioError.TE(ratio);
             ratioError.map(Function.Sqrt.INSTANCE);
+        }
+        long nTotalData = count*blockSize + (blockSize-blockCountDown);
+        if (nTotalData > 0) {
+            ratio.E(sum);
+            ratio.PE(currentBlockSum);
+            ratio.TE(1.0/ratio.getValue(0));
 
+            double average0 = average.getValue(0);
             double stdevRatio0 = standardDeviation.getValue(0)/average0;
             ratioStandardDeviation.E(standardDeviation);
             ratioStandardDeviation.DE(average);
