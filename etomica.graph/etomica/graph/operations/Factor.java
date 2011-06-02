@@ -14,6 +14,8 @@ import java.util.Set;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
+import etomica.graph.model.Metadata;
+import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.traversal.Biconnected;
@@ -46,9 +48,9 @@ public class Factor implements Unary {
     List<List<Byte>> biComponents = new ArrayList<List<Byte>>();
     BCVisitor v = new BCVisitor(biComponents);
     new Biconnected().traverseAll(g, v);
-    List<Set<Byte>> newRootNodes = new ArrayList<Set<Byte>>();
+    List<List<Byte>> newRootNodes = new ArrayList<List<Byte>>();
     for (int i=0; i<biComponents.size(); i++) {
-      newRootNodes.add(new HashSet<Byte>());
+      newRootNodes.add(new ArrayList<Byte>());
     }
 
     for (int i=0; i<biComponents.size()-1; i++) {
@@ -116,6 +118,52 @@ public class Factor implements Unary {
         }
       }
     } 
+
+    if (!MetadataImpl.rootPointsSpecial) {
+      // we might have started with a graph with a single point and then created a root point (through factorization)
+      // try now to condense such a graph by superimposing single point on the root node. 
+      while (true) {
+        byte singlePoint = -1;
+        byte rootNode = -1;
+        for (byte i=0; i<result.nodeCount(); i++) {
+          if (result.getOutDegree(i) == 0) {
+            for (byte j=0; j<result.nodeCount(); j++) {
+              if (result.getNode(j).getType() == Metadata.TYPE_NODE_ROOT && result.getNode(j).getColor() == result.getNode(i).getColor()) {
+                singlePoint = i;
+                rootNode = j;
+                break;
+              }
+            }
+            if (rootNode > -1) break;
+          }
+        }
+        if (singlePoint == -1) {
+          break;
+        }
+        Graph newResult = GraphFactory.createGraph((byte)(result.nodeCount()-1));
+        byte j = 0;
+        for (byte i=0; i<result.nodeCount(); i++) {
+          if (i==singlePoint) continue;
+          newResult.getNode(j).setColor(result.getNode(i).getColor());
+          if (i==rootNode) {
+            newResult.getNode(j).setType(result.getNode(singlePoint).getType());
+          }
+          else {
+            newResult.getNode(j).setType(result.getNode(i).getType());
+          }
+          
+          for (byte k=(byte)(i+1); k<result.nodeCount(); k++) {
+            if (k == singlePoint || !result.hasEdge(i,k)) continue;
+            byte kNew = k;
+            if (k>singlePoint) kNew--;
+            newResult.putEdge(j,kNew);
+            newResult.getEdge(j,kNew).setColor(result.getEdge(i,k).getColor());
+          }
+          j++;
+        }
+        result = newResult;
+      }
+    }
 
     result.coefficient().multiply(g.coefficient());
 
