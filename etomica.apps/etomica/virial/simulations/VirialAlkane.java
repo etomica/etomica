@@ -45,10 +45,9 @@ import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.Volume;
+import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.ReadParameters;
-import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.MayerEGeneral;
@@ -56,7 +55,6 @@ import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesAlkane;
-import etomica.virial.SpeciesFactorySiepmannSpheres;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -71,15 +69,10 @@ public class VirialAlkane {
     public static void main(String[] args) {
         VirialSiepmannSpheresParam params = new VirialSiepmannSpheresParam();
         if (args.length > 0) {
-            ReadParameters paramReader = new ReadParameters(args[0], params);
-            paramReader.readParameters();
-        }
-        if (args.length > 1) {
-            // we want to skip the first arg
-            String[] otherArgs = new String[args.length-1];
-            System.arraycopy(args, 1, otherArgs, 0, otherArgs.length);
-            ParseArgs parseArgs = new ParseArgs(params);
-            parseArgs.parseArgs(otherArgs);
+            if (args.length > 0) {
+                ParseArgs parseArgs = new ParseArgs(params);
+                parseArgs.parseArgs(args, true);
+            }
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
@@ -122,16 +115,18 @@ public class VirialAlkane {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
+        
+        SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
+        
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,
                           temperature,refCluster,targetCluster, nSpheres > 2);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
         if (refFreq >= 0) {
-            sim.integratorOS.setAdjustStepFreq(false);
-            sim.integratorOS.setStepFreq0(refFreq);
+            sim.integratorOS.setAdjustStepFraction(false);
+            sim.integratorOS.setRefStepFraction(refFreq);
         }
 
-        SpeciesAlkane species = (SpeciesAlkane)sim.getSpecies(0);
         IAtomType typeCH3 = species.getAtomType(0);
         IAtomType typeCH2 = species.getAtomType(1);
         pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
@@ -327,8 +322,8 @@ public class VirialAlkane {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
@@ -340,26 +335,24 @@ public class VirialAlkane {
         IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
         IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
         IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        IData correlationData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.BLOCK_CORRELATION.index);
         System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("reference   average: "+averageData.getValue(0)
-                          +" stdev: "+stdevData.getValue(0)
-                          +" error: "+errorData.getValue(0));
-        System.out.println("reference overlap average: "+averageData.getValue(1)
-                          +" stdev: "+stdevData.getValue(1)
-                          +" error: "+errorData.getValue(1));
+        System.out.println(String.format("reference average: %20.15e stdev: %10.4e error: %10.4e cor: %6.4f",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.println(String.format("reference overlap average: %20.15e stdev: %10.4e error: %10.4e cor: %6.4f",
+                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
         
         ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);
         ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
         averageData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
         stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.STANDARD_DEVIATION.index);
         errorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.ERROR.index);
+        correlationData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.BLOCK_CORRELATION.index);
         System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("target average: "+averageData.getValue(0)
-                          +" stdev: "+stdevData.getValue(0)
-                          +" error: "+errorData.getValue(0));
-        System.out.println("target overlap average: "+averageData.getValue(1)
-                          +" stdev: "+stdevData.getValue(1)
-                          +" error: "+errorData.getValue(1));
+        System.out.println(String.format("target average: %20.15e stdev: %10.4e error: %10.4e cor: %6.4f",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.println(String.format("target overlap average: %20.15e stdev: %10.4e error: %10.4e cor: %6.4f",
+                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
 	}
 
     /**
@@ -369,7 +362,7 @@ public class VirialAlkane {
         public int nPoints = 2;
         public int nSpheres = 5;
         public double temperature = 300.0;   // Kelvin
-        public long numSteps = 10000;
+        public long numSteps = 100000;
         public double refFreq = -1;
     }
 }

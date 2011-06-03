@@ -5,7 +5,6 @@ import etomica.api.IAtomList;
 import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.ISpecies;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
@@ -14,7 +13,6 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2CO2EMP2;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
@@ -27,7 +25,6 @@ import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactory;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -88,15 +85,10 @@ public class VirialCO2 {
                 atomList.getAtom(2).getPosition().setX(0, +bondL);
             }
         };
-        SpeciesFactory factory = new SpeciesFactory() {
-            public ISpecies makeSpecies(ISpace space) {
-                SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-                species.setChildCount(new int[]{1,2});
-                species.setConformation(conformation);
-                return species;
-            }
-        };
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,factory, temperature,refCluster,targetCluster,false);
+        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
+        species.setChildCount(new int[]{1,2});
+        species.setConformation(conformation);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster,false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
 
@@ -153,8 +145,8 @@ public class VirialCO2 {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
         if (refFrac >= 0) {
-            sim.integratorOS.setStepFreq0(refFrac);
-            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
         if (false) {
@@ -173,8 +165,8 @@ public class VirialCO2 {
 
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
 
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
@@ -213,7 +205,7 @@ public class VirialCO2 {
         public int nPoints = 2;
         public double temperature = 300;
         public long numSteps = 100000;
-        public double sigmaHSRef = 5*1.1491;
+        public double sigmaHSRef = 5;
         public double refFrac = -1;
     }
 }

@@ -1,6 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.api.IPotentialMolecular;
+import etomica.api.ISpecies;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
@@ -9,8 +10,11 @@ import etomica.models.water.ConformationWaterTIP4P;
 import etomica.models.water.P2WaterSPC;
 import etomica.models.water.P2WaterSPCE;
 import etomica.models.water.P2WaterTIP4P;
+import etomica.models.water.SpeciesWater3P;
+import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
 import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
@@ -76,19 +80,20 @@ public class VirialWaterOverlap {
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
 
         IPotentialMolecular pTarget = null;
-        SpeciesFactory speciesFactory = null;
+        Species species = null;
         switch (model) {
             case 0: // SPCE
                 pTarget = new P2WaterSPCE(space);
-                speciesFactory = new SpeciesFactoryWater3P();
+                species = new SpeciesWater3P(space);
                 break;
             case 1: // SPC
                 pTarget = new P2WaterSPC(space);
-                speciesFactory = new SpeciesFactoryWater3P();
+                species = new SpeciesWater3P(space);
                 break;
             case 2: // TIP4P
                 pTarget = new P2WaterTIP4P(space);
-                speciesFactory = new SpeciesFactoryWater4P(new ConformationWaterTIP4P(space));
+                species = new SpeciesWater4P(space);
+                species.setConformation(new ConformationWaterTIP4P(space));
                 break;
             default:
                 throw new RuntimeException("unknown model "+model);
@@ -116,7 +121,7 @@ public class VirialWaterOverlap {
         int numSubSteps = 1000;
         System.out.println(steps+" steps of size "+numSubSteps);
 		
-        SimulationVirialOverlap sim = new SimulationVirialOverlap(space,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
+        SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{refSampleCluster, targetSampleCluster}, false);
         sim.integratorOS.setNumSubSteps(1000);
         sim.setAccumulatorBlockSize(blockSize);
@@ -141,7 +146,7 @@ public class VirialWaterOverlap {
         
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);

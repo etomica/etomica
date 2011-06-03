@@ -1,15 +1,45 @@
 package etomica.virial.simulations;
 
+import java.awt.Color;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import etomica.action.IAction;
+import etomica.atom.DiameterHashByType;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.graphics.ColorSchemeRandomByMolecule;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
+import etomica.units.CompoundDimension;
+import etomica.units.CompoundUnit;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
+import etomica.units.Liter;
+import etomica.units.Mole;
+import etomica.units.Pixel;
+import etomica.units.Quantity;
+import etomica.units.Unit;
+import etomica.units.UnitRatio;
+import etomica.units.Volume;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
+import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
@@ -74,13 +104,86 @@ public class VirialLJ {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
-        int blocksize = 100;
-        sim.setAccumulatorBlockSize(blocksize);
-        System.out.println(blocksize+" steps per block");
         
+        if (false) {
+            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
+//            displayBox0.setPixelUnit(new Pixel(300.0/size));
+//            displayBox1.setPixelUnit(new Pixel(300.0/size));
+            displayBox0.setShowBoundary(false);
+            displayBox1.setShowBoundary(false);
+            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
+            
+            
+            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
+            displayBox0.setColorScheme(colorScheme);
+            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
+            displayBox1.setColorScheme(colorScheme);
+            simGraphic.makeAndDisplayFrame();
+
+            sim.integratorOS.setNumSubSteps(1000);
+            sim.setAccumulatorBlockSize(1000);
+                
+            // if running interactively, set filename to null so that it doens't read
+            // (or write) to a refpref file
+            sim.getController().removeAction(sim.ai);
+            sim.getController().addAction(new IAction() {
+                public void actionPerformed() {
+                    sim.initRefPref(null, 10);
+                    sim.equilibrate(null, 20);
+                    sim.ai.setMaxSteps(Long.MAX_VALUE);
+                }
+            });
+            sim.getController().addAction(sim.ai);
+            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+                throw new RuntimeException("Oops");
+            }
+            
+            final DisplayTextBox averageBox = new DisplayTextBox();
+            averageBox.setLabel("Average");
+            final DisplayTextBox errorBox = new DisplayTextBox();
+            errorBox.setLabel("Error");
+            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
+            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
+            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
+            
+            IAction pushAnswer = new IAction() {
+                public void actionPerformed() {
+                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double ratio = ratioAndError[0];
+                    double error = ratioAndError[1];
+                    data.x = ratio;
+                    averageBox.putData(data);
+                    data.x = error;
+                    errorBox.putData(data);
+                }
+                
+                DataDouble data = new DataDouble();
+            };
+            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
+            averageBox.putDataInfo(dataInfo);
+            averageBox.setLabel("average");
+            averageBox.setUnit(unit);
+            errorBox.putDataInfo(dataInfo);
+            errorBox.setLabel("error");
+            errorBox.setPrecision(2);
+            errorBox.setUnit(unit);
+            sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
+            
+            return;
+        }
+
         
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
@@ -110,8 +213,8 @@ public class VirialLJ {
         }
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);

@@ -1,5 +1,7 @@
 package etomica.virial.simulations;
 
+import java.awt.Color;
+
 import etomica.action.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
@@ -7,6 +9,7 @@ import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -17,13 +20,15 @@ import etomica.config.IConformation;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2CO2EMP2;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
@@ -42,8 +47,6 @@ import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesAlkane;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySiepmannSpheres;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -141,21 +144,14 @@ public class VirialCO2SKSMix {
                 atomList.getAtom(2).getPosition().setX(0, +bondL);
             }
         };
-        SpeciesFactory factoryCO2 = new SpeciesFactory() {
-            public ISpecies makeSpecies(ISpace space) {
-                SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-                species.setChildCount(new int[]{1,2});
-                species.setConformation(conformation);
-                return species;
-            }
-        };
+        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
+        speciesCO2.setChildCount(new int[]{1,2});
+        speciesCO2.setConformation(conformation);
 
-        SpeciesFactory factoryAlkane = new SpeciesFactorySiepmannSpheres(space, nSpheres);
+        SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);
         
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactory[]{factoryCO2,factoryAlkane}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{speciesCO2,speciesAlkane}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},true);
-        SpeciesAlkane speciesAlkane = (SpeciesAlkane)sim.getSpecies(1);
-        SpeciesSpheresHetero speciesCO2 = (SpeciesSpheresHetero)sim.getSpecies(0);
         ((MCMoveClusterWiggleMulti)sim.mcMoveWiggle[0]).setSpecies(sim.getSpecies(1));
         ((MCMoveClusterWiggleMulti)sim.mcMoveWiggle[1]).setSpecies(sim.getSpecies(1));
         sim.integratorOS.setNumSubSteps(1000);
@@ -245,10 +241,23 @@ public class VirialCO2SKSMix {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
-            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
-            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
-            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
-            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
+            DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
+            DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            dBox0.setPixelUnit(new Pixel(300.0/size));
+            dBox1.setPixelUnit(new Pixel(300.0/size));
+            dBox0.setShowBoundary(false);
+            dBox1.setShowBoundary(false);
+            DiameterHashByType diameterHash = (DiameterHashByType)dBox1.getDiameterHash();
+            diameterHash.setDiameter(((SpeciesAlkane)sim.getSpecies(1)).getCH2Type(), sigmaCH2);
+            diameterHash.setDiameter(((SpeciesAlkane)sim.getSpecies(1)).getCH3Type(), sigmaCH3);
+            dBox0.setDiameterHash(diameterHash);
+            ColorSchemeByType colorScheme = (ColorSchemeByType)dBox1.getColorScheme();
+            colorScheme.setColor(((SpeciesAlkane)sim.getSpecies(1)).getCH2Type(), new Color(190, 190, 190));
+            colorScheme.setColor(((SpeciesAlkane)sim.getSpecies(1)).getCH3Type(), new Color(240, 240, 240));
+            colorScheme.setColor(sim.getSpecies(0).getAtomType(0), new Color(100, 100, 150));
+            colorScheme.setColor(sim.getSpecies(0).getAtomType(1), Color.RED);
+            dBox0.setColorScheme(colorScheme);
+            ((DisplayBoxCanvasG3DSys)dBox1.canvas).setBackgroundColor(Color.WHITE);
             
             simGraphic.makeAndDisplayFrame();
 
@@ -294,8 +303,8 @@ public class VirialCO2SKSMix {
         }
 
         if (refFrac >= 0) {
-            sim.integratorOS.setStepFreq0(refFrac);
-            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
         if (false) {
@@ -314,8 +323,8 @@ public class VirialCO2SKSMix {
 
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
 
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);

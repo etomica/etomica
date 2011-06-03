@@ -3,13 +3,13 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.action.IAction;
 import etomica.api.IPotentialMolecular;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.models.water.ConformationWaterGCPM;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
@@ -24,7 +24,6 @@ import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactoryWaterGCPM;
 import etomica.virial.cluster.Standard;
 
 
@@ -43,7 +42,7 @@ public class VirialGCPM {
         int numSubSteps = 1000;
         double deltaCut = 100;
 
-        double sigmaHSRef = 3.2;
+        double sigmaHSRef = 5;
         final double[] HSB = new double[7];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -80,17 +79,18 @@ public class VirialGCPM {
         sampleCluster1.setTemperature(temperature);
         refSample.setTemperature(temperature);
 
+        SpeciesWater4P species = new SpeciesWater4P(space);
+        species.setConformation(new ConformationWaterGCPM(space));
 
-        final SimulationVirialOverlapRejected sim = new SimulationVirialOverlapRejected(space,new SpeciesFactoryWaterGCPM(), 
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,
                 temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
         
-        if (true) {
+        if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
@@ -152,11 +152,12 @@ public class VirialGCPM {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
-        double ratio = sim.dsvo.getDataAsScalar();
-        double error = sim.dsvo.getError();
+        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
         System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
         IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index);

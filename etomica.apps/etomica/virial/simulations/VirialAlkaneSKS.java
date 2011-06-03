@@ -111,12 +111,12 @@ public class VirialAlkaneSKS {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
+        SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,
                           temperature,refCluster,targetCluster, nSpheres > 2);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
 
-        SpeciesAlkane species = (SpeciesAlkane)sim.getSpecies(0);
         IAtomType typeCH3 = species.getAtomType(0);
         IAtomType typeCH2 = species.getAtomType(1);
         pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
@@ -258,8 +258,8 @@ public class VirialAlkaneSKS {
         }
 
         if (refFrac >= 0) {
-            sim.integratorOS.setStepFreq0(refFrac);
-            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
         if (false) {
@@ -280,8 +280,8 @@ public class VirialAlkaneSKS {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
