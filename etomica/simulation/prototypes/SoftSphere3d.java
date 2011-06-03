@@ -52,7 +52,7 @@ public class SoftSphere3d extends Simulation {
 	    integrator.setTemperature(temperature);
 	    
 	    
-	    mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
+	    mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(10000000);
         getController().addAction(activityIntegrate);

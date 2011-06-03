@@ -48,7 +48,7 @@ public class TestLJMC3D extends Simulation {
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
 	    integrator = new IntegratorMC(this, potentialMaster);
-	    mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
+	    mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveAtom.setStepSize(0.2*sigma);
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

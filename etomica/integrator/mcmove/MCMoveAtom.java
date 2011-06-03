@@ -4,7 +4,6 @@ import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
@@ -32,8 +31,8 @@ public class MCMoveAtom extends MCMoveBoxStep {
     protected final IRandom random;
     protected ISpace space;
 
-    public MCMoveAtom(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
+    public MCMoveAtom(IRandom random, IPotentialMaster potentialMaster, ISpace _space) {
+        this(potentialMaster, random, _space, 1.0, 15.0, false);
     }
     
     public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random,

@@ -39,7 +39,7 @@ public class HsMc2d extends Simulation {
         super(Space2D.getInstance());
         IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 	    integrator = new IntegratorMC(this, potentialMaster);
-	    mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
+	    mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);

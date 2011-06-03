@@ -53,7 +53,7 @@ public class GEMCWithRotation extends Simulation {
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
-        moveManager.addMCMove(new MCMoveAtom(this, potentialMaster, space));
+        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
         integrator.addIntegrator(integratorMC1);
         
 
@@ -65,7 +65,7 @@ public class GEMCWithRotation extends Simulation {
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
-        moveManager.addMCMove(new MCMoveAtom(this, potentialMaster, space));
+        moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
         // GEMC integrator adds volume and molecule exchange moves once
         // it has 2 integrators
         integrator.addIntegrator(integratorMC2);
