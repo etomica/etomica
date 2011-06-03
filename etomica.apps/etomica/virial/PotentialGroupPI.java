@@ -7,9 +7,9 @@ import etomica.api.IPotentialMolecular;
 import etomica.potential.PotentialGroup;
 
 /**
- * PotentialGroup that calculates the energy between PI molecules.  This class
- * remembers the contribution from each set of beads and can return those
- * energies without additional computation once the full enegy has been
+ * PotentialGroup that calculates the energy between PI molecule pairs.
+ * This class remembers the contribution from each set of beads and can return
+ * those energies without additional computation once the full energy has been
  * calculated.
  * 
  * @author Andrew Schultz
