@@ -49,7 +49,7 @@ public class LjMc3D extends Simulation {
         IPotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
         integrator = new IntegratorMC(this, potentialMaster);
-        MCMoveAtom move = new MCMoveAtom(this, potentialMaster, space);
+        MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);

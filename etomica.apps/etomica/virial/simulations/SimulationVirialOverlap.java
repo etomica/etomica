@@ -111,7 +111,7 @@ public class SimulationVirialOverlap extends Simulation {
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
             if (!multiAtomic) {
-                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, space);
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(random, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (doRotate) {

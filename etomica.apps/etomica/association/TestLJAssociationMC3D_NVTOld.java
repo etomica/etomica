@@ -67,7 +67,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         System.out.println("numSteps = " +numSteps);
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    integrator.setTemperature(temperature);
-	    mcMoveAtom = new MCMoveAtomNoSmer(this, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
+	    mcMoveAtom = new MCMoveAtomNoSmer(random, potentialMaster, space);//Standard Monte Carlo atom-displacement trial move
 	    //mcMoveAtomDimer = new MCMoveAtomDimer(this, potentialMaster, space);
 	    mcMoveRotate = new MCMoveRotateNoSmer(potentialMaster, random, space);//Performs a rotation of an atom (not a molecule) that has an orientation coordinate
 	    box = new Box(space);

@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.ISimulation;
+import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
 
@@ -12,8 +12,8 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterAtom extends MCMoveAtom {
 
-    public MCMoveClusterAtom(ISimulation sim, ISpace _space) {
-        super(sim, null, _space);
+    public MCMoveClusterAtom(IRandom random, ISpace _space) {
+        super(random, null, _space);
 	}
 	
     public void setBox(IBox p) {

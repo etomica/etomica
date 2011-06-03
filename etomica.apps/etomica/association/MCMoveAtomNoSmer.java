@@ -2,15 +2,14 @@ package etomica.association;
 
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
 
 public class MCMoveAtomNoSmer extends MCMoveAtom {
 
-	public MCMoveAtomNoSmer(ISimulation sim, IPotentialMaster potentialMaster,
+	public MCMoveAtomNoSmer(IRandom random, IPotentialMaster potentialMaster,
 			ISpace _space) {
-		super(sim, potentialMaster, _space);
+		super(random, potentialMaster, _space);
 	}
 	public void setAssociationManager(AssociationManager associationManager){
 		this.associationManager = associationManager;

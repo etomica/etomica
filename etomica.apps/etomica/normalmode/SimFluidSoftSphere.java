@@ -52,7 +52,7 @@ public class SimFluidSoftSphere extends Simulation {
         rescaleBox(density);
         
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MCMoveAtom move = new MCMoveAtom(this, potentialMaster, space);
+        MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         move.setStepSize(0.2);
        // move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);

@@ -51,7 +51,7 @@ public class TestYukawaMC3D extends Simulation{
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 		
 		integrator = new IntegratorMC(this, potentialMaster);
-		mcMoveAtom = new MCMoveAtom(this, potentialMaster, space);
+		mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
 		mcMoveAtom.setStepSize(0.2);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
 		integrator.getMoveManager().setEquilibrating(false);

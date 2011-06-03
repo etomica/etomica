@@ -90,7 +90,7 @@ public class SimulationVirialPT extends Simulation {
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
-                mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, space);
+                mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(random, space);
                 moveManager.addMCMove(mcMoveMulti[iTemp]);
             }
             else {

@@ -94,7 +94,7 @@ public class SimulationVirialOverlapRejected extends Simulation {
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
             if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
-                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, space);
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(random, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (species instanceof SpeciesSpheresRotating) {

@@ -63,7 +63,7 @@ public class SimulationVirial extends Simulation {
 		
 		
         if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
-            mcMoveTranslate = new MCMoveClusterAtomMulti(this, space);
+            mcMoveTranslate = new MCMoveClusterAtomMulti(random, space);
         }
         else {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, space);
