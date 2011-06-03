@@ -66,6 +66,13 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             ratioError.TE(ratio);
             ratioError.map(negativeChop);
             ratioError.map(Function.Sqrt.INSTANCE);
+        }
+        long nTotalData = count*blockSize + (blockSize-blockCountDown);
+        if (nTotalData > 0) {
+            // now use *all* of the data
+            double average0 = average.getValue(0);
+            ratio.E(average);
+            ratio.TE(1/average0);
 
             double stdevRatio0 = standardDeviation.getValue(0)/average0;
             ratioStandardDeviation.E(standardDeviation);
@@ -76,6 +83,7 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             ratioStandardDeviation.TE(ratio);
             ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
         }
+
         return dataGroup;
     }
 
