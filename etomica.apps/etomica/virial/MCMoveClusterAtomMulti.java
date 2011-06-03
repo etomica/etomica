@@ -22,9 +22,11 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 	
     public void setBox(IBox p) {
         super.setBox(p);
-        translationVectors = new IVectorRandom[box.getMoleculeList().getMoleculeCount()-1];
-        for (int i=0; i<box.getMoleculeList().getMoleculeCount()-1; i++) {
-            translationVectors[i] = (IVectorRandom)space.makeVector();
+        if (translationVectors == null) {
+            translationVectors = new IVectorRandom[box.getLeafList().getAtomCount()-1];
+            for (int i=0; i<translationVectors.length; i++) {
+                translationVectors[i] = (IVectorRandom)space.makeVector();
+            }
         }
     }
     
@@ -63,5 +65,5 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     }
 
     private static final long serialVersionUID = 1L;
-    private IVectorRandom[] translationVectors;
+    protected IVectorRandom[] translationVectors;
 }
