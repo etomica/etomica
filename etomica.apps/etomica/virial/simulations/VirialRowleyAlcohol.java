@@ -587,8 +587,8 @@ public class VirialRowleyAlcohol {
 	                System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
 	                                  +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
 	                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-	                System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-	                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+	                System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
+	                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
 	                
 	                DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
 	                System.out.println();
@@ -600,8 +600,8 @@ public class VirialRowleyAlcohol {
 	                System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
 	                                  +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
 	                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-	                System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-	                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+	                System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
+	                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
 	                
 	                System.out.println();
 	                System.out.println("ratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
@@ -634,8 +634,8 @@ public class VirialRowleyAlcohol {
 	        System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
 	                          +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
 	                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-	        System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-	                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+	        System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
+	                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
 	        
 	        DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
 	        System.out.println();
@@ -647,8 +647,8 @@ public class VirialRowleyAlcohol {
 	        System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
 	                          +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
 	                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-	        System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-	                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+	        System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
+	                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
         }
 	        
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();

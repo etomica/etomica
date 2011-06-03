@@ -241,8 +241,8 @@ public class SimulationVirialOverlapRejected extends Simulation {
             ai.actionPerformed();
 
             int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = ((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1)
-                /((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1);
+            refPref = ((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverageCovariance.StatType.AVERAGE.index).getValue(newMinDiffLoc+1)
+                /((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverageCovariance.StatType.AVERAGE.index).getValue(newMinDiffLoc+1);
             System.out.println("setting ref pref to "+refPref);
             setAccumulatorBlockSize(oldBlockSize);
             setMeter(new MeterVirialRejected(meters[0].getClusters(), 15, true), 0);
@@ -282,8 +282,8 @@ public class SimulationVirialOverlapRejected extends Simulation {
 
         if (refPref == -1) {
             int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = ((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1)
-                    /((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1);
+            refPref = ((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverageCovariance.StatType.AVERAGE.index).getValue(newMinDiffLoc+1)
+                    /((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverageCovariance.StatType.AVERAGE.index).getValue(newMinDiffLoc+1);
             System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
 //            int n = sim.accumulators[0].getNBennetPoints();
 //            for (int i=0; i<n; i++) {
@@ -368,8 +368,8 @@ public class SimulationVirialOverlapRejected extends Simulation {
         sim.ai.actionPerformed();
         System.out.println("average: "+sim.dsvo.getDataAsScalar()+", error: "+sim.dsvo.getError());
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
         System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
@@ -377,8 +377,8 @@ public class SimulationVirialOverlapRejected extends Simulation {
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
         System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
