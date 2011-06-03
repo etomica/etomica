@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2LennardJones;
@@ -9,7 +9,6 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSumEF;

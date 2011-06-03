@@ -3,7 +3,7 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.api.IAtomType;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -21,6 +21,7 @@ import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
+import etomica.virial.ClusterSumAssociation.ClusterCriteria;
 import etomica.virial.ConfigurationClusterChain;
 import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEGeneral;
@@ -32,7 +33,6 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactoryOrientedSpheres;
-import etomica.virial.ClusterSumAssociation.ClusterCriteria;
 import etomica.virial.cluster.Standard;
 
 /**

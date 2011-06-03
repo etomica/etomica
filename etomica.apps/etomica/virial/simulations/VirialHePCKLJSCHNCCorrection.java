@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2EffectiveFeynmanHibbs;
@@ -18,7 +18,6 @@ import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;

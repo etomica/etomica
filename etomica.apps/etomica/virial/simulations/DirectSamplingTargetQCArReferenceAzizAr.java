@@ -8,7 +8,6 @@ import etomica.potential.P2ArgonAziz1993;
 import etomica.potential.P2QChem;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.virial.B2ForSphericallySymmetricUByTrapezoidRule;

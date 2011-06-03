@@ -8,7 +8,7 @@ import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;

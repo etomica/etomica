@@ -7,7 +7,6 @@ package etomica.virial.simulations;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
@@ -18,10 +17,8 @@ import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;

@@ -6,10 +6,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -32,20 +31,18 @@ import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Liter;
 import etomica.units.Mole;
-import etomica.units.Pixel;
 import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.Volume;
+import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /**

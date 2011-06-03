@@ -9,6 +9,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;

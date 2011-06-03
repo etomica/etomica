@@ -1,10 +1,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -29,8 +27,6 @@ import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
-import etomica.virial.SpeciesTraPPECO2;
-import etomica.virial.SpeciesTraPPENaphthalene;
 import etomica.virial.cluster.Standard;
 
 /**

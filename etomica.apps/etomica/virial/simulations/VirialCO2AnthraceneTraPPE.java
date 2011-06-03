@@ -31,7 +31,6 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesTraPPEAnthracene;
 import etomica.virial.SpeciesTraPPECO2;
-import etomica.virial.SpeciesTraPPENaphthalene;
 import etomica.virial.cluster.Standard;
 
 /**

@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2EffectiveFeynmanHibbs;

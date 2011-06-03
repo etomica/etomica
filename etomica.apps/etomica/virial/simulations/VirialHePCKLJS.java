@@ -10,7 +10,6 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HePCKLJS;
-import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;

@@ -1,10 +1,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.api.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.config.IConformation;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -21,7 +19,6 @@ import etomica.units.Unit;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;

@@ -2,9 +2,6 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IIntegratorEvent;
@@ -17,37 +14,21 @@ import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
 import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
 import etomica.units.Pixel;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.MayerEGeneral;
@@ -55,7 +36,6 @@ import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesAlkane;
-import etomica.virial.SpeciesFactorySiepmannSpheres;
 import etomica.virial.cluster.Standard;
 
 /**

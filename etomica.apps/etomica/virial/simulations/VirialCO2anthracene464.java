@@ -31,7 +31,6 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesAnthracene3site464;
-import etomica.virial.SpeciesAnthracene3site545;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;

@@ -2,15 +2,11 @@ package etomica.virial.simulations;
 
 import java.io.File;
 
-import etomica.api.IAtomType;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.impl.MetadataImpl;
-import etomica.potential.P1HardBoundary;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.Arrays;
@@ -19,7 +15,6 @@ import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumExternalField;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MayerHardSphere;

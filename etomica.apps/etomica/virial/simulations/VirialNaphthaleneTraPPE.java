@@ -10,7 +10,6 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
-import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
@@ -26,7 +25,6 @@ import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesTraPPECO2;
 import etomica.virial.SpeciesTraPPENaphthalene;
 import etomica.virial.cluster.Standard;
 

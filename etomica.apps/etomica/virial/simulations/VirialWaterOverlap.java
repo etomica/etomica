@@ -1,9 +1,8 @@
 package etomica.virial.simulations;
 
 import etomica.api.IPotentialMolecular;
-import etomica.api.ISpecies;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.models.water.ConformationWaterTIP4P;
@@ -24,9 +23,6 @@ import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactoryWater3P;
-import etomica.virial.SpeciesFactoryWater4P;
 import etomica.virial.cluster.Standard;
 
 /**
