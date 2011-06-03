@@ -1,5 +1,6 @@
 package etomica.util;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 /**
@@ -49,6 +50,17 @@ public class ParseArgs {
      *  ==> alpha = {0.3, 0.5};
      */
     public void parseArgs(String[] args) {
+        parseArgs(args, false);
+    }
+    
+    public void parseArgs(String[] args, boolean firstArgFile) {
+        if (firstArgFile) {
+            if (new File(args[0]).exists()) {
+                ReadParameters paramReader = new ReadParameters(args[0], wrapper);
+                paramReader.readParameters();
+                args = (String[])Arrays.removeObject(args, args[0]);
+            }
+        }
         for (int i=0; i<args.length; i++) {
             if (args[i].charAt(0) != '-') {
                 throw new RuntimeException("encountered "+args[i]+" when I was expecting an option");
@@ -68,6 +80,11 @@ public class ParseArgs {
             for (int j=0; j<fields.length; j++) {
                 if (token.equals(fields[j].getName())) {
                     wrapper.setValue(fields[j],value);
+                    foundField = true;
+                    break;
+                }
+                else if (token.equalsIgnoreCase("no"+fields[j].getName()) && value.equals("true")) {
+                    wrapper.setValue(fields[j], "false");
                     foundField = true;
                     break;
                 }
