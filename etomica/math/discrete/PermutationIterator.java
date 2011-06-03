@@ -49,7 +49,7 @@ public class PermutationIterator implements IndexIterator, java.io.Serializable 
 		int j = 0;
 		for(int i=0; i<n; i++) {
 			if(i==iLast) continue;
-			else nextIndex[i] = subIndex[j++];
+			nextIndex[i] = subIndex[j++];
 		}
 		nextIndex[iLast--] = n-1;
 		if(iLast < 0) {
