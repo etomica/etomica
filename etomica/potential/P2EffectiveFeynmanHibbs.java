@@ -69,13 +69,13 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
         if (Double.isInfinite(uc)) { return uc; }
         double duc = p2Classy.du(r2); //multiplied by r
         double d2uc = p2Classy.d2u(r2);  //multiplied by r*r
-        if (Double.isInfinite(uc + fac*(d2uc + 2*duc)/r2)) {
-        	throw new RuntimeException("fac*(d2uc + 2*duc)/r2 is infinite");
-        } 
-        if (Double.isInfinite(Math.exp(-(uc + fac*(d2uc + 2*duc)/r2))/temperature)) {
-        	//throw new RuntimeException("fij is infinite");
-        } 
-        return uc + fac*(d2uc + 2*duc)/r2;
+        if (d2uc == Double.POSITIVE_INFINITY) return d2uc;
+        double u = uc + fac*(d2uc + 2*duc)/r2;
+        // if the classical potential is repulsive, the semiclassical potential
+        // should be more repulsive.  In nearly all cases, it is, but this often
+        // fails for very short separations.  Just enforce it here.
+        if (uc > 0 && u < uc) return uc;
+        return u;
     }
     
     public double dudkT(double r2) {
@@ -84,7 +84,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
         double duc = p2Classy.du(r2);
         double d2uc = p2Classy.d2u(r2);
         if (Double.isInfinite(fac*(d2uc + 2*duc)/r2*(-2/temperature/temperature))) {
-        	throw new RuntimeException("fac*(d2uc + 2*duc)/r2 is infinite");
+            throw new RuntimeException("fac*(d2uc + 2*duc)/r2 is infinite");
         } 
 
         return fac*(d2uc + 2*duc)/r2*(-2/temperature/temperature);  //fac includes temperature in the denominator
