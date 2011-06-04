@@ -646,8 +646,7 @@ public class VirialHePI {
             sim.integrators[0].getEventManager().addListener(histListener);
         }
 
-        sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
+        sim.ai.setMaxSteps(1000);
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
         
