@@ -28,6 +28,7 @@ import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
@@ -408,8 +409,8 @@ public class SwmdGraphic extends SimulationGraphic {
         MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
         pMeter.setIntegrator(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-        final DataPump pPump = new DataPump(pMeter, pAccumulator);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
+        final DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
+        sim.integrator.getEventManager().addListener(pPump);
         pAccumulator.setPushInterval(50);
         dataStreamPumps.add(pPump);
 
