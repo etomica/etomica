@@ -111,7 +111,7 @@ public class VirialHePI {
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperature;
-        int steps = params.numSteps;
+        long steps = params.numSteps;
         final boolean pairOnly = params.nPoints == 2 || params.pairOnly;
         double refFreq = params.refFrac;
         boolean subtractHalf = params.subtractHalf;
@@ -350,11 +350,19 @@ public class VirialHePI {
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         // overerr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
-        System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
+        if (steps%1000 != 0) {
+            throw new RuntimeException("steps should be a multiple of 1000");
+        }
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomTypeLeaf(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
+
+        // we'll use substeps=1000 initially (to allow for better initialization)
+        // and then later switch to 1000 overlap steps
+        sim.integratorOS.setNumSubSteps(1000);
+        steps /= 1000;
 
         if (doFlex) {
             // fix the last molecule at the origin
@@ -408,8 +416,6 @@ public class VirialHePI {
             if (pi == 0) throw new RuntimeException("initialization failed");
             sim.box[1].acceptNotify();
         }
-        
-        sim.integratorOS.setNumSubSteps(1000);
 
         if (false) {
             // unnecessary because our MC move regrows the chain using the
@@ -569,7 +575,7 @@ public class VirialHePI {
         // make the integratorOS aggressive so that it runs either reference or target
         // then, we'll have some number of complete blocks in the accumulator
         sim.setAccumulatorBlockSize(steps);
-        sim.integratorOS.setNumSubSteps(steps);
+        sim.integratorOS.setNumSubSteps((int)steps);
         sim.integratorOS.setAgressiveAdjustStepFraction(true);
         
         System.out.println("equilibration finished");
@@ -655,8 +661,8 @@ public class VirialHePI {
             }
         }
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
+        System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         System.out.println("Ring acceptance "+ring0.getTracker().acceptanceRatio()+" "+ring1.getTracker().acceptanceRatio());
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
@@ -743,7 +749,7 @@ public class VirialHePI {
         public int nPoints = 2;
         public int nBeads = 4;
         public double temperature = 100;   // Kelvin
-        public int numSteps = 1000;
+        public long numSteps = 1000000;
         public double refFrac = -1;
         public double sigmaHSRef = 5;
         public boolean doDiff = true;
