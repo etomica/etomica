@@ -41,6 +41,11 @@ public class DataProcessorDyDLnx extends DataProcessor implements DataSourceInde
         outNData = new DataDoubleArray(myLength);
         outNDataInfo = new DataInfoDoubleArray("block size", Quantity.DIMENSION, new int[]{myLength});
         outNDataInfo.addTag(nTag);
+        IData nData = nDataSource.getIndependentData(0);
+        double[] x = outNData.getData();
+        for (int j=0; j<x.length; j++) {
+            x[j] = Math.sqrt(nData.getValue(j)*nData.getValue(j+1));
+        }
         dataInfo = new DataInfoFunction("dydlnx", Null.DIMENSION, this);
         dataInfo.addTag(tag);
         data = new DataFunction(new int[]{myLength});
@@ -53,12 +58,10 @@ public class DataProcessorDyDLnx extends DataProcessor implements DataSourceInde
         }
 
         IData nData = nDataSource.getIndependentData(0);
-        double[] x = outNData.getData();
         double[] d = data.getData();
         for (int i=0; i<d.length; i++) {
             double lnN1 = Math.log(nData.getValue(i));
             double lnN2 = Math.log(nData.getValue(i+1));
-            x[i] = Math.sqrt(nData.getValue(i)*nData.getValue(i+1));
             d[i] = (inputData.getValue(i+1) - inputData.getValue(i))/(lnN2-lnN1);
         }
         return data;
