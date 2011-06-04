@@ -70,11 +70,11 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public double f(double x) {return -Math.log(x);}
         });
         sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
-        sim.accumulator.setPushInterval(10000);
+        sim.accumulator.setPushInterval(1000);
         AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing(102, 3));
         history.setTimeDataSource(sim.stepCounter);
         log.setDataSink(history);
-        history.setPushInterval(10);
+        history.setPushInterval(1);
         history.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{history.getTag()}, "measured");
         
@@ -82,7 +82,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.historyEnergy.setTimeDataSource(sim.stepCounter);
         sim.historyEnergy.setDataSink(energyPlot.getDataSet().makeDataSink());
         energyPlot.setLegend(new DataTag[]{sim.historyEnergy.getTag()}, "measured");
-        sim.historyEnergy.setPushInterval(1000);
+        sim.historyEnergy.setPushInterval(10);
         
         DeviceSlider x0Slider = new DeviceSlider(sim.controller);
         final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
@@ -142,7 +142,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         int historyLength = sim.historyEnergy.getHistory().getHistoryLength();
         int nCollapseBins = ((HistoryCollapsing)sim.historyEnergy.getHistory()).getNumCollapseBins();
         AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
-        deltaHistory.setPushInterval(100000);
+        deltaHistory.setPushInterval(10000);
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
         IntegratorListenerAction exactPumpListener = new IntegratorListenerAction(exactPump);
@@ -152,7 +152,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         deltaHistory.setTimeDataSource(sim.stepCounter);
         
         AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
-        uAvgHistory.setPushInterval(100000);
+        uAvgHistory.setPushInterval(10000);
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         IntegratorListenerAction uPumpListener = new IntegratorListenerAction(uPump);
