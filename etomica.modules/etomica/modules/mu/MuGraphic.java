@@ -234,7 +234,7 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageFixed densityProfileAvgA = new AccumulatorAverageFixed(10);
         densityProfileAvgA.setPushInterval(10);
         DataDump profileDumpA = new DataDump();
-        densityProfileAvgA.addDataSink(profileDumpA, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        densityProfileAvgA.addDataSink(profileDumpA, new AccumulatorAverage.StatType[]{densityProfileAvgA.AVERAGE});
         DataPumpListener profilePumpA = new DataPumpListener(densityProfileMeterA, densityProfileAvgA, 100);
         sim.integrator.getEventManager().addListener(profilePumpA);
         dataStreamPumps.add(profilePumpA);
@@ -247,14 +247,14 @@ public class MuGraphic extends SimulationGraphic {
         AccumulatorAverageFixed densityProfileAvgB = new AccumulatorAverageFixed(10);
         densityProfileAvgB.setPushInterval(10);
         DataDump profileDumpB = new DataDump();
-        densityProfileAvgB.addDataSink(profileDumpB, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        densityProfileAvgB.addDataSink(profileDumpB, new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
         DataPumpListener profilePumpB = new DataPumpListener(densityProfileMeterB, densityProfileAvgB, 100);
         sim.integrator.getEventManager().addListener(profilePumpB);
         dataStreamPumps.add(profilePumpB);
 
         DisplayPlot profilePlot = new DisplayPlot();
-        densityProfileAvgA.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
-        densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        densityProfileAvgA.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgA.AVERAGE});
+        densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
         profilePlot.setLegend(new DataTag[]{densityProfileMeterA.getTag()}, "A");
         profilePlot.setLegend(new DataTag[]{densityProfileMeterB.getTag()}, "B");
         profilePlot.setLabel("Density");
@@ -427,14 +427,14 @@ public class MuGraphic extends SimulationGraphic {
         
         DisplayTable metricsTable = new DisplayTable();
         metricsTable.setTransposed(true);
-        muAvgA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
-        muAvgB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
-        accumulatorDensityIGA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
-        accumulatorDensityIGB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
-        accumulatorDensitySQWA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
-        accumulatorDensitySQWB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
-        accumulatorPressureIG.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
-        accumulatorPressureSQW.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR});
+        muAvgA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{muAvgA.AVERAGE, muAvgA.ERROR});
+        muAvgB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{muAvgB.AVERAGE, muAvgB.ERROR});
+        accumulatorDensityIGA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensityIGA.AVERAGE, accumulatorDensityIGA.ERROR});
+        accumulatorDensityIGB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensityIGB.AVERAGE, accumulatorDensityIGB.ERROR});
+        accumulatorDensitySQWA.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensitySQWA.AVERAGE, accumulatorDensitySQWA.ERROR});
+        accumulatorDensitySQWB.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorDensitySQWB.AVERAGE, accumulatorDensitySQWB.ERROR});
+        accumulatorPressureIG.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorPressureIG.AVERAGE, accumulatorPressureIG.ERROR});
+        accumulatorPressureSQW.addDataSink(metricsTable.getDataTable().makeDataSink(), new StatType[]{accumulatorPressureSQW.AVERAGE, accumulatorPressureSQW.ERROR});
         metricsTable.setColumnHeader(new DataTag[]{muAvgA.getTag()}, "exp(-E/kT) (A)");
         metricsTable.setColumnHeader(new DataTag[]{muAvgB.getTag()}, "exp(-E/kT) (B)");
         metricsTable.setColumnHeader(new DataTag[]{accumulatorDensityIGA.getTag()}, "IG Phase Density (A)");

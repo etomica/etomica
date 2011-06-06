@@ -473,13 +473,13 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         final DisplayPlot profPlot = new DisplayPlot();
         profSodiumAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
-                new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+                new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
         profPlot.setLegend(new DataTag[]{meterProfileSodium.getTag()}, "Sodium");
         profChlorineAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
-                new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+                new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
         profPlot.setLegend(new DataTag[]{meterProfileChlorine.getTag()}, "Chlorine");
         profSolventAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
-                new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+                new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
         profPlot.setLegend(new DataTag[]{meterProfileSolvent.getTag()}, "Solvent");
         profPlot.getPlot().setTitle("DensityProfiles (mol/L)");
         profPlot.setDoLegend(true);

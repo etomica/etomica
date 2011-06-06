@@ -141,7 +141,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		});
 
 		// Data table tab page
-        DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd, new StatType[]{AccumulatorAverage.StatType.AVERAGE, AccumulatorAverage.StatType.ERROR},
+        DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd, new StatType[]{AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR},
                 1000, new IEtomicaDataSource[0], getController().getDataStreamPumps());
         dataTable.addDataSource(sim.meterFlux0);
         dataTable.addDataSource(sim.meterFlux1);
@@ -170,9 +170,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		getPanel().tabbedPane.add("Density Profile", profilePlot.graphic());
 
 		sim.accumulator1.addDataSink(profilePlot.getDataSet().makeDataSink(),
-	            new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+	            new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
 	    sim.accumulator2.addDataSink(profilePlot.getDataSet().makeDataSink(),
-	            new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+	            new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
 
 	    //set color of molecules
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());

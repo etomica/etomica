@@ -188,7 +188,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         getController().getResetAveragesButton().setPostAction(resetData);
 
         DisplayPlot compositionPlot = new DisplayPlot();
-        accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
         compositionPlot.setDoLegend(false);
 
         DisplayPlot mwPlot = new DisplayPlot();

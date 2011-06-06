@@ -131,7 +131,7 @@ public class LjmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(velocityPump);
         
         final DisplayPlot vPlot = new DisplayPlot();
-        rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
+        rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{rmsAverage.AVERAGE});
         vPlot.setDoLegend(false);
         vPlot.getPlot().setTitle("Velocity Distribution");
         vPlot.setDoLegend(true);
@@ -254,7 +254,7 @@ public class LjmdGraphic extends SimulationGraphic {
                 if (!sim.integrator.isIsothermal()) {
                     // in adiabatic mode, we want the average kinetic temperature, which we'll
                     // steal from our kinetic energy accumulator
-                    double temp = keAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
+                    double temp = keAvg.getData().getValue(keAvg.AVERAGE.index);
                     temp *= 2.0 / (sim.box.getLeafList().getAtomCount() * space.D());
                     mbDistribution.setTemperature(temp);
                     mbSource.update();

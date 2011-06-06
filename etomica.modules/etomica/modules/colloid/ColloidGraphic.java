@@ -298,7 +298,7 @@ public class ColloidGraphic extends SimulationGraphic {
         dataStreamPumps.add(profilePump);
 
         DisplayPlot profilePlot = new DisplayPlot();
-        densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "monomer");
         profilePlot.getPlot().setTitle("Monomer");
         profilePlot.setXLabel("y");
@@ -306,7 +306,7 @@ public class ColloidGraphic extends SimulationGraphic {
         profilePlot.setLabel("Monomer Density");
 
         DisplayPlot colloidProfilePlot = new DisplayPlot();
-        colloidDensityProfileAvg.addDataSink(colloidProfilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        colloidDensityProfileAvg.addDataSink(colloidProfilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{colloidDensityProfileAvg.AVERAGE});
         colloidProfilePlot.setLegend(new DataTag[]{colloidDensityProfileAvg.getTag()}, "colloid");
         colloidProfilePlot.getPlot().setTitle("Colloid");
         colloidProfilePlot.setXLabel("y");
@@ -339,7 +339,7 @@ public class ColloidGraphic extends SimulationGraphic {
 //        add(displayE2E);
         
         DataProcessorFunction sqrtE2E = new DataProcessorFunction(Function.Sqrt.INSTANCE);
-        avgE2E.addDataSink(sqrtE2E, new StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        avgE2E.addDataSink(sqrtE2E, new StatType[]{avgE2E.AVERAGE});
         AccumulatorHistory historyE2E = new AccumulatorHistory(new HistoryCollapsing());
         sqrtE2E.setDataSink(historyE2E);
         DisplayPlot runningAvgE2E = new DisplayPlot();

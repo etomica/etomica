@@ -299,7 +299,7 @@ public class SwmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(velocityPump);
         
         final DisplayPlot vPlot = new DisplayPlot();
-        rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
+        rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{rmsAverage.AVERAGE});
         vPlot.setLegend(new DataTag[]{meterVelocity.getTag()}, "measured");
         vPlot.setDoLegend(false);
         vPlot.getPlot().setTitle("Velocity Distribution");

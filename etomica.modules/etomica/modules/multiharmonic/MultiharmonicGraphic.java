@@ -69,7 +69,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
             public double f(double x) {return -Math.log(x);}
         });
-        sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
+        sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {sim.accumulator.AVERAGE});
         AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing(102, 3));
         history.setTimeDataSource(sim.timeCounter);
         log.setDataSink(history);

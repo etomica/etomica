@@ -85,7 +85,7 @@ public class Multiharmonic extends Simulation {
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
         
         historyEnergy = new AccumulatorHistory(new HistoryCollapsing(102, 3));
-        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
+        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {accumulatorEnergy.AVERAGE});
 
         timeCounter = new DataSourceCountTime(integrator);
         

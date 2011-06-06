@@ -36,10 +36,10 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
+import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
@@ -55,9 +55,6 @@ import etomica.util.Constants.CompassDirection;
 
 /**
  * @author William Scharmach
- * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
@@ -233,9 +230,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         tPump.setDataSink(tempAccum);
         final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tempAccum.addDataSink(tBox,
-                        new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
-                        AccumulatorAverage.StatType.AVERAGE,
-                        AccumulatorAverage.StatType.ERROR});
+                        new AccumulatorAverage.StatType[]{tempAccum.MOST_RECENT,
+                        tempAccum.AVERAGE, tempAccum.ERROR});
         tBox.setLabel("Measured Temperature (K)");
         tBox.setUnit(Kelvin.UNIT);
         tBox.setLabelPosition(CompassDirection.NORTH);
@@ -262,12 +258,11 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         DisplayTable table = new DisplayTable();
 		dimerFractionAccum.addDataSink(table.getDataTable().makeDataSink(),
-		        new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE,
-		        AccumulatorAverage.StatType.ERROR});
+		        new AccumulatorAverage.StatType[]{dimerFractionAccum.AVERAGE, dimerFractionAccum.ERROR});
 
 
-        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(AccumulatorAverage.StatType.AVERAGE)}, "Average");
-        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(AccumulatorAverage.StatType.ERROR)}, "Error");
+        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(dimerFractionAccum.AVERAGE)}, "Average");
+        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(dimerFractionAccum.ERROR)}, "Error");
 		table.setLabel("Fractions");
 
         DataSplitter splitter = new DataSplitter();
@@ -303,9 +298,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         densityDisplay = new DisplayTextBoxesCAE();
         densityAccum.addDataSink(densityDisplay,
-                new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
-                AccumulatorAverage.StatType.AVERAGE,
-                AccumulatorAverage.StatType.ERROR});
+                new AccumulatorAverage.StatType[]{densityAccum.MOST_RECENT,
+                densityAccum.AVERAGE,
+                densityAccum.ERROR});
         densityDisplay.setLabel("Molecular density (" + Angstrom.UNIT.symbol()+"^-2)");
         dimerPump.actionPerformed();
         densityDisplay.putData(densityAccum.getData());

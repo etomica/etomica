@@ -386,7 +386,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
             virialProfileAvg[i] = new AccumulatorAverageFixed(10);
             virialProfileAvg[i].setPushInterval(10);
             virialSplitter.setDataSink(i, virialProfileAvg[i]);
-            virialProfileAvg[i].addDataSink(virialPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+            virialProfileAvg[i].addDataSink(virialPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{virialProfileAvg[i].AVERAGE});
             virialPlot.setLegend(new DataTag[]{virialProfileAvg[i].getTag()}, comp[i]+" Virial");
         }
         virialPlot.setLabel("Virial Profile");
@@ -401,7 +401,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         tensionProfileAvg.setPushInterval(10);
         DisplayPlot tensionPlot = new DisplayPlot();
         tensionPlot.setDoLegend(false);
-        tensionProfileAvg.addDataSink(tensionPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        tensionProfileAvg.addDataSink(tensionPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{tensionProfileAvg.AVERAGE});
         tensionPlot.setLabel("Tension Profile");
         add(tensionPlot);
 
@@ -414,7 +414,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         densityProfileAvg.setPushInterval(10);
         DataPump profilePump = new DataPump(densityProfileMeter, densityProfileAvg);
         DataDump profileDump = new DataDump();
-        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
         sim.integrator.getEventManager().addListener(profilePumpListener);
         profilePumpListener.setInterval(10);
@@ -448,11 +448,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         dataStreamPumps.add(orientationProfilePump);
         
         final FitTanh fitTanh = new FitTanh();
-        densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
 
         profilePlot = new DisplayPlot();
-        densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
-        surfactantProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
+        surfactantProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{surfactantProfileAvg.AVERAGE});
         fitTanh.setDataSink(profilePlot.getDataSet().makeDataSink());
         profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "density");
         profilePlot.setLegend(new DataTag[]{surfactantProfileAvg.getTag()}, "surfactant");
@@ -508,7 +508,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         DataProcessorChemicalPotential dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
         dataProcessorChemicalPotential.setDensityProfileDump(profileDump);
         dataProcessorChemicalPotential.setIntegrator(sim.integrator);
-        chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        chemicalPotentialAverage.addDataSink(dataProcessorChemicalPotential, new AccumulatorAverage.StatType[]{chemicalPotentialAverage.AVERAGE});
         dataProcessorChemicalPotential.setDataSink(muPlot.getDataSet().makeDataSink());
         muPlot.setLegend(new DataTag[]{dataProcessorChemicalPotential.getTag()}, "mu");
 //        dataProcessorChemicalPotential = new DataProcessorChemicalPotential();
