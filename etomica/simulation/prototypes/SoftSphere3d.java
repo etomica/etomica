@@ -125,8 +125,8 @@ public class SoftSphere3d extends Simulation {
         
         
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)accumulator.getData()).getData(StatType.STANDARD_DEVIATION.index)).x;
-        double energy = ((DataDouble)((DataGroup)accumulator.getData()).getData(StatType.AVERAGE.index)).x;
+        double Cv = ((DataDouble)((DataGroup)accumulator.getData()).getData(accumulator.STANDARD_DEVIATION.index)).x;
+        double energy = ((DataDouble)((DataGroup)accumulator.getData()).getData(accumulator.AVERAGE.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k: "+Cv);

@@ -1,6 +1,5 @@
 package etomica.junit.data;
 
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.IData;
 import etomica.data.types.DataDouble;
@@ -45,16 +44,16 @@ public class AccumulatorAverageCollapsingTest extends AccumulatorAverageTestBase
         assertEquals("block count "+accumulator.getBlockCount(), accumulator.getBlockCount(), 250);
         
         IData accData = accumulator.getData();
-        double avg = accData.getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double avg = accData.getValue(accumulator.AVERAGE.index);
         assertTrue("average "+avg, Math.abs(avg-0.5) < 0.015);
         
-        double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
+        double blockCorrelation = accData.getValue(accumulator.BLOCK_CORRELATION.index);
         assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation/0.27 + 0.27/blockCorrelation - 2) < 0.4);
         
-        double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+        double stdev = accData.getValue(accumulator.STANDARD_DEVIATION.index);
         assertTrue("stdev "+stdev, Math.abs(stdev/0.046345 + 0.046345/stdev - 2) < 0.02);
 
-        double error = accData.getValue(AccumulatorAverage.StatType.ERROR.index);
+        double error = accData.getValue(accumulator.ERROR.index);
         assertTrue("error "+error, error/0.0023 + 0.0023/error - 2 < 0.2);
     }
 }

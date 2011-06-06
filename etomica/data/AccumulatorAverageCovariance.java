@@ -128,22 +128,14 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         dataInfo.addTag(tag);
         return dataInfo;
     }
-    
-    public static class StatType extends AccumulatorAverage.StatType {
 
-        protected StatType(String label, int index) {
-            super(label, index);
-        }
-
-        public static AccumulatorAverage.StatType[] choices() {
-            return new AccumulatorAverage.StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,BLOCK_CORRELATION,
-                                                      COVARIANCE,BLOCK_COVARIANCE};
-        }
-        
-        private static final long serialVersionUID = 1L;
-        public static final StatType COVARIANCE = new StatType("Covariance", 5);
-        public static final StatType BLOCK_COVARIANCE = new StatType("Block covariance", 6);
+    public static StatType[] statChoices() {
+        return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,BLOCK_CORRELATION,
+                                                  COVARIANCE,BLOCK_COVARIANCE};
     }
+    
+    public static final StatType COVARIANCE = new StatType("Covariance", 5);
+    public static final StatType BLOCK_COVARIANCE = new StatType("Block covariance", 6);
 
     private static final long serialVersionUID = 1L;
     protected DataDoubleArray covSum, blockCovSum;

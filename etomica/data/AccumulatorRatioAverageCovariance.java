@@ -22,15 +22,15 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
         ratioErrorTag = new DataTag();
     }
     
-    public Object getTag(StatType statType) {
-        if (statType == StatType.RATIO) {
+    public DataTag getTag(StatType statType) {
+        if (statType == RATIO) {
             return ratioTag;
         }
-        if (statType == StatType.RATIO_STANDARD_DEVIATION) {
+        if (statType == RATIO_STANDARD_DEVIATION) {
             return ratioStandardDeviationTag;
         }
-        if (statType == StatType.RATIO_ERROR) {
-            return ratioError;
+        if (statType == RATIO_ERROR) {
+            return ratioErrorTag;
         }
         return super.getTag(statType);
     }
@@ -140,19 +140,14 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
         return dataInfo;
     }
     
-    public static class StatType extends AccumulatorAverageCovariance.StatType {
-        private static final long serialVersionUID = 1L;
-        protected StatType(String label, int index) {super(label,index);}       
-        public static final StatType RATIO = new StatType("Ratio",7);
-        public static final StatType RATIO_ERROR = new StatType("Ratio error",8);
-        public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",7);
-        public static AccumulatorAverage.StatType[] choices() {
-            AccumulatorAverage.StatType[] choices = AccumulatorAverageCovariance.StatType.choices();
-            return new AccumulatorAverage.StatType[] {
-                choices[0], choices[1], choices[2], choices[3], choices[4], choices[5], choices[6],
-                RATIO, RATIO_ERROR, RATIO_STANDARD_DEVIATION};
-            
-        }
+    public static final StatType RATIO = new StatType("Ratio",7);
+    public static final StatType RATIO_ERROR = new StatType("Ratio error",8);
+    public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",7);
+    public static AccumulatorAverage.StatType[] choices() {
+        StatType[] choices = AccumulatorAverageCovariance.statChoices();
+        return new AccumulatorAverage.StatType[] {
+            choices[0], choices[1], choices[2], choices[3], choices[4], choices[5], choices[6],
+            RATIO, RATIO_ERROR, RATIO_STANDARD_DEVIATION};
     }
 
     //need separate fields because ratio values are calculated from the non-ratio values.

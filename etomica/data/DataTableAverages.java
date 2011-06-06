@@ -29,8 +29,8 @@ public class DataTableAverages extends DataSinkTable {
     }
     
     public DataTableAverages(IIntegrator integrator, int blockSize, ArrayList<DataPump> dataPumps) {
-        this(integrator, new StatType[] { StatType.MOST_RECENT,
-                StatType.AVERAGE, StatType.ERROR }, 
+        this(integrator, new StatType[] { AccumulatorAverage.MOST_RECENT,
+                AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR }, 
                 blockSize, null, dataPumps);
     }
 

@@ -48,19 +48,19 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     }
 
     public DataTag getTag(StatType statType) {
-        if (statType == StatType.MOST_RECENT) {
+        if (statType == MOST_RECENT) {
             return mostRecentTag;
         }
-        if (statType == StatType.AVERAGE) {
+        if (statType == AVERAGE) {
             return averageTag;
         }
-        if (statType == StatType.ERROR) {
+        if (statType == ERROR) {
             return errorTag;
         }
-        if (statType == StatType.STANDARD_DEVIATION) {
+        if (statType == STANDARD_DEVIATION) {
             return standardDeviationTag;
         }
-        if (statType == StatType.BLOCK_CORRELATION) {
+        if (statType == BLOCK_CORRELATION) {
             return blockCorrelationTag;
         }
         return null;
@@ -205,19 +205,18 @@ public abstract class AccumulatorAverage extends DataAccumulator {
             this.index = index;
         }
 
-        public static final StatType MOST_RECENT = new StatType("Latest value", 0);
-        public static final StatType AVERAGE = new StatType("Average", 1);
-        public static final StatType ERROR = new StatType("67% Confidence limits", 2);
-        public static final StatType STANDARD_DEVIATION = new StatType("Standard deviation", 3);
-        public static final StatType BLOCK_CORRELATION = new StatType("Block correlation", 4);
-        public static StatType[] choices() {
-            return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,BLOCK_CORRELATION};
-        }
-        
         private static final long serialVersionUID = 1L;
         public final int index;
     }
 
+    public static final StatType MOST_RECENT = new StatType("Latest value", 0);
+    public static final StatType AVERAGE = new StatType("Average", 1);
+    public static final StatType ERROR = new StatType("67% Confidence limits", 2);
+    public static final StatType STANDARD_DEVIATION = new StatType("Standard deviation", 3);
+    public static final StatType BLOCK_CORRELATION = new StatType("Block correlation", 4);
+    public static StatType[] statChoices() {
+        return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,BLOCK_CORRELATION};
+    }
 
     private static final long serialVersionUID = 1L;
     protected IData mostRecent;//most recent value

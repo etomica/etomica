@@ -45,17 +45,17 @@ public abstract class AccumulatorAverageTestBase extends TestCase {
         }
 
         IData accData = accumulator.getData();
-        double avg = accData.getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double avg = accData.getValue(accumulator.AVERAGE.index);
         assertTrue("average "+avg, Math.abs(avg-0.5) < 0.01);
 
-        double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
+        double blockCorrelation = accData.getValue(accumulator.BLOCK_CORRELATION.index);
         // block correlation should be ~0, but actual value will depend on # of blocks
         assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation) < 4.0/Math.sqrt(accumulator.getBlockCount()));
 
-        double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+        double stdev = accData.getValue(accumulator.STANDARD_DEVIATION.index);
         assertTrue("standard devation "+stdev, Math.abs(stdev-Math.sqrt(1.0/12.0)) < 5.e-4);
 
-        double error = accData.getValue(AccumulatorAverage.StatType.ERROR.index);
+        double error = accData.getValue(accumulator.ERROR.index);
         assertTrue("error "+error, error/2.9e-4 + 2.9e-4/error - 2 < 0.02);
     }
 
@@ -69,16 +69,16 @@ public abstract class AccumulatorAverageTestBase extends TestCase {
         }
         
         IData accData = accumulator.getData();
-        double avg = accData.getValue(AccumulatorAverage.StatType.AVERAGE.index);
+        double avg = accData.getValue(accumulator.AVERAGE.index);
         assertTrue("average "+avg, Math.abs(avg-rawData.x) < 1.e-10);
 
         //double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
         // block correlation should be 0/0, actual value might be 0, some number, Infinity or NaN 
         
-        double stdev = accData.getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+        double stdev = accData.getValue(accumulator.STANDARD_DEVIATION.index);
         assertTrue("standard deviation ", stdev < 1.e-7);
 
-        double error = accData.getValue(AccumulatorAverage.StatType.ERROR.index);
+        double error = accData.getValue(accumulator.ERROR.index);
         assertTrue("error ", error < 1.e-6);
     }
 
