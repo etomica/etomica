@@ -15,10 +15,12 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.ISpace;
 
 /**
- * @author kofke
- *
- * Extension of MCMoveAtom that does trial in which several atom positions are
- * perturbed.  However, position of first atom is never altered.  
+ * MCMove that fully regrows the beads of a ring polymer, accepting or
+ * rejecting the move based on the sampling weight.  The move can (optionally)
+ * regrow the beads such that the beads from multiple molecules are combined
+ * to form a larger ring.
+ * 
+ * @author Andrew Schultz
  */
 public class MCMoveClusterRingRegrow extends MCMoveBox {
 
