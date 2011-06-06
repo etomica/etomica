@@ -20,7 +20,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             addIntegrator(aIntegrators[i]);
         }
         stepFreq = new double[nIntegrators];
-        totNumSubSteps = new int[nIntegrators];
+        totNumSubSteps = new long[nIntegrators];
         setAdjustStepFreq(true);
         //there are no global moves
         setGlobalMoveInterval(Double.POSITIVE_INFINITY);
@@ -66,7 +66,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      * Retruns the number of total number of integrator steps the sub-integrators
      * perform for every step of the overlap integrator.  Default value is 1000.
      */
-    public int getNumSubSteps() {
+    public long getNumSubSteps() {
         return numSubSteps;
     }
     
@@ -90,12 +90,12 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     // of time.  There are no global moves.
     public void doStepInternal() {
         for (int i=0; i<nIntegrators; i++) {
-            int iSubSteps = (int)(numSubSteps*stepFreq[i]);
+            long iSubSteps = (int)(numSubSteps*stepFreq[i]);
             if (doAdjustStepFreq) {
                 // if we're internally adjusting the step fractions, require at least 1%
                 iSubSteps = numSubSteps/100 + (int)(numSubSteps*(1-0.01*nIntegrators) * stepFreq[i]);
             }
-            for (int j=0; j<iSubSteps; j++) {
+            for (long j=0; j<iSubSteps; j++) {
                 integrators[i].doStep();
             }
             totNumSubSteps[i] += iSubSteps;
@@ -198,8 +198,8 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     
     private static final long serialVersionUID = 1L;
     private final double[] stepFreq;
-    private int numSubSteps;
-    private int[] totNumSubSteps;
+    private long numSubSteps;
+    private long[] totNumSubSteps;
     private int minDiffLoc;
     private AccumulatorVirialOverlapSingleAverage[] accumulators;
     private DataSourceVirialOverlap dsvo;
