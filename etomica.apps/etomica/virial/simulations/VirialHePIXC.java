@@ -222,9 +222,9 @@ public class VirialHePIXC {
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
                     DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
-                    data.x = ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];;
+                    data.x = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1];;
                     averageBox.putData(data);
-                    data.x = ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+                    data.x = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1];
                     errorBox.putData(data);
                 }
                 
@@ -289,16 +289,16 @@ public class VirialHePIXC {
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         
         System.out.println();
-        System.out.println("reference average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
+        System.out.println("reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0]
+                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[0]
+                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[0]);
         
-        double ratio = ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
-        double error = ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+        double ratio = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1];
+        double error = ((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1];
     
-        System.out.println("target average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        System.out.println("target average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[1]
+                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[1]
+                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[1]);
 
         System.out.println();
         System.out.println("ratio average: "+ratio+", error: "+error);
