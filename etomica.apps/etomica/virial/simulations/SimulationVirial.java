@@ -33,21 +33,27 @@ public class SimulationVirial extends Simulation {
 
 
     /**
-	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
+	 * Constructor for simulation to determine the ratio between reference and target Clusters
 	 */
 	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 	    this(space, speciesFactory, temperature, aSampleCluster, refCluster, targetClusters, false);
 	}
 
-	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
+    public SimulationVirial(ISpace space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+        this(space, species, temperature, aSampleCluster, refCluster, targetClusters, false);
+    }
+
+    public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
+	    this(space, speciesFactory.makeSpecies(space), temperature, aSampleCluster, refCluster, targetClusters, doWiggle);
+	}
+	
+	public SimulationVirial(ISpace space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
 		super(space);
         PotentialMaster potentialMaster = new PotentialMaster();
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		box = new BoxCluster(sampleCluster, space);
 		addBox(box);
-        //box.getBoundary().setDimensions(space.makeVector(new double[]{3.0,3.0,3.0}));
-		species = speciesFactory.makeSpecies(space);
         addSpecies(species);
         box.setNMolecules(species, nMolecules);
         
@@ -128,6 +134,10 @@ public class SimulationVirial extends Simulation {
 		}
 	}
 	
+	public void setAccumulatorBlockSize(long newBlockSize) {
+	    accumulator.setBlockSize(newBlockSize);
+	}
+	
 	public void equilibrate(long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
@@ -139,6 +149,7 @@ public class SimulationVirial extends Simulation {
 
         integrator.getMoveManager().setEquilibrating(false);
         
+        accumulator.reset();
     }
 }
 
