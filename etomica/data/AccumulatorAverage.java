@@ -179,6 +179,20 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
+     * Include correction to the uncertainty from block correlation function as
+     * prescribed in
+     * Kolafa, Jiri(1986) 'Autocorrelations and subseries averages in Monte
+     *   Carlo Simulations', Molecular Physics (59) 1035
+     */
+    public void setDoIncludeACInError(boolean newDoIncludeACInError) {
+        doIncludeACInError = newDoIncludeACInError;
+    }
+
+    public boolean getDoIncludeACInError() {
+        return doIncludeACInError;
+    }
+
+    /**
      * Enumerated type that can be used to indicated the statistic to be taken
      * from the accumulator (e.g., average, error, current value, etc.). An
      * array of these types can be given to the addDataSink method to specify
@@ -213,5 +227,6 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     protected long count, blockCountDown;
     protected long blockSize;
     private final DataTag mostRecentTag, averageTag, errorTag, standardDeviationTag, blockCorrelationTag;
+    protected boolean doIncludeACInError;
 
 }

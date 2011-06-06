@@ -154,8 +154,16 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
             }
             error.E(Math.sqrt(err / (count-1)));
 
-            blockCorrelation.E((((2 * totalBlockSum / blockSize - blockSums[0] - blockSums[(int)count-1]) * blockAvg - correlationSum) / 
-                    (1-count) + blockAvg * blockAvg) / err);
+            double bc = (((2 * totalBlockSum / blockSize - blockSums[0] - blockSums[(int)count-1]) * blockAvg - correlationSum) / 
+                    (1-count) + blockAvg * blockAvg) / err;
+            // sanity check
+            bc = (Double.isNaN(bc) || bc <= -1 || bc >= 1) ? 0 : bc;
+            blockCorrelation.E(bc);
+
+            if (doIncludeACInError && count > 3) {
+                double c = blockCorrelation.getValue(0);
+                error.TE(Math.sqrt((1+c)/(1-c)));
+            }
         }
         else {
             error.E(Double.NaN);

@@ -27,6 +27,15 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
                 return !(x <= 0) ? x : 0;
             }
         };
+        
+        // this provides a sanity check for the block correlation, which must
+        // be between -1 and 1.  It can take strange (nonsense) values,
+        // especially when the value is consistent (stdev=0).
+        sanityCheckBC = new IFunction(){
+            public double f(double x) {
+                return (Double.isNaN(x) || x <= -1 || x >= 1) ? 0 : x;
+            }
+        };
     }
 
     /**
@@ -109,10 +118,21 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             blockCorrelation.TE(1.0/(count-1));
             blockCorrelation.PE(work);
             blockCorrelation.DE(error);
+            blockCorrelation.map(sanityCheckBC);
             
             // ok, now finish up with error
             error.TE(1 / (double) (count - 1));
             error.map(Function.Sqrt.INSTANCE);
+
+            if (doIncludeACInError && count > 3) {
+                work.E(1); // 1+c
+                work.PE(blockCorrelation);
+                work2.E(1);
+                work2.ME(blockCorrelation); // 1-c
+                work.DE(work2); // (1+c)/(1-c)
+                work.map(Function.Sqrt.INSTANCE);
+                error.TE(work);
+            }
         }
         else {
             error.E(Double.NaN);
@@ -174,6 +194,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         correlationSum = incomingDataInfo.makeData();
         mostRecentBlock = incomingDataInfo.makeData();
         work = incomingDataInfo.makeData();
+        work2 = incomingDataInfo.makeData();
         return super.processDataInfo(incomingDataInfo);
     }
 
@@ -184,6 +205,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     protected IData currentBlockSum;//block_sum(value)
     protected IData sumSquare;//sum(value^2)
     protected IData mostRecentBlock, correlationSum, firstBlock;
-    protected IData work;
-    protected final IFunction negativeChop;
+    protected IData work, work2;
+    protected final IFunction negativeChop, sanityCheckBC;
 }
