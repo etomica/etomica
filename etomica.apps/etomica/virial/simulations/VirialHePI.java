@@ -530,7 +530,9 @@ public class VirialHePI {
                 // temperature is an integer, use "200" instead of "200.0"
                 tempString = ""+(int)temperatureK;
             }
-            refFileName = "refpref"+nPoints+"_"+tempString+"_"+nBeads;
+            refFileName = "refpref"+nPoints;
+            refFileName += pairOnly ? "_2b" : "_3b";
+            refFileName += "_"+tempString+"_"+nBeads;
             if (subtractHalf) {
                 refFileName += "_sh";
             }
@@ -659,7 +661,7 @@ public class VirialHePI {
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         System.out.println("Ring acceptance "+ring0.getTracker().acceptanceRatio()+" "+ring1.getTracker().acceptanceRatio());
-        
+
         sim.printResults(refIntegral);
 
         for (int i=0; i<targetDiagrams.length; i++) {
