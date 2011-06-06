@@ -219,7 +219,7 @@ public class TestDifferentImage1DHRAdd extends Simulation {
         
       //After processing...
         DataGroup group = (DataGroup)sim.accumulatorDI.getData();
-        double results = ((DataDouble)group.getData(StatType.AVERAGE.index)).x;
+        double results = ((DataDouble)group.getData(sim.accumulatorDI.AVERAGE.index)).x;
         System.out.println("results: " + results);
         
         if(D==1) {

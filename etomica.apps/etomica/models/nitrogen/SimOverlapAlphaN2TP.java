@@ -306,9 +306,9 @@ public class SimOverlapAlphaN2TP extends Simulation {
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
-        IData dataErr = data.getData(AccumulatorAverage.StatType.ERROR.index);
-        IData dataAvg = data.getData(AccumulatorAverage.StatType.AVERAGE.index);
-        IData dataCorrelation = data.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_CORRELATION.index);
+        IData dataErr = data.getData(sim.accumulator.ERROR.index);
+        IData dataAvg = data.getData(sim.accumulator.AVERAGE.index);
+        IData dataCorrelation = data.getData(sim.accumulator.BLOCK_CORRELATION.index);
         
         for (int i=0; i<otherTemperatures.length; i++) {
         	if(otherTemperatures[i] < 10.0){
@@ -329,7 +329,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
             // but we're going to be interpolating anyway and the covariance is almost
             // completely insensitive to choice of alpha.  so just take the covariance for
             // the middle alphas.
-            IData dataCov = data.getData(AccumulatorAverageCovariance.StatType.BLOCK_COVARIANCE.index);
+            IData dataCov = data.getData(((AccumulatorAverageCovariance)sim.accumulator).BLOCK_COVARIANCE.index);
             System.out.print("covariance "+otherTemperatures[1]+" / "+otherTemperatures[0]+"   ");
             for (int i=0; i<numAlpha; i++) {
                 i = (numAlpha-1)/2;
@@ -349,7 +349,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
             }
         }
         meterRotation.writeUdistribution(filename);
-		double averageOrderParameter = ((DataGroup)orderParameterAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
+		double averageOrderParameter = ((DataGroup)orderParameterAverage.getData()).getValue(sim.accumulator.AVERAGE.index);
 //		System.out.println("orientational order parameter: "+ averageOrderParameter/(numMolecules*numMolecules));
 		
 		System.out.println("orientational order parameter: "+ 0.5*averageOrderParameter);

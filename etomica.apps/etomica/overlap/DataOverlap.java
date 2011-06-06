@@ -403,10 +403,10 @@ public class DataOverlap implements ReferenceFracSource {
             this.acc = acc;
         }
         public double getAverage(int iAlpha) {
-            return ((DataGroup)acc.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(iAlpha);
+            return ((DataGroup)acc.getData()).getData(acc.AVERAGE.index).getValue(iAlpha);
         }
         public double getError(int iAlpha) {
-            return ((DataGroup)acc.getData()).getData(AccumulatorAverage.StatType.ERROR.index).getValue(iAlpha);
+            return ((DataGroup)acc.getData()).getData(acc.ERROR.index).getValue(iAlpha);
         }
     }
 

@@ -204,13 +204,13 @@ public class SimTarget extends Simulation {
         sim.getController().actionPerformed();
 
         //get averages and confidence limits for harmonic energy
-        double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
-        double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x;
+        double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;
+        double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.ERROR.index)).x;
         System.out.println("avg harmonic energy: "+avgHarmonicEnergy+" +/- "+errorHarmonicEnergy);
         
         //compute free-energy quantities, independent-mode approximation
-        DataDoubleArray harmonicModesAvg = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(StatType.AVERAGE.index);
-        DataDoubleArray harmonicModesErr = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(StatType.ERROR.index);
+        DataDoubleArray harmonicModesAvg = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(harmonicSingleAvg.AVERAGE.index);
+        DataDoubleArray harmonicModesErr = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(harmonicSingleAvg.ERROR.index);
         double deltaA = 0;
         double deltaAerr = 0;
         int nData = harmonicModesAvg.getLength();
@@ -238,8 +238,8 @@ public class SimTarget extends Simulation {
         }
 
         //results for averaging without independent-mode approximation
-        deltaA = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(StatType.AVERAGE.index)).x;
-        deltaAerr = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(StatType.ERROR.index)).x/deltaA;
+        deltaA = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(harmonicBoltzAvg.AVERAGE.index)).x;
+        deltaAerr = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(harmonicBoltzAvg.ERROR.index)).x/deltaA;
         deltaA = Math.log(deltaA);
         
         System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);

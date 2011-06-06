@@ -516,19 +516,19 @@ public class SimOverlapSSnxy extends Simulation {
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(
                 sim.dsvo.minDiffLocation());
         System.out.println("harmonic ratio average: "+((DataDoubleArray)
-                allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
                 +" stdev: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
                 +" error: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+                sim.accumulators[0].ERROR.index)).getData()[1]);
         
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
         System.out.println("target ratio average: "+((DataDoubleArray)
-                allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
                 +" stdev: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
                 +" error: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+                sim.accumulators[0].ERROR.index)).getData()[1]);
         
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);

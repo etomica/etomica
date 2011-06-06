@@ -186,9 +186,9 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         sim.getController().actionPerformed();
 
         sim.writeConfiguration(configFileName);
-        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-        double blockCorrelation = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
+        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.AVERAGE.index);
+        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.ERROR.index);
+        double blockCorrelation = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.BLOCK_CORRELATION.index);
         
         System.out.println("blockCorrelation: " + blockCorrelation);
         System.out.println("boltzmann average: " + average + " ;err: " + error +" ;errC: "+ error*Math.sqrt((1+blockCorrelation)/(1-blockCorrelation)));

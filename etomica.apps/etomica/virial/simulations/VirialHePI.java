@@ -551,14 +551,10 @@ public class VirialHePI {
         // one accepted move before it can collect real data.  we'll reset below
         MeterVirial meterDiagrams = new MeterVirial(targetDiagrams);
         meterDiagrams.setBox(sim.box[1]);
-        AccumulatorAverage accumulatorDiagrams = null;
+        AccumulatorAverageCovariance accumulatorDiagrams = null;
         if (targetDiagrams.length > 0) {
-            if  (targetDiagrams.length > 1) {
-                accumulatorDiagrams = new AccumulatorAverageCovariance(steps);
-            }
-            else {
-                accumulatorDiagrams = new AccumulatorAverageFixed(steps);
-            }
+            // if we have 1 diagram, we don't need covariance, but it won't actually cause problems
+            accumulatorDiagrams = new AccumulatorAverageCovariance(steps);
             DataPumpListener pumpDiagrams = new DataPumpListener(meterDiagrams, accumulatorDiagrams);
             sim.integrators[1].getEventManager().addListener(pumpDiagrams);
         }
@@ -664,55 +660,17 @@ public class VirialHePI {
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         System.out.println("Ring acceptance "+ring0.getTracker().acceptanceRatio()+" "+ring1.getTracker().acceptanceRatio());
         
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-        double ratio = ratioAndError[0];
-        double error = ratioAndError[1];
-        System.out.println("ratio average: "+ratio+" error: "+error);
-        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*refIntegral);
-        double conv = Mole.UNIT.toSim(1e-24);
-        System.out.println("   (cm^3/mol)^"+(nPoints-1)+"  "+ratio*refIntegral*Math.pow(conv, nPoints-1)+" "+error*refIntegral*Math.pow(conv, nPoints-1));
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData();
-        IData ratioData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index);
-        IData ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index);
-        IData averageData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.AVERAGE.index);
-        IData stdevData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.STANDARD_DEVIATION.index);
-        IData errorData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.ERROR.index);
-        IData correlationData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_CORRELATION.index);
-        IData covarianceData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_COVARIANCE.index);
-        double correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
-        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %9.3e\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
-        System.out.print(String.format("reference average: %20.15e stdev: %9.3e error: %9.3e cor: %6.4f\n",
-                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.3e error: %9.3e cor: %6.4f\n",
-                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
-        
-        allYourBase = (DataGroup)sim.accumulators[1].getData();
-        ratioData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index);
-        ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index);
-        averageData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.AVERAGE.index);
-        stdevData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.STANDARD_DEVIATION.index);
-        errorData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.ERROR.index);
-        correlationData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_CORRELATION.index);
-        covarianceData = allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.BLOCK_COVARIANCE.index);
-        correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
-        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %9.3e\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
-        System.out.print(String.format("target average: %20.15e stdev: %9.3e error: %9.3e cor: %6.4f\n",
-                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        System.out.print(String.format("target overlap average: %20.15e stdev: %9.3e error: %9.3e cor: %6.4f\n",
-                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
-
+        sim.printResults(refIntegral);
 
         for (int i=0; i<targetDiagrams.length; i++) {
             DataGroup allData = (DataGroup)accumulatorDiagrams.getData();
-            IData dataAvg = allData.getData(AccumulatorAverageCovariance.StatType.AVERAGE.index);
-            IData dataErr = allData.getData(AccumulatorAverageCovariance.StatType.ERROR.index);
+            IData dataAvg = allData.getData(accumulatorDiagrams.AVERAGE.index);
+            IData dataErr = allData.getData(accumulatorDiagrams.ERROR.index);
             System.out.print("diagram "+targetDiagramNumbers[i]+" ");
             System.out.print("average: "+dataAvg.getValue(i)+" error: "+dataErr.getValue(i));
             if (targetDiagrams.length > 1) {
                 System.out.print(" cov:");
-                IData dataCov = allData.getData(AccumulatorAverageCovariance.StatType.BLOCK_COVARIANCE.index);
+                IData dataCov = allData.getData(accumulatorDiagrams.BLOCK_COVARIANCE.index);
                 double ivar = dataCov.getValue(i*targetDiagrams.length+i);
                 for (int j=0; j<targetDiagrams.length; j++) {
                     if (i==j) continue;

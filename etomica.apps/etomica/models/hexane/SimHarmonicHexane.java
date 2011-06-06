@@ -248,8 +248,8 @@ public class SimHarmonicHexane extends Simulation {
             sim.getController().actionPerformed();
             
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
-            double pNotOverlap = ((DataDouble)boltzmannData.getData(StatType.AVERAGE.index)).x;
-            double pError = ((DataDouble)boltzmannData.getData(StatType.ERROR.index)).x;
+            double pNotOverlap = ((DataDouble)boltzmannData.getData(avgBoltzmann.AVERAGE.index)).x;
+            double pError = ((DataDouble)boltzmannData.getData(avgBoltzmann.ERROR.index)).x;
             
             System.out.println("avg HS Boltzmann factor "
                     + pNotOverlap + " +/- " + pError);

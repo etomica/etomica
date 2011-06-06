@@ -10,7 +10,6 @@ import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -25,7 +24,6 @@ import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
-import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -232,9 +230,9 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         sim.getController().actionPerformed();
 
         sim.writeConfiguration(configFileName);
-        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
-        double blockCorrelation = ((DataGroup)sim.boltzmannAverage.getData()).getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
+        double average = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.AVERAGE.index);
+        double error = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.ERROR.index);
+        double blockCorrelation = ((DataGroup)sim.boltzmannAverage.getData()).getValue(sim.boltzmannAverage.BLOCK_CORRELATION.index);
         
         System.out.println("blockCorrelation: " + blockCorrelation);
         System.out.println("boltzmann average: " + average + " ;err: " + error +" ;errC: "+ error*Math.sqrt((1+blockCorrelation)/(1-blockCorrelation)));

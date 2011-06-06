@@ -3,8 +3,6 @@ package etomica.virial.simulations;
 import java.io.File;
 
 import etomica.api.IAtomType;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.impl.MetadataImpl;
@@ -138,7 +136,7 @@ public class VirialExternalField {
         
         ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
         final SimulationVirial sim = new SimulationVirial(space,new SpeciesFactorySpheres(), temperature,sampleCluster, refCluster,new ClusterAbstract[]{targetCluster});
-        sim.setAccumulator(new AccumulatorRatioAverageCovariance());
+
         sim.box.getBoundary().setBoxSize(space.makeVector(new double []{10, 10, 10}));
         for (int i=0;i<nPoints; i++){
         	sim.box.getLeafList().getAtom(i).getPosition().setX(2, z0);
@@ -170,14 +168,14 @@ public class VirialExternalField {
        
       
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
-        System.out.println("ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
-        System.out.println("reference average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.ERROR.index)).getData()[0]);
-        System.out.println("target average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.ERROR.index)).getData()[1]);
+        System.out.println("ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[0]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[0]);
+        System.out.println("target average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[1]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[1]);
 
        
 	}

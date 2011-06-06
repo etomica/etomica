@@ -404,27 +404,27 @@ public class BnFlexibleContributionTraPPEUAMethanol {
                 
                 System.out.println();
                 System.out.println("PRValues calculated using the reference system's sampling");
-                System.out.println("reference PRaverage: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                                  +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-                System.out.println("reference overlap PRaverage: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                                  +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-                System.out.println("  ratio of these PRaverages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+                System.out.println("reference PRaverage: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
+                                  +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
+                                  +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
+                System.out.println("reference overlap PRaverage: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                                  +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
+                System.out.println("  ratio of these PRaverages: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
                 
                 DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
                 System.out.println();
                 System.out.println("PRValues calculated using the target system's sampling");
                 
-                System.out.println("target PRaverage: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                                  +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-                System.out.println("target overlap PRaverage: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                                  +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-                System.out.println("  ratio of these PRaverages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+                System.out.println("target PRaverage: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
+                                  +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
+                                  +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
+                System.out.println("target overlap PRaverage: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                                  +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
+                System.out.println("  ratio of these PRaverages: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].RATIO.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
                 
                 ratioAndError = sim.dsvo.getOverlapAverageAndError();
                 ratio = ratioAndError[0];
@@ -451,27 +451,27 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         
         System.out.println();
         System.out.println("Values calculated using the reference system's sampling");
-        System.out.println("reference average: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("reference overlap average: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-        System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("reference average: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
+                          +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
+                          +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
+        System.out.println("reference overlap average: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                          +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
+        System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
         
         DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
         System.out.println();
         System.out.println("Values calculated using the target system's sampling");
         
-        System.out.println("target average: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("target overlap average: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-        System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("target average: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
+                          +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
+                          +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
+        System.out.println("target overlap average: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
+                          +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
+        System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].RATIO.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];

@@ -69,8 +69,8 @@ public class MEAMMd3DforCluster {
     	sim.getController().getEventManager().addListener(dataPELogger);
     	sim.getController().getEventManager().addListener(dataKELogger);
     	
-    	accumulatorAveragePE.addDataSink(dataPELogger, new StatType[]{StatType.MOST_RECENT});
-    	accumulatorAverageKE.addDataSink(dataKELogger, new StatType[]{StatType.MOST_RECENT});
+    	accumulatorAveragePE.addDataSink(dataPELogger, new StatType[]{accumulatorAveragePE.MOST_RECENT});
+    	accumulatorAverageKE.addDataSink(dataKELogger, new StatType[]{accumulatorAverageKE.MOST_RECENT});
         
     	accumulatorAveragePE.setPushInterval(1);
     	accumulatorAverageKE.setPushInterval(1);
@@ -83,13 +83,13 @@ public class MEAMMd3DforCluster {
         sim.getController().actionPerformed();
        
     	double cvPE = ((DataDouble)((DataGroup)accumulatorAveragePE.getData()).
-    			getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).x;
+    			getData(accumulatorAveragePE.STANDARD_DEVIATION.index)).x;
     	double systemTemp = sim.integrator.getTemperature();
     	cvPE /= systemTemp;
     	cvPE *= cvPE/sim.box.getMoleculeList().getMoleculeCount();
     	
     	double cvKE = ((DataDouble)((DataGroup)accumulatorAverageKE.getData()).
-    			getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).x;
+    			getData(accumulatorAverageKE.STANDARD_DEVIATION.index)).x;
       	cvKE /= systemTemp;
     	cvKE *= cvKE/sim.box.getMoleculeList().getMoleculeCount();
     

@@ -572,16 +572,16 @@ public class SimDifferentImage1DHR extends Simulation {
         DataGroup allYourBase = 
             (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
         System.out.println("reference ratio average: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                ((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO.index)).getData()[1]
                  + " error: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+                ((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
         
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints() -
                 sim.dsvo.minDiffLocation()-1);
         System.out.println("target ratio average: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                ((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO.index)).getData()[1]
                  + " error: " + 
-                ((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+                ((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
     
         double AHR1 = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA-1) ;
         System.out.println("Hard-rod free energy for " + nA + ": "+AHR1);

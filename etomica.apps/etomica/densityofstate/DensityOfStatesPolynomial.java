@@ -141,7 +141,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 		sim.getController().reset();
 		sim.getController().actionPerformed();
 		
-		DataDoubleArray phiData = (DataDoubleArray)((DataGroup)b.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index);
+		DataDoubleArray phiData = (DataDoubleArray)((DataGroup)b.getData()).getData(b.AVERAGE.index);
 		
 		//calculating bn
 		double[] bn = new double [10];

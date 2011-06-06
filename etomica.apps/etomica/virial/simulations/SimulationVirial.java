@@ -2,8 +2,7 @@ package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
-import etomica.data.AccumulatorRatioAverage;
-import etomica.data.DataAccumulator;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.IEtomicaDataSource;
 import etomica.integrator.IntegratorMC;
@@ -89,12 +88,12 @@ public class SimulationVirial extends Simulation {
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters));
         ((MeterVirial)meter).setBox(box);
-        setAccumulator(new AccumulatorRatioAverage());
+        setAccumulator(new AccumulatorRatioAverageCovariance());
 	}
 	
     private static final long serialVersionUID = 1L;
 	public IEtomicaDataSource meter;
-	public DataAccumulator accumulator;
+	public AccumulatorRatioAverageCovariance accumulator;
 	public DataPumpListener accumulatorPump;
 	public ISpecies species;
 	public ActivityIntegrate ai;
@@ -118,7 +117,7 @@ public class SimulationVirial extends Simulation {
         }
 	}
 
-	public void setAccumulator(DataAccumulator newAccumulator) {
+	public void setAccumulator(AccumulatorRatioAverageCovariance newAccumulator) {
 		accumulator = newAccumulator;
 		if (accumulatorPump == null) {
 			accumulatorPump = new DataPumpListener(meter,accumulator);

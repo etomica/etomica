@@ -8,7 +8,11 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
+import etomica.data.IData;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveManager;
@@ -17,6 +21,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.units.Mole;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -377,6 +382,45 @@ public class SimulationVirialOverlap extends Simulation {
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(false);
         }
+    }
+
+    public void printResults(double refIntegral) {
+        double[] ratioAndError = dsvo.getOverlapAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
+        System.out.println("ratio average: "+ratio+" error: "+error);
+        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*refIntegral);
+        DataGroup allYourBase = (DataGroup)accumulators[0].getData();
+        IData ratioData = allYourBase.getData(accumulators[0].RATIO.index);
+        IData ratioErrorData = allYourBase.getData(accumulators[0].RATIO_ERROR.index);
+        IData averageData = allYourBase.getData(accumulators[0].AVERAGE.index);
+        IData stdevData = allYourBase.getData(accumulators[0].STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(accumulators[0].ERROR.index);
+        IData correlationData = allYourBase.getData(accumulators[0].BLOCK_CORRELATION.index);
+        IData covarianceData = allYourBase.getData(accumulators[0].BLOCK_COVARIANCE.index);
+        double correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
+                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
+        
+        allYourBase = (DataGroup)accumulators[1].getData();
+        ratioData = allYourBase.getData(accumulators[1].RATIO.index);
+        ratioErrorData = allYourBase.getData(accumulators[1].RATIO_ERROR.index);
+        averageData = allYourBase.getData(accumulators[1].AVERAGE.index);
+        stdevData = allYourBase.getData(accumulators[1].STANDARD_DEVIATION.index);
+        errorData = allYourBase.getData(accumulators[1].ERROR.index);
+        correlationData = allYourBase.getData(accumulators[1].BLOCK_CORRELATION.index);
+        covarianceData = allYourBase.getData(accumulators[1].BLOCK_COVARIANCE.index);
+        correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
     }
     
     private static final long serialVersionUID = 1L;

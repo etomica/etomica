@@ -145,8 +145,8 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         minDiffLoc = newMinDiffLoc;
 
         DataGroup data = (DataGroup)accumulators[0].getData(minDiffLoc);
-        double refError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
-        double refErrorRatio = refError/Math.abs(((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
+        double refError = ((DataDoubleArray)data.getData(accumulators[0].RATIO_ERROR.index)).getData()[1];
+        double refErrorRatio = refError/Math.abs(((DataDoubleArray)data.getData(accumulators[0].RATIO.index)).getData()[1]);
         if (Debug.ON && Debug.DEBUG_NOW) {
             System.out.println("0 "+Math.abs(refError)+" "+Math.abs(refError/refErrorRatio));
         }
@@ -157,8 +157,8 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         }
 
         data = (DataGroup)accumulators[1].getData(minDiffLoc);
-        double targetError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
-        double targetErrorRatio = targetError/Math.abs(((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]);
+        double targetError = ((DataDoubleArray)data.getData(accumulators[0].RATIO_ERROR.index)).getData()[1];
+        double targetErrorRatio = targetError/Math.abs(((DataDoubleArray)data.getData(accumulators[0].RATIO.index)).getData()[1]);
         if (Debug.ON && Debug.DEBUG_NOW) {
             System.out.println("1 "+Math.abs(targetError)+" "+Math.abs(targetError/targetErrorRatio));
         }

@@ -236,7 +236,7 @@ public class SimWidomMode extends Simulation {
         DataGroup group;
         for(int i = 0; i < cd; i++){
             group = (DataGroup)sim.accumulators[i].getData();
-            results[i] = ((DataDouble)group.getData(StatType.AVERAGE.index)).x;
+            results[i] = ((DataDouble)group.getData(sim.accumulators[i].AVERAGE.index)).x;
         }
         for(int i = 0; i < cd; i++){
             System.out.println(i + "  " + results[i]);

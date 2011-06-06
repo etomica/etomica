@@ -387,8 +387,8 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             for (int j=0; j<numAlpha; j++) {
                 double jAlpha = sim.accumulators[i].getBennetBias(j);
                 DataGroup data = (DataGroup)sim.accumulators[i].getData(j);
-                IData dataErr = data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index);
-                IData dataAvg = data.getData(AccumulatorRatioAverage.StatType.RATIO.index);
+                IData dataErr = data.getData(sim.accumulators[i].RATIO_ERROR.index);
+                IData dataAvg = data.getData(sim.accumulators[i].RATIO.index);
                 System.out.println("  "+jAlpha+" "+dataAvg.getValue(1)
                         +" "+dataErr.getValue(1));
                 lnAlphaDiff[j] += (1-i*2)*Math.log(dataAvg.getValue(1));

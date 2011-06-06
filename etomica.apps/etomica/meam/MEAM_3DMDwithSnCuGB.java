@@ -105,8 +105,8 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
     	DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);   	
     	DataPump kineticPump = new DataPump(kineticMeter, accumulatorAverageKE);
     	
-    	accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
-    	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{StatType.MOST_RECENT});
+    	accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
+    	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{accumulatorAverageKE.MOST_RECENT});
     	
     	DisplayPlot plot = new DisplayPlot();
         //DisplayPlot plotKE = new DisplayPlot();
@@ -126,8 +126,8 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
     	DataProcessorCvMD dataProcessorKE = new DataProcessorCvMD();
     	dataProcessorKE.setIntegrator(sim.integrator);
     	
-    	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{StatType.STANDARD_DEVIATION});
-    	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{StatType.STANDARD_DEVIATION});
+    	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{accumulatorAveragePE.STANDARD_DEVIATION});
+    	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{accumulatorAverageKE.STANDARD_DEVIATION});
 
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyPump));
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(kineticPump));

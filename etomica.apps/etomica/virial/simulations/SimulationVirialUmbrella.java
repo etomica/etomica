@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.data.AccumulatorRatioAverage;
+import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2LennardJones;
@@ -82,10 +82,10 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 			sim.ai.setMaxSteps(steps);
 //            sim.integrator.setEquilibrating(true);
 			sim.ai.actionPerformed();
-            AccumulatorRatioAverage acc = (AccumulatorRatioAverage)sim.accumulator;
+            AccumulatorRatioAverageCovariance acc = sim.accumulator;
             DataGroup allYourBase = (DataGroup)acc.getData();
-            System.out.println("average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+            System.out.println("average: "+((DataDoubleArray)allYourBase.getData(acc.RATIO.index)).getData()[1]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(acc.RATIO_ERROR.index)).getData()[1]);
 //		}
 	}
 }

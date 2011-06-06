@@ -56,8 +56,8 @@ public class DataSourceVirialOverlapRejected extends DataSourceScalar {
      * parameter.
      */
 	public double getAverage(int iParam) {
-        double targetAvg = ((DataGroup)targetAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(iParam+1);
-        double refAvg = ((DataGroup)refAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(iParam+1);
+        double targetAvg = ((DataGroup)targetAccumulator.getData()).getData(targetAccumulator.RATIO.index).getValue(iParam+1);
+        double refAvg = ((DataGroup)refAccumulator.getData()).getData(refAccumulator.RATIO.index).getValue(iParam+1);
         return refAvg/targetAvg;
 	}
 	
@@ -68,8 +68,8 @@ public class DataSourceVirialOverlapRejected extends DataSourceScalar {
 	 */
     public int minDiffLocation() {
 		int minDiffLoc = 0;
-		IData avgRefData = ((DataGroup)refAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
-        IData avgTargetData = ((DataGroup)targetAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index);
+		IData avgRefData = ((DataGroup)refAccumulator.getData()).getData(refAccumulator.AVERAGE.index);
+        IData avgTargetData = ((DataGroup)targetAccumulator.getData()).getData(targetAccumulator.AVERAGE.index);
         double ratio = avgRefData.getValue(0+1)/avgTargetData.getValue(0+1);
         double bias = refMeter.getBennetBias(0);
 		double minDiff = ratio/bias + bias/ratio - 2;
@@ -101,11 +101,11 @@ public class DataSourceVirialOverlapRejected extends DataSourceScalar {
      */
 	public double getError(int iParam) {
 		double avg = getAverage(iParam);
-		double refErr = ((DataGroup)refAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(iParam+1);
-        double refAvg = ((DataGroup)refAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(iParam+1);
+		double refErr = ((DataGroup)refAccumulator.getData()).getData(refAccumulator.RATIO_ERROR.index).getValue(iParam+1);
+        double refAvg = ((DataGroup)refAccumulator.getData()).getData(refAccumulator.RATIO.index).getValue(iParam+1);
         double refRelErr = refErr/refAvg;
-		double targetErr = ((DataGroup)targetAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(iParam+1);
-		double targetAvg = ((DataGroup)targetAccumulator.getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(iParam+1);
+		double targetErr = ((DataGroup)targetAccumulator.getData()).getData(targetAccumulator.RATIO_ERROR.index).getValue(iParam+1);
+		double targetAvg = ((DataGroup)targetAccumulator.getData()).getData(targetAccumulator.RATIO.index).getValue(iParam+1);
         double targetRelErr = targetErr/targetAvg;
 		return Math.abs(avg)*Math.sqrt(refRelErr*refRelErr+targetRelErr*targetRelErr);
 	}

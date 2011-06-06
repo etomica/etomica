@@ -40,7 +40,7 @@ public class IntegratorThermodynamicPEvsT extends IntegratorThermodynamic implem
     }
 
     protected void advanceParameters() {
-        data.getData()[iTemperatureStep] = ((DataGroup)accumulatorPE.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(0);
+        data.getData()[iTemperatureStep] = ((DataGroup)accumulatorPE.getData()).getData(accumulatorPE.AVERAGE.index).getValue(0);
         System.out.println(temperatureDataSource.getData().getValue(iTemperatureStep)+" "+data.getData()[iTemperatureStep]);
         if (iTemperatureStep == temperatureDataSource.getNValues()-1) {
             // haha, Integrator will keep running.  it can't stop itself.  It's out of control!

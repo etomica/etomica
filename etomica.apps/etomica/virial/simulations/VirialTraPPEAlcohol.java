@@ -7,8 +7,6 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -348,27 +346,27 @@ public class VirialTraPPEAlcohol {
                 
                 System.out.println();
                 System.out.println("Values calculated using the reference system's sampling");
-                System.out.println("  average sign of reference system's integrand: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                                  +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-                System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                                  +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-                System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+                System.out.println("  average sign of reference system's integrand: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
+                                  +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
+                                  +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
+                System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                                  +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
+                System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
                 
                 DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
                 System.out.println();
                 System.out.println("Values calculated using the target system's sampling");
                 
-                System.out.println("  average sign of target system's integrand: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                                  +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-                System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                                  +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-                System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                                  +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+                System.out.println("  average sign of target system's integrand: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
+                                  +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
+                                  +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
+                System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
+                                  +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
+                System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].RATIO.index)).getData()[1]
+                                  +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
                 
                 System.out.println();
                 System.out.println("ratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
@@ -392,27 +390,27 @@ public class VirialTraPPEAlcohol {
         
         System.out.println();
         System.out.println("Values calculated using the reference system's sampling");
-        System.out.println("  average sign of reference system's integrand: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +"    stdev: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-        System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)reference.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("  average sign of reference system's integrand: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
+                          +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
+                          +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
+        System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                          +"    stdev: "+((DataDoubleArray)reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
+        System.out.println("  ratio of these averages: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)reference.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
         
         DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
         System.out.println();
         System.out.println("Values calculated using the target system's sampling");
         
-        System.out.println("  average sign of target system's integrand: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                          +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-        System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +"    stdev: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-        System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[1]
-                          +"    error: "+((DataDoubleArray)targetData.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("  average sign of target system's integrand: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
+                          +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
+                          +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
+        System.out.println("  average of overlap system's normalized integrand: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
+                          +"    stdev: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
+        System.out.println("  ratio of these averages: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].RATIO.index)).getData()[1]
+                          +"    error: "+((DataDoubleArray)targetData.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];

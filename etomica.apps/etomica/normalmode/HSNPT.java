@@ -174,9 +174,9 @@ public class HSNPT extends Simulation {
 //            throw new RuntimeException(e);
 //        }
         
-        double vavg = volumeAvg.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-        double verr = volumeAvg.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
-        double vstdev = volumeAvg.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+        double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);
+        double verr = volumeAvg.getData().getValue(volumeAvg.ERROR.index);
+        double vstdev = volumeAvg.getData().getValue(volumeAvg.STANDARD_DEVIATION.index);
         System.out.println("avg density "+params.numAtoms/vavg+" "+params.numAtoms/(vavg*vavg)*verr);
         System.out.println("avg volume "+vavg+" stdev "+vstdev);
 

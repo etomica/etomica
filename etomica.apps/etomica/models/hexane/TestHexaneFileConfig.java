@@ -294,7 +294,7 @@ public class TestHexaneFileConfig extends Simulation {
             double[] scalingFactors = new double[leng];
             double[] volumes = new double[leng];
 
-            lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getData();
+            lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(pressureAccumulator.AVERAGE.index)).getData();
             
             for(int i = 0; i < leng; i++){
                 scalingFactors[i] = ((DataDoubleArray)meterPressure.getScalingDataSource().getData()).getValue(i);
@@ -317,7 +317,7 @@ public class TestHexaneFileConfig extends Simulation {
 //                System.out.println(scalingFactors[i]);
 //            }
             
-            avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
+            avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(pressureAccumulator.AVERAGE.index)).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
             
 

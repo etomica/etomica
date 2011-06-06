@@ -228,8 +228,8 @@ public class SimTargetUmbrella extends Simulation {
 		       
 		        
 				
-		        double wTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		        double eTarget   = dataAverageTarget.getData().getValue(AccumulatorAverage.StatType.ERROR.index);
+		        double wTarget   = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
+		        double eTarget   = dataAverageTarget.getData().getValue(dataAverageTarget.ERROR.index);
 		        System.out.println("\n wTargetUmbrella: "  + wTarget   + " ,error: "+ eTarget);
 				
 				try {

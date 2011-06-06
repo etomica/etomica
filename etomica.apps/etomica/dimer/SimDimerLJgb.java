@@ -153,7 +153,7 @@ public class SimDimerLJgb extends Simulation{
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
         
         DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
-        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
+        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
         
         DisplayPlot plotPE = new DisplayPlot();
         plotPE.setLabel("PE Plot");

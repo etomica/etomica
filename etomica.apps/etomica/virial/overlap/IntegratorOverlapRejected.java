@@ -105,8 +105,8 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
             int newMinDiffLoc = dsvo.minDiffLocation();
             int nBennetPoints = meters[0].getNBennetPoints();
             if (nBennetPoints>1) System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+meters[0].getBennetBias(newMinDiffLoc)
-                    +" ("+(((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1)/
-                            ((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1))+")");
+                    +" ("+(((DataGroup)accumulators[0].getData()).getData(accumulators[0].AVERAGE.index).getValue(newMinDiffLoc+1)/
+                            ((DataGroup)accumulators[1].getData()).getData(accumulators[1].AVERAGE.index).getValue(newMinDiffLoc+1))+")");
             System.out.print("Bennet bias ");
             for (int j=0; j<meters[0].getNBennetPoints(); j++) {
                 System.out.print(meters[0].getBennetBias(j)+" ");
@@ -121,7 +121,7 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
 //                }
                 System.out.print("Bennet avg "+i+" ");
                 for (int j=0; j<meters[i].getNBennetPoints(); j++) {
-                    System.out.print(((DataGroup)accumulators[i].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(j+1)+" ");
+                    System.out.print(((DataGroup)accumulators[i].getData()).getData(accumulators[i].AVERAGE.index).getValue(j+1)+" ");
                 }
                 System.out.print("\n");
             }
@@ -143,13 +143,13 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
         int nBennetPoints = meters[0].getNBennetPoints();
         if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) {
             System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+meters[0].getBennetBias(newMinDiffLoc)
-                    +" ("+(((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1)/
-                            ((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.AVERAGE.index).getValue(newMinDiffLoc+1))+")");
+                    +" ("+(((DataGroup)accumulators[0].getData()).getData(accumulators[0].AVERAGE.index).getValue(newMinDiffLoc+1)/
+                            ((DataGroup)accumulators[1].getData()).getData(accumulators[1].AVERAGE.index).getValue(newMinDiffLoc+1))+")");
         }
         minDiffLoc = newMinDiffLoc;
 
-        double refError = ((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(minDiffLoc+1);
-        double refErrorRatio = refError/Math.abs(((DataGroup)accumulators[0].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(minDiffLoc+1));
+        double refError = ((DataGroup)accumulators[0].getData()).getData(accumulators[0].RATIO_ERROR.index).getValue(minDiffLoc+1);
+        double refErrorRatio = refError/Math.abs(((DataGroup)accumulators[0].getData()).getData(accumulators[0].RATIO.index).getValue(minDiffLoc+1));
         if (Debug.ON && Debug.DEBUG_NOW) {
             System.out.println(0+" "+Math.abs(refError)+" "+Math.abs(refError/refErrorRatio));
         }
@@ -157,8 +157,8 @@ public class IntegratorOverlapRejected extends IntegratorManagerMC {
             refErrorRatio = 1;
         }
 
-        double targetError = ((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index).getValue(minDiffLoc+1);
-        double targetErrorRatio = targetError/Math.abs(((DataGroup)accumulators[1].getData()).getData(AccumulatorRatioAverage.StatType.RATIO.index).getValue(minDiffLoc+1));
+        double targetError = ((DataGroup)accumulators[1].getData()).getData(accumulators[1].RATIO_ERROR.index).getValue(minDiffLoc+1);
+        double targetErrorRatio = targetError/Math.abs(((DataGroup)accumulators[1].getData()).getData(accumulators[1].RATIO.index).getValue(minDiffLoc+1));
         if (Double.isNaN(targetErrorRatio) || targetErrorRatio > 1) {
             targetErrorRatio = 1;
         }

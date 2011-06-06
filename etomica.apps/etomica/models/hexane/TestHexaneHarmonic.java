@@ -231,7 +231,7 @@ public class TestHexaneHarmonic extends Simulation {
         AccumulatorAverageCollapsing harmonicBoltzAvg = new AccumulatorAverageCollapsing();
         boltz.setDataSink(harmonicBoltzAvg);
         DataProcessorFoo fooer = new DataProcessorFoo();
-        harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
+        harmonicBoltzAvg.addDataSink(fooer, new StatType[]{harmonicBoltzAvg.AVERAGE});
         
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setBox(sim.box);
@@ -244,12 +244,12 @@ public class TestHexaneHarmonic extends Simulation {
         boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
-        harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
+        harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{harmonicSingleAvg.AVERAGE});
         IntegratorListenerAction singlePumpListener = new IntegratorListenerAction(pumpSingle);
         singlePumpListener.setInterval(100);
         sim.integrator.getEventManager().addListener(singlePumpListener);
         DataProcessorFoo fooerSingle = new DataProcessorFoo();
-        harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
+        harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{harmonicSingleAvg.AVERAGE});
 
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space, sim.getController());
@@ -287,8 +287,8 @@ public class TestHexaneHarmonic extends Simulation {
             
             sim.getController().actionPerformed();
 
-            double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
-            double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x;
+            double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;
+            double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(harmonicAvg.ERROR.index)).x;
             System.out.println("avg harmonic energy: "+avgHarmonicEnergy+" +/- "+errorHarmonicEnergy);
         }
 

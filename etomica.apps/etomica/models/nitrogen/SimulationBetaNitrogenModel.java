@@ -340,11 +340,11 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 //		sim.writeUdistribution(filename, meterOrient);
 		
-		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+		double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.AVERAGE.index);
+		double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(energyAverage.ERROR.index);
 		
-		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
-		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
+		double averagePressure = ((DataGroup)pressureAverage.getData()).getValue(energyAverage.AVERAGE.index);
+		double errorPressure = ((DataGroup)pressureAverage.getData()).getValue(energyAverage.ERROR.index);
 		
 		System.out.println("Average energy (per molecule): "   + averageEnergy/numMolecule  
 				+ " ;error: " + errorEnergy/numMolecule);

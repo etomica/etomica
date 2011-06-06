@@ -357,12 +357,12 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         	double ratio_err = sim.dsvo.getError(i);
         	
         	DataGroup dataRatio0 = (DataGroup)sim.accumulators[0].getData(i);
-        	double ratio0 = ((DataDoubleArray)dataRatio0.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
-        	double ratio0_err = ((DataDoubleArray)dataRatio0.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+        	double ratio0 = ((DataDoubleArray)dataRatio0.getData(sim.accumulators[0].AVERAGE.index)).getData()[1];
+        	double ratio0_err = ((DataDoubleArray)dataRatio0.getData(sim.accumulators[0].ERROR.index)).getData()[1];
             
         	DataGroup dataRatio1 = (DataGroup)sim.accumulators[1].getData(i);
-        	double ratio1 = ((DataDoubleArray)dataRatio1.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1];
-        	double ratio1_err = ((DataDoubleArray)dataRatio1.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1];
+        	double ratio1 = ((DataDoubleArray)dataRatio1.getData(sim.accumulators[1].AVERAGE.index)).getData()[1];
+        	double ratio1_err = ((DataDoubleArray)dataRatio1.getData(sim.accumulators[1].ERROR.index)).getData()[1];
         	
         	System.out.println("    "+sim.accumulators[0].getBennetBias(i)+
         			" "+ ratio  + " " + ratio_err +
@@ -381,12 +381,12 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         //System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
         
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("ref_ratio_average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        System.out.println("ref_ratio_average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
         
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        System.out.println("targ_ratio_average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        System.out.println("targ_ratio_average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
         
         
         long endTime = System.currentTimeMillis();
