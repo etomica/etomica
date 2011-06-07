@@ -67,6 +67,18 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
+     * This method will return an IData object corresponding to the requested
+     * StatType.  This method returns the element from the DataGroup returned
+     * by getData().  Calling getData and extracting the data can be more
+     * efficient, although this method can be more convenient.
+     */
+    public IData getData(StatType stat) {
+        // populate data
+        getData();
+        return dataGroup.getData(stat.index);
+    }
+
+    /**
      * Resets all sums to zero. All statistics are cleared.
      */
     public void reset() {
