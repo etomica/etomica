@@ -351,7 +351,6 @@ public class VirialDiagrams {
     }
     
     public int populateEFBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap, boolean pairOnly) {
-        ArrayList<int[]> fbonds = new ArrayList<int[]>();
         ArrayList<int[]> ebonds = new ArrayList<int[]>();
         boolean multiGraph = graphHasEdgeColor(g, mBond);
         if (multiGraph && pairOnly) return 0;
@@ -368,7 +367,7 @@ public class VirialDiagrams {
 
             rv = permutations.size();
             for (Graph gp : permutations) {
-
+                ArrayList<int[]> fbonds = new ArrayList<int[]>();
                 int[][] mBonds = new int[nPoints+1][0];
                 multiBiComponents.clear();
                 BCVisitor bcv = new BCVisitor(multiBiComponents);
@@ -424,6 +423,7 @@ public class VirialDiagrams {
             }
         }
         else {
+            ArrayList<int[]> fbonds = new ArrayList<int[]>();
             rv = 1;
             for (Node node1 : g.nodes()) {
                 for (Node node2 : g.nodes()) {
