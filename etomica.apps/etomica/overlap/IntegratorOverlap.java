@@ -136,11 +136,12 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         else {
             int iBox;
             if (stepCount < 3) {
-                // first stepCount is 1
+                // stepCount starts at 1
                 iBox = (int)stepCount-1;
             }
             else {
-                iBox = ((double)totNumSubSteps[0])/(stepCount*numSubSteps) > stepFrac[0] ? 1 : 0;
+                // stepCount starts at 1
+                iBox = ((double)totNumSubSteps[0])/((stepCount-1)*numSubSteps) > stepFrac[0] ? 1 : 0;
             }
             totTime[iBox] -= System.currentTimeMillis();
             for (int j=0; j<numSubSteps; j++) {
