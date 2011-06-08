@@ -142,7 +142,7 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
     
     public static final StatType RATIO = new StatType("Ratio",7);
     public static final StatType RATIO_ERROR = new StatType("Ratio error",8);
-    public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",7);
+    public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",9);
     public static AccumulatorAverage.StatType[] choices() {
         StatType[] choices = AccumulatorAverageCovariance.statChoices();
         return new AccumulatorAverage.StatType[] {
