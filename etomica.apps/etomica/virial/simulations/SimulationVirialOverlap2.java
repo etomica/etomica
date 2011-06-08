@@ -395,7 +395,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         IData errorData = allYourBase.getData(accumulators[0].ERROR.index);
         IData correlationData = allYourBase.getData(accumulators[0].BLOCK_CORRELATION.index);
         IData covarianceData = allYourBase.getData(accumulators[0].BLOCK_COVARIANCE.index);
-        double correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
+        double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
         System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
@@ -411,7 +411,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         errorData = allYourBase.getData(accumulators[1].ERROR.index);
         correlationData = allYourBase.getData(accumulators[1].BLOCK_CORRELATION.index);
         covarianceData = allYourBase.getData(accumulators[1].BLOCK_COVARIANCE.index);
-        correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
+        correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
         System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
