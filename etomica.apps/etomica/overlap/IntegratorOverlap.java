@@ -137,7 +137,6 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             int iBox;
             if (stepCount < 21) {
                 iBox = (int)(stepCount%2);
-                System.out.println(stepCount+" "+iBox);
             }
             else {
                 // stepCount starts at 1
