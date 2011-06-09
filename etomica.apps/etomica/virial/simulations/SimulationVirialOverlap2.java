@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
+import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -32,8 +33,8 @@ import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirial;
-import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
-import etomica.virial.overlap.DataSourceVirialOverlap;
+import etomica.virial.overlap.DataProcessorVirialOverlap;
+import etomica.virial.overlap.DataVirialOverlap;
 
 /**
  * Simulation implementing the overlap-sampling approach to evaluating a cluster
@@ -52,21 +53,32 @@ public class SimulationVirialOverlap2 extends Simulation {
         this(aSpace,species,temperature,refCluster, targetCluster, false);
     }
 
+    // this constructor allows you to specify doWiggle=true
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
             double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster, boolean doWiggle) {
         this(aSpace,species,temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)}, doWiggle);
     }
     
+    // this constructor allows you to specify your own sampleClusters
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, new ISpecies[]{species}, new int[]{aValueClusters[0].pointCount()}, temperature, aValueClusters, aSampleClusters, doWiggle);
+        this(aSpace, new ISpecies[]{species}, new int[]{aValueClusters[0].pointCount()}, temperature, aValueClusters, new ClusterAbstract[0], aSampleClusters, doWiggle);
     }
 
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules,
+    // this constructor allows you to perform the calculation for a mixture
+    public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
+        this(aSpace, species, nMolecules, temperature, new ClusterAbstract[0], aValueClusters, aSampleClusters, doWiggle);
+    }
+
+    // this constructor allows you to perform the calculation for a mixture or a flexible molecule (with an alternate/ghost molecule)
+    // this constructor also allows you to specify extra target diagrams to be calculated during the simulation
+    public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules,
+            double temperature, final ClusterAbstract[] aValueClusters, final ClusterAbstract[] extraTargetClusers, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
 
 	    super(aSpace);
+	    numExtraTargetClusters = extraTargetClusers.length;
 		PotentialMaster potentialMaster = new PotentialMaster();
         sampleClusters = aSampleClusters;
         boolean doRotate = false;
@@ -80,12 +92,13 @@ public class SimulationVirialOverlap2 extends Simulation {
                 multiAtomic = true;
             }
         }
-        accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
+        accumulators = new AccumulatorRatioAverageCovarianceFull[sampleClusters.length];
         accumulatorPumps = new DataPumpListener[sampleClusters.length];
         box = new BoxCluster[sampleClusters.length];
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
         mcMoveTranslate = new MCMoveBoxStep[sampleClusters.length];
+        dpVirialOverlap = new DataProcessorVirialOverlap[sampleClusters.length];
         if (doRotate) {
             mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
         }
@@ -145,11 +158,22 @@ public class SimulationVirialOverlap2 extends Simulation {
             
             ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.initializeCoordinates(box[iBox]);
-            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iBox],aSampleClusters[1-iBox].makeCopy()});
-            setMeter(meter,iBox);
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11, iBox==0);
-            setAccumulator(acc,iBox);
-              
+            if (iBox == 0) {
+                meters[iBox] = new MeterVirial(new ClusterAbstract[]{aValueClusters[0],aSampleClusters[1].makeCopy()});
+            }
+            else {
+                ClusterAbstract[] allClustersForTarget = new ClusterAbstract[extraTargetClusers.length+2];
+                allClustersForTarget[0] = aValueClusters[1];
+                System.arraycopy(extraTargetClusers, 0, allClustersForTarget, 1, extraTargetClusers.length);
+                allClustersForTarget[allClustersForTarget.length-1] = aSampleClusters[0].makeCopy();
+                meters[iBox] = new MeterVirial(allClustersForTarget);
+            }
+            meters[iBox].setBox(box[iBox]);
+            dpVirialOverlap[iBox] = new DataProcessorVirialOverlap(11, iBox==0);
+            accumulators[iBox] = new AccumulatorRatioAverageCovarianceFull(blockSize);
+            dpVirialOverlap[iBox].setDataSink(accumulators[iBox]);
+            accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],dpVirialOverlap[iBox]);
+            integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
         }
         
         setRefPref(1,5);
@@ -159,45 +183,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         ai = new ActivityIntegrate(integratorOS);
         getController().addAction(ai);
 		
-		dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-        integratorOS.setReferenceFracSource(dsvo);
+		dvo = new DataVirialOverlap(dpVirialOverlap[0], accumulators[0], accumulators[1]);
+        integratorOS.setReferenceFracSource(dvo);
 	}
 
-    public void setRefPref(double refPrefCenter, double span) {
-        refPref = refPrefCenter;
-        accumulators[0].setBennetParam(refPrefCenter,span);
-        accumulators[1].setBennetParam(refPrefCenter,span);
-    }
-    
-    public void setMeter(MeterVirial newMeter, int iBox) {
-        if (accumulators[iBox] != null) {
-            // we need a new accumulator so nuke the old one now.
-            if (accumulatorPumps[iBox] != null) {
-                integrators[iBox].getEventManager().removeListener(accumulatorPumps[iBox]);
-                accumulatorPumps[iBox] = null;
-            }
-            accumulators[iBox] = null;
-        }
-        meters[iBox] = newMeter;
-        newMeter.setBox(box[iBox]);
-    }
-
-    public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
-        accumulators[iBox] = newAccumulator;
-        accumulators[iBox].setBlockSize(blockSize);
-        if (accumulatorPumps[iBox] == null) {
-            accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],newAccumulator);
-            integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
-        }
-        else {
-            accumulatorPumps[iBox].setDataSink(newAccumulator);
-        }
-        if (integratorOS != null) {
-            dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOS.setReferenceFracSource(dsvo);
-        }
-    }
-    
     public void setAccumulatorBlockSize(long newBlockSize) {
         blockSize = newBlockSize;
         for (int i=0; i<2; i++) {
@@ -208,12 +197,20 @@ public class SimulationVirialOverlap2 extends Simulation {
         integratorOS.reset();
     }
 
+    public void setRefPref(double refPrefCenter, double span) {
+        refPref = refPrefCenter;
+        dpVirialOverlap[0].setBennetParam(refPrefCenter,span);
+        dpVirialOverlap[1].setBennetParam(refPrefCenter,span);
+    }
+
     /**
      * Sets the number of alpha values used for the production stage of the
-     * simulation
+     * simulation.  The default value (1) is sufficient most of the time.
      */
     public void setNumAlpha(int newNumAlpha) {
         numAlpha = newNumAlpha;
+        dpVirialOverlap[0].setNumAlpha(newNumAlpha);
+        dpVirialOverlap[1].setNumAlpha(newNumAlpha);
     }
 
     /**
@@ -226,9 +223,10 @@ public class SimulationVirialOverlap2 extends Simulation {
 
     public void setRefPref(double newRefPref) {
         System.out.println("setting ref pref (explicitly) to "+newRefPref);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
-        setRefPref(newRefPref,1);
+        dpVirialOverlap[0].setNumAlpha(1);
+        dpVirialOverlap[0].setBennetParam(newRefPref, 1);
+        dpVirialOverlap[1].setNumAlpha(1);
+        dpVirialOverlap[1].setBennetParam(newRefPref, 1);
     }
     
     public void initRefPref(String fileName, long initSteps) {
@@ -246,8 +244,8 @@ public class SimulationVirialOverlap2 extends Simulation {
                 bufReader.close();
                 fileReader.close();
                 System.out.println("setting ref pref (from file) to "+refPref);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(numAlpha,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(numAlpha,false),1);
+                dpVirialOverlap[0].setNumAlpha(numAlpha);
+                dpVirialOverlap[1].setNumAlpha(numAlpha);
                 setRefPref(refPref,1);
             }
             catch (IOException e) {
@@ -272,8 +270,8 @@ public class SimulationVirialOverlap2 extends Simulation {
                 newBlockSize = 1000000;
             }
             setAccumulatorBlockSize(newBlockSize);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
+            dpVirialOverlap[0].setNumAlpha(21);
+            dpVirialOverlap[1].setNumAlpha(21);
             setRefPref(oldRefPref,30);
             boolean adjustable = integratorOS.isAdjustStepFraction();
             if (adjustable) {
@@ -292,16 +290,15 @@ public class SimulationVirialOverlap2 extends Simulation {
                 integratorOS.setAdjustStepFraction(true);
             }
 
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            System.out.println("setting ref pref to "+refPref);
+            refPref = dvo.getOverlapAverage();
+            System.out.println("setting initial ref pref to "+refPref);
             if (Double.isInfinite(refPref) || Double.isNaN(refPref)) {
-                throw new RuntimeException("oops "+accumulators[0].getBennetAverage(newMinDiffLoc)+" "+accumulators[1].getBennetAverage(newMinDiffLoc));
+                dvo.getOverlapAverage();
+                throw new RuntimeException("oops");
             }
             setAccumulatorBlockSize(oldBlockSize);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(15,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(15,false),1);
+            dpVirialOverlap[0].setNumAlpha(15);
+            dpVirialOverlap[1].setNumAlpha(15);
             setRefPref(refPref,4);
             for (int i=0; i<2; i++) {
                 integrators[i].reset();
@@ -349,15 +346,14 @@ public class SimulationVirialOverlap2 extends Simulation {
         }
 
         if (refPref == -1) {
-            int newMinDiffLoc = dsvo.minDiffLocation();
-            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
-                /accumulators[1].getBennetAverage(newMinDiffLoc);
-            System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
+            refPref = dvo.getOverlapAverage();
+            System.out.println("setting ref pref to "+refPref);
             if (Double.isInfinite(refPref) || Double.isNaN(refPref)) {
-                throw new RuntimeException("oops "+accumulators[0].getBennetAverage(newMinDiffLoc)+" "+accumulators[1].getBennetAverage(newMinDiffLoc));
+                dvo.getOverlapAverage();
+                throw new RuntimeException("oops");
             }
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(numAlpha,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(numAlpha,false),1);
+            dpVirialOverlap[0].setNumAlpha(numAlpha);
+            dpVirialOverlap[1].setNumAlpha(numAlpha);
             setRefPref(refPref,1);
             if (fileName != null) {
                 try {
@@ -373,7 +369,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
         }
         else {
-            dsvo.reset();
+            dvo.reset();
         }
         setAccumulatorBlockSize(oldBlockSize);
         for (int i=0; i<2; i++) {
@@ -382,7 +378,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void printResults(double refIntegral) {
-        double[] ratioAndError = dsvo.getOverlapAverageAndError();
+        double[] ratioAndError = dvo.getAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+" error: "+error);
@@ -411,28 +407,31 @@ public class SimulationVirialOverlap2 extends Simulation {
         errorData = allYourBase.getData(accumulators[1].ERROR.index);
         correlationData = allYourBase.getData(accumulators[1].BLOCK_CORRELATION.index);
         covarianceData = allYourBase.getData(accumulators[1].BLOCK_COVARIANCE.index);
-        correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
+        int n = numExtraTargetClusters;
+        correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(n+1), ratioErrorData.getValue(n+1), correlationCoef));
         System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
         System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
-                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
+                              averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
     }
 
     private static final long serialVersionUID = 1L;
-	public DataSourceVirialOverlap dsvo;
-    public AccumulatorVirialOverlapSingleAverage[] accumulators;
-    protected DataPumpListener[] accumulatorPumps;
+	public final DataVirialOverlap dvo;
+    public final AccumulatorRatioAverageCovarianceFull[] accumulators;
+    protected final DataPumpListener[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
-    public BoxCluster[] box;
-    public IntegratorMC[] integrators;
+    public final BoxCluster[] box;
+    public final IntegratorMC[] integrators;
     public MCMoveBoxStep[] mcMoveRotate;
     public MCMoveBoxStep[] mcMoveTranslate;
     public MCMoveBoxStep[] mcMoveWiggle;
-    public MeterVirial[] meters;
-    public ActivityIntegrate ai;
-    public IntegratorOverlap integratorOS;
+    public final MeterVirial[] meters;
+    public final int numExtraTargetClusters;
+    public final DataProcessorVirialOverlap[] dpVirialOverlap;
+    public final ActivityIntegrate ai;
+    public final IntegratorOverlap integratorOS;
     public double refPref;
     protected long blockSize;
     protected int numAlpha = 1;

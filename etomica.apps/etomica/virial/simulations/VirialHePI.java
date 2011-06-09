@@ -24,10 +24,7 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -102,7 +99,6 @@ import etomica.virial.cluster.VirialDiagrams;
 public class VirialHePI {
 
     public static void main(String[] args) {
-
         VirialHePIParam params = new VirialHePIParam();
         boolean isCommandline = args.length > 0;
         if (isCommandline) {
@@ -357,7 +353,7 @@ public class VirialHePI {
         SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomTypeLeaf(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
-                 new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
+                 targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
 
         // we'll use substeps=1000 initially (to allow for better initialization)
         // and then later switch to 1000 overlap steps
@@ -497,7 +493,7 @@ public class VirialHePI {
             
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
                     double error = ratioAndError[1];
                     data.x = ratio;
@@ -610,7 +606,7 @@ public class VirialHePI {
                 public void integratorStepFinished(IIntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
                     double error = ratioAndError[1];
                     System.out.println("abs average: "+ratio*refIntegralF+" error: "+error*refIntegralF);
@@ -664,20 +660,25 @@ public class VirialHePI {
 
         sim.printResults(refIntegral);
 
+        DataGroup allData = (DataGroup)sim.accumulators[1].getData();
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        // we'll ignore block correlation -- whatever effects are here should be in the full target results
+        int nTotal = (targetDiagrams.length+2);
+        double oVar = dataCov.getValue(nTotal*nTotal-1);
         for (int i=0; i<targetDiagrams.length; i++) {
-            DataGroup allData = (DataGroup)accumulatorDiagrams.getData();
-            IData dataAvg = allData.getData(accumulatorDiagrams.AVERAGE.index);
-            IData dataErr = allData.getData(accumulatorDiagrams.ERROR.index);
             System.out.print("diagram "+targetDiagramNumbers[i]+" ");
-            System.out.print("average: "+dataAvg.getValue(i)+" error: "+dataErr.getValue(i));
+            // average is vi/|v| average, error is the uncertainty on that average
+            // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
+            double ivar = dataCov.getValue((i+1)*nTotal+(i+1));
+            System.out.print(String.format("average: %20.15e  error: %10.15e  ocor: %6.4f", dataAvg.getValue(i+1), dataErr.getValue(i+1), dataCov.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar)));
             if (targetDiagrams.length > 1) {
-                System.out.print(" cov:");
-                IData dataCov = allData.getData(accumulatorDiagrams.BLOCK_COVARIANCE.index);
-                double ivar = dataCov.getValue(i*targetDiagrams.length+i);
+                System.out.print("  dcor:");
                 for (int j=0; j<targetDiagrams.length; j++) {
                     if (i==j) continue;
-                    double jvar = dataCov.getValue(j*targetDiagrams.length+j);
-                    System.out.print(" "+dataCov.getValue(i*targetDiagrams.length+j)/Math.sqrt(ivar*jvar));
+                    double jvar = dataCov.getValue((j+1)*nTotal+(j+1));
+                    System.out.print(String.format(" %6.4f",dataCov.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar)));
                 }
             }
             System.out.println();
@@ -705,14 +706,14 @@ public class VirialHePI {
      * Inner class for parameters
      */
     public static class VirialHePIParam extends ParameterBase {
-        public int nPoints = 2;
+        public int nPoints = 3;
         public int nBeads = 4;
-        public double temperature = 100;   // Kelvin
+        public double temperature = 300;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;
         public double sigmaHSRef = 5;
         public boolean doDiff = true;
-        public boolean semiClassical = false;
+        public boolean semiClassical = true;
         public boolean subtractHalf = false;
         public int startBeadHalfs = 0;
         public int beadFac = 2;

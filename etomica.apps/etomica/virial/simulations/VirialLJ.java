@@ -152,7 +152,7 @@ public class VirialLJ {
             
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
                     double error = ratioAndError[1];
                     data.x = ratio;

@@ -161,7 +161,7 @@ public class Virial2CLJQ {
                 public void integratorStepFinished(IIntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
                     double error = ratioAndError[1];
                     System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
