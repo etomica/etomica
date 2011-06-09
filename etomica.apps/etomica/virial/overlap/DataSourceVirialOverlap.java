@@ -1,6 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.overlap.IntegratorOverlap.ReferenceFracSource;
@@ -120,8 +119,8 @@ public class DataSourceVirialOverlap implements ReferenceFracSource {
 
         return new double[]{newAlpha, newErr};
 	}
-    
-    public double getAverageForAlpha(double alpha) {
+
+    public double getOverlapAverageForAlpha(double alpha) {
         int nBennetPoints = refAccumulator.getNBennetPoints();
 
         if (nBennetPoints == 1) {
