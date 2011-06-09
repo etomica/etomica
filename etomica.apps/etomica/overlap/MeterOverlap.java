@@ -8,7 +8,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Null;
 
 
-public class MeterOverlap implements IEtomicaDataSource, DataOverlap.AlphaSource {
+public class MeterOverlap implements IEtomicaDataSource, AlphaSource {
     protected DataTag tag;
     protected IEtomicaDataInfo dataInfo;
     protected IEtomicaDataSource dataSourceRef, dataSourceTarget;
@@ -91,7 +91,7 @@ public class MeterOverlap implements IEtomicaDataSource, DataOverlap.AlphaSource
     public int getNumAlpha() {
         return numAlpha;
     }
-    
+
     public double getAlpha(int iAlpha) {
         return alpha[iAlpha];
     }

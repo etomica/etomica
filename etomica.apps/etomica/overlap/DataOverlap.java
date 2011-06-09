@@ -28,9 +28,9 @@ public class DataOverlap implements ReferenceFracSource {
 	protected AkimaSpline akima;
 	protected double[] lnAlpha, err, lnAlphaDiff, lnRatio;
 	protected double[] tmp = new double[2];
-	
+
 	protected static final int REF = 0, TARGET = 1, RATIO = 2;
-	
+
 	public DataOverlap(DataSourceOverlapAvg refAvg, DataSourceOverlapAvg targetAvg, AlphaSource alphaSource) {
 	    this.refAvg = refAvg;
 	    this.targetAvg = targetAvg;
@@ -585,10 +585,5 @@ public class DataOverlap implements ReferenceFracSource {
             return avgLog;
         }
 
-    }
-
-    public interface AlphaSource {
-        public int getNumAlpha();
-        public double getAlpha(int i);
     }
 }
