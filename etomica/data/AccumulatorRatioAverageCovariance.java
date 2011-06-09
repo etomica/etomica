@@ -6,7 +6,8 @@ import etomica.util.Arrays;
 import etomica.util.Function;
 
 /**
- * Accumulator for calculating ratio between two sums
+ * Accumulator for calculating ratio between sums.  The ratios calculated are
+ * the ratios of each data element to the first one, so v0/v0, v1/v0, v2/v0, etc.
  */
 public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovariance {
     
@@ -18,16 +19,12 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
     public AccumulatorRatioAverageCovariance(long blockSize) {
         super(blockSize);
         ratioTag = new DataTag();
-        ratioStandardDeviationTag = new DataTag();
         ratioErrorTag = new DataTag();
     }
     
     public DataTag getTag(StatType statType) {
         if (statType == RATIO) {
             return ratioTag;
-        }
-        if (statType == RATIO_STANDARD_DEVIATION) {
-            return ratioStandardDeviationTag;
         }
         if (statType == RATIO_ERROR) {
             return ratioErrorTag;
@@ -44,7 +41,6 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             if (average0 == 0) {
                 ratio.E(Double.NaN);
                 ratioError.E(Double.NaN);
-                ratioStandardDeviation.E(Double.NaN);
                 return dataGroup;
             }
 
@@ -58,9 +54,7 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             ratioError.DE(work);
             ratioError.TE(ratioError);
             ratioError.PE(ratioError.getValue(0));
-            otherErrorContribution = Math.sqrt(Math.abs(ratioError.getValue(1)))*Math.abs(ratio.getValue(1));
             double covarianceContribution = -2*blockCovariance.getValue(1)/(average.getValue(0)*average.getValue(1)*(count-1));
-            covarianceErrorContribution = Math.sqrt(Math.abs(covarianceContribution))*Math.abs(ratio.getValue(1));
             ratioError.PE(covarianceContribution);
             ratioError.TE(ratio);
             ratioError.TE(ratio);
@@ -73,15 +67,6 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             double average0 = average.getValue(0);
             ratio.E(average);
             ratio.TE(1/average0);
-
-            double stdevRatio0 = standardDeviation.getValue(0)/average0;
-            ratioStandardDeviation.E(standardDeviation);
-            ratioStandardDeviation.DE(average);
-            ratioStandardDeviation.TE(ratioStandardDeviation);
-            ratioStandardDeviation.PE(stdevRatio0);
-            ratioStandardDeviation.TE(ratio);
-            ratioStandardDeviation.TE(ratio);
-            ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
         }
 
         return dataGroup;
@@ -95,7 +80,6 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
         super.reset();
         ratio.E(Double.NaN);
         ratioError.E(Double.NaN);
-        ratioStandardDeviation.E(Double.NaN);
     }
     
     public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
@@ -103,16 +87,14 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
 
         ratio = incomingDataInfo.makeData();
         ratioError = incomingDataInfo.makeData();
-        ratioStandardDeviation = incomingDataInfo.makeData();
 
-        IData[] dataGroups = new IData[dataGroup.getNData()+3];
+        IData[] dataGroups = new IData[dataGroup.getNData()+2];
         int i;
         for (i=0; i<dataGroup.getNData(); i++) {
             dataGroups[i] = dataGroup.getData(i);
         }
         dataGroups[i++] = ratio;
         dataGroups[i++] = ratioError;
-        dataGroups[i++] = ratioStandardDeviation;
         dataGroup = new DataGroup(dataGroups);
         reset();
 
@@ -128,12 +110,9 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
         IEtomicaDataInfo ratioErrorInfo = factory.makeDataInfo();
         ratioErrorInfo.addTag(ratioErrorTag);
         factory.setLabel(incomingLabel+" ratio");
-        IEtomicaDataInfo ratioStandardDeviationInfo = factory.makeDataInfo();
-        ratioStandardDeviationInfo.addTag(ratioStandardDeviationTag);
         
         subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioInfo);
         subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioErrorInfo);
-        subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioStandardDeviationInfo);
         groupFactory.setSubDataInfo(subDataInfo);
 
         dataInfo = groupFactory.makeDataInfo();
@@ -142,16 +121,14 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
     
     public static final StatType RATIO = new StatType("Ratio",7);
     public static final StatType RATIO_ERROR = new StatType("Ratio error",8);
-    public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",9);
     public static AccumulatorAverage.StatType[] choices() {
         StatType[] choices = AccumulatorAverageCovariance.statChoices();
         return new AccumulatorAverage.StatType[] {
             choices[0], choices[1], choices[2], choices[3], choices[4], choices[5], choices[6],
-            RATIO, RATIO_ERROR, RATIO_STANDARD_DEVIATION};
+            RATIO, RATIO_ERROR};
     }
 
     //need separate fields because ratio values are calculated from the non-ratio values.
-    protected IData ratio, ratioStandardDeviation, ratioError;
-    private final DataTag ratioTag, ratioStandardDeviationTag, ratioErrorTag;
-    public double covarianceErrorContribution, otherErrorContribution;
+    protected IData ratio, ratioError;
+    private final DataTag ratioTag, ratioErrorTag;
 }
