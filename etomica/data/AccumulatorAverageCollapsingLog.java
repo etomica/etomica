@@ -266,7 +266,12 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         av[rawDataBlockSize] = lSum/nRawData;
         for (int i=rawDataBlockSize+1; i<rawDataBlockSize+(32-Integer.numberOfLeadingZeros(nRawData)); i++) {
             lSum = 0;
-            reblockData();
+            if (withReplacement) {
+                reblockData(1<<(i-rawDataBlockSize));
+            }
+            else {
+                reblockData();
+            }
             for (int j=0; j<nRawData; j++) {
                 lSum += Math.log(rawData2[j]);
             }
@@ -309,6 +314,22 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             rawData2[j] = rawData3[j];
         }
     }
+    
+    /**
+     * Reblock data from rawData into rawData2, taking blocks of size n
+     */
+    protected void reblockData(int n) {
+        // with replacement
+        for (int j=0; j<nRawData; j++) {
+            double innerSum = 0;
+            for (int i=0; i<n; i++) {
+                innerSum += rawData[random.nextInt(nRawData)];
+            }
+            innerSum /= n;
+            rawData2[j] = innerSum;
+        }
+    }
+
 
     /**
      * Refills inArrayList if it's empty.
@@ -359,7 +380,12 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         for (int i=rawDataBlockSize+1; i<rawDataBlockSize+(32-Integer.numberOfLeadingZeros(nRawData)); i++) {
             iSum = 0;
             iSum2 = 0;
-            reblockData();
+            if (withReplacement) {
+                reblockData(1<<(i-rawDataBlockSize));
+            }
+            else {
+                reblockData();
+            }
             for (int j=0; j<nRawData; j++) {
                 iSum += rawData2[j];
                 iSum2 += rawData2[j]*rawData2[j];
@@ -405,7 +431,12 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         for (int i=rawDataBlockSize+1; i<rawDataBlockSize+(32-Integer.numberOfLeadingZeros(nRawData)); i++) {
             iSum = 0;
             iSum2 = 0;
-            reblockData();
+            if (withReplacement) {
+                reblockData(1<<(i-rawDataBlockSize));
+            }
+            else {
+                reblockData();
+            }
             for (int j=0; j<nRawData; j++) {
                 double l = Math.log(rawData2[j]);
                 iSum += l;
@@ -452,7 +483,12 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             iSum = 0;
             iSum2 = 0;
             iSum3 = 0;
-            reblockData();
+            if (withReplacement) {
+                reblockData(1<<(i-rawDataBlockSize));
+            }
+            else {
+                reblockData();
+            }
             for (int j=0; j<nRawData; j++) {
                 double l = Math.log(rawData2[j]);
                 iSum += l;
@@ -539,7 +575,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     protected final IRandom random;
     protected final int nMoments;
     protected int initialSeed;
-    protected final boolean withReplacement = false;
+    protected final boolean withReplacement = true;
     
     public static void main(String[] args) {
         AccumulatorAverageCollapsingLog ac = new AccumulatorAverageCollapsingLog(new RandomNumberGenerator());
