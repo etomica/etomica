@@ -61,6 +61,25 @@ public class ParseArgs {
                 args = (String[])Arrays.removeObject(args, args[0]);
             }
         }
+        if (args.length == 1 && args[0].equals("-help") || args[0].equals("-h")) {
+            String strOut = "options and defaults: ";
+            int len = strOut.length();
+            System.out.print(strOut);
+            for (int i=0; i<fields.length; i++) {
+                try {
+                    strOut = " -"+fields[i].getName()+" "+fields[i].get(wrapper).toString();
+                }
+                catch (IllegalAccessException e) {}
+                len += strOut.length();
+                if (len > 80) {
+                    len = strOut.length()+5;
+                    strOut = "\n     "+strOut;
+                }
+                System.out.print(strOut);
+            }
+            System.out.println();
+            System.exit(0);
+        }
         for (int i=0; i<args.length; i++) {
             if (args[i].charAt(0) != '-') {
                 throw new RuntimeException("encountered "+args[i]+" when I was expecting an option");
