@@ -10,7 +10,11 @@ public class IteratorWrapper implements GraphIterator {
   private Iterator<Graph> iterator;
 
   public IteratorWrapper(Iterator<Graph> iterator) {
+    this(iterator, false);
+  }
 
+  public IteratorWrapper(Iterator<Graph> iterator, boolean doCopy) {
+    this.doCopy = doCopy;
     this.iterator = iterator;
   }
 
@@ -20,12 +24,14 @@ public class IteratorWrapper implements GraphIterator {
   }
 
   public Graph next() {
-
-    return iterator.next();
+    Graph g = iterator.next();
+    return doCopy ? g.copy() : g;
   }
 
   public void remove() {
 
     // no-op
   }
+
+  protected final boolean doCopy;
 }
