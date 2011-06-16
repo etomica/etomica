@@ -12,8 +12,7 @@ public class IsoFree implements Unary {
 
   public Set<Graph> apply(Set<Graph> argument, Parameters params) {
 
-    PCopy pcopy = new PCopy();
-    IteratorWrapper wrapper = new IteratorWrapper(pcopy.apply(argument, null).iterator());
+    IteratorWrapper wrapper = new IteratorWrapper(argument.iterator(), true);
     GraphIterator isomorphs = new IsomorphismFilter(wrapper);
     Set<Graph> result = new HashSet<Graph>();
     while (isomorphs.hasNext()) {
