@@ -22,9 +22,7 @@ public class Split implements Unary {
         result.addAll(newSet);
       }
     }
-//    return result;
-    Unary isoFree = new IsoFree();
-    return isoFree.apply(result, params);
+    return result;
   }
 
   public Set<Graph> apply(Graph graph, SplitParameters params) {
@@ -42,16 +40,22 @@ public class Split implements Unary {
     // such that each of the colors can appear any number of times from 0 to |edges|
     Permutator permutations = new RangePermutator(edges.size(), 0, edges.size());
     // each permutation is a color assignment for the edges
+    int count = 0;
+    IsoFree isoFree = new IsoFree();
     while (permutations.hasNext()) {
       // copy the graph
       Graph newGraph = graph.copy();
       byte[] permutation = permutations.next();
       // modify edge colors: partition 0 => newColor0, partition 1 => newColor1
-      for (int edgePtr = 0; edgePtr < edges.size(); edgePtr++) {
+      for (byte edgePtr = 0; edgePtr < edges.size(); edgePtr++) {
         char newColor = permutation[edgePtr] == 0 ? params.newColor0() : params.newColor1();
         newGraph.getEdge(edges.get(edgePtr)).setColor(newColor);
       }
       result.add(newGraph);
+      if (++count == 10000 && count > result.size()/10) {
+        result = isoFree.apply(result, null);
+        count = 0;
+      }
     }
     return result;
   }
