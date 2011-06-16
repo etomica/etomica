@@ -43,6 +43,26 @@ public class MaxIsomorph implements Unary {
     RelabelParameters rp = new RelabelParameters(labels);
     // swaps is the number of times we have swapped node i since the last time we swapped node i-1
     // we'll need to swap nodeCount-1-i times
+    // 0 1 2 3 4
+    // 0 1 2 4 3
+    // 0 1 3 2 4
+    // 0 1 3 4 2
+    // 0 1 4 2 3
+    // 0 1 4 3 2
+    // 0 2 1 3 4
+    // ...
+    // 0 3 1 2 4
+    // ...
+    // 0 4 1 2 3
+    // ...
+    // 1 0 2 3 4
+    // ...
+    // 2 0 1 3 4
+    // ...
+    // 3 0 1 2 4
+    // ...
+    // 4 0 1 2 3
+    // ...
     byte[] swaps = new byte[nodeCount-1];
     while (true) {
       boolean success = false;
@@ -66,6 +86,7 @@ public class MaxIsomorph implements Unary {
             for (byte jNode = (byte)(iNode+1); jNode<(byte)(nodeCount-1); jNode++) {
               swaps[jNode] = 0;
             }
+            //sort everything above iNode
             if (iNode+1 < nodeCount-1) {
               Arrays.sort(labels, iNode+1, nodeCount);
             }
