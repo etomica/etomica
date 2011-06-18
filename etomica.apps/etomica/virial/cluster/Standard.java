@@ -624,6 +624,34 @@ public final class Standard {
 	public static final int[][] D5 = new int[][] {{0,1},{0,2},{0,3},{1,2},{2,3}};
 	public static final int[][] D6 = full(4);
 	
+	/**
+	 * Returns the nth virial coefficient for hard spheres of diameter sigma.
+	 */
+	public static double BHS(int n, double sigma) {
+	    switch (n) {
+	        case 2:
+	            return B2HS(sigma);
+	        case 3:
+	            return B3HS(sigma);
+            case 4:
+                return B4HS(sigma);
+            case 5:
+                return B5HS(sigma);
+            case 6:
+                return B6HS(sigma);
+            case 7:
+                return B7HS(sigma);
+            case 8:
+                return B8HS(sigma);
+            case 9:
+                return B9HS(sigma);
+            case 10:
+                return B10HS(sigma);
+            default:
+                throw new RuntimeException("HS unknown at order "+n);
+	    }
+	}
+	
 	public static double B2HS(double sigma) {
 		return 2.0*Math.PI/3.0 * sigma*sigma*sigma;
 	}
