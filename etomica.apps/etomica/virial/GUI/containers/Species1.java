@@ -54,6 +54,7 @@ import com.jgoodies.looks.plastic.theme.ExperienceGreen;
 import etomica.virial.GUI.components.CreateP22CLJQ;
 import etomica.virial.GUI.components.CreateP2CO22CLJQ;
 import etomica.virial.GUI.components.CreateP2CO2EMP2;
+import etomica.virial.GUI.components.CreateP2CO2Trappe;
 import etomica.virial.GUI.components.CreateP2LJ;
 import etomica.virial.GUI.components.CreateP2LJQ;
 import etomica.virial.GUI.components.ParameterMapping;
@@ -96,7 +97,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 
 	private Class[] LJPotentialClassList = {CreateP2LJ.class,CreateP2LJQ.class,CreateP22CLJQ.class};
 	private String[] CO2PotentialList = {"2CLJQ","TRAPPE-UnitedAtom","EPM2"};
-	private Class[] CO2PotentialClassList = {CreateP2CO22CLJQ.class,CreateP2CO2EMP2.class};
+	private Class[] CO2PotentialClassList = {CreateP2CO22CLJQ.class,CreateP2CO2EMP2.class,CreateP2CO2Trappe.class};
 	
 	//For each species...
 	private String PotentialType = null;
@@ -652,7 +653,8 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 					int[] EnumArrayIndexes = null;
 					String[] ParameterArray = null;
 					
-					String[][] PotentialSite = null;
+					String[] PotentialSite = null;
+					String[][] ParamAndValue = null;
 					
 					EditVariables.setEnabled(true);
 					if(PotentialType == "LJ"){
@@ -717,6 +719,8 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 							ParameterArray = potential1.getParametersArray();
 							potential1.createSpeciesFactory();
 							PotentialSite = potential1.getPotentialSites();
+							ParamAndValue = potential1.getParamAndValues();
+							
 							
 						}
 						else{
@@ -724,6 +728,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 							ParameterArray = potential2.getParametersArray();
 							potential2.createSpeciesFactory();
 							PotentialSite = potential2.getPotentialSites();
+							ParamAndValue = potential1.getParamAndValues();
 							}
 						}
 					catch (Exception E){}
@@ -742,34 +747,9 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 					NoOfVariables = ParameterArray.length;
 					LJP1.removeData();
 					int SiteLength = PotentialSite.length;
-					int tableLength = NoOfVariables*SiteLength;
-					int index = 0;
-					for(int k = 0; k < SiteLength;k++){
-						for(int i = 0;i < NoOfVariables; i++){
-							for(ParametersDouble parameters : ParametersDouble.values()){
-								if(ParameterArray[i]==parameters.toString()){
-										if(SiteLength != 1){
-											if(parameters.DefaultValue(Integer.parseInt(PotentialSite[k][1])) != 0.0){
-												LJP1.setValueAt(parameters.toString().toLowerCase(Locale.ENGLISH),index,0);
-											}
-											else{
-												LJP1.setValueAt(parameters.toString().toLowerCase(Locale.ENGLISH)+PotentialSite[k][0],index, 0);
-											}
-										}
-										else{
-											LJP1.setValueAt(parameters.toString().toLowerCase(Locale.ENGLISH),index, 0);
-										}
-										if(parameters.DefaultValue(Integer.parseInt(PotentialSite[k][1])) != 0.0){
-											LJP1.setValueAt(Double.toString(parameters.DefaultValue(Integer.parseInt(PotentialSite[k][1]))), index, 1);
-										}
-										if(index < tableLength){
-											index++;
-										}
-								}
-								
-							}
-						}
-						
+					for(int i = 0;i <ParamAndValue.length;i++){
+						LJP1.setValueAt(ParamAndValue[i][0],i,0);
+						LJP1.setValueAt(ParamAndValue[i][1],i,1);
 					}
 				}
 			}
@@ -785,7 +765,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 					try{
 						selectedParameter = (String)table1.getValueAt(RowIndex,0);
 						for(ParametersDouble parameters : ParametersDouble.values()){
-							if(parameters.toString().equals(selectedParameter.toUpperCase())){
+							if(selectedParameter.toUpperCase().contains(parameters.toString())){
 								Description.append("You have now chosen to edit the default value of " + parameters.toString() + "\n");
 								Description.append("This chosen parameter is " + parameters.Description()+"\n");
 							}
@@ -850,7 +830,7 @@ public class Species1 extends JPanel implements SubPanelsInterface,ActionListene
 	
 	public void setPotentialList(Class[] potentialList,String potentialType){
 		String[] s = new String[potentialList.length];
-		for (int i=0; i<s.length; i++) {
+        for (int i=0; i<s.length; i++) {
 		   try {
 			try {
 				s[i] = (String)potentialList[i].getMethod("getCustomName", new Class[0]).invoke(potentialList[i].getConstructor().newInstance(new Object[0]),new Object[0]);
