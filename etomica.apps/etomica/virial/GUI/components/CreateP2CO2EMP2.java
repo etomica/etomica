@@ -7,11 +7,14 @@ import etomica.api.ISpecies;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
+import etomica.potential.P22CLJQ;
 import etomica.potential.P2CO2EMP2;
 import etomica.potential.P2LennardJones;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
+import etomica.units.Electron;
+import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.GUI.models.ParametersDouble;
@@ -29,15 +32,25 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 	private static int numberOfInstances = 0;
 	
 	
-	private String[] ParametersArray  = {"SIGMA","EPSILON","CHARGE","BONDL"};
+	private String[] ComponentParameters  =  {"SIGMA","EPSILON","CHARGE"};
+			
+	private String[] SharedComponentParameters ={"BONDL"};
 	
-	private String[][] PotentialSites = {{"C","2"},{"O","3"},{"CO","4"}};
+	private String[][] ParamAndValues; 
+	
+	private String[] PotentialSites = {"C","O","CO"};
+	
+	private String[][] ComponentValues = {
+			{"2.7570",Double.toString(Kelvin.UNIT.toSim(28.129)),Double.toString(Electron.UNIT.toSim(0.6512))},
+			{"3.0330",Double.toString(Kelvin.UNIT.toSim(80.507)),Double.toString((-0.5)*Electron.UNIT.toSim(0.6512))},
+			{"2.8921",Double.toString(Kelvin.UNIT.toSim(47.588)),Double.toString(Electron.UNIT.toSim(0.6512)*(-0.5)*Electron.UNIT.toSim(0.6512))}
+	};
 
-	public String[] getPotentialSiteAtIndex(int index) {
-		String[] tempReturn = new String[2];
-		tempReturn[0]= PotentialSites[index][0];
-		tempReturn[1]= PotentialSites[index][1];
-		return tempReturn;
+	private String[] SharedComponentValues = {"1.149"};
+	
+	public String getPotentialSiteAtIndex(int index) {
+		
+		return PotentialSites[index];
 	}
 	
 	public boolean IsPotentialSiteMoreThanOne(){
@@ -49,23 +62,63 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 
 	//Constructors for different Instantiations
 	
+	public P2CO2EMP2 getP2CO2EPM2() {
+		return p2CO2EPM2;
+	}
+
+	public void setP2CO2EPM2() {
+		p2CO2EPM2 = new P2CO2EMP2(this.space);
+	}
+
 	public CreateP2CO2EMP2(){
 		space = Space3D.getInstance();
-		sigma = new double[3];
-		epsilon = new double[3];
-		charge = new double[2];
-		sigma[0] = 2.757;
-		sigma[1] = 3.033;
-		sigma[2] = 2.8921;
-		epsilon[0]= 1.0;
-		epsilon[1] = 1.0;
-		epsilon[2] = 1.0;
-		charge[0] = 1.0;
-		charge[1] = 1.0;
-		bondL = 1.149;
+		sigma = new double[PotentialSites.length];
+		epsilon = new double[PotentialSites.length];
+		charge = new double[PotentialSites.length];
+		ParamAndValues=setParameterValues();
 		//setConformation();
 		id=++numberOfInstances;
 	}
+	
+private String[][] setParameterValues() {
+		
+		int NoOfParam = ComponentParameters.length;
+		int NoOfCommonParam = SharedComponentParameters.length;
+		int NoOfSites = PotentialSites.length;
+		int totalNoOfParam = NoOfParam*NoOfSites;
+		String[][] ReturnArray = new String[totalNoOfParam][2];
+		int index = 0;
+		for(int i=0;i<NoOfSites;i++){
+			for(int j=0;j<NoOfParam;j++){
+				
+				if(ComponentParameters[j]=="SIGMA"){
+					setSigma(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				if(ComponentParameters[j]=="EPSILON"){
+					setEpsilon(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				if(ComponentParameters[j]=="CHARGE"){
+					setCharge(Double.parseDouble(ComponentValues[i][j]),i);
+				}
+				
+				ReturnArray[index][0] = ComponentParameters[j]+PotentialSites[i];
+				ReturnArray[index][1] = ComponentValues[i][j];
+				index++;
+			}
+		}
+		for(int k = 0;k<NoOfCommonParam;k++){
+			if(SharedComponentParameters[k]=="BONDL"){
+				setBondL(Double.parseDouble(SharedComponentValues[k]));
+			}
+		}
+		return ReturnArray;
+		
+		
+	}
+	
+	
 	
 	public double getCharge(int index) {
 		return charge[index];
@@ -171,39 +224,37 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
 		
-		for(int i = 0;i< PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+getPotentialSiteAtIndex(i))){
+		for(int i=0;i<PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
 				setSigma(Double.parseDouble(ParameterValue),i); 
 			}
-			
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+getPotentialSiteAtIndex(i))){
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 
 			}
 			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+getPotentialSiteAtIndex(i))){
-				setEpsilon(Double.parseDouble(ParameterValue),i); 
-			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-				setEpsilon(Double.parseDouble(ParameterValue),i); 
+				setCharge(Double.parseDouble(ParameterValue),i); 
 			}
 		}
+			if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+				setBondL(Double.parseDouble(ParameterValue)); 
+			}
+		
 	}
 
 
 	public String getDescription(String Parameter) {
 		String Description = null;
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+"C") || 
-				Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+"O") ||
-				Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+"CO") ){
-			Description = ParametersDouble.SIGMA.Description();
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+"C") || 
-				Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+"O") ||
-				Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+"CO") ){
-			Description = ParametersDouble.EPSILON.Description();
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+"C") || 
-				Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+"O")){
-			Description = ParametersDouble.CHARGE.Description();
+		for(int i = 0;i <PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				Description = ParametersDouble.SIGMA.Description();
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				Description = ParametersDouble.EPSILON.Description();
+			}
+
+			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+PotentialSites[i])){
+				Description = ParametersDouble.CHARGE.Description();
+			}
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			Description = ParametersDouble.BONDL.Description();
@@ -216,50 +267,26 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
 		
-		for(int i = 0;i< PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+getPotentialSiteAtIndex(i))){
-				
-				if(getPotentialSiteAtIndex(i).equals("C")){
-					parameterValue = ParametersDouble.SIGMA.DefaultValue(2); 
-				}
-				if(getPotentialSiteAtIndex(i).equals("O")){
-					parameterValue = ParametersDouble.SIGMA.DefaultValue(3); 
-				}
-				if(getPotentialSiteAtIndex(i).equals("CO")){
-					parameterValue = ParametersDouble.SIGMA.DefaultValue(4); 
-				}
+		for(int i=0;i<PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				parameterValue = getSigma(i);
 			}
-			
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+getPotentialSiteAtIndex(i))){
-				
-				if(getPotentialSiteAtIndex(i).equals("C")){
-					parameterValue = ParametersDouble.EPSILON.DefaultValue(2); 
-				}
-				if(getPotentialSiteAtIndex(i).equals("O")){
-					parameterValue = ParametersDouble.EPSILON.DefaultValue(3); 
-				}
-				if(getPotentialSiteAtIndex(i).equals("CO")){
-					parameterValue = ParametersDouble.EPSILON.DefaultValue(4); 
-				}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				parameterValue = getEpsilon(i);
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+getPotentialSiteAtIndex(i))){
-				
-				if(getPotentialSiteAtIndex(i).equals("C")){
-					parameterValue = ParametersDouble.CHARGE.DefaultValue(2); 
-				}
-				if(getPotentialSiteAtIndex(i).equals("O")){
-					parameterValue = ParametersDouble.CHARGE.DefaultValue(3); 
-				}
+		
+			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+PotentialSites[i])){
+				parameterValue = getCharge(i);
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-				parameterValue = ParametersDouble.BONDL.DefaultValue(2);
-			}
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+			parameterValue = getBondL();
 		}
 		return parameterValue;
 	}
 	
 	public String[] getParametersArray() {
-		return ParametersArray;
+		return ComponentParameters;
 	}
 
 	@Override
@@ -268,8 +295,18 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 		return "EPM2";
 	}
 
+	public String getPotentialSites(int index) {
+		return PotentialSites[index];
+	}
+
 	@Override
-	public String[][] getPotentialSites() {
+	public String[][] getParamAndValues() {
+		// TODO Auto-generated method stub
+		return ParamAndValues;
+	}
+
+	@Override
+	public String[] getPotentialSites() {
 		// TODO Auto-generated method stub
 		return PotentialSites;
 	}

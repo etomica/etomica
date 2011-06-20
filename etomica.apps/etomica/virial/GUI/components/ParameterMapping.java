@@ -16,6 +16,10 @@ public interface ParameterMapping {
 
 	// Added on April 27, 2011
 	public String[] getParametersArray();
+	
+	
+	//Added June 20, 2011
+	public String[][] getParamAndValues();
 
 	public SpeciesFactory createSpeciesFactory();
 
@@ -23,7 +27,7 @@ public interface ParameterMapping {
 	
 	public String getCustomName();
 	
-	public String[][] getPotentialSites();
+	public String[] getPotentialSites();
 	
-	public String[] getPotentialSiteAtIndex(int index);
+	public String getPotentialSiteAtIndex(int index);
 }

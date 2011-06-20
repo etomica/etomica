@@ -77,6 +77,10 @@ public class SpeciesList {
 				else if(SpeciesL[i] instanceof CreateP2CO2EMP2){
 					DisplayArray.add("EPM2");
 				}
+				else if(SpeciesL[i] instanceof CreateP2CO2Trappe){
+					DisplayArray.add("TRAPPE");
+				}
+				
 			}
 		}
 		

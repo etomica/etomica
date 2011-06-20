@@ -15,28 +15,33 @@ import etomica.virial.GUI.models.ParametersDouble;
 public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	
 	private ISpace space;
-	private double sigma;
-	private double epsilon;
-	private double moment;
+	private double[] sigma;
+	private double[] epsilon;
+	public void setPotentialSites(String[] potentialSites) {
+		PotentialSites = potentialSites;
+	}
+
+	private double[] moment;
 	private double bondLength;
 	private ConformationLinear conformation;
 	
 	private int SpeciesID;
-	
-	private String[][] PotentialSites = {{"LJ","0"}};
+	private String[][] ParamAndValues; 
 
-	public String[] getPotentialSiteAtIndex(int index) {
-		String[] tempReturn = new String[2];
-		tempReturn[0]= PotentialSites[index][0];
-		tempReturn[1]= PotentialSites[index][1];
-		return tempReturn;
-	}
+	
 
 	private int id;
 	private static int numberOfInstances = 0;
 	
-	private String[] ParametersArray  = {"SIGMA","EPSILON", "MOMENT","BONDL"};
+	private String[] ComponentParameters  = {"SIGMA","EPSILON","MOMENT"};
 	
+	private String[] SharedComponentParameters ={"BONDL"};
+	
+	private String[] PotentialSites = {"LJ"};
+	
+	private String[][] ComponentValues = {{"1.0","1.0","1.0"}};
+	
+	private String[] SharedComponentValues = {"1.0"};
 	
 	
 	//Potentials references are created as Private members
@@ -47,14 +52,52 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	
 	public CreateP22CLJQ(){
 		space = Space3D.getInstance();
-		this.sigma = 1.0;
-		this.epsilon = 1.0;
-		this.moment = 1.0;
-		this.bondLength = 1.0;
-		this.SpeciesID = 0;
+		sigma = new double[PotentialSites.length];
+		epsilon = new double[PotentialSites.length];
+		moment = new double[PotentialSites.length];
+		ParamAndValues=setParameterValues();
 		id=++numberOfInstances;
 	}
 	
+	private String[][] setParameterValues() {
+		
+		int NoOfParam = ComponentParameters.length;
+		int NoOfCommonParam = SharedComponentParameters.length;
+		int NoOfSites = PotentialSites.length;
+		int totalNoOfParam = NoOfParam*NoOfSites;
+		String[][] ReturnArray = new String[totalNoOfParam][2];
+		int index = 0;
+		for(int i=0;i<NoOfSites;i++){
+			for(int j=0;j<NoOfParam;j++){
+				
+				if(ComponentParameters[j]=="SIGMA"){
+					setSigma(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				if(ComponentParameters[j]=="EPSILON"){
+					setEpsilon(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				if(ComponentParameters[j]=="MOMENT"){
+					setMoment(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				
+				ReturnArray[index][0] = ComponentParameters[j]+PotentialSites[i];
+				ReturnArray[index][1] = ComponentValues[i][j];
+				index++;
+			}
+		}
+		for(int k = 0;k<NoOfCommonParam;k++){
+			if(SharedComponentParameters[k]=="BONDL"){
+				setBondLength(Double.parseDouble(SharedComponentValues[k]));
+			}
+		}
+		return ReturnArray;
+		
+		
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -105,28 +148,28 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	
 	
 	
-	public double getSigma() {
-		return sigma;
+	public double getSigma(int index) {
+		return sigma[index];
 	}
 
-	public void setSigma(double sigma) {
-		this.sigma = sigma;
+	public void setSigma(double sigma,int index) {
+		this.sigma[index] = sigma;
 	}
 
-	public double getEpsilon() {
-		return epsilon;
+	public double getEpsilon(int index) {
+		return epsilon[index];
 	}
 
-	public void setEpsilon(double epsilon) {
-		this.epsilon = epsilon;
+	public void setEpsilon(double epsilon,int index) {
+		this.epsilon[index] = epsilon;
 	}
 
-	public double getMoment() {
-		return moment;
+	public double getMoment(int index) {
+		return moment[index];
 	}
 
-	public void setMoment(double moment) {
-		this.moment = moment;
+	public void setMoment(double moment,int index) {
+		this.moment[index] = moment;
 	}
 
 	public double getBondLength() {
@@ -141,38 +184,44 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	@Override
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
-		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
-			setSigma(Double.parseDouble(ParameterValue)); 
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
-			setEpsilon(Double.parseDouble(ParameterValue)); 
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString())){
-			setEpsilon(Double.parseDouble(ParameterValue)); 
+		for(int i=0;i<PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				setSigma(Double.parseDouble(ParameterValue),i); 
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				setEpsilon(Double.parseDouble(ParameterValue),i); 
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+				setMoment(Double.parseDouble(ParameterValue),i); 
+			}
+			
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-			setEpsilon(Double.parseDouble(ParameterValue)); 
+			setBondLength(Double.parseDouble(ParameterValue)); 
 		}
-		
+	}
+
+	public void setBondLength(double bondLength) {
+		this.bondLength = bondLength;
 	}
 
 	@Override
 	public String getDescription(String Parameter) {
 		String Description = null;
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
-			Description = ParametersDouble.SIGMA.Description();
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
-			Description = ParametersDouble.EPSILON.Description();
-		}
+		for(int i = 0;i <PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				Description = ParametersDouble.SIGMA.Description();
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				Description = ParametersDouble.EPSILON.Description();
+			}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString())){
-			Description = ParametersDouble.MOMENT.Description();
+			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+				Description = ParametersDouble.MOMENT.Description();
+			}
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			Description = ParametersDouble.BONDL.Description();
-		
 		}
 		return Description;
 	}
@@ -180,35 +229,44 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	//Testing Class
 	public static void main(String[] args){
 		CreateP22CLJQ lj = new CreateP22CLJQ();
+		for(int j=0;j<lj.ComponentParameters.length*lj.PotentialSites.length;j++){
+			
+				System.out.println(lj.ParamAndValues[j][0]+"\n");
+				System.out.println(lj.ParamAndValues[j][1]+"\n");
+		}
 		
+		
+	}
+
+	public String[][] getParamAndValues() {
+		return ParamAndValues;
 	}
 
 	@Override
 	public Double getDoubleDefaultParameters(String Parameter) {
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
-			parameterValue = ParametersDouble.SIGMA.DefaultValue(SpeciesID);
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
-			parameterValue = ParametersDouble.EPSILON.DefaultValue(SpeciesID);
-		}
+		for(int i=0;i<PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				parameterValue = getSigma(i);
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				parameterValue = getEpsilon(i);
+			}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString())){
-			parameterValue = ParametersDouble.MOMENT.DefaultValue(SpeciesID);
+			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+				parameterValue = getMoment(i);
+			}
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-			parameterValue = ParametersDouble.BONDL.DefaultValue(SpeciesID);
+			parameterValue = getBondLength();
 		}
 		return parameterValue;
 	}
 
 
 
-	public String[] getParametersArray() {
-		return ParametersArray;
-	}
-
+	
 	@Override
 	public String getCustomName() {
 		// TODO Auto-generated method stub
@@ -216,8 +274,19 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	}
 
 
-	public String[][] getPotentialSites() {
+	public String[] getPotentialSites() {
 		return PotentialSites;
+	}
+
+	
+	public String getPotentialSiteAtIndex(int index) {
+		return PotentialSites[index];
+	}
+	
+	@Override
+	public String[] getParametersArray() {
+		// TODO Auto-generated method stub
+		return ComponentParameters;
 	}
 
 	

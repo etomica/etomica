@@ -11,15 +11,20 @@ import etomica.virial.GUI.models.ParametersDouble;
 public class CreateP2LJ implements ParameterMapping,Cloneable{
 	
 	private ISpace space;
-	private double sigma;
-	private double epsilon;
+	private double sigma[];
+	private double epsilon[];
 	private int id;
 	private static int numberOfInstances = 0;
+	private String[][] ParamAndValues; 
+	private String[] ComponentParameters  = {"SIGMA","EPSILON"};
 	
-	private String[][] PotentialSites = {{"LJ","0"}};
+	private String[] SharedComponentParameters = null;
 	
-	private String[] ParametersArray  = {"SIGMA","EPSILON"};
+	private String[] PotentialSites = {"LJ"};
 	
+	private String[][] ComponentValues = {{"1.0","1.0"}};
+	
+	private String[] SharedComponentValues = null;
 	//Potentials references are created as Private members
 	private P2LennardJones p2LJ;
 	
@@ -28,19 +33,46 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	
 	public CreateP2LJ(){
 		space = Space3D.getInstance();
-		sigma = 1.0;
-		epsilon = 1.0;
-		
+		sigma = new double[PotentialSites.length];
+		epsilon = new double[PotentialSites.length];
+		ParamAndValues=setParameterValues();
 		id=++numberOfInstances;
 	}
 	
-	
+private String[][] setParameterValues() {
+		
+		int NoOfParam = ComponentParameters.length;
+		
+		int NoOfSites = PotentialSites.length;
+		int totalNoOfParam = NoOfParam*NoOfSites;
+		String[][] ReturnArray = new String[totalNoOfParam][2];
+		int index = 0;
+		for(int i=0;i<NoOfSites;i++){
+			for(int j=0;j<NoOfParam;j++){
+				if(ComponentParameters[j]=="SIGMA"){
+					setSigma(Double.parseDouble(ComponentValues[i][j]),i);
+				}
+				if(ComponentParameters[j]=="EPSILON"){
+					setEpsilon(Double.parseDouble(ComponentValues[i][j]),i);
+				}
+				ReturnArray[index][0] = ComponentParameters[j]+PotentialSites[i];
+				ReturnArray[index][1] = ComponentValues[i][j];
+				index++;
+			}
+		}
+		if (SharedComponentParameters != null){
+			
+		}
+		return ReturnArray;
+		
+	}
 
-	public String[] getPotentialSiteAtIndex(int index) {
-		String[] tempReturn = new String[2];
-		tempReturn[0]= PotentialSites[index][0];
-		tempReturn[1]= PotentialSites[index][1];
-		return tempReturn;
+	public String[][] getParamAndValues() {
+	return ParamAndValues;
+}
+
+	public String getPotentialSiteAtIndex(int index) {
+		return PotentialSites[index];
 	}
 	
 	public int getId() {
@@ -48,8 +80,8 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	}
 
 	//Setter method for LJ atomic potentials
-	public void setP2LJ(){
-		this.p2LJ = new P2LennardJones(this.space,this.sigma,this.epsilon); 
+	public void setP2LJ(String potential){
+		this.p2LJ = new P2LennardJones(this.space,this.sigma[0],this.epsilon[0]); 
 	}
 
 	//Getter for p2LJ
@@ -68,22 +100,22 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 		   }
 	 }
 
-	public double getSigma() {
-		return sigma;
+	public double getSigma(int index) {
+		return sigma[index];
 	}
 
 
-	public void setSigma(double sigma) {
-		this.sigma = sigma;
+	public void setSigma(double sigma,int index) {
+		this.sigma[index] = sigma;
 	}
 
 
-	public double getEpsilon() {
-		return epsilon;
+	public double getEpsilon(int index) {
+		return epsilon[index];
 	}
 
-	public void setEpsilon(double epsilon) {
-		this.epsilon = epsilon;
+	public void setEpsilon(double epsilon,int index) {
+		this.epsilon[index] = epsilon;
 	}
 
 	//Creates the LJAtom Species
@@ -100,23 +132,27 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
+		for(int i=0;i<PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				setSigma(Double.parseDouble(ParameterValue),i); 
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				setEpsilon(Double.parseDouble(ParameterValue),i); 
+			}
+		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
-			setSigma(Double.parseDouble(ParameterValue)); 
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
-			setEpsilon(Double.parseDouble(ParameterValue)); 
-		}
 	}
 
 
 	public String getDescription(String Parameter) {
 		String Description = null;
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
-			Description = ParametersDouble.SIGMA.Description();
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
-			Description = ParametersDouble.SIGMA.Description();
+		for(int i = 0;i <PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				Description = ParametersDouble.SIGMA.Description();
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				Description = ParametersDouble.EPSILON.Description();
+			}
 		}
 		return Description;
 	}
@@ -125,18 +161,20 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	public Double getDoubleDefaultParameters(String Parameter) {
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString())){
-			parameterValue = ParametersDouble.SIGMA.DefaultValue(0);
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString())){
-			parameterValue = ParametersDouble.EPSILON.DefaultValue(0);
+		for(int i=0;i<PotentialSites.length;i++){
+			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+				parameterValue = getSigma(i);
+			}
+			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+				parameterValue = getEpsilon(i);
+			}
 		}
 		
 		return parameterValue;
 	}
 	
 	public String[] getParametersArray() {
-		return ParametersArray;
+		return ComponentParameters;
 	}
 
 	@Override
@@ -146,7 +184,7 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	}
 
 
-	public String[][] getPotentialSites() {
+	public String[] getPotentialSites() {
 		return PotentialSites;
 	}
 
