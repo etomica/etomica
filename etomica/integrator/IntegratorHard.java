@@ -717,7 +717,9 @@ public class IntegratorHard extends IntegratorMD
 	 */
     public Object makeAgent(IAtom a) {
         Agent agent = new Agent(a, this);
-        agent.setNullPotential((PotentialHard)nullPotentialManager.getAgent(a.getType()));
+        if (nullPotentialManager != null) {
+            agent.setNullPotential((PotentialHard)nullPotentialManager.getAgent(a.getType()));
+        }
         return agent;
     }
 
