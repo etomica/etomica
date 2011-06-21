@@ -111,13 +111,9 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
             position.E(positionDefinition.position(a));
             position.PE(boundary.centralImage(position));
             int i = xDataSource.getIndex(position.getX(profileDim));
-            y[i] += value;
+            if (i>=0 && i<y.length) y[i] += value;
         }
-        double dV = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
-        for (int i=0; i<boundary.getBoxSize().getD(); i++) {
-            if (i==profileDim) continue;
-            dV *= boundary.getBoxSize().getX(i);
-        }
+
         data.TE(1.0/dV);
         return data;
     }
@@ -162,7 +158,8 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     public void reset() {
         if (box == null) return;
         
-        double halfBox = 0.5*box.getBoundary().getBoxSize().getX(profileDim);
+        IBoundary boundary = box.getBoundary();
+        double halfBox = 0.5*boundary.getBoxSize().getX(profileDim);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
         
@@ -171,6 +168,12 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
             dataInfo = new DataInfoFunction(meter.getMoleculeDataInfo().getLabel()+" Profile", meter.getMoleculeDataInfo().getDimension(), this);
             dataInfo.addTag(meter.getTag());
             dataInfo.addTag(tag);
+
+            dV = 2*halfBox/data.getLength();
+            for (int i=0; i<boundary.getBoxSize().getD(); i++) {
+                if (i==profileDim) continue;
+                dV *= boundary.getBoxSize().getX(i);
+            }
         }
     }
 
@@ -187,10 +190,10 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
-    private DataSourceUniform xDataSource;
-    private DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    protected IBox box;
+    protected DataSourceUniform xDataSource;
+    protected DataFunction data;
+    protected IEtomicaDataInfo dataInfo;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
@@ -203,5 +206,6 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     protected DataSourceMolecular meter;
     protected final DataTag tag;
     protected ISpecies species;
-    private IAtomPositionDefinition positionDefinition;
+    protected IAtomPositionDefinition positionDefinition;
+    protected double dV;
 }
