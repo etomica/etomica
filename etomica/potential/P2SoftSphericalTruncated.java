@@ -94,7 +94,16 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
      * exceeding the truncation radius.
      */
     public Potential0Lrc makeLrcPotential(IAtomType[] types) {
+        if (!makeLrc) return null;
         return new P0Lrc(space, potential, this, types);
+    }
+    
+    public void setMakeLrc(boolean newMakeLrc) {
+        makeLrc = newMakeLrc;
+    }
+    
+    public boolean getMakeLrc() {
+        return makeLrc;
     }
     
     /**
@@ -174,5 +183,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
+    protected boolean makeLrc;
     protected final Potential2SoftSpherical potential;
 }
