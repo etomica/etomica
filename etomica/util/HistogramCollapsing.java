@@ -40,9 +40,6 @@ public class HistogramCollapsing extends HistogramSimple {
 	}
 	
     public void addValue(double x) {     //takes new value and updates histogram
-        if (x > 0) {
-            throw new RuntimeException("oops");
-        }
         if (sum == 0 && firstValueCount == 0) {
             firstValue = x;
             sum = 1;
