@@ -2,14 +2,14 @@ package etomica.lattice.crystal;
 import etomica.space2d.Vector2D;
 
 /**
- * A 4-atom basis fot an fcc crystal.
+ * A 2D hexagonal 2-atom basis
  *
- * @author David Kofke
+ * @author Andrew Schultz
  */
 public class BasisOrthorhombicHexagonal extends Basis {
     
     /**
-     * Makes a fcc 4-atom basis.
+     * Makes a 2D hexagonal 2-atom basis
      */
     public BasisOrthorhombicHexagonal() {
         super(scaledPositions);
