@@ -110,11 +110,13 @@ public class DataSourceUniform implements IEtomicaDataSource, java.io.Serializab
      */
     public int getIndex(double value) {
     	// Test whether or not the desired value is in the defined range.
-    	if(value < xMin || value > xMax) throw new IllegalArgumentException("Value outside of defined range in DataSourceUniform.getIndex. Value: "+value+" (Min, Max): ("+xMin+", "+xMax+")");
+        if(doEnforceBounds && (value < xMin || value > xMax)) throw new IllegalArgumentException("Value outside of defined range in DataSourceUniform.getIndex. Value: "+value+" (Min, Max): ("+xMin+", "+xMax+")");
     	int i =(int)((value - x[0]) / dx + 0.5);
     	// Comparing to indices; integers are faster.
-    	if(i < 0) return 0;
-    	if(i > x.length-1) return x.length - 1;
+    	if (doEnforceBounds) {
+        	if(i < 0) return 0;
+        	if(i > x.length-1) return x.length - 1;
+    	}
     	return i;
     }
     
@@ -188,7 +190,15 @@ public class DataSourceUniform implements IEtomicaDataSource, java.io.Serializab
     public IData getData() {
         return data;
     }
-            
+
+    public void setDoEnforceBounds(boolean newDoEnforceBounds) {
+        doEnforceBounds = newDoEnforceBounds;
+    }
+
+    public boolean getDoEnforceBounds() {
+        return doEnforceBounds;
+    }
+
     /**
 	 * Typed constant that indicates the way limits of the range are interpreted.
 	 * Choices for the left and right limits may be made independently.<br>
@@ -243,7 +253,8 @@ public class DataSourceUniform implements IEtomicaDataSource, java.io.Serializab
     private DataInfoDoubleArray dataInfo;
     private double dx;
     protected final DataTag tag;
-    
+    protected boolean doEnforceBounds = true;
+
     /**
      * Main method to demonstrate and check class.
      * Should output the values described in the comments for the LimitType class.
