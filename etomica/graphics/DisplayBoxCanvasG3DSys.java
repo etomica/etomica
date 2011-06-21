@@ -68,6 +68,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private final ISpace space;
     protected AtomLeafAgentManager aamOriented;
     protected final AtomTypeAgentManager atomTypeOrientedManager;
+    protected IVector rMin, rMax;
 
     public DisplayBoxCanvasG3DSys(ISimulation sim, DisplayBox _box, ISpace _space, Controller controller) {
         super(controller);
@@ -114,6 +115,15 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public G3DSys getG3DSys() {
 	    return gsys;
 	}
+
+	/**
+	 * Sets the display bounding box.  Atoms outside the box are not draw.  The
+	 * boundary lines are snapped inside the bounding box if they are outside.
+	 */
+    public void setBoundingBox(IVector rMin, IVector rMax) {
+        this.rMin = rMin;
+        this.rMax = rMax;
+    }
 
 	/**
 	 * Sets the size of the display to a new value and scales the image so that
@@ -225,6 +235,16 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		initialOrient = true;
 	}
 
+	/**
+	 * helper method that returns the position r if there are no bounds or
+	 * if r is inside the bounds or (if r is outside the bounds) returns the
+	 * position in the bounds nearest r.
+	 */
+	protected double rBound(double r, int i) {
+	    if (rMin == null) return r;
+        return r < rMin.getX(i) ? rMin.getX(i) : (r > rMax.getX(i) ? rMax.getX(i) : r);
+	}
+
 	public void doPaint(Graphics g) {
 
 		// handle pending bond addition requests
@@ -293,6 +313,15 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			 * wireframe mode as well.
 			 */
 			boolean drawable = atomFilter == null ? true : atomFilter.accept(a);
+			if (drawable && rMin != null) {
+			    for (int i=0; i<rMin.getD(); i++) {
+			        double x = a.getPosition().getX(i);
+			        if (x < rMin.getX(i) || x > rMax.getX(i)) {
+			            drawable = false;
+			            break;
+			        }
+			    }
+			}
 			ball.setDrawable(drawable);
 			if (!drawable) {
 				continue;
@@ -372,12 +401,14 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				polytopeLines = new Line[boundaryLines.length];
 				for (int i = 0; i < boundaryLines.length; i++) {
 					IVector[] vertices = boundaryLines[i].getVertices();
-					polytopeLines[i] = new Line(gsys, G3DSys
-							.getColix(boundaryFrameColor), new Point3f(
-							(float) vertices[0].getX(0), (float) vertices[0].getX(1),
-							(float) vertices[0].getX(2)), new Point3f(
-							(float) vertices[1].getX(0), (float) vertices[1].getX(1),
-							(float) vertices[1].getX(2)));
+                    float v0x = (float)rBound(vertices[0].getX(0), 0);
+                    float v0y = (float)rBound(vertices[0].getX(1), 1);
+                    float v0z = (float)rBound(vertices[0].getX(2), 2);
+                    float v1x = (float)rBound(vertices[1].getX(0), 0);
+                    float v1y = (float)rBound(vertices[1].getX(1), 1);
+					float v1z = (float)rBound(vertices[1].getX(2), 2);
+					polytopeLines[i] = new Line(gsys, G3DSys.getColix(boundaryFrameColor),
+					      new Point3f(v0x, v0y, v0z), new Point3f(v1x, v1y, v1z));
 					if (displayBox.getShowBoundary() == true) {
 						gsys.addFig(polytopeLines[i]);
 					}
@@ -387,10 +418,15 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				LineSegment[] boundaryLines = polytope.getEdges();
 				for (int i = 0; i < boundaryLines.length; i++) {
 					IVector[] vertices = boundaryLines[i].getVertices();
-					polytopeLines[i].setStart((float) vertices[0].getX(0),
-							(float) vertices[0].getX(1), (float) vertices[0].getX(2));
-					polytopeLines[i].setEnd((float) vertices[1].getX(0),
-							(float) vertices[1].getX(1), (float) vertices[1].getX(2));
+
+                    float v0x = (float)rBound(vertices[0].getX(0), 0);
+                    float v0y = (float)rBound(vertices[0].getX(1), 1);
+                    float v0z = (float)rBound(vertices[0].getX(2), 2);
+                    float v1x = (float)rBound(vertices[1].getX(0), 0);
+                    float v1y = (float)rBound(vertices[1].getX(1), 1);
+                    float v1z = (float)rBound(vertices[1].getX(2), 2);
+                    polytopeLines[i].setStart(v0x, v0y, v0z);
+                    polytopeLines[i].setEnd(v1x, v1y, v1z);
 	
 					if (displayBox.getShowBoundary() == false
 							&& boundaryDisplayed == true) {
@@ -714,6 +750,23 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				.getColorScheme().getAtomColor(a))), (float) coords[0],
 				(float) coords[1], (float) coords[2], diameter);
 		gsys.addFig(newBall);
+
+        AtomFilter atomFilter = displayBox.getAtomFilter();
+        if (atomFilter instanceof AtomFilterCollective) {
+            ((AtomFilterCollective)atomFilter).resetFilter();
+        }
+        boolean drawable = atomFilter == null ? true : atomFilter.accept(a);
+        if (drawable && rMin != null) {
+            for (int i=0; i<rMin.getD(); i++) {
+                double x = a.getPosition().getX(i);
+                if (x < rMin.getX(i) || x > rMax.getX(i)) {
+                    drawable = false;
+                    break;
+                }
+            }
+        }
+        newBall.setDrawable(drawable);
+
 		return newBall;
 	}
 
