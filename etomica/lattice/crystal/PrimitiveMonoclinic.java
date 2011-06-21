@@ -64,9 +64,6 @@ public class PrimitiveMonoclinic extends Primitive {
     }
     
     public void setAngleBeta(double t) {
-        if (t < rightAngle || t > Math.PI) {
-            throw new IllegalArgumentException("Beta must be between PI/2 and PI");
-        }
         setAngles(new double[]{rightAngle, t, rightAngle});
     }
     
