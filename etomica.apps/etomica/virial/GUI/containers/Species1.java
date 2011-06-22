@@ -46,11 +46,6 @@ import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.jgoodies.looks.plastic.theme.ExperienceBlue;
-import com.jgoodies.looks.plastic.theme.ExperienceGreen;
-
 import etomica.virial.GUI.components.CreateP22CLJQ;
 import etomica.virial.GUI.components.CreateP2CO22CLJQ;
 import etomica.virial.GUI.components.CreateP2CO2EMP2;
