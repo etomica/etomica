@@ -183,6 +183,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     
     private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
-    protected boolean makeLrc;
+    protected boolean makeLrc = true;
     protected final Potential2SoftSpherical potential;
 }
