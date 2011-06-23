@@ -92,7 +92,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         displayCycles.setLabel("Simulation time");
 
         //temperature selector
-        tempSlider = new DeviceThermoSlider(sim.getController());
+        tempSlider = new DeviceThermoSlider(sim.getController(), sim.integratorMC);
 //        tempSlider.setUnit(Kelvin.UNIT);
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(5);
@@ -100,7 +100,6 @@ public class AdsorptionGraphic extends SimulationGraphic {
         tempSlider.setSliderMajorValues(5);
         tempSlider.setUnit(tUnit);
         tempSlider.setIsothermalButtonsVisibility(false);
-        tempSlider.setIntegrator(sim.integratorMC);
 
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
