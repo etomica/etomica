@@ -37,11 +37,11 @@ public interface Metadata extends Comparable<Metadata> {
   public static String COLOR_1 = "red"; // Color.RED;
   public static String COLOR_2 = "green"; // Color.GREEN;
   public static String COLOR_3 = "darkblue"; // Color.BLUE;
-  public static String COLOR_4 = "fuchsia"; // Color.MAGENTA;
-  public static String COLOR_5 = "darkorange"; // Color.CYAN;
+  public static String COLOR_4 = "darkviolet"; // Color.MAGENTA;
+  public static String COLOR_5 = "royalblue"; // Color.CYAN;
   public static String COLOR_6 = "yellow"; // Color.YELLOW;
-  public static String COLOR_7 = "royalblue"; // Color.ORANGE;
-  public static String COLOR_8 = "darkviolet"; // Color.PINK;
+  public static String COLOR_7 = "darkorange"; // Color.ORANGE;
+  public static String COLOR_8 = "fuchsia"; // Color.PINK;
   public static String COLOR_9 = "slategray"; // Color.LIGHT_GRAY;
   public static String COLOR_10 = "orange"; // Color.ORANGE;
   public static String COLOR_11 = "maroon";
