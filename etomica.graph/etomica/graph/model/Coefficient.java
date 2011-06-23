@@ -10,6 +10,8 @@ public interface Coefficient {
 
   public int getNumerator();
 
+  public double getValue();
+
   public void multiply(Coefficient value);
 
   public void divide(Coefficient value);

@@ -49,6 +49,10 @@ public class CoefficientImpl implements Coefficient {
     return numerator;
   }
 
+  public double getValue() {
+    return ((double)numerator)/denominator;
+  }
+
   public void multiply(Coefficient value) {
 
     numerator = numerator * value.getNumerator();
