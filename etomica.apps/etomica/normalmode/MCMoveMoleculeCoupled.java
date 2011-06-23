@@ -106,9 +106,9 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         energyMeter.setTarget(molecule1);
         uOld += energyMeter.getDataAsScalar();
         
-        doIncludePair = true;
+        doIncludePair = pairPotential != null;
         
-        if (doExcludeNonNeighbors && potential instanceof PotentialMasterListMolecular) {
+        if (doIncludePair && doExcludeNonNeighbors && potential instanceof PotentialMasterListMolecular) {
             doIncludePair = false;
             IMoleculeList[] list0 = ((PotentialMasterListMolecular)potential).getNeighborManager(box).getDownList(molecule0);
             for (int i=0; i<list0.length; i++) {
