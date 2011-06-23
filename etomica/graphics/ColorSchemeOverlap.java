@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -24,6 +25,7 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
         nOverlaps = new int[leafList.getAtomCount()];
         neighborManager = potentialMaster.getNeighborManager(box);
         dr = space.makeVector();
+        boundary = box.getBoundary();
     }
 
     public synchronized void colorAllAtoms() {
@@ -42,7 +44,9 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
             IVector p = atom.getPosition();
             for (int j=0; j<list.getAtomCount(); j++) {
                 IAtom jAtom = list.getAtom(j);
-                double r2 = p.Mv1Squared(jAtom.getPosition());
+                dr.Ev1Mv2(p, jAtom.getPosition());
+                boundary.nearestImage(dr);
+                double r2 = dr.squared();
                 if (r2 < sig2) {
                     // count overlaps for both i and j
                     nOverlaps[i]++;
@@ -61,8 +65,9 @@ public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
     }
 
     private static final long serialVersionUID = 1L;
-    private final NeighborListManager neighborManager;
-    private final IAtomList leafList;
+    protected final NeighborListManager neighborManager;
+    protected final IBoundary boundary;
+    protected final IAtomList leafList;
     protected final IVectorMutable dr;
     protected double sig2;
     protected int[] nOverlaps;
