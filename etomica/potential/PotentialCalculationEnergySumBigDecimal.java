@@ -18,7 +18,7 @@ import etomica.api.IPotentialMolecular;
 public class PotentialCalculationEnergySumBigDecimal extends PotentialCalculationEnergySum {
 
     public PotentialCalculationEnergySumBigDecimal(int precision) {
-        sum = new BigDecimal(0);
+        sum = BigDecimal.ZERO;
         this.precision = precision;
         mc = new MathContext(precision);
     }
