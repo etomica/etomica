@@ -448,10 +448,10 @@ public class DeviceSlider extends Device {
      */    
     public JPanel getPanel() { return panel; }    
      
-     /**
-      * Slider listener, which relays the slider change events to the modifier
-      */
-     private class SliderListener implements ChangeListener, java.io.Serializable {
+    /**
+     * Slider listener, which relays the slider change events to the modifier
+     */
+    private class SliderListener implements ChangeListener, java.io.Serializable {
          public void stateChanged(ChangeEvent evt) {
              double newValue = slider.getDecimalSliderValue();
              if(modifyAction!=null) {
@@ -475,5 +475,5 @@ public class DeviceSlider extends Device {
              String formatString = "%."+slider.getPrecision()+"f";
              textField.setText(new Formatter().format(formatString, newValue).toString());
          }
-     }
+    }
 }
