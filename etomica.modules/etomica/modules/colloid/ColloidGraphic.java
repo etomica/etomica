@@ -1,10 +1,11 @@
 package etomica.modules.colloid;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
 import etomica.api.IVectorMutable;
@@ -149,6 +150,7 @@ public class ColloidGraphic extends SimulationGraphic {
         thermoSlider.setIntegrator(sim.integrator);
         thermoSlider.setMaximum(5);
         thermoSlider.setShowValues(true);
+        thermoSlider.setPrecision(1);
         add(thermoSlider);
         
         DeviceSlider boxSizeSlider = new DeviceSlider(sim.getController());
@@ -156,7 +158,7 @@ public class ColloidGraphic extends SimulationGraphic {
             
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
-                if (newValue < sim.getColloidSigma() + 0.5*simulation.getChainLength()) {
+                if (newValue < sim.getColloidSigma() + 1 || newValue < 12) {
                     throw new IllegalArgumentException("box size too small");
                 }
                 IVectorMutable v = space.makeVector();
@@ -197,8 +199,10 @@ public class ColloidGraphic extends SimulationGraphic {
         boxSizeSlider.setShowBorder(true);
         add(boxSizeSlider);
 
-        JTabbedPane potentialTabs = new JTabbedPane();
-        JPanel monomerPanel = new JPanel(new GridLayout(0,2));
+//        JTabbedPane potentialTabs = new JTabbedPane();
+        JPanel potentialPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+//        JPanel monomerPanel = new JPanel(new GridLayout(0,2));
 //        DeviceBox monomerRangeBox = new DeviceBox();
 //        monomerRangeBox.setController(sim.getController());
 //        monomerRangeBox.setLabel("Wall range");
@@ -225,7 +229,7 @@ public class ColloidGraphic extends SimulationGraphic {
 
         DeviceBox mmEpsilonBox = new DeviceBox();
         mmEpsilonBox.setController(sim.getController());
-        mmEpsilonBox.setLabel("mm epsilon");
+        mmEpsilonBox.setLabel("monomer epsilon");
         mmEpsilonBox.setModifier(new ModifierGeneral(sim.p2mm, "epsilon"));
         mmEpsilonBox.setModifier(new Modifier() {
             
@@ -236,29 +240,25 @@ public class ColloidGraphic extends SimulationGraphic {
             }
             
             public double getValue() { return sim.p2mm.getEpsilon(); }
-            public String getLabel() { return "mm epsilon"; }
+            public String getLabel() { return "monomer epsilon"; }
             public Dimension getDimension() { return Energy.DIMENSION; }
         });
-        monomerPanel.add(mmEpsilonBox.graphic());
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        potentialPanel.add(mmEpsilonBox.graphic(), gbc);
 
-        potentialTabs.add(monomerPanel, "monomer");
+//        potentialPanel.add(monomerPanel, "monomer");
 
-        JPanel colloidPanel = new JPanel(new GridLayout(0,2));
+//        JPanel colloidPanel = new JPanel(new GridLayout(0,2));
 //        DeviceBox colloidRangeBox = new DeviceBox();
 //        colloidRangeBox.setController(sim.getController());
 //        colloidRangeBox.setLabel("Wall range");
 //        colloidRangeBox.setModifier(new WallRangeModifier(sim.p1WallColloid, null));
 //        colloidPanel.add(colloidRangeBox.graphic());
 
-        DeviceBox colloidEpsilonBox = new DeviceBox();
-        colloidEpsilonBox.setController(sim.getController());
-        colloidEpsilonBox.setLabel("Wall epsilon");
-        colloidEpsilonBox.setModifier(new ModifierGeneral(sim.p1WallColloid, "epsilon"));
-        colloidPanel.add(colloidEpsilonBox.graphic());
-
         DeviceBox colloidSigmaBox = new DeviceBox();
         colloidSigmaBox.setController(sim.getController());
-        colloidSigmaBox.setLabel("sigma");
+        colloidSigmaBox.setLabel("colloid sigma");
         colloidSigmaBox.setModifier(new ModifierGeneral(sim, "colloidSigma"));
         colloidSigmaBox.setPostAction(new IAction() {
             public void actionPerformed() {
@@ -266,11 +266,22 @@ public class ColloidGraphic extends SimulationGraphic {
                 getPaintAction(sim.box).actionPerformed();
             }
         });
-        colloidPanel.add(colloidSigmaBox.graphic());
+        gbc.gridx = 1;
+        potentialPanel.add(colloidSigmaBox.graphic(), gbc);
 
-        potentialTabs.add(colloidPanel, "colloid");
+        DeviceBox colloidEpsilonBox = new DeviceBox();
+        colloidEpsilonBox.setController(sim.getController());
+        colloidEpsilonBox.setLabel("colloid-wall epsilon");
+        colloidEpsilonBox.setModifier(new ModifierGeneral(sim.p1WallColloid, "epsilon"));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        potentialPanel.add(colloidEpsilonBox.graphic(), gbc);
+
+
+//        potentialPanel.add(colloidPanel, "colloid");
         
-        getPanel().controlPanel.add(potentialTabs,SimulationPanel.getVertGBC());
+        getPanel().controlPanel.add(potentialPanel,SimulationPanel.getVertGBC());
 
 
         densityProfileMeter = new MeterProfileByVolume(space);
