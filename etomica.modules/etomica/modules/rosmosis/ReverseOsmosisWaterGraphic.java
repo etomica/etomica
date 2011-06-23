@@ -76,8 +76,8 @@ import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.Constants.CompassDirection;
+import etomica.util.HistoryCollapsingAverage;
 
 /**
  * Graphical and data collection bits for reverse osmosis simulation.
@@ -158,7 +158,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         displayCycles.setLabel("Simulation time");
         
         //temperature selector
-        tempSlider = new DeviceThermoSlider(sim.getController());
+        tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         tempSlider.setUnit(Kelvin.UNIT);
 //        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
@@ -166,13 +166,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         tempSlider.setSliderMajorValues(3);
         tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
-        tempSlider.setIntegrator(sim.integrator);
         tempSlider.setSliderPostAction(resetDataAction);
-        tempSlider.addRadioGroupActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                resetDataAction.actionPerformed();
-            }
-        });
+        tempSlider.setRadioGroupPostAction(resetDataAction);
         
         ModifierGeneral modifier = new ModifierGeneral(sim.configMembrane, "solventChamberDensity");
         solventChamberDensitySlider = new DeviceSlider(sim.getController(), modifier);

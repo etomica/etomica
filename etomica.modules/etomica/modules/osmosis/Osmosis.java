@@ -140,18 +140,13 @@ public class Osmosis extends SimulationGraphic {
         // temperature panel
         //
 
-	    temperatureSelect = new DeviceThermoSlider(sim.getController());
+	    temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
 	    temperatureSelect.setUnit(tUnit);
-	    temperatureSelect.setIntegrator(sim.integrator);
 	    temperatureSelect.setMaximum(1000);
 	    temperatureSelect.setTemperature(300);
 	    temperatureSelect.setIsothermal();
 	    temperatureSelect.setSliderPostAction(resetAction);
-	    temperatureSelect.addRadioGroupActionListener(new ActionListener() {
-	        public void actionPerformed(ActionEvent e) {
-	            resetAction.actionPerformed();
-	        }
-	    });
+	    temperatureSelect.setRadioGroupPostAction(resetAction);
 		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
 		DisplayTextBox tBox = new DisplayTextBox();
         DataPump tempPump = new DataPump(thermometer, tBox);

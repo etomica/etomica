@@ -142,14 +142,13 @@ public class MuGraphic extends SimulationGraphic {
         displayCycles.setLabel("Simulation time");
         
         //temperature selector
-        tempSlider = new DeviceThermoSlider(sim.getController());
+        tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         tempSlider.setIsothermalButtonsVisibility(false);
         tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(10.0);
         tempSlider.setSliderMajorValues(4);
         tempSlider.setAdiabatic();
-        tempSlider.setIntegrator(sim.integrator);
 
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
@@ -524,15 +523,8 @@ public class MuGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
 
-	    ActionListener isothermalListener = new ActionListener() {
-	        public void actionPerformed(ActionEvent event) {
-                // we can't tell if we're isothermal here...  :(
-                // if we're adiabatic, we'll re-set the temperature elsewhere
-                resetDataAction.actionPerformed();
-            }
-        };
 		tempSlider.setSliderPostAction(resetDataAction);
-        tempSlider.addRadioGroupActionListener(isothermalListener);
+        tempSlider.setRadioGroupPostAction(resetDataAction);
 
         IAction resetAction = new IAction() {
         	public void actionPerformed() {

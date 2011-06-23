@@ -3,8 +3,6 @@ package etomica.modules.chainequilibrium;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -51,8 +49,8 @@ import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Quantity;
 import etomica.units.UnitRatio;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.Constants.CompassDirection;
+import etomica.util.HistoryCollapsingAverage;
 
 /**
  * Module for chain reaction (polymerization) using ChainEquilibriumSim as the
@@ -222,17 +220,12 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1);
+        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard);
         temperatureSelect.setUnit(Kelvin.UNIT);
-        temperatureSelect.setIntegrator(sim.integratorHard);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();
         temperatureSelect.setSliderPostAction(resetAction);
-        temperatureSelect.addRadioGroupActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                resetAction.actionPerformed();
-            }
-        });
+        temperatureSelect.setRadioGroupPostAction(resetAction);
         
         ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.agentManager);
         colorScheme.setBox(sim.box);

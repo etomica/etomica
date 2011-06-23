@@ -91,17 +91,12 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    meterBPump.actionPerformed();
 
 	    //Slider to adjust temperature
-	    DeviceThermoSlider temperatureSlider = new DeviceThermoSlider(sim.getController());
+	    DeviceThermoSlider temperatureSlider = new DeviceThermoSlider(sim.getController(), sim.integratorDCV);
 		temperatureSlider.setUnit(Kelvin.UNIT);
 		temperatureSlider.setMinimum(0);
 		temperatureSlider.setMaximum(500);
-		temperatureSlider.setIntegrator(sim.integratorDCV);
 	    temperatureSlider.setTemperature(Kelvin.UNIT.fromSim(sim.integratorDCV.getTemperature()));
-        temperatureSlider.addRadioGroupActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                resetAction.actionPerformed();
-            }
-        });
+        temperatureSlider.setRadioGroupPostAction(resetAction);
 
 	    //Mu Slider Stuff
 		Modifier mu1Mod = sim.integratorDCV.new Mu1Modulator(); 

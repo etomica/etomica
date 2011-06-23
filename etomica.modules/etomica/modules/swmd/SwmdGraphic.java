@@ -184,7 +184,7 @@ public class SwmdGraphic extends SimulationGraphic {
         displayCycles.setLabel("Simulation time");
         
         //temperature selector
-        tempSlider = new DeviceThermoSlider(sim.getController());
+        tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         tempSlider.setUnit(Kelvin.UNIT);
 //        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
@@ -192,7 +192,6 @@ public class SwmdGraphic extends SimulationGraphic {
         tempSlider.setSliderMajorValues(3);
         tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
-        tempSlider.setIntegrator(sim.integrator);
 
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
@@ -469,15 +468,8 @@ public class SwmdGraphic extends SimulationGraphic {
 		        vPlot.repaint();
 		    }
 		};
-	    ActionListener isothermalListener = new ActionListener() {
-	        public void actionPerformed(ActionEvent event) {
-                // we can't tell if we're isothermal here...  :(
-                // if we're adiabatic, we'll re-set the temperature elsewhere
-                temperatureAction.actionPerformed();
-            }
-        };
 		tempSlider.setSliderPostAction(temperatureAction);
-        tempSlider.addRadioGroupActionListener(isothermalListener);
+        tempSlider.setRadioGroupPostAction(temperatureAction);
 
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());

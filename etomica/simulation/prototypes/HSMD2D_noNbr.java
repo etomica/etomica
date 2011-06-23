@@ -8,7 +8,6 @@ import etomica.api.IPotentialMaster;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
@@ -132,8 +131,7 @@ public class HSMD2D_noNbr extends Simulation {
 
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(repaintAction));
 
-        DeviceThermoSlider thermo = new DeviceThermoSlider(sim.getController());
-        thermo.setIntegrator(sim.integrator);
+        DeviceThermoSlider thermo = new DeviceThermoSlider(sim.getController(), sim.integrator);
         thermo.setMinimum(0.0);
         thermo.setMaximum(600.0);
         thermo.setSliderMajorValues(3);

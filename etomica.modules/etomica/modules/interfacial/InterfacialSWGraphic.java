@@ -693,7 +693,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
         //temperature selector
-        temperatureSelect = new DeviceThermoSlider(sim.getController());
+        temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
         temperatureSelect.setPrecision(2);
         temperatureSelect.setMinimum(0.0);
         if (space.D() == 3) {
@@ -706,7 +706,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         }
         temperatureSelect.setSliderMajorValues(3);
 	    temperatureSelect.setUnit(tUnit);
-	    temperatureSelect.setIntegrator(sim.integrator);
 	    temperatureSelect.setIsothermalButtonsVisibility(false);
 
         IAction resetAction = new IAction() {

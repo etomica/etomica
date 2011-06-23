@@ -126,10 +126,9 @@ public class SamGraphic extends SimulationGraphic {
         wallTab.add(wallButton.graphic(), SimulationPanel.getVertGBC());
         moreTabs.add(wallTab, "wall");
 
-        DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
+        DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         thermoSlider.setIsothermalButtonsVisibility(false);
         thermoSlider.setUnit(Kelvin.UNIT);
-        thermoSlider.setIntegrator(sim.integrator);
         thermoSlider.setMaximum(500);
         thermoSlider.setSliderPostAction(resetAction);
         JPanel stateTab = new JPanel(new GridBagLayout());

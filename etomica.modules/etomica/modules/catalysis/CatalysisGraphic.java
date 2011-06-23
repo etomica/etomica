@@ -4,8 +4,6 @@ package etomica.modules.catalysis;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -105,13 +103,12 @@ public class CatalysisGraphic extends SimulationGraphic {
         displayVolume.putData(dataV);
 
         //temperature selector
-        tempSlider = new DeviceThermoSlider(sim.getController());
+        tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         tempSlider.setUnit(Kelvin.UNIT);
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(1000);
         tempSlider.setSliderMajorValues(4);
         tempSlider.setUnit(tUnit);
-        tempSlider.setIntegrator(sim.integrator);
 
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
@@ -242,15 +239,8 @@ public class CatalysisGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
 
-	    ActionListener isothermalListener = new ActionListener() {
-	        public void actionPerformed(ActionEvent event) {
-                // we can't tell if we're isothermal here...  :(
-                // if we're adiabatic, we'll re-set the temperature elsewhere
-                resetDataAction.actionPerformed();
-            }
-        };
 		tempSlider.setSliderPostAction(resetDataAction);
-        tempSlider.addRadioGroupActionListener(isothermalListener);
+        tempSlider.setRadioGroupPostAction(resetDataAction);
 
         final IAction resetDisplayDataAction = new IAction() {
             public void actionPerformed() {

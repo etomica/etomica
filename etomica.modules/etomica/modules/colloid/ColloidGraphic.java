@@ -146,8 +146,7 @@ public class ColloidGraphic extends SimulationGraphic {
         sim.getIntegrator().getEventManager().addListener(tempPump);
         add(displayTemperature);
         
-        DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController());
-        thermoSlider.setIntegrator(sim.integrator);
+        DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         thermoSlider.setMaximum(5);
         thermoSlider.setShowValues(true);
         thermoSlider.setPrecision(1);

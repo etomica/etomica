@@ -157,13 +157,12 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         /*
 		 * Temperature Slider
 		 */
-		temperatureSetter = new DeviceThermoSlider(sim.getController());
+		temperatureSetter = new DeviceThermoSlider(sim.getController(), sim.integrator);
 		temperatureSetter.setIsothermalButtonsVisibility(false);
 		temperatureSetter.setPrecision(4);
 		temperatureSetter.setMinimum(0.0);
 		temperatureSetter.setMaximum(1.0);
 		temperatureSetter.setSliderMajorValues(5);
-		temperatureSetter.setIntegrator(sim.integrator);
 		temperatureSetter.setIsothermal();
 		temperatureSetter.setTemperature(sim.temperature);
 		

@@ -3,19 +3,15 @@ package etomica.graphics;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.action.activity.IController;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Unit;
@@ -23,23 +19,27 @@ import etomica.units.Unit;
 
 public class DeviceThermoSlider extends Device {
 
-	private JPanel        temperaturePanel;  // main panel for thermo device PRIVATE
-	private DeviceSlider  temperatureSlider; // Do not make make accessible
-	private JRadioButton  buttonAdiabatic;   // Do not make make accessible
-	private JRadioButton  buttonIsothermal;  // Do not make make accessible
-	protected IntegratorBox    integrator;
+	protected final JPanel        temperaturePanel;  // main panel for thermo device PRIVATE
+	protected final DeviceSlider  temperatureSlider; // Do not make make accessible
+    protected final DeviceButtonGroup thermalButtons;
 
-	private final int DEFAULT_MIN_TEMPERATURE = 0;
-	private final int DEFAULT_MAX_TEMPERATURE = 300;
+	protected static final int DEFAULT_MIN_TEMPERATURE = 0;
+	protected static final int DEFAULT_MAX_TEMPERATURE = 300;
 
-	public DeviceThermoSlider(IController cont) {
-
+	public DeviceThermoSlider(IController cont, final IntegratorBox integrator) {
         //adiabatic/isothermal radio button
-        ButtonGroup thermalGroup = new ButtonGroup();
-        buttonAdiabatic = new JRadioButton("Adiabatic");
-        buttonIsothermal = new JRadioButton("Isothermal");
-        thermalGroup.add(buttonAdiabatic);
-        thermalGroup.add(buttonIsothermal);
+	    thermalButtons = new DeviceButtonGroup(cont, 2);
+	    thermalButtons.addButton("Adiabatic", new IAction() {
+	        public void actionPerformed() {integrator.setIsothermal(false);}
+	    });
+        thermalButtons.addButton("Isothermal", new IAction() {
+            public void actionPerformed() {integrator.setIsothermal(true);}
+        });
+        thermalButtons.setPostAction(new IAction() {
+            public void actionPerformed() {
+                configureSliderAccessibility();
+            }
+        });
 
         //temperature selector
         temperatureSlider = new DeviceSlider(controller);
@@ -54,92 +54,70 @@ public class DeviceThermoSlider extends Device {
 
         setController(cont);
 
-        // Tie the isothermal/adiabatic setting to the selectable status of
-        // temperature slider
-        ToggleButtonListener myListener = new ToggleButtonListener();
-        buttonAdiabatic.setSelected(true);
-        buttonAdiabatic.addActionListener(myListener);
-        buttonIsothermal.addActionListener(myListener);
-
         temperaturePanel = new JPanel(new GridBagLayout());
         temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature", TitledBorder.CENTER, TitledBorder.TOP));
         GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;  gbc1.gridy = 0;
+        temperaturePanel.add(thermalButtons.graphic(), gbc1);
         gbc1.gridx = 0;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(buttonAdiabatic, gbc1);
-        gbc1.gridx = 1;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(buttonIsothermal,gbc1);
-        gbc1.gridx = 0;  gbc1.gridy = 2;
-        gbc1.gridwidth = 2;
         temperaturePanel.add(temperatureSlider.graphic(),gbc1);
+        
+        temperatureSlider.setModifier(new ModifierGeneral(integrator, "temperature"));
+        if (integrator.isIsothermal()) {
+            setIsothermal();
+        }
+        else {
+            setAdiabatic();
+        }
     }
 
 	public void setIsothermalButtonsVisibility(boolean doShowIsothermalButtons) {
-	    buttonIsothermal.setVisible(doShowIsothermalButtons);
-        buttonAdiabatic.setVisible(doShowIsothermalButtons);
+	    thermalButtons.graphic().setVisible(doShowIsothermalButtons);
 	}
 
 	public boolean getIsothermalButtonsVisibility() {
-	    return buttonIsothermal.isVisible();
+	    return thermalButtons.graphic().isVisible();
 	}
-	
+
 	/**
 	 * Set the Isothermal button to its selected state.
 	 */
 	public void setIsothermal() {
-		buttonIsothermal.setSelected(true);
-		radioButtonChangeByClient();
-		configureSliderAccessibility();
+	    thermalButtons.setSelected("Isothermal");
 	}
 
 	/**
 	 * @return State of the isothermal button
 	 */
 	public boolean isIsothermal() {
-		return buttonIsothermal.isSelected();
+		return thermalButtons.isSelected("Isothermal");
 	}
 
 	/**
 	 * Set the Adiabatic button to its selected state.
 	 */
 	public void setAdiabatic() {
-		buttonAdiabatic.setSelected(true);
-		radioButtonChangeByClient();
-		configureSliderAccessibility();
+        thermalButtons.setSelected("Adiabatic");
 	}
 
 	/**
 	 * @return State of the adiabatic button
 	 */
 	public boolean isAdiabatic() {
-		return buttonAdiabatic.isSelected();
-	}
-
-	private void radioButtonChangeByClient() {
-		if(integrator != null) {
-	        controller.doActionNow(integratorBoxIsoChangeSetIso);
-	    }
+        return thermalButtons.isSelected("Adiabatic");
 	}
 
 	/**
-	 * Add the specified listener to the list of listeners that
-	 * will get invoked when the temperature slider  value changes.
-	 * @param listener
+	 * Sets an action to be performed after a isothermal/adiabatic button is
+	 * pressed and the integrator's isothermality has been set.
 	 */
-	public void addTemperatureSliderListener(ChangeListener listener) {
-		temperatureSlider.getSlider().addChangeListener(listener);
-	}
-
-	/**
-	 * Add the specified listener to the list of listeners that
-	 * will get invoked when the isothermal or adiabatic radio button
-	 * is pushed.
-	 * @param listener
-	 */
-	public void addRadioGroupActionListener(ActionListener listener) {
-		buttonAdiabatic.addActionListener(listener);
-		buttonIsothermal.addActionListener(listener);
+	public void setRadioGroupPostAction(final IAction action) {
+	    thermalButtons.setPostAction(new IAction() {
+	        public void actionPerformed() {
+	            configureSliderAccessibility();
+	            action.actionPerformed();
+	        }
+	    });
 	}
 
 	/**
@@ -237,11 +215,7 @@ public class DeviceThermoSlider extends Device {
     public void setController(IController cont) {
     	super.setController(cont);
         temperatureSlider.setController(cont);
-        if (integrator != null) {
-            // invoke setIntegartor again so that the isothermal/adiabatic
-            // listener gets updated
-            setIntegrator(integrator);
-        }
+        thermalButtons.setController(cont);
     }
 
 	/**
@@ -251,60 +225,30 @@ public class DeviceThermoSlider extends Device {
         temperatureSlider.setPostAction(action);
     }
 
-    /**
-     * Sets the integrator for the device.  Adds actions to the device's
-     * controller to inform the integrator when the temperature and
-     * isothermal/adiabatic selection has changed based upon the type
-     * of integrator passed in.
-     * @param i Integrator
-     */
-    public void setIntegrator(IntegratorBox i) {
-    	integrator = i;
-    	temperatureSlider.setModifier(new ModifierGeneral(i, "temperature"));
-
-    	ActionListener actionListen = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-				controller.doActionNow(integratorBoxIsoChangeSetIso);
-            }
-        };
-
-        addRadioGroupActionListener(actionListen);
-        if (i.isIsothermal()) {
-            setIsothermal();
-        }
-        else {
-            setAdiabatic();
-        }
-    }
-
     //
     //main method to test device
     //
     public static void main(String[] args) {
         final String APP_NAME = "Device Thermo Slider";
 
-        DeviceThermoSlider device = new DeviceThermoSlider(new Controller());
-        device.setMinimum(100.0);
-        device.setMaximum(1000.0);
-        device.setTemperature(250.0);
         
         etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
         etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
         final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+
+        DeviceThermoSlider device = new DeviceThermoSlider(new Controller(), new IntegratorVelocityVerlet(null, sim.getRandom(), 1, 1, sp));
+        device.setMinimum(100.0);
+        device.setMaximum(1000.0);
+        device.setTemperature(250.0);
+
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);
 
     }
 
-    private IAction integratorBoxIsoChangeSetIso = new IAction() {
-        public void actionPerformed() {
-            integrator.setIsothermal(isIsothermal());
-        }
-    };
-
     private void configureSliderAccessibility() {
-        if(buttonAdiabatic.isSelected()) {
+        if (isAdiabatic()) {
         	temperatureSlider.getSlider().setEnabled(false);
         	temperatureSlider.getTextField().setEnabled(false);
         }
@@ -313,18 +257,4 @@ public class DeviceThermoSlider extends Device {
         	temperatureSlider.getTextField().setEnabled(true);
         }		
 	}
-
-    /**
-     * Private class that toggles the state of the temperature slider and
-     * temperature text box based on the adiabatic/isothermal button currently
-     * selected.  The slider/text box is selectable under isothermal conditions
-     * and unselectable when adiabatic is selected.
-     *
-     */
-    private class ToggleButtonListener implements ActionListener {
-    	public void actionPerformed(ActionEvent e) {
-    		configureSliderAccessibility();
-        }
-    }
-
 }

@@ -3,8 +3,6 @@ package etomica.modules.rosmosis;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -72,8 +70,8 @@ import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.Constants.CompassDirection;
+import etomica.util.HistoryCollapsingAverage;
 
 /**
  * Graphical and data collection bits for reverse osmosis simulation.
@@ -167,7 +165,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         displayCycles.setLabel("Simulation time");
         
         //temperature selector
-        tempSlider = new DeviceThermoSlider(sim.getController());
+        tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         tempSlider.setUnit(Kelvin.UNIT);
 //        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
@@ -175,13 +173,8 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         tempSlider.setSliderMajorValues(3);
         tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
-        tempSlider.setIntegrator(sim.integrator);
         tempSlider.setSliderPostAction(resetDataAction);
-        tempSlider.addRadioGroupActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                resetDataAction.actionPerformed();
-            }
-        });
+        tempSlider.setRadioGroupPostAction(resetDataAction);
         
         ModifierGeneral modifier = new ModifierGeneral(sim.configMembrane, "solventChamberDensity");
         solventChamberDensitySlider = new DeviceSlider(sim.getController()/*, modifier*/);

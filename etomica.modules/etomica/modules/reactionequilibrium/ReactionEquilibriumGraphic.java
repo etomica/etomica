@@ -1,8 +1,6 @@
 package etomica.modules.reactionequilibrium;
 	
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -83,19 +81,14 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
         config.initializeCoordinates(sim.box);
 
-		temperatureSelect = new DeviceThermoSlider(sim.controller1);
+		temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard1);
         sim.integratorHard1.getEventManager().addListener(new IntegratorListenerAction(this.getPaintAction(sim.box)));
-        temperatureSelect.setIntegrator(sim.integratorHard1);
 		temperatureSelect.setUnit(Kelvin.UNIT);
 		temperatureSelect.setMaximum(2500);
 		temperatureSelect.setTemperature(300); //sets 300K as selected temperature
         temperatureSelect.setIsothermal();
         temperatureSelect.setSliderPostAction(resetAction);
-        temperatureSelect.addRadioGroupActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                resetAction.actionPerformed();
-            }
-        });
+        temperatureSelect.setRadioGroupPostAction(resetAction);
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getLeafType(), java.awt.Color.RED);
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
 

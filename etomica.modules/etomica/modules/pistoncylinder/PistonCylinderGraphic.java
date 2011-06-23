@@ -3,8 +3,6 @@ package etomica.modules.pistoncylinder;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
@@ -271,14 +269,13 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // State tabbed pane page
         //
 
-        tempSlider = new DeviceThermoSlider(pc.getController());
+        tempSlider = new DeviceThermoSlider(pc.getController(), pc.integrator);
         tempSlider.setShowValues(true);
         tempSlider.setEditValues(true);
         tempSlider.setMinimum(0);
         tempSlider.setMaximum(1000);
         tempSlider.setAdiabatic();
         tempSlider.setSliderMajorValues(4);
-        tempSlider.setIntegrator(pc.integrator);
         tempSlider.setTemperature(300);
 
 		//pressure device
@@ -574,11 +571,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         tempSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
         tempSlider.setSliderPostAction(new ActionGroupSeries(new IAction[]{
                 new IntegratorReset(pc.integrator,true), dataResetAction}));
-        tempSlider.addRadioGroupActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                dataResetAction.actionPerformed();
-            }
-        });
+        tempSlider.setRadioGroupPostAction(dataResetAction);
 
         potentialSW = new P2SquareWell(pc.getSpace(),sigma,lambda,epsilon,true);
         potentialHS = new P2HardSphere(pc.getSpace(),sigma,true);

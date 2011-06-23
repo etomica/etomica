@@ -1,14 +1,13 @@
 package etomica.modules.ljmd;
 
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import etomica.action.IAction;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
@@ -20,12 +19,11 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
@@ -34,8 +32,8 @@ import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.data.types.DataTensor;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
@@ -60,9 +58,9 @@ import etomica.units.Null;
 import etomica.units.Time;
 import etomica.units.Unit;
 import etomica.units.systems.LJ;
+import etomica.util.Constants.CompassDirection;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramSimple;
-import etomica.util.Constants.CompassDirection;
 
 public class LjmdGraphic extends SimulationGraphic {
 
@@ -308,14 +306,13 @@ public class LjmdGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
         //temperature selector
-        temperatureSelect = new DeviceThermoSlider(sim.getController());
+        temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
         temperatureSelect.setPrecision(1);
         temperatureSelect.setMinimum(0.0);
         temperatureSelect.setMaximum(3.0);
         temperatureSelect.setSliderMajorValues(3);
 	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setAdiabatic();
-	    temperatureSelect.setIntegrator(sim.integrator);
 
         final IAction temperatureAction = new IAction() {
             public void actionPerformed() {
@@ -326,16 +323,9 @@ public class LjmdGraphic extends SimulationGraphic {
 		        vPlot.repaint();
 		    }
 		};
-		ActionListener isothermalListener = new ActionListener() {
-		    public void actionPerformed(ActionEvent event) {
-		        // we can't tell if we're isothermal here...  :(
-		        // if we're adiabatic, we'll re-set the temperature elsewhere
-		        temperatureAction.actionPerformed();
-		    }
-		};
 
 		temperatureSelect.setSliderPostAction(temperatureAction);
-        temperatureSelect.addRadioGroupActionListener(isothermalListener);
+        temperatureSelect.setRadioGroupPostAction(temperatureAction);
 
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());
