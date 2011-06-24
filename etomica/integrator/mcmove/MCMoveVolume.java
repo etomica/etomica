@@ -81,7 +81,9 @@ public class MCMoveVolume extends MCMoveBoxStep {
     }//end of doTrial
     
     public double getA() {
-        return Math.exp((box.getMoleculeList().getMoleculeCount()+1)*vScale);
+        // N, not N+1 here because of the shell volume
+        // D. S. Corti, Mol. Phys. 100, 1887 (2002).
+        return Math.exp(box.getMoleculeList().getMoleculeCount()*vScale);
     }
     
     public double getB() {
