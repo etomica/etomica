@@ -84,8 +84,7 @@ public class HarmonicCrystalSsFccBigCellNxy {
         int[] nCells = new int[] {1, 1, 1};
       
         pTruncated.setTruncationRadius(rc);
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, pTruncated, sp);
-        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(rho, nCells, primitive, basis, pTruncated, sp);
         harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
         harmonicCrystal.getNormalModes().setFileName(fileName);
         

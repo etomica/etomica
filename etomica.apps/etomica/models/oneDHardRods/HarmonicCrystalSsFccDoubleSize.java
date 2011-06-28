@@ -82,9 +82,8 @@ public class HarmonicCrystalSsFccDoubleSize {
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(sp, potential, rc);
         
         pTruncated.setTruncationRadius(rc);
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, 
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(rho, nCells, primitive, 
                 basis, pTruncated, sp);
-        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
         harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
         harmonicCrystal.getNormalModes().setFileName(fileName);
         

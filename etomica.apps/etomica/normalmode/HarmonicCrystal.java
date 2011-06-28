@@ -30,14 +30,13 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystal {
 
-    public HarmonicCrystal(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, ISpace _space) {
+    public HarmonicCrystal(double rho, int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, ISpace _space) {
         this.potential = potential;
-        this.nCells = (int[])nCells.clone();
+        this.nCells = nCells.clone();
         this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
-//        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
+        setCellDensity(rho/basis.getScaledCoordinates().length);
         normalModes = new NormalModesPotential(nCells, primitive, basis, potential, space);
-       // setMaxLatticeShell(49);
     }
 
     public NormalModesPotential getNormalModes() {
@@ -119,14 +118,15 @@ public class HarmonicCrystal {
         return sumA;
     }
     
-    public void setCellDensity(double newDensity) {
+    /**
+     * This sets the primitive to be the size that will give us the desired
+     * cell density.
+     */
+    private void setCellDensity(double newDensity) {
         double oldVolume = lattice.getPrimitive().unitCell().getVolume();
         double scale = newDensity * oldVolume;
         Primitive primitive = lattice.getPrimitive();
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
-//        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
-//        normalModes = new NormalModesPotential(nCells, primitive, lattice.getBasis(), potential, space);
-//        normalModes.setMaxLatticeShell(maxLatticeShell);
     }
     
     public int getMaxLatticeShell() {
@@ -153,9 +153,8 @@ public class HarmonicCrystal {
         int nC = 2;
         int[] nCells = new int[] {nC, nC, nC};
         
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential, sp);
-        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
-        harmonicCrystal.setMaxLatticeShell(harmonicCrystal.maxLatticeShell);
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(rho, nCells, primitive, basis, potential, sp);
+        harmonicCrystal.setMaxLatticeShell(2);
         
         System.out.println("Density: " + rho);
         System.out.println("Temperature: " + T);
@@ -185,6 +184,4 @@ public class HarmonicCrystal {
     private int maxLatticeShell;
     private Potential2SoftSpherical potential;
     private final ISpace space;
-    private static final long serialVersionUID = 1L;
-    
 }

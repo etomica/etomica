@@ -70,8 +70,7 @@ public class HarmonicCrystalSoftSphereHCP {
         long startTime = System.currentTimeMillis();
         
         pTruncated.setTruncationRadius(rc);
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, pTruncated, sp);
-        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(rho, nCells, primitive, basis, pTruncated, sp);
         harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
         harmonicCrystal.getNormalModes().setFileName(fileName);
         
