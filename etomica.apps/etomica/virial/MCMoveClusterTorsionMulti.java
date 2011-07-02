@@ -67,6 +67,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
+        ((MCMoveStepTracker)getTracker()).setTunable(false);
     }
     
     public void setTemperature(double temperature) {
@@ -300,19 +301,19 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
                 if (k==j || k == j+2) {
                     dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 //                    System.out.println("|dr21| "+Math.sqrt(dr21.squared()));
-                    if (Math.abs(Math.sqrt(dr21.squared())-1.54) > 0.0001) {
-                        throw new RuntimeException("oops dr21 "+Math.sqrt(dr21.squared()));
-                    }
+//                    if (Math.abs(Math.sqrt(dr21.squared())-1.54) > 0.0001) {
+//                        throw new RuntimeException("oops dr21 "+Math.sqrt(dr21.squared()));
+//                    }
                     dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 //                    System.out.println("|dr23| "+Math.sqrt(dr23.squared()));
-                    if (Math.abs(Math.sqrt(dr23.squared())-1.54) > 0.0001) {
-                        throw new RuntimeException("oops dr23 "+Math.sqrt(dr23.squared()));
-                    }
+//                    if (Math.abs(Math.sqrt(dr23.squared())-1.54) > 0.0001) {
+//                        throw new RuntimeException("oops dr23 "+Math.sqrt(dr23.squared()));
+//                    }
                     dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
 //                    System.out.println("|dr34| "+Math.sqrt(dr34.squared()));
-                    if (Math.abs(Math.sqrt(dr34.squared())-1.54) > 0.0001) {
-                        throw new RuntimeException("oops dr34 "+Math.sqrt(dr34.squared()));
-                    }
+//                    if (Math.abs(Math.sqrt(dr34.squared())-1.54) > 0.0001) {
+//                        throw new RuntimeException("oops dr34 "+Math.sqrt(dr34.squared()));
+//                    }
                     
                     dr23Sq = dr23.squared();
                     dr23.TE(1.0/Math.sqrt(dr23Sq));
