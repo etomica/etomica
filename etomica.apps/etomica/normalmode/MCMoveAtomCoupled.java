@@ -94,8 +94,8 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         }
         pair.atom0 = atom0;
         pair.atom1 = atom1;
-        doIncludePair = true;
-        if (doExcludeNonNeighbors && potential instanceof PotentialMasterList) {
+        doIncludePair = pairPotential != null;
+        if (doIncludePair && doExcludeNonNeighbors && potential instanceof PotentialMasterList) {
             doIncludePair = false;
             IAtomList[] list0 = ((PotentialMasterList)potential).getNeighborManager(box).getDownList(atom0);
             for (int i=0; i<list0.length; i++) {
@@ -177,7 +177,9 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
-        pairPotential.setBox(p);
+        if (pairPotential != null) {
+            pairPotential.setBox(p);
+        }
     }
     
     /**
