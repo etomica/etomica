@@ -19,6 +19,11 @@ public class ParseArgs {
         setParameterWrapper(parameterWrapper);
     }
     
+    public static void doParseArgs(ParameterBase parameterWrapper, String[] args) {
+        ParseArgs parser = new ParseArgs(parameterWrapper);
+        parser.parseArgs(args, true);
+    }
+    
     /**
      * Returns the parameter wrapper.
      */
@@ -54,6 +59,7 @@ public class ParseArgs {
     }
     
     public void parseArgs(String[] args, boolean firstArgFile) {
+        if (args.length == 0) return;
         if (firstArgFile) {
             if (new File(args[0]).exists()) {
                 ReadParameters paramReader = new ReadParameters(args[0], wrapper);
@@ -61,7 +67,7 @@ public class ParseArgs {
                 args = (String[])Arrays.removeObject(args, args[0]);
             }
         }
-        if (args.length == 1 && args[0].equals("-help") || args[0].equals("-h")) {
+        if (args.length == 1 && (args[0].equals("-help") || args[0].equals("-h"))) {
             String strOut = "options and defaults: ";
             int len = strOut.length();
             System.out.print(strOut);
