@@ -508,6 +508,9 @@ public class AkimaSplineSmoother {
         return d2fac;
     }
 
+    /**
+     * sets weight given to minimizing the 2nd derivative
+     */
     public void setD2fac(double d2fac) {
         this.d2fac = d2fac;
     }
@@ -516,6 +519,10 @@ public class AkimaSplineSmoother {
         return d2dfac;
     }
 
+    /**
+     * sets weight given to minimizing discontinuities in the 2nd derivative
+     * (at data points)
+     */
     public void setD2dfac(double d2dfac) {
         this.d2dfac = d2dfac;
     }
@@ -524,10 +531,17 @@ public class AkimaSplineSmoother {
         return d3fac;
     }
 
+    /**
+     * sets weight given to minimizing the 3nd derivative
+     */
     public void setD3fac(double d3fac) {
         this.d3fac = d3fac;
     }
 
+    /**
+     * sets weight given to minimizing discontinuities in the 3nd derivative
+     * (at data points)
+     */
     public double getD3dfac() {
         return d3dfac;
     }
