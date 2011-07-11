@@ -1,6 +1,7 @@
 package etomica.virial.GUI.components;
 
 import etomica.potential.P2LJQ;
+import etomica.potential.P2LennardJones;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
@@ -9,10 +10,16 @@ import etomica.virial.GUI.models.ParametersDouble;
 
 public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	
+	private static String MoleculeDisplayName = "LJ with Quad";
 	private ISpace space;
 	private double sigma[];
 	private double epsilon[];
 	private double momentSquare[];
+	
+	private double temperature;
+	private int noOfSteps;
+	private double sigmaHSRef;
+	
 	private int id;
 	private static int numberOfInstances = 0;
 	
@@ -29,10 +36,15 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	private String[][] ComponentValues = {{"1.0","1.0","1.0"}};
 	
 	private String[] SharedComponentValues = null;
+	
 	private String[][] ParamAndValues; 
 	
+	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF"};
+	
+	private String[] SimEnvValues = {"250.0","10000","1.5"};
+	
 	//Potentials references are created as Private members
-	private P2LJQ p2LJQ;
+	private P2LJQ[] p2LJQ;
 	
 	//Constructors for different Instantiations
 	
@@ -42,6 +54,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 		epsilon = new double[PotentialSites.length];
 		momentSquare = new double[PotentialSites.length];
 		ParamAndValues = setParameterValues();
+		p2LJQ = new P2LJQ[PotentialSites.length];
 		id = ++numberOfInstances;
 	}
 	
@@ -70,33 +83,82 @@ private String[][] setParameterValues() {
 				
 			}
 		}
+		
+		int NoOfSimEnvParam = 3;
+		for(int l = 0;l<NoOfSimEnvParam;l++){
+			if(SimEnvParameters[l]=="TEMPERATURE"){
+				setTemperature(Double.parseDouble(SimEnvValues[l]));
+			}
+			
+			if(SimEnvParameters[l]=="STEPS"){
+				setNoOfSteps(Integer.parseInt(SimEnvValues[l]));
+			}
+			
+			if(SimEnvParameters[l]=="SIGMAHSREF"){
+				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
+			}
+		}
 		return ReturnArray;
 	}
 	
-	public String[][] getComponentValues() {
-	return ComponentValues;
-}
-
-public void setComponentValues(String[][] componentValues) {
-	ComponentValues = componentValues;
-}
-
-public String[][] getParamAndValues() {
-	return ParamAndValues;
-}
+	
 
 	public int getId() {
 		return id;
 	}
+	
+	public double getTemperature() {
+		return temperature;
+	}
 
+	public void setTemperature(double temperature) {
+		this.temperature = temperature;
+	}
+
+	public int getNoOfSteps() {
+		return noOfSteps;
+	}
+
+	public void setNoOfSteps(int noOfSteps) {
+		this.noOfSteps = noOfSteps;
+	}
+
+	public double getSigmaHSRef() {
+		return sigmaHSRef;
+	}
+
+	public void setSigmaHSRef(double sigmaHSRef) {
+		this.sigmaHSRef = sigmaHSRef;
+	}
+
+		public String[][] getComponentValues() {
+		return ComponentValues;
+	}
+
+	public void setComponentValues(String[][] componentValues) {
+		ComponentValues = componentValues;
+	}
+
+	public String[][] getParamAndValues() {
+		return ParamAndValues;
+	}
 	//Setter method for LJ atomic potentials
 	public void setP2LJQ(){
-		this.p2LJQ = new P2LJQ(this.space); 
+		for(int i = 0;i<PotentialSites.length;i++){
+			p2LJQ[i]=new P2LJQ(this.space,this.sigma[i],this.epsilon[i],this.momentSquare[i]);
+		}
 	}
 
 	//Getter for p2LJQ
-	public P2LJQ getP2LJQ() {
-		return p2LJQ;
+	public P2LJQ getP2LJQ(String potentialsite) {
+		int index=0;
+		for(int i = 0;i<PotentialSites.length;i++){
+			if(PotentialSites[i]==potentialsite){
+				index = i;
+				break;
+			}
+		}
+		return p2LJQ[index];
 	}
 	
 	 public Object clone(){
@@ -178,6 +240,16 @@ public String[][] getParamAndValues() {
 			}
 			
 		}
+
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			setTemperature(Double.parseDouble(ParameterValue)); 
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			setNoOfSteps(Integer.parseInt(ParameterValue)); 
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
+		}
 		
 	}
 
@@ -195,6 +267,15 @@ public String[][] getParamAndValues() {
 			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQR.toString()+PotentialSites[i])){
 				Description = ParametersDouble.MOMENTSQR.Description();
 			}
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			Description = ParametersDouble.TEMPERATURE.Description();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			Description = ParametersDouble.STEPS.Description();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			Description = ParametersDouble.SIGMAHSREF.Description();
 		}
 		return Description;
 	}
@@ -215,6 +296,16 @@ public String[][] getParamAndValues() {
 			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENTSQR.toString()+PotentialSites[i])){
 				parameterValue = getMomentSquare(i);
 			}
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			parameterValue = getTemperature();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			parameterValue = getSigmaHSRef();
+		}
+		
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			parameterValue = (double) getNoOfSteps();
 		}
 		
 		return parameterValue;
@@ -243,6 +334,12 @@ public String[][] getParamAndValues() {
 		
 		return PotentialSites[index];
 	
+	}
+
+	@Override
+	public String getMoleculeDisplayName() {
+		// TODO Auto-generated method stub
+		return MoleculeDisplayName;
 	}
 
 	

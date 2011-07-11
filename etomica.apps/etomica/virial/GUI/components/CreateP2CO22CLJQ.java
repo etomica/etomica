@@ -14,11 +14,17 @@ import etomica.virial.SpeciesFactoryTangentSpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
 public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
-	
+	private static String MoleculeDisplayName = "CO2 - 2CCLJQ";
 	private ISpace space;
 	private double[] sigma;
 	private double[] epsilon;
 	private double[] moment;
+	
+	private double temperature;
+	private int noOfSteps;
+	private double sigmaHSRef;
+	
+	
 	private double bondLength;
 	
 	
@@ -45,6 +51,12 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	private String[][] ComponentValues = {{"3.0354",Double.toString(Kelvin.UNIT.toSim(125.317)),Double.toString(3.0255*Kelvin.UNIT.toSim(125.317)*Math.pow(3.0354,5))}};
 	
 	private String[] SharedComponentValues = {"2.1347"};
+	
+	
+	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF"};
+	
+	private String[] SimEnvValues = {"250.0","10000","1.5"};
+	
 	
 	//Potentials references are created as Private members
 	private P22CLJQ p22CLJQ;
@@ -95,12 +107,51 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 				setBondLength(Double.parseDouble(SharedComponentValues[k]));
 			}
 		}
+		
+		int NoOfSimEnvParam = 3;
+		for(int l = 0;l<NoOfSimEnvParam;l++){
+			if(SimEnvParameters[l]=="TEMPERATURE"){
+				setTemperature(Double.parseDouble(SimEnvValues[l]));
+			}
+			
+			if(SimEnvParameters[l]=="STEPS"){
+				setNoOfSteps(Integer.parseInt(SimEnvValues[l]));
+			}
+			
+			if(SimEnvParameters[l]=="SIGMAHSREF"){
+				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
+			}
+		}
 		return ReturnArray;
 		
 		
 	}
 	
 	
+	public double getTemperature() {
+		return temperature;
+	}
+
+	public void setTemperature(double temperature) {
+		this.temperature = temperature;
+	}
+
+	public int getNoOfSteps() {
+		return noOfSteps;
+	}
+
+	public void setNoOfSteps(int noOfSteps) {
+		this.noOfSteps = noOfSteps;
+	}
+
+	public double getSigmaHSRef() {
+		return sigmaHSRef;
+	}
+
+	public void setSigmaHSRef(double sigmaHSRef) {
+		this.sigmaHSRef = sigmaHSRef;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -206,6 +257,15 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			setBondLength(Double.parseDouble(ParameterValue)); 
 		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			setTemperature(Double.parseDouble(ParameterValue)); 
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			setNoOfSteps(Integer.parseInt(ParameterValue)); 
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
+		}
 		
 	}
 
@@ -226,6 +286,16 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			Description = ParametersDouble.BONDL.Description();
+		}
+		
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			Description = ParametersDouble.TEMPERATURE.Description();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			Description = ParametersDouble.STEPS.Description();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			Description = ParametersDouble.SIGMAHSREF.Description();
 		}
 		return Description;
 	}
@@ -254,6 +324,16 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			parameterValue = getBondLength();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			parameterValue = getTemperature();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			parameterValue = getSigmaHSRef();
+		}
+		
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			parameterValue = (double) getNoOfSteps();
 		}
 		return parameterValue;
 	}
@@ -288,5 +368,10 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	}
 
 	
-	
+	@Override
+	public String getMoleculeDisplayName() {
+		// TODO Auto-generated method stub
+		return MoleculeDisplayName;
+	}
+
 }

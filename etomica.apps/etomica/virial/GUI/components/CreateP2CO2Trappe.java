@@ -21,7 +21,7 @@ import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
 public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
-	
+	private static String MoleculeDisplayName = "CO2 - Trappe";
 	private ISpace space;
 	private double[] sigma;
 	private double[] epsilon;
@@ -47,10 +47,6 @@ public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
 			{"2.9250",Double.toString(Kelvin.UNIT.toSim(46.1844)),Double.toString(Electron.UNIT.toSim(0.70*(-0.5)*Electron.UNIT.toSim(0.70)))}
 	};
 
-		
-		
-
-			
 
 	private String[] SharedComponentValues = {"1.1491"};
 	
@@ -317,6 +313,11 @@ private String[][] setParameterValues() {
 		return PotentialSites;
 	}
 
-	
+	@Override
+	public String getMoleculeDisplayName() {
+		// TODO Auto-generated method stub
+		return MoleculeDisplayName;
+	}
+
 	
 }

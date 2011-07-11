@@ -13,6 +13,8 @@ public interface ParameterMapping {
 	public String getDescription(String Parameter);
 	
 	public Double getDoubleDefaultParameters(String Parameter);
+	
+	public String getMoleculeDisplayName();
 
 	// Added on April 27, 2011
 	public String[] getParametersArray();

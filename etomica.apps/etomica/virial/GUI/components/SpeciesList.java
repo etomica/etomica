@@ -72,13 +72,16 @@ public class SpeciesList {
 				}
 				
 				else if(SpeciesL[i] instanceof CreateP2CO22CLJQ){
-					DisplayArray.add("2CenteredLJWithQ");
+					DisplayArray.add("CO2-2CenteredLJWithQ");
 				}
 				else if(SpeciesL[i] instanceof CreateP2CO2EMP2){
-					DisplayArray.add("EPM2");
+					DisplayArray.add("CO2-EPM2");
 				}
 				else if(SpeciesL[i] instanceof CreateP2CO2Trappe){
-					DisplayArray.add("TRAPPE");
+					DisplayArray.add("CO2-TRAPPE");
+				}
+				else if(SpeciesL[i] instanceof CreateP2AlkaneTrappe){
+					DisplayArray.add("n-Alkane-TRAPPE");
 				}
 				
 			}

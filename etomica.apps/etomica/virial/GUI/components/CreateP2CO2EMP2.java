@@ -20,7 +20,7 @@ import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
 public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
-	
+	private static String MoleculeDisplayName = "CO2 - EPM";
 	private ISpace space;
 	private double[] sigma;
 	private double[] epsilon;
@@ -311,6 +311,11 @@ private String[][] setParameterValues() {
 		return PotentialSites;
 	}
 
-	
+	@Override
+	public String getMoleculeDisplayName() {
+		// TODO Auto-generated method stub
+		return MoleculeDisplayName;
+	}
+
 	
 }
