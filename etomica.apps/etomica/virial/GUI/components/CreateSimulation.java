@@ -9,20 +9,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
-import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.iterator.ApiIntergroup;
-import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
-import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -30,18 +20,14 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P22CLJQ;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.space3d.Space3D;
 import etomica.units.CompoundDimension;
 import etomica.units.CompoundUnit;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
-import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Mole;
 import etomica.units.Pixel;
@@ -58,16 +44,13 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
-import etomica.virial.SpeciesFactoryTangentSpheres;
-import etomica.virial.GUI.containers.SimulationParameters;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap;
-import etomica.virial.simulations.SimulationVirialOverlapRejected;
 
 public class CreateSimulation {
 	
 	
-	private String CustomName = null;
+	
 	private SimulationEnvironment SimEnv;
 	private Space space;
 	
@@ -387,14 +370,14 @@ public class CreateSimulation {
 	     }
 	     
 	     space = potential[0].getSpace();
-	     ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget1, nPoints>3, eTarget, true);
+	     ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget1, nPoints>3, eTarget1, true);
 	     targetCluster.setTemperature(temperature);
 	     ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
 	     refCluster.setTemperature(temperature);
 	     
 	     System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 	     
-	     final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,potential[0].createSpeciesFactory(), temperature,refCluster,targetCluster);
+	     final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
 	     
 	     sim.integratorOS.setNumSubSteps(1000);
 	     int blocksize = 100;
@@ -501,44 +484,7 @@ public class CreateSimulation {
 	        }
 	        sim.getController().actionPerformed();
 
-	        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-	        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
 	        
-	        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-	        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-	        //System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-	        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(0);
-	        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-	                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-	        System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-	                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-	                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-	        System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-	                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-	                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-
-	        System.out.println("hard sphere autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[0]);
-	        
-	        System.out.println("hard sphere overlap autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[1]);
-	        
-	        System.out.println();
-	        
-	        
-	        allYourBase = (DataGroup)sim.accumulators[1].getData(0);
-	        System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-	                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-	        System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-	                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-	                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-	        System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-	                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-	                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-
-	        System.out.println("lennard jones autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[0]);
-	        
-	        System.out.println("lennard jones overlap autocorrelation function: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.BLOCK_CORRELATION.index)).getData()[1]);
-	    
-	    
 		
 	}
 	public int Factorial(int n)
