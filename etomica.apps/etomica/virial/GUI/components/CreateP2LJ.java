@@ -3,6 +3,7 @@ package etomica.virial.GUI.components;
 
 import etomica.potential.P2LennardJones;
 import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
@@ -11,7 +12,7 @@ import etomica.virial.GUI.models.ParametersDouble;
 public class CreateP2LJ implements ParameterMapping,Cloneable{
 	
 	private static String MoleculeDisplayName = "P2LennardJones";
-	private ISpace space;
+	private Space space;
 	private double sigma[];
 	private double epsilon[];
 	
@@ -35,8 +36,7 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF"};
 	
 	private String[] SimEnvValues = {"0.6","10000","1.5"};
-	//Potentials references are created as Private members
-	private P2LennardJones[] p2LJ;
+	
 	
 
 	//Constructors for different Instantiations
@@ -46,7 +46,7 @@ public class CreateP2LJ implements ParameterMapping,Cloneable{
 		sigma = new double[PotentialSites.length];
 		epsilon = new double[PotentialSites.length];
 		ParamAndValues=setParameterValues();
-		p2LJ = new P2LennardJones[PotentialSites.length];
+		//p2LJ = new P2LennardJones[PotentialSites.length];
 		id=++numberOfInstances;
 	}
 	
@@ -94,24 +94,6 @@ private String[][] setParameterValues() {
 
 	
 
-	//Setter method for LJ atomic potentials
-	public void setP2LJ(){
-		for(int i = 0;i<PotentialSites.length;i++){
-			p2LJ[i]=new P2LennardJones(this.space,this.sigma[i],this.epsilon[i]);
-		}
-	}
-
-	//Getter for p2LJ
-	public P2LennardJones getP2LJ(String potentialsite) {
-		int index=0;
-		for(int i = 0;i<PotentialSites.length;i++){
-			if(PotentialSites[i]==potentialsite){
-				index = i;
-				break;
-			}
-		}
-		return p2LJ[index];
-	}
 	
 	 public Object clone(){
 		 try{
@@ -284,6 +266,19 @@ private String[][] setParameterValues() {
 	public String getMoleculeDisplayName() {
 		// TODO Auto-generated method stub
 		return MoleculeDisplayName;
+	}
+
+	@SuppressWarnings("rawtypes")
+	
+	public Class getPotential() {
+		// TODO Auto-generated method stub
+		return P2LennardJones.class;
+	}
+	
+	@Override
+	public Space getSpace() {
+		// TODO Auto-generated method stub
+		return this.space;
 	}
 
 	

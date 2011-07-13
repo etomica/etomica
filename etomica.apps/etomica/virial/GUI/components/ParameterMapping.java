@@ -1,10 +1,13 @@
 package etomica.virial.GUI.components;
 
+import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.virial.SpeciesFactory;
 
 public interface ParameterMapping {
 	
 	
+	public Space getSpace();
 	
 	public int getParameterCount();
 	
@@ -32,4 +35,7 @@ public interface ParameterMapping {
 	public String[] getPotentialSites();
 	
 	public String getPotentialSiteAtIndex(int index);
+	
+	@SuppressWarnings("rawtypes")
+	public Class getPotential();
 }

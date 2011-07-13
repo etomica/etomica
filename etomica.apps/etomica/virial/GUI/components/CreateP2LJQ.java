@@ -3,6 +3,7 @@ package etomica.virial.GUI.components;
 import etomica.potential.P2LJQ;
 import etomica.potential.P2LennardJones;
 import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
@@ -11,7 +12,7 @@ import etomica.virial.GUI.models.ParametersDouble;
 public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	
 	private static String MoleculeDisplayName = "LJ with Quad";
-	private ISpace space;
+	private Space space;
 	private double sigma[];
 	private double epsilon[];
 	private double momentSquare[];
@@ -43,8 +44,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	
 	private String[] SimEnvValues = {"250.0","10000","1.5"};
 	
-	//Potentials references are created as Private members
-	private P2LJQ[] p2LJQ;
+	
 	
 	//Constructors for different Instantiations
 	
@@ -54,7 +54,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 		epsilon = new double[PotentialSites.length];
 		momentSquare = new double[PotentialSites.length];
 		ParamAndValues = setParameterValues();
-		p2LJQ = new P2LJQ[PotentialSites.length];
+		//p2LJQ = new P2LJQ[PotentialSites.length];
 		id = ++numberOfInstances;
 	}
 	
@@ -142,24 +142,7 @@ private String[][] setParameterValues() {
 	public String[][] getParamAndValues() {
 		return ParamAndValues;
 	}
-	//Setter method for LJ atomic potentials
-	public void setP2LJQ(){
-		for(int i = 0;i<PotentialSites.length;i++){
-			p2LJQ[i]=new P2LJQ(this.space,this.sigma[i],this.epsilon[i],this.momentSquare[i]);
-		}
-	}
-
-	//Getter for p2LJQ
-	public P2LJQ getP2LJQ(String potentialsite) {
-		int index=0;
-		for(int i = 0;i<PotentialSites.length;i++){
-			if(PotentialSites[i]==potentialsite){
-				index = i;
-				break;
-			}
-		}
-		return p2LJQ[index];
-	}
+	
 	
 	 public Object clone(){
 		 try{
@@ -340,6 +323,19 @@ private String[][] setParameterValues() {
 	public String getMoleculeDisplayName() {
 		// TODO Auto-generated method stub
 		return MoleculeDisplayName;
+	}
+
+	@SuppressWarnings("rawtypes")
+
+	public Class getPotential() {
+		// TODO Auto-generated method stub
+		return P2LJQ.class;
+	}
+
+	@Override
+	public Space getSpace() {
+		// TODO Auto-generated method stub
+		return this.space;
 	}
 
 	

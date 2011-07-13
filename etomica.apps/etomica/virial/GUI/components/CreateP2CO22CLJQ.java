@@ -5,6 +5,7 @@ import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
 
 import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 import etomica.units.Kelvin;
@@ -15,7 +16,7 @@ import etomica.virial.GUI.models.ParametersDouble;
 
 public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	private static String MoleculeDisplayName = "CO2 - 2CCLJQ";
-	private ISpace space;
+	private Space space;
 	private double[] sigma;
 	private double[] epsilon;
 	private double[] moment;
@@ -33,7 +34,9 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	private int SpeciesID;
 	
 	private String[] PotentialSites = {"CO2"};
-
+	
+	
+	
 	public String getPotentialSiteAtIndex(int index) {
 		return PotentialSites[index];
 	}
@@ -55,11 +58,10 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	
 	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF"};
 	
-	private String[] SimEnvValues = {"250.0","10000","1.5"};
+	private String[] SimEnvValues = {"250.0","10000",Double.toString(1.5*3.0354)};
 	
 	
-	//Potentials references are created as Private members
-	private P22CLJQ p22CLJQ;
+	
 	
 	//Constructors for different Instantiations
 	
@@ -167,16 +169,6 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 		   }
 	 }
 
-	//Sets the LJ Molecular Potential
-	public void setP22CLJQ(){
-		this.p22CLJQ = new P22CLJQ(this.space);
-		
-	}
-	
-	//Gets the LJ Molecular Potential
-	public P22CLJQ getP22CLJQ(){
-		return this.p22CLJQ;
-	}
 	
 	public int getSpeciesID() {
 		return SpeciesID;
@@ -373,5 +365,19 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 		// TODO Auto-generated method stub
 		return MoleculeDisplayName;
 	}
+
+	@SuppressWarnings("rawtypes")
+	
+	public Class getPotential() {
+		// TODO Auto-generated method stub
+		return P22CLJQ.class;
+	}
+	
+	@Override
+	public Space getSpace() {
+		// TODO Auto-generated method stub
+		return this.space;
+	}
+
 
 }
