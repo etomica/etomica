@@ -1,5 +1,9 @@
 package etomica.virial.GUI.models;
 
+import java.util.EventObject;
+
+import javax.swing.CellEditor;
+import javax.swing.event.CellEditorListener;
 import javax.swing.table.AbstractTableModel;
 
 
@@ -7,7 +11,7 @@ import etomica.virial.GUI.components.CreateP22CLJQ;
 import etomica.virial.GUI.components.CreateP2LJ;
 import etomica.virial.GUI.components.CreateP2LJQ;
 
-public class ParametersTableModel extends AbstractTableModel {
+public class ParametersTableModel extends AbstractTableModel  {
 
 	/**
 	 * 
@@ -31,10 +35,10 @@ public class ParametersTableModel extends AbstractTableModel {
 	public boolean isCellEditable(int row, int col) {
         //Note that the data/cell address is constant,
         //no matter where the cell appears onscreen.
-        if (col == 0) {
-            return false;
-        } else {
+        if (col == 1) {
             return true;
+        } else {
+            return false;
         }
 		
     }
@@ -81,4 +85,8 @@ public class ParametersTableModel extends AbstractTableModel {
 		//ljt.UpdateObjectData(p2LJ.getParametersArray());
 		//System.out.println(ljt.getData1());
 	}
+
+	
+
+	
 }

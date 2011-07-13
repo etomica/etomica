@@ -20,30 +20,43 @@ public enum ParametersDouble {
 	 * 
 	 * 
 	 */
-	SIGMA(new Double[]{1.0, 3.0354,1.0, 2.0, 3.0}, "Potential Well-Depth"),
+	SIGMA(0.0,"Potential Well-Depth"),
 	
-	EPSILON(new Double[]{1.0,(Kelvin.UNIT.toSim(125.317)),1.0, 2.0, 3.0}, "Distance at which Interatomic potential between particles is zero"),
+	EPSILON(0.0, "Distance at which Interatomic potential between particles is zero"),
 	
-	MOMENT(new Double[]{1.0,(3.0255*Kelvin.UNIT.toSim(125.317)*Math.pow(3.0354,5)),1.0,2.0,3.0}, "Moment"),
+	MOMENT(0.0, "Moment"),
 	
-	BONDL(new Double[]{1.0,(0.699*3.0354),1.149,0.0,0.0}, "Bond Length"),
+	BONDL(0.0, "Bond Length"),
 	
-	MOMENTSQR(new Double[]{1.0,0.0},"Moment square"),
+	MOMENTSQR(0.0,"Moment square"),
 	
-	CHARGE(new Double[]{1.0,3.0354,1.0,(-0.5*1.0),0.0},"Quadrapole Charge");
+	CHARGE(0.0,"Quadrapole Charge"),
 	
+	NominalbondL(0.0,"Fixed bond length between neighboring pseudo-atoms"),
+	
+	theta(0.0,"Equilibrium bond angle"),
+	
+	forceconstant(0.0,"Force Constant(k0/kB)"),
+	
+	TEMPERATURE(0.0,"Temperature of Simulation"),
+	
+	STEPS(0.0,"No of Steps"),
+	
+	SIGMAHSREF(0.0,"Hard Sphere Reference"),
+	
+	NUMBER(0.0,"No of Spheres");
 	
 
-	private Double[] DefaultValues;
+	private Double DefaultValues;
 	private String Description;
 	
-	ParametersDouble(Double[] Value, String description){
+	ParametersDouble(Double Value, String description){
 		this.DefaultValues = Value;
 		this.Description = description;
 	}
 	
-	public Double DefaultValue(int i){
-		return DefaultValues[i];
+	public Double DefaultValue(){
+		return DefaultValues;
 	}
 	
 	public String Description(){
