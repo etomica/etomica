@@ -1,6 +1,7 @@
 package etomica.graph.property;
 
 import etomica.graph.model.Graph;
+import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
 
 public class FieldNodeCountMax implements Property {
@@ -14,7 +15,7 @@ public class FieldNodeCountMax implements Property {
   public boolean check(Graph graph) {
     int fieldCount = 0;
     for (Node node : graph.nodes()) {
-      if (node.getType() == 'F') {
+      if (node.getType() == Metadata.TYPE_NODE_FIELD) {
         fieldCount++;
       }
     }
