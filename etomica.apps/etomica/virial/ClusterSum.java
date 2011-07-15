@@ -1,13 +1,16 @@
 package etomica.virial;
 
 import etomica.util.Arrays;
-import etomica.util.Debug;
 
 
 public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 
     /**
-     * Constructor for ClusterSum.
+     * Constructor for ClusterSum.  This class assumes that bonds defined in
+     * subclusters with function indices that exceed the number of Mayer
+     * functions are e-bonds.  With n Mayer functions, i=0..n-1 correspond
+     * to the given Mayer functions (f), while i=n..2n-1 correspond to 
+     * e=f+1, where f is the (i-n)th Mayer function.
      */
     public ClusterSum(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
@@ -19,9 +22,8 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
             if(clusters[i].pointCount() != pointCount) throw new IllegalArgumentException("Attempt to construct ClusterSum with clusters having differing numbers of points");
         }
         f = fArray;
-        fValues = new double[pointCount][pointCount][fArray.length];
         fOld = new double[pointCount][fArray.length];
-        
+        int maxF = 0;
         if (!clusters[0].isUsePermutations()) {
             // determine which fbonds are actually needed by the diagrams
             fullBondIndexArray = new int[pointCount-1][pointCount][0];
@@ -41,6 +43,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                             }
                         }
                         if (newF) {
+                            if (kf > maxF) maxF = kf;
                             fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
                             fullBondIndexArray[i][j][ff.length] = kf;
                         }
@@ -59,7 +62,17 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                     }
                 }
             }
+            for (int c=0; c<clusters.length; c++) {
+                int[][] bondIndexArray = clusters[c].getBondIndexArray();
+                for (int i=0; i<pointCount-1; i++) {
+                    for (int j=i+1; j<pointCount; j++) {
+                        int kf = bondIndexArray[i][j];
+                        if (kf > maxF) maxF = kf;
+                    }
+                }
+            }
         }
+        fValues = new double[pointCount][pointCount][maxF+1];
     }
 
     // equal point count enforced in constructor 
@@ -113,6 +126,15 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         for(int i=0; i<clusters.length; i++) {
             double v = clusters[i].value(fValues);
             value += clusterWeights[i] * v;
+            // enable this to debug bogus values
+            if (false && Double.isNaN(value) || Double.isInfinite(value)) {
+                for (int j=0; j<fValues.length; j++) {
+                    for (int k=0; k<fValues.length; k++) {
+                        System.out.println(j+" "+k+" "+Arrays.toString(fValues[j][k]));
+                    }
+                }
+                throw new RuntimeException(value+" "+v);
+            }
         }
     }
 
@@ -146,28 +168,19 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                 int[] fij = fullBondIndexArray[i][j];
                 for(int k=0; k<fij.length; k++) {
                     int fk = fij[k];
-                    fValues[i][j][fk] = f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                    if (fk < f.length) {
+                        // we want the real fBond
+                        fValues[i][j][fk] = f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                    }
+                    else {
+                        // we want an eBond
+                        fValues[i][j][fk] = fValues[i][j][fk-f.length]+1;
+                    }
+//                    if (Double.isNaN(fValues[i][j][fk]) || Double.isInfinite(fValues[i][j][fk])) {
+//                        f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+//                        throw new RuntimeException("oops");
+//                    }
                     fValues[j][i][fk] = fValues[i][j][fk];
-                }
-            }
-        }
-    }
-    
-    private void checkF(BoxCluster box) {
-        CoordinatePairSet cPairs = box.getCPairSet();
-        AtomPairSet aPairs = box.getAPairSet();
-        int nPoints = pointCount();
-        for(int i=0; i<nPoints-1; i++) {
-            for(int j=i+1; j<nPoints; j++) {
-                int[] fij = fullBondIndexArray[i][j];
-                for(int k=0; k<fij.length; k++) {
-                    int fk = fij[k];
-                    if (fValues[i][j][fk] != f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)) {
-                        throw new RuntimeException("oops2 "+i+" "+j+" "+fk+" "+f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta));
-                    }
-                    if (fValues[j][i][fk] != fValues[i][j][fk]) {
-                        throw new RuntimeException("oops3 "+i+" "+j+" "+fk+" "+fValues[j][i][fk]+" "+fValues[i][j][fk]);
-                    }
                 }
             }
         }
