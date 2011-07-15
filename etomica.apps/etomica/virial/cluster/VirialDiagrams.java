@@ -77,7 +77,6 @@ import etomica.util.Arrays;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterBondsNonAdditive;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumFE;
 import etomica.virial.ClusterSumMultibody;
 import etomica.virial.ClusterSumShell;
 import etomica.virial.MayerFunction;
