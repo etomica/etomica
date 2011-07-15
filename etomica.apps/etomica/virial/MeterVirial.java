@@ -35,7 +35,7 @@ public class MeterVirial implements IEtomicaDataSource, java.io.Serializable {
     
     public IData getData() {
         double pi = box.getSampleCluster().value(box);
-        if (pi == 0 || pi == Double.POSITIVE_INFINITY || Double.isNaN(pi)) throw new RuntimeException("oops "+i+" "+clusters[i].value(box)+" "+x[i]+" "+pi);
+        if (pi == 0 || pi == Double.POSITIVE_INFINITY || Double.isNaN(pi)) throw new RuntimeException("oops "+pi);
         double x[] = data.getData();
         for (int i=0; i<clusters.length; i++) {
             x[i] = clusters[i].value(box)/pi;
