@@ -31,6 +31,9 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
+import etomica.graph.operations.DeleteEdge;
+import etomica.graph.operations.DeleteEdgeParameters;
+import etomica.graph.property.IsBiconnected;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -74,9 +77,9 @@ import etomica.virial.ClusterSumMultibody;
 import etomica.virial.ClusterSumShell;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
+import etomica.virial.CoordinatePairSet;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRingRegrow;
-import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerFunctionNonAdditive;
@@ -181,7 +184,6 @@ public class VirialHePI {
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         final Potential2SoftSpherical p2 = new P2HePCKLJS(space);
 
         
@@ -239,11 +241,15 @@ public class VirialHePI {
         boolean doFlex = nPoints > 2 && pairOnly;
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
-        ClusterAbstract targetCluster = flexDiagrams.makeVirialCluster(fTarget, null, pairOnly ? null : f3Target);
+        flexDiagrams.setDoMinimalBC(true);
+        flexDiagrams.setDoReeHoover(true);
+        flexDiagrams.setDoShortcut(true);
+        ClusterAbstract targetCluster = flexDiagrams.makeVirialCluster(fTarget, pairOnly ? null : f3Target);
 
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
-        rigidDiagrams.setDoReeHoover(false);
-        ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef, eRef);
+        rigidDiagrams.setDoReeHoover(true);
+        rigidDiagrams.setDoShortcut(true);
+        ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
         final ClusterSum[] targetSubtract = new ClusterSum[subtractHalf ? beadFac : 1];
         final ClusterSum fullTargetCluster;
 
@@ -266,8 +272,7 @@ public class VirialHePI {
 
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
             
-            ClusterSumShell[] targetDiagramsPlus = new ClusterSumShell[0];
-            targetDiagramsPlus = flexDiagrams.makeSingleVirialClusters(fullTargetCluster, null, fTarget);
+            ClusterSumShell[] targetDiagramsPlus = flexDiagrams.makeSingleVirialClusters(fullTargetCluster, null, fTarget);
             ClusterSumShell[][] targetDiagramsMinus = new ClusterSumShell[targetDiagramsPlus.length][0];
             for (int j=0; j<targetDiagramsMinus.length; j++) {
                 targetDiagramsMinus[j] = new ClusterSumShell[targetSubtract.length];
@@ -290,19 +295,31 @@ public class VirialHePI {
                 targetDiagrams = flexDiagrams.makeSingleVirialClusters((ClusterSum)targetCluster, null, fTarget);
             }
         }
+        IsBiconnected isBi = new IsBiconnected();
         if (pairOnly) {
             targetDiagramNumbers = new int[targetDiagrams.length];
             System.out.println("individual clusters:");
-            Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, !pairOnly);
+            Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, false);
             Map<Graph,Graph> cancelMap = flexDiagrams.getCancelMap();
             int iGraph = 0;
+            DeleteEdge edgeDeleter = new DeleteEdge();
+            DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.eBond);
             for (Graph g : singleGraphs) {
                 if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mBond)) continue;
-                System.out.print(" ("+g.coefficient()+") "+g.getStore().toNumberString());
-                targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+                if (g.nodeCount() > 3 && isBi.check(g)) {
+                    if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) continue;
+                    System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"bc");
+                    targetDiagramNumbers[iGraph] = -g.nodeCount();
+                }
+                else {
+                    Graph gf = edgeDeleter.apply(g, ed);
+                    System.out.print(" ("+g.coefficient()+") "+gf.getStore().toNumberString());
+                    targetDiagramNumbers[iGraph] = Integer.parseInt(gf.getStore().toNumberString());
+                }
                 Graph cancelGraph = cancelMap.get(g);
                 if (cancelGraph != null) {
-                    System.out.print(" - "+cancelGraph.getStore().toNumberString());
+                    Graph gf = edgeDeleter.apply(cancelGraph, ed);
+                    System.out.print(" - "+gf.getStore().toNumberString());
                 }
                 System.out.println();
                 iGraph++;
@@ -318,7 +335,10 @@ public class VirialHePI {
                     System.out.print(g.coefficient()+" ");
                     for (Graph gs : gSplit) {
                         if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.MBond)) {
-                            System.out.print(" "+gs.nodeCount()+"b");
+                            System.out.print(" "+gs.nodeCount()+"m");
+                        }
+                        else if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
+                            System.out.print(" "+gs.nodeCount()+"bc");
                         }
                         else {
                             System.out.print(" "+gs.getStore().toNumberString());
@@ -354,6 +374,7 @@ public class VirialHePI {
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
+
 
         // we'll use substeps=1000 initially (to allow for better initialization)
         // and then later switch to 1000 overlap steps
@@ -578,20 +599,23 @@ public class VirialHePI {
 
         
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
+        final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IIntegratorListener histListener = new IIntegratorListener() {
             public void integratorStepStarted(IIntegratorEvent e) {}
             
             public void integratorStepFinished(IIntegratorEvent e) {
-                double v = finalTargetCluster.value(sim.box[0]);
-                double r = Math.sqrt(sim.box[0].getCPairSet().getr2(0, 1));
-                hist.addValue(r, v);
-                if (nPoints > 2) {
-                    r = Math.sqrt(sim.box[0].getCPairSet().getr2(0, 2));
-                    hist.addValue(r, v);
-                    r = Math.sqrt(sim.box[0].getCPairSet().getr2(1, 2));
-                    hist.addValue(r, v);
+                double r2Max = 0;
+                CoordinatePairSet cPairs = sim.box[0].getCPairSet();
+                for (int i=0; i<nPoints; i++) {
+                    for (int j=i+1; j<nPoints; j++) {
+                        double r2ij = cPairs.getr2(i, j);
+                        if (r2ij > r2Max) r2Max = r2ij;
+                    }
                 }
+                double v = finalTargetCluster.value(sim.box[0]);
+                hist.addValue(Math.sqrt(r2Max), v);
+                piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
             
             public void integratorInitialized(IIntegratorEvent e) {
@@ -624,9 +648,10 @@ public class VirialHePI {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
+                        double[] piH = piHist.getHistogram();
                         for (int i=0; i<xValues.length; i++) {
                             if (!Double.isNaN(h[i])) {
-                                System.out.println(xValues[i]+" "+h[i]);
+                                System.out.println(xValues[i]+" "+h[i]+" "+piH[i]);
                             }
                         }
                     }
@@ -668,7 +693,12 @@ public class VirialHePI {
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);
         for (int i=0; i<targetDiagrams.length; i++) {
-            System.out.print("diagram "+targetDiagramNumbers[i]+" ");
+            if (targetDiagramNumbers[i]<0) {
+                System.out.print("diagram "+(-targetDiagramNumbers[i])+"bc ");
+            }
+            else {
+                System.out.print("diagram "+targetDiagramNumbers[i]+" ");
+            }
             // average is vi/|v| average, error is the uncertainty on that average
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
             double ivar = dataCov.getValue((i+1)*nTotal+(i+1));
