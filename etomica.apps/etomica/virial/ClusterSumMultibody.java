@@ -132,7 +132,14 @@ public class ClusterSumMultibody extends ClusterSum {
                 int[] fij = fullBondIndexArray[i][j];
                 for(int k=0; k<fij.length; k++) {
                     int fk = fij[k];
-                    fValues[i][j][fk] = f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                    if (fk < f.length) {
+                        // we want the real fBond
+                        fValues[i][j][fk] = f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                    }
+                    else {
+                        // we want an eBond
+                        fValues[i][j][fk] = fValues[i][j][fk-f.length]+1;
+                    }
                     fValues[j][i][fk] = fValues[i][j][fk];
                 }
             }
