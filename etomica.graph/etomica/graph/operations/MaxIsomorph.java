@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import etomica.graph.model.Graph;
+import etomica.graph.property.Property;
 
 /**
  * Returns a set of graphs with each one corresponding to a graph in the
@@ -17,10 +18,10 @@ import etomica.graph.model.Graph;
 public class MaxIsomorph implements Unary {
 
   public Set<Graph> apply(Set<Graph> argument, Parameters params) {
-    assert (params == null);
+    assert (params == null || params instanceof MaxIsomorphParameters);
     Set<Graph> result = new HashSet<Graph>();
     for (Graph g : argument) {
-      Graph newGraph = apply(g);
+      Graph newGraph = apply(g, (MaxIsomorphParameters)params);
       if (newGraph != null) {
         result.add(newGraph);
       }
@@ -28,9 +29,12 @@ public class MaxIsomorph implements Unary {
     return result;
   }
 
-  public Graph apply(Graph g) {
-    Graph result = g.copy();
+  public Graph apply(Graph g, MaxIsomorphParameters params) {
+    Graph result = params.prop.check(g) ? g.copy() : null;
     if (g.nodeCount() < 2) {
+      if (result == null) {
+        throw new RuntimeException("no happy graph for "+g);
+      }
       return result;
     }
     byte nodeCount = g.nodeCount();
@@ -96,12 +100,33 @@ public class MaxIsomorph implements Unary {
         }
       }
       if (!success) {
+        if (result == null) {
+          throw new RuntimeException("no happy graph for "+g);
+        }
         return result;
       }
       Graph pg = relabel.apply(g, rp);
-      if (pg.compareTo(result) > 0) {
+      if (params.prop.check(pg) && (result == null || pg.compareTo(result) > 0)) {
         result = pg;
       }
     }
   }
+  
+  /**
+   * Parameters class for MaxIsomorph which defines a graph property to select
+   * for.  The maximum isomorph with this property will be returned.
+   */
+  public static class MaxIsomorphParameters implements Parameters {
+    public final Property prop;
+    public MaxIsomorphParameters(Property prop) {
+      this.prop = prop;
+    }
+  }
+
+  /**
+   * Parameters instance which does not filter out any graph property.
+   */
+  public static final MaxIsomorphParameters PARAM_ALL = new MaxIsomorphParameters(new Property() {
+    public boolean check(Graph graph) {return true;}
+  });
 }
