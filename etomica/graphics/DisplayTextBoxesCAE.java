@@ -102,9 +102,14 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
      * values from the accumulator.
      */
     public void setAccumulator(AccumulatorAverage accumulatorAverage) {
+        if (this.accumulatorAverage != null) {
+            this.accumulatorAverage.removeDataSink(this);
+        }
         this.accumulatorAverage = accumulatorAverage;
-        accumulatorAverage.addDataSink(this,new AccumulatorAverage.StatType[] {
-                AccumulatorAverage.MOST_RECENT, AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR});
+        if (accumulatorAverage != null) {
+            accumulatorAverage.addDataSink(this,new AccumulatorAverage.StatType[] {
+                    accumulatorAverage.MOST_RECENT, accumulatorAverage.AVERAGE, accumulatorAverage.ERROR});
+        }
     }
 
     /**
