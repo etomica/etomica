@@ -25,7 +25,7 @@ public class IntegratorHybrid extends IntegratorBox {
 	
 	protected final IntegratorMC integratorMC;
 	protected final IntegratorMD integratorMD;
-	private MyMCMove mcMoveID;
+	private MyMCMove mcMoveIDA, mcMoveIDB;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
     
@@ -43,8 +43,9 @@ public class IntegratorHybrid extends IntegratorBox {
 	    super.setBox(box);
 	}
 	
-	public void setMCMoveInsertDelete(MyMCMove mcMoveID) {
-	    this.mcMoveID = mcMoveID;
+	public void setMCMoveInsertDelete(MyMCMove mcMoveIDA, MyMCMove mcMoveIDB) {
+	    this.mcMoveIDA = mcMoveIDA;
+        this.mcMoveIDB = mcMoveIDB;
 	}
     
     public void setMDStepRepetitions(int interval) {
@@ -78,7 +79,8 @@ public class IntegratorHybrid extends IntegratorBox {
         }
 		if(MDStepCount == 0){
 		    MDStepCount = MDStepRepetitions;
-			mcMoveID.setupActiveAtoms();
+            mcMoveIDA.setupActiveAtoms();
+			mcMoveIDB.setupActiveAtoms();
 			for(int i=0; i<20; i++) {
                 integratorMC.doStep();
             }

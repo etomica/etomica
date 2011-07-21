@@ -3,7 +3,6 @@ package etomica.modules.adsorption;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
@@ -25,7 +24,6 @@ public class MyMCMove extends MCMoveInsertDelete {
     private double zFraction, sigma;
     private IVectorMutable position;
     private final MoleculeArrayList activeAtoms;
-    private IMoleculeList moleculeList;
     private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorBox integrator;
     protected int testMoleculeIndex;
@@ -51,9 +49,6 @@ public class MyMCMove extends MCMoveInsertDelete {
     public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
-        if (species != null) {
-            moleculeList = box.getMoleculeList(species);
-        }
     }
     
 	/**
@@ -137,6 +132,7 @@ public class MyMCMove extends MCMoveInsertDelete {
         int nMolecules = moleculeList.getMoleculeCount();
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = moleculeList.getMolecule(i);
+            if (molecule.getType() != species) continue;
 
     		double z = molecule.getChildList().getAtom(0).getPosition().getX(dim);
     		if (bothSides) {
