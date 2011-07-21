@@ -19,7 +19,6 @@ import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
-import etomica.data.IDataSink;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -51,13 +50,9 @@ public class AdsorptionGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Adsorption";
     private final static int REPAINT_INTERVAL = 1;
-    protected DeviceThermoSlider tempSlider;
+    protected final DeviceThermoSlider tempSlider;
     protected final MeterProfileByVolumeAdsorption densityProfileMeterA, densityProfileMeterB;
-    protected Adsorption sim;
-
-    protected final DataPumpListener pumpNominalDensityB;
-    protected IDataSink profileSinkB, adsorbedSinkB;
-    protected final DeviceSlider pSliderB, epsSliderB;
+    protected final Adsorption sim;
 
     public AdsorptionGraphic(final Adsorption simulation, ISpace _space) {
 
@@ -249,40 +244,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         tabs.add(tabB, "B");
         final JPanel tabBB = new JPanel(new GridBagLayout());
 
-        final DeviceButton mixButton = new DeviceButton(sim.getController());
-        mixButton.setLabel("Add Component B");
-        mixButton.setAction(new IAction() {
-            public void actionPerformed() {
-                if (!pSliderB.isEnabled()) {
-                    pSliderB.setEnabled(true);
-                    epsSliderB.setEnabled(true);
-                    sim.integratorHybrid.getEventManager().addListener(pumpNominalDensityB);
-                    sim.integratorHybrid.getEventManager().addListener(profilePumpB);
-                    sim.integratorHybrid.getEventManager().addListener(countPumpB);
-                    sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveIDB);
-                    displayCountB.setAccumulator(countAvgB);
-
-                    mixButton.setLabel("Remove Component B");
-                }
-                else {
-                    pSliderB.setEnabled(false);
-                    epsSliderB.setEnabled(false);
-                    sim.integratorHybrid.getEventManager().removeListener(pumpNominalDensityB);
-                    sim.integratorHybrid.getEventManager().removeListener(profilePumpB);
-                    sim.integratorHybrid.getEventManager().removeListener(countPumpB);
-                    sim.integratorMC.getMoveManager().removeMCMove(sim.mcMoveIDB);
-                    displayCountB.setAccumulator(null);
-                    profilePlot.getDataSet().reset();
-                    adsorbedHistoryPlot.getDataSet().reset();
-                    sim.box.setNMolecules(sim.speciesB, 0);
-                    sim.integratorHybrid.reset();
-                    mixButton.setLabel("Add Component B");
-                }
-            }
-        });
-        tabB.add(mixButton.graphic(), SimulationPanel.getVertGBC());
-
-        pSliderB = new DeviceSlider(sim.getController());
+        final DeviceSlider pSliderB = new DeviceSlider(sim.getController());
         pSliderB.setEnabled(false);
         pSliderB.setShowBorder(true);
         pSliderB.setBorderAlignment(TitledBorder.CENTER);
@@ -325,10 +287,10 @@ public class AdsorptionGraphic extends SimulationGraphic {
                 nominalDensityB.setPressure(p);
             }
         });
-        pumpNominalDensityB = new DataPumpListener(nominalDensityB, profilePlot.getDataSet().makeDataSink(), 100);
+        final DataPumpListener pumpNominalDensityB = new DataPumpListener(nominalDensityB, profilePlot.getDataSet().makeDataSink(), 100);
         profilePlot.setLegend(new DataTag[]{nominalDensityB.getTag()}, "B (bulk)");
 
-        epsSliderB = new DeviceSlider(sim.getController());
+        final DeviceSlider epsSliderB = new DeviceSlider(sim.getController());
         epsSliderB.setEnabled(false);
         epsSliderB.setShowBorder(true);
         epsSliderB.setBorderAlignment(TitledBorder.CENTER);
@@ -341,6 +303,41 @@ public class AdsorptionGraphic extends SimulationGraphic {
         epsSliderB.setModifier(epsModifierB);
         epsSliderB.setLabel("epsilon");
         tabBB.add(epsSliderB.graphic(), SimulationPanel.getVertGBC());
+
+        
+        final DeviceButton mixButton = new DeviceButton(sim.getController());
+        mixButton.setLabel("Add Component B");
+        mixButton.setAction(new IAction() {
+            public void actionPerformed() {
+                if (!pSliderB.isEnabled()) {
+                    pSliderB.setEnabled(true);
+                    epsSliderB.setEnabled(true);
+                    sim.integratorHybrid.getEventManager().addListener(pumpNominalDensityB);
+                    sim.integratorHybrid.getEventManager().addListener(profilePumpB);
+                    sim.integratorHybrid.getEventManager().addListener(countPumpB);
+                    sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveIDB);
+                    displayCountB.setAccumulator(countAvgB);
+                    updatePRatioB.actionPerformed();
+
+                    mixButton.setLabel("Remove Component B");
+                }
+                else {
+                    pSliderB.setEnabled(false);
+                    epsSliderB.setEnabled(false);
+                    sim.integratorHybrid.getEventManager().removeListener(pumpNominalDensityB);
+                    sim.integratorHybrid.getEventManager().removeListener(profilePumpB);
+                    sim.integratorHybrid.getEventManager().removeListener(countPumpB);
+                    sim.integratorMC.getMoveManager().removeMCMove(sim.mcMoveIDB);
+                    displayCountB.setAccumulator(null);
+                    profilePlot.getDataSet().reset();
+                    adsorbedHistoryPlot.getDataSet().reset();
+                    sim.box.setNMolecules(sim.speciesB, 0);
+                    sim.integratorHybrid.reset();
+                    mixButton.setLabel("Add Component B");
+                }
+            }
+        });
+        tabB.add(mixButton.graphic(), SimulationPanel.getVertGBC());
 
 
         tempSlider.setSliderPostAction(new IAction() {
