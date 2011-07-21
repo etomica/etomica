@@ -1,13 +1,11 @@
 package etomica.modules.adsorption;
 
- import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+ import java.awt.GridBagLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
 import etomica.api.IVectorMutable;
@@ -20,9 +18,12 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataTag;
+import etomica.data.IDataSink;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -32,6 +33,7 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.math.geometry.Plane;
+import etomica.modifier.ModifierGeneral;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
@@ -50,8 +52,12 @@ public class AdsorptionGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Adsorption";
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
-    protected final MeterProfileByVolumeAdsorption densityProfileMeter;
+    protected final MeterProfileByVolumeAdsorption densityProfileMeterA, densityProfileMeterB;
     protected Adsorption sim;
+
+    protected final DataPumpListener pumpNominalDensityB;
+    protected IDataSink profileSinkB, adsorbedSinkB;
+    protected final DeviceSlider pSliderB, epsSliderB;
 
     public AdsorptionGraphic(final Adsorption simulation, ISpace _space) {
 
@@ -71,12 +77,12 @@ public class AdsorptionGraphic extends SimulationGraphic {
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(new Plane(space, 0, 1, 0, sim.box.getBoundary().getBoxSize().getX(1)/2-0.00001));
-        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.p2.getCoreDiameter());
+        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesA.getLeafType(), sim.p2AA.getCoreDiameter());
         IVectorMutable rMin = space.makeVector();
         IVectorMutable rMax = space.makeVector();
         double Ly = sim.box.getBoundary().getBoxSize().getX(1);
-        double yMin = -0.5*Ly+0.5*sim.p1Wall.getSigma();
-        double yMax = (0.5-sim.mcMoveID.getZFraction())*Ly - sim.p1Wall.getSigma();
+        double yMin = -0.5*Ly+0.5*sim.p1WallA.getSigma();
+        double yMax = (0.5-sim.mcMoveIDA.getZFraction())*Ly - sim.p1WallA.getSigma();
         rMin.Ea1Tv1(-0.5, sim.box.getBoundary().getBoxSize());
         rMax.Ea1Tv1(0.5, sim.box.getBoundary().getBoxSize());
         rMax.setX(1, yMax);
@@ -85,11 +91,11 @@ public class AdsorptionGraphic extends SimulationGraphic {
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
 
-        final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integratorMD);
+        final DataSourceCountTime timer = new DataSourceCountTime(sim.integratorMD);
         displayCycles.setPrecision(7);
-        DataPumpListener pump= new DataPumpListener(meterCycles,displayCycles, 100);
-        sim.integratorMD.getEventManager().addListener(pump);
         displayCycles.setLabel("Simulation time");
+        DataPumpListener pump= new DataPumpListener(timer,displayCycles, 100);
+        sim.integratorMD.getEventManager().addListener(pump);
 
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController(), sim.integratorMC);
@@ -101,15 +107,11 @@ public class AdsorptionGraphic extends SimulationGraphic {
         tempSlider.setUnit(tUnit);
         tempSlider.setIsothermalButtonsVisibility(false);
 
-        JPanel statePanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.gridx = 0;  gbc2.gridy = 0;
-//        statePanel.add(tempSlider.graphic(), gbc2);
-        
         add(tempSlider);
         
         final EOSSW eos = new EOSSWPatel();
-        MeterExcessAdsorbed meterCountAtoms = new MeterExcessAdsorbed(eos);
+        final EOSSW eosB = new EOSSWPatel();
+        MeterExcessAdsorbed meterCountAtoms = new MeterExcessAdsorbed(sim.speciesA, eos);
         meterCountAtoms.setBox(sim.box);
         meterCountAtoms.setRange(1, yMin, yMax);
         AccumulatorAverageCollapsing countAvg = new AccumulatorAverageCollapsing();
@@ -118,34 +120,70 @@ public class AdsorptionGraphic extends SimulationGraphic {
         sim.integratorHybrid.getEventManager().addListener(countPump);
         DisplayTextBoxesCAE displayCount = new DisplayTextBoxesCAE();
         displayCount.setAccumulator(countAvg);
+        displayCount.setLabel("Excess adsorbed A");
         dataStreamPumps.add(countPump);
+
+        MeterExcessAdsorbed meterCountAtomsB = new MeterExcessAdsorbed(sim.speciesB, eosB);
+        meterCountAtomsB.setBox(sim.box);
+        meterCountAtomsB.setRange(1, yMin, yMax);
+        final AccumulatorAverageCollapsing countAvgB = new AccumulatorAverageCollapsing();
+        final DataPumpListener countPumpB = new DataPumpListener(meterCountAtomsB, countAvgB);
+        countAvgB.setPushInterval(100);
+        final DisplayTextBoxesCAE displayCountB = new DisplayTextBoxesCAE();
+        displayCountB.setLabel("Excess adsorbed B");
+        dataStreamPumps.add(countPumpB);
+
         
         final AccumulatorHistory adsorbedHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         countAvg.addDataSink(adsorbedHistory, new StatType[]{countAvg.MOST_RECENT});
-        DisplayPlot adsorbedHistoryPlot = new DisplayPlot();
+        final DisplayPlot adsorbedHistoryPlot = new DisplayPlot();
         adsorbedHistory.setDataSink(adsorbedHistoryPlot.getDataSet().makeDataSink());
         adsorbedHistoryPlot.setLabel("Adsorption");
         adsorbedHistoryPlot.getPlot().setTitle("Excess adsorbed per area");
-        adsorbedHistoryPlot.setDoLegend(false);
-        DataSourceCountTime timer = new DataSourceCountTime(sim.integratorMD);
+        adsorbedHistoryPlot.setLegend(new DataTag[]{adsorbedHistory.getTag()}, "A");
         adsorbedHistory.setTimeDataSource(timer);
 
-        densityProfileMeter = new MeterProfileByVolumeAdsorption(space);
-        densityProfileMeter.setRange(yMin, yMax);
-        densityProfileMeter.setBox(sim.box);
+        final AccumulatorHistory adsorbedHistoryB = new AccumulatorHistory(new HistoryCollapsingAverage());
+        countAvgB.addDataSink(adsorbedHistoryB, new StatType[]{countAvgB.MOST_RECENT});
+        adsorbedHistoryB.setTimeDataSource(timer);
+        adsorbedHistoryB.setDataSink(adsorbedHistoryPlot.getDataSet().makeDataSink());
+        adsorbedHistoryPlot.setLegend(new DataTag[]{adsorbedHistoryB.getTag()}, "B");
+
+        
+        densityProfileMeterA = new MeterProfileByVolumeAdsorption(space);
+        densityProfileMeterA.setRange(yMin, yMax);
+        densityProfileMeterA.setBox(sim.box);
         MeterNMolecules meterNMolecules = new MeterNMolecules();
-        meterNMolecules.setSpecies(sim.species);
-        densityProfileMeter.setDataSource(meterNMolecules);
+        meterNMolecules.setSpecies(sim.speciesA);
+        densityProfileMeterA.setDataSource(meterNMolecules);
         AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
         densityProfileAvg.setPushInterval(100);
-        DataPumpListener profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 10);
+        DataPumpListener profilePump = new DataPumpListener(densityProfileMeterA, densityProfileAvg, 10);
         sim.integratorHybrid.getEventManager().addListener(profilePump);
         dataStreamPumps.add(profilePump);
 
-        DisplayPlot profilePlot = new DisplayPlot();
+        densityProfileMeterB = new MeterProfileByVolumeAdsorption(space);
+        densityProfileMeterB.setRange(yMin, yMax);
+        densityProfileMeterB.setBox(sim.box);
+        MeterNMolecules meterNMoleculesB = new MeterNMolecules();
+        meterNMoleculesB.setSpecies(sim.speciesB);
+        densityProfileMeterB.setDataSource(meterNMoleculesB);
+        final AccumulatorAverageFixed densityProfileAvgB = new AccumulatorAverageFixed(10);
+        densityProfileAvgB.setPushInterval(100);
+        final DataPumpListener profilePumpB = new DataPumpListener(densityProfileMeterB, densityProfileAvgB, 10);
+        dataStreamPumps.add(profilePumpB);
+
+        final DisplayPlot profilePlot = new DisplayPlot();
         densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
-        profilePlot.setDoLegend(false);
+        densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
+        profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "A");
+        profilePlot.setLegend(new DataTag[]{densityProfileAvgB.getTag()}, "B");
         profilePlot.setLabel("Profile");
+        
+        final JTabbedPane tabs = new JTabbedPane();
+        getPanel().controlPanel.add(tabs,SimulationPanel.getVertGBC());
+        JPanel tabA = new JPanel(new GridBagLayout());
+        tabs.add(tabA, "A");
 
         final DeviceSlider pSlider = new DeviceSlider(sim.getController());
         pSlider.setShowBorder(true);
@@ -154,12 +192,12 @@ public class AdsorptionGraphic extends SimulationGraphic {
         pSlider.setMinimum(-4);
         pSlider.setPrecision(1);
         pSlider.setMaximum(0);
-        pSlider.setNMajor(5);
-        final ModifierPMu pmu = new ModifierPMu(sim.p2, sim.integratorMC, eos, sim.mcMoveID, meterCountAtoms);
+        pSlider.setNMajor(4);
+        final ModifierPMu pmu = new ModifierPMu(sim.p2AA, sim.integratorMC, eos, sim.mcMoveIDA, meterCountAtoms);
         pmu.setValue(-4);
         pSlider.setModifier(pmu);
         pSlider.setLabel("log10(P)");
-        add(pSlider);
+        tabA.add(pSlider.graphic(), SimulationPanel.getVertGBC());
         
         final DisplayTextBox pSatDisplay = new DisplayTextBox();
         DataDouble.DataInfoDouble pSatInfo = new DataInfoDouble("P/Psat", Null.DIMENSION);
@@ -169,7 +207,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 double temperature = sim.integratorMC.getTemperature();
                 eos.setTemperature(temperature);
-                double sigma = sim.p2.getCoreDiameter();
+                double sigma = sim.p2AA.getCoreDiameter();
                 double pSat = temperature < eos.Tc ? eos.pSat()/(sigma*sigma*sigma) : Double.NaN;
                 double p = Math.pow(10, pSlider.getValue());
                 data.x = p/pSat;
@@ -177,15 +215,9 @@ public class AdsorptionGraphic extends SimulationGraphic {
             }
             DataDouble data = new DataDouble();
         };
-        tempSlider.setSliderPostAction(new IAction() {
-            public void actionPerformed() {
-                updatePRatio.actionPerformed();
-                pmu.setValue(pmu.getValue());
-            }
-        });
         updatePRatio.actionPerformed();
-        
-        getPanel().controlPanel.add(pSatDisplay.graphic(),SimulationPanel.getVertGBC());
+
+        tabA.add(pSatDisplay.graphic(),SimulationPanel.getVertGBC());
       
         final DataSourceDensityFunction nominalDensity = new DataSourceDensityFunction(eos, yMin, yMax);
         nominalDensity.setPressure(Math.pow(10, pSlider.getValue()));
@@ -196,10 +228,137 @@ public class AdsorptionGraphic extends SimulationGraphic {
                 nominalDensity.setPressure(p);
             }
         });
+        profilePlot.setLegend(new DataTag[]{nominalDensity.getTag()}, "A (bulk)");
         DataPumpListener pumpNominalDensity = new DataPumpListener(nominalDensity, profilePlot.getDataSet().makeDataSink(), 100);
         sim.integratorHybrid.getEventManager().addListener(pumpNominalDensity);
-        
-//
+
+        final DeviceSlider epsSlider = new DeviceSlider(sim.getController());
+        epsSlider.setShowBorder(true);
+        epsSlider.setBorderAlignment(TitledBorder.CENTER);
+        epsSlider.setShowValues(true);
+        epsSlider.setMinimum(0);
+        epsSlider.setPrecision(1);
+        epsSlider.setMaximum(5);
+        epsSlider.setNMajor(5);
+        final ModifierGeneral epsModifier = new ModifierGeneral(sim.p1WallA, "epsilon");
+        epsSlider.setModifier(epsModifier);
+        epsSlider.setLabel("epsilon");
+        tabA.add(epsSlider.graphic(), SimulationPanel.getVertGBC());
+
+        final JPanel tabB = new JPanel(new GridBagLayout());
+        tabs.add(tabB, "B");
+        final JPanel tabBB = new JPanel(new GridBagLayout());
+
+        final DeviceButton mixButton = new DeviceButton(sim.getController());
+        mixButton.setLabel("Add Component B");
+        mixButton.setAction(new IAction() {
+            public void actionPerformed() {
+                if (!pSliderB.isEnabled()) {
+                    pSliderB.setEnabled(true);
+                    epsSliderB.setEnabled(true);
+                    sim.integratorHybrid.getEventManager().addListener(pumpNominalDensityB);
+                    sim.integratorHybrid.getEventManager().addListener(profilePumpB);
+                    sim.integratorHybrid.getEventManager().addListener(countPumpB);
+                    sim.integratorMC.getMoveManager().addMCMove(sim.mcMoveIDB);
+                    displayCountB.setAccumulator(countAvgB);
+
+                    mixButton.setLabel("Remove Component B");
+                }
+                else {
+                    pSliderB.setEnabled(false);
+                    epsSliderB.setEnabled(false);
+                    sim.integratorHybrid.getEventManager().removeListener(pumpNominalDensityB);
+                    sim.integratorHybrid.getEventManager().removeListener(profilePumpB);
+                    sim.integratorHybrid.getEventManager().removeListener(countPumpB);
+                    sim.integratorMC.getMoveManager().removeMCMove(sim.mcMoveIDB);
+                    displayCountB.setAccumulator(null);
+                    profilePlot.getDataSet().reset();
+                    adsorbedHistoryPlot.getDataSet().reset();
+                    sim.box.setNMolecules(sim.speciesB, 0);
+                    sim.integratorHybrid.reset();
+                    mixButton.setLabel("Add Component B");
+                }
+            }
+        });
+        tabB.add(mixButton.graphic(), SimulationPanel.getVertGBC());
+
+        pSliderB = new DeviceSlider(sim.getController());
+        pSliderB.setEnabled(false);
+        pSliderB.setShowBorder(true);
+        pSliderB.setBorderAlignment(TitledBorder.CENTER);
+        pSliderB.setShowValues(true);
+        pSliderB.setMinimum(-4);
+        pSliderB.setPrecision(1);
+        pSliderB.setMaximum(0);
+        pSliderB.setNMajor(4);
+        final ModifierPMu pmuB = new ModifierPMu(sim.p2BB, sim.integratorMC, eosB, sim.mcMoveIDB, meterCountAtomsB);
+        pmuB.setValue(-4);
+        pSliderB.setModifier(pmuB);
+        pSliderB.setLabel("log10(P)");
+        tabBB.add(pSliderB.graphic(), SimulationPanel.getVertGBC());
+
+        final DisplayTextBox pSatBDisplay = new DisplayTextBox();
+        DataDouble.DataInfoDouble pSatBInfo = new DataInfoDouble("P/Psat", Null.DIMENSION);
+        pSatBDisplay.putDataInfo(pSatBInfo);
+
+        final IAction updatePRatioB = new IAction() {
+            public void actionPerformed() {
+                double temperature = sim.integratorMC.getTemperature();
+                eosB.setTemperature(temperature);
+                double sigma = sim.p2BB.getCoreDiameter();
+                double pSat = temperature < eosB.Tc ? eosB.pSat()/(sigma*sigma*sigma) : Double.NaN;
+                double p = Math.pow(10, pSliderB.getValue());
+                data.x = p/pSat;
+                pSatBDisplay.putData(data);
+            }
+            DataDouble data = new DataDouble();
+        };
+
+        tabBB.add(pSatBDisplay.graphic(),SimulationPanel.getVertGBC());
+
+        final DataSourceDensityFunction nominalDensityB = new DataSourceDensityFunction(eosB, yMin, yMax);
+        nominalDensityB.setPressure(Math.pow(10, pSliderB.getValue()));
+        pSliderB.setPostAction(new IAction() {
+            public void actionPerformed() {
+                updatePRatioB.actionPerformed();
+                double p = Math.pow(10, pSliderB.getValue());
+                nominalDensityB.setPressure(p);
+            }
+        });
+        pumpNominalDensityB = new DataPumpListener(nominalDensityB, profilePlot.getDataSet().makeDataSink(), 100);
+        profilePlot.setLegend(new DataTag[]{nominalDensityB.getTag()}, "B (bulk)");
+
+        epsSliderB = new DeviceSlider(sim.getController());
+        epsSliderB.setEnabled(false);
+        epsSliderB.setShowBorder(true);
+        epsSliderB.setBorderAlignment(TitledBorder.CENTER);
+        epsSliderB.setShowValues(true);
+        epsSliderB.setMinimum(0);
+        epsSliderB.setPrecision(1);
+        epsSliderB.setMaximum(5);
+        epsSliderB.setNMajor(5);
+        final ModifierGeneral epsModifierB = new ModifierGeneral(sim.p1WallB, "epsilon");
+        epsSliderB.setModifier(epsModifierB);
+        epsSliderB.setLabel("epsilon");
+        tabBB.add(epsSliderB.graphic(), SimulationPanel.getVertGBC());
+
+
+        tempSlider.setSliderPostAction(new IAction() {
+            public void actionPerformed() {
+                updatePRatio.actionPerformed();
+                // force pmu to update.  the slider value hasn't changed,
+                // but the effect of that value has.
+                pmu.setValue(pmu.getValue());
+
+                updatePRatioB.actionPerformed();
+                // force pmu to update.  the slider value hasn't changed,
+                // but the effect of that value has.
+                pmuB.setValue(pmuB.getValue());
+            }
+        });
+
+        tabB.add(tabBB, SimulationPanel.getVertGBC());
+
 //		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
 //        final AccumulatorHistory temperatureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
 //        final DataPumpListener temperaturePump = new DataPumpListener(thermometer,temperatureHistory, 1000);
@@ -214,6 +373,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         
         add(displayCycles);
         add(displayCount);
+        add(displayCountB);
         add(adsorbedHistoryPlot);
         add(profilePlot);
 //        add(temperatureHistoryPlot);

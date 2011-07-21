@@ -5,6 +5,7 @@ import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
@@ -28,15 +29,15 @@ import etomica.util.RandomNumberGenerator;
 public class Adsorption extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono species;
+    public final SpeciesSpheresMono speciesA, speciesB;
     public final IBox box;
     public final IntegratorHard integratorMD;
     public final IntegratorMC integratorMC;
     public final IntegratorHybrid integratorHybrid;
     public final ActivityIntegrate activityIntegrate;
-    public final P2SquareWell p2;
-    public final P1Wall p1Wall;
-    public final MyMCMove mcMoveID;
+    public final P2SquareWell p2AA, p2AB, p2BB;
+    public final P1Wall p1WallA, p1WallB;
+    public final MyMCMove mcMoveIDA, mcMoveIDB;
     
     public Adsorption(ISpace _space) {
         super(_space);
@@ -45,7 +46,7 @@ public class Adsorption extends Simulation {
         
         //controller and integrator
 	    integratorMD = new IntegratorHard(this, potentialMaster, space);
-	    integratorMD.setTimeStep(0.002);
+	    integratorMD.setTimeStep(0.0005);
 	    integratorMD.setIsothermal(false);
 	    
 	    integratorMC = new IntegratorMC(potentialMaster, random, 2);
@@ -62,33 +63,53 @@ public class Adsorption extends Simulation {
         double epsilonWF = 5.0;
         
 	    //species and potentials
-        species = new SpeciesSpheresMono(space, Carbon.INSTANCE);
-        species.setIsDynamic(true);
-        addSpecies(species);
+        speciesA = new SpeciesSpheresMono(space, new ElementSimple(this));
+        speciesA.setIsDynamic(true);
+        addSpecies(speciesA);
+        speciesB = new SpeciesSpheresMono(space, new ElementSimple(this));
+        speciesB.setIsDynamic(true);
+        addSpecies(speciesB);
 
         //construct box
         box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);
         addBox(box);
 
-        mcMoveID = new MyMCMove(integratorMC, random, space, 0.1, sigma, 1);
-        mcMoveID.setMu(-12);
-        integratorMC.getMoveManager().addMCMove(mcMoveID);
-        integratorHybrid.setMCMoveInsertDelete(mcMoveID);
-        mcMoveID.setSpecies(species);
-        mcMoveID.setBox(box);
+        mcMoveIDA = new MyMCMove(integratorMC, random, space, 0.1, sigma, 1);
+        mcMoveIDA.setMu(-12);
+        integratorMC.getMoveManager().addMCMove(mcMoveIDA);
+        mcMoveIDA.setSpecies(speciesA);
+        mcMoveIDA.setBox(box);
 
-        p2 = new P2SquareWell(space, sigma, lambda, epsilon, false);
-        potentialMaster.addPotential(p2,new IAtomType[]{species.getLeafType(), species.getLeafType()});
+        mcMoveIDB = new MyMCMove(integratorMC, random, space, 0.1, sigma, 1);
+        mcMoveIDB.setMu(-Double.POSITIVE_INFINITY);
+        integratorHybrid.setMCMoveInsertDelete(mcMoveIDA, mcMoveIDB);
+        mcMoveIDB.setSpecies(speciesB);
+        mcMoveIDB.setBox(box);
 
-
-        p1Wall = new P1Wall(space);
-        p1Wall.setSigma(sigma);
-        p1Wall.setRange(sigma/2);
-        p1Wall.setEpsilon(epsilonWF);
-        p1Wall.setThermalize(integratorMC, 0.1, random);
-
-        potentialMaster.addPotential(p1Wall, new IAtomType[]{species.getLeafType()});
         
+        p2AA = new P2SquareWell(space, sigma, lambda, epsilon, false);
+        potentialMaster.addPotential(p2AA,new IAtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+        p2AB = new P2SquareWell(space, sigma, lambda, epsilon, false);
+        potentialMaster.addPotential(p2AB,new IAtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+        p2BB = new P2SquareWell(space, sigma, lambda, epsilon, false);
+        potentialMaster.addPotential(p2BB,new IAtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+
+
+        p1WallA = new P1Wall(space);
+        p1WallA.setSigma(sigma);
+        p1WallA.setRange(sigma/2);
+        p1WallA.setEpsilon(epsilonWF);
+        p1WallA.setThermalize(integratorMC, 0.1, random);
+
+        p1WallB = new P1Wall(space);
+        p1WallB.setSigma(sigma);
+        p1WallB.setRange(sigma/2);
+        p1WallB.setEpsilon(epsilonWF);
+        p1WallB.setThermalize(integratorMC, 0.1, random);
+
+        potentialMaster.addPotential(p1WallA, new IAtomType[]{speciesA.getLeafType()});
+        potentialMaster.addPotential(p1WallB, new IAtomType[]{speciesB.getLeafType()});
+
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         IVectorMutable dim = space.makeVector();
@@ -96,7 +117,7 @@ public class Adsorption extends Simulation {
         dim.setX(1, 12*sigma);
         box.getBoundary().setBoxSize(dim);
         
-        box.setNMolecules(species, 40);
+        box.setNMolecules(speciesA, 40);
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
