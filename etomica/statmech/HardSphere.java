@@ -4,66 +4,62 @@ package etomica.statmech;
  * Hard sphere properties based on the Hall EOS.
  */
 public class HardSphere {
-    
-    private double sigma = 1.0;
-    
+
+    protected final double sqrt2 = Math.sqrt(2);
+
     public HardSphere(){
     }
-            
-    public double packingFraction(double rho){
-        return Math.PI*(sigma*sigma*sigma)*rho/6.0;
+
+    /**
+     * Returns the compressibility factor for solid (FCC) hard spheres at the
+     * given density.
+     */
+    public double zSolid(double rho) {
+        double beta = 4*(1-rho/sqrt2);
+        double z = 12/beta + (2.557696-3) + (0.1253077 + (0.1762393 + (-1.053308 + (2.818621 + (-2.921934 + 1.118413*beta)*beta)*beta)*beta)*beta)*beta;
+        return z;
     }
-    
-    public double zSolid(double y){
-        double a = y*y;//y^2
-        double b = a*y;//y^3
-        double c = b*y;//y^4
-        double d = c*y;//y^5
-        double e = d*y;//y^6
-        double numerator1  = (1.0 + y + a - 0.67825*b - c -0.5*d);
-        double numerator2  = (6.028*e*Math.exp(((Math.PI*Math.sqrt(2.0)/6.0) - y)*(7.9 - 3.9*((Math.PI*Math.sqrt(2.0)/6.0) - y))));
-        double denominator = (1.0 - 3.0*y + 3.0*a - 1.04305*b);
-        return (numerator1 - numerator2)/denominator;
+
+    protected double integrand(double rho){
+        double z = zSolid(rho);
+        return z/rho;
     }
-    
-    
-    public double integrand(double rho){
-        double y = packingFraction(rho);
-        double z = zSolid(y);
-        return (z - 1.0)/rho;
-    }
-        
-    
-    
-    public double doNumericalIntegration(double a,double b,int n){
-        double h = (b - a)/(double)n;
-        int k = 1;
+
+    /**
+     * Returns the difference between absolute free energies between the given
+     * densities for solid (FCC) hard spheres.  The result is computed using
+     * numeric integration with n points.
+     */
+    public double deltaA(double rho1, double rho2, int n){
+        double h = (rho2 - rho1)/n;
         double sum = 0.0;
-        while(k <= n){
-            sum += integrand(a+k*h);
-            k++;
+        sum += 0.5*integrand(rho1);
+        for (int k=1; k<n; k++) {
+            sum += integrand(rho1+k*h);
         }
+        sum += 0.5*integrand(rho2);
         return (h*sum);    
     }
-    
+
+    /**
+     * Returns the ideal gas free energy for the given density.
+     */
     public double idFreeEnergy(double rho){return (Math.log(rho)-1.0);}
-    
-    public void setSigma(double s){sigma = s;}
-    
+
     public static void main(String[] args) {
 
         HardSphere hs = new HardSphere();
-        for(double rho = 1.1; rho < 1.411; rho += 0.01) {
+        double fid = hs.idFreeEnergy(1.04086);
+        for(double rho = 1.0; rho < 1.411; rho += 0.01) {
             double density = rho;
-            double fid = hs.idFreeEnergy(1.04086);
-            double fex = hs.doNumericalIntegration(1.04086,density,100000);
+            double deltaF = hs.deltaA(1.04086,density,100000);
 //            System.out.println("rho: "+rho);
 //            System.out.println("Ideal Gas Free Energy = "+fid);
 //            System.out.println("Excess Free Energy = "+fex);
 //            System.out.println("Absolute Free Energy (N= 32) = "+(fex+fid+5.8644));//Fexcess = 5.8644 for N = 32;5.9117 for N = 108 ;5.9208 for N = 256 JCP81 Pg 3191
 //            System.out.println("Absolute Free Energy (N=108) = "+(fex+fid+5.9117));//N = 108
 //            System.out.println("Absolute Free Energy (N=256) = "+(fex+fid+5.9208));//N = 256
-            System.out.println(rho+"\t"+(fex+fid+5.9208));
+            System.out.println(rho+"\t"+(deltaF+fid+5.9208));
         }
     }
 }
