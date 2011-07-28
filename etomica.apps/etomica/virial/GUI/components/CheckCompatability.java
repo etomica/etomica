@@ -8,16 +8,18 @@ public class CheckCompatability {
 	private DialogBoxPanel messageAlert;
 	
 	private boolean potentialCheckFlag = false;
+	private boolean electrostaticPotentialCheckFlag = false;
+	private boolean SameNonBondedPotentialFlag = false;
 	
 	private boolean Species1AtomicFlag;
 	private boolean Species2AtomicFlag;
 	
 	
-	private boolean Species1ChargeFlag;
-	private boolean Species2ChargeFlag;
+	private boolean Species1ChargeFlag = false;
+	private boolean Species2ChargeFlag = false;
 	
-	private boolean Species1MomentFlag;
-	private boolean Species2MomentFlag;
+	private boolean Species1MomentFlag = false;
+	private boolean Species2MomentFlag = false;
 	
 	private boolean InterNonBondedPotentialFlag;
 	private boolean Species1IntraBondedPotentialFlag;
@@ -113,16 +115,14 @@ public class CheckCompatability {
 
 					}
 				}
-			
-				
-				
-				
+
 			//end of for loop for potentials
 			}
 			
 			if(Species1AtomicFlag && Species2AtomicFlag){
 				if(potential1.getPotential().equals(potential2.getPotential())){
 					potentialCheckFlag = true;
+					SameNonBondedPotentialFlag = true;
 				}
 				else{
 					potentialCheckFlag = false;
@@ -131,8 +131,9 @@ public class CheckCompatability {
 			else if(!Species1AtomicFlag && Species2AtomicFlag){
 				if(potential1.getPotential().equals(potential2.getPotential())){
 					potentialCheckFlag = true;
+					
 				}
-				else if( potential1.getPotential().toString().contains("LJ") && potential2.getPotential().toString().contains("LJ") ){
+				else if( potential1.getNonBondedInteractionModel().equals(potential2.getNonBondedInteractionModel())){
 					potentialCheckFlag = true;
 				}
 				else{
@@ -143,7 +144,7 @@ public class CheckCompatability {
 				if(potential1.getPotential().equals(potential2.getPotential())){
 					potentialCheckFlag = true;
 				}
-				else if( potential1.getPotential().toString().contains("LJ") && potential2.getPotential().toString().contains("LJ") ){
+				else if( potential1.getNonBondedInteractionModel().equals(potential2.getNonBondedInteractionModel()) ){
 					potentialCheckFlag = true;
 				}
 				else{
@@ -153,8 +154,9 @@ public class CheckCompatability {
 			else if(!Species1AtomicFlag && !Species2AtomicFlag){
 				if(potential1.getPotential().equals(potential2.getPotential())){
 					potentialCheckFlag = true;
+					
 				}
-				else if( potential1.getPotential().toString().contains("LJ") && potential2.getPotential().toString().contains("LJ") ){
+				else if( potential1.getNonBondedInteractionModel().equals(potential2.getNonBondedInteractionModel()) ){
 					potentialCheckFlag = true;
 				}
 				else{
@@ -169,39 +171,64 @@ public class CheckCompatability {
 				if((Species1ChargeFlag && Species2ChargeFlag)){
 					//run simulation
 					System.out.println("Run");
+					electrostaticPotentialCheckFlag = true;
 				}
 				else if(Species1MomentFlag && Species2MomentFlag){
 					//run simulation
 					System.out.println("Run");
+					electrostaticPotentialCheckFlag = true;
+				}
+				else if(!Species1MomentFlag && !Species2MomentFlag && !Species1ChargeFlag && !Species2ChargeFlag){
+					//run simulation
+					System.out.println("Run");
+					electrostaticPotentialCheckFlag = true;
+				}
+				//-----------------No charge or moment on species 1 but charge or moment on species 2
+				
+				else if(!Species1ChargeFlag && !Species1MomentFlag && Species2MomentFlag){
+					//run simulation
+					System.out.println("Run");
+					electrostaticPotentialCheckFlag = true;
 				}
 				
-				else if(!Species1ChargeFlag && Species2MomentFlag){
+				else if(!Species1ChargeFlag && !Species1MomentFlag && Species2ChargeFlag ){
 					//run simulation
 					System.out.println("Run");
+					electrostaticPotentialCheckFlag = true;
 				}
-				else if(!Species1MomentFlag && Species2ChargeFlag ){
+				
+				//------------------Charge or moment on species 1 but no charge or moment on species 2
+				else if(Species1MomentFlag && !Species2ChargeFlag && !Species2MomentFlag){
 					//run simulation
 					System.out.println("Run");
+					electrostaticPotentialCheckFlag = true;
 				}
-				else if(Species1MomentFlag && !Species2ChargeFlag){
+				
+				else if(Species1ChargeFlag & !Species2ChargeFlag && !Species2MomentFlag){
 					//run simulation
 					System.out.println("Run");
+					electrostaticPotentialCheckFlag = true;
 				}
-				else if(Species1ChargeFlag && !Species2MomentFlag){
-					//run simulation
-					System.out.println("Run");
-					
-				}
+				//--------------------------------Charge on species 1 and Moment on species 2 || Moment on species 1 and charge on species 2
 				else if(Species1ChargeFlag && Species2MomentFlag){
 					//stop simulation
 					System.out.println("Stop");
+					electrostaticPotentialCheckFlag = false;
 				}
 				else if(Species1MomentFlag && Species2ChargeFlag){
 
 					//stop simulation
 					System.out.println("Stop");
+					electrostaticPotentialCheckFlag = false;
 				}
 			}
+			else{
+				//stop simulation
+				System.out.println("Stop");
+				electrostaticPotentialCheckFlag = false;
+			}
+			
+			
 
 		//end of if statement for potential2 not equal to null	
 		}
