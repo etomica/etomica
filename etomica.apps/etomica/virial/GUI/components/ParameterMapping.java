@@ -38,4 +38,8 @@ public interface ParameterMapping {
 	
 	@SuppressWarnings("rawtypes")
 	public Class getPotential();
+	
+	public boolean hasElectrostaticInteraction();
+	
+	public String getNonBondedInteractionModel();
 }
