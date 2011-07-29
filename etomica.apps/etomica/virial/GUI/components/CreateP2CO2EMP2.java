@@ -393,4 +393,16 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		return this.space;
 	}
 
+
+	public boolean hasElectrostaticInteraction() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getNonBondedInteractionModel() {
+		// TODO Auto-generated method stub
+		return "LennardJones";
+	}
+
 }

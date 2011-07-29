@@ -1,6 +1,11 @@
 package etomica.virial.GUI.components;
 
+import java.lang.reflect.InvocationTargetException;
+
+import etomica.api.IPotentialMolecular;
 import etomica.potential.PotentialGroup;
+import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.virial.GUI.containers.DialogBoxPanel;
 
 public class CheckCompatability {
@@ -32,6 +37,12 @@ public class CheckCompatability {
 	private SimulationEnvironment SimEnv;
 	private ParameterMapping[] potential;
 	
+	private Object Species1Molecular;
+	private Object Species2Molecular;
+	private Object CrossPotential;
+	
+	
+	@SuppressWarnings("unchecked")
 	public void checkIfCompatible(ParameterMapping potential1,ParameterMapping potential2,SimulationEnvironment SimENV){
 		SimEnv = SimENV;
 		potential = new ParameterMapping[2];
@@ -123,6 +134,8 @@ public class CheckCompatability {
 				if(potential1.getPotential().equals(potential2.getPotential())){
 					potentialCheckFlag = true;
 					SameNonBondedPotentialFlag = true;
+					
+					
 				}
 				else{
 					potentialCheckFlag = false;
@@ -153,7 +166,77 @@ public class CheckCompatability {
 			}
 			else if(!Species1AtomicFlag && !Species2AtomicFlag){
 				if(potential1.getPotential().equals(potential2.getPotential())){
-					potentialCheckFlag = true;
+					potentialCheckFlag = true;	
+					
+					if(potential1.getPotential().getConstructors().length > 1){
+						int numberofParameters = potential1.getParametersArray().length;
+						Object[][] ParamValueCrossObj = new Object[numberofParameters][3];
+						
+						@SuppressWarnings("rawtypes")
+						Class[] ParamClass = new Class[numberofParameters+1];
+						ParamClass[0] = ISpace.class;
+						for(int j = 1;j<=numberofParameters;j++){
+							ParamClass[j] = Double.TYPE;
+						}
+						
+						for(int i = 0;i < 2;i++){					
+							Object[] ParamValueObj = new Object[numberofParameters+1];
+
+							ParamValueObj[0] = potential[0].getSpace();
+							for(int j=0;j<potential[0].getParametersArray().length;j++){
+								ParamValueObj[j+1]=potential[i].getDoubleDefaultParameters(potential[i].getParametersArray()[j].toUpperCase()+potential[i].getPotentialSiteAtIndex(0));
+								ParamValueCrossObj[0][j]=potential[i].getParametersArray()[j].toUpperCase();
+								ParamValueCrossObj[i+1][j]=potential[i].getDoubleDefaultParameters(potential[i].getParametersArray()[j].toUpperCase()+potential[i].getPotentialSiteAtIndex(0));
+							}
+							
+							
+							try{
+								if(i==0){
+									Species1Molecular = potential[i].getPotential().getConstructor(ParamClass).newInstance(ParamValueObj);
+									
+								}
+								else if(i==1){
+									Species2Molecular = potential[i].getPotential().getConstructor(ParamClass).newInstance(ParamValueObj);
+								}
+							}
+							catch(Exception E){
+								E.printStackTrace();
+							}
+						}
+						Object[] ParamValueObj = new Object[numberofParameters+1];
+
+						ParamValueObj[0] = potential[0].getSpace();
+						String valueA;
+						String valueB;
+						for(int i=0;i < ParamValueCrossObj.length;i++){
+							valueA = ParamValueCrossObj[1][i].toString();
+							double ValueA = Double.parseDouble(valueA);
+							valueB = ParamValueCrossObj[2][i].toString();
+							double ValueB = Double.parseDouble(valueB);
+							if(ParamValueCrossObj[0][i].toString().contains("SIGMA")){
+								ParamValueObj[i+1] = 0.5*(ValueA+ValueB);
+							}
+							if(ParamValueCrossObj[0][i].toString().contains("EPSILON")){
+								ParamValueObj[i+1] = Math.sqrt(ValueA*ValueB);
+							}
+							if(ParamValueCrossObj[0][i].toString().contains("MOMENT")){
+								ParamValueObj[i+1] = ValueA*ValueB;
+							}
+							if(ParamValueCrossObj[0][i].toString().contains("MOMENTSQR")){
+								ParamValueObj[i+1] = ValueA*ValueB;
+							}
+						}
+						try {
+							CrossPotential = potential1.getPotential().getConstructor(ParamClass).newInstance(ParamValueObj);
+						} catch (Exception e) {
+							
+							e.printStackTrace();
+						}
+						
+					}
+					else if(potential1.getPotential().getConstructors().length == 1){
+						
+					}
 					
 				}
 				else if( potential1.getNonBondedInteractionModel().equals(potential2.getNonBondedInteractionModel()) ){

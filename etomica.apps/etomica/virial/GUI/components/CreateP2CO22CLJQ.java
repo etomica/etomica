@@ -72,7 +72,7 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 		epsilon = new double[PotentialSites.length];
 		moment = new double[PotentialSites.length];
 		ParamAndValues=setParameterValues();
-		id=++numberOfInstances;
+		//id=++numberOfInstances;
 	}
 	
 	private String[][] setParameterValues() {
@@ -377,6 +377,18 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	public Space getSpace() {
 		// TODO Auto-generated method stub
 		return this.space;
+	}
+
+	@Override
+	public boolean hasElectrostaticInteraction() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getNonBondedInteractionModel() {
+		// TODO Auto-generated method stub
+		return "LennardJones";
 	}
 
 

@@ -380,4 +380,16 @@ public class CreateP22CLJQ implements ParameterMapping,Cloneable{
 	}
 
 	
+	public boolean hasElectrostaticInteraction() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getNonBondedInteractionModel() {
+		// TODO Auto-generated method stub
+		return "LennardJones";
+	}
+
+	
 }

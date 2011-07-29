@@ -6,6 +6,7 @@ import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
+import etomica.virial.SpeciesFactoryOrientedSpheres;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
@@ -158,7 +159,7 @@ private String[][] setParameterValues() {
 	//Creates the LJAtom Species
 	public SpeciesFactory createSpeciesFactory(){
 		SpeciesFactory speciesFactory;
-		speciesFactory = new SpeciesFactorySpheres();
+		speciesFactory = new SpeciesFactoryOrientedSpheres();
         return speciesFactory;
 	}
 	
@@ -336,6 +337,18 @@ private String[][] setParameterValues() {
 	public Space getSpace() {
 		// TODO Auto-generated method stub
 		return this.space;
+	}
+
+	@Override
+	public boolean hasElectrostaticInteraction() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getNonBondedInteractionModel() {
+		// TODO Auto-generated method stub
+		return "LennardJones";
 	}
 
 	

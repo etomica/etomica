@@ -1,63 +1,129 @@
 package etomica.virial.GUI.components;
 
-
-import etomica.api.IAtomList;
-import etomica.api.IElement;
-import etomica.api.ISpecies;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
+import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
-import etomica.potential.P2CO2EMP2;
-import etomica.potential.P2CO2TraPPE;
-import etomica.potential.P2LennardJones;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.SpeciesFactoryTangentSpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
-	private static String MoleculeDisplayName = "CO2 - Trappe";
+public class CreateP2Ethane2CLJQ implements ParameterMapping,Cloneable{
+	private static String MoleculeDisplayName = "C2H6 - 2CCLJQ";
 	private Space space;
 	private double[] sigma;
 	private double[] epsilon;
-	private double[] charge;
-	private double bondL;
-	//private IConformation conformation;
-
+	private double[] moment;
+	
 	private double temperature;
 	private int noOfSteps;
 	private double sigmaHSRef;
 	
+	
+	private double bondLength;
+	
+	
+	private ConformationLinear conformation;
+	
+	private int SpeciesID;
+	
+	private String[] PotentialSites = {"CH3"};
+	
+	
+	
+	public String getPotentialSiteAtIndex(int index) {
+		return PotentialSites[index];
+	}
+
 	private int id;
 	private static int numberOfInstances = 0;
 	
-	
-	private String[] ComponentParameters  =  {"SIGMA","EPSILON","CHARGE"};
+	private String[] ComponentParameters  =  {"SIGMA","EPSILON", "MOMENT"};
 			
 	private String[] SharedComponentParameters ={"BONDL"};
 	
 	private String[][] ParamAndValues; 
-	
-	private String[] PotentialSites = {"C","O"};
-	
-	private String[][] ComponentValues = {
-			{"2.8000",Double.toString(Kelvin.UNIT.toSim(27)),Double.toString(Electron.UNIT.toSim(0.70))},
-			{"3.0500",Double.toString(Kelvin.UNIT.toSim(79)),Double.toString((-0.5)*Electron.UNIT.toSim(0.70))},
-			
-	};
 
-
-	private String[] SharedComponentValues = {"1.1491"};
+	
+	private String[][] ComponentValues = {{"3.4896",Double.toString(Kelvin.UNIT.toSim(136.99)),Double.toString(0.8277*Kelvin.UNIT.toSim(136.99)*Math.pow(3.4896,5))}};
+	
+	private String[] SharedComponentValues = {"2.3762"};
+	
 	
 	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF"};
 	
-	private String[] SimEnvValues = {"250.0","10000",Double.toString(5.0*1.1491)};
+	private String[] SimEnvValues = {"250.0","10000",Double.toString(1.5*3.0354)};
+	
+	
+	
+	
+	//Constructors for different Instantiations
+	
+	
+	public CreateP2Ethane2CLJQ(){
+		space = Space3D.getInstance();
+		sigma = new double[PotentialSites.length];
+		epsilon = new double[PotentialSites.length];
+		moment = new double[PotentialSites.length];
+		ParamAndValues=setParameterValues();
+		id=++numberOfInstances;
+	}
+	
+	private String[][] setParameterValues() {
+		
+		int NoOfParam = ComponentParameters.length;
+		int NoOfCommonParam = SharedComponentParameters.length;
+		int NoOfSites = PotentialSites.length;
+		int totalNoOfParam = NoOfParam*NoOfSites;
+		String[][] ReturnArray = new String[totalNoOfParam][2];
+		int index = 0;
+		for(int i=0;i<NoOfSites;i++){
+			for(int j=0;j<NoOfParam;j++){
+				
+				if(ComponentParameters[j]=="SIGMA"){
+					setSigma(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				if(ComponentParameters[j]=="EPSILON"){
+					setEpsilon(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				if(ComponentParameters[j]=="MOMENT"){
+					setMoment(Double.parseDouble(ComponentValues[i][j]),i);
+					
+				}
+				
+				ReturnArray[index][0] = ComponentParameters[j]+PotentialSites[i];
+				ReturnArray[index][1] = ComponentValues[i][j];
+				index++;
+			}
+		}
+		for(int k = 0;k<NoOfCommonParam;k++){
+			if(SharedComponentParameters[k]=="BONDL"){
+				setBondLength(Double.parseDouble(SharedComponentValues[k]));
+			}
+		}
+		
+		int NoOfSimEnvParam = 3;
+		for(int l = 0;l<NoOfSimEnvParam;l++){
+			if(SimEnvParameters[l]=="TEMPERATURE"){
+				setTemperature(Double.parseDouble(SimEnvValues[l]));
+			}
+			
+			if(SimEnvParameters[l]=="STEPS"){
+				setNoOfSteps(Integer.parseInt(SimEnvValues[l]));
+			}
+			
+			if(SimEnvParameters[l]=="SIGMAHSREF"){
+				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
+			}
+		}
+		return ReturnArray;
+		
+		
+	}
+	
 	
 	public double getTemperature() {
 		return temperature;
@@ -82,146 +148,14 @@ public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
 	public void setSigmaHSRef(double sigmaHSRef) {
 		this.sigmaHSRef = sigmaHSRef;
 	}
-	
-	
-	public String getPotentialSiteAtIndex(int index) {
-		
-		return PotentialSites[index];
-	}
-	
-	public boolean IsPotentialSiteMoreThanOne(){
-		return true;
-	}
-	
-	
 
-	//Constructors for different Instantiations
-
-
-	public CreateP2CO2Trappe(){
-		space = Space3D.getInstance();
-		sigma = new double[PotentialSites.length];
-		epsilon = new double[PotentialSites.length];
-		charge = new double[PotentialSites.length];
-		ParamAndValues=setParameterValues();
-		//setConformation();
-		id=++numberOfInstances;
-	}
-	
-private String[][] setParameterValues() {
-		
-		int NoOfParam = ComponentParameters.length;
-		int NoOfCommonParam = SharedComponentParameters.length;
-		int NoOfSites = PotentialSites.length;
-		int totalNoOfParam = NoOfParam*NoOfSites;
-		String[][] ReturnArray = new String[totalNoOfParam][2];
-		int index = 0;
-		for(int i=0;i<NoOfSites;i++){
-			for(int j=0;j<NoOfParam;j++){
-				
-				if(ComponentParameters[j]=="SIGMA"){
-					setSigma(Double.parseDouble(ComponentValues[i][j]),i);
-					
-				}
-				if(ComponentParameters[j]=="EPSILON"){
-					setEpsilon(Double.parseDouble(ComponentValues[i][j]),i);
-					
-				}
-				if(ComponentParameters[j]=="CHARGE"){
-					setCharge(Double.parseDouble(ComponentValues[i][j]),i);
-				}
-				
-				ReturnArray[index][0] = ComponentParameters[j]+PotentialSites[i];
-				ReturnArray[index][1] = ComponentValues[i][j];
-				index++;
-			}
-		}
-		for(int k = 0;k<NoOfCommonParam;k++){
-			if(SharedComponentParameters[k]=="BONDL"){
-				setBondL(Double.parseDouble(SharedComponentValues[k]));
-			}
-		}
-		int NoOfSimEnvParam = 3;
-		for(int l = 0;l<NoOfSimEnvParam;l++){
-			if(SimEnvParameters[l]=="TEMPERATURE"){
-				setTemperature(Double.parseDouble(SimEnvValues[l]));
-			}
-			
-			if(SimEnvParameters[l]=="STEPS"){
-				setNoOfSteps(Integer.parseInt(SimEnvValues[l]));
-			}
-			
-			if(SimEnvParameters[l]=="SIGMAHSREF"){
-				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
-			}
-		}
-		return ReturnArray;
-		
-		
-	}
-	
-	
-	
-	public double getCharge(int index) {
-		return charge[index];
-	}
-
-	public void setCharge(double charge, int index) {
-		this.charge[index] = charge;
-	}
-
-	public double getBondL() {
-		return bondL;
-	}
-
-	public void setBondL(double bondL) {
-		this.bondL = bondL;
-	}
-	
 	public int getId() {
 		return id;
 	}
-
-	public double getSigma(int index) {
-		return sigma[index];
-	}
-
-
-	public void setSigma(double sigma,int index) {
-		this.sigma[index] = sigma;
-	}
-
-
-	public double getEpsilon(int index) {
-		return epsilon[index];
-	}
-
-	public void setEpsilon(double epsilon, int index) {
-		this.epsilon[index] = epsilon;
-	}
-
-	/*
-	public void setConformation(){
-		conformation = new IConformation(){
-			public void initializePositions(IAtomList atomList) {
-                // atoms are C, O and O, so we arrange them as 1-0-2
-               
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0, -bondL);
-                atomList.getAtom(2).getPosition().E(0);
-                atomList.getAtom(2).getPosition().setX(0, +bondL);
-            }
-		};
-	}
-		
-        
-        */
-    
 	
 	 public Object clone(){
 		 try{
-			 CreateP2CO2Trappe cloned = ( CreateP2CO2Trappe)super.clone();
+			 CreateP2CO22CLJQ cloned = (CreateP2CO22CLJQ)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -231,41 +165,70 @@ private String[][] setParameterValues() {
 	 }
 
 	
-	//Creates the LJAtom Species
+	public int getSpeciesID() {
+		return SpeciesID;
+	}
+
+	public void setSpeciesID(int speciesID) {
+		SpeciesID = speciesID;
+	}
+	//Getter for ConformationLinear class
+	public ConformationLinear getConformation() {
+		return this.conformation;
+	}
+
+	public void setConformation() {
+		this.conformation = new ConformationLinear(this.space, this.bondLength);
+	}
+	
+	//Creates the LJ Molecule Species
 	public SpeciesFactory createSpeciesFactory(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(ISpace space) {
-	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-	            species.setChildCount(new int[]{1,2});
-	            
-	            IConformation conformation = new IConformation(){
-	    			public void initializePositions(IAtomList atomList) {
-	                    // atoms are C, O and O, so we arrange them as 1-0-2
-	                   
-	                    atomList.getAtom(0).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().setX(0, -bondL);
-	                    atomList.getAtom(2).getPosition().E(0);
-	                    atomList.getAtom(2).getPosition().setX(0, +bondL);
-	                }
-	    		};
-	            
-	            species.setConformation(conformation);
-	            return species;
-	        }
-	    };
-	    return factory;
+		SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
+		return speciesFactory;
+	}
+	
+	
+	
+	public double getSigma(int index) {
+		return sigma[index];
 	}
 
+	public void setSigma(double sigma, int index) {
+		this.sigma[index] = sigma;
+	}
 
+	public double getEpsilon(int index) {
+		return epsilon[index];
+	}
+
+	public void setEpsilon(double epsilon, int index) {
+		this.epsilon[index] = epsilon;
+	}
+
+	public double getMoment(int index) {
+		return moment[index];
+	}
+
+	public void setMoment(double moment, int index) {
+		this.moment[index] = moment;
+	}
+
+	public double getBondLength() {
+		return bondLength;
+	}
+	
+	public void setBondLength(double bondLength) {
+		this.bondLength = bondLength;
+	}
+
+	@Override
 	public int getParameterCount() {
-		return 2;
+		return 4;
 	}
 
-
+	@Override
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
-		
 		for(int i=0;i<PotentialSites.length;i++){
 			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
 				setSigma(Double.parseDouble(ParameterValue),i); 
@@ -273,26 +236,27 @@ private String[][] setParameterValues() {
 			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+getPotentialSiteAtIndex(i))){
-				setCharge(Double.parseDouble(ParameterValue),i); 
+			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+				setMoment(Double.parseDouble(ParameterValue),i); 
 			}
+			
 		}
-			if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-				setBondL(Double.parseDouble(ParameterValue)); 
-			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-				setTemperature(Double.parseDouble(ParameterValue)); 
-			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-				setNoOfSteps(Integer.parseInt(ParameterValue)); 
-			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
-				setSigmaHSRef(Double.parseDouble(ParameterValue)); 
-			}
+		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+			setBondLength(Double.parseDouble(ParameterValue)); 
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			setTemperature(Double.parseDouble(ParameterValue)); 
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			setNoOfSteps(Integer.parseInt(ParameterValue)); 
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
+		}
 		
 	}
 
-
+	@Override
 	public String getDescription(String Parameter) {
 		String Description = null;
 		for(int i = 0;i <PotentialSites.length;i++){
@@ -302,14 +266,15 @@ private String[][] setParameterValues() {
 			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
 				Description = ParametersDouble.EPSILON.Description();
 			}
-
-			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+PotentialSites[i])){
-				Description = ParametersDouble.CHARGE.Description();
+		
+			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+				Description = ParametersDouble.MOMENT.Description();
 			}
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			Description = ParametersDouble.BONDL.Description();
 		}
+		
 		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
 			Description = ParametersDouble.TEMPERATURE.Description();
 		}
@@ -322,11 +287,16 @@ private String[][] setParameterValues() {
 		return Description;
 	}
 
+	//Testing Class
+	public static void main(String[] args){
+		CreateP2CO22CLJQ lj = new CreateP2CO22CLJQ();
+		
+	}
 
+	@Override
 	public Double getDoubleDefaultParameters(String Parameter) {
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
-		
 		for(int i=0;i<PotentialSites.length;i++){
 			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
 				parameterValue = getSigma(i);
@@ -335,12 +305,12 @@ private String[][] setParameterValues() {
 				parameterValue = getEpsilon(i);
 			}
 		
-			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+PotentialSites[i])){
-				parameterValue = getCharge(i);
+			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+				parameterValue = getMoment(i);
 			}
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-			parameterValue = getBondL();
+			parameterValue = getBondLength();
 		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
 			parameterValue = getTemperature();
@@ -354,7 +324,9 @@ private String[][] setParameterValues() {
 		}
 		return parameterValue;
 	}
-	
+
+
+
 	public String[] getParametersArray() {
 		return ComponentParameters;
 	}
@@ -362,8 +334,9 @@ private String[][] setParameterValues() {
 	@Override
 	public String getCustomName() {
 		// TODO Auto-generated method stub
-		return "TRAPPE";
+		return "2CLJQ";
 	}
+
 
 	public String getPotentialSites(int index) {
 		return PotentialSites[index];
@@ -381,6 +354,7 @@ private String[][] setParameterValues() {
 		return PotentialSites;
 	}
 
+	
 	@Override
 	public String getMoleculeDisplayName() {
 		// TODO Auto-generated method stub
@@ -391,16 +365,16 @@ private String[][] setParameterValues() {
 	
 	public Class getPotential() {
 		// TODO Auto-generated method stub
-		return P2CO2TraPPE.class;
+		return P22CLJQ.class;
 	}
-
+	
 	@Override
 	public Space getSpace() {
 		// TODO Auto-generated method stub
 		return this.space;
 	}
 
-
+	@Override
 	public boolean hasElectrostaticInteraction() {
 		// TODO Auto-generated method stub
 		return false;
@@ -411,5 +385,6 @@ private String[][] setParameterValues() {
 		// TODO Auto-generated method stub
 		return "LennardJones";
 	}
+
 
 }
