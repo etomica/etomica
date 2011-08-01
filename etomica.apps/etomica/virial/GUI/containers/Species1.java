@@ -51,11 +51,14 @@ import javax.swing.table.TableModel;
 
 
 
+import etomica.virial.GUI.components.CheckCompatability;
 import etomica.virial.GUI.components.CreateP22CLJQ;
+import etomica.virial.GUI.components.CreateP2AlkaneSKS;
 import etomica.virial.GUI.components.CreateP2AlkaneTrappe;
 import etomica.virial.GUI.components.CreateP2CO22CLJQ;
 import etomica.virial.GUI.components.CreateP2CO2EMP2;
 import etomica.virial.GUI.components.CreateP2CO2Trappe;
+import etomica.virial.GUI.components.CreateP2Ethane2CLJQ;
 import etomica.virial.GUI.components.CreateP2LJ;
 import etomica.virial.GUI.components.CreateP2LJQ;
 import etomica.virial.GUI.components.CreateSimulation;
@@ -112,13 +115,13 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	private Class[] MethanePotentialClassList = {CreateP2AlkaneTrappe.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] EthanePotentialClassList = {CreateP2AlkaneTrappe.class};
+	private Class[] EthanePotentialClassList = {CreateP2AlkaneTrappe.class, CreateP2AlkaneSKS.class, CreateP2Ethane2CLJQ.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] PropanePotentialClassList = {CreateP2AlkaneTrappe.class};
+	private Class[] PropanePotentialClassList = {CreateP2AlkaneTrappe.class,CreateP2AlkaneSKS.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] nAlkanePotentialClassList = {CreateP2AlkaneTrappe.class};
+	private Class[] nAlkanePotentialClassList = {CreateP2AlkaneTrappe.class, CreateP2AlkaneSKS.class};
 	
 	//For each species...
 	private String PotentialType = null;
@@ -198,6 +201,7 @@ public void initComponents(){
 		SpeciesJList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		SpeciesJList.setVisibleRowCount(-1);
 		SpeciesJList.addListSelectionListener(this);
+		SpeciesJList.setBorder(BorderFactory.createLineBorder(Color.black));
 	
  
 		JScrollPane SpeciesListScroller = new JScrollPane(SpeciesJList);
@@ -1196,6 +1200,10 @@ public void actionPerformed(ActionEvent e){
 						}
 					}
 				}
+				
+				CheckCompatability checkSpecies = new CheckCompatability();
+				checkSpecies.checkIfCompatible(potential1,potential2,OtherParamObject);
+				
 				simulation.runSimulation(OtherParamObject);
 			} catch (NoSuchMethodException e1) {
 				// TODO Auto-generated catch block
@@ -1637,7 +1645,7 @@ public void actionPerformed(ActionEvent e){
 										return;
 									}
 									else{
-										potential2 = (ParameterMapping) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
+										potential2 = (ParameterMapping) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
 									}
 								
 							}

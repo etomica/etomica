@@ -9,8 +9,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
+import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.iterator.ApiIntergroup;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.graphics.ColorSchemeRandomByMolecule;
@@ -21,6 +23,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
+import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -65,11 +68,21 @@ public class CreateSimulation {
 	private boolean Species2IntraNonBondedPotentialFlag;
 	private boolean Species1IntraBondedPotentialFlag;
 	private boolean Species2IntraBondedPotentialFlag;
+	private boolean MolecularFlag;
+	
+	private boolean Species1ChargeFlag;
+	private boolean Species2ChargeFlag;
+	
+	private boolean Species1MomentFlag;
+	private boolean Species2MomentFlag;
 	
 	private double temperature;
 	private double SigmaHSRef;
 	private int steps;
-	private PotentialGroup pInterTargetGroup;
+	
+	private PotentialGroup p11InterTargetGroup;
+	private PotentialGroup p22InterTargetGroup;
+	private PotentialGroup p12InterTargetGroup;
 	private PotentialGroup pIntra1TargetGroup;
 	private PotentialGroup pIntra2TargetGroup;
 	
@@ -99,35 +112,18 @@ public class CreateSimulation {
 	
 	@SuppressWarnings("unchecked")
 	public void runSimulation(SimulationEnvironment simenv) throws NoSuchMethodException{
+		/*
 		SimEnv = simenv;
+		//All Environment variables set first
+		temperature = SimEnv.getTemperature();
+		steps = SimEnv.getNoOfSteps();
 		System.out.println(potential[0].getClass().getName());
+
 		
+		//Are we having a mixture? 
 		if(potential[1] != null){
+			//Yes, We have a mixture of species!!!
 			InterNonBondedPotentialFlag = true;
-			if(potential[1].getPotentialSites().length > 1){
-				if (etomica.api.IPotentialMolecular.class.isAssignableFrom(potential[1].getPotential())){
-					Species2IntraNonBondedPotentialFlag = false;
-					for(int i =0;i<potential[1].getPotentialSites().length;i++){
-						if(potential[1].getPotentialSiteAtIndex(i).contains("CH3")){
-							Species2IntraBondedPotentialFlag = true;
-						}
-						else{
-							Species2IntraBondedPotentialFlag = false;
-						}
-					}
-				}
-				else{
-					Species2IntraNonBondedPotentialFlag = true;
-					for(int i =0;i<potential[1].getPotentialSites().length;i++){
-						if(potential[1].getPotentialSiteAtIndex(i).contains("CH3")){
-							Species2IntraBondedPotentialFlag = true;
-						}
-						else{
-							Species2IntraBondedPotentialFlag = false;
-						}
-					}
-				}
-			}
 		}
 		else{
 			InterNonBondedPotentialFlag = false;
@@ -135,73 +131,110 @@ public class CreateSimulation {
 			Species2IntraBondedPotentialFlag = false;
 		}
 		
-		
-		if(potential[0].getPotentialSites().length > 1){
-			if (etomica.api.IPotentialMolecular.class.isAssignableFrom(potential[0].getPotential())){
-				Species1IntraNonBondedPotentialFlag = false;
-				for(int i =0;i<potential[0].getPotentialSites().length;i++){
-					if(potential[0].getPotentialSiteAtIndex(i).contains("CH3")){
-						Species1IntraBondedPotentialFlag = true;
-					}
-					else{
+		if(InterNonBondedPotentialFlag == true){
+			for(int i = 0;i < 2;i++){
+				//We figure details abt each of the potential
+				
+				//If molecular or atomic
+				if (etomica.api.IPotentialMolecular.class.isAssignableFrom(potential[i].getPotential())){
+
+					//If potentialsites existing are greater than 1, although we dont have a intrabonded or intra non-bonded potential, but we have 
+					//cross potentials
+					if(i==0){
 						Species1IntraBondedPotentialFlag = false;
+						pIntra1TargetGroup = null;
+					}
+					if(i==1){
+						Species2IntraBondedPotentialFlag = false;
+						pIntra2TargetGroup = null;
 					}
 				}
-			}
-			else{
-				Species1IntraNonBondedPotentialFlag = true;
-				for(int i =0;i<potential[0].getPotentialSites().length;i++){
-					if(potential[0].getPotentialSiteAtIndex(i).contains("CH3")){
-						Species1IntraBondedPotentialFlag = true;
+				if(etomica.potential.Potential2SoftSpherical.class.isAssignableFrom(potential[i].getPotential())){
+					
+						//Inter-bonded potentials is to be gathered especially for alkanes, alcohol, etc
+						if(i==0){
+							if(SimEnv.getAlkane1Spheres() > 1){
+								Species1IntraBondedPotentialFlag = true;
+							}
+							else{
+								Species1IntraBondedPotentialFlag = false;
+								pIntra1TargetGroup = null;
+							}
+						}
+						if(i==1){
+							if(SimEnv.getAlkane2Spheres() > 1){
+								Species2IntraBondedPotentialFlag = true;
+							}
+							else{
+								Species2IntraBondedPotentialFlag = false;
+								pIntra2TargetGroup = null;
+							}
+						}
+				}
+				
+				
+				//If potential describing the interaction incluses charges or moments
+				String[] tempArray = potential[i].getParametersArray();
+				for(int j=0; j< tempArray.length;j++){
+					if(tempArray[j].equals("CHARGE")){
+						if(i == 0){
+							Species1ChargeFlag = true;}
+						if(i == 1){
+							Species2ChargeFlag = true;}
+						
 					}
-					else{
-						Species1IntraBondedPotentialFlag = false;
+					if(tempArray[j].equals("MOMENT")||tempArray[j].equals("MOMENTSQR")){
+						//Dipole /Quadrapole moment exists!
+						if(i == 0){
+							Species1MomentFlag = true;}
+						if(i == 1){
+							Species2MomentFlag = true;}
+
 					}
 				}
+			
+				
+				
+				
+			//end of for loop for potentials
 			}
+			
+			
+			//Condition for electrostatic interaction included
+			if((Species1ChargeFlag && Species2ChargeFlag)|| (Species1MomentFlag && Species2MomentFlag)){
+				
+				
+			}
+			
+		//end of if statement for potential2 not equal to null	
 		}
-		else{
-			Species1IntraNonBondedPotentialFlag = false;
-			Species1IntraBondedPotentialFlag = false;
-		}
 		
 		
 		
-		//All Environment variables set first
-		temperature = SimEnv.getTemperature();
-		steps = SimEnv.getNoOfSteps();
+		
+		
+
+		
+		
+		
+		
 		
 		
 		//SigmaHSRef will vary according to mixing rules
 		SigmaHSRef = SimEnv.getSigmaHSRef();
 		if(!InterNonBondedPotentialFlag){
-			if(potential[0].getClass().getName().contains("P2Alkane")){
-				if(Species1IntraBondedPotentialFlag){
-					for(int i =0;i<potential[0].getPotentialSites().length;i++){
-						if(potential[0].getPotentialSiteAtIndex(i).contains("CH2")){
-							if(potential[0].getMoleculeDisplayName().contains("n-Alkane")){
-								SigmaHSRef=potential[0].getDoubleDefaultParameters("SIGMACH3")+(SimEnv.getAlkane1Spheres()*0.5);
-							}
-							else{
-								SigmaHSRef=potential[0].getDoubleDefaultParameters("SIGMACH3")+(0.5*3);}
-						}
-						else{
-							
-							SigmaHSRef=potential[0].getDoubleDefaultParameters("SIGMACH3")+(0.5*2);
-						}
-					}
-				}
-				else{
-					if(potential[0].getPotentialSiteAtIndex(0).contains("CH3")){
-						SigmaHSRef=potential[0].getDoubleDefaultParameters("SIGMACH3")+(0.5);
-					}
-					else{
-						SigmaHSRef=potential[0].getDoubleDefaultParameters("SIGMACH4")+(0.5);
-					}
-				}
-			}
+			
 		}
 		//For Alkane mixtures
+		
+		final double[] HSB = new double[9];
+        HSB[2] = Standard.B2HS(SigmaHSRef);
+        HSB[3] = Standard.B3HS(SigmaHSRef);
+        HSB[4] = Standard.B4HS(SigmaHSRef);
+        HSB[5] = Standard.B5HS(SigmaHSRef);
+        HSB[6] = Standard.B6HS(SigmaHSRef);
+        HSB[7] = Standard.B7HS(SigmaHSRef);
+        HSB[8] = Standard.B8HS(SigmaHSRef);
 		
 		 MayerHardSphere fRef = new MayerHardSphere(SigmaHSRef);
 	     MayerEHardSphere eRef = new MayerEHardSphere(SigmaHSRef);
@@ -325,12 +358,10 @@ public class CreateSimulation {
 			    		    eTarget = new MayerEGeneral((IPotentialMolecular)Species1Potentials[0]);
 						}
 						else{
-							//pIntra1TargetGroup = new PotentialGroup(2);
-							//pIntra1TargetGroup.addPotential((IPotentialAtomic)Species1Potentials[0], new ApiIntergroup());
-							fTarget1 = new MayerGeneralSpherical((P2LennardJones)Species1Potentials[0]);
-					        eTarget1 = new MayerESpherical((P2LennardJones)Species1Potentials[0]);
-							//fTarget = new MayerGeneral(pIntra1TargetGroup);
-			    		    //eTarget = new MayerEGeneral(pIntra1TargetGroup);
+							pIntra1TargetGroup = new PotentialGroup(2);
+							pIntra1TargetGroup.addPotential((IPotentialAtomic)Species1Potentials[0], new ApiIntergroup());
+							fTarget = new MayerGeneral(pIntra1TargetGroup);
+			    		    eTarget = new MayerEGeneral(pIntra1TargetGroup);
 						}
 						
 						
@@ -339,7 +370,7 @@ public class CreateSimulation {
 	    		 
 	    	 }
 	    	else{
-	    		pInterTargetGroup = new PotentialGroup(2);
+	    		p11InterTargetGroup = new PotentialGroup(2);
 	    		if(Species1IntraNonBondedPotentialFlag){
 	    			pIntra1TargetGroup = new PotentialGroup(2);
 	    		}
@@ -370,108 +401,25 @@ public class CreateSimulation {
 	     }
 	     
 	     space = potential[0].getSpace();
-	     ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget1, nPoints>3, eTarget1, true);
+	     
+	     ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);
 	     targetCluster.setTemperature(temperature);
 	     ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
 	     refCluster.setTemperature(temperature);
 	     
 	     System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 	     
-	     final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
+	     final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,potential[0].createSpeciesFactory(), temperature,refCluster,targetCluster);
 	     
 	     sim.integratorOS.setNumSubSteps(1000);
 	     int blocksize = 100;
 	     sim.setAccumulatorBlockSize(blocksize);
 	        
-	       
-	        
-	        
-	        if (false) {
-	            double size = 5;
-	            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-	            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-	            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
-	            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
-	            DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-	            displayBox0.setPixelUnit(new Pixel(300.0/size));
-	            displayBox1.setPixelUnit(new Pixel(300.0/size));
-	            displayBox0.setShowBoundary(false);
-	            displayBox1.setShowBoundary(false);
-	            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-	            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
-	            
-	            
-	            DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
-	           // diameterManager.setDiameter(typeCH2, 0.8*sigmaCH2);
-	            diameterManager.setDiameter(sim.getSpecies(0).getAtomType(0),1.0);
-	            displayBox1.setDiameterHash(diameterManager);
-	            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
-	            displayBox0.setColorScheme(colorScheme);
-	            colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
-	            displayBox1.setColorScheme(colorScheme);
-	            simGraphic.makeAndDisplayFrame();
-
-	            sim.integratorOS.setNumSubSteps(1000);
-	            sim.setAccumulatorBlockSize(1000);
-	                
-	            // if running interactively, set filename to null so that it doens't read
-	            // (or write) to a refpref file
-	            sim.getController().removeAction(sim.ai);
-	            sim.getController().addAction(new IAction() {
-	                public void actionPerformed() {
-	                    sim.initRefPref(null, 10);
-	                    sim.equilibrate(null, 20);
-	                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-	                }
-	            });
-	            sim.getController().addAction(sim.ai);
-	            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
-	                throw new RuntimeException("Oops");
-	            }
-	            
-	            final DisplayTextBox averageBox = new DisplayTextBox();
-	            averageBox.setLabel("Average");
-	            final DisplayTextBox errorBox = new DisplayTextBox();
-	            errorBox.setLabel("Error");
-	            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-	            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
-	            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-	            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-	            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
-	            simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
-	            
-	            IAction pushAnswer = new IAction() {
-	                public void actionPerformed() {
-	                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-	                    double ratio = ratioAndError[0];
-	                    double error = ratioAndError[1];
-	                    data.x = ratio;
-	                    averageBox.putData(data);
-	                    data.x = error;
-	                    errorBox.putData(data);
-	                }
-	                
-	                DataDouble data = new DataDouble();
-	            };
-	            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
-	            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
-	            averageBox.putDataInfo(dataInfo);
-	            averageBox.setLabel("average");
-	            averageBox.setUnit(unit);
-	            errorBox.putDataInfo(dataInfo);
-	            errorBox.setLabel("error");
-	            errorBox.setPrecision(2);
-	            errorBox.setUnit(unit);
-	            sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
-	            
-	            return;
-	        }
-	        
 	        IAction progressReport = new IAction() {
 	            public void actionPerformed() {
 	                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
 	                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-	               // System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
+	                System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
 	            }
 	        };
 	        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
@@ -495,6 +443,7 @@ public class CreateSimulation {
 			return n * Factorial(n-1);
 	}
 
-	
+	*/
+	}
 
 }
