@@ -47,7 +47,8 @@ public class Adsorption extends Simulation {
         //controller and integrator
 	    integratorMD = new IntegratorHard(this, potentialMaster, space);
 	    integratorMD.setTimeStep(0.0005);
-	    integratorMD.setIsothermal(false);
+	    integratorMD.setIsothermal(true);
+	    integratorMD.setThermostatInterval(10000);
 	    
 	    integratorMC = new IntegratorMC(potentialMaster, random, 2);
 	    integratorMC.setTemperature(1);
@@ -99,13 +100,13 @@ public class Adsorption extends Simulation {
         p1WallA.setSigma(sigma);
         p1WallA.setRange(sigma/2);
         p1WallA.setEpsilon(epsilonWF);
-        p1WallA.setThermalize(integratorMC, 0.1, random);
+        p1WallA.setThermalize(integratorMC, 0.0, random);
 
         p1WallB = new P1Wall(space);
         p1WallB.setSigma(sigma);
         p1WallB.setRange(sigma/2);
         p1WallB.setEpsilon(epsilonWF);
-        p1WallB.setThermalize(integratorMC, 0.1, random);
+        p1WallB.setThermalize(integratorMC, 0.0, random);
 
         potentialMaster.addPotential(p1WallA, new IAtomType[]{speciesA.getLeafType()});
         potentialMaster.addPotential(p1WallB, new IAtomType[]{speciesB.getLeafType()});
