@@ -19,8 +19,8 @@ import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP2WaterSPC implements ParameterMapping,Cloneable{
-	private static String MoleculeDisplayName = "H2O - SPC";
+public class CreateP2WaterSPCE implements ParameterMapping,Cloneable{
+	private static String MoleculeDisplayName = "H2O - SPCE";
 	private Space space;
 	private double[] sigma;
 	private double[] epsilon;
@@ -96,7 +96,7 @@ public class CreateP2WaterSPC implements ParameterMapping,Cloneable{
 	//Constructors for different Instantiations
 
 
-	public CreateP2WaterSPC(){
+	public CreateP2WaterSPCE(){
 		space = Space3D.getInstance();
 		sigma = new double[PotentialSites.length];
 		epsilon = new double[PotentialSites.length];
@@ -335,7 +335,7 @@ private String[][] setParameterValues() {
 	@Override
 	public String getCustomName() {
 		// TODO Auto-generated method stub
-		return "TRAPPE";
+		return "SPCE";
 	}
 
 	public String getPotentialSites(int index) {

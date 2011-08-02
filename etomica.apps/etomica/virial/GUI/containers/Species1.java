@@ -61,6 +61,7 @@ import etomica.virial.GUI.components.CreateP2CO2Trappe;
 import etomica.virial.GUI.components.CreateP2Ethane2CLJQ;
 import etomica.virial.GUI.components.CreateP2LJ;
 import etomica.virial.GUI.components.CreateP2LJQ;
+import etomica.virial.GUI.components.CreateP2WaterSPCE;
 import etomica.virial.GUI.components.CreateSimulation;
 import etomica.virial.GUI.components.ParameterMapping;
 import etomica.virial.GUI.components.SimulationEnvironment;
@@ -122,6 +123,11 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	
 	@SuppressWarnings("rawtypes")
 	private Class[] nAlkanePotentialClassList = {CreateP2AlkaneTrappe.class, CreateP2AlkaneSKS.class};
+	
+	@SuppressWarnings("rawtypes")
+	private Class[] WaterPotentialClassList = {CreateP2WaterSPCE.class};
+	
+	
 	
 	//For each species...
 	private String PotentialType = null;
@@ -506,6 +512,10 @@ public void initComponents(){
 				break;
 			case 7:
 				PotentialType = "Napthalene";
+				break;
+			case 9:
+				PotentialType = "Water";
+				setPotentialList(WaterPotentialClassList,PotentialType);
 				break;
 		}
 		
@@ -1045,6 +1055,13 @@ public void actionPerformed(ActionEvent e){
 					setPotentialList(nAlkanePotentialClassList,"n-Alkane");
 
 				}
+				
+				if(SpeciesJList.getSelectedIndex() == 9){
+					Description.setText(" ");
+					Description.append("We now create a single Water Molecule\n");
+					setPotentialList(WaterPotentialClassList,"Water");
+
+				}
 			
 		}
 		
@@ -1546,6 +1563,21 @@ public void actionPerformed(ActionEvent e){
 						NSpheres.getCloseWindow().addActionListener(this);
 						NSpheres.getSaveValues().addActionListener(this);
 						
+						
+					}
+					
+					if(PotentialType == "Water"){
+						potentialList = WaterPotentialClassList;
+						EditVariables.setEnabled(false);
+						
+						table1.setEnabled(true);
+						table2.setEnabled(true);
+						
+						if(list.getSelectedIndex() == 0){
+							Description.setText(" ");
+							Description.append("We now create a single Water Molecule\n");
+							Description.append("Modelled as SPC\n");
+							}
 						
 					}
 					

@@ -295,10 +295,10 @@ public class CheckCompatability {
 				String[] P2 = potential2.getPotentialSites();
 				for(int k = 0;k < 2;k++){
 					if(potential[k].getPotential().getConstructors().length > 1){
-						OneConstructor = true;
+						OneConstructor = false;
 					}
 					else if(potential[k].getPotential().getConstructors().length == 1){
-						OneConstructor = false;
+						OneConstructor = true;
 					}
 					int numberofParameters = potential[k].getParametersArray().length;
 					Object[][] ParamValueCrossObj = new Object[numberofParameters][3];
