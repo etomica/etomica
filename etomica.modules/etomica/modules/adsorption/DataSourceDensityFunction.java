@@ -18,10 +18,16 @@ public class DataSourceDensityFunction implements IEtomicaDataSource {
     protected final DataInfoFunction dataInfo;
     protected final DataSourceIndependentSimple xDataSource;
     protected final DataTag tag;
+    protected final boolean isLiquid;
     protected double pressure;
     
     public DataSourceDensityFunction(EOSSW eos, double xMin, double xMax) {
+        this(eos, xMin, xMax, false);
+    }
+    
+    public DataSourceDensityFunction(EOSSW eos, double xMin, double xMax, boolean isLiquid) {
         this.eos = eos;
+        this.isLiquid = isLiquid;
         data = new DataFunction(new int[]{2});
         double[] xData = new double[]{xMin,xMax};
         DataInfoDoubleArray xDataInfo = new DataInfoDoubleArray("x", Length.DIMENSION, new int[]{2});
@@ -37,7 +43,12 @@ public class DataSourceDensityFunction implements IEtomicaDataSource {
     
     public IData getData() {
         double[] yData = data.getData();
-        double rho = eos.rhoForPressure(pressure);
+        double p = pressure;
+        if (isLiquid) {
+            p = eos.pSat()*1.000001;
+            if (p < pressure) p = pressure;
+        }
+        double rho = eos.rhoForPressure(p);
         yData[0] = rho;
         yData[1] = rho;
         return data;

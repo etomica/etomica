@@ -96,9 +96,9 @@ public class AdsorptionGraphic extends SimulationGraphic {
         tempSlider = new DeviceThermoSlider(sim.getController(), sim.integratorMC);
 //        tempSlider.setUnit(Kelvin.UNIT);
         tempSlider.setMinimum(0.0);
-        tempSlider.setMaximum(5);
+        tempSlider.setMaximum(3);
         tempSlider.setPrecision(1);
-        tempSlider.setSliderMajorValues(5);
+        tempSlider.setSliderMajorValues(6);
         tempSlider.setUnit(tUnit);
         tempSlider.setIsothermalButtonsVisibility(false);
 
@@ -184,10 +184,10 @@ public class AdsorptionGraphic extends SimulationGraphic {
         pSlider.setShowBorder(true);
         pSlider.setBorderAlignment(TitledBorder.CENTER);
         pSlider.setShowValues(true);
-        pSlider.setMinimum(-4);
+        pSlider.setMinimum(-5);
         pSlider.setPrecision(1);
         pSlider.setMaximum(0);
-        pSlider.setNMajor(4);
+        pSlider.setNMajor(5);
         final ModifierPMu pmu = new ModifierPMu(sim.p2AA, sim.integratorMC, eos, sim.mcMoveIDA, meterCountAtoms);
         pmu.setValue(-4);
         pSlider.setModifier(pmu);
@@ -216,16 +216,23 @@ public class AdsorptionGraphic extends SimulationGraphic {
       
         final DataSourceDensityFunction nominalDensity = new DataSourceDensityFunction(eos, yMin, yMax);
         nominalDensity.setPressure(Math.pow(10, pSlider.getValue()));
+        profilePlot.setLegend(new DataTag[]{nominalDensity.getTag()}, "A (bulk)");
+        DataPumpListener pumpNominalDensity = new DataPumpListener(nominalDensity, profilePlot.getDataSet().makeDataSink(), 100);
+        sim.integratorHybrid.getEventManager().addListener(pumpNominalDensity);
+
+        final DataSourceDensityFunction nominalLiquidDensity = new DataSourceDensityFunction(eos, yMin, yMax, true);
+        nominalLiquidDensity.setPressure(Math.pow(10, pSlider.getValue()));
+        profilePlot.setLegend(new DataTag[]{nominalLiquidDensity.getTag()}, "Aliq (bulk)");
+        DataPumpListener pumpNominalLiquidDensity = new DataPumpListener(nominalLiquidDensity, profilePlot.getDataSet().makeDataSink(), 100);
+        if (false) sim.integratorHybrid.getEventManager().addListener(pumpNominalLiquidDensity);
         pSlider.setPostAction(new IAction() {
             public void actionPerformed() {
                 updatePRatio.actionPerformed();
                 double p = Math.pow(10, pSlider.getValue());
                 nominalDensity.setPressure(p);
+                nominalLiquidDensity.setPressure(p);
             }
         });
-        profilePlot.setLegend(new DataTag[]{nominalDensity.getTag()}, "A (bulk)");
-        DataPumpListener pumpNominalDensity = new DataPumpListener(nominalDensity, profilePlot.getDataSet().makeDataSink(), 100);
-        sim.integratorHybrid.getEventManager().addListener(pumpNominalDensity);
 
         final DeviceSlider epsSlider = new DeviceSlider(sim.getController());
         epsSlider.setShowBorder(true);
@@ -233,7 +240,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         epsSlider.setShowValues(true);
         epsSlider.setMinimum(0);
         epsSlider.setPrecision(1);
-        epsSlider.setMaximum(5);
+        epsSlider.setMaximum(10);
         epsSlider.setNMajor(5);
         final ModifierGeneral epsModifier = new ModifierGeneral(sim.p1WallA, "epsilon");
         epsSlider.setModifier(epsModifier);
