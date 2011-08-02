@@ -170,6 +170,10 @@ public class DeviceThermoSlider extends Device {
     	temperatureSlider.setNMajor(major);
     }
 
+    public void setSliderMinorValues(int minor) {
+        temperatureSlider.setNMinor(minor);
+    }
+
     /**
      * @return The panel that holds all graphical objects for the DeviceThermoSlider.
      */
