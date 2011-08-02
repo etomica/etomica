@@ -20,6 +20,7 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.data.meter.MeterNMolecules;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.graphics.DeviceButton;
@@ -362,6 +363,14 @@ public class AdsorptionGraphic extends SimulationGraphic {
         });
 
         tabB.add(tabBB, SimulationPanel.getVertGBC());
+        
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integratorMD);
+        final AccumulatorAverageCollapsing peAvg = new AccumulatorAverageCollapsing();
+        final DataPumpListener pePump = new DataPumpListener(meterPE, peAvg);
+        sim.integratorHybrid.getEventManager().addListener(pePump);
+        dataStreamPumps.add(pePump);
+        DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
+        peDisplay.setAccumulator(peAvg);
 
 //		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
 //        final AccumulatorHistory temperatureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -378,6 +387,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         add(displayCycles);
         add(displayCount);
         add(displayCountB);
+        add(peDisplay);
         add(adsorbedHistoryPlot);
         add(profilePlot);
 //        add(temperatureHistoryPlot);
