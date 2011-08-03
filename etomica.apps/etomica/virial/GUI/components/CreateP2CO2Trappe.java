@@ -44,10 +44,11 @@ public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
 	
 	private String[][] ParamAndValues; 
 	
-	private String[] PotentialSites = {"C","O"};
+	private String[] PotentialSites = {"C","H"};
 	
 	private String[][] ComponentValues = {
-			{"2.8000",Double.toString(Kelvin.UNIT.toSim(27)),Double.toString(Electron.UNIT.toSim(0.70))},
+			//{"2.8000",Double.toString(Kelvin.UNIT.toSim(27)),Double.toString(Electron.UNIT.toSim(0.70))},
+			{"3.1670",Double.toString(Kelvin.UNIT.toSim(78.23)),Double.toString(Electron.UNIT.toSim(-0.82))},
 			{"3.0500",Double.toString(Kelvin.UNIT.toSim(79)),Double.toString((-0.5)*Electron.UNIT.toSim(0.70))}
 			//{"3.1670",Double.toString(Kelvin.UNIT.toSim(78.23)),Double.toString(Electron.UNIT.toSim(-0.82))}
 	};

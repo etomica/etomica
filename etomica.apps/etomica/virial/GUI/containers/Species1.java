@@ -1062,8 +1062,7 @@ public void actionPerformed(ActionEvent e){
 					setPotentialList(WaterPotentialClassList,"Water");
 
 				}
-			
-		}
+					}
 		
 		 
 		if(e.getSource().equals(OtherParamValues)){

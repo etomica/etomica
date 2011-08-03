@@ -349,11 +349,10 @@ public class CheckCompatability {
 					
 					
 				}
-				//getPairSiteValidation(potential1.getPotentialSites(), potential2.getPotentialSites(),potential);
 				String[] NewP1 = getSitesNotParticipating(potential1);
 				String[] NewP2 = getSitesNotParticipating(potential2);
 				
-				String[][] PairWiseAdditiveSites = makePairSites(NewP1,NewP2);
+				String[][] PairWiseAdditiveSites = makePairSites(NewP1,NewP2,potential);
 				
 			}
 			if(potential1.getNonBondedInteractionModel() == "Exp-6"){
@@ -363,7 +362,7 @@ public class CheckCompatability {
 		}
 	
 	}
-	private String[][] makePairSites(String[] newP1, String[] newP2) {
+	private String[][] makePairSites(String[] newP1, String[] newP2, ParameterMapping[] Potential) {
 		String[][] PairSitesDraft = new String[newP1.length*newP2.length][2];
 		int index= 0;
 		for(int i=0;i<newP1.length;i++){
@@ -374,13 +373,55 @@ public class CheckCompatability {
 			}
 		}
 		
-		for(int k=0;k<PairSitesDraft.length;k++){
-			for(int l=PairSitesDraft.length - 1;l>0;l--){
-				if(PairSitesDraft[k][0]==PairSitesDraft[l][1] && PairSitesDraft[k][1]==PairSitesDraft[l][0]){
-					
+		ArrayList<String[]> PairSitesD = new ArrayList<String[]>();
+		for(int i=0;i<PairSitesDraft.length;i++){
+			PairSitesD.add(PairSitesDraft[i]);
+		}
+		
+		System.out.println("Before removing duplicate pairs");
+		for(int i=0;i<PairSitesD.size();i++){
+			String[] temp = (String[])PairSitesD.get(i);
+				System.out.println(temp[0]+" "+temp[1]);
+		}
+		
+		for(int k=0;k<PairSitesD.size();k++){
+			for(int l=PairSitesD.size()- 1;l>k;l--){
+				String[] P1 = PairSitesD.get(k);
+				String[] P2 = PairSitesD.get(l);
+				if(P1[0]==P2[0]&& P1[1]==P2[1])	{
+					PairSitesD.remove(l);
 				}
+				
 			}
 		}
+		
+		System.out.println("Before removing duplicate pairs");
+		for(int i=0;i<PairSitesD.size();i++){
+			String[] temp = (String[])PairSitesD.get(i);
+				System.out.println(temp[0]+" "+temp[1]);
+		}
+		
+		for(int k=0;k<PairSitesD.size();k++){
+			for(int l=PairSitesD.size()- 1;l>k;l--){
+				String[] P1 = PairSitesD.get(k);
+				String[] P2 = PairSitesD.get(l);
+				if(P1[0]==P2[1]&& P1[1]==P2[0])	{
+					if(getPairSiteValidation(P1[0],Potential)){
+						if(getPairSiteValidation(P1[1],Potential)){
+							PairSitesD.remove(l);
+						}
+					}
+				}
+				
+			}
+		}
+		
+		System.out.println("after removing duplicate cross pairs");
+		for(int i=0;i<PairSitesD.size();i++){
+			String[] temp = (String[])PairSitesD.get(i);
+				System.out.println(temp[0]+" "+temp[1]);
+		}
+		
 		return PairSitesDraft;
 	}
 
@@ -478,32 +519,27 @@ public class CheckCompatability {
 		
 	}
 	
-	public void getPairSiteValidation(String[] P1, String[] P2, ParameterMapping[] Potential){
-		Object[][] ParamValueCrossObj = new Object[Potential[0].getParametersArray().length][3];
-		ArrayList<String> CommonPairs = new ArrayList<String>();
+	public boolean getPairSiteValidation(String PotentialSite, ParameterMapping[] Potential){
 		
-		//Find the common Pairs
-		for(int i=0;i < P1.length;i++){
-			for(int j=0;j<P2.length;j++){
-				if(P1[i]==P2[j]){
-					CommonPairs.add(P1[i]);
-				}
+			Object[][] ParamValueCrossObj = null;
+		
+			if(Potential[0].getNonBondedInteractionModel() =="LennardJones"){
+				ParamValueCrossObj = new Object[2][3];
 			}
-		}
-		
-		//retrieve the values of common pairs
-		for(int j=0;j<CommonPairs.size();j++){
-			String PotentialSite = CommonPairs.get(j);
+			
 			for(int k=0;k<2;k++){
 				for(int l=0;l<Potential[k].getPotentialSites().length;l++){
 					if(PotentialSite == Potential[k].getPotentialSiteAtIndex(l)){
 						for(int m=0;m<Potential[k].getParametersArray().length;m++){
 							String Param = Potential[k].getParametersArray()[m];
-							ParamValueCrossObj[m][0] = Param;
-							if(k==0){
-								ParamValueCrossObj[m][1] = Potential[k].getDoubleDefaultParameters(Param+PotentialSite);}
-							if(k==1){
-								ParamValueCrossObj[m][2] = Potential[k].getDoubleDefaultParameters(Param+PotentialSite);}
+							
+							if(Param == "SIGMA"|| Param == "EPSILON"){
+								ParamValueCrossObj[m][0] = Param;
+								if(k==0){
+									ParamValueCrossObj[m][1] = Potential[k].getDoubleDefaultParameters(Param+PotentialSite);}
+								if(k==1){
+									ParamValueCrossObj[m][2] = Potential[k].getDoubleDefaultParameters(Param+PotentialSite);}
+							}
 						}
 					}
 				}
@@ -519,10 +555,13 @@ public class CheckCompatability {
 				}
 			}
 			if(ConfirmIndexFlag != ParamValueCrossObj.length){
-				CommonPairs.remove(CommonPairs.get(j));
+				return true;
+			}
+			else{
+				return false;
 			}
 		}
-	}
+	
 	
 	
 	
