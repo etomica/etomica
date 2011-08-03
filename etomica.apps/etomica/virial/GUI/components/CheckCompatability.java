@@ -2,6 +2,7 @@ package etomica.virial.GUI.components;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import etomica.api.IPotentialMolecular;
 import etomica.potential.PotentialGroup;
@@ -44,6 +45,8 @@ public class CheckCompatability {
 	private Object CrossPotential;
 	
 	private Object[] AllPotentials;
+	
+	private ArrayList<String> SiteNotParticipatingIn1 = new ArrayList<String>();
 	
 	@SuppressWarnings("unchecked")
 	public void checkIfCompatible(ParameterMapping potential1,ParameterMapping potential2,SimulationEnvironment SimENV){
@@ -218,7 +221,7 @@ public class CheckCompatability {
 				Object[] ParamValueObj = new Object[numberofParameters+1];
 
 				ParamValueObj[0] = potential[0].getSpace();
-				if(!OneConstructor){
+				if(!OneConstructor && potential[0].getPotentialSites().length == 1){
 					for(int j=0;j<potential[0].getParametersArray().length;j++){
 						ParamValueObj[j+1]=potential[i].getDoubleDefaultParameters(potential[i].getParametersArray()[j].toUpperCase()+potential[i].getPotentialSiteAtIndex(0));
 						ParamValueCrossObj[0][j]=potential[i].getParametersArray()[j].toUpperCase();
@@ -290,9 +293,9 @@ public class CheckCompatability {
 		if(type == 2){
 			ParameterMapping potential1 = potential[0];
 			ParameterMapping potential2 = potential[1];
+			
 			if(potential1.getNonBondedInteractionModel() == "LennardJones"){
-				String[] P1 = potential1.getPotentialSites();
-				String[] P2 = potential2.getPotentialSites();
+				
 				for(int k = 0;k < 2;k++){
 					if(potential[k].getPotential().getConstructors().length > 1){
 						OneConstructor = false;
@@ -323,9 +326,11 @@ public class CheckCompatability {
 						if(k==0){
 							if(OneConstructor){
 								Species1Molecular = potential[k].getPotential().getConstructor(ParamClass[0]).newInstance(ParamValueObj[0]);
+								
 							}else{
 								Species1Molecular = potential[k].getPotential().getConstructor(ParamClass).newInstance(ParamValueObj);
 							}
+							
 						}
 						else if(k==1){
 							if(OneConstructor){
@@ -334,14 +339,21 @@ public class CheckCompatability {
 							else{
 								Species2Molecular = potential[k].getPotential().getConstructor(ParamClass).newInstance(ParamValueObj);
 							}	
+							
 						}
 					}
 					catch(Exception E){
 						E.printStackTrace();
 					}
 					
+					
+					
 				}
+				//getPairSiteValidation(potential1.getPotentialSites(), potential2.getPotentialSites(),potential);
+				String[] NewP1 = getSitesNotParticipating(potential1);
+				String[] NewP2 = getSitesNotParticipating(potential2);
 				
+				String[][] PairWiseAdditiveSites = makePairSites(NewP1,NewP2);
 				
 			}
 			if(potential1.getNonBondedInteractionModel() == "Exp-6"){
@@ -351,6 +363,29 @@ public class CheckCompatability {
 		}
 	
 	}
+	private String[][] makePairSites(String[] newP1, String[] newP2) {
+		String[][] PairSitesDraft = new String[newP1.length*newP2.length][2];
+		int index= 0;
+		for(int i=0;i<newP1.length;i++){
+			for(int j=0;j<newP2.length;j++){
+				PairSitesDraft[index][0]=newP1[i];
+				PairSitesDraft[index][1]=newP2[j];
+				index++;
+			}
+		}
+		
+		for(int k=0;k<PairSitesDraft.length;k++){
+			for(int l=PairSitesDraft.length - 1;l>0;l--){
+				if(PairSitesDraft[k][0]==PairSitesDraft[l][1] && PairSitesDraft[k][1]==PairSitesDraft[l][0]){
+					
+				}
+			}
+		}
+		return PairSitesDraft;
+	}
+
+
+
 	/*
 	 * Function to find the charges/moments on the potentials
 	 * Input: None
@@ -396,6 +431,96 @@ public class CheckCompatability {
 		}
 		else{
 		return null;
+		}
+	}
+	
+	
+	public String[] getSitesNotParticipating(ParameterMapping Potential){
+		ArrayList<String> TempArray = new ArrayList<String>();
+		for(int i=0;i < Potential.getPotentialSites().length;i++){
+			String PotentialSite = Potential.getPotentialSites()[i];
+			for(int j=0;j<Potential.getParametersArray().length;j++){
+				String Param = Potential.getParametersArray()[j];
+				Double Value = Potential.getDoubleDefaultParameters(Param+PotentialSite);
+				if(Potential.getNonBondedInteractionModel() =="LennardJones"){
+					if(Param == "SIGMA" || Param == "EPSILON"){
+						if(Value == 0.0){
+							if(!TempArray.contains(PotentialSite)){
+								TempArray.add(PotentialSite);
+							}
+						}
+					}
+				}
+				
+				if(Potential.getNonBondedInteractionModel()=="Exp-6"){
+					
+				}
+			}
+		}
+		if(TempArray.size() > 0){
+			String[] NewP = new String[Potential.getPotentialSites().length - TempArray.size()];
+			int index = 0;
+			for(int i=0;i<Potential.getPotentialSites().length;i++){
+				for(int j=0;j<TempArray.size();j++){
+					if(Potential.getPotentialSites()[i]!=TempArray.get(j)){
+						NewP[index]=Potential.getPotentialSites()[i];
+						index++;
+					}
+				}
+			}
+			return NewP;
+		}
+		else{
+			return Potential.getPotentialSites();
+		}
+		
+		
+		
+	}
+	
+	public void getPairSiteValidation(String[] P1, String[] P2, ParameterMapping[] Potential){
+		Object[][] ParamValueCrossObj = new Object[Potential[0].getParametersArray().length][3];
+		ArrayList<String> CommonPairs = new ArrayList<String>();
+		
+		//Find the common Pairs
+		for(int i=0;i < P1.length;i++){
+			for(int j=0;j<P2.length;j++){
+				if(P1[i]==P2[j]){
+					CommonPairs.add(P1[i]);
+				}
+			}
+		}
+		
+		//retrieve the values of common pairs
+		for(int j=0;j<CommonPairs.size();j++){
+			String PotentialSite = CommonPairs.get(j);
+			for(int k=0;k<2;k++){
+				for(int l=0;l<Potential[k].getPotentialSites().length;l++){
+					if(PotentialSite == Potential[k].getPotentialSiteAtIndex(l)){
+						for(int m=0;m<Potential[k].getParametersArray().length;m++){
+							String Param = Potential[k].getParametersArray()[m];
+							ParamValueCrossObj[m][0] = Param;
+							if(k==0){
+								ParamValueCrossObj[m][1] = Potential[k].getDoubleDefaultParameters(Param+PotentialSite);}
+							if(k==1){
+								ParamValueCrossObj[m][2] = Potential[k].getDoubleDefaultParameters(Param+PotentialSite);}
+						}
+					}
+				}
+			}
+		
+			//confirm the values of the common pairs
+			int ConfirmIndexFlag=0;
+			for(int a=0;a<ParamValueCrossObj.length;a++){
+				double ValueP1 = Double.parseDouble(ParamValueCrossObj[a][1].toString());
+				double ValueP2 = Double.parseDouble(ParamValueCrossObj[a][2].toString());
+				if(ValueP1==ValueP2){
+					ConfirmIndexFlag++;
+				}
+			}
+			if(ConfirmIndexFlag != ParamValueCrossObj.length){
+				CommonPairs.remove(CommonPairs.get(j));
+			}
 		}
 	}
 	
