@@ -42,12 +42,12 @@ public class CreateP2WaterSPCE implements ParameterMapping,Cloneable{
 	
 	private String[][] ParamAndValues; 
 	
-	private String[] PotentialSites = {"C","H"};
+	private String[] PotentialSites = {"O","H"};
 	
 	private String[][] ComponentValues = {
 			{"3.1670",Double.toString(Kelvin.UNIT.toSim(78.23)),Double.toString(Electron.UNIT.toSim(-0.82))},
-			//{"0.0","0.0",Double.toString(Electron.UNIT.toSim(0.41))},
-			{"3.0500",Double.toString(Kelvin.UNIT.toSim(79)),Double.toString((-0.5)*Electron.UNIT.toSim(0.70))}
+			{"0.0","0.0",Double.toString(Electron.UNIT.toSim(0.41))},
+			
 			
 	};
 

@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import etomica.api.IPotentialMolecular;
+import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -43,10 +44,12 @@ public class CheckCompatability {
 	private Object Species1Molecular;
 	private Object Species2Molecular;
 	private Object CrossPotential;
+	private Object[] CrossPotentials;
 	
 	private Object[] AllPotentials;
 	
 	private ArrayList<String> SiteNotParticipatingIn1 = new ArrayList<String>();
+	private ArrayList<String[]> UnlikePairs;
 	
 	@SuppressWarnings("unchecked")
 	public void checkIfCompatible(ParameterMapping potential1,ParameterMapping potential2,SimulationEnvironment SimENV){
@@ -264,7 +267,7 @@ public class CheckCompatability {
 				valueA = ParamValueCrossObj[1][i].toString();
 				double ValueA = Double.parseDouble(valueA);
 				valueB = ParamValueCrossObj[2][i].toString();
-				double ValueB = Double.parseDouble(valueB);
+				double ValueB = Double.parseDouble(valueB);		
 				if(ParamValueCrossObj[0][i].toString().contains("SIGMA")){
 					ParamValueObj[i+1] = 0.5*(ValueA+ValueB);
 				}
@@ -352,7 +355,8 @@ public class CheckCompatability {
 				String[] NewP1 = getSitesNotParticipating(potential1);
 				String[] NewP2 = getSitesNotParticipating(potential2);
 				
-				String[][] PairWiseAdditiveSites = makePairSites(NewP1,NewP2,potential);
+				UnlikePairs = makePairSites(NewP1,NewP2,potential);
+				//CrossPotentials = makeCrossPairValues(UnlikePairs,potential,P2LennardJones.class);
 				
 			}
 			if(potential1.getNonBondedInteractionModel() == "Exp-6"){
@@ -362,7 +366,13 @@ public class CheckCompatability {
 		}
 	
 	}
-	private String[][] makePairSites(String[] newP1, String[] newP2, ParameterMapping[] Potential) {
+	
+	/*
+	 * Function to form the unlike pair sites, deletes any duplicates and removes similar cross sites
+	 * Input: String Array, String Array, Potentials
+	 * Output: ArrayList
+	 */
+	private ArrayList<String[]> makePairSites(String[] newP1, String[] newP2, ParameterMapping[] Potential) {
 		String[][] PairSitesDraft = new String[newP1.length*newP2.length][2];
 		int index= 0;
 		for(int i=0;i<newP1.length;i++){
@@ -378,12 +388,6 @@ public class CheckCompatability {
 			PairSitesD.add(PairSitesDraft[i]);
 		}
 		
-		System.out.println("Before removing duplicate pairs");
-		for(int i=0;i<PairSitesD.size();i++){
-			String[] temp = (String[])PairSitesD.get(i);
-				System.out.println(temp[0]+" "+temp[1]);
-		}
-		
 		for(int k=0;k<PairSitesD.size();k++){
 			for(int l=PairSitesD.size()- 1;l>k;l--){
 				String[] P1 = PairSitesD.get(k);
@@ -394,13 +398,7 @@ public class CheckCompatability {
 				
 			}
 		}
-		
-		System.out.println("Before removing duplicate pairs");
-		for(int i=0;i<PairSitesD.size();i++){
-			String[] temp = (String[])PairSitesD.get(i);
-				System.out.println(temp[0]+" "+temp[1]);
-		}
-		
+
 		for(int k=0;k<PairSitesD.size();k++){
 			for(int l=PairSitesD.size()- 1;l>k;l--){
 				String[] P1 = PairSitesD.get(k);
@@ -415,14 +413,7 @@ public class CheckCompatability {
 				
 			}
 		}
-		
-		System.out.println("after removing duplicate cross pairs");
-		for(int i=0;i<PairSitesD.size();i++){
-			String[] temp = (String[])PairSitesD.get(i);
-				System.out.println(temp[0]+" "+temp[1]);
-		}
-		
-		return PairSitesDraft;
+		return PairSitesD;
 	}
 
 
@@ -519,12 +510,27 @@ public class CheckCompatability {
 		
 	}
 	
+	
+	@SuppressWarnings("rawtypes")
+	public Object[] makeCrossPairPotentials(ArrayList<String[]> PairSites,ParameterMapping[] Potential,Class CrossPotentialClass ){
+		
+		
+		
+		
+		
+		
+	return null;
+		
+	}
+	
 	public boolean getPairSiteValidation(String PotentialSite, ParameterMapping[] Potential){
 		
 			Object[][] ParamValueCrossObj = null;
+			int ParamCheck = 0;
 		
 			if(Potential[0].getNonBondedInteractionModel() =="LennardJones"){
 				ParamValueCrossObj = new Object[2][3];
+				ParamCheck=2;
 			}
 			
 			for(int k=0;k<2;k++){
@@ -544,7 +550,6 @@ public class CheckCompatability {
 					}
 				}
 			}
-		
 			//confirm the values of the common pairs
 			int ConfirmIndexFlag=0;
 			for(int a=0;a<ParamValueCrossObj.length;a++){
@@ -554,7 +559,8 @@ public class CheckCompatability {
 					ConfirmIndexFlag++;
 				}
 			}
-			if(ConfirmIndexFlag != ParamValueCrossObj.length){
+			
+			if(ConfirmIndexFlag == ParamCheck){
 				return true;
 			}
 			else{
