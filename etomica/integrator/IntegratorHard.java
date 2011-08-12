@@ -22,6 +22,7 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.INeighborListListener;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculation;
@@ -118,6 +119,9 @@ public class IntegratorHard extends IntegratorMD
         }
         if(this.potentialMaster instanceof PotentialMasterList) {
             ((PotentialMasterList)this.potentialMaster).getNeighborManager(box).getEventManager().addListener(this);
+        }
+        else if (this.potentialMaster instanceof PotentialMasterHybrid) {
+            ((PotentialMasterHybrid)this.potentialMaster).getNeighborManager(box).getEventManager().addListener(this);
         }
     }
 
