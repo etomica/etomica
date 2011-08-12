@@ -81,7 +81,7 @@ public class IntegratorHybrid extends IntegratorBox {
 		    MDStepCount = MDStepRepetitions;
             mcMoveIDA.setupActiveAtoms();
 			mcMoveIDB.setupActiveAtoms();
-			for(int i=0; i<20; i++) {
+			for(int i=0; i<1; i++) {
                 integratorMC.doStep();
             }
 			IAtomList allAtoms = box.getLeafList();

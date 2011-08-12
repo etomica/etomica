@@ -41,12 +41,11 @@ public class Adsorption extends Simulation {
     
     public Adsorption(ISpace _space) {
         super(_space);
-        setRandom(new RandomNumberGenerator(1));
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
         
         //controller and integrator
 	    integratorMD = new IntegratorHard(this, potentialMaster, space);
-	    integratorMD.setTimeStep(0.0005);
+	    integratorMD.setTimeStep(0.005);
 	    integratorMD.setIsothermal(true);
 	    integratorMD.setThermostatInterval(10000);
 	    
@@ -75,13 +74,13 @@ public class Adsorption extends Simulation {
         box = new Box(new BoundaryRectangularSlit(1, 20.0, space), space);
         addBox(box);
 
-        mcMoveIDA = new MyMCMove(integratorMC, random, space, 0.1, sigma, 1);
+        mcMoveIDA = new MyMCMove(integratorMC, random, space, 0.9, sigma, 1);
         mcMoveIDA.setMu(-12);
         integratorMC.getMoveManager().addMCMove(mcMoveIDA);
         mcMoveIDA.setSpecies(speciesA);
         mcMoveIDA.setBox(box);
 
-        mcMoveIDB = new MyMCMove(integratorMC, random, space, 0.1, sigma, 1);
+        mcMoveIDB = new MyMCMove(integratorMC, random, space, 0.9, sigma, 1);
         mcMoveIDB.setMu(-Double.POSITIVE_INFINITY);
         integratorHybrid.setMCMoveInsertDelete(mcMoveIDA, mcMoveIDB);
         mcMoveIDB.setSpecies(speciesB);

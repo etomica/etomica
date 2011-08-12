@@ -78,7 +78,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         IVectorMutable rMax = space.makeVector();
         double Ly = sim.box.getBoundary().getBoxSize().getX(1);
         double yMin = -0.5*Ly+0.5*sim.p1WallA.getSigma();
-        double yMax = (0.5-sim.mcMoveIDA.getZFraction())*Ly - sim.p1WallA.getSigma();
+        double yMax = (0.5-0*sim.mcMoveIDA.getZFraction())*Ly - sim.p1WallA.getSigma();
         rMin.Ea1Tv1(-0.5, sim.box.getBoundary().getBoxSize());
         rMax.Ea1Tv1(0.5, sim.box.getBoundary().getBoxSize());
         rMax.setX(1, yMax);
@@ -95,11 +95,11 @@ public class AdsorptionGraphic extends SimulationGraphic {
 
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController(), sim.integratorMC);
-//        tempSlider.setUnit(Kelvin.UNIT);
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(3);
         tempSlider.setPrecision(1);
-        tempSlider.setSliderMajorValues(6);
+        tempSlider.setSliderMajorValues(3);
+        tempSlider.setSliderMinorValues(2);
         tempSlider.setUnit(tUnit);
         tempSlider.setIsothermalButtonsVisibility(false);
 
