@@ -106,7 +106,7 @@ public class GraphMap {
 
     File f = null;
     try {
-      f = File.createTempFile("tmp_", "svg");
+      f = File.createTempFile("tmp_", ".svg");
       FileOutputStream fos = new FileOutputStream(f);
       try {
         fos.write(mapSVG.getBytes());
