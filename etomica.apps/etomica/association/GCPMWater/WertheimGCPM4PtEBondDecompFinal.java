@@ -4,8 +4,10 @@ import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.api.IPotentialMolecular;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -361,32 +363,25 @@ public class WertheimGCPM4PtEBondDecompFinal {
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
         System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*Math.abs(HSB[nBody]));
-        DataGroup data = (DataGroup)sim.accumulators[0].getData();
-        IData ratioData = data.getData(sim.accumulators[0].RATIO.index);
-        IData ratioErrorData = data.getData(sim.accumulators[0].RATIO_ERROR.index);
-        IData averageData = data.getData(sim.accumulators[0].AVERAGE.index);
-        IData stdevData = data.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = data.getData(sim.accumulators[0].ERROR.index);
-        System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("reference   average: "+averageData.getValue(0)
-                			+" stdev: "+stdevData.getValue(0)
-            				+" error: "+errorData.getValue(0));
-        System.out.println("reference overlap average: "+averageData.getValue(1)
-                			+" stdev: "+stdevData.getValue(1)
-                			+" error: "+errorData.getValue(1));
-        
-        ratioData = data.getData(sim.accumulators[1].RATIO.index);
-        ratioErrorData = data.getData(sim.accumulators[1].RATIO_ERROR.index);
-        averageData = data.getData(sim.accumulators[1].AVERAGE.index);
-        stdevData = data.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-        errorData = data.getData(sim.accumulators[1].ERROR.index);
-        System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("target average: "+averageData.getValue(0)
-                          +" stdev: "+stdevData.getValue(0)
-                          +" error: "+errorData.getValue(0));
-        System.out.println("target overlap average: "+averageData.getValue(1)
-                          +" stdev: "+stdevData.getValue(1)
-                          +" error: "+errorData.getValue(1));
+        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+        System.out.println("reference ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+System.out.println("reference   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
+                +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
+                +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
+System.out.println("reference overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+
+allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
+System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+System.out.println("target average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
+                +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
+                +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
+System.out.println("target overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
     }
     
 	
