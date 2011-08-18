@@ -13,6 +13,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.P2HardAssociationGCPMReference;
 import etomica.models.water.PNWaterGCPM;
+import etomica.models.water.PNWaterGCPMAssociation;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
@@ -26,10 +27,9 @@ import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumPolarizableWertheimProduct4PtFinal;
-import etomica.virial.ConfigurationClusterWertheimGCPM4Pt;
+import etomica.virial.ClusterSumPolarizableWertheimProduct;
+import etomica.virial.ConfigurationClusterWertheimGCPM;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
@@ -41,18 +41,16 @@ import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap;
 
 /**
- * repulsive potential: energy of pair is greater than -3000cal/mol
- * attractive potential: energy of pair is less than -3000cal/mol
- * Wertheim's single attraction-site model of GCPM 
+ * repulsive potential: energy of pair is greater than -association energy(cal/mol)
+ * attractive potential: energy of pair is less than -association energy(cal/mol)
+ * Wertheim's three attraction-site model of GCPM 
+ * Three point diagram
  * Three Site model
- * e-bond in 4 body term is decomposed into eR and F
- * Flipping is applied in 28E calculation
- * final revision Aug 2011
  *
  * @author Hye Min Kim
  */
 
-public class WertheimGCPM4PtEBondDecompFinal {
+public class WertheimGCPM3PtThreeSite {
 
 	public static void main(String[] args) {
 //    	Unit calPerMoles = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
@@ -60,25 +58,22 @@ public class WertheimGCPM4PtEBondDecompFinal {
 //    	System.exit(1);
 		VirialAssociatingFluidParam params = new VirialAssociatingFluidParam();
 		Space space = Space3D.getInstance();
-        double deltaCut = 100;
 		
 		int numDiagram=params.numDiagram;
-		int diagramIndex=params.diagramIndex;
-		final int nBody = 4;//W4
+		int diagramIndex = params.diagramIndex;
+		final int nBody = 3;//W3
 		double temperature=params.temperature;
 		double sigmaHSRef = params.sigmaHSRef;
 		double associationEnergy = params.associationEnergy;
 		long numSteps = params.numSteps;
-		boolean flip = params.flip;
 		
-		if (args.length == 7) {
+		if (args.length == 6) {
         	temperature = Double.parseDouble(args[0]);
             sigmaHSRef = Double.parseDouble(args[1]);
             numSteps = Integer.parseInt(args[2]);
             associationEnergy = Double.parseDouble(args[3]);
             numDiagram = Integer.parseInt(args[4]);
             diagramIndex = Integer.parseInt(args[5]);
-            flip = Boolean.parseBoolean(args[6]);
             
         } else if (args.length != 0){
         	throw new IllegalArgumentException("Wrong number of arguments");
@@ -87,43 +82,32 @@ public class WertheimGCPM4PtEBondDecompFinal {
 		final double[] HSB = new double[9];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
-        HSB[4] = Standard.B4HS(sigmaHSRef);
-        System.out.println("Wertheim's non-additive Wertheim diagram, final version, fij in delta B4 is also decomposed into fR and fAssociation");
-        System.out.println("Wertheim's three association site model && e-bond in 4 body term is decomposed into eR and F");
+        System.out.println("Wertheim's three association site model");
         System.out.println("repulsive potential: GCPM potential - negative charge electrostatic part, attractive potential: negative charge electrostatic potential");
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B2HS: "+HSB[2]);
-        System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
         System.out.println("temperature: "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
 
-        System.out.println("association Energy: "+associationEnergy+"cal/mol");//association energy Unit: cal/mol
+        System.out.println("association Energy: "+associationEnergy+"cal/mole");
     	Unit calPerMole = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
     	associationEnergy = calPerMole.toSim(associationEnergy);
-    	
-        IPotentialMolecular pTarget = new PNWaterGCPM(space);
-        
-        MayerEGeneral e = new MayerEGeneral(pTarget);
-        
+
 		PNWaterGCPMThreeSite pR = new PNWaterGCPMThreeSite(space,associationEnergy,false); //GCPM potential
-		PNWaterGCPMThreeSite pAC = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site A on mol1 and C on mol2
-		PNWaterGCPMThreeSite pCA = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site C on mol1 and A on mol2
-		PNWaterGCPMThreeSite pBC = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site B on mol1 and C on mol2
-		PNWaterGCPMThreeSite pCB = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site C on mol1 and B on mol2
+		PNWaterGCPMThreeSite pAC = new PNWaterGCPMThreeSite(space,associationEnergy,true); //GCPM potential
+		PNWaterGCPMThreeSite pCA = new PNWaterGCPMThreeSite(space,associationEnergy,true); //GCPM potential
+		PNWaterGCPMThreeSite pBC = new PNWaterGCPMThreeSite(space,associationEnergy,true); //GCPM potential
 		pAC.setBondType(1);
 		pCA.setBondType(3);
 		pBC.setBondType(2);
-		pCB.setBondType(4);
 		MayerEGeneral eR = new MayerEGeneral(pR);//repulsion eR function
 		MayerGeneral fR = new MayerGeneral(pR);//Mayer f function of reference part
 		MayerGeneral fAC = new MayerGeneral(pAC);//Mayer f function of association part
 		MayerGeneral fCA = new MayerGeneral(pCA);//Mayer f function of association part
 		MayerGeneral fBC = new MayerGeneral(pBC);//Mayer f function of association part
-		MayerGeneral fCB = new MayerGeneral(pCB);//Mayer f function of association part
-		MayerFunctionProductGeneral FAC = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fAC}, new double[]{1,1});//association bond between site A on mol1 and C on mol2
-		MayerFunctionProductGeneral FCA = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fCA}, new double[]{1,1});//association bond between site C on mol1 and A on mol2
-		MayerFunctionProductGeneral FBC = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fBC}, new double[]{1,1});//association bond between site B on mol1 and C on mol2
-		MayerFunctionProductGeneral FCB = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fCB}, new double[]{1,1});//association bond between site C on mol1 and B on mol2
+		MayerFunctionProductGeneral FAC = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fAC}, new double[]{1,1});//F=eR*fA
+		MayerFunctionProductGeneral FCA = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fCA}, new double[]{1,1});//F=eR*fA
+		MayerFunctionProductGeneral FBC = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fBC}, new double[]{1,1});//F=eR*fA
 		
 		MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
@@ -137,152 +121,131 @@ public class WertheimGCPM4PtEBondDecompFinal {
 		pBCRef.setBondType(2);
 		MayerGeneral fBCRef4mer = new MayerGeneral(pBCRef);
 		
-		int nBondTypes = 7;//fR,FCA,FAC,FCB,FBC,eR
+		int nBondTypes = 5;//fR,FAC,FCA,eR
 		ClusterBonds[] clusters = new ClusterBonds[0];
 		int[][][] bondList = new int[nBondTypes][][];
 		int [][][]refBondList = new int[nBondTypes][][];
-		ClusterAbstract targetCluster = null;
-		
-		System.out.println("Diagram "+numDiagram+"-"+diagramIndex+"E "+"flip "+flip);
-		
-		if (numDiagram == 12 ||numDiagram == 19||numDiagram == 26||numDiagram == 34){
-			HSB[4] = -35.238*-35.238*-35.238;//This value is from direct sampling
-			System.out.println("use hard-chain reference && value = -35.238*-35.238*-35.258 = 43755.611101272");
-		}
-            		
-		if (numDiagram == 12){			
-				if (diagramIndex == 5){
-					refBondList[0] = new int [][]{{0,1},{2,3}};
-					refBondList[1] = new int [][]{{1,2}};
-					bondList[5]=new int [][]{{3,0},{0,2},{1,3}};
-					bondList[1]=new int [][]{{0,1},{2,3}};
-					bondList[2]=new int [][]{{1,2}};
-				}
-		}	else if (numDiagram == 16){
-				if (diagramIndex == 3){
-					bondList[5]=new int [][]{{2,3},{3,0},{1,3},{0,2}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 4){
-					bondList[5]=new int [][]{{2,3},{3,0},{1,3},{0,2}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2}};
-				}
-		}	else if (numDiagram == 19){
-				if (diagramIndex == 3){
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[2] = new int [][]{{2,3}};
-					refBondList[0] = new int [][]{{1,2}};		
-					bondList[5]=new int [][]{{3,0},{1,3},{0,2}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{2,3}};
-					bondList[1]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 4){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0},{1,3},{0,2}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2},{2,3}};
-				}	else if (diagramIndex == 6){
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[0] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0},{1,3},{0,2}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2},{2,3}};
-				}
-		}	else if (numDiagram == 28) {
-			bondList[5]=new int [][]{{0,1},{1,2},{1,3},{3,0},{2,0},{2,3}};
+		ClusterSum targetCluster = null;
+
+		System.out.println("Digaram "+numDiagram+"-"+diagramIndex);
+		if (numDiagram == 3 ) {
+			bondList[0]=new int [][]{{0,1},{1,2},{2,0}};
+			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+			targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FAC,eR});
 			
-		}	else if (numDiagram == 29) {
-			bondList[5]=new int [][]{{1,2},{1,3},{3,0},{2,0},{2,3}};
-			bondList[1]=new int [][]{{0,1}};
-			
-		}	else if (numDiagram == 30){
-				if (diagramIndex == 1){
-					bondList[5]=new int [][]{{2,3},{3,1},{2,0},{0,3}};
-					bondList[1]=new int [][]{{0,1},{1,2}};
-				}	else if (diagramIndex == 2){
-					bondList[5]=new int [][]{{2,3},{3,1},{2,0},{0,3}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{1,2}};
-				}
-		}	else if (numDiagram == 34){
-				if (diagramIndex == 1){
-					refBondList[0] = new int [][]{{0,1},{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0},{0,2},{1,3}};
-					bondList[1]=new int [][]{{0,1},{1,2},{2,3}};
-				}	else if (diagramIndex == 2){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{2,3}};
-					refBondList[2] = new int [][]{{1,2}};
-					bondList[5]=new int [][]{{3,0},{0,2},{1,3}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{2,3}};
-					bondList[4]=new int [][]{{1,2}};
-				}
-		}	else if (numDiagram == 36){
-			bondList[5]=new int [][]{{1,2},{3,0},{0,2},{1,3}};
-			bondList[1]=new int [][]{{0,1},{2,3}};
+		}  else if (numDiagram == 6){
+			if (diagramIndex == 1) {
+				HSB[3] = -35.238*-35.238;//This value is from direct sampling
+				refBondList[1] = new int [][]{{0,1}};
+				refBondList[0] = new int [][]{{1,2}};
+				bondList[2] = new int [][]{{0,1}};
+				bondList[1] = new int [][]{{1,2}};
+				bondList[3] = new int [][]{{2,0}};
+			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+			targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
+			}
+			else if (diagramIndex == 2) {
+				HSB[3] = -35.238*-35.238;//This value is from direct sampling
+				refBondList[0] = new int [][]{{0,1}};
+				refBondList[1] = new int [][]{{1,2}};
+				bondList[1] = new int [][]{{0,1}};
+				bondList[2] = new int [][]{{1,2}};
+				bondList[3] = new int [][]{{2,0}};
+				clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+				targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
+			}
+		}  	else if (numDiagram == 7){
+			if (diagramIndex == 1){
+
+			HSB[3] = -35.238*-35.238;//This value is from direct sampling
+			refBondList[0] = new int [][]{{0,1},{1,2}};
+			bondList[1] = new int [][]{{0,1},{1,2}};
+			bondList[2] = new int [][]{{2,0}};
+			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+			targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
 		}
+		else if (diagramIndex == 2){
+			HSB[3] = -35.238*-35.238;//This value is from direct sampling
+			refBondList[0] = new int [][]{{0,1}};
+			refBondList[1] = new int [][]{{1,2}};
+			bondList[1] = new int [][]{{0,1},{0,2}};
+			bondList[2] = new int [][]{{1,2}};
+			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+			targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,eR});
+		}
+		}
+		else if (numDiagram ==4){
+			bondList[0] = new int [][]{{1,2},{2,0}};
+			bondList[1] = new int [][]{{0,1}};
+			clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+			targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FAC,eR});
+		}	else if (numDiagram ==5){
+			if (diagramIndex == 1) {
+				HSB[3] = -35.238*-35.238;//This value is from direct sampling
+				refBondList[0] = new int [][]{{0,1},{1,2}};
+				bondList[0] = new int [][]{{2,0}};
+				bondList[1] = new int [][]{{0,1},{1,2}};
+				clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+				targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FCA,eR});
+			}	else if (diagramIndex == 2) {
+				HSB[3] = -35.238*-35.238;//This value is from direct sampling
+				refBondList[0] = new int [][]{{0,1}};
+				refBondList[2] = new int [][]{{1,2}};
+				bondList[0] = new int [][]{{2,0}};
+				bondList[1] = new int [][]{{0,1}};
+				bondList[3] = new int [][]{{1,2}};
+				clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+				targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,FBC,eR});
+			}
+		}	
 			else {
 			throw new RuntimeException("This is strange");
-		}	
-        System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
+		}
+
+		System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
 		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody>3, eRef, true);
-        if (numDiagram == 12||numDiagram ==19||numDiagram ==34){
+		if ((numDiagram == 5 ||numDiagram == 6 ||numDiagram == 7)){
 			ClusterBonds refBonds = new ClusterBonds(4,refBondList, false);
 			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer});
-        }
-		refCluster.setTemperature(temperature);
-		clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-		targetCluster = new ClusterSumPolarizableWertheimProduct4PtFinal(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,FCB,FBC,eR,e});	
-		if (numDiagram == 28){
-			if (flip){
-				System.out.println("Flipping is applied");
-		        ((ClusterSumPolarizableWertheimProduct4PtFinal)targetCluster).setDeltaCut(deltaCut);
-		        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
-			}
 		}
+        refCluster.setTemperature(temperature);
         targetCluster.setTemperature(temperature);
-        
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
-		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA);
-		if (numDiagram == 28) configuration.initializeCoordinatesER(sim.box[1]);
-		if (numDiagram == 29)configuration.initializeCoordinates(sim.box[1]);
-		if ((numDiagram == 16 || numDiagram == 17 ||numDiagram == 30)){
-			if (diagramIndex == 1){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
-			} else if (diagramIndex == 4){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pAC);
-			} else if (diagramIndex == 3){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA);
-			} else if (diagramIndex == 2){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pBC);
-			}	
-			configuration.initializeCoordinates2(sim.box[1]);
+		//ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
+		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC );
+		if (numDiagram == 3 || numDiagram == 4 ) {
+			configuration.initializeCoordinates(sim.box[1]);
+		}
+		if (numDiagram ==5 &&diagramIndex==1){//diagram 5-1
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA );
+				configuration.initializeCoordinates3(sim.box[0]);	
+				configuration.initializeCoordinates3(sim.box[1]);	
 			}
-		if (numDiagram == 36){
-			configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
-			configuration.initializeCoordinates4(sim.box[1]);	
+			if (numDiagram ==5 &&diagramIndex==2){//diagram 5-2
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pBC );
+				configuration.initializeCoordinates3(sim.box[0]);	
+				configuration.initializeCoordinates3(sim.box[1]);	
 			}
-		if (numDiagram == 12 || numDiagram == 19 ||numDiagram == 34){
-			if (diagramIndex == 1){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA, (PNWaterGCPMThreeSite)pCA);
-			}	else if (diagramIndex == 4){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pAC, (PNWaterGCPMThreeSite)pAC);
-			}	else if (diagramIndex == 2){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pBC, (PNWaterGCPMThreeSite)pAC);
-			}	else if (diagramIndex == 3){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA, (PNWaterGCPMThreeSite)pBC);
-			}	else if (diagramIndex == 5){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pAC, (PNWaterGCPMThreeSite)pCA);
-			}	else if (diagramIndex == 6){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA, (PNWaterGCPMThreeSite)pCA);
+			if (numDiagram ==6 &&diagramIndex==2){//diagram 6-2
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pAC );
+				configuration.initializeCoordinates3(sim.box[0]);	
+				configuration.initializeCoordinates3(sim.box[1]);	
 			}
-			configuration.initializeCoordinates3(sim.box[0]);	
-			configuration.initializeCoordinates3(sim.box[1]);
+			if (numDiagram ==6 &&diagramIndex==1){//diagram 6-1
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC ,(PNWaterGCPMThreeSite)pCA );
+				configuration.initializeCoordinates3(sim.box[0]);	
+				configuration.initializeCoordinates3(sim.box[1]);	
 			}
-			
+			if (numDiagram ==7 &&diagramIndex==1){//diagram 7-1
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA );
+				configuration.initializeCoordinates3(sim.box[0]);	
+				configuration.initializeCoordinates5(sim.box[1]);	
+			}
+			if (numDiagram ==7 &&diagramIndex==2){//diagram 7-2
+				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA ,(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA);
+				configuration.initializeCoordinates3(sim.box[0]);	
+				configuration.initializeCoordinates5(sim.box[1]);		
+		}	
 		sim.setAccumulatorBlockSize((int)numSteps*10);
 		sim.integratorOS.setNumSubSteps(1000);	
 
@@ -321,17 +284,13 @@ public class WertheimGCPM4PtEBondDecompFinal {
             return;
         }
         // if running interactively, don't use the file
-        String refFileName = args.length > 0 ? "refpref"+numDiagram+"_"+diagramIndex+"_"+temperature+"_"+flip : null;
+        String refFileName = args.length > 0 ? "refpref"+numDiagram+"_"+diagramIndex+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
         //sim.setRefPref(50.0);
         sim.initRefPref(refFileName, numSteps/40);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, numSteps/20);  
-        
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
-            throw new RuntimeException("oops");
-        }
+        sim.equilibrate(refFileName, numSteps/20);    
         sim.setAccumulatorBlockSize((int)numSteps);
                 
         System.out.println("equilibration finished");
@@ -344,7 +303,7 @@ public class WertheimGCPM4PtEBondDecompFinal {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                 double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-                System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*Math.abs(HSB[nBody]));
+                System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*HSB[nBody]);
             }
         };
         IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
@@ -360,7 +319,7 @@ public class WertheimGCPM4PtEBondDecompFinal {
         
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*Math.abs(HSB[nBody]));
+        System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*HSB[nBody]);
         DataGroup data = (DataGroup)sim.accumulators[0].getData();
         IData ratioData = data.getData(sim.accumulators[0].RATIO.index);
         IData ratioErrorData = data.getData(sim.accumulators[0].RATIO_ERROR.index);
@@ -392,12 +351,11 @@ public class WertheimGCPM4PtEBondDecompFinal {
 	
 	public static class VirialAssociatingFluidParam extends ParameterBase {
 		public double temperature = 630;//reduced temperature
-		public double sigmaHSRef = 5.0;
-		public long numSteps = 10000;
+		public double sigmaHSRef = 3.2;
+		public long numSteps = 5000;
 		public double associationEnergy = 2500.0;
-		public int numDiagram = 28;
-		public int diagramIndex = 1;
-		public boolean flip = false;
+		public int numDiagram = 6;
+		public int diagramIndex = 2;
 		
 	}
 
