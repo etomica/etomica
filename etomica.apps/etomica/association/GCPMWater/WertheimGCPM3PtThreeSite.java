@@ -13,7 +13,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.P2HardAssociationGCPMReference;
 import etomica.models.water.PNWaterGCPM;
-import etomica.models.water.PNWaterGCPMAssociation;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
