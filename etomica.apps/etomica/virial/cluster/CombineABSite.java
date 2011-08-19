@@ -1,26 +1,13 @@
 package etomica.virial.cluster;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
+import java.util.HashSet;
+import java.util.Set;
 import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
-import etomica.graph.model.Node;
-import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.MetadataImpl;
-import etomica.graph.operations.DeleteEdge;
-import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.Parameters;
-import etomica.graph.operations.RelabelParameters;
-import etomica.graph.operations.Split;
-import etomica.graph.operations.SplitParameters;
 import etomica.graph.operations.Unary;
-import etomica.graph.operations.DecorateWertheim2Site.DecorateWertheimParameters2Site;
-import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 
 public class CombineABSite implements Unary {
 	
