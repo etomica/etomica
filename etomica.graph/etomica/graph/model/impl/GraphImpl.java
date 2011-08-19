@@ -30,6 +30,7 @@ public class GraphImpl implements Graph {
 
   private final Bitmap store;
   private final Node[] nodes;
+  private List<Node> nodeList;
   private final Coefficient coefficient;
   private final Edge[] edges;
   private int[] factors = new int[0];
@@ -112,8 +113,7 @@ public class GraphImpl implements Graph {
     // same node color strings; the ordering based on color strings is arbitrary, yet
     // useful as a tie breaker; the actual colors mapped to each of these abstract
     // colors can be freely defined
-    List<Node> otherNodes = other.nodes();
-    if (nodes.length == otherNodes.size()) {
+    if (nodes.length == other.nodeCount()) {
       List<Edge> otherEdges = other.edges();
       List<Edge> myEdges = edges();
       if (myEdges.size() == otherEdges.size()) {
@@ -124,7 +124,7 @@ public class GraphImpl implements Graph {
         }
         // check nodes
         for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
-          int nodeOrder = nodes[nodeId].compareTo(otherNodes.get(nodeId));
+          int nodeOrder = nodes[nodeId].compareTo(other.getNode(nodeId));
           if (nodeOrder != 0) {
             return nodeOrder;
           }
@@ -146,7 +146,7 @@ public class GraphImpl implements Graph {
         return 1;
       }
     }
-    else if (nodes.length < otherNodes.size()) {
+    else if (nodes.length < other.nodeCount()) {
       return -1;
     }
     else {
@@ -451,8 +451,10 @@ public class GraphImpl implements Graph {
   }
 
   public List<Node> nodes() {
-
-    return Arrays.asList(nodes);
+    if (nodeList == null) {
+      nodeList = Arrays.asList(nodes);
+    }
+    return nodeList;
   }
 
   public String nodesToString() {
