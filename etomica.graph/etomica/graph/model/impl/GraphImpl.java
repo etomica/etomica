@@ -31,6 +31,7 @@ public class GraphImpl implements Graph {
   private final Bitmap store;
   private final Node[] nodes;
   private List<Node> nodeList;
+  private List<Edge> edgeList;
   private final Coefficient coefficient;
   private final Edge[] edges;
   private int[] factors = new int[0];
@@ -190,18 +191,19 @@ public class GraphImpl implements Graph {
   }
 
   public void deleteEdge(byte edgeId) {
-
+    edgeList = null;
     edges[edgeId] = null;
     store.clearBit(edgeId);
   }
 
   public List<Edge> edges() {
-
-    ArrayList<Edge> list = new ArrayList<Edge>(edgeCount());
+    if (edgeList != null) return edgeList;
+    
+    edgeList = new ArrayList<Edge>(edgeCount());
     for (byte edgeId=0; edgeId<edges.length; edgeId++) {
-      if (edges[edgeId] != null) list.add(edges[edgeId]);
+      if (edges[edgeId] != null) edgeList.add(edges[edgeId]);
     }
-    return list;
+    return edgeList;
   }
 
   public String edgesToString() {
@@ -472,6 +474,7 @@ public class GraphImpl implements Graph {
   }
 
   public void putEdge(byte fromNode, byte toNode) {
+    edgeList = null;
 
     byte edgeId = getEdgeId(fromNode, toNode);
     store.setBit(edgeId);
@@ -480,6 +483,7 @@ public class GraphImpl implements Graph {
   }
 
   public void putEdge(byte edgeId) {
+    edgeList = null;
 
     store.setBit(edgeId);
     edges[edgeId] = GraphFactory.createEdge(edgeId);;
