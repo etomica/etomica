@@ -87,6 +87,7 @@ public class MulFlexible implements Binary {
         // only check the specified node
         node1 = g1.getNode(params.node1ID);
       }
+      if(params.onlyRootPt && node1.getType()!=TYPE_NODE_ROOT)continue;
       boolean flex1Unhappy = false;
       boolean flexColor = false;
       for (int i=0; i<params.flexColors.length; i++) {
@@ -104,6 +105,7 @@ public class MulFlexible implements Binary {
           // only check the specified node
           node2 = g2.getNode(params.node2ID);
         }
+        if(params.onlyRootPt && node2.getType()!=TYPE_NODE_ROOT)continue;
         if (node1.getColor() == node2.getColor()) {
           boolean success = true;
           if (flex1Unhappy) {
@@ -197,7 +199,7 @@ public class MulFlexible implements Binary {
           newNode2Id--;
         }
         result.putEdge(newNodeId, newNode2Id);
-        result.getEdge(newNodeId, newNode2Id).setColor(g2.getEdge(node1.getId(), node2.getId()).getColor());
+        result.getEdge(newNodeId, newNode2Id).setColor(g2.getEdge(node1.getId(), node2.getId()).getColor());//calling setColor on Edge
       }
     }
     result.coefficient().multiply(g1.coefficient());
@@ -206,6 +208,7 @@ public class MulFlexible implements Binary {
     result.setNumFactors(g1.factors().length);
     result.addFactors(g1.factors());
     result.addFactors(g2.factors());
+    result.createReverseEdges();//update reverseEdge on edge
     return result;
   }
 
@@ -213,6 +216,7 @@ public class MulFlexible implements Binary {
     public final char[] flexColors;
     public final byte node1ID, node2ID;
     public final boolean skipSuperimpose;
+    public final boolean onlyRootPt;
     
     /**
      * Parameters that specify that the resulting product should include graphs
@@ -224,6 +228,7 @@ public class MulFlexible implements Binary {
       skipSuperimpose = true;
       flexColors = new char[0];
       node1ID = node2ID = (byte)-1;
+      onlyRootPt = false;
     }
 
     /**
@@ -233,7 +238,11 @@ public class MulFlexible implements Binary {
      * unbonded.
      */
     public MulFlexibleParameters(char[] flexColors, byte nFieldNodes) {
-      this(flexColors, nFieldNodes, (byte)-1, (byte)-1);
+      this(flexColors, nFieldNodes, (byte)-1, (byte)-1, false);
+    }
+    
+    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes,boolean onlyRootPt) {
+      this(flexColors, nFieldNodes, (byte)-1, (byte)-1, onlyRootPt);
     }
 
     /**
@@ -243,11 +252,16 @@ public class MulFlexible implements Binary {
      * possible).
      */
     public MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID) {
+    	this(flexColors, nFieldNodes, node1ID, node2ID, false);
+    }
+
+    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID, boolean onlyRootPt) {
       super(nFieldNodes);
       skipSuperimpose = false;
       this.flexColors = flexColors;
       this.node1ID = node1ID;
       this.node2ID = node2ID;
+      this.onlyRootPt = onlyRootPt;
     }
   }
 }

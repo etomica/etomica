@@ -27,13 +27,15 @@ import etomica.graph.traversal.DepthFirst;
 import etomica.graph.traversal.Traversal;
 
 public class GraphImpl implements Graph {
+	
+  public static boolean useReverseEdges = false;
 
   private final Bitmap store;
   private final Node[] nodes;
   private List<Node> nodeList;
   private List<Edge> edgeList;
   private final Coefficient coefficient;
-  private final Edge[] edges;
+  private final Edge[] edges, reverseEdges;
   private int[] factors = new int[0];
 
   private GraphImpl(Node[] nodes, Edge[] edges, Bitmap store, Coefficient coefficient) {
@@ -42,6 +44,13 @@ public class GraphImpl implements Graph {
     this.edges = edges;
     this.store = store;
     this.coefficient = coefficient;
+    if (useReverseEdges){
+	    reverseEdges = new Edge[edges.length];//for multiple site models
+	    createReverseEdges();
+    } 
+    else {
+    	reverseEdges = null;
+    }
   }
 
   public GraphImpl(Node[] nodes) {
@@ -50,7 +59,30 @@ public class GraphImpl implements Graph {
     this.nodes = nodes;
     this.store = BitmapFactory.createBitmap((byte) nodes.length, false);
     edges = new Edge[nodes.length*(nodes.length-1)/2];
+    if (useReverseEdges){
+    	reverseEdges = new Edge[edges.length];//for multiple site models
+    } 
+    else {
+    	reverseEdges = null;
+    }
     createEdges();
+  }
+  
+  public void createReverseEdges(){//for Wertheim multiple site model
+	  if(!useReverseEdges) return;
+	  for (byte i = 0; i< edges.length; i++){
+		  createReverseEdge(i);
+	  }
+  }
+  
+  protected void createReverseEdge (byte i){
+	  reverseEdges[i] = edges[i];
+	  if (edges[i] == null) return;
+	  char reverseColor = MetadataImpl.getReverseEdgeColor(edges[i].getColor());
+	  if (reverseColor != edges[i].getColor()){
+		  reverseEdges[i] = edges[i].copy();
+		  reverseEdges[i].setColor(reverseColor);
+	  }
   }
 
   public void setNumFactors(int numFactors) {
@@ -99,6 +131,12 @@ public class GraphImpl implements Graph {
     }
     this.store = store;
     edges = new Edge[nodeCount*(nodeCount-1)/2];
+    if (useReverseEdges){
+    	reverseEdges = new Edge[edges.length];//for multiple site models
+    } 
+    else {
+    	reverseEdges = null;
+    }
     createEdges();
   }
 
@@ -183,6 +221,7 @@ public class GraphImpl implements Graph {
         }
       }
     }
+    createReverseEdges();
   }
 
   public void deleteEdge(byte fromNode, byte toNode) {
@@ -191,6 +230,7 @@ public class GraphImpl implements Graph {
   }
 
   public void deleteEdge(byte edgeId) {
+	edgeId = (byte) (edgeId%edges.length);
     edgeList = null;
     edges[edgeId] = null;
     store.clearBit(edgeId);
@@ -318,9 +358,11 @@ public class GraphImpl implements Graph {
         edgeColorMap.put(edge.getColor(), (byte) (count + 1));
       }
     }
-    result += "/E";
-    for (Character color : edgeColorMap.keySet()) {
-      result += "" + color + edgeColorMap.get(color);
+    if(!useReverseEdges){
+	    result += "/E";
+	    for (Character color : edgeColorMap.keySet()) {
+	      result += "" + color + edgeColorMap.get(color);
+	    }
     }
     Traversal t = new DepthFirst();
     byte cc = t.traverseAll(this, null);
@@ -341,13 +383,18 @@ public class GraphImpl implements Graph {
   }
 
   public Edge getEdge(byte fromNode, byte toNode) {
-
-    return edges[getEdgeId(fromNode, toNode)];
+	byte id = getEdgeId(fromNode, toNode);
+	if (id < edges.length){
+		return edges[id];
+	}
+    return reverseEdges[id-edges.length];
   }
 
   public Edge getEdge(byte edgeId) {
-
-    return edges[edgeId];
+	if (edgeId < edges.length){
+		return edges[edgeId];
+	}
+	return reverseEdges[edgeId-edges.length];
   }
 
   public byte edgeCount() {
@@ -359,9 +406,11 @@ public class GraphImpl implements Graph {
   // for n odd, k=(n-1)/2
   // for n even, k=(n-2)/2, edge list then also includes (0,n/2),(1,n/2+1),...,(n/2-2,n-2),(n/2-1,n-1)
   public byte getEdgeId(byte fromNode, byte toNode) {
+	  boolean reverse = false;//for Wertheim multiple association site
 
     assert (fromNode != toNode);
     if (fromNode > toNode) {
+    	reverse = useReverseEdges;
       byte tmpNode = fromNode;
       fromNode = toNode;
       toNode = tmpNode;
@@ -376,10 +425,19 @@ public class GraphImpl implements Graph {
     }
 
     // first n edges form the outer ring of edges, etc
-    return (byte) ((diff-1)*nodes.length + fromNode);
+    byte id = (byte) ((diff-1)*nodes.length + fromNode);
+    if (reverse){
+    	id += edges.length;
+    }
+    return id;
   }
 
   public byte getFromNode(byte edgeId) {
+	boolean reverse = edgeId >= edges.length;
+	if (reverse){
+		edgeId -= edges.length;
+		return getToNode(edgeId);
+	}
     byte diff = (byte) (edgeId / nodes.length + 1);
     byte fromNode = (byte) (edgeId - (diff-1)*nodes.length);
     byte toNode = (byte)(fromNode + diff);
@@ -432,6 +490,11 @@ public class GraphImpl implements Graph {
   }
 
   public byte getToNode(byte edgeId) {
+	boolean reverse = edgeId >= edges.length;
+	if (reverse){
+		edgeId -= edges.length;
+		return getFromNode(edgeId);
+	}
     byte diff = (byte) (edgeId / nodes.length + 1);
     byte fromNode = (byte) (edgeId - (diff-1)*nodes.length);
     byte toNode = (byte)(fromNode + diff);
@@ -449,6 +512,7 @@ public class GraphImpl implements Graph {
   }
 
   public boolean hasEdge(byte edgeId) {
+    edgeId = (byte) (edgeId%edges.length);
     return store.testBit(edgeId);
   }
 
@@ -477,16 +541,23 @@ public class GraphImpl implements Graph {
     edgeList = null;
 
     byte edgeId = getEdgeId(fromNode, toNode);
+    edgeId = (byte) (edgeId%edges.length);
     store.setBit(edgeId);
     Edge edge = GraphFactory.createEdge(edgeId);
     edges[edgeId] = edge;
+    if(useReverseEdges){
+    	createReverseEdge(edgeId);
+    }
   }
 
   public void putEdge(byte edgeId) {
     edgeList = null;
-
+    edgeId = (byte) (edgeId%edges.length);
     store.setBit(edgeId);
-    edges[edgeId] = GraphFactory.createEdge(edgeId);;
+    edges[edgeId] = GraphFactory.createEdge(edgeId);
+    if(useReverseEdges){
+    	createReverseEdge(edgeId);
+    }
   }
 
   @Override

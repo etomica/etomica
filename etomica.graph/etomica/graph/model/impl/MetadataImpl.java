@@ -22,7 +22,7 @@ public class MetadataImpl implements Metadata {
   // even for homogenous fluids, two root points within one component of a graph
   // should also be special since they are rooted at a specific distance from
   // each other.
-  public static boolean rootPointsSpecial = false;
+  public static boolean rootPointsSpecial = false;//only true for Wertheim diagram generator
 
   protected MetadataImpl(char type, char color) {
 

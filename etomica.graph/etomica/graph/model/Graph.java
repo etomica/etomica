@@ -67,4 +67,6 @@ public interface Graph extends Comparable<Graph> {
   public void visitEdges(EdgeVisitor visitor);
 
   public void visitNodes(NodeVisitor visitor);
+
+  public abstract void createReverseEdges();
 }

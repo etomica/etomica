@@ -27,6 +27,7 @@ import etomica.graph.model.comparators.ComparatorNumEdges;
 import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
+import etomica.graph.model.impl.GraphImpl;
 import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
@@ -89,7 +90,9 @@ public class WertheimDiagrams3SiteRho {
     protected char fBond, eBond, mBond, mERBond, capFBond,mCapFBond, capF1Bond, mCapF1Bond, capF2Bond, mCapF2Bond, fRBond, capFACBond,mCapFACBond, capFBCBond,mCapFBCBond, capFCABond,mCapFCABond, capFCBBond,mCapFCBBond;
 
     public static void main(String[] args) {
-        final int n =4;
+    	GraphImpl.useReverseEdges = true;
+    	MetadataImpl.rootPointsSpecial = true;
+        final int n =3;
         boolean multibody = true;
         boolean bondDecomp = true;
         boolean flex = false;
