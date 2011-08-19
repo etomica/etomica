@@ -9,8 +9,8 @@ public class UllmanSearchState extends AbstractSearchState {
   public UllmanSearchState(Graph g1, Graph g2) {
 
     super(g1, g2);
-    n1 = (byte) getN1().size();
-    n2 = (byte) getN2().size();
+    n1 = g1.nodeCount();
+    n2 = g1.nodeCount();
     core_len = 0;
     core_1 = new byte[n1];
     core_2 = new byte[n2];

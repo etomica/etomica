@@ -27,8 +27,8 @@ public class Decorate implements Binary {
     for (Graph g : argument) {
       int colorCount = 0;
       if (factor == -1) {
-        for (Node node : g.nodes()) {
-          if (node.getColor() == color) {
+        for (byte i=0; i<g.nodeCount(); i++) {
+          if (g.getNode(i).getColor() == color) {
             colorCount++;
           }
         }

@@ -51,52 +51,52 @@ public abstract class AbstractSearchState implements SearchState {
 
   public List<Edge> getE1() {
 
-    return getG1().edges();
+    return firstGraph.edges();
   }
 
   public Edge getE1(byte fromNodeID, byte toNodeID) {
 
-    return getG1().getEdge(fromNodeID, toNodeID);
+    return firstGraph.getEdge(fromNodeID, toNodeID);
   }
 
   public List<Edge> getE2() {
 
-    return getG2().edges();
+    return secondGraph.edges();
   }
 
   public Edge getE2(byte fromNodeID, byte toNodeID) {
 
-    return getG2().getEdge(fromNodeID, toNodeID);
+    return secondGraph.getEdge(fromNodeID, toNodeID);
   }
 
-  public Graph getG1() {
+  public final Graph getG1() {
 
     return firstGraph;
   }
 
-  public Graph getG2() {
+  public final Graph getG2() {
 
     return secondGraph;
   }
 
-  public List<Node> getN1() {
+  public final List<Node> getN1() {
 
-    return getG1().nodes();
+    return firstGraph.nodes();
   }
 
-  public Node getN1(byte nodeID) {
+  public final Node getN1(byte nodeID) {
 
-    return getN1().get(nodeID);
+    return firstGraph.getNode(nodeID);
   }
 
   public List<Node> getN2() {
 
-    return getG2().nodes();
+    return secondGraph.nodes();
   }
 
-  public Node getN2(byte nodeID) {
+  public final Node getN2(byte nodeID) {
 
-    return getN2().get(nodeID);
+    return secondGraph.getNode(nodeID);
   }
 
   protected void setG1(Graph g1) {

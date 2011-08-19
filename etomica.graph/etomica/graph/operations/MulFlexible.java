@@ -1,10 +1,9 @@
 package etomica.graph.operations;
 
-import static etomica.graph.model.Metadata.TYPE_NODE_FIELD;
 import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import etomica.graph.model.Graph;
@@ -13,6 +12,7 @@ import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
 import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.Mul.MulParameters;
+import etomica.graph.property.NumFieldNodes;
 
 /**
  * Perform graph multiplication for flexible molecules.  Where possible, the
@@ -50,17 +50,8 @@ public class MulFlexible implements Binary {
 
   public Graph apply(Graph g1, Graph g2, MulFlexibleParameters params) {
 
-    int numNodes = 0;
-    for (Node node : g1.nodes()) {
-      if (node.getType() == TYPE_NODE_FIELD) {
-        numNodes++;
-      }
-    }
-    for (Node node : g2.nodes()) {
-      if (node.getType() == TYPE_NODE_FIELD) {
-        numNodes++;
-      }
-    }
+    int numNodes = NumFieldNodes.value(g1) + NumFieldNodes.value(g2);
+
     if (numNodes > params.nFieldPoints) {
       return null;
     }
@@ -74,21 +65,23 @@ public class MulFlexible implements Binary {
     byte g1RootNode = -1;
     byte g2RootNode = -1;
     boolean doubleRoot = false;
-    for (Node node1 : g1.nodes()) {
+    List<Node> g1Nodes = g1.nodes();
+    List<Node> g2Nodes = g2.nodes();
+    for (Node node1 : g1Nodes) {
       if (node1.getType() == Metadata.TYPE_NODE_ROOT) {
         g1RootNode = node1.getId();
         break;
       }
     }
     if (g1RootNode == -1) {
-      for (Node node2 : g2.nodes()) {
+      for (Node node2 : g2Nodes) {
         if (node2.getType() == Metadata.TYPE_NODE_ROOT) {
           g2RootNode = node2.getId();
           break;
         }
       }
     }
-    for (Node node1 : g1.nodes()) {
+    for (Node node1 : g1Nodes) {
       if (params.skipSuperimpose) break;
       if (params.node1ID > -1) {
         // only check the specified node
@@ -106,7 +99,7 @@ public class MulFlexible implements Binary {
         flex1Unhappy = g1.getOutDegree(node1.getId()) > 0;
       }
       // check if the other graph has a node of the same color
-      for (Node node2 : g2.nodes()) {
+      for (Node node2 : g2Nodes) {
         if (params.node2ID > -1) {
           // only check the specified node
           node2 = g2.getNode(params.node2ID);
@@ -163,7 +156,7 @@ public class MulFlexible implements Binary {
     }
     result = GraphFactory.createGraph(newNodeCount);
     // add edges from g1
-    for (Node node1 : g1.nodes()) {
+    for (Node node1 : g1Nodes) {
       if (node1 != myNode1 && node1.getId() != g1RootNode) {
         result.getNode(node1.getId()).setType(node1.getType());
       }
@@ -172,14 +165,14 @@ public class MulFlexible implements Binary {
       }
 
       result.getNode(node1.getId()).setColor(node1.getColor());
-      for (Node node2 : g1.nodes()) {
+      for (Node node2 : g1Nodes) {
         if (node2.getId() <= node1.getId() || !g1.hasEdge(node1.getId(), node2.getId())) continue;
         result.putEdge(node1.getId(), node2.getId());
         result.getEdge(node1.getId(), node2.getId()).setColor(g1.getEdge(node1.getId(), node2.getId()).getColor());
       }
     }
     // now add edges from g2
-    for (Node node1 : g2.nodes()) {
+    for (Node node1 : g2Nodes) {
       byte newNodeId = (byte)(node1.getId()+nodesOffset);
       if (node1 != myNode2) {
         if (myNode1 != null && node1.getId() > myNode2.getId()) {
@@ -194,7 +187,7 @@ public class MulFlexible implements Binary {
         // don't need to set type or color
         newNodeId = myNode1.getId();
       }
-      for (Node node2 : g2.nodes()) {
+      for (Node node2 : g2Nodes) {
         if (node2.getId() <= node1.getId() || !g2.hasEdge(node1.getId(), node2.getId())) continue;
         byte newNode2Id = (byte)(node2.getId()+nodesOffset);
         if (node2 == myNode2) {

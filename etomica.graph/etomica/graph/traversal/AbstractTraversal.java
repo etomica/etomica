@@ -143,6 +143,6 @@ public abstract class AbstractTraversal implements Traversal {
       }
       status(STATUS_VISITED_ALL);
     }
-    return result == 0 ? (byte) graph.nodes().size() : result;
+    return result == 0 ? graph.nodeCount() : result;
   }
 }

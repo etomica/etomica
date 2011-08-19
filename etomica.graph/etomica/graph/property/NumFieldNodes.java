@@ -2,7 +2,6 @@ package etomica.graph.property;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.Metadata;
-import etomica.graph.model.Node;
 
 /**
  * Simple class that returns the number of field nodes.
@@ -10,9 +9,9 @@ import etomica.graph.model.Node;
 public class NumFieldNodes {
 
   public static int value(Graph g) {
-    int n = 0;
-    for (Node node : g.nodes()) {
-      if (node.getType() == Metadata.TYPE_NODE_FIELD) n++;
+    int n = 0, total = g.nodeCount();
+    for (byte i=0; i<total; i++) {
+      if (g.getNode(i).getType() == Metadata.TYPE_NODE_FIELD) n++;
     }
     return n;
   }
