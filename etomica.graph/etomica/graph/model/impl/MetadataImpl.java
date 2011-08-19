@@ -1,7 +1,9 @@
 package etomica.graph.model.impl;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import etomica.graph.model.Metadata;
@@ -12,6 +14,7 @@ public class MetadataImpl implements Metadata {
   public static Comparator<Metadata> metaDataComparator = null;
   private char type;
   private char color;
+  public static final List<ArrayList<Character>> edgeColorPairs = new ArrayList<ArrayList<Character>>();
 
   // FIXME there has to be a better way to do this
   // For heterogenous systems, turn this on so that root and field points are not
@@ -85,5 +88,19 @@ public class MetadataImpl implements Metadata {
       return color > other.getColor() ? 1 : -1;
     }
     return type > other.getType() ? 1 : -1;
+  }
+  
+  public static char getReverseEdgeColor(char color){//change color of bond to reverse color
+	  for(List<Character> list:edgeColorPairs ){
+		  char c0 = list.get(0);
+		  char c1 = list.get(1);
+		  if (color == c0){
+			  return c1;
+		  }
+		  else if (color == c1){
+			  return c0;
+		  }
+	  }
+	  return  color;
   }
 }
