@@ -55,12 +55,12 @@ public class MetadataImpl implements Metadata {
 
   public boolean isSameColor(Metadata other) {
 
-    return (other != null && getColor() == other.getColor());
+    return (other != null && color == other.getColor());
   }
 
   public boolean isSameType(Metadata other) {
 
-    return (other != null && getType() == other.getType());
+    return (other != null && type == other.getType());
   }
 
   @Override
