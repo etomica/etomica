@@ -89,4 +89,13 @@ public class GraphList<E> implements Set<E> {
         sort();
         return list.toArray(a);
     }
+
+    public String toString() {
+      if (list.size() == 0) return "";
+      String out = list.get(0).toString();
+      for (int i=1; i<list.size(); i++) {
+        out += " "+list.get(i);
+      }
+      return out;
+    }
 }
