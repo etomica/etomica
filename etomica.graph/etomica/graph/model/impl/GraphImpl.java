@@ -350,19 +350,22 @@ public class GraphImpl implements Graph {
     for (byte edgeId=0; edgeId<edges.length; edgeId++) {
       Edge edge = edges[edgeId];
       if (edge == null) continue;
-      Byte count = edgeColorMap.get(edge.getColor());
+      char c = edge.getColor();
+      if (useReverseEdges) {
+        char rc = MetadataImpl.getReverseEdgeColor(c);
+        if (c > rc) c = rc;
+      }
+      Byte count = edgeColorMap.get(c);
       if (count == null) {
-        edgeColorMap.put(edge.getColor(), (byte) 1);
+        edgeColorMap.put(c, (byte) 1);
       }
       else {
-        edgeColorMap.put(edge.getColor(), (byte) (count + 1));
+        edgeColorMap.put(c, (byte) (count + 1));
       }
     }
-    if(!useReverseEdges){
-	    result += "/E";
-	    for (Character color : edgeColorMap.keySet()) {
-	      result += "" + color + edgeColorMap.get(color);
-	    }
+    result += "/E";
+    for (Character color : edgeColorMap.keySet()) {
+      result += "" + color + edgeColorMap.get(color);
     }
     Traversal t = new DepthFirst();
     byte cc = t.traverseAll(this, null);
@@ -456,13 +459,14 @@ public class GraphImpl implements Graph {
 
   public byte nodeCount() {
 
-    return (byte) this.nodes.length;
+    return (byte) nodes.length;
   }
 
   public byte getOutDegree(byte node) {
 
     byte result = 0;
-    for (byte i = 0; i < nodeCount(); i++) {
+    byte nodeCount = (byte)nodes.length;
+    for (byte i = 0; i < nodeCount; i++) {
       if (i != node) {
         result += hasEdge(node, i) ? 1 : 0;
       }
