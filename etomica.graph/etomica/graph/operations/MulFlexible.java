@@ -36,11 +36,38 @@ public class MulFlexible implements Binary {
   public Set<Graph> apply(Set<Graph> argument, Set<Graph> argument2, Parameters params) {
 
     assert (params instanceof MulFlexibleParameters);
+    if (argument.size() > argument2.size()) {
+      Set<Graph> foo = argument;
+      argument = argument2;
+      argument2 = foo;
+    }
+    // argument is now smaller than argument2
+    // split argument2 into sets of graphs with different # of field points
+    int maxNField = ((MulFlexibleParameters)params).nFieldPoints;
+    Set<Graph>[] sets2 = new Set[maxNField+1];
+    for (int i=0; i<sets2.length; i++) {
+      sets2[i] = new HashSet<Graph>();
+    }
+    for (Graph g : argument2) {
+      int numField2 = NumFieldNodes.value(g);
+      if (numField2 < sets2.length) {
+        sets2[numField2].add(g);
+      }
+    }
+    return apply(argument, sets2, params);
+  }
+  
+  public Set<Graph> apply(Set<Graph> argument, Set<Graph>[] sets2, Parameters params) {
+    assert (params instanceof MulFlexibleParameters);
     Set<Graph> result = new HashSet<Graph>();
+    int maxNField = ((MulFlexibleParameters)params).nFieldPoints;
     for (Graph g : argument) {
-      for (Graph g2 : argument2) {
-        Graph newGraph = apply(g, g2, (MulFlexibleParameters)params);
-        if (newGraph != null) {
+      int numField1 = NumFieldNodes.value(g);
+      // look only at graphs from g2 that will result in a product with less
+      // than the max # of field nodes
+      for (int i=0; i<=maxNField-numField1; i++) {
+        for (Graph g2 : sets2[i]) {
+          Graph newGraph = apply(g, g2, (MulFlexibleParameters)params);
           result.add(newGraph);
         }
       }
@@ -50,13 +77,6 @@ public class MulFlexible implements Binary {
 
   public Graph apply(Graph g1, Graph g2, MulFlexibleParameters params) {
 
-    int numNodes = NumFieldNodes.value(g1) + NumFieldNodes.value(g2);
-
-    if (numNodes > params.nFieldPoints) {
-      return null;
-    }
-
-    
     Graph result;
     Node myNode1 = null;
     Node myNode2 = null;
@@ -113,7 +133,7 @@ public class MulFlexible implements Binary {
             success = g2.getOutDegree(node2.getId()) == 0;
           }
           if (success) {
-            if (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT) {
+            if (node1.getType() == TYPE_NODE_ROOT || node2.getType() == TYPE_NODE_ROOT && (node1.getType() == node2.getType() || myNode1 == null)) {
               // node1 and node2 are suitable for superimposing
               myNode1 = node1;
               myNode2 = node2;
@@ -159,18 +179,19 @@ public class MulFlexible implements Binary {
     result = GraphFactory.createGraph(newNodeCount);
     // add edges from g1
     for (Node node1 : g1Nodes) {
+      byte node1Id = node1.getId();
       if (node1 != myNode1 && node1.getId() != g1RootNode) {
-        result.getNode(node1.getId()).setType(node1.getType());
+        result.getNode(node1Id).setType(node1.getType());
       }
       else if (myNode1 != null && (myNode1.getType() == TYPE_NODE_ROOT && myNode2.getType() == TYPE_NODE_ROOT)) {
-        result.getNode(node1.getId()).setType(TYPE_NODE_ROOT);
+        result.getNode(node1Id).setType(TYPE_NODE_ROOT);
       }
 
       result.getNode(node1.getId()).setColor(node1.getColor());
       for (Node node2 : g1Nodes) {
-        if (node2.getId() <= node1.getId() || !g1.hasEdge(node1.getId(), node2.getId())) continue;
-        result.putEdge(node1.getId(), node2.getId());
-        result.getEdge(node1.getId(), node2.getId()).setColor(g1.getEdge(node1.getId(), node2.getId()).getColor());
+        if (node2.getId() <= node1.getId() || !g1.hasEdge(node1Id, node2.getId())) continue;
+        result.putEdge(node1Id, node2.getId());
+        result.getEdge(node1Id, node2.getId()).setColor(g1.getEdge(node1Id, node2.getId()).getColor());
       }
     }
     // now add edges from g2
