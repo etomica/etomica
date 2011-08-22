@@ -1,6 +1,7 @@
 package etomica.graph.isomorphism;
 
 import etomica.graph.model.Graph;
+import etomica.graph.model.Node;
 
 public class UllmanSearchState extends AbstractSearchState {
 
@@ -25,8 +26,10 @@ public class UllmanSearchState extends AbstractSearchState {
       core_2[i] = NULL_NODE;
     }
     for (byte i = 0; i < n1; i++) {
+      byte odi = g1.getOutDegree(i);
+      Node iNode = getN1(i);
       for (byte j = 0; j < n2; j++) {
-        M[i][j] = getG1().getOutDegree(i) == getG2().getOutDegree(j) && getN1(i).isCompatible(getN2(j));
+        M[i][j] = odi == g2.getOutDegree(j) && iNode.isCompatible(getN2(j));
       }
     }
   }
