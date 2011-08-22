@@ -2,16 +2,17 @@ package etomica.virial.cluster;
 
 import static etomica.graph.model.Metadata.COLOR_CODE_0;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import etomica.graph.iterators.IteratorWrapper;
 import etomica.graph.iterators.StoredIterator;
-import etomica.graph.iterators.filters.IdenticalGraphFilter;
 import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Edge;
@@ -29,38 +30,33 @@ import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.GraphImpl;
 import etomica.graph.model.impl.MetadataImpl;
+import etomica.graph.operations.CombineABSite.CombineABSiteParameters;
 import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
 import etomica.graph.operations.DecorateWertheim3SiteRho;
-import etomica.graph.operations.DecorateWertheim3SiteRho.DecorateWertheimParameters3SiteTest;
+import etomica.graph.operations.DecorateWertheim3SiteRho.DecorateWertheimParameters3Site;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
-import etomica.graph.operations.FactorOnce;
-import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MaxIsomorph;
+import etomica.graph.operations.MaxIsomorphWertheim;
+import etomica.graph.operations.MaxIsomorphWertheim.MaxIsomorphWertheimParameters;
 import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.PCopy;
-import etomica.graph.operations.ReeHoover;
-import etomica.graph.operations.ReeHoover.ReeHooverParameters;
 import etomica.graph.operations.Relabel;
 import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.RelabelWertheim;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitGraph;
-import etomica.graph.operations.SplitOne;
-import etomica.graph.operations.SplitOne.SplitOneParameters;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.IsConnected;
-import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
@@ -90,9 +86,10 @@ public class WertheimDiagrams3SiteRho {
     protected char fBond, eBond, mBond, mERBond, capFBond,mCapFBond, capF1Bond, mCapF1Bond, capF2Bond, mCapF2Bond, fRBond, capFACBond,mCapFACBond, capFBCBond,mCapFBCBond, capFCABond,mCapFCABond, capFCBBond,mCapFCBBond;
 
     public static void main(String[] args) {
+        long t1 = System.currentTimeMillis();
     	GraphImpl.useReverseEdges = true;
     	MetadataImpl.rootPointsSpecial = true;
-        final int n =3;
+        final int n = 4;
         boolean multibody = true;
         boolean bondDecomp = true;
         boolean flex = false;
@@ -100,9 +97,11 @@ public class WertheimDiagrams3SiteRho {
         virialDiagrams.setDoReeHoover(false);
         virialDiagrams.setDoShortcut(false);
         virialDiagrams.makeVirialDiagrams();
+        long t2 = System.currentTimeMillis();
+        System.out.println("time taken "+(t2-t1)/1000.0);
     }
    
-    public WertheimDiagrams3SiteRho(int n, boolean multibody, boolean flex, int numSite, boolean bondDecomp) {
+    public WertheimDiagrams3SiteRho(int n, boolean multibody, boolean flex, boolean bondDecomp) {
         this(n, multibody, flex, bondDecomp, false);
     }
    
@@ -381,7 +380,7 @@ public class WertheimDiagrams3SiteRho {
         return map;
     }
 
-    public GraphList<Graph> makeGraphList() {
+    public static GraphList<Graph> makeGraphList() {
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
         comp.addComparator(new ComparatorBiConnected());
@@ -399,31 +398,28 @@ public class WertheimDiagrams3SiteRho {
         }
 
         final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
-        if (MetadataImpl.metaDataComparator == null) {
-            MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
-   
-                public int compare(Metadata m1, Metadata m2) {
-                    if (m1.getType() != m2.getType()) {
-                        return m1.getType() > m2.getType() ? 1 : -1;
-                    }
-                    Integer o1 = colorOrderMap.get(m1.getColor());
-                    Integer o2 = colorOrderMap.get(m2.getColor());
-                    if (o1 == o2) {
+        MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
+            public int compare(Metadata m1, Metadata m2) {
+                if (m1.getType() != m2.getType()) {
+                    return m1.getType() > m2.getType() ? 1 : -1;
+                }
+                Integer o1 = colorOrderMap.get(m1.getColor());
+                Integer o2 = colorOrderMap.get(m2.getColor());
+                if (o1 == o2) {
+                    return m1.getColor() > m2.getColor() ? 1 : -1;
+                }
+                if (o1 == null) {
+                    if (o2 == null) {
                         return m1.getColor() > m2.getColor() ? 1 : -1;
                     }
-                    if (o1 == null) {
-                        if (o2 == null) {
-                            return m1.getColor() > m2.getColor() ? 1 : -1;
-                        }
-                        return -1;
-                    }
-                    if (o2 == null) {
-                        return 1;
-                    }
-                    return o1 > o2 ? 1 : (o1 < o2 ? -1 : 0);
+                    return -1;
                 }
-            };
-        }
+                if (o2 == null) {
+                    return 1;
+                }
+                return o1 > o2 ? 1 : (o1 < o2 ? -1 : 0);
+            }
+        };
 
         GraphList<Graph> topSet = makeGraphList();
 
@@ -567,12 +563,13 @@ public class WertheimDiagrams3SiteRho {
             }
    
             if (isInteractive) {
-                System.out.println("Xi with e bonds");
-                topSet.addAll(eXi);
-                for (Graph g : topSet) {
-                    System.out.println(g);
-                }
-                ClusterViewer.createView("Xi with e bonds", topSet);
+//                System.out.println("Xi with e bonds");
+//                topSet.addAll(eXi);
+//                for (Graph g : topSet) {
+//                    System.out.println(g);
+//                }
+                System.out.println("eXi has "+eXi.size()+" graphs");
+//                ClusterViewer.createView("Xi with e bonds", topSet);
             }
    
            
@@ -589,7 +586,7 @@ public class WertheimDiagrams3SiteRho {
             setOfSubstituted = split.apply(setOfSubstituted, bonds);
             bonds = new SplitParameters(capF2Bond, capFBCBond, capFCBBond);
             setOfSubstituted = split.apply(setOfSubstituted, bonds);
-            
+
             if (multibody){//m-bond decomposition
             	bonds = new SplitParameters(mBond,mERBond,mCapFBond);
                 setOfSubstituted = split.apply(setOfSubstituted, bonds);
@@ -605,60 +602,56 @@ public class WertheimDiagrams3SiteRho {
             DeleteEdgeParameters deleteEdgeParameters = new DeleteEdgeParameters(oneBond);
             DeleteEdge deleteEdge = new DeleteEdge();
             //set of full star diagrams with f bonds
-            Set<Graph> fXi = isoFree.apply(deleteEdge.apply(setOfSubstituted, deleteEdgeParameters),null);
+            Set<Graph> fXi = deleteEdge.apply(setOfSubstituted, deleteEdgeParameters);
+            setOfSubstituted.clear();
 
             if (isInteractive) {
-                System.out.println("\nXi with f bonds");
-                topSet.clear();
-                topSet.addAll(fXi);
-                for (Graph g : topSet) {
-                    System.out.println(g);
-                }
+//                topSet.clear();
+//                topSet.addAll(fXi);
+//                System.out.println("\nXi with f bonds");
+//                for (Graph g : topSet) {
+//                    System.out.println(g);
+//                }
+//                topSet.clear();
+                System.out.println("fXi has "+fXi.size()+" graphs");
                 //ClusterViewer.createView("fXi", topSet);
             }
-            
+
             Set<Graph> fXipow = new HashSet<Graph>();
             fXipow.addAll(fXi);
             for (int i=1; i<n+1; i++) {
                 lnfXi.addAll(fXipow);
-                lnfXi = isoFree.apply(lnfXi, null);
+                if (i>1) lnfXi = isoFree.apply(lnfXi, null);
                 msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
-                fXipow = mulScalar.apply(mulFlex.apply(fXipow, fXi, mfp), msp);               
+                fXipow = mulScalar.apply(mulFlex.apply(fXipow, fXi, mfp), msp);
             }
-
+            fXipow = null;
+            fXi.clear();
         }
         if (isInteractive) {
             topSet.clear();
             topSet.addAll(lnfXi);
-            System.out.println("\nlnfXi");
-            for (Graph g : topSet) {
-                System.out.println(g);
-            }
+//            System.out.println("\nlnfXi");
+//            for (Graph g : topSet) {
+//                System.out.println(g);
+//            }
+            System.out.println("lnfXi has "+lnfXi.size()+" graphs");
             //ClusterViewer.createView("lnfXi", topSet);
         }
-
-    	for (Graph g:lnfXi){
-        	IsConnected isConnected = new IsConnected();
-        	if (!isConnected.check(g)){
-        		System.out.println(" g fXipow "+g);
-        		//throw new RuntimeException();
-        	}
-    	}
 
         DifByNode opzdlnXidz = new DifByNode();//z*dlnXi/dz
         DifParameters difParams = new DifParameters(nodeColor);
         rho = opzdlnXidz.apply(lnfXi, difParams);
-        rho = isoFree.apply(rho, null);
        
 
-        rho0 = makeGraphList();
-        rhoA = makeGraphList();
-        rhoB = makeGraphList();
-        rhoC = makeGraphList();
-        rhoAB = makeGraphList();
-        rhoAC = makeGraphList();
-        rhoBC = makeGraphList();
-        rhoABC = makeGraphList();
+        rho0 = new HashSet<Graph>();
+        rhoA = new HashSet<Graph>();
+        rhoB = new HashSet<Graph>();
+        rhoC = new HashSet<Graph>();
+        rhoAB = new HashSet<Graph>();
+        rhoAC = new HashSet<Graph>();
+        rhoBC = new HashSet<Graph>();
+        rhoABC = new HashSet<Graph>();
         for (Graph g : rho) {
          boolean hascapFACBond = false;
          boolean hascapFBCBond = false;
@@ -1030,21 +1023,32 @@ public class WertheimDiagrams3SiteRho {
             }
    
             zWertheim = isoFree.apply(zWertheim, null);
+            if (isInteractive) {
+//                topSet.clear();
+//                topSet.addAll(zWertheim);
+//                System.out.println("\nzWertheim");
+//                for (Graph g : topSet) {
+//                    System.out.println(g);
+//                }
+                System.out.println("zWertheim has "+zWertheim.size()+" graphs");
+                //ClusterViewer.createView("p(rho0)", topSet);
+            }
            
             Decorate decorate = new Decorate();
             DecorateParameters dp = new DecorateParameters(nodeColor, mfp);
             DecorateParameters dpnm1 = new DecorateParameters(0,mfpnm1zWertheim);//0th factor
-           
+
             p = decorate.apply(lnfXi, zWertheim, dp);
             p = isoFree.apply(p, null);
            
             if (isInteractive) {
-                topSet.clear();
-                topSet.addAll(p);
-                System.out.println("\np(rho0)");
-                for (Graph g : topSet) {
-                    System.out.println(g);
-                }
+//                topSet.clear();
+//                topSet.addAll(p);
+//                System.out.println("\np(rho0)");
+//                for (Graph g : topSet) {
+//                    System.out.println(g);
+//                }
+                System.out.println("p(rho0) has "+p.size()+" graphs");
                 //ClusterViewer.createView("p(rho0)", topSet);
             }
 
@@ -1120,14 +1124,23 @@ public class WertheimDiagrams3SiteRho {
             Factor factor = new Factor();
 
             DecorateWertheim3SiteRho decorateWertheim3Site = new DecorateWertheim3SiteRho();
-            DecorateWertheimParameters3SiteTest dpWertheim3Site = new DecorateWertheimParameters3SiteTest(n, mfp, capFACBond, capFBCBond, capFCABond, capFCBBond,mCapFACBond, mCapFBCBond, mCapFCABond, mCapFCBBond,rhoA,rhoB,rhoC,rhoAB,rhoAC,rhoBC,rhoABC);//decorate rho point with rho0C1
+            DecorateWertheimParameters3Site dpWertheim3Site = new DecorateWertheimParameters3Site(mfp, capFACBond, capFBCBond, capFCABond, capFCBBond,mCapFACBond, mCapFBCBond, mCapFCABond, mCapFCBBond,rhoA,rhoB,rhoC,rhoAB,rhoAC,rhoBC,rhoABC);//decorate rho point with rho0C1
             Set<Graph> pWertheim3Site = decorateWertheim3Site.apply(p, dpWertheim3Site);
  
             pWertheim3Site = isoFree.apply(pWertheim3Site, null);
+
+            MaxIsomorphWertheim maxIso = new MaxIsomorphWertheim();
+            List<Character> aBonds = new ArrayList<Character>();
+            List<Character> bBonds = new ArrayList<Character>();
+            aBonds.add(capFACBond);
+            aBonds.add(mCapFACBond);
+            bBonds.add(capFBCBond);
+            bBonds.add(mCapFBCBond);
+            
             
             BondConnectedSubstitution3Site bondConnected = new BondConnectedSubstitution3Site();
             BondConnectedSubstitutionParameters3Site bcp3Site = new BondConnectedSubstitutionParameters3Site(fRBond, eBond); 
-            
+
             pWertheim3Site = bondConnected.apply(pWertheim3Site,bcp3Site);
 
             //combine graphs
@@ -1140,168 +1153,61 @@ public class WertheimDiagrams3SiteRho {
                     newpWertheim3Site.add(gf);
                 }
                 else {
-                	newpWertheim3Site.add(g.copy());
+                    newpWertheim3Site.add(g.copy());
                 }
             }
-            MetadataImpl.rootPointsSpecial = false;// every root point is indistinguishable
-            pWertheim3Site = isoFree.apply(newpWertheim3Site, null);
+            pWertheim3Site = newpWertheim3Site;
+            
+            CombineABSiteParameters abParams = new CombineABSiteParameters(aBonds, bBonds); 
+            pWertheim3Site = maxIso.apply(pWertheim3Site, new MaxIsomorphWertheimParameters(abParams));
 
-            CombineABSite combineABSite = new CombineABSite();
-            pWertheim3Site = combineABSite.apply(pWertheim3Site, null);
             for (Graph g:pWertheim3Site){
-            	int[] factors = g.factors();
-            	int[] newFactors = new int[6];
-            	newFactors[0] = factors[0];
-            	newFactors[1] = factors[1]+factors[2];
-            	newFactors[2] = factors[3];
-            	newFactors[3] = factors[4];
-            	newFactors[4] = factors[5]+factors[6];
-            	newFactors[5] = factors[7];
-            	g.setNumFactors(6);
-            	g.addFactors(newFactors);
+                int[] factors = g.factors();
+                int[] newFactors = new int[6];
+                newFactors[0] = factors[0];
+                newFactors[1] = factors[1]+factors[2];
+                newFactors[2] = factors[3];
+                newFactors[3] = factors[4];
+                newFactors[4] = factors[5]+factors[6];
+                newFactors[5] = factors[7];
+                g.setNumFactors(6);
+                g.addFactors(newFactors);
             }
+
+            MetadataImpl.rootPointsSpecial = false;// every root point is indistinguishable
             pWertheim3Site = isoFree.apply(pWertheim3Site, null);
-            
-            
-           
+
             if (isInteractive) {
                 topSet.clear();
                 topSet.addAll(pWertheim3Site);
-                System.out.println("\npwertheim");
-                for (Graph g : topSet) {
-                    System.out.println(g);
-                }
-                ClusterViewer.createView("pwertheim", topSet);
+//                System.out.println("\npwertheim");
+//                for (Graph g : topSet) {
+//                    System.out.println(g);
+//                }
+//                ClusterViewer.createView("pwertheim", topSet);
+                System.out.println("pwertheim has "+pWertheim3Site.size()+" graphs");
             }
+            writeSetToFile(pWertheim3Site, "pw"+n);
 
             // clear these out -- we don't need them and (in extreme cases) we might need the memory
-
             lnfXi.clear();
             rho.clear();
             z.clear();
         }
+    }
 
-        Set<Graph> newP = new HashSet<Graph>();
-
-        // attempt to factor any graphs with an articulation point
-        cancelMap = new HashMap<Graph,Set<Graph>>();
-        cancelP = new GraphList<Graph>();
-        disconnectedP = new HashSet<Graph>();
-        if (!flex) {
-            HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
-            Factor factor = new Factor();
-            newP.clear();
-            for (Graph g : p) {
-                boolean ap = hap.check(g);
-                boolean con = hap.isConnected();
-                if ((con && ap) || (!con && hap.getArticulationPoints().size() > 0)) {
-                    Graph gf = factor.apply(g, mfp);//
-                    newP.add(gf);
-                }
-                else {
-                    newP.add(g.copy());
-                }
+    protected static void writeSetToFile(Set<Graph> set, String fileName) {
+        try {
+            FileWriter fw = new FileWriter(fileName);
+            Set<Graph> topSet = makeGraphList();
+            topSet.addAll(set);
+            for (Graph g : topSet) {
+                fw.write(g.toString()+"\n");
             }
-            //p = isoFree.apply(newP, null);
-
-            // perform Ree-Hoover substitution (brute-force)
-            if (doReeHoover) {
-                if (doShortcut) {
-                    ReeHoover reeHoover = new ReeHoover();
-                    p = reeHoover.apply(p, new ReeHooverParameters(eBond));
-                }
-                else {
-                    char nfBond = 'F';
-                    SplitOneParameters splitOneParameters = new SplitOneParameters(eBond, nfBond);
-                    SplitOne splitOne = new SplitOne();
-                    msp = new MulScalarParameters(-1, 1);
-                    newP.clear();
-                    for (Graph g : p) {
-                        Set<Graph> gSet = splitOne.apply(g, splitOneParameters);
-                        for (Graph g2 : gSet) {
-                            boolean even = true;
-                            for (Edge e : g2.edges()) {
-                                if (e.getColor() == nfBond) {
-                                    even = !even;
-                                    e.setColor(fBond);
-                                }
-                            }
-                            if (!even) {
-                                g2 = mulScalar.apply(g2, msp);
-                            }
-                            newP.add(g2);
-                        }
-                    }
-                    p = isoFree.apply(newP, null);
-                    newP.clear();
-                }
-            }
+            fw.close();
         }
-        else {
-            HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
-            Relabel relabel = new Relabel();
-            FactorOnce factor = new FactorOnce();
-            // we can take all permutations (all ways to factor the diagram) here
-            // it can make the MSMC a bit more efficient, but (in practice) the difference
-            // seems to be negligible
-            boolean allPermutations = false;
-            FactorOnceParameters fop = new FactorOnceParameters((byte)0, new char[0], allPermutations);
-            newP.clear();
-            msp = new MulScalarParameters(-1, 1);
-            for (Graph g : p) {
-                boolean ap = hap.check(g);
-                boolean con = hap.isConnected();
-                if (con && ap) {
-                    if (!hap.getArticulationPoints().contains(0)) {
-                        byte[] permutations = new byte[g.nodeCount()];
-                        for (int i=0; i<permutations.length; i++) {
-                            permutations[i] = (byte)i;
-                        }
-                        permutations[0] = hap.getArticulationPoints().get(0);
-                        permutations[hap.getArticulationPoints().get(0)] = 0;
-                        RelabelParameters rp = new RelabelParameters(permutations);
-                        g = relabel.apply(g, rp);
-                    }
-                    // newP will contain connected diagrams
-                    g = g.copy();
-                    newP.add(g);
-                    Set<Graph> gf = factor.apply(g, fop);
-                    disconnectedP.addAll(gf);
-                    gf = mulScalar.apply(gf, msp);
-                    cancelP.addAll(gf);
-                    cancelMap.put(g,gf);
-                }
-                else if (con) {
-                    // this is a biconnected diagram;
-                    newP.add(g.copy());
-                }
-                else {
-                    // this is a disconnected diagram;
-                    disconnectedP.add(g.copy());
-                }
-            }
-            p = newP;
-            // we don't need to re-isofree p, we know that's still good.
-            // some of our new disconnected diagrams might condense with the old ones
-            disconnectedP = isoFree.apply(disconnectedP, null);
-
-            // we want to condense cancelP (in case multiple diagrams were factored into the
-            // same one -- is that even possible?), but want to be careful not to permute bonds.
-            PCopy pcopy = new PCopy();
-            IteratorWrapper wrapper = new IteratorWrapper(pcopy.apply(cancelP, null).iterator());
-            GraphIterator isomorphs = new IdenticalGraphFilter(wrapper);
-            cancelP = new GraphList<Graph>();
-            while (isomorphs.hasNext()) {
-                cancelP.add(isomorphs.next());
-            }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        GraphList<Graph> pFinal = makeGraphList();
-        pFinal.addAll(p);
-        p = pFinal;
-        GraphList<Graph> disconnectedPFinal = makeGraphList();
-        disconnectedPFinal.addAll(disconnectedP);
-        disconnectedP = disconnectedPFinal;
-
     }
 }
