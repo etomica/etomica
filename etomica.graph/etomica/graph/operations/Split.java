@@ -1,27 +1,50 @@
 package etomica.graph.operations;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import etomica.graph.iterators.RangePermutator;
 import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
+import etomica.graph.model.GraphList;
 import etomica.graph.model.Permutator;
 
 public class Split implements Unary {
 
+  protected final IsoFree isoFree = new IsoFree();
+
+  
   public Set<Graph> apply(Set<Graph> argument, Parameters params) {
 
     assert (params instanceof SplitParameters);
-    Set<Graph> result = new HashSet<Graph>();
+    Set<Graph> result = new GraphList<Graph>(null);
+    int count = 0;
+    long t1 = System.currentTimeMillis();
+    int interval = 10000;
+    int totalCount = 0;
+    // We assume here that the set we're receiving is isofree.  We can then
+    // assume that graphs that result from splitting can be isomers only if
+    // they come from the same original graph.
     for (Graph g : argument) {
       Set<Graph> newSet = apply(g, (SplitParameters) params);
-      if (newSet != null) {
+      if (newSet.size() == 1) {
+        // split had no effect (g did not contain the bond of interest)
         result.addAll(newSet);
       }
+      else {
+        result.addAll(isoFree.apply(newSet, null));
+      }
+      if (++count==interval) {
+        if (totalCount == 0) System.out.print("Split =>");
+        System.out.print(" "+result.size());
+        totalCount += count;
+        if (totalCount == interval*10) interval *= 10;
+        count = 0;
+      }
     }
+    long t2 = System.currentTimeMillis();
+    if (totalCount>0) System.out.println("; "+(t2-t1)/1000+"s");
     return result;
   }
 
@@ -35,13 +58,11 @@ public class Split implements Unary {
       }
     }
 
-    Set<Graph> result = new HashSet<Graph>();
+    Set<Graph> result = new GraphList<Graph>(null);
     // compute all possible permutations of length |edges| consisting of two colors
     // such that each of the colors can appear any number of times from 0 to |edges|
     Permutator permutations = new RangePermutator(edges.size(), 0, edges.size());
     // each permutation is a color assignment for the edges
-    int count = 0;
-    IsoFree isoFree = new IsoFree();
     while (permutations.hasNext()) {
       // copy the graph
       Graph newGraph = graph.copy();
@@ -52,10 +73,6 @@ public class Split implements Unary {
         newGraph.getEdge(edges.get(edgePtr)).setColor(newColor);
       }
       result.add(newGraph);
-      if (++count == 10000 && count > result.size()/10) {
-        result = isoFree.apply(result, null);
-        count = 0;
-      }
     }
     return result;
   }
