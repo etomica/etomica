@@ -64,8 +64,8 @@ public class SplitGraph {
     private List<Byte> component;
     private boolean isArticulation = false;
 
-    public CVisitor(List<List<Byte>> biComponents) {
-      this.components = biComponents;
+    public CVisitor(List<List<Byte>> components) {
+      this.components = components;
     }
 
     public boolean visit(byte nodeID, byte status) {
