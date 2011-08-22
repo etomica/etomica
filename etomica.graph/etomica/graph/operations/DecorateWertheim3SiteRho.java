@@ -1,9 +1,7 @@
 package etomica.graph.operations;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import etomica.graph.model.BitmapFactory;
@@ -13,14 +11,9 @@ import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphList;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
-import etomica.graph.model.comparators.ComparatorBiConnected;
-import etomica.graph.model.comparators.ComparatorChain;
-import etomica.graph.model.comparators.ComparatorNumEdges;
-import etomica.graph.model.comparators.ComparatorNumFieldNodes;
-import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
-import etomica.graph.viewer.ClusterViewer;
+import etomica.graph.property.NumFieldNodes;
 
 /**
  * Performs decoration of diagrams by various density points.
@@ -31,23 +24,22 @@ import etomica.graph.viewer.ClusterViewer;
 public class DecorateWertheim3SiteRho implements Unary {
 
   public Set<Graph> apply(Set<Graph> argument, Parameters params) {
-      int n = ((DecorateWertheimParameters3SiteTest)params).n;
-      char capFACBond = ((DecorateWertheimParameters3SiteTest)params).capFACBond;
-      char capFBCBond = ((DecorateWertheimParameters3SiteTest)params).capFBCBond;
-      char capFCABond = ((DecorateWertheimParameters3SiteTest)params).capFCABond;
-      char capFCBBond = ((DecorateWertheimParameters3SiteTest)params).capFCBBond;
-      char mCapFACBond = ((DecorateWertheimParameters3SiteTest)params).mCapFACBond;
-      char mCapFBCBond = ((DecorateWertheimParameters3SiteTest)params).mCapFBCBond;
-      char mCapFCABond = ((DecorateWertheimParameters3SiteTest)params).mCapFCABond;
-      char mCapFCBBond = ((DecorateWertheimParameters3SiteTest)params).mCapFCBBond;
-      Set<Graph> rhoA = ((DecorateWertheimParameters3SiteTest)params).rhoA;
-      Set<Graph> rhoB = ((DecorateWertheimParameters3SiteTest)params).rhoB;
-      Set<Graph> rhoC = ((DecorateWertheimParameters3SiteTest)params).rhoC;
-      Set<Graph> rhoAB = ((DecorateWertheimParameters3SiteTest)params).rhoAB;
-      Set<Graph> rhoAC = ((DecorateWertheimParameters3SiteTest)params).rhoAC;
-      Set<Graph> rhoBC = ((DecorateWertheimParameters3SiteTest)params).rhoBC;
-      Set<Graph> rhoABC = ((DecorateWertheimParameters3SiteTest)params).rhoABC;
-      MulFlexibleParameters mfp = ((DecorateWertheimParameters3SiteTest)params).mfp;
+      char capFACBond = ((DecorateWertheimParameters3Site)params).capFACBond;
+      char capFBCBond = ((DecorateWertheimParameters3Site)params).capFBCBond;
+      char capFCABond = ((DecorateWertheimParameters3Site)params).capFCABond;
+      char capFCBBond = ((DecorateWertheimParameters3Site)params).capFCBBond;
+      char mCapFACBond = ((DecorateWertheimParameters3Site)params).mCapFACBond;
+      char mCapFBCBond = ((DecorateWertheimParameters3Site)params).mCapFBCBond;
+      char mCapFCABond = ((DecorateWertheimParameters3Site)params).mCapFCABond;
+      char mCapFCBBond = ((DecorateWertheimParameters3Site)params).mCapFCBBond;
+      Set<Graph> rhoA = ((DecorateWertheimParameters3Site)params).rhoA;
+      Set<Graph> rhoB = ((DecorateWertheimParameters3Site)params).rhoB;
+      Set<Graph> rhoC = ((DecorateWertheimParameters3Site)params).rhoC;
+      Set<Graph> rhoAB = ((DecorateWertheimParameters3Site)params).rhoAB;
+      Set<Graph> rhoAC = ((DecorateWertheimParameters3Site)params).rhoAC;
+      Set<Graph> rhoBC = ((DecorateWertheimParameters3Site)params).rhoBC;
+      Set<Graph> rhoABC = ((DecorateWertheimParameters3Site)params).rhoABC;
+      MulFlexibleParameters mfp = ((DecorateWertheimParameters3Site)params).mfp;
       MulScalar mulScalar = new MulScalar();
       Set<Graph> rho0CA = new HashSet<Graph>();
       Set<Graph> rho0CB = new HashSet<Graph>();
@@ -58,7 +50,6 @@ public class DecorateWertheim3SiteRho implements Unary {
       Set<Graph> rho0CABC = new HashSet<Graph>();
       MulScalarParameters msp = new MulScalarParameters(-1,1);
       MulFlexible mulFlex = new MulFlexible();
-      char[] flexColors = new char[0];
       rho0CA.addAll(mulScalar.apply(rhoA, msp));
       rho0CB.addAll(mulScalar.apply(rhoB, msp));
       rho0CC.addAll(mulScalar.apply(rhoC, msp));
@@ -228,10 +219,18 @@ public class DecorateWertheim3SiteRho implements Unary {
       sigmaABCPoint.setNumFactors(8);
       sigmaABCPoint.addFactors(new int[]{0,0,0,0,0,0,0,1});//1 sigmaABC
       rho0CABC.add(sigmaABCPoint);
-       
+
+      Set<Graph>[] rho0CASets = splitSets(rho0CA, mfp.nFieldPoints);
+      Set<Graph>[] rho0CBSets = splitSets(rho0CB, mfp.nFieldPoints);
+      Set<Graph>[] rho0CCSets = splitSets(rho0CC, mfp.nFieldPoints);
+      Set<Graph>[] rho0CABSets = splitSets(rho0CAB, mfp.nFieldPoints);
+      Set<Graph>[] rho0CBCSets = splitSets(rho0CBC, mfp.nFieldPoints);
+      Set<Graph>[] rho0CACSets = splitSets(rho0CAC, mfp.nFieldPoints);
+      Set<Graph>[] rho0CABCSets = splitSets(rho0CABC, mfp.nFieldPoints);
+
       Set<Graph> result = new HashSet<Graph>();    
       ArrayList<Graph> pool = new ArrayList<Graph>();
-      Set<Graph> product = new GraphList<Graph>();
+      Set<Graph> product = new GraphList<Graph>(null);
       pool.addAll(argument);
       CoefficientImpl coefficient = new CoefficientImpl(0);
       
@@ -251,7 +250,6 @@ public class DecorateWertheim3SiteRho implements Unary {
           
         int[] bits = new int[g.nodeCount()];
     	int foundSigmaPoint = 0;
-    	int counterNodeDecorate = 0;
     	int[] bitMap = new int[8];
     	bitMap[0] = maskABC;
     	bitMap[maskA] = maskBC;
@@ -294,9 +292,6 @@ public class DecorateWertheim3SiteRho implements Unary {
         	if (node1.getType() != Metadata.TYPE_NODE_ROOT && (foundSigmaPoint & bitMap[bits[id1]])== 0 && (color1 ==sigma0)){
         		g.getNode(node1.getId()).setColor(sigma[bits[id1]]);
         		foundSigmaPoint|= bitMap[bits[id1]];
-        		if(sigma[bits[id1]] != sigma0){
-        			counterNodeDecorate++;
-        		}
         	}
         }
         int sigma0Factor = 0;
@@ -352,7 +347,7 @@ public class DecorateWertheim3SiteRho implements Unary {
           product.clear();
           product.add(g);
           if ((foundSigmaPoint & maskA) != 0){
-	          product = mulFlex.apply(product, rho0CA, mfp);
+	          product = mulFlex.apply(product, rho0CASets, mfp);
 	          for (Graph gP:product){
 	              for(Node node1 : gP.nodes()){
 	                  if(node1.getColor() == sigmaA){
@@ -365,11 +360,11 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList<Graph>(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
-            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CB, mfp);
+            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CBSets, mfp);
     	          for (Graph gP2:newProduct){
     	              for(Node node1 : gP2.nodes()){
     	                  if(node1.getColor() == sigmaB){
@@ -385,11 +380,11 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList<Graph>(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
-            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CC, mfp);
+            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CCSets, mfp);
     	          for (Graph gP2:newProduct){
     	              for(Node node1 : gP2.nodes()){
     	                  if(node1.getColor() == sigmaC){
@@ -405,11 +400,11 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskAB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList<Graph>(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
-            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CAB, mfp);
+            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CABSets, mfp);
     	          for (Graph gP2:newProduct){
     	              for(Node node1 : gP2.nodes()){
     	                  if(node1.getColor() == sigmaAB){
@@ -425,11 +420,11 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskAC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList<Graph>(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
-            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CAC, mfp);
+            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CACSets, mfp);
     	          for (Graph gP2:newProduct){
     	              for(Node node1 : gP2.nodes()){
     	                  if(node1.getColor() == sigmaAC){
@@ -445,11 +440,11 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskBC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList<Graph>(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
-            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CBC, mfp);
+            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CBCSets, mfp);
     	          for (Graph gP2:newProduct){
     	              for(Node node1 : gP2.nodes()){
     	                  if(node1.getColor() == sigmaBC){
@@ -465,11 +460,11 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskABC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList<Graph>(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
-            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CABC, mfp);
+            	  Set<Graph> newProduct =  mulFlex.apply(g1, rho0CABCSets, mfp);
     	          for (Graph gP2:newProduct){
     	              for(Node node1 : gP2.nodes()){
     	                  if(node1.getColor() == sigmaABC){
@@ -484,17 +479,19 @@ public class DecorateWertheim3SiteRho implements Unary {
               product = product1;
           }
           pool.addAll(product);
-          for (Graph gP:product){
-        	  int sigma0Count = checkGraph(gP);
-    		  if(sigma0Count > -1){
-    			  if (g.nodeCount() == gP.nodeCount()&&sigma0Count == 1){
-    				 // System.out.println("@#$");
-    				  coefficient.add(gP.coefficient());
-     			  }
-        			  //System.out.println("g "+g);
-        			  //System.out.println("gP "+gP);
-                  //break;
-        	  }
+          if (false) {
+            for (Graph gP:product){
+          	  int sigma0Count = checkGraph(gP);
+          	  if(sigma0Count > -1){
+          	    if (g.nodeCount() == gP.nodeCount()&&sigma0Count == 1){
+          	      // System.out.println("@#$");
+          	      coefficient.add(gP.coefficient());
+          	    }
+          	    //System.out.println("g "+g);
+          	    //System.out.println("gP "+gP);
+          	    //break;
+          	  }
+            }
           }
       }
       for (Graph g:result){
@@ -544,14 +541,26 @@ public class DecorateWertheim3SiteRho implements Unary {
 		  return branch?sigma0Count:-1;
           //break;
   }
+  
+  protected Set<Graph>[] splitSets(Set<Graph> graphSet, int n) {
+    Set<Graph>[] sets = new Set[n+1];
+    for (int i=0; i<n+1; i++) {
+      sets[i] = new HashSet<Graph>();
+    }
+    for (Graph g : graphSet) {
+      int numField2 = NumFieldNodes.value(g);
+      if (numField2 < sets.length) {
+        sets[numField2].add(g);
+      }
+    }
+    return sets;
+  }
 
-  public static class DecorateWertheimParameters3SiteTest implements Parameters {
+  public static class DecorateWertheimParameters3Site implements Parameters {
     public final MulFlexibleParameters mfp;
     public final char capFACBond, capFBCBond, capFCABond,capFCBBond, mCapFACBond, mCapFBCBond, mCapFCABond,mCapFCBBond;
     public final Set<Graph> rhoA,rhoB,rhoC,rhoAB,rhoAC,rhoBC,rhoABC;
-    public final int n;
-    public DecorateWertheimParameters3SiteTest(int n, MulFlexibleParameters mfp, char capFACBond, char capFBCBond, char capFCABond, char capFCBBond,char mCapFACBond, char mCapFBCBond, char mCapFCABond, char mCapFCBBond, Set<Graph> rhoA, Set<Graph> rhoB, Set<Graph> rhoC, Set<Graph> rhoAB, Set<Graph> rhoAC, Set<Graph> rhoBC, Set<Graph> rhoABC) {
-      this.n=n;   
+    public DecorateWertheimParameters3Site(MulFlexibleParameters mfp, char capFACBond, char capFBCBond, char capFCABond, char capFCBBond,char mCapFACBond, char mCapFBCBond, char mCapFCABond, char mCapFCBBond, Set<Graph> rhoA, Set<Graph> rhoB, Set<Graph> rhoC, Set<Graph> rhoAB, Set<Graph> rhoAC, Set<Graph> rhoBC, Set<Graph> rhoABC) {
       this.capFACBond = capFACBond;
       this.capFBCBond = capFBCBond;
       this.capFCABond = capFCABond;
