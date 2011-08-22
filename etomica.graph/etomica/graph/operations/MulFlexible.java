@@ -56,7 +56,7 @@ public class MulFlexible implements Binary {
     }
     return apply(argument, sets2, params);
   }
-  
+
   public Set<Graph> apply(Set<Graph> argument, Set<Graph>[] sets2, Parameters params) {
     assert (params instanceof MulFlexibleParameters);
     Set<Graph> result = new HashSet<Graph>();
