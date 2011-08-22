@@ -199,7 +199,14 @@ public class MulFlexible implements Binary {
           newNode2Id--;
         }
         result.putEdge(newNodeId, newNode2Id);
-        result.getEdge(newNodeId, newNode2Id).setColor(g2.getEdge(node1.getId(), node2.getId()).getColor());//calling setColor on Edge
+        if (newNodeId > newNode2Id) {
+          // node order is reversed, but we can't assign color for a reverse edge (if that is in effect).
+          // retrieve the new forward edge and make it equal to the color of the reverse edge from the original graph.
+          result.getEdge(newNode2Id, newNodeId).setColor(g2.getEdge(node2.getId(), node1.getId()).getColor());//calling setColor on Edge
+        }
+        else {
+          result.getEdge(newNodeId, newNode2Id).setColor(g2.getEdge(node1.getId(), node2.getId()).getColor());//calling setColor on Edge
+        }
       }
     }
     result.coefficient().multiply(g1.coefficient());

@@ -114,7 +114,14 @@ public class Factor implements Unary {
           if (nodeID2 <= nodeID || !g.hasEdge(nodeID, nodeID2)) continue;
           byte newNodeId2 = byteMaps[iComp].get(nodeID2);
           result.putEdge(newNodeId, newNodeId2);
-          result.getEdge(newNodeId, newNodeId2).setColor(g.getEdge(nodeID, nodeID2).getColor());
+          if (newNodeId > newNodeId2) {
+            // node order is reversed, but we can't assign color for a reverse edge (if that is in effect).
+            // retrieve the new forward edge and make it equal to the color of the reverse edge from the original graph.
+            result.getEdge(newNodeId2, newNodeId).setColor(g.getEdge(nodeID2, nodeID).getColor());//calling setColor on Edge
+          }
+          else {
+            result.getEdge(newNodeId, newNodeId2).setColor(g.getEdge(nodeID, nodeID2).getColor());//calling setColor on Edge
+          }
         }
       }
     } 
@@ -169,6 +176,7 @@ public class Factor implements Unary {
 
     result.setNumFactors(g.factors().length);
     result.addFactors(g.factors());
+    result.createReverseEdges();
 
     return result;
   }
