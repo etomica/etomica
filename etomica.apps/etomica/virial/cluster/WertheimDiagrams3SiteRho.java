@@ -57,6 +57,7 @@ import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.IsConnected;
+import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
@@ -424,7 +425,7 @@ public class WertheimDiagrams3SiteRho {
         GraphList<Graph> topSet = makeGraphList();
 
         char oneBond = 'o';
-        mBond = 'm';  // multi-body
+        mBond = 'm';// multi-body
         lnfXi = new HashSet<Graph>();
         IsoFree isoFree = new IsoFree();
 
@@ -576,29 +577,8 @@ public class WertheimDiagrams3SiteRho {
             Split split = new Split();
             SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
             Set<Graph> setOfSubstituted = split.apply(eXi, bonds);
+            eXi.clear();
 
-            //for GCPM water. f = fR+FAC+FBC+FCA+FCB
-            bonds = new SplitParameters(fBond, fRBond, capFBond);
-            setOfSubstituted = split.apply(setOfSubstituted, bonds);
-            bonds = new SplitParameters(capFBond, capF1Bond, capF2Bond);
-            setOfSubstituted = split.apply(setOfSubstituted, bonds);
-            bonds = new SplitParameters(capF1Bond, capFACBond, capFCABond);
-            setOfSubstituted = split.apply(setOfSubstituted, bonds);
-            bonds = new SplitParameters(capF2Bond, capFBCBond, capFCBBond);
-            setOfSubstituted = split.apply(setOfSubstituted, bonds);
-
-            if (multibody){//m-bond decomposition
-            	bonds = new SplitParameters(mBond,mERBond,mCapFBond);
-                setOfSubstituted = split.apply(setOfSubstituted, bonds);
-                bonds = new SplitParameters(mCapFBond,mCapF1Bond,mCapF2Bond);
-                setOfSubstituted = split.apply(setOfSubstituted, bonds);
-                bonds = new SplitParameters(mCapF1Bond,mCapFACBond,mCapFCABond);
-                setOfSubstituted = split.apply(setOfSubstituted, bonds);
-                bonds = new SplitParameters(mCapF2Bond,mCapFBCBond,mCapFCBBond);
-                setOfSubstituted = split.apply(setOfSubstituted, bonds);
-            }
-
-   
             DeleteEdgeParameters deleteEdgeParameters = new DeleteEdgeParameters(oneBond);
             DeleteEdge deleteEdge = new DeleteEdge();
             //set of full star diagrams with f bonds
@@ -638,7 +618,28 @@ public class WertheimDiagrams3SiteRho {
             System.out.println("lnfXi has "+lnfXi.size()+" graphs");
             //ClusterViewer.createView("lnfXi", topSet);
         }
+        //for GCPM water. f = fR+FAC+FBC+FCA+FCB
+        Split split = new Split();
+        SplitParameters bonds = new SplitParameters(fBond, fRBond, capFBond);
+        lnfXi = split.apply(lnfXi, bonds);
+        bonds = new SplitParameters(capFBond, capF1Bond, capF2Bond);
+        lnfXi = split.apply(lnfXi, bonds);
+        bonds = new SplitParameters(capF1Bond, capFACBond, capFCABond);
+        lnfXi = split.apply(lnfXi, bonds);
+        bonds = new SplitParameters(capF2Bond, capFBCBond, capFCBBond);
+        lnfXi = split.apply(lnfXi, bonds);
 
+        if (multibody){//m-bond decomposition
+        	bonds = new SplitParameters(mBond,mERBond,mCapFBond);
+        	lnfXi = split.apply(lnfXi, bonds);
+            bonds = new SplitParameters(mCapFBond,mCapF1Bond,mCapF2Bond);
+            lnfXi = split.apply(lnfXi, bonds);
+            bonds = new SplitParameters(mCapF1Bond,mCapFACBond,mCapFCABond);
+            lnfXi = split.apply(lnfXi, bonds);
+            bonds = new SplitParameters(mCapF2Bond,mCapFBCBond,mCapFCBBond);
+            lnfXi = split.apply(lnfXi, bonds);
+        }
+        
         DifByNode opzdlnXidz = new DifByNode();//z*dlnXi/dz
         DifParameters difParams = new DifParameters(nodeColor);
         rho = opzdlnXidz.apply(lnfXi, difParams);
@@ -958,6 +959,7 @@ public class WertheimDiagrams3SiteRho {
                 allRho[g.nodeCount()].add(g);
             }
            
+            rho.clear();
             Set<Graph> z = new HashSet<Graph>();
            
             // r = z + b*z^2 + c*z^3 + d*z^4 + e*z^5
@@ -1039,7 +1041,9 @@ public class WertheimDiagrams3SiteRho {
             DecorateParameters dpnm1 = new DecorateParameters(0,mfpnm1zWertheim);//0th factor
 
             p = decorate.apply(lnfXi, zWertheim, dp);
+            lnfXi.clear();
             p = isoFree.apply(p, null);
+            
            
             if (isInteractive) {
 //                topSet.clear();
@@ -1092,6 +1096,7 @@ public class WertheimDiagrams3SiteRho {
               rhoAC = isoFree.apply(decorate.apply(rhoAC, zWertheim, dpnm1),null);
               rhoBC = isoFree.apply(decorate.apply(rhoBC, zWertheim, dpnm1),null);
               rhoABC = isoFree.apply(decorate.apply(rhoABC, zWertheim, dpnm1),null);
+              zWertheim.clear();
 	          for(Graph g:rhoA){
 	              g.setNumFactors(2);
 	              g.addFactors(new int[]{g.nodeCount(),0});
@@ -1126,6 +1131,14 @@ public class WertheimDiagrams3SiteRho {
             DecorateWertheim3SiteRho decorateWertheim3Site = new DecorateWertheim3SiteRho();
             DecorateWertheimParameters3Site dpWertheim3Site = new DecorateWertheimParameters3Site(mfp, capFACBond, capFBCBond, capFCABond, capFCBBond,mCapFACBond, mCapFBCBond, mCapFCABond, mCapFCBBond,rhoA,rhoB,rhoC,rhoAB,rhoAC,rhoBC,rhoABC);//decorate rho point with rho0C1
             Set<Graph> pWertheim3Site = decorateWertheim3Site.apply(p, dpWertheim3Site);
+            
+            rhoA.clear();
+            rhoB.clear();
+            rhoC.clear();
+            rhoAB.clear();
+            rhoAC.clear();
+            rhoBC.clear();
+            rhoABC.clear();
  
             pWertheim3Site = isoFree.apply(pWertheim3Site, null);
 
@@ -1180,18 +1193,16 @@ public class WertheimDiagrams3SiteRho {
             if (isInteractive) {
                 topSet.clear();
                 topSet.addAll(pWertheim3Site);
-//                System.out.println("\npwertheim");
-//                for (Graph g : topSet) {
-//                    System.out.println(g);
-//                }
-//                ClusterViewer.createView("pwertheim", topSet);
+                System.out.println("\npwertheim");
+                for (Graph g : topSet) {
+                    System.out.println(g);
+                }
+                //ClusterViewer.createView("pwertheim", topSet);
                 System.out.println("pwertheim has "+pWertheim3Site.size()+" graphs");
             }
             writeSetToFile(pWertheim3Site, "pw"+n);
 
             // clear these out -- we don't need them and (in extreme cases) we might need the memory
-            lnfXi.clear();
-            rho.clear();
             z.clear();
         }
     }
