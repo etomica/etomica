@@ -33,19 +33,26 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                     for (int j=i+1; j<pointCount; j++) {
                         int kf = bondIndexArray[i][j];
                         if (kf == -1) continue;
-                        int[] ff = fullBondIndexArray[i][j];
-                        boolean newF = true;
-                        for (int k=0; k<ff.length; k++) {
-                            if (ff[k] == kf) {
-                                // we'll already calculate MayerFunction kf for the i-j pair
-                                newF = false;
-                                break;
+                        // if we have an ebond then first ensure that the fbond is listed; then return to ebond
+                        int lmax = kf >= f.length ? 2 : 1;
+                        kf = kf % f.length;
+                        for (int l=0; l<lmax; l++) {
+                            int[] ff = fullBondIndexArray[i][j];
+                            boolean newF = true;
+                            for (int k=0; k<ff.length; k++) {
+                                if (ff[k] == kf) {
+                                    // we'll already calculate MayerFunction kf for the i-j pair
+                                    newF = false;
+                                    break;
+                                }
                             }
-                        }
-                        if (newF) {
-                            if (kf > maxF) maxF = kf;
-                            fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
-                            fullBondIndexArray[i][j][ff.length] = kf;
+                            if (newF) {
+                                if (kf > maxF) maxF = kf;
+                                fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+                                fullBondIndexArray[i][j][ff.length] = kf;
+                            }
+                            // we had an e-bond.  we need to remember to also calculate the f-bond
+                            kf += f.length;
                         }
                     }
                 }
