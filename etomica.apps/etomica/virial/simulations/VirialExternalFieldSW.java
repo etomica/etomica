@@ -122,17 +122,17 @@ public class VirialExternalFieldSW {
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         double sum=0;
         for (int i=0; i < wallposition.length; i++){
-            sum+=(((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[i]*SWb[nPoints]-SWb[nPoints])*0.01;
-            System.out.println(String.format("wallposition= %6.2f",wallposition[i]) + " ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[i]
-                                             +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[i] + " reference average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.AVERAGE.index)).getData()[i]
-                                             +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.STANDARD_DEVIATION.index)).getData()[i]
-                                             +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.ERROR.index)).getData()[i]);	
+            sum+=(((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[i]*SWb[nPoints]-SWb[nPoints])*0.01;
+            System.out.println(String.format("wallposition= %6.2f",wallposition[i]) + " ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[i]
+                                             +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[i] + " reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[i]
+                                             +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[i]
+                                             +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[i]);	
         }
         System.out.println("sum="+sum);
-        System.out.println("surfacevirial "+" ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[wallposition.length]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[wallposition.length] + " reference average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.AVERAGE.index)).getData()[wallposition.length]
-                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.STANDARD_DEVIATION.index)).getData()[wallposition.length]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverageCovariance.StatType.ERROR.index)).getData()[wallposition.length]);
+        System.out.println("surfacevirial "+" ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length]
+                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length] + " reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[wallposition.length]
+                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[wallposition.length]
+                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[wallposition.length]);
         //System.out.println("b"+nPoints+"="+((((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO.index)).getData()[wallposition.length])*HSb[nPoints]-(nPoints-1)*HSb[nPoints])
         //                 +" error: "+HSb[nPoints]*((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverageCovariance.StatType.RATIO_ERROR.index)).getData()[wallposition.length]);
     }
