@@ -89,10 +89,6 @@ public abstract class AbstractTraversal implements Traversal {
       error(ERROR_TRAVERSAL_NODES);
       return false;
     }
-    if (graph.edgeCount() == 0) {
-      error(ERROR_TRAVERSAL_EDGES);
-      return false;
-    }
     // we have seen no nodes
     setSeen(0);
     // one bit per every node we may see
