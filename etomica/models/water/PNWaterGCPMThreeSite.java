@@ -27,6 +27,12 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 		this.minE = minE;
 	}
 	
+	public PNWaterGCPMThreeSite(ISpace space, double minE, boolean isAssociation) {
+		super(space);
+		this.isAssociation = isAssociation;
+		this.minE = minE;
+	}
+	
 	public double energy(IMoleculeList atoms){
         IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
         IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
