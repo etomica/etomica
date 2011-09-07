@@ -3,8 +3,6 @@ package etomica.association.GCPMWater;
 import java.awt.Color;
 
 import etomica.api.IPotentialMolecular;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -26,7 +24,6 @@ import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumPolarizableWertheimProduct;
 import etomica.virial.ClusterSumPolarizableWertheimProduct4Pt;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationClusterWertheimGCPMDirectSampling;
@@ -40,9 +37,9 @@ import etomica.virial.simulations.SimulationVirial;
 /**
  * repulsive potential: energy of pair is greater than -association E(cal/mol)
  * attractive potential: energy of pair is less than -association E(cal/mol)
- * Wertheim's three attraction-site model of GCPM 
+ * Wertheim's three attraction-site model of GCPM
  * Direct Sampling
- * 4th order diagram
+ * Non-additive 4th order diagram
  *
  * @author Hye Min Kim
  */

@@ -17,11 +17,13 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 	private int bondType;
 	public static final int BONDAC = 1, BONDBC = 2, BONDCA = 3, BONDCB = 4;
 	protected boolean isAssociation;
+	protected boolean bondingAngleRestriction;
 	double minE;
 
-	public PNWaterGCPMThreeSite(ISpace space, double minE, boolean isAssociation) {
+	public PNWaterGCPMThreeSite(ISpace space, double minE, boolean isAssociation, boolean bondingAngleRestriction) {
 		super(space);
 		this.isAssociation = isAssociation;
+		this.bondingAngleRestriction = bondingAngleRestriction;
 		this.minE = minE;
 	}
 	
@@ -75,6 +77,9 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
         double minDistance = distance[0];
         int minBond = 0;
         
+		double cosTheta1=0;
+		double cosTheta3=0;		
+        
         for (int i = 1; i < distance.length; i++){
         	if (distance[i] < minDistance){
         		minDistance = distance[i];
@@ -83,15 +88,25 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
         }
         
 		IVectorMutable O1H11 = space.makeVector();
+		IVectorMutable H11O1 = space.makeVector();
 		IVectorMutable O1H12 = space.makeVector();
+		IVectorMutable H12O1 = space.makeVector();
+		IVectorMutable H11O2 = space.makeVector();
 		IVectorMutable O2H11 = space.makeVector();
+		IVectorMutable H12O2 = space.makeVector();
 		IVectorMutable O2H12 = space.makeVector();
 		IVectorMutable O2H21 = space.makeVector();
+		IVectorMutable H21O2 = space.makeVector();
 		IVectorMutable O1H1A = space.makeVector();
+		IVectorMutable O1H1 = space.makeVector();
 		IVectorMutable O2H2A = space.makeVector();
+		IVectorMutable O2H2 = space.makeVector();
+		IVectorMutable H21O1 = space.makeVector();
 		IVectorMutable O1H21 = space.makeVector();
+		IVectorMutable H22O1 = space.makeVector();
 		IVectorMutable O1H22 = space.makeVector();
 		IVectorMutable O2H22 = space.makeVector();
+		IVectorMutable H22O2 = space.makeVector();
 		IVectorMutable O1O2 = space.makeVector();
 		IVectorMutable O2O1 = space.makeVector();
 		IVectorMutable O1OPrime = space.makeVector();
@@ -111,9 +126,15 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 		O1H11.E(H11r);
 		O1H11.ME(O1r);
 		O1H11.normalize();
+		H11O1.E(O1r);
+		H11O1.ME(H11r);
+		H11O1.normalize();
 		O1H12.E(H12r);
 		O1H12.ME(O1r);
 		O1H12.normalize();
+		H12O1.E(O1r);
+		H12O1.ME(H12r);
+		H12O1.normalize();
 		
 		crossProduct1.E(O1H11);
 		crossProduct1.XE(O1H12);
@@ -124,18 +145,34 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 		O1H1A.TE(-1);
 		O1H1A.normalize();
 		
+		O1H1.E(O1H11);
+		O1H1.PE(O1H12);
+		O1H1.normalize();
+		
 		O1H21.E(H21r);
 		O1H21.ME(O1r);
 		O1H21.normalize();
+		H21O1.E(O1r);
+		H21O1.ME(H21r);
+		H21O1.normalize();
 		O1H22.E(H22r);
 		O1H22.ME(O1r);
 		O1H22.normalize();
+		H22O1.E(O1r);
+		H22O1.ME(H22r);
+		H22O1.normalize();
 		O2H11.E(H11r);
 		O2H11.ME(O2r);
 		O2H11.normalize();
+		H11O2.E(O2r);
+		H11O2.ME(H11r);
+		H11O2.normalize();
 		O2H12.E(H12r);
 		O2H12.ME(O2r);
 		O2H12.normalize();
+		H12O2.E(O2r);
+		H12O2.ME(H12r);
+		H12O2.normalize();
 		O1O2.E(O2r);
 		O1O2.ME(O1r);
 		O1O2.normalize();
@@ -143,9 +180,15 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 		O2H21.E(H21r);
 		O2H21.ME(O2r);
 		O2H21.normalize();
+		H21O2.E(O2r);
+		H21O2.ME(H21r);
+		H21O2.normalize();
 		O2H22.E(H22r);
 		O2H22.ME(O2r);
 		O2H22.normalize();
+		H22O2.E(O2r);
+		H22O2.ME(H22r);
+		H22O2.normalize();
 		
 		crossProduct2.E(O2H21);
 		crossProduct2.XE(O2H22);
@@ -155,6 +198,10 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 		O2H2A.PE(O2H22);
 		O2H2A.TE(-1);
 		O2H2A.normalize();
+		
+		O2H2.E(O2H21);
+		O2H2.PE(O2H22);
+		O2H2.normalize();
 		
 		double fractionO1O2 = crossProduct1.dot(O1O2);
 		double fractionO2O1 = crossProduct2.dot(O2O1);
@@ -174,45 +221,36 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 		O1H22Prime.Ev1Mv2(O1H22,projectionH22);
 		O2H11Prime.Ev1Mv2(O2H11,projectionH11);
 		O2H12Prime.Ev1Mv2(O2H12,projectionH12);
-		
-		double cosTheta1=0;
-		double cosTheta2=0;
-		double cosTheta3=0;
-		double cosTheta4=0;
+
+
 		
 		if (minBond == 0){
-			cosTheta1 = O1OPrime.dot(O1H11);
-        	cosTheta2 = O1OPrime.dot(O1O2);
-        	cosTheta3 = O2H11Prime.dot(O2H2A);
-        	cosTheta4 = O2H11Prime.dot(O2H11);
+        	cosTheta1 = H11O1.dot(H11O2);
+        	cosTheta3 = O2H11.dot(O2H2);
 		}
 		if (minBond == 1){
-			cosTheta1 = O1OPrime.dot(O1H12);
-        	cosTheta2 = O1OPrime.dot(O1O2);
-        	cosTheta3 = O2H12Prime.dot(O2H2A);
-        	cosTheta4 = O2H12Prime.dot(O2H12);
+        	cosTheta1 = H12O1.dot(H12O2);
+        	cosTheta3 = O2H12.dot(O2H2);
 		}
 		if (minBond == 2){
-			cosTheta1 = O2OPrime.dot(O2H21);
-        	cosTheta2 = O2OPrime.dot(O2O1);
-        	cosTheta3 = O1H21Prime.dot(O1H1A);
-        	cosTheta4 = O1H21Prime.dot(O1H21);
+        	cosTheta1 = H21O2.dot(H21O1);
+        	cosTheta3 = O1H21.dot(O1H1);
 		}
 		if (minBond == 3){
-			cosTheta1 = O2OPrime.dot(O2H22);
-        	cosTheta2 = O2OPrime.dot(O2O1);
-        	cosTheta3 = O1H22Prime.dot(O1H1A);
-        	cosTheta4 = O1H22Prime.dot(O1H22);
+        	cosTheta1 = H22O2.dot(H22O1);;
+        	cosTheta3 = O1H22.dot(O1H1);
 		}
-        
-        double energy = super.energy(atoms); 
-     
+		
         if (isAssociation&&bondType !=(minBond+1)){
         	return 0.0;
         }
-//        if (isAssociation && (cosTheta1<0.6||cosTheta2<0.4||cosTheta3<-0.5||cosTheta4<0.00046)){
-//        	return 0.0;
-//        }
+        if (bondingAngleRestriction && isAssociation && (cosTheta1>-0.5||cosTheta3>0)){//bonding angle criteria
+        	return 0.0;
+        }
+
+
+        
+        double energy = super.energy(atoms); 
         
 
         if (isAssociation){
