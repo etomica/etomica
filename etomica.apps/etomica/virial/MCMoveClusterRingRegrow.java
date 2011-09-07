@@ -79,8 +79,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
         }
         leafIterator.setBox(p);
     }
-    
-	//note that total energy is calculated
+
 	public boolean doTrial() {
         weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
