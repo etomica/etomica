@@ -1,7 +1,5 @@
 package etomica.virial.cluster;
 
-import static etomica.graph.model.Metadata.COLOR_CODE_0;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -97,6 +95,7 @@ public class VirialDiagrams {
     protected boolean doShortcut;
     protected boolean doMinimalMulti;
     protected boolean doMinimalBC;
+    protected final char nodeColor = Metadata.COLOR_CODE_0;
     protected char[] flexColors;
     public char fBond, eBond, mBond, MBond, efbcBond;
 
@@ -120,11 +119,11 @@ public class VirialDiagrams {
         }
         virialDiagrams.makeVirialDiagrams();
     }
-    
+
     public VirialDiagrams(int n, boolean multibody, boolean flex) {
         this(n, multibody, flex, false);
     }
-    
+
     public VirialDiagrams(int n, boolean multibody, boolean flex, boolean interactive) {
         this.multibody = multibody;
         this.flex = flex;
@@ -138,11 +137,11 @@ public class VirialDiagrams {
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
     }
-    
+
     public void setDoReeHoover(boolean newDoReeHoover) {
         doReeHoover = newDoReeHoover;
     }
-    
+
     public void setDoShortcut(boolean newDoShortcut) {
         doShortcut = newDoShortcut;
     }
@@ -696,7 +695,6 @@ public class VirialDiagrams {
     }        
     
     public void makeRhoDiagrams() {
-        char nodeColor = COLOR_CODE_0;
         flexColors = new char[0];
         if (flex) {
            flexColors = new char[]{nodeColor};
@@ -874,6 +872,36 @@ public class VirialDiagrams {
         DifParameters difParams = new DifParameters(nodeColor);
         rho = isoFree.apply(opzdlnXidz.apply(lnfXi, difParams), null);
 
+        Relabel relabel = new Relabel();
+        Set<Graph> rhoNew = new HashSet<Graph>();
+        for (Graph g : rho) {
+            if (g.getNode((byte)0).getType() == Metadata.TYPE_NODE_ROOT) {
+                rhoNew.add(g);
+                continue;
+            }
+            
+            // find the root node
+            byte rootId = -1;
+            for (byte i=1; i<g.nodeCount(); i++) {
+                if (g.getNode(i).getType() == Metadata.TYPE_NODE_ROOT) {
+                    rootId = i;
+                    break;
+                }
+            }
+            
+            // the graph's root node is not at 0.
+            // we want the diagram with the root node at 0, so permute
+            byte[] newLabels = new byte[g.nodeCount()];
+            for (int i=0; i<newLabels.length; i++) {
+                newLabels[i] = (byte)i;
+            }
+            newLabels[0] = rootId;
+            newLabels[rootId] = 0;
+            RelabelParameters rp = new RelabelParameters(newLabels);
+            rhoNew.add(relabel.apply(g, rp));
+        }
+        rho = rhoNew;
+
         if (isInteractive) {
             System.out.println("\nrho");
             topSet.clear();
@@ -888,7 +916,6 @@ public class VirialDiagrams {
     public void makeVirialDiagrams() {
         if (p != null) return;
 
-        char nodeColor = COLOR_CODE_0;
         flexColors = new char[0];
         if (flex) {
            flexColors = new char[]{nodeColor};
@@ -1057,7 +1084,7 @@ public class VirialDiagrams {
             p = isoFree.apply(newP, null);
             // now recondense them (only relevant for multibody interactions)
             Unfactor unfactor = new Unfactor();
-            p = unfactor.apply(p, mfp);
+            p = isoFree.apply(unfactor.apply(p, mfp), null);
 
             // perform Ree-Hoover substitution (brute-force)
             if (doReeHoover) {
@@ -1189,7 +1216,7 @@ public class VirialDiagrams {
                         continue;
                     }
                 }
-                MulFlexibleParameters mfpc = new MulFlexibleParameters(new char[]{COLOR_CODE_0}, (byte)n);
+                MulFlexibleParameters mfpc = new MulFlexibleParameters(new char[]{nodeColor}, (byte)n);
                 for (int i=4; i<=n; i++) {
                     // find all multi graphs of size i without a root point
                     // then, Mi = mi1 + Mi2 + Mi3 + ...
@@ -1267,7 +1294,7 @@ public class VirialDiagrams {
 
             // disconnected graphs with i-1 components
             Set<Graph>[] newDisconnectedP = new HashSet[n];
-            for (int i=2; i<n; i++) {
+            for (int i=0; i<n; i++) {
                 newDisconnectedP[i] = new HashSet<Graph>();
             }
             SplitGraph graphSplitter = new SplitGraph();
@@ -1276,7 +1303,7 @@ public class VirialDiagrams {
                 newDisconnectedP[gSplit.size()].add(g);
             }
             disconnectedP.clear();
-            for (int i = 2; i<n-1; i++) {
+            for (int i = 0; i<n-1; i++) {
                 // looking for graphs with i components
                 for (Graph g : newDisconnectedP[i]) {
                     boolean ap = hap.check(g);
@@ -1370,7 +1397,7 @@ public class VirialDiagrams {
             }
             mP.add(g);
         }
-        MulFlexibleParameters mfpc = new MulFlexibleParameters(new char[]{COLOR_CODE_0}, (byte)n);
+        MulFlexibleParameters mfpc = new MulFlexibleParameters(new char[]{nodeColor}, (byte)n);
         ComponentSubst compSubst = new ComponentSubst();
         for (int i=3; i<=n; i++) {
             // find all multi graphs of size i without a root point
