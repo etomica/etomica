@@ -114,7 +114,19 @@ public class VirialHePI {
         final boolean pairOnly = params.nPoints == 2 || params.pairOnly;
         double refFreq = params.refFrac;
         boolean subtractHalf = params.subtractHalf;
-        final double sigmaHSRef = params.sigmaHSRef;
+        double sigmaHSRef = params.sigmaHSRef;
+        if (sigmaHSRef == -1) {
+            // these correlations work fairly well over the temperature range of interest
+            sigmaHSRef = 4 + 20/(10+temperatureK);
+            if (!pairOnly) {
+                if (nPoints == 3) {
+                    sigmaHSRef -= 0.5; 
+                }
+                else {
+                    sigmaHSRef = 4.5 + 40/(20+temperatureK);
+                }
+            }
+        }
         final int startBeadHalfs = params.startBeadHalfs;
         final int beadFac = subtractHalf ? params.beadFac : 1;
         final int finalNumBeads = params.finalNumBeads;
@@ -598,10 +610,12 @@ public class VirialHePI {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
         
+        final HistogramNotSoSimple targHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
+        final HistogramNotSoSimple targPiHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListener = new IIntegratorListener() {
+        IIntegratorListener histListenerRef = new IIntegratorListener() {
             public void integratorStepStarted(IIntegratorEvent e) {}
             
             public void integratorStepFinished(IIntegratorEvent e) {
@@ -620,6 +634,35 @@ public class VirialHePI {
             
             public void integratorInitialized(IIntegratorEvent e) {
             }
+        };
+        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+            public void integratorStepStarted(IIntegratorEvent e) {}
+            
+            public void integratorStepFinished(IIntegratorEvent e) {
+                double r2Max = 0;
+                double r2Min = Double.POSITIVE_INFINITY;
+                CoordinatePairSet cPairs = sim.box[1].getCPairSet();
+                for (int i=0; i<nPoints; i++) {
+                    for (int j=i+1; j<nPoints; j++) {
+                        double r2ij = cPairs.getr2(i, j);
+                        if (r2ij < r2Min) r2Min = r2ij;
+                        if (r2ij > r2Max) r2Max = r2ij;
+                    }
+                }
+
+                double v = finalTargetCluster.value(sim.box[1]);
+                double r = Math.sqrt(r2Max);
+                if (r > 1) {
+                    r = Math.log(r);
+                }
+                else {
+                    r -= 1;
+                }
+                targHist.addValue(r, v);
+                targPiHist.addValue(r, Math.abs(v));
+            }
+
+            public void integratorInitialized(IIntegratorEvent e) {}
         };
         if (!isCommandline) {
             // if interactive, print intermediate results
@@ -640,12 +683,13 @@ public class VirialHePI {
                 }
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
-            if (refFreq > 0.5) {
+            if (params.doHist) {
                 IIntegratorListener histReport = new IIntegratorListener() {
                     public void integratorInitialized(IIntegratorEvent e) {}
                     public void integratorStepStarted(IIntegratorEvent e) {}
                     public void integratorStepFinished(IIntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
                         double[] piH = piHist.getHistogram();
@@ -654,22 +698,36 @@ public class VirialHePI {
                                 System.out.println(xValues[i]+" "+h[i]+" "+piH[i]);
                             }
                         }
+                        System.out.println("**** target ****");
+                        xValues = targHist.xValues();
+                        h = targHist.getHistogram();
+                        piH = targPiHist.getHistogram();
+                        for (int i=0; i<xValues.length; i++) {
+                            if (!Double.isNaN(h[i])) {
+                                double r = xValues[i];
+                                if (r < 0) r += 1;
+                                else r = Math.exp(r);
+                                System.out.println(r+" "+h[i]+" "+piH[i]);
+                            }
+                        }
                     }
                 };
                 sim.integratorOS.getEventManager().addListener(histReport);
             }
 
         }
-        if (refFreq > 0.5) {
+        if (params.doHist) {
+            System.out.println("collecting histograms");
             // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[0].getEventManager().addListener(histListener);
+            sim.integrators[0].getEventManager().addListener(histListenerRef);
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
         sim.ai.setMaxSteps(1000);
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
         
-        if (refFreq > 0.5) {
+        if (params.doHist) {
             double[] xValues = hist.xValues();
             double[] h = hist.getHistogram();
             for (int i=0; i<xValues.length; i++) {
@@ -681,7 +739,7 @@ public class VirialHePI {
 
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
-        System.out.println("Ring acceptance "+ring0.getTracker().acceptanceRatio()+" "+ring1.getTracker().acceptanceRatio());
+        System.out.println("Target Ring acceptance "+ring1.getTracker().acceptanceRatio());
 
         sim.printResults(refIntegral);
 
@@ -741,7 +799,8 @@ public class VirialHePI {
         public double temperature = 300;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;
-        public double sigmaHSRef = 5;
+        public boolean doHist = false;
+        public double sigmaHSRef = -1; // -1 means use equation for sigmaHSRef
         public boolean doDiff = true;
         public boolean semiClassical = true;
         public boolean subtractHalf = false;
