@@ -947,7 +947,7 @@ public class VirialDiagrams {
             IsBiconnected isBi = new IsBiconnected();
             for (int i=1; i<n+1; i++) {
                 GraphIterator iter = new PropertyFilter(new StoredIterator((byte)i), isBi);
-                msp = new MulScalarParameters(1-i, (int)SpecialFunctions.factorial(i));
+                msp = new MulScalarParameters(i>1 ? 1-i : 1, (int)SpecialFunctions.factorial(i));
                 while (iter.hasNext()) {
                     Graph g = iter.next();
                     for (Edge e : g.edges()) {
