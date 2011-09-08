@@ -32,7 +32,12 @@ public class MeterVirialExternalFieldRho implements IEtomicaDataSource, java.io.
 		clusters = new ArrayList<ClusterAbstract>(gset.size());
 		listsPoint = new ArrayList<List<List<Byte>>>(gset.size());
 		
+		/*int gNum = 0;*/
 		for(Graph g : gset){
+			/*if (gNum < 2) {
+				gNum++;continue;
+			}
+			gNum++;*/
 			ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
 			diagrams.populateEFBonds(g, allBonds, false, true);            
             double [] w = new double[]{((double)g.coefficient().getNumerator())/g.coefficient().getDenominator()};
@@ -88,6 +93,8 @@ public class MeterVirialExternalFieldRho implements IEtomicaDataSource, java.io.
 		        prvLayerList = layerList;
             }
             listsPoint.add(listComponent);
+            /*System.out.println("g="+g);
+            break;*/
 		}
 		for (ClusterAbstract cluster : clusters){
 			cluster.setTemperature(1);
@@ -154,6 +161,7 @@ public class MeterVirialExternalFieldRho implements IEtomicaDataSource, java.io.
         	    		break;
         	    	
         	    	}
+        	    	v=-v;
         	    }
         	    vSum += v;
             }
