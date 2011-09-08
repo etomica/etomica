@@ -83,7 +83,7 @@ public class VirialExternalFieldRho {
         Space space = Space3D.getInstance();
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);                               
-       
+        MetadataImpl.rootPointsSpecial=true;
      
         ExternalVirialDiagrams refDiagrams = new ExternalVirialDiagrams(nPoints, false, false);
         refDiagrams.setDoShortcut(true);
@@ -126,19 +126,19 @@ public class VirialExternalFieldRho {
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         double sum=0;
         for (int i=0; i < wallposition.length; i++){
-            sum+=(((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[i]*HSb[nPoints]-HSb[nPoints])*0.01;
-            System.out.println(String.format("wallposition= %6.2f",wallposition[i]) + " ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[i]
-                                             +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[i] + " reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[i]
-                                             +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[i]
-                                             +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[i]);	
+            sum+=(((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[i+1]*HSb[nPoints]-HSb[nPoints])*0.01;
+            System.out.println(String.format("wallposition= %6.2f",wallposition[i]) + " ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[i+1]
+                                             +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[i+1] + " reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[i+1]
+                                             +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[i+1]
+                                             +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[i+1]);	
         }
         System.out.println("sum="+sum);
-        System.out.println("surfacevirial "+" ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length] + " reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[wallposition.length]
-                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[wallposition.length]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[wallposition.length]);
-        System.out.println("b"+nPoints+"="+((((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length])*HSb[nPoints]-(nPoints-1)*HSb[nPoints])
-                         +" error: "+HSb[nPoints]*((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length]);
+        System.out.println("surfacevirial "+" ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length+1]
+                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length+1] + " reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[wallposition.length+1]
+                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[wallposition.length+1]
+                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[wallposition.length+1]);
+        System.out.println("b"+nPoints+"="+((((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length+1])*HSb[nPoints]-(nPoints-1)*HSb[nPoints])
+                         +" error: "+HSb[nPoints]*((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length+1]);
     }
 	
 
@@ -146,9 +146,9 @@ public class VirialExternalFieldRho {
      * Inner class for parameters
      */
     public static class VirialExternalFieldParam extends ParameterBase {
-        public int nPoints = 2;
+        public int nPoints = 3;
         public double temperature = 1.5;
-        public long numSteps = 1000000L;
+        public long numSteps = 10000L;
         
     }
 }
