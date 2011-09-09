@@ -20,6 +20,7 @@ public class WriteConfiguration implements IAction {
 
 	public WriteConfiguration(ISpace space) {
         writePosition = space.makeVector();
+        setDoApplyPBC(true);
 	}
 
     /**
@@ -46,7 +47,6 @@ public class WriteConfiguration implements IAction {
      */
     public void setBox(IBox newBox) {
         box = newBox;
-        setDoApplyPBC(true);
     }
 
     /**
