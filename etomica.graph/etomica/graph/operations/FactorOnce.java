@@ -220,6 +220,7 @@ public class FactorOnce implements Unary {
 
     result.setNumFactors(g.factors().length);
     result.addFactors(g.factors());
+    result.createReverseEdges();
 
     return result;
   }
