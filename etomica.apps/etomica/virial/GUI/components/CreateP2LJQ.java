@@ -1,5 +1,6 @@
 package etomica.virial.GUI.components;
 
+import etomica.api.ISpecies;
 import etomica.potential.P2LJQ;
 import etomica.potential.P2LennardJones;
 import etomica.space.ISpace;
@@ -157,10 +158,10 @@ private String[][] setParameterValues() {
 	 }
 	
 	//Creates the LJAtom Species
-	public SpeciesFactory createSpeciesFactory(){
+	public ISpecies createSpeciesFactory(){
 		SpeciesFactory speciesFactory;
 		speciesFactory = new SpeciesFactoryOrientedSpheres();
-        return speciesFactory;
+        return speciesFactory.makeSpecies(this.space);
 	}
 	
 	

@@ -19,6 +19,7 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.SpeciesTraPPECO2;
 import etomica.virial.GUI.models.ParametersDouble;
 
 public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
@@ -46,10 +47,14 @@ public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
 	
 	private String[] PotentialSites = {"C","O"};
 	
+	
+	
 	private String[][] ComponentValues = {
 			{"2.8000",Double.toString(Kelvin.UNIT.toSim(27)),Double.toString(Electron.UNIT.toSim(0.70))},
-			
 			{"3.0500",Double.toString(Kelvin.UNIT.toSim(79)),Double.toString((-0.5)*Electron.UNIT.toSim(0.70))}
+		
+			
+			
 			
 	};
 
@@ -233,29 +238,14 @@ private String[][] setParameterValues() {
 
 	
 	//Creates the LJAtom Species
-	public SpeciesFactory createSpeciesFactory(){
+	public ISpecies createSpeciesFactory(){
 		SpeciesFactory factory = new SpeciesFactory() {
 	        public ISpecies makeSpecies(ISpace space) {
-	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-	            species.setChildCount(new int[]{1,2});
-	            
-	            IConformation conformation = new IConformation(){
-	    			public void initializePositions(IAtomList atomList) {
-	                    // atoms are C, O and O, so we arrange them as 1-0-2
-	                   
-	                    atomList.getAtom(0).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().setX(0, -bondL);
-	                    atomList.getAtom(2).getPosition().E(0);
-	                    atomList.getAtom(2).getPosition().setX(0, +bondL);
-	                }
-	    		};
-	            
-	            species.setConformation(conformation);
+	        	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
 	            return species;
 	        }
 	    };
-	    return factory;
+	    return factory.makeSpecies(this.space);
 	}
 
 

@@ -46,7 +46,8 @@ public class CreateP2WaterSPCE implements ParameterMapping,Cloneable{
 	
 	private String[][] ComponentValues = {
 			{"3.1670",Double.toString(Kelvin.UNIT.toSim(78.23)),Double.toString(Electron.UNIT.toSim(-0.82))},
-			{"0.0","0.0",Double.toString(Electron.UNIT.toSim(0.41))},
+			{"0.0","0.0",Double.toString(Electron.UNIT.toSim(0.41))}
+			
 			
 			
 	};
@@ -227,14 +228,14 @@ private String[][] setParameterValues() {
 
 	
 	//Creates the LJAtom Species
-	public SpeciesFactory createSpeciesFactory(){
+	public ISpecies createSpeciesFactory(){
 		SpeciesFactory factory = new SpeciesFactory() {
 	        public ISpecies makeSpecies(ISpace space) {
 	            Species species = new SpeciesWater3P(space);
 	            return species;
 	        }
 	    };
-	    return factory;
+	    return factory.makeSpecies(this.space);
 	}
 
 

@@ -1,6 +1,7 @@
 package etomica.virial.GUI.components;
 
 
+import etomica.api.ISpecies;
 import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
 
@@ -187,9 +188,9 @@ public class CreateP2CO22CLJQ implements ParameterMapping,Cloneable{
 	}
 	
 	//Creates the LJ Molecule Species
-	public SpeciesFactory createSpeciesFactory(){
+	public ISpecies createSpeciesFactory(){
 		SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
-		return speciesFactory;
+		return speciesFactory.makeSpecies(this.space);
 	}
 	
 	

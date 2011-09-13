@@ -1,5 +1,6 @@
 package etomica.virial.GUI.components;
 
+import etomica.api.ISpecies;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.virial.SpeciesFactory;
@@ -26,7 +27,9 @@ public interface ParameterMapping {
 	//Added June 20, 2011
 	public String[][] getParamAndValues();
 
-	public SpeciesFactory createSpeciesFactory();
+	//public SpeciesFactory createSpeciesFactory();
+	
+	public ISpecies createSpeciesFactory();
 
 	public Object clone();
 	

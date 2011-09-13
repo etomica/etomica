@@ -1,5 +1,6 @@
 package etomica.virial.GUI.components;
 
+import etomica.api.ISpecies;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -249,7 +250,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 
 	
 	//Creates the LJAtom Species
-	public SpeciesFactory createSpeciesFactory(){
+	public ISpecies createSpeciesFactory(){
 		SpeciesFactory factory;
 		if(AlkaneIndex != 0){
 			factory = new SpeciesFactorySiepmannSpheres(this.space,this.AlkaneIndex);}
@@ -258,7 +259,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 			String[] IntSteps= number.split("\\.");
 			factory = new SpeciesFactorySiepmannSpheres(this.space,Integer.parseInt(IntSteps[0]));
 		}
-	    return factory;
+	    return factory.makeSpecies(this.space);
 	}
 
 

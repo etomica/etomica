@@ -225,7 +225,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 
 	
 	//Creates the LJAtom Species
-	public SpeciesFactory createSpeciesFactory(){
+	public ISpecies createSpeciesFactory(){
 		SpeciesFactory factory = new SpeciesFactory() {
 	        public ISpecies makeSpecies(ISpace space) {
 	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
@@ -247,7 +247,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	            return species;
 	        }
 	    };
-	    return factory;
+	    return factory.makeSpecies(this.space);
 	}
 
 
