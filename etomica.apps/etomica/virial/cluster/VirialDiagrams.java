@@ -154,9 +154,6 @@ public class VirialDiagrams {
     }
 
     public void setDoKeepEBonds(boolean newDoKeepEBonds) {
-        if (doReeHoover) {
-            throw new RuntimeException("can't have both Ree-Hoover and e-bond representation");
-        }
         doKeepEBonds = newDoKeepEBonds;
     }
 
@@ -767,7 +764,7 @@ public class VirialDiagrams {
         MulScalar mulScalar = new MulScalar();
 
         
-        if (doShortcut && !multibody) {
+        if (doShortcut && !multibody && !doKeepEBonds) {
             // just take lnfXi to be the set of connected diagrams
             IsConnected isCon = new IsConnected();
             for (int i=1; i<n+1; i++) {
@@ -1066,6 +1063,16 @@ public class VirialDiagrams {
             
             p = decorate.apply(lnfXi, z, dp);
             p = isoFree.apply(p, null);
+            
+            if (isInteractive) {
+                System.out.println("\np0");
+                topSet.clear();
+                topSet.addAll(p);
+                for (Graph g : topSet) {
+                    System.out.println(g);
+                }
+                ClusterViewer.createView("p0", topSet);
+            }
 
             // clear these out -- we don't need them and (in extreme cases) we might need the memory
             lnfXi.clear();
@@ -1105,7 +1112,6 @@ public class VirialDiagrams {
             // now recondense them (only relevant for multibody interactions)
             Unfactor unfactor = new Unfactor();
             p = isoFree.apply(unfactor.apply(p, mfp), null);
-
             // perform Ree-Hoover substitution (brute-force)
             if (doReeHoover) {
                 if (doShortcut && !multibody) {
@@ -1143,7 +1149,7 @@ public class VirialDiagrams {
             newP.addAll(maxIsomorph.apply(p, MaxIsomorph.PARAM_ALL));
             p = newP;
         }
-        else {
+        else if (!doKeepEBonds) {
 
             // perform Ree-Hoover substitution (brute-force)
             if (doReeHoover) {
@@ -1381,6 +1387,26 @@ public class VirialDiagrams {
                 }
             }
             ClusterViewer.createView("P", topSet);
+        }
+
+        if (doKeepEBonds) {
+            Split split = new Split();
+            SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
+            newP = split.apply(p, bonds);
+    
+            DeleteEdgeParameters deleteEdgeParameters = new DeleteEdgeParameters(oneBond);
+            DeleteEdge deleteEdge = new DeleteEdge();
+            //set of full star diagrams with f bonds
+            p.clear();
+            Unfactor unfactor = new Unfactor();
+            p.addAll(isoFree.apply(unfactor.apply(deleteEdge.apply(newP, deleteEdgeParameters), mfp), null));
+            System.out.println("\nP(f)\n");
+            topSet.clear();
+            topSet.addAll(p);
+            for (Graph g : topSet) {
+                System.out.println(g);
+                ClusterViewer.createView("P(f)", topSet);
+            }
         }
 
         GraphList<Graph> pFinal = makeGraphList();
