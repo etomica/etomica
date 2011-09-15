@@ -109,14 +109,16 @@ public class VirialDiagrams {
         final int n = 5;
         boolean multibody = true;
         boolean flex = true;
+        boolean doKeepEBonds = false;
+        boolean doReeHoover = false;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
-        virialDiagrams.setDoReeHoover(false);
-        virialDiagrams.setDoKeepEBonds(false);
+        virialDiagrams.setDoReeHoover(doReeHoover);
+        virialDiagrams.setDoKeepEBonds(doKeepEBonds);
         virialDiagrams.setDoShortcut(false);
         if (multibody) {
             virialDiagrams.setDoMinimalMulti(true);
         }
-        if (flex || multibody) {
+        if (!doKeepEBonds && doReeHoover && (flex || multibody)) {
             virialDiagrams.setDoMinimalBC(true);
         }
         virialDiagrams.makeVirialDiagrams();
@@ -141,6 +143,9 @@ public class VirialDiagrams {
     }
 
     public void setDoReeHoover(boolean newDoReeHoover) {
+        if (doKeepEBonds) {
+            throw new RuntimeException("can't have both Ree-Hoover and e-bond representation");
+        }
         doReeHoover = newDoReeHoover;
     }
 
@@ -149,6 +154,9 @@ public class VirialDiagrams {
     }
 
     public void setDoKeepEBonds(boolean newDoKeepEBonds) {
+        if (doReeHoover) {
+            throw new RuntimeException("can't have both Ree-Hoover and e-bond representation");
+        }
         doKeepEBonds = newDoKeepEBonds;
     }
 
@@ -1305,8 +1313,8 @@ public class VirialDiagrams {
             
 
             // disconnected graphs with i-1 components
-            Set<Graph>[] newDisconnectedP = new HashSet[n];
-            for (int i=0; i<n; i++) {
+            Set<Graph>[] newDisconnectedP = new HashSet[n+1];
+            for (int i=0; i<n+1; i++) {
                 newDisconnectedP[i] = new HashSet<Graph>();
             }
             SplitGraph graphSplitter = new SplitGraph();
@@ -1315,7 +1323,7 @@ public class VirialDiagrams {
                 newDisconnectedP[gSplit.size()].add(g);
             }
             disconnectedP.clear();
-            for (int i = 0; i<n-1; i++) {
+            for (int i = 0; i<n; i++) {
                 // looking for graphs with i components
                 for (Graph g : newDisconnectedP[i]) {
                     boolean ap = hap.check(g);
