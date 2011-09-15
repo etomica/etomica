@@ -95,6 +95,7 @@ public class VirialDiagrams {
     protected boolean doShortcut;
     protected boolean doMinimalMulti;
     protected boolean doMinimalBC;
+    protected boolean doKeepEBonds;
     protected final char nodeColor = Metadata.COLOR_CODE_0;
     protected char[] flexColors;
     public char fBond, eBond, mBond, MBond, efbcBond;
@@ -110,6 +111,7 @@ public class VirialDiagrams {
         boolean flex = true;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(false);
+        virialDiagrams.setDoKeepEBonds(false);
         virialDiagrams.setDoShortcut(false);
         if (multibody) {
             virialDiagrams.setDoMinimalMulti(true);
@@ -144,6 +146,10 @@ public class VirialDiagrams {
 
     public void setDoShortcut(boolean newDoShortcut) {
         doShortcut = newDoShortcut;
+    }
+
+    public void setDoKeepEBonds(boolean newDoKeepEBonds) {
+        doKeepEBonds = newDoKeepEBonds;
     }
 
     public void setDoMinimalMulti(boolean newDoMinimalMulti) {
@@ -565,6 +571,7 @@ public class VirialDiagrams {
         IsBiconnected isBi = new IsBiconnected();
         ArrayList<Double> weights = new ArrayList<Double>();
         if (doMinimalBC) {
+            // group all biconnected pairwise graphs into a single clusterSum
             ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
             double leadingCoef = 0;
             for (Graph g : pn) {
@@ -797,7 +804,7 @@ public class VirialDiagrams {
             }
     
             Set<Graph> fXi;
-            if (doShortcut) {
+            if (doShortcut && !doKeepEBonds) {
                 fXi = new HashSet<Graph>();
                 for (byte i=1; i<n+1; i++) {
                     GraphIterator iter = new StoredIterator(i);
@@ -820,7 +827,7 @@ public class VirialDiagrams {
                     }
                 }
             }
-            else {
+            else if (!doKeepEBonds) {
                 Split split = new Split();
                 SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
                 Set<Graph> setOfSubstituted = split.apply(eXi, bonds);
@@ -829,6 +836,11 @@ public class VirialDiagrams {
                 DeleteEdge deleteEdge = new DeleteEdge();
                 //set of full star diagrams with f bonds
                 fXi = deleteEdge.apply(setOfSubstituted, deleteEdgeParameters);
+            }
+            else {
+                // fXi is the set we'll use from here on.  just take it to be
+                // the eBond representation
+                fXi = eXi;
             }
 
             if (isInteractive) {
