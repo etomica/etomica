@@ -1064,16 +1064,6 @@ public class VirialDiagrams {
             p = decorate.apply(lnfXi, z, dp);
             p = isoFree.apply(p, null);
             
-            if (isInteractive) {
-                System.out.println("\np0");
-                topSet.clear();
-                topSet.addAll(p);
-                for (Graph g : topSet) {
-                    System.out.println(g);
-                }
-                ClusterViewer.createView("p0", topSet);
-            }
-
             // clear these out -- we don't need them and (in extreme cases) we might need the memory
             lnfXi.clear();
             rho.clear();
