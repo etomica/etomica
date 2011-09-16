@@ -2,6 +2,8 @@ package etomica.graph.model.impl;
 
 import static etomica.graph.model.Metadata.COLORS;
 import static etomica.graph.model.Metadata.COLOR_CODES;
+import static etomica.graph.model.Metadata.COLOR_MAP;
+import static etomica.graph.model.Metadata.DASH_MAP;
 import static etomica.graph.model.Metadata.TYPE_EDGE_ANY;
 import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
 
@@ -601,30 +603,44 @@ public class GraphImpl implements Graph {
         x[i] = oX;
         y[i] = oY;
       }
-      if (COLOR_CODES.indexOf(nodes[i].getColor()) == -1) {
-          COLOR_CODES.add(nodes[i].getColor());
+      String svgColor = COLOR_MAP.get(nodes[i].getColor());
+      if (svgColor == null) {
+        if (COLOR_CODES.indexOf(nodes[i].getColor()) == -1) {
+            COLOR_CODES.add(nodes[i].getColor());
+        }
+        svgColor = COLORS.get(COLOR_CODES.indexOf(nodes[i].getColor()));
+        COLOR_MAP.put(nodes[i].getColor(), svgColor);
       }
       if (nodes[i].getType() == TYPE_NODE_ROOT) {
         svgNodes += String.format(
             "<circle style=\"fill: white; stroke: %s\" r=\"%d\" cx=\"%.2f\" cy=\"%.2f\"/>\n",
-            COLORS.get(COLOR_CODES.indexOf(nodes[i].getColor())), nodeR, x[i], y[i]);
+            svgColor, nodeR, x[i], y[i]);
       }
       else {
         svgNodes += String.format(
             "<circle style=\"fill: %s; stroke: black\" r=\"%d\" cx=\"%.2f\" cy=\"%.2f\"/>\n",
-            COLORS.get(COLOR_CODES.indexOf(nodes[i].getColor())), nodeR, x[i], y[i]);
+            svgColor, nodeR, x[i], y[i]);
       }
     }
     String svgEdges = "";
     for (Edge e : edges()) {
       byte nodeFrom = getFromNode(e.getId());
       byte nodeTo = getToNode(e.getId());
-      if (COLOR_CODES.indexOf(e.getColor()) == -1) {
-          COLOR_CODES.add(e.getColor());
+      String svgColor = COLOR_MAP.get(e.getColor());
+      if (svgColor == null) {
+        if (COLOR_CODES.indexOf(e.getColor()) == -1) {
+            COLOR_CODES.add(e.getColor());
+        }
+        svgColor = COLORS.get(COLOR_CODES.indexOf(e.getColor()));
+        COLOR_MAP.put(e.getColor(), svgColor);
+      }
+      Integer dashLength = DASH_MAP.get(e.getColor());
+      if (dashLength == null) {
+        dashLength = 0;
       }
       svgEdges += String.format(
-          "<line style=\"stroke: %s\" x1=\"%.2f\" y1=\"%.2f\" x2=\"%.2f\" y2=\"%.2f\"/>\n",
-          COLORS.get(COLOR_CODES.indexOf(e.getColor())), x[nodeFrom], y[nodeFrom], x[nodeTo], y[nodeTo]);
+          "<line style=\"stroke: %s;%s\" x1=\"%.2f\" y1=\"%.2f\" x2=\"%.2f\" y2=\"%.2f\"/>\n",
+          svgColor, (dashLength==0) ? "" : " stroke-dasharray:"+dashLength+","+dashLength, x[nodeFrom], y[nodeFrom], x[nodeTo], y[nodeTo]);
     }
     return svgEdges + svgNodes;
   }
