@@ -1402,7 +1402,12 @@ public class VirialDiagrams {
         }
 
         if (doExchange) {
-            char eeBond = 'E';
+            char ffBond = 'F';
+            // we substitute excBonds (exchange bonds, between atoms involved the exchange)
+            // if exchanging atoms are connected to other atoms (with e-Bonds), we change those
+            // to ff-Bonds (what a horrible name).  Our Graph algebra can't convert the e-Bonds
+            // to f-bonds (because f = e*e-1) between a exchanging double-ring and a single atom,
+            // so we do it manually here.  The ff-bonds are those new f bonds. 
             HashSet<Graph> pxc = new HashSet<Graph>();
             for (Graph g : p) {
                 List<List<Byte>> components = new ArrayList<List<Byte>>();
@@ -1424,8 +1429,8 @@ public class VirialDiagrams {
                         else if (comp.size() == 3) {
                             Graph gCopy = gp.copy();
                             gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
-                            gCopy.getEdge(comp.get(0), comp.get(2)).setColor(eeBond);
-                            gCopy.getEdge(comp.get(1), comp.get(2)).setColor(eeBond);
+                            gCopy.getEdge(comp.get(0), comp.get(2)).setColor(ffBond);
+                            gCopy.getEdge(comp.get(1), comp.get(2)).setColor(ffBond);
                             gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(3,1)));
                             gCopy = gp.copy();
                             gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
@@ -1444,46 +1449,42 @@ public class VirialDiagrams {
                             Graph gCopy = gp.copy();
                             for (byte j=0; j<3; j++) {
                                 for (byte k=(byte)(j+1); k<4; k++) {
-                                    gCopy.getEdge(comp.get(j), comp.get(k)).setColor(eeBond);
+                                    gCopy.getEdge(comp.get(j), comp.get(k)).setColor(ffBond);
                                 }
                             }
                             gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
                             gCopy.getEdge(comp.get(2), comp.get(3)).setColor(eBond);
                             gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(6,1)));
                             gCopy = gp.copy();
-                            for (byte j=0; j<3; j++) {
-                                for (byte k=(byte)(j+1); k<4; k++) {
-                                    if ((j!=0 || k!=1) && (j!=2 || k!=3)) {
-                                        gCopy.deleteEdge(comp.get(j), comp.get(k));
-                                    }
+                            for (byte j=0; j<2; j++) {
+                                gCopy.deleteEdge(comp.get(j), comp.get(2));
+                                gCopy.getEdge(comp.get(j), comp.get(3)).setColor(ffBond);
+                            }
+                            gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
+                            gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(12,1)));
+                            gCopy = gp.copy();
+                            for (byte j=0; j<2; j++) {
+                                for (byte k=2; k<4; k++) {
+                                    gCopy.deleteEdge(comp.get(j), comp.get(k));
                                 }
                             }
                             gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
                             gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(6,1)));
-                            gCopy = gp.copy();
-                            for (byte j=0; j<2; j++) {
-                                gCopy.deleteEdge(comp.get(j), comp.get(2));
-                                gCopy.getEdge(comp.get(j), comp.get(3)).setColor(eeBond);
-                            }
-                            gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
-                            gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(12,1)));
 
                             //2+2
                             gCopy = gp.copy();
                             for (byte j=0; j<3; j++) {
                                 for (byte k=(byte)(j+1); k<4; k++) {
-                                    gCopy.getEdge(comp.get(j), comp.get(k)).setColor(eeBond);
+                                    gCopy.getEdge(comp.get(j), comp.get(k)).setColor(ffBond);
                                 }
                             }
                             gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
                             gCopy.getEdge(comp.get(2), comp.get(3)).setColor(excBond);
                             gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(3,1)));
                             gCopy = gp.copy();
-                            for (byte j=0; j<3; j++) {
-                                for (byte k=(byte)(j+1); k<4; k++) {
-                                    if ((j!=0 || k!=1) && (j!=2 || k!=3)) {
-                                        gCopy.deleteEdge(comp.get(j), comp.get(k));
-                                    }
+                            for (byte j=0; j<2; j++) {
+                                for (byte k=2; k<4; k++) {
+                                    gCopy.deleteEdge(comp.get(j), comp.get(k));
                                 }
                             }
                             gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
@@ -1493,7 +1494,7 @@ public class VirialDiagrams {
                             //3
                             gCopy = gp.copy();
                             for (byte j=0; j<3; j++) {
-                                gCopy.getEdge(comp.get(j), comp.get(3)).setColor(eeBond);
+                                gCopy.getEdge(comp.get(j), comp.get(3)).setColor(ffBond);
                             }
                             gCopy.getEdge(comp.get(0), comp.get(1)).setColor(excBond);
                             gCopy.getEdge(comp.get(0), comp.get(2)).setColor(excBond);
