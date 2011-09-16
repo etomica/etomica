@@ -629,14 +629,8 @@ public class VirialDiagrams {
             if (graphHasEdgeColor(g, mBond)) continue;
             if (doMinimalBC && isBi.check(g)) continue;
             ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-            int nDiagrams = populateEFBonds(g, allBonds, false, true);
+            populateEFBonds(g, allBonds, false, true);
             double[] thisW = w1;
-            if (!flex) {
-                thisW = new double[nDiagrams];
-                for (int i=0; i<nDiagrams; i++) {
-                    thisW[i] = 1.0/nDiagrams;
-                }
-            }
             if (flex) {
                 populateEFBonds(g, allBonds, true, true);
             }
@@ -655,22 +649,6 @@ public class VirialDiagrams {
             }
             else {
                 allClusters.add(new ClusterSumShell(coreCluster, allBonds.toArray(new ClusterBonds[0]), thisW, new MayerFunction[]{f}));
-            }
-        }
-        return allClusters.toArray(new ClusterSumShell[0]);
-    }
-    public ClusterSumShell[] makeSingleVirialClusters2(ClusterSum coreCluster, MayerFunction f) {
-        if (p == null) {
-            makeVirialDiagrams();
-        }
-        ArrayList<ClusterSumShell> allClusters = new ArrayList<ClusterSumShell>();
-        Set<Graph> pn = getMSMCGraphs(true, false);
-        for (Graph g : pn) {
-            ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-            int nDiagrams = populateEFBonds(g, allBonds, false, true);
-            double[] thisW = new double[]{1.0/nDiagrams};
-            for (int i=0; i<nDiagrams; i++) {
-                allClusters.add(new ClusterSumShell(coreCluster, new ClusterBonds[]{allBonds.get(i)}, thisW, new MayerFunction[]{f}));
             }
         }
         return allClusters.toArray(new ClusterSumShell[0]);
@@ -1024,7 +1002,6 @@ public class VirialDiagrams {
 
         if (doShortcut && !multibody && !flex) {
 
-
             // skip directly to p diagrams
             p = new HashSet<Graph>();
             IsBiconnected isBi = new IsBiconnected();
@@ -1148,9 +1125,6 @@ public class VirialDiagrams {
                     p = reeHoover.apply(p, new ReeHooverParameters(eBond));
                 }
                 else {
-                    topSet.clear();
-                    topSet.addAll(p);
-                    p.clear();
                     char nfBond = 'F';
                     SplitOneParameters splitOneParameters = new SplitOneParameters(eBond, nfBond);
                     SplitOne splitOne = new SplitOne();
