@@ -16,10 +16,25 @@ import etomica.units.Dimension;
 public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
 
     public AccumulatorAverageCovariance() {
+        this(true);
+    }
+
+    /**
+     * @param fullCovariance enables calculation of covariance for each pair of
+     * data values.  With fullCovariance off, covariance is computed between
+     * the first data value and all others.
+     */
+    public AccumulatorAverageCovariance(boolean fullCovariance) {
+        this.fullCovariance = fullCovariance;
     }
 
     public AccumulatorAverageCovariance(long blockSize) {
+        this(blockSize, true);
+    }
+
+    public AccumulatorAverageCovariance(long blockSize, boolean fullCovariance) {
         super(blockSize);
+        this.fullCovariance = fullCovariance;
     }
 
     public void addData(IData data) {
@@ -29,9 +44,22 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
 
         double[] x = covSum.getData();
         int n = data.getLength();
-        for (int i=0; i<n; i++) {
+        if (fullCovariance) {
+            for (int i=0; i<n; i++) {
+                double ix = data.getValue(i);
+                x[i*n+i] += ix*ix;
+                for (int j=i+1; j<n; j++) {
+                    double ijx = ix*data.getValue(j);
+                    x[i*n+j] += ijx;
+                    x[j*n+i] += ijx;
+                }
+            }
+        }
+        else {
+            double x0 = data.getValue(0);
             for (int j=0; j<n; j++) {
-                x[i*n+j] += data.getValue(i)*data.getValue(j);
+                double j0x = x0*data.getValue(j);
+                x[j] += j0x;
             }
         }
     }
@@ -41,9 +69,23 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         double[] x = blockCovSum.getData();
         int n = currentBlockSum.getLength();
         long blockSizeSq = blockSize * blockSize;
-        for (int i=0; i<n; i++) {
+
+        if (fullCovariance) {
+            for (int i=0; i<n; i++) {
+                double ix = currentBlockSum.getValue(i);
+                x[i*n+i] += ix*ix/blockSizeSq;
+                for (int j=i+1; j<n; j++) {
+                    double ijx = ix*currentBlockSum.getValue(j)/blockSizeSq;
+                    x[i*n+j] += ijx;
+                    x[j*n+i] += ijx;
+                }
+            }
+        }
+        else {
+            double x0 = currentBlockSum.getValue(0);
             for (int j=0; j<n; j++) {
-                x[i*n+j] += currentBlockSum.getValue(i)*currentBlockSum.getValue(j) / blockSizeSq;
+                double j0x = x0*currentBlockSum.getValue(j);
+                x[j] += j0x/blockSizeSq;
             }
         }
 
@@ -60,10 +102,23 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         long nTotalData = count*blockSize + (blockCountDown-blockSize);
         covariance.TE(1.0/nTotalData);
         double[] x = covariance.getData();
-        
-        for (int i=0; i<n; i++) {
+
+        if (fullCovariance) {
+            for (int i=0; i<n; i++) {
+                double ix = average.getValue(i);
+                x[i*n+i] -= ix*ix;
+                for (int j=i+1; j<n; j++) {
+                    double ijx = ix*average.getValue(j);
+                    x[i*n+j] -= ijx;
+                    x[j*n+i] -= ijx;
+                }
+            }
+        }
+        else {
+            double x0 = average.getValue(0);
             for (int j=0; j<n; j++) {
-                x[i*n+j] -= average.getValue(i)*average.getValue(j);
+                double j0x = x0*average.getValue(j);
+                x[j] += j0x;
             }
         }
 
@@ -73,9 +128,22 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
             x = blockCovariance.getData();
             long totalCount = count*blockSize;
             double countSq = totalCount*totalCount;
-            for (int i=0; i<n; i++) {
+            if (fullCovariance) {
+                for (int i=0; i<n; i++) {
+                    double ix = sum.getValue(i);
+                    x[i*n+i] -= ix*ix/countSq;
+                    for (int j=i+1; j<n; j++) {
+                        double ijx = ix*sum.getValue(j)/countSq;
+                        x[i*n+j] -= ijx;
+                        x[j*n+i] -= ijx;
+                    }
+                }
+            }
+            else {
+                double x0 = sum.getValue(0);
                 for (int j=0; j<n; j++) {
-                    x[i*n+j] -= sum.getValue(i)*sum.getValue(j) / countSq;
+                    double j0x = x0*sum.getValue(j)/countSq;
+                    x[j] += j0x;
                 }
             }
         }
@@ -96,10 +164,18 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
 
     public IEtomicaDataInfo processDataInfo(IEtomicaDataInfo incomingDataInfo) {
         int n = incomingDataInfo.getLength();
-        covSum = new DataDoubleArray(new int[]{n,n});
-        blockCovSum = new DataDoubleArray(new int[]{n,n});
-        covariance = new DataDoubleArray(new int[]{n,n});
-        blockCovariance = new DataDoubleArray(new int[]{n,n});
+        if (fullCovariance) {
+            covSum = new DataDoubleArray(new int[]{n,n});
+            blockCovSum = new DataDoubleArray(new int[]{n,n});
+            covariance = new DataDoubleArray(new int[]{n,n});
+            blockCovariance = new DataDoubleArray(new int[]{n,n});
+        }
+        else {
+            covSum = new DataDoubleArray(new int[]{n});
+            blockCovSum = new DataDoubleArray(new int[]{n});
+            covariance = new DataDoubleArray(new int[]{n});
+            blockCovariance = new DataDoubleArray(new int[]{n});
+        }
         super.processDataInfo(incomingDataInfo);
 
         int nSuper = dataGroup.getNData();
@@ -112,18 +188,26 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         dataGroup = new DataGroup(myData);
 
         String incomingLabel = incomingDataInfo.getLabel();
-        DataDoubleArray.DataInfoDoubleArray covarianceInfo = new DataDoubleArray.DataInfoDoubleArray(
-                incomingLabel+" covariance", new CompoundDimension(
-                        new Dimension[]{incomingDataInfo.getDimension()},new double[]{2}), new int[]{n,n});
-        DataDoubleArray.DataInfoDoubleArray blockCovarianceInfo = new DataDoubleArray.DataInfoDoubleArray(
-                incomingLabel+" blk covariance", new CompoundDimension(
-                        new Dimension[]{incomingDataInfo.getDimension()},new double[]{2}), new int[]{n,n});
         IEtomicaDataInfo[] myInfo = new IEtomicaDataInfo[nSuper+2];
         for (int i=0; i<nSuper; i++) {
             myInfo[i] = ((DataInfoGroup)dataInfo).getSubDataInfo(i);
         }
-        myInfo[nSuper] = covarianceInfo;
-        myInfo[nSuper+1] = blockCovarianceInfo;
+        if (fullCovariance) {
+            myInfo[nSuper] = new DataDoubleArray.DataInfoDoubleArray(
+                incomingLabel+" covariance", new CompoundDimension(
+                        new Dimension[]{incomingDataInfo.getDimension()},new double[]{2}), new int[]{n,n});
+            myInfo[nSuper+1] = new DataDoubleArray.DataInfoDoubleArray(
+                incomingLabel+" blk covariance", new CompoundDimension(
+                        new Dimension[]{incomingDataInfo.getDimension()},new double[]{2}), new int[]{n,n});
+        }
+        else {
+            myInfo[nSuper] = new DataDoubleArray.DataInfoDoubleArray(
+                    incomingLabel+" covariance", new CompoundDimension(
+                            new Dimension[]{incomingDataInfo.getDimension()},new double[]{2}), new int[]{n});
+                myInfo[nSuper+1] = new DataDoubleArray.DataInfoDoubleArray(
+                    incomingLabel+" blk covariance", new CompoundDimension(
+                            new Dimension[]{incomingDataInfo.getDimension()},new double[]{2}), new int[]{n});
+        }
         dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), myInfo);
         dataInfo.addTag(tag);
         return dataInfo;
@@ -140,4 +224,5 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
     private static final long serialVersionUID = 1L;
     protected DataDoubleArray covSum, blockCovSum;
     protected DataDoubleArray covariance, blockCovariance;
+    protected final boolean fullCovariance;
 }
