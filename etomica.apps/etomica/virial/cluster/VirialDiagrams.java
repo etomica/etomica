@@ -1395,8 +1395,8 @@ public class VirialDiagrams {
             topSet.addAll(p);
             for (Graph g : topSet) {
                 System.out.println(g);
-                ClusterViewer.createView("P(f)", topSet);
             }
+            ClusterViewer.createView("P(f)", topSet);
         }
 
         GraphList<Graph> pFinal = makeGraphList();
