@@ -2,6 +2,7 @@ package etomica.graph.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public interface Metadata extends Comparable<Metadata> {
@@ -33,21 +34,25 @@ public interface Metadata extends Comparable<Metadata> {
   // COLORS is populated with 13 colors initially, which should accomodate a
   // few custom codes.  More colors can be added dynamically, but should be
   // valid SVG colors as described at the above URL.
-  public static String COLOR_0 = "black"; // Color.BLACK;
-  public static String COLOR_1 = "red"; // Color.RED;
-  public static String COLOR_2 = "green"; // Color.GREEN;
-  public static String COLOR_3 = "darkblue"; // Color.BLUE;
-  public static String COLOR_4 = "darkviolet"; // Color.MAGENTA;
-  public static String COLOR_5 = "royalblue"; // Color.CYAN;
-  public static String COLOR_6 = "yellow"; // Color.YELLOW;
-  public static String COLOR_7 = "darkorange"; // Color.ORANGE;
-  public static String COLOR_8 = "fuchsia"; // Color.PINK;
-  public static String COLOR_9 = "slategray"; // Color.LIGHT_GRAY;
-  public static String COLOR_10 = "orange"; // Color.ORANGE;
+  public static String COLOR_0 = "black";
+  public static String COLOR_1 = "red";
+  public static String COLOR_2 = "green";
+  public static String COLOR_3 = "darkviolet";
+  public static String COLOR_4 = "royalblue";
+  public static String COLOR_5 = "darkorange";
+  public static String COLOR_6 = "fuchsia";
+  public static String COLOR_7 = "yellow";
+  public static String COLOR_8 = "darkblue";
+  public static String COLOR_9 = "slategray";
+  public static String COLOR_10 = "orange";
   public static String COLOR_11 = "maroon";
   public static String COLOR_12 = "olive";
-  public static ArrayList<String> COLORS = new ArrayList<String>(Arrays.asList(new String[] { COLOR_0, COLOR_1, COLOR_2, COLOR_3, COLOR_4, COLOR_5,
+  public final static ArrayList<String> COLORS = new ArrayList<String>(Arrays.asList(new String[] { COLOR_0, COLOR_1, COLOR_2, COLOR_3, COLOR_4, COLOR_5,
       COLOR_6, COLOR_7, COLOR_8, COLOR_9, COLOR_10, COLOR_11, COLOR_12 }));
+
+  public final static HashMap<Character,String> COLOR_MAP = new HashMap<Character,String>();
+
+  public final static HashMap<Character,Integer> DASH_MAP = new HashMap<Character,Integer>();
 
   public char getColor();
 
