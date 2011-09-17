@@ -112,13 +112,13 @@ public class VirialDiagrams {
         final int n = 4;
         boolean multibody = true;
         boolean flex = true;
-        boolean doKeepEBonds = true;
+        boolean doKeepEBonds = false;
         boolean doReeHoover = true;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(doReeHoover);
         virialDiagrams.setDoKeepEBonds(doKeepEBonds);
         virialDiagrams.setDoShortcut(false);
-        virialDiagrams.setDoExchange(true);
+        virialDiagrams.setDoExchange(false);
         if (multibody) {
             virialDiagrams.setDoMinimalMulti(true);
         }
@@ -1142,7 +1142,7 @@ public class VirialDiagrams {
                         else if (comp.size() == 4) {
                             if (gp.getEdge(comp.get(0), comp.get(1)).getColor() == mBond) continue;
 
-                            //1
+                            //2
                             Graph gCopy = gp.copy();
                             for (byte j=0; j<3; j++) {
                                 for (byte k=(byte)(j+1); k<4; k++) {
@@ -1213,7 +1213,7 @@ public class VirialDiagrams {
                                     gCopy.getEdge(comp.get(j), comp.get(k)).setColor(excBond);
                                 }
                             }
-                            gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(24,1)));
+                            gPermutedNew.add(mulScalar.apply(gCopy, new MulScalarParameters(6,1)));
                         }
                         else {
                             throw new RuntimeException("don't have code for 5th-order yet.");
@@ -1251,7 +1251,6 @@ public class VirialDiagrams {
             MaxIsomorph maxIsomorph = new MaxIsomorph();
             MaxIsomorphParameters mip = new MaxIsomorphParameters(happyArticulation);
             p.addAll(maxIsomorph.apply(isoFree.apply(unfactor.apply(deleteEdge.apply(newP, deleteEdgeParameters), mfp), null), mip));
-            
         }
         
         
@@ -1328,7 +1327,7 @@ public class VirialDiagrams {
 
             // perform Ree-Hoover substitution (brute-force)
             if (doReeHoover) {
-                char nfBond = 'F';
+                char nfBond = 'Z';
                 SplitOneParameters splitOneParameters = new SplitOneParameters(eBond, nfBond);
                 SplitOneBiconnected splitOneBC = new SplitOneBiconnected();
                 msp = new MulScalarParameters(-1, 1);
