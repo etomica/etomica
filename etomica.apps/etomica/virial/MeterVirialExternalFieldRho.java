@@ -12,9 +12,8 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.graph.model.Graph;
-import etomica.graph.operations.Factor.BCVisitor;
 import etomica.graph.property.HasSimpleArticulationPoint;
-import etomica.graph.traversal.Biconnected;
+import etomica.graph.traversal.BCVisitor;
 import etomica.units.Null;
 import etomica.virial.cluster.ExternalVirialDiagrams;
 
@@ -46,9 +45,7 @@ public class MeterVirialExternalFieldRho implements IEtomicaDataSource, java.io.
             ArrayList<List<Byte>> listComponent = new ArrayList<List<Byte>>();
             ArrayList<Byte> listPointG = new ArrayList<Byte>();
             listComponent.add(listPointG);
-            List<List<Byte>> biComponents = new ArrayList<List<Byte>>();
-            BCVisitor v = new BCVisitor(biComponents);
-            new Biconnected().traverseAll(g, v);
+            List<List<Byte>> biComponents = BCVisitor.getBiComponents(g);
             HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
             hap.check(g);
             

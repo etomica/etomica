@@ -41,7 +41,6 @@ import etomica.graph.operations.DifByConstant.DifByConstantParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
-import etomica.graph.operations.Factor.BCVisitor;
 import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.IsoFree;
@@ -59,7 +58,6 @@ import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitGraph;
 import etomica.graph.operations.SplitOne;
-import etomica.graph.operations.SplitGraph.CVisitor;
 import etomica.graph.operations.SplitOne.SplitOneParameters;
 import etomica.graph.operations.SplitOneBiconnected;
 import etomica.graph.operations.SplitParameters;
@@ -69,7 +67,9 @@ import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.IsConnected;
 import etomica.graph.property.NumRootNodes;
 import etomica.graph.property.Property;
+import etomica.graph.traversal.BCVisitor;
 import etomica.graph.traversal.Biconnected;
+import etomica.graph.traversal.CVisitor;
 import etomica.graph.traversal.DepthFirst;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
@@ -115,8 +115,8 @@ public class VirialDiagrams {
         boolean flex = true;
         boolean doKeepEBonds = false;
         boolean doReeHoover = true;
-        boolean doExchange = false;
-        VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
+         boolean doExchange = false;
+       VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(doReeHoover);
         virialDiagrams.setDoKeepEBonds(doKeepEBonds);
         virialDiagrams.setDoShortcut(false);
@@ -125,8 +125,8 @@ public class VirialDiagrams {
             virialDiagrams.setDoExchangeNoF(false);
         }
         if (multibody) {
-            virialDiagrams.setDoMinimalMulti(true);
-        }
+              virialDiagrams.setDoMinimalMulti(true);
+      }
         if (doReeHoover && (flex || multibody)) {
             virialDiagrams.setDoMinimalBC(true);
         }
@@ -403,16 +403,13 @@ public class VirialDiagrams {
             AllIsomorphs allIso = new AllIsomorphs();
             AllIsomorphsParameters allIsoParams = new AllIsomorphsParameters(true);
             Set<Graph> permutations = allIso.apply(g, allIsoParams);
-            List<List<Byte>> multiBiComponents = new ArrayList<List<Byte>>();
             int nPoints = g.nodeCount();
 
             rv = permutations.size();
             for (Graph gp : permutations) {
                 ArrayList<int[]> fbonds = new ArrayList<int[]>();
                 int[][] mBonds = new int[nPoints+1][0];
-                multiBiComponents.clear();
-                BCVisitor bcv = new BCVisitor(multiBiComponents);
-                new Biconnected().traverseAll(gp, bcv);
+                List<List<Byte>> multiBiComponents = BCVisitor.getBiComponents(gp);
                 for (List<Byte> comp : multiBiComponents) {
                     if (comp.size() == 1) continue;
                     if (!gp.hasEdge(comp.get(0), comp.get(1)) || gp.getEdge(comp.get(0), comp.get(1)).getColor() != mBond) {
@@ -1122,9 +1119,7 @@ public class VirialDiagrams {
             HashSet<Graph> pxc = new HashSet<Graph>();
             char efBond = doExchangeNoF ? eBond : ffBond;
             for (Graph g : p) {
-                List<List<Byte>> components = new ArrayList<List<Byte>>();
-                CVisitor v = new CVisitor(components);
-                new DepthFirst().traverseAll(g, v);
+                List<List<Byte>> components = CVisitor.getComponents(g);
                 HashSet<Graph> gPermuted = new HashSet<Graph>();
                 gPermuted.add(g.copy());
                 for (int i=0; i<components.size(); i++) {

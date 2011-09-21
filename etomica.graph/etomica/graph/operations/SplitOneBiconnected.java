@@ -8,9 +8,8 @@ import java.util.Set;
 import etomica.graph.iterators.RangePermutator;
 import etomica.graph.model.Graph;
 import etomica.graph.model.Permutator;
-import etomica.graph.operations.Factor.BCVisitor;
 import etomica.graph.operations.SplitOne.SplitOneParameters;
-import etomica.graph.traversal.Biconnected;
+import etomica.graph.traversal.BCVisitor;
 
 /**
  * Performs the substitution 1=a+b within each biconnected component.  Can be
@@ -40,17 +39,14 @@ public class SplitOneBiconnected implements Unary {
 
   public Set<Graph> apply(Graph graph, SplitOneParameters params) {
 
-    List<List<Byte>> multiBiComponents = new ArrayList<List<Byte>>();
-    multiBiComponents.clear();
-    BCVisitor bcv = new BCVisitor(multiBiComponents);
-    new Biconnected().traverseAll(graph, bcv);
+    List<List<Byte>> biComponents = BCVisitor.getBiComponents(graph);
     Set<Graph> result = new HashSet<Graph>();
 
     // collect the Ids of all edges we must replace
     List<Byte> edges = new ArrayList<Byte>();
 
-    for (int i=0; i<multiBiComponents.size(); i++) {
-      List<Byte> biComp = multiBiComponents.get(i);
+    for (int i=0; i<biComponents.size(); i++) {
+      List<Byte> biComp = biComponents.get(i);
       for (int n1=0; n1<biComp.size()-1; n1++) {
         byte id1 = biComp.get(n1);
         for (int n2=n1+1; n2<biComp.size(); n2++) {

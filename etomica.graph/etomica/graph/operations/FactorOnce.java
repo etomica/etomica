@@ -10,9 +10,8 @@ import java.util.Set;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
-import etomica.graph.operations.Factor.BCVisitor;
 import etomica.graph.property.HasSimpleArticulationPoint;
-import etomica.graph.traversal.Biconnected;
+import etomica.graph.traversal.BCVisitor;
 
 /**
  * Factor graphs once.  Each graph with an articulation point is factored into
@@ -40,9 +39,7 @@ public class FactorOnce implements Unary {
     if (!hap.check(g)) {
       throw new RuntimeException("unfactorable");
     }
-    List<List<Byte>> biComponents = new ArrayList<List<Byte>>();
-    BCVisitor v = new BCVisitor(biComponents);
-    new Biconnected().traverseAll(g, v);
+    List<List<Byte>> biComponents = BCVisitor.getBiComponents(g);
 
     List<Integer> myComponents = new ArrayList<Integer>();
     for (int i=0; i<biComponents.size(); i++) {
@@ -91,9 +88,7 @@ public class FactorOnce implements Unary {
     if (iComps.size() == 0 || jComps.size() == 0) {
       throw new RuntimeException("you gotta give me both i and j components");
     }
-    List<List<Byte>> biComponents = new ArrayList<List<Byte>>();
-    BCVisitor v = new BCVisitor(biComponents);
-    new Biconnected().traverseAll(g, v);
+    List<List<Byte>> biComponents = BCVisitor.getBiComponents(g);
 
     int lastSize = biComponents.size()+1;
     boolean lastDitch = false;
