@@ -43,6 +43,7 @@ import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
 import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.FactorOnce.FactorOnceParameters;
+import etomica.graph.operations.GraphOpMaxRoot;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
@@ -68,9 +69,7 @@ import etomica.graph.property.IsConnected;
 import etomica.graph.property.NumRootNodes;
 import etomica.graph.property.Property;
 import etomica.graph.traversal.BCVisitor;
-import etomica.graph.traversal.Biconnected;
 import etomica.graph.traversal.CVisitor;
-import etomica.graph.traversal.DepthFirst;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 import etomica.util.Arrays;
@@ -113,10 +112,10 @@ public class VirialDiagrams {
         final int n = 4;
         boolean multibody = true;
         boolean flex = true;
-        boolean doKeepEBonds = false;
+        boolean doKeepEBonds = true;
         boolean doReeHoover = true;
-         boolean doExchange = false;
-       VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
+        boolean doExchange = true;
+        VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(doReeHoover);
         virialDiagrams.setDoKeepEBonds(doKeepEBonds);
         virialDiagrams.setDoShortcut(false);
@@ -125,7 +124,7 @@ public class VirialDiagrams {
             virialDiagrams.setDoExchangeNoF(false);
         }
         if (multibody) {
-              virialDiagrams.setDoMinimalMulti(true);
+              virialDiagrams.setDoMinimalMulti(false);
       }
         if (doReeHoover && (flex || multibody)) {
             virialDiagrams.setDoMinimalBC(true);
@@ -1012,8 +1011,8 @@ public class VirialDiagrams {
         colorOrderMap.put(fBond, 4);
         colorOrderMap.put(efbcBond, 5);
         colorOrderMap.put(ffBond, 6);
-        colorOrderMap.put(excBond, 7);
-        colorOrderMap.put(mxcBond, 8);
+        colorOrderMap.put(mxcBond, 7);
+        colorOrderMap.put(excBond, 8);
 
         if (doShortcut && !multibody && !flex) {
 
@@ -1172,7 +1171,7 @@ public class VirialDiagrams {
                             gCopy = mulScalar.apply(gCopy, new MulScalarParameters(2,1));
                             gPermutedNew.add(gCopy);
                             if (multibody) {
-                                gCopy = gCopy.copy();
+                                gCopy = gp.copy();
                                 gCopy.getEdge(comp.get(0), comp.get(1)).setColor(mxcBond);
                                 gCopy.getEdge(comp.get(0), comp.get(2)).setColor(mxcBond);
                                 gCopy.getEdge(comp.get(1), comp.get(2)).setColor(mxcBond);
@@ -1181,7 +1180,6 @@ public class VirialDiagrams {
                             }
                         }
                         else if (comp.size() == 4) {
-                            if (gp.getEdge(comp.get(0), comp.get(1)).getColor() == mBond) continue;
 
                             //2
                             Graph gCopy = gp.copy();
@@ -1296,6 +1294,15 @@ public class VirialDiagrams {
                                 gCopy = gp.copy();
                                 for (byte j=0; j<3; j++) {
                                     for (byte k=(byte)(j+1); k<4; k++) {
+                                        gCopy.getEdge(comp.get(j), comp.get(k)).setColor(mBond);
+                                    }
+                                }
+                                gPermutedNew.add(gCopy);
+
+                                
+                                gCopy = gp.copy();
+                                for (byte j=0; j<3; j++) {
+                                    for (byte k=(byte)(j+1); k<4; k++) {
                                         gCopy.getEdge(comp.get(j), comp.get(k)).setColor(mxcBond);
                                     }
                                 }
@@ -1312,7 +1319,7 @@ public class VirialDiagrams {
             }
             Property happyArticulation = new ArticulatedAt0();
             MaxIsomorph maxIsomorph = new MaxIsomorph();
-            MaxIsomorphParameters mip = new MaxIsomorphParameters(happyArticulation);
+            MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
             p.clear();
             p.addAll(maxIsomorph.apply(isoFree.apply(pxc, null), mip));
             
@@ -1336,7 +1343,7 @@ public class VirialDiagrams {
             Unfactor unfactor = new Unfactor();
             Property happyArticulation = new ArticulatedAt0();
             MaxIsomorph maxIsomorph = new MaxIsomorph();
-            MaxIsomorphParameters mip = new MaxIsomorphParameters(happyArticulation);
+            MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
             p.addAll(maxIsomorph.apply(isoFree.apply(unfactor.apply(deleteEdge.apply(newP, deleteEdgeParameters), mfp), null), mip));
         }
         
@@ -1447,7 +1454,7 @@ public class VirialDiagrams {
             newP.clear();
             Property happyArticulation = new ArticulatedAt0();
             MaxIsomorph maxIsomorph = new MaxIsomorph();
-            MaxIsomorphParameters mip = new MaxIsomorphParameters(happyArticulation);
+            MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
             newP.addAll(maxIsomorph.apply(p, mip));
             p.clear();
             p.addAll(newP);
@@ -1479,7 +1486,7 @@ public class VirialDiagrams {
             p = newP;
             // we don't need to re-isofree p, we know that's still good.
             // some of our new disconnected diagrams might condense with the old ones
-            disconnectedP = isoFree.apply(disconnectedP, null);
+            disconnectedP = isoFree.apply(maxIsomorph.apply(disconnectedP, mip), null);
 
             Set<Graph>[] bcSubst = new HashSet[n+1];
             ComponentSubst compSubst = new ComponentSubst();
@@ -1538,7 +1545,7 @@ public class VirialDiagrams {
                     // where mi1 is the fully connected diagram of size i
                     csp[i] = new ComponentSubstParameters(gbc, bcSubst[i], mfpc);
 //                    p = isoFree.apply(compSubst.apply(p, csp), null);
-                    disconnectedP = isoFree.apply(compSubst.apply(disconnectedP, csp[i]), null);
+                    disconnectedP = isoFree.apply(maxIsomorph.apply(compSubst.apply(disconnectedP, csp[i]), mip), null);
                 }
 
 //                biconP = new HashSet<Graph>();
