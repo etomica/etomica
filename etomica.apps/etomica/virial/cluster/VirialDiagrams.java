@@ -1504,7 +1504,8 @@ public class VirialDiagrams {
                 Set<Graph> bcP = new HashSet<Graph>();
                 IsBiconnected isBi = new IsBiconnected();
                 for (Graph g : p) {
-                    if (!graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, MBond) && isBi.check(g)) {
+                    if (!graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, MBond) && isBi.check(g) && 
+                            (!doExchange || (!graphHasEdgeColor(g, excBond) && !graphHasEdgeColor(g, mxcBond)))) {
                         bcP.add(g);
                         continue;
                     }
