@@ -9,4 +9,13 @@ import etomica.graph.model.Graph;
  */
 public interface GraphOp {
   public Graph apply(Graph g);
+
+  /**
+   * A dummy implementation of GraphOp that does nothing.
+   * 
+   * @author Andrew Schultz
+   */
+  public static class GraphOpNull implements GraphOp {
+    public Graph apply(Graph g) {return g;}
+  }
 }
