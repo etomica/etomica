@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import etomica.graph.model.Graph;
+import etomica.graph.operations.GraphOp.GraphOpNull;
 import etomica.graph.property.Property;
 
 /**
@@ -30,7 +31,10 @@ public class MaxIsomorph implements Unary {
   }
 
   public Graph apply(Graph g, MaxIsomorphParameters params) {
-    Graph result = params.prop.check(g) ? g.copy() : null;
+    Graph result = params.graphOp.apply(g);
+    if (!params.prop.check(result)) {
+      result = null;
+    }
     if (g.nodeCount() < 2) {
       if (result == null) {
         throw new RuntimeException("no happy graph for "+g);
@@ -105,28 +109,36 @@ public class MaxIsomorph implements Unary {
         }
         return result;
       }
-      Graph pg = relabel.apply(g, rp);
+      Graph pg = params.graphOp.apply(relabel.apply(g, rp));
       if (params.prop.check(pg) && (result == null || pg.compareTo(result) > 0)) {
         result = pg;
       }
     }
   }
-  
+
   /**
-   * Parameters class for MaxIsomorph which defines a graph property to select
-   * for.  The maximum isomorph with this property will be returned.
+   * Parameters class for MaxIsomorph which defines a graph operation and
+   * property to select for.  After each relabel, the operation will act
+   * on the graph and the property will be check.  The maximum isomorph 
+   * with the property satisfied will be returned.
    */
   public static class MaxIsomorphParameters implements Parameters {
     public final Property prop;
-    public MaxIsomorphParameters(Property prop) {
+    public final GraphOp graphOp;
+    public MaxIsomorphParameters(GraphOp graphOp, Property prop) {
       this.prop = prop;
+      this.graphOp = graphOp;
     }
   }
+
+  public static final Property PROPERTY_ALL = new Property() {
+    public boolean check(Graph graph) {return true;}
+  };
 
   /**
    * Parameters instance which does not filter out any graph property.
    */
-  public static final MaxIsomorphParameters PARAM_ALL = new MaxIsomorphParameters(new Property() {
-    public boolean check(Graph graph) {return true;}
-  });
+  public static final MaxIsomorphParameters PARAM_ALL = new MaxIsomorphParameters(new GraphOpNull(), PROPERTY_ALL);
+
+  public static final MaxIsomorphParameters PARAM_ROOTY = new MaxIsomorphParameters(new GraphOpMaxRoot(), PROPERTY_ALL);
 }
