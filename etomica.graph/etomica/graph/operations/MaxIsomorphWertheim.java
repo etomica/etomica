@@ -123,13 +123,10 @@ public class MaxIsomorphWertheim implements Unary {
   public static class MaxIsomorphWertheimParameters extends MaxIsomorphParameters {
     public final CombineABSiteParameters abParams;
     public MaxIsomorphWertheimParameters(CombineABSiteParameters abParams) {
-      super(new Property() {
-        public boolean check(Graph graph) {return true;}
-      });
-      this.abParams = abParams;
+      this(MaxIsomorph.PROPERTY_ALL, abParams);
     }
     public MaxIsomorphWertheimParameters(Property prop, CombineABSiteParameters abParams) {
-      super(prop);
+      super(new GraphOp.GraphOpNull(), prop);
       this.abParams = abParams;
     }
   }
