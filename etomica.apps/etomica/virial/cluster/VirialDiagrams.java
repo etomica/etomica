@@ -114,9 +114,9 @@ public class VirialDiagrams {
         final int n = 4;
         boolean multibody = true;
         boolean flex = true;
-        boolean doKeepEBonds = true;
+        boolean doKeepEBonds = false;
         boolean doReeHoover = true;
-        boolean doExchange = true;
+        boolean doExchange = false;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(doReeHoover);
         virialDiagrams.setDoKeepEBonds(doKeepEBonds);
@@ -126,7 +126,7 @@ public class VirialDiagrams {
             virialDiagrams.setDoExchangeF(true);
         }
         if (multibody) {
-            virialDiagrams.setDoMinimalMulti(false);
+            virialDiagrams.setDoMinimalMulti(true);
         }
         if (doReeHoover && (flex || multibody)) {
             virialDiagrams.setDoMinimalBC(true);
