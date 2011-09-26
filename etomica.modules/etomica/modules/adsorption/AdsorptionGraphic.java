@@ -66,6 +66,11 @@ public class AdsorptionGraphic extends SimulationGraphic {
                 getController().getResetAveragesButton().press();
             }
         };
+        getController().getResetAveragesButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                sim.integratorHybrid.resetStepCount();
+            }
+        });
 
     	this.sim = simulation;
 
