@@ -119,4 +119,10 @@ public class IntegratorHybrid extends IntegratorBox {
         potentialMasterHybrid.setUseNbrLists(true);
 		integratorMD.reset();
 	}
+
+	public void resetStepCount() {
+	    super.resetStepCount();
+	    integratorMC.resetStepCount();
+	    integratorMD.resetStepCount();
+	}
 }
