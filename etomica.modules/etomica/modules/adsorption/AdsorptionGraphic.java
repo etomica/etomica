@@ -190,10 +190,11 @@ public class AdsorptionGraphic extends SimulationGraphic {
         pSlider.setShowBorder(true);
         pSlider.setBorderAlignment(TitledBorder.CENTER);
         pSlider.setShowValues(true);
-        pSlider.setMinimum(-5);
-        pSlider.setPrecision(1);
-        pSlider.setMaximum(0);
+        pSlider.setMinimum(-6);
+        pSlider.setPrecision(2);
+        pSlider.setMaximum(-1);
         pSlider.setNMajor(5);
+        pSlider.setEditValues(true);
         final ModifierPMu pmu = new ModifierPMu(sim.p2AA, sim.integratorMC, eos, sim.mcMoveIDA, meterCountAtoms);
         pmu.setValue(-4);
         pSlider.setModifier(pmu);
