@@ -172,7 +172,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 
         double u = Hartree.UNIT.toSim(Vexp+V3disp); 
 
-        if (nullRegionMethod==1) {
+        if (nullRegionMethod==0) {
             if (RAB<4 && RAC<4 && RBC<4) {
                 if (u < 0) {
                     return 0;
