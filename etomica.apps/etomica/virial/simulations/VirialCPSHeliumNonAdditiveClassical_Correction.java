@@ -66,14 +66,14 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         VirialParam params = new VirialParam();
         
         double temperatureK; final int nPoints; double sigmaHSRef;
-        long steps; int nullRegionMethod; int stepsPerBlock; long eqSteps; boolean adjustStepFreq;
+        long blocks; int nullRegionMethod; int stepsPerBlock; long blocksEq; boolean adjustStepFreq; 
         if (args.length == 0) {
         	
         	nPoints = params.nPoints;
             temperatureK = params.temperature;
-            steps = params.numSteps;
+            blocks = params.blocks;
             stepsPerBlock = params.stepsPerBlock;
-            eqSteps = params.eqSteps;
+            blocksEq = params.blocksEq;
             adjustStepFreq = params.adjustStepFreq;
             sigmaHSRef = params.sigmaHSRef;
             nullRegionMethod = params.nullRegionMethod;
@@ -87,9 +87,9 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
             //paramReader.readParameters();
         	nPoints = Integer.parseInt(args[0]);
         	temperatureK = Double.parseDouble(args[1]);
-            steps = Integer.parseInt(args[2]);
+            blocks = Integer.parseInt(args[2]);
             stepsPerBlock = Integer.parseInt(args[3]);
-            eqSteps = Integer.parseInt(args[4]);
+            blocksEq = Integer.parseInt(args[4]);
             adjustStepFreq = Boolean.parseBoolean(args[5]);
             sigmaHSRef = Double.parseDouble(args[6]);
             nullRegionMethod = Integer.parseInt(args[7]);
@@ -98,9 +98,6 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         } else {
         	throw new IllegalArgumentException("Incorrect number of arguments passed.");
         }
-        
-
-        int numSubSteps = 1000;
 
         final double[] HSB = new double[7];
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -115,11 +112,6 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         System.out.println("null region method = "+nullRegionMethod);
         
         double temperature = Kelvin.UNIT.toSim(temperatureK);
-
-        System.out.println(steps+" steps ("+steps/1000+" blocks of 1000)");
-        steps /= 1000;
-
-        
 
         
         
@@ -152,11 +144,16 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), 
                 temperature, refCluster,targetCluster, false);
         
+        System.out.println(blocks*stepsPerBlock+" steps ("+blocks+" blocks of "+stepsPerBlock+" steps)");
+        int numSubSteps = 1000; //steps per "overlap" block
+        sim.integratorOS.setNumSubSteps(numSubSteps);
+        System.out.println(numSubSteps+" steps per overlap-sampling block");
+        long steps = stepsPerBlock*blocks/numSubSteps;
+        
         sim.integratorOS.setAdjustStepFreq(adjustStepFreq);
         System.out.println("adjustStepFreq = " + adjustStepFreq);
         
         sim.setAccumulatorBlockSize(stepsPerBlock);
-        System.out.println(stepsPerBlock+" steps per block");
         
         ///////////////////////////////////////////////
         // Initialize non-overlapped configuration
@@ -238,13 +235,13 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         sim.initRefPref(refFileName, steps/40);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, eqSteps); // 5000 IntegratorOverlap steps = 5e6 steps
-        System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)"); 
+        sim.equilibrate(refFileName, steps/blocks*blocksEq); // 5000 IntegratorOverlap steps = 5e6 steps
+        System.out.println((stepsPerBlock*blocksEq) + " equilibration steps ("+blocksEq+" blocks of "+stepsPerBlock+" steps)"); 
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
         
-        sim.setAccumulatorBlockSize((int)steps);
+        sim.setAccumulatorBlockSize(stepsPerBlock);
         
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
@@ -334,12 +331,13 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
     public static class VirialParam extends ParameterBase {
     	public int nPoints = 3;
         public double temperature = 50.0;   // Kelvin
-        public long numSteps = 1000000;
+        public long blocks = 1000;  //NOT overlap blocks
         public int stepsPerBlock = 1000;
-        public long eqSteps=1000;
+        public long blocksEq=1000; //NOT overlap steps
         public boolean adjustStepFreq = false;
         public double sigmaHSRef = 3;
-        public int nullRegionMethod = 2;
+        private int nullRegionMethod = 2; // What we have been using so far.
         public boolean writeRefPref;
+        public boolean simplifiedP3NonAdd = true;
     }
 }
