@@ -83,8 +83,15 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         RAC = BohrRadius.UNIT.fromSim(RAC);
         RBC = BohrRadius.UNIT.fromSim(RBC);
         
-        if (nullRegionMethod==0) {
+        if (nullRegionMethod==1) {
             if (RAB<3 || RAC<3 || RBC<3) {  
+                //if (Math.abs(costhetaA-1.0)<0.2 || Math.abs(costhetaA-1.0)<0.2 || Math.abs(costhetaA-1.0)<0.2) {
+                return 0;
+                //}
+            }
+        }
+        if (nullRegionMethod==2) {
+            if (RAB<2.5 || RAC<2.5 || RBC<2.5) {  
                 //if (Math.abs(costhetaA-1.0)<0.2 || Math.abs(costhetaA-1.0)<0.2 || Math.abs(costhetaA-1.0)<0.2) {
                 return 0;
                 //}
@@ -314,7 +321,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
 
         double u = Hartree.UNIT.toSim(Vexp+V3disp+V4disp); 
 
-        if (nullRegionMethod==1) {
+        if (nullRegionMethod==0) {
             if (RAB<4 && RAC<4 && RBC<4) {
                 if (u < 0) {
                     return 0;
