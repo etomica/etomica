@@ -6,12 +6,12 @@ import java.awt.Color;
 import etomica.action.IAction;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
-import etomica.data.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2HePCKLJS;
+import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -62,7 +62,7 @@ public class VirialCPSHeliumNonAdditiveClassical {
         VirialParam params = new VirialParam();
         
         double temperatureK; final int nPoints; double sigmaHSRef;
-        long steps; int nullRegionMethod; int stepsPerBlock; long eqSteps; boolean adjustStepFreq;
+        long steps; int nullRegionMethod; int stepsPerBlock; long eqSteps; boolean adjustStepFreq; boolean simplifiedP3NonAdd;
         if (args.length == 0) {
         	
         	nPoints = params.nPoints;
@@ -73,12 +73,13 @@ public class VirialCPSHeliumNonAdditiveClassical {
             adjustStepFreq = params.adjustStepFreq;
             sigmaHSRef = params.sigmaHSRef;
             nullRegionMethod = params.nullRegionMethod;
+            simplifiedP3NonAdd = params.simplifiedP3NonAdd;
             
             // number of overlap sampling steps
             // for each overlap sampling step, the simulation boxes are allotted
             // 1000 attempts for MC moves, total
             
-        } else if (args.length == 8) {
+        } else if (args.length == 9) {
             //ReadParameters paramReader = new ReadParameters(args[0], params);
             //paramReader.readParameters();
         	nPoints = Integer.parseInt(args[0]);
@@ -89,6 +90,7 @@ public class VirialCPSHeliumNonAdditiveClassical {
             adjustStepFreq = Boolean.parseBoolean(args[5]);
             sigmaHSRef = Double.parseDouble(args[6]);
             nullRegionMethod = Integer.parseInt(args[7]);
+            simplifiedP3NonAdd = Boolean.parseBoolean(args[8]);
             params.writeRefPref = true;
         	
         } else {
@@ -121,10 +123,15 @@ public class VirialCPSHeliumNonAdditiveClassical {
         
         P2HePCKLJS p2 = new P2HePCKLJS(space);
         final P3CPSNonAdditiveHe p3NonAdd = new P3CPSNonAdditiveHe(space);
-        //final P3CPSNonAdditiveHeSimplified p3NonAdd = new P3CPSNonAdditiveHeSimplified(space);
+        final P3CPSNonAdditiveHeSimplified p3NonAddSimplified = new P3CPSNonAdditiveHeSimplified(space);
         p3NonAdd.setNullRegionMethod(nullRegionMethod);
     	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
-    	ClusterSumNonAdditiveTrimerEnergy targetCluster = Standard.virialNonAdditiveTrimerEnergy(nPoints, fTarget, p3NonAdd, nPoints>3, false);
+    	ClusterSumNonAdditiveTrimerEnergy targetCluster;
+    	if (simplifiedP3NonAdd) {
+    		targetCluster = Standard.virialNonAdditiveTrimerEnergy(nPoints, fTarget, p3NonAddSimplified, nPoints>3, false);
+    	} else {
+    		targetCluster = Standard.virialNonAdditiveTrimerEnergy(nPoints, fTarget, p3NonAdd, nPoints>3, false);
+    	}
     	targetCluster.setNo72B2B3NonAdd(false);
     	targetCluster.setTemperature(temperature);
 
@@ -327,5 +334,6 @@ public class VirialCPSHeliumNonAdditiveClassical {
         public double sigmaHSRef = 3;
         public int nullRegionMethod = 1;
         public boolean writeRefPref;
+        public boolean simplifiedP3NonAdd = true;
     }
 }
