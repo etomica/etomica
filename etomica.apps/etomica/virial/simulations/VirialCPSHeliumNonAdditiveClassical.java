@@ -120,8 +120,8 @@ public class VirialCPSHeliumNonAdditiveClassical {
         
         
         P2HePCKLJS p2 = new P2HePCKLJS(space);
-        //final P3CPSNonAdditiveHe p3NonAdd = new P3CPSNonAdditiveHe(space);
-        final P3CPSNonAdditiveHeSimplified p3NonAdd = new P3CPSNonAdditiveHeSimplified(space);
+        final P3CPSNonAdditiveHe p3NonAdd = new P3CPSNonAdditiveHe(space);
+        //final P3CPSNonAdditiveHeSimplified p3NonAdd = new P3CPSNonAdditiveHeSimplified(space);
         p3NonAdd.setNullRegionMethod(nullRegionMethod);
     	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
     	ClusterSumNonAdditiveTrimerEnergy targetCluster = Standard.virialNonAdditiveTrimerEnergy(nPoints, fTarget, p3NonAdd, nPoints>3, false);
