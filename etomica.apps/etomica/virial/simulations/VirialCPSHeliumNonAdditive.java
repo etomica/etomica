@@ -8,6 +8,7 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.space.Space;
@@ -46,6 +47,7 @@ public class VirialCPSHeliumNonAdditive {
         	
         	nPoints = params.nPoints;
             temperatureK = params.temperature;
+            System.out.println(" "+temperatureK);
             steps = params.numSteps;
             sigmaHSRef = params.sigmaHSRef;
             nullRegionMethod = params.nullRegionMethod;
@@ -68,7 +70,7 @@ public class VirialCPSHeliumNonAdditive {
         	throw new IllegalArgumentException("Incorrect number of arguments passed.");
         }
         
-
+        
         int numSubSteps = 1000;
 
         final double[] HSB = new double[7];
@@ -78,6 +80,8 @@ public class VirialCPSHeliumNonAdditive {
         HSB[5] = Standard.B5HS(sigmaHSRef);
         HSB[6] = Standard.B6HS(sigmaHSRef);
 
+        System.out.println("What is going on?");
+        System.out.println(""+temperatureK);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
         System.out.println("Helium overlap sampling B"+nPoints+"NonAdd at T="+temperatureK+ " K");
@@ -92,7 +96,10 @@ public class VirialCPSHeliumNonAdditive {
 
         
         
-        P2HePCKLJS p2 = new P2HePCKLJS(space);
+        P2HePCKLJS p = new P2HePCKLJS(space);
+        P2EffectiveFeynmanHibbs p2 = new P2EffectiveFeynmanHibbs(Space3D.getInstance(), p);
+		p2.setTemperature(temperature);		
+		p2.setMass(4.002602);
         P3CPSNonAdditiveHe p3NonAdd = new P3CPSNonAdditiveHe(space);
         p3NonAdd.setNullRegionMethod(nullRegionMethod);
     	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
@@ -261,10 +268,10 @@ public class VirialCPSHeliumNonAdditive {
      */
     public static class VirialParam extends ParameterBase {
         public int nPoints = 4;
-        public double temperature = 500.0;   // Kelvin
+        public double temperature = 273.15;   // Kelvin
         public long numSteps = 1000000;
         public double sigmaHSRef = 3;
-        public int nullRegionMethod = 0;
+        public int nullRegionMethod = 2;
         public boolean writeRefPref;
     }
 }
