@@ -398,7 +398,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
     protected final double[][] Rpow = new double[3][9];
 
     public boolean verbose = false;
-    private int nullRegionMethod = 1;
+    private int nullRegionMethod = 2; // What we have been using so far.
 }
 
 

@@ -719,7 +719,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     private static final double AngstromPerBohrRadius = 0.529177; // Rounding provided by Pryzbytek et al. 2010
     private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
     public boolean verbose = false;
-    private int nullRegionMethod = 1;
+    private int nullRegionMethod = 2; // What we have been using so far.
 }
 
 

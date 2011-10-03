@@ -332,7 +332,7 @@ public class VirialCPSHeliumNonAdditiveClassical {
         public long eqSteps=1000;
         public boolean adjustStepFreq = false;
         public double sigmaHSRef = 3;
-        public int nullRegionMethod = 1;
+        private int nullRegionMethod = 2; // What we have been using so far.
         public boolean writeRefPref;
         public boolean simplifiedP3NonAdd = true;
     }
