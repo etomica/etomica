@@ -275,6 +275,9 @@ public class VirialDiagrams {
         return makeVirialCluster(f, null);
     }
     public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti) {
+        return makeVirialCluster(f, null,false);
+    }
+    public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti,boolean total) {
         if (p == null) {
             makeVirialDiagrams();
         }
@@ -287,17 +290,36 @@ public class VirialDiagrams {
         Set<Graph> pn = getMSMCGraphs(false, fMulti!=null);
         for (Graph g : pn) {
             int nDiagrams = populateEFBonds(g, allBonds, false, !doMulti);
-            if (nDiagrams == 0) continue;
-            if (flex && !doMulti) {
-                populateEFBonds(g, allBonds, true, true);
-                nDiagrams *= 2;
+            if (nDiagrams > 0) {
+	            if (flex && !doMulti) {
+	                populateEFBonds(g, allBonds, true, true);
+	                nDiagrams *= 2;
+	            }
+	            double w = g.coefficient().getValue()/nDiagrams;
+	            for (int i=0; i<nDiagrams; i++) {
+	                weights.add(w);
+	            }
+	            if (weights.size() != allBonds.size()) {
+	                throw new RuntimeException("oops");
+	            }
             }
-            double w = g.coefficient().getValue()/nDiagrams;
-            for (int i=0; i<nDiagrams; i++) {
-                weights.add(w);
-            }
-            if (weights.size() != allBonds.size()) {
-                throw new RuntimeException("oops");
+            
+            if (total) {
+            	
+            	nDiagrams = populateEFBonds(g, allBonds, false, !doMulti);
+                if (nDiagrams > 0) {
+    	            if (flex && !doMulti) {
+    	                populateEFBonds(g, allBonds, true, true);
+    	                nDiagrams *= 2;
+    	            }
+    	            double w = g.coefficient().getValue()/nDiagrams;
+    	            for (int i=0; i<nDiagrams; i++) {
+    	                weights.add(w);
+    	            }
+    	            if (weights.size() != allBonds.size()) {
+    	                throw new RuntimeException("oops");
+    	            }
+                }
             }
         }
         double[] w = new double[weights.size()];
