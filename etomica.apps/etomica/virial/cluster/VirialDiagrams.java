@@ -272,12 +272,12 @@ public class VirialDiagrams {
     }
 
     public ClusterSum makeVirialCluster(MayerFunction f) {
-        return makeVirialCluster(f, null);
+        return makeVirialCluster(f, null, false);
     }
     public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti) {
-        return makeVirialCluster(f, null,false);
+        return makeVirialCluster(f, fMulti, false);
     }
-    public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti,boolean total) {
+    public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti, boolean total) {
         if (p == null) {
             makeVirialDiagrams();
         }
@@ -287,7 +287,7 @@ public class VirialDiagrams {
         }
         ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
         ArrayList<Double> weights = new ArrayList<Double>();
-        Set<Graph> pn = getMSMCGraphs(false, fMulti!=null);
+        Set<Graph> pn = getMSMCGraphs(false, doMulti);
         for (Graph g : pn) {
             int nDiagrams = populateEFBonds(g, allBonds, false, !doMulti);
             if (nDiagrams > 0) {
@@ -303,12 +303,14 @@ public class VirialDiagrams {
 	                throw new RuntimeException("oops");
 	            }
             }
-            
-            if (total) {
-            	
-            	nDiagrams = populateEFBonds(g, allBonds, false, !doMulti);
+        }
+
+        if (total) {
+            pn = getMSMCGraphs(false, !doMulti);
+            for (Graph g : pn) {
+            	int nDiagrams = populateEFBonds(g, allBonds, false, doMulti);
                 if (nDiagrams > 0) {
-    	            if (flex && !doMulti) {
+    	            if (flex && doMulti) {
     	                populateEFBonds(g, allBonds, true, true);
     	                nDiagrams *= 2;
     	            }
@@ -322,6 +324,7 @@ public class VirialDiagrams {
                 }
             }
         }
+
         double[] w = new double[weights.size()];
         for (int i=0; i<w.length; i++) {
             w[i] = weights.get(i);
