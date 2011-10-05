@@ -1321,11 +1321,11 @@ public class VirialDiagrams {
                 else {
                     char nfBond = 'F';
                     SplitOneParameters splitOneParameters = new SplitOneParameters(eBond, nfBond);
-                    SplitOne splitOne = new SplitOne();
+                    SplitOneBiconnected splitOneBC = new SplitOneBiconnected();
                     msp = new MulScalarParameters(-1, 1);
                     newP.clear();
                     for (Graph g : p) {
-                        Set<Graph> gSet = splitOne.apply(g, splitOneParameters);
+                        Set<Graph> gSet = splitOneBC.apply(g, splitOneParameters);
                         for (Graph g2 : gSet) {
                             boolean even = true;
                             for (Edge e : g2.edges()) {
