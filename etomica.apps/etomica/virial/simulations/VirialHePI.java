@@ -135,6 +135,10 @@ public class VirialHePI {
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);
         final boolean doDiff = params.doDiff;
         final boolean semiClassical = params.semiClassical;
+        final boolean doTotal = params.doTotal;
+        if (pairOnly && doTotal) {
+            throw new RuntimeException("pairOnly needs to be off to do total");
+        }
         int origNB = nb;
         if (subtractHalf) {
             int totalHalfs = (int)Math.ceil(Math.log((nb+finalNumBeads-1)/finalNumBeads)/Math.log(beadFac));
@@ -250,13 +254,13 @@ public class VirialHePI {
             }
         };
 
-        boolean doFlex = nPoints > 2 && pairOnly;
+        boolean doFlex = nPoints > 2 && (pairOnly || doTotal);
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
         flexDiagrams.setDoMinimalBC(true);
         flexDiagrams.setDoReeHoover(true);
         flexDiagrams.setDoShortcut(true);
-        ClusterAbstract targetCluster = flexDiagrams.makeVirialCluster(fTarget, pairOnly ? null : f3Target);
+        ClusterAbstract targetCluster = flexDiagrams.makeVirialCluster(fTarget, pairOnly ? null : f3Target, doTotal);
 
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
         rigidDiagrams.setDoReeHoover(true);
@@ -808,5 +812,6 @@ public class VirialHePI {
         public int beadFac = 2;
         public int finalNumBeads = 2;
         public boolean pairOnly = true;
+        public boolean doTotal = false;
     }
 }
