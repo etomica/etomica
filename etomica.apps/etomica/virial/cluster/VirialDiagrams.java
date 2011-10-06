@@ -277,7 +277,7 @@ public class VirialDiagrams {
     public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti) {
         return makeVirialCluster(f, fMulti, false);
     }
-    public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti, boolean total) {
+    public ClusterSum makeVirialCluster(MayerFunction f, MayerFunctionNonAdditive fMulti, boolean doTotal) {
         if (p == null) {
             makeVirialDiagrams();
         }
@@ -289,10 +289,10 @@ public class VirialDiagrams {
         ArrayList<Double> weights = new ArrayList<Double>();
         Set<Graph> pn = getMSMCGraphs(false, doMulti);
         for (Graph g : pn) {
-            int nDiagrams = populateEFBonds(g, allBonds, false, !doMulti);
+            int nDiagrams = populateEFBonds(g, allBonds, false, !doMulti, doTotal);
             if (nDiagrams > 0) {
 	            if (flex && !doMulti) {
-	                populateEFBonds(g, allBonds, true, true);
+	                populateEFBonds(g, allBonds, true, true, doTotal);
 	                nDiagrams *= 2;
 	            }
 	            double w = g.coefficient().getValue()/nDiagrams;
@@ -305,13 +305,13 @@ public class VirialDiagrams {
             }
         }
 
-        if (total) {
+        if (doTotal) {
             pn = getMSMCGraphs(false, !doMulti);
             for (Graph g : pn) {
-            	int nDiagrams = populateEFBonds(g, allBonds, false, doMulti);
+            	int nDiagrams = populateEFBonds(g, allBonds, false, doMulti, doTotal);
                 if (nDiagrams > 0) {
     	            if (flex && doMulti) {
-    	                populateEFBonds(g, allBonds, true, true);
+    	                populateEFBonds(g, allBonds, true, true, doTotal);
     	                nDiagrams *= 2;
     	            }
     	            double w = g.coefficient().getValue()/nDiagrams;
@@ -429,12 +429,15 @@ public class VirialDiagrams {
         }
         return null;
     }
-    
+
     public int populateEFBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap, boolean pairOnly) {
+        return populateEFBonds(g, allBonds, swap, pairOnly, false);
+    }
+    public int populateEFBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap, boolean doPair, boolean doTotal) {
         ArrayList<int[]> ebonds = new ArrayList<int[]>();
         boolean multiGraph = graphHasEdgeColor(g, mBond);
-        if (multiGraph && pairOnly) return 0;
-        if (!pairOnly && !multiGraph) return 0;
+        if (multiGraph && doPair) return 0;
+        if (!doPair && !multiGraph) return 0;
         int rv = 0;
         if (multiGraph) {
             // multibody graph.  we need to generate all permutations in order
@@ -443,6 +446,9 @@ public class VirialDiagrams {
             AllIsomorphsParameters allIsoParams = new AllIsomorphsParameters(true);
             Set<Graph> permutations = allIso.apply(g, allIsoParams);
             int nPoints = g.nodeCount();
+            if (nPoints != n) {
+                throw new RuntimeException("I would rather have these be equal");
+            }
 
             rv = permutations.size();
             for (Graph gp : permutations) {
@@ -496,7 +502,7 @@ public class VirialDiagrams {
                     newGroups[newGroups.length-1] = groupID;
                     mBonds[size] = newGroups;
                 }
-                allBonds.add(new ClusterBondsNonAdditive(nPoints, new int[][][]{fbonds.toArray(new int[0][0])}, mBonds));
+                allBonds.add(new ClusterBondsNonAdditive((flex&&doTotal) ? nPoints+1 : nPoints, new int[][][]{fbonds.toArray(new int[0][0])}, mBonds));
             }
         }
         else {
