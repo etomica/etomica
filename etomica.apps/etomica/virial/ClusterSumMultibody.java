@@ -76,6 +76,7 @@ public class ClusterSumMultibody extends ClusterSum {
         for (int j=0; !found && j<clusters.length; j++) {
             if (clusters[j] instanceof ClusterBondsNonAdditive) {
                 int[][] multiBonds = ((ClusterBondsNonAdditive)clusters[j]).getMultiBonds();
+                if (multiBonds.length <= size) continue;
                 for (int l=0; l<multiBonds[size].length; l++) {
                     if (multiBonds[size][l] == id) {
                         found = true;
