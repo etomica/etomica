@@ -47,10 +47,6 @@ public class ClusterSumMultibody extends ClusterSum {
         moleculeList = new MoleculeArrayList(3);
         int nPoints = subClusters[0].nPoints;
         fNonAdditiveValues = new double[nPoints+1][];
-        int nTriplets = 0;
-        for (int i=1; i<nPoints-1; i++) {
-            nTriplets += (nPoints-i)*(nPoints-i-1)/2;
-        }
         fNonAdditiveValues[3] = new double[VirialDiagrams.tripletId(nPoints-3, nPoints-2, nPoints-1, nPoints)+1];
         if (nPoints>3) {
             fNonAdditiveValues[4] = new double[VirialDiagrams.quadId(nPoints-4, nPoints-3, nPoints-2, nPoints-1, nPoints)+1];
@@ -98,6 +94,27 @@ public class ClusterSumMultibody extends ClusterSum {
         ClusterSumMultibody copy = new ClusterSumMultibody(clusters,clusterWeights,f,fNonAdditive);
         copy.setTemperature(1/beta);
         return copy;
+    }
+    
+    public double value(BoxCluster box) {
+        super.value(box);
+        if (pushR2 > 0) {
+            CoordinatePairSet cPairs = box.getCPairSet();
+            double r2max = 0;
+            for (int i=0; i<clusters[0].nPoints-1; i++) {
+                for (int j=i+1; j<clusters[0].nPoints; j++) {
+                    double r2ij = cPairs.getr2(i,j);
+                    if (r2ij > r2max) {
+                        r2max = r2ij;
+                    }
+                }
+            }
+            if (r2max < pushR2) {
+                value *= Math.pow((r2max/pushR2),4);
+            }
+            
+        }
+        return value;
     }
 
     protected void calcValue() {
@@ -279,4 +296,5 @@ public class ClusterSumMultibody extends ClusterSum {
     protected final int[][] fNonAdditiveNeeded;
     protected final int[] numNonAdditiveNeeded;
     protected final double[] r2;
+    protected final double pushR2 = 0;
 }
