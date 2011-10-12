@@ -7,7 +7,7 @@ import etomica.graph.property.IsDisconnected;
 public class IsArticulationPoint {
 	
 	int[] list;
-	IsDisconnected m = new IsDisconnected();
+	IsConnected m = new IsConnected();
 
 	public boolean isArticulationPoint(Graph g, int x){
 		
@@ -33,7 +33,7 @@ public class IsArticulationPoint {
 		}
 		
 		if(c.nodeCount()<g.nodeCount()-1) return true;
-		else if(m.isDisconnected(c)) return true;
+		else if(!m.check(c)) return true;
 		else return false;
 		
 	/*	System.out.println("********************");
