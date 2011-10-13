@@ -2,7 +2,6 @@ package etomica.graph.property;
 
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DropOrphanNodes;
-import etomica.graph.property.IsDisconnected;
 
 public class IsArticulationPair {
 	
