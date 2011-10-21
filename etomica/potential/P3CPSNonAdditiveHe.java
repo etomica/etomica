@@ -315,7 +315,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
 	        System.out.println("V4disp " + V4disp*KPerHartree+ " K");
         }
 
-        double u = Hartree.UNIT.toSim(Vexp+V3disp+V4disp); 
+        double u = Hartree.UNIT.toSim(Vexp+V3disp+V4disp);
 
         if (nullRegionMethod==0) {
             if (RAB<4 && RAC<4 && RBC<4) {
@@ -414,14 +414,14 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     	// values could be computed via
     	//             D = D + betaPow[n]/RXY[n];
     	// where betaPow are beta^n/n! and RXY are r^-n.  doing this is unhelpful. 
-
+    	double betaRXY = beta*RXY;
     	for (int n=1;n<=nXY;n++) {
     		
-    		betaRPowFac *= beta*RXY/n;
+    		betaRPowFac *= betaRXY/n;
     		D = D + betaRPowFac;
     	}
     	
-    	D = 1.0 - (Math.exp(-beta*RXY)*D);
+    	D = 1.0 - D*Math.exp(-betaRXY);
 
     	return D;
     }
