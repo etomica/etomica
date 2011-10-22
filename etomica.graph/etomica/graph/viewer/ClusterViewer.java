@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import etomica.graph.engine.Viewer;
@@ -20,6 +21,13 @@ public class ClusterViewer extends JFrame implements Viewer {
 
   private String name;
   private JPanel mainPanel;
+
+  static {
+    // work around Java 1.7 problem.
+    // getFocusedWindow seems to always be null and so
+    // ToolTipManager.showTipWindow() displays no tooltips.
+    UIManager.put("ToolTipManager.enableToolTipMode", "allWindows");
+  }
 
   private ClusterViewer(String name) {
 
@@ -35,13 +43,17 @@ public class ClusterViewer extends JFrame implements Viewer {
   }
 
   public static void createView(String name, Set<Graph> graphs) {
+    createView(name, graphs, false);
+  }
+
+  public static void createView(String name, Set<Graph> graphs, boolean doIncludeCoefficients) {
 
     Viewer v = stock.get(name);
     if (v == null) {
       v = new ClusterViewer(name);
       stock.put(name, v);
     }
-    v.update(graphs);
+    v.update(graphs, doIncludeCoefficients);
     v.open();
   }
 
@@ -64,9 +76,10 @@ public class ClusterViewer extends JFrame implements Viewer {
     }
   }
 
-  public void update(Set<Graph> graphs) {
+  public void update(Set<Graph> graphs, boolean doIncludeCoefficients) {
 
     GraphMap gm = new GraphMap(graphs, mainPanel);
+    gm.setDoIncludeCoefficients(doIncludeCoefficients);
     gm.draw();
   }
 }
