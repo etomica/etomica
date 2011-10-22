@@ -43,17 +43,13 @@ public class ClusterViewer extends JFrame implements Viewer {
   }
 
   public static void createView(String name, Set<Graph> graphs) {
-    createView(name, graphs, false);
-  }
-
-  public static void createView(String name, Set<Graph> graphs, boolean doIncludeCoefficients) {
 
     Viewer v = stock.get(name);
     if (v == null) {
       v = new ClusterViewer(name);
       stock.put(name, v);
     }
-    v.update(graphs, doIncludeCoefficients);
+    v.update(graphs);
     v.open();
   }
 
@@ -76,10 +72,9 @@ public class ClusterViewer extends JFrame implements Viewer {
     }
   }
 
-  public void update(Set<Graph> graphs, boolean doIncludeCoefficients) {
+  public void update(Set<Graph> graphs) {
 
     GraphMap gm = new GraphMap(graphs, mainPanel);
-    gm.setDoIncludeCoefficients(doIncludeCoefficients);
     gm.draw();
   }
 }
