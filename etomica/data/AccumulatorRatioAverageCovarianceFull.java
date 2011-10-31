@@ -43,7 +43,7 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
         int n = sum.getLength();
         double[] r = ratio.getData();
         double[] re = ratioError.getData();
-        if (count > 0) {
+        if (count > 1) {
             // calculate uncertainties on ratios
             for (int i=0; i<n-1; i++) {
                 re[i*n+i] = 0;
@@ -58,6 +58,11 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
                     double rk = avgi/avgj;
                     double covarianceContribution = -2*blockCovariance.getValue(i*n+j)/(avgi*avgj*(count-1));
                     double rek = rk*rk * (rei + rej + covarianceContribution);
+                    if (Double.isNaN(rek)) {
+                        re[j*n+i] = Double.NaN;
+                        re[k] = Double.NaN;
+                        continue;
+                    }
                     rek = (rek >= 0) ? rek : 0;
                     re[k] = Math.sqrt(rek);
                     
@@ -122,6 +127,7 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
         groupFactory.setSubDataInfo(subDataInfo);
 
         dataInfo = groupFactory.makeDataInfo();
+        reset();
         return dataInfo;
     }
     
