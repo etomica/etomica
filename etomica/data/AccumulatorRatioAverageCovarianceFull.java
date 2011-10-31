@@ -70,6 +70,9 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
                 }
             }
         }
+        else {
+        	ratioError.E(Double.NaN);
+        }
         if (count > 0 || blockCountDown < blockSize) {
             // now use *all* of the data to calculate ratios
             for (int i=0; i<n; i++) {
