@@ -243,7 +243,7 @@ public class HNCGenerator {
 		//Set<Graph> temp = Isofree.apply(c, null);
 		    
 		//create a Map
-		ArrayList cmap = new ArrayList();
+		ArrayList<Set<Graph>> cmap = new ArrayList<Set<Graph>>();
 		ArrayList tmap = new ArrayList();
 		ArrayList hmap = new ArrayList();
 		ArrayList<Set<Graph>> chumma = new ArrayList<Set<Graph>>();
@@ -289,7 +289,7 @@ public class HNCGenerator {
 					break;
 				}
 				
-				Set<Graph> cc = (Set<Graph>) cmap.get(i);
+				Set<Graph> cc = cmap.get(i);
 				Set<Graph> hh = (Set<Graph>) hmap.get(j);
 			//	ClusterViewer.createView("c"+i,cc);
 				//ClusterViewer.createView("h"+j,hh);
@@ -470,7 +470,7 @@ public class HNCGenerator {
 	       	count++;
 	    }
 	        
-	    ClusterViewer.createView("c"+p,temp);
+	    //ClusterViewer.createView("c"+p,temp);
 	  //  ClusterViewer.createView("1",temp);
 	    System.out.println("Count = "+count);
 		
