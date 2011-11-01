@@ -216,7 +216,7 @@ public class HNCGenerator {
 			return a;
 		}
 		
-	public ArrayList HNCGenerate(int n){
+	public ArrayList<Set<Graph>> HNCGenerate(int n){
 		
 	
 		IEGenerator IEGenerator = new IEGenerator();
@@ -231,7 +231,7 @@ public class HNCGenerator {
 		Set<Graph> ttk = new GraphList<Graph>();
 		Set<Graph> term = new GraphList<Graph>();
 		Set<Graph> tcount = new GraphList<Graph>();
-		Set<Graph> finalt = new GraphList<Graph>();
+		//Set<Graph> finalt = new GraphList<Graph>();
 		Set<Graph> h = new GraphList<Graph>();
 		
 		IsoFree Isofree = new IsoFree();
@@ -244,8 +244,8 @@ public class HNCGenerator {
 		    
 		//create a Map
 		ArrayList<Set<Graph>> cmap = new ArrayList<Set<Graph>>();
-		ArrayList tmap = new ArrayList();
-		ArrayList hmap = new ArrayList();
+		ArrayList<Set<Graph>> tmap = new ArrayList<Set<Graph>>();
+		ArrayList<Set<Graph>> hmap = new ArrayList<Set<Graph>>();
 		ArrayList<Set<Graph>> chumma = new ArrayList<Set<Graph>>();
 		
 		/*byte[] list = {(byte) 0, (byte) 2, (byte) 1};
@@ -357,7 +357,7 @@ public class HNCGenerator {
 			
 			else {
 					temp = new HashSet();
-					finalt = new HashSet();
+					//finalt = new HashSet();
 					ttotal = new HashSet();
 					tcount = new HashSet();
 					
