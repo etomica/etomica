@@ -1,7 +1,9 @@
 package etomica.virial.cluster;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import etomica.graph.iterators.IteratorWrapper;
@@ -20,6 +22,7 @@ import etomica.graph.model.comparators.ComparatorNumEdges;
 import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
+import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
 import etomica.graph.operations.DeleteEdge;
@@ -44,8 +47,93 @@ import etomica.math.SpecialFunctions;
 
 public class VirialDiagramsMix {
 
+    protected final int n;
+    protected char[] nodeColors;
+    protected final boolean[] flex;
+    protected final boolean[] multibody;
+    protected final boolean isInteractive;
+    protected boolean doReeHoover;
+    protected Set<Graph> p, cancelP, disconnectedP;
+    protected Set<Graph> multiP;
+    protected Set<Graph> rhoA, rhoB;
+    protected Set<Graph> lnfXi;
+    protected Map<Graph,Graph> cancelMap;
+    protected boolean doShortcut;
+    protected boolean doMinimalMulti;
+    protected boolean doMinimalBC;
+    protected boolean doKeepEBonds;
+    protected final char nodeColor = Metadata.COLOR_CODE_0;
+    protected char[] flexColors;
+    public char fBond, eBond, excBond, mBond, MBond, efbcBond;
+    
     public static void main(String[] args) {
-        final int n = 3;
+        int n = 4;
+        boolean[] multibody = new boolean[]{false,false};
+        boolean[] flex = new boolean[]{true,true};
+        boolean doKeepEBonds = false;
+        boolean doReeHoover = true;
+        VirialDiagramsMix virialDiagrams = new VirialDiagramsMix(n, multibody, flex, true);
+        virialDiagrams.setDoReeHoover(doReeHoover);
+        virialDiagrams.setDoKeepEBonds(doKeepEBonds);
+        virialDiagrams.setDoShortcut(false);
+        virialDiagrams.setDoMinimalMulti(true);
+        virialDiagrams.setDoMinimalBC(true);
+        virialDiagrams.makeVirialDiagrams();
+    }
+    
+    public VirialDiagramsMix(int n, boolean[] multibody, boolean[] flex) {
+        this(n, multibody, flex, false);
+    }
+
+    public VirialDiagramsMix(int n, boolean[] multibody, boolean[] flex, boolean interactive) {
+        this.multibody = multibody;
+        this.flex = flex;
+        this.n = n;
+        this.isInteractive = interactive;
+        doReeHoover = true;
+        doShortcut = false;
+        ComparatorChain comp = new ComparatorChain();
+        comp.addComparator(new ComparatorNumFieldNodes());
+        comp.addComparator(new ComparatorBiConnected());
+        comp.addComparator(new ComparatorNumEdges());
+        comp.addComparator(new ComparatorNumNodes());
+    }
+
+    public void setDoReeHoover(boolean newDoReeHoover) {
+        if (doKeepEBonds && newDoReeHoover) {
+            throw new RuntimeException("can't have both Ree-Hoover and e-bond representation");
+        }
+        doReeHoover = newDoReeHoover;
+    }
+
+    public void setDoShortcut(boolean newDoShortcut) {
+        doShortcut = newDoShortcut;
+    }
+
+    public void setDoKeepEBonds(boolean newDoKeepEBonds) {
+        doKeepEBonds = newDoKeepEBonds;
+    }
+
+    public void setDoMinimalMulti(boolean newDoMinimalMulti) {
+        doMinimalMulti = newDoMinimalMulti;
+    }
+
+    public void setDoMinimalBC(boolean newDoMinimalBC) {
+        doMinimalBC = newDoMinimalBC;
+    }
+
+    public Set<Graph> makeGraphList() {
+        ComparatorChain comp = new ComparatorChain();
+        comp.addComparator(new ComparatorNumFieldNodes());
+        comp.addComparator(new ComparatorBiConnected());
+        comp.addComparator(new ComparatorNodeColors(nodeColors));
+        comp.addComparator(new ComparatorNumEdges());
+        comp.addComparator(new ComparatorNumNodes());
+        return new GraphList<Graph>(comp);
+    }
+    
+    public void makeRhoDiagrams() {
+
         final char nodeA = Metadata.COLOR_CODE_0;
         final char nodeB = Metadata.COLOR_CODE_1;
         // we'll pretend that everything is flexible until the end
@@ -54,25 +142,75 @@ public class VirialDiagramsMix {
         // that makes things unhappy (root points in the "wrong" place).  We
         // could work around this by having multiplication move root points
         // around to an appropriate color, but that seems icky.
-        char[] allColors = new char[]{nodeA,nodeB};
-        char[] flexColors = new char[]{nodeA, nodeB};
-        boolean multiA = false;
-        boolean multiB = false;
+        nodeColors = new char[]{nodeA,nodeB};
+        flexColors = new char[]{};
+        if (flex[0]) {
+            flexColors = new char[]{nodeA};
+            if (flex[1]) {
+                flexColors = new char[]{nodeA,nodeB};
+            }
+        }
+        else if (flex[1]) {
+            flexColors = new char[]{nodeB};
+        }
+
+        final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
+        if (MetadataImpl.metaDataComparator == null) {
+            MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
+    
+                public int compare(Metadata m1, Metadata m2) {
+                    Integer o1 = colorOrderMap.get(m1.getColor());
+                    Integer o2 = colorOrderMap.get(m2.getColor());
+                    if (o1 == o2) {
+                        return m1.getColor() > m2.getColor() ? 1 : -1;
+                    }
+                    if (o1 == null) {
+                        if (o2 == null) {
+                            return m1.getColor() > m2.getColor() ? 1 : -1;
+                        }
+                        return -1;
+                    }
+                    if (o2 == null) {
+                        return 1;
+                    }
+                    if (o1 != o2) {
+                        return o1 > o2 ? 1 : -1;
+                    }
+                    if (m1.getType() != m2.getType()) {
+                        return m1.getType() > m2.getType() ? 1 : -1;
+                    }
+                    return 0;
+                }
+            };
+        }
+
         
-        ComparatorChain comp = new ComparatorChain();
-        comp.addComparator(new ComparatorNumFieldNodes());
-        comp.addComparator(new ComparatorBiConnected());
-        comp.addComparator(new ComparatorNodeColors(new char[]{nodeA,nodeB}));
-        comp.addComparator(new ComparatorNumEdges());
-        comp.addComparator(new ComparatorNumNodes());
-        GraphList<Graph> topSet = new GraphList<Graph>(comp);
+        char oneBond = 'o';
+        fBond = 'f';
+        eBond = 'e';
+        mBond = 'm';  // multi-body
+        MBond = 'M';  // Multi-body
+        efbcBond = 'b';
+
+        colorOrderMap.put(oneBond, 0);
+        colorOrderMap.put(mBond, 1);
+        colorOrderMap.put(efbcBond, 2);
+        colorOrderMap.put(fBond, 3);
+        colorOrderMap.put(eBond, 4);
+
+        Metadata.COLOR_MAP.put(eBond, "red");
+        Metadata.COLOR_MAP.put(fBond, "green");
+        Metadata.COLOR_MAP.put(mBond, "blue");
+        Metadata.COLOR_MAP.put(MBond, "orange");
+        Metadata.COLOR_MAP.put(efbcBond, "fuchsia");
+        Metadata.COLOR_MAP.put(excBond, "red");
+        Metadata.DASH_MAP.put(excBond, 3);
+
+        
+        Set<Graph> topSet = makeGraphList();
         
         Set<Graph> eXi = new HashSet<Graph>();//set of full star diagrams with e bonds
         System.out.println("Xi");
-        char eBondAA = Metadata.COLOR_CODE_0;
-        char eBondAB = Metadata.COLOR_CODE_1;
-        char eBondBB = Metadata.COLOR_CODE_2;
-        char mBond = Metadata.COLOR_CODE_3;
         // factors: zA, zB, rhoA, rhoB
         for (byte i=1; i<n+1; i++) {
             for (byte j=0; j<i+1; j++) {
@@ -87,22 +225,12 @@ public class VirialDiagramsMix {
                 for (Node node1 : g.nodes()) {
                     for (Node node2 : g.nodes()) {
                         if (node2.getId() <= node1.getId()) continue;
-                        if (node1.getColor() == nodeA) {
-                            if (node2.getColor() == nodeB) {
-                                g.getEdge(node1.getId(), node2.getId()).setColor(eBondAB);
-                            }
-                        }
-                        else if (node2.getColor() == nodeA) {
-                            g.getEdge(node1.getId(), node2.getId()).setColor(eBondAB);
-                        }
-                        else {
-                            g.getEdge(node1.getId(), node2.getId()).setColor(eBondBB);
-                        }
+                        g.getEdge(node1.getId(), node2.getId()).setColor(eBond);
                     }
                 }
                 eXi.add(g);
                 
-                if ((multiA && j > 2) || (multiB & i-j > 2) || (multiA && multiB && i > 2)) { 
+/*                if ((multiA && j > 2) || (multiB & i-j > 2) || (multiA && multiB && i > 2)) { 
                     g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
                     g.coefficient().setDenominator((int)etomica.math.SpecialFunctions.factorial(i));
                     g.setNumFactors(4);
@@ -131,7 +259,7 @@ public class VirialDiagramsMix {
                     }
 
                     eXi.add(g);
-                }
+                }*/
             }
         }
         topSet.addAll(eXi);
@@ -140,18 +268,9 @@ public class VirialDiagramsMix {
         }
 //        ClusterViewer.createView("eXi", topSet);
 
-        char fBondAA = Metadata.COLOR_CODE_4;
-        char fBondAB = Metadata.COLOR_CODE_5;
-        char fBondBB = Metadata.COLOR_CODE_6;
-        char oneBond = 'o';
-        
         Split split = new Split();
-        SplitParameters bonds = new SplitParameters(eBondAA, fBondAA, oneBond);
+        SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
         Set<Graph> setOfSubstituted = split.apply(eXi, bonds);
-        bonds = new SplitParameters(eBondAB, fBondAB, oneBond);
-        setOfSubstituted = split.apply(setOfSubstituted, bonds);
-        bonds = new SplitParameters(eBondBB, fBondBB, oneBond);
-        setOfSubstituted = split.apply(setOfSubstituted, bonds);
 
         DeleteEdgeParameters deleteEdgeParameters = new DeleteEdgeParameters(oneBond);
         DeleteEdge deleteEdge = new DeleteEdge();
@@ -169,9 +288,8 @@ public class VirialDiagramsMix {
         
         MulFlexible mulFlex = new MulFlexible();
         
-        MulFlexibleParameters mfpn = new MulFlexibleParameters(allColors, (byte)n);
-        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(allColors, (byte)(n-1));
-        Set<Graph> lnfXi = new HashSet<Graph>();
+        MulFlexibleParameters mfpn = new MulFlexibleParameters(nodeColors, (byte)n);
+        lnfXi = new HashSet<Graph>();
         Set<Graph> fXipow = new HashSet<Graph>();
         fXipow.addAll(fXi);
         MulScalarParameters msp = null;
@@ -192,7 +310,7 @@ public class VirialDiagramsMix {
 
         DifByNode opzdlnXidzA = new DifByNode();
         DifParameters difParams = new DifParameters('A');
-        Set<Graph> rhoA = isoFree.apply(opzdlnXidzA.apply(lnfXi, difParams), null);
+        rhoA = isoFree.apply(opzdlnXidzA.apply(lnfXi, difParams), null);
         
         topSet.clear();
         topSet.addAll(rhoA);
@@ -204,7 +322,7 @@ public class VirialDiagramsMix {
 
         DifByNode opzdlnXidzB = new DifByNode();
         difParams = new DifParameters('B');
-        Set<Graph> rhoB = opzdlnXidzB.apply(lnfXi, difParams);
+        rhoB = opzdlnXidzB.apply(lnfXi, difParams);
 
         rhoB = isoFree.apply(rhoB, null);
 
@@ -215,8 +333,15 @@ public class VirialDiagramsMix {
         for (Graph g : topSet) {
             System.out.println(g);
         }
+    }
+    
+    public void makeVirialDiagrams() {
+        if (rhoA == null) {
+            makeRhoDiagrams();
+        }
 
-        msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+        MulScalarParameters msp = new MulScalarParameters(new CoefficientImpl(-1,1));
+        MulScalar mulScalar = new MulScalar();
         Set<Graph> zAz = new HashSet<Graph>();
         Set<Graph> zBz = new HashSet<Graph>();
         Set<Graph> zA = new HashSet<Graph>();
@@ -251,6 +376,7 @@ public class VirialDiagramsMix {
         // we have  zAz = rhoA - a20 zA^2 - a11 zAzB
                 
         Decorate decorate = new Decorate();
+        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(nodeColors, (byte)(n-1));
         for (int i=2; i<n+1; i++) {
             // now decorate zAz with zA and zB
             // we actually only need zAz to ith order, but that's more work.  Decorate will truncate for us.
@@ -263,9 +389,11 @@ public class VirialDiagramsMix {
             zB = newZB;
         }
         
+        IsoFree isoFree = new IsoFree();
         zA = isoFree.apply(zA, null);
         zB = isoFree.apply(zB, null);
 
+        Set<Graph> topSet = makeGraphList();
         topSet.clear();
         topSet.addAll(zA);
         System.out.println("\nzA");
@@ -282,12 +410,13 @@ public class VirialDiagramsMix {
         }
         ClusterViewer.createView("zB", topSet);
 
-        Set<Graph> p = decorate.apply(lnfXi, zA, new DecorateParameters(0, mfpn));
+        MulFlexibleParameters mfpn = new MulFlexibleParameters(nodeColors, (byte)n);
+        p = decorate.apply(lnfXi, zA, new DecorateParameters(0, mfpn));
         p = decorate.apply(p, zB, new DecorateParameters(1, mfpn));
         p = isoFree.apply(p, null);
 
         HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
-        if (flexColors.length < allColors.length) {
+        if (flexColors.length < nodeColors.length) {
             Set<Graph> newP = new HashSet<Graph>();
             Factor factor = new Factor();
             MulFlexibleParameters factorParameters = new MulFlexibleParameters(flexColors, (byte)n);
@@ -335,11 +464,11 @@ public class VirialDiagramsMix {
                 boolean con = hap.isConnected();
                 if (con && ap) {
                     FactorOnceParameters fop = null;
-                    boolean factorable0 = g.getNode((byte)0).getColor() == nodeA && hap.getArticulationPoints().contains(0);
+                    boolean factorable0 = g.getNode((byte)0).getColor() == nodeColors[0] && hap.getArticulationPoints().contains(0);
                     if (!factorable0) {
                         byte articulationId = -1;
                         for (byte nodeId : hap.getArticulationPoints()) {
-                            if (g.getNode(nodeId).getColor() == nodeA) {
+                            if (g.getNode(nodeId).getColor() == nodeColors[0]) {
                                 articulationId = nodeId;
                                 break;
                             }
@@ -356,11 +485,11 @@ public class VirialDiagramsMix {
                             g = relabel.apply(g, rp);
                         }
                     }
-                    boolean factorableB = g.getNode((byte)1).getColor() == nodeB && hap.getArticulationPoints().contains(1);
+                    boolean factorableB = g.getNode((byte)1).getColor() == nodeColors[1] && hap.getArticulationPoints().contains(1);
                     if (!factorable0 && !factorableB) {
                         byte articulationId = -1;
                         for (byte nodeId : hap.getArticulationPoints()) {
-                            if (g.getNode(nodeId).getColor() == nodeB) {
+                            if (g.getNode(nodeId).getColor() == nodeColors[1]) {
                                 articulationId = nodeId;
                                 break;
                             }
