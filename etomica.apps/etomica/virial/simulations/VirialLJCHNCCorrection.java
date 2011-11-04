@@ -9,6 +9,7 @@ import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
+import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumEF;
 import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEHardSphere;
@@ -121,7 +122,7 @@ public class VirialLJCHNCCorrection {
         		
         		double[] weights = {-1.0/8.0};
 		    
-        		targetCluster =  new ClusterSumEF(new ClusterBonds[] {cluster},weights,new MayerFunction[]{eTarget});
+        		targetCluster =  new ClusterSum(new ClusterBonds[] {cluster},weights,new MayerFunction[]{fTarget});
         	}
 		    
         } else if (nPoints == 5) {
