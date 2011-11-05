@@ -197,7 +197,6 @@ public class VirialHePI_PotentialCorrection {
         PotentialGroupPI pTargetGroupSimplified = new PotentialGroupPI(1);
         pTargetGroupSimplified.addPotential(p2Simplified, new ApiIntergroupCoupled());
         PotentialGroup3PI p3TargetGroupSimplified = new PotentialGroup3PI(1);
-       
         p3TargetGroupSimplified.addPotential(p3Simplified, new ANIntergroupCoupled(3));
         MayerGeneral fTargetSimplified = new MayerGeneral(pTargetGroupSimplified) {
             public double f(IMoleculeList pair, double r2, double beta) {
@@ -253,17 +252,13 @@ public class VirialHePI_PotentialCorrection {
         }
         
         if (pairOnly) {
-            targetDiagrams = new ClusterDifference[1];
+            targetDiagrams = new ClusterDifference[targetDiagramsPlus.length];
             for (int j=0; j<targetDiagramsPlus.length; j++) {
                 targetDiagrams[j] = new ClusterDifference(targetDiagramsPlus[j], targetDiagramsMinus[j]);
             }
         }
         
-      
-        if (pairOnly) {
-                targetDiagrams = flexDiagrams.makeSingleVirialClusters((ClusterSum)targetCluster, null, fTarget);
-        }
-        
+
         IsBiconnected isBi = new IsBiconnected();
         if (pairOnly) {
             targetDiagramNumbers = new int[targetDiagrams.length];
@@ -382,28 +377,28 @@ public class VirialHePI_PotentialCorrection {
             sim.integratorOS.setRefStepFraction(refFreq);
         }
 
-        if (!pairOnly) {
-            AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
-            IVectorRandom groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
-            MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
-            IMoleculeList molecules = sim.box[1].getMoleculeList();
-            double r = 4;
-            // put the molecules in a ring around the origin, with one atom
-            // from each scaled in toward the origin
-            for (int i=1; i<nPoints; i++) {
-                groupTranslationVector.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
-                groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
-                moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
-                if (nBeads>1) {
-                    IVectorMutable v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
-                    v.TE(0.95);
-                }
+       
+        AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
+        IVectorRandom groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
+        MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
+        IMoleculeList molecules = sim.box[1].getMoleculeList();
+        double r = 4;
+        // put the molecules in a ring around the origin, with one atom
+        // from each scaled in toward the origin
+        for (int i=1; i<nPoints; i++) {
+            groupTranslationVector.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
+            groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
+            moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
+            if (nBeads>1) {
+                IVectorMutable v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                v.TE(0.95);
             }
-            sim.box[1].trialNotify();
-            double pi = sim.box[1].getSampleCluster().value(sim.box[1]);
-            if (pi == 0) throw new RuntimeException("initialization failed");
-            sim.box[1].acceptNotify();
         }
+        sim.box[1].trialNotify();
+        double pi = sim.box[1].getSampleCluster().value(sim.box[1]);
+        if (pi == 0) throw new RuntimeException("initialization failed");
+        sim.box[1].acceptNotify();
+        
 
         if (false) {
             // unnecessary because our MC move regrows the chain using the
@@ -768,8 +763,8 @@ public class VirialHePI_PotentialCorrection {
         public double refFrac = 0.5; //not adjustment of step freqency if positive
         public boolean doHist = false;
         public double sigmaHSRef = -1; // -1 means use equation for sigmaHSRef
-        public boolean pairOnly = false;
-        public boolean doTotal = true;
+        public boolean pairOnly = true;
+        public boolean doTotal = false;
         public String file="paramsOriginal.dat";
 
     }
