@@ -188,17 +188,18 @@ public class VirialHePI_PotentialCorrection {
         
         Potential2SoftSpherical p2Simplified = new P2HeSimplified(space);
         P3CPSNonAdditiveHeLessSimplified p3Simplified = new P3CPSNonAdditiveHeLessSimplified(space);
-        PotentialGroupPI pTargetGroupSimplified = new PotentialGroupPI(1);
-        pTargetGroupSimplified.addPotential(p2Simplified, new ApiIntergroupCoupled());
-        PotentialGroup3PI p3TargetGroupSimplified = new PotentialGroup3PI(1);
         p3Simplified.setParameters(file);
     	System.out.println("simplified pair and trimer potentials used");
     	System.out.println("21 Parameters for simplified potential:");
 		for (int i=0;i<p3Simplified.params.length; i++){
 			System.out.println("params["+i+"] = "+p3Simplified.params[i]);
 		}
+        PotentialGroupPI pTargetGroupSimplified = new PotentialGroupPI(1);
+        pTargetGroupSimplified.addPotential(p2Simplified, new ApiIntergroupCoupled());
+        PotentialGroup3PI p3TargetGroupSimplified = new PotentialGroup3PI(1);
+       
         p3TargetGroupSimplified.addPotential(p3Simplified, new ANIntergroupCoupled(3));
-        MayerGeneral fTargetSimplified = new MayerGeneral(pTargetGroup) {
+        MayerGeneral fTargetSimplified = new MayerGeneral(pTargetGroupSimplified) {
             public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);
             }
@@ -222,7 +223,7 @@ public class VirialHePI_PotentialCorrection {
         rigidDiagrams.setDoShortcut(true);
         ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
 
-        ClusterAbstract[] targetDiagrams = new ClusterAbstract[1];
+        ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
         int[] targetDiagramNumbers = new int[0];
 
         
@@ -244,16 +245,13 @@ public class VirialHePI_PotentialCorrection {
         targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         
         ClusterSumShell[] targetDiagramsPlus = flexDiagrams.makeSingleVirialClusters(fullTargetCluster, null, fTarget);
-        ClusterSumShell[][] targetDiagramsMinus  = new ClusterSumShell[targetDiagramsPlus.length][0];
+        ClusterSumShell[][] targetDiagramsMinus  = new ClusterSumShell[targetDiagramsPlus.length][1];
         
         ClusterSumShell[] foo = flexDiagrams.makeSingleVirialClusters(targetSubtract[0], null, fTargetSimplified);
         for (int j=0; j<foo.length; j++) {
             targetDiagramsMinus[j][0] = foo[j];
         }
         
-
-        
-       
         if (pairOnly) {
             targetDiagrams = new ClusterDifference[1];
             for (int j=0; j<targetDiagramsPlus.length; j++) {
