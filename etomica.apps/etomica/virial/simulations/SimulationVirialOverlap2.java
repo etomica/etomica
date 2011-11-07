@@ -382,7 +382,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+" error: "+error);
-        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*refIntegral);
+        System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral));
         DataGroup allYourBase = (DataGroup)accumulators[0].getData();
         IData ratioData = allYourBase.getData(accumulators[0].RATIO.index);
         IData ratioErrorData = allYourBase.getData(accumulators[0].RATIO_ERROR.index);
