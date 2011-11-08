@@ -25,9 +25,10 @@ public class Relabel implements Unary {
 
     Node[] nodes = new Node[argument.nodeCount()];
     for (byte nodeId = 0; nodeId < nodes.length; nodeId++) {
-      nodes[nodeId] = argument.getNode(nodeId).copy();
-      nodes[nodeId].setColor(argument.getNode(params.map(nodeId)).getColor());
-      nodes[nodeId].setType(argument.getNode(params.map(nodeId)).getType());
+      byte newNodeId = params.map(nodeId);
+      nodes[newNodeId] = argument.getNode(newNodeId).copy();
+      nodes[newNodeId].setColor(argument.getNode(nodeId).getColor());
+      nodes[newNodeId].setType(argument.getNode(nodeId).getType());
 //      nodes[nodeId] = argument.getNode(params.map(nodeId)).copy();
     }
     // copy the mapped nodes
