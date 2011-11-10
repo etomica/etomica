@@ -349,7 +349,7 @@ private String[][] setParameterValues() {
 	@Override
 	public String getNonBondedInteractionModel() {
 		// TODO Auto-generated method stub
-		return "LennardJones";
+		return "LennardJonesWithQuadrapole";
 	}
 
 	

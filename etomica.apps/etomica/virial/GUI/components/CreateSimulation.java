@@ -49,6 +49,7 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap;
+import etomica.virial.simulations.SimulationVirialOverlap2;
 
 public class CreateSimulation {
 	
@@ -63,32 +64,13 @@ public class CreateSimulation {
 	private ParameterMapping[] potential = new ParameterMapping[2];
 	
 	private int nPoints;
-	private boolean InterNonBondedPotentialFlag;
-	private boolean Species1IntraNonBondedPotentialFlag;
-	private boolean Species2IntraNonBondedPotentialFlag;
-	private boolean Species1IntraBondedPotentialFlag;
-	private boolean Species2IntraBondedPotentialFlag;
-	private boolean MolecularFlag;
-	
-	private boolean Species1ChargeFlag;
-	private boolean Species2ChargeFlag;
-	
-	private boolean Species1MomentFlag;
-	private boolean Species2MomentFlag;
+
 	
 	private double temperature;
 	private double SigmaHSRef;
 	private int steps;
 	
-	private PotentialGroup p11InterTargetGroup;
-	private PotentialGroup p22InterTargetGroup;
-	private PotentialGroup p12InterTargetGroup;
-	private PotentialGroup pIntra1TargetGroup;
-	private PotentialGroup pIntra2TargetGroup;
-	
-	Object[] Species1Potentials;
-	Object[] Species2Potentials;
-	private Constructor TempConstructor;
+
 	
 	private MayerGeneral fTarget;
 	private MayerEGeneral eTarget;
@@ -111,118 +93,27 @@ public class CreateSimulation {
 
 	
 	@SuppressWarnings("unchecked")
-	public void runSimulation(SimulationEnvironment simenv) throws NoSuchMethodException{
-		/*
+	public void runSimulation(SimulationEnvironment simenv, PotentialObject PObject) throws NoSuchMethodException{
+		
 		SimEnv = simenv;
+		
 		//All Environment variables set first
 		temperature = SimEnv.getTemperature();
 		steps = SimEnv.getNoOfSteps();
-		System.out.println(potential[0].getClass().getName());
-
 		
+
 		//Are we having a mixture? 
 		if(potential[1] != null){
-			//Yes, We have a mixture of species!!!
-			InterNonBondedPotentialFlag = true;
+			
 		}
 		else{
-			InterNonBondedPotentialFlag = false;
-			Species2IntraNonBondedPotentialFlag = false;
-			Species2IntraBondedPotentialFlag = false;
+			
 		}
-		
-		if(InterNonBondedPotentialFlag == true){
-			for(int i = 0;i < 2;i++){
-				//We figure details abt each of the potential
-				
-				//If molecular or atomic
-				if (etomica.api.IPotentialMolecular.class.isAssignableFrom(potential[i].getPotential())){
 
-					//If potentialsites existing are greater than 1, although we dont have a intrabonded or intra non-bonded potential, but we have 
-					//cross potentials
-					if(i==0){
-						Species1IntraBondedPotentialFlag = false;
-						pIntra1TargetGroup = null;
-					}
-					if(i==1){
-						Species2IntraBondedPotentialFlag = false;
-						pIntra2TargetGroup = null;
-					}
-				}
-				if(etomica.potential.Potential2SoftSpherical.class.isAssignableFrom(potential[i].getPotential())){
-					
-						//Inter-bonded potentials is to be gathered especially for alkanes, alcohol, etc
-						if(i==0){
-							if(SimEnv.getAlkane1Spheres() > 1){
-								Species1IntraBondedPotentialFlag = true;
-							}
-							else{
-								Species1IntraBondedPotentialFlag = false;
-								pIntra1TargetGroup = null;
-							}
-						}
-						if(i==1){
-							if(SimEnv.getAlkane2Spheres() > 1){
-								Species2IntraBondedPotentialFlag = true;
-							}
-							else{
-								Species2IntraBondedPotentialFlag = false;
-								pIntra2TargetGroup = null;
-							}
-						}
-				}
-				
-				
-				//If potential describing the interaction incluses charges or moments
-				String[] tempArray = potential[i].getParametersArray();
-				for(int j=0; j< tempArray.length;j++){
-					if(tempArray[j].equals("CHARGE")){
-						if(i == 0){
-							Species1ChargeFlag = true;}
-						if(i == 1){
-							Species2ChargeFlag = true;}
-						
-					}
-					if(tempArray[j].equals("MOMENT")||tempArray[j].equals("MOMENTSQR")){
-						//Dipole /Quadrapole moment exists!
-						if(i == 0){
-							Species1MomentFlag = true;}
-						if(i == 1){
-							Species2MomentFlag = true;}
-
-					}
-				}
-			
-				
-				
-				
-			//end of for loop for potentials
-			}
-			
-			
-			//Condition for electrostatic interaction included
-			if((Species1ChargeFlag && Species2ChargeFlag)|| (Species1MomentFlag && Species2MomentFlag)){
-				
-				
-			}
-			
-		//end of if statement for potential2 not equal to null	
-		}
-		
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
 		
 		//SigmaHSRef will vary according to mixing rules
 		SigmaHSRef = SimEnv.getSigmaHSRef();
-		if(!InterNonBondedPotentialFlag){
+		/*if(!InterNonBondedPotentialFlag){
 			
 		}
 		//For Alkane mixtures
@@ -239,166 +130,7 @@ public class CreateSimulation {
 		 MayerHardSphere fRef = new MayerHardSphere(SigmaHSRef);
 	     MayerEHardSphere eRef = new MayerEHardSphere(SigmaHSRef);
 	     
-	     //Set up the potentials
-	     try{
-	    	 if(!InterNonBondedPotentialFlag){
-	    		 //Potential 1 for Intra Non-Bonded Potentials
-	    		 if(Species1IntraNonBondedPotentialFlag){
-	    			 pIntra1TargetGroup = new PotentialGroup(2);
-	    			 
-	    			 int NoOfIntraSites = potential[0].getPotentialSites().length;
-	    			 int NoOfIntraSitePairs = Factorial(NoOfIntraSites)/(Factorial(NoOfIntraSites-2)*Factorial(2));
-	    			 
-	    			 Species1Potentials = new Object[potential[0].getPotentialSites().length + NoOfIntraSitePairs];
-	    			
-	    			 
-
-	    			 @SuppressWarnings("rawtypes")
-					 
-	    			 
-	    			 int numberofParameters = potential[0].getParametersArray().length;
-	    			 Object[] ParamValueObj = new Object[numberofParameters+1];
-	    			 
-	    			 @SuppressWarnings("rawtypes")
-	    			 Class[] ParamClass = new Class[numberofParameters+1];
-	    			 
-	    			 ParamClass[0] = ISpace.class;
-					 for(int i = 1;i<=numberofParameters;i++){
-						 ParamClass[i] = Double.TYPE;
-					 }
-	    			 
-	    			 ParamValueObj[0] = potential[0].getSpace();
-	    			 for(int index=0;index<NoOfIntraSites;index++){
-	    				for(int j=0;j<numberofParameters;j++){
-	    					ParamValueObj[j+1]=potential[0].getDoubleDefaultParameters(potential[0].getParametersArray()[j].toUpperCase()+potential[0].getPotentialSiteAtIndex(index));
-						}
-	    				if(potential[0].getPotential().getConstructors().length > 1){
-	    					TempConstructor = potential[0].getPotential().getConstructor(ParamClass);
-							Species1Potentials[index] = TempConstructor.newInstance(ParamValueObj);
-	    				}
-	    				else{
-	    					TempConstructor = potential[0].getPotential().getConstructor(ISpace.class);
-	    					Species1Potentials[index] = TempConstructor.newInstance(ParamValueObj[0]);
-	    				}
-	    			 }
-	    			 
-	    			 int[][] IntraSitePairs = new int[NoOfIntraSitePairs][2];
-	    			 
-	    			 int index = 0;
-	    			 for(int l=0;l<NoOfIntraSites;l++){
-	    				for(int k=NoOfIntraSites-1;k>l;k--){
-	    					IntraSitePairs[index][0] = l;
-	    					IntraSitePairs[index][1] = k;
-	    					index++;
-	    				}
-	    			 }
-	    			 for(int m=2;m<Species1Potentials.length;m++){
-	    				 int speciesAIndex = IntraSitePairs[m-2][0];
-	    				 int speciesBIndex = IntraSitePairs[m-2][1];
-	    				 for(int j=0;j<numberofParameters;j++){
-	    					String Param = potential[0].getParametersArray()[j];
-	    					Double ParamValue = 0.0;
-	    					Double ValueA;
-	    					Double ValueB;
-	    					ValueA = potential[0].getDoubleDefaultParameters(potential[0].getParametersArray()[j].toUpperCase()+potential[0].getPotentialSiteAtIndex(speciesAIndex));
-	    					ValueB = potential[0].getDoubleDefaultParameters(potential[0].getParametersArray()[j].toUpperCase()+potential[0].getPotentialSiteAtIndex(speciesBIndex));
-	    					if(Param.contains("SIGMA")){
-	    						ParamValue = 0.5*(ValueA+ValueB);
-	    					}
-	    					if(Param.contains("EPSILON")){
-	    						ParamValue = Math.sqrt(ValueA*ValueB);
-	    					}
-		    				ParamValueObj[j+1]=ParamValue;				
-						 }
-	    				 if(potential[0].getPotential().getConstructors().length > 1){
-	    					 if(TempConstructor != null){
-	    						 Species1Potentials[m] = TempConstructor.newInstance(ParamValueObj);
-	    					 }
-	    				 }
-	    				 else{
-	    					 if(TempConstructor != null){
-	    						 
-	    						 Species1Potentials[m] = TempConstructor.newInstance(ParamValueObj[0]);
-	    					 }
-	    				 }
-	    			 }
-	    			 fTarget = new MayerGeneral(pIntra1TargetGroup);
-	    		     eTarget = new MayerEGeneral(pIntra1TargetGroup);
-
-	    		 }
-	    		 else{
-	    			 	int numberofParameters = potential[0].getParametersArray().length;
-						Object[] ParamValueObj = new Object[numberofParameters+1];
-						
-						@SuppressWarnings("rawtypes")
-						Class[] ParamClass = new Class[numberofParameters+1];
-						
-						ParamValueObj[0] = potential[0].getSpace();
-						for(int j=0;j<potential[0].getParametersArray().length;j++){
-							ParamValueObj[j+1]=potential[0].getDoubleDefaultParameters(potential[0].getParametersArray()[j].toUpperCase()+potential[0].getPotentialSiteAtIndex(0));
-						}
-						
-						
-						ParamClass[0] = ISpace.class;
-						for(int i = 1;i<=numberofParameters;i++){
-							ParamClass[i] = Double.TYPE;
-						}
-						
-	    			 	//All potentials whose constructors are 2 in number( one with simplece iSpace.class, and remaining with parameters!!)
-	    			 	Species1Potentials = new Object[1];
-						if(potential[0].getPotential().getConstructors().length > 1){
-							Species1Potentials[0] = potential[0].getPotential().getConstructor(ParamClass).newInstance(ParamValueObj);
-						}
-						else{
-							//All potentials whose constructors simply consist of passing ISpaceClass
-							Species1Potentials[0] = potential[0].getPotential().getConstructor(ParamClass[0]).newInstance(ParamValueObj[0]);
-						}
-						if (etomica.api.IPotentialMolecular.class.isAssignableFrom(potential[0].getPotential())){
-							fTarget = new MayerGeneral((IPotentialMolecular) Species1Potentials[0]);
-			    		    eTarget = new MayerEGeneral((IPotentialMolecular)Species1Potentials[0]);
-						}
-						else{
-							pIntra1TargetGroup = new PotentialGroup(2);
-							pIntra1TargetGroup.addPotential((IPotentialAtomic)Species1Potentials[0], new ApiIntergroup());
-							fTarget = new MayerGeneral(pIntra1TargetGroup);
-			    		    eTarget = new MayerEGeneral(pIntra1TargetGroup);
-						}
-						
-						
-						
-	    		 }
-	    		 
-	    	 }
-	    	else{
-	    		p11InterTargetGroup = new PotentialGroup(2);
-	    		if(Species1IntraNonBondedPotentialFlag){
-	    			pIntra1TargetGroup = new PotentialGroup(2);
-	    		}
-	    		if(Species2IntraNonBondedPotentialFlag){
-	    			pIntra2TargetGroup = new PotentialGroup(2);
-	    		}
-	    	}
-	    	 
-	    	 
-	    	 
-	    	 
-	    	 
-	    } catch (SecurityException e) {
-	    	 // TODO Auto-generated catch block
-	    	 e.printStackTrace();
-	     } catch (IllegalArgumentException e) {
-	    	 // TODO Auto-generated catch block
-	    	 e.printStackTrace();
-	     } catch (InstantiationException e) {
-	    	 // TODO Auto-generated catch block
-	    	 e.printStackTrace();
-	     } catch (IllegalAccessException e) {
-	    	 // TODO Auto-generated catch block
-	    	 e.printStackTrace();
-	     } catch (InvocationTargetException e) {
-	    	 // TODO Auto-generated catch block
-	    	 e.printStackTrace();
-	     }
+	     
 	     
 	     space = potential[0].getSpace();
 	     
@@ -409,7 +141,7 @@ public class CreateSimulation {
 	     
 	     System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 	     
-	     final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,potential[0].createSpeciesFactory(), temperature,refCluster,targetCluster);
+	     final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,potential[0].createSpeciesFactory(), temperature,refCluster,targetCluster);
 	     
 	     sim.integratorOS.setNumSubSteps(1000);
 	     int blocksize = 100;
@@ -442,8 +174,8 @@ public class CreateSimulation {
 		else
 			return n * Factorial(n-1);
 	}
-
-	*/
+*/
+	
 	}
 
 }

@@ -384,7 +384,7 @@ public class CreateP2Ethane2CLJQ implements ParameterMapping,Cloneable{
 	@Override
 	public String getNonBondedInteractionModel() {
 		// TODO Auto-generated method stub
-		return "LennardJones";
+		return "LennardJonesWithQuadrapole";
 	}
 
 
