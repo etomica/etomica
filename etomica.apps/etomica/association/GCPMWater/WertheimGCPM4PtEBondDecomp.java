@@ -24,11 +24,12 @@ import etomica.units.Mole;
 import etomica.units.Unit;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
+import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumPolarizableWertheimProduct;
-import etomica.virial.ConfigurationClusterWertheimGCPM;
+import etomica.virial.ClusterSumPolarizableWertheimProduct4Pt;
 import etomica.virial.ConfigurationClusterWertheimGCPM4Pt;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
@@ -41,11 +42,12 @@ import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialOverlap;
 
 /**
- * repulsive potential: energy of pair is greater than -3000cal/mol
- * attractive potential: energy of pair is less than -3000cal/mol
+ * repulsive potential: energy of pair is greater than -2500cal/mol
+ * attractive potential: energy of pair is less than -2500cal/mol
  * Wertheim's single attraction-site model of GCPM 
  * Three Site model
  * e-bond in 4 body term is decomposed into eR and F
+ * final revision Aug 2011
  *
  * @author Hye Min Kim
  */
@@ -53,53 +55,49 @@ import etomica.virial.simulations.SimulationVirialOverlap;
 public class WertheimGCPM4PtEBondDecomp {
 
 	public static void main(String[] args) {
-//    	Unit calPerMoles = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
-//    	System.out.println(calPerMoles.fromSim(Kelvin.UNIT.toSim(110)));
-//    	System.exit(1);
-		VirialAssociatingFluidParam params = new VirialAssociatingFluidParam();
+		WertheimAssociatingFluidParam params = new WertheimAssociatingFluidParam();
 		Space space = Space3D.getInstance();
+    	ParseArgs.doParseArgs(params, args);
+        double deltaCut = 100;
 		
 		int numDiagram=params.numDiagram;
 		int diagramIndex=params.diagramIndex;
-		final int nBody = 4;//B4
+		final int nBody = 4;//W4
 		double temperature=params.temperature;
 		double sigmaHSRef = params.sigmaHSRef;
 		double associationEnergy = params.associationEnergy;
 		long numSteps = params.numSteps;
-		
-		if (args.length == 6) {
-        	temperature = Double.parseDouble(args[0]);
-            sigmaHSRef = Double.parseDouble(args[1]);
-            numSteps = Integer.parseInt(args[2]);
-            associationEnergy = Double.parseDouble(args[3]);
-            numDiagram = Integer.parseInt(args[4]);
-            diagramIndex = Integer.parseInt(args[5]);
-            
-        } else if (args.length != 0){
-        	throw new IllegalArgumentException("Wrong number of arguments");
-        }
+		boolean flip = params.flip;
+		boolean bondingAngleRestriction = params.bondingAngleRestriction;
 
 		final double[] HSB = new double[9];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
         HSB[4] = Standard.B4HS(sigmaHSRef);
+        System.out.println("Non-additive Wertheim diagram, final version, fij in delta B4 is NOT decomposed into fR and fAssociation");
         System.out.println("Wertheim's three association site model && e-bond in 4 body term is decomposed into eR and F");
-        System.out.println("repulsive potential: GCPM potential - negative charge electrostatic part, attractive potential: negative charge electrostatic potential");
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-        System.out.println("B2HS: "+HSB[2]);
-        System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
+//        System.out.println("B2HS: "+HSB[2]);
+//        System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
         System.out.println("temperature: "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
 
-        System.out.println("association Energy: "+associationEnergy+"cal/mole");
+        System.out.println("association Energy: "+associationEnergy+"cal/mol");//association energy Unit: cal/mol
+        if (bondingAngleRestriction){
+        	System.out.println("This calculation includes bonding angle criteria(cosTheta1<-0.5,cosTheta3<0)");
+        }
     	Unit calPerMole = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
     	associationEnergy = calPerMole.toSim(associationEnergy);
-
-		PNWaterGCPMThreeSite pR = new PNWaterGCPMThreeSite(space,associationEnergy,false); //GCPM potential
-		PNWaterGCPMThreeSite pAC = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site A on mol1 and C on mol2
-		PNWaterGCPMThreeSite pCA = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site C on mol1 and A on mol2
-		PNWaterGCPMThreeSite pBC = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site B on mol1 and C on mol2
-		PNWaterGCPMThreeSite pCB = new PNWaterGCPMThreeSite(space,associationEnergy,true); //assciation between site C on mol1 and B on mol2
+    	
+        IPotentialMolecular pTarget = new PNWaterGCPM(space);
+        
+        MayerEGeneral e = new MayerEGeneral(pTarget);
+        
+		PNWaterGCPMThreeSite pR = new PNWaterGCPMThreeSite(space,associationEnergy,false, bondingAngleRestriction); //GCPM potential
+		PNWaterGCPMThreeSite pAC = new PNWaterGCPMThreeSite(space,associationEnergy,true, bondingAngleRestriction); //assciation between site A on mol1 and C on mol2
+		PNWaterGCPMThreeSite pCA = new PNWaterGCPMThreeSite(space,associationEnergy,true, bondingAngleRestriction); //assciation between site C on mol1 and A on mol2
+		PNWaterGCPMThreeSite pBC = new PNWaterGCPMThreeSite(space,associationEnergy,true, bondingAngleRestriction); //assciation between site B on mol1 and C on mol2
+		PNWaterGCPMThreeSite pCB = new PNWaterGCPMThreeSite(space,associationEnergy,true, bondingAngleRestriction); //assciation between site C on mol1 and B on mol2
 		pAC.setBondType(1);
 		pCA.setBondType(3);
 		pBC.setBondType(2);
@@ -127,256 +125,61 @@ public class WertheimGCPM4PtEBondDecomp {
 		pBCRef.setBondType(2);
 		MayerGeneral fBCRef4mer = new MayerGeneral(pBCRef);
 		
-		int nBondTypes = 6;//fR,FCA,FAC,FCB,FBC,eR
+		int nBondTypes = 7;//fR,FCA,FAC,FCB,FBC,eR
 		ClusterBonds[] clusters = new ClusterBonds[0];
 		int[][][] bondList = new int[nBondTypes][][];
 		int [][][]refBondList = new int[nBondTypes][][];
-		ClusterSumPolarizableWertheimProduct targetCluster = null;
+		ClusterAbstract targetCluster = null;
 		
-		System.out.println("Diagram "+numDiagram+"-"+diagramIndex+"E");
+		System.out.println("Diagram "+numDiagram+"-"+diagramIndex+"E "+"flip "+flip);
 		
 		if (numDiagram == 12 ||numDiagram == 19||numDiagram == 26||numDiagram == 34){
 			HSB[4] = -35.238*-35.238*-35.238;//This value is from direct sampling
 			System.out.println("use hard-chain reference && value = -35.238*-35.238*-35.258 = 43755.611101272");
 		}
             		
-		if (numDiagram == 8) {
-			bondList[5]=new int [][]{{0,1},{1,2},{2,3},{3,0}};			
-		}  else if (numDiagram == 9){
-			bondList[5]=new int [][]{{1,2},{2,3},{3,0}};
-			bondList[1]=new int [][]{{0,1}};	
-		}	else if (numDiagram == 10){
-				if (diagramIndex == 1){
-					bondList[5]=new int [][]{{2,3},{3,0}};
-					bondList[1]=new int [][]{{0,1},{1,2}};
-				} 	else if (diagramIndex == 2){
-					bondList[5]=new int [][]{{2,3},{3,0}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 3){
-					bondList[5]=new int [][]{{2,3},{3,0}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 4){
-					bondList[5]=new int [][]{{2,3},{3,0}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};					
-				}	
-		}	else if (numDiagram == 11){
-			bondList[5]=new int [][]{{1,2},{3,0}};
-			bondList[1]=new int [][]{{0,1},{2,3}};
-		}	else if (numDiagram == 12){			
-				if (diagramIndex == 1){
-					refBondList[0] = new int [][]{{0,1},{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0}};
-					bondList[1]=new int [][]{{0,1},{1,2},{2,3}};
-				} 	else if (diagramIndex == 2){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{2,3}};
-					refBondList[2] = new int [][]{{1,2}};
-					bondList[5]=new int [][]{{3,0}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{1,2}};
-					bondList[2]=new int [][]{{2,3}};
-				}	else if (diagramIndex == 3){
-					refBondList[0] = new int [][]{{1,2}};
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[2] = new int [][]{{2,3}};
-					bondList[5]=new int [][]{{3,0}};
-					bondList[1]=new int [][]{{1,2}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{2,3}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 4){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 5){
+		if (numDiagram == 12){			
+				if (diagramIndex == 5){
 					refBondList[0] = new int [][]{{0,1},{2,3}};
 					refBondList[1] = new int [][]{{1,2}};
-					bondList[5]=new int [][]{{3,0}};
+					bondList[5]=new int [][]{{3,0},{0,2},{1,3}};
 					bondList[1]=new int [][]{{0,1},{2,3}};
 					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2},{1,3}};
-				}	else if (diagramIndex == 6){
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[0] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
-				}
-
-
-		}	else if (numDiagram == 14) {
-			bondList[5]=new int [][]{{0,1},{1,2},{2,3},{3,0},{2,0}};
-			
-		}	else if (numDiagram == 15){
-			if (diagramIndex == 1){
-			bondList[5]=new int [][]{{1,2},{2,3},{3,0},{0,2}};
-			bondList[1]=new int [][]{{0,1}};	
-			} else if (diagramIndex == 2){
-				bondList[5]=new int [][]{{1,2},{2,3},{3,0},{1,3}};
-				bondList[1]=new int [][]{{0,1}};	
 				}
 		}	else if (numDiagram == 16){
-				if (diagramIndex == 1){
-					bondList[5]=new int [][]{{2,3},{3,0},{1,3}};
-					bondList[1]=new int [][]{{0,1},{1,2}};
-				}	else if (diagramIndex == 2){
-					bondList[5]=new int [][]{{2,3},{3,0},{1,3}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 3){
-					bondList[5]=new int [][]{{2,3},{3,0},{1,3}};
+				if (diagramIndex == 3){
+					bondList[5]=new int [][]{{2,3},{3,0},{1,3},{0,2}};
 					bondList[2]=new int [][]{{0,1}};
 					bondList[1]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
 				}	else if (diagramIndex == 4){
-					bondList[5]=new int [][]{{2,3},{3,0},{1,3}};
+					bondList[5]=new int [][]{{2,3},{3,0},{1,3},{0,2}};
 					bondList[1]=new int [][]{{0,1}};
 					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
 				}
-		}	else if (numDiagram == 17){
-				if (diagramIndex == 1){
-					bondList[5]=new int [][]{{2,3},{3,0},{2,0}};
-					bondList[1]=new int [][]{{0,1},{1,2}};
-				}	else if (diagramIndex == 2){
-					bondList[5]=new int [][]{{2,3},{3,0},{2,0}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{1,2}};
-				}	
-		}	else if (numDiagram == 18){
-			if (diagramIndex == 1){
-				bondList[5]=new int [][]{{1,2},{3,0},{0,2}};
-				bondList[1]=new int [][]{{0,1},{2,3}};
-			} else if (diagramIndex == 2){
-				bondList[5]=new int [][]{{1,2},{3,0},{0,2}};
-				bondList[2]=new int [][]{{0,1}};
-				bondList[1]=new int [][]{{2,3}};
-			}
 		}	else if (numDiagram == 19){
-				if (diagramIndex == 1){
-					refBondList[0] = new int [][]{{0,1},{1,2},{2,3}};			
-					bondList[5]=new int [][]{{3,0},{0,2}};
-					bondList[1]=new int [][]{{0,1},{1,2},{2,3}};
-				}	else if (diagramIndex == 7){
-					refBondList[0] = new int [][]{{0,1},{1,2},{2,3}};			
-					bondList[5]=new int [][]{{3,0},{1,3}};
-					bondList[1]=new int [][]{{0,1},{1,2},{2,3}};
-				}	else if (diagramIndex == 2){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{2,3}};
-					refBondList[2] = new int [][]{{1,2}};			
-					bondList[5]=new int [][]{{3,0},{0,2}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{2,3}};
-					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 3){
+				if (diagramIndex == 3){
 					refBondList[1] = new int [][]{{0,1}};
 					refBondList[2] = new int [][]{{2,3}};
 					refBondList[0] = new int [][]{{1,2}};		
-					bondList[5]=new int [][]{{3,0},{1,3}};
+					bondList[5]=new int [][]{{3,0},{1,3},{0,2}};
 					bondList[2]=new int [][]{{0,1}};
 					bondList[4]=new int [][]{{2,3}};
 					bondList[1]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
 				}	else if (diagramIndex == 4){
 					refBondList[0] = new int [][]{{0,1}};
 					refBondList[1] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0},{1,3}};
+					bondList[5]=new int [][]{{3,0},{1,3},{0,2}};
 					bondList[1]=new int [][]{{0,1}};
 					bondList[2]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 5){
-					refBondList[0] = new int [][]{{0,1},{2,3}};
-					refBondList[1] = new int [][]{{1,2}};
-					bondList[5]=new int [][]{{3,0}};
-					bondList[1]=new int [][]{{0,1},{2,3}};
-					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2},{1,3}};
 				}	else if (diagramIndex == 6){
 					refBondList[1] = new int [][]{{0,1}};
 					refBondList[0] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0},{1,3}};
+					bondList[5]=new int [][]{{3,0},{1,3},{0,2}};
 					bondList[2]=new int [][]{{0,1}};
 					bondList[1]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
 				}
-		}	else if (numDiagram == 21) {
-			bondList[5]=new int [][]{{1,2},{1,3},{3,0},{2,0}};
-			bondList[1]=new int [][]{{0,1}};
-			
-		}	else if (numDiagram == 22){
-				if (diagramIndex == 1){
-					bondList[5]=new int [][]{{2,3},{3,1},{2,0}};
-					bondList[1]=new int [][]{{0,1},{1,2}};
-				}	else if (diagramIndex == 2){
-					bondList[5]=new int [][]{{2,3},{3,1},{2,0}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 3){
-					bondList[5]=new int [][]{{2,3},{3,1}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 4){
-					bondList[5]=new int [][]{{2,3},{3,1}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
-				}	
-		}	else if (numDiagram == 26){
-				if (diagramIndex == 1){
-					refBondList[0] = new int [][]{{0,1},{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2},{1,3}};
-					bondList[1]=new int [][]{{0,1},{1,2},{2,3}};
-				}	else if (diagramIndex == 2){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{2,3}};
-					refBondList[2] = new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2},{1,3}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{2,3}};
-					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 3){
-					refBondList[0] = new int [][]{{1,2}};
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[2] = new int [][]{{2,3}};
-					bondList[5]=new int [][]{{1,3}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{2,3}};
-					bondList[1]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 4){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{1,3}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 5){
-					refBondList[0] = new int [][]{{0,1},{2,3}};
-					refBondList[1] = new int [][]{{1,2}};
-					bondList[1]=new int [][]{{0,1},{2,3}};
-					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2},{1,3}};
-				}	else if (diagramIndex == 6){
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[0] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
-				}	
 		}	else if (numDiagram == 28) {
-			bondList[5]=new int [][]{{0,1},{1,2},{2,3},{3,0},{2,0},{3,1}};
+			bondList[5]=new int [][]{{0,1},{1,2},{1,3},{3,0},{2,0},{2,3}};
 			
 		}	else if (numDiagram == 29) {
 			bondList[5]=new int [][]{{1,2},{1,3},{3,0},{2,0},{2,3}};
@@ -390,16 +193,6 @@ public class WertheimGCPM4PtEBondDecomp {
 					bondList[5]=new int [][]{{2,3},{3,1},{2,0},{0,3}};
 					bondList[1]=new int [][]{{0,1}};
 					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 3){
-					bondList[5]=new int [][]{{2,3},{3,1},{0,3}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 4){
-					bondList[5]=new int [][]{{2,3},{3,1},{0,3}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
 				}
 		}	else if (numDiagram == 34){
 				if (diagramIndex == 1){
@@ -414,36 +207,6 @@ public class WertheimGCPM4PtEBondDecomp {
 					bondList[1]=new int [][]{{0,1}};
 					bondList[2]=new int [][]{{2,3}};
 					bondList[4]=new int [][]{{1,2}};
-				}	else if (diagramIndex == 3){
-					refBondList[0] = new int [][]{{1,2}};
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[2] = new int [][]{{2,3}};
-					bondList[5]=new int [][]{{3,0},{0,2},{1,3}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[4]=new int [][]{{2,3}};
-					bondList[1]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 4){
-					refBondList[0] = new int [][]{{0,1}};
-					refBondList[1] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0},{0,2},{1,3}};
-					bondList[1]=new int [][]{{0,1}};
-					bondList[2]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 5){
-					refBondList[0] = new int [][]{{0,1},{2,3}};
-					refBondList[1] = new int [][]{{1,2}};
-					bondList[5]=new int [][]{{3,0},{0,2},{1,3}};
-					bondList[1]=new int [][]{{0,1},{2,3}};
-					bondList[2]=new int [][]{{1,2}};
-					bondList[5]=new int [][]{{0,2}};
-				}	else if (diagramIndex == 6){
-					refBondList[1] = new int [][]{{0,1}};
-					refBondList[0] = new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{3,0},{1,3}};
-					bondList[2]=new int [][]{{0,1}};
-					bondList[1]=new int [][]{{1,2},{2,3}};
-					bondList[5]=new int [][]{{0,2}};
 				}
 		}	else if (numDiagram == 36){
 			bondList[5]=new int [][]{{1,2},{3,0},{0,2},{1,3}};
@@ -452,22 +215,27 @@ public class WertheimGCPM4PtEBondDecomp {
 			else {
 			throw new RuntimeException("This is strange");
 		}	
-        System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
+        System.out.println("B4HS: "+HSB[4]);
 		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody>3, eRef, true);
-        if (numDiagram == 12||numDiagram ==19||numDiagram ==26||numDiagram ==34){
+        if (numDiagram == 12||numDiagram ==19||numDiagram ==34){
 			ClusterBonds refBonds = new ClusterBonds(4,refBondList, false);
 			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer});
         }
 		refCluster.setTemperature(temperature);
 		clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-		targetCluster = new ClusterSumPolarizableWertheimProduct(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,FCB,FBC,eR});	
+		targetCluster = new ClusterSumPolarizableWertheimProduct4Pt(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,FCB,FBC,eR,e});	
+		if (flip){
+			System.out.println("Flipping is applied");
+	        ((ClusterSumPolarizableWertheimProduct4Pt)targetCluster).setDeltaCut(deltaCut);
+	        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
+		}
         targetCluster.setTemperature(temperature);
         
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
 		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA);
-		if (numDiagram == 8) configuration.initializeCoordinatesER(sim.box[1]);
-		if (numDiagram == 9 || numDiagram == 15 || numDiagram == 21|| numDiagram == 29)configuration.initializeCoordinates(sim.box[1]);
-		if ((numDiagram == 10 || numDiagram == 16 || numDiagram == 17 || numDiagram == 22 || numDiagram == 30)){
+		if (numDiagram == 28) configuration.initializeCoordinatesER(sim.box[1]);
+		if (numDiagram == 29) configuration.initializeCoordinates(sim.box[1]);
+		if ((numDiagram == 16 || numDiagram == 30)){
 			if (diagramIndex == 1){
 				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
 			} else if (diagramIndex == 4){
@@ -479,15 +247,7 @@ public class WertheimGCPM4PtEBondDecomp {
 			}	
 			configuration.initializeCoordinates2(sim.box[1]);
 			}
-		if (numDiagram == 11 || (numDiagram == 18 && diagramIndex == 1) || numDiagram == 36){
-			configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
-			configuration.initializeCoordinates4(sim.box[1]);	
-			}
-		if (numDiagram == 18 && diagramIndex == 2){
-			configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
-			configuration.initializeCoordinates5(sim.box[1]);	
-			}
-		if (numDiagram == 12 || numDiagram == 19 || numDiagram == 26|| numDiagram == 34){
+		if (numDiagram == 12 || numDiagram == 19 ||numDiagram == 34){
 			if (diagramIndex == 1){
 				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA, (PNWaterGCPMThreeSite)pCA);
 			}	else if (diagramIndex == 4){
@@ -543,7 +303,7 @@ public class WertheimGCPM4PtEBondDecomp {
             return;
         }
         // if running interactively, don't use the file
-        String refFileName = args.length > 0 ? "refpref"+numDiagram+"_"+diagramIndex+"_"+temperature : null;
+        String refFileName = args.length > 0 ? "refpref"+numDiagram+"_"+diagramIndex+"_"+temperature+"_"+flip : null;
         // this will either read the refpref in from a file or run a short simulation to find it
         //sim.setRefPref(50.0);
         sim.initRefPref(refFileName, numSteps/40);
@@ -583,12 +343,11 @@ public class WertheimGCPM4PtEBondDecomp {
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
         System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*Math.abs(HSB[nBody]));
-        DataGroup data = (DataGroup)sim.accumulators[0].getData();
-        IData ratioData = data.getData(sim.accumulators[0].RATIO.index);
-        IData ratioErrorData = data.getData(sim.accumulators[0].RATIO_ERROR.index);
-        IData averageData = data.getData(sim.accumulators[0].AVERAGE.index);
-        IData stdevData = data.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = data.getData(sim.accumulators[0].ERROR.index);
+        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.RATIO.index);
+        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.RATIO_ERROR.index);
+        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.AVERAGE.index);
+        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.STANDARD_DEVIATION.index);
+        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverage.ERROR.index);
         System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
         System.out.println("reference   average: "+averageData.getValue(0)
                 			+" stdev: "+stdevData.getValue(0)
@@ -597,11 +356,11 @@ public class WertheimGCPM4PtEBondDecomp {
                 			+" stdev: "+stdevData.getValue(1)
                 			+" error: "+errorData.getValue(1));
         
-        ratioData = data.getData(sim.accumulators[1].RATIO.index);
-        ratioErrorData = data.getData(sim.accumulators[1].RATIO_ERROR.index);
-        averageData = data.getData(sim.accumulators[1].AVERAGE.index);
-        stdevData = data.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-        errorData = data.getData(sim.accumulators[1].ERROR.index);
+        ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.RATIO.index);
+        ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.RATIO_ERROR.index);
+        averageData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.AVERAGE.index);
+        stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.STANDARD_DEVIATION.index);
+        errorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverage.ERROR.index);
         System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
         System.out.println("target average: "+averageData.getValue(0)
                           +" stdev: "+stdevData.getValue(0)
@@ -612,14 +371,15 @@ public class WertheimGCPM4PtEBondDecomp {
     }
     
 	
-	public static class VirialAssociatingFluidParam extends ParameterBase {
-		public double temperature = 600;//reduced temperature
+	public static class WertheimAssociatingFluidParam extends ParameterBase {
+		public double temperature = 630;//reduced temperature
 		public double sigmaHSRef = 5.0;
 		public long numSteps = 10000;
-		public double associationEnergy = 3000.0;
-		public int numDiagram = 18;
-		public int diagramIndex = 1;
-		
+		public double associationEnergy = 2500.0;
+		public int numDiagram = 16;
+		public int diagramIndex = 3;
+		public boolean flip = false;
+		public boolean bondingAngleRestriction = true;
 	}
 
 }
