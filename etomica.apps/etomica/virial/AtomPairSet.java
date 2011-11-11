@@ -35,6 +35,10 @@ public class AtomPairSet implements java.io.Serializable {
                 MoleculePair aPair = new MoleculePair();
                 aPair.atom0 = list.getMolecule(i);
                 aPair.atom1 = list.getMolecule(i+j+1);
+                if(aPair.atom0.getType().getIndex()>aPair.atom1.getType().getIndex()){//only for mixtures
+                	aPair.atom0 = aPair.atom1;
+                	aPair.atom1 = list.getMolecule(i);
+                }
                 aPairs[i][j] = aPair;
             }
         }
