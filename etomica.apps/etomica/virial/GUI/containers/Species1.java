@@ -64,16 +64,10 @@ import etomica.virial.GUI.components.CreateP2LJQ;
 import etomica.virial.GUI.components.CreateP2WaterSPCE;
 import etomica.virial.GUI.components.CreateSimulation;
 import etomica.virial.GUI.components.ParameterMapping;
+import etomica.virial.GUI.components.PotentialObject;
 import etomica.virial.GUI.components.SimulationEnvironment;
 import etomica.virial.GUI.models.ParametersTableModel;
 import etomica.virial.GUI.models.ParametersDouble;
-
-
-
-
-
-
-
 
 
 public class Species1 extends JPanel implements ActionListener, ListSelectionListener, TableModelListener{
@@ -144,6 +138,7 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	private SimulationParameters SimulationEnvParam;
 	private JFrame OtherParamViewFrame;
 	private SimulationEnvironment OtherParamObject;
+	private PotentialObject PObject;
 	private CreateSimulation simulation;
 	private Console console;
 	private DialogBoxPanel MessageAlert; 
@@ -1209,18 +1204,41 @@ public void actionPerformed(ActionEvent e){
 						OtherParamObject.setAlkane1Spheres(Alkane1Spheres);
 						
 					}
+					if(potential1.getMoleculeDisplayName().contains("Methane")){
+						OtherParamObject.setAlkane1Spheres(1);
+						
+					}
+					if(potential1.getMoleculeDisplayName().contains("Ethane")){
+						OtherParamObject.setAlkane1Spheres(2);
+						
+					}
+					if(potential1.getMoleculeDisplayName().contains("Propane")){
+						OtherParamObject.setAlkane1Spheres(3);
+						
+					}
 					if(potential2 != null){
 						if(potential2.getMoleculeDisplayName().contains("n-Alkane")){
 						
-							OtherParamObject.setAlkane1Spheres(Alkane2Spheres);
+							OtherParamObject.setAlkane2Spheres(Alkane2Spheres);
+						}
+						if(potential2.getMoleculeDisplayName().contains("Methane")){
+							OtherParamObject.setAlkane2Spheres(1);
+							
+						}
+						if(potential2.getMoleculeDisplayName().contains("Ethane")){
+							OtherParamObject.setAlkane2Spheres(2);
+							
+						}
+						if(potential2.getMoleculeDisplayName().contains("Propane")){
+							OtherParamObject.setAlkane2Spheres(3);
+							
 						}
 					}
 				}
 				
 				CheckCompatability checkSpecies = new CheckCompatability();
-				checkSpecies.checkIfCompatible(potential1,potential2,OtherParamObject);
-				
-				simulation.runSimulation(OtherParamObject);
+				PObject = checkSpecies.checkIfCompatible(potential1,potential2,OtherParamObject);
+				simulation.runSimulation(OtherParamObject,PObject);
 			} catch (NoSuchMethodException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
