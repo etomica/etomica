@@ -69,16 +69,16 @@ public class SimulationVirialOverlap2 extends Simulation {
     // this constructor allows you to perform the calculation for a mixture
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, species, nMolecules, temperature, new ClusterAbstract[0], aValueClusters, aSampleClusters, doWiggle);
+        this(aSpace, species, nMolecules, temperature, aValueClusters, new ClusterAbstract[0], aSampleClusters, doWiggle);
     }
 
     // this constructor allows you to perform the calculation for a mixture or a flexible molecule (with an alternate/ghost molecule)
     // this constructor also allows you to specify extra target diagrams to be calculated during the simulation
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules,
-            double temperature, final ClusterAbstract[] aValueClusters, final ClusterAbstract[] extraTargetClusers, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
+            double temperature, final ClusterAbstract[] aValueClusters, final ClusterAbstract[] extraTargetClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
 
 	    super(aSpace);
-	    numExtraTargetClusters = extraTargetClusers.length;
+	    numExtraTargetClusters = extraTargetClusters.length;
 		PotentialMaster potentialMaster = new PotentialMaster();
         sampleClusters = aSampleClusters;
         boolean doRotate = false;
@@ -142,7 +142,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                     // we can use the bending move if none of the molecules has more than 3 atoms
                     boolean doBend = true;
                     for (int i=0; i<species.length; i++) {
-                        if (box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().getAtomCount() > 3) {
+                        if (box[iBox].getNMolecules(species[i])>0 && box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().getAtomCount() > 3) {
                             doBend = false;
                         }
                     }
@@ -162,9 +162,9 @@ public class SimulationVirialOverlap2 extends Simulation {
                 meters[iBox] = new MeterVirial(new ClusterAbstract[]{aValueClusters[0],aSampleClusters[1].makeCopy()});
             }
             else {
-                ClusterAbstract[] allClustersForTarget = new ClusterAbstract[extraTargetClusers.length+2];
+                ClusterAbstract[] allClustersForTarget = new ClusterAbstract[extraTargetClusters.length+2];
                 allClustersForTarget[0] = aValueClusters[1];
-                System.arraycopy(extraTargetClusers, 0, allClustersForTarget, 1, extraTargetClusers.length);
+                System.arraycopy(extraTargetClusters, 0, allClustersForTarget, 1, extraTargetClusters.length);
                 allClustersForTarget[allClustersForTarget.length-1] = aSampleClusters[0].makeCopy();
                 meters[iBox] = new MeterVirial(allClustersForTarget);
             }
