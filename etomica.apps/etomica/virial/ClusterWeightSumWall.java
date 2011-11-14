@@ -4,7 +4,7 @@ import etomica.data.IData;
 
 public class ClusterWeightSumWall implements ClusterWeight {
 	
-	public ClusterWeightSumWall(MeterVirialExternalFieldRho meter, int pointCount ) {
+	public ClusterWeightSumWall(MeterVirialExternalFieldOverlapRho meter, int pointCount ) {
 		this.meter = meter; 
 		this.pointCount = pointCount;
 		
@@ -35,6 +35,6 @@ public class ClusterWeightSumWall implements ClusterWeight {
 		
 		
 	}
-	private final MeterVirialExternalFieldRho meter;
+	private final MeterVirialExternalFieldOverlapRho meter;
 	private final int pointCount;
 }
