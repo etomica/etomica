@@ -18,9 +18,7 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	private double sigma[];
 	private double epsilon[];
 	private double momentSquare[];
-	
-	private double temperature;
-	private int noOfSteps;
+
 	private double sigmaHSRef;
 	
 	private int id;
@@ -42,9 +40,9 @@ public class CreateP2LJQ implements ParameterMapping,Cloneable{
 	
 	private String[][] ParamAndValues; 
 	
-	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF"};
+	private String[] SimEnvParameters = {"SIGMAHSREF"};
 	
-	private String[] SimEnvValues = {"250.0","10000","1.5"};
+	private String[] SimEnvValues = {"1.5"};
 	
 	
 	
@@ -86,15 +84,9 @@ private String[][] setParameterValues() {
 			}
 		}
 		
-		int NoOfSimEnvParam = 3;
+		int NoOfSimEnvParam = 1;
 		for(int l = 0;l<NoOfSimEnvParam;l++){
-			if(SimEnvParameters[l]=="TEMPERATURE"){
-				setTemperature(Double.parseDouble(SimEnvValues[l]));
-			}
 			
-			if(SimEnvParameters[l]=="STEPS"){
-				setNoOfSteps(Integer.parseInt(SimEnvValues[l]));
-			}
 			
 			if(SimEnvParameters[l]=="SIGMAHSREF"){
 				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
@@ -109,21 +101,6 @@ private String[][] setParameterValues() {
 		return id;
 	}
 	
-	public double getTemperature() {
-		return temperature;
-	}
-
-	public void setTemperature(double temperature) {
-		this.temperature = temperature;
-	}
-
-	public int getNoOfSteps() {
-		return noOfSteps;
-	}
-
-	public void setNoOfSteps(int noOfSteps) {
-		this.noOfSteps = noOfSteps;
-	}
 
 	public double getSigmaHSRef() {
 		return sigmaHSRef;
@@ -158,11 +135,18 @@ private String[][] setParameterValues() {
 	 }
 	
 	//Creates the LJAtom Species
-	public ISpecies createSpeciesFactory(){
+	public ISpecies createSpecies(){
 		SpeciesFactory speciesFactory;
 		speciesFactory = new SpeciesFactoryOrientedSpheres();
         return speciesFactory.makeSpecies(this.space);
 	}
+	
+	//Creates the LJAtom Species
+	public SpeciesFactory createSpeciesFactory(){
+			SpeciesFactory speciesFactory;
+			speciesFactory = new SpeciesFactoryOrientedSpheres();
+	        return speciesFactory;
+		}
 	
 	
 	//Testing Class
@@ -226,12 +210,7 @@ private String[][] setParameterValues() {
 			
 		}
 
-		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-			setTemperature(Double.parseDouble(ParameterValue)); 
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-			setNoOfSteps(Integer.parseInt(ParameterValue)); 
-		}
+		
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 		}
@@ -282,15 +261,9 @@ private String[][] setParameterValues() {
 				parameterValue = getMomentSquare(i);
 			}
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-			parameterValue = getTemperature();
-		}
+		
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
-		}
-		
-		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-			parameterValue = (double) getNoOfSteps();
 		}
 		
 		return parameterValue;

@@ -3,15 +3,23 @@ package etomica.virial.GUI.components;
 import java.awt.Color;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.action.IAction;
+import etomica.api.IAtomType;
+import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
+import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
@@ -27,6 +35,8 @@ import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
+import etomica.species.Species;
 import etomica.units.CompoundDimension;
 import etomica.units.CompoundUnit;
 import etomica.units.Dimension;
@@ -40,14 +50,20 @@ import etomica.units.UnitRatio;
 import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterWeight;
+import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
+import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
+import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.SpeciesFactoryTangentSpheres;
 import etomica.virial.cluster.Standard;
+import etomica.virial.simulations.SimulationVirialMultiOverlap;
 import etomica.virial.simulations.SimulationVirialOverlap;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
@@ -55,82 +71,240 @@ public class CreateSimulation {
 	
 	
 	
-	private SimulationEnvironment SimEnv;
+	private SimulationEnvironmentObject SimEnv;
 	private Space space;
 	
-	private int[] MoleculeCount = new int[2];
 	
 	private SimulationGraphic simGraphic;
-	private ParameterMapping[] potential = new ParameterMapping[2];
-	
-	private int nPoints;
+	private ParameterMapping potential1;
+	private ParameterMapping potential2;
 
-	
-	private double temperature;
-	private double SigmaHSRef;
-	private int steps;
-	
-
-	
-	private MayerGeneral fTarget;
-	private MayerEGeneral eTarget;
 	private MayerGeneralSpherical fTarget1; 
     private MayerESpherical eTarget1;
 	
 	
 	private JFrame frame;
 	
-	public CreateSimulation(ParameterMapping[] Potential, int Molecule1Count, int Molecule2Count){
-		
-		this.potential[0] = Potential[0];
-		if(Potential.length>1){
-			this.potential[1] = Potential[1];
+	public CreateSimulation(ParameterMapping Potential1, ParameterMapping Potential2){
+		this.potential1 = Potential1;
+		if(Potential2 != null){
+			this.potential2 = Potential2;
 		}
-		this.MoleculeCount[0]=Molecule1Count;
-		this.MoleculeCount[1]=Molecule2Count;
-		nPoints = Molecule1Count+Molecule2Count;
 	}
 
 	
 	@SuppressWarnings("unchecked")
-	public void runSimulation(SimulationEnvironment simenv, PotentialObject PObject) throws NoSuchMethodException{
+	public void runSimulation(SimulationEnvironmentObject simEnv, PotentialObject PObject) throws NoSuchMethodException{
 		
-		SimEnv = simenv;
+		SimEnv = simEnv;
 		
-		//All Environment variables set first
-		temperature = SimEnv.getTemperature();
-		steps = SimEnv.getNoOfSteps();
-		
+		final double[] HSB = new double[8];
+        HSB[2] = Standard.B2HS(SimEnv.getSigmaHSRef());
+        HSB[3] = Standard.B3HS(SimEnv.getSigmaHSRef());
+        HSB[4] = Standard.B4HS(SimEnv.getSigmaHSRef());
+        HSB[5] = Standard.B5HS(SimEnv.getSigmaHSRef());
+        HSB[6] = Standard.B6HS(SimEnv.getSigmaHSRef());
+        HSB[7] = Standard.B7HS(SimEnv.getSigmaHSRef());
+        
+        System.out.println("sigmaHSRef: "+SimEnv.getSigmaHSRef());
+        System.out.println("B"+SimEnv.getnPoints()+"HS: "+HSB[SimEnv.getnPoints()]);
+        
+        int[] nTypes = new int[]{SimEnv.getSpeciesA(),SimEnv.getSpeciesB()}; 
+        double temperature = SimEnv.getTemperature();
+        Space space = Space3D.getInstance();
+        
+		MayerHardSphere fRef = new MayerHardSphere(SimEnv.getSigmaHSRef());
+	    MayerEHardSphere eRef = new MayerEHardSphere(SimEnv.getSigmaHSRef());
+	    
+	    
+	    ClusterAbstract refCluster = Standard.virialCluster(SimEnv.getnPoints(), fRef, SimEnv.getnPoints()>3, eRef, true);
+        refCluster.setTemperature(temperature);
 
-		//Are we having a mixture? 
-		if(potential[1] != null){
-			
-		}
-		else{
-			
-		}
+	    
+	    if(PObject instanceof PotentialObjectAtomic){
+	    	//Set up the Potential groups!!
+	    	PObject.setInterPotentialGroupII(1, new PotentialGroup(2));
+	    	PObject.setInterPotentialGroupII(2, new PotentialGroup(2));
+	    	PObject.setInterPotentialGroupIJ(new PotentialGroup(2));
+	    	
+	    
+	    	
+	    	MayerGeneral fTargetII = new MayerGeneral(PObject.getInterPotentialGroupII(1));  
+	        MayerGeneral fTargetJJ = new MayerGeneral(PObject.getInterPotentialGroupII(2));
+	        MayerGeneral fTargetIJ = new MayerGeneral(PObject.getInterPotentialGroupIJ());
+	        
+	        MayerEGeneral eTargetII = new MayerEGeneral(PObject.getInterPotentialGroupII(1));
+	        MayerEGeneral eTargetJJ = new MayerEGeneral(PObject.getInterPotentialGroupII(2));
+	        MayerEGeneral eTargetIJ = new MayerEGeneral(PObject.getInterPotentialGroupIJ());
+	        
 
-		
-		//SigmaHSRef will vary according to mixing rules
-		SigmaHSRef = SimEnv.getSigmaHSRef();
-		/*if(!InterNonBondedPotentialFlag){
-			
-		}
-		//For Alkane mixtures
-		
-		final double[] HSB = new double[9];
-        HSB[2] = Standard.B2HS(SigmaHSRef);
-        HSB[3] = Standard.B3HS(SigmaHSRef);
-        HSB[4] = Standard.B4HS(SigmaHSRef);
-        HSB[5] = Standard.B5HS(SigmaHSRef);
-        HSB[6] = Standard.B6HS(SigmaHSRef);
-        HSB[7] = Standard.B7HS(SigmaHSRef);
-        HSB[8] = Standard.B8HS(SigmaHSRef);
-		
-		 MayerHardSphere fRef = new MayerHardSphere(SigmaHSRef);
-	     MayerEHardSphere eRef = new MayerEHardSphere(SigmaHSRef);
+	        ClusterAbstract targetCluster = Standard.virialClusterMixture(SimEnv.getnPoints(), new MayerFunction[][]{{fTargetII,fTargetIJ},{fTargetIJ,fTargetJJ}},
+	                new MayerFunction[][]{{eTargetII,eTargetIJ},{eTargetIJ,eTargetJJ}}, nTypes);
+	        targetCluster.setTemperature(temperature);
+	        
+	       
+	        
+	        SpeciesFactory[] speciesFactory = new SpeciesFactory[2];
+	        
+	        speciesFactory[0] = potential1.createSpeciesFactory();
+	        speciesFactory[1] = potential2.createSpeciesFactory();
+	        final SimulationVirialMultiOverlap sim = new SimulationVirialMultiOverlap(space, speciesFactory,temperature,refCluster,targetCluster,nTypes);
+	        
+	      /*  final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new Species[]{(Species)potential1.createSpeciesFactory(),(Species)potential2.createSpeciesFactory()}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
+	                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},SimEnv.isDoWiggle());
+	        */
+	        sim.integratorOS.setNumSubSteps(1000);
+	        if(PObject.getBondedPotentialSets(1) != null){
+	        PObject.setIntraPotentialGroup(1, sim.integrators[1].getPotentialMaster().makePotentialGroup(1));
+	        
+	        }
+	        
+	        if(PObject.getBondedPotentialSets(2) != null){
+		        PObject.setIntraPotentialGroup(2, sim.integrators[1].getPotentialMaster().makePotentialGroup(1));
+		        
+	        
+	        }
+	        
+	        Map AtomSetMapPureII = PObject.getAtomSetsPure(1);
+	        Map AtomSetMapPureJJ = PObject.getAtomSetsPure(2);
+	        Map AtomSetMapMix = PObject.getAtomSetsMix();
+	        
+	        AddPotentials(AtomSetMapPureII,PObject.getInterPotentialGroupII(1),PObject.getPotentialSets());
+	        AddPotentials(AtomSetMapPureJJ,PObject.getInterPotentialGroupII(1),PObject.getPotentialSets());
+	        AddPotentials(AtomSetMapMix,PObject.getInterPotentialGroupII(1),PObject.getPotentialSets());
+	        
+	        
+	        
+	        
+	        
+	        
+	       
+	        
+	        
+	        
+	        
+	    	
+	    }else if(PObject instanceof PotentialObjectPureAtomic){
+
+	    	PObject.setInterPotentialGroupII(new PotentialGroup(2));
+	    	
+	    	MayerGeneral fTargetII = new MayerGeneral(PObject.getInterPotentialGroupII());
+	        MayerEGeneral eTargetII = new MayerEGeneral(PObject.getInterPotentialGroupII());
+	        
+	        ClusterAbstract targetCluster = Standard.virialCluster(SimEnv.getnPoints(), fTargetII, SimEnv.getnPoints()>3, eTargetII, SimEnv.isDoWiggle());
+	        targetCluster.setTemperature(temperature);
+	        
+	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,(Species)potential1.createSpecies(),
+	        		temperature,refCluster,targetCluster, SimEnv.isDoWiggle());
+	        
+	        sim.integratorOS.setNumSubSteps(1000);
+	        
+	        if(PObject.getBondedPotentialSets() != null){
+		        PObject.setIntraPotentialGroup(sim.integrators[1].getPotentialMaster().makePotentialGroup(1));}
+	        
+
+	    	
+	    }else if(PObject instanceof PotentialObjectMixed){
+	    	
+	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure());
+	        MayerEGeneral eTargetII = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure());
+	    	
+	    	PObject.setInterPotentialGroupII(new PotentialGroup(2));
+	        MayerGeneral fTargetJJ= new MayerGeneral(PObject.getInterPotentialGroupII());
+	        MayerEGeneral eTargetJJ = new MayerEGeneral(PObject.getInterPotentialGroupII());
+	        
+	        
+	    	PObject.setInterPotentialGroupIJ(new PotentialGroup(2));
+	        MayerGeneral fTargetIJ= new MayerGeneral(PObject.getInterPotentialGroupIJ());
+	        MayerEGeneral eTargetIJ = new MayerEGeneral(PObject.getInterPotentialGroupIJ());
+	        
+	    
+	        
+	        ClusterAbstract targetCluster = Standard.virialClusterMixture(SimEnv.getnPoints(), new MayerFunction[][]{{fTargetII,fTargetIJ},{fTargetIJ,fTargetJJ}},
+	                new MayerFunction[][]{{eTargetII,eTargetIJ},{eTargetIJ,eTargetJJ}}, nTypes);
+	        targetCluster.setTemperature(temperature);
+	        
+	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,
+	        		(etomica.api.IPotentialMolecular.class.isAssignableFrom(potential1.getPotential())) ? 
+	        				new ISpecies[]{(Species)potential1.createSpecies(),(Species)potential2.createSpecies()} : 
+	        				new ISpecies[]{(Species)potential2.createSpecies(),(Species)potential1.createSpecies()}, 
+	        					nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
+	        					new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},SimEnv.isDoWiggle());
+	        				
+	        sim.integratorOS.setNumSubSteps(1000);
+	        
+	        if(PObject.getBondedPotentialSets() != null){
+		        PObject.setIntraPotentialGroup(sim.integrators[1].getPotentialMaster().makePotentialGroup(1));}
+	        
+	        
+	    	
+	    	
+	    }else if(PObject instanceof PotentialObjectMolecular){
+	    	
+	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
+	        MayerEGeneral eTargetII = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
+	        
+	        MayerGeneral fTargetJJ = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(2));
+	        MayerEGeneral eTargetJJ = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(2));
+	        
+	        MayerGeneral fTargetIJ = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialCross());
+	        MayerEGeneral eTargetIJ = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialCross());
+	        
+
+
+	        
+	        ClusterAbstract targetCluster = Standard.virialClusterMixture(SimEnv.getnPoints(), new MayerFunction[][]{{fTargetII,fTargetIJ},{fTargetIJ,fTargetJJ}},
+	                new MayerFunction[][]{{eTargetII,eTargetIJ},{eTargetIJ,eTargetJJ}}, nTypes);
+	        targetCluster.setTemperature(temperature);
+	        
+	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,(Species)potential1.createSpeciesFactory(), 
+	        					temperature,new ClusterAbstract[]{refCluster,targetCluster},
+	        					new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},SimEnv.isDoWiggle());
+	        sim.integratorOS.setNumSubSteps(1000);
+	        
+	    	
+	    }else if(PObject instanceof PotentialObjectMolecular2){
+	    	
+	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
+	        MayerEGeneral eTargetII = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
+	        
+	        MayerGeneral fTargetJJ = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(2));
+	        MayerEGeneral eTargetJJ = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(2));
+	        
+	        PObject.setInterPotentialGroupIJ(new PotentialGroup(2));
+	        MayerGeneral fTargetIJ= new MayerGeneral(PObject.getInterPotentialGroupIJ());
+	        MayerEGeneral eTargetIJ = new MayerEGeneral(PObject.getInterPotentialGroupIJ());
+	        
+	        ClusterAbstract targetCluster = Standard.virialClusterMixture(SimEnv.getnPoints(), new MayerFunction[][]{{fTargetII,fTargetIJ},{fTargetIJ,fTargetJJ}},
+	                new MayerFunction[][]{{eTargetII,eTargetIJ},{eTargetIJ,eTargetJJ}}, nTypes);
+	        targetCluster.setTemperature(temperature);
+	        
+	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,
+	        				new ISpecies[]{(Species)potential1.createSpeciesFactory(),(Species)potential2.createSpeciesFactory()}, 
+	        					nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
+	        					new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},SimEnv.isDoWiggle());
+	        sim.integratorOS.setNumSubSteps(1000);
+	        
+	        
+
+	    	
+	    }else if(PObject instanceof PotentialObjectPureMolecular){
+	    	
+
+	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure());
+	        MayerEGeneral eTargetII = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure());
+	        
+	        ClusterAbstract targetCluster = Standard.virialCluster(SimEnv.getnPoints(), fTargetII, SimEnv.getnPoints()>3, eTargetII, true);
+	        targetCluster.setTemperature(temperature);
+	        
+	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,(Species)potential1.createSpeciesFactory(),temperature,refCluster,targetCluster,SimEnv.isDoWiggle());
+	        sim.integratorOS.setNumSubSteps(1000);
+	        
+	        
+	    	
+	    }
 	     
-	     
+	     /*
 	     
 	     space = potential[0].getSpace();
 	     
@@ -166,16 +340,51 @@ public class CreateSimulation {
 
 	        
 		
-	}
-	public int Factorial(int n)
-	{
-		if (n == 0)
-			return 1;
-		else
-			return n * Factorial(n-1);
-	}
-*/
+	}*/
+
 	
+	}
+	
+	private void AddPotentials(Map atomSet,
+			PotentialGroup interPotentialGroup, HashMap<String[], IPotential> PotentialSet) {
+		// TODO Auto-generated method stub
+		
+		 	Map AtomSet = atomSet;
+			Set AtomEntries = AtomSet.entrySet();
+			Iterator AtomItr = AtomEntries.iterator();
+			
+			
+			Map PotentialSetsMap = PotentialSet;
+			Set PotentialEntries = PotentialSetsMap.entrySet();
+			Iterator PotentialItr = PotentialEntries.iterator();
+			
+			while(PotentialItr.hasNext()){
+				Map.Entry PotentialEntry = (Map.Entry) PotentialItr.next();
+				
+				String[] PotentialKey= (String[]) PotentialEntry.getKey();
+				while (AtomItr.hasNext()) {
+					Map.Entry AtomEntry = (Map.Entry) AtomItr.next();
+					String[] AtomKey= (String[]) AtomEntry.getKey();
+					if(AtomKey[0] == PotentialKey[0] && AtomKey[1] == PotentialKey[1] || AtomKey[0] == PotentialKey[1] && AtomKey[1] == PotentialKey[0]){
+						Object[] AtomObjects = (Object[]) AtomEntry.getValue();
+						
+						if(PotentialEntry.getValue() instanceof P2LennardJones){
+							interPotentialGroup.addPotential((P2LennardJones)PotentialEntry.getValue(),
+									ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{(IAtomType)AtomObjects[0],(IAtomType)AtomObjects[1]}));
+						}
+						
+					}
+				}
+				if(!AtomItr.hasNext()){
+					AtomItr = AtomEntries.iterator();
+				}
+         }
+		
+	}
+
+
+	public void runSimulation(SimulationEnvironmentObject simenv){
+		
 	}
 
 }

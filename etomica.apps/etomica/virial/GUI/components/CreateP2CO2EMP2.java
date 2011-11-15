@@ -29,8 +29,7 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 	private double bondL;
 	//private IConformation conformation;
 
-	private double temperature;
-	private int noOfSteps;
+
 	private double sigmaHSRef;
 	
 	private int id;
@@ -45,9 +44,9 @@ public class CreateP2CO2EMP2 implements ParameterMapping,Cloneable{
 	
 	private String[] PotentialSites = {"C","O"};
 	
-	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF"};
+	private String[] SimEnvParameters = {"SIGMAHSREF"};
 	
-	private String[] SimEnvValues = {"250.0","10000",Double.toString(5.0*1.149)};
+	private String[] SimEnvValues = {Double.toString(5.0*1.149)};
 	
 	private String[][] ComponentValues = {
 			{"2.7570",Double.toString(Kelvin.UNIT.toSim(28.129)),Double.toString(Electron.UNIT.toSim(0.6512))},
@@ -110,15 +109,9 @@ private String[][] setParameterValues() {
 			}
 		}
 		
-		int NoOfSimEnvParam = 3;
+		int NoOfSimEnvParam = 1;
 		for(int l = 0;l<NoOfSimEnvParam;l++){
-			if(SimEnvParameters[l]=="TEMPERATURE"){
-				setTemperature(Double.parseDouble(SimEnvValues[l]));
-			}
 			
-			if(SimEnvParameters[l]=="STEPS"){
-				setNoOfSteps(Integer.parseInt(SimEnvValues[l]));
-			}
 			
 			if(SimEnvParameters[l]=="SIGMAHSREF"){
 				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
@@ -131,22 +124,6 @@ private String[][] setParameterValues() {
 	
 	
 	
-	public double getTemperature() {
-	return temperature;
-}
-
-public void setTemperature(double temperature) {
-	this.temperature = temperature;
-}
-
-public int getNoOfSteps() {
-	return noOfSteps;
-}
-
-public void setNoOfSteps(int noOfSteps) {
-	this.noOfSteps = noOfSteps;
-}
-
 public double getSigmaHSRef() {
 	return sigmaHSRef;
 }
@@ -225,7 +202,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 
 	
 	//Creates the LJAtom Species
-	public ISpecies createSpeciesFactory(){
+	public ISpecies createSpecies(){
 		SpeciesFactory factory = new SpeciesFactory() {
 	        public ISpecies makeSpecies(ISpace space) {
 	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
@@ -250,7 +227,32 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	    return factory.makeSpecies(this.space);
 	}
 
-
+	
+	public SpeciesFactory createSpeciesFactory(){
+		SpeciesFactory factory = new SpeciesFactory() {
+	        public ISpecies makeSpecies(ISpace space) {
+	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
+	            species.setChildCount(new int[]{1,2});
+	            
+	            IConformation conformation = new IConformation(){
+	    			public void initializePositions(IAtomList atomList) {
+	                    // atoms are C, O and O, so we arrange them as 1-0-2
+	                   
+	                    atomList.getAtom(0).getPosition().E(0);
+	                    atomList.getAtom(1).getPosition().E(0);
+	                    atomList.getAtom(1).getPosition().setX(0, -bondL);
+	                    atomList.getAtom(2).getPosition().E(0);
+	                    atomList.getAtom(2).getPosition().setX(0, +bondL);
+	                }
+	    		};
+	            
+	            species.setConformation(conformation);
+	            return species;
+	        }
+	    };
+	    return factory;
+	}
+	
 	public int getParameterCount() {
 		return 2;
 	}
@@ -273,12 +275,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 			if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 				setBondL(Double.parseDouble(ParameterValue)); 
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-				setTemperature(Double.parseDouble(ParameterValue)); 
-			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-				setNoOfSteps(Integer.parseInt(ParameterValue)); 
-			}
+			
 			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 				setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 			}
@@ -335,16 +332,12 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
 			parameterValue = getBondL();
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-			parameterValue = getTemperature();
-		}
+		
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-			parameterValue = (double) getNoOfSteps();
-		}
+		
 		return parameterValue;
 	}
 	

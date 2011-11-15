@@ -26,8 +26,7 @@ public class CreateP2AlkaneTrappe implements ParameterMapping,Cloneable{
 	private double[] epsilon;
 	
 
-	private double temperature;
-	private int noOfSteps;
+
 	private double sigmaHSRef;
 	private int NSpheres;
 	
@@ -58,9 +57,9 @@ public class CreateP2AlkaneTrappe implements ParameterMapping,Cloneable{
 			
 	private String[] SharedComponentParameters;
 	
-	private String[] SimEnvParameters = {"TEMPERATURE","STEPS","SIGMAHSREF","NUMBER"};
+	private String[] SimEnvParameters = {"SIGMAHSREF","NUMBER"};
 	
-	private String[] SimEnvValues = {"250.0","10000","1.5","4"};
+	private String[] SimEnvValues = {"1.5","4"};
 	
 	private String[][] ParamAndValues; 
 	
@@ -87,10 +86,11 @@ public class CreateP2AlkaneTrappe implements ParameterMapping,Cloneable{
 		space = Space3D.getInstance();
 		switch(index){
 		case 1:
-			PotentialSites = new String[]{"CH4"};
+			PotentialSites = new String[]{"CH3"};
 			ComponentValues = new String[][]{{"3.73",Double.toString(Kelvin.UNIT.toSim(148.0))}};
 			MoleculeDisplayName = "Methane-TRAPPE";
 			AlkaneIndex = 1;
+			setNSpheres(AlkaneIndex);
 			break;
 			
 		case 2:
@@ -100,6 +100,7 @@ public class CreateP2AlkaneTrappe implements ParameterMapping,Cloneable{
 			SharedComponentValues = new String[]{"1.54"};
 			MoleculeDisplayName = "Ethane-TRAPPE";
 			AlkaneIndex = 2;
+			setNSpheres(AlkaneIndex);
 			break;
 		case 3:
 			PotentialSites = new String[]{"CH3","CH2"};
@@ -108,6 +109,7 @@ public class CreateP2AlkaneTrappe implements ParameterMapping,Cloneable{
 			SharedComponentValues = new String[]{"1.54","114.0","62500"};
 			MoleculeDisplayName = "Propane-TRAPPE";
 			AlkaneIndex = 3;
+			setNSpheres(AlkaneIndex);
 			break;
 		case 4:
 			PotentialSites = new String[]{"CH3","CH2"};
@@ -167,22 +169,17 @@ private String[][] setParameterValues() {
 			}
 		}
 		
-		int NoOfSimEnvParam = 3;
+		int NoOfSimEnvParam = 2;
 		for(int l = 0;l<NoOfSimEnvParam;l++){
-			if(SimEnvParameters[l]=="TEMPERATURE"){
-				setTemperature(Double.parseDouble(SimEnvValues[l]));
-			}
 			
-			if(SimEnvParameters[l]=="STEPS"){
-				setNoOfSteps(Integer.parseInt(SimEnvValues[l]));
-			}
 			
 			if(SimEnvParameters[l]=="SIGMAHSREF"){
 				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
 			}
 			
 			if(SimEnvParameters[l]=="NUMBER"){
-				setNSpheres(Integer.parseInt(SimEnvValues[l]));
+				if(NSpheres > 4){
+					setNSpheres(Integer.parseInt(SimEnvValues[l]));}
 			}
 		}
 		return ReturnArray;
@@ -190,21 +187,7 @@ private String[][] setParameterValues() {
 		
 	}
 
-	public double getTemperature() {
-	return temperature;
-}
-
-public void setTemperature(double temperature) {
-	this.temperature = temperature;
-}
-
-public int getNoOfSteps() {
-	return noOfSteps;
-}
-
-public void setNoOfSteps(int noOfSteps) {
-	this.noOfSteps = noOfSteps;
-}
+	
 
 public double getSigmaHSRef() {
 	return sigmaHSRef;
@@ -260,7 +243,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 
 	
 	//Creates the LJAtom Species
-	public ISpecies createSpeciesFactory(){
+	public ISpecies createSpecies(){
 		SpeciesFactory factory;
 		if(AlkaneIndex != 0){
 			factory = new SpeciesFactorySiepmannSpheres(this.space,this.AlkaneIndex);}
@@ -271,7 +254,18 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		}
 	    return factory.makeSpecies(this.space);
 	}
-
+	
+	public SpeciesFactory createSpeciesFactory(){
+		SpeciesFactory factory;
+		if(AlkaneIndex != 0){
+			factory = new SpeciesFactorySiepmannSpheres(this.space,this.AlkaneIndex);}
+		else{
+			String number = Double.toString(this.getDoubleDefaultParameters("NUMBER"));
+			String[] IntSteps= number.split("\\.");
+			factory = new SpeciesFactorySiepmannSpheres(this.space,Integer.parseInt(IntSteps[0]));
+		}
+	    return factory;
+	}
 
 	public int getAlkaneIndex() {
 		return AlkaneIndex;
@@ -307,12 +301,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		if(Parameter.toUpperCase().equals(ParametersDouble.forceconstant.toString())){
 			setForceconstant(Double.parseDouble(ParameterValue)); 
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-			setTemperature(Double.parseDouble(ParameterValue)); 
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-			setNoOfSteps(Integer.parseInt(ParameterValue)); 
-		}
+		
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 		}
@@ -428,16 +417,12 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		if(Parameter.toUpperCase().equals(ParametersDouble.forceconstant.toString())){
 			parameterValue = getTheta();
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-			parameterValue = getTemperature();
-		}
+		
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-			parameterValue = (double) getNoOfSteps();
-		}
+		
 		if(Parameter.toUpperCase().equals(ParametersDouble.NUMBER.toString())){
 			parameterValue = (double) getNSpheres();
 		}

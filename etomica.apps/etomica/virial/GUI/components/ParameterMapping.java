@@ -27,9 +27,9 @@ public interface ParameterMapping {
 	//Added June 20, 2011
 	public String[][] getParamAndValues();
 
-	//public SpeciesFactory createSpeciesFactory();
+	public SpeciesFactory createSpeciesFactory();
 	
-	public ISpecies createSpeciesFactory();
+	public ISpecies createSpecies();
 
 	public Object clone();
 	

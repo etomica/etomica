@@ -18,14 +18,29 @@ public class BondedInteractionAlcohols extends BondedInteraction{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void AddBondedPotentialSets(PotentialObject pObject, ISpace space, int speciesIndex){
+		
+		boolean IndexFlag = false;
+		if(PotentialObjectAtomic.class.isAssignableFrom(pObject.getClass())){
+			IndexFlag = true;
+		}
 		// TODO Auto-generated method stub
 		P3BondAngle P3 = new P3BondAngle(space);
         P3.setAngle(108.5*Math.PI/180);
         P3.setEpsilon(Kelvin.UNIT.toSim(55400));
-        pObject.getBondedIIPotentialSetsSpeciesI(speciesIndex - 1).put(new String[]{"P3-"+Integer.toString(speciesIndex),"P3-"+Integer.toString(speciesIndex)}, P3);
-        
+        if(IndexFlag){
+			pObject.getBondedPotentialSets(speciesIndex).put(new String[]{"P3-"+Integer.toString(speciesIndex),"P3-"+Integer.toString(speciesIndex)}, P3);}
+		else{
+			pObject.getBondedPotentialSets().put(new String[]{"P3-"+Integer.toString(speciesIndex),"P3-"+ Integer.toString(speciesIndex)}, P3);
+		}
         int[][] triplets = new int[][] {{0,1,2}};
-        pObject.getIteratorSetsSpeciesI(speciesIndex - 1).put(new String[]{"P3-"+Integer.toString(speciesIndex),"P3-"+Integer.toString(speciesIndex)}, new Atomset3IteratorIndexList(triplets));
+        if(IndexFlag){
+        	pObject.getIteratorSets(speciesIndex).put(new String[]{"P3-"+Integer.toString(speciesIndex),
+        														"P3-"+Integer.toString(speciesIndex)}, new Atomset3IteratorIndexList(triplets));
+        }
+        else{
+        	pObject.getIteratorSets().put(new String[]{"P3-"+Integer.toString(speciesIndex),
+											"P3-"+Integer.toString(speciesIndex)}, new Atomset3IteratorIndexList(triplets));
+        }
 	}
 
 }
