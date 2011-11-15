@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
-import etomica.virial.GUI.components.SimulationEnvironment;
+import etomica.virial.GUI.components.SimulationEnvironmentObject;
 
 public class SimulationParameters extends JPanel{
 	
@@ -28,10 +28,11 @@ public class SimulationParameters extends JPanel{
 	
 	private JTextField temperatureField;
 	private JTextField NoOfStepsField;
-	private JTextField SigmaHSRefField;
+	private JTextField SigmaHSRefFieldA;
+	private JTextField SigmaHSRefFieldB;
 	
 	
-	SimulationParameters(SimulationEnvironment ParamObject){
+	SimulationParameters(SimulationEnvironmentObject ParamObject){
 		
 			CloseWindow = new JButton("Cancel");
 			SaveValues = new JButton("Save");
@@ -66,26 +67,43 @@ public class SimulationParameters extends JPanel{
 			NoOfStepsField.setBorder(compoundField2);
 			
 			
-			SigmaHSRefField = new JTextField();
-			SigmaHSRefField.setColumns(10);
-			JLabel SigmaHSRefLabel = new JLabel("SigmaHSRef");
-			SigmaHSRefLabel.setLabelFor(NoOfStepsField);
-			if(ParamObject.getSigmaHSRef() == 0.0){
-				SigmaHSRefField.setText("0.0");
-				SigmaHSRefField.setVisible(false);
-				SigmaHSRefLabel.setVisible(false);
+			SigmaHSRefFieldA = new JTextField();
+			SigmaHSRefFieldA.setColumns(10);
+			JLabel SigmaHSRefLabelA = new JLabel("SigmaHSRefA");
+			SigmaHSRefLabelA.setLabelFor(SigmaHSRefFieldA);
+			if(ParamObject.getSigmaHSRefA() == 0.0){
+				SigmaHSRefFieldA.setText("0.0");
+				SigmaHSRefFieldA.setVisible(false);
+				SigmaHSRefLabelA.setVisible(false);
 			}else{
-			SigmaHSRefField.setText(Double.toString(ParamObject.getSigmaHSRef()));}
+			SigmaHSRefFieldA.setText(Double.toString(ParamObject.getSigmaHSRefA()));}
 			
 			
 			Border compoundField3;
 			compoundField3 = BorderFactory.createCompoundBorder(
 		    		BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder());
-			SigmaHSRefField.setBorder(compoundField3);
+			SigmaHSRefFieldA.setBorder(compoundField3);
 		
+			
+			SigmaHSRefFieldB = new JTextField();
+			SigmaHSRefFieldB.setColumns(10);
+			JLabel SigmaHSRefLabelB = new JLabel("SigmaHSRefB");
+			SigmaHSRefLabelB.setLabelFor(SigmaHSRefFieldB);
+			if(ParamObject.getSigmaHSRefB() == 0.0){
+				SigmaHSRefFieldB.setText("0.0");
+				SigmaHSRefFieldB.setVisible(false);
+				SigmaHSRefLabelB.setVisible(false);
+			}else{
+			SigmaHSRefFieldB.setText(Double.toString(ParamObject.getSigmaHSRefB()));}
+			
+			
+			Border compoundField4;
+			compoundField4 = BorderFactory.createCompoundBorder(
+		    		BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder());
+			SigmaHSRefFieldB.setBorder(compoundField4);
 
-			JComponent[] OtherParamLeft= {temperatureLabel, NoOfStepsLabel, SigmaHSRefLabel,SaveValues};
-			JComponent[] OtherParamRight = { temperatureField,NoOfStepsField,SigmaHSRefField,CloseWindow};
+			JComponent[] OtherParamLeft= {temperatureLabel, NoOfStepsLabel, SigmaHSRefLabelA,SigmaHSRefLabelB,SaveValues};
+			JComponent[] OtherParamRight = { temperatureField,NoOfStepsField,SigmaHSRefFieldA,SigmaHSRefFieldB,CloseWindow};
 		    addLeftRightComponents(OtherParamLeft,OtherParamRight,gridbagOtherParam,this);
 		    
 		    
@@ -107,8 +125,12 @@ public class SimulationParameters extends JPanel{
 		return NoOfStepsField;
 	}
 
-	public JTextField getSigmaHSRefField() {
-		return SigmaHSRefField;
+	public JTextField getSigmaHSRefFieldA() {
+		return SigmaHSRefFieldA;
+	}
+	
+	public JTextField getSigmaHSRefFieldB() {
+		return SigmaHSRefFieldB;
 	}
 
 	private void addLeftRightComponents(JComponent[] ComponentLeft,

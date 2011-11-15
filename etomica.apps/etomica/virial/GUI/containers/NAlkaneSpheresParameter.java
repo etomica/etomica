@@ -19,13 +19,17 @@ import etomica.space1d.Space1D;
 
 public class NAlkaneSpheresParameter  extends JPanel {
 	
-	private JButton CloseWindow;
-	private JButton SaveValues;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	public JButton CloseWindow;
+	public JButton SaveValues;
 	
-	private JTextField NoOfSpheres;
-	private static final NAlkaneSpheresParameter INSTANCE = new NAlkaneSpheresParameter();
+	public JTextField NoOfSpheres;
+	//private static final NAlkaneSpheresParameter INSTANCE = new NAlkaneSpheresParameter();
 	
-	private NAlkaneSpheresParameter(){
+	public NAlkaneSpheresParameter(){
 		
 		
 		CloseWindow = new JButton("Cancel");
@@ -52,11 +56,11 @@ public class NAlkaneSpheresParameter  extends JPanel {
 		
 		
 	}
-	
+	/*
 	public static NAlkaneSpheresParameter getInstance() {
 		return INSTANCE;
 		
-	}
+	}*/
 	private void addLeftRightComponents(JComponent[] ComponentLeft,
 			JComponent[] ComponentRight,
             GridBagLayout gridbag,

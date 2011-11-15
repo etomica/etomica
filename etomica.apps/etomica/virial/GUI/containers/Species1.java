@@ -51,6 +51,8 @@ import javax.swing.table.TableModel;
 
 
 
+import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.virial.GUI.components.CheckCompatability;
 import etomica.virial.GUI.components.CreateP22CLJQ;
 import etomica.virial.GUI.components.CreateP2AlkaneSKS;
@@ -66,6 +68,7 @@ import etomica.virial.GUI.components.CreateSimulation;
 import etomica.virial.GUI.components.ParameterMapping;
 import etomica.virial.GUI.components.PotentialObject;
 import etomica.virial.GUI.components.SimulationEnvironment;
+import etomica.virial.GUI.components.SimulationEnvironmentObject;
 import etomica.virial.GUI.models.ParametersTableModel;
 import etomica.virial.GUI.models.ParametersDouble;
 
@@ -131,13 +134,16 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	
 	private int Alkane1Spheres = 4;
 	private int Alkane2Spheres = 4;
-	private NAlkaneSpheresParameter NSpheres;
-	private JFrame NAlkaneFrame;
+	private NAlkaneSpheresParameter NSpheres1;
+	private NAlkaneSpheresParameter NSpheres2;
+	private JFrame NAlkaneFrame1;
+	private JFrame NAlkaneFrame2;
 	
 	//Can be separated From Species Class!!
 	private SimulationParameters SimulationEnvParam;
 	private JFrame OtherParamViewFrame;
-	private SimulationEnvironment OtherParamObject;
+	private SimulationEnvironmentObject OtherParamObject;
+	private SimulationEnvironment SimENV;
 	private PotentialObject PObject;
 	private CreateSimulation simulation;
 	private Console console;
@@ -1062,40 +1068,24 @@ public void actionPerformed(ActionEvent e){
 		 
 		if(e.getSource().equals(OtherParamValues)){
 			OtherParamViewFrame = new JFrame("Simulation Environment");
-			double SigmaHSRef = 0;
-			if(potential2 == null){
-				if(potential1.getClass().getName().contains("Alkane")){
-					SigmaHSRef = 0;
-				}
-				else{
-					SigmaHSRef = potential1.getDoubleDefaultParameters("SIGMAHSREF");
-				}
-			}
-			else{
-				if(potential1.getClass().getName().contains("Alkane")&&potential2.getClass().getName().contains("Alkane")){
-					SigmaHSRef = 0;
-				}
-				else if(potential1.getClass().getName().contains("CO2")&&potential2.getClass().getName().contains("Alkane")){
-					SigmaHSRef = 7.0;
-				}
-			}
-			
-			String NoOfSteps = Double.toString(potential1.getDoubleDefaultParameters("STEPS"));
-			String[] IntSteps= NoOfSteps.split("\\.");
+			SimulationEnvironment SimENV = SimulationEnvironment.getInstance();
 			if(OtherParamObject == null){
-				OtherParamObject = new SimulationEnvironment(potential1.getDoubleDefaultParameters("TEMPERATURE"),Integer.parseInt(IntSteps[0]),SigmaHSRef);
+				OtherParamObject = new SimulationEnvironmentObject(SimENV.getTemperature(),SimENV.noOfSteps, potential1,potential2);
 			}
 			if(SimulationEnvParam == null){
 			SimulationEnvParam = new SimulationParameters(OtherParamObject);}
 			OtherParamViewFrame.add(SimulationEnvParam);
 			SimulationEnvParam.getCloseWindow().addActionListener(this);
 			SimulationEnvParam.getSaveValues().addActionListener(this);
-			OtherParamViewFrame.setMinimumSize(new Dimension(300,250));
+			OtherParamViewFrame.setMinimumSize(new Dimension(500,250));
 			OtherParamViewFrame.setBounds(this.getParent().getParent().getWidth(), 0, 0, 0);
 			
 			OtherParamViewFrame.setVisible(true);
-			if(NAlkaneFrame != null){
-				NAlkaneFrame.setVisible(true);
+			if(NAlkaneFrame1 != null){
+				NAlkaneFrame1.setVisible(true);
+			}
+			if(NAlkaneFrame2 != null){
+				NAlkaneFrame2.setVisible(true);
 			}
 		}
 		
@@ -1105,13 +1095,23 @@ public void actionPerformed(ActionEvent e){
 			}
 			
 			if(e.getSource().equals(SimulationEnvParam.getSaveValues())){
-				potential1.setParameter("TEMPERATURE", SimulationEnvParam.getTemperatureField().getText());
-				potential1.setParameter("STEPS",SimulationEnvParam.getNoOfStepsField().getText());
-				if(SimulationEnvParam.getSigmaHSRefField().getText() != "0.0"){
-					potential1.setParameter("SIGMAHSREF",SimulationEnvParam.getSigmaHSRefField().getText());}
+				
+				if(SimENV == null){
+					SimENV = SimulationEnvironment.getInstance();
+				}
+				SimENV.setTemperature(Double.parseDouble(SimulationEnvParam.getTemperatureField().getText()));
+				SimENV.setNoOfSteps(Integer.parseInt(SimulationEnvParam.getNoOfStepsField().getText()));
+				if(SimulationEnvParam.getSigmaHSRefFieldA().getText() != "0.0"){
+					potential1.setParameter("SIGMAHSREF",SimulationEnvParam.getSigmaHSRefFieldA().getText());}
+				if(potential2 != null){
+					if(SimulationEnvParam.getSigmaHSRefFieldB().getText() != "0.0"){
+						potential2.setParameter("SIGMAHSREF",SimulationEnvParam.getSigmaHSRefFieldB().getText());
+					}
+				}
 				OtherParamObject.setTemperature(Double.parseDouble(SimulationEnvParam.getTemperatureField().getText()));
 				OtherParamObject.setNoOfSteps(Integer.parseInt(SimulationEnvParam.getNoOfStepsField().getText()));
-				OtherParamObject.setSigmaHSRef(Double.parseDouble(SimulationEnvParam.getSigmaHSRefField().getText()));
+				OtherParamObject.setSigmaHSRefA(Double.parseDouble(SimulationEnvParam.getSigmaHSRefFieldA().getText()));
+				OtherParamObject.setSigmaHSRefB(Double.parseDouble(SimulationEnvParam.getSigmaHSRefFieldB().getText()));
 				OtherParamViewFrame.setVisible(false);
 			}
 			
@@ -1126,119 +1126,85 @@ public void actionPerformed(ActionEvent e){
 			}
 		}
 		
-		if(NSpheres!= null){
-			if(e.getSource().equals(NSpheres.getCloseWindow())){
-				if(AddFlag){
-					Alkane2Spheres = Integer.parseInt(NSpheres.getNoOfSpheres().getText());
-					if(OtherParamObject != null){
-					OtherParamObject.setAlkane1Spheres(Alkane2Spheres);
+		if(NSpheres1!= null){
+			
+			if(e.getSource().equals(NSpheres1.getCloseWindow())){
+				Alkane1Spheres = Integer.parseInt(NSpheres1.getNoOfSpheres().getText());
+				potential1.setParameter("NUMBER", Integer.toString(Alkane1Spheres));
+				if(OtherParamObject != null){
+					OtherParamObject.setAlkane1Spheres(Alkane1Spheres);
+				}
+				NAlkaneFrame1.setVisible(false);
+			}
+			
+			if(e.getSource().equals(NSpheres1.getSaveValues())){
+				Alkane1Spheres = Integer.parseInt(NSpheres1.getNoOfSpheres().getText());
+				potential1.setParameter("NUMBER", Integer.toString(Alkane1Spheres));
+				if(OtherParamObject != null){
 					
-					}
-					potential2.setParameter("NUMBER", Integer.toString(Alkane2Spheres));
-				}else{
-					Alkane1Spheres = Integer.parseInt(NSpheres.getNoOfSpheres().getText());
-					if(OtherParamObject != null){
-						OtherParamObject.setAlkane1Spheres(Alkane1Spheres);}
-					potential1.setParameter("NUMBER", Integer.toString(Alkane1Spheres));
+					OtherParamObject.setAlkane1Spheres(Alkane1Spheres);
+					
 				}
-				NAlkaneFrame.setVisible(false);
+				NAlkaneFrame1.setVisible(false);
 			}
 			
-			if(e.getSource().equals(NSpheres.getSaveValues())){
-				
-				if(AddFlag){
-					Alkane2Spheres = Integer.parseInt(NSpheres.getNoOfSpheres().getText());
-					if(OtherParamObject != null){
-						OtherParamObject.setAlkane1Spheres(Alkane2Spheres);}
-					potential2.setParameter("NUMBER", Integer.toString(Alkane2Spheres));
-				}else{
-					Alkane1Spheres = Integer.parseInt(NSpheres.getNoOfSpheres().getText());
-					if(OtherParamObject != null){
-						OtherParamObject.setAlkane1Spheres(Alkane1Spheres);}
-					potential1.setParameter("NUMBER", Integer.toString(Alkane1Spheres));
+		}
+		
+		if(NSpheres2!= null){
+			if(e.getSource().equals(NSpheres2.getCloseWindow())){
+				Alkane2Spheres = Integer.parseInt(NSpheres2.getNoOfSpheres().getText());
+				potential2.setParameter("NUMBER", Integer.toString(Alkane2Spheres));
+				if(OtherParamObject != null){
+					
+					OtherParamObject.setAlkane2Spheres(Alkane2Spheres);
+					
 				}
-				NAlkaneFrame.setVisible(false);
+				NAlkaneFrame2.setVisible(false);
 			}
 			
+			if(e.getSource().equals(NSpheres2.getSaveValues())){
+				Alkane2Spheres = Integer.parseInt(NSpheres2.getNoOfSpheres().getText());
+				potential2.setParameter("NUMBER", Integer.toString(Alkane2Spheres));
+				if(OtherParamObject != null){
+					
+					OtherParamObject.setAlkane2Spheres(Alkane2Spheres);
+					
+				}
+				NAlkaneFrame2.setVisible(false);
+			}
 			
 		}
 		
 		if(e.getSource().equals(Run)){
-			//simulation = new CreateSimulation(sList);
-			ParameterMapping[] AllPotentials = new ParameterMapping[2];
-			AllPotentials[0] = potential1;
-			
-			if(potential2 != null){
-				AllPotentials[1] = potential2;
+
+			simulation = new CreateSimulation(potential1, potential2);
+			if(SimENV == null){
+				SimENV = SimulationEnvironment.getInstance();
 			}
-			simulation = new CreateSimulation(AllPotentials,Molecule1Count,Molecule2Count);
 			
 			/*if(console==null){
 				console = new Console();}*/
 	
 			try {
 				if(OtherParamObject == null){
-					double SigmaHSRef = 0;
-					if(potential2 == null){
-						if(potential1.getClass().getName().contains("Alkane")){
-							SigmaHSRef = 0;
-						}
-						else{
-							SigmaHSRef = potential1.getDoubleDefaultParameters("SIGMAHSREF");
-						}
-					}
-					else{
-						if(potential1.getClass().getName().contains("Alkane")&&potential2.getClass().getName().contains("Alkane")){
-							SigmaHSRef = 0;
-						}
-						else if(potential1.getClass().getName().contains("CO2")&&potential2.getClass().getName().contains("Alkane")){
-							SigmaHSRef = 7.0;
-						}
-					}
-					
-					String NoOfSteps = Double.toString(potential1.getDoubleDefaultParameters("STEPS"));
-					String[] IntSteps= NoOfSteps.split("\\.");
-					OtherParamObject = new SimulationEnvironment(potential1.getDoubleDefaultParameters("TEMPERATURE"),Integer.parseInt(IntSteps[0]),SigmaHSRef);
-
-					if(potential1.getMoleculeDisplayName().contains("n-Alkane")){
-						OtherParamObject.setAlkane1Spheres(Alkane1Spheres);
-						
-					}
-					if(potential1.getMoleculeDisplayName().contains("Methane")){
-						OtherParamObject.setAlkane1Spheres(1);
-						
-					}
-					if(potential1.getMoleculeDisplayName().contains("Ethane")){
-						OtherParamObject.setAlkane1Spheres(2);
-						
-					}
-					if(potential1.getMoleculeDisplayName().contains("Propane")){
-						OtherParamObject.setAlkane1Spheres(3);
-						
-					}
-					if(potential2 != null){
-						if(potential2.getMoleculeDisplayName().contains("n-Alkane")){
-						
-							OtherParamObject.setAlkane2Spheres(Alkane2Spheres);
-						}
-						if(potential2.getMoleculeDisplayName().contains("Methane")){
-							OtherParamObject.setAlkane2Spheres(1);
-							
-						}
-						if(potential2.getMoleculeDisplayName().contains("Ethane")){
-							OtherParamObject.setAlkane2Spheres(2);
-							
-						}
-						if(potential2.getMoleculeDisplayName().contains("Propane")){
-							OtherParamObject.setAlkane2Spheres(3);
-							
-						}
-					}
-				}
+					OtherParamObject = new SimulationEnvironmentObject(SimENV.getTemperature(),SimENV.getNoOfSteps(),potential1,potential2);
+				}	
+				OtherParamObject.setSpeciesA(Molecule1Count);
+				OtherParamObject.setSpeciesB(Molecule2Count);
+				OtherParamObject.setnPoints();
+				OtherParamObject.calculateSystemSigmaHSRef(potential1, potential2);
+				
 				
 				CheckCompatability checkSpecies = new CheckCompatability();
 				PObject = checkSpecies.checkIfCompatible(potential1,potential2,OtherParamObject);
-				simulation.runSimulation(OtherParamObject,PObject);
+				if(PObject == null){
+					if(potential2 == null){
+						simulation.runSimulation(OtherParamObject);
+					}
+				}else{
+					simulation.runSimulation(OtherParamObject,PObject);
+				}
+				
 			} catch (NoSuchMethodException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -1570,15 +1536,29 @@ public void actionPerformed(ActionEvent e){
 							Description.append("We now create a single n Molecule\n");
 							Description.append("Modelled as TRAPPE\n");
 						}
-						NAlkaneFrame = new JFrame("n-Alkane");
-						
-						NSpheres = NAlkaneSpheresParameter.getInstance();
-						NAlkaneFrame.add(NSpheres);
-						NAlkaneFrame.setMinimumSize(new Dimension(500,200));
-						NAlkaneFrame.setBounds(this.getParent().getParent().getWidth(), 0, 0, 0);
-						NAlkaneFrame.setVisible(true);
-						NSpheres.getCloseWindow().addActionListener(this);
-						NSpheres.getSaveValues().addActionListener(this);
+						if(!AddFlag){
+							NAlkaneFrame1 = new JFrame("n-Alkane SpeciesA");
+							if(NSpheres1 == null){
+								NSpheres1 = new NAlkaneSpheresParameter();
+								NAlkaneFrame1.add(NSpheres1);
+								NAlkaneFrame1.setMinimumSize(new Dimension(500,200));
+								NAlkaneFrame1.setBounds(this.getParent().getParent().getWidth(), 0, 0, 0);
+								NAlkaneFrame1.setVisible(true);
+								NSpheres1.getCloseWindow().addActionListener(this);
+								NSpheres1.getSaveValues().addActionListener(this);
+							}
+						}else{
+							NAlkaneFrame2 = new JFrame("n-Alkane SpeciesB");
+							if(NSpheres2 == null){
+								NSpheres2 = new NAlkaneSpheresParameter();
+								NAlkaneFrame2.add(NSpheres2);
+								NAlkaneFrame2.setMinimumSize(new Dimension(500,200));
+								NAlkaneFrame2.setBounds(this.getParent().getParent().getWidth(), 0, 0, 0);
+								NAlkaneFrame2.setVisible(true);
+								NSpheres2.getCloseWindow().addActionListener(this);
+								NSpheres2.getSaveValues().addActionListener(this);
+							}
+						}
 						
 						
 					}
@@ -1651,7 +1631,7 @@ public void actionPerformed(ActionEvent e){
 							
 							}
 							ParameterArray = potential1.getParametersArray();
-							if(NSpheres!= null){
+							if(NSpheres1!= null){
 								potential1.setParameter("NUMBER", Integer.toString(Alkane1Spheres));
 							}
 							//potential1.createSpeciesFactory();
@@ -1668,7 +1648,7 @@ public void actionPerformed(ActionEvent e){
 									if(C[i].getParameterTypes().length > 0){
 										
 											ParameterMapping TempPotential2 = (ParameterMapping) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
-											if(TempPotential2.getMoleculeDisplayName() == potential1.getMoleculeDisplayName()){
+											if(TempPotential2.getMoleculeDisplayName() == potential1.getMoleculeDisplayName() && NSpheres1 == null && NSpheres2 == null){
 												//custom title, error icon
 												MessageFrame = new JFrame("Alert");
 												MessageAlert = new DialogBoxPanel(MessageFrame,"You ve chosen the same potential. Please choose another");
@@ -1686,7 +1666,7 @@ public void actionPerformed(ActionEvent e){
 							else{
 								
 									ParameterMapping TempPotential2 = (ParameterMapping) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
-									if(TempPotential2.getMoleculeDisplayName() == potential1.getMoleculeDisplayName()){
+									if(TempPotential2.getMoleculeDisplayName() == potential1.getMoleculeDisplayName() && NSpheres1 == null && NSpheres2 == null){
 										//custom title, error icon
 										MessageFrame = new JFrame("Alert");
 										MessageAlert = new DialogBoxPanel(MessageFrame,"You ve chosen the same potential. Please choose another");
@@ -1699,7 +1679,7 @@ public void actionPerformed(ActionEvent e){
 								
 							}
 							ParameterArray = potential2.getParametersArray();
-							if(NSpheres!= null){
+							if(NSpheres2!= null){
 								potential2.setParameter("NUMBER", Integer.toString(Alkane2Spheres));
 							}
 							//potential2.createSpeciesFactory();
