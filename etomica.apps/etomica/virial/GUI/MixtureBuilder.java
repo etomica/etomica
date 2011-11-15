@@ -18,13 +18,13 @@ public class MixtureBuilder{
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				MainFrame MixtureBuilder = new MainFrame("Mixture Builder");
+				MainFrame mixtureBuilder = new MainFrame("Mixture Builder");
 				//MainFrame DefaultValueFrame = new MainFrame("Default Values");
 			
 				SuperModel superModel = new SuperModel();
 				//Instantiate the view for MixtureParameters
 				//DefaultValuesView DWindow = new DefaultValuesView(DefaultValueFrame,superModel);
-				ParameterWindowView PWindow = new ParameterWindowView(MixtureBuilder,superModel);
+				ParameterWindowView PWindow = new ParameterWindowView(mixtureBuilder,superModel);
 				
 				@SuppressWarnings("unused")
 				ParameterController controller = new ParameterController(PWindow,superModel);

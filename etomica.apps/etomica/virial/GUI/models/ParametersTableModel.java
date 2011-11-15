@@ -7,9 +7,9 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.table.AbstractTableModel;
 
 
-import etomica.virial.GUI.components.CreateP22CLJQ;
-import etomica.virial.GUI.components.CreateP2LJ;
-import etomica.virial.GUI.components.CreateP2LJQ;
+import etomica.virial.GUI.components.CreateSpeciesLJ_2CLJQ;
+import etomica.virial.GUI.components.CreateSpeciesLJ_LJ;
+import etomica.virial.GUI.components.CreateSpeciesLJ_LJQ;
 
 public class ParametersTableModel extends AbstractTableModel  {
 
@@ -81,7 +81,7 @@ public class ParametersTableModel extends AbstractTableModel  {
 	
 	public static void main(String[] args){
 		ParametersTableModel ljt = new ParametersTableModel();
-		CreateP22CLJQ p2LJ = new CreateP22CLJQ();
+		CreateSpeciesLJ_2CLJQ p2LJ = new CreateSpeciesLJ_2CLJQ();
 		//ljt.UpdateObjectData(p2LJ.getParametersArray());
 		//System.out.println(ljt.getData1());
 	}
