@@ -26,7 +26,7 @@ import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.GUI.containers.DialogBoxPanel;
 import etomica.virial.GUI.models.Sites;
 
-public class CheckCompatability {
+public class CreatePotentialCollections {
 
 	private DialogBoxPanel messageAlert;
 	
@@ -51,7 +51,7 @@ public class CheckCompatability {
 
 	
 	private SimulationEnvironmentObject SimEnv;
-	private ParameterMapping[] potential;
+	private MixtureBuilderSpeciesFactory[] potential;
 	
 	
 	
@@ -60,16 +60,16 @@ public class CheckCompatability {
 	private ArrayList<String[]> UnlikePairsWithoutDuplicates;
 	private ArrayList<String[]> UnlikePairsWithoutCrossPairs;
 	
-	private PotentialObject PObject;
+	private PotentialCollectionFactory PObject;
 	
 	
 
 	@SuppressWarnings("unchecked")
-	public PotentialObject checkIfCompatible(ParameterMapping potential1,ParameterMapping potential2,SimulationEnvironmentObject SimENV){
+	public PotentialCollectionFactory checkIfCompatible(MixtureBuilderSpeciesFactory potential1,MixtureBuilderSpeciesFactory potential2,SimulationEnvironmentObject SimENV){
 		
 		//PObject = new PotentialObject();
 		SimEnv = SimENV;
-		potential = new ParameterMapping[2];
+		potential = new MixtureBuilderSpeciesFactory[2];
 		potential[0] = potential1;
 		potential[1] = potential2;
 
@@ -158,14 +158,14 @@ public class CheckCompatability {
 					if(potential1.getPotential().equals(potential2.getPotential())){
 						potentialCheckFlag = true;	
 						//The cross potential is also of same type
-						PObject = new PotentialObjectMolecular();
+						PObject = new MolecularPotentialsCollection();
 						makeMolecularPairPotentials(potential,1);
 						
 					}
 					else if( potential1.getNonBondedInteractionModel().equals(potential2.getNonBondedInteractionModel()) ){
 						//CrossPotentials are site-site interactions and modelled using either lennard Jones or Exp-6 potential
 						potentialCheckFlag = true;
-						PObject = new PotentialObjectMolecular2();
+						PObject = new MolecularPotentials2Collection();
 						makeMolecularPairPotentials(potential,2);
 					}
 				}
@@ -175,13 +175,13 @@ public class CheckCompatability {
 					
 					if(potential1.getPotential().equals(potential2.getPotential())){
 						potentialCheckFlag = true;
-						PObject = new PotentialObjectAtomic();
+						PObject = new AtomicPotentialsCollection();
 						makeAtomicPairPotentials(potential,1);
 
 					}
 					else if( potential1.getNonBondedInteractionModel().equals(potential2.getNonBondedInteractionModel()) ){
 						potentialCheckFlag = true;
-						PObject = new PotentialObjectAtomic();
+						PObject = new AtomicPotentialsCollection();
 						makeAtomicPairPotentials(potential,1);
 					}
 					
@@ -190,7 +190,7 @@ public class CheckCompatability {
 						
 						PObject.setBondedPotentialSets(1,new HashMap<String[],IPotential>());
 						PObject.setIteratorSets(1, new HashMap<String[],AtomsetIteratorBasisDependent>());
-						BondedInteraction bInteractions = new BondedInteractionAlkanes(SimEnv.getAlkane1Spheres());
+						BondedPotentialCollectionFactory bInteractions = new BondedPotentialCollectionAlkanes(SimEnv.getAlkane1Spheres());
 						bInteractions.AddBondedPotentialSets(PObject,potential[0].getSpace(),1);
 						if(SimEnv.getAlkane1Spheres() > 3){
 							PObject.setMCMoveClusterTorsionMulti(1,new MCMoveClusterTorsionMulti[2]);
@@ -200,7 +200,7 @@ public class CheckCompatability {
 						PObject.setBondedPotentialSets(1,new HashMap<String[],IPotential>());
 						PObject.setIteratorSets(1, new HashMap<String[],AtomsetIteratorBasisDependent>());
 						
-						BondedInteraction bInteractions = new BondedInteractionAlcohols();
+						BondedPotentialCollectionFactory bInteractions = new BondedPotentialCollectionAlcohols();
 						bInteractions.AddBondedPotentialSets(PObject,potential[0].getSpace(),1);
 					}
 					
@@ -210,7 +210,7 @@ public class CheckCompatability {
 						
 						PObject.setBondedPotentialSets(2,new HashMap<String[],IPotential>());
 						PObject.setIteratorSets(2, new HashMap<String[],AtomsetIteratorBasisDependent>());
-						BondedInteraction bInteractions = new BondedInteractionAlkanes(SimEnv.getAlkane2Spheres());
+						BondedPotentialCollectionFactory bInteractions = new BondedPotentialCollectionAlkanes(SimEnv.getAlkane2Spheres());
 						bInteractions.AddBondedPotentialSets(PObject,potential[1].getSpace(),2);
 						if(SimEnv.getAlkane2Spheres() > 3){
 							PObject.setMCMoveClusterTorsionMulti(2,new MCMoveClusterTorsionMulti[2]);
@@ -219,7 +219,7 @@ public class CheckCompatability {
 						
 						PObject.setBondedPotentialSets(2,new HashMap<String[],IPotential>());
 						PObject.setIteratorSets(2, new HashMap<String[],AtomsetIteratorBasisDependent>());
-						BondedInteraction bInteractions = new BondedInteractionAlcohols();
+						BondedPotentialCollectionFactory bInteractions = new BondedPotentialCollectionAlcohols();
 						bInteractions.AddBondedPotentialSets(PObject,potential[1].getSpace(),2);
 					}
 					
@@ -231,18 +231,18 @@ public class CheckCompatability {
 				if( potential1.getNonBondedInteractionModel().equals(potential2.getNonBondedInteractionModel()) ){
 					potentialCheckFlag = true;
 					if(PotentialTypeFlag[0] == 'M'){
-						ParameterMapping[] TempPotential = new ParameterMapping[2];
+						MixtureBuilderSpeciesFactory[] TempPotential = new MixtureBuilderSpeciesFactory[2];
 						TempPotential[0] = potential[0];
-						PObject = new PotentialObjectMixed();
+						PObject = new MixedPotentialsCollection();
 						makeMolecularPairPotentials(TempPotential,3);
 						//Will make like pair interactions and unlike pair interactions
 						makeAtomicPairPotentials(potential,3);
 						
 					}
 					else{
-						ParameterMapping[] TempPotential = new ParameterMapping[2];
+						MixtureBuilderSpeciesFactory[] TempPotential = new MixtureBuilderSpeciesFactory[2];
 						TempPotential[0] = potential[1];
-						PObject = new PotentialObjectMixed();
+						PObject = new MixedPotentialsCollection();
 						makeMolecularPairPotentials(TempPotential,3);
 						//Will make like pair interactions and unlike pair interactions
 						makeAtomicPairPotentials(potential,2);
@@ -281,7 +281,7 @@ public class CheckCompatability {
 				setSpecies1AtomicFlag(false);
 				setSpecies2AtomicFlag(false);
 
-				PObject = new PotentialObjectPureMolecular();
+				PObject = new MolecularPotentialCollection();
 				PotentialTypeFlag[0] = 'M';
 				
 				
@@ -300,7 +300,7 @@ public class CheckCompatability {
 				Species2ChargeFlag = false;
 				Species2MomentFlag = false;
 				
-				ParameterMapping[] TempPotential = new ParameterMapping[2];
+				MixtureBuilderSpeciesFactory[] TempPotential = new MixtureBuilderSpeciesFactory[2];
 				TempPotential[0] = potential[0];
 				makeMolecularPairPotentials(TempPotential,3);
 				potentialCheckFlag = true;
@@ -314,12 +314,12 @@ public class CheckCompatability {
 					setSpecies1AtomicFlag(true);
 					setSpecies2AtomicFlag(false);
 					PotentialTypeFlag[0] = 'A';
-					PObject = new PotentialObjectPureAtomic();
+					PObject = new AtomicPotentialCollection();
 					if(SimEnv.getAlkane1Spheres() > 2){
 					
 						PObject.setBondedPotentialSets(new HashMap<String[],IPotential>());
 						PObject.setIteratorSets(new HashMap<String[],AtomsetIteratorBasisDependent>());
-						BondedInteraction bInteractions = new BondedInteractionAlkanes(SimEnv.getAlkane1Spheres());
+						BondedPotentialCollectionFactory bInteractions = new BondedPotentialCollectionAlkanes(SimEnv.getAlkane1Spheres());
 						bInteractions.AddBondedPotentialSets(PObject,potential[0].getSpace(),1);
 						if(SimEnv.getAlkane1Spheres() > 3){
 							PObject.setMCMoveClusterTorsionMulti(new MCMoveClusterTorsionMulti[2]);
@@ -329,7 +329,7 @@ public class CheckCompatability {
 						PObject.setBondedPotentialSets(new HashMap<String[],IPotential>());
 						PObject.setIteratorSets(new HashMap<String[],AtomsetIteratorBasisDependent>());
 					
-						BondedInteraction bInteractions = new BondedInteractionAlcohols();
+						BondedPotentialCollectionFactory bInteractions = new BondedPotentialCollectionAlcohols();
 						bInteractions.AddBondedPotentialSets(PObject,potential[0].getSpace(),1);
 					}
 				
@@ -350,7 +350,7 @@ public class CheckCompatability {
 					Species2MomentFlag = false;
 			
 
-					ParameterMapping[] TempPotential = new ParameterMapping[2];
+					MixtureBuilderSpeciesFactory[] TempPotential = new MixtureBuilderSpeciesFactory[2];
 					TempPotential[0] = potential[0];
 				
 					makeAtomicPairPotentials(TempPotential,4);
@@ -371,10 +371,10 @@ public class CheckCompatability {
 	
 	
 	
-	private void makeAtomicPairPotentials(ParameterMapping[] potential, int type) {
+	private void makeAtomicPairPotentials(MixtureBuilderSpeciesFactory[] potential, int type) {
 		// TODO Auto-generated method stub
-		ParameterMapping potential1 = potential[0];
-		ParameterMapping potential2;
+		MixtureBuilderSpeciesFactory potential1 = potential[0];
+		MixtureBuilderSpeciesFactory potential2;
 		String[] NewP1;
 		String[] NewP2 = null;
 		if(potential[1] != null){
@@ -406,7 +406,7 @@ public class CheckCompatability {
 				UnlikePairsWithoutCrossPairs = removeSimilarCrossPairSites(UnlikePairsWithoutDuplicates);
 				
 				
-				ParameterMapping[] PotentialTemp = new ParameterMapping[2];
+				MixtureBuilderSpeciesFactory[] PotentialTemp = new MixtureBuilderSpeciesFactory[2];
 				PotentialTemp[0] = potential[i];
 				//AtomSetPure[i] = getPairAtomTypes(UnlikePairsWithoutDuplicates,PotentialTemp);
 				
@@ -463,7 +463,7 @@ public class CheckCompatability {
 			UnlikePairsWithoutCrossPairs = removeSimilarCrossPairSites(UnlikePairsWithoutDuplicates);
 			
 			
-			ParameterMapping[] PotentialTemp = new ParameterMapping[2];
+			MixtureBuilderSpeciesFactory[] PotentialTemp = new MixtureBuilderSpeciesFactory[2];
 			PotentialTemp[0] = potential[type-2];
 			//AtomSetPure[0] = getPairAtomTypes(UnlikePairsWithoutDuplicates,PotentialTemp);
 			PObject.setAtomSetsPure(getPairAtomTypes(UnlikePairsWithoutDuplicates,PotentialTemp));
@@ -510,7 +510,7 @@ public class CheckCompatability {
 			//Removes Similar Cross Pairs Example : C,H and H,C
 			UnlikePairsWithoutCrossPairs = removeSimilarCrossPairSites(UnlikePairsWithoutDuplicates);
 			
-			ParameterMapping[] PotentialTemp = new ParameterMapping[2];
+			MixtureBuilderSpeciesFactory[] PotentialTemp = new MixtureBuilderSpeciesFactory[2];
 			PotentialTemp[0] = potential[0];
 			
 			PObject.setAtomSetsPure(getPairAtomTypes(UnlikePairsWithoutDuplicates,PotentialTemp));
@@ -530,13 +530,13 @@ public class CheckCompatability {
 
 
 	@SuppressWarnings({ "unchecked", "unused" })
-	public void makeMolecularPairPotentials(ParameterMapping[] potential, int type){
+	public void makeMolecularPairPotentials(MixtureBuilderSpeciesFactory[] potential, int type){
 		boolean OneConstructor = false;
 		
 		//Both molecular potentials are same
 		if(type == 1){
 			
-			ParameterMapping potential1 = potential[0];
+			MixtureBuilderSpeciesFactory potential1 = potential[0];
 			OneConstructor = hasSingleConstructorForPotential(potential1.getPotential());
 			int numberofParameters = potential1.getParametersArray().length;
 			Object[][] ParamValueCrossObj = new Object[numberofParameters][3];
@@ -605,8 +605,8 @@ public class CheckCompatability {
 		
 		//Molecular potentials are different, but have same non-bonded potential(atomic potential interaction for unlike atoms!!
 		if(type == 2){
-			ParameterMapping potential1 = potential[0];
-			ParameterMapping potential2 = potential[1];
+			MixtureBuilderSpeciesFactory potential1 = potential[0];
+			MixtureBuilderSpeciesFactory potential2 = potential[1];
 			HashMap PotentialSets = null;
 			
 				//Molecular potentials for interaction between like atoms
@@ -686,7 +686,7 @@ public class CheckCompatability {
 		
 		//Single Molecular Potential to be created
 		if(type == 3){
-			ParameterMapping potential1 = potential[0];
+			MixtureBuilderSpeciesFactory potential1 = potential[0];
 					//Molecular potentials for interaction between like atoms
 					OneConstructor = hasSingleConstructorForPotential(potential[0].getPotential());
 					int numberofParameters = potential[0].getParametersArray().length;
@@ -731,7 +731,7 @@ public class CheckCompatability {
 	
 	
 	private void getSameSitesOnBothSpecies(String[] newP1, String[] newP2,
-			ParameterMapping[] potential2) {
+			MixtureBuilderSpeciesFactory[] potential2) {
 		
 		for(int i=0;i<newP1.length;i++){
 			for(int j=0;j<newP2.length;j++){
@@ -753,7 +753,7 @@ public class CheckCompatability {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private HashMap<String[],IPotential> getPairSitePotentials(
 			ArrayList<String[]> unlikePairsWithoutCrossPairs,
-			ParameterMapping[] potential,Class TargetPotential) {
+			MixtureBuilderSpeciesFactory[] potential,Class TargetPotential) {
 		String[] ParametersForPotential = null;
 		
 		if(TargetPotential.equals(P2LennardJones.class)){
@@ -895,7 +895,7 @@ public class CheckCompatability {
 
 	@SuppressWarnings("unchecked")
 	private HashMap<String[],IAtomType[]> getPairAtomTypes(ArrayList<String[]> unLikePairs,
-			ParameterMapping[] potential2) {
+			MixtureBuilderSpeciesFactory[] potential2) {
 		ISpecies species1 = potential2[0].createSpecies();
 		Object obj1 = potential2[0].createSpecies();
 		ISpecies species2;
@@ -1125,7 +1125,7 @@ public class CheckCompatability {
 	}
 	
 	
-	public String[] getSitesNotParticipating(ParameterMapping Potential){
+	public String[] getSitesNotParticipating(MixtureBuilderSpeciesFactory Potential){
 		ArrayList<String> TempArray = new ArrayList<String>();
 		String[] NewP;
 		for(int i=0;i < Potential.getPotentialSites().length;i++){
@@ -1179,7 +1179,7 @@ public class CheckCompatability {
 	
 	
 	
-	public boolean getPairSiteValidation(String PotentialSite, ParameterMapping[] Potential){
+	public boolean getPairSiteValidation(String PotentialSite, MixtureBuilderSpeciesFactory[] Potential){
 		
 			Object[][] ParamValueCrossObj = null;
 			int ParamCheck = 0;
@@ -1261,7 +1261,7 @@ public class CheckCompatability {
 	}
 
 
-	public boolean isPotentialSite(String PotentialSite,ParameterMapping Potential){
+	public boolean isPotentialSite(String PotentialSite,MixtureBuilderSpeciesFactory Potential){
 		
 		Boolean ReturnFlag = false;
 		for(int i=0;i<Potential.getPotentialSites().length;i++){

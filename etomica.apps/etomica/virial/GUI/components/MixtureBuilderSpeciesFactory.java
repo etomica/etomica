@@ -5,7 +5,7 @@ import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.virial.SpeciesFactory;
 
-public interface ParameterMapping {
+public interface MixtureBuilderSpeciesFactory {
 	
 	
 	public Space getSpace();

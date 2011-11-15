@@ -6,7 +6,7 @@ import etomica.api.IAtomType;
 import etomica.api.IPotential;
 import etomica.potential.PotentialGroup;
 
-public class PotentialObjectMolecular2 extends PotentialObject{
+public class MolecularPotentials2Collection extends PotentialCollectionFactory{
 
 	
 	//Array Object to declare Molecular Potential - Pairwise Interactions

@@ -1,7 +1,5 @@
 package etomica.virial.GUI.components;
 
-public class LJCreateModule {
-	
-	
+public class CreateSpeciesAlkane_Exp6 {
 
 }

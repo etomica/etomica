@@ -12,15 +12,15 @@ import etomica.units.Kelvin;
 import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
-public class BondedInteractionAlcohols extends BondedInteraction{
+public class BondedPotentialCollectionAlcohols extends BondedPotentialCollectionFactory{
 	
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void AddBondedPotentialSets(PotentialObject pObject, ISpace space, int speciesIndex){
+	public void AddBondedPotentialSets(PotentialCollectionFactory pObject, ISpace space, int speciesIndex){
 		
 		boolean IndexFlag = false;
-		if(PotentialObjectAtomic.class.isAssignableFrom(pObject.getClass())){
+		if(AtomicPotentialsCollection.class.isAssignableFrom(pObject.getClass())){
 			IndexFlag = true;
 		}
 		// TODO Auto-generated method stub

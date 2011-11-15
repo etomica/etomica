@@ -21,7 +21,7 @@ public class SimulationEnvironmentObject {
 	public boolean doWiggle = false;
 	
 	
-	public SimulationEnvironmentObject(double Temperature,int NoOfSteps,ParameterMapping potential1, ParameterMapping potential2){
+	public SimulationEnvironmentObject(double Temperature,int NoOfSteps,MixtureBuilderSpeciesFactory potential1, MixtureBuilderSpeciesFactory potential2){
 		temperature = Temperature;
 		noOfSteps = NoOfSteps;
 		sigmaHSRefA = getSigmaHSRefSpecies(potential1);
@@ -90,7 +90,7 @@ public class SimulationEnvironmentObject {
 		Alkane2Spheres = alkane2Spheres;
 	}
 
-	public double getSigmaHSRefSpecies(ParameterMapping Potential){
+	public double getSigmaHSRefSpecies(MixtureBuilderSpeciesFactory Potential){
 		
 		double SigmaHSRefSpecies = 0.0;
 		if(Potential.getClass().getName().contains("Alkane")){
@@ -139,7 +139,7 @@ public class SimulationEnvironmentObject {
 	}
 
 	
-	private int getAlkaneSpheresSpecies(ParameterMapping potential1) {
+	private int getAlkaneSpheresSpecies(MixtureBuilderSpeciesFactory potential1) {
 		// TODO Auto-generated method stub
 		int AlkaneSphere = 0;
 		if(potential1.getClass().getName().contains("Alkane")){
@@ -151,7 +151,7 @@ public class SimulationEnvironmentObject {
 		return AlkaneSphere;
 	}
 	
-	public void calculateSystemSigmaHSRef(ParameterMapping potential1, ParameterMapping potential2){
+	public void calculateSystemSigmaHSRef(MixtureBuilderSpeciesFactory potential1, MixtureBuilderSpeciesFactory potential2){
 		
 		if(potential2 != null){
 			if(potential1.getClass().getName().contains("Alkane") 

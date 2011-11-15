@@ -8,7 +8,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.PotentialGroup;
 import etomica.virial.MCMoveClusterTorsionMulti;
 
-public abstract class PotentialObject {
+public abstract class PotentialCollectionFactory {
 	
 	//Specific to Atomic Potentials
 	

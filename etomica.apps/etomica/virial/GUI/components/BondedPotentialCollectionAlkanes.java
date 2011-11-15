@@ -16,21 +16,21 @@ import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.SpeciesAlkane;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
-public class BondedInteractionAlkanes extends BondedInteraction{
+public class BondedPotentialCollectionAlkanes extends BondedPotentialCollectionFactory{
 	
 	public int nSpheres;
 
 	
-	public BondedInteractionAlkanes(int NSpheres){
+	public BondedPotentialCollectionAlkanes(int NSpheres){
 		nSpheres = NSpheres;
 	}
 	
 	
 	@SuppressWarnings("unchecked")
-	public void AddBondedPotentialSets(PotentialObject pObject, ISpace space, int speciesIndex){
+	public void AddBondedPotentialSets(PotentialCollectionFactory pObject, ISpace space, int speciesIndex){
 		
 		boolean IndexFlag = false;
-		if(PotentialObjectAtomic.class.isAssignableFrom(pObject.getClass())){
+		if(AtomicPotentialsCollection.class.isAssignableFrom(pObject.getClass())){
 			IndexFlag = true;
 		}
 		

@@ -10,7 +10,7 @@ import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactoryTangentSpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP2Ethane2CLJQ implements ParameterMapping,Cloneable{
+public class CreateSpeciesEthane_2CLJQ implements MixtureBuilderSpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "C2H6 - 2CCLJQ";
 	private Space space;
 	private double[] sigma;
@@ -61,7 +61,7 @@ public class CreateP2Ethane2CLJQ implements ParameterMapping,Cloneable{
 	//Constructors for different Instantiations
 	
 	
-	public CreateP2Ethane2CLJQ(){
+	public CreateSpeciesEthane_2CLJQ(){
 		space = Space3D.getInstance();
 		sigma = new double[PotentialSites.length];
 		epsilon = new double[PotentialSites.length];
@@ -134,7 +134,7 @@ public class CreateP2Ethane2CLJQ implements ParameterMapping,Cloneable{
 	
 	 public Object clone(){
 		 try{
-			 CreateP2CO22CLJQ cloned = (CreateP2CO22CLJQ)super.clone();
+			 CreateSpeciesCO2_2CLJQ cloned = (CreateSpeciesCO2_2CLJQ)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -270,7 +270,7 @@ public class CreateP2Ethane2CLJQ implements ParameterMapping,Cloneable{
 
 	//Testing Class
 	public static void main(String[] args){
-		CreateP2CO22CLJQ lj = new CreateP2CO22CLJQ();
+		CreateSpeciesCO2_2CLJQ lj = new CreateSpeciesCO2_2CLJQ();
 		
 	}
 

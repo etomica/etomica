@@ -76,8 +76,8 @@ public class CreateSimulation {
 	
 	
 	private SimulationGraphic simGraphic;
-	private ParameterMapping potential1;
-	private ParameterMapping potential2;
+	private MixtureBuilderSpeciesFactory potential1;
+	private MixtureBuilderSpeciesFactory potential2;
 
 	private MayerGeneralSpherical fTarget1; 
     private MayerESpherical eTarget1;
@@ -85,7 +85,7 @@ public class CreateSimulation {
 	
 	private JFrame frame;
 	
-	public CreateSimulation(ParameterMapping Potential1, ParameterMapping Potential2){
+	public CreateSimulation(MixtureBuilderSpeciesFactory Potential1, MixtureBuilderSpeciesFactory Potential2){
 		this.potential1 = Potential1;
 		if(Potential2 != null){
 			this.potential2 = Potential2;
@@ -94,7 +94,7 @@ public class CreateSimulation {
 
 	
 	@SuppressWarnings("unchecked")
-	public void runSimulation(SimulationEnvironmentObject simEnv, PotentialObject PObject) throws NoSuchMethodException{
+	public void runSimulation(SimulationEnvironmentObject simEnv, PotentialCollectionFactory PObject) throws NoSuchMethodException{
 		
 		SimEnv = simEnv;
 		
@@ -121,7 +121,7 @@ public class CreateSimulation {
         refCluster.setTemperature(temperature);
 
 	    
-	    if(PObject instanceof PotentialObjectAtomic){
+	    if(PObject instanceof AtomicPotentialsCollection){
 	    	//Set up the Potential groups!!
 	    	PObject.setInterPotentialGroupII(1, new PotentialGroup(2));
 	    	PObject.setInterPotentialGroupII(2, new PotentialGroup(2));
@@ -184,7 +184,7 @@ public class CreateSimulation {
 	        
 	        
 	    	
-	    }else if(PObject instanceof PotentialObjectPureAtomic){
+	    }else if(PObject instanceof AtomicPotentialCollection){
 
 	    	PObject.setInterPotentialGroupII(new PotentialGroup(2));
 	    	
@@ -204,7 +204,7 @@ public class CreateSimulation {
 	        
 
 	    	
-	    }else if(PObject instanceof PotentialObjectMixed){
+	    }else if(PObject instanceof MixedPotentialsCollection){
 	    	
 	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure());
 	        MayerEGeneral eTargetII = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure());
@@ -239,7 +239,7 @@ public class CreateSimulation {
 	        
 	    	
 	    	
-	    }else if(PObject instanceof PotentialObjectMolecular){
+	    }else if(PObject instanceof MolecularPotentialsCollection){
 	    	
 	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
 	        MayerEGeneral eTargetII = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
@@ -263,7 +263,7 @@ public class CreateSimulation {
 	        sim.integratorOS.setNumSubSteps(1000);
 	        
 	    	
-	    }else if(PObject instanceof PotentialObjectMolecular2){
+	    }else if(PObject instanceof MolecularPotentials2Collection){
 	    	
 	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
 	        MayerEGeneral eTargetII = new MayerEGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure(1));
@@ -288,7 +288,7 @@ public class CreateSimulation {
 	        
 
 	    	
-	    }else if(PObject instanceof PotentialObjectPureMolecular){
+	    }else if(PObject instanceof MolecularPotentialCollection){
 	    	
 
 	    	MayerGeneral fTargetII = new MayerGeneral((IPotentialMolecular) PObject.getMolecularPotentialPure());

@@ -1,29 +1,26 @@
 package etomica.virial.GUI.components;
 
-
 import etomica.api.IAtomList;
 import etomica.api.IElement;
 import etomica.api.ISpecies;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
-import etomica.potential.P22CLJQ;
-import etomica.potential.P2CO2EMP2;
+import etomica.models.water.P2WaterSPCE;
+import etomica.models.water.SpeciesWater3P;
 import etomica.potential.P2CO2TraPPE;
-import etomica.potential.P2LennardJones;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySpheres;
-import etomica.virial.SpeciesTraPPECO2;
 import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
-	private static String MoleculeDisplayName = "CO2 - Trappe";
+public class CreateSpeciesH2O_SPCE implements MixtureBuilderSpeciesFactory,Cloneable{
+	private static String MoleculeDisplayName = "H2O - SPCE";
 	private Space space;
 	private double[] sigma;
 	private double[] epsilon;
@@ -40,29 +37,26 @@ public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
 	
 	private String[] ComponentParameters  =  {"SIGMA","EPSILON","CHARGE"};
 			
-	private String[] SharedComponentParameters ={"BONDL"};
+	
 	
 	private String[][] ParamAndValues; 
 	
-	private String[] PotentialSites = {"C","O"};
-	
-	
+	private String[] PotentialSites = {"O","H"};
 	
 	private String[][] ComponentValues = {
-			{"2.8000",Double.toString(Kelvin.UNIT.toSim(27)),Double.toString(Electron.UNIT.toSim(0.70))},
-			{"3.0500",Double.toString(Kelvin.UNIT.toSim(79)),Double.toString((-0.5)*Electron.UNIT.toSim(0.70))}
-		
+			{"3.1670",Double.toString(Kelvin.UNIT.toSim(78.23)),Double.toString(Electron.UNIT.toSim(-0.82))},
+			{"0.0","0.0",Double.toString(Electron.UNIT.toSim(0.41))}
 			
 			
 			
 	};
 
 
-	private String[] SharedComponentValues = {"1.1491"};
+	
 	
 	private String[] SimEnvParameters = {"SIGMAHSREF"};
 	
-	private String[] SimEnvValues = {Double.toString(5.0*1.1491)};
+	private String[] SimEnvValues = {"3.2"};
 	
 	
 
@@ -89,7 +83,7 @@ public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
 	//Constructors for different Instantiations
 
 
-	public CreateP2CO2Trappe(){
+	public CreateSpeciesH2O_SPCE(){
 		space = Space3D.getInstance();
 		sigma = new double[PotentialSites.length];
 		epsilon = new double[PotentialSites.length];
@@ -102,7 +96,7 @@ public class CreateP2CO2Trappe implements ParameterMapping,Cloneable{
 private String[][] setParameterValues() {
 		
 		int NoOfParam = ComponentParameters.length;
-		int NoOfCommonParam = SharedComponentParameters.length;
+		
 		int NoOfSites = PotentialSites.length;
 		int totalNoOfParam = NoOfParam*NoOfSites;
 		String[][] ReturnArray = new String[totalNoOfParam][2];
@@ -127,14 +121,10 @@ private String[][] setParameterValues() {
 				index++;
 			}
 		}
-		for(int k = 0;k<NoOfCommonParam;k++){
-			if(SharedComponentParameters[k]=="BONDL"){
-				setBondL(Double.parseDouble(SharedComponentValues[k]));
-			}
-		}
+		
 		int NoOfSimEnvParam = 1;
 		for(int l = 0;l<NoOfSimEnvParam;l++){
-			
+		
 			
 			if(SimEnvParameters[l]=="SIGMAHSREF"){
 				setSigmaHSRef(Double.parseDouble(SimEnvValues[l]));
@@ -206,7 +196,7 @@ private String[][] setParameterValues() {
 	
 	 public Object clone(){
 		 try{
-			 CreateP2CO2Trappe cloned = ( CreateP2CO2Trappe)super.clone();
+			 CreateSpeciesCO2_Trappe cloned = ( CreateSpeciesCO2_Trappe)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -220,23 +210,23 @@ private String[][] setParameterValues() {
 	public ISpecies createSpecies(){
 		SpeciesFactory factory = new SpeciesFactory() {
 	        public ISpecies makeSpecies(ISpace space) {
-	        	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
+	            Species species = new SpeciesWater3P(space);
 	            return species;
 	        }
 	    };
 	    return factory.makeSpecies(this.space);
 	}
-	
-	public SpeciesFactory createSpeciesFactory(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(ISpace space) {
-	        	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
-	            return species;
-	        }
-	    };
-	    return factory;
-	}
 
+	//Creates the LJAtom Species
+		public SpeciesFactory createSpeciesFactory(){
+			SpeciesFactory factory = new SpeciesFactory() {
+		        public ISpecies makeSpecies(ISpace space) {
+		            Species species = new SpeciesWater3P(space);
+		            return species;
+		        }
+		    };
+		    return factory;
+		}
 
 	public int getParameterCount() {
 		return 2;
@@ -257,9 +247,7 @@ private String[][] setParameterValues() {
 				setCharge(Double.parseDouble(ParameterValue),i); 
 			}
 		}
-			if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-				setBondL(Double.parseDouble(ParameterValue)); 
-			}
+			
 			
 			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 				setSigmaHSRef(Double.parseDouble(ParameterValue)); 
@@ -282,10 +270,13 @@ private String[][] setParameterValues() {
 				Description = ParametersDouble.CHARGE.Description();
 			}
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-			Description = ParametersDouble.BONDL.Description();
-		}
 		
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			Description = ParametersDouble.TEMPERATURE.Description();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			Description = ParametersDouble.STEPS.Description();
+		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			Description = ParametersDouble.SIGMAHSREF.Description();
 		}
@@ -309,9 +300,6 @@ private String[][] setParameterValues() {
 				parameterValue = getCharge(i);
 			}
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-			parameterValue = getBondL();
-		}
 		
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
@@ -328,7 +316,7 @@ private String[][] setParameterValues() {
 	@Override
 	public String getCustomName() {
 		// TODO Auto-generated method stub
-		return "TRAPPE";
+		return "SPCE";
 	}
 
 	public String getPotentialSites(int index) {
@@ -357,7 +345,7 @@ private String[][] setParameterValues() {
 	
 	public Class getPotential() {
 		// TODO Auto-generated method stub
-		return P2CO2TraPPE.class;
+		return P2WaterSPCE.class;
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 
 
-public class SpeciesList {
+public class SpeciesListInterface {
 	
 	
 
@@ -14,7 +14,7 @@ public class SpeciesList {
 	private int id;
 	private Object[] SpeciesL;
 	
-	public SpeciesList(){
+	public SpeciesListInterface(){
 		id = Index;
 		SpeciesL = new Object[8];
 	}
@@ -61,26 +61,26 @@ public class SpeciesList {
 		
 		for (int i=0;i<id;i++){
 			if(SpeciesL[i] != null){
-				if(SpeciesL[i] instanceof CreateP2LJ){
+				if(SpeciesL[i] instanceof CreateSpeciesLJ_LJ){
 					DisplayArray.add("LJ-Spherical2Body");
 				}
-				else if(SpeciesL[i] instanceof CreateP2LJQ){
+				else if(SpeciesL[i] instanceof CreateSpeciesLJ_LJQ){
 					DisplayArray.add("LJ-Spherical2BodyWithQ");
 				}
-				else if(SpeciesL[i] instanceof CreateP22CLJQ){
+				else if(SpeciesL[i] instanceof CreateSpeciesLJ_2CLJQ){
 					DisplayArray.add("2CenteredLJWithQ");
 				}
 				
-				else if(SpeciesL[i] instanceof CreateP2CO22CLJQ){
+				else if(SpeciesL[i] instanceof CreateSpeciesCO2_2CLJQ){
 					DisplayArray.add("CO2-2CenteredLJWithQ");
 				}
-				else if(SpeciesL[i] instanceof CreateP2CO2EMP2){
+				else if(SpeciesL[i] instanceof CreateSpeciesCO2_EMP2){
 					DisplayArray.add("CO2-EPM2");
 				}
-				else if(SpeciesL[i] instanceof CreateP2CO2Trappe){
+				else if(SpeciesL[i] instanceof CreateSpeciesCO2_Trappe){
 					DisplayArray.add("CO2-TRAPPE");
 				}
-				else if(SpeciesL[i] instanceof CreateP2AlkaneTrappe){
+				else if(SpeciesL[i] instanceof CreateSpeciesAlkane_TRAPPE){
 					DisplayArray.add("n-Alkane-TRAPPE");
 				}
 				

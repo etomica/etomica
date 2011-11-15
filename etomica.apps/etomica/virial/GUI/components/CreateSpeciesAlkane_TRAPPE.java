@@ -1,22 +1,32 @@
 package etomica.virial.GUI.components;
 
+import etomica.api.IAtomList;
+import etomica.api.IElement;
 import etomica.api.ISpecies;
+import etomica.chem.elements.Carbon;
+import etomica.chem.elements.Oxygen;
+import etomica.config.IConformation;
+import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
+import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresHetero;
+import etomica.units.Electron;
 import etomica.units.Kelvin;
+
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySiepmannSpheres;
 import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateP2AlkaneSKS  implements ParameterMapping {
+public class CreateSpeciesAlkane_TRAPPE implements MixtureBuilderSpeciesFactory,Cloneable{
 	private String MoleculeDisplayName;
 	private Space space;
 	private double[] sigma;
 	private double[] epsilon;
 	
 
-	
+
 	private double sigmaHSRef;
 	private int NSpheres;
 	
@@ -70,43 +80,44 @@ public class CreateP2AlkaneSKS  implements ParameterMapping {
 	//Potentials references are created as Private members
 	
 	
-	public CreateP2AlkaneSKS(){}
+	public CreateSpeciesAlkane_TRAPPE(){}
 	
-	public CreateP2AlkaneSKS(int index){
+	public CreateSpeciesAlkane_TRAPPE(int index){
 		space = Space3D.getInstance();
 		switch(index){
-		/*case 1:
-			PotentialSites = new String[]{"CH4"};
+		case 1:
+			PotentialSites = new String[]{"CH3"};
 			ComponentValues = new String[][]{{"3.73",Double.toString(Kelvin.UNIT.toSim(148.0))}};
 			MoleculeDisplayName = "Methane-TRAPPE";
 			AlkaneIndex = 1;
-			break;*/
+			setNSpheres(AlkaneIndex);
+			break;
 			
 		case 2:
 			PotentialSites = new String[]{"CH3"};
-			ComponentValues = new String[][]{{"3.93",Double.toString(Kelvin.UNIT.toSim(114.0))}};
+			ComponentValues = new String[][]{{"3.75",Double.toString(Kelvin.UNIT.toSim(98.0))}};
 			SharedComponentParameters = new String[]{"NominalbondL"};
 			SharedComponentValues = new String[]{"1.54"};
-			MoleculeDisplayName = "Ethane-SKS";
+			MoleculeDisplayName = "Ethane-TRAPPE";
 			AlkaneIndex = 2;
 			setNSpheres(AlkaneIndex);
 			break;
 		case 3:
 			PotentialSites = new String[]{"CH3","CH2"};
-			ComponentValues = new String[][]{{"3.93",Double.toString(Kelvin.UNIT.toSim(114.0))},{"3.93",Double.toString(Kelvin.UNIT.toSim(47.0))}};
+			ComponentValues = new String[][]{{"3.75",Double.toString(Kelvin.UNIT.toSim(98.0))},{"3.95",Double.toString(Kelvin.UNIT.toSim(46.0))}};
 			SharedComponentParameters = new String[]{"NominalbondL","theta","forceconstant"};
 			SharedComponentValues = new String[]{"1.54","114.0","62500"};
-			MoleculeDisplayName = "Propane-SKS";
+			MoleculeDisplayName = "Propane-TRAPPE";
 			AlkaneIndex = 3;
 			setNSpheres(AlkaneIndex);
 			break;
 		case 4:
 			PotentialSites = new String[]{"CH3","CH2"};
-			ComponentValues = new String[][]{{"3.93",Double.toString(Kelvin.UNIT.toSim(98.0))},{"3.93",Double.toString(Kelvin.UNIT.toSim(47.0))}};
+			ComponentValues = new String[][]{{"3.75",Double.toString(Kelvin.UNIT.toSim(98.0))},{"3.95",Double.toString(Kelvin.UNIT.toSim(46.0))}};
 			SharedComponentParameters = new String[]{"NominalbondL","theta","forceconstant","c1/kB",
 			"c2/kB","c3/kB"};
 			SharedComponentValues = new String[]{"1.54","114.0","62500","355.03","-68.19","791.32"};
-			MoleculeDisplayName = "Higher n-Alkane SKS";
+			MoleculeDisplayName = "Higher n-Alkane TRAPPE";
 			AlkaneIndex = 0;
 			break;
 		}
@@ -168,8 +179,7 @@ private String[][] setParameterValues() {
 			
 			if(SimEnvParameters[l]=="NUMBER"){
 				if(NSpheres > 4){
-				setNSpheres(Integer.parseInt(SimEnvValues[l]));}
-			
+					setNSpheres(Integer.parseInt(SimEnvValues[l]));}
 			}
 		}
 		return ReturnArray;
@@ -177,6 +187,7 @@ private String[][] setParameterValues() {
 		
 	}
 
+	
 
 public double getSigmaHSRef() {
 	return sigmaHSRef;
@@ -221,7 +232,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	
 	 public Object clone(){
 		 try{
-			 CreateP2AlkaneTrappe cloned = ( CreateP2AlkaneTrappe)super.clone();
+			 CreateSpeciesAlkane_TRAPPE cloned = ( CreateSpeciesAlkane_TRAPPE)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -255,7 +266,6 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		}
 	    return factory;
 	}
-
 
 	public int getAlkaneIndex() {
 		return AlkaneIndex;
@@ -370,7 +380,12 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		if(Parameter.toUpperCase().equals(ParametersDouble.forceconstant.toString())){
 			Description = ParametersDouble.forceconstant.Description();
 		}
-		
+		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
+			Description = ParametersDouble.TEMPERATURE.Description();
+		}
+		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
+			Description = ParametersDouble.STEPS.Description();
+		}
 		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
 			Description = ParametersDouble.SIGMAHSREF.Description();
 		}
@@ -418,25 +433,29 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		return ComponentParameters;
 	}
 
+	@Override
 	public String getCustomName() {
 		// TODO Auto-generated method stub
-		return "SKS";
+		return "TRAPPE";
 	}
 
 	public String getPotentialSites(int index) {
 		return PotentialSites[index];
 	}
 
+	@Override
 	public String[][] getParamAndValues() {
 		// TODO Auto-generated method stub
 		return ParamAndValues;
 	}
 
+	@Override
 	public String[] getPotentialSites() {
 		// TODO Auto-generated method stub
 		return PotentialSites;
 	}
 
+	@Override
 	public String getMoleculeDisplayName() {
 		// TODO Auto-generated method stub
 		return MoleculeDisplayName;
@@ -444,7 +463,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 
 	
 	public static void main(String[] args){
-		CreateP2AlkaneSKS lj = new CreateP2AlkaneSKS(3);
+		CreateSpeciesAlkane_TRAPPE lj = new CreateSpeciesAlkane_TRAPPE(3);
 		for(int j=0;j<lj.ComponentParameters.length*lj.PotentialSites.length;j++){
 			
 			System.out.println(lj.ParamAndValues[j][0]+"\n");
@@ -452,11 +471,13 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		}
 	}
 
+	@Override
 	public Class getPotential() {
 		// TODO Auto-generated method stub
 		return P2LennardJones.class;
 	}
 	
+	@Override
 	public Space getSpace() {
 		// TODO Auto-generated method stub
 		return this.space;
