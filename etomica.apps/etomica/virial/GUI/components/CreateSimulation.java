@@ -257,7 +257,7 @@ public class CreateSimulation {
 	                new MayerFunction[][]{{eTargetII,eTargetIJ},{eTargetIJ,eTargetJJ}}, nTypes);
 	        targetCluster.setTemperature(temperature);
 	        
-	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,(Species)potential1.createSpeciesFactory(), 
+	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,(Species)potential1.createSpecies(), 
 	        					temperature,new ClusterAbstract[]{refCluster,targetCluster},
 	        					new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},SimEnv.isDoWiggle());
 	        sim.integratorOS.setNumSubSteps(1000);
@@ -280,7 +280,7 @@ public class CreateSimulation {
 	        targetCluster.setTemperature(temperature);
 	        
 	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,
-	        				new ISpecies[]{(Species)potential1.createSpeciesFactory(),(Species)potential2.createSpeciesFactory()}, 
+	        				new ISpecies[]{(Species)potential1.createSpecies(),(Species)potential2.createSpecies()}, 
 	        					nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
 	        					new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},SimEnv.isDoWiggle());
 	        sim.integratorOS.setNumSubSteps(1000);
@@ -297,7 +297,7 @@ public class CreateSimulation {
 	        ClusterAbstract targetCluster = Standard.virialCluster(SimEnv.getnPoints(), fTargetII, SimEnv.getnPoints()>3, eTargetII, true);
 	        targetCluster.setTemperature(temperature);
 	        
-	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,(Species)potential1.createSpeciesFactory(),temperature,refCluster,targetCluster,SimEnv.isDoWiggle());
+	        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,(Species)potential1.createSpecies(),temperature,refCluster,targetCluster,SimEnv.isDoWiggle());
 	        sim.integratorOS.setNumSubSteps(1000);
 	        
 	        
