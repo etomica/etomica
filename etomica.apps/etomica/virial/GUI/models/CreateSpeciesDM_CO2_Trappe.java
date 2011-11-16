@@ -1,4 +1,4 @@
-package etomica.virial.GUI.components;
+package etomica.virial.GUI.models;
 
 
 import etomica.api.IAtomList;
@@ -9,6 +9,7 @@ import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
 import etomica.potential.P22CLJQ;
 import etomica.potential.P2CO2EMP2;
+import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -18,10 +19,10 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
-import etomica.virial.GUI.models.ParametersDouble;
+import etomica.virial.SpeciesTraPPECO2;
 
-public class CreateSpeciesCO2_EMP2 implements MixtureBuilderSpeciesFactory,Cloneable{
-	private static String MoleculeDisplayName = "CO2 - EPM";
+public class CreateSpeciesDM_CO2_Trappe implements CreateSpeciesDM_IFactory,Cloneable{
+	private static String MoleculeDisplayName = "CO2 - Trappe";
 	private Space space;
 	private double[] sigma;
 	private double[] epsilon;
@@ -44,16 +45,34 @@ public class CreateSpeciesCO2_EMP2 implements MixtureBuilderSpeciesFactory,Clone
 	
 	private String[] PotentialSites = {"C","O"};
 	
-	private String[] SimEnvParameters = {"SIGMAHSREF"};
 	
-	private String[] SimEnvValues = {Double.toString(5.0*1.149)};
 	
 	private String[][] ComponentValues = {
-			{"2.7570",Double.toString(Kelvin.UNIT.toSim(28.129)),Double.toString(Electron.UNIT.toSim(0.6512))},
-			{"3.0330",Double.toString(Kelvin.UNIT.toSim(80.507)),Double.toString((-0.5)*Electron.UNIT.toSim(0.6512))},
+			{"2.8000",Double.toString(Kelvin.UNIT.toSim(27)),Double.toString(Electron.UNIT.toSim(0.70))},
+			{"3.0500",Double.toString(Kelvin.UNIT.toSim(79)),Double.toString((-0.5)*Electron.UNIT.toSim(0.70))}
+		
+			
+			
+			
 	};
 
-	private String[] SharedComponentValues = {"1.149"};
+
+	private String[] SharedComponentValues = {"1.1491"};
+	
+	private String[] SimEnvParameters = {"SIGMAHSREF"};
+	
+	private String[] SimEnvValues = {Double.toString(5.0*1.1491)};
+	
+	
+
+	public double getSigmaHSRef() {
+		return sigmaHSRef;
+	}
+
+	public void setSigmaHSRef(double sigmaHSRef) {
+		this.sigmaHSRef = sigmaHSRef;
+	}
+	
 	
 	public String getPotentialSiteAtIndex(int index) {
 		
@@ -64,8 +83,12 @@ public class CreateSpeciesCO2_EMP2 implements MixtureBuilderSpeciesFactory,Clone
 		return true;
 	}
 	
+	
 
-	public CreateSpeciesCO2_EMP2(){
+	//Constructors for different Instantiations
+
+
+	public CreateSpeciesDM_CO2_Trappe(){
 		space = Space3D.getInstance();
 		sigma = new double[PotentialSites.length];
 		epsilon = new double[PotentialSites.length];
@@ -108,7 +131,6 @@ private String[][] setParameterValues() {
 				setBondL(Double.parseDouble(SharedComponentValues[k]));
 			}
 		}
-		
 		int NoOfSimEnvParam = 1;
 		for(int l = 0;l<NoOfSimEnvParam;l++){
 			
@@ -124,14 +146,6 @@ private String[][] setParameterValues() {
 	
 	
 	
-public double getSigmaHSRef() {
-	return sigmaHSRef;
-}
-
-public void setSigmaHSRef(double sigmaHSRef) {
-	this.sigmaHSRef = sigmaHSRef;
-}
-
 	public double getCharge(int index) {
 		return charge[index];
 	}
@@ -191,7 +205,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	
 	 public Object clone(){
 		 try{
-			 CreateSpeciesCO2_EMP2 cloned = (CreateSpeciesCO2_EMP2)super.clone();
+			 CreateSpeciesDM_CO2_Trappe cloned = ( CreateSpeciesDM_CO2_Trappe)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -205,54 +219,24 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	public ISpecies createSpecies(){
 		SpeciesFactory factory = new SpeciesFactory() {
 	        public ISpecies makeSpecies(ISpace space) {
-	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-	            species.setChildCount(new int[]{1,2});
-	            
-	            IConformation conformation = new IConformation(){
-	    			public void initializePositions(IAtomList atomList) {
-	                    // atoms are C, O and O, so we arrange them as 1-0-2
-	                   
-	                    atomList.getAtom(0).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().setX(0, -bondL);
-	                    atomList.getAtom(2).getPosition().E(0);
-	                    atomList.getAtom(2).getPosition().setX(0, +bondL);
-	                }
-	    		};
-	            
-	            species.setConformation(conformation);
+	        	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
 	            return species;
 	        }
 	    };
 	    return factory.makeSpecies(this.space);
 	}
-
 	
 	public SpeciesFactory createSpeciesFactory(){
 		SpeciesFactory factory = new SpeciesFactory() {
 	        public ISpecies makeSpecies(ISpace space) {
-	            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-	            species.setChildCount(new int[]{1,2});
-	            
-	            IConformation conformation = new IConformation(){
-	    			public void initializePositions(IAtomList atomList) {
-	                    // atoms are C, O and O, so we arrange them as 1-0-2
-	                   
-	                    atomList.getAtom(0).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().E(0);
-	                    atomList.getAtom(1).getPosition().setX(0, -bondL);
-	                    atomList.getAtom(2).getPosition().E(0);
-	                    atomList.getAtom(2).getPosition().setX(0, +bondL);
-	                }
-	    		};
-	            
-	            species.setConformation(conformation);
+	        	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
 	            return species;
 	        }
 	    };
 	    return factory;
 	}
-	
+
+
 	public int getParameterCount() {
 		return 2;
 	}
@@ -262,21 +246,21 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		// TODO Auto-generated method stub
 		
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
 				setSigma(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+getPotentialSiteAtIndex(i))){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.CHARGE.toString()+getPotentialSiteAtIndex(i))){
 				setCharge(Double.parseDouble(ParameterValue),i); 
 			}
 		}
-			if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
 				setBondL(Double.parseDouble(ParameterValue)); 
 			}
 			
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
 				setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 			}
 		
@@ -286,28 +270,23 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	public String getDescription(String Parameter) {
 		String Description = null;
 		for(int i = 0;i <PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
-				Description = ParametersDouble.SIGMA.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.SIGMA.Description();
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
-				Description = ParametersDouble.EPSILON.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.EPSILON.Description();
 			}
 
-			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+PotentialSites[i])){
-				Description = ParametersDouble.CHARGE.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.CHARGE.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.CHARGE.Description();
 			}
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-			Description = ParametersDouble.BONDL.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
+			Description = PotentialParamDM_Description.BONDL.Description();
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-			Description = ParametersDouble.TEMPERATURE.Description();
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-			Description = ParametersDouble.STEPS.Description();
-		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
-			Description = ParametersDouble.SIGMAHSREF.Description();
+		
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
+			Description = PotentialParamDM_Description.SIGMAHSREF.Description();
 		}
 		return Description;
 	}
@@ -318,22 +297,22 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		Double parameterValue = null;
 		
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
 				parameterValue = getSigma(i);
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
 				parameterValue = getEpsilon(i);
 			}
 		
-			if(Parameter.toUpperCase().equals(ParametersDouble.CHARGE.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.CHARGE.toString()+PotentialSites[i])){
 				parameterValue = getCharge(i);
 			}
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
 			parameterValue = getBondL();
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
 		}
 		
@@ -348,7 +327,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	@Override
 	public String getCustomName() {
 		// TODO Auto-generated method stub
-		return "EPM2";
+		return "TRAPPE";
 	}
 
 	public String getPotentialSites(int index) {
@@ -377,7 +356,7 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	
 	public Class getPotential() {
 		// TODO Auto-generated method stub
-		return P2CO2EMP2.class;
+		return P2CO2TraPPE.class;
 	}
 
 	@Override

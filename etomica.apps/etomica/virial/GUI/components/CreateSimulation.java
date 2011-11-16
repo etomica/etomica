@@ -62,6 +62,7 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.SpeciesFactoryTangentSpheres;
+import etomica.virial.GUI.models.CreateSpeciesDM_IFactory;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.SimulationVirialMultiOverlap;
 import etomica.virial.simulations.SimulationVirialOverlap;
@@ -76,8 +77,8 @@ public class CreateSimulation {
 	
 	
 	private SimulationGraphic simGraphic;
-	private MixtureBuilderSpeciesFactory potential1;
-	private MixtureBuilderSpeciesFactory potential2;
+	private CreateSpeciesDM_IFactory potential1;
+	private CreateSpeciesDM_IFactory potential2;
 
 	private MayerGeneralSpherical fTarget1; 
     private MayerESpherical eTarget1;
@@ -85,7 +86,7 @@ public class CreateSimulation {
 	
 	private JFrame frame;
 	
-	public CreateSimulation(MixtureBuilderSpeciesFactory Potential1, MixtureBuilderSpeciesFactory Potential2){
+	public CreateSimulation(CreateSpeciesDM_IFactory Potential1, CreateSpeciesDM_IFactory Potential2){
 		this.potential1 = Potential1;
 		if(Potential2 != null){
 			this.potential2 = Potential2;

@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 
 
 
-public class MainFrame extends JFrame{
+public class MixtureBuilderUIFrame extends JFrame{
 
 	/**
 	 * 
@@ -15,14 +15,14 @@ public class MainFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
 	
 	
-	public MainFrame(String FrameLabel){
+	public MixtureBuilderUIFrame(String FrameLabel){
 		super(FrameLabel);
 		
 	}
 	
 	
 
-	public void SetFrameProperties(){
+	public void setFrameProperties(){
 		this.setVisible(true);
 		this.setResizable(true);
 		

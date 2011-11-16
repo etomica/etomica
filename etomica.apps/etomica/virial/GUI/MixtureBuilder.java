@@ -2,14 +2,11 @@ package etomica.virial.GUI;
 
 import javax.swing.SwingUtilities;
 
-import etomica.virial.GUI.containers.MainFrame;
-import etomica.virial.GUI.controllers.ParameterController;
-import etomica.virial.GUI.models.RunParametersModel;
-import etomica.virial.GUI.models.SingleSpeciesModel;
-import etomica.virial.GUI.models.SpeciesModel;
-import etomica.virial.GUI.models.SuperModel;
-import etomica.virial.GUI.views.ParameterWindowView;
-import etomica.virial.GUI.containers.MainFramePanel;
+import etomica.virial.GUI.containers.MixtureBuilderUIFrame;
+import etomica.virial.GUI.controllers.MixtureBuilderUIController;
+import etomica.virial.GUI.models.MixtureBuilderDM;
+import etomica.virial.GUI.views.MixtureBuilderUIView;
+
 
 
 
@@ -18,16 +15,16 @@ public class MixtureBuilder{
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				MainFrame mixtureBuilder = new MainFrame("Mixture Builder");
+				MixtureBuilderUIFrame mixtureBuilderFrame = new MixtureBuilderUIFrame("Mixture Builder");
 				//MainFrame DefaultValueFrame = new MainFrame("Default Values");
 			
-				SuperModel superModel = new SuperModel();
+				MixtureBuilderDM mixtureBuilderDM = new MixtureBuilderDM();
 				//Instantiate the view for MixtureParameters
 				//DefaultValuesView DWindow = new DefaultValuesView(DefaultValueFrame,superModel);
-				ParameterWindowView PWindow = new ParameterWindowView(mixtureBuilder,superModel);
+				MixtureBuilderUIView mixtureBuilderView = new MixtureBuilderUIView(mixtureBuilderFrame,mixtureBuilderDM);
 				
 				@SuppressWarnings("unused")
-				ParameterController controller = new ParameterController(PWindow,superModel);
+				MixtureBuilderUIController mixtureBuilderController = new MixtureBuilderUIController(mixtureBuilderView,mixtureBuilderDM);
 				
 				System.out.println("Hi THIS IS CONNECTED");
 				

@@ -19,7 +19,7 @@ import javax.swing.border.Border;
 
 import etomica.virial.GUI.components.SimulationEnvironmentObject;
 
-public class SimulationParameters extends JPanel{
+public class SimulationEnvironmentUIView extends JPanel{
 	
 	private JLabel Message;
 	
@@ -32,7 +32,7 @@ public class SimulationParameters extends JPanel{
 	private JTextField SigmaHSRefFieldB;
 	
 	
-	SimulationParameters(SimulationEnvironmentObject ParamObject){
+	SimulationEnvironmentUIView(SimulationEnvironmentObject ParamObject){
 		
 			CloseWindow = new JButton("Cancel");
 			SaveValues = new JButton("Save");

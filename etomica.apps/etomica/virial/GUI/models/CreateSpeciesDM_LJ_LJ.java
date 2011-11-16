@@ -1,4 +1,4 @@
-package etomica.virial.GUI.components;
+package etomica.virial.GUI.models;
 
 
 import etomica.api.ISpecies;
@@ -8,9 +8,8 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
-import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateSpeciesLJ_LJ implements MixtureBuilderSpeciesFactory,Cloneable{
+public class CreateSpeciesDM_LJ_LJ implements CreateSpeciesDM_IFactory,Cloneable{
 	
 	private static String MoleculeDisplayName = "P2LennardJones";
 	private Space space;
@@ -41,7 +40,7 @@ public class CreateSpeciesLJ_LJ implements MixtureBuilderSpeciesFactory,Cloneabl
 
 	//Constructors for different Instantiations
 	
-	public CreateSpeciesLJ_LJ(){
+	public CreateSpeciesDM_LJ_LJ(){
 		space = Space3D.getInstance();
 		sigma = new double[PotentialSites.length];
 		epsilon = new double[PotentialSites.length];
@@ -90,7 +89,7 @@ private String[][] setParameterValues() {
 	
 	 public Object clone(){
 		 try{
-			 CreateSpeciesLJ_LJ cloned = (CreateSpeciesLJ_LJ)super.clone();
+			 CreateSpeciesDM_LJ_LJ cloned = (CreateSpeciesDM_LJ_LJ)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -158,16 +157,16 @@ private String[][] setParameterValues() {
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
 				setSigma(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 
 			}
 		}
 		
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
 			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 		}
 		
@@ -177,22 +176,22 @@ private String[][] setParameterValues() {
 	public String getDescription(String Parameter) {
 		String Description = null;
 		for(int i = 0;i <PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
-				Description = ParametersDouble.SIGMA.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.SIGMA.Description();
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
-				Description = ParametersDouble.EPSILON.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.EPSILON.Description();
 			}
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.TEMPERATURE.toString())){
-			Description = ParametersDouble.TEMPERATURE.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.TEMPERATURE.toString())){
+			Description = PotentialParamDM_Description.TEMPERATURE.Description();
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.STEPS.toString())){
-			Description = ParametersDouble.STEPS.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.STEPS.toString())){
+			Description = PotentialParamDM_Description.STEPS.Description();
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
-			Description = ParametersDouble.SIGMAHSREF.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
+			Description = PotentialParamDM_Description.SIGMAHSREF.Description();
 		}
 		return Description;
 	}
@@ -202,16 +201,16 @@ private String[][] setParameterValues() {
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
 				parameterValue = getSigma(i);
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
 				parameterValue = getEpsilon(i);
 			}
 		}
 		
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
 		}
 		

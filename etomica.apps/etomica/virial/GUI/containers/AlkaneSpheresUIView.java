@@ -17,7 +17,7 @@ import javax.swing.border.Border;
 
 import etomica.space1d.Space1D;
 
-public class NAlkaneSpheresParameter  extends JPanel {
+public class AlkaneSpheresUIView  extends JPanel {
 	
 	/**
 	 * 
@@ -29,7 +29,7 @@ public class NAlkaneSpheresParameter  extends JPanel {
 	public JTextField NoOfSpheres;
 	//private static final NAlkaneSpheresParameter INSTANCE = new NAlkaneSpheresParameter();
 	
-	public NAlkaneSpheresParameter(){
+	public AlkaneSpheresUIView(){
 		
 		
 		CloseWindow = new JButton("Cancel");

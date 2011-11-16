@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class DialogBoxPanel extends JPanel{
+public class AlertMessageUIView extends JPanel{
 	
 	/**
 	 * 
@@ -19,7 +19,7 @@ public class DialogBoxPanel extends JPanel{
 	
 	private JButton CloseWindow;
 
-	DialogBoxPanel(JFrame frame, String message){
+	AlertMessageUIView(JFrame frame, String message){
 		//JFrame MessageFrame = new JFrame("Alert");
 		frame.setMinimumSize(new Dimension(400,100));
 		Message = new JLabel(message);

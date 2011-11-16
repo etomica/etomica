@@ -7,11 +7,8 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.table.AbstractTableModel;
 
 
-import etomica.virial.GUI.components.CreateSpeciesLJ_2CLJQ;
-import etomica.virial.GUI.components.CreateSpeciesLJ_LJ;
-import etomica.virial.GUI.components.CreateSpeciesLJ_LJQ;
 
-public class ParametersTableModel extends AbstractTableModel  {
+public class MixtureBuilderDM_ListingTable extends AbstractTableModel  {
 
 	/**
 	 * 
@@ -23,7 +20,7 @@ public class ParametersTableModel extends AbstractTableModel  {
 	private Object[][] data;
 	
 	
-	public ParametersTableModel(){
+	public MixtureBuilderDM_ListingTable(){
 		data = new String[12][2];
 		
 	}
@@ -80,8 +77,8 @@ public class ParametersTableModel extends AbstractTableModel  {
 
 	
 	public static void main(String[] args){
-		ParametersTableModel ljt = new ParametersTableModel();
-		CreateSpeciesLJ_2CLJQ p2LJ = new CreateSpeciesLJ_2CLJQ();
+		MixtureBuilderDM_ListingTable ljt = new MixtureBuilderDM_ListingTable();
+		CreateSpeciesDM_LJ_2CLJQ p2LJ = new CreateSpeciesDM_LJ_2CLJQ();
 		//ljt.UpdateObjectData(p2LJ.getParametersArray());
 		//System.out.println(ljt.getData1());
 	}

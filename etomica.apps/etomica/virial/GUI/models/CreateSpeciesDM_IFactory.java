@@ -1,11 +1,11 @@
-package etomica.virial.GUI.components;
+package etomica.virial.GUI.models;
 
 import etomica.api.ISpecies;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.virial.SpeciesFactory;
 
-public interface MixtureBuilderSpeciesFactory {
+public interface CreateSpeciesDM_IFactory {
 	
 	
 	public Space getSpace();

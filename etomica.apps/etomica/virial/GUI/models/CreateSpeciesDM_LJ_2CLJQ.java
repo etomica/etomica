@@ -1,4 +1,4 @@
-package etomica.virial.GUI.components;
+package etomica.virial.GUI.models;
 
 
 import etomica.api.ISpecies;
@@ -13,9 +13,8 @@ import etomica.space3d.Space3D;
 import etomica.virial.SpeciesFactory;
 
 import etomica.virial.SpeciesFactoryTangentSpheres;
-import etomica.virial.GUI.models.ParametersDouble;
 
-public class CreateSpeciesLJ_2CLJQ implements MixtureBuilderSpeciesFactory,Cloneable{
+public class CreateSpeciesDM_LJ_2CLJQ implements CreateSpeciesDM_IFactory,Cloneable{
 	private static String MoleculeDisplayName = "2 Centered LJ with Quad";
 	private Space space;
 	private double[] sigma;
@@ -60,7 +59,7 @@ public class CreateSpeciesLJ_2CLJQ implements MixtureBuilderSpeciesFactory,Clone
 	//Constructors for different Instantiations
 	
 	
-	public CreateSpeciesLJ_2CLJQ(){
+	public CreateSpeciesDM_LJ_2CLJQ(){
 		space = Space3D.getInstance();
 		sigma = new double[PotentialSites.length];
 		epsilon = new double[PotentialSites.length];
@@ -125,7 +124,7 @@ public class CreateSpeciesLJ_2CLJQ implements MixtureBuilderSpeciesFactory,Clone
 	
 	 public Object clone(){
 		 try{
-			 CreateSpeciesLJ_2CLJQ cloned = (CreateSpeciesLJ_2CLJQ)super.clone();
+			 CreateSpeciesDM_LJ_2CLJQ cloned = (CreateSpeciesDM_LJ_2CLJQ)super.clone();
 			 return cloned;
 		  }
 		  catch(CloneNotSupportedException e){
@@ -210,22 +209,22 @@ public class CreateSpeciesLJ_2CLJQ implements MixtureBuilderSpeciesFactory,Clone
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
 				setSigma(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.MOMENT.toString()+PotentialSites[i])){
 				setMoment(Double.parseDouble(ParameterValue),i); 
 			}
 			
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
 			setBondLength(Double.parseDouble(ParameterValue)); 
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
 			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 		}
 	}
@@ -238,30 +237,30 @@ public class CreateSpeciesLJ_2CLJQ implements MixtureBuilderSpeciesFactory,Clone
 	public String getDescription(String Parameter) {
 		String Description = null;
 		for(int i = 0;i <PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
-				Description = ParametersDouble.SIGMA.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.SIGMA.Description();
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
-				Description = ParametersDouble.EPSILON.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.EPSILON.Description();
 			}
 		
-			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
-				Description = ParametersDouble.MOMENT.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.MOMENT.toString()+PotentialSites[i])){
+				Description = PotentialParamDM_Description.MOMENT.Description();
 			}
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
-			Description = ParametersDouble.BONDL.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
+			Description = PotentialParamDM_Description.BONDL.Description();
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
-			Description = ParametersDouble.SIGMAHSREF.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
+			Description = PotentialParamDM_Description.SIGMAHSREF.Description();
 		}
 		return Description;
 	}
 
 	//Testing Class
 	public static void main(String[] args){
-		CreateSpeciesLJ_2CLJQ lj = new CreateSpeciesLJ_2CLJQ();
+		CreateSpeciesDM_LJ_2CLJQ lj = new CreateSpeciesDM_LJ_2CLJQ();
 		for(int j=0;j<lj.ComponentParameters.length*lj.PotentialSites.length;j++){
 			
 				System.out.println(lj.ParamAndValues[j][0]+"\n");
@@ -280,22 +279,22 @@ public class CreateSpeciesLJ_2CLJQ implements MixtureBuilderSpeciesFactory,Clone
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(ParametersDouble.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
 				parameterValue = getSigma(i);
 			}
-			if(Parameter.toUpperCase().equals(ParametersDouble.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
 				parameterValue = getEpsilon(i);
 			}
 		
-			if(Parameter.toUpperCase().equals(ParametersDouble.MOMENT.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.MOMENT.toString()+PotentialSites[i])){
 				parameterValue = getMoment(i);
 			}
 		}
-		if(Parameter.toUpperCase().equals(ParametersDouble.BONDL.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
 			parameterValue = getBondLength();
 		}
 		
-		if(Parameter.toUpperCase().equals(ParametersDouble.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
 		}
 		

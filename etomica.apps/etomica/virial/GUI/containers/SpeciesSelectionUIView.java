@@ -54,26 +54,26 @@ import javax.swing.table.TableModel;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.virial.GUI.components.CreatePotentialCollections;
-import etomica.virial.GUI.components.CreateSpeciesLJ_2CLJQ;
-import etomica.virial.GUI.components.CreateSpeciesAlkane_SKS;
-import etomica.virial.GUI.components.CreateSpeciesAlkane_TRAPPE;
-import etomica.virial.GUI.components.CreateSpeciesCO2_2CLJQ;
-import etomica.virial.GUI.components.CreateSpeciesCO2_EMP2;
-import etomica.virial.GUI.components.CreateSpeciesCO2_Trappe;
-import etomica.virial.GUI.components.CreateSpeciesEthane_2CLJQ;
-import etomica.virial.GUI.components.CreateSpeciesLJ_LJ;
-import etomica.virial.GUI.components.CreateSpeciesLJ_LJQ;
-import etomica.virial.GUI.components.CreateSpeciesH2O_SPCE;
 import etomica.virial.GUI.components.CreateSimulation;
-import etomica.virial.GUI.components.MixtureBuilderSpeciesFactory;
 import etomica.virial.GUI.components.PotentialCollectionFactory;
 import etomica.virial.GUI.components.SimulationEnvironment;
 import etomica.virial.GUI.components.SimulationEnvironmentObject;
-import etomica.virial.GUI.models.ParametersTableModel;
-import etomica.virial.GUI.models.ParametersDouble;
+import etomica.virial.GUI.models.CreateSpeciesDM_Alkane_SKS;
+import etomica.virial.GUI.models.CreateSpeciesDM_Alkane_TRAPPE;
+import etomica.virial.GUI.models.CreateSpeciesDM_CO2_2CLJQ;
+import etomica.virial.GUI.models.CreateSpeciesDM_CO2_EMP2;
+import etomica.virial.GUI.models.CreateSpeciesDM_CO2_Trappe;
+import etomica.virial.GUI.models.CreateSpeciesDM_Ethane_2CLJQ;
+import etomica.virial.GUI.models.CreateSpeciesDM_H2O_SPCE;
+import etomica.virial.GUI.models.CreateSpeciesDM_LJ_2CLJQ;
+import etomica.virial.GUI.models.CreateSpeciesDM_LJ_LJ;
+import etomica.virial.GUI.models.CreateSpeciesDM_LJ_LJQ;
+import etomica.virial.GUI.models.MixtureBuilderDM_ListingTable;
+import etomica.virial.GUI.models.PotentialParamDM_Description;
+import etomica.virial.GUI.models.CreateSpeciesDM_IFactory;
 
 
-public class Species1 extends JPanel implements ActionListener, ListSelectionListener, TableModelListener{
+public class SpeciesSelectionUIView extends JPanel implements ActionListener, ListSelectionListener, TableModelListener{
 	
 	/**
 	 * 
@@ -104,25 +104,25 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	private String[] SpeciesList = {"LJ","CO2","Methanol","Ethanol","Methane","Ethane","Propane","Higher n-Alkanes","Naphthalene","Water"};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] LJPotentialClassList = {CreateSpeciesLJ_LJ.class,CreateSpeciesLJ_LJQ.class,CreateSpeciesLJ_2CLJQ.class};
+	private Class[] LJPotentialClassList = {CreateSpeciesDM_LJ_LJ.class,CreateSpeciesDM_LJ_LJQ.class,CreateSpeciesDM_LJ_2CLJQ.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] CO2PotentialClassList = {CreateSpeciesCO2_2CLJQ.class,CreateSpeciesCO2_EMP2.class,CreateSpeciesCO2_Trappe.class};
+	private Class[] CO2PotentialClassList = {CreateSpeciesDM_CO2_2CLJQ.class,CreateSpeciesDM_CO2_EMP2.class,CreateSpeciesDM_CO2_Trappe.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] MethanePotentialClassList = {CreateSpeciesAlkane_TRAPPE.class};
+	private Class[] MethanePotentialClassList = {CreateSpeciesDM_Alkane_TRAPPE.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] EthanePotentialClassList = {CreateSpeciesAlkane_TRAPPE.class, CreateSpeciesAlkane_SKS.class, CreateSpeciesEthane_2CLJQ.class};
+	private Class[] EthanePotentialClassList = {CreateSpeciesDM_Alkane_TRAPPE.class, CreateSpeciesDM_Alkane_SKS.class, CreateSpeciesDM_Ethane_2CLJQ.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] PropanePotentialClassList = {CreateSpeciesAlkane_TRAPPE.class,CreateSpeciesAlkane_SKS.class};
+	private Class[] PropanePotentialClassList = {CreateSpeciesDM_Alkane_TRAPPE.class,CreateSpeciesDM_Alkane_SKS.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] nAlkanePotentialClassList = {CreateSpeciesAlkane_TRAPPE.class, CreateSpeciesAlkane_SKS.class};
+	private Class[] nAlkanePotentialClassList = {CreateSpeciesDM_Alkane_TRAPPE.class, CreateSpeciesDM_Alkane_SKS.class};
 	
 	@SuppressWarnings("rawtypes")
-	private Class[] WaterPotentialClassList = {CreateSpeciesH2O_SPCE.class};
+	private Class[] WaterPotentialClassList = {CreateSpeciesDM_H2O_SPCE.class};
 	
 	
 	
@@ -134,20 +134,20 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	
 	private int Alkane1Spheres = 4;
 	private int Alkane2Spheres = 4;
-	private NAlkaneSpheresParameter NSpheres1;
-	private NAlkaneSpheresParameter NSpheres2;
+	private AlkaneSpheresUIView NSpheres1;
+	private AlkaneSpheresUIView NSpheres2;
 	private JFrame NAlkaneFrame1;
 	private JFrame NAlkaneFrame2;
 	
 	//Can be separated From Species Class!!
-	private SimulationParameters SimulationEnvParam;
+	private SimulationEnvironmentUIView SimulationEnvParam;
 	private JFrame OtherParamViewFrame;
 	private SimulationEnvironmentObject OtherParamObject;
 	private SimulationEnvironment SimENV;
 	private PotentialCollectionFactory PObject;
 	private CreateSimulation simulation;
 	private Console console;
-	private DialogBoxPanel MessageAlert; 
+	private AlertMessageUIView MessageAlert; 
 	private JFrame MessageFrame;
 	
 
@@ -164,16 +164,16 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	private JList SpeciesJList;
 	private JList PotentialJList;
 	
-	private ParametersTableModel LJP1;
-	private ParametersTableModel LJP2;
+	private MixtureBuilderDM_ListingTable LJP1;
+	private MixtureBuilderDM_ListingTable LJP2;
 	
 	private ListSelectionModel cellSelectionModel;
 	private ListSelectionModel cellSelectionModel2;
 	private ListSelectionModel SpeciesListSelectionModel;
 	private ListSelectionModel PotentialListSelectionModel;
 	
-	private MixtureBuilderSpeciesFactory potential1;
-	private MixtureBuilderSpeciesFactory potential2;
+	private CreateSpeciesDM_IFactory potential1;
+	private CreateSpeciesDM_IFactory potential2;
 	private int TotalMoleculeCount = 0;
 	private int Molecule1Count = 0;
 	private int Molecule2Count = 0;
@@ -184,7 +184,7 @@ public class Species1 extends JPanel implements ActionListener, ListSelectionLis
 	//private SpeciesList sList;
 	private ArrayList<String> sList;
 	
-	Species1(){
+	public SpeciesSelectionUIView(){
 		super();
 		initComponents();
 		}
@@ -200,7 +200,7 @@ public void initComponents(){
 	
 		AddSpecies = new JButton("Add");
 		AddSpecies.setFocusPainted(false);
-		AddSpecies.addActionListener(this);
+		//AddSpecies.addActionListener(this);
 	
 		SpeciesJList = new JList(IntialList);
 		SpeciesJList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -302,8 +302,8 @@ public void initComponents(){
 		JPanel TablePane2 = new JPanel();
 		TablePane2.setBorder(BorderFactory.createLoweredBevelBorder());
     
-		LJP1 = new ParametersTableModel();
-		LJP2 = new ParametersTableModel();
+		LJP1 = new MixtureBuilderDM_ListingTable();
+		LJP2 = new MixtureBuilderDM_ListingTable();
     
 		
 		table1 = new JTable();
@@ -881,25 +881,25 @@ public void initComponents(){
 
 
 
-	public ParametersTableModel getLJP1() {
+	public MixtureBuilderDM_ListingTable getLJP1() {
 		return LJP1;
 	}
 
 
 
-	public void setLJP1(ParametersTableModel lJP1) {
+	public void setLJP1(MixtureBuilderDM_ListingTable lJP1) {
 		LJP1 = lJP1;
 	}
 
 
 
-	public ParametersTableModel getLJP2() {
+	public MixtureBuilderDM_ListingTable getLJP2() {
 		return LJP2;
 	}
 
 
 
-	public void setLJP2(ParametersTableModel lJP2) {
+	public void setLJP2(MixtureBuilderDM_ListingTable lJP2) {
 		LJP2 = lJP2;
 	}
 
@@ -917,25 +917,25 @@ public void initComponents(){
 
 
 
-	public MixtureBuilderSpeciesFactory getPotential1() {
+	public CreateSpeciesDM_IFactory getPotential1() {
 		return potential1;
 	}
 
 
 
-	public void setPotential1(MixtureBuilderSpeciesFactory potential1) {
+	public void setPotential1(CreateSpeciesDM_IFactory potential1) {
 		this.potential1 = potential1;
 	}
 
 
 
-	public MixtureBuilderSpeciesFactory getPotential2() {
+	public CreateSpeciesDM_IFactory getPotential2() {
 		return potential2;
 	}
 
 
 
-	public void setPotential2(MixtureBuilderSpeciesFactory potential2) {
+	public void setPotential2(CreateSpeciesDM_IFactory potential2) {
 		this.potential2 = potential2;
 	}
 
@@ -1073,7 +1073,7 @@ public void actionPerformed(ActionEvent e){
 				OtherParamObject = new SimulationEnvironmentObject(SimENV.getTemperature(),SimENV.noOfSteps, potential1,potential2);
 			}
 			if(SimulationEnvParam == null){
-			SimulationEnvParam = new SimulationParameters(OtherParamObject);}
+			SimulationEnvParam = new SimulationEnvironmentUIView(OtherParamObject);}
 			OtherParamViewFrame.add(SimulationEnvParam);
 			SimulationEnvParam.getCloseWindow().addActionListener(this);
 			SimulationEnvParam.getSaveValues().addActionListener(this);
@@ -1539,7 +1539,7 @@ public void actionPerformed(ActionEvent e){
 						if(!AddFlag){
 							NAlkaneFrame1 = new JFrame("n-Alkane SpeciesA");
 							if(NSpheres1 == null){
-								NSpheres1 = new NAlkaneSpheresParameter();
+								NSpheres1 = new AlkaneSpheresUIView();
 								NAlkaneFrame1.add(NSpheres1);
 								NAlkaneFrame1.setMinimumSize(new Dimension(500,200));
 								NAlkaneFrame1.setBounds(this.getParent().getParent().getWidth(), 0, 0, 0);
@@ -1550,7 +1550,7 @@ public void actionPerformed(ActionEvent e){
 						}else{
 							NAlkaneFrame2 = new JFrame("n-Alkane SpeciesB");
 							if(NSpheres2 == null){
-								NSpheres2 = new NAlkaneSpheresParameter();
+								NSpheres2 = new AlkaneSpheresUIView();
 								NAlkaneFrame2.add(NSpheres2);
 								NAlkaneFrame2.setMinimumSize(new Dimension(500,200));
 								NAlkaneFrame2.setBounds(this.getParent().getParent().getWidth(), 0, 0, 0);
@@ -1596,12 +1596,12 @@ public void actionPerformed(ActionEvent e){
 								if(C.length > 1){
 									for(int i = 0; i < C.length;i++){
 										if(C[i].getParameterTypes().length > 0){
-											potential1 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
+											potential1 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
 										}
 									}
 								}
 								else{
-									potential1 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+									potential1 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
 								}
 							}
 							else{
@@ -1621,12 +1621,12 @@ public void actionPerformed(ActionEvent e){
 								if(C.length > 1){
 									for(int i = 0; i < C.length;i++){
 										if(C[i].getParameterTypes().length > 0){
-											potential1 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
+											potential1 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
 										}
 									}
 								}
 								else{
-									potential1 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+									potential1 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
 								}
 							
 							}
@@ -1647,17 +1647,17 @@ public void actionPerformed(ActionEvent e){
 								for(int i = 0; i < C.length;i++){
 									if(C[i].getParameterTypes().length > 0){
 										
-											MixtureBuilderSpeciesFactory TempPotential2 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
+											CreateSpeciesDM_IFactory TempPotential2 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
 											if(TempPotential2.getMoleculeDisplayName() == potential1.getMoleculeDisplayName() && NSpheres1 == null && NSpheres2 == null){
 												//custom title, error icon
 												MessageFrame = new JFrame("Alert");
-												MessageAlert = new DialogBoxPanel(MessageFrame,"You ve chosen the same potential. Please choose another");
+												MessageAlert = new AlertMessageUIView(MessageFrame,"You ve chosen the same potential. Please choose another");
 												MessageAlert.getCloseWindow().addActionListener(this);
 												potential2 = null;
 												return;
 											}
 											else{
-												potential2 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
+												potential2 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor(Integer.TYPE).newInstance(obj);
 											}
 										
 									}
@@ -1665,16 +1665,16 @@ public void actionPerformed(ActionEvent e){
 							}
 							else{
 								
-									MixtureBuilderSpeciesFactory TempPotential2 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+									CreateSpeciesDM_IFactory TempPotential2 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
 									if(TempPotential2.getMoleculeDisplayName() == potential1.getMoleculeDisplayName() && NSpheres1 == null && NSpheres2 == null){
 										//custom title, error icon
 										MessageFrame = new JFrame("Alert");
-										MessageAlert = new DialogBoxPanel(MessageFrame,"You ve chosen the same potential. Please choose another");
+										MessageAlert = new AlertMessageUIView(MessageFrame,"You ve chosen the same potential. Please choose another");
 										MessageAlert.getCloseWindow().addActionListener(this);
 										return;
 									}
 									else{
-										potential2 = (MixtureBuilderSpeciesFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
+										potential2 = (CreateSpeciesDM_IFactory) potentialList[list.getSelectedIndex()].getConstructor().newInstance(new Object[0]);
 									}
 								
 							}
@@ -1737,7 +1737,7 @@ public void actionPerformed(ActionEvent e){
 					
 					try{
 							selectedParameter = (String)table1.getValueAt(RowIndex,0);
-							for(ParametersDouble parameters : ParametersDouble.values()){
+							for(PotentialParamDM_Description parameters : PotentialParamDM_Description.values()){
 								if(selectedParameter.toUpperCase().contains(parameters.toString())){
 									if(EditVariables.isEnabled()){
 									Description.append("You have now chosen to edit the default value of " + parameters.toString() + "\n");}
@@ -1829,11 +1829,18 @@ public void actionPerformed(ActionEvent e){
 	
 	
 	
+	//Listener method to run the simulation when the Run button is pressed
+	void addSpeciesButtonListener(ActionListener mal) {
+		AddSpecies.addActionListener(mal);
+	}
+	
+	
+	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				
-				Species1 s = new Species1();
+				SpeciesSelectionUIView s = new SpeciesSelectionUIView();
 				JFrame frame = new JFrame();
 				frame.add(s);
 				frame.setVisible(true);
