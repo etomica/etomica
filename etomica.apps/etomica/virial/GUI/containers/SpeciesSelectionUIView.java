@@ -53,9 +53,9 @@ import javax.swing.table.TableModel;
 
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.virial.GUI.components.CreatePotentialCollections;
-import etomica.virial.GUI.components.CreateSimulation;
-import etomica.virial.GUI.components.PotentialCollectionFactory;
+import etomica.virial.GUI.components.PotentialCollectionsBuilder;
+import etomica.virial.GUI.components.SimulationFactory;
+import etomica.virial.GUI.components.PotentialCollections;
 import etomica.virial.GUI.components.SimulationEnvironment;
 import etomica.virial.GUI.components.SimulationEnvironmentObject;
 import etomica.virial.GUI.models.CreateSpeciesDM_Alkane_SKS;
@@ -68,8 +68,8 @@ import etomica.virial.GUI.models.CreateSpeciesDM_H2O_SPCE;
 import etomica.virial.GUI.models.CreateSpeciesDM_LJ_2CLJQ;
 import etomica.virial.GUI.models.CreateSpeciesDM_LJ_LJ;
 import etomica.virial.GUI.models.CreateSpeciesDM_LJ_LJQ;
-import etomica.virial.GUI.models.MixtureBuilderDM_ListingTable;
-import etomica.virial.GUI.models.PotentialParamDM_Description;
+import etomica.virial.GUI.models.PotentialParameterTableModel;
+import etomica.virial.GUI.models.PotentialParamDescription;
 import etomica.virial.GUI.models.CreateSpeciesDM_IFactory;
 
 
@@ -96,7 +96,7 @@ public class SpeciesSelectionUIView extends JPanel implements ActionListener, Li
 	//This needs to be removed once this code is ready to be added to the main code
 	
 	
-	
+	//Added to SpeciesSelectionDM_List
 	
 	private String[] IntialList = {"---No species selected---","Press \'Add\' to select a species"};
 	private String[] IntialPotentialList = {"---No potentials selected---","Press \'Add\' to select a potential"};
@@ -140,12 +140,15 @@ public class SpeciesSelectionUIView extends JPanel implements ActionListener, Li
 	private JFrame NAlkaneFrame2;
 	
 	//Can be separated From Species Class!!
+	
+	
+	
 	private SimulationEnvironmentUIView SimulationEnvParam;
 	private JFrame OtherParamViewFrame;
-	private SimulationEnvironmentObject OtherParamObject;
-	private SimulationEnvironment SimENV;
-	private PotentialCollectionFactory PObject;
-	private CreateSimulation simulation;
+	private SimulationEnvironmentObject OtherParamObject;//Added to SimulationConstructorDM
+	private SimulationEnvironment SimENV;//Added to SimulationConstructorDM
+	private PotentialCollections PObject;//Added to SimulationConstructorDM
+	private SimulationFactory simulation;//Added to SimulationConstructorDM
 	private Console console;
 	private AlertMessageUIView MessageAlert; 
 	private JFrame MessageFrame;
@@ -164,8 +167,8 @@ public class SpeciesSelectionUIView extends JPanel implements ActionListener, Li
 	private JList SpeciesJList;
 	private JList PotentialJList;
 	
-	private MixtureBuilderDM_ListingTable LJP1;
-	private MixtureBuilderDM_ListingTable LJP2;
+	private PotentialParameterTableModel LJP1;
+	private PotentialParameterTableModel LJP2;
 	
 	private ListSelectionModel cellSelectionModel;
 	private ListSelectionModel cellSelectionModel2;
@@ -207,7 +210,7 @@ public void initComponents(){
 		SpeciesListSelectionModel = SpeciesJList.getSelectionModel();
 		SpeciesJList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		SpeciesJList.setVisibleRowCount(-1);
-		SpeciesJList.addListSelectionListener(this);
+		//SpeciesJList.addListSelectionListener(this);
 		SpeciesJList.setBorder(BorderFactory.createLineBorder(Color.black));
 	
  
@@ -243,7 +246,7 @@ public void initComponents(){
 		AddPotential.setVisible(true);
 		AddPotential.setEnabled(false);
 		AddPotential.setFocusPainted(false);
-		AddPotential.addActionListener(this);
+		//AddPotential.addActionListener(this);
    
 		PotentialJList = new JList(IntialPotentialList);
 	
@@ -251,7 +254,7 @@ public void initComponents(){
 		PotentialJList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		PotentialJList.setVisibleRowCount(-1);
 		PotentialJList.setEnabled(false);
-		PotentialJList.addListSelectionListener(this);
+		//PotentialJList.addListSelectionListener(this);
  
 		JScrollPane PotentialListScroller = new JScrollPane(PotentialJList);
 		PotentialListScroller.setPreferredSize(new Dimension(400,100));
@@ -302,8 +305,8 @@ public void initComponents(){
 		JPanel TablePane2 = new JPanel();
 		TablePane2.setBorder(BorderFactory.createLoweredBevelBorder());
     
-		LJP1 = new MixtureBuilderDM_ListingTable();
-		LJP2 = new MixtureBuilderDM_ListingTable();
+		LJP1 = new PotentialParameterTableModel();
+		LJP2 = new PotentialParameterTableModel();
     
 		
 		table1 = new JTable();
@@ -881,25 +884,25 @@ public void initComponents(){
 
 
 
-	public MixtureBuilderDM_ListingTable getLJP1() {
+	public PotentialParameterTableModel getLJP1() {
 		return LJP1;
 	}
 
 
 
-	public void setLJP1(MixtureBuilderDM_ListingTable lJP1) {
+	public void setLJP1(PotentialParameterTableModel lJP1) {
 		LJP1 = lJP1;
 	}
 
 
 
-	public MixtureBuilderDM_ListingTable getLJP2() {
+	public PotentialParameterTableModel getLJP2() {
 		return LJP2;
 	}
 
 
 
-	public void setLJP2(MixtureBuilderDM_ListingTable lJP2) {
+	public void setLJP2(PotentialParameterTableModel lJP2) {
 		LJP2 = lJP2;
 	}
 
@@ -1177,7 +1180,7 @@ public void actionPerformed(ActionEvent e){
 		
 		if(e.getSource().equals(Run)){
 
-			simulation = new CreateSimulation(potential1, potential2);
+			simulation = new SimulationFactory(potential1, potential2);
 			if(SimENV == null){
 				SimENV = SimulationEnvironment.getInstance();
 			}
@@ -1195,7 +1198,7 @@ public void actionPerformed(ActionEvent e){
 				OtherParamObject.calculateSystemSigmaHSRef(potential1, potential2);
 				
 				
-				CreatePotentialCollections checkSpecies = new CreatePotentialCollections();
+				PotentialCollectionsBuilder checkSpecies = new PotentialCollectionsBuilder();
 				PObject = checkSpecies.checkIfCompatible(potential1,potential2,OtherParamObject);
 				if(PObject == null){
 					if(potential2 == null){
@@ -1737,7 +1740,7 @@ public void actionPerformed(ActionEvent e){
 					
 					try{
 							selectedParameter = (String)table1.getValueAt(RowIndex,0);
-							for(PotentialParamDM_Description parameters : PotentialParamDM_Description.values()){
+							for(PotentialParamDescription parameters : PotentialParamDescription.values()){
 								if(selectedParameter.toUpperCase().contains(parameters.toString())){
 									if(EditVariables.isEnabled()){
 									Description.append("You have now chosen to edit the default value of " + parameters.toString() + "\n");}
@@ -1830,11 +1833,22 @@ public void actionPerformed(ActionEvent e){
 	
 	
 	//Listener method to run the simulation when the Run button is pressed
-	void addSpeciesButtonListener(ActionListener mal) {
+	public void addSpeciesButtonListener(ActionListener mal) {
 		AddSpecies.addActionListener(mal);
 	}
 	
+	public void addSpeciesJListListener(ListSelectionListener mal) {
+		SpeciesJList.addListSelectionListener(mal);
+	}
 	
+	
+	public void addPotentialButtonListener(ActionListener mal) {
+		AddPotential.addActionListener(mal);
+	}
+	
+	public void addPotentialsJListListener(ListSelectionListener mal) {
+		PotentialJList.addListSelectionListener(mal);
+	}
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
