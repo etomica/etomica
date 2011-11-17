@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import etomica.virial.GUI.containers.AlertMessageUIView;
 import etomica.virial.GUI.containers.AlkaneSpheresUIView;
 import etomica.virial.GUI.containers.SimulationEnvironmentUIView;
-import etomica.virial.GUI.containers.Species1;
+
 import etomica.virial.GUI.containers.SpeciesSelectionUIView;
 import etomica.virial.GUI.models.AlkaneLengthSelectionDM;
 import etomica.virial.GUI.models.SpeciesDM;
