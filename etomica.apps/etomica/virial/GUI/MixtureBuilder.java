@@ -3,7 +3,7 @@ package etomica.virial.GUI;
 import javax.swing.SwingUtilities;
 
 import etomica.virial.GUI.containers.MixtureBuilderUIFrame;
-import etomica.virial.GUI.controllers.MixtureBuilderUIController;
+
 import etomica.virial.GUI.models.MixtureBuilderDM;
 import etomica.virial.GUI.views.MixtureBuilderUIView;
 
@@ -23,8 +23,8 @@ public class MixtureBuilder{
 				//DefaultValuesView DWindow = new DefaultValuesView(DefaultValueFrame,superModel);
 				MixtureBuilderUIView mixtureBuilderView = new MixtureBuilderUIView(mixtureBuilderFrame,mixtureBuilderDM);
 				
-				@SuppressWarnings("unused")
-				MixtureBuilderUIController mixtureBuilderController = new MixtureBuilderUIController(mixtureBuilderView,mixtureBuilderDM);
+				
+				
 				
 				System.out.println("Hi THIS IS CONNECTED");
 				

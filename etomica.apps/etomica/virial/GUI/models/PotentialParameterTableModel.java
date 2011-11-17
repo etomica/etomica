@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 
 
 
-public class MixtureBuilderDM_ListingTable extends AbstractTableModel  {
+public class PotentialParameterTableModel extends AbstractTableModel  {
 
 	/**
 	 * 
@@ -20,7 +20,7 @@ public class MixtureBuilderDM_ListingTable extends AbstractTableModel  {
 	private Object[][] data;
 	
 	
-	public MixtureBuilderDM_ListingTable(){
+	public PotentialParameterTableModel(){
 		data = new String[12][2];
 		
 	}
@@ -77,7 +77,7 @@ public class MixtureBuilderDM_ListingTable extends AbstractTableModel  {
 
 	
 	public static void main(String[] args){
-		MixtureBuilderDM_ListingTable ljt = new MixtureBuilderDM_ListingTable();
+		PotentialParameterTableModel ljt = new PotentialParameterTableModel();
 		CreateSpeciesDM_LJ_2CLJQ p2LJ = new CreateSpeciesDM_LJ_2CLJQ();
 		//ljt.UpdateObjectData(p2LJ.getParametersArray());
 		//System.out.println(ljt.getData1());

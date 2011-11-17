@@ -24,10 +24,10 @@ import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.GUI.containers.AlertMessageUIView;
-import etomica.virial.GUI.models.PotentialSiteDM_Name;
+import etomica.virial.GUI.models.PotentialSiteName;
 import etomica.virial.GUI.models.CreateSpeciesDM_IFactory;
 
-public class CreatePotentialCollections {
+public class PotentialCollectionsBuilder {
 
 	private AlertMessageUIView messageAlert;
 	
@@ -61,12 +61,12 @@ public class CreatePotentialCollections {
 	private ArrayList<String[]> UnlikePairsWithoutDuplicates;
 	private ArrayList<String[]> UnlikePairsWithoutCrossPairs;
 	
-	private PotentialCollectionFactory PObject;
+	private PotentialCollections PObject;
 	
 	
 
 	@SuppressWarnings("unchecked")
-	public PotentialCollectionFactory checkIfCompatible(CreateSpeciesDM_IFactory potential1,CreateSpeciesDM_IFactory potential2,SimulationEnvironmentObject SimENV){
+	public PotentialCollections checkIfCompatible(CreateSpeciesDM_IFactory potential1,CreateSpeciesDM_IFactory potential2,SimulationEnvironmentObject SimENV){
 		
 		//PObject = new PotentialObject();
 		SimEnv = SimENV;
@@ -926,7 +926,7 @@ public class CreatePotentialCollections {
 				Site2 = SiteB[0];
 			}
 			IAtomType[] SiteAtoms = new IAtomType[2];
-			for(PotentialSiteDM_Name site: PotentialSiteDM_Name.values()){
+			for(PotentialSiteName site: PotentialSiteName.values()){
 				if(site.toString().toUpperCase().equals(Site1.toUpperCase())){
 					Site1Name = site.getSite();
 				}

@@ -2,7 +2,7 @@ package etomica.virial.GUI.components;
 
 import etomica.api.IPotential;
 
-public class MolecularPotentialsCollection extends PotentialCollectionFactory{
+public class MolecularPotentialsCollection extends PotentialCollections{
 
 	
 	//Array Object to declare Molecular Potential - Pairwise Interactions

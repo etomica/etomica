@@ -68,7 +68,7 @@ import etomica.virial.simulations.SimulationVirialMultiOverlap;
 import etomica.virial.simulations.SimulationVirialOverlap;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
-public class CreateSimulation {
+public class SimulationFactory {
 	
 	
 	
@@ -86,7 +86,7 @@ public class CreateSimulation {
 	
 	private JFrame frame;
 	
-	public CreateSimulation(CreateSpeciesDM_IFactory Potential1, CreateSpeciesDM_IFactory Potential2){
+	public SimulationFactory(CreateSpeciesDM_IFactory Potential1, CreateSpeciesDM_IFactory Potential2){
 		this.potential1 = Potential1;
 		if(Potential2 != null){
 			this.potential2 = Potential2;
@@ -95,7 +95,7 @@ public class CreateSimulation {
 
 	
 	@SuppressWarnings("unchecked")
-	public void runSimulation(SimulationEnvironmentObject simEnv, PotentialCollectionFactory PObject) throws NoSuchMethodException{
+	public void runSimulation(SimulationEnvironmentObject simEnv, PotentialCollections PObject) throws NoSuchMethodException{
 		
 		SimEnv = simEnv;
 		

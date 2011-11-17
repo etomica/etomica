@@ -27,7 +27,7 @@ public class BondedPotentialCollectionAlkanes extends BondedPotentialCollectionF
 	
 	
 	@SuppressWarnings("unchecked")
-	public void AddBondedPotentialSets(PotentialCollectionFactory pObject, ISpace space, int speciesIndex){
+	public void AddBondedPotentialSets(PotentialCollections pObject, ISpace space, int speciesIndex){
 		
 		boolean IndexFlag = false;
 		if(AtomicPotentialsCollection.class.isAssignableFrom(pObject.getClass())){

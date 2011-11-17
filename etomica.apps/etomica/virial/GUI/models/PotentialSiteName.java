@@ -1,6 +1,6 @@
 package etomica.virial.GUI.models;
 
-public enum PotentialSiteDM_Name {
+public enum PotentialSiteName {
 	
 	C("Carbon"),
 	O("Oxygen"),
@@ -26,7 +26,7 @@ public enum PotentialSiteDM_Name {
 		Site = site;
 	}
 
-	PotentialSiteDM_Name(String sitename){
+	PotentialSiteName(String sitename){
 		Site = sitename;
 	}
 	

@@ -22,6 +22,22 @@ public class SimulationEnvironmentObject {
 	public boolean doWiggle = false;
 	
 	
+	public SimulationEnvironmentObject(){
+		reset();
+	}
+	
+	private void reset() {
+		// TODO Auto-generated method stub
+		setSigmaHSRefA(0.0);
+		setSigmaHSRefA(0.0);
+		setAlkane1Spheres(4);
+		setAlkane2Spheres(4);
+		SpeciesA = 0;
+		SpeciesB = 0;
+		doWiggle = false;
+		
+	}
+
 	public SimulationEnvironmentObject(double Temperature,int NoOfSteps,CreateSpeciesDM_IFactory potential1, CreateSpeciesDM_IFactory potential2){
 		temperature = Temperature;
 		noOfSteps = NoOfSteps;

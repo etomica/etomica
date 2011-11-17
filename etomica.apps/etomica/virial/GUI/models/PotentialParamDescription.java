@@ -2,7 +2,7 @@ package etomica.virial.GUI.models;
 
 import etomica.units.Kelvin;
 
-public enum PotentialParamDM_Description {
+public enum PotentialParamDescription {
 	
 	
 	//Array Order so far
@@ -50,7 +50,7 @@ public enum PotentialParamDM_Description {
 	private Double DefaultValues;
 	private String Description;
 	
-	PotentialParamDM_Description(Double Value, String description){
+	PotentialParamDescription(Double Value, String description){
 		this.DefaultValues = Value;
 		this.Description = description;
 	}

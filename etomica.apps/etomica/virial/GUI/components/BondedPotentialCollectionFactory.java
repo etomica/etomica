@@ -7,6 +7,6 @@ import etomica.space.ISpace;
 public abstract class BondedPotentialCollectionFactory {
 	
 	
-	public void AddBondedPotentialSets(PotentialCollectionFactory pObject, ISpace space, int speciesIndex){}
+	public void AddBondedPotentialSets(PotentialCollections pObject, ISpace space, int speciesIndex){}
 
 }

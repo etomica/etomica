@@ -283,28 +283,28 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		// TODO Auto-generated method stub
 		
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMA.toString()+PotentialSites[i])){
 				setSigma(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 
 			}
 		}
 		
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.NominalbondL.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.NominalbondL.toString())){
 			setBondL(Double.parseDouble(ParameterValue)); 
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.theta.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.theta.toString())){
 			setTheta(Double.parseDouble(ParameterValue)); 
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.forceconstant.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.forceconstant.toString())){
 			setForceconstant(Double.parseDouble(ParameterValue)); 
 		}
 		
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMAHSREF.toString())){
 			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.NUMBER.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.NUMBER.toString())){
 			setNSpheres(Integer.parseInt(ParameterValue)); 
 		}
 	}
@@ -361,35 +361,35 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	public String getDescription(String Parameter) {
 		String Description = null;
 		for(int i = 0;i <PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
-				Description = PotentialParamDM_Description.SIGMA.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMA.toString()+PotentialSites[i])){
+				Description = PotentialParamDescription.SIGMA.Description();
 			}
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
-				Description = PotentialParamDM_Description.EPSILON.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.EPSILON.toString()+PotentialSites[i])){
+				Description = PotentialParamDescription.EPSILON.Description();
 			}
 
 			
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.NominalbondL.toString())){
-			Description = PotentialParamDM_Description.NominalbondL.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.NominalbondL.toString())){
+			Description = PotentialParamDescription.NominalbondL.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.theta.toString())){
-			Description = PotentialParamDM_Description.theta.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.theta.toString())){
+			Description = PotentialParamDescription.theta.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.forceconstant.toString())){
-			Description = PotentialParamDM_Description.forceconstant.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.forceconstant.toString())){
+			Description = PotentialParamDescription.forceconstant.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.TEMPERATURE.toString())){
-			Description = PotentialParamDM_Description.TEMPERATURE.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.TEMPERATURE.toString())){
+			Description = PotentialParamDescription.TEMPERATURE.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.STEPS.toString())){
-			Description = PotentialParamDM_Description.STEPS.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.STEPS.toString())){
+			Description = PotentialParamDescription.STEPS.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
-			Description = PotentialParamDM_Description.SIGMAHSREF.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMAHSREF.toString())){
+			Description = PotentialParamDescription.SIGMAHSREF.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.NUMBER.toString())){
-			Description = PotentialParamDM_Description.NUMBER.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.NUMBER.toString())){
+			Description = PotentialParamDescription.NUMBER.Description();
 		}
 		return Description;
 	}
@@ -400,29 +400,29 @@ public void setSigmaHSRef(double sigmaHSRef) {
 		Double parameterValue = null;
 		
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMA.toString()+PotentialSites[i])){
 				parameterValue = getSigma(i);
 			}
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.EPSILON.toString()+PotentialSites[i])){
 				parameterValue = getEpsilon(i);
 			}
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.NominalbondL.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.NominalbondL.toString())){
 			parameterValue = getBondL();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.theta.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.theta.toString())){
 			parameterValue = getTheta();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.forceconstant.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.forceconstant.toString())){
 			parameterValue = getTheta();
 		}
 		
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
 		}
 		
 		
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.NUMBER.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.NUMBER.toString())){
 			parameterValue = (double) getNSpheres();
 		}
 		return parameterValue;

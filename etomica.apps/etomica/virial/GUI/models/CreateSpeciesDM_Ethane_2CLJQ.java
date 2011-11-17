@@ -215,22 +215,22 @@ public class CreateSpeciesDM_Ethane_2CLJQ implements CreateSpeciesDM_IFactory,Cl
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMA.toString()+PotentialSites[i])){
 				setSigma(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 
 			}
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.MOMENT.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.MOMENT.toString()+PotentialSites[i])){
 				setMoment(Double.parseDouble(ParameterValue),i); 
 			}
 			
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.BONDL.toString())){
 			setBondLength(Double.parseDouble(ParameterValue)); 
 		}
 		
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMAHSREF.toString())){
 			setSigmaHSRef(Double.parseDouble(ParameterValue)); 
 		}
 		
@@ -240,29 +240,29 @@ public class CreateSpeciesDM_Ethane_2CLJQ implements CreateSpeciesDM_IFactory,Cl
 	public String getDescription(String Parameter) {
 		String Description = null;
 		for(int i = 0;i <PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
-				Description = PotentialParamDM_Description.SIGMA.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMA.toString()+PotentialSites[i])){
+				Description = PotentialParamDescription.SIGMA.Description();
 			}
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
-				Description = PotentialParamDM_Description.EPSILON.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.EPSILON.toString()+PotentialSites[i])){
+				Description = PotentialParamDescription.EPSILON.Description();
 			}
 		
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.MOMENT.toString()+PotentialSites[i])){
-				Description = PotentialParamDM_Description.MOMENT.Description();
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.MOMENT.toString()+PotentialSites[i])){
+				Description = PotentialParamDescription.MOMENT.Description();
 			}
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
-			Description = PotentialParamDM_Description.BONDL.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.BONDL.toString())){
+			Description = PotentialParamDescription.BONDL.Description();
 		}
 		
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.TEMPERATURE.toString())){
-			Description = PotentialParamDM_Description.TEMPERATURE.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.TEMPERATURE.toString())){
+			Description = PotentialParamDescription.TEMPERATURE.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.STEPS.toString())){
-			Description = PotentialParamDM_Description.STEPS.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.STEPS.toString())){
+			Description = PotentialParamDescription.STEPS.Description();
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
-			Description = PotentialParamDM_Description.SIGMAHSREF.Description();
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMAHSREF.toString())){
+			Description = PotentialParamDescription.SIGMAHSREF.Description();
 		}
 		return Description;
 	}
@@ -278,22 +278,22 @@ public class CreateSpeciesDM_Ethane_2CLJQ implements CreateSpeciesDM_IFactory,Cl
 		// TODO Auto-generated method stub
 		Double parameterValue = null;
 		for(int i=0;i<PotentialSites.length;i++){
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMA.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMA.toString()+PotentialSites[i])){
 				parameterValue = getSigma(i);
 			}
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.EPSILON.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.EPSILON.toString()+PotentialSites[i])){
 				parameterValue = getEpsilon(i);
 			}
 		
-			if(Parameter.toUpperCase().equals(PotentialParamDM_Description.MOMENT.toString()+PotentialSites[i])){
+			if(Parameter.toUpperCase().equals(PotentialParamDescription.MOMENT.toString()+PotentialSites[i])){
 				parameterValue = getMoment(i);
 			}
 		}
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.BONDL.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.BONDL.toString())){
 			parameterValue = getBondLength();
 		}
 		
-		if(Parameter.toUpperCase().equals(PotentialParamDM_Description.SIGMAHSREF.toString())){
+		if(Parameter.toUpperCase().equals(PotentialParamDescription.SIGMAHSREF.toString())){
 			parameterValue = getSigmaHSRef();
 		}
 		
