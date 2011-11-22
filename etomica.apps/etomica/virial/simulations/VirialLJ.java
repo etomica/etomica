@@ -33,7 +33,7 @@ import etomica.units.UnitRatio;
 import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
+import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
@@ -52,9 +52,8 @@ public class VirialLJ {
         VirialLJParam params = new VirialLJParam();
         if (args.length > 0) {
             params.writeRefPref = true;
-            ReadParameters readParameters = new ReadParameters(args[0], params);
-            readParameters.readParameters();
         }
+        ParseArgs.doParseArgs(params, args);
         
         runVirial(params);
     }
@@ -95,12 +94,13 @@ public class VirialLJ {
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
 
-        System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
-        
+        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -177,7 +177,8 @@ public class VirialLJ {
             return;
         }
 
-        
+        steps /= 1000;
+        long t1 = System.currentTimeMillis();
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -200,16 +201,19 @@ public class VirialLJ {
 //        sim.integratorOS.addIntervalAction(progressReport);
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
-        sim.ai.setMaxSteps(steps);
+        sim.integratorOS.setNumSubSteps((int)steps);
+        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
         sim.getController().actionPerformed();
+        long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
         sim.printResults(HSB[nPoints]);
+        System.out.println("time: "+(t2-t1)/1000.0);
     }
 
     /**
@@ -217,8 +221,8 @@ public class VirialLJ {
      */
     public static class VirialLJParam extends ParameterBase {
         public int nPoints = 4;
-        public double temperature = 0.6;
-        public long numSteps = 10000;
+        public double temperature = 1;
+        public long numSteps = 10000000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
     }
