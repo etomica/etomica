@@ -48,7 +48,6 @@ import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeLessSimplified;
-import etomica.potential.Potential;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
 import etomica.space.IVectorRandom;
@@ -114,16 +113,11 @@ public class VirialHePI {
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperature;
-        long blocks = params.blocks;
-        int stepsPerBlock = params.stepsPerBlock;
-        long blocksEq = params.blocksEq;
+        long steps = params.numSteps;
         final boolean pairOnly = params.nPoints == 2 || params.pairOnly;
         double refFreq = params.refFrac;
         boolean subtractHalf = params.subtractHalf;
         double sigmaHSRef = params.sigmaHSRef;
-        boolean simplifiedPotentials = params.simplifiedPotentials;
-        String file = params.file;
-        
         if (sigmaHSRef == -1) {
             // these correlations work fairly well over the temperature range of interest
             sigmaHSRef = 4 + 20/(10+temperatureK);
@@ -136,6 +130,8 @@ public class VirialHePI {
                 }
             }
         }
+        final boolean calcApprox = params.calcApprox;
+        final String p3ParametersFile = params.p3ParametersFile;
         final int startBeadHalfs = params.startBeadHalfs;
         final int beadFac = subtractHalf ? params.beadFac : 1;
         final int finalNumBeads = params.finalNumBeads;
@@ -144,11 +140,13 @@ public class VirialHePI {
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);
         final boolean doDiff = params.doDiff;
         final boolean semiClassical = params.semiClassical;
+        final boolean subtractApprox = params.subtractApprox;
         final boolean doTotal = params.doTotal;
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
         int origNB = nb;
+        if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
         if (subtractHalf) {
             int totalHalfs = (int)Math.ceil(Math.log((nb+finalNumBeads-1)/finalNumBeads)/Math.log(beadFac));
             int totalFac = (int)Math.round(Math.pow(beadFac, totalHalfs));
@@ -184,6 +182,9 @@ public class VirialHePI {
                 if (semiClassical) {
                     System.out.println("computing difference from semiclassical");
                 }
+                else if (subtractApprox) {
+                    System.out.println("computing difference from approximate He");
+                }
                 else {
                     System.out.println("computing difference from classical");
                 }
@@ -195,7 +196,6 @@ public class VirialHePI {
         else {
             System.out.println("computing non-additive contribution");
         }
-       
         final int nBeads = nb;
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -210,19 +210,8 @@ public class VirialHePI {
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        Potential2SoftSpherical p2 = new P2HePCKLJS(space);
-        Potential p3 = new P3CPSNonAdditiveHe(space);
-
-        if (simplifiedPotentials) {
-        	p2 = new P2HeSimplified(space);
-        	p3 = new P3CPSNonAdditiveHeLessSimplified(space);
-        	((P3CPSNonAdditiveHeLessSimplified)p3).setParameters(file);
-        	System.out.println("simplified pair and trimer potentials used");
-        	System.out.println("21 Parameters for simplified potential:");
-    		for (int i=0;i<((P3CPSNonAdditiveHeLessSimplified)p3).params.length; i++){
-    			System.out.println("params["+i+"] = "+((P3CPSNonAdditiveHeLessSimplified)p3).params[i]);
-    		}
-        }
+        final Potential2SoftSpherical p2 = calcApprox ? new P2HeSimplified(space) : new P2HePCKLJS(space);
+        final Potential2SoftSpherical p2Approx = new P2HeSimplified(space);
         
         PotentialGroupPI pTargetGroup = new PotentialGroupPI(beadFac);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
@@ -231,15 +220,30 @@ public class VirialHePI {
             pTargetSkip[i] = pTargetGroup.new PotentialGroupPISkip(i);
         }
 
-        
+        PotentialGroupPI pTargetApproxGroup = new PotentialGroupPI(beadFac);
+        pTargetApproxGroup.addPotential(p2Approx, new ApiIntergroupCoupled());
+        PotentialGroupPISkip[] pTargetApproxSkip = new PotentialGroupPISkip[beadFac];
+        for (int i=0; i<beadFac; i++) {
+            pTargetApproxSkip[i] = pTargetApproxGroup.new PotentialGroupPISkip(i);
+        }
+        final P3CPSNonAdditiveHeLessSimplified p3Approx = new P3CPSNonAdditiveHeLessSimplified(space);
+        if ((calcApprox || subtractApprox) && !pairOnly) {
+            p3Approx.setParameters(p3ParametersFile);
+        }
+        final IPotentialAtomicMultibody p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
+
         PotentialGroup3PI p3TargetGroup = new PotentialGroup3PI(beadFac);
         p3TargetGroup.addPotential(p3, new ANIntergroupCoupled(3));
         PotentialGroup3PISkip[] p3TargetSkip = new PotentialGroup3PISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             p3TargetSkip[i] = p3TargetGroup.new PotentialGroup3PISkip(i);
         }
-        
-        
+        PotentialGroup3PI p3TargetApproxGroup = new PotentialGroup3PI(beadFac);
+        p3TargetApproxGroup.addPotential(p3Approx, new ANIntergroupCoupled(3));
+        PotentialGroup3PISkip[] p3TargetApproxSkip = new PotentialGroup3PISkip[beadFac];
+        for (int i=0; i<beadFac; i++) {
+            p3TargetApproxSkip[i] = p3TargetGroup.new PotentialGroup3PISkip(i);
+        }
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
         P2EffectiveFeynmanHibbs p2SemiClassical = new P2EffectiveFeynmanHibbs(space, p2);
@@ -260,8 +264,13 @@ public class VirialHePI {
                 return super.f(pair, r2, beta/nBeads);
             }
         };
+        MayerGeneral fTargetApprox = new MayerGeneral(pTargetApproxGroup) {
+            public double f(IMoleculeList pair, double r2, double beta) {
+                return super.f(pair, r2, beta/nBeads);
+            }
+        };
 
-        final MayerFunctionSphericalThreeBody f3TargetClassical = new MayerFunctionSphericalThreeBody((IPotentialAtomicMultibody) p3);
+        final MayerFunctionSphericalThreeBody f3TargetClassical = new MayerFunctionSphericalThreeBody(p3);
 
         MayerFunctionThreeBody[] f3TargetSkip = new MayerFunctionThreeBody[beadFac];
         for (int i=0; i<beadFac; i++) {
@@ -276,7 +285,11 @@ public class VirialHePI {
                 return super.f(molecules, r2, beta/nBeads);
             }
         };
-
+        MayerFunctionThreeBody f3TargetApprox = new MayerFunctionMolecularThreeBody(p3TargetApproxGroup) {
+            public double f(IMoleculeList molecules, double[] r2, double beta) {
+                return super.f(molecules, r2, beta/nBeads);
+            }
+        };
         boolean doFlex = nPoints > 2 && (pairOnly || doTotal);
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
@@ -301,11 +314,40 @@ public class VirialHePI {
             double[] wMinus = fullTargetCluster.getWeights();
             for (int i=0; i<targetSubtract.length; i++) {
                 if (pairOnly) {
-                    targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{subtractHalf ? fTargetSkip[i] : (semiClassical ? fTargetSemiClassical : fTargetClassical)});
+                    if  (subtractHalf) {
+                        targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetSkip[i]});
+                    }
+                    else {
+                        if (semiClassical) {
+                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{(fTargetSemiClassical)});
+                        }
+                        else if (subtractApprox) {
+                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetApprox});
+                        }
+                        else {
+                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetClassical});
+                        }
+                    }
                 }
                 else {
-                    targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{subtractHalf ? fTargetSkip[i] : (semiClassical ? fTargetSemiClassical : fTargetClassical)},
-                        new MayerFunctionNonAdditive[]{subtractHalf ? f3TargetSkip[i] : f3TargetClassical});
+                    if (subtractHalf) {
+                        targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetSkip[i]},
+                                new MayerFunctionNonAdditive[]{f3TargetSkip[i]});
+                    }
+                    else {
+                        if (semiClassical) {
+                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetSemiClassical},
+                                    new MayerFunctionNonAdditive[]{f3TargetClassical});
+                        }
+                        else if (subtractApprox) {
+                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox},
+                                    new MayerFunctionNonAdditive[]{f3TargetApprox});
+                        }
+                        else {
+                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox},
+                                    new MayerFunctionNonAdditive[]{f3TargetClassical});
+                        }
+                    }
                 }
             }
 
@@ -405,12 +447,10 @@ public class VirialHePI {
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         // overerr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
-        long steps = stepsPerBlock*blocks;
         if (steps%1000 != 0) {
             throw new RuntimeException("steps should be a multiple of 1000");
         }
-        System.out.println(steps+" steps ("+blocks+" blocks of "+stepsPerBlock+" steps)");
-        System.out.println(1000+" steps per overlap-sampling block");
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomTypeLeaf(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
@@ -593,10 +633,21 @@ public class VirialHePI {
             refFileName += "_"+tempString+"_"+nBeads;
             if (subtractHalf) {
                 refFileName += "_sh";
+                if (calcApprox) {
+                    // ==> sha
+                    refFileName += "a";
+                }
             }
             else if (doDiff) {
                 if (semiClassical) {
                     refFileName += "_sc";
+                    if (calcApprox) {
+                        // ==> sca
+                        refFileName += "a";
+                    }
+                }
+                else if (subtractApprox) {
+                    refFileName += "_sa";
                 }
                 else {
                     refFileName += "_c";
@@ -621,7 +672,7 @@ public class VirialHePI {
 
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, blocksEq*stepsPerBlock/1000);
+        sim.equilibrate(refFileName, steps/20);
         
         if (accumulatorDiagrams != null) {
             accumulatorDiagrams.reset();
@@ -630,15 +681,15 @@ public class VirialHePI {
         // make the accumulator block size equal to the # of steps performed for each overlap step.
         // make the integratorOS aggressive so that it runs either reference or target
         // then, we'll have some number of complete blocks in the accumulator
-        sim.setAccumulatorBlockSize(stepsPerBlock);
-        //sim.integratorOS.setNumSubSteps((int)steps);
-        //sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.setAccumulatorBlockSize(steps);
+        sim.integratorOS.setNumSubSteps((int)steps);
+        sim.integratorOS.setAgressiveAdjustStepFraction(true);
         
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
-        
+
         final HistogramNotSoSimple targHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple targPiHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
@@ -800,22 +851,7 @@ public class VirialHePI {
             }
             System.out.println();
         }
-        
-        System.out.println();
 
-        DataGroup allData0 = (DataGroup)sim.accumulators[0].getData();
-        IData dataAuto0 = allData0.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
-        System.out.println("reference autocorrelation function: "+dataAuto0.getValue(0));
-        System.out.println("reference overlap autocorrelation function: "+dataAuto0.getValue(1));
-        
-        System.out.println();
-        
-        IData dataAuto = allData.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
-        System.out.println("target autocorrelation function: "+dataAuto.getValue(0));
-        System.out.println("target overlap autocorrelation function: "+dataAuto.getValue(1));
-        
-        System.out.println();
-        
         System.out.println("time: "+(t2-t1)/1000.0);
 	}
     
@@ -840,10 +876,8 @@ public class VirialHePI {
         public int nPoints = 3;
         public int nBeads = 2;
         public double temperature = 2.6;   // Kelvin
-        public long blocks = 1000;  //NOT overlap blocks
-        public int stepsPerBlock = 1000;
-        public long blocksEq=1000; //NOT overlap steps
-        public double refFrac = 0.5; //not adjustment of step freqency if positive
+        public long numSteps = 1000000;
+        public double refFrac = -1;
         public boolean doHist = false;
         public double sigmaHSRef = -1; // -1 means use equation for sigmaHSRef
         public boolean doDiff = false;
@@ -852,9 +886,10 @@ public class VirialHePI {
         public int startBeadHalfs = 0;
         public int beadFac = 2;
         public int finalNumBeads = 2;
-        public boolean pairOnly = false;
-        public boolean doTotal = true;
-        public boolean simplifiedPotentials = true;
-        public String file="paramsOriginal.dat";
+        public boolean pairOnly = true;
+        public boolean doTotal = false;
+        public boolean calcApprox = false;
+        public boolean subtractApprox = false;
+        public String p3ParametersFile = "paramsOriginal.dat";
     }
 }
