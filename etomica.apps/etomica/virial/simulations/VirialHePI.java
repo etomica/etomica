@@ -840,13 +840,15 @@ public class VirialHePI {
             // average is vi/|v| average, error is the uncertainty on that average
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
             double ivar = dataCov.getValue((i+1)*nTotal+(i+1));
-            System.out.print(String.format("average: %20.15e  error: %10.15e  ocor: %6.4f", dataAvg.getValue(i+1), dataErr.getValue(i+1), dataCov.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar)));
+            double ocor = ivar*oVar == 0 ? 0 : dataCov.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar);
+            System.out.print(String.format("average: %20.15e  error: %10.15e  ocor: %6.4f", dataAvg.getValue(i+1), dataErr.getValue(i+1), ocor));
             if (targetDiagrams.length > 1) {
                 System.out.print("  dcor:");
                 for (int j=0; j<targetDiagrams.length; j++) {
                     if (i==j) continue;
                     double jvar = dataCov.getValue((j+1)*nTotal+(j+1));
-                    System.out.print(String.format(" %6.4f",dataCov.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar)));
+                    double dcor = ivar*jvar == 0 ? 0 : dataCov.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar);
+                    System.out.print(String.format(" %6.4f", dcor));
                 }
             }
             System.out.println();
@@ -873,8 +875,8 @@ public class VirialHePI {
      * Inner class for parameters
      */
     public static class VirialHePIParam extends ParameterBase {
-        public int nPoints = 3;
-        public int nBeads = 2;
+        public int nPoints = 2;
+        public int nBeads = 16;
         public double temperature = 2.6;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;
@@ -882,7 +884,7 @@ public class VirialHePI {
         public double sigmaHSRef = -1; // -1 means use equation for sigmaHSRef
         public boolean doDiff = false;
         public boolean semiClassical = false;
-        public boolean subtractHalf = false;
+        public boolean subtractHalf = true;
         public int startBeadHalfs = 0;
         public int beadFac = 2;
         public int finalNumBeads = 2;
