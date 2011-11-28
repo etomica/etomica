@@ -36,12 +36,21 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         this.space = space;
         boxList = new IBox[0];
         controller = new Controller();
-        int[] seeds = RandomNumberGeneratorUnix.getRandSeedArray();
+        seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
         speciesList = new ISpecies[0];
         elementSymbolHash = new HashMap<String,IElement>();
         elementAtomTypeHash = new HashMap<IElement,LinkedList<IAtomType>>();
+    }
+
+    /**
+     * Returns the seeds that were used for the random number generator at
+     * construction.  If the random number generator has been set manually
+     * since then, this method returns null.
+     */
+    public int[] getRandomSeeds() {
+        return seeds;
     }
 
     public final void addBox(IBox newBox) {
@@ -117,6 +126,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
      * Set the simulation's random number generator to the given one.
      */
     public void setRandom(IRandom newRandom) {
+        seeds = null;
         random = newRandom;
     }
 
@@ -265,6 +275,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
 
     private static final long serialVersionUID = 4L;
     protected final ISpace space;
+    protected int[] seeds;
     protected final SimulationEventManager eventManager;
     private IBox[] boxList;
     protected IRandom random;
