@@ -1,8 +1,10 @@
 
 package etomica.potential;
+import etomica.api.IAtomList;
+import etomica.api.IBox;
 import etomica.space.ISpace;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
+import etomica.units.Kelvin;
+import etomica.util.Constants;
 
 /**
  * Simplified pair potential for Helium.  The potential has the form of an
@@ -28,15 +30,21 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     	double r = Math.sqrt(r2);
         double r4 = r2*r2;
         double r6 = r4*r2;
+        double r8 = r4*r4;
         double r10 = r6*r4;
-        return A0*Math.exp(-A1*r)-A2/r6-A3/r10;
+        return A0*Math.exp(-A1*r)-A2/r6-A3/(useC10 ? r10 : r8);
     }
 
     /**
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-        return 0;
+        double r = Math.sqrt(r2);
+        double r4 = r2*r2;
+        double r6 = r4*r2;
+        double r8 = r4*r4;
+        double r10 = r6*r4;
+        return -A0*A1*Math.exp(-A1*r)*r + 6*A2/(r6) + A3*(useC10? 10/r10 : 8/r8);
     }
 
    /**
@@ -44,7 +52,12 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-        return 0;
+        double r = Math.sqrt(r2);
+        double r4 = r2*r2;
+        double r6 = r4*r2;
+        double r8 = r4*r4;
+        double r10 = r6*r4;
+        return A0*A1*A1*Math.exp(-A1*r)*r2 - 42*A2/(r6) - A3*(useC10? 110/r10 : 72/r8);
     }
             
     /**
@@ -53,44 +66,133 @@ public class P2HeSimplified extends Potential2SoftSpherical {
     public double uInt(double rC) {
         return 0;
     }
-    
-    
-    
-    public static void main(String[] args) {
-        // this main method simply performs a benchmark for this class
-        // against P2HePCKLJS (the full Helium potential).
-    	Space space = Space3D.getInstance();
-    	P2HeSimplified p2Simple = new P2HeSimplified(space);
-    	P2HePCKLJS p2 = new P2HePCKLJS(space);
 
-    	int n = 10000000;
-    	long t1=System.currentTimeMillis();
-    	double totU = 0;
-        double rr2 = 9;
-    	for (int irr=0; irr<n; irr++) {
-    	    p2.u(rr2);
-    	}
-        for (int irr=0; irr<n; irr++) {
-            p2.u(rr2);
-        }
-        System.out.println(totU);
-        long t2 = System.currentTimeMillis();
+    public P2HeQFH makeQFH(double temperature) {
+        return this.new P2HeQFH(temperature);
+    }
 
-        long t1s=System.currentTimeMillis();
-        for (int irr=0; irr<n; irr++) {
-            p2Simple.u(rr2);
+    /**
+     * This inner class can calculates the Feynman-Hibbs semiclassical
+     * approximation for the potential.  Results should be the same as using
+     * P2EffectiveFeynmanHibbs, but should be faster, because u, du and d2u
+     * are not called.  Much of the work is duplicated between those methods,
+     * and they are all computed at the same time in this class.
+     * 
+     * This class is only ~10% slower than the classical potential.
+     *
+     * @author Andrew Schultz
+     */
+    public class P2HeQFH implements Potential2Spherical {
+
+        protected final double temperature;
+        protected final double mass = 4.002602;
+        protected double fac;
+
+        public P2HeQFH(double temperature) {
+            this.temperature = temperature;
+            double hbar = Constants.PLANCK_H/(2*Math.PI);
+            fac = hbar*hbar/(24*mass/2)/temperature;
         }
-        for (int irr=0; irr<n; irr++) {
-            p2Simple.u(rr2);
+
+        public double energy(IAtomList atoms) {
+            dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+            boundary.nearestImage(dr);
+            return u(dr.squared());
         }
-        long t2s = System.currentTimeMillis();
-        System.out.println("PCKLJS "+(t2-t1)/1000.0+"     simple "+(t2s-t1s)/1000.0+"     "+totU);
+
+        public double getRange() {
+            return P2HeSimplified.this.getRange();
+        }
+
+        public void setBox(IBox box) {
+            P2HeSimplified.this.setBox(box);
+        }
+
+        public int nBody() {
+            return 2;
+        }
+
+        public double u(double r2) {
+            if (r2 < sigmaHC2) {
+                return Double.POSITIVE_INFINITY;
+            }
+
+            double r = Math.sqrt(r2);
+
+            double A1r = A1*r;
+            double expA1r = Math.exp(-A1r);
+
+            double s2 = 1.0/r2;
+            double s4 = s2*s2;
+            double s6 = s4*s2;
+            double s8 = s4*s4;
+            double s10 = s6*s4;
+
+            double u = A0*expA1r*(1+fac*(-2*A1/r + A1*A1));
+            if (!Double.isInfinite(u)) {
+                // repulsion is not infinite.  add attractive dispersion
+                u += A2*(-1 + fac*(2*6 - 42)*s2)*s6 + A3*(useC10 ? (-1 + fac*(2*10 - 110)*s2)*s10 : (-1 + fac*(2*8 - 72)*s2)*s8);
+            }
+            // if the classical potential is repulsive, the semiclassical potential
+            // should be more repulsive.  In nearly all cases, it is, but this often
+            // fails for very short separations.  Just enforce it here.
+            // this is never needed for the potential here.  it would happen within our core
+            //if (uc > 0 && u < uc) return uc;
+            return u;
+        }
+    }
+
+    /**
+     * Sets the ith parameter value
+     * u = A0 * exp(-A1*r) - A2/r^6 - A3/r^X
+     * 
+     * where X = 10 if useC10 is true, X=8 otherwise
+     */
+    public void setA(int i, double a) {
+        switch (i) {
+            case 0:
+                A0 = a;
+                break;
+            case 1:
+                A1 = a;
+                break;
+            case 2:
+                A2 = a;
+                break;
+            case 3: 
+                A3 = a;
+                break;
+            default:
+                throw new RuntimeException("oops");
+        }
+    }
+    
+    /**
+     * Returns the ith parameter value
+     * u = A0 * exp(-A1*r) - A2/r^6 - A3/r^X
+     * 
+     * where X = 10 if useC10 is true, X=8 otherwise
+     */
+    public double getA(int i) {
+        switch (i) {
+            case 0:
+                return A0;
+            case 1:
+                return A1;
+            case 2:
+                return A2;
+            case 3:
+                return A3;
+            default:
+                throw new RuntimeException("oops");
+        }
     }
     
     private static final long serialVersionUID = 1L;
-    protected final double A0 = 9.05469e+06;
-    protected final double A1 = 4.60617;
-    protected final double A2 = 9021.61;
-    protected final double A3 = 339994;
-    protected final double sigmaHC2 = 1.7*1.7;
+    public static final boolean useC10 = false;
+    protected double A0 = Kelvin.UNIT.toSim(7.09384366e6);
+    protected double A1 = 4.47853246;
+    protected double A2 = Kelvin.UNIT.toSim(8.70770913e3);
+    protected double A3 = Kelvin.UNIT.toSim(6.14848434e4);
+    protected final double sigmaHC2 = 1.6*1.6;
 }
