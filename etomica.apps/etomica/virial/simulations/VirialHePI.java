@@ -47,7 +47,7 @@ import etomica.potential.P2Harmonic;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.P3CPSNonAdditiveHeLessSimplified;
+import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
 import etomica.space.IVectorRandom;
@@ -210,8 +210,8 @@ public class VirialHePI {
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        final Potential2SoftSpherical p2 = calcApprox ? new P2HeSimplified(space) : new P2HePCKLJS(space);
         final Potential2SoftSpherical p2Approx = new P2HeSimplified(space);
+        final Potential2SoftSpherical p2 = calcApprox ? p2Approx : new P2HePCKLJS(space);
         
         PotentialGroupPI pTargetGroup = new PotentialGroupPI(beadFac);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
@@ -226,9 +226,9 @@ public class VirialHePI {
         for (int i=0; i<beadFac; i++) {
             pTargetApproxSkip[i] = pTargetApproxGroup.new PotentialGroupPISkip(i);
         }
-        final P3CPSNonAdditiveHeLessSimplified p3Approx = new P3CPSNonAdditiveHeLessSimplified(space);
+        final P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         if ((calcApprox || subtractApprox) && !pairOnly) {
-            p3Approx.setParameters(p3ParametersFile);
+//            p3Approx.setParameters(p3ParametersFile);
         }
         final IPotentialAtomicMultibody p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
 
@@ -344,7 +344,7 @@ public class VirialHePI {
                                     new MayerFunctionNonAdditive[]{f3TargetApprox});
                         }
                         else {
-                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox},
+                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetClassical},
                                     new MayerFunctionNonAdditive[]{f3TargetClassical});
                         }
                     }
