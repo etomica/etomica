@@ -47,7 +47,29 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         this.nullRegionMethod = nullRegionMethod;
     }
     
-public static void setParameters(String file) {
+    public static void setParameters(double temperatureK) {
+    	
+    	//Energies in Hartrees, and distances in Bohr radii.
+    	
+    	if (temperatureK < 350){ //use 100 K fit with training set 6
+    		A=-371.6663602; 
+            alpha=1.35300572; 
+            Z=1.00129424; 
+            B=-33.79160965; 
+            b=1.09675524; 
+    	} else { // use 500 K fit with training set 0
+
+    		A=-64.48078148; 
+            alpha=1.23015508; 
+            Z=1.37752536; 
+            B=-9.57192113; 
+            b=1.01409157; 
+    	}
+    
+    	
+    }
+    
+    public static void setParameters(String file) {
     	 
     	
     	String d = "/usr/users/kate/HeData/potentials/u123NonAddCPS2009Model/5ParameterSimplifications/";
@@ -406,12 +428,13 @@ System.out.println();
     
     
     
-
-    protected static double A = -100;
-    protected static double alpha = 1.26135117;
-    protected static double Z = 1.27544215;
-    protected static double B = -5;
-    protected static double b = 0.97527628;
+    //Energies in Hartrees, and distances in Bohr radii.
+    //Default parameter values fitted for nonadditive classical B3 at 100 K with training set 6 at 100 K
+    protected static double A=-371.6663602;
+    protected static double alpha=1.35300572;
+    protected static double Z=1.00129424; 
+    protected static double B=-33.79160965;
+    protected static double b=1.09675524;
     protected final static double[][] Rpow = new double[3][9];
     protected static double exitflag;
     protected static double fval;
