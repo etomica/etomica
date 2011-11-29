@@ -2,6 +2,8 @@ package etomica.virial.simulations;
 
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.IData;
+import etomica.data.types.DataGroup;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.Potential2Spherical;
@@ -308,7 +310,17 @@ public class VirialHePYCorrection {
         System.out.println();
         
         sim.printResults(HSB[nPoints]);
-        
+
+        DataGroup allYourBase = (DataGroup)sim.accumulators[1].getData();
+        IData averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
+        IData errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
+        IData covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        int n = 0;
+        double correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+        System.out.print(String.format("diagram "+nPoints+"bc average: %20.15e error: %9.4e ocor: %6.4f\n",
+                averageData.getValue(0), errorData.getValue(0), correlationCoef));
+
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0);
     }
