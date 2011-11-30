@@ -114,11 +114,9 @@ public class VirialHeNonAdditive {
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
         }
 
-        IPotentialAtomicMultibody p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         IPotentialAtomicMultibody p3 = new P3CPSNonAdditiveHe(space);
 
-        final MayerFunctionSphericalThreeBody f3Target = new MayerFunctionSphericalThreeBody(calcApprox ? p3Approx : p3);
-        final MayerFunctionSphericalThreeBody f3TargetApprox = new MayerFunctionSphericalThreeBody(p3Approx);
+        final MayerFunctionSphericalThreeBody f3Target = new MayerFunctionSphericalThreeBody(p3);
         
 
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, false);
@@ -139,6 +137,9 @@ public class VirialHeNonAdditive {
             final ClusterSum[] targetSubtract = new ClusterSum[1];
             ClusterBonds[] minusBonds = fullTargetCluster.getClusters();
             double[] wMinus = fullTargetCluster.getWeights();
+            P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
+            p3Approx.setParameters(temperatureK);
+            MayerFunctionSphericalThreeBody f3TargetApprox = new MayerFunctionSphericalThreeBody(p3Approx);
             targetSubtract[0] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox}, new MayerFunctionNonAdditive[]{f3TargetApprox});
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         }
@@ -253,7 +254,7 @@ public class VirialHeNonAdditive {
                         if (r2ij > r2Max) r2Max = r2ij;
                     }
                 }
-                double v = sim.box[0].getSampleCluster().value(sim.box[1]);
+                double v = sim.box[1].getSampleCluster().value(sim.box[0]);
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
@@ -304,6 +305,7 @@ public class VirialHeNonAdditive {
         if (refFreq >= 0.5) {
             sim.integrators[0].getEventManager().addListener(histListener);
             sim.integratorOS.setRefStepFraction(refFreq);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
 
