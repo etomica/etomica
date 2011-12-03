@@ -23,6 +23,7 @@ import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MayerXSpherical;
 import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.VirialDiagrams;
 
 /**
  * Computes corrections to Percus-Yevick approximations of B4 and B5 for a helium pair potential.
@@ -235,8 +236,11 @@ public class VirialHePYCorrection {
 
         
         targetCluster.setTemperature(temperature);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
-        refCluster.setTemperature(temperature);
+
+        VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
+        rigidDiagrams.setDoReeHoover(true);
+        rigidDiagrams.setDoShortcut(true);
+        ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
 
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
 		
@@ -281,6 +285,9 @@ public class VirialHePYCorrection {
             refFileName += semiClassical ? "_sc" : "_c";
             if (calcApprox) {
                 refFileName += "a";
+            }
+            else if (subtractApprox) {
+                refFileName += "sa";
             }
             refFileName += "PY";
             if (compressibility) {
