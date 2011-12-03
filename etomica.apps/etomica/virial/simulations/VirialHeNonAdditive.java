@@ -214,12 +214,19 @@ public class VirialHeNonAdditive {
         // if running interactively, don't use the file
         String refFileName = null;
         if (isCommandline) {
-            refFileName = "refpref"+nPoints+"_3b_"+temperatureK;
-            if (semiClassical) {
-                refFileName += "sc";
+            // if running interactively, don't use the file
+            String tempString = ""+temperatureK;
+            if (temperatureK == (int)temperatureK) {
+                // temperature is an integer, use "200" instead of "200.0"
+                tempString = ""+(int)temperatureK;
             }
-            else {
-                refFileName += "c";
+            refFileName = "refpref"+nPoints+"_3b_"+tempString;
+            refFileName += semiClassical ? "_sc" : "_c";
+            if (calcApprox) {
+                refFileName += "a";
+            }
+            else if (subtractApprox) {
+                refFileName += "sa";
             }
         }
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -342,13 +349,13 @@ public class VirialHeNonAdditive {
      */
     public static class VirialParam extends ParameterBase {
         public int nPoints = 3;
-        public double temperature = 500;   // Kelvin
+        public double temperature = 300;   // Kelvin
         public long numSteps = 1000000;
-        public double sigmaHSRef = 5;
+        public double sigmaHSRef = 6;
         public int nullRegionMethod = 2;
         public double refFreq = -1;
         public boolean semiClassical = true;
         public boolean calcApprox = false;
-        public boolean subtractApprox = false;
+        public boolean subtractApprox = true;
     }
 }
