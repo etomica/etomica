@@ -288,7 +288,7 @@ public class VirialHeNonAdditive {
         };
         if (!isCommandline) {
             sim.integratorOS.getEventManager().addListener(progressReport);
-            if (refFreq > 0.5) {
+            if (params.doHist) {
                 IIntegratorListener histReport = new IIntegratorListener() {
                     public void integratorInitialized(IIntegratorEvent e) {}
                     public void integratorStepStarted(IIntegratorEvent e) {}
@@ -309,8 +309,10 @@ public class VirialHeNonAdditive {
         }
         
 
-        if (refFreq >= 0.5) {
-            sim.integrators[0].getEventManager().addListener(histListener);
+        if (refFreq >= 0) {
+            if (params.doHist) {
+                sim.integrators[0].getEventManager().addListener(histListener);
+            }
             sim.integratorOS.setRefStepFraction(refFreq);
             sim.integratorOS.setAdjustStepFraction(false);
         }
@@ -322,7 +324,7 @@ public class VirialHeNonAdditive {
         
         long t2 = System.currentTimeMillis();
         
-        if (refFreq > 0.5) {
+        if (params.doHist) {
             double[] xValues = hist.xValues();
             double[] h = hist.getHistogram();
             for (int i=0; i<xValues.length; i++) {
@@ -351,9 +353,10 @@ public class VirialHeNonAdditive {
         public int nPoints = 3;
         public double temperature = 300;   // Kelvin
         public long numSteps = 1000000;
-        public double sigmaHSRef = 6;
+        public double sigmaHSRef = 5;
         public int nullRegionMethod = 2;
         public double refFreq = -1;
+        public boolean doHist = false;
         public boolean semiClassical = true;
         public boolean calcApprox = false;
         public boolean subtractApprox = true;
