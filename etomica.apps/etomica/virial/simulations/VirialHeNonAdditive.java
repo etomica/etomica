@@ -62,7 +62,7 @@ public class VirialHeNonAdditive {
         final double sigmaHSRef = params.sigmaHSRef;
         final boolean semiClassical = params.semiClassical;
         final int nullRegionMethod = params.nullRegionMethod;
-        double refFreq = params.refFreq;
+        double refFrac = params.refFrac;
         final boolean subtractApprox = params.subtractApprox;
         final boolean calcApprox = !subtractApprox && params.calcApprox;
         
@@ -309,11 +309,11 @@ public class VirialHeNonAdditive {
         }
         
 
-        if (refFreq >= 0) {
+        if (refFrac >= 0) {
             if (params.doHist) {
                 sim.integrators[0].getEventManager().addListener(histListener);
             }
-            sim.integratorOS.setRefStepFraction(refFreq);
+            sim.integratorOS.setRefStepFraction(refFrac);
             sim.integratorOS.setAdjustStepFraction(false);
         }
 
@@ -355,7 +355,7 @@ public class VirialHeNonAdditive {
         public long numSteps = 1000000;
         public double sigmaHSRef = 5;
         public int nullRegionMethod = 2;
-        public double refFreq = -1;
+        public double refFrac = -1;
         public boolean doHist = false;
         public boolean semiClassical = true;
         public boolean calcApprox = false;
