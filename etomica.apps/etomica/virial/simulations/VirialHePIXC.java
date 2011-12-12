@@ -129,10 +129,8 @@ public class VirialHePIXC {
         if (aRef < 1) {
             MCMoveClusterRingPartialRegrow ringMove = new MCMoveClusterRingPartialRegrow(sim.getRandom(), space, new int[][]{{0,1}});
             ringMove.setEnergyFactor(energyFac);
-            int numCBMCTrials = nSpheres/20+20;
             int numRegrowBeads = nSpheres/3;
-            System.out.println("regrow "+numRegrowBeads+" beads ("+numCBMCTrials+" trials)");
-            ringMove.setNumTrial(numCBMCTrials);
+            System.out.println("regrow "+numRegrowBeads+" beads");
             ringMove.setNumBeads(numRegrowBeads);
             ring = ringMove;
         }
