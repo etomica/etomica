@@ -63,6 +63,7 @@ public class VirialLJ {
         double temperature = params.temperature;
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
+        double refFrac = params.refFrac;
 
         final double[] HSB = new double[9];
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -189,6 +190,11 @@ public class VirialLJ {
         sim.equilibrate(refFileName, steps/40);
         
         System.out.println("equilibration finished");
+        
+        if (refFrac >= 0) {
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
+        }
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {
@@ -225,5 +231,6 @@ public class VirialLJ {
         public long numSteps = 10000000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
+        public double refFrac = -1;
     }
 }
