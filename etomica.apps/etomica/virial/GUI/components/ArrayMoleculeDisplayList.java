@@ -2,18 +2,18 @@ package etomica.virial.GUI.components;
 
 import java.util.ArrayList;
 
-import etomica.virial.GUI.models.CreateSpeciesDM_Alkane_TRAPPE;
-import etomica.virial.GUI.models.CreateSpeciesDM_CO2_2CLJQ;
-import etomica.virial.GUI.models.CreateSpeciesDM_CO2_EMP2;
-import etomica.virial.GUI.models.CreateSpeciesDM_CO2_Trappe;
-import etomica.virial.GUI.models.CreateSpeciesDM_LJ_2CLJQ;
-import etomica.virial.GUI.models.CreateSpeciesDM_LJ_LJ;
-import etomica.virial.GUI.models.CreateSpeciesDM_LJ_LJQ;
+import etomica.virial.GUI.models.MolecularModelTRAPPE_SpeciesAlkane;
+import etomica.virial.GUI.models.MolecularModel2CLJQ_SpeciesCO2;
+import etomica.virial.GUI.models.MolecularModelEMP2_SpeciesCO2;
+import etomica.virial.GUI.models.MolecularModelTrappe_SpeciesCO2;
+import etomica.virial.GUI.models.MolecularModel2CLJQ_SpeciesLJ;
+import etomica.virial.GUI.models.MolecularModelLJ_SpeciesLJ;
+import etomica.virial.GUI.models.MolecularModelLJQ_SpeciesLJ;
 
 
 
 
-public class SpeciesListInterface {
+public class ArrayMoleculeDisplayList {
 	
 	
 
@@ -22,7 +22,7 @@ public class SpeciesListInterface {
 	private int id;
 	private Object[] SpeciesL;
 	
-	public SpeciesListInterface(){
+	public ArrayMoleculeDisplayList(){
 		id = Index;
 		SpeciesL = new Object[8];
 	}
@@ -69,26 +69,26 @@ public class SpeciesListInterface {
 		
 		for (int i=0;i<id;i++){
 			if(SpeciesL[i] != null){
-				if(SpeciesL[i] instanceof CreateSpeciesDM_LJ_LJ){
+				if(SpeciesL[i] instanceof MolecularModelLJ_SpeciesLJ){
 					DisplayArray.add("LJ-Spherical2Body");
 				}
-				else if(SpeciesL[i] instanceof CreateSpeciesDM_LJ_LJQ){
+				else if(SpeciesL[i] instanceof MolecularModelLJQ_SpeciesLJ){
 					DisplayArray.add("LJ-Spherical2BodyWithQ");
 				}
-				else if(SpeciesL[i] instanceof CreateSpeciesDM_LJ_2CLJQ){
+				else if(SpeciesL[i] instanceof MolecularModel2CLJQ_SpeciesLJ){
 					DisplayArray.add("2CenteredLJWithQ");
 				}
 				
-				else if(SpeciesL[i] instanceof CreateSpeciesDM_CO2_2CLJQ){
+				else if(SpeciesL[i] instanceof MolecularModel2CLJQ_SpeciesCO2){
 					DisplayArray.add("CO2-2CenteredLJWithQ");
 				}
-				else if(SpeciesL[i] instanceof CreateSpeciesDM_CO2_EMP2){
+				else if(SpeciesL[i] instanceof MolecularModelEMP2_SpeciesCO2){
 					DisplayArray.add("CO2-EPM2");
 				}
-				else if(SpeciesL[i] instanceof CreateSpeciesDM_CO2_Trappe){
+				else if(SpeciesL[i] instanceof MolecularModelTrappe_SpeciesCO2){
 					DisplayArray.add("CO2-TRAPPE");
 				}
-				else if(SpeciesL[i] instanceof CreateSpeciesDM_Alkane_TRAPPE){
+				else if(SpeciesL[i] instanceof MolecularModelTRAPPE_SpeciesAlkane){
 					DisplayArray.add("n-Alkane-TRAPPE");
 				}
 				
