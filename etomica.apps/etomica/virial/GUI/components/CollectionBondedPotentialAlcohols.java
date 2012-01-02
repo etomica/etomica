@@ -11,8 +11,7 @@ import etomica.potential.P3BondAngle;
 
 import etomica.space.ISpace;
 import etomica.units.Kelvin;
-import etomica.virial.GUI.components2.CollectionAtomicPotential;
-import etomica.virial.GUI.components2.CollectionAtomicPotentials;
+
 
 
 public class CollectionBondedPotentialAlcohols extends ACollectionBondedPotential{
