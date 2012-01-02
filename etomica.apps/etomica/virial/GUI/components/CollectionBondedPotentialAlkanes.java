@@ -3,22 +3,14 @@ package etomica.virial.GUI.components;
 import java.util.HashMap;
 
 import etomica.api.IPotential;
-import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
-import etomica.potential.Potential;
-import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.units.Kelvin;
-import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.SpeciesAlkane;
-import etomica.virial.GUI.components2.CollectionAtomicPotential;
-import etomica.virial.GUI.components2.CollectionAtomicPotentials;
-import etomica.virial.simulations.SimulationVirialOverlap2;
 
 public class CollectionBondedPotentialAlkanes extends ACollectionBondedPotential{
 	

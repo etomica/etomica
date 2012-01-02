@@ -23,7 +23,6 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 
-import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
@@ -40,11 +39,8 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P4BondTorsion;
-import etomica.potential.Potential2Soft;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
@@ -54,7 +50,6 @@ import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Liter;
 import etomica.units.Mole;
-import etomica.units.Pixel;
 import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
@@ -64,7 +59,6 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
@@ -72,19 +66,9 @@ import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactory;
-
-import etomica.virial.GUI.components2.CollectionAtomicPotential;
-import etomica.virial.GUI.components2.CollectionAtomicPotentials;
-import etomica.virial.GUI.components2.CollectionMixedPotentials;
-import etomica.virial.GUI.components2.CollectionMolecularPotential;
-import etomica.virial.GUI.components2.CollectionMolecularPotentials;
-import etomica.virial.GUI.components2.CollectionMolecularPotentials2;
 import etomica.virial.GUI.models.ModelSimulationEnvironment;
 import etomica.virial.GUI.models.ModelSelectedSpecies;
-import etomica.virial.GUI.models.IMolecularModel_SpeciesFactory;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialMultiOverlap;
 import etomica.virial.simulations.SimulationVirialOverlap2;
 
 public class SimulationRunner {
@@ -93,14 +77,6 @@ public class SimulationRunner {
 	private ModelSelectedSpecies speciesDataModel;
 	private ModelSimulationEnvironment SimEnv;
 	private Space space;
-	
-	private SimulationGraphic simGraphic;
-
-	private MayerGeneralSpherical fTarget1; 
-    private MayerESpherical eTarget1;
-	
-	
-	private JFrame frame;
 	
 	public SimulationRunner(ModelSelectedSpecies speciesDataModel){
 		this.speciesDataModel = speciesDataModel;
@@ -178,7 +154,7 @@ public class SimulationRunner {
 		    			}
 		    			
 		    			
-		    			IIntegratorListener progressReport = new IIntegratorListener() {
+		    			new IIntegratorListener() {
 		    		    	public void integratorInitialized(IIntegratorEvent e) {}
 		    		    	public void integratorStepStarted(IIntegratorEvent e) {}
 		    		    	public void integratorStepFinished(IIntegratorEvent e) {
@@ -232,7 +208,7 @@ public class SimulationRunner {
         				
         				
         				Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
-            			String[] potentialMapKey= (String[]) potentialEntry.getKey();
+            			potentialEntry.getKey();
             			IPotentialAtomic potential = (IPotentialAtomic) potentialEntry.getValue();
             			
             			
@@ -253,7 +229,7 @@ public class SimulationRunner {
     					}
         				ISpecies species =  speciesDataModel.getSpecies(0);
         				final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
-        				IIntegratorListener progressReport = new IIntegratorListener() {
+        				new IIntegratorListener() {
         			    	public void integratorInitialized(IIntegratorEvent e) {}
         			    	public void integratorStepStarted(IIntegratorEvent e) {}
         			    	public void integratorStepFinished(IIntegratorEvent e) {
@@ -309,7 +285,7 @@ public class SimulationRunner {
 					ISpecies species =  speciesDataModel.getSpecies(0);
 					final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,temperature,refCluster,targetCluster);
 					
-					IIntegratorListener progressReport = new IIntegratorListener() {
+					new IIntegratorListener() {
 				    	public void integratorInitialized(IIntegratorEvent e) {}
 				    	public void integratorStepStarted(IIntegratorEvent e) {}
 				    	public void integratorStepFinished(IIntegratorEvent e) {
@@ -364,7 +340,7 @@ public class SimulationRunner {
     	  MayerFunction[][] f = new MayerFunction[noOfSpecies][noOfSpecies];
     	  MayerFunction[][] e = new MayerFunction[noOfSpecies][noOfSpecies];
     	   
-    	  int[][] speciesInteractionIndex = speciesDataModel.getSpeciesInteractionIndex();
+    	  speciesDataModel.getSpeciesInteractionIndex();
     	   
     	 
     		  
@@ -386,7 +362,7 @@ public class SimulationRunner {
     	        				  while(potentialMapItr.hasNext()){
     	        					  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
     	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
-    	        					  IPotential potentialMapValue= (IPotential) potentialEntry.getValue();
+    	        					  potentialEntry.getValue();
     	        				  
     	        					  if(potentialMapKey[0] == speciesDataModel.getSpeciesDataModel(speciesIndex).getPotentialSiteAtIndex(0) &&
     	        						  potentialMapKey[1] == speciesDataModel.getSpeciesDataModel(speciesIndex).getPotentialSiteAtIndex(0)){
@@ -395,7 +371,7 @@ public class SimulationRunner {
     	        				  }
     	        			  }else{
     	        				  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
-	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
+	        					  potentialEntry.getKey();
 	        					  potential= (IPotential) potentialEntry.getValue();
     	        			  }
 
@@ -462,7 +438,7 @@ public class SimulationRunner {
     	        				  while(potentialMapItr.hasNext()){
     	        					  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
     	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
-    	        					  IPotential potentialMapValue= (IPotential) potentialEntry.getValue();
+    	        					  potentialEntry.getValue();
     	        				  
     	        					  if(potentialMapKey[0] == speciesDataModel.getSpeciesDataModel(speciesIndex[0]).getPotentialSiteAtIndex(0) &&
     	        						  potentialMapKey[1] == speciesDataModel.getSpeciesDataModel(speciesIndex[1]).getPotentialSiteAtIndex(0)){
@@ -471,7 +447,7 @@ public class SimulationRunner {
     	        				  }
     	        			  }else{
     	        				  Map.Entry potentialEntry = (Map.Entry) potentialMapItr.next();
-	        					  String[] potentialMapKey= (String[]) potentialEntry.getKey();
+	        					  potentialEntry.getKey();
 	        					  potential= (IPotential) potentialEntry.getValue();
     	        			  }
     	        			  
@@ -591,7 +567,7 @@ public class SimulationRunner {
 	        averageBox.setLabel("Average");
 	        final DisplayTextBox errorBox = new DisplayTextBox();
 	        errorBox.setLabel("Error");
-		    IAction pushAnswer = new IAction() {
+		    new IAction() {
 	            public void actionPerformed() {
 	                double[] ratioAndError = sim.dvo.getAverageAndError();
 	                double ratio = ratioAndError[0];

@@ -1,39 +1,19 @@
 package etomica.virial.GUI.components;
 
-import java.awt.List;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
-
 import etomica.api.IAtomType;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
-import etomica.atom.iterator.ApiBuilder;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.potential.P2Exp6Buckingham;
 import etomica.potential.P2LJQ;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Soft;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.virial.MCMoveClusterTorsionMulti;
-import etomica.virial.GUI.components2.CollectionAtomicPotential;
-import etomica.virial.GUI.components2.CollectionAtomicPotentials;
-import etomica.virial.GUI.components2.CollectionMixedPotentials;
-import etomica.virial.GUI.components2.CollectionMolecularPotential;
-import etomica.virial.GUI.components2.CollectionMolecularPotentials;
-import etomica.virial.GUI.components2.CollectionMolecularPotentials2;
+
 import etomica.virial.GUI.models.EnumSiteName;
 import etomica.virial.GUI.models.ModelSimulationEnvironment;
 import etomica.virial.GUI.models.ModelSelectedSpecies;
