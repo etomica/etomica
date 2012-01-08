@@ -30,7 +30,7 @@ public class Unfactor implements Unary {
   public Graph apply(Graph g, MulFlexibleParameters params) {
     Set<Graph> splitted = graphSplitter.apply(g);
     Graph result = null;
-    // we might run into problems if the first graphs we see are
+    // we might run into problems if the first graphs we see are not
     // superimposable (perhaps no root points) but are both superimposable with
     // a later graph (perhaps having multiple root points).  MulFlex probably
     // should handle that but doesn't.
