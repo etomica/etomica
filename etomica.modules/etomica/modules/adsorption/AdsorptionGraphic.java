@@ -263,10 +263,11 @@ public class AdsorptionGraphic extends SimulationGraphic {
         pSliderB.setShowBorder(true);
         pSliderB.setBorderAlignment(TitledBorder.CENTER);
         pSliderB.setShowValues(true);
-        pSliderB.setMinimum(-4);
-        pSliderB.setPrecision(1);
-        pSliderB.setMaximum(0);
-        pSliderB.setNMajor(4);
+        pSliderB.setMinimum(-6);
+        pSliderB.setPrecision(2);
+        pSliderB.setMaximum(-1);
+        pSliderB.setNMajor(5);
+        pSliderB.setEditValues(true);
         final ModifierPMu pmuB = new ModifierPMu(sim.p2BB, sim.integratorMC, eosB, sim.mcMoveIDB, meterCountAtomsB);
         pmuB.setValue(-4);
         pSliderB.setModifier(pmuB);
@@ -311,7 +312,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         epsSliderB.setShowValues(true);
         epsSliderB.setMinimum(0);
         epsSliderB.setPrecision(1);
-        epsSliderB.setMaximum(5);
+        epsSliderB.setMaximum(10);
         epsSliderB.setNMajor(5);
         final ModifierGeneral epsModifierB = new ModifierGeneral(sim.p1WallB, "epsilon");
         epsSliderB.setModifier(epsModifierB);
