@@ -9,8 +9,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.association.GCPMWater.AssociationManagerMolecule;
-import etomica.atom.IMoleculePositioned;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;

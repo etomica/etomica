@@ -1,7 +1,6 @@
 package etomica.association;
 
 import etomica.api.IMolecule;
-import etomica.association.GCPMWater.AssociationDefinitionMolecule;
 import etomica.space.ISpace;
 
 public abstract class BiasVolumeMolecule implements AssociationDefinitionMolecule, java.io.Serializable {

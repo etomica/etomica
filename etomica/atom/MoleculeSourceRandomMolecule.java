@@ -5,19 +5,19 @@ import etomica.api.IMolecule;
 import etomica.api.IRandom;
 
 /**
- * AtomSource that returns a completely random molecule.
+ * MoleculeSource that returns a completely random molecule.
  */
 public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Serializable {
 
     /**
-     * Sets the random number generator used to pick atoms
+     * Sets the random number generator used to pick molecules
      */
-    public void setRandom(IRandom newRandom) {
+    public void setRandomNumberGenerator(IRandom newRandom) {
         random = newRandom;
     }
     
     /**
-     * Returns the random number generator used to pick atoms
+     * Returns the random number generator used to pick molecules
      */
     public IRandom getRandomNumberGenerator() {
         return random;

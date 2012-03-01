@@ -6,10 +6,8 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
-import etomica.association.GCPMWater.AssociationManagerMolecule;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.ISpace;
 
 /**

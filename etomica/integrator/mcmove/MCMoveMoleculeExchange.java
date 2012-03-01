@@ -67,7 +67,7 @@ public class MCMoveMoleculeExchange extends MCMove {
         box1 = integrator1.getBox();
         box2 = integrator2.getBox();
         moleculeSource = new MoleculeSourceRandomMolecule();
-        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
         positionSource = new RandomPositionSourceRectangular(_space, random);
     }
     

@@ -11,6 +11,8 @@ import etomica.atom.MoleculeSource;
 import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.atom.iterator.MoleculeIterator;
+import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -20,12 +22,12 @@ import etomica.space.IVectorRandom;
  *
  * @author David Kofke
  */
-public class MCMoveMolecule extends MCMoveBoxStep {
+public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     
     private static final long serialVersionUID = 1L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
+    protected final MoleculeIteratorSinglet affectedMoleculeIterator = new MoleculeIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVectorRandom translationVector;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected final IRandom random;
@@ -48,9 +50,8 @@ public class MCMoveMolecule extends MCMoveBoxStep {
         this.random = random;
         this.space = _space;
         moleculeSource = new MoleculeSourceRandomMolecule();
-        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = (IVectorRandom)space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
@@ -64,7 +65,7 @@ public class MCMoveMolecule extends MCMoveBoxStep {
         //set directive to exclude intramolecular contributions to the energy
 
         MoleculeSourceRandomMolecule randomMoleculeSource = new MoleculeSourceRandomMolecule();
-        randomMoleculeSource.setRandom(random);
+        randomMoleculeSource.setRandomNumberGenerator(random);
         setMoleculeSource(randomMoleculeSource);
     }
     
@@ -72,8 +73,9 @@ public class MCMoveMolecule extends MCMoveBoxStep {
     public boolean doTrial() {
         if(box.getMoleculeList().getMoleculeCount()==0) return false;
         
+        
         molecule = moleculeSource.getMolecule();
-
+        if (molecule == null) return false;
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(uOld)) {
@@ -101,6 +103,7 @@ public class MCMoveMolecule extends MCMoveBoxStep {
      */
     public double getB() {
         uNew = energyMeter.getDataAsScalar();
+        //System.out.println("Translation uNew: "+uNew+ " uOld: "+uOld+" re "+energyMeter.getDataAsScalar());
         return -(uNew - uOld);
     }
     
@@ -126,6 +129,11 @@ public class MCMoveMolecule extends MCMoveBoxStep {
     public AtomIterator affectedAtoms() {
         affectedAtomIterator.setList(molecule.getChildList());
         return affectedAtomIterator;
+    }
+    
+    public MoleculeIterator affectedMolecules(IBox box) {
+        affectedMoleculeIterator.setMolecule(molecule);
+        return affectedMoleculeIterator;
     }
     
     /**

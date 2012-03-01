@@ -2,11 +2,9 @@ package etomica.association;
 
 import java.io.FileWriter;
 import java.io.IOException;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.WriteConfiguration;
-import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -15,9 +13,6 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.association.GCPMWater.AssociationManagerMolecule;
-import etomica.association.MCMoveVolumeAssociated.Agent;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomOriented;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
