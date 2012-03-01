@@ -47,7 +47,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         super.setBox(box);
         
         moleculeSource = new MoleculeSourceRandomMolecule();
-        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
         moleculeSource.setBox(box);
         
         energyMeter = new MeterPotentialEnergy(potentialMaster);

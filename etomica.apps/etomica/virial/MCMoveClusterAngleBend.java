@@ -36,7 +36,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         this.space = _space;
         this.random = random;
         moleculeSource = new MoleculeSourceRandomMolecule();
-        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
         setStepSizeMax(Math.PI/2);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

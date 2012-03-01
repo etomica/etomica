@@ -2,14 +2,8 @@ package etomica.association;
 
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
-import etomica.association.GCPMWater.AssociationManagerMolecule;
-import etomica.atom.IMoleculeOriented;
 import etomica.atom.MoleculeArrayList;
-import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.potential.P2HardAssociationConeFourSites;
-import etomica.space.IOrientation;
 import etomica.space.ISpace;
 
 /**

@@ -27,7 +27,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
         this.space = _space;
         this.random = random;
         atomSource = new MoleculeSourceRandomMolecule();
-        ((MoleculeSourceRandomMolecule)atomSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
 //        conf = con;
 //        if(!(conf instanceof ConformationChainZigZag)){

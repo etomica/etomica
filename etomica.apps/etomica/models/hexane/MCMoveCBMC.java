@@ -37,7 +37,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
         moleculeSource = new MoleculeSourceRandomMolecule();
         moleculeSource.setBox(box);
-        ((MoleculeSourceRandomMolecule) moleculeSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
         setMoleculeSource(moleculeSource);
 
         positionOld = new IVectorMutable[maxAtomsPerMolecule];

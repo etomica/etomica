@@ -51,7 +51,7 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         super(potentialMaster);
         this.random = nRandom;
         moleculeSource = new MoleculeSourceRandomMolecule();
-        ((MoleculeSourceRandomMolecule)moleculeSource).setRandom(random);
+        ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         
         affectedMoleculeList = new AtomArrayList();

@@ -11,10 +11,8 @@ import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
-import etomica.models.OPLS.P2AceticAcidOneSite;
 import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space3d.RotationTensor3D;
 
 public class BiasVolumeAceticAcid extends BiasVolumeMolecule {

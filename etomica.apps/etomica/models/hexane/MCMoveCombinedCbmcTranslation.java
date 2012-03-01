@@ -45,7 +45,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         this.space = _space;
         
         moleculeSource = new MoleculeSourceRandomMolecule();
-        moleculeSource.setRandom(random);
+        moleculeSource.setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(pm);
         
         affectedAtomIterator = new AtomIteratorArrayListSimple();
