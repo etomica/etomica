@@ -4,7 +4,6 @@ import java.io.File;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -12,13 +11,13 @@ import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.association.AssociationHelperMolecule;
+import etomica.association.AssociationManagerMolecule;
 import etomica.association.BiasVolumeAceticAcid;
 import etomica.association.MCMoveBiasUBMolecule;
 import etomica.association.MCMoveMoleculeMonomer;
 import etomica.association.MCMoveMoleculeRotateAssociated;
 import etomica.association.MCMoveMoleculeSmer;
 import etomica.association.MCMoveVolumeAssociatedMolecule;
-import etomica.association.GCPMWater.AssociationManagerMolecule;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
@@ -44,7 +43,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveTorsionAceticAcid;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.integrator.mcmove.MCMoveWiggleAceticAcid;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
@@ -69,7 +67,6 @@ import etomica.units.Unit;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * OPLS Acetic Acid Monte Carlo NPT simulation in 3D.
