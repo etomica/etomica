@@ -42,13 +42,13 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.IPotentialAtomicMultibody;
-import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2Harmonic;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialGroup;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
@@ -123,7 +123,7 @@ public class VirialHePI {
             sigmaHSRef = 4 + 20/(10+temperatureK);
             if (!pairOnly) {
                 if (nPoints == 3) {
-                    sigmaHSRef -= 0.5; 
+                    sigmaHSRef -= 0.5;
                 }
                 else {
                     sigmaHSRef = 4.5 + 40/(20+temperatureK);
@@ -138,9 +138,9 @@ public class VirialHePI {
         final double[] HSB = new double[8];
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);
-        final boolean doDiff = params.doDiff;
+        final boolean doDiff = !subtractHalf && params.doDiff;
         final boolean semiClassical = params.semiClassical;
-        final boolean subtractApprox = params.subtractApprox;
+        final boolean subtractApprox = !calcApprox && !subtractHalf && params.subtractApprox;
         final boolean doTotal = params.doTotal;
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
@@ -210,9 +210,10 @@ public class VirialHePI {
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        final Potential2SoftSpherical p2Approx = new P2HeSimplified(space);
-        final Potential2SoftSpherical p2 = calcApprox ? p2Approx : new P2HePCKLJS(space);
-        
+        final P2HeSimplified p2Approx = new P2HeSimplified(space);
+        final P2HePCKLJS p2Full = new P2HePCKLJS(space);
+        final Potential2SoftSpherical p2 = calcApprox ? p2Approx : p2Full;
+
         PotentialGroupPI pTargetGroup = new PotentialGroupPI(beadFac);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
         PotentialGroupPISkip[] pTargetSkip = new PotentialGroupPISkip[beadFac];
@@ -227,9 +228,7 @@ public class VirialHePI {
             pTargetApproxSkip[i] = pTargetApproxGroup.new PotentialGroupPISkip(i);
         }
         final P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
-        if ((calcApprox || subtractApprox) && !pairOnly) {
-//            p3Approx.setParameters(p3ParametersFile);
-        }
+        p3Approx.setParameters(temperatureK);
         final IPotentialAtomicMultibody p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
 
         PotentialGroup3PI p3TargetGroup = new PotentialGroup3PI(beadFac);
@@ -246,9 +245,7 @@ public class VirialHePI {
         }
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
-        P2EffectiveFeynmanHibbs p2SemiClassical = new P2EffectiveFeynmanHibbs(space, p2);
-        p2SemiClassical.setMass(heMass);
-        p2SemiClassical.setTemperature(temperature);
+        Potential2Spherical p2SemiClassical = calcApprox ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
         final MayerGeneralSpherical fTargetSemiClassical = new MayerGeneralSpherical(p2SemiClassical);
 
         MayerGeneral[] fTargetSkip = new MayerGeneral[beadFac];
@@ -455,6 +452,7 @@ public class VirialHePI {
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
+        sim.integratorOS.setAgressiveAdjustStepFraction(true);
 
 
         // we'll use substeps=1000 initially (to allow for better initialization)
@@ -486,11 +484,6 @@ public class VirialHePI {
 
         sim.integrators[0].getMoveManager().addMCMove(ring0);
         sim.integrators[1].getMoveManager().addMCMove(ring1);
-
-        if (refFreq >= 0) {
-            sim.integratorOS.setAdjustStepFraction(false);
-            sim.integratorOS.setRefStepFraction(refFreq);
-        }
 
         if (doDiff || subtractHalf || !pairOnly) {
             AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
@@ -653,6 +646,13 @@ public class VirialHePI {
                     refFileName += "_c";
                 }
             }
+            else {
+                refFileName += "_d";
+                if (calcApprox) {
+                    // => da
+                    refFileName += "a";
+                }
+            }
         }
         long t1 = System.currentTimeMillis();
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -683,8 +683,12 @@ public class VirialHePI {
         // then, we'll have some number of complete blocks in the accumulator
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
-        
+
+        if (refFreq >= 0) {
+            sim.integratorOS.setAdjustStepFraction(false);
+            sim.integratorOS.setRefStepFraction(refFreq);
+        }
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
