@@ -126,7 +126,7 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
             blockCovariance.E(blockCovSum);
             blockCovariance.TE(1.0/count);
             x = blockCovariance.getData();
-            long totalCount = count*blockSize;
+            double totalCount = count*blockSize;
             double countSq = totalCount*totalCount;
             if (fullCovariance) {
                 for (int i=0; i<n; i++) {
