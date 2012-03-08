@@ -403,6 +403,7 @@ public class SwmdGraphic extends SimulationGraphic {
         ePlot.getPlot().setTitle("Energy History (J/mol)");
 		ePlot.setDoLegend(true);
 		ePlot.setLabel("Energy");
+		ePlot.setUnit(eUnit);
 		ePlot.setXUnit(Picosecond.UNIT);
 		
         MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
@@ -420,6 +421,7 @@ public class SwmdGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
         peDisplay.setLabel("Potential Energy (J/mol)");
+        peDisplay.setUnit(eUnit);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new SimulationRestart(sim, space, sim.getController()));
