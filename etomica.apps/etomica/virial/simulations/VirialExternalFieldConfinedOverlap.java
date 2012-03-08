@@ -24,7 +24,6 @@ import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ClusterWeightSumWall;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirialExternalFieldOverlapConfined;
-import etomica.virial.MeterVirialExternalFieldOverlapRho;
 import etomica.virial.cluster.ExternalVirialDiagrams;
 import etomica.virial.cluster.Standard;
 
