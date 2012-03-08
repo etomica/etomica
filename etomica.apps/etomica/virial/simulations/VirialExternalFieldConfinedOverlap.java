@@ -98,8 +98,8 @@ public class VirialExternalFieldConfinedOverlap {
 		
 		final ClusterWeightSumWall targetSampleCluster =  new ClusterWeightSumWall(meter, nPoints);
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, new ClusterAbstract[] {refCluster,targetSampleCluster}, new ClusterWeight[] {sampleCluster, targetSampleCluster}, false);
-              sim.box[1].getLeafList().getAtom(1).getPosition().setX(2, -0.9); 
-              sim.box[1].getLeafList().getAtom(2).getPosition().setX(2, +0.9);
+              sim.box[1].getLeafList().getAtom(1).getPosition().setX(2, -0.1); 
+              //sim.box[1].getLeafList().getAtom(2).getPosition().setX(2, +0.9);
               sim.box[1].trialNotify();
               sim.box[1].acceptNotify();
               targetSampleCluster.value(sim.box[1]);
