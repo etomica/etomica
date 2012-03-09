@@ -22,7 +22,7 @@ import etomica.virial.cluster.ExternalVirialDiagrams;
  * Measures value of clusters in a box and returns the values
  * divided by the sampling bias from the sampling cluster.
  */
-public class MeterVirialExternalFieldOverlapRho implements IEtomicaDataSource, java.io.Serializable {
+public class MeterVirialExternalFieldOverlapRho implements ClusterWeightSumWall.DataSourceClusterWall, java.io.Serializable {
 
     /**
 	 * Constructor for MeterVirial.
@@ -35,9 +35,9 @@ public class MeterVirialExternalFieldOverlapRho implements IEtomicaDataSource, j
 		for(Graph g : gset){
 
 			ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-			diagrams.populateEFBonds(g, allBonds, false, true);            
-            double [] w = new double[]{((double)g.coefficient().getNumerator())/g.coefficient().getDenominator()};
-            
+			diagrams.populateEFBonds(g, allBonds, false, true);  
+            double [] w = new double[]{((double)g.coefficient().getNumerator())/g.coefficient().getDenominator()};            
+
             clusters.add(new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}));
             ArrayList<List<Byte>> listComponent = new ArrayList<List<Byte>>();
             ArrayList<Byte> listPointG = new ArrayList<Byte>();
@@ -96,8 +96,8 @@ public class MeterVirialExternalFieldOverlapRho implements IEtomicaDataSource, j
 			cluster.setTemperature(1);
 		}
 		this.wallPosition = wallposition;
-        data = new DataDoubleArray(wallposition.length+2);
-        dataInfo = new DataInfoDoubleArray("Cluster Value",Null.DIMENSION, new int[]{wallposition.length+2});
+        data = new DataDoubleArray(wallposition.length+3);
+        dataInfo = new DataInfoDoubleArray("Cluster Value",Null.DIMENSION, new int[]{wallposition.length+3});
         tag = new DataTag();
         dataInfo.addTag(tag);
 	}
@@ -113,10 +113,12 @@ public class MeterVirialExternalFieldOverlapRho implements IEtomicaDataSource, j
     public IData getData() {
     	
         double x[] = data.getData();
-        IAtomList atoms = box.getLeafList();        
-        x[0]=0;
+        IAtomList atoms = box.getLeafList();
+        for(int i=0; i<x.length; i++){
+        	x[i]=0;
+        }
         
-        for (int i=0; i<wallPosition.length; i++) {
+        /*for (int i=0; i<wallPosition.length; i++) {
         	double vSum = 0;
         	for(int c=0; c<clusters.size();c++){
         		double v =clusters.get(c).value(box);        			
@@ -154,12 +156,61 @@ public class MeterVirialExternalFieldOverlapRho implements IEtomicaDataSource, j
         	    }
         	    vSum += v;
             }
-        	x[i+1]=vSum;
-        	
-        }
-      
-       // x[x.length-1]=(atoms.getAtomCount()-1+lowestatom)*v;*/
-        return data;        
+        	x[i+1]=vSum;       	
+        }*/
+        
+        
+	    int nPoints = clusters.get(0).pointCount();
+	    double dx = wallPosition[1] - wallPosition[0];
+        
+    	for(int c=0; c<clusters.size();c++){
+    		double v =clusters.get(c).value(box);        			
+    		if (v==0){
+    	    	continue;
+    	    }
+    		      
+    	    List<List<Byte>> cList = listsPoint.get(c);
+    	    List<Byte> gList = cList.get(0);
+
+    	    double lowestatom = 0.0;
+    	    double highestatom = 1-atoms.getAtomCount();
+    	    for(byte g : gList){
+    	    	if (atoms.getAtom(g).getPosition().getX(2) < lowestatom){
+    	    		lowestatom = atoms.getAtom(g).getPosition().getX(2);	 
+    	    			
+    	    	}    	    		
+    	    }
+    	  
+    	    
+    	    for(int j=1; j<cList.size(); j++){
+    	    	List<Byte> gm1List = cList.get(j);
+    	    	double lowhigher = 0;
+    	    	for(byte gm1 :gm1List){
+    	    		if (atoms.getAtom(gm1).getPosition().getX(2) < lowhigher){
+    	    			lowhigher = atoms.getAtom(gm1).getPosition().getX(2);
+    	    		}    	    			
+    	    	}
+    	    	v=-v;
+    	    	if (lowhigher > highestatom) {
+    	    		highestatom = lowhigher;
+    	    	}
+    	    }    
+    	    x[0]+=v; 	    
+    	    if (highestatom >= lowestatom) continue;
+    	    x[x.length-2] +=(lowestatom - highestatom)*v;
+    	    x[x.length-1] +=Math.abs((lowestatom - highestatom)*v);
+    	    int istart = 1+(int)Math.ceil((highestatom - 1.0 + nPoints)/dx);
+    	    
+    	    int ilast = (lowestatom == 0)? wallPosition.length : 1+(int)Math.floor((lowestatom - 1.0 + nPoints)/dx);
+    	    
+    	    for(int i=istart; i<=ilast; i++){
+    	    	x[i]+=v;
+    	    }
+    	    
+    	    
+      	}   
+        return data; 
+        
     }
     
    

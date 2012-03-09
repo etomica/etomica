@@ -25,7 +25,7 @@ import etomica.virial.cluster.ExternalVirialDiagrams;
  * Measures value of clusters in a box and returns the values
  * divided by the sampling bias from the sampling cluster.
  */
-public class MeterVirialExternalFieldOverlapConfined implements IEtomicaDataSource, java.io.Serializable {
+public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSumWall.DataSourceClusterWall, java.io.Serializable {
 
     /**
 	 * Constructor for MeterVirial.

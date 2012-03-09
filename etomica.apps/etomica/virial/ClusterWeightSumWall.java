@@ -1,10 +1,11 @@
 package etomica.virial;
 
 import etomica.data.IData;
+import etomica.data.IEtomicaDataSource;
 
 public class ClusterWeightSumWall implements ClusterWeight {
 	
-	public ClusterWeightSumWall(MeterVirialExternalFieldOverlapConfined meter, int pointCount ) {
+	public ClusterWeightSumWall(DataSourceClusterWall meter, int pointCount ) {
 		this.meter = meter; 
 		this.pointCount = pointCount;
 		
@@ -30,6 +31,10 @@ public class ClusterWeightSumWall implements ClusterWeight {
 		
 		
 	}
-	private final MeterVirialExternalFieldOverlapConfined meter;
+	private final DataSourceClusterWall meter;
 	private final int pointCount;
+	public interface DataSourceClusterWall extends IEtomicaDataSource{
+		public void setBox(BoxCluster box);
+	}
+	
 }
