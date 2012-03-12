@@ -222,11 +222,9 @@ public class FactorOnce implements Unary {
 
   public static class FactorOnceParameters implements Parameters {
     public final byte nodeId;
-    public final char[] flexColors;
     public final boolean allPermutations;
-    public FactorOnceParameters(byte nodeId, char[] flexColors, boolean allPermutations) {
+    public FactorOnceParameters(byte nodeId, boolean allPermutations) {
       this.nodeId = nodeId;
-      this.flexColors = flexColors;
       this.allPermutations = allPermutations;
     }
   }
