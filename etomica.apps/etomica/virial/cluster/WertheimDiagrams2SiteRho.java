@@ -1146,7 +1146,7 @@ public class WertheimDiagrams2SiteRho {
             // it can make the MSMC a bit more efficient, but (in practice) the difference
             // seems to be negligible
             boolean allPermutations = false;
-            FactorOnceParameters fop = new FactorOnceParameters((byte)0, new char[0], allPermutations);
+            FactorOnceParameters fop = new FactorOnceParameters((byte)0, allPermutations);
             newP.clear();
             msp = new MulScalarParameters(-1, 1);
             for (Graph g : p) {

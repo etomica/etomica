@@ -456,8 +456,8 @@ public class VirialDiagramsMix {
             // pretend everything is fully flexible
             FactorOnce factor = new FactorOnce();
             Relabel relabel = new Relabel();
-            FactorOnceParameters fopA = new FactorOnceParameters((byte)0, new char[0], false);
-            FactorOnceParameters fopB = new FactorOnceParameters((byte)1, new char[0], false);
+            FactorOnceParameters fopA = new FactorOnceParameters((byte)0, false);
+            FactorOnceParameters fopB = new FactorOnceParameters((byte)1, false);
             Set<Graph> newP = new HashSet<Graph>();
             for (Graph g : p) {
                 boolean ap = hap.check(g);
