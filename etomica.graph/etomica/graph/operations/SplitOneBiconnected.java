@@ -27,7 +27,7 @@ public class SplitOneBiconnected implements Unary {
     assert (params instanceof SplitParameters);
     Set<Graph> result = new HashSet<Graph>();
     for (Graph g : argument) {
-      Set<Graph> newSet = apply(g, (SplitOneParameters) params);
+      Set<Graph> newSet = apply(g, (SplitOneParametersBC) params);
       if (newSet != null) {
         result.addAll(newSet);
       }
@@ -37,9 +37,17 @@ public class SplitOneBiconnected implements Unary {
     return result;
   }
 
-  public Set<Graph> apply(Graph graph, SplitOneParameters params) {
+  public Set<Graph> apply(Graph graph, SplitOneParametersBC params) {
 
-    List<List<Byte>> biComponents = BCVisitor.getBiComponents(graph);
+    Graph gOnlyF = graph.copy();
+    byte n = graph.nodeCount();
+    for (byte eid = 0; eid<n*(n-1)/2; eid++) {
+      if (gOnlyF.hasEdge(eid) && gOnlyF.getEdge(eid).getColor() != params.f) {
+        gOnlyF.deleteEdge(eid);
+      }
+    }
+
+    List<List<Byte>> biComponents = BCVisitor.getBiComponents(gOnlyF);
     Set<Graph> result = new HashSet<Graph>();
 
     // collect the Ids of all edges we must replace
@@ -69,7 +77,7 @@ public class SplitOneBiconnected implements Unary {
       byte[] permutation = permutations.next();
       // modify edge colors: partition 0 => newColor0, partition 1 => newColor1
       for (byte edgePtr = 0; edgePtr < edges.size(); edgePtr++) {
-        char newColor = permutation[edgePtr] == 0 ? params.newColor0() : params.newColor1();
+        char newColor = permutation[edgePtr] == 0 ? params.newColor0 : params.newColor1;
         byte edgeId = edges.get(edgePtr);
         newGraph.putEdge(edgeId);
         newGraph.getEdge(edgeId).setColor(newColor);
@@ -77,5 +85,15 @@ public class SplitOneBiconnected implements Unary {
       result.add(newGraph);
     }
     return result;
+  }
+
+  public static class SplitOneParametersBC extends SplitOneParameters {
+
+    public final char f;
+
+    public SplitOneParametersBC(char f, char newColor0, char newColor1) {
+      super(newColor0, newColor1);
+      this.f = f;
+    }
   }
 }

@@ -56,7 +56,7 @@ public class SplitOne implements Unary {
       byte[] permutation = permutations.next();
       // modify edge colors: partition 0 => newColor0, partition 1 => newColor1
       for (byte edgePtr = 0; edgePtr < edges.size(); edgePtr++) {
-        char newColor = permutation[edgePtr] == 0 ? params.newColor0() : params.newColor1();
+        char newColor = permutation[edgePtr] == 0 ? params.newColor0 : params.newColor1;
         byte edgeId = edges.get(edgePtr);
         newGraph.putEdge(edgeId);
         newGraph.getEdge(edgeId).setColor(newColor);
@@ -68,23 +68,12 @@ public class SplitOne implements Unary {
   
   public static class SplitOneParameters implements Parameters {
     
-    private char newColor0;
-    private char newColor1;
+    public final char newColor0;
+    public final char newColor1;
   
     public SplitOneParameters(char newColor0, char newColor1) {
-  
       this.newColor0 = newColor0;
       this.newColor1 = newColor1;
-    }
-  
-    public char newColor0() {
-  
-      return newColor0;
-    }
-  
-    public char newColor1() {
-  
-      return newColor1;
     }
   }
 }
