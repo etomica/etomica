@@ -44,6 +44,10 @@ public class ComponentSubst implements Unary {
   
   public Set<Graph> apply(Graph g, ComponentSubstParameters params) {
     GraphList<Graph> result = new GraphList<Graph>();
+    if (g.nodeCount() < params.gComp.nodeCount()) {
+      result.add(g.copy());
+      return result;
+    }
     // split up the graph into its components
     Set<Graph> split = splitGrapher.apply(g);
 
