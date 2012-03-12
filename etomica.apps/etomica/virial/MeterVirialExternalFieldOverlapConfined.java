@@ -10,7 +10,6 @@ import etomica.api.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.graph.model.Graph;
@@ -39,7 +38,7 @@ public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSum
 		for(Graph g : gset){
 
 			ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-			diagrams.populateEFBonds(g, allBonds, false, true);  
+			diagrams.populateEFBonds(g, allBonds, false);  
             double [] w = new double[]{((double)g.coefficient().getNumerator())/g.coefficient().getDenominator()};            
 
             clusters.add(new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}));
