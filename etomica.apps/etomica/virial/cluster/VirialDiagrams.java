@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import etomica.graph.iterators.IteratorWrapper;
 import etomica.graph.iterators.StoredIterator;
-import etomica.graph.iterators.filters.IdenticalGraphFilter;
 import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Coefficient;
@@ -24,7 +22,6 @@ import etomica.graph.model.Node;
 import etomica.graph.model.comparators.ComparatorBiConnected;
 import etomica.graph.model.comparators.ComparatorChain;
 import etomica.graph.model.comparators.ComparatorNumEdges;
-import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.MetadataImpl;
@@ -43,6 +40,7 @@ import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
 import etomica.graph.operations.FactorOnce;
 import etomica.graph.operations.FactorOnce.FactorOnceParameters;
+import etomica.graph.operations.GraphOp;
 import etomica.graph.operations.GraphOpMaxRoot;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MaxIsomorph;
@@ -51,21 +49,20 @@ import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.PCopy;
 import etomica.graph.operations.ReeHoover;
 import etomica.graph.operations.ReeHoover.ReeHooverParameters;
 import etomica.graph.operations.Relabel;
 import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitGraph;
-import etomica.graph.operations.SplitOne;
-import etomica.graph.operations.SplitOne.SplitOneParameters;
 import etomica.graph.operations.SplitOneBiconnected;
+import etomica.graph.operations.SplitOneBiconnected.SplitOneParametersBC;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.operations.Unfactor;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.IsConnected;
+import etomica.graph.property.NumFieldNodes;
 import etomica.graph.property.NumRootNodes;
 import etomica.graph.property.Property;
 import etomica.graph.traversal.BCVisitor;
@@ -80,6 +77,7 @@ import etomica.virial.ClusterSumMultibody;
 import etomica.virial.ClusterSumShell;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionNonAdditive;
+import etomica.virial.cluster.CondenseExchange.CondenseExchangeParameters;
 import etomica.virial.cluster.ExchangeSplit.ExchangeSplitParameters;
 
 public class VirialDiagrams {
@@ -89,7 +87,7 @@ public class VirialDiagrams {
     protected final boolean multibody;
     protected final boolean isInteractive;
     protected boolean doReeHoover;
-    protected Set<Graph> p, cancelP, disconnectedP;
+    protected Set<Graph> p, disconnectedP;
     protected Set<Graph> multiP;
     protected Set<Graph> rho;
     protected Set<Graph> lnfXi;
@@ -100,10 +98,11 @@ public class VirialDiagrams {
     protected boolean doKeepEBonds;
     protected boolean doExchange;
     protected boolean doExchangeF;
+    protected boolean doExchangeCondensing;
     protected boolean doNegativeExchange = false;
     protected final char nodeColor = Metadata.COLOR_CODE_0;
     protected char[] flexColors;
-    public char fBond, eBond, excBond, mBond, MBond, efbcBond, ffBond, mxcBond;
+    public char fBond, eBond, excBond, mBond, MBond, efbcBond, ffBond, mxcBond, MxcBond;
 
     protected static int[][] tripletStart = new int[0][0];
     protected static int[][] quadStart = new int[0][0];
@@ -124,6 +123,7 @@ public class VirialDiagrams {
         virialDiagrams.setDoExchange(doExchange);
         if (doExchange) {
             virialDiagrams.setDoExchangeF(true);
+            virialDiagrams.setDoExchangeCondensing(true);
         }
         if (multibody) {
             virialDiagrams.setDoMinimalMulti(true);
@@ -145,11 +145,6 @@ public class VirialDiagrams {
         this.isInteractive = interactive;
         doReeHoover = true;
         doShortcut = false;
-        ComparatorChain comp = new ComparatorChain();
-        comp.addComparator(new ComparatorNumFieldNodes());
-        comp.addComparator(new ComparatorBiConnected());
-        comp.addComparator(new ComparatorNumEdges());
-        comp.addComparator(new ComparatorNumNodes());
     }
 
     public void setDoReeHoover(boolean newDoReeHoover) {
@@ -165,6 +160,12 @@ public class VirialDiagrams {
 
     public void setDoKeepEBonds(boolean newDoKeepEBonds) {
         doKeepEBonds = newDoKeepEBonds;
+        if (!flex) {
+            if (multibody) {
+                throw new RuntimeException("keep-e-bonds doesn't work with multibody unless flex is on");
+            }
+            System.out.println("keep-e-bonds doesn't behave well with flex off");
+        }
     }
 
     public void setDoExchange(boolean newDoExchange) {
@@ -184,6 +185,26 @@ public class VirialDiagrams {
             throw new RuntimeException("this only makes sense with exchange on");
         }
         doExchangeF = newDoExchangeF;
+    }
+    
+    /**
+     * Turn on replacement of exchanged groups of nodes with a single node (of
+     * a different color)
+     */
+    public void setDoExchangeCondensing(boolean newDoExchangeCondensing) {
+        if (!doExchange) {
+            throw new RuntimeException("this only makes sense with exchange on");
+        }
+        doExchangeCondensing = newDoExchangeCondensing;
+        if (doExchangeCondensing && Metadata.COLORS.size() < 15) {
+            // need more colors for points
+            Metadata.COLORS.add("brown");
+            Metadata.COLORS.add("greenyellow");
+            Metadata.COLORS.add("powderblue");
+            Metadata.COLORS.add("thistle");
+            Metadata.COLORS.add("lightslategray");
+            Metadata.COLORS.add("coral");
+        }
     }
     
     public void setDoNegativeExchange(boolean newDoNegativeExchange) {
@@ -285,14 +306,29 @@ public class VirialDiagrams {
         if (!multibody && doMulti) {
             throw new RuntimeException("can't make multi-body bonds without multi-body diagrams");
         }
+        if (flex && multibody && doTotal) {
+            throw new RuntimeException("seems like a bad combination: flex + multibody + doTotal");
+        }
+        if (!doMulti && doTotal) {
+            throw new RuntimeException("you want total but don't have a multi-bond?");
+        }
+        Set<Graph> pn = getMSMCGraphs(false, doMulti);
+        if (doTotal) {
+            pn.addAll(getMSMCGraphs(false, !doMulti));
+        }
+        return makeVirialCluster(pn, f, fMulti);
+    }
+    
+    public ClusterSum makeVirialCluster(Set<Graph> graphs, MayerFunction f, MayerFunctionNonAdditive fMulti) {
+        
+        boolean doMulti = fMulti != null;
         ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
         ArrayList<Double> weights = new ArrayList<Double>();
-        Set<Graph> pn = getMSMCGraphs(false, doMulti);
-        for (Graph g : pn) {
-            int nDiagrams = populateEFBonds(g, allBonds, false, !doMulti, doTotal);
+        for (Graph g : graphs) {
+            int nDiagrams = populateEFBonds(g, allBonds, false);
             if (nDiagrams > 0) {
 	            if (flex && !doMulti) {
-	                populateEFBonds(g, allBonds, true, true, doTotal);
+	                populateEFBonds(g, allBonds, true);
 	                nDiagrams *= 2;
 	            }
 	            double w = g.coefficient().getValue()/nDiagrams;
@@ -302,26 +338,6 @@ public class VirialDiagrams {
 	            if (weights.size() != allBonds.size()) {
 	                throw new RuntimeException("oops");
 	            }
-            }
-        }
-
-        if (doTotal) {
-            pn = getMSMCGraphs(false, !doMulti);
-            for (Graph g : pn) {
-            	int nDiagrams = populateEFBonds(g, allBonds, false, doMulti, doTotal);
-                if (nDiagrams > 0) {
-    	            if (flex && doMulti) {
-    	                populateEFBonds(g, allBonds, true, true, doTotal);
-    	                nDiagrams *= 2;
-    	            }
-    	            double w = g.coefficient().getValue()/nDiagrams;
-    	            for (int i=0; i<nDiagrams; i++) {
-    	                weights.add(w);
-    	            }
-    	            if (weights.size() != allBonds.size()) {
-    	                throw new RuntimeException("oops");
-    	            }
-                }
             }
         }
 
@@ -430,14 +446,9 @@ public class VirialDiagrams {
         return null;
     }
 
-    public int populateEFBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap, boolean pairOnly) {
-        return populateEFBonds(g, allBonds, swap, pairOnly, false);
-    }
-    public int populateEFBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap, boolean doPair, boolean doTotal) {
+    public int populateEFBonds(Graph g, ArrayList<ClusterBonds> allBonds, boolean swap) {
         ArrayList<int[]> ebonds = new ArrayList<int[]>();
         boolean multiGraph = graphHasEdgeColor(g, mBond);
-        if (multiGraph && doPair) return 0;
-        if (!doPair && !multiGraph) return 0;
         int rv = 0;
         if (multiGraph) {
             // multibody graph.  we need to generate all permutations in order
@@ -502,7 +513,7 @@ public class VirialDiagrams {
                     newGroups[newGroups.length-1] = groupID;
                     mBonds[size] = newGroups;
                 }
-                allBonds.add(new ClusterBondsNonAdditive((flex&&doTotal) ? nPoints+1 : nPoints, new int[][][]{fbonds.toArray(new int[0][0])}, mBonds));
+                allBonds.add(new ClusterBondsNonAdditive(flex ? nPoints+1 : nPoints, new int[][][]{fbonds.toArray(new int[0][0])}, mBonds));
             }
         }
         else {
@@ -643,7 +654,7 @@ public class VirialDiagrams {
             double leadingCoef = 0;
             for (Graph g : pn) {
                 if (graphHasEdgeColor(g, mBond) || !isBi.check(g)) continue;
-                populateEFBonds(g, allBonds, false, true);
+                populateEFBonds(g, allBonds, false);
                 double coef = g.coefficient().getValue();
                 if (leadingCoef == 0) {
                     leadingCoef = coef;
@@ -653,7 +664,7 @@ public class VirialDiagrams {
                     coef /= leadingCoef;
                 }
                 if (flex) {
-                    populateEFBonds(g, allBonds, true, true);
+                    populateEFBonds(g, allBonds, true);
                     weights.add(0.5*coef);
                     weights.add(0.5*coef);
                 }
@@ -680,15 +691,15 @@ public class VirialDiagrams {
             if (graphHasEdgeColor(g, mBond)) continue;
             if (doMinimalBC && isBi.check(g)) continue;
             ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-            populateEFBonds(g, allBonds, false, true);
+            populateEFBonds(g, allBonds, false);
             double[] thisW = w1;
             if (flex) {
-                populateEFBonds(g, allBonds, true, true);
+                populateEFBonds(g, allBonds, true);
             }
             if (flex && cancelMap.get(g) != null) {
                 Graph cg = cancelMap.get(g);
-                populateEFBonds(cg, allBonds, false, true);
-                populateEFBonds(cg, allBonds, true, true);
+                populateEFBonds(cg, allBonds, false);
+                populateEFBonds(cg, allBonds, true);
                 thisW = new double[2+2];
                 thisW[0] = thisW[1] = 0.5;
                 for (int i=2; i<thisW.length; i++) {
@@ -760,7 +771,7 @@ public class VirialDiagrams {
 
     public GraphList<Graph> makeGraphList() {
         ComparatorChain comp = new ComparatorChain();
-        comp.addComparator(new ComparatorNumFieldNodes());
+        comp.addComparator(new ComparatorNumFieldNodesExchange());
         comp.addComparator(new ComparatorBiConnected());
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
@@ -772,6 +783,14 @@ public class VirialDiagrams {
         flexColors = new char[0];
         if (flex) {
            flexColors = new char[]{nodeColor};
+        }
+        if (doExchange) {
+            // all colors are flexible
+            flexColors = new char[2*n];
+            for (int i=0; i<n; i++) {
+                flexColors[i] = (char)('A' + i);
+                flexColors[n+i] = (char)('a' + i);
+            }
         }
 
         final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
@@ -941,6 +960,7 @@ public class VirialDiagrams {
         Metadata.DASH_MAP.put(excBond, 3);
         Metadata.DASH_MAP.put(ffBond, 3);
         Metadata.DASH_MAP.put(mxcBond, 3);
+        Metadata.DASH_MAP.put(MxcBond, 3);
 
         if (isInteractive) {
             topSet.clear();
@@ -1005,6 +1025,14 @@ public class VirialDiagrams {
         if (flex) {
            flexColors = new char[]{nodeColor};
         }
+        if (doExchange) {
+            // all colors are flexible
+            flexColors = new char[2*n];
+            for (int i=0; i<n; i++) {
+                flexColors[i] = (char)('A' + i);
+                flexColors[n+i] = (char)('a' + i);
+            }
+        }
 
         final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
         MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
@@ -1039,6 +1067,7 @@ public class VirialDiagrams {
         mBond = 'm';  // multi-body
         MBond = 'M';  // Multi-body
         mxcBond = 'n';  // multi-body exchange (yes, of course 'n' is bad)
+        MxcBond = 'N';
         efbcBond = 'b';
         excBond = 'x';
         ffBond = 'F';
@@ -1058,7 +1087,8 @@ public class VirialDiagrams {
         colorOrderMap.put(efbcBond, 5);
         colorOrderMap.put(ffBond, 6);
         colorOrderMap.put(mxcBond, 7);
-        colorOrderMap.put(excBond, 8);
+        colorOrderMap.put(MxcBond, 8);
+        colorOrderMap.put(excBond, 9);
 
         if (doShortcut && !multibody && !flex) {
 
@@ -1148,6 +1178,7 @@ public class VirialDiagrams {
 
         
 
+        Property happyArticulation = new ArticulatedAt0(doExchange);
         if (doExchange) {
             System.out.println("\nPe");
             topSet.clear();
@@ -1256,7 +1287,6 @@ public class VirialDiagrams {
                 p = newP;
             }
             
-            Property happyArticulation = new ArticulatedAt0();
             MaxIsomorph maxIsomorph = new MaxIsomorph();
             MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
             p = maxIsomorph.apply(isoFree.apply(p, null), mip);
@@ -1269,22 +1299,83 @@ public class VirialDiagrams {
             }
             ClusterViewer.createView("Pxc", topSet);
         }
+        else if (doKeepEBonds && multibody) {
+            // take every e+exc component of size >= 3.  replace each
+            // component, c, with c+cm where cm has e=>m and exc=> mxc
+            Set<Graph> newP = new HashSet<Graph>();
+            for (Graph g : p) {
+                HashSet<Graph> gMultiSplit = new HashSet<Graph>();
+                gMultiSplit.add(g.copy());
+                List<List<Byte>> components = CVisitor.getComponents(g);
+                for (int i=0; i<components.size(); i++) {
+                    List<Byte> comp = components.get(i);
+                    if (comp.size() < 3) continue;
+                    HashSet<Graph> gMultiNew = new HashSet<Graph>();
+                    for (Graph gp : gMultiSplit) {
+                        Graph gm = gp.copy();
+                        for (byte inode1 = 0; inode1<comp.size()-1; inode1++) {
+                            byte node1 = comp.get(inode1);
+                            for (byte inode2 = (byte)(inode1+1); inode2<comp.size(); inode2++) {
+                                byte node2 = comp.get(inode2);
+                                Edge edge = gm.getEdge(node1, node2);
+                                if (edge.getColor() == eBond) {
+                                    edge.setColor(mBond);
+                                }
+                            }
+                        }
+                        gMultiNew.add(gm);
+                    }
+                    gMultiSplit.addAll(gMultiNew);
+                }
+                newP.addAll(gMultiSplit);
+            }
+            p = newP;
+        }
 
         if (doKeepEBonds) {
+            // *now* switch the e-bonds back to f-bonds
             Split split = new Split();
             SplitParameters bonds = new SplitParameters(eBond, fBond, oneBond);
             Set<Graph> newP = split.apply(p, bonds);
     
             DeleteEdgeParameters deleteEdgeParameters = new DeleteEdgeParameters(oneBond);
             DeleteEdge deleteEdge = new DeleteEdge();
-            p.clear();
             Unfactor unfactor = new Unfactor();
-            Property happyArticulation = new ArticulatedAt0();
             MaxIsomorph maxIsomorph = new MaxIsomorph();
             MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
-            p.addAll(maxIsomorph.apply(isoFree.apply(unfactor.apply(deleteEdge.apply(newP, deleteEdgeParameters), mfp), null), mip));
+
+            p = maxIsomorph.apply(isoFree.apply(unfactor.apply(deleteEdge.apply(newP, deleteEdgeParameters), mfp), null), mip);
         }
         
+        HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
+        MaxIsomorph maxIsomorph = new MaxIsomorph();
+        MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
+        if (doExchangeCondensing) {
+            // we want to do this early so that we have simpler diagrams that are less likely to confuse
+            // the rest of the operations.  However, the diagrams that result from this operation
+            // have the root points (TYPE_NODE_ROOT) moved out of the exchange components and need
+            // to stay that way, so we have to be careful that any operations that would move root points
+            // happen before this.  Quite fragile.
+            CondenseExchange condenser = new CondenseExchange();
+            CondenseExchangeParameters condenseParams = new CondenseExchangeParameters(ffBond, excBond, fBond, 'A');
+            p = condenser.apply(p, condenseParams);
+            mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), happyArticulation);
+            p = maxIsomorph.apply(isoFree.apply(p, null), mip);
+
+            if (multibody) {
+                condenseParams = new CondenseExchangeParameters(mBond, mxcBond, mBond, 'M');
+                p = condenser.apply(p, condenseParams);
+                p = maxIsomorph.apply(isoFree.apply(p, null), mip);
+            }
+
+            System.out.println("\nPc");
+            topSet.clear();
+            topSet.addAll(p);
+            for (Graph g : topSet) {
+                System.out.println(g);
+            }
+            ClusterViewer.createView("Pc", topSet);
+        }
         
         if (doMinimalMulti) {
             doMinimalMulti();
@@ -1294,13 +1385,10 @@ public class VirialDiagrams {
 
         // attempt to factor any graphs with an articulation point
         cancelMap = new HashMap<Graph,Graph>();
-        cancelP = new GraphList<Graph>();
         disconnectedP = new HashSet<Graph>();
         if (!flex) {
 
-            HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
             Factor factor = new Factor();
-            newP.clear();
 
             for (Graph g : p) {
                 boolean ap = hap.check(g);
@@ -1326,7 +1414,7 @@ public class VirialDiagrams {
                 }
                 else {
                     char nfBond = 'F';
-                    SplitOneParameters splitOneParameters = new SplitOneParameters(eBond, nfBond);
+                    SplitOneParametersBC splitOneParameters = new SplitOneParametersBC(fBond, eBond, nfBond);
                     SplitOneBiconnected splitOneBC = new SplitOneBiconnected();
                     msp = new MulScalarParameters(-1, 1);
                     newP.clear();
@@ -1351,7 +1439,6 @@ public class VirialDiagrams {
                 }
             }
             newP.clear();
-            MaxIsomorph maxIsomorph = new MaxIsomorph();
             newP.addAll(maxIsomorph.apply(p, MaxIsomorph.PARAM_ALL));
             p = newP;
         }
@@ -1360,7 +1447,7 @@ public class VirialDiagrams {
             // perform Ree-Hoover substitution (brute-force)
             if (doReeHoover) {
                 char nfBond = 'Z';
-                SplitOneParameters splitOneParameters = new SplitOneParameters(eBond, nfBond);
+                SplitOneParametersBC splitOneParameters = new SplitOneParametersBC(fBond, eBond, nfBond);
                 SplitOneBiconnected splitOneBC = new SplitOneBiconnected();
                 msp = new MulScalarParameters(-1, 1);
                 newP.clear();
@@ -1385,23 +1472,21 @@ public class VirialDiagrams {
                 newP.clear();
             }
 
-            HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
             FactorOnce factorOnce = new FactorOnce();
-            boolean allPermutations = false;
-            FactorOnceParameters fop = new FactorOnceParameters((byte)0, new char[0], allPermutations);
+            FactorOnceParameters fop = new FactorOnceParameters((byte)0, false);
             newP.clear();
-            Property happyArticulation = new ArticulatedAt0();
-            MaxIsomorph maxIsomorph = new MaxIsomorph();
-            MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
             newP.addAll(maxIsomorph.apply(p, mip));
             p.clear();
             p.addAll(newP);
+            
+            // match up singly-connected (in p) with disconnected diagrams.
+            // we have to do this last so that our cancelMap remains valid.
             newP.clear();
             msp = new MulScalarParameters(-1, 1);
             for (Graph g : p) {
                 boolean ap = hap.check(g);
                 boolean con = hap.isConnected();
-                if (con && ap) {
+                if (con && ap && hap.getArticulationPoints().contains((byte)0)) {
                     // newP will contain connected diagrams
                     g = g.copy();
                     newP.add(g);
@@ -1409,120 +1494,125 @@ public class VirialDiagrams {
                     Graph gf = gfSet.iterator().next(); // we know we only have 1 iterate
                     disconnectedP.add(gf);
                     gf = mulScalar.apply(gf, msp);
-                    cancelP.add(gf);
                     cancelMap.put(g,gf);
                 }
                 else if (con) {
                     // this is a biconnected diagram;
                     newP.add(g.copy());
                 }
-                else {
+                else if (graphHasEdgeColor(g, fBond)){
                     // this is a disconnected diagram;
                     disconnectedP.add(g.copy());
                 }
+                else {
+                    newP.add(g.copy());
+                }
             }
             p = newP;
+
             // we don't need to re-isofree p, we know that's still good.
             // some of our new disconnected diagrams might condense with the old ones
             disconnectedP = isoFree.apply(maxIsomorph.apply(disconnectedP, mip), null);
 
-            Set<Graph>[] bcSubst = new HashSet[n+1];
             ComponentSubst compSubst = new ComponentSubst();
-            ComponentSubstParameters[] csp = new ComponentSubstParameters[n+1];
+            List<ComponentSubstParameters> cpsList = new ArrayList<ComponentSubstParameters>();
+//            ComponentSubstParameters[] csp = new ComponentSubstParameters[n+1];
             if (doMinimalBC) {
+                // this only alters the diagrams in disconnectedP
+                
                 // group together all n-point diagrams (diagrams with n field nodes)
                 // that evaluate to infinity (due to insufficient connectivity).
                 // these are the diagrams that must be evaluated together during MSMC
                 // at nth order.  all other n-point diagrams can be evaluated as
                 // products of smaller diagrams
-                for (int i=4; i<=n; i++) {
-                    bcSubst[i] = new HashSet<Graph>();
-                }
 
                 Set<Graph> bcP = new HashSet<Graph>();
                 IsBiconnected isBi = new IsBiconnected();
                 for (Graph g : p) {
-                    if (!graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, MBond) && isBi.check(g) && 
+                    if (g.nodeCount() > 3 && !graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, MBond) && isBi.check(g) && 
                             (!doExchange || (!graphHasEdgeColor(g, excBond) && !graphHasEdgeColor(g, mxcBond)))) {
                         bcP.add(g);
                         continue;
                     }
                 }
-                MulFlexibleParameters mfpc = new MulFlexibleParameters(new char[]{nodeColor}, (byte)n);
-                for (int i=4; i<=n; i++) {
+                Set<Graph> bcSubst = new HashSet<Graph>();
+                for (byte i=4; i<=n; i++) {
+                    HashSet<char[]> bicompSeen = new HashSet<char[]>();
+                    char[] thisBicomp = null;
                     // find all multi graphs of size i without a root point
                     // then, Mi = mi1 + Mi2 + Mi3 + ...
                     // where mi1, Mi2, Mi3... are the diagrams we find here.
                     // mi1 is the fully connected diagram with mBonds, while Mi2, Mi3, etc.
                     //  will be diagrams containing smaller multibody components composed of MBonds
-                    Coefficient mcoef = null;
-                    Graph gbc = null;
-                    for (Graph g : bcP) {
-                        if (g.nodeCount() == i && NumRootNodes.value(g) == 0) {
-                            g = g.copy();
-                            if (graphHasEdgeColor(g, eBond)) {
-                                // this is a lower order (disconnected) diagram
-                                g.coefficient().multiply(new CoefficientImpl(-1));
-                                bcSubst[i].add(g);
-                            }
-                            else {
-                                gbc = g.copy();
-                                // this is the large diagram in this set.
-                                for (Edge e : g.edges()) {
-                                    e.setColor(efbcBond);
+                    while (true) {
+                        Coefficient mcoef = null;
+                        Graph gbc = null;
+                        bcSubst.clear();
+                        thisBicomp = null;
+                        for (Graph g : bcP) {
+                            if (g.nodeCount() == i && NumRootNodes.value(g) == 0) {
+                                if (doExchange) {
+                                    // sigh.  we have to keep things separate for each list of
+                                    // exchange groups (AAAA, AAAB, AABB, AAAC, etc)
+                                    char[] iBicomp = new char[i];
+                                    for (byte j=0; j<i; j++) {
+                                        iBicomp[j] = g.getNode(j).getColor();
+                                    }
+                                    java.util.Arrays.sort(iBicomp);
+                                    if (thisBicomp == null) {
+                                        boolean seen = false;
+                                        for (char[] seenComp : bicompSeen) {
+                                            if (java.util.Arrays.equals(seenComp,iBicomp)) {
+                                                seen = true;
+                                                break;
+                                            }
+                                        }
+                                        if (seen) {
+                                            // this is not the droid we are looking for
+                                            continue;
+                                        }
+                                        thisBicomp = iBicomp;
+                                        bicompSeen.add(thisBicomp);
+                                    }
+                                    else if (!java.util.Arrays.equals(iBicomp, thisBicomp)) {
+                                        // this is not the droid we are looking for
+                                        continue;
+                                    }
                                 }
-                                bcSubst[i].add(g);
-                                mcoef = new CoefficientImpl(1);
-                                mcoef.divide(g.coefficient());
+                                        
+                                g = g.copy();
+                                if (graphHasEdgeColor(g, eBond)) {
+                                    // this is a lower order (disconnected) diagram
+                                    g.coefficient().multiply(new CoefficientImpl(-1));
+                                    bcSubst.add(g);
+                                }
+                                else {
+                                    gbc = g.copy();
+                                    // this is the large diagram in this set.
+                                    for (Edge e : g.edges()) {
+                                        e.setColor(efbcBond);
+                                    }
+                                    bcSubst.add(g);
+                                    mcoef = new CoefficientImpl(1);
+                                    mcoef.divide(g.coefficient());
+                                }
                             }
                         }
+                        if (doExchange && thisBicomp == null) break;
+                        bcSubst = mulScalar.apply(bcSubst, new MulScalarParameters(mcoef));
+    
+                        // replace all mBond groups of size i with MBond
+                        // now mi1 = Mi - Mi2 - Mi3 - ...
+                        // where mi1 is the fully connected diagram of size i
+                        ComponentSubstParameters csp = new ComponentSubstParameters(gbc, bcSubst, mfp);
+//                        p = isoFree.apply(compSubst.apply(p, csp), null);
+                        disconnectedP = isoFree.apply(maxIsomorph.apply(compSubst.apply(disconnectedP, csp), mip), null);
+                        cpsList.add(csp);
+                        if (!doExchange) break;
                     }
-                    bcSubst[i] = mulScalar.apply(bcSubst[i], new MulScalarParameters(mcoef));
-
-                    // replace all mBond groups of size i with MBond
-                    // now mi1 = Mi - Mi2 - Mi3 - ...
-                    // where mi1 is the fully connected diagram of size i
-                    csp[i] = new ComponentSubstParameters(gbc, bcSubst[i], mfpc);
-//                    p = isoFree.apply(compSubst.apply(p, csp), null);
-                    disconnectedP = isoFree.apply(maxIsomorph.apply(compSubst.apply(disconnectedP, csp[i]), mip), null);
                 }
 
-//                biconP = new HashSet<Graph>();
-                // we have mi1 = Mi + Mi2 + Mi3
-                // we want to reconstruct Mi = mi1 + mi2 + mi3
-                // first we just do  Mi = mi - Mi2 - Mi3
-                for (int i=4; i<n+1; i++) {
-                    if (true) break;
-                    Graph gm = null;
-                    for (Graph g : bcSubst[i]) {
-                        if (g.edgeCount() == i*(i-1)/2) {
-                            // this was Mi, turn it back into mi1
-                            gm = g.copy(); // remember this so we can substitute for it elsewhere
-                            // invert sign here because we'll uninvert below
-                            g.coefficient().multiply(new CoefficientImpl(-1));
-                            for (Edge e : g.edges()) {
-                                e.setColor(fBond);
-                            }
-                            break;
-                        }
-                    }
-                    // flip sign of every diagram
-                    bcSubst[i] = mulScalar.apply(bcSubst[i], new MulScalarParameters(new CoefficientImpl(-1)));
-                    // We have Mi = mi1 + mi2 + mi3
-                    // now substitute that back for j>i
-                    ComponentSubstParameters cspBack = new ComponentSubstParameters(gm, bcSubst[i], mfpc);
-                    for (int j=i+1; j<n+1; j++) {
-                        bcSubst[j] = isoFree.apply(compSubst.apply(bcSubst[j], cspBack), null);
-                    }
-                    // now the leading coefficient is (1-i)/i!
-//                    biconP.addAll(mulScalar.apply(bcSubst[i], new MulScalarParameters(new CoefficientImpl(1-i, (int)SpecialFunctions.factorial(i)))));
-                }
-
-//                p.clear();
-//                p.addAll(nbcP);
-//                p.addAll(bcP);
             }
-            
 
             // disconnected graphs with i-1 components
             Set<Graph>[] newDisconnectedP = new HashSet[n+1];
@@ -1539,47 +1629,34 @@ public class VirialDiagrams {
                 // looking for graphs with i components
                 for (Graph g : newDisconnectedP[i]) {
                     boolean ap = hap.check(g);
-                    if (ap) {
-                        byte apid = hap.getArticulationPoints().get(0);
-                        Set<Graph> gfSet = factorOnce.apply(g, new FactorOnceParameters(apid, new char[0], false));
+                    if (ap && hap.getArticulationPoints().contains((byte)0)) {
+                        // this is a disconnected diagram with a singly-connected component.
+                        // we need to match it up with a more disconnected diagram
+                        // all of the articulation points we're interested in will be at 0
+                        // (because of happyArticulation.  Other articulation points will be
+                        // from exchange groups, but we can't split those.
+                        Set<Graph> gfSet = factorOnce.apply(g, fop);
                         Graph gf = gfSet.iterator().next();
                         gf = mulScalar.apply(gf, msp);
-                        cancelP.add(gf);
                         cancelMap.put(g,gf);
 
                         if (doMinimalBC && gf.nodeCount() > 5) {
                             // we've made a new diagram and we need to try to make our BC substitutions
-                            for (int j=4; j<gf.nodeCount()-1 && j<n; j++) {
-                                gfSet = compSubst.apply(gfSet, csp[j]);
+                            for (ComponentSubstParameters csp : cpsList) {
+                                gfSet = compSubst.apply(gfSet, csp);
                             }
                         }
                         newDisconnectedP[i+1].addAll(gfSet);
                     }
                 }
-                newDisconnectedP[i+1] = isoFree.apply(newDisconnectedP[i+1], null);
-                disconnectedP.addAll(newDisconnectedP[i]);
-            }
 
-            Set<Graph> pNoRoot = new HashSet<Graph>();
-            for (Graph g : p) {
-                g = g.copy();
-                for (Node node : g.nodes()) {
-                    node.setType(Metadata.TYPE_NODE_FIELD);
-                }
-                pNoRoot.add(g);
-            }
-            
-            // we want to condense cancelP (in case multiple diagrams were factored into the
-            // same one -- is that even possible?), but want to be careful not to permute bonds.
-            PCopy pcopy = new PCopy();
-            IteratorWrapper wrapper = new IteratorWrapper(pcopy.apply(cancelP, null).iterator());
-            GraphIterator isomorphs = new IdenticalGraphFilter(wrapper);
-            cancelP = new GraphList<Graph>();
-            while (isomorphs.hasNext()) {
-                cancelP.add(isomorphs.next());
+                newDisconnectedP[i+1] = isoFree.apply(maxIsomorph.apply(newDisconnectedP[i+1], mip), null);
+
+                disconnectedP.addAll(newDisconnectedP[i]);
             }
         }
 
+        
         if (isInteractive) {
             topSet.clear();
             topSet.addAll(p);
@@ -1615,88 +1692,199 @@ public class VirialDiagrams {
         Factor factor = new Factor();
         MulScalar mulScalar = new MulScalar();
         IsoFree isoFree = new IsoFree();
-        Set<Graph>[] multiPSubst = new HashSet[n+1];
-        for (int i=3; i<=n; i++) {
-            multiPSubst[i] = new HashSet<Graph>();
-        }
 
         Set<Graph> mP = new HashSet<Graph>();
         Set<Graph> pairP = new HashSet<Graph>();
         for (Graph g : p) {
             g = factor.apply(g,mfp);
-            if (!graphHasEdgeColor(g, mBond)) {
-                pairP.add(g);
-                continue;
+            if (!graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, mxcBond)) {
+                if (doExchange) {
+                    // we need to look for single points that are internally multibonded
+                    boolean isMulti = false;
+                    for (Node node : g.nodes()) {
+                        if (node.getColor() >= 'M' && node.getColor() <= 'Z') {
+                            isMulti = true;
+                            break;
+                        }
+                    }
+                    if (!isMulti) {
+                        pairP.add(g);
+                        continue;
+                    }
+                }
+                else {
+                    pairP.add(g);
+                    continue;
+                }
             }
             mP.add(g);
         }
         MulFlexibleParameters mfpc = new MulFlexibleParameters(new char[]{nodeColor}, (byte)n);
+        if (flex) {
+            // we just want to force no-superimposing here.
+            mfpc = mfp;
+        }
         ComponentSubst compSubst = new ComponentSubst();
-        for (int i=3; i<=n; i++) {
+        multiP = new HashSet<Graph>();
+        Set<Graph> mUnsubst = new HashSet<Graph>();
+        // we need to start with i=1 so we catch fully exchanged diagrams
+        // the first pass is to construct multiP from the unmodified set of diagrams
+        HashSet<char[]> bicompSeen = new HashSet<char[]>();
+        for (int i=1; i<=n; i++) {
+            if (!doExchange && i<3) continue;
+            // find all multi graphs of size i without a root point
+            char[] thisBicomp = null;
+            bicompSeen.clear();
+            while (true) {
+                Coefficient mcoef = null;
+                mUnsubst.clear();
+                thisBicomp = null;
+                for (Graph g : mP) {
+                    if (g.nodeCount() != i || NumRootNodes.value(g) > 0) {
+                        continue;
+                    }
+                    if (doExchange) {
+                        char[] iBicomp = new char[i];
+                        boolean hasRoot = false;
+                        for (byte j=0; j<i; j++) {
+                            iBicomp[j] = g.getNode(j).getColor();
+                            if (iBicomp[j] >= 'a' && iBicomp[j] <= 'z') {
+                                // root point in disguise
+                                hasRoot = true;
+                                break;
+                            }
+                            if (iBicomp[j] >= 'M') {
+                                iBicomp[j] -= 'M' - 'A';
+                            }
+                        }
+                        if (hasRoot) continue;
+                        java.util.Arrays.sort(iBicomp);
+                        if (thisBicomp == null) {
+                            boolean seen = false;
+                            for (char[] seenComp : bicompSeen) {
+                                if (java.util.Arrays.equals(seenComp,iBicomp)) {
+                                    seen = true;
+                                    break;
+                                }
+                            }
+                            if (seen) {
+                                // this is not the droid we are looking for
+                                continue;
+                            }
+                            thisBicomp = iBicomp;
+                            bicompSeen.add(thisBicomp);
+                        }
+                        else if (!java.util.Arrays.equals(iBicomp, thisBicomp)) {
+                            // this is not the droid we are looking for
+                            continue;
+                        }
+                    }
+
+                    mUnsubst.add(g.copy());
+                    if (g.edgeCount() == i*(i-1)/2) {
+                        mcoef = new CoefficientImpl(1);
+                        mcoef.divide(g.coefficient());
+                    }
+                }
+                if (doExchange && thisBicomp == null) break;
+                MulScalarParameters msp = new MulScalarParameters(mcoef);
+                multiP.addAll(mulScalar.apply(mUnsubst, msp));
+    
+                if (!doExchange) break;
+            }
+        }
+        Set<Graph> mSubst = new HashSet<Graph>();
+        // now we make a second pass where we actually make substitutions
+        for (int i=1; i<=n; i++) {
+            if (!doExchange && i<3) continue;
             // find all multi graphs of size i without a root point
             // then, Mi = mi1 + Mi2 + Mi3 + ...
             // where mi1, Mi2, Mi3... are the diagrams we find here.
             // mi1 is the fully connected diagram with mBonds, while Mi2, Mi3, etc.
             //  will be diagrams containing smaller multibody components composed of MBonds
-            Coefficient mcoef = null;
-            Graph gm = null;
-            for (Graph g : mP) {
-                if (g.nodeCount() == i && NumRootNodes.value(g) == 0) {
+            bicompSeen.clear();
+            while (true) {
+                char[] thisBicomp = null;
+                Graph gm = null;
+                Coefficient mcoef = null;
+                mSubst.clear();
+                for (Graph g : mP) {
+                    if (g.nodeCount() != i || NumRootNodes.value(g) > 0) {
+                        continue;
+                    }
+                    if (doExchange) {
+                        char[] iBicomp = new char[i];
+                        boolean hasRoot = false;
+                        for (byte j=0; j<i; j++) {
+                            iBicomp[j] = g.getNode(j).getColor();
+                            if (iBicomp[j] >= 'a' && iBicomp[j] <= 'z') {
+                                // root point in disguise
+                                hasRoot = true;
+                                break;
+                            }
+                            if (iBicomp[j] >= 'M') {
+                                iBicomp[j] -= 'M' - 'A';
+                            }
+                        }
+                        if (hasRoot) continue;
+                        java.util.Arrays.sort(iBicomp);
+                        if (thisBicomp == null) {
+                            boolean seen = false;
+                            for (char[] seenComp : bicompSeen) {
+                                if (java.util.Arrays.equals(seenComp,iBicomp)) {
+                                    seen = true;
+                                    break;
+                                }
+                            }
+                            if (seen) {
+                                // this is not the droid we are looking for
+                                continue;
+                            }
+                            thisBicomp = iBicomp;
+                            bicompSeen.add(thisBicomp);
+                        }
+                        else if (!java.util.Arrays.equals(iBicomp, thisBicomp)) {
+                            // this is not the droid we are looking for
+                            continue;
+                        }
+                    }
+
                     g = g.copy();
                     if (g.edgeCount() < i*(i-1)/2) {
                         // this is a lower order (disconnected) diagram
                         g.coefficient().multiply(new CoefficientImpl(-1));
-                        multiPSubst[i].add(g);
+                        mSubst.add(g);
                     }
                     else {
                         gm = g.copy();
                         // this is the large diagram in this set.
                         for (Edge e : g.edges()) {
-                            e.setColor(MBond);
+                            if (e.getColor() == mBond) {
+                                e.setColor(MBond);
+                            }
+                            else if (e.getColor() == mxcBond) {
+                                e.setColor(MxcBond);
+                            }
+                            else {
+                                throw new RuntimeException("oops");
+                            }
                         }
-                        multiPSubst[i].add(g);
+                        mSubst.add(g);
                         mcoef = new CoefficientImpl(1);
                         mcoef.divide(g.coefficient());
                     }
                 }
+                if (doExchange && thisBicomp == null) break;
+                MulScalarParameters msp = new MulScalarParameters(mcoef);
+                mSubst = mulScalar.apply(mSubst, msp);
+    
+                // replace all mBond groups of size i with MBond
+                // now mi1 = Mi - Mi2 - Mi3 - ...
+                // where mi1 is the fully connected diagram of size i
+                ComponentSubstParameters csp = new ComponentSubstParameters(gm, mSubst, mfpc);
+                mP = isoFree.apply(compSubst.apply(mP, csp), null);
+                if (!doExchange) break;
             }
-            multiPSubst[i] = mulScalar.apply(multiPSubst[i], new MulScalarParameters(mcoef));
-
-            // replace all mBond groups of size i with MBond
-            // now mi1 = Mi - Mi2 - Mi3 - ...
-            // where mi1 is the fully connected diagram of size i
-            ComponentSubstParameters csp = new ComponentSubstParameters(gm, multiPSubst[i], mfpc);
-            mP = isoFree.apply(compSubst.apply(mP, csp), null);
-        }
-
-        multiP = new HashSet<Graph>();
-        // we have mi1 = Mi + Mi2 + Mi3
-        // we want to reconstruct Mi = mi1 + mi2 + mi3
-        // first we just do  Mi = mi - Mi2 - Mi3
-        for (int i=3; i<n+1; i++) {
-            Graph gm = null;
-            for (Graph g : multiPSubst[i]) {
-                if (g.edgeCount() == i*(i-1)/2) {
-                    // this was Mi, turn it back into mi1
-                    gm = g.copy(); // remember this so we can substitute for it elsewhere
-                    // invert sign here because we'll uninvert below
-                    g.coefficient().multiply(new CoefficientImpl(-1));
-                    for (Edge e : g.edges()) {
-                        e.setColor(mBond);
-                    }
-                    break;
-                }
-            }
-            // flip sign of every diagram
-            multiPSubst[i] = mulScalar.apply(multiPSubst[i], new MulScalarParameters(new CoefficientImpl(-1)));
-            // We have Mi = mi1 + mi2 + mi3
-            // now substitute that back for j>i
-            ComponentSubstParameters csp = new ComponentSubstParameters(gm, multiPSubst[i], mfpc);
-            for (int j=i+1; j<n+1; j++) {
-                multiPSubst[j] = isoFree.apply(compSubst.apply(multiPSubst[j], csp), null);
-            }
-            // now the leading coefficient is (1-i)/i!
-            multiP.addAll(mulScalar.apply(multiPSubst[i], new MulScalarParameters(new CoefficientImpl(1-i, (int)SpecialFunctions.factorial(i)))));
         }
 
         multiP = isoFree.apply(multiP, null);
@@ -1714,16 +1902,83 @@ public class VirialDiagrams {
     public static final class ArticulatedAt0 implements Property {
         protected final IsBiconnected isBi = new IsBiconnected();
         protected final HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
+        protected final boolean doExchange;
+        public ArticulatedAt0(boolean doExchange) {
+            this.doExchange = doExchange;
+        }
         public boolean check(Graph graph) {
+            if (doExchange) {
+                char prevColor = graph.getNode((byte)0).getColor();
+                if (prevColor >= 'a' && prevColor <= 'z') prevColor += 'A' - 'a';
+                for (byte i=1; i<graph.nodeCount(); i++) {
+                    char color = graph.getNode(i).getColor();
+                    if (color >= 'a' && color <= 'z') color += 'A' - 'a';
+                    if (color < prevColor) return false;
+                    prevColor = color;
+                }
+            }
             if (isBi.check(graph)) return true;
             boolean ap = hap.check(graph);
 //            boolean con = hap.isConnected();
             if (!ap) return true;
-            return hap.getArticulationPoints().contains((byte)0); 
+            boolean articulatedAtA = false;
+            for (byte node : hap.getArticulationPoints()) {
+                if (node == 0) return true;
+                if (graph.getNode(node).getColor() == 'A') articulatedAtA = true;
+            }
+            return !articulatedAtA; 
         }
     }
-    
-    
+
+    public static class ComparatorNumFieldNodesExchange implements Comparator<Graph> {
+        public int compare(Graph g1, Graph g2) {
+            int fieldCount1 = NumFieldNodes.value(g1);
+            int fieldCountEx1 = fieldCount1;
+            int multi1 = 0;
+            for (Node node : g1.nodes()) {
+                char c = node.getColor();
+                if (c >= 'A' && c <= 'Z') {
+                    if (c >= 'M') {
+                        c -= 'M' - 'A';
+                        multi1++;
+                    }
+                    fieldCountEx1 += c - 'A';
+                }
+                else {
+                    if (c >= 'm') {
+                        c -= 'm' - 'a';
+                        multi1++;
+                    }
+                    fieldCountEx1 += c - 'b';
+                }
+            }
+            int fieldCount2 = NumFieldNodes.value(g2);
+            int fieldCountEx2 = fieldCount2;
+            int multi2 = 0;
+            for (Node node : g2.nodes()) {
+                char c = node.getColor();
+                if (c >= 'A' && c <= 'Z') {
+                    if (c >= 'M') {
+                        c -= 'M' - 'A';
+                        multi2++;
+                    }
+                    fieldCountEx2 += c - 'A';
+                }
+                else {
+                    if (c >= 'm') {
+                        multi2++;
+                        c -= 'm' - 'a';
+                    }
+                    fieldCountEx2 += c - 'b';
+                }
+            }
+            if (fieldCountEx1 != fieldCountEx2) return fieldCountEx1 - fieldCountEx2;
+            int d = (fieldCountEx1-fieldCount1) - (fieldCountEx2 - fieldCount2);
+            if (d != 0) return d;
+            return multi1 - multi2;
+        }
+    }
+
     public static boolean graphHasEdgeColor(Graph g, char color) {
         for (Edge edge : g.edges()) {
             if (edge.getColor() == color) {
