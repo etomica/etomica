@@ -26,7 +26,7 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
      * pairIterator, which is expected to contain two basis-dependent 
      * iterators.
      */
-    public ApiIntergroup(AtomIteratorBasis outer, AtomIteratorBasis inner) {
+    public ApiIntergroup(AtomIteratorBasisDependent outer, AtomIteratorBasisDependent inner) {
         super();
         aiOuter = outer;
         aiInner = inner;
@@ -39,7 +39,7 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
      * 
      * @return the current outer-loop iterator
      */
-    public AtomIteratorBasis getOuterIterator() {
+    public AtomIteratorBasisDependent getOuterIterator() {
         return aiOuter;
     }
 
@@ -48,7 +48,7 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
      * 
      * @return the current inner-loop iterator
      */
-    public AtomIteratorBasis getInnerIterator() {
+    public AtomIteratorBasisDependent getInnerIterator() {
         return aiInner;
     }
 
@@ -185,7 +185,7 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
 
     private static final long serialVersionUID = 1L;
     protected final AtomPair pair = new AtomPair();
-    protected final AtomIteratorBasis aiInner, aiOuter;
+    protected final AtomIteratorBasisDependent aiInner, aiOuter;
     protected IAtom targetAtom;
     protected boolean needSetupIterators = true;
     protected final MoleculeSetSinglet atomSetSinglet;

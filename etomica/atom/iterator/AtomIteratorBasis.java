@@ -38,7 +38,7 @@ import etomica.atom.AtomArrayList;
  * </ul>
  */
 public class AtomIteratorBasis extends AtomIteratorArrayListSimple implements
-        AtomsetIteratorBasisDependent {
+        AtomIteratorBasisDependent {
 
     /**
      * Constructor makes iterator in an unset condition; must set basis and call reset before
@@ -49,6 +49,8 @@ public class AtomIteratorBasis extends AtomIteratorArrayListSimple implements
         littleList.clear();
         myList = littleList;
     }
+    
+    
 
     /**
      * Method to specify a target atom. Specifying a zero-length AtomSet or a

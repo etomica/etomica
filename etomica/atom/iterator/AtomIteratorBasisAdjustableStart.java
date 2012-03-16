@@ -38,7 +38,7 @@ import etomica.atom.AtomArrayList;
  * </ul>
  */
 public class AtomIteratorBasisAdjustableStart extends AtomIteratorArrayList implements
-        AtomsetIteratorBasisDependent {
+        AtomIteratorBasisDependent {
 
     /**
      * Constructor makes iterator in an unset condition; must set basis and call reset before
