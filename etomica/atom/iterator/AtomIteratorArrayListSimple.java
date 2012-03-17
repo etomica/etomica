@@ -35,6 +35,10 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
         list = atomList;
  	}
  	
+ 	public IAtomList getList() {
+        return list;
+ 	}
+ 	
     /**
      * Returns 1, indicating that this is an atom iterator.
      */
