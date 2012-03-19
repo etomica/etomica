@@ -115,8 +115,10 @@ public class VirialHeNonAdditive {
         }
 
         IPotentialAtomicMultibody p3 = new P3CPSNonAdditiveHe(space);
+        P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
+        p3Approx.setParameters(temperatureK);
 
-        final MayerFunctionSphericalThreeBody f3Target = new MayerFunctionSphericalThreeBody(p3);
+        final MayerFunctionSphericalThreeBody f3Target = new MayerFunctionSphericalThreeBody(calcApprox ? p3Approx : p3);
         
 
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, false);
@@ -137,8 +139,6 @@ public class VirialHeNonAdditive {
             final ClusterSum[] targetSubtract = new ClusterSum[1];
             ClusterBonds[] minusBonds = fullTargetCluster.getClusters();
             double[] wMinus = fullTargetCluster.getWeights();
-            P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
-            p3Approx.setParameters(temperatureK);
             MayerFunctionSphericalThreeBody f3TargetApprox = new MayerFunctionSphericalThreeBody(p3Approx);
             targetSubtract[0] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox}, new MayerFunctionNonAdditive[]{f3TargetApprox});
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
