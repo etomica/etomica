@@ -271,6 +271,8 @@ public class VirialDiagrams {
             }
         }
         GraphList<Graph> pn = makeGraphList();
+        MulScalar mulScalar = new MulScalar();
+        MulScalarParameters msp = new MulScalarParameters(new CoefficientImpl(1-n, (int)SpecialFunctions.factorial(n)));
         for (Graph g : allP) {
             int fieldCount = 0;
             for (Node node : g.nodes()) {
@@ -279,7 +281,14 @@ public class VirialDiagrams {
                 }
             }
             if (fieldCount == n) {
-                pn.add(g);
+                if (getMultiGraphs && doMinimalMulti) {
+                    // our minimal multi graphs all have a leading coefficient of 1
+                    // we want (1-n)/n!
+                    pn.add(mulScalar.apply(g, msp));
+                }
+                else {
+                    pn.add(g);
+                }
             }
         }
         return pn;
