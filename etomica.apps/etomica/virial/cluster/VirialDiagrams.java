@@ -271,8 +271,6 @@ public class VirialDiagrams {
             }
         }
         GraphList<Graph> pn = makeGraphList();
-        MulScalar mulScalar = new MulScalar();
-        MulScalarParameters msp = new MulScalarParameters(new CoefficientImpl(1-n, (int)SpecialFunctions.factorial(n)));
         for (Graph g : allP) {
             int fieldCount = 0;
             for (Node node : g.nodes()) {
@@ -281,14 +279,7 @@ public class VirialDiagrams {
                 }
             }
             if (fieldCount == n) {
-                if (getMultiGraphs && doMinimalMulti) {
-                    // our minimal multi graphs all have a leading coefficient of 1
-                    // we want (1-n)/n!
-                    pn.add(mulScalar.apply(g, msp));
-                }
-                else {
-                    pn.add(g);
-                }
+                pn.add(g);
             }
         }
         return pn;
@@ -1734,76 +1725,14 @@ public class VirialDiagrams {
             mfpc = mfp;
         }
         ComponentSubst compSubst = new ComponentSubst();
-        multiP = new HashSet<Graph>();
-        Set<Graph> mUnsubst = new HashSet<Graph>();
         // we need to start with i=1 so we catch fully exchanged diagrams
         // the first pass is to construct multiP from the unmodified set of diagrams
         HashSet<char[]> bicompSeen = new HashSet<char[]>();
-        for (int i=1; i<=n; i++) {
-            if (!doExchange && i<3) continue;
-            // find all multi graphs of size i without a root point
-            char[] thisBicomp = null;
-            bicompSeen.clear();
-            while (true) {
-                Coefficient mcoef = null;
-                mUnsubst.clear();
-                thisBicomp = null;
-                for (Graph g : mP) {
-                    if (g.nodeCount() != i || NumRootNodes.value(g) > 0) {
-                        continue;
-                    }
-                    if (doExchange) {
-                        char[] iBicomp = new char[i];
-                        boolean hasRoot = false;
-                        for (byte j=0; j<i; j++) {
-                            iBicomp[j] = g.getNode(j).getColor();
-                            if (iBicomp[j] >= 'a' && iBicomp[j] <= 'z') {
-                                // root point in disguise
-                                hasRoot = true;
-                                break;
-                            }
-                            if (iBicomp[j] >= 'M') {
-                                iBicomp[j] -= 'M' - 'A';
-                            }
-                        }
-                        if (hasRoot) continue;
-                        java.util.Arrays.sort(iBicomp);
-                        if (thisBicomp == null) {
-                            boolean seen = false;
-                            for (char[] seenComp : bicompSeen) {
-                                if (java.util.Arrays.equals(seenComp,iBicomp)) {
-                                    seen = true;
-                                    break;
-                                }
-                            }
-                            if (seen) {
-                                // this is not the droid we are looking for
-                                continue;
-                            }
-                            thisBicomp = iBicomp;
-                            bicompSeen.add(thisBicomp);
-                        }
-                        else if (!java.util.Arrays.equals(iBicomp, thisBicomp)) {
-                            // this is not the droid we are looking for
-                            continue;
-                        }
-                    }
-
-                    mUnsubst.add(g.copy());
-                    if (g.edgeCount() == i*(i-1)/2) {
-                        mcoef = new CoefficientImpl(1);
-                        mcoef.divide(g.coefficient());
-                    }
-                }
-                if (doExchange && thisBicomp == null) break;
-                MulScalarParameters msp = new MulScalarParameters(mcoef);
-                multiP.addAll(mulScalar.apply(mUnsubst, msp));
-    
-                if (!doExchange) break;
-            }
-        }
         Set<Graph> mSubst = new HashSet<Graph>();
         // now we make a second pass where we actually make substitutions
+        multiP = new HashSet<Graph>();
+        multiP.addAll(mP);
+        List<ComponentSubstParameters> cspUnList = new ArrayList<ComponentSubstParameters>();
         for (int i=1; i<=n; i++) {
             if (!doExchange && i<3) continue;
             // find all multi graphs of size i without a root point
@@ -1815,8 +1744,10 @@ public class VirialDiagrams {
             while (true) {
                 char[] thisBicomp = null;
                 Graph gm = null;
+                Graph gM = null;
                 Coefficient mcoef = null;
                 mSubst.clear();
+                Set<Graph> mUnSubst = new HashSet<Graph>();
                 for (Graph g : mP) {
                     if (g.nodeCount() != i || NumRootNodes.value(g) > 0) {
                         continue;
@@ -1861,6 +1792,7 @@ public class VirialDiagrams {
                     g = g.copy();
                     if (g.edgeCount() < i*(i-1)/2) {
                         // this is a lower order (disconnected) diagram
+                        mUnSubst.add(g.copy());
                         g.coefficient().multiply(new CoefficientImpl(-1));
                         mSubst.add(g);
                     }
@@ -1878,7 +1810,9 @@ public class VirialDiagrams {
                                 throw new RuntimeException("oops");
                             }
                         }
+                        gM = g;
                         mSubst.add(g);
+                        mUnSubst.add(gm.copy());
                         mcoef = new CoefficientImpl(1);
                         mcoef.divide(g.coefficient());
                     }
@@ -1886,17 +1820,47 @@ public class VirialDiagrams {
                 if (doExchange && thisBicomp == null) break;
                 MulScalarParameters msp = new MulScalarParameters(mcoef);
                 mSubst = mulScalar.apply(mSubst, msp);
+                mUnSubst = mulScalar.apply(mUnSubst, msp);
     
                 // replace all mBond groups of size i with MBond
                 // now mi1 = Mi - Mi2 - Mi3 - ...
                 // where mi1 is the fully connected diagram of size i
                 ComponentSubstParameters csp = new ComponentSubstParameters(gm, mSubst, mfpc);
                 mP = isoFree.apply(compSubst.apply(mP, csp), null);
+
+                // do a more targeted replacement for multiP
+                Set<Graph> newMultiP = new HashSet<Graph>();
+                for (Graph gmp : multiP) {
+                    if (gmp.nodeCount() > i) {
+                        newMultiP.addAll(compSubst.apply(gmp, csp));
+                    }
+                    else {
+                        newMultiP.add(gmp);
+                    }
+                }
+                multiP = isoFree.apply(newMultiP, null);
+                // multiP will now contain M-bond and m-graph
+                // we will remove any M-bond graphs that are finite
+                cspUnList.add(new ComponentSubstParameters(gM, mUnSubst, mfpc));
+                
                 if (!doExchange) break;
             }
         }
+        Set<Graph> newMultiP = new HashSet<Graph>();
+        for (Graph gmp : multiP) {
+            if (NumRootNodes.value(gmp) == 0) {
+                newMultiP.add(gmp);
+            }
+        }
 
-        multiP = isoFree.apply(multiP, null);
+        // multiP is now the set of multi-body diagrams, but with the parts
+        // that are products of Multi-bond graphs removed.  now substitute back
+        // M => m
+        multiP = newMultiP;
+        for (int i=cspUnList.size()-1; i>=0; i--) {
+            multiP = isoFree.apply(compSubst.apply(multiP, cspUnList.get(i)), null);
+        }
+
         if (isInteractive) {
             Set<Graph> topSet = makeGraphList();
             topSet.addAll(multiP);
