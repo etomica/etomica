@@ -2,6 +2,7 @@ package etomica.virial;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import etomica.graph.model.BitmapFactory;
@@ -16,13 +17,6 @@ import etomica.graph.operations.RelabelParameters;
 import etomica.graph.viewer.ClusterViewer;
 
 public class IEGenerator {
-	
-	public void GraphDetails(Graph g){
-		
-		
-		//System.out.println(g);
-		
-	}
 	
 	public Graph Relabel(Graph g){
 	
@@ -59,12 +53,8 @@ public class IEGenerator {
 		Graph a = p.copy();
 		
 		Graph b = q.copy();
-		MulFlexibleParameters MulFlexibleParameters = new MulFlexibleParameters(new char[0], (byte) 100,(byte) n,(byte) n);
+		MulFlexibleParameters mulFlexibleParameters = MulFlexibleParameters.makeParametersWithNodes(new char[0], (byte) 100,(byte) n,(byte) n);
 		MulFlexible MulFlexible = new MulFlexible();
-		Relabel Relabel = new Relabel();
-		IEGenerator IEGenerator = new IEGenerator();
-		
-		byte nodes[] = new byte[4];
 		
 		//RelabelParameters params = new RelabelParameters(0,1,2);
 		
@@ -74,7 +64,7 @@ public class IEGenerator {
 		a.getNode((byte) 1).setColor(color);
 		b.getNode((byte) 1).setColor(color);
 		
-		Graph product = MulFlexible.apply(a, b, MulFlexibleParameters);
+		Graph product = MulFlexible.apply(a, b, mulFlexibleParameters);
 		
 		for(int i=0;i<product.nodeCount();i++){
 			if(color==product.getNode((byte)i).getColor()){ 
@@ -96,7 +86,7 @@ public class IEGenerator {
 			}
 		}
 		
-		Graph newGraph = GraphFactory.createGraph((byte)product.nodeCount(), BitmapFactory.createBitmap((byte)product.nodeCount(),false));
+		Graph newGraph = GraphFactory.createGraph(product.nodeCount(), BitmapFactory.createBitmap(product.nodeCount(),false));
 		
 		for(int i=0;i<product.nodeCount();i++){
 			for(int j=0;j<product.nodeCount();j++){
@@ -121,8 +111,7 @@ public class IEGenerator {
 	
 	public Graph SuperImposeGraphs(Graph a,Graph b){
 		
-		IEGenerator IEGenerator = new IEGenerator();
-		int newNodeCount=0,node1=0,node2=0;
+		int newNodeCount=0;
 		newNodeCount = a.nodeCount()+b.nodeCount()-2;
 		
 		Graph newGraph = GraphFactory.createGraph((byte) newNodeCount, BitmapFactory.createBitmap((byte)newNodeCount,false));
@@ -225,7 +214,7 @@ public class IEGenerator {
 		for(Graph g : a){
 			for(Graph h : b){
 		
-				int newNodeCount=0,node1=0,node2=0;
+				int newNodeCount=0;
 				newNodeCount = g.nodeCount()+h.nodeCount()-2;
 				if(newNodeCount<=8){// if its greater than 16 we get an error. NodeCOunt = 17 is not req unless we need B19.
 					Graph newGraph = IEGenerator.SuperImposeGraphs(g.copy(), h.copy());
@@ -242,35 +231,28 @@ public class IEGenerator {
 	}
 	public Set<Graph> SetDetails(Set<Graph> sg){
 		
-		IEGenerator IEGenerator = new IEGenerator();
-		int count=0;
 		for(Graph g:sg){
 		///	System.out.println("# "+count);
-			IEGenerator.GraphDetails(g);
-			count++;
+			System.out.println(g);
+//			count++;
 		}
 	//	System.out.println(" END OF LIST ");
 		return null;
 		
 	}
 	
-	public ArrayList PYGenerate(int n){
+	public List<Set<Graph>> PYGenerate(int n){
 		
 		IEGenerator IEGenerator = new IEGenerator();
-		Relabel Relabel = new Relabel();
-		
 		
 		
 		Set<Graph> c = new GraphList<Graph>();
 		Set<Graph> t = new GraphList<Graph>();
 		Set<Graph> h = new GraphList<Graph>();
 		//create a Map
-		ArrayList cmap = new ArrayList();
-		ArrayList tmap = new ArrayList();
-		ArrayList hmap = new ArrayList();
-		
-		byte[] list = {(byte) 0, (byte) 2, (byte) 1};
-		RelabelParameters params = new RelabelParameters(list);
+		ArrayList<Set<Graph>> cmap = new ArrayList<Set<Graph>>();
+		ArrayList<Set<Graph>> tmap = new ArrayList<Set<Graph>>();
+		ArrayList<Set<Graph>> hmap = new ArrayList<Set<Graph>>();
 		
 		//fbond
 		Graph fbond = GraphFactory.createGraph((byte)2, BitmapFactory.createBitmap((byte)2,true));
@@ -287,9 +269,9 @@ public class IEGenerator {
 		tmap.add(t);
 		hmap.add(h);
 		//Clearing the sets since it has been added
-		c = new HashSet();
-		t = new HashSet();
-		h = new HashSet();
+		c = new HashSet<Graph>();
+		t = new HashSet<Graph>();
+		h = new HashSet<Graph>();
 		
 		for(int m=1;m<=n;m++){ //Go from C0 to Cn
 			
@@ -303,12 +285,11 @@ public class IEGenerator {
 				
 				if(j<0)break;
 				
-				Set<Graph> cc = (Set<Graph>) cmap.get(i);
-				Set<Graph> hh = (Set<Graph>) hmap.get(j);
+				Set<Graph> cc = cmap.get(i);
+				Set<Graph> hh = hmap.get(j);
 				//System.out.println("We are multiplying c"+i+" and h"+j+" to get t"+m);
 				if(cc.isEmpty())System.out.println(i+"cc is empty");
 				if(hh.isEmpty())System.out.println(j+"hh is empty");
-				int q=0;
 				for(Graph gc:cc){
 					for(Graph gh:hh){
 						//System.out.println("Graph #"+q);q++;
@@ -316,7 +297,7 @@ public class IEGenerator {
 						if(gh.nodeCount()==0)System.out.println("gh is empty");
 						Graph newGraph = IEGenerator.fourierMul(gc,gh,1);
 						newGraph = IEGenerator.Relabel(newGraph).copy();
-						IEGenerator.GraphDetails(newGraph);
+						System.out.println(newGraph);
 						t.add(newGraph);
 						h.add(newGraph);
 							
@@ -330,7 +311,7 @@ public class IEGenerator {
 			//Adding the Graph Set to tmap
 			tmap.add(t);
 			//Clearing the sets since it has been added
-			t = new HashSet();
+			t = new HashSet<Graph>();
 			
 			//Calculating c
 			//P
@@ -341,12 +322,11 @@ public class IEGenerator {
 				
 				if(j<0)break;
 				
-				Set<Graph> cc = (Set<Graph>) cmap.get(i);
-				Set<Graph> kk = (Set<Graph>) cmap.get(j); //kk also contains c
+				Set<Graph> cc = cmap.get(i);
+				Set<Graph> kk = cmap.get(j); //kk also contains c
 				//System.out.println("We are multiplying c"+i+" and c"+j+" to get c"+m);
 				if(cc.isEmpty())System.out.println(i+" P - cc is empty");
 				if(kk.isEmpty())System.out.println(i+" P - kk is empty");
-				int q=0;
 				for(Graph gc:cc){
 					for(Graph gk:kk){
 						
@@ -357,7 +337,7 @@ public class IEGenerator {
 						//System.out.println("With the fbond");
 						temp.putEdge((byte)0,(byte)1);
 						//temp = IEGenerator.realMul(temp,fbond).copy();
-						IEGenerator.GraphDetails(temp);
+						System.out.println(temp);
 						c.add(temp);
 						h.add(temp);
 						
@@ -375,12 +355,11 @@ public class IEGenerator {
 				if(j<0)break;
 				if(j==0) break;//t0 is zero
 				
-				Set<Graph> cc = (Set<Graph>) cmap.get(i);
-				Set<Graph> tt = (Set<Graph>) tmap.get(j); //kk also contains c
+				Set<Graph> cc = cmap.get(i);
+				Set<Graph> tt = tmap.get(j); //kk also contains c
 				//System.out.println("We are multiplying c"+i+" and t"+j+" to get c"+m);
 				if(cc.isEmpty())System.out.println(i+" Q - cc is empty");
 				if(tt.isEmpty())System.out.println(i+" Q - tt is empty");
-				int q=0;
 				for(Graph gc:cc){
 					for(Graph gt:tt){
 					
@@ -406,8 +385,8 @@ public class IEGenerator {
 			hmap.add(h);
 			
 			//Clearing the sets since it has been added
-			c = new HashSet();
-			h = new HashSet();
+			c = new HashSet<Graph>();
+			h = new HashSet<Graph>();
 			
 		}
 		
@@ -429,13 +408,6 @@ public class IEGenerator {
 		
 		IEGenerator IEGenerator = new IEGenerator();
 		Set<Graph> sample = new GraphList<Graph>();
-		Relabel Relabel = new Relabel();
-		byte[] list = {(byte) 0, (byte) 2, (byte) 1};
-		RelabelParameters params = new RelabelParameters(list);
-		
-		ArrayList chumma = new ArrayList();
-		
-		
 		
 		Graph a = GraphFactory.createGraph((byte)3, BitmapFactory.createBitmap((byte)3,false));
 		a.coefficient().setNumerator(-2);
@@ -452,7 +424,6 @@ public class IEGenerator {
 		Graph newGraph = IEGenerator.fourierMul(b,a,1);
 			
 		System.out.println(newGraph.coefficient());
-		Graph y = IEGenerator.Relabel(newGraph).copy();
 	
 		sample.add(a);
 		sample.add(b);
@@ -468,8 +439,6 @@ public class IEGenerator {
 	public static void main(String[] args){
 		
 		IEGenerator IEGenerator = new IEGenerator();
-		
-		int n=4;
 		
 		Graph fbond = GraphFactory.createGraph((byte)2, BitmapFactory.createBitmap((byte)2,true));
 		fbond.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
