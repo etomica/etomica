@@ -12,18 +12,8 @@ import etomica.graph.model.GraphList;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.IsoFree;
-import etomica.graph.operations.MulFlexible;
-import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
-import etomica.graph.operations.MulScalar;
-import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.Parameters;
-import etomica.graph.operations.Relabel;
-import etomica.graph.operations.Unary;
-import etomica.graph.viewer.ClusterViewer;
 
 public class HNCGenerator {
-
-	private Object Graph;
 
 	public Set<Graph> NodeCountGraphs(int n,Set<Graph> t){
 		
@@ -76,7 +66,7 @@ public class HNCGenerator {
 	// Swap nodes..
 		public Graph SwapNodes(int m,int n,Graph a){
 			
-			int nodeCount = (int) a.nodeCount();
+			int nodeCount = a.nodeCount();
 			
 			Graph b = GraphFactory.createGraph((byte)nodeCount, BitmapFactory.createBitmap((byte)nodeCount,false));
 			
@@ -90,7 +80,7 @@ public class HNCGenerator {
 							
 				if(n!=a.getOutNode((byte)m,(byte)i)){
 			//		System.out.println(n + "  " + a.getOutNode((byte)m,(byte)i));
-					b.putEdge((byte)n, (byte)a.getOutNode((byte)m,(byte)i));
+					b.putEdge((byte)n, a.getOutNode((byte)m,(byte)i));
 			//		System.out.println("placing bond between "+n + " , " + a.getOutNode((byte)m,(byte)i));
 				}
 				
@@ -102,7 +92,7 @@ public class HNCGenerator {
 							
 				if(m!=a.getOutNode((byte)n,(byte)i)){
 			//		System.out.println(m+"   "+a.getOutNode((byte)n,(byte)i));
-					b.putEdge((byte)m, (byte)a.getOutNode((byte)n,(byte)i));
+					b.putEdge((byte)m, a.getOutNode((byte)n,(byte)i));
 			//		System.out.println("placing bond between "+m + " , " + a.getOutNode((byte)n,(byte)i));
 				}
 				
@@ -148,82 +138,12 @@ public class HNCGenerator {
 			return b;
 			
 		}
-		
-		public boolean isIsomer(Graph orig,Graph a){
-			
-			HNCGenerator HNCGenerator = new HNCGenerator();
-			int flag=0;
-			
-			int nodecount = orig.nodeCount();
-			
-			if(orig.nodeCount()!=a.nodeCount())return false;
-			
-			for(int i=0;i<nodecount;i++){
-				
-				for( int j=i+1;j<nodecount;j++){
-					
-					Graph b = HNCGenerator.SwapNodes(i, j, orig).copy();
-					
-					if(b.compareTo(orig)==0)flag=1;
-					
-				}
-			}
-			
-		/*	System.out.println("***************************************");
-			
-			if(flag==1)System.out.println("Isomer!");
-			else  System.out.println(" Nope mattey");*/
-			
-			return true;
-		}
-		
-		public Set<Graph> Collate(Set<Graph> old){
-			
-			Set<Graph> a = new GraphList<Graph>();
-			
-			for(Graph g: old){
-				
-				int PresentFlag = 0;
-				
-				for(Graph m:a){ //is it present in a??
-					
-					if(isIsomer(g.copy(),m.copy())){
-						PresentFlag=1;
-					}
-					
-				}
-				
-				Graph b = g.copy();
-				b.coefficient().setNumerator(0);
-				
-				if(PresentFlag==0){// If it is not present
-					
-					for(Graph k:old){
-							
-						if(isIsomer(g.copy(),k.copy())){
-							
-							b.coefficient().add(k.coefficient());
-						
-						}
-						
-					}
-					
-					a.add(b);// Once we add all the coeffs of the isomers we can add it into a new Set..
-				
-				}
-				
-			}
-			return a;
-		}
-		
+
 	public ArrayList<Set<Graph>> HNCGenerate(int n){
 		
 	
 		IEGenerator IEGenerator = new IEGenerator();
 		HNCGenerator HNCGenerator = new HNCGenerator();
-		MulFlexibleParameters MulFlexibleParameters = new MulFlexibleParameters(new char[0], (byte) 100,(byte) n,(byte) n);
-		MulFlexible MulFlexible = new MulFlexible();
-		Relabel Relabel = new Relabel();
 		
 		Set<Graph> c = new GraphList<Graph>();
 		Set<Graph> t = new GraphList<Graph>();
@@ -234,9 +154,6 @@ public class HNCGenerator {
 		//Set<Graph> finalt = new GraphList<Graph>();
 		Set<Graph> h = new GraphList<Graph>();
 		
-		IsoFree Isofree = new IsoFree();
-		Parameters params = null;
-			
 		MetadataImpl.rootPointLabelSpecial= false;
 		MetadataImpl.rootPointsSpecial = false;
 		        
@@ -267,9 +184,9 @@ public class HNCGenerator {
 		hmap.add(h);
 		
 		//Clearing the sets since it has been added
-		c = new HashSet();
-		t = new HashSet();
-		h = new HashSet();
+		c = new HashSet<Graph>();
+		t = new HashSet<Graph>();
+		h = new HashSet<Graph>();
 		
 		for(int m=1;m<=n;m++){
 			
@@ -290,7 +207,7 @@ public class HNCGenerator {
 				}
 				
 				Set<Graph> cc = cmap.get(i);
-				Set<Graph> hh = (Set<Graph>) hmap.get(j);
+				Set<Graph> hh = hmap.get(j);
 			//	ClusterViewer.createView("c"+i,cc);
 				//ClusterViewer.createView("h"+j,hh);
 			//	System.out.println("We are multiplying c"+i+" and h"+j+" to get t"+m);
@@ -311,7 +228,7 @@ public class HNCGenerator {
 						newGraph = IEGenerator.Relabel(newGraph).copy();
 						chumma.add(check);
 				
-						check = new HashSet();
+						check = new HashSet<Graph>();
 						
 						t.add(newGraph.copy());
 						ttotal.add(newGraph.copy());// has all ts...No need for rho in here..
@@ -327,7 +244,7 @@ public class HNCGenerator {
 			
 			tmap.add(t);
 			//Clearing the sets since it has been added
-			t = new HashSet();
+			t = new HashSet<Graph>();
 			
 			//
 			//*************************** Calculating hn************************************
@@ -352,14 +269,14 @@ public class HNCGenerator {
 				
 				hmap.add(h);
 				
-				h = new HashSet();
+				h = new HashSet<Graph>();
 			}
 			
 			else {
-					temp = new HashSet();
+					temp = new HashSet<Graph>();
 					//finalt = new HashSet();
-					ttotal = new HashSet();
-					tcount = new HashSet();
+					ttotal = new HashSet<Graph>();
+					tcount = new HashSet<Graph>();
 					
 					for(Graph g:ttk){  //Initialised to ttk
 						
@@ -398,22 +315,18 @@ public class HNCGenerator {
 					
 					hmap.add(temp);
 					//Clearing the sets since it has been added
-					temp = new HashSet();
-					h = new HashSet();
-					term = new HashSet();
-					tcount = new HashSet();
-					ttotal = new HashSet();
+					temp = new HashSet<Graph>();
+					h = new HashSet<Graph>();
+					term = new HashSet<Graph>();
+					tcount = new HashSet<Graph>();
+					ttotal = new HashSet<Graph>();
 					
 			}
 				
 			// Calculating Cn
 			
-			h = (Set<Graph>) hmap.get(m);
-			t = (Set<Graph>) tmap.get(m);
-			MulScalar	mulscalar=new MulScalar();
-			Set<Graph> tminus = mulscalar.apply(t, new MulScalarParameters(-1,1));
-			//c.addAll(h);
-			//c.addAll(tminus);
+			h = hmap.get(m);
+			t = tmap.get(m);
 			
 			for(Graph g: h){
 				c.add(g.copy());
@@ -426,9 +339,9 @@ public class HNCGenerator {
 		
 			cmap.add(c);
 			
-			c = new HashSet();
-			t = new HashSet();
-			h = new HashSet();
+			c = new HashSet<Graph>();
+			t = new HashSet<Graph>();
+			h = new HashSet<Graph>();
 			
 		}
 		
@@ -437,21 +350,15 @@ public class HNCGenerator {
 	
 	public void tryout(int n){
 		
-		IEGenerator IEGenerator = new IEGenerator();
 		HNCGenerator HNCGenerator = new HNCGenerator();
-		MulFlexibleParameters MulFlexibleParameters = new MulFlexibleParameters(new char[0], (byte) 100,(byte) n,(byte) n);
-		MulFlexible MulFlexible = new MulFlexible();
-		Relabel Relabel = new Relabel();
-		Set<Graph> disp = new GraphList<Graph>();
 		
 		int p=n;
 		
 		System.out.println("n = " +n);
-		ArrayList cmap = HNCGenerator.HNCGenerate(n);
-        Set<Graph> c = (Set<etomica.graph.model.Graph>) cmap.get(p);
+		ArrayList<Set<Graph>> cmap = HNCGenerator.HNCGenerate(n);
+        Set<Graph> c = cmap.get(p);
 		
         IsoFree Isofree = new IsoFree();
-		Parameters params = null;
 		
 		MetadataImpl.rootPointLabelSpecial= false;
 	    MetadataImpl.rootPointsSpecial = false;
