@@ -251,11 +251,11 @@ public class MulFlexible implements Binary {
      * unbonded.
      */
     public static MulFlexibleParameters makeParameters(char[] flexColors, byte nFieldNodes) {
-      return new MulFlexibleParameters(flexColors, nFieldNodes, (byte)-1, (byte)-1, false, false);
+      return new MulFlexibleParameters(flexColors, nFieldNodes, (byte)-1, (byte)-1, false);
     }
     
     public static MulFlexibleParameters makeParametersOnlyRootPt(char[] flexColors, byte nFieldNodes) {
-      return new MulFlexibleParameters(flexColors, nFieldNodes, (byte)-1, (byte)-1, true, false);
+      return new MulFlexibleParameters(flexColors, nFieldNodes, (byte)-1, (byte)-1, true);
     }
 
     /**
@@ -265,16 +265,15 @@ public class MulFlexible implements Binary {
      * possible).
      */
     public static MulFlexibleParameters makeParametersWithNodes(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID) {
-    	return new MulFlexibleParameters(flexColors, nFieldNodes, node1ID, node2ID, false, false);
+    	return new MulFlexibleParameters(flexColors, nFieldNodes, node1ID, node2ID, false);
     }
 
-    protected MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID, boolean onlyRootPt, boolean allPermutations) {
+    protected MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID, boolean onlyRootPt) {
       super(nFieldNodes);
       this.flexColors = flexColors;
       this.node1ID = node1ID;
       this.node2ID = node2ID;
       this.onlyRootPt = onlyRootPt;
-      this.allPermutations = allPermutations;
     }
   }
 }
