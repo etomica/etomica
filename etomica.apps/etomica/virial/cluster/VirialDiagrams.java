@@ -840,7 +840,7 @@ public class VirialDiagrams {
         IsoFree isoFree = new IsoFree();
 
         MulFlexible mulFlex = new MulFlexible();
-        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
+        MulFlexibleParameters mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
         MulScalarParameters msp = null;
         MulScalar mulScalar = new MulScalar();
 
@@ -1075,7 +1075,7 @@ public class VirialDiagrams {
         IsoFree isoFree = new IsoFree();
 
         MulFlexible mulFlex = new MulFlexible();
-        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
+        MulFlexibleParameters mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
         MulScalarParameters msp = null;
         MulScalar mulScalar = new MulScalar();
 
@@ -1136,7 +1136,7 @@ public class VirialDiagrams {
             //    = r - b*r^2 + 2*b^2*r^3 - c*r^3 + O[r^4]
             // etc
     
-            MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
+            MulFlexibleParameters mfpnm1 = MulFlexibleParameters.makeParameters(flexColors, (byte)(n-1));
             z.addAll(allRho[1]);
             for (int i=2; i<n+1; i++) {
                 Set<Graph>[] zPow = new HashSet[n+1];
@@ -1683,7 +1683,7 @@ public class VirialDiagrams {
     }
 
     protected void doMinimalMulti() {
-        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
+        MulFlexibleParameters mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
         // group together all n-point diagrams (diagrams with n field nodes)
         // that evaluate to infinity (due to insufficient connectivity).
         // these are the diagrams that must be evaluated together during MSMC
@@ -1719,7 +1719,7 @@ public class VirialDiagrams {
             }
             mP.add(g);
         }
-        MulFlexibleParameters mfpc = new MulFlexibleParameters(new char[]{nodeColor}, (byte)n);
+        MulFlexibleParameters mfpc = MulFlexibleParameters.makeParameters(new char[]{nodeColor}, (byte)n);
         if (flex) {
             // we just want to force no-superimposing here.
             mfpc = mfp;

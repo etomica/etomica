@@ -18,7 +18,6 @@ import etomica.graph.model.comparators.ComparatorNumFieldNodes;
 import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
-import etomica.graph.viewer.ClusterViewer;
 
 /**
  * Performs decoration of diagrams by various density points.
@@ -43,8 +42,7 @@ public class DecorateWertheim2Site implements Unary {
       MulScalarParameters msp = new MulScalarParameters(-1,1);
       MulFlexible mulFlex = new MulFlexible();
       char[] flexColors = new char[0];
-      MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
-      MulFlexibleParameters mfpCi = new MulFlexibleParameters(flexColors, (byte)(n-1),true);
+      MulFlexibleParameters mfpCi = MulFlexibleParameters.makeParametersOnlyRootPt(flexColors, (byte)(n-1));
       IsoFree isoFree = new IsoFree();
       Set<Graph> cAcB = mulFlex.apply(cA, cB, mfpCi);
       cAcB = isoFree.apply(cAcB,null);

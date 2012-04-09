@@ -430,7 +430,7 @@ public class WertheimDiagrams3SiteRho {
         IsoFree isoFree = new IsoFree();
 
         MulFlexible mulFlex = new MulFlexible();
-        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
+        MulFlexibleParameters mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
         MulScalarParameters msp = null;
         MulScalar mulScalar = new MulScalar();
         
@@ -868,15 +868,13 @@ public class WertheimDiagrams3SiteRho {
         }
 
         rho0pow.addAll(rho0m1);
-        mfp = new MulFlexibleParameters(flexColors, (byte)(n-1));
+        mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)(n-1));
        
         Set<Graph> rho0m1pow = new HashSet<Graph>();
 
         msp = new MulScalarParameters(new CoefficientImpl(-1,1));
         rho0m1 = mulScalar.apply(rho0m1, msp);
         rho0m1pow.addAll(rho0m1);
-        mfp = new MulFlexibleParameters(flexColors, (byte)(n-1));
-        MulFlexibleParameters mfpCi = new MulFlexibleParameters(flexColors, (byte)(n-1),true);
     }
     
    
@@ -921,7 +919,7 @@ public class WertheimDiagrams3SiteRho {
         IsoFree isoFree = new IsoFree();
 
         MulFlexible mulFlex = new MulFlexible();
-        MulFlexibleParameters mfp = new MulFlexibleParameters(flexColors, (byte)n);
+        MulFlexibleParameters mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
         MulScalarParameters msp = null;
         MulScalar mulScalar = new MulScalar();
 
@@ -976,8 +974,8 @@ public class WertheimDiagrams3SiteRho {
             //    = r - b*r^2 + 2*b^2*r^3 - c*r^3 + O[r^4]
             // etc
    
-            MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(flexColors, (byte)(n-1));
-            MulFlexibleParameters mfpnm1zWertheim = new MulFlexibleParameters(flexColors, (byte)(n-1),true);
+            MulFlexibleParameters mfpnm1 = MulFlexibleParameters.makeParameters(flexColors, (byte)(n-1));
+            MulFlexibleParameters mfpnm1zWertheim = MulFlexibleParameters.makeParametersOnlyRootPt(flexColors, (byte)(n-1));
             z.addAll(allRho[1]);
             for (int i=2; i<n+1; i++) {
                 Set<Graph>[] zPow = new Set[n+1];

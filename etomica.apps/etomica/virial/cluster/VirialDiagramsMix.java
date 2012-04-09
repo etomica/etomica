@@ -288,7 +288,7 @@ public class VirialDiagramsMix {
         
         MulFlexible mulFlex = new MulFlexible();
         
-        MulFlexibleParameters mfpn = new MulFlexibleParameters(nodeColors, (byte)n);
+        MulFlexibleParameters mfpn = MulFlexibleParameters.makeParameters(nodeColors, (byte)n);
         lnfXi = new HashSet<Graph>();
         Set<Graph> fXipow = new HashSet<Graph>();
         fXipow.addAll(fXi);
@@ -376,7 +376,7 @@ public class VirialDiagramsMix {
         // we have  zAz = rhoA - a20 zA^2 - a11 zAzB
                 
         Decorate decorate = new Decorate();
-        MulFlexibleParameters mfpnm1 = new MulFlexibleParameters(nodeColors, (byte)(n-1));
+        MulFlexibleParameters mfpnm1 = MulFlexibleParameters.makeParameters(nodeColors, (byte)(n-1));
         for (int i=2; i<n+1; i++) {
             // now decorate zAz with zA and zB
             // we actually only need zAz to ith order, but that's more work.  Decorate will truncate for us.
@@ -410,7 +410,7 @@ public class VirialDiagramsMix {
         }
         ClusterViewer.createView("zB", topSet);
 
-        MulFlexibleParameters mfpn = new MulFlexibleParameters(nodeColors, (byte)n);
+        MulFlexibleParameters mfpn = MulFlexibleParameters.makeParameters(nodeColors, (byte)n);
         p = decorate.apply(lnfXi, zA, new DecorateParameters(0, mfpn));
         p = decorate.apply(p, zB, new DecorateParameters(1, mfpn));
         p = isoFree.apply(p, null);
@@ -419,7 +419,7 @@ public class VirialDiagramsMix {
         if (flexColors.length < nodeColors.length) {
             Set<Graph> newP = new HashSet<Graph>();
             Factor factor = new Factor();
-            MulFlexibleParameters factorParameters = new MulFlexibleParameters(flexColors, (byte)n);
+            MulFlexibleParameters factorParameters = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
             for (Graph g : p) {
                 boolean ap = hap.check(g);
                 boolean con = hap.isConnected();
