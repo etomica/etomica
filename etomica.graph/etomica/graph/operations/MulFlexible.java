@@ -102,7 +102,6 @@ public class MulFlexible implements Binary {
       }
     }
     for (Node node1 : g1Nodes) {
-      if (params.skipSuperimpose) break;
       if (params.node1ID > -1) {
         // only check the specified node
         node1 = g1.getNode(params.node1ID);
@@ -243,34 +242,20 @@ public class MulFlexible implements Binary {
   public static class MulFlexibleParameters extends MulParameters {
     public final char[] flexColors;
     public final byte node1ID, node2ID;
-    public final boolean skipSuperimpose;
     public final boolean onlyRootPt;
     
-    /**
-     * Parameters that specify that the resulting product should include graphs
-     * containing up to nFieldNodes field nodes and that nodes should never be
-     * superimposed.
-     */
-    public MulFlexibleParameters(byte nFieldNodes) {
-      super(nFieldNodes);
-      skipSuperimpose = true;
-      flexColors = new char[0];
-      node1ID = node2ID = (byte)-1;
-      onlyRootPt = false;
-    }
-
     /**
      * Parameters that specify that the resulting product should include graphs
      * containing up to nFieldNodes field nodes and that nodes of a color
      * included in flexColors never be superimposed unless one of the nodes is
      * unbonded.
      */
-    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes) {
-      this(flexColors, nFieldNodes, (byte)-1, (byte)-1, false);
+    public static MulFlexibleParameters makeParameters(char[] flexColors, byte nFieldNodes) {
+      return new MulFlexibleParameters(flexColors, nFieldNodes, (byte)-1, (byte)-1, false, false);
     }
     
-    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes,boolean onlyRootPt) {
-      this(flexColors, nFieldNodes, (byte)-1, (byte)-1, onlyRootPt);
+    public static MulFlexibleParameters makeParametersOnlyRootPt(char[] flexColors, byte nFieldNodes) {
+      return new MulFlexibleParameters(flexColors, nFieldNodes, (byte)-1, (byte)-1, true, false);
     }
 
     /**
@@ -279,17 +264,17 @@ public class MulFlexible implements Binary {
      * graph and node2ID from the second graph should be superimposed (if
      * possible).
      */
-    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID) {
-    	this(flexColors, nFieldNodes, node1ID, node2ID, false);
+    public static MulFlexibleParameters makeParametersWithNodes(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID) {
+    	return new MulFlexibleParameters(flexColors, nFieldNodes, node1ID, node2ID, false, false);
     }
 
-    public MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID, boolean onlyRootPt) {
+    protected MulFlexibleParameters(char[] flexColors, byte nFieldNodes, byte node1ID, byte node2ID, boolean onlyRootPt, boolean allPermutations) {
       super(nFieldNodes);
-      skipSuperimpose = false;
       this.flexColors = flexColors;
       this.node1ID = node1ID;
       this.node2ID = node2ID;
       this.onlyRootPt = onlyRootPt;
+      this.allPermutations = allPermutations;
     }
   }
 }
