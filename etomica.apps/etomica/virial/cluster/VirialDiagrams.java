@@ -99,6 +99,7 @@ public class VirialDiagrams {
     protected boolean doExchange;
     protected boolean doExchangeF;
     protected boolean doExchangeCondensing;
+    protected boolean doDisconnectedMatching = true;
     protected boolean doNegativeExchange = false;
     protected final char nodeColor = Metadata.COLOR_CODE_0;
     protected char[] flexColors;
@@ -160,7 +161,7 @@ public class VirialDiagrams {
 
     public void setDoKeepEBonds(boolean newDoKeepEBonds) {
         doKeepEBonds = newDoKeepEBonds;
-        if (!flex) {
+        if (!flex && doKeepEBonds) {
             if (multibody) {
                 throw new RuntimeException("keep-e-bonds doesn't work with multibody unless flex is on");
             }
@@ -173,6 +174,10 @@ public class VirialDiagrams {
             throw new RuntimeException("exchange only works with keep-eBonds");
         }
         doExchange = newDoExchange;
+    }
+
+    public void setDoDisconnectedMatching(boolean newDoDisconnectedMatching) {
+        doDisconnectedMatching = newDoDisconnectedMatching;
     }
 
     /**
@@ -1112,6 +1117,7 @@ public class VirialDiagrams {
                 makeRhoDiagrams();
             }
             
+            @SuppressWarnings("unchecked")
             HashSet<Graph>[] allRho = new HashSet[n+1];
             for (int i=0; i<n+1; i++) {
                 allRho[i] = new HashSet<Graph>();
@@ -1139,6 +1145,7 @@ public class VirialDiagrams {
             MulFlexibleParameters mfpnm1 = MulFlexibleParameters.makeParameters(flexColors, (byte)(n-1));
             z.addAll(allRho[1]);
             for (int i=2; i<n+1; i++) {
+                @SuppressWarnings("unchecked")
                 Set<Graph>[] zPow = new HashSet[n+1];
                 zPow[1] = new HashSet<Graph>();
                 zPow[1].addAll(z);
@@ -1388,24 +1395,26 @@ public class VirialDiagrams {
         disconnectedP = new HashSet<Graph>();
         if (!flex) {
 
-            Factor factor = new Factor();
+            if (doDisconnectedMatching) {
+                Factor factor = new Factor();
 
-            for (Graph g : p) {
-                boolean ap = hap.check(g);
-                boolean con = hap.isConnected();
-                if ((con && ap) || (!con && hap.getArticulationPoints().size() > 0)) {
-                    Graph gf = factor.apply(g, mfp);
-                    newP.add(gf);
+                for (Graph g : p) {
+                    boolean ap = hap.check(g);
+                    boolean con = hap.isConnected();
+                    if ((con && ap) || (!con && hap.getArticulationPoints().size() > 0)) {
+                        Graph gf = factor.apply(g, mfp);
+                        newP.add(gf);
+                    }
+                    else {
+                        newP.add(g.copy());
+                    }
                 }
-                else {
-                    newP.add(g.copy());
-                }
+                // we've split the graphs up; now combine them if possible
+                p = isoFree.apply(newP, null);
+                // now recondense them (only relevant for multibody interactions)
+                Unfactor unfactor = new Unfactor();
+                p = isoFree.apply(unfactor.apply(p, mfp), null);
             }
-            // we've split the graphs up; now combine them if possible
-            p = isoFree.apply(newP, null);
-            // now recondense them (only relevant for multibody interactions)
-            Unfactor unfactor = new Unfactor();
-            p = isoFree.apply(unfactor.apply(p, mfp), null);
             // perform Ree-Hoover substitution (brute-force)
             if (doReeHoover) {
                 if (doShortcut && !multibody) {
@@ -1479,40 +1488,42 @@ public class VirialDiagrams {
             p.clear();
             p.addAll(newP);
             
-            // match up singly-connected (in p) with disconnected diagrams.
-            // we have to do this last so that our cancelMap remains valid.
-            newP.clear();
-            msp = new MulScalarParameters(-1, 1);
-            for (Graph g : p) {
-                boolean ap = hap.check(g);
-                boolean con = hap.isConnected();
-                if (con && ap && hap.getArticulationPoints().contains((byte)0)) {
-                    // newP will contain connected diagrams
-                    g = g.copy();
-                    newP.add(g);
-                    Set<Graph> gfSet = factorOnce.apply(g, fop);
-                    Graph gf = gfSet.iterator().next(); // we know we only have 1 iterate
-                    disconnectedP.add(gf);
-                    gf = mulScalar.apply(gf, msp);
-                    cancelMap.put(g,gf);
+            if (doDisconnectedMatching) {
+                // match up singly-connected (in p) with disconnected diagrams.
+                // we have to do this last so that our cancelMap remains valid.
+                newP.clear();
+                msp = new MulScalarParameters(-1, 1);
+                for (Graph g : p) {
+                    boolean ap = hap.check(g);
+                    boolean con = hap.isConnected();
+                    if (con && ap && hap.getArticulationPoints().contains((byte)0)) {
+                        // newP will contain connected diagrams
+                        g = g.copy();
+                        newP.add(g);
+                        Set<Graph> gfSet = factorOnce.apply(g, fop);
+                        Graph gf = gfSet.iterator().next(); // we know we only have 1 iterate
+                        disconnectedP.add(gf);
+                        gf = mulScalar.apply(gf, msp);
+                        cancelMap.put(g,gf);
+                    }
+                    else if (con) {
+                        // this is a biconnected diagram;
+                        newP.add(g.copy());
+                    }
+                    else if (graphHasEdgeColor(g, fBond)){
+                        // this is a disconnected diagram;
+                        disconnectedP.add(g.copy());
+                    }
+                    else {
+                        newP.add(g.copy());
+                    }
                 }
-                else if (con) {
-                    // this is a biconnected diagram;
-                    newP.add(g.copy());
-                }
-                else if (graphHasEdgeColor(g, fBond)){
-                    // this is a disconnected diagram;
-                    disconnectedP.add(g.copy());
-                }
-                else {
-                    newP.add(g.copy());
-                }
+                p = newP;
+    
+                // we don't need to re-isofree p, we know that's still good.
+                // some of our new disconnected diagrams might condense with the old ones
+                disconnectedP = isoFree.apply(maxIsomorph.apply(disconnectedP, mip), null);
             }
-            p = newP;
-
-            // we don't need to re-isofree p, we know that's still good.
-            // some of our new disconnected diagrams might condense with the old ones
-            disconnectedP = isoFree.apply(maxIsomorph.apply(disconnectedP, mip), null);
 
             ComponentSubst compSubst = new ComponentSubst();
             List<ComponentSubstParameters> cpsList = new ArrayList<ComponentSubstParameters>();
@@ -1614,45 +1625,48 @@ public class VirialDiagrams {
 
             }
 
-            // disconnected graphs with i-1 components
-            Set<Graph>[] newDisconnectedP = new HashSet[n+1];
-            for (int i=0; i<n+1; i++) {
-                newDisconnectedP[i] = new HashSet<Graph>();
-            }
-            SplitGraph graphSplitter = new SplitGraph();
-            for (Graph g : disconnectedP) {
-                Set<Graph> gSplit = graphSplitter.apply(g);
-                newDisconnectedP[gSplit.size()].add(g);
-            }
-            disconnectedP.clear();
-            for (int i = 0; i<n; i++) {
-                // looking for graphs with i components
-                for (Graph g : newDisconnectedP[i]) {
-                    boolean ap = hap.check(g);
-                    if (ap && hap.getArticulationPoints().contains((byte)0)) {
-                        // this is a disconnected diagram with a singly-connected component.
-                        // we need to match it up with a more disconnected diagram
-                        // all of the articulation points we're interested in will be at 0
-                        // (because of happyArticulation.  Other articulation points will be
-                        // from exchange groups, but we can't split those.
-                        Set<Graph> gfSet = factorOnce.apply(g, fop);
-                        Graph gf = gfSet.iterator().next();
-                        gf = mulScalar.apply(gf, msp);
-                        cancelMap.put(g,gf);
-
-                        if (doMinimalBC && gf.nodeCount() > 5) {
-                            // we've made a new diagram and we need to try to make our BC substitutions
-                            for (ComponentSubstParameters csp : cpsList) {
-                                gfSet = compSubst.apply(gfSet, csp);
-                            }
-                        }
-                        newDisconnectedP[i+1].addAll(gfSet);
-                    }
+            if (doDisconnectedMatching) {
+                // disconnected graphs with i-1 components
+                @SuppressWarnings("unchecked")
+                Set<Graph>[] newDisconnectedP = new HashSet[n+1];
+                for (int i=0; i<n+1; i++) {
+                    newDisconnectedP[i] = new HashSet<Graph>();
                 }
-
-                newDisconnectedP[i+1] = isoFree.apply(maxIsomorph.apply(newDisconnectedP[i+1], mip), null);
-
-                disconnectedP.addAll(newDisconnectedP[i]);
+                SplitGraph graphSplitter = new SplitGraph();
+                for (Graph g : disconnectedP) {
+                    Set<Graph> gSplit = graphSplitter.apply(g);
+                    newDisconnectedP[gSplit.size()].add(g);
+                }
+                disconnectedP.clear();
+                for (int i = 0; i<n; i++) {
+                    // looking for graphs with i components
+                    for (Graph g : newDisconnectedP[i]) {
+                        boolean ap = hap.check(g);
+                        if (ap && hap.getArticulationPoints().contains((byte)0)) {
+                            // this is a disconnected diagram with a singly-connected component.
+                            // we need to match it up with a more disconnected diagram
+                            // all of the articulation points we're interested in will be at 0
+                            // (because of happyArticulation.  Other articulation points will be
+                            // from exchange groups, but we can't split those.
+                            Set<Graph> gfSet = factorOnce.apply(g, fop);
+                            Graph gf = gfSet.iterator().next();
+                            gf = mulScalar.apply(gf, msp);
+                            cancelMap.put(g,gf);
+    
+                            if (doMinimalBC && gf.nodeCount() > 5) {
+                                // we've made a new diagram and we need to try to make our BC substitutions
+                                for (ComponentSubstParameters csp : cpsList) {
+                                    gfSet = compSubst.apply(gfSet, csp);
+                                }
+                            }
+                            newDisconnectedP[i+1].addAll(gfSet);
+                        }
+                    }
+    
+                    newDisconnectedP[i+1] = isoFree.apply(maxIsomorph.apply(newDisconnectedP[i+1], mip), null);
+    
+                    disconnectedP.addAll(newDisconnectedP[i]);
+                }
             }
         }
 
@@ -1726,7 +1740,6 @@ public class VirialDiagrams {
         }
         ComponentSubst compSubst = new ComponentSubst();
         // we need to start with i=1 so we catch fully exchanged diagrams
-        // the first pass is to construct multiP from the unmodified set of diagrams
         HashSet<char[]> bicompSeen = new HashSet<char[]>();
         Set<Graph> mSubst = new HashSet<Graph>();
         // now we make a second pass where we actually make substitutions
