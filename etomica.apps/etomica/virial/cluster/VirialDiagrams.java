@@ -27,6 +27,8 @@ import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.AllIsomorphs;
 import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
+import etomica.graph.operations.BiComponentSubst;
+import etomica.graph.operations.BiComponentSubst.BiComponentSubstParameters;
 import etomica.graph.operations.ComponentSubst;
 import etomica.graph.operations.ComponentSubst.ComponentSubstParameters;
 import etomica.graph.operations.Decorate;
@@ -88,12 +90,13 @@ public class VirialDiagrams {
     protected final boolean isInteractive;
     protected boolean doReeHoover;
     protected Set<Graph> p, disconnectedP;
-    protected Set<Graph> multiP;
+    protected Set<Graph> minMultiP, fullMultiP, trueMultiP;
     protected Set<Graph> rho;
     protected Set<Graph> lnfXi;
     protected Map<Graph,Graph> cancelMap;
     protected boolean doShortcut;
     protected boolean doMinimalMulti;
+    protected boolean doMultiFromPair;
     protected boolean doMinimalBC;
     protected boolean doKeepEBonds;
     protected boolean doExchange;
@@ -103,7 +106,7 @@ public class VirialDiagrams {
     protected boolean doNegativeExchange = false;
     protected final char nodeColor = Metadata.COLOR_CODE_0;
     protected char[] flexColors;
-    public char fBond, eBond, excBond, mBond, MBond, efbcBond, ffBond, mxcBond, MxcBond;
+    public char fBond, eBond, excBond, mBond, mmBond, fmBond, efbcBond, ffBond, mxcBond, MxcBond;
 
     protected static int[][] tripletStart = new int[0][0];
     protected static int[][] quadStart = new int[0][0];
@@ -115,7 +118,7 @@ public class VirialDiagrams {
         boolean multibody = true;
         boolean flex = true;
         boolean doKeepEBonds = false;
-        boolean doReeHoover = true;
+        boolean doReeHoover = false;
         boolean doExchange = false;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(doReeHoover);
@@ -128,6 +131,7 @@ public class VirialDiagrams {
         }
         if (multibody) {
             virialDiagrams.setDoMinimalMulti(true);
+            virialDiagrams.setDoMultiFromPair(true);
         }
         if (doReeHoover && (flex || multibody)) {
             virialDiagrams.setDoMinimalBC(true);
@@ -227,6 +231,13 @@ public class VirialDiagrams {
         doMinimalMulti = newDoMinimalMulti;
     }
 
+    public void setDoMultiFromPair(boolean newDoMultiFromPair) {
+        if (!multibody) {
+            throw new RuntimeException("can't set multi from pair without multi");
+        }
+        doMultiFromPair = newDoMultiFromPair;
+    }
+
     public void setDoMinimalBC(boolean newDoMinimalBC) {
         if (!multibody && !flex) {
             throw new RuntimeException("you need multi or flex to do minimal bc");
@@ -249,8 +260,17 @@ public class VirialDiagrams {
         if (getMultiGraphs) {
             if (!multibody) throw new RuntimeException("oops");
             if (doMinimalMulti) {
-                // we already constructed the exact set we want
-                allP.addAll(multiP);
+                if (doMultiFromPair) {
+                    for (Graph g : p) {
+                        if (graphHasEdgeColor(g, mmBond)) {
+                            allP.add(g);
+                        }
+                    }
+                }
+                else {
+                    // we already constructed the exact set we want
+                    allP.addAll(minMultiP);
+                }
             }
             else {
                 // grab the graphs with an mBond
@@ -263,7 +283,7 @@ public class VirialDiagrams {
         }
         else {
             for (Graph g : p) {
-                if (!multibody || (doMinimalMulti && !graphHasEdgeColor(g, MBond))
+                if (!multibody || (doMinimalMulti && !graphHasEdgeColor(g, mmBond))
                                || (!doMinimalMulti && !graphHasEdgeColor(g, mBond))) {
                     allP.add(g);
                     if (!connectedOnly) {
@@ -834,7 +854,8 @@ public class VirialDiagrams {
         fBond = 'f';
         eBond = 'e';
         mBond = 'm';  // multi-body
-        MBond = 'M';  // Multi-body
+        fmBond = 'z';  // full-multi-body (diagram represents the full virial coefficient)
+        mmBond = 'M';  // min-multi-body
         efbcBond = 'b';
         colorOrderMap.put(oneBond, 0);
         colorOrderMap.put(mBond, 1);
@@ -957,7 +978,8 @@ public class VirialDiagrams {
         Metadata.COLOR_MAP.put(eBond, "red");
         Metadata.COLOR_MAP.put(fBond, "green");
         Metadata.COLOR_MAP.put(mBond, "blue");
-        Metadata.COLOR_MAP.put(MBond, "orange");
+        Metadata.COLOR_MAP.put(mmBond, "orange");
+        Metadata.COLOR_MAP.put(fmBond, "black");
         Metadata.COLOR_MAP.put(efbcBond, "fuchsia");
         Metadata.COLOR_MAP.put(excBond, "red");
         Metadata.COLOR_MAP.put(ffBond, "green");
@@ -974,7 +996,7 @@ public class VirialDiagrams {
             for (Graph g : topSet) {
                 System.out.println(g);
             }
-//            ClusterViewer.createView("lnfXi", topSet);
+            ClusterViewer.createView("lnfXi", topSet);
         }
     
 
@@ -1070,13 +1092,12 @@ public class VirialDiagrams {
         fBond = 'f';
         eBond = 'e';
         mBond = 'm';  // multi-body
-        MBond = 'M';  // Multi-body
+        mmBond = 'M';  // Multi-body
         mxcBond = 'n';  // multi-body exchange (yes, of course 'n' is bad)
         MxcBond = 'N';
         efbcBond = 'b';
         excBond = 'x';
         ffBond = 'F';
-        lnfXi = new HashSet<Graph>();
         IsoFree isoFree = new IsoFree();
 
         MulFlexible mulFlex = new MulFlexible();
@@ -1086,7 +1107,7 @@ public class VirialDiagrams {
 
         colorOrderMap.put(oneBond, 0);
         colorOrderMap.put(mBond, 1);
-        colorOrderMap.put(MBond, 2);
+        colorOrderMap.put(mmBond, 2);
         colorOrderMap.put(eBond, 3);
         colorOrderMap.put(fBond, 4);
         colorOrderMap.put(efbcBond, 5);
@@ -1096,6 +1117,7 @@ public class VirialDiagrams {
         colorOrderMap.put(excBond, 9);
 
         if (doShortcut && !multibody && !flex) {
+            lnfXi = new HashSet<Graph>();
 
             // skip directly to p diagrams
             p = new HashSet<Graph>();
@@ -1176,6 +1198,232 @@ public class VirialDiagrams {
             
             p = decorate.apply(lnfXi, z, dp);
             p = isoFree.apply(p, null);
+
+            cancelMap = new HashMap<Graph,Graph>();
+
+            if (doMultiFromPair) {
+                // we're going to use the pairwise additive diagrams to determine
+                // appropriate singly-connected nonadditive diagrams.
+                // we'll keep our disconnected nonadditive diagrams
+                minMultiP = makeGraphList();
+                IsConnected isConnected = new IsConnected();
+                Set<Graph> newP = makeGraphList();
+                for (Graph g : p) {
+                    if (!graphHasEdgeColor(g, mBond)) {
+                        newP.add(g);
+                    }
+                }
+                // pluck multibody graphs from lnfXi
+                for (Graph g : lnfXi) {
+                    if (graphHasEdgeColor(g, mBond)) {
+                        // multibond graphs in lnfXi are part of min-multi
+                        minMultiP.add(mulScalar.apply(g, new MulScalarParameters(1-g.nodeCount(),1)));
+                    }
+                    else if (isConnected.check(g)) {
+                        // a connected purely pairwise graph.
+                        // we are interested if g is made up of fully connected bicomponents
+                        List<List<Byte>> biComps = BCVisitor.getBiComponents(g);
+                        List<List<Byte>> happyComps = new ArrayList<List<Byte>>();
+                        for (List<Byte> biComp : biComps) {
+                            if (biComp.size() > 2) {
+                                boolean happy = true;
+outer:                          for (int i=1; i<biComp.size(); i++) {
+                                    for (int j=0; j<i; j++) {
+                                        if (!g.hasEdge(biComp.get(i), biComp.get(j))) {
+                                            happy = false;
+                                            break outer;
+                                        }
+                                    }
+                                }
+                                if (happy) {
+                                    // this component is fully connected
+                                    happyComps.add(biComp);
+                                }
+                            }
+                        }
+                        if (happyComps.size() == 0) {
+                            // we found no fully-connected components of size 3 or greater 
+                            continue;
+                        }
+                        byte gn = g.nodeCount();
+                        msp = new MulScalarParameters(gn-1,1);
+                        if (g.edgeCount() == gn*(gn-1)/2) {
+                            // a fully connected diagram.  take this one as min-multi
+                            msp = new MulScalarParameters(1-gn,1);
+                            g = mulScalar.apply(g, msp);
+                            Graph g2 = g.copy();
+                            for (Edge e : g2.edges()) {
+                                e.setColor(mmBond);
+                            }
+                            newP.add(g2);
+                            continue;
+                        }
+                        g = mulScalar.apply(g, msp);
+                        // now replace each fully connected component (of size 3+) with a full-multi-component
+                        Set<Graph> gSet = new HashSet<Graph>();
+                        gSet.add(g);
+                        for (List<Byte> biComp : happyComps) {
+                            Set<Graph> newGSet = new HashSet<Graph>();
+                            // we want one copy without replacement and one with
+                            // at the end, we'll have one graph without replacement and
+                            // throw it away (that graph is already in p)
+                            newGSet.addAll(gSet);
+                            for (Graph g2 : gSet) {
+                                g2 = g2.copy();
+                                for (int i=1; i<biComp.size(); i++) {
+                                    for (int j=0; j<i; j++) {
+                                        g2.getEdge(biComp.get(j), biComp.get(i)).setColor(fmBond);
+                                    }
+                                }
+                                newGSet.add(g2);
+                            }
+                            gSet = newGSet;
+                        }
+                        Set<Graph> newGSet = new HashSet<Graph>();
+                        for (Graph g2 : gSet) {
+                            if (graphHasEdgeColor(g2, fmBond) || graphHasEdgeColor(g2, mmBond)) {
+                                newGSet.add(g2);
+                            }
+                        }
+                        newP.addAll(isoFree.apply(newGSet, null));
+                    }
+                    else {
+                        throw new RuntimeException("disconnected pairwise diagram?");
+                    }
+                }
+                if (isInteractive) {
+                    System.out.println("\nP (min-multi)");
+                    topSet.clear();
+                    topSet.addAll(minMultiP);
+                    for (Graph g : topSet) {
+                        System.out.println(g);
+                    }
+                    ClusterViewer.createView("P (min-multi)", topSet);
+                }
+                trueMultiP = makeGraphList();
+                for (Graph g : p) {
+                    if (graphHasEdgeColor(g, mBond)) {
+                        trueMultiP.add(g);
+                    }
+                }
+                p = newP;
+                // now we have p in terms of min-multi fully connected graphs and
+                // singly-connected graphs with full-multi components.  full-multi
+                // components represent all non-additive diagrams in P at that order.
+                // we want P in terms of min-multi graphs, and so we need to substitute.
+                // our expression at 3rd order is correct (min = full) and so we can
+                // substitute our ith order expression (starting at 3rd) to an (i+1)th
+                // order expression of min-multi graphs.  and just continue up to nth
+                // order.
+                fullMultiP = makeGraphList();
+                Set<Graph>[] iFullMultiP = new Set[n+1];
+                for (byte i=3; i<=n; i++) {
+                    iFullMultiP[i] = new HashSet<Graph>();
+                }
+                for (Graph g : p) {
+                    if (graphHasEdgeColor(g, mmBond) || graphHasEdgeColor(g, fmBond)) {
+                        fullMultiP.add(g);
+                        byte nc = g.nodeCount();
+                        iFullMultiP[nc].add(g);
+                    }
+                }
+                BiComponentSubst biCompSubst = new BiComponentSubst();
+                for (byte i=3; i<=n; i++) {
+                    Graph gComp = GraphFactory.createGraph(i);
+                    for (byte j=1; j<i; j++) {
+                        for (byte k=0; k<j; k++) {
+                            gComp.putEdge(k,j);
+                            gComp.getEdge(k,j).setColor(fmBond);
+                        }
+                    }
+                    
+                    Set<Graph> newFullMultiP = isoFree.apply(biCompSubst.apply(fullMultiP, new BiComponentSubstParameters(gComp, mulScalar.apply(iFullMultiP[i], new MulScalarParameters((int)SpecialFunctions.factorial(i), 1-i)), true)), null);
+                    fullMultiP.clear();
+                    fullMultiP.addAll(newFullMultiP);
+                    for (byte j=i; j<=n; j++) {
+                        iFullMultiP[j].clear();
+                    }
+                    for (Graph g : fullMultiP) {
+                        byte nc = g.nodeCount();
+                        if (nc >= i) {
+                            iFullMultiP[nc].add(g);
+                        }
+                    }
+                }
+                Property happyArticulation = new ArticulatedAt0(doExchange);
+                MaxIsomorph maxIsomorph = new MaxIsomorph();
+                MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
+                Set<Graph> newFullMultiP = makeGraphList();
+                newFullMultiP.addAll(maxIsomorph.apply(fullMultiP, mip));
+                fullMultiP = newFullMultiP;
+                
+                if (isInteractive) {
+                    System.out.println("\nP (full-multi)");
+                    topSet.clear();
+                    topSet.addAll(fullMultiP);
+                    for (Graph g : topSet) {
+                        System.out.println(g);
+                    }
+                    ClusterViewer.createView("P (full-multi)", topSet);
+                }
+                newP = makeGraphList();
+                for (Graph g : p) {
+                    if (!graphHasEdgeColor(g, mmBond) && !graphHasEdgeColor(g, fmBond)) {
+                        // grab all the pairwise bonds
+                        newP.add(g);
+                    }
+                }
+                // now add in the multi bonds
+                newP.addAll(fullMultiP);
+                p = newP;
+
+                if (flex) {
+                    if (!doDisconnectedMatching) {
+                        throw new RuntimeException("It doesn't make any sense to do multi-from-pair without disconnected matching");
+                    }
+                    // now we need to add back in the disconnect P diagrams we originally had
+                    for (byte i=(byte)n; i>=3; i--) {
+                        Graph gComp = GraphFactory.createGraph(i);
+                        for (byte j=1; j<i; j++) {
+                            for (byte k=0; k<j; k++) {
+                                gComp.putEdge(k,j);
+                                gComp.getEdge(k,j).setColor(mmBond);
+                            }
+                        }
+                        
+                        // the original diagrams are m-bonds (sigh)
+                        Set<Graph> mpSubst = new HashSet<Graph>();
+                        for (Graph g : minMultiP) {
+                            if (g.nodeCount() == i) {
+                                g = mulScalar.apply(g, new MulScalarParameters((int)SpecialFunctions.factorial(i),1-i));
+                                if (g.edgeCount() == i*(i-1)/2) {
+                                    gComp = g.copy();
+                                    for (byte j=1; j<i; j++) {
+                                        for (byte k=0; k<j; k++) {
+                                            g.getEdge(k,j).setColor(mmBond);
+                                        }
+                                    }
+                                }
+                                else {
+                                    g = mulScalar.apply(g, new MulScalarParameters(-1,1));
+                                }
+                                mpSubst.add(g);
+                            }
+                        }
+                        
+                        trueMultiP = isoFree.apply(biCompSubst.apply(trueMultiP, new BiComponentSubstParameters(gComp, mpSubst, true)), null);
+                    }
+                    if (isInteractive) {
+                        System.out.println("\nP (disconnected multi)");
+                        topSet.clear();
+                        topSet.addAll(trueMultiP);
+                        for (Graph g : topSet) {
+                            System.out.println(g);
+                        }
+                        ClusterViewer.createView("P (disconnected multi)", topSet);
+                    }
+                }
+            }
             
             // clear these out -- we don't need them and (in extreme cases) we might need the memory
             lnfXi.clear();
@@ -1384,14 +1632,12 @@ public class VirialDiagrams {
             ClusterViewer.createView("Pc", topSet);
         }
         
-        if (doMinimalMulti) {
+        if (doMinimalMulti && !doMultiFromPair) {
             doMinimalMulti();
         }
 
         Set<Graph> newP = new HashSet<Graph>();
-
         // attempt to factor any graphs with an articulation point
-        cancelMap = new HashMap<Graph,Graph>();
         disconnectedP = new HashSet<Graph>();
         if (!flex) {
 
@@ -1399,6 +1645,10 @@ public class VirialDiagrams {
                 Factor factor = new Factor();
 
                 for (Graph g : p) {
+                    if (doMultiFromPair && (graphHasEdgeColor(g, mmBond) || graphHasEdgeColor(g, fmBond))) {
+                        newP.add(g);
+                        continue;
+                    }
                     boolean ap = hap.check(g);
                     boolean con = hap.isConnected();
                     if ((con && ap) || (!con && hap.getArticulationPoints().size() > 0)) {
@@ -1406,7 +1656,7 @@ public class VirialDiagrams {
                         newP.add(gf);
                     }
                     else {
-                        newP.add(g.copy());
+                        newP.add(g);
                     }
                 }
                 // we've split the graphs up; now combine them if possible
@@ -1493,7 +1743,21 @@ public class VirialDiagrams {
                 // we have to do this last so that our cancelMap remains valid.
                 newP.clear();
                 msp = new MulScalarParameters(-1, 1);
+                IsConnected isConnected = new IsConnected();
                 for (Graph g : p) {
+                    if (doMultiFromPair && graphHasEdgeColor(g, mmBond)) {
+                        newP.add(g);
+                        byte nc = g.nodeCount();
+                        if (isConnected.check(g) && g.edgeCount() < nc*(nc-1)/2) {
+                            // singly-connected; disconnect and add as a cancelling pair
+                            Set<Graph> gfSet = factorOnce.apply(g, fop);
+                            Graph gf = gfSet.iterator().next();
+                            g = mulScalar.apply(g, new MulScalarParameters(-1,1));
+                            newP.add(gf);
+                            cancelMap.put(gf, g);
+                        }
+                        continue;
+                    }
                     boolean ap = hap.check(g);
                     boolean con = hap.isConnected();
                     if (con && ap && hap.getArticulationPoints().contains((byte)0)) {
@@ -1519,7 +1783,15 @@ public class VirialDiagrams {
                     }
                 }
                 p = newP;
-    
+
+                newP = makeGraphList();
+                for (Graph g: p) {
+                    newP.add(g);
+                }
+                p = newP;
+
+
+                
                 // we don't need to re-isofree p, we know that's still good.
                 // some of our new disconnected diagrams might condense with the old ones
                 disconnectedP = isoFree.apply(maxIsomorph.apply(disconnectedP, mip), null);
@@ -1540,7 +1812,7 @@ public class VirialDiagrams {
                 Set<Graph> bcP = new HashSet<Graph>();
                 IsBiconnected isBi = new IsBiconnected();
                 for (Graph g : p) {
-                    if (g.nodeCount() > 3 && !graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, MBond) && isBi.check(g) && 
+                    if (g.nodeCount() > 3 && !graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, mmBond) && isBi.check(g) && 
                             (!doExchange || (!graphHasEdgeColor(g, excBond) && !graphHasEdgeColor(g, mxcBond)))) {
                         bcP.add(g);
                         continue;
@@ -1743,8 +2015,8 @@ public class VirialDiagrams {
         HashSet<char[]> bicompSeen = new HashSet<char[]>();
         Set<Graph> mSubst = new HashSet<Graph>();
         // now we make a second pass where we actually make substitutions
-        multiP = new HashSet<Graph>();
-        multiP.addAll(mP);
+        minMultiP = new HashSet<Graph>();
+        minMultiP.addAll(mP);
         List<ComponentSubstParameters> cspUnList = new ArrayList<ComponentSubstParameters>();
         for (int i=1; i<=n; i++) {
             if (!doExchange && i<3) continue;
@@ -1814,7 +2086,7 @@ public class VirialDiagrams {
                         // this is the large diagram in this set.
                         for (Edge e : g.edges()) {
                             if (e.getColor() == mBond) {
-                                e.setColor(MBond);
+                                e.setColor(mmBond);
                             }
                             else if (e.getColor() == mxcBond) {
                                 e.setColor(MxcBond);
@@ -1843,7 +2115,7 @@ public class VirialDiagrams {
 
                 // do a more targeted replacement for multiP
                 Set<Graph> newMultiP = new HashSet<Graph>();
-                for (Graph gmp : multiP) {
+                for (Graph gmp : minMultiP) {
                     if (gmp.nodeCount() > i) {
                         newMultiP.addAll(compSubst.apply(gmp, csp));
                     }
@@ -1851,7 +2123,7 @@ public class VirialDiagrams {
                         newMultiP.add(gmp);
                     }
                 }
-                multiP = isoFree.apply(newMultiP, null);
+                minMultiP = isoFree.apply(newMultiP, null);
                 // multiP will now contain M-bond and m-graph
                 // we will remove any M-bond graphs that are finite
                 cspUnList.add(new ComponentSubstParameters(gM, mUnSubst, mfpc));
@@ -1860,7 +2132,7 @@ public class VirialDiagrams {
             }
         }
         Set<Graph> newMultiP = new HashSet<Graph>();
-        for (Graph gmp : multiP) {
+        for (Graph gmp : minMultiP) {
             if (NumRootNodes.value(gmp) == 0) {
                 newMultiP.add(gmp);
             }
@@ -1869,14 +2141,14 @@ public class VirialDiagrams {
         // multiP is now the set of multi-body diagrams, but with the parts
         // that are products of Multi-bond graphs removed.  now substitute back
         // M => m
-        multiP = newMultiP;
+        minMultiP = newMultiP;
         for (int i=cspUnList.size()-1; i>=0; i--) {
-            multiP = isoFree.apply(compSubst.apply(multiP, cspUnList.get(i)), null);
+            minMultiP = isoFree.apply(compSubst.apply(minMultiP, cspUnList.get(i)), null);
         }
 
         if (isInteractive) {
             Set<Graph> topSet = makeGraphList();
-            topSet.addAll(multiP);
+            topSet.addAll(minMultiP);
             ClusterViewer.createView("multiP", topSet);
         }
 
