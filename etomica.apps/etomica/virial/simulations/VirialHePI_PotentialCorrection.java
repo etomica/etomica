@@ -298,7 +298,7 @@ public class VirialHePI_PotentialCorrection {
                     Set<Graph> gSplit = splitMap.get(g);
                     System.out.print(g.coefficient()+" ");
                     for (Graph gs : gSplit) {
-                        if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.MBond)) {
+                        if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.mmBond)) {
                             System.out.print(" "+gs.nodeCount()+"m");
                         }
                         else if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
