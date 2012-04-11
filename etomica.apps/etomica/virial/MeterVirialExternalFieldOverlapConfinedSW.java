@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +9,6 @@ import etomica.api.IAtomList;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.graph.model.Graph;
@@ -42,7 +40,7 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
 		for(Graph g : gset){
 
 			ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-			diagrams.populateEFBonds(g, allBonds, false, true);  
+			diagrams.populateEFBonds(g, allBonds, false);  
             double [] w = new double[]{((double)g.coefficient().getNumerator())/g.coefficient().getDenominator()};            
 
             clusters.add(new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}));
@@ -222,7 +220,6 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
     
     protected static class RangeComparator implements Comparator<DoubleRange>{
 
-		@Override
 		public int compare(DoubleRange o1, DoubleRange o2) {
 			if(o1.maximum() < o2.maximum()){
 			// TODO Auto-generated method stub
