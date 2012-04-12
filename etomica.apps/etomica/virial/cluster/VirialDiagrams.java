@@ -753,7 +753,7 @@ public class VirialDiagrams {
             if (doMinimalBC && isBi.check(g)) continue;
             ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
             populateEFBonds(g, allBonds, weights, false);
-            if (flex && doMultiFromPair) {
+            if (flex) {
                 populateEFBonds(g, allBonds, weights, true);
             }
             if (flex && cancelMap.get(g) != null) {
