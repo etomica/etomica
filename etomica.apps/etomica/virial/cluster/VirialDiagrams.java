@@ -491,22 +491,30 @@ public class VirialDiagrams {
                 gSet = substMinMulti(g);
             }
             if (NumRootNodes.value(g) > 0) {
+                // we just want this graph and its cancelling graph
                 permutations.addAll(gSet);
+                Graph gCancel = cancelMap.get(g);
+                if (gCancel != null) {
+                    if (graphHasEdgeColor(gCancel, mmBond)) {
+                        permutations.addAll(substMinMulti(gCancel));
+                    }
+                    else {
+                        permutations.add(gCancel);
+                    }
+                }
             }
             else {
                 permutations = allIso.apply(gSet, allIsoParams);
-            }
-            int nPoints = g.nodeCount();
-            if (nPoints != n) {
-                throw new RuntimeException("I would rather have these be equal");
             }
 
             rv = permutations.size();
             for (Graph gp : permutations) {
                 ArrayList<int[]> fbonds = new ArrayList<int[]>();
                 ArrayList<int[]> ebonds = new ArrayList<int[]>();
-                int[][] mBonds = new int[nPoints+1][0];
+                int[][] mBonds = new int[n+1][0];
                 List<List<Byte>> multiBiComponents = BCVisitor.getBiComponents(gp);
+                boolean dupRoot = (!multiGraph || (multiGraph && doMultiFromPair)) && flex;
+                int nn = dupRoot ? n+1 : n;
                 for (List<Byte> comp : multiBiComponents) {
                     if (comp.size() == 1) continue;
                     if (!gp.hasEdge(comp.get(0), comp.get(1)) || gp.getEdge(comp.get(0), comp.get(1)).getColor() != mBond) {
@@ -543,19 +551,25 @@ public class VirialDiagrams {
                     if (swap) id2 = swap0n(id2);
                     int size = comp.size();
                     if (comp.size() == 3) {
-                        groupID = tripletId(id0, id1, id2, nPoints);
+                        byte[] ids = new byte[]{id0, id1, id2};
+                        java.util.Arrays.sort(ids);
+                        groupID = tripletId(ids[0], ids[1], ids[2], nn);
                     }
                     else if (comp.size() == 4) {
                         byte id3 = comp.get(3);
                         if (swap) id3 = swap0n(id3);
-                        groupID = quadId(id0, id1, id2, id3, nPoints);
+                        byte[] ids = new byte[]{id0, id1, id2, id3};
+                        java.util.Arrays.sort(ids);
+                        groupID = quadId(ids[0], ids[1], ids[2], ids[3], nn);
                     }
                     else if (comp.size() == 5) {
                         byte id3 = comp.get(3);
                         if (swap) id3 = swap0n(id3);
                         byte id4 = comp.get(4);
                         if (swap) id4 = swap0n(id4);
-                        groupID = quintId(id0, id1, id2, id3, id4, nPoints);
+                        byte[] ids = new byte[]{id0, id1, id2, id3, id4};
+                        java.util.Arrays.sort(ids);
+                        groupID = quintId(ids[0], ids[1], ids[2], ids[3], ids[4], nn);
                     }
                     else if (comp.size() == 6) {
                         byte id3 = comp.get(3);
@@ -564,15 +578,15 @@ public class VirialDiagrams {
                         if (swap) id4 = swap0n(id4);
                         byte id5 = comp.get(5);
                         if (swap) id5 = swap0n(id5);
-                        groupID = sixId(id0, id1, id2, id3, id4, id5, nPoints);
+                        byte[] ids = new byte[]{id0, id1, id2, id3, id4, id5};
+                        java.util.Arrays.sort(ids);
+                        groupID = sixId(ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], nn);
                     }
                     int[] newGroups = new int[mBonds[size].length+1];
                     System.arraycopy(mBonds[size], 0, newGroups, 0, mBonds[size].length);
                     newGroups[newGroups.length-1] = groupID;
                     mBonds[size] = newGroups;
                 }
-                boolean dupRoot = (!multiGraph || (multiGraph && doMultiFromPair)) && flex;
-                int nn = dupRoot ? n+1 : n;
                 if (ebonds.size() > 0) {
                     allBonds.add(new ClusterBonds(nn, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0])}));
                 }
@@ -748,9 +762,9 @@ public class VirialDiagrams {
             }
         }
         for (Graph g : pn) {
-            List<Double> weights = new ArrayList<Double>();
             if (graphHasEdgeColor(g, mBond)) continue;
             if (doMinimalBC && isBi.check(g)) continue;
+            List<Double> weights = new ArrayList<Double>();
             ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
             populateEFBonds(g, allBonds, weights, false);
             if (flex) {
