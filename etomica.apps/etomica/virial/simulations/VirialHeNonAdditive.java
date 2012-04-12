@@ -65,6 +65,7 @@ public class VirialHeNonAdditive {
         double refFrac = params.refFrac;
         final boolean subtractApprox = params.subtractApprox;
         final boolean calcApprox = !subtractApprox && params.calcApprox;
+        final boolean minMulti = params.minMulti;
         
         final double[] HSB = new double[7];
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -123,6 +124,7 @@ public class VirialHeNonAdditive {
 
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, false);
         flexDiagrams.setDoMinimalMulti(true);
+        flexDiagrams.setDoMultiFromPair(!minMulti);
         flexDiagrams.setDoMinimalBC(true);
         flexDiagrams.setDoReeHoover(true);
         flexDiagrams.setDoShortcut(true);
@@ -131,6 +133,7 @@ public class VirialHeNonAdditive {
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
         rigidDiagrams.setDoReeHoover(true);
         rigidDiagrams.setDoShortcut(true);
+        rigidDiagrams.setAllPermutations(true);
         ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
 
 
@@ -350,15 +353,16 @@ public class VirialHeNonAdditive {
      * Inner class for parameters
      */
     public static class VirialParam extends ParameterBase {
-        public int nPoints = 3;
+        public int nPoints = 5;
         public double temperature = 300;   // Kelvin
         public long numSteps = 1000000;
-        public double sigmaHSRef = 5;
+        public double sigmaHSRef = 3.5;
         public int nullRegionMethod = 2;
         public double refFrac = -1;
         public boolean doHist = false;
-        public boolean semiClassical = true;
+        public boolean semiClassical = false;
         public boolean calcApprox = false;
-        public boolean subtractApprox = true;
+        public boolean subtractApprox = false;
+        public boolean minMulti = false;
     }
 }
