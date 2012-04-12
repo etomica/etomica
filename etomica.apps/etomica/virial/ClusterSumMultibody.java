@@ -35,6 +35,7 @@ public class ClusterSumMultibody extends ClusterSum {
                         }
                     }
                     if (!has0) {
+                        // force f-bond to be calculated (we need it to get e)
                         fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
                         fullBondIndexArray[i][j][ff.length] = 0;
                     }
@@ -133,35 +134,14 @@ public class ClusterSumMultibody extends ClusterSum {
     }
 
     protected void updateF(BoxCluster box) {
+        super.updateF(box);
         int nPoints = pointCount();
         CoordinatePairSet cPairs = box.getCPairSet();
-        AtomPairSet aPairs = box.getAPairSet();
 
-        for (int k=0; k<f.length; k++) {
-            f[k].setBox(box);
-        }
         for (int k=0; k<fNonAdditive.length; k++) {
             fNonAdditive[k].setBox(box);
         }
-        // recalculate all f values for all pairs
-        for(int i=0; i<nPoints-1; i++) {
-            for(int j=i+1; j<nPoints; j++) {
-                // only update the mayer functions that we'll need for this pair
-                int[] fij = fullBondIndexArray[i][j];
-                for(int k=0; k<fij.length; k++) {
-                    int fk = fij[k];
-                    if (fk < f.length) {
-                        // we want the real fBond
-                        fValues[i][j][fk] = f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                    }
-                    else {
-                        // we want an eBond
-                        fValues[i][j][fk] = fValues[i][j][fk-f.length]+1;
-                    }
-                    fValues[j][i][fk] = fValues[i][j][fk];
-                }
-            }
-        }
+
         IMoleculeList molecules = box.getMoleculeList();
         // we do all 3-body, then all 4-body, etc
         // MayerFunctionThreeBody assumes that all 3-body calls will happen before the rest.
@@ -290,9 +270,13 @@ public class ClusterSumMultibody extends ClusterSum {
         }
     }
 
+    public double[][] getFNonAdditiveValues() {
+        return fNonAdditiveValues;
+    }
+
     private static final long serialVersionUID = 1L;
     protected final MayerFunctionNonAdditive[] fNonAdditive;
-    protected final double[][] fNonAdditiveValues;
+    protected double[][] fNonAdditiveValues;
     protected final MoleculeArrayList moleculeList;
     protected final int[][] fNonAdditiveNeeded;
     protected final int[] numNonAdditiveNeeded;
