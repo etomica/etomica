@@ -94,7 +94,7 @@ public class AllIsomorphs implements Unary {
     return result;
   }
   
-  public static class AllIsomorphsParameters {
+  public static class AllIsomorphsParameters implements Parameters {
     public boolean onlyUnique;
     public AllIsomorphsParameters(boolean onlyUnique) {
       this.onlyUnique = onlyUnique;

@@ -38,8 +38,9 @@ public class MeterVirialExternalFieldRho implements IEtomicaDataSource, java.io.
 			}
 			gNum++;*/
 			ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
-			diagrams.populateEFBonds(g, allBonds, false);            
-            double [] w = new double[]{((double)g.coefficient().getNumerator())/g.coefficient().getDenominator()};
+            ArrayList<Double> weights = new ArrayList<Double>();
+            diagrams.populateEFBonds(g, allBonds, weights, false);  
+            double [] w = new double[]{weights.get(0)};            
             
             clusters.add(new ClusterSum(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}));
             ArrayList<List<Byte>> listComponent = new ArrayList<List<Byte>>();
