@@ -829,11 +829,14 @@ public class VirialDiagrams {
         if (!doMinimalMulti) {
             throw new RuntimeException("we need the minimal multi info to construct appropriate clusters");
         }
-        for (Graph g : p) {
-            if (NumFieldNodes.value(g) != n || !graphHasEdgeColor(g, mmBond)) continue;
+        Set<Graph> pn = getMSMCGraphs(true, true);
+        for (Graph g : pn) {
             List<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
             List<Double> weights = new ArrayList<Double>();
             populateEFBonds(g, allBonds, weights, false);
+            if (doMultiFromPair && flex) {
+                populateEFBonds(g, allBonds, weights, true);
+            }
             double[] w = new double[weights.size()];
             double gCoef = g.coefficient().getValue();
             for (int i=0; i<w.length; i++) {
