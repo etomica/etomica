@@ -762,7 +762,6 @@ public class VirialDiagrams {
             }
         }
         for (Graph g : pn) {
-            if (graphHasEdgeColor(g, mBond)) continue;
             if (doMinimalBC && isBi.check(g)) continue;
             List<Double> weights = new ArrayList<Double>();
             ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
