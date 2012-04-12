@@ -24,12 +24,7 @@ public class ExternalVirialDiagrams extends VirialDiagrams{
 	        ArrayList<Double> weights = new ArrayList<Double>();
 	        Set<Graph> rhon = getMSMCGraphsEX(false);
 	        for (Graph g : rhon) {
-	            populateEFBonds(g, allBonds, false);
-	            
-	            double w = ((double)g.coefficient().getNumerator())/g.coefficient().getDenominator();
-	           
-	            weights.add(w);
-	            
+	            populateEFBonds(g, allBonds, weights, false);
 	        }
 	        double[] w = new double[weights.size()];
 	        for (int i=0; i<w.length; i++) {
