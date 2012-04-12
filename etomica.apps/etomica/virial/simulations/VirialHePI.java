@@ -301,7 +301,7 @@ public class VirialHePI {
         rigidDiagrams.setDoReeHoover(true);
         rigidDiagrams.setDoShortcut(true);
         if (!pairOnly) {
-            flexDiagrams.setAllPermutations(true);
+            rigidDiagrams.setAllPermutations(true);
         }
         ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
         final ClusterSum[] targetSubtract = new ClusterSum[subtractHalf ? beadFac : 1];
@@ -309,6 +309,7 @@ public class VirialHePI {
 
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
         int[] targetDiagramNumbers = new int[0];
+        int[] mfTargetDiagramNumbers = new int[0];
 
         if (doDiff || subtractHalf) {
             fullTargetCluster = (ClusterSum)targetCluster;
@@ -394,18 +395,18 @@ public class VirialHePI {
         IsBiconnected isBi = new IsBiconnected();
         if (targetDiagrams.length > 0) {
             targetDiagramNumbers = new int[targetDiagrams.length];
+            mfTargetDiagramNumbers = new int[targetDiagrams.length];
             System.out.println("individual clusters:");
             Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, !pairOnly);
             Map<Graph,Graph> cancelMap = flexDiagrams.getCancelMap();
             int iGraph = 0;
             DeleteEdge edgeDeleter = new DeleteEdge();
-            DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.eBond);
+            DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.mmBond);
             for (Graph g : singleGraphs) {
-//                if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mBond)) continue;
                 if (g.nodeCount() > 3 && isBi.check(g)) {
                     if (!pairOnly) {
                         if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
-                            System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"m");
+                            System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"M");
                             targetDiagramNumbers[iGraph] = -g.nodeCount();
                         }
                     }
@@ -418,14 +419,23 @@ public class VirialHePI {
                     }
                 }
                 else {
-                    Graph gf = edgeDeleter.apply(g, ed);
-                    System.out.print(" ("+g.coefficient()+") "+gf.getStore().toNumberString());
-                    targetDiagramNumbers[iGraph] = Integer.parseInt(gf.getStore().toNumberString());
+                    String gnStr = g.getStore().toNumberString();
+                    targetDiagramNumbers[iGraph] = Integer.parseInt(gnStr);
+                    if (!pairOnly) {
+                        Graph gOnlyF = edgeDeleter.apply(g, ed);
+                        gnStr += "m"+gOnlyF.getStore().toNumberString();
+                        mfTargetDiagramNumbers[iGraph] = Integer.parseInt(gOnlyF.getStore().toNumberString());
+                    }
+                    System.out.print(" ("+g.coefficient()+") "+gnStr);
                 }
                 Graph cancelGraph = cancelMap.get(g);
                 if (cancelGraph != null) {
-                    Graph gf = edgeDeleter.apply(cancelGraph, ed);
-                    System.out.print(" - "+gf.getStore().toNumberString());
+                    String gnStr = cancelGraph.getStore().toNumberString();
+                    if (!pairOnly) {
+                        Graph gOnlyF = edgeDeleter.apply(cancelGraph, ed);
+                        gnStr += "m"+gOnlyF.getStore().toNumberString();
+                    }
+                    System.out.print(" - "+gnStr);
                 }
                 System.out.println();
                 iGraph++;
@@ -864,10 +874,10 @@ public class VirialHePI {
         double oVar = dataCov.getValue(nTotal*nTotal-1);
         for (int i=0; i<targetDiagrams.length; i++) {
             if (targetDiagramNumbers[i]<0) {
-                System.out.print("diagram "+(-targetDiagramNumbers[i])+(pairOnly ? "bc " : "m "));
+                System.out.print("diagram "+(-targetDiagramNumbers[i])+(pairOnly ? "bc " : "M "));
             }
             else {
-                System.out.print("diagram "+targetDiagramNumbers[i]+" ");
+                System.out.print("diagram "+targetDiagramNumbers[i]+(pairOnly ? " " : "m"+mfTargetDiagramNumbers[i]+" "));
             }
             // average is vi/|v| average, error is the uncertainty on that average
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
