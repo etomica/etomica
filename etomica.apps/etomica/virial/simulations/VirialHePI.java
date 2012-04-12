@@ -77,7 +77,6 @@ import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumMultibody;
-import etomica.virial.ClusterSumShell;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.CoordinatePairSet;
@@ -131,7 +130,6 @@ public class VirialHePI {
             }
         }
         final boolean calcApprox = params.calcApprox;
-        final String p3ParametersFile = params.p3ParametersFile;
         final int startBeadHalfs = params.startBeadHalfs;
         final int beadFac = subtractHalf ? params.beadFac : 1;
         final int finalNumBeads = params.finalNumBeads;
@@ -195,6 +193,9 @@ public class VirialHePI {
         }
         else {
             System.out.println("computing non-additive contribution");
+        }
+        if (refFreq > -1) {
+            System.out.println("Setting reference step fraction to "+refFreq);
         }
         final int nBeads = nb;
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -287,17 +288,21 @@ public class VirialHePI {
                 return super.f(molecules, r2, beta/nBeads);
             }
         };
-        boolean doFlex = nPoints > 2 && (pairOnly || doTotal);
+        boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
         flexDiagrams.setDoMinimalBC(true);
         flexDiagrams.setDoReeHoover(true);
         flexDiagrams.setDoShortcut(true);
+        flexDiagrams.setDoMultiFromPair(true);
         ClusterAbstract targetCluster = flexDiagrams.makeVirialCluster(fTarget, pairOnly ? null : f3Target, doTotal);
 
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
         rigidDiagrams.setDoReeHoover(true);
         rigidDiagrams.setDoShortcut(true);
+        if (!pairOnly) {
+            flexDiagrams.setAllPermutations(true);
+        }
         ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
         final ClusterSum[] targetSubtract = new ClusterSum[subtractHalf ? beadFac : 1];
         final ClusterSum fullTargetCluster;
@@ -350,44 +355,67 @@ public class VirialHePI {
 
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
             
-            ClusterSumShell[] targetDiagramsPlus = flexDiagrams.makeSingleVirialClusters(fullTargetCluster, null, fTarget);
-            ClusterSumShell[][] targetDiagramsMinus = new ClusterSumShell[targetDiagramsPlus.length][0];
+            ClusterSum[] targetDiagramsPlus = null;
+            if (pairOnly) {
+                targetDiagramsPlus = flexDiagrams.makeSingleVirialClusters(fullTargetCluster, null, fTarget);
+            }
+            else {
+                targetDiagramsPlus = flexDiagrams.makeSingleVirialClustersMulti((ClusterSumMultibody)fullTargetCluster, fTarget, f3Target);
+            }
+            ClusterSum[][] targetDiagramsMinus = new ClusterSum[targetDiagramsPlus.length][0];
             for (int j=0; j<targetDiagramsMinus.length; j++) {
-                targetDiagramsMinus[j] = new ClusterSumShell[targetSubtract.length];
+                targetDiagramsMinus[j] = new ClusterSum[targetSubtract.length];
             }
             for (int i=0; i<targetSubtract.length; i++) {
-                ClusterSumShell[] foo = flexDiagrams.makeSingleVirialClusters(targetSubtract[i], null, fTarget);
+                ClusterSum[] foo = null;
+                if (pairOnly) {
+                    foo = flexDiagrams.makeSingleVirialClusters(targetSubtract[i], null, fTarget);
+                }
+                else {
+                    foo = flexDiagrams.makeSingleVirialClustersMulti((ClusterSumMultibody)targetSubtract[i], fTarget, f3Target);
+                }
                 for (int j=0; j<foo.length; j++) {
                     targetDiagramsMinus[j][i] = foo[j];
                 }
             }
-            if (pairOnly) {
-                targetDiagrams = new ClusterDifference[targetDiagramsPlus.length];
-                for (int j=0; j<targetDiagramsPlus.length; j++) {
-                    targetDiagrams[j] = new ClusterDifference(targetDiagramsPlus[j], targetDiagramsMinus[j]);
-                }
+            targetDiagrams = new ClusterDifference[targetDiagramsPlus.length];
+            for (int j=0; j<targetDiagramsPlus.length; j++) {
+                targetDiagrams[j] = new ClusterDifference(targetDiagramsPlus[j], targetDiagramsMinus[j]);
             }
         }
         else {
             if (pairOnly) {
                 targetDiagrams = flexDiagrams.makeSingleVirialClusters((ClusterSum)targetCluster, null, fTarget);
             }
+            else {
+                targetDiagrams = flexDiagrams.makeSingleVirialClustersMulti((ClusterSumMultibody)targetCluster, fTarget, f3Target);
+            }
         }
         IsBiconnected isBi = new IsBiconnected();
-        if (pairOnly) {
+        if (targetDiagrams.length > 0) {
             targetDiagramNumbers = new int[targetDiagrams.length];
             System.out.println("individual clusters:");
-            Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, false);
+            Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, !pairOnly);
             Map<Graph,Graph> cancelMap = flexDiagrams.getCancelMap();
             int iGraph = 0;
             DeleteEdge edgeDeleter = new DeleteEdge();
             DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.eBond);
             for (Graph g : singleGraphs) {
-                if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mBond)) continue;
+//                if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mBond)) continue;
                 if (g.nodeCount() > 3 && isBi.check(g)) {
-                    if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) continue;
-                    System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"bc");
-                    targetDiagramNumbers[iGraph] = -g.nodeCount();
+                    if (!pairOnly) {
+                        if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
+                            System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"m");
+                            targetDiagramNumbers[iGraph] = -g.nodeCount();
+                        }
+                    }
+                    else if (!VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
+                        System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"bc");
+                        targetDiagramNumbers[iGraph] = -g.nodeCount();
+                    }
+                    else {
+                        continue;
+                    }
                 }
                 else {
                     Graph gf = edgeDeleter.apply(g, ed);
@@ -404,7 +432,7 @@ public class VirialHePI {
             }
             System.out.println();
             Set<Graph> disconnectedGraphs = flexDiagrams.getExtraDisconnectedVirialGraphs();
-            if (disconnectedGraphs.size() > 0) {
+            if (disconnectedGraphs.size() > 0 && pairOnly) {
                 System.out.println("extra clusters:");
                 HashMap<Graph,Set<Graph>> splitMap = flexDiagrams.getSplitDisconnectedVirialGraphs(disconnectedGraphs);
     
@@ -533,7 +561,7 @@ public class VirialHePI {
         }
 
         if (false) {
-            double vSize = 5;
+            double vSize =50;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
@@ -549,7 +577,7 @@ public class VirialHePI {
             
             IAtomType type = species.getLeafType();
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
-            diameterManager.setDiameter(type, 0.02+1.0/nBeads);
+            diameterManager.setDiameter(type, 1+1.0/nBeads);
             displayBox1.setDiameterHash(diameterManager);
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
@@ -836,7 +864,7 @@ public class VirialHePI {
         double oVar = dataCov.getValue(nTotal*nTotal-1);
         for (int i=0; i<targetDiagrams.length; i++) {
             if (targetDiagramNumbers[i]<0) {
-                System.out.print("diagram "+(-targetDiagramNumbers[i])+"bc ");
+                System.out.print("diagram "+(-targetDiagramNumbers[i])+(pairOnly ? "bc " : "m "));
             }
             else {
                 System.out.print("diagram "+targetDiagramNumbers[i]+" ");
@@ -879,23 +907,22 @@ public class VirialHePI {
      * Inner class for parameters
      */
     public static class VirialHePIParam extends ParameterBase {
-        public int nPoints = 2;
-        public int nBeads = 16;
-        public double temperature = 2.6;   // Kelvin
+        public int nPoints = 4;
+        public int nBeads = 4;
+        public double temperature = 500;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;
         public boolean doHist = false;
         public double sigmaHSRef = -1; // -1 means use equation for sigmaHSRef
         public boolean doDiff = false;
         public boolean semiClassical = false;
-        public boolean subtractHalf = true;
+        public boolean subtractHalf = false;
         public int startBeadHalfs = 0;
         public int beadFac = 2;
         public int finalNumBeads = 2;
-        public boolean pairOnly = true;
+        public boolean pairOnly = false;
         public boolean doTotal = false;
-        public boolean calcApprox = false;
+        public boolean calcApprox = true;
         public boolean subtractApprox = false;
-        public String p3ParametersFile = "paramsOriginal.dat";
     }
 }
