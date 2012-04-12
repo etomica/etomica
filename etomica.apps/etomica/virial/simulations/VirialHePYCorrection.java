@@ -17,7 +17,6 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterSum;
-import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
@@ -54,7 +53,10 @@ public class VirialHePYCorrection {
     	final boolean compressibility = params.compressibility;
         final double temperatureK = params.temperature;
         long steps = params.numSteps;
-        final double sigmaHSRef = params.sigmaHSRef;
+        double sigmaHSRef = params.sigmaHSRef;
+        if (sigmaHSRef < 0) {
+            sigmaHSRef = 3 + 20/(10+temperatureK);
+        }
         final boolean semiClassical = params.semiClassical;
         final double refFrac = params.refFrac;
         final boolean subtractApprox = params.subtractApprox;
@@ -87,8 +89,7 @@ public class VirialHePYCorrection {
         Space space = Space3D.getInstance();
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
-        
+
         MayerGeneralSpherical fTarget;
         MayerGeneralSpherical fTargetApprox;
         MayerXSpherical xTarget;
@@ -341,7 +342,7 @@ public class VirialHePYCorrection {
         public double temperature = 100;
         public long numSteps = 10000000;
         public double refFrac = -1;
-        public double sigmaHSRef = 3;
+        public double sigmaHSRef = -1;
         public boolean semiClassical = true;
         public boolean calcApprox = false;
         public boolean subtractApprox = true;

@@ -119,14 +119,9 @@ public class VirialHePI {
         double sigmaHSRef = params.sigmaHSRef;
         if (sigmaHSRef == -1) {
             // these correlations work fairly well over the temperature range of interest
-            sigmaHSRef = 4 + 20/(10+temperatureK);
+            sigmaHSRef = 3 + 20/(10+temperatureK);
             if (!pairOnly) {
-                if (nPoints == 3) {
-                    sigmaHSRef -= 0.5;
-                }
-                else {
-                    sigmaHSRef = 4.5 + 40/(20+temperatureK);
-                }
+                sigmaHSRef += 0.5;
             }
         }
         final boolean calcApprox = params.calcApprox;

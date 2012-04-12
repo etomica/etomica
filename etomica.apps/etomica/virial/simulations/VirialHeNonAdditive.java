@@ -59,7 +59,10 @@ public class VirialHeNonAdditive {
     	final int nPoints = params.nPoints;
     	final double temperatureK = params.temperature;
         long steps = params.numSteps;
-        final double sigmaHSRef = params.sigmaHSRef;
+        double sigmaHSRef = params.sigmaHSRef;
+        if (sigmaHSRef < 0) {
+            sigmaHSRef = 3.5 + 20/(10+temperatureK);
+        }
         final boolean semiClassical = params.semiClassical;
         final int nullRegionMethod = params.nullRegionMethod;
         double refFrac = params.refFrac;
@@ -356,7 +359,7 @@ public class VirialHeNonAdditive {
         public int nPoints = 5;
         public double temperature = 300;   // Kelvin
         public long numSteps = 1000000;
-        public double sigmaHSRef = 3.5;
+        public double sigmaHSRef = -1; // negative means use equation
         public int nullRegionMethod = 2;
         public double refFrac = -1;
         public boolean doHist = false;
