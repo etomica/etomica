@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import etomica.graph.isomorphism.Match;
+import etomica.graph.iterators.IteratorWrapper;
+import etomica.graph.iterators.filters.IdenticalGraphFilter;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphList;
@@ -147,7 +149,15 @@ public class BiComponentSubst implements Unary {
       }
     }
     Set<Graph> result = new HashSet<Graph>();
-    for (Graph gr : gRecombine) {
+    IdenticalGraphFilter identicalFilter = new IdenticalGraphFilter(new IteratorWrapper(gRecombine.iterator()));
+    Set<Graph> filteredResult = new HashSet<Graph>();
+    while (identicalFilter.hasNext()) {
+      filteredResult.add(identicalFilter.next());
+    }
+    if (!params.combineLonelyNodes) {
+      return filteredResult;
+    }
+    for (Graph gr : filteredResult) {
       if (gr.nodeCount() > 6 && gr.edgeCount() == 4) {
         System.out.println("hi? "+gr);
       }
@@ -190,15 +200,15 @@ public class BiComponentSubst implements Unary {
       }
       result.add(gr);
     }
-    IsoFree isofree = new IsoFree();
-    return isofree.apply(result, null);
+    return result;
   }
   
   public static class BiComponentSubstParameters implements Parameters {
     public final Graph gComp;
     public final Set<Graph> subst;
     public final boolean allPermutations;
-    public BiComponentSubstParameters(Graph gComp, Set<Graph> subst, boolean allPermutations) {
+    public final boolean combineLonelyNodes;
+    public BiComponentSubstParameters(Graph gComp, Set<Graph> subst, boolean allPermutations, boolean combineLonelyNodes) {
       this.gComp = gComp.copy();
       for (Node node : this.gComp.nodes()) {
         if (node.getType() != Metadata.TYPE_NODE_FIELD) {
@@ -213,6 +223,7 @@ public class BiComponentSubst implements Unary {
       }
       this.subst = subst;
       this.allPermutations = allPermutations;
+      this.combineLonelyNodes = combineLonelyNodes;
     }
   }
 
