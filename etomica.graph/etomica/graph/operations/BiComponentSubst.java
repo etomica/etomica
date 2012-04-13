@@ -158,9 +158,6 @@ public class BiComponentSubst implements Unary {
       return filteredResult;
     }
     for (Graph gr : filteredResult) {
-      if (gr.nodeCount() > 6 && gr.edgeCount() == 4) {
-        System.out.println("hi? "+gr);
-      }
       while (true) {
         byte lonelyNode = -1;
         byte rootNode = -1;
