@@ -34,6 +34,7 @@ import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.property.IsBiconnected;
+import etomica.graph.property.NumRootNodes;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -398,6 +399,7 @@ public class VirialHePI {
             DeleteEdge edgeDeleter = new DeleteEdge();
             DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.mmBond);
             for (Graph g : singleGraphs) {
+                if (!pairOnly && NumRootNodes.value(g) > 1) continue;
                 if (g.nodeCount() > 3 && isBi.check(g)) {
                     if (!pairOnly) {
                         if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
@@ -695,22 +697,11 @@ public class VirialHePI {
         // one accepted move before it can collect real data.  we'll reset below
         MeterVirial meterDiagrams = new MeterVirial(targetDiagrams);
         meterDiagrams.setBox(sim.box[1]);
-        AccumulatorAverageCovariance accumulatorDiagrams = null;
-        if (targetDiagrams.length > 0) {
-            // if we have 1 diagram, we don't need covariance, but it won't actually cause problems
-            accumulatorDiagrams = new AccumulatorAverageCovariance(steps);
-            DataPumpListener pumpDiagrams = new DataPumpListener(meterDiagrams, accumulatorDiagrams);
-            sim.integrators[1].getEventManager().addListener(pumpDiagrams);
-        }
 
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
         
-        if (accumulatorDiagrams != null) {
-            accumulatorDiagrams.reset();
-        }
-
         // make the accumulator block size equal to the # of steps performed for each overlap step.
         // make the integratorOS aggressive so that it runs either reference or target
         // then, we'll have some number of complete blocks in the accumulator
@@ -878,7 +869,7 @@ public class VirialHePI {
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
             double ivar = dataCov.getValue((i+1)*nTotal+(i+1));
             double ocor = ivar*oVar == 0 ? 0 : dataCov.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar);
-            System.out.print(String.format("average: %20.15e  error: %10.15e  ocor: %6.4f", dataAvg.getValue(i+1), dataErr.getValue(i+1), ocor));
+            System.out.print(String.format("average: %20.15e  error: %10.15e  ocor: %7.5f", dataAvg.getValue(i+1), dataErr.getValue(i+1), ocor));
             if (targetDiagrams.length > 1) {
                 System.out.print("  dcor:");
                 for (int j=0; j<targetDiagrams.length; j++) {
