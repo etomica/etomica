@@ -359,6 +359,7 @@ public class VirialDiagrams {
         ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
         ArrayList<Double> weights = new ArrayList<Double>();
         for (Graph g : graphs) {
+            if (multibody && flex && doMultiFromPair && NumRootNodes.value(g) > 1) continue;
             int nDiagrams = populateEFBonds(g, allBonds, weights, false);
             if (nDiagrams > 0 && flex && (!doMulti || doMultiFromPair)) {
                 populateEFBonds(g, allBonds, weights, true);
@@ -504,6 +505,10 @@ public class VirialDiagrams {
                 }
             }
             else {
+                // substitution generates lots of permtuations, there's no point
+                // in doing all permutations of permutations
+                IsoFree isofree = new IsoFree();
+                gSet = isofree.apply(gSet, null);
                 permutations = allIso.apply(gSet, allIsoParams);
             }
 
@@ -815,10 +820,9 @@ public class VirialDiagrams {
                     gComp.getEdge(k,j).setColor(mmBond);
                 }
             }
-            gSubst = biCompSubst.apply(gSubst, new BiComponentSubstParameters(gComp, iMinMultiP[i], true));
+            gSubst = biCompSubst.apply(gSubst, new BiComponentSubstParameters(gComp, iMinMultiP[i], true, false));
         }
-        IsoFree isofree = new IsoFree();
-        return isofree.apply(gSubst, null);
+        return gSubst;
     }
 
     public ClusterSumMultibodyShell[] makeSingleVirialClustersMulti(ClusterSumMultibody coreCluster, MayerFunction f, MayerFunctionNonAdditive fMulti) {
@@ -831,6 +835,7 @@ public class VirialDiagrams {
         }
         Set<Graph> pn = getMSMCGraphs(true, true);
         for (Graph g : pn) {
+            if (multibody && flex && doMultiFromPair && NumRootNodes.value(g) > 1) continue;
             List<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
             List<Double> weights = new ArrayList<Double>();
             populateEFBonds(g, allBonds, weights, false);
@@ -1441,7 +1446,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                         }
                     }
                     
-                    Set<Graph> newFullMultiP = isoFree.apply(biCompSubst.apply(fullMultiP, new BiComponentSubstParameters(gComp, mulScalar.apply(iFullMultiP[i], new MulScalarParameters((int)SpecialFunctions.factorial(i), 1-i)), true)), null);
+                    Set<Graph> newFullMultiP = isoFree.apply(biCompSubst.apply(fullMultiP, new BiComponentSubstParameters(gComp, mulScalar.apply(iFullMultiP[i], new MulScalarParameters((int)SpecialFunctions.factorial(i), 1-i)), true, true)), null);
                     fullMultiP.clear();
                     fullMultiP.addAll(newFullMultiP);
                     for (byte j=i; j<=n; j++) {
@@ -1483,7 +1488,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
 
                 if (flex) {
                     if (!doDisconnectedMatching) {
-                        throw new RuntimeException("It doesn't make any sense to do multi-from-pair without disconnected matching");
+                        throw new RuntimeException("It doesn't make any sense to do multi-from-pair for a flex model without disconnected matching");
                     }
                     // now we need to add back in the disconnect P diagrams we originally had
                     for (byte i=(byte)n; i>=3; i--) {
@@ -1515,7 +1520,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                             }
                         }
                         
-                        trueMultiP = isoFree.apply(biCompSubst.apply(trueMultiP, new BiComponentSubstParameters(gComp, mpSubst, true)), null);
+                        trueMultiP = isoFree.apply(biCompSubst.apply(trueMultiP, new BiComponentSubstParameters(gComp, mpSubst, true, true)), null);
                     }
                     if (isInteractive) {
                         System.out.println("\nP (disconnected multi)");
@@ -1847,23 +1852,68 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 // we have to do this last so that our cancelMap remains valid.
                 newP.clear();
                 msp = new MulScalarParameters(-1, 1);
-                IsConnected isConnected = new IsConnected();
-                for (Graph g : p) {
-                    if (doMultiFromPair && graphHasEdgeColor(g, mmBond)) {
-                        newP.add(g);
-                        byte nc = g.nodeCount();
-                        if (isConnected.check(g) && g.edgeCount() < nc*(nc-1)/2) {
-                            // singly-connected; disconnect and add as a cancelling pair
-                            Set<Graph> gfSet = factorOnce.apply(g, fop);
-                            Graph gf = gfSet.iterator().next();
-                            g = mulScalar.apply(g, new MulScalarParameters(-1,1));
-                            newP.add(gf);
-                            cancelMap.put(gf, g);
+
+                if (multibody && doMultiFromPair) {
+                    // first make passes through p to match up diagrams that are
+                    // singly connected at a point with multi-bonds
+                    happyArticulation = new ArticulatedAt0(doExchange, mmBond);
+                    mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), happyArticulation);
+                    Set<Graph> fullyDisconnectedMultiP = new HashSet<Graph>();
+                    for (byte i=0; i<n-1; i++) {
+                        for (Graph g : p) {
+                            newP.add(g);
+                            if (!graphHasEdgeColor(g, mmBond)) {
+                                continue;
+                            }
+                            if (NumRootNodes.value(g) == i && hap.check(g)) {
+                                // articulated and has (i+1) components
+                                g = maxIsomorph.apply(g, mip);
+                                boolean multiArticulated = false;
+                                for (byte j=0; j<g.getOutDegree((byte)0); j++) {
+                                    if (g.getEdge((byte)0,g.getOutNode((byte)0,j)).getColor() == mmBond) {
+                                        multiArticulated = true;
+                                        break;
+                                    }
+                                }
+                                if (!multiArticulated) {
+                                    fullyDisconnectedMultiP.add(g);
+                                    continue;
+                                }
+                                Set<Graph> gfSet = factorOnce.apply(g, fop);
+                                Graph gf = gfSet.iterator().next();
+                                g = mulScalar.apply(g, new MulScalarParameters(-1,1));
+                                newP.add(gf);
+                                cancelMap.put(gf, g);
+                                if (!hap.check(gf)) {
+                                    // fully disconnected; no more articulation points.
+                                    fullyDisconnectedMultiP.add(gf);
+                                }
+                            }
                         }
-                        continue;
+                        p = makeGraphList();
+                        p.addAll(newP);
+                        newP.clear();
                     }
+                    // the not-cancelled disconnected parts of multi-body P are now in fullyDisconnectedP
+                    // but we actually want our P expression to look like what we have in trueMultiP
+                    // so take disconnected diagrams from trueMultiP and subtract fullyDisconnectedP
+                    // this is then the remainder which we need to add to p
+                    for (Graph g : trueMultiP) {
+                        if (NumRootNodes.value(g) > 0) {
+                            newP.add(g);
+                        }
+                    }
+                    newP.addAll(mulScalar.apply(fullyDisconnectedMultiP, new MulScalarParameters(-1,1)));
+                    newP = maxIsomorph.apply(isoFree.apply(newP, null), mip);
+                    p.addAll(newP);
+                }
+                for (Graph g : p) {
                     boolean ap = hap.check(g);
                     boolean con = hap.isConnected();
+                    if (doMultiFromPair && graphHasEdgeColor(g, mmBond)) {
+                        newP.add(g);
+                        continue;
+                    }
                     if (con && ap && hap.getArticulationPoints().contains((byte)0)) {
                         // newP will contain connected diagrams
                         g = g.copy();
@@ -2007,6 +2057,21 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                     Set<Graph> gSplit = graphSplitter.apply(g);
                     newDisconnectedP[gSplit.size()].add(g);
                 }
+                IsConnected isCon = new IsConnected();
+                newP = makeGraphList();
+                for (Graph g : p) {
+                    if (graphHasEdgeColor(g, mmBond) && !isCon.check(g) && cancelMap.get(g) == null) {
+                        // these are graphs that resulted from factoring multi-bond graphs
+                        // they didn't make it into disconnectedP, but we now want to treat them
+                        // the same as disconnectedP (continue factoring them)
+                        Set<Graph> gSplit = graphSplitter.apply(g);
+                        newDisconnectedP[gSplit.size()].add(g);
+                    }
+                    else {
+                        newP.add(g);
+                    }
+                }
+                p = newP;
                 disconnectedP.clear();
                 for (int i = 0; i<n; i++) {
                     // looking for graphs with i components
@@ -2259,8 +2324,13 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
         protected final IsBiconnected isBi = new IsBiconnected();
         protected final HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
         protected final boolean doExchange;
+        protected final char mBond;
         public ArticulatedAt0(boolean doExchange) {
+            this(doExchange, '0');
+        }
+        public ArticulatedAt0(boolean doExchange, char mBond) {
             this.doExchange = doExchange;
+            this.mBond = mBond;
         }
         public boolean check(Graph graph) {
             if (doExchange) {
@@ -2278,6 +2348,32 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
 //            boolean con = hap.isConnected();
             if (!ap) return true;
             boolean articulatedAtA = false;
+            if (mBond != '0') {
+                // we're OK if
+                // 1. not articulated (not satisfied)
+                // or
+                // 2. articulation point at 0
+                // and
+                // 2a. 0 has an mBond
+                // or
+                // 2b. no articulation point has an mBond
+                boolean multiArticulation = false;
+                boolean articulatedAt0 = false;
+                for (byte node : hap.getArticulationPoints()) {
+                    if (node == 0) {
+                        articulatedAt0 = true;
+                    }
+                    for (byte i=0; i<graph.getOutDegree(node); i++) {
+                        byte j = graph.getOutNode(node, i);
+                        if (graph.getEdge(node,j).getColor() == mBond) {
+                            if (node == 0) return true; // satisfied 2a
+                            multiArticulation = true;
+                        }
+                    }
+                }
+                // 
+                return articulatedAt0 && !multiArticulation;
+            }
             for (byte node : hap.getArticulationPoints()) {
                 if (node == 0) return true;
                 if (graph.getNode(node).getColor() == 'A') articulatedAtA = true;
@@ -2427,7 +2523,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 nSixStart[i-1] = nSixes;
                 nSixes += quintId(n-i-5, n-i-4, n-i-3, n-i-2, n-i-1, n-i)+1;
             }
-            quintStart[n] = nSixStart;
+            sixStart[n] = nSixStart;
         }
         return sixStart[n][id0] + quintId(id1-id0-1, id2-id0-1, id3-id0-1, id4-id0-1, id5-id0-1, n-id0-1);
     }
