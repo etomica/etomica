@@ -2,12 +2,19 @@ package etomica.virial.simulations;
 
 
 import java.awt.Color;
+import java.util.Set;
 
 import etomica.api.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
+import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.IData;
+import etomica.data.types.DataGroup;
+import etomica.graph.model.Graph;
+import etomica.graph.operations.DeleteEdge;
+import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.IPotentialAtomicMultibody;
@@ -29,6 +36,8 @@ import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumMultibody;
+import etomica.virial.ClusterWeight;
+import etomica.virial.ClusterWeightAbs;
 import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionNonAdditive;
@@ -128,7 +137,6 @@ public class VirialHeNonAdditive {
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, false);
         flexDiagrams.setDoMinimalMulti(true);
         flexDiagrams.setDoMultiFromPair(!minMulti);
-        flexDiagrams.setDoMinimalBC(true);
         flexDiagrams.setDoReeHoover(true);
         flexDiagrams.setDoShortcut(true);
         ClusterSum fullTargetCluster = flexDiagrams.makeVirialCluster(fTarget, f3Target, false);
@@ -141,6 +149,7 @@ public class VirialHeNonAdditive {
 
 
         ClusterAbstract targetCluster = null;
+        ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
         if (subtractApprox) {
             final ClusterSum[] targetSubtract = new ClusterSum[1];
             ClusterBonds[] minusBonds = fullTargetCluster.getClusters();
@@ -148,20 +157,69 @@ public class VirialHeNonAdditive {
             MayerFunctionSphericalThreeBody f3TargetApprox = new MayerFunctionSphericalThreeBody(p3Approx);
             targetSubtract[0] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox}, new MayerFunctionNonAdditive[]{f3TargetApprox});
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
+            ClusterSum[] targetDiagramsPlus = flexDiagrams.makeSingleVirialClustersMulti((ClusterSumMultibody)fullTargetCluster, fTarget, f3Target);
+            targetDiagrams = new ClusterDifference[targetDiagramsPlus.length];
+            ClusterSum[][] targetDiagramsMinus = new ClusterSum[targetDiagramsPlus.length][0];
+            for (int j=0; j<targetDiagramsMinus.length; j++) {
+                targetDiagramsMinus[j] = new ClusterSum[targetSubtract.length];
+            }
+            ClusterSum[] foo = null;
+            foo = flexDiagrams.makeSingleVirialClustersMulti((ClusterSumMultibody)targetSubtract[0], fTargetApprox, f3TargetApprox);
+            for (int j=0; j<foo.length; j++) {
+                targetDiagramsMinus[j][0] = foo[j];
+            }
+            for (int j=0; j<targetDiagramsPlus.length; j++) {
+                targetDiagrams[j] = new ClusterDifference(targetDiagramsPlus[j], targetDiagramsMinus[j]);
+            }
         }
         else {
             targetCluster = fullTargetCluster;
+            targetDiagrams = flexDiagrams.makeSingleVirialClustersMulti((ClusterSumMultibody)fullTargetCluster, fTarget, f3Target);
         }
 
         targetCluster.setTemperature(temperature);
     	
         refCluster.setTemperature(temperature);
 
+        int[] targetDiagramNumbers = new int[targetDiagrams.length];
+        int[] mfTargetDiagramNumbers = new int[targetDiagrams.length];
+        System.out.println("individual clusters:");
+        Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, true);
+        int iGraph = 0;
+        DeleteEdge edgeDeleter = new DeleteEdge();
+        DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.mmBond);
+        for (Graph g : singleGraphs) {
+            if (g.edgeCount() == nPoints*(nPoints-1)/2) {
+                if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
+                    System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"M");
+                    targetDiagramNumbers[iGraph] = -g.nodeCount();
+                }
+            }
+            else {
+                String gnStr = g.getStore().toNumberString();
+                targetDiagramNumbers[iGraph] = Integer.parseInt(gnStr);
+                Graph gOnlyF = edgeDeleter.apply(g, ed);
+                gnStr += "m"+gOnlyF.getStore().toNumberString();
+                mfTargetDiagramNumbers[iGraph] = Integer.parseInt(gOnlyF.getStore().toNumberString());
+                System.out.print(" ("+g.coefficient()+") "+gnStr);
+            }
+            System.out.println();
+            iGraph++;
+        }
+        System.out.println();
+        for (int i=0; i<targetDiagrams.length; i++) {
+            targetDiagrams[i].setTemperature(temperature);
+        }
+        ClusterWeight targetSampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster);
+        ClusterWeight refSampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), 
-                temperature, refCluster,targetCluster, false);
+
+
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{new SpeciesSpheresMono(space, new ElementSimple("A"))}, new int[]{nPoints},
+                temperature, new ClusterAbstract[]{refCluster,targetCluster}, targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
+
         sim.integratorOS.setAgressiveAdjustStepFraction(true);
-        
+
         ///////////////////////////////////////////////
         // Initialize non-overlapped configuration
         ///////////////////////////////////////////////
@@ -175,8 +233,6 @@ public class VirialHeNonAdditive {
         }
         sim.box[1].trialNotify();
         sim.box[1].acceptNotify();
-//        System.out.println(targetCluster.value(sim.box[1]));
-//        System.exit(1);
         
         /*
         IAtomList atoms0 = sim.box[0].getLeafList();
@@ -345,12 +401,46 @@ public class VirialHeNonAdditive {
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         
         sim.printResults(HSB[nPoints]);
+
+        DataGroup allData = (DataGroup)sim.accumulators[1].getData();
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        // we'll ignore block correlation -- whatever effects are here should be in the full target results
+        int nTotal = (targetDiagrams.length+2);
+        double oVar = dataCov.getValue(nTotal*nTotal-1);
+        for (int i=0; i<targetDiagrams.length; i++) {
+            if (targetDiagramNumbers[i]<0) {
+                System.out.print("diagram "+(-targetDiagramNumbers[i])+"M ");
+            }
+            else {
+                if (mfTargetDiagramNumbers[i]<0) {
+                    System.out.print("diagram "+targetDiagramNumbers[i]+"rm"+(-mfTargetDiagramNumbers[i])+" ");
+                }
+                else {
+                    System.out.print("diagram "+targetDiagramNumbers[i]+"m"+mfTargetDiagramNumbers[i]+" ");
+                }
+            }
+            // average is vi/|v| average, error is the uncertainty on that average
+            // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
+            double ivar = dataCov.getValue((i+1)*nTotal+(i+1));
+            double ocor = ivar*oVar == 0 ? 0 : dataCov.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar);
+            System.out.print(String.format("average: %20.15e  error: %10.15e  ocor: %7.5f", dataAvg.getValue(i+1), dataErr.getValue(i+1), ocor));
+            if (targetDiagrams.length > 1) {
+                System.out.print("  dcor:");
+                for (int j=0; j<targetDiagrams.length; j++) {
+                    if (i==j) continue;
+                    double jvar = dataCov.getValue((j+1)*nTotal+(j+1));
+                    double dcor = ivar*jvar == 0 ? 0 : dataCov.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar);
+                    System.out.print(String.format(" %8.6f", dcor));
+                }
+            }
+            System.out.println();
+        }
         
         System.out.println();
         System.out.println("time: "+(t2-t1)/1000.0);
 	}
-
-
 
     /**
      * Inner class for parameters
