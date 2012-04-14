@@ -16,23 +16,25 @@ public class CoefficientImpl implements Coefficient {
     this.numerator = numerator;
     this.denominator = denominator;
     if (denominator < 0) {
-      numerator = -numerator;
-      denominator = -denominator;
+      this.numerator = -numerator;
+      this.denominator = -denominator;
     }
-    reduce();
+    reduce(this.numerator, this.denominator);
   }
 
   public void add(Coefficient value) {
 
+    long newNumerator = numerator, newDenominator = denominator;
     if (getDenominator() == value.getDenominator()) {
-      numerator = numerator + value.getNumerator();
+      newNumerator += value.getNumerator();
+      newDenominator = denominator;
     }
     else {
-      numerator = numerator * value.getDenominator() + 
-          value.getNumerator() * denominator;
-      denominator = getDenominator() * value.getDenominator();
+      newNumerator *= value.getDenominator();
+      newNumerator += value.getNumerator() * newDenominator;
+      newDenominator *= value.getDenominator();
     }
-    reduce();
+    reduce(newNumerator, newDenominator);
   }
 
   public Coefficient copy() {
@@ -54,65 +56,77 @@ public class CoefficientImpl implements Coefficient {
   }
 
   public void multiply(Coefficient value) {
-
-    numerator = numerator * value.getNumerator();
-    denominator = denominator * value.getDenominator();
-    reduce();
+    long newNumerator = numerator;
+    long newDenominator = denominator;
+    reduce(newNumerator * value.getNumerator(), newDenominator * value.getDenominator());
   }
 
   public void divide(Coefficient value) {
 
-    numerator = numerator * value.getDenominator();
-    denominator = denominator * value.getNumerator();
+    long newNumerator = numerator;
+    newNumerator *= value.getDenominator();
+    long newDenominator = denominator;
+    newDenominator *= value.getNumerator();
     if (denominator < 0) {
-      numerator = -numerator;
-      denominator = -denominator;
+      newNumerator = -newNumerator;
+      newDenominator = -newDenominator;
     }
-    reduce();
+    reduce(newNumerator, newDenominator);
   }
 
-  protected void reduce() {
-outer: do {
-      int min = Math.abs(numerator);
-      int max = denominator;
+  protected void reduce(long newNumerator, long newDenominator) {
+      if (newDenominator < 0) {
+        newDenominator = -newDenominator;
+        newNumerator = -newNumerator;
+      }
+      long min = Math.abs(newNumerator);
+      long max = newDenominator;
       if (min > max) {
-        int t = min;
+        long t = min;
         min = max;
         max = t;
       }
       if (min < 2) {
+        if (newNumerator < Integer.MIN_VALUE || newNumerator > Integer.MAX_VALUE || newDenominator > Integer.MAX_VALUE) {
+          throw new RuntimeException("overflow");
+        }
+        numerator = (int)newNumerator;
+        denominator = (int)newDenominator;
         return;
       }
       // find factors for min, see if each factor is a factor of max
       int sqrt = (int)Math.sqrt(min);
       for (int i = 1; i<sqrt+1; i++) {
-        int fac = min/i;
+        long fac = min/i;
         if (fac*i == min) {
           // i and fac are factors of min
-          int fac2 = max/fac;
+          long fac2 = max/fac;
           if (fac*fac2 == max) {
             // fac is a common factor
-            numerator /= fac;
-            denominator /= fac;
+            newNumerator /= fac;
+            newDenominator /= fac;
             // now start over
-            reduce();
-            continue outer;
+            reduce(newNumerator, newDenominator);
+            return;
           }
           if (i>1) {
             fac2 = max/i;
             if (fac2*i == max) {
               // i is a common factor
-              numerator /= i;
-              denominator /= i;
+              newNumerator /= i;
+              newDenominator /= i;
               // now start over
-              reduce();
-              continue outer;
+              reduce(newNumerator, newDenominator);
+              return;
             }
           }
         }
       }
-      // we want one pass, with the option starting over from the middle
-    } while (false);
+      if (newNumerator < Integer.MIN_VALUE || newNumerator > Integer.MAX_VALUE || newDenominator > Integer.MAX_VALUE) {
+        throw new RuntimeException("overflow");
+      }
+      numerator = (int)newNumerator;
+      denominator = (int)newDenominator;
   }
 
   public void setDenominator(int value) {
