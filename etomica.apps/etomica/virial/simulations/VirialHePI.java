@@ -2,6 +2,7 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,8 +25,6 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
@@ -400,7 +399,7 @@ public class VirialHePI {
             DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.mmBond);
             for (Graph g : singleGraphs) {
                 if (!pairOnly && NumRootNodes.value(g) > 1) continue;
-                if (g.nodeCount() > 3 && isBi.check(g)) {
+                if ((g.nodeCount() > 3 || !pairOnly) && isBi.check(g)) {
                     if (!pairOnly) {
                         if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
                             System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"M");
@@ -429,8 +428,15 @@ public class VirialHePI {
                 if (cancelGraph != null) {
                     String gnStr = cancelGraph.getStore().toNumberString();
                     if (!pairOnly) {
+                        // this is actually disconnected - singlyconnected
+                        if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
+                            targetDiagramNumbers[iGraph] = Integer.parseInt(gnStr);
+                        }
                         Graph gOnlyF = edgeDeleter.apply(cancelGraph, ed);
                         gnStr += "m"+gOnlyF.getStore().toNumberString();
+                        if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
+                            mfTargetDiagramNumbers[iGraph] = -Integer.parseInt(gOnlyF.getStore().toNumberString());
+                        }
                     }
                     System.out.print(" - "+gnStr);
                 }
@@ -445,10 +451,30 @@ public class VirialHePI {
     
                 for (Graph g : disconnectedGraphs) {
                     Set<Graph> gSplit = splitMap.get(g);
+                    boolean reverseMulti = false;
+                    if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
+                        Graph cancelGraph = flexDiagrams.getCancelMap().get(g);
+                        if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
+                            // we have disconnected - singly connected; use the singly connected graph with rm notation
+                            reverseMulti = true;
+                            Set<Graph> set1 = new HashSet<Graph>();
+                            set1.add(cancelGraph);
+                            HashMap<Graph,Set<Graph>> splitMap1 = flexDiagrams.getSplitDisconnectedVirialGraphs(set1);
+                            gSplit = splitMap1.get(cancelGraph);
+                        }
+                    }
                     System.out.print(g.coefficient()+" ");
                     for (Graph gs : gSplit) {
                         if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.mmBond)) {
-                            System.out.print(" "+gs.nodeCount()+"m");
+                            if (reverseMulti) {
+                                String gnStr = gs.getStore().toNumberString();
+                                Graph gOnlyF = edgeDeleter.apply(gs, ed);
+                                gnStr += "rm"+gOnlyF.getStore().toNumberString();
+                                System.out.print(" "+gnStr);
+                            }
+                            else {
+                                System.out.print(" "+gs.nodeCount()+"M");
+                            }
                         }
                         else if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
                             System.out.print(" "+gs.nodeCount()+"bc");
@@ -863,7 +889,15 @@ public class VirialHePI {
                 System.out.print("diagram "+(-targetDiagramNumbers[i])+(pairOnly ? "bc " : "M "));
             }
             else {
-                System.out.print("diagram "+targetDiagramNumbers[i]+(pairOnly ? " " : "m"+mfTargetDiagramNumbers[i]+" "));
+                if (pairOnly) {
+                    System.out.print("diagram "+targetDiagramNumbers[i]+" ");
+                }
+                else if (mfTargetDiagramNumbers[i]<0) {
+                    System.out.print("diagram "+targetDiagramNumbers[i]+"rm"+(-mfTargetDiagramNumbers[i])+" ");
+                }
+                else {
+                    System.out.print("diagram "+targetDiagramNumbers[i]+"m"+mfTargetDiagramNumbers[i]+" ");
+                }
             }
             // average is vi/|v| average, error is the uncertainty on that average
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
