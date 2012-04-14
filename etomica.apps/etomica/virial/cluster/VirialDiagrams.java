@@ -858,14 +858,21 @@ public class VirialDiagrams {
         }
         GraphList<Graph> dpn = makeGraphList();
         for (Graph g : disconnectedP) {
-            int fieldCount = 0;
-            for (Node node : g.nodes()) {
-              if (node.getType() == 'F') {
-                fieldCount++;
-              }
-            }
-            if (fieldCount == n) {
+            if (NumFieldNodes.value(g) == n) {
                 dpn.add(g);
+            }
+        }
+        if (multibody && doMultiFromPair) {
+            for (Graph g : p) {
+                if (NumFieldNodes.value(g) == n) {
+                    Graph cancelGraph = cancelMap.get(g);
+                    if (cancelGraph != null && NumRootNodes.value(g) > 0 && NumRootNodes.value(cancelGraph) > 0) {
+                        // FIXME
+                        // this is a diagram we list in p, but which we don't compute in MSMC...
+                        // it's disconnectedP for our purposes.
+                        dpn.add(g);
+                    }
+                }
             }
         }
         return dpn;
@@ -875,29 +882,14 @@ public class VirialDiagrams {
         HashMap<Graph,Set<Graph>> map = new HashMap<Graph,Set<Graph>>();
         SplitGraph splitGraph = new SplitGraph();
         MaxIsomorph maxIsomorph = new MaxIsomorph();
-        Relabel relabel = new Relabel();
+        Property happyArticulation = new ArticulatedAt0(doExchange, multibody ? mmBond : '0');
+        MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), happyArticulation);
         for (Graph g : disconnectedGraphs) {
             Set<Graph> gSplit = makeGraphList();
             Set<Graph> gSplit1 = splitGraph.apply(g);
             for (Graph gs : gSplit1) {
                 // the graph we get from splitting might not be in our preferred bonding arrangement
-                Graph gsmax = maxIsomorph.apply(gs, MaxIsomorph.PARAM_ALL);
-                HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
-                if (hap.check(gsmax)) {
-                    if (!hap.getArticulationPoints().contains(0)) {
-                        // the graph is articulated but not with the articulation point at 0.
-                        // we calculate the diagram with the articulation point at 0, so permute
-                        // now so that we can easily identify which graph this is
-                        byte[] permutations = new byte[gsmax.nodeCount()];
-                        for (int i=0; i<permutations.length; i++) {
-                            permutations[i] = (byte)i;
-                        }
-                        permutations[0] = hap.getArticulationPoints().get(0);
-                        permutations[hap.getArticulationPoints().get(0)] = 0;
-                        RelabelParameters rp = new RelabelParameters(permutations);
-                        gsmax = relabel.apply(gsmax, rp);
-                    }
-                }
+                Graph gsmax = maxIsomorph.apply(gs, mip);
                 gSplit.add(gsmax);
             }
             map.put(g, gSplit);
@@ -1225,6 +1217,8 @@ public class VirialDiagrams {
         colorOrderMap.put(MxcBond, 8);
         colorOrderMap.put(excBond, 9);
 
+        Property happyArticulation = new ArticulatedAt0(doExchange, multibody ? mmBond : '0');
+
         if (doShortcut && !multibody && !flex) {
             lnfXi = new HashSet<Graph>();
 
@@ -1459,7 +1453,6 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                         }
                     }
                 }
-                Property happyArticulation = new ArticulatedAt0(doExchange);
                 MaxIsomorph maxIsomorph = new MaxIsomorph();
                 MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), happyArticulation);
                 Set<Graph> newFullMultiP = makeGraphList();
@@ -1540,9 +1533,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
             z.clear();
         }
 
-        
 
-        Property happyArticulation = new ArticulatedAt0(doExchange);
         if (doExchange) {
             System.out.println("\nPe");
             topSet.clear();
@@ -1807,7 +1798,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 }
             }
             newP.clear();
-            newP.addAll(maxIsomorph.apply(p, MaxIsomorph.PARAM_ALL));
+            newP.addAll(maxIsomorph.apply(p, mip));
             p = newP;
         }
         else {
@@ -1835,9 +1826,26 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                         newP.add(g2);
                     }
                 }
-//                System.out.println("isofreeing on "+newP.size()+" Ree-Hooverish diagrams (from "+p.size()+" f-diagrams)");
                 p = isoFree.apply(newP, null);
                 newP.clear();
+                for (Graph g : trueMultiP) {
+                    Set<Graph> gSet = splitOneBC.apply(g, splitOneParameters);
+                    for (Graph g2 : gSet) {
+                        boolean even = true;
+                        for (Edge e : g2.edges()) {
+                            if (e.getColor() == nfBond) {
+                                even = !even;
+                                e.setColor(fBond);
+                            }
+                        }
+                        if (!even) {
+                            g2 = mulScalar.apply(g2, msp);
+                        }
+                        newP.add(g2);
+                    }
+                }
+                trueMultiP = isoFree.apply(newP, null);
+//                System.out.println("isofreeing on "+newP.size()+" Ree-Hooverish diagrams (from "+p.size()+" f-diagrams)");
             }
 
             FactorOnce factorOnce = new FactorOnce();
@@ -1846,7 +1854,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
             newP.addAll(maxIsomorph.apply(p, mip));
             p.clear();
             p.addAll(newP);
-            
+
             if (doDisconnectedMatching) {
                 // match up singly-connected (in p) with disconnected diagrams.
                 // we have to do this last so that our cancelMap remains valid.
@@ -1905,8 +1913,9 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                     }
                     newP.addAll(mulScalar.apply(fullyDisconnectedMultiP, new MulScalarParameters(-1,1)));
                     newP = maxIsomorph.apply(isoFree.apply(newP, null), mip);
-                    p.addAll(newP);
+                    disconnectedP.addAll(newP);
                 }
+                
                 for (Graph g : p) {
                     boolean ap = hap.check(g);
                     boolean con = hap.isConnected();
@@ -1966,7 +1975,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                         continue;
                     }
                 }
-                Set<Graph> bcSubst = new HashSet<Graph>();
+                
                 for (byte i=4; i<=n; i++) {
                     HashSet<char[]> bicompSeen = new HashSet<char[]>();
                     char[] thisBicomp = null;
@@ -1978,7 +1987,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                     while (true) {
                         Coefficient mcoef = null;
                         Graph gbc = null;
-                        bcSubst.clear();
+                        Set<Graph> bcSubst = new HashSet<Graph>();
                         thisBicomp = null;
                         for (Graph g : bcP) {
                             if (g.nodeCount() == i && NumRootNodes.value(g) == 0) {
@@ -2036,7 +2045,6 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                         // now mi1 = Mi - Mi2 - Mi3 - ...
                         // where mi1 is the fully connected diagram of size i
                         ComponentSubstParameters csp = new ComponentSubstParameters(gbc, bcSubst, mfp);
-//                        p = isoFree.apply(compSubst.apply(p, csp), null);
                         disconnectedP = isoFree.apply(maxIsomorph.apply(compSubst.apply(disconnectedP, csp), mip), null);
                         cpsList.add(csp);
                         if (!doExchange) break;
