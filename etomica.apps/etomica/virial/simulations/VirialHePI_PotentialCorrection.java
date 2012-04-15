@@ -292,10 +292,9 @@ public class VirialHePI_PotentialCorrection {
             Set<Graph> disconnectedGraphs = flexDiagrams.getExtraDisconnectedVirialGraphs();
             if (disconnectedGraphs.size() > 0) {
                 System.out.println("extra clusters:");
-                HashMap<Graph,Set<Graph>> splitMap = flexDiagrams.getSplitDisconnectedVirialGraphs(disconnectedGraphs);
     
                 for (Graph g : disconnectedGraphs) {
-                    Set<Graph> gSplit = splitMap.get(g);
+                    Set<Graph> gSplit = flexDiagrams.getSplitDisconnectedVirialGraphs(g);
                     System.out.print(g.coefficient()+" ");
                     for (Graph gs : gSplit) {
                         if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.mmBond)) {

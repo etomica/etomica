@@ -149,10 +149,9 @@ public class VirialAlkaneFlex2 {
             Set<Graph> disconnectedGraphs = alkaneDiagrams.getExtraDisconnectedVirialGraphs();
             if (disconnectedGraphs.size() > 0) {
                 System.out.println("extra clusters:");
-                HashMap<Graph,Set<Graph>> splitMap = alkaneDiagrams.getSplitDisconnectedVirialGraphs(disconnectedGraphs);
                 
                 for (Graph g : disconnectedGraphs) {
-                    Set<Graph> gSplit = splitMap.get(g);
+                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(g);
                     System.out.print(g.coefficient()+" ");
                     boolean first = true;
                     for (Graph gs : gSplit) {
