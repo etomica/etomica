@@ -305,6 +305,7 @@ public class VirialHePI {
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
         int[] targetDiagramNumbers = new int[0];
         int[] mfTargetDiagramNumbers = new int[0];
+        boolean[] mTargetDiagramCorrection = new boolean[0];
 
         if (doDiff || subtractHalf) {
             fullTargetCluster = (ClusterSum)targetCluster;
@@ -391,6 +392,7 @@ public class VirialHePI {
         if (targetDiagrams.length > 0) {
             targetDiagramNumbers = new int[targetDiagrams.length];
             mfTargetDiagramNumbers = new int[targetDiagrams.length];
+            mTargetDiagramCorrection = new boolean[targetDiagrams.length];
             System.out.println("individual clusters:");
             Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, !pairOnly);
             Map<Graph,Graph> cancelMap = flexDiagrams.getCancelMap();
@@ -435,7 +437,8 @@ public class VirialHePI {
                         Graph gOnlyF = edgeDeleter.apply(cancelGraph, ed);
                         gnStr += "m"+gOnlyF.getStore().toNumberString();
                         if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
-                            mfTargetDiagramNumbers[iGraph] = -Integer.parseInt(gOnlyF.getStore().toNumberString());
+                            mfTargetDiagramNumbers[iGraph] = Integer.parseInt(gOnlyF.getStore().toNumberString());
+                            mTargetDiagramCorrection[iGraph] = true;
                         }
                     }
                     System.out.print(" - "+gnStr);
@@ -451,12 +454,10 @@ public class VirialHePI {
     
                 for (Graph g : disconnectedGraphs) {
                     Set<Graph> gSplit = splitMap.get(g);
-                    boolean reverseMulti = false;
                     if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
                         Graph cancelGraph = flexDiagrams.getCancelMap().get(g);
                         if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
-                            // we have disconnected - singly connected; use the singly connected graph with rm notation
-                            reverseMulti = true;
+                            // we have disconnected - singly connected; use the singly connected (cancelling) graph
                             Set<Graph> set1 = new HashSet<Graph>();
                             set1.add(cancelGraph);
                             HashMap<Graph,Set<Graph>> splitMap1 = flexDiagrams.getSplitDisconnectedVirialGraphs(set1);
@@ -464,16 +465,18 @@ public class VirialHePI {
                         }
                     }
                     System.out.print(g.coefficient()+" ");
+                    boolean first = true;
                     for (Graph gs : gSplit) {
+                        byte nc = gs.nodeCount();
                         if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.mmBond)) {
-                            if (reverseMulti) {
+                            if (gs.edgeCount() < nc*(nc-1)/2) {
                                 String gnStr = gs.getStore().toNumberString();
                                 Graph gOnlyF = edgeDeleter.apply(gs, ed);
-                                gnStr += "rm"+gOnlyF.getStore().toNumberString();
+                                gnStr += "m"+gOnlyF.getStore().toNumberString();
                                 System.out.print(" "+gnStr);
                             }
                             else {
-                                System.out.print(" "+gs.nodeCount()+"M");
+                                System.out.print(" "+nc+"M");
                             }
                         }
                         else if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
@@ -482,6 +485,8 @@ public class VirialHePI {
                         else {
                             System.out.print(" "+gs.getStore().toNumberString());
                         }
+                        if (first) System.out.print("c");
+                        first = false;
                     }
                     System.out.println();
                 }
@@ -890,10 +895,10 @@ public class VirialHePI {
             }
             else {
                 if (pairOnly) {
-                    System.out.print("diagram "+targetDiagramNumbers[i]+" ");
+                    System.out.print("diagram "+targetDiagramNumbers[i]+"c ");
                 }
-                else if (mfTargetDiagramNumbers[i]<0) {
-                    System.out.print("diagram "+targetDiagramNumbers[i]+"rm"+(-mfTargetDiagramNumbers[i])+" ");
+                else if (mTargetDiagramCorrection[i]) {
+                    System.out.print("diagram "+targetDiagramNumbers[i]+"m"+mfTargetDiagramNumbers[i]+"c ");
                 }
                 else {
                     System.out.print("diagram "+targetDiagramNumbers[i]+"m"+mfTargetDiagramNumbers[i]+" ");
