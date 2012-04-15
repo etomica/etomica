@@ -1,12 +1,12 @@
 package etomica.graph.operations;
 
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
+import etomica.graph.model.GraphList;
 import etomica.graph.property.IsConnected;
 import etomica.graph.traversal.CVisitor;
 
@@ -20,7 +20,7 @@ public class SplitGraph {
   protected IsConnected isCon = new IsConnected();
     
   public Set<Graph> apply(Graph g) {
-    Set<Graph> result = new HashSet<Graph>();
+    Set<Graph> result = new GraphList<Graph>(null); // we want to return these in order
     if (isCon.check(g)) {
       result.add(g.copy());
       return result;
