@@ -1828,23 +1828,25 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 }
                 p = isoFree.apply(newP, null);
                 newP.clear();
-                for (Graph g : trueMultiP) {
-                    Set<Graph> gSet = splitOneBC.apply(g, splitOneParameters);
-                    for (Graph g2 : gSet) {
-                        boolean even = true;
-                        for (Edge e : g2.edges()) {
-                            if (e.getColor() == nfBond) {
-                                even = !even;
-                                e.setColor(fBond);
+                if (multibody && doMultiFromPair) {
+                    for (Graph g : trueMultiP) {
+                        Set<Graph> gSet = splitOneBC.apply(g, splitOneParameters);
+                        for (Graph g2 : gSet) {
+                            boolean even = true;
+                            for (Edge e : g2.edges()) {
+                                if (e.getColor() == nfBond) {
+                                    even = !even;
+                                    e.setColor(fBond);
+                                }
                             }
+                            if (!even) {
+                                g2 = mulScalar.apply(g2, msp);
+                            }
+                            newP.add(g2);
                         }
-                        if (!even) {
-                            g2 = mulScalar.apply(g2, msp);
-                        }
-                        newP.add(g2);
                     }
+                    trueMultiP = isoFree.apply(newP, null);
                 }
-                trueMultiP = isoFree.apply(newP, null);
 //                System.out.println("isofreeing on "+newP.size()+" Ree-Hooverish diagrams (from "+p.size()+" f-diagrams)");
             }
 
@@ -2329,7 +2331,6 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
     }
 
     public static final class ArticulatedAt0 implements Property {
-        protected final IsBiconnected isBi = new IsBiconnected();
         protected final HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
         protected final boolean doExchange;
         protected final char mBond;
@@ -2351,7 +2352,17 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                     prevColor = color;
                 }
             }
-            if (isBi.check(graph)) return true;
+            List<List<Byte>> comps = CVisitor.getComponents(graph);
+            if (comps.size() > 1) {
+                // disconnected diagram.  require contiguous components
+                byte maxNode = -1;
+                for (List<Byte> iComp : comps) {
+                    maxNode += iComp.size();
+                    for (byte iNode : iComp) {
+                        if (iNode > maxNode) return false;
+                    }
+                }
+            }
             boolean ap = hap.check(graph);
 //            boolean con = hap.isConnected();
             if (!ap) return true;
