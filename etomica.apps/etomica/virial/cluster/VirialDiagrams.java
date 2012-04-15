@@ -885,7 +885,8 @@ public class VirialDiagrams {
         Property happyArticulation = new ArticulatedAt0(doExchange, multibody ? mmBond : '0');
         MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), happyArticulation);
         for (Graph g : disconnectedGraphs) {
-            Set<Graph> gSplit = makeGraphList();
+            // we want gSplit unsorted
+            Set<Graph> gSplit = new GraphList<Graph>(null);
             Set<Graph> gSplit1 = splitGraph.apply(g);
             for (Graph gs : gSplit1) {
                 // the graph we get from splitting might not be in our preferred bonding arrangement
