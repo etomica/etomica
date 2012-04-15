@@ -1,8 +1,6 @@
 package etomica.virial.simulations;
 
 import java.awt.Color;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +30,6 @@ import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
-import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.NumRootNodes;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
@@ -161,9 +158,7 @@ public class VirialHePI {
             }
         }
         final boolean calcApprox = params.calcApprox;
-        final int startBeadHalfs = params.startBeadHalfs;
-        final int beadFac = subtractHalf ? params.beadFac : 1;
-        final int finalNumBeads = params.finalNumBeads;
+        final int beadFac = subtractHalf ? 2 : 1;
         final double[] HSB = new double[8];
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);
@@ -174,36 +169,10 @@ public class VirialHePI {
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
-        int origNB = nb;
         if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
         if (subtractHalf) {
-            int totalHalfs = (int)Math.ceil(Math.log((nb+finalNumBeads-1)/finalNumBeads)/Math.log(beadFac));
-            int totalFac = (int)Math.round(Math.pow(beadFac, totalHalfs));
-            int endBeads = (nb + totalFac -1) / totalFac;
-            nb = endBeads * totalFac;
-            origNB = nb;
-            System.out.println("He Path Integral ("+origNB+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
-            nb /= (int)Math.round(Math.pow(beadFac,startBeadHalfs));
-            if (nb*beadFac <= finalNumBeads) {
-                throw new RuntimeException("it is unnecessary to half "+(startBeadHalfs)+" times");
-            }
-            if (nb <= finalNumBeads) {
-                if (doDiff) {
-                    if (semiClassical) {
-                        System.out.println("Calculating difference between "+nb+" beads and semiclassical");
-                    }
-                    else {
-                        System.out.println("Calculating difference between "+nb+" beads and classical");
-                    }
-                }
-                else {
-                    System.out.println("Perturbing from "+nb+" beads to hard spheres");
-                }
-                subtractHalf = false;
-            }
-            else {
-                System.out.println("Calculating difference between "+nb/beadFac+" and "+nb+" beads");
-            }
+            System.out.println("He Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
+            System.out.println("Calculating difference between "+nb/beadFac+" and "+nb+" beads");
         }
         else {
             System.out.println("He Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
@@ -323,9 +292,9 @@ public class VirialHePI {
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
         flexDiagrams.setDoMinimalBC(true);
+        flexDiagrams.setDoMultiFromPair(true);
         flexDiagrams.setDoReeHoover(true);
         flexDiagrams.setDoShortcut(true);
-        flexDiagrams.setDoMultiFromPair(true);
         ClusterAbstract targetCluster = flexDiagrams.makeVirialCluster(fTarget, pairOnly ? null : f3Target, doTotal);
 
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
@@ -423,7 +392,7 @@ public class VirialHePI {
         }
         int[] targetDiagramNumbers = new int[targetDiagrams.length];
         int[] fTargetDiagramNumbers = new int[targetDiagrams.length];
-        boolean[] mTargetDiagramCorrection = new boolean[targetDiagrams.length];
+        boolean[] diagramFlexCorrection = new boolean[targetDiagrams.length];
         System.out.println("individual clusters:");
         Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, !pairOnly);
         Map<Graph,Graph> cancelMap = flexDiagrams.getCancelMap();
@@ -468,6 +437,7 @@ public class VirialHePI {
             }
             Graph cancelGraph = cancelMap.get(g);
             if (cancelGraph != null) {
+                diagramFlexCorrection[iGraph] = true;
                 String gnStr = cancelGraph.getStore().toNumberString();
                 Set<Graph> gSplit = flexDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
                 if (!pairOnly) {
@@ -481,7 +451,6 @@ public class VirialHePI {
                     if (fTargetDiagramNumbers[iGraph] > 0) {
                         gnStr += gOnlyF.getStore().toNumberString();
                     }
-                    mTargetDiagramCorrection[iGraph] = NumRootNodes.value(cancelGraph) < NumRootNodes.value(g);
                     System.out.print(" - "+getSplitGraphString(gSplit, flexDiagrams, false));
                 }
                 else {
@@ -913,7 +882,7 @@ public class VirialHePI {
                 System.out.print("diagram "+targetDiagramNumbers[i]);
                 if (pairOnly) {
                     if (fTargetDiagramNumbers[i] != 0) {
-                        System.out.print("p"+fTargetDiagramNumbers[i]+"c");
+                        System.out.print("p"+fTargetDiagramNumbers[i]);
                     }
                 }
                 else {
@@ -921,9 +890,9 @@ public class VirialHePI {
                     if (fTargetDiagramNumbers[i] != 0) {
                         System.out.print(fTargetDiagramNumbers[i]);
                     }
-                    if (mTargetDiagramCorrection[i]) {
-                        System.out.print("c");
-                    }
+                }
+                if (diagramFlexCorrection[i]) {
+                    System.out.print("c");
                 }
                 System.out.print(" ");
             }
@@ -938,7 +907,7 @@ public class VirialHePI {
                     if (i==j) continue;
                     double jvar = dataCov.getValue((j+1)*nTotal+(j+1));
                     double dcor = ivar*jvar == 0 ? 0 : dataCov.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar);
-                    System.out.print(String.format(" %6.4f", dcor));
+                    System.out.print(String.format(" %8.6f", dcor));
                 }
             }
             System.out.println();
@@ -975,9 +944,6 @@ public class VirialHePI {
         public boolean doDiff = false;
         public boolean semiClassical = false;
         public boolean subtractHalf = false;
-        public int startBeadHalfs = 0;
-        public int beadFac = 2;
-        public int finalNumBeads = 2;
         public boolean pairOnly = false;
         public boolean doTotal = false;
         public boolean calcApprox = true;
