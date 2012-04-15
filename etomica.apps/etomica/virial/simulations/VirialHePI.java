@@ -103,6 +103,42 @@ import etomica.virial.cluster.VirialDiagrams;
  */
 public class VirialHePI {
 
+    public static String getSplitGraphString(Set<Graph> gSplit, VirialDiagrams flexDiagrams, boolean correction) {
+        DeleteEdge edgeDeleter = new DeleteEdge();
+        DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.mmBond);
+        DeleteEdgeParameters ede = new DeleteEdgeParameters(flexDiagrams.eBond);
+        boolean first = true;
+        String str = "";
+        for (Graph gs : gSplit) {
+            byte nc = gs.nodeCount();
+            if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.mmBond)) {
+                if (gs.edgeCount() < nc*(nc-1)/2) {
+                    str += gs.getStore().toNumberString();
+                    str += "m";
+                    Graph gOnlyF = edgeDeleter.apply(edgeDeleter.apply(gs, ed), ede);
+                    if (!gOnlyF.getStore().toNumberString().equals("0")) {
+                        str += gOnlyF.getStore().toNumberString();
+                    }
+                }
+                else {
+                    str += " "+nc+"M";
+                }
+            }
+            else if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
+                str += " "+gs.nodeCount()+"bc";
+            }
+            else {
+                str += " "+gs.getStore().toNumberString();
+                if (flexDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                    str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
+                }
+            }
+            if (first && correction) str += "c";
+            first = false;
+        }
+        return str;
+    }
+    
     public static void main(String[] args) {
         VirialHePIParam params = new VirialHePIParam();
         boolean isCommandline = args.length > 0;
@@ -303,9 +339,6 @@ public class VirialHePI {
         final ClusterSum fullTargetCluster;
 
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
-        int[] targetDiagramNumbers = new int[0];
-        int[] mfTargetDiagramNumbers = new int[0];
-        boolean[] mTargetDiagramCorrection = new boolean[0];
 
         if (doDiff || subtractHalf) {
             fullTargetCluster = (ClusterSum)targetCluster;
@@ -388,110 +421,93 @@ public class VirialHePI {
                 targetDiagrams = flexDiagrams.makeSingleVirialClustersMulti((ClusterSumMultibody)targetCluster, fTarget, f3Target);
             }
         }
-        IsBiconnected isBi = new IsBiconnected();
-        if (targetDiagrams.length > 0) {
-            targetDiagramNumbers = new int[targetDiagrams.length];
-            mfTargetDiagramNumbers = new int[targetDiagrams.length];
-            mTargetDiagramCorrection = new boolean[targetDiagrams.length];
-            System.out.println("individual clusters:");
-            Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, !pairOnly);
-            Map<Graph,Graph> cancelMap = flexDiagrams.getCancelMap();
-            int iGraph = 0;
-            DeleteEdge edgeDeleter = new DeleteEdge();
-            DeleteEdgeParameters ed = new DeleteEdgeParameters(flexDiagrams.mmBond);
-            for (Graph g : singleGraphs) {
-                if (!pairOnly && NumRootNodes.value(g) > 1) continue;
-                if ((g.nodeCount() > 3 || !pairOnly) && isBi.check(g)) {
-                    if (!pairOnly) {
-                        if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
-                            System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"M");
-                            targetDiagramNumbers[iGraph] = -g.nodeCount();
-                        }
-                    }
-                    else if (!VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
-                        System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"bc");
-                        targetDiagramNumbers[iGraph] = -g.nodeCount();
-                    }
-                    else {
-                        continue;
-                    }
+        int[] targetDiagramNumbers = new int[targetDiagrams.length];
+        int[] fTargetDiagramNumbers = new int[targetDiagrams.length];
+        boolean[] mTargetDiagramCorrection = new boolean[targetDiagrams.length];
+        System.out.println("individual clusters:");
+        Set<Graph> singleGraphs = flexDiagrams.getMSMCGraphs(true, !pairOnly);
+        Map<Graph,Graph> cancelMap = flexDiagrams.getCancelMap();
+        int iGraph = 0;
+        DeleteEdge edgeDeleter = new DeleteEdge();
+        DeleteEdgeParameters edm = new DeleteEdgeParameters(flexDiagrams.mmBond);
+        DeleteEdgeParameters ede = new DeleteEdgeParameters(flexDiagrams.eBond);
+        for (Graph g : singleGraphs) {
+            if (!pairOnly && NumRootNodes.value(g) > 1) continue;
+            byte nc = g.nodeCount();
+            if ((g.nodeCount() > 3 || !pairOnly) && g.edgeCount() == nc*(nc-1)/2) {
+                if (!pairOnly) {
+                    System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"M");
+                    targetDiagramNumbers[iGraph] = -g.nodeCount();
+                }
+                else if (!VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
+                    System.out.print(" ("+g.coefficient()+") "+g.nodeCount()+"bc");
+                    targetDiagramNumbers[iGraph] = -g.nodeCount();
                 }
                 else {
-                    String gnStr = g.getStore().toNumberString();
-                    targetDiagramNumbers[iGraph] = Integer.parseInt(gnStr);
-                    if (!pairOnly) {
-                        Graph gOnlyF = edgeDeleter.apply(g, ed);
-                        gnStr += "m"+gOnlyF.getStore().toNumberString();
-                        mfTargetDiagramNumbers[iGraph] = Integer.parseInt(gOnlyF.getStore().toNumberString());
+                    continue;
+                    // skip biconnected graphs with e bonds
+                }
+            }
+            else {
+                String gnStr = g.getStore().toNumberString();
+                targetDiagramNumbers[iGraph] = Integer.parseInt(gnStr);
+                if (!pairOnly) {
+                    Set<Graph> gSplit = flexDiagrams.getSplitDisconnectedVirialGraphs(g);
+                    System.out.print(" ("+g.coefficient()+") "+getSplitGraphString(gSplit, flexDiagrams, false));
+                    Graph gNoEM = edgeDeleter.apply(edgeDeleter.apply(g, ede), edm);
+                    fTargetDiagramNumbers[iGraph] = Integer.parseInt(gNoEM.getStore().toNumberString());
+                }
+                else {
+                    if (flexDiagrams.graphHasEdgeColor(g, flexDiagrams.eBond)) {
+                        Graph gNoE = edgeDeleter.apply(g, ede);
+                        gnStr += "p"+gNoE.getStore().toNumberString();
+                        fTargetDiagramNumbers[iGraph] = Integer.parseInt(gNoE.getStore().toNumberString());
                     }
                     System.out.print(" ("+g.coefficient()+") "+gnStr);
                 }
-                Graph cancelGraph = cancelMap.get(g);
-                if (cancelGraph != null) {
-                    String gnStr = cancelGraph.getStore().toNumberString();
-                    if (!pairOnly) {
-                        // this is actually disconnected - singlyconnected
-                        if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
-                            targetDiagramNumbers[iGraph] = Integer.parseInt(gnStr);
-                        }
-                        Graph gOnlyF = edgeDeleter.apply(cancelGraph, ed);
-                        gnStr += "m"+gOnlyF.getStore().toNumberString();
-                        if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
-                            mfTargetDiagramNumbers[iGraph] = Integer.parseInt(gOnlyF.getStore().toNumberString());
-                            mTargetDiagramCorrection[iGraph] = true;
-                        }
+            }
+            Graph cancelGraph = cancelMap.get(g);
+            if (cancelGraph != null) {
+                String gnStr = cancelGraph.getStore().toNumberString();
+                Set<Graph> gSplit = flexDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
+                if (!pairOnly) {
+                    // this is actually disconnected - singlyconnected
+                    if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
+                        targetDiagramNumbers[iGraph] = Integer.parseInt(gnStr);
                     }
-                    System.out.print(" - "+gnStr);
+                    Graph gOnlyF = edgeDeleter.apply(cancelGraph, edm);
+                    gnStr += "m";
+                    fTargetDiagramNumbers[iGraph] = Integer.parseInt(gOnlyF.getStore().toNumberString());
+                    if (fTargetDiagramNumbers[iGraph] > 0) {
+                        gnStr += gOnlyF.getStore().toNumberString();
+                    }
+                    mTargetDiagramCorrection[iGraph] = NumRootNodes.value(cancelGraph) < NumRootNodes.value(g);
+                    System.out.print(" - "+getSplitGraphString(gSplit, flexDiagrams, false));
                 }
-                System.out.println();
-                iGraph++;
+                else {
+                    System.out.print(" - "+getSplitGraphString(gSplit, flexDiagrams, false));
+                }
             }
             System.out.println();
-            Set<Graph> disconnectedGraphs = flexDiagrams.getExtraDisconnectedVirialGraphs();
-            if (disconnectedGraphs.size() > 0 && pairOnly) {
-                System.out.println("extra clusters:");
-                HashMap<Graph,Set<Graph>> splitMap = flexDiagrams.getSplitDisconnectedVirialGraphs(disconnectedGraphs);
-    
-                for (Graph g : disconnectedGraphs) {
-                    Set<Graph> gSplit = splitMap.get(g);
-                    if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
-                        Graph cancelGraph = flexDiagrams.getCancelMap().get(g);
-                        if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
-                            // we have disconnected - singly connected; use the singly connected (cancelling) graph
-                            Set<Graph> set1 = new HashSet<Graph>();
-                            set1.add(cancelGraph);
-                            HashMap<Graph,Set<Graph>> splitMap1 = flexDiagrams.getSplitDisconnectedVirialGraphs(set1);
-                            gSplit = splitMap1.get(cancelGraph);
-                        }
+            iGraph++;
+        }
+        System.out.println();
+        Set<Graph> disconnectedGraphs = flexDiagrams.getExtraDisconnectedVirialGraphs();
+        if (disconnectedGraphs.size() > 0 && pairOnly) {
+            System.out.println("extra clusters:");
+
+            for (Graph g : disconnectedGraphs) {
+                Set<Graph> gSplit = flexDiagrams.getSplitDisconnectedVirialGraphs(g);
+                if (VirialDiagrams.graphHasEdgeColor(g, flexDiagrams.mmBond)) {
+                    Graph cancelGraph = flexDiagrams.getCancelMap().get(g);
+                    if (NumRootNodes.value(cancelGraph) < NumRootNodes.value(g)) {
+                        // we have disconnected - singly connected; use the singly connected (cancelling) graph
+                        gSplit = flexDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
                     }
-                    System.out.print(g.coefficient()+" ");
-                    boolean first = true;
-                    for (Graph gs : gSplit) {
-                        byte nc = gs.nodeCount();
-                        if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.mmBond)) {
-                            if (gs.edgeCount() < nc*(nc-1)/2) {
-                                String gnStr = gs.getStore().toNumberString();
-                                Graph gOnlyF = edgeDeleter.apply(gs, ed);
-                                gnStr += "m"+gOnlyF.getStore().toNumberString();
-                                System.out.print(" "+gnStr);
-                            }
-                            else {
-                                System.out.print(" "+nc+"M");
-                            }
-                        }
-                        else if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
-                            System.out.print(" "+gs.nodeCount()+"bc");
-                        }
-                        else {
-                            System.out.print(" "+gs.getStore().toNumberString());
-                        }
-                        if (first) System.out.print("c");
-                        first = false;
-                    }
-                    System.out.println();
                 }
-                System.out.println();
+                System.out.println(g.coefficient()+" "+getSplitGraphString(gSplit, flexDiagrams, true));
             }
+            System.out.println();
         }
         for (int i=0; i<targetDiagrams.length; i++) {
             targetDiagrams[i].setTemperature(temperature);
@@ -894,15 +910,22 @@ public class VirialHePI {
                 System.out.print("diagram "+(-targetDiagramNumbers[i])+(pairOnly ? "bc " : "M "));
             }
             else {
+                System.out.print("diagram "+targetDiagramNumbers[i]);
                 if (pairOnly) {
-                    System.out.print("diagram "+targetDiagramNumbers[i]+"c ");
-                }
-                else if (mTargetDiagramCorrection[i]) {
-                    System.out.print("diagram "+targetDiagramNumbers[i]+"m"+mfTargetDiagramNumbers[i]+"c ");
+                    if (fTargetDiagramNumbers[i] != 0) {
+                        System.out.print("p"+fTargetDiagramNumbers[i]+"c");
+                    }
                 }
                 else {
-                    System.out.print("diagram "+targetDiagramNumbers[i]+"m"+mfTargetDiagramNumbers[i]+" ");
+                    System.out.print("m");
+                    if (fTargetDiagramNumbers[i] != 0) {
+                        System.out.print(fTargetDiagramNumbers[i]);
+                    }
+                    if (mTargetDiagramCorrection[i]) {
+                        System.out.print("c");
+                    }
                 }
+                System.out.print(" ");
             }
             // average is vi/|v| average, error is the uncertainty on that average
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
