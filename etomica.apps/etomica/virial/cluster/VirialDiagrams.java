@@ -878,24 +878,20 @@ public class VirialDiagrams {
         return dpn;
     }
 
-    public HashMap<Graph,Set<Graph>> getSplitDisconnectedVirialGraphs(Set<Graph> disconnectedGraphs) {
-        HashMap<Graph,Set<Graph>> map = new HashMap<Graph,Set<Graph>>();
+    public Set<Graph> getSplitDisconnectedVirialGraphs(Graph g) {
         SplitGraph splitGraph = new SplitGraph();
         MaxIsomorph maxIsomorph = new MaxIsomorph();
         Property happyArticulation = new ArticulatedAt0(doExchange, multibody ? mmBond : '0');
         MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), happyArticulation);
-        for (Graph g : disconnectedGraphs) {
-            // we want gSplit unsorted
-            Set<Graph> gSplit = new GraphList<Graph>(null);
-            Set<Graph> gSplit1 = splitGraph.apply(g);
-            for (Graph gs : gSplit1) {
-                // the graph we get from splitting might not be in our preferred bonding arrangement
-                Graph gsmax = maxIsomorph.apply(gs, mip);
-                gSplit.add(gsmax);
-            }
-            map.put(g, gSplit);
+        // we want gSplit unsorted
+        Set<Graph> gSplit = new GraphList<Graph>(null);
+        Set<Graph> gSplit1 = splitGraph.apply(g);
+        for (Graph gs : gSplit1) {
+            // the graph we get from splitting might not be in our preferred bonding arrangement
+            Graph gsmax = maxIsomorph.apply(gs, mip);
+            gSplit.add(gsmax);
         }
-        return map;
+        return gSplit;
     }
 
     public GraphList<Graph> makeGraphList() {
