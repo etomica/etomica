@@ -140,8 +140,10 @@ public class VirialHePI {
         VirialHePIParam params = new VirialHePIParam();
         boolean isCommandline = args.length > 0;
         if (isCommandline) {
-            ParseArgs parseArgs = new ParseArgs(params);
-            parseArgs.parseArgs(args, true);
+            ParseArgs.doParseArgs(params, args);
+        }
+        else {
+            // add any custom overrides here
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperature;
@@ -304,7 +306,7 @@ public class VirialHePI {
             rigidDiagrams.setAllPermutations(true);
         }
         ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
-        final ClusterSum[] targetSubtract = new ClusterSum[subtractHalf ? beadFac : 1];
+        final ClusterSum[] targetSubtract = new ClusterSum[beadFac];
         final ClusterSum fullTargetCluster;
 
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
@@ -934,6 +936,7 @@ public class VirialHePI {
      * Inner class for parameters
      */
     public static class VirialHePIParam extends ParameterBase {
+        // don't change these here!!!! change them in the main method!!!
         public int nPoints = 4;
         public int nBeads = 4;
         public double temperature = 500;   // Kelvin
@@ -944,9 +947,9 @@ public class VirialHePI {
         public boolean doDiff = false;
         public boolean semiClassical = false;
         public boolean subtractHalf = false;
-        public boolean pairOnly = false;
+        public boolean pairOnly = true;
         public boolean doTotal = false;
-        public boolean calcApprox = true;
+        public boolean calcApprox = false;
         public boolean subtractApprox = false;
     }
 }
