@@ -144,7 +144,6 @@ public class VirialHePI {
         }
         else {
             // add any custom overrides here
-            params.flexApproach = "flex";
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperature;
@@ -173,19 +172,7 @@ public class VirialHePI {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
         
-        FlexApproach flexApproach = null;
-        if (params.flexApproach.equalsIgnoreCase("full")) {
-            flexApproach = FlexApproach.FULL;
-        }
-        else if (params.flexApproach.equalsIgnoreCase("rigid")) {
-            flexApproach = FlexApproach.RIGID;
-        }
-        else if (params.flexApproach.equalsIgnoreCase("flex")) {
-            flexApproach = FlexApproach.FLEX;
-        }
-        else {
-            throw new RuntimeException("unknown flex approach");
-        }
+        FlexApproach flexApproach = params.flexApproach;
 
         if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
         if (subtractHalf) {
@@ -1001,6 +988,6 @@ public class VirialHePI {
         public boolean doTotal = false;
         public boolean calcApprox = false;
         public boolean subtractApprox = false;
-        public String flexApproach = "full";
+        public FlexApproach flexApproach = FlexApproach.FULL;
     }
 }
