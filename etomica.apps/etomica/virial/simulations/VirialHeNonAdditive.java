@@ -63,7 +63,12 @@ public class VirialHeNonAdditive {
 
         VirialParam params = new VirialParam();
         boolean isCommandline = args.length > 0;
-        ParseArgs.doParseArgs(params, args);
+        if (isCommandline) {
+            ParseArgs.doParseArgs(params, args);
+        }
+        else {
+            // customize here
+        }
         
     	final int nPoints = params.nPoints;
     	final double temperatureK = params.temperature;
@@ -446,7 +451,8 @@ public class VirialHeNonAdditive {
      * Inner class for parameters
      */
     public static class VirialParam extends ParameterBase {
-        public int nPoints = 5;
+        // don't change these!
+        public int nPoints = 4;
         public double temperature = 300;   // Kelvin
         public long numSteps = 1000000;
         public double sigmaHSRef = -1; // negative means use equation

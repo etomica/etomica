@@ -47,7 +47,12 @@ public class VirialHePYCorrection {
 
         VirialHePYCParam params = new VirialHePYCParam();
         boolean isCommandline = args.length > 0;
-        ParseArgs.doParseArgs(params, args);
+        if (isCommandline) {
+            ParseArgs.doParseArgs(params, args);
+        }
+        else {
+            // customize parameters here
+        }
         
     	final int nPoints = params.nPoints;
     	final boolean compressibility = params.compressibility;
@@ -337,14 +342,15 @@ public class VirialHePYCorrection {
      * Inner class for parameters
      */
     public static class VirialHePYCParam extends ParameterBase {
+        // don't change these
         public int nPoints = 4;
         public boolean compressibility = true;
         public double temperature = 100;
         public long numSteps = 10000000;
         public double refFrac = -1;
         public double sigmaHSRef = -1;
-        public boolean semiClassical = true;
+        public boolean semiClassical = false;
         public boolean calcApprox = false;
-        public boolean subtractApprox = true;
+        public boolean subtractApprox = false;
     }
 }
