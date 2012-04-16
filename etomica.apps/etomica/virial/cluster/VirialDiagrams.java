@@ -105,6 +105,7 @@ public class VirialDiagrams {
     protected boolean doExchangeCondensing;
     protected boolean doDisconnectedMatching = true;
     protected boolean doNegativeExchange = false;
+    protected boolean flexCancelOnly = false; // this boolean makes me sad
     protected final char nodeColor = Metadata.COLOR_CODE_0;
     protected char[] flexColors;
     protected boolean allPermutations = false;
@@ -261,6 +262,16 @@ public class VirialDiagrams {
         return p;
     }
 
+    /**
+     * This method only effects the graphs returned by getMSMCGraphs
+     */
+    public void setFlexCancelOnly(boolean newFlexCancelOnly) {
+        if (!flex) {
+            throw new RuntimeException("this only makes sense with flex on");
+        }
+        flexCancelOnly = newFlexCancelOnly;
+    }
+
     public Set<Graph> getMSMCGraphs(boolean connectedOnly, boolean getMultiGraphs) {
         if (p == null) {
             makeVirialDiagrams();
@@ -272,6 +283,7 @@ public class VirialDiagrams {
                 if (doMultiFromPair) {
                     for (Graph g : p) {
                         if (graphHasEdgeColor(g, mmBond)) {
+                            if (flexCancelOnly && cancelMap.get(g) == null) continue;
                             allP.add(g);
                         }
                     }
@@ -294,6 +306,7 @@ public class VirialDiagrams {
             for (Graph g : p) {
                 if (!multibody || (doMinimalMulti && !graphHasEdgeColor(g, mmBond))
                                || (!doMinimalMulti && !graphHasEdgeColor(g, mBond))) {
+                    if (flex && flexCancelOnly && cancelMap.get(g) == null) continue;
                     allP.add(g);
                     if (!connectedOnly && cancelMap != null) {
                         Graph c = cancelMap.get(g);
@@ -762,7 +775,8 @@ public class VirialDiagrams {
             if (n > 3 && !flex) {
                 allClusters.add(new ClusterSumShell(coreCluster, allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f,e}));
             }
-            else {
+            else if (allBonds.size() > 0) {
+                // we might end up with nothing if we have flexOnlyCancel; that's OK
                 allClusters.add(new ClusterSumShell(coreCluster, allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}));
             }
         }
