@@ -710,18 +710,10 @@ public class VirialHePI {
             refFileName += "_"+tempString+"_"+nBeads;
             if (subtractHalf) {
                 refFileName += "_sh";
-                if (calcApprox) {
-                    // ==> sha
-                    refFileName += "a";
-                }
             }
             else if (doDiff) {
                 if (semiClassical) {
                     refFileName += "_sc";
-                    if (calcApprox) {
-                        // ==> sca
-                        refFileName += "a";
-                    }
                 }
                 else if (subtractApprox) {
                     refFileName += "_sa";
@@ -732,10 +724,15 @@ public class VirialHePI {
             }
             else {
                 refFileName += "_d";
-                if (calcApprox) {
-                    // => da
-                    refFileName += "a";
-                }
+            }
+            if (flexApproach == FlexApproach.RIGID) {
+                refFileName += "r";
+            }
+            else if (flexApproach == FlexApproach.FLEX) {
+                refFileName += "f";
+            }
+            if (calcApprox) {
+                refFileName += "a";
             }
         }
         long t1 = System.currentTimeMillis();
