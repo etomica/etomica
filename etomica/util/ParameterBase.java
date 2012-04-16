@@ -1,5 +1,6 @@
 package etomica.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 
@@ -57,6 +58,9 @@ public abstract class ParameterBase {
             else if (type == boolean.class) {
                 field.setBoolean(this,Boolean.valueOf(value).booleanValue());
             }
+            else if (type.isEnum()) {
+                field.set(this, Enum.valueOf(type, value));
+            }
             else if (type.isArray()) {
                 Class subType = type.getComponentType();
                 String[] strings = value.split(" +");
@@ -97,6 +101,13 @@ public abstract class ParameterBase {
                     boolean[] array = new boolean[strings.length];
                     for (int i=0; i<array.length; i++) {
                         array[i] = Boolean.valueOf(strings[i]).booleanValue();
+                    }
+                    field.set(this,array);
+                }
+                else if (subType.isEnum()) {
+                    Enum[] array = (Enum[])Array.newInstance(subType, strings.length);
+                    for (int i=0; i<array.length; i++) {
+                        array[i] = Enum.valueOf(subType, strings[i]);
                     }
                     field.set(this,array);
                 }
