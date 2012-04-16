@@ -144,6 +144,7 @@ public class VirialHePI {
         }
         else {
             // add any custom overrides here
+            params.flexApproach = "flex";
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperature;
@@ -171,6 +172,21 @@ public class VirialHePI {
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
+        
+        FlexApproach flexApproach = null;
+        if (params.flexApproach.equalsIgnoreCase("full")) {
+            flexApproach = FlexApproach.FULL;
+        }
+        else if (params.flexApproach.equalsIgnoreCase("rigid")) {
+            flexApproach = FlexApproach.RIGID;
+        }
+        else if (params.flexApproach.equalsIgnoreCase("flex")) {
+            flexApproach = FlexApproach.FLEX;
+        }
+        else {
+            throw new RuntimeException("unknown flex approach");
+        }
+
         if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
         if (subtractHalf) {
             System.out.println("He Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
@@ -291,12 +307,18 @@ public class VirialHePI {
             }
         };
         boolean doFlex = (nPoints > 2 && (pairOnly || doTotal)) || nPoints > 3;
+        if (flexApproach == FlexApproach.RIGID) {
+            doFlex = false;
+        }
         VirialDiagrams flexDiagrams = new VirialDiagrams(nPoints, true, doFlex);
         flexDiagrams.setDoMinimalMulti(true);
         flexDiagrams.setDoMinimalBC(true);
         flexDiagrams.setDoMultiFromPair(true);
         flexDiagrams.setDoReeHoover(true);
         flexDiagrams.setDoShortcut(true);
+        if (flexApproach == FlexApproach.FLEX) {
+            flexDiagrams.setFlexCancelOnly(true);
+        }
         ClusterAbstract targetCluster = flexDiagrams.makeVirialCluster(fTarget, pairOnly ? null : f3Target, doTotal);
 
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
@@ -538,6 +560,12 @@ public class VirialHePI {
         sim.integrators[0].getMoveManager().addMCMove(ring0);
         sim.integrators[1].getMoveManager().addMCMove(ring1);
 
+        // for flexApproach = FLEX, we need to have some non-trivial conformations
+        ring1.doTrial();
+        ring1.acceptNotify();
+        sim.box[1].trialNotify();
+        sim.box[1].acceptNotify();
+
         if (doDiff || subtractHalf || !pairOnly) {
             AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
             IVectorRandom groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
@@ -556,9 +584,25 @@ public class VirialHePI {
                 }
             }
             sim.box[1].trialNotify();
+            sim.box[1].acceptNotify();
+            // for flexApproach = FLEX, we need may need to find some happy position
+            for (int i=0; i<50 && sim.box[1].getSampleCluster().value(sim.box[1]) == 0; i++) {
+                sim.mcMoveTranslate[1].doTrial();
+                sim.mcMoveTranslate[1].acceptNotify();
+                sim.box[1].trialNotify();
+                sim.box[1].acceptNotify();
+            }
             double pi = sim.box[1].getSampleCluster().value(sim.box[1]);
             if (pi == 0) throw new RuntimeException("initialization failed");
-            sim.box[1].acceptNotify();
+        }
+        else {
+            // for flexApproach = FLEX, we need to find some happy position
+            while (sim.box[1].getSampleCluster().value(sim.box[1]) == 0) {
+                sim.mcMoveTranslate[1].doTrial();
+                sim.mcMoveTranslate[1].acceptNotify();
+                sim.box[1].trialNotify();
+                sim.box[1].acceptNotify();
+            }
         }
 
         if (false) {
@@ -932,6 +976,12 @@ public class VirialHePI {
         return outArray;
     }
 
+    public enum FlexApproach {
+        FULL,  // include all diagrams
+        RIGID, // include only diagrams present in the rigid formulation
+        FLEX   // include only diagrams not present in the rigid formulation (flexible correction)
+    }
+
     /**
      * Inner class for parameters
      */
@@ -951,5 +1001,6 @@ public class VirialHePI {
         public boolean doTotal = false;
         public boolean calcApprox = false;
         public boolean subtractApprox = false;
+        public String flexApproach = "full";
     }
 }
