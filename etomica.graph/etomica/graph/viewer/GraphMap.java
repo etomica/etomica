@@ -31,7 +31,6 @@ import javax.swing.SwingUtilities;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
-import org.apache.batik.swing.svg.JSVGComponent;
 import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -40,6 +39,7 @@ import org.apache.batik.transcoder.svg2svg.SVGTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.svg.SVGDocument;
 
+import etomica.graph.model.Coefficient;
 import etomica.graph.model.Graph;
 import etomica.graph.view.rasterizer.DestinationType;
 import etomica.graph.view.rasterizer.Main;
@@ -47,9 +47,10 @@ import etomica.graph.view.rasterizer.Main;
 public class GraphMap {
 
   private static final int defaultBorder = 10;
-  private static final int defaultGutter = 10;
-  private static final int clusterDim = 80;
-  private static final int clusterDimOut = clusterDim + 2 * defaultGutter;
+  private int defaultGutter = 10;
+  private int clusterDim = 80;
+  private int clusterDimOut = clusterDim + 2 * defaultGutter;
+  private boolean doIncludeCoefficients = false;
 
   private JSVGCanvas canvas;
 
@@ -67,6 +68,17 @@ public class GraphMap {
 
     this.container = container;
     this.graphs = graphs;
+    init();
+  }
+  
+  public void setDoIncludeCoefficients(boolean doIncludeCoefficients) {
+    this.doIncludeCoefficients = doIncludeCoefficients;
+    defaultGutter = doIncludeCoefficients ? 25 : 10;
+    clusterDimOut = clusterDim + 2 * defaultGutter;
+    init();
+  }
+  
+  protected void init() {
     clustersAcross = (container.getWidth() - 4 * defaultBorder) / (clusterDimOut);
     clustersAcross = clustersAcross > graphs.size() ? graphs.size() : clustersAcross;
     clustersAlong = clustersAcross > 0 ? (graphs.size() / clustersAcross + (graphs.size() % clustersAcross > 0 ? 1 : 0)) : 0;
@@ -87,21 +99,54 @@ public class GraphMap {
 
     int col = 0;
     int row = 0;
+    String gMapSVG = "";
     for (Graph g : graphs) {
-      mapSVG += String
+      if (doIncludeCoefficients) {
+        Coefficient c = g.coefficient();
+        if (c.getDenominator() == 1) {
+          String cStr = "";
+          if (c.getNumerator() > 0) {
+            if (row+col>0) {
+              cStr = "+";
+            }
+            if (c.getNumerator() != 1) {
+              cStr += Integer.toString(c.getNumerator());
+            }
+          }
+          else {
+            cStr = "-";
+            if (c.getNumerator() != -1) {
+              cStr = Integer.toString(c.getNumerator());
+            }
+          }
+          gMapSVG += String.format("<text x=\"%d\" y=\"%d\">%s</text>", col*clusterDimOut+defaultBorder, row*clusterDimOut+clusterDimOut/2+defaultBorder, cStr);
+        }
+        else {
+          if (row+col>0 || c.getNumerator() < 0) {
+            String sStr = c.getNumerator() > 0 ? "+" : "-";
+            gMapSVG += String.format("<text x=\"%d\" y=\"%d\">%s</text>", col*clusterDimOut+defaultBorder, row*clusterDimOut+clusterDimOut/2+defaultBorder, sStr);
+          }
+          gMapSVG += String.format("<text x=\"%d\" y=\"%d\">%d</text>", col*clusterDimOut+defaultBorder+15, row*clusterDimOut+clusterDimOut/2+defaultBorder-10, Math.abs(c.getNumerator()));
+          gMapSVG += String.format("<line x1=\"%d\" y1=\"%d\" x2=\"%d\" y2=\"%d\" stroke=\"black\"/>", col*clusterDimOut+defaultBorder+10, row*clusterDimOut+clusterDimOut/2+defaultBorder-5, col*clusterDimOut+defaultBorder+30, row*clusterDimOut+clusterDimOut/2+defaultBorder-5);
+          gMapSVG += String.format("<text x=\"%d\" y=\"%d\">%d</text>", col*clusterDimOut+defaultBorder+15, row*clusterDimOut+clusterDimOut/2+defaultBorder+10, c.getDenominator());
+        }
+      }
+      gMapSVG += String
           .format(
               "<g id=\"g%d\" style=\"fill:none; stroke: black; stroke-width: 1.1;\" transform=\"translate(%d,%d)\">\n",
-              row * clustersAcross + col, col * clusterDimOut + 2 * defaultBorder, row * clusterDimOut + 2
-                  * defaultBorder);
-      mapSVG += "<title>"+g.toString()+"</title>\n";
-      mapSVG += g.toSVG(clusterDim);
-      mapSVG += "</g>\n";
+              row * clustersAcross + col, col * clusterDimOut + defaultBorder + defaultGutter, row * clusterDimOut + defaultBorder + defaultGutter);
+      gMapSVG += "<title>"+g.toString()+"</title>\n";
+      gMapSVG += g.toSVG(clusterDim);
+      gMapSVG += "</g>\n";
       col++;
       if (col % clustersAcross == 0) {
         col = 0;
         row++;
+        mapSVG += gMapSVG;
+        gMapSVG = "";
       }
     }
+    mapSVG += gMapSVG;
     mapSVG += "</g></svg>";
 
     File f = null;
@@ -120,17 +165,18 @@ public class GraphMap {
       e.printStackTrace();
       return;
     }
-    StringReader reader = new StringReader(mapSVG);
+    if (graphs.size() > 5000) {
+      System.out.println("Too many graphs to open a display.  SVG File is "+f.getAbsolutePath());
+      return;
+    }
+
     try {
       String parser = XMLResourceDescriptor.getXMLParserClassName();
       SAXSVGDocumentFactory df = new SAXSVGDocumentFactory(parser);
       svg = df.createSVGDocument(f.toURI().toString());
     }
-    catch (Exception ex) {
+    catch (IOException ex) {
       // do your error handling here
-    }
-    finally {
-      reader.close();
     }
 
     canvas = new JSVGCanvas();
