@@ -75,7 +75,7 @@ public class VirialHeNonAdditive {
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         if (sigmaHSRef < 0) {
-            sigmaHSRef = 3.5 + 20/(10+temperatureK);
+            sigmaHSRef = 3.0 + 120/(100+temperatureK);
         }
         final boolean semiClassical = params.semiClassical;
         final int nullRegionMethod = params.nullRegionMethod;

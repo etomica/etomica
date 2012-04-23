@@ -154,9 +154,9 @@ public class VirialHePI {
         double sigmaHSRef = params.sigmaHSRef;
         if (sigmaHSRef == -1) {
             // these correlations work fairly well over the temperature range of interest
-            sigmaHSRef = 3 + 20/(10+temperatureK);
+            sigmaHSRef = 2.4 + 120/(100+temperatureK);
             if (!pairOnly) {
-                sigmaHSRef += 0.5;
+                sigmaHSRef += 0.6;
             }
         }
         final boolean calcApprox = params.calcApprox;
@@ -173,6 +173,9 @@ public class VirialHePI {
         }
         
         FlexApproach flexApproach = params.flexApproach;
+        if (flexApproach != FlexApproach.FULL) {
+            System.out.println("using "+flexApproach+" approach");
+        }
 
         if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
         if (subtractHalf) {

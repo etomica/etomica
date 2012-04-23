@@ -60,7 +60,7 @@ public class VirialHePYCorrection {
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         if (sigmaHSRef < 0) {
-            sigmaHSRef = 3 + 20/(10+temperatureK);
+            sigmaHSRef = 2.4 + 120/(100+temperatureK);
         }
         final boolean semiClassical = params.semiClassical;
         final double refFrac = params.refFrac;
