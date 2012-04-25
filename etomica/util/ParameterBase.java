@@ -58,6 +58,9 @@ public abstract class ParameterBase {
             else if (type == boolean.class) {
                 field.setBoolean(this,Boolean.valueOf(value).booleanValue());
             }
+            else if (type == char.class) {
+                field.setChar(this,value.charAt(0));
+            }
             else if (type.isEnum()) {
                 field.set(this, Enum.valueOf(type, value));
             }
@@ -101,6 +104,13 @@ public abstract class ParameterBase {
                     boolean[] array = new boolean[strings.length];
                     for (int i=0; i<array.length; i++) {
                         array[i] = Boolean.valueOf(strings[i]).booleanValue();
+                    }
+                    field.set(this,array);
+                }
+                else if (subType == char.class) {
+                    char[] array = new char[strings.length];
+                    for (int i=0; i<array.length; i++) {
+                        array[i] = value.charAt(0);
                     }
                     field.set(this,array);
                 }
