@@ -110,7 +110,7 @@ public abstract class ParameterBase {
                 else if (subType == char.class) {
                     char[] array = new char[strings.length];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = value.charAt(0);
+                        array[i] = strings[i].charAt(0);
                     }
                     field.set(this,array);
                 }
