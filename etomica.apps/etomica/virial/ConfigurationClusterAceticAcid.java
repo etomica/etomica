@@ -21,7 +21,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	protected MayerFunction f;
 	protected MayerFunction f2;
 	protected MayerFunction f3;
-
+	
 	public ConfigurationClusterAceticAcid(ISpace _space, IRandom random, MayerFunction f) {
 		super(_space);
 		this.f = f;
@@ -82,87 +82,87 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	}
 	 
 	public void initializeCoordinates4Mol(IBox box, char a, char b, char c, char d, char e, int molNumber, int molNumber2) {
-		  super.initializeCoordinates(box);
-		  f.setBox(box);
-		  f2.setBox(box);
-		  f3.setBox(box);
-		  BoxCluster clusterBox =(BoxCluster) box;
-		  IMoleculeList list = box.getMoleculeList();
-		  MoleculePair pair1 = new MoleculePair();
-		  MoleculePair pair2 = new MoleculePair();
-		  MoleculePair pair3 = new MoleculePair();
-		  MoleculePair pair4 = new MoleculePair();
-		  MoleculePair pair5 = new MoleculePair();
-		  pair1.atom0 = list.getMolecule(0);
-		  pair1.atom1 = list.getMolecule(1);
-		  pair2.atom0 = list.getMolecule(1);
-		  pair2.atom1 = list.getMolecule(2);
-		  pair4.atom0 = list.getMolecule(0);
-		  pair4.atom1 = list.getMolecule(2);
+		super.initializeCoordinates(box);
+		f.setBox(box);
+		f2.setBox(box);
+		f3.setBox(box);
+		BoxCluster clusterBox =(BoxCluster) box;
+		IMoleculeList list = box.getMoleculeList();
+		MoleculePair pair1 = new MoleculePair();
+		MoleculePair pair2 = new MoleculePair();
+		MoleculePair pair3 = new MoleculePair();
+		MoleculePair pair4 = new MoleculePair();
+		MoleculePair pair5 = new MoleculePair();
+		pair1.atom0 = list.getMolecule(0);
+		pair1.atom1 = list.getMolecule(1);
+		pair2.atom0 = list.getMolecule(1);
+		pair2.atom1 = list.getMolecule(2);
+		pair4.atom0 = list.getMolecule(0);
+		pair4.atom1 = list.getMolecule(2);
 		  
-		  if (list.getMoleculeCount() >3){
-			  pair3.atom0 = list.getMolecule(0);
-			  pair3.atom1 = list.getMolecule(3);
-			  pair5.atom0 = list.getMolecule(2);
-			  pair5.atom1 = list.getMolecule(3);			  
-		  }
-		  if (molNumber2 >-1){
-			  double[] amount = new double[] {5.0,5.0,0};
-			  translation2Mol(molNumber2, amount, box);
-		  }
-
-		  if (a == 'E'){
-		   association(f,pair1,box);
-		  }
-		  if (a == 'C'){
-		   association(f2,pair1,box);
-		  }
-		  if (a == 'H'){
-		   association(f3,pair1,box);
-		  }
-		  if (b == 'E'){
-		   association(f,pair2,box);
-		  }
-		  if (b == 'C'){
-		   association(f2,pair2,box);
-		  }
-		  if (b == 'H'){
-		   association(f3,pair2,box);
-		  }
-		  if (c == 'E'){
-		   association(f,pair3,box);
-		  }
-		  if (c == 'C'){
-		   association(f2,pair3,box);
-		  }
-		  if (c == 'H'){
-		   association(f3,pair3,box);
-		  }
-		  if (d == 'E'){
-		   association(f,pair4,box);
-		  }
-		  if (d == 'C'){
-		   association(f2,pair4,box);
-		  }
-		  if (d == 'H'){
-		   association(f3,pair4,box);
-		  }
-		  if (e == 'E'){
-		   association(f,pair5,box);
-		  }
-		  if (e == 'C'){
-		   association(f2,pair5,box);
-		  }
-		  if (e == 'H'){
-		   association(f3,pair5,box);
-		  }
-		  if (molNumber > -1){
-		   translationRandom(list.getMolecule(molNumber), box);
-		  }
-		  clusterBox.trialNotify();
-		  clusterBox.acceptNotify();
-		  System.out.println(clusterBox+" "+clusterBox.getSampleCluster().value(clusterBox));
-		 }
+		if (list.getMoleculeCount() >3){
+			pair3.atom0 = list.getMolecule(0);
+			pair3.atom1 = list.getMolecule(3);
+			pair5.atom0 = list.getMolecule(2);
+			pair5.atom1 = list.getMolecule(3);			  
+		}
+		if (molNumber2 >-1){
+			double[] amount = new double[] {5.0,5.0,0};
+			translation2Mol(molNumber2, amount, box);
+		}
+		
+		if (a == 'E'){
+			association(f,pair1,box);
+		}
+		if (a == 'C'){
+			association(f2,pair1,box);
+		}
+		if (a == 'H'){
+			association(f3,pair1,box);
+		}
+		if (b == 'E'){
+			association(f,pair2,box);
+		}
+		if (b == 'C'){
+			association(f2,pair2,box);
+		}
+		if (b == 'H'){
+			association(f3,pair2,box);
+		}
+		if (c == 'E'){
+			association(f,pair3,box);
+		}
+		if (c == 'C'){
+			association(f2,pair3,box);
+		}
+		if (c == 'H'){
+			association(f3,pair3,box);
+		}
+		if (d == 'E'){
+			association(f,pair4,box);
+		}
+		if (d == 'C'){
+			association(f2,pair4,box);
+		}
+		if (d == 'H'){
+			association(f3,pair4,box);
+		}
+		if (e == 'E'){
+			association(f,pair5,box);
+		}
+		if (e == 'C'){
+			association(f2,pair5,box);
+		}
+		if (e == 'H'){
+			association(f3,pair5,box);
+		}
+		if (molNumber > -1){
+			translationRandom(list.getMolecule(molNumber), box);
+		}
+		clusterBox.trialNotify();
+		clusterBox.acceptNotify();
+		System.out.println(clusterBox+" "+clusterBox.getSampleCluster().value(clusterBox));
+	}
 	 
 	public void initializeCoordinates2(IBox box,boolean a,boolean b) {
 		super.initializeCoordinates(box);
@@ -188,7 +188,6 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		clusterBox.acceptNotify();
 		System.out.println(clusterBox+" "+clusterBox.getSampleCluster().value(clusterBox));
 	}
-
 
 	public void translation2Mol(int a, double[] e, IBox box){//place molecule a at some position
 		IMoleculeList list = box.getMoleculeList();
