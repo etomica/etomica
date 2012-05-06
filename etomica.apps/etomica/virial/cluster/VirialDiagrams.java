@@ -93,7 +93,7 @@ public class VirialDiagrams {
     protected Set<Graph> p, disconnectedP;
     protected Set<Graph> minMultiP, fullMultiP, trueMultiP;
     protected Set<Graph> rho;
-    protected Set<Graph> lnfXi;
+    protected Set<Graph> lnfXi, fullLnXi;
     protected Map<Graph,Graph> cancelMap;
     protected boolean doShortcut;
     protected boolean doMinimalMulti;
@@ -105,11 +105,12 @@ public class VirialDiagrams {
     protected boolean doExchangeCondensing;
     protected boolean doDisconnectedMatching = true;
     protected boolean doNegativeExchange = false;
+    protected boolean doHB;
     protected boolean flexCancelOnly = false; // this boolean makes me sad
     protected final char nodeColor = Metadata.COLOR_CODE_0;
     protected char[] flexColors;
     protected boolean allPermutations = false;
-    public char fBond, eBond, excBond, mBond, mmBond, fmBond, efbcBond, ffBond, mxcBond, MxcBond;
+    public char fBond, bBond, eBond, excBond, mBond, mmBond, fmBond, efbcBond, ffBond, mxcBond, MxcBond;
 
     protected static int[][] tripletStart = new int[0][0];
     protected static int[][] quadStart = new int[0][0];
@@ -120,12 +121,13 @@ public class VirialDiagrams {
         final int n = 4;
         boolean multibody = true;
         boolean flex = true;
-        boolean doKeepEBonds = false;
+        boolean doKeepEBonds = true;
         boolean doReeHoover = false;
-        boolean doExchange = false;
+        boolean doExchange = true;
         VirialDiagrams virialDiagrams = new VirialDiagrams(n, multibody, flex, true);
         virialDiagrams.setDoReeHoover(doReeHoover);
         virialDiagrams.setDoKeepEBonds(doKeepEBonds);
+        virialDiagrams.setDoHB(false);
         virialDiagrams.setDoShortcut(false);
         virialDiagrams.setDoExchange(doExchange);
         if (doExchange) {
@@ -134,7 +136,7 @@ public class VirialDiagrams {
         }
         if (multibody) {
             virialDiagrams.setDoMinimalMulti(true);
-            virialDiagrams.setDoMultiFromPair(true);
+            virialDiagrams.setDoMultiFromPair(false);
         }
         if (doReeHoover && (flex || multibody)) {
             virialDiagrams.setDoMinimalBC(true);
@@ -173,6 +175,16 @@ public class VirialDiagrams {
                 throw new RuntimeException("keep-e-bonds doesn't work with multibody unless flex is on");
             }
             System.out.println("keep-e-bonds doesn't behave well with flex off");
+        }
+    }
+
+    /**
+     * Enable construction of diagrams from the Hellmann-Bich formulation
+     */
+    public void setDoHB(boolean newDoHB) {
+        doHB = newDoHB;
+        if (!doKeepEBonds && doHB) {
+            throw new RuntimeException("Hellmann-Bich wants e-bonds");
         }
     }
 
@@ -967,10 +979,24 @@ public class VirialDiagrams {
         char oneBond = 'o';
         fBond = 'f';
         eBond = 'e';
+        bBond = 'b';  // (exp(Un)-1) Hellmann-Bich b_n group
         mBond = 'm';  // multi-body
         fmBond = 'z';  // full-multi-body (diagram represents the full virial coefficient)
         mmBond = 'M';  // min-multi-body
         efbcBond = 'b';
+        Metadata.COLOR_MAP.put(eBond, "red");
+        Metadata.COLOR_MAP.put(fBond, "green");
+        Metadata.COLOR_MAP.put(mBond, "blue");
+        Metadata.COLOR_MAP.put(mmBond, "orange");
+        Metadata.COLOR_MAP.put(fmBond, "black");
+        Metadata.COLOR_MAP.put(efbcBond, "fuchsia");
+        Metadata.COLOR_MAP.put(excBond, "red");
+        Metadata.COLOR_MAP.put(ffBond, "green");
+        Metadata.COLOR_MAP.put(mxcBond, "blue");
+        Metadata.DASH_MAP.put(excBond, 3);
+        Metadata.DASH_MAP.put(ffBond, 3);
+        Metadata.DASH_MAP.put(mxcBond, 3);
+        Metadata.DASH_MAP.put(MxcBond, 3);
         colorOrderMap.put(oneBond, 0);
         colorOrderMap.put(mBond, 1);
         colorOrderMap.put(efbcBond, 2);
@@ -1087,20 +1113,89 @@ public class VirialDiagrams {
                 msp = new MulScalarParameters(new CoefficientImpl(-i,(i+1)));
                 fXipow = isoFree.apply(mulScalar.apply(mulFlex.apply(fXipow, fXi, mfp), msp), null);
             }
+
+            if (doHB) {
+                if (isInteractive) {
+                    topSet.clear();
+                    topSet.addAll(lnfXi);
+                    System.out.println("\nlnfXi before HB substitution");
+                    for (Graph g : topSet) {
+                        System.out.println(g);
+                    }
+                    ClusterViewer.createView("lnfXi before HB", topSet);
+                }
+                Set<Graph>[] lnXin = new Set[n+1];
+                for  (int i=1; i<=n; i++) {
+                    lnXin[i] = new HashSet<Graph>();
+                }
+                Coefficient[] coef = new Coefficient[n+1];
+                Graph[] bigGraph = new Graph[n+1];
+                for (Graph g : lnfXi) {
+                    byte nc = g.nodeCount();
+                    if (nc>1 && g.edgeCount() == nc*(nc-1)/2) {
+                        coef[nc] = g.coefficient().copy();
+                        bigGraph[nc] = g.copy();
+                        g = g.copy();
+                        bigGraph[nc].coefficient().divide(coef[nc]);
+                        for (Edge e : g.edges()) {
+                            e.setColor(bBond);
+                        }
+                        g.coefficient().multiply(new CoefficientImpl(-1));
+                    }
+                    lnXin[g.nodeCount()].add(g);
+                }
+                BiComponentSubst biCompSubst = new BiComponentSubst();
+                for  (int i=2; i<n; i++) {
+                    Coefficient iCoef = new CoefficientImpl(-1);
+                    iCoef.divide(coef[i]);
+                    lnXin[i] = mulScalar.apply(lnXin[i], new MulScalarParameters(iCoef));
+                    BiComponentSubstParameters bcsp = new BiComponentSubstParameters(bigGraph[i], lnXin[i], true, false);
+                    for (int j=i+1; j<=n; j++) {
+                        lnXin[j] = isoFree.apply(biCompSubst.apply(lnXin[j], bcsp), null);
+                    }
+                }
+                lnfXi.clear();
+                lnfXi.addAll(lnXin[1]);
+                for (int i=2; i<=n; i++) {
+                    for (Graph g : lnXin[i]) {
+                        byte nc = g.nodeCount();
+                        if (g.edgeCount() == nc*(nc-1)/2) {
+                            Graph gb = g.copy();
+                            lnfXi.add(gb);
+                            for (Edge e : g.edges()) {
+                                e.setColor(eBond);
+                            }
+                            if (i==n) {
+                                g.coefficient().multiply(new CoefficientImpl(-1));
+                                gb.coefficient().multiply(new CoefficientImpl(-1));
+                            }
+                            else {
+                                g.coefficient().multiply(coef[i]);
+                                gb.coefficient().multiply(coef[i]);
+                            }
+                        }
+                        else if (i<n) {
+                            g.coefficient().multiply(new CoefficientImpl(-1));
+                            g.coefficient().multiply(coef[i]);
+                        }
+                    }
+                }
+                fullLnXi = makeGraphList();
+                for (int i=1; i<=n; i++) {
+                    fullLnXi.addAll(lnXin[i]);
+                }
+                if (isInteractive) {
+                    topSet.clear();
+                    topSet.addAll(fullLnXi);
+                    System.out.println("\nfull lnXi");
+                    for (Graph g : topSet) {
+                        System.out.println(g);
+                    }
+                    ClusterViewer.createView("full lnXi", topSet);
+                }
+                
+            }
         }
-        Metadata.COLOR_MAP.put(eBond, "red");
-        Metadata.COLOR_MAP.put(fBond, "green");
-        Metadata.COLOR_MAP.put(mBond, "blue");
-        Metadata.COLOR_MAP.put(mmBond, "orange");
-        Metadata.COLOR_MAP.put(fmBond, "black");
-        Metadata.COLOR_MAP.put(efbcBond, "fuchsia");
-        Metadata.COLOR_MAP.put(excBond, "red");
-        Metadata.COLOR_MAP.put(ffBond, "green");
-        Metadata.COLOR_MAP.put(mxcBond, "blue");
-        Metadata.DASH_MAP.put(excBond, 3);
-        Metadata.DASH_MAP.put(ffBond, 3);
-        Metadata.DASH_MAP.put(mxcBond, 3);
-        Metadata.DASH_MAP.put(MxcBond, 3);
 
         if (isInteractive) {
             topSet.clear();
@@ -1545,7 +1640,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
         }
 
 
-        if (doExchange) {
+        if (doKeepEBonds) {
             System.out.println("\nPe");
             topSet.clear();
             topSet.addAll(p);
@@ -1553,6 +1648,9 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 System.out.println(g);
             }
             ClusterViewer.createView("Pe", topSet);
+        }
+
+        if (doExchange) {
             
             ExchangeSplit exchangeSplit = new ExchangeSplit();
             ExchangeSplitParameters esp = new ExchangeSplitParameters(mfp, (byte)n, eBond, excBond, doNegativeExchange);
@@ -2354,6 +2452,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
         }
         public boolean check(Graph graph) {
             if (doExchange) {
+                // exchange groups must be in order, smallest to largest
                 char prevColor = graph.getNode((byte)0).getColor();
                 if (prevColor >= 'a' && prevColor <= 'z') prevColor += 'A' - 'a';
                 for (byte i=1; i<graph.nodeCount(); i++) {
@@ -2364,8 +2463,9 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 }
             }
             List<List<Byte>> comps = CVisitor.getComponents(graph);
-            if (comps.size() > 1) {
+            if (comps.size() > 1 && !doExchange) {
                 // disconnected diagram.  require contiguous components
+                // exchange checks above might require that we have a not-contiguous component
                 byte maxNode = -1;
                 for (List<Byte> iComp : comps) {
                     maxNode += iComp.size();
@@ -2377,7 +2477,15 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
             boolean ap = hap.check(graph);
 //            boolean con = hap.isConnected();
             if (!ap) return true;
-            boolean articulatedAtA = false;
+            if (doExchange) {
+                // it's OK if we're only articulated at exchange points
+                boolean articulatedAtA = false;
+                for (byte node : hap.getArticulationPoints()) {
+                    if (node == 0) return true;
+                    if (graph.getNode(node).getColor() == 'A') articulatedAtA = true;
+                }
+                if (!articulatedAtA) return true;
+            }
             if (mBond != '0') {
                 // we're OK if
                 // 1. not articulated (not satisfied)
@@ -2404,11 +2512,11 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 // 
                 return articulatedAt0 && !multiArticulation;
             }
+            // 0 must be an articulation point
             for (byte node : hap.getArticulationPoints()) {
                 if (node == 0) return true;
-                if (graph.getNode(node).getColor() == 'A') articulatedAtA = true;
             }
-            return !articulatedAtA; 
+            return false;
         }
     }
 
