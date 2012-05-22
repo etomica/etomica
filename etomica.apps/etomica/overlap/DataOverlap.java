@@ -78,7 +78,7 @@ public class DataOverlap implements ReferenceFracSource {
                     }
                 }
                 else {
-                    avg = refAvg.getAverage(j) / targetAvg.getAverage(j);
+                    avg = getAverage(j);
                     jerr = getError(j);
                 }
             }
@@ -150,18 +150,17 @@ public class DataOverlap implements ReferenceFracSource {
             double[] x = new double[1];
             x[0] = min+(max-min)/(ymax-ymin)*(-ymin);
             while (x[0] > min && x[0] < max) {
-                x[0] = 0.5 * (min + max);
                 double y = akima.doInterpolation(x)[0];
                 if (y == 0) {
                     break;
                 }
                 if (y*min > 0) {
-                    min = x[0];
-                    ymin = y;
-                }
-                else {
                     max = x[0];
                     ymax = y;
+                }
+                else {
+                    min = x[0];
+                    ymin = y;
                 }
                 x[0] = min+(max-min)/(ymax-ymin)*(-ymin);
             }
@@ -304,6 +303,7 @@ public class DataOverlap implements ReferenceFracSource {
         else {
             optimalAlpha = getOverlapAverageAndError()[0];
         }
+        if (Double.isNaN(optimalAlpha)) return 0.5;
 
         double refLnErr = getLogAverageAndError(true, optimalAlpha)[1];
         if (Double.isNaN(refLnErr)) {
