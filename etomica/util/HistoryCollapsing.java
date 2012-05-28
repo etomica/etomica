@@ -124,7 +124,7 @@ public class HistoryCollapsing implements History {
             history[i] = history[j];
             xValues[i] = xValues[j];
         }
-        for(int i=cursor/numCollapseBins+1; i<cursor; i++) {
+        for(int i=cursor/numCollapseBins; i<cursor; i++) {
             history[i] = Double.NaN;
             xValues[i] = Double.NaN;
         }
