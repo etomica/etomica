@@ -24,7 +24,11 @@ import etomica.graph.viewer.ClusterViewer;
 import etomica.virial.cluster.VirialDiagrams;
 
 public class PYGenerator extends IEGenerator {
-    
+
+    /**
+     * Returns the graphs (at each order, up to n+2) in the PY approximation to c.
+     * Diagrams will include only f-bonds, using the specified color.
+     */
     public static List<Set<Graph>> PYGenerate(int n, char fBond){
         
         Set<Graph> c0 = new GraphList<Graph>();
@@ -78,7 +82,7 @@ public class PYGenerator extends IEGenerator {
                         if(gh.nodeCount()==0) throw new RuntimeException("gh is empty");
                         Graph newGraph = IEGenerator.fourierMul(gc,gh,(byte)1);
                         newGraph = IEGenerator.relabel(newGraph);
-                        System.out.println("t"+m+" "+newGraph);
+//                        System.out.println("t"+m+" "+newGraph);
                         tm.add(newGraph);
                         hm.add(newGraph);
                             
@@ -110,7 +114,7 @@ public class PYGenerator extends IEGenerator {
                         temp.putEdge((byte)0,(byte)1);
                         temp.getEdge((byte)0,(byte)1).setColor(fBond);
                         //temp = IEGenerator.realMul(temp,fbond).copy();
-                        System.out.println("c"+m+" "+temp);
+//                        System.out.println("c"+m+" "+temp);
                         cm.add(temp);
                         hm.add(temp);
                         
@@ -142,7 +146,7 @@ public class PYGenerator extends IEGenerator {
                         temp.getEdge((byte)0,(byte)1).setColor(fBond);
                         //temp = IEGenerator.realMul(temp,fbond).copy();
                     //  IEGenerator.GraphDetails(temp);
-                        System.out.println("c"+m+" "+temp);
+//                        System.out.println("c"+m+" "+temp);
                         cm.add(temp);
                         hm.add(temp);
                         
@@ -174,24 +178,23 @@ public class PYGenerator extends IEGenerator {
         
     }
 
-    public static void main(String[] args){
-
-        int m = 3;
-        
-        VirialDiagrams diagrams = new VirialDiagrams(m+2, false, false);
+    /**
+     * Returns graphs included in the correction to the PY approximation at the
+     * n-th order.  The graphs will be fully-connect with e- and f-bonds.
+     */
+    public static Set<Graph> getPYCorrection(int n) {
+        VirialDiagrams diagrams = new VirialDiagrams(n, false, false);
         diagrams.setAllPermutations(false);
         diagrams.setDoReeHoover(false);
-        diagrams.setDoShortcut(false);
+        diagrams.setDoShortcut(true);
         diagrams.makeVirialDiagrams();
         Set<Graph> bFull = diagrams.getMSMCGraphs(true, false);
-        ClusterViewer.createView("full", bFull);
 
         char fBond = diagrams.fBond;
         
-        
-        List<Set<Graph>> cList = PYGenerator.PYGenerate(m, 'f');
-        Set<Graph> cm = cList.get(m);
-        Coefficient fac = new CoefficientImpl(-1, m+2);
+        List<Set<Graph>> cList = PYGenerator.PYGenerate(n-2, fBond);
+        Set<Graph> cm = cList.get(n-2);
+        Coefficient fac = new CoefficientImpl(-1, n);
         for (Graph g : cm) {
             g.getNode((byte)0).setType(Metadata.TYPE_NODE_FIELD);
             g.getNode((byte)1).setType(Metadata.TYPE_NODE_FIELD);
@@ -203,7 +206,6 @@ public class PYGenerator extends IEGenerator {
         cm = maxIso.apply(cm, mip);
         IsoFree isoFree = new IsoFree();
         cm = isoFree.apply(cm, null);
-        ClusterViewer.createView("PY", cm);
         
         
         MulScalar mulScalar = new MulScalar();
@@ -214,7 +216,6 @@ public class PYGenerator extends IEGenerator {
         bPYC.addAll(bFull);
         bPYC.addAll(mulScalar.apply(cm, msp));
         bPYC = isoFree.apply(bPYC, null);
-        ClusterViewer.createView("correctionF", bPYC);
         
         char nfBond = 'F';
         char eBond = 'e';
@@ -237,8 +238,31 @@ public class PYGenerator extends IEGenerator {
                 newB.add(g2);
             }
         }
-        newB = isoFree.apply(newB, null);
-        ClusterViewer.createView("correctionE", newB);
+        return isoFree.apply(newB, null);
+    }
+
+    public static void main(String[] args){
+
+        int m = 3;
+        
+        List<Set<Graph>> cList = PYGenerator.PYGenerate(m, 'f');
+        Set<Graph> cm = cList.get(m);
+        Coefficient fac = new CoefficientImpl(-1, m+2);
+        for (Graph g : cm) {
+            g.getNode((byte)0).setType(Metadata.TYPE_NODE_FIELD);
+            g.getNode((byte)1).setType(Metadata.TYPE_NODE_FIELD);
+            g.coefficient().multiply(fac);
+            System.out.println(g);
+        }
+        MaxIsomorph maxIso = new MaxIsomorph();
+        MaxIsomorphParameters mip = MaxIsomorph.PARAM_ALL;
+        cm = maxIso.apply(cm, mip);
+        IsoFree isoFree = new IsoFree();
+        cm = isoFree.apply(cm, null);
+        ClusterViewer.createView("PY", cm);
+        
+        Set<Graph> correction = PYGenerator.getPYCorrection(m+2);
+        ClusterViewer.createView("correctionEF", correction);
     }
 
 }
