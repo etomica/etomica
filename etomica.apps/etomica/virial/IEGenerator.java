@@ -1,11 +1,7 @@
 package etomica.virial;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphList;
@@ -14,142 +10,98 @@ import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.Relabel;
 import etomica.graph.operations.RelabelParameters;
-import etomica.graph.viewer.ClusterViewer;
 
 public class IEGenerator {
-	
-	public Graph Relabel(Graph g){
+    
+	public static Graph relabel(Graph g){
 	
 		/*
-		 * This method relabels nodes 1 and 2.
+         * swap node i and the first root node...
 		 */
 		
-		int otherrootnode=0;
-		for(int i=1;i<g.nodeCount();i++){
-			if(g.getNode((byte)i).getType()==Metadata.TYPE_NODE_ROOT) {
+		if (g.getNode((byte)1).getType() == Metadata.TYPE_NODE_ROOT) return g.copy();
+
+        byte otherrootnode=0;
+		for(byte i=2;i<g.nodeCount();i++){
+			if(g.getNode(i).getType()==Metadata.TYPE_NODE_ROOT) {
 				otherrootnode = i;
-				i=100;// to leave the loop.. dont feel like using break.
+				break;
 			}
 		}
 		
-		Relabel Relabel = new Relabel();
+		Relabel relabel = new Relabel();
 		
 		byte[] list = new byte[g.nodeCount()];
-		for(int i=0;i<g.nodeCount();i++){
-			if(i==1)list[i] = (byte)otherrootnode;
-			else if(i==otherrootnode)list[i] = (byte)1;
-			else list[i] = (byte)i;
+		for(byte i=0;i<g.nodeCount();i++){
+		    list[i] = i;
 		}
+		list[1] = otherrootnode;
+		list[otherrootnode] = 1;
 				
 		RelabelParameters params = new RelabelParameters(list);
-		g=Relabel.apply(g, params).copy();
-		
-		return g;
-		
+		return relabel.apply(g, params);
 	}
 	
-	public Graph fourierMul(Graph p,Graph q,int n) {
+	public static Graph fourierMul(Graph a, Graph b, byte n) {
 		
-		Graph a = p.copy();
+		MulFlexibleParameters mulFlexibleParameters = MulFlexibleParameters.makeParametersWithNodes(new char[0], (byte) 100, n, n);
+		MulFlexible mulFlex = new MulFlexible();
 		
-		Graph b = q.copy();
-		MulFlexibleParameters mulFlexibleParameters = MulFlexibleParameters.makeParametersWithNodes(new char[0], (byte) 100,(byte) n,(byte) n);
-		MulFlexible MulFlexible = new MulFlexible();
-		
-		//RelabelParameters params = new RelabelParameters(0,1,2);
-		
-		// Setting color to the 1 node in both the graph
-		
-		char color = 'o';
-		a.getNode((byte) 1).setColor(color);
-		b.getNode((byte) 1).setColor(color);
-		
-		Graph product = MulFlexible.apply(a, b, mulFlexibleParameters);
-		
-		for(int i=0;i<product.nodeCount();i++){
-			if(color==product.getNode((byte)i).getColor()){ 
-				product.getNode((byte) i).setType(Metadata.COLOR_CODE_0);
-				product.getNode((byte) i).setType(Metadata.TYPE_NODE_FIELD);
-			}
-		}
-		//Relabel.apply(product,params);
-			
-		//product.coefficient().multiply(p.coefficient());
-		//product.coefficient().multiply(q.coefficient());
-		
-		for(int i=0;i<product.nodeCount();i++){
-			if((product.getNode( (byte) i).getType()!= Metadata.TYPE_NODE_ROOT)&&((product.getNode( (byte) i).getType()!= Metadata.TYPE_NODE_FIELD))){
-				product.getNode((byte) i).setType(Metadata.COLOR_CODE_0);
-				product.getNode((byte) i).setType(Metadata.TYPE_NODE_FIELD);
-				//System.out.print(i+" is not root or field");
-				
-			}
-		}
-		
-		Graph newGraph = GraphFactory.createGraph(product.nodeCount(), BitmapFactory.createBitmap(product.nodeCount(),false));
-		
-		for(int i=0;i<product.nodeCount();i++){
-			for(int j=0;j<product.nodeCount();j++){
-				if(product.hasEdge((byte)i,(byte)j))newGraph.putEdge((byte)i,(byte)j);
-			}
-		}
-		
-		for(int i=0;i<product.nodeCount();i++){
-			if(product.getNode( (byte) i).getType()== Metadata.TYPE_NODE_ROOT){
-				newGraph.getNode((byte) i).setType(Metadata.TYPE_NODE_ROOT);
-			}
-			else newGraph.getNode((byte) i).setType(Metadata.TYPE_NODE_FIELD);
-		}
-		
-		newGraph.coefficient().setNumerator(product.coefficient().getNumerator());
-		newGraph.coefficient().setDenominator(product.coefficient().getDenominator());
-		
-		return newGraph;
-		
+		Graph product = mulFlex.apply(a, b, mulFlexibleParameters);
+
+		product.getNode(n).setType(Metadata.TYPE_NODE_FIELD);
+		return product;
 	}
-	
-	
-	public Graph SuperImposeGraphs(Graph a,Graph b){
+
+	/*
+	 * Superimposes both nodes 0 and 1 from both graphs.
+	 */
+	public static Graph SuperImposeGraphs(Graph a,Graph b){
 		
-		int newNodeCount=0;
-		newNodeCount = a.nodeCount()+b.nodeCount()-2;
+		byte newNodeCount = (byte)(a.nodeCount()+b.nodeCount()-2);
 		
-		Graph newGraph = GraphFactory.createGraph((byte) newNodeCount, BitmapFactory.createBitmap((byte)newNodeCount,false));
+		Graph newGraph = GraphFactory.createGraph(newNodeCount);
 		
 		//copy graph 1
-		for(int i=0;i<a.nodeCount();i++){
-			for(int j=0;j<a.nodeCount();j++)
-			{
+		for(byte i=0;i<a.nodeCount();i++){
+			for(byte j=(byte)(i+1);j<a.nodeCount();j++){
 				//System.out.println(i+ "  "+j+ "   "+newNodeCount);
-				if(a.hasEdge((byte)i, (byte)j)) newGraph.putEdge((byte)i, (byte)j);
+				if(a.hasEdge(i, j)) {
+				    newGraph.putEdge(i, j);
+				    newGraph.getEdge(i,j).setColor(a.getEdge(i,j).getColor());
+				}
 			}
 		}		
 		
-		int[] oldlist = new int[b.nodeCount()];
-		int[] newlist = new int[b.nodeCount()];
+		byte[] oldlist = new byte[b.nodeCount()];
+		byte[] newlist = new byte[b.nodeCount()];
 		
-		for(int i=0;i<b.nodeCount();i++){
+		for(byte i=0;i<b.nodeCount();i++){
 			oldlist[i]=i;
 		}
 		
-		int newid = a.nodeCount();
-		for(int i=0;i<b.nodeCount();i++){
-			
-			if( (i!=1)&&(i!=0)){
-				newlist[i] = newid;
-				newid++;
-			}
-			else newlist[i] = i;
-			
+		byte newid = a.nodeCount();
+		newlist[0] = 0;
+		newlist[1] = 1;
+		for(byte i=2;i<b.nodeCount();i++){
+			newlist[i] = newid;
+			newid++;
 		}
 		
 		for(int i=0;i<newlist.length;i++){
-			for(int j=0;j<newlist.length;j++){
-				if(b.hasEdge((byte)oldlist[i], (byte)oldlist[j])) newGraph.putEdge((byte)newlist[i], (byte)newlist[j]);
+			for(int j=i+1;j<newlist.length;j++){
+				if(b.hasEdge(oldlist[i], oldlist[j])) {
+				    newGraph.putEdge(newlist[i], newlist[j]);
+                    newGraph.getEdge(newlist[i], newlist[j]).setColor(b.getEdge(oldlist[i], oldlist[j]).getColor());
+				}
 			}
 		}
 		
-		if( (a.hasEdge((byte)0, (byte)1)) || (b.hasEdge((byte)0, (byte)1)) ) newGraph.putEdge((byte)0, (byte)1);
+		if( (a.hasEdge((byte)0, (byte)1)) || (b.hasEdge((byte)0, (byte)1)) ) {
+		    newGraph.putEdge((byte)0, (byte)1);
+		    char c = a.hasEdge((byte)0, (byte)1) ? a.getEdge((byte)0, (byte)1).getColor() : b.getEdge((byte)0, (byte)1).getColor();
+		    newGraph.getEdge((byte)0, (byte)1).setColor(c);
+		}
 	
 		newGraph.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
 		newGraph.getNode((byte) 1).setType(Metadata.TYPE_NODE_ROOT);
@@ -159,56 +111,9 @@ public class IEGenerator {
 		
 		return newGraph;
 	}
-	public Graph realMul(Graph a,Graph b){
+
+	public static Set<Graph> Multiply(Set<Graph> a,Set<Graph> b){ // Adds the bonds.. no "multiplication"
 		
-		int newNodeCount=0,node1=0,node2=0;
-		newNodeCount = a.nodeCount()+b.nodeCount()-2;
-		Graph newGraph = GraphFactory.createGraph((byte) newNodeCount, BitmapFactory.createBitmap((byte)newNodeCount,false));
-		
-		//Getting the root nodes
-		int flag=0;
-		for(int i=0;i<a.nodeCount();i++){
-			if(a.getNode((byte)i).getType()==Metadata.TYPE_NODE_ROOT && (flag ==0)) { node1 = i; flag =1;}
-			if(a.getNode((byte)i).getType()==Metadata.TYPE_NODE_ROOT && (flag !=0)) node2 = i;
-		}
-		for(int i=0;i<a.nodeCount();i++){
-			for(int j=0;j<a.nodeCount();j++)
-			{
-				if(a.hasEdge((byte)i, (byte)j)) newGraph.putEdge((byte)i, (byte)j);
-			}
-		}		
-		
-		int[] oldlist = new int[b.nodeCount()];
-		int[] newlist = new int[b.nodeCount()];
-		int list = a.nodeCount();
-		for(int i=0;i<b.nodeCount();i++){
-			oldlist[i]=i;
-		}
-		
-		for(int i=0;i<oldlist.length;i++){
-			if((oldlist[i]!=node1)&&(oldlist[i]!=node2)) {
-				newlist[i] = list;
-				list++;
-			}
-			else newlist[i] = oldlist[i];
-		}
-		for(int i=0;i<oldlist.length;i++){
-			for(int j=0;j<oldlist.length;j++){
-				if(a.hasEdge((byte)oldlist[i], (byte)oldlist[j])) newGraph.putEdge((byte)newlist[i], (byte)newlist[j]);
-			}
-		}
-		newGraph.getNode((byte) node1).setType(Metadata.TYPE_NODE_ROOT);
-		newGraph.getNode((byte) node2).setType(Metadata.TYPE_NODE_ROOT);
-		
-		newGraph.coefficient().multiply(a.coefficient());
-		newGraph.coefficient().multiply(b.coefficient());
-		
-		return newGraph;
-		
-	}
-	public Set<Graph> Multiply(Set<Graph> a,Set<Graph> b){ // Adds the bonds.. no "multiplication"
-		
-		IEGenerator IEGenerator = new IEGenerator();
 		Set<Graph> product = new GraphList<Graph>();
 				
 		for(Graph g : a){
@@ -218,360 +123,16 @@ public class IEGenerator {
 				newNodeCount = g.nodeCount()+h.nodeCount()-2;
 				if(newNodeCount<=8){// if its greater than 16 we get an error. NodeCOunt = 17 is not req unless we need B19.
 					Graph newGraph = IEGenerator.SuperImposeGraphs(g.copy(), h.copy());
-					if(newGraph.nodeCount()==0)System.out.println("The product of the graphs is empty");
-					product.add(newGraph.copy());
+					if(newGraph.nodeCount()==0) throw new RuntimeException("The product of the graphs is empty");
+					product.add(newGraph);
 				}
 				//else System.out.println("Too big");
 			}
 		}
 		
-		if(product.isEmpty())System.out.println("The product of the graphs is empty");
+		if(product.isEmpty()) throw new RuntimeException("The product of the graphs is empty");
 		return product;
 				
 	}
-	public Set<Graph> SetDetails(Set<Graph> sg){
-		
-		for(Graph g:sg){
-		///	System.out.println("# "+count);
-			System.out.println(g);
-//			count++;
-		}
-	//	System.out.println(" END OF LIST ");
-		return null;
-		
-	}
 	
-	public List<Set<Graph>> PYGenerate(int n){
-		
-		IEGenerator IEGenerator = new IEGenerator();
-		
-		
-		Set<Graph> c = new GraphList<Graph>();
-		Set<Graph> t = new GraphList<Graph>();
-		Set<Graph> h = new GraphList<Graph>();
-		//create a Map
-		ArrayList<Set<Graph>> cmap = new ArrayList<Set<Graph>>();
-		ArrayList<Set<Graph>> tmap = new ArrayList<Set<Graph>>();
-		ArrayList<Set<Graph>> hmap = new ArrayList<Set<Graph>>();
-		
-		//fbond
-		Graph fbond = GraphFactory.createGraph((byte)2, BitmapFactory.createBitmap((byte)2,true));
-		fbond.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
-		fbond.getNode((byte) 1).setType(Metadata.TYPE_NODE_ROOT);
-				   
-		//create a list  
-		c.add(fbond);
-		t.add(null);
-		h.add(fbond);
-		
-		//populate the Map  
-		cmap.add(c);
-		tmap.add(t);
-		hmap.add(h);
-		//Clearing the sets since it has been added
-		c = new HashSet<Graph>();
-		t = new HashSet<Graph>();
-		h = new HashSet<Graph>();
-		
-		for(int m=1;m<=n;m++){ //Go from C0 to Cn
-			
-		//	System.out.println(" m = "+m);
-			//Calculating tn
-			//R
-		//	System.out.println(" R ");
-			for(int i=0;i<m;i++){
-				
-				int j=m-i-1;
-				
-				if(j<0)break;
-				
-				Set<Graph> cc = cmap.get(i);
-				Set<Graph> hh = hmap.get(j);
-				//System.out.println("We are multiplying c"+i+" and h"+j+" to get t"+m);
-				if(cc.isEmpty())System.out.println(i+"cc is empty");
-				if(hh.isEmpty())System.out.println(j+"hh is empty");
-				for(Graph gc:cc){
-					for(Graph gh:hh){
-						//System.out.println("Graph #"+q);q++;
-						if(gc.nodeCount()==0)System.out.println("gc is empty");
-						if(gh.nodeCount()==0)System.out.println("gh is empty");
-						Graph newGraph = IEGenerator.fourierMul(gc,gh,1);
-						newGraph = IEGenerator.Relabel(newGraph).copy();
-						System.out.println(newGraph);
-						t.add(newGraph);
-						h.add(newGraph);
-							
-					}
-				}
-					
-			}
-			if(t.isEmpty())System.out.println("t set is empty");
-			if(h.isEmpty())System.out.println("h set is empty");
-			
-			//Adding the Graph Set to tmap
-			tmap.add(t);
-			//Clearing the sets since it has been added
-			t = new HashSet<Graph>();
-			
-			//Calculating c
-			//P
-			//System.out.println(" P ");
-			for(int i=0;i<m;i++){
-			
-				int j=m-i-1;		
-				
-				if(j<0)break;
-				
-				Set<Graph> cc = cmap.get(i);
-				Set<Graph> kk = cmap.get(j); //kk also contains c
-				//System.out.println("We are multiplying c"+i+" and c"+j+" to get c"+m);
-				if(cc.isEmpty())System.out.println(i+" P - cc is empty");
-				if(kk.isEmpty())System.out.println(i+" P - kk is empty");
-				for(Graph gc:cc){
-					for(Graph gk:kk){
-						
-						//System.out.println("Graph #"+q);q++;
-						Graph temp = IEGenerator.fourierMul(gc,gk,1);
-						temp = IEGenerator.Relabel(temp).copy();
-						//IEGenerator.GraphDetails(temp);
-						//System.out.println("With the fbond");
-						temp.putEdge((byte)0,(byte)1);
-						//temp = IEGenerator.realMul(temp,fbond).copy();
-						System.out.println(temp);
-						c.add(temp);
-						h.add(temp);
-						
-					}
-				}
-				
-				
-			}
-			//Q
-			//System.out.println(" Q ");
-			for(int i=0;i<m;i++){
-			
-				int j=m-i-1;
-					
-				if(j<0)break;
-				if(j==0) break;//t0 is zero
-				
-				Set<Graph> cc = cmap.get(i);
-				Set<Graph> tt = tmap.get(j); //kk also contains c
-				//System.out.println("We are multiplying c"+i+" and t"+j+" to get c"+m);
-				if(cc.isEmpty())System.out.println(i+" Q - cc is empty");
-				if(tt.isEmpty())System.out.println(i+" Q - tt is empty");
-				for(Graph gc:cc){
-					for(Graph gt:tt){
-					
-					//	System.out.println("Graph #"+q);q++;
-						Graph temp = IEGenerator.fourierMul(gc,gt,1);
-						temp = IEGenerator.Relabel(temp).copy();
-						//System.out.println("With the fbond");
-						temp.putEdge((byte)0,(byte)1);
-						//temp = IEGenerator.realMul(temp,fbond).copy();
-					//	IEGenerator.GraphDetails(temp);
-						c.add(temp);
-						h.add(temp);
-						
-					}
-				}
-				
-			}			
-			if(c.isEmpty())System.out.println("c set is empty");
-			if(h.isEmpty())System.out.println("h set is empty");
-			
-			//Adding the Graph Set to cmap
-			cmap.add(c);
-			hmap.add(h);
-			
-			//Clearing the sets since it has been added
-			c = new HashSet<Graph>();
-			h = new HashSet<Graph>();
-			
-		}
-		
-		
-	/*	for(int i=0;i<=n;i++){
-			Set<Graph> temp = (Set<Graph>) tmap.get(i);
-			System.out.println(" T"+i+" has "+temp.size()+" elements");
-		}*/
-		
-	/*	int p=2;
-		Set<Graph> temp = (Set<Graph>) cmap.get(p);
-		ClusterViewer.createView("c"+p, temp);*/
-	
-			
-		return cmap;
-		
-	}
-	public Set<Graph> tryout(){
-		
-		IEGenerator IEGenerator = new IEGenerator();
-		Set<Graph> sample = new GraphList<Graph>();
-		
-		Graph a = GraphFactory.createGraph((byte)3, BitmapFactory.createBitmap((byte)3,false));
-		a.coefficient().setNumerator(-2);
-		a.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
-		a.getNode((byte) 1).setType(Metadata.TYPE_NODE_ROOT);
-		a.putEdge((byte)0, (byte)2);
-		a.putEdge((byte)1, (byte)2);
-				
-		Graph b = GraphFactory.createGraph((byte)2, BitmapFactory.createBitmap((byte)2,true));
-		b.coefficient().setNumerator(3);
-		b.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
-		b.getNode((byte) 1).setType(Metadata.TYPE_NODE_ROOT);
-		
-		Graph newGraph = IEGenerator.fourierMul(b,a,1);
-			
-		System.out.println(newGraph.coefficient());
-	
-		sample.add(a);
-		sample.add(b);
-		sample.add(newGraph);
-		//sample.add(y);
-		
-		ClusterViewer.createView("sample",sample);
-		
-		return null;
-		
-	}
-	
-	public static void main(String[] args){
-		
-		IEGenerator IEGenerator = new IEGenerator();
-		
-		Graph fbond = GraphFactory.createGraph((byte)2, BitmapFactory.createBitmap((byte)2,true));
-		fbond.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
-		fbond.getNode((byte) 1).setType(Metadata.TYPE_NODE_ROOT);
-		
-		
-		Graph a = GraphFactory.createGraph((byte)4, BitmapFactory.createBitmap((byte)4,false));
-		a.putEdge((byte)0,(byte)1);
-		a.putEdge((byte)1,(byte)2);
-		a.putEdge((byte)3,(byte)2);
-		a.putEdge((byte)0,(byte)3);
-		a.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
-		a.getNode((byte) 1).setType(Metadata.TYPE_NODE_ROOT);
-		
-		Graph b = GraphFactory.createGraph((byte)3, BitmapFactory.createBitmap((byte)3,false));
-		b.putEdge((byte)0,(byte)2);
-		b.putEdge((byte)1,(byte)2);
-		b.getNode((byte) 0).setType(Metadata.TYPE_NODE_ROOT);
-		b.getNode((byte) 1).setType(Metadata.TYPE_NODE_ROOT);
-		
-		Graph newGraph = IEGenerator.SuperImposeGraphs(a, b);
-		Set<Graph> view = new GraphList<Graph>();
-		view.add(a);
-		view.add(b);
-		view.add(newGraph);
-		
-		
-		
-		//ClusterViewer.createView("result", view);
-		
-		//IEGenerator.PYGenerate(n);
-		
-		IEGenerator.tryout();
-		
-	}
 }
-		
-/*
- * public Graph ChangeRootNodes(Graph a, int inode1,int inode2,int fnode1,int fnode2){
-	
-		int newNodeCount=0,node1=0,nodenode2=0;
-		newNodeCount = a.nodeCount();
-		Graph b = GraphFactory.createGraph((byte) newNodeCount, BitmapFactory.createBitmap((byte)newNodeCount,false));
-		IEGenerator IEGenerator = new IEGenerator();
-		
-		int[] oldlist = new int[a.nodeCount()];
-		int[] newlist = new int[a.nodeCount()];
-		
-		int list = a.nodeCount();
-		int iflag=0;
-		
-		if(inode1==-1){
-			for(int i=0;i<a.nodeCount();i++){
-				if(a.getNode((byte) i).getType()==Metadata.TYPE_NODE_ROOT && iflag==0 ){
-					inode1 = i;
-					iflag=1;
-				}
-				else if(a.getNode((byte) i).getType()==Metadata.TYPE_NODE_ROOT && iflag==1 ){
-					inode2 = i;
-					break;
-				}
-		
-			}
-		}
-		System.out.println("old Node 1  = "+inode1+"  ; node 2 = "+inode2);
-		
-		//Creating old list
-		for(int i=0;i<a.nodeCount();i++){
-			oldlist[i]=i;
-		}
-		//Creating new list
-		int Duplicationflag=0,dup=0;
-		if( inode1==fnode1) { dup =inode1; Duplicationflag =1;}
-		else if( inode1 ==fnode2){ dup =inode1; Duplicationflag =1;}
-		else if(inode2==fnode1){ dup =inode2; Duplicationflag =1;}
-		else if(inode2 ==fnode2 ){ dup =inode2; Duplicationflag =1;}
-			
-		if(Duplicationflag==1)System.out.println("Duplicate"); 
-		else System.out.println("No Duplicate"); 
-		
-		if(Duplicationflag==0){
-			
-			for(int i=0;i<oldlist.length;i++){
-			
-				if(oldlist[i]==inode1)newlist[i]=fnode1;
-				else if (oldlist[i]==inode2)newlist[i]=fnode2;
-				else if (oldlist[i]==fnode1)newlist[i]=inode1;
-				else if (oldlist[i]==fnode2)newlist[i]=inode2;
-				else newlist[i]=oldlist[i];
-			
-			}
-		}
-		else {
-			
-			for(int i=0;i<oldlist.length;i++){
-				
-				if(oldlist[i]==inode1)newlist[i]=fnode1;
-				else if (oldlist[i]==inode2)newlist[i]=fnode2;
-				else if (oldlist[i]==fnode1){
-					if(dup==inode1)newlist[i]=inode2;
-					else newlist[i]=inode1;
-				}
-				else if (oldlist[i]==fnode2){
-					if(dup==inode1)newlist[i]=inode2;
-					else newlist[i]=inode1;
-				}
-				else newlist[i]=oldlist[i];
-			
-			}
-			
-		}
-		
-		for(int i=0;i<oldlist.length;i++)
-			System.out.println(" old = "+oldlist[i]+" ; Newlist = "+newlist[i]);
-		
-		//Creating new Graph
-		for(int i=0;i<oldlist.length;i++){
-			for(int j=0;j<oldlist.length;j++){
-				if(a.hasEdge((byte)oldlist[i], (byte)oldlist[j])) {
-					b.putEdge((byte)newlist[i], (byte)newlist[j]);
-					System.out.println("Adding edges to new Graph between "+newlist[i]+" and "+newlist[j]);
-				}
-			}
-		}
-		//Making the required nodes root nodes
-		b.getNode((byte) fnode1).setType(Metadata.TYPE_NODE_ROOT);
-		b.getNode((byte) fnode2).setType(Metadata.TYPE_NODE_ROOT);
-		
-		System.out.println(" root end = "+fnode1+" ; rootnode = "+fnode2);
-		
-		//IEGenerator.GraphDetails(b);
-		return b;
-	}
- */
-
-
