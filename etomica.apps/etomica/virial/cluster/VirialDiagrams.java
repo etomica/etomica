@@ -2232,9 +2232,11 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
             System.out.println("\nP");
             for (Graph g : topSet) {
                 System.out.println(g);
-                Graph cancelGraph = cancelMap.get(g);
-                if (cancelGraph != null) {
-                    System.out.println("    "+cancelGraph);
+                if (cancelMap != null) {
+                    Graph cancelGraph = cancelMap.get(g);
+                    if (cancelGraph != null) {
+                        System.out.println("    "+cancelGraph);
+                    }
                 }
             }
             ClusterViewer.createView("P", topSet);
