@@ -103,6 +103,17 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         covariance.TE(1.0/nTotalData);
         double[] x = covariance.getData();
 
+        if (doStrictBlockData) {
+            // we need all the data
+            work.E(sum);
+            work.PE(currentBlockSum);
+            work.TE(1.0 / nTotalData);
+        }
+        else {
+            // average already has all the data
+            work.E(average);
+        }
+
         if (fullCovariance) {
             for (int i=0; i<n; i++) {
                 double ix = average.getValue(i);
