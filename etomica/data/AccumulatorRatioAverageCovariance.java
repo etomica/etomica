@@ -62,7 +62,8 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             ratioError.map(Function.Sqrt.INSTANCE);
         }
         long nTotalData = count*blockSize + (blockSize-blockCountDown);
-        if (nTotalData > 0) {
+        if (nTotalData > 0 && !doStrictBlockData) {
+            if (count == 0) super.getData();
             // now use *all* of the data
             double average0 = average.getValue(0);
             ratio.E(average);
