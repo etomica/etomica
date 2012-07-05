@@ -4,7 +4,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
+import etomica.data.IData;
+import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataSource;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -100,6 +103,7 @@ public class SimulationVirial extends Simulation {
     private static final long serialVersionUID = 1L;
 	public IEtomicaDataSource meter;
 	public AccumulatorRatioAverageCovariance accumulator;
+	public IDataSink dataSink;
 	public DataPumpListener accumulatorPump;
 	public ISpecies species;
 	public ActivityIntegrate ai;
@@ -123,14 +127,20 @@ public class SimulationVirial extends Simulation {
         }
 	}
 
-	public void setAccumulator(AccumulatorRatioAverageCovariance newAccumulator) {
-		accumulator = newAccumulator;
+	public void setAccumulator(IDataSink newAccumulator) {
+	    dataSink = newAccumulator;
+	    if (newAccumulator instanceof AccumulatorRatioAverageCovariance) {
+	        accumulator = (AccumulatorRatioAverageCovariance)newAccumulator;
+	    }
+	    else {
+	        accumulator = null;
+	    }
 		if (accumulatorPump == null) {
-			accumulatorPump = new DataPumpListener(meter,accumulator);
+			accumulatorPump = new DataPumpListener(meter,newAccumulator);
             integrator.getEventManager().addListener(accumulatorPump);
 		}
 		else {
-			accumulatorPump.setDataSink(accumulator);
+			accumulatorPump.setDataSink(newAccumulator);
 		}
 	}
 	
@@ -149,7 +159,43 @@ public class SimulationVirial extends Simulation {
 
         integrator.getMoveManager().setEquilibrating(false);
         
-        accumulator.reset();
+        if (accumulator != null) {
+            accumulator.reset();
+        }
+    }
+	
+
+    public void printResults(double refIntegral) {
+        
+        DataGroup allYourBase = (DataGroup)accumulator.getData();
+        IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
+        IData stdevData = allYourBase.getData(accumulator.STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(accumulator.ERROR.index);
+        IData correlationData = allYourBase.getData(accumulator.BLOCK_CORRELATION.index);
+        IData ratioData = allYourBase.getData(accumulator.RATIO.index);
+        IData ratioErrorData = allYourBase.getData(accumulator.RATIO_ERROR.index);
+        IData covarianceData = allYourBase.getData(accumulator.BLOCK_COVARIANCE.index);
+        
+        System.out.println();
+        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        
+        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
+
+        int nData = averageData.getLength();
+        int nCovData = covarianceData.getLength();
+        if (nData*nData != nCovData) {
+            // we need to know these to grab the right elements of covarianceData
+            throw new RuntimeException("unexpected number of data values");
+        }
+        double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(nData+1));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+
+        System.out.println();
+
+        System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*refIntegral));
     }
 }
 
