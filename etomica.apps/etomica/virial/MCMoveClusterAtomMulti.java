@@ -30,11 +30,18 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         }
     }
     
-	//note that total energy is calculated
+    public void setStartAtom(int newStartAtom) {
+        startAtom = newStartAtom;
+    }
+    
+    public int getStartAtom() {
+        return startAtom;
+    }
+    
 	public boolean doTrial() {
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IAtomList leafAtoms = box.getLeafList();
-        for(int i=1; i<leafAtoms.getAtomCount(); i++) {
+        for(int i=startAtom; i<leafAtoms.getAtomCount(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(stepSize);
             leafAtoms.getAtom(i).getPosition().PE(translationVectors[i-1]);
@@ -66,4 +73,5 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
     private static final long serialVersionUID = 1L;
     protected IVectorRandom[] translationVectors;
+    protected int startAtom = 1;
 }
