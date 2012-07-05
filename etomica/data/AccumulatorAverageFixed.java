@@ -39,6 +39,22 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     }
 
     /**
+     * Sets the accumulator to base statistics only on block data (where that
+     * makes sense).  The primary effect here is that data does not go into
+     * the average unless it is part of a complete block.  Because of how it
+     * is computed, the standard deviation is unaffected by this flag.
+     * 
+     * @param newDoStrictBlockData
+     */
+    public void setDoStrictBlockData(boolean newDoStrictBlockData) {
+        doStrictBlockData = newDoStrictBlockData;
+    }
+
+    public boolean getDoStrictBlockData() {
+        return doStrictBlockData;
+    }
+
+    /**
      * Returns null (any data is good data)
      */
     public DataPipe getDataCaster(IEtomicaDataInfo incomingDataInfo) {
@@ -95,14 +111,16 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     public IData getData() {
         if (sum == null)
             return null;
-        if (count > 1) {
-            // calculate block properties (these require 2 or more blocks)
-            
-            // block average (later discarded)
+        if (count > 0) {
+            // calculate block average (discarded if !doStrictBlockData)
             average.E(sum);
             average.TE(1.0 / (count*blockSize));
             work.E(average);
             work.TE(average);
+        }
+        if (count > 1) {
+            // calculate other block properties (these require 2 or more blocks)
+            
             error.E(sumBlockSquare);
             error.TE(1 / (double) count);
             error.ME(work);
@@ -142,11 +160,19 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         long nTotalData = count*blockSize + (blockSize-blockCountDown);
         if (nTotalData > 0) {
             // now use *all* of the data
-            average.E(sum);
-            average.PE(currentBlockSum);
-            average.TE(1.0 / nTotalData);
-            work.E(average);
-            work.TE(average);
+            if (!doStrictBlockData) {
+                average.E(sum);
+                average.PE(currentBlockSum);
+                average.TE(1.0 / nTotalData);
+                work.E(average);
+                work.TE(average);
+            }
+            else {
+                work.E(sum);
+                work.PE(currentBlockSum);
+                work.TE(1.0 / nTotalData);
+                work.TE(average);
+            }
             standardDeviation.E(sumSquare);
             standardDeviation.TE(1.0 / nTotalData);
             standardDeviation.ME(work);
@@ -207,4 +233,5 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     protected IData mostRecentBlock, correlationSum, firstBlock;
     protected IData work, work2;
     protected final IFunction negativeChop, sanityCheckBC;
+    protected boolean doStrictBlockData = false;
 }
