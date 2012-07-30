@@ -29,6 +29,7 @@ public class IdenticalGraphFilter extends GlobalFilter {
           result = false;
           if (isoGraph.coefficient().getNumerator() == 0) {
             set.remove(isoGraph);
+            break;
           }
         }
       }
