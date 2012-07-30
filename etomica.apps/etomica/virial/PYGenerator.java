@@ -2,25 +2,35 @@ package etomica.virial;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import etomica.graph.iterators.DefaultIterator;
+import etomica.graph.iterators.filters.IsomorphismFilter;
+import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Coefficient;
 import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
+import etomica.graph.model.GraphIterator;
 import etomica.graph.model.GraphList;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.impl.CoefficientImpl;
+import etomica.graph.model.impl.MetadataImpl;
+import etomica.graph.operations.AllIsomorphs;
+import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
+import etomica.graph.operations.IdenticalFree;
 import etomica.graph.operations.IsoFree;
-import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.SplitOneBiconnected;
-import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
 import etomica.graph.operations.SplitOneBiconnected.SplitOneParametersBC;
+import etomica.graph.property.IsBiconnected;
+import etomica.graph.property.Property;
 import etomica.graph.viewer.ClusterViewer;
+import etomica.math.SpecialFunctions;
 import etomica.virial.cluster.VirialDiagrams;
 
 public class PYGenerator extends IEGenerator {
@@ -55,10 +65,18 @@ public class PYGenerator extends IEGenerator {
         hList.add(h0);
         //Clearing the sets since it has been added
         
+        IsoFree isoFree = new IsoFree();
+        AllIsomorphs allIso = new AllIsomorphs();
+        AllIsomorphsParameters aip = new AllIsomorphsParameters(true, new Property() {
+            public boolean check(Graph graph) {
+                return graph.getNode((byte)0).getType() == Metadata.TYPE_NODE_ROOT && graph.getNode((byte)1).getType() == Metadata.TYPE_NODE_ROOT;
+            }
+        });
+        
         for(int m=1;m<=n;m++){ //Go from C0 to Cn
-            HashSet<Graph> cm = new HashSet<Graph>();
-            HashSet<Graph> tm = new HashSet<Graph>();
-            HashSet<Graph> hm = new HashSet<Graph>();
+            Set<Graph> cm = new HashSet<Graph>();
+            Set<Graph> tm = new HashSet<Graph>();
+            Set<Graph> hm = new HashSet<Graph>();
             
         //  System.out.println(" m = "+m);
             //Calculating tn
@@ -78,14 +96,11 @@ public class PYGenerator extends IEGenerator {
                 for(Graph gc:ci){
                     for(Graph gh:hj){
                         //System.out.println("Graph #"+q);q++;
-                        if(gc.nodeCount()==0) throw new RuntimeException("gc is empty");
-                        if(gh.nodeCount()==0) throw new RuntimeException("gh is empty");
                         Graph newGraph = IEGenerator.fourierMul(gc,gh,(byte)1);
                         newGraph = IEGenerator.relabel(newGraph);
 //                        System.out.println("t"+m+" "+newGraph);
-                        tm.add(newGraph);
-                        hm.add(newGraph);
-                            
+                        tm.add(newGraph.copy());
+                        hm.add(newGraph.copy());
                     }
                 }
                     
@@ -108,15 +123,15 @@ public class PYGenerator extends IEGenerator {
                         
                         //System.out.println("Graph #"+q);q++;
                         Graph temp = IEGenerator.fourierMul(gci,gcj,(byte)1);
-                        temp = IEGenerator.relabel(temp).copy();
+                        temp = IEGenerator.relabel(temp);
                         //IEGenerator.GraphDetails(temp);
                         //System.out.println("With the fbond");
                         temp.putEdge((byte)0,(byte)1);
                         temp.getEdge((byte)0,(byte)1).setColor(fBond);
                         //temp = IEGenerator.realMul(temp,fbond).copy();
 //                        System.out.println("c"+m+" "+temp);
-                        cm.add(temp);
-                        hm.add(temp);
+                        cm.add(temp.copy());
+                        hm.add(temp.copy());
                         
                     }
                 }
@@ -140,16 +155,15 @@ public class PYGenerator extends IEGenerator {
                     
                     //  System.out.println("Graph #"+q);q++;
                         Graph temp = IEGenerator.fourierMul(gci,gtj,(byte)1);
-                        temp = IEGenerator.relabel(temp).copy();
+                        temp = IEGenerator.relabel(temp);
                         //System.out.println("With the fbond");
                         temp.putEdge((byte)0,(byte)1);
                         temp.getEdge((byte)0,(byte)1).setColor(fBond);
                         //temp = IEGenerator.realMul(temp,fbond).copy();
                     //  IEGenerator.GraphDetails(temp);
 //                        System.out.println("c"+m+" "+temp);
-                        cm.add(temp);
-                        hm.add(temp);
-                        
+                        cm.add(temp.copy());
+                        hm.add(temp.copy());
                     }
                 }
                 
@@ -158,6 +172,10 @@ public class PYGenerator extends IEGenerator {
             if(hm.isEmpty()) throw new RuntimeException("h set is empty");
             
             //Adding the Graph Set to cmap
+            cm = allIso.apply(isoFree.apply(cm, null), aip);
+            tm = allIso.apply(isoFree.apply(tm, null), aip);
+            hm = allIso.apply(isoFree.apply(hm, null), aip);
+
             cList.add(cm);
             hList.add(hm);
             tList.add(tm);
@@ -178,44 +196,56 @@ public class PYGenerator extends IEGenerator {
         
     }
 
+    public static Set<Graph> getICPYCorrection(byte n) {
+        GraphIterator it = new IteratorEF(n);
+        IsomorphismFilter iso = new IsomorphismFilter(it);
+        
+        Set<Graph> pycc = new HashSet<Graph>();
+        while (iso.hasNext()) {
+            pycc.add(iso.next());
+        }
+        return pycc;
+    }
+
     /**
      * Returns graphs included in the correction to the PY approximation at the
-     * n-th order.  The graphs will be fully-connect with e- and f-bonds.
+     * n-th order.  The graphs will be fully-connected with e- and f-bonds.
      */
-    public static Set<Graph> getPYCorrection(int n) {
-        VirialDiagrams diagrams = new VirialDiagrams(n, false, false);
-        diagrams.setAllPermutations(false);
-        diagrams.setDoReeHoover(false);
-        diagrams.setDoShortcut(true);
-        diagrams.makeVirialDiagrams();
-        Set<Graph> bFull = diagrams.getMSMCGraphs(true, false);
+    public static Set<Graph> getPYCorrection(byte n) {
+        GraphIterator it = new PropertyFilter(new DefaultIterator(n, (byte)2), new IsBiconnected());
 
-        char fBond = diagrams.fBond;
+        Set<Graph> cFull = new HashSet<Graph>();
+        char fBond = 'f';
+        Coefficient fac = new CoefficientImpl(1, (int)SpecialFunctions.factorial(n-2));
+        while (it.hasNext()) {
+            Graph g = it.next();
+            for (Edge e : g.edges()) {
+                e.setColor(fBond);
+            }
+            g.coefficient().multiply(fac);
+            cFull.add(g);
+        }
+        ClusterViewer.createView("cExact", cFull);
         
         List<Set<Graph>> cList = PYGenerator.PYGenerate(n-2, fBond);
         Set<Graph> cm = cList.get(n-2);
-        Coefficient fac = new CoefficientImpl(-1, n);
-        for (Graph g : cm) {
-            g.getNode((byte)0).setType(Metadata.TYPE_NODE_FIELD);
-            g.getNode((byte)1).setType(Metadata.TYPE_NODE_FIELD);
-            g.coefficient().multiply(fac);
-            System.out.println(g);
-        }
-        MaxIsomorph maxIso = new MaxIsomorph();
-        MaxIsomorphParameters mip = MaxIsomorph.PARAM_ALL;
-        cm = maxIso.apply(cm, mip);
-        IsoFree isoFree = new IsoFree();
-        cm = isoFree.apply(cm, null);
+        AllIsomorphs allIso = new AllIsomorphs();
+        AllIsomorphsParameters aip = new AllIsomorphsParameters(true, new Property() {
+            public boolean check(Graph graph) {
+                return graph.getNode((byte)0).getType() == Metadata.TYPE_NODE_ROOT && graph.getNode((byte)1).getType() == Metadata.TYPE_NODE_ROOT;
+            }
+        });
+        cm = allIso.apply(cm, aip);
         
         
         MulScalar mulScalar = new MulScalar();
         MulScalarParameters msp = new MulScalarParameters(-1, 1);
 
-        
         Set<Graph> bPYC = new HashSet<Graph>();
-        bPYC.addAll(bFull);
+        bPYC.addAll(cFull);
         bPYC.addAll(mulScalar.apply(cm, msp));
-        bPYC = isoFree.apply(bPYC, null);
+        IdenticalFree identicalFree = new IdenticalFree();
+        bPYC = identicalFree.apply(bPYC, null);
         
         char nfBond = 'F';
         char eBond = 'e';
@@ -238,31 +268,106 @@ public class PYGenerator extends IEGenerator {
                 newB.add(g2);
             }
         }
+        IsoFree isoFree = new IsoFree();
         return isoFree.apply(newB, null);
     }
 
     public static void main(String[] args){
-
+        MetadataImpl.rootPointsSpecial = true;
         int m = 3;
         
+        if (m < 4) {
         List<Set<Graph>> cList = PYGenerator.PYGenerate(m, 'f');
-        Set<Graph> cm = cList.get(m);
-        Coefficient fac = new CoefficientImpl(-1, m+2);
+        Set<Graph> cm = VirialDiagrams.makeGraphList();
+        cm.addAll(cList.get(m));
+        System.out.println("c"+m);
         for (Graph g : cm) {
-            g.getNode((byte)0).setType(Metadata.TYPE_NODE_FIELD);
-            g.getNode((byte)1).setType(Metadata.TYPE_NODE_FIELD);
-            g.coefficient().multiply(fac);
             System.out.println(g);
         }
-        MaxIsomorph maxIso = new MaxIsomorph();
-        MaxIsomorphParameters mip = MaxIsomorph.PARAM_ALL;
-        cm = maxIso.apply(cm, mip);
-        IsoFree isoFree = new IsoFree();
-        cm = isoFree.apply(cm, null);
         ClusterViewer.createView("PY", cm);
         
-        Set<Graph> correction = PYGenerator.getPYCorrection(m+2);
+        Set<Graph> correction = VirialDiagrams.makeGraphList();
+        correction.addAll(PYGenerator.getPYCorrection((byte)(m+2)));
+        System.out.println("c"+(m+2)+" - c"+(m+2)+"PYC");
+        for (Graph g : correction) {
+            System.out.println(g);
+        }
+
         ClusterViewer.createView("correctionEF", correction);
+        }
+
+        Set<Graph> correctionIC = VirialDiagrams.makeGraphList();
+        correctionIC.addAll(PYGenerator.getICPYCorrection((byte)(m+2)));
+        System.out.println("c"+(m+2)+" - c"+(m+2)+"ICPYC");
+        for (Graph g : correctionIC) {
+            System.out.println(g);
+        }
+        ClusterViewer.createView("ICcorrectionEF", correctionIC);
+        
     }
 
+    public static class IteratorEF implements GraphIterator {
+        
+        private Iterator<Graph> iterator;
+        protected final List<Graph> substSet;
+        protected final char eBond, fBond, nfBond;
+        protected final MulScalar mulScalar;
+        protected final MulScalarParameters msp;
+        protected final SplitOneParametersBC splitOneParameters;
+        protected final SplitOneBiconnected splitOneBC;
+
+        public IteratorEF(byte n) {
+          this.iterator = new IsomorphismFilter(new PropertyFilter(new PropertyFilter(new DefaultIterator(n, (byte)2), new Property() {
+              public boolean check(Graph graph) {
+                  return !graph.hasEdge((byte)0, (byte)1);
+              }
+          }), new IsBiconnected()));
+          eBond = 'e';
+          fBond = 'f';
+          nfBond = 'F';
+          mulScalar = new MulScalar();
+          msp = new MulScalarParameters(-1, 1);
+          
+          splitOneParameters = new SplitOneParametersBC(fBond, eBond, nfBond);
+          splitOneBC = new SplitOneBiconnected();
+          substSet = new ArrayList<Graph>();
+        }
+      
+        public boolean hasNext() {
+          return substSet.size() > 0 || iterator.hasNext();
+        }
+
+        public Graph next() {
+            if (substSet.size() > 0) {
+                return substSet.remove(substSet.size()-1);
+            }
+                
+            Graph g = iterator.next().copy();
+            for (Edge e : g.edges()) {
+                e.setColor(fBond);
+            }
+            g.putEdge((byte)0, (byte)1);
+            g.getEdge((byte)0, (byte)1).setColor(eBond);
+
+            Set<Graph> gSet = splitOneBC.apply(g, splitOneParameters);
+            for (Graph g2 : gSet) {
+                boolean even = true;
+                for (Edge e : g2.edges()) {
+                    if (e.getColor() == nfBond) {
+                        even = !even;
+                        e.setColor(fBond);
+                    }
+                }
+                if (!even) {
+                    g2 = mulScalar.apply(g2, msp);
+                }
+                substSet.add(g2);
+            }
+            return substSet.remove(substSet.size()-1);
+        }
+      
+        public void remove() {
+          throw new RuntimeException("nope");
+        }
+      }
 }
