@@ -155,6 +155,7 @@ public class VirialDiagrams {
         this.isInteractive = interactive;
         doReeHoover = true;
         doShortcut = false;
+        init();
     }
 
     public void setDoReeHoover(boolean newDoReeHoover) {
@@ -259,9 +260,23 @@ public class VirialDiagrams {
         }
         doMinimalBC = newDoMinimalBC;
     }
+    
+    protected void init() {
+        fBond = 'f';
+        bBond = 'B';
+        eBond = 'e';
+        mBond = 'm';  // multi-body
+        fmBond = 'z';  // full-multi-body (diagram represents the full virial coefficient)
+        mmBond = 'M';  // Multi-body
+        mxcBond = 'n';  // multi-body exchange (yes, of course 'n' is bad)
+        MxcBond = 'N';
+        efbcBond = 'b';
+        excBond = 'x';
+        ffBond = 'F';
+    }
 
     public void setAllPermutations(boolean newAllPermutations) {
-        if (flex) {
+        if (flex && newAllPermutations) {
             System.err.println("all additive permutations and flex don't mix!");
         }
         allPermutations = newAllPermutations;
@@ -920,7 +935,7 @@ public class VirialDiagrams {
         return gSplit;
     }
 
-    public GraphList<Graph> makeGraphList() {
+    public static GraphList<Graph> makeGraphList() {
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodesExchange());
         comp.addComparator(new ComparatorBiConnected());
@@ -977,13 +992,6 @@ public class VirialDiagrams {
         GraphList<Graph> topSet = makeGraphList();
 
         char oneBond = 'o';
-        fBond = 'f';
-        eBond = 'e';
-        bBond = 'b';  // (exp(Un)-1) Hellmann-Bich b_n group
-        mBond = 'm';  // multi-body
-        fmBond = 'z';  // full-multi-body (diagram represents the full virial coefficient)
-        mmBond = 'M';  // min-multi-body
-        efbcBond = 'b';
         Metadata.COLOR_MAP.put(eBond, "red");
         Metadata.COLOR_MAP.put(fBond, "green");
         Metadata.COLOR_MAP.put(mBond, "blue");
@@ -1297,15 +1305,6 @@ public class VirialDiagrams {
         GraphList<Graph> topSet = makeGraphList();
 
         char oneBond = 'o';
-        fBond = 'f';
-        eBond = 'e';
-        mBond = 'm';  // multi-body
-        mmBond = 'M';  // Multi-body
-        mxcBond = 'n';  // multi-body exchange (yes, of course 'n' is bad)
-        MxcBond = 'N';
-        efbcBond = 'b';
-        excBond = 'x';
-        ffBond = 'F';
         IsoFree isoFree = new IsoFree();
 
         MulFlexibleParameters mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
@@ -1525,6 +1524,7 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
                 // order expression of min-multi graphs.  and just continue up to nth
                 // order.
                 fullMultiP = makeGraphList();
+                @SuppressWarnings("unchecked")
                 Set<Graph>[] iFullMultiP = new Set[n+1];
                 for (byte i=3; i<=n; i++) {
                     iFullMultiP[i] = new HashSet<Graph>();
@@ -2578,6 +2578,21 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
             }
         }
         return false;
+    }
+
+    public static int getGroupID(int[] ids, int n) {
+        switch (ids.length) {
+            case 3: 
+                return tripletId(ids[0], ids[1], ids[2], n);
+            case 4:
+                return quadId(ids[0], ids[1], ids[2], ids[3], n);
+            case 5:
+                return quintId(ids[0], ids[1], ids[2], ids[3], ids[4], n);
+            case 6:
+                return sixId(ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], n);
+            default:
+                throw new RuntimeException("don't know how to handle group size "+ids.length);
+        }
     }
 
     /**
