@@ -275,25 +275,26 @@ public class PYGenerator extends IEGenerator {
     public static void main(String[] args){
         MetadataImpl.rootPointsSpecial = true;
         int m = 3;
-        
-        if (m < 4) {
-        List<Set<Graph>> cList = PYGenerator.PYGenerate(m, 'f');
-        Set<Graph> cm = VirialDiagrams.makeGraphList();
-        cm.addAll(cList.get(m));
-        System.out.println("c"+m);
-        for (Graph g : cm) {
-            System.out.println(g);
-        }
-        ClusterViewer.createView("PY", cm);
-        
-        Set<Graph> correction = VirialDiagrams.makeGraphList();
-        correction.addAll(PYGenerator.getPYCorrection((byte)(m+2)));
-        System.out.println("c"+(m+2)+" - c"+(m+2)+"PYC");
-        for (Graph g : correction) {
-            System.out.println(g);
-        }
 
-        ClusterViewer.createView("correctionEF", correction);
+        if (m < 4) {
+            // only try to display diagrams for B6 and below
+            List<Set<Graph>> cList = PYGenerator.PYGenerate(m, 'f');
+            Set<Graph> cm = VirialDiagrams.makeGraphList();
+            cm.addAll(cList.get(m));
+            System.out.println("c"+m);
+            for (Graph g : cm) {
+                System.out.println(g);
+            }
+            ClusterViewer.createView("PY", cm);
+    
+            Set<Graph> correction = VirialDiagrams.makeGraphList();
+            correction.addAll(PYGenerator.getPYCorrection((byte)(m+2)));
+            System.out.println("c"+(m+2)+" - c"+(m+2)+"PYC");
+            for (Graph g : correction) {
+                System.out.println(g);
+            }
+    
+            ClusterViewer.createView("correctionEF", correction);
         }
 
         Set<Graph> correctionIC = VirialDiagrams.makeGraphList();
@@ -303,11 +304,10 @@ public class PYGenerator extends IEGenerator {
             System.out.println(g);
         }
         ClusterViewer.createView("ICcorrectionEF", correctionIC);
-        
     }
 
     public static class IteratorEF implements GraphIterator {
-        
+
         private Iterator<Graph> iterator;
         protected final List<Graph> substSet;
         protected final char eBond, fBond, nfBond;
@@ -317,24 +317,24 @@ public class PYGenerator extends IEGenerator {
         protected final SplitOneBiconnected splitOneBC;
 
         public IteratorEF(byte n) {
-          this.iterator = new IsomorphismFilter(new PropertyFilter(new PropertyFilter(new DefaultIterator(n, (byte)2), new Property() {
-              public boolean check(Graph graph) {
-                  return !graph.hasEdge((byte)0, (byte)1);
-              }
-          }), new IsBiconnected()));
-          eBond = 'e';
-          fBond = 'f';
-          nfBond = 'F';
-          mulScalar = new MulScalar();
-          msp = new MulScalarParameters(-1, 1);
-          
-          splitOneParameters = new SplitOneParametersBC(fBond, eBond, nfBond);
-          splitOneBC = new SplitOneBiconnected();
-          substSet = new ArrayList<Graph>();
+            this.iterator = new IsomorphismFilter(new PropertyFilter(new PropertyFilter(new DefaultIterator(n, (byte)2), new Property() {
+                public boolean check(Graph graph) {
+                    return !graph.hasEdge((byte)0, (byte)1);
+                }
+            }), new IsBiconnected()));
+            eBond = 'e';
+            fBond = 'f';
+            nfBond = 'F';
+            mulScalar = new MulScalar();
+            msp = new MulScalarParameters(-1, 1);
+
+            splitOneParameters = new SplitOneParametersBC(fBond, eBond, nfBond);
+            splitOneBC = new SplitOneBiconnected();
+            substSet = new ArrayList<Graph>();
         }
       
         public boolean hasNext() {
-          return substSet.size() > 0 || iterator.hasNext();
+            return substSet.size() > 0 || iterator.hasNext();
         }
 
         public Graph next() {
@@ -367,7 +367,7 @@ public class PYGenerator extends IEGenerator {
         }
       
         public void remove() {
-          throw new RuntimeException("nope");
+            throw new RuntimeException("nope");
         }
       }
 }
