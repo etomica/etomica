@@ -8,6 +8,7 @@ import etomica.graph.iterators.IteratorWrapper;
 import etomica.graph.iterators.filters.IdenticalGraphFilter;
 import etomica.graph.model.Graph;
 import etomica.graph.model.impl.CoefficientImpl;
+import etomica.graph.property.Property;
 
 /**
  * Returns all graphs that are isomorphs of the original graph(s).  Optionally,
@@ -76,7 +77,10 @@ public class AllIsomorphs implements Unary {
       if (!success) {
         break;
       }
-      result.add(relabel.apply(g, rp));
+      Graph newGraph = relabel.apply(g, rp);
+      if (params.propertyFilter == null || params.propertyFilter.check(newGraph)) {
+        result.add(newGraph);
+      }
     }
     int nPermutations = result.size();
     CoefficientImpl multiplier = new CoefficientImpl(1, nPermutations);
@@ -96,8 +100,13 @@ public class AllIsomorphs implements Unary {
   
   public static class AllIsomorphsParameters implements Parameters {
     public boolean onlyUnique;
+    public Property propertyFilter;
     public AllIsomorphsParameters(boolean onlyUnique) {
+      this(onlyUnique, null);
+    }
+    public AllIsomorphsParameters(boolean onlyUnique, Property propertyFilter) {
       this.onlyUnique = onlyUnique;
+      this.propertyFilter = propertyFilter;
     }
   }
 }
