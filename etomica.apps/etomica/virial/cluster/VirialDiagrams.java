@@ -136,7 +136,7 @@ public class VirialDiagrams {
         }
         if (multibody) {
             virialDiagrams.setDoMinimalMulti(true);
-            virialDiagrams.setDoMultiFromPair(!doExchange);
+            virialDiagrams.setDoMultiFromPair(true);
         }
         if (doReeHoover && (flex || multibody)) {
             virialDiagrams.setDoMinimalBC(true);
@@ -632,11 +632,16 @@ public class VirialDiagrams {
                     newGroups[newGroups.length-1] = groupID;
                     mBonds[size] = newGroups;
                 }
-                if (ebonds.size() > 0) {
-                    allBonds.add(new ClusterBonds(nn, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0])}));
+                if (multiGraph) {
+                    if (ebonds.size() > 0) {
+                        allBonds.add(new ClusterBondsNonAdditive(nn, new int[][][]{fbonds.toArray(new int[0][0]), ebonds.toArray(new int[0][0])}, mBonds));
+                    }
+                    else {
+                        allBonds.add(new ClusterBondsNonAdditive(nn, new int[][][]{fbonds.toArray(new int[0][0])}, mBonds));
+                    }
                 }
-                else if (multiGraph) {
-                    allBonds.add(new ClusterBondsNonAdditive(nn, new int[][][]{fbonds.toArray(new int[0][0])}, mBonds));
+                else if (ebonds.size() > 0) {
+                    allBonds.add(new ClusterBonds(nn, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0])}));
                 }
                 else {
                     allBonds.add(new ClusterBonds(nn, new int[][][]{fbonds.toArray(new int[0][0])}));
@@ -1409,11 +1414,37 @@ public class VirialDiagrams {
 
             cancelMap = new HashMap<Graph,Graph>();
 
+//            if (isInteractive && multibody) {
+//                System.out.println("\nP (full-multi)");
+//                topSet.clear();
+//                topSet.addAll(p);
+//                for (Graph g : topSet) {
+//                    System.out.println(g);
+//                }
+//                ClusterViewer.createView("P (full-multi)", topSet);
+//            }
+            
+            if (doMinimalMulti && !doKeepEBonds) {
+                minMultiP = makeGraphList();
+                // pluck multibody graphs from lnfXi
+                for (Graph g : lnfXi) {
+                    if (graphHasEdgeColor(g, mBond)) {
+                        // multibond graphs in lnfXi are part of min-multi
+                        minMultiP.add(mulScalar.apply(g, new MulScalarParameters(1-g.nodeCount(),1)));
+                    }
+                }
+                
+                if (isInteractive) {
+                    topSet.clear();
+                    topSet.addAll(minMultiP);
+                    ClusterViewer.createView("multiP", topSet);
+                }
+            }
+            
             if (doMultiFromPair) {
                 // we're going to use the pairwise additive diagrams to determine
                 // appropriate singly-connected nonadditive diagrams.
                 // we'll keep our disconnected nonadditive diagrams
-                minMultiP = makeGraphList();
                 IsConnected isConnected = new IsConnected();
                 Set<Graph> newP = makeGraphList();
                 for (Graph g : p) {
@@ -1423,81 +1454,75 @@ public class VirialDiagrams {
                 }
                 // pluck multibody graphs from lnfXi
                 for (Graph g : lnfXi) {
-                    if (graphHasEdgeColor(g, mBond)) {
-                        // multibond graphs in lnfXi are part of min-multi
-                        minMultiP.add(mulScalar.apply(g, new MulScalarParameters(1-g.nodeCount(),1)));
+                    if (graphHasEdgeColor(g, mBond) || !isConnected.check(g)) {
+                        continue;
                     }
-                    else if (isConnected.check(g)) {
-                        // a connected purely pairwise graph.
-                        // we are interested if g is made up of fully connected bicomponents
-                        List<List<Byte>> biComps = BCVisitor.getBiComponents(g);
-                        List<List<Byte>> happyComps = new ArrayList<List<Byte>>();
-                        for (List<Byte> biComp : biComps) {
-                            if (biComp.size() > 2) {
-                                boolean happy = true;
-outer:                          for (int i=1; i<biComp.size(); i++) {
-                                    for (int j=0; j<i; j++) {
-                                        if (!g.hasEdge(biComp.get(i), biComp.get(j))) {
-                                            happy = false;
-                                            break outer;
-                                        }
+                    // a connected purely pairwise graph.
+                    // we are interested if g is made up of fully connected bicomponents
+                    List<List<Byte>> biComps = BCVisitor.getBiComponents(g);
+                    List<List<Byte>> happyComps = new ArrayList<List<Byte>>();
+                    for (List<Byte> biComp : biComps) {
+                        if (biComp.size() > 2) {
+                            boolean happy = true;
+outer:                      for (int i=1; i<biComp.size(); i++) {
+                                for (int j=0; j<i; j++) {
+                                    if (!g.hasEdge(biComp.get(i), biComp.get(j))) {
+                                        happy = false;
+                                        break outer;
                                     }
                                 }
-                                if (happy) {
-                                    // this component is fully connected
-                                    happyComps.add(biComp);
-                                }
+                            }
+                            if (happy) {
+                                // this component is fully connected
+                                happyComps.add(biComp);
                             }
                         }
-                        if (happyComps.size() == 0) {
-                            // we found no fully-connected components of size 3 or greater 
-                            continue;
-                        }
-                        byte gn = g.nodeCount();
-                        msp = new MulScalarParameters(gn-1,1);
-                        if (g.edgeCount() == gn*(gn-1)/2) {
-                            // a fully connected diagram.  take this one as min-multi
-                            msp = new MulScalarParameters(1-gn,1);
-                            g = mulScalar.apply(g, msp);
-                            Graph g2 = g.copy();
-                            for (Edge e : g2.edges()) {
-                                e.setColor(mmBond);
-                            }
-                            newP.add(g2);
-                            continue;
-                        }
+                    }
+                    if (happyComps.size() == 0) {
+                        // we found no fully-connected components of size 3 or greater 
+                        continue;
+                    }
+                    byte gn = g.nodeCount();
+                    msp = new MulScalarParameters(gn-1,1);
+                    if (g.edgeCount() == gn*(gn-1)/2) {
+                        // a fully connected diagram.  take this one as min-multi
+                        msp = new MulScalarParameters(1-gn,1);
                         g = mulScalar.apply(g, msp);
-                        // now replace each fully connected component (of size 3+) with a full-multi-component
-                        Set<Graph> gSet = new HashSet<Graph>();
-                        gSet.add(g);
-                        for (List<Byte> biComp : happyComps) {
-                            Set<Graph> newGSet = new HashSet<Graph>();
-                            // we want one copy without replacement and one with
-                            // at the end, we'll have one graph without replacement and
-                            // throw it away (that graph is already in p)
-                            newGSet.addAll(gSet);
-                            for (Graph g2 : gSet) {
-                                g2 = g2.copy();
-                                for (int i=1; i<biComp.size(); i++) {
-                                    for (int j=0; j<i; j++) {
-                                        g2.getEdge(biComp.get(j), biComp.get(i)).setColor(fmBond);
-                                    }
-                                }
-                                newGSet.add(g2);
-                            }
-                            gSet = newGSet;
+                        Graph g2 = g.copy();
+                        for (Edge e : g2.edges()) {
+                            e.setColor(mmBond);
                         }
+                        newP.add(g2);
+                        continue;
+                    }
+                    g = mulScalar.apply(g, msp);
+                    // now replace each fully connected component (of size 3+) with a full-multi-component
+                    Set<Graph> gSet = new HashSet<Graph>();
+                    gSet.add(g);
+                    for (List<Byte> biComp : happyComps) {
                         Set<Graph> newGSet = new HashSet<Graph>();
+                        // we want one copy without replacement and one with
+                        // at the end, we'll have one graph without replacement and
+                        // throw it away (that graph is already in p)
+                        newGSet.addAll(gSet);
                         for (Graph g2 : gSet) {
-                            if (graphHasEdgeColor(g2, fmBond) || graphHasEdgeColor(g2, mmBond)) {
-                                newGSet.add(g2);
+                            g2 = g2.copy();
+                            for (int i=1; i<biComp.size(); i++) {
+                                for (int j=0; j<i; j++) {
+                                    g2.getEdge(biComp.get(j), biComp.get(i)).setColor(fmBond);
+                                }
                             }
+                            newGSet.add(g2);
                         }
-                        newP.addAll(isoFree.apply(newGSet, null));
+                        gSet = newGSet;
                     }
-                    else {
-                        throw new RuntimeException("disconnected pairwise diagram?");
+                    Set<Graph> newGSet = new HashSet<Graph>();
+                    for (Graph g2 : gSet) {
+                        if (graphHasEdgeColor(g2, fmBond) || graphHasEdgeColor(g2, mmBond)) {
+                            newGSet.add(g2);
+                        }
                     }
+                    newP.addAll(isoFree.apply(newGSet, null));
                 }
                 if (isInteractive) {
                     System.out.println("\nP (min-multi)");
@@ -1841,10 +1866,6 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
             ClusterViewer.createView("Pc", topSet);
         }
         
-        if (doMinimalMulti && !doMultiFromPair) {
-            doMinimalMulti();
-        }
-
         Set<Graph> newP = new HashSet<Graph>();
         // attempt to factor any graphs with an articulation point
         disconnectedP = new HashSet<Graph>();
@@ -2250,195 +2271,6 @@ outer:                          for (int i=1; i<biComp.size(); i++) {
         disconnectedPFinal.addAll(disconnectedP);
         disconnectedP = disconnectedPFinal;
 
-    }
-
-    protected void doMinimalMulti() {
-        MulFlexibleParameters mfp = MulFlexibleParameters.makeParameters(flexColors, (byte)n);
-        // group together all n-point diagrams (diagrams with n field nodes)
-        // that evaluate to infinity (due to insufficient connectivity).
-        // these are the diagrams that must be evaluated together during MSMC
-        // at nth order.  all other n-point diagrams can be evaluated as
-        // products of smaller diagrams
-        Factor factor = new Factor();
-        MulScalar mulScalar = new MulScalar();
-        IsoFree isoFree = new IsoFree();
-
-        Set<Graph> mP = new HashSet<Graph>();
-        Set<Graph> pairP = new HashSet<Graph>();
-        for (Graph g : p) {
-            g = factor.apply(g,mfp);
-            if (!graphHasEdgeColor(g, mBond) && !graphHasEdgeColor(g, mxcBond)) {
-                if (doExchange) {
-                    // we need to look for single points that are internally multibonded
-                    boolean isMulti = false;
-                    for (Node node : g.nodes()) {
-                        if (node.getColor() >= 'M' && node.getColor() <= 'Z') {
-                            isMulti = true;
-                            break;
-                        }
-                    }
-                    if (!isMulti) {
-                        pairP.add(g);
-                        continue;
-                    }
-                }
-                else {
-                    pairP.add(g);
-                    continue;
-                }
-            }
-            mP.add(g);
-        }
-        MulFlexibleParameters mfpc = MulFlexibleParameters.makeParameters(new char[]{nodeColor}, (byte)n);
-        if (flex) {
-            // we just want to force no-superimposing here.
-            mfpc = mfp;
-        }
-        ComponentSubst compSubst = new ComponentSubst();
-        // we need to start with i=1 so we catch fully exchanged diagrams
-        HashSet<char[]> bicompSeen = new HashSet<char[]>();
-        Set<Graph> mSubst = new HashSet<Graph>();
-        // now we make a second pass where we actually make substitutions
-        minMultiP = new HashSet<Graph>();
-        minMultiP.addAll(mP);
-        List<ComponentSubstParameters> cspUnList = new ArrayList<ComponentSubstParameters>();
-        for (int i=1; i<=n; i++) {
-            if (!doExchange && i<3) continue;
-            // find all multi graphs of size i without a root point
-            // then, Mi = mi1 + Mi2 + Mi3 + ...
-            // where mi1, Mi2, Mi3... are the diagrams we find here.
-            // mi1 is the fully connected diagram with mBonds, while Mi2, Mi3, etc.
-            //  will be diagrams containing smaller multibody components composed of MBonds
-            bicompSeen.clear();
-            while (true) {
-                char[] thisBicomp = null;
-                Graph gm = null;
-                Graph gM = null;
-                Coefficient mcoef = null;
-                mSubst.clear();
-                Set<Graph> mUnSubst = new HashSet<Graph>();
-                for (Graph g : mP) {
-                    if (g.nodeCount() != i || NumRootNodes.value(g) > 0) {
-                        continue;
-                    }
-                    if (doExchange) {
-                        char[] iBicomp = new char[i];
-                        boolean hasRoot = false;
-                        for (byte j=0; j<i; j++) {
-                            iBicomp[j] = g.getNode(j).getColor();
-                            if (iBicomp[j] >= 'a' && iBicomp[j] <= 'z') {
-                                // root point in disguise
-                                hasRoot = true;
-                                break;
-                            }
-                            if (iBicomp[j] >= 'M') {
-                                iBicomp[j] -= 'M' - 'A';
-                            }
-                        }
-                        if (hasRoot) continue;
-                        java.util.Arrays.sort(iBicomp);
-                        if (thisBicomp == null) {
-                            boolean seen = false;
-                            for (char[] seenComp : bicompSeen) {
-                                if (java.util.Arrays.equals(seenComp,iBicomp)) {
-                                    seen = true;
-                                    break;
-                                }
-                            }
-                            if (seen) {
-                                // this is not the droid we are looking for
-                                continue;
-                            }
-                            thisBicomp = iBicomp;
-                            bicompSeen.add(thisBicomp);
-                        }
-                        else if (!java.util.Arrays.equals(iBicomp, thisBicomp)) {
-                            // this is not the droid we are looking for
-                            continue;
-                        }
-                    }
-
-                    g = g.copy();
-                    if (g.edgeCount() < i*(i-1)/2) {
-                        // this is a lower order (disconnected) diagram
-                        mUnSubst.add(g.copy());
-                        g.coefficient().multiply(new CoefficientImpl(-1));
-                        mSubst.add(g);
-                    }
-                    else {
-                        gm = g.copy();
-                        // this is the large diagram in this set.
-                        for (Edge e : g.edges()) {
-                            if (e.getColor() == mBond) {
-                                e.setColor(mmBond);
-                            }
-                            else if (e.getColor() == mxcBond) {
-                                e.setColor(MxcBond);
-                            }
-                            else {
-                                throw new RuntimeException("oops");
-                            }
-                        }
-                        gM = g;
-                        mSubst.add(g);
-                        mUnSubst.add(gm.copy());
-                        mcoef = new CoefficientImpl(1);
-                        mcoef.divide(g.coefficient());
-                    }
-                }
-                if (doExchange && thisBicomp == null) break;
-                MulScalarParameters msp = new MulScalarParameters(mcoef);
-                mSubst = mulScalar.apply(mSubst, msp);
-                mUnSubst = mulScalar.apply(mUnSubst, msp);
-    
-                // replace all mBond groups of size i with MBond
-                // now mi1 = Mi - Mi2 - Mi3 - ...
-                // where mi1 is the fully connected diagram of size i
-                ComponentSubstParameters csp = new ComponentSubstParameters(gm, mSubst, mfpc);
-                mP = isoFree.apply(compSubst.apply(mP, csp), null);
-
-                // do a more targeted replacement for multiP
-                Set<Graph> newMultiP = new HashSet<Graph>();
-                for (Graph gmp : minMultiP) {
-                    if (gmp.nodeCount() > i) {
-                        newMultiP.addAll(compSubst.apply(gmp, csp));
-                    }
-                    else {
-                        newMultiP.add(gmp);
-                    }
-                }
-                minMultiP = isoFree.apply(newMultiP, null);
-                // multiP will now contain M-bond and m-graph
-                // we will remove any M-bond graphs that are finite
-                cspUnList.add(new ComponentSubstParameters(gM, mUnSubst, mfpc));
-                
-                if (!doExchange) break;
-            }
-        }
-        Set<Graph> newMultiP = new HashSet<Graph>();
-        for (Graph gmp : minMultiP) {
-            if (NumRootNodes.value(gmp) == 0) {
-                newMultiP.add(gmp);
-            }
-        }
-
-        // multiP is now the set of multi-body diagrams, but with the parts
-        // that are products of Multi-bond graphs removed.  now substitute back
-        // M => m
-        minMultiP = newMultiP;
-        for (int i=cspUnList.size()-1; i>=0; i--) {
-            minMultiP = isoFree.apply(compSubst.apply(minMultiP, cspUnList.get(i)), null);
-        }
-
-        if (isInteractive) {
-            Set<Graph> topSet = makeGraphList();
-            topSet.addAll(minMultiP);
-            ClusterViewer.createView("multiP", topSet);
-        }
-
-        p.clear();
-        p.addAll(pairP);
-        p.addAll(mP);
     }
 
     public static final class ArticulatedAt0 implements Property {
