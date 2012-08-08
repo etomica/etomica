@@ -1,8 +1,6 @@
 package etomica.graph.property;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -82,7 +80,7 @@ public class IsFFT implements Property {
     }
   }
 
-  protected boolean testPair(Graph g, byte start, byte end, List strands) {
+  protected boolean testPair(Graph g, byte start, byte end, List myStrands) {
     g = g.copy();
     if (start != 0 || end != 1) {
       byte[] relabels = new byte[g.nodeCount()];
@@ -120,7 +118,7 @@ public class IsFFT implements Property {
       byte kNode = g.getOutNode(start,k);
       if (kNode == end) {
         iStrand++;
-        strands.add(2);
+        myStrands.add(2);
         continue;
       }
       // ignore going to a node we've already seen
@@ -149,7 +147,7 @@ public class IsFFT implements Property {
       // create a Graph for this strand
       List<Byte> kVisited = visited.get(k);
       if (kVisited.size() < 4) {
-        strands.add(kVisited.size());
+        myStrands.add(kVisited.size());
         continue;
       }
       Graph gk = GraphFactory.createGraph((byte)kVisited.size());
@@ -202,7 +200,7 @@ public class IsFFT implements Property {
         }
         segments.add(lStrands);
       }
-      strands.add(segments);
+      myStrands.add(segments);
     }  
     return true;
   }
