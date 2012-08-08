@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
 import etomica.graph.iterators.ChainedIterator;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphIterator;
@@ -19,15 +18,20 @@ public abstract class GlobalFilter implements GraphIterator {
   private Map<String, Set<Graph>>  blockingMap = new HashMap<String, Set<Graph>> ();
   private GraphIterator iterator;
   private ChainedIterator blockingIterator = null;
+  protected final SignatureMaker signatureMaker;
 
   public GlobalFilter(GraphIterator iterator) {
-
+    this(iterator, null);
+  }
+  
+  public GlobalFilter(GraphIterator iterator, SignatureMaker signatureMaker) {
     this.iterator = iterator;
+    this.signatureMaker = signatureMaker == null ? new SignatureMaker() : signatureMaker;
   }
 
   protected Set<Graph> getBlockingSet(Graph g) {
 
-    String key = g.getSignature();
+    String key = signatureMaker.getSignature(g);
     Set<Graph> set = blockingMap.get(key);
     if (set == null) {
       set = new HashSet<Graph>();
@@ -72,5 +76,11 @@ public abstract class GlobalFilter implements GraphIterator {
   public void remove() {
 
     // no-op
+  }
+
+  public static class SignatureMaker {
+    public String getSignature(Graph g) {
+      return g.getSignature();
+    }
   }
 }

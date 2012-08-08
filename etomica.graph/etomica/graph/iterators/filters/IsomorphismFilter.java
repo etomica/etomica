@@ -2,7 +2,6 @@ package etomica.graph.iterators.filters;
 
 import java.util.Set;
 
-
 import etomica.graph.isomorphism.Match;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphIterator;
@@ -17,8 +16,11 @@ public class IsomorphismFilter extends GlobalFilter {
   private long debugStart = System.nanoTime();
 
   public IsomorphismFilter(GraphIterator iterator) {
+    this(iterator, null);
+  }
 
-    super(iterator);
+  public IsomorphismFilter(GraphIterator iterator, SignatureMaker signatureMaker) {
+    super(iterator, signatureMaker);
   }
 
   protected boolean accept(Graph g1, Set<Graph> set) {
