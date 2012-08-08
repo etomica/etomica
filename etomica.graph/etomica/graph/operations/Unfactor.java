@@ -4,7 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import etomica.graph.model.Graph;
+import etomica.graph.model.GraphList;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
+import etomica.graph.property.NumRootNodes;
 
 /**
  * This operation will do the reverse of the Factor operation.  Given a graph
@@ -22,25 +24,70 @@ public class Unfactor implements Unary {
     assert(params instanceof MulFlexibleParameters);
     Set<Graph> result = new HashSet<Graph>();
     for (Graph g : argument) {
-      result.add(apply(g, (MulFlexibleParameters)params));
+      result.addAll(apply(g, (MulFlexibleParameters)params));
     }
     return result;
   }
 
-  public Graph apply(Graph g, MulFlexibleParameters params) {
+  public Set<Graph> apply(Graph g, MulFlexibleParameters params) {
     Set<Graph> splitted = graphSplitter.apply(g);
-    Graph result = null;
+    Set<Graph> result = null;
     // we might run into problems if the first graphs we see are not
     // superimposable (perhaps no root points) but are both superimposable with
     // a later graph (perhaps having multiple root points).  MulFlex probably
     // should handle that but doesn't.
-    for (Graph f : splitted) {
-      if (result == null) {
-        result = f;
+    // if that does happen, we should superimpose one point from the final multiplication.
+    // then, re-split the graph into components and try again to superimpose.  continue as
+    // long as at least one superimpose happens
+    Set<Graph> unhappy = new HashSet<Graph>();
+    int nRoot = 0;
+    boolean success = false;
+    while (true) {
+      success = false;
+      for (Graph f : splitted) {
+        GraphList<Graph> set1 = new GraphList<Graph>();
+        set1.add(f);
+        if (result == null) {
+          result = set1;
+          nRoot = NumRootNodes.value(f);
+        }
+        else {
+          int fRoots = NumRootNodes.value(f);
+          Set<Graph> newResult = mulFlex.apply(result, set1, params);
+          // just need one of the resulting graphs, they shouldn't be meaningfully different
+          Graph newg1 = newResult.iterator().next();
+          int newRoots = NumRootNodes.value(newg1);
+          if (newRoots == nRoot + fRoots) {
+            // failed to superimpose
+            unhappy.add(f);
+          }
+          else {
+            result = newResult;
+            nRoot = newRoots;
+            success = true;
+          }
+        }
       }
-      else {
-        result = mulFlex.apply(result, f, params);
+      if (unhappy.size() == 0) {
+        // we were able to superimpose each pair
+        break;
       }
+      if (!success) {
+        // we we not able to superimpose any pair
+        // force multiplication and bail
+        for (Graph f : unhappy) {
+          GraphList<Graph> set1 = new GraphList<Graph>();
+          set1.add(f);
+          result = mulFlex.apply(result, set1, params);
+        }
+        break;
+      }
+      // we failed to superimpose at least 1 component.
+      // try again so long as we were successful with at least one pair
+      Set<Graph> tmp = splitted;
+      splitted = unhappy;
+      unhappy = tmp;
+      unhappy.clear();
     }
     return result;
   }
