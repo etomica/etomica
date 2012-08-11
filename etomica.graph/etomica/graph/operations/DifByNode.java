@@ -20,7 +20,7 @@ public class DifByNode implements Unary {
       }
     }
     Unary isoFree = new IsoFree();
-    return isoFree.apply(result, params);
+    return isoFree.apply(result, null);
   }
 
   private Set<Graph> apply(Graph g, DifParameters params) {
