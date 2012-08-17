@@ -123,8 +123,6 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
     
     private static final long serialVersionUID = 1L;
     protected DataDoubleArray data;
-    protected double[] overlapFirstBlock, overlapMostRecentBlock, overlapCorrelationSum;
-    protected double[] overlapBlockCovSum;
     private int numAlpha;
     private double[] alpha;
     private final boolean isReference;
