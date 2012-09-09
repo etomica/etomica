@@ -1,5 +1,6 @@
 package etomica.data.meter;
 import etomica.api.IBox;
+import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
@@ -29,12 +30,25 @@ public class MeterPressure extends DataSourceScalar {
     /**
      * Sets the integrator associated with this instance.  The pressure is 
      * calculated for the box the integrator acts on and integrator's 
-     * temperature is used for the ideal gas contribution.
+     * temperature is used for the ideal gas contribution.  Alternatively, you
+     * can set the potentialMaster, temperature and box separately.
      */
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
     }
+
+    public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
+        potentialMaster = newPotentialMaster;
+    }
     
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
+
+    public void setBox(IBox newBox) {
+        box = newBox;
+    }
+
     /**
      * Returns the integrator associated with this instance.  The pressure is 
      * calculated for the box the integrator acts on and integrator's 
@@ -65,19 +79,30 @@ public class MeterPressure extends DataSourceScalar {
 	  * ideal-gas contribution.
 	  */
     public double getDataAsScalar() {
-        if (integrator == null) {
+        if (integrator == null && (potentialMaster == null || box == null)) {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
     	virial.zeroSum();
-        IBox box = integrator.getBox();
-        integrator.getPotentialMaster().calculate(box, iteratorDirective, virial);
+    	IBox b = box;
+    	if (b == null) {
+    	    b = integrator.getBox();
+    	}
+        if (potentialMaster != null) {
+            potentialMaster.calculate(b, iteratorDirective, virial);
+        }
+        else {
+            integrator.getPotentialMaster().calculate(b, iteratorDirective, virial);
+        }
+        double temp = (integrator != null) ? integrator.getTemperature() : temperature;
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
-        return (box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume())*integrator.getTemperature() - virial.getSum()/(box.getBoundary().volume()*dim);
+        return (b.getMoleculeList().getMoleculeCount() / b.getBoundary().volume())*temp - virial.getSum()/(b.getBoundary().volume()*dim);
     }
 
-    private static final long serialVersionUID = 1L;
     private IntegratorBox integrator;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
+    protected IPotentialMaster potentialMaster;
+    protected double temperature;
+    protected IBox box;
     private final int dim;
 }
