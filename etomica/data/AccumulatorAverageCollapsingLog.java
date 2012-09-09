@@ -513,6 +513,44 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             subSums[i] += vpj;
         }
     }
+
+    public int getNumRawData() {
+        return nRawData;
+    }
+    
+    /**
+     * Returns the correlation between consecutive values of the log of the raw
+     * data held by the accumulator.  Raw data may be individual samples, or
+     * block averages, depending on how much data has been collected.  The
+     * method returning the standard deviation of the log is based on the idea
+     * that the "raw" data is uncorrelated.  If the correlation is small, the
+     * standard deviation can be adjusted.  If large, then the standard
+     * deviation is bogus (too small) and you must either collect more data
+     * (so that the raw data are block averages with more samples) or decrease
+     * the # of raw doubles (setNumRawDataDoubles) so that the accumulator blocks
+     * data more aggressively.
+     */
+    public double getRawLogDataCorrelation() {
+        if (nRawData < 3) return Double.NaN;
+        double lSum = 0, lSum2 = 0, cSum = 0;
+        for (int j=0; j<nRawData; j++) {
+            double l = Math.log(rawData[j]);
+            lSum += l;
+            lSum2 += l*l;
+            if (j>0) {
+                cSum += l*Math.log(rawData[j-1]);
+            }
+        }
+        double avg2 = (lSum/nRawData);
+        avg2 *= avg2;
+        double var = (lSum2/nRawData - avg2);
+        if (var <= 0) return 0;
+        
+        double blockCorrelation = (((Math.log(rawData[0]) -2*lSum + Math.log(rawData[nRawData-1])) * (lSum/nRawData) + cSum)/(nRawData-1) + avg2)/var;
+        blockCorrelation = (Double.isNaN(blockCorrelation) || blockCorrelation <= -1 || blockCorrelation >= 1) ? 0 : blockCorrelation;
+        return blockCorrelation;
+    }
+    
     /**
      * Resets all sums to zero. All statistics are cleared.
      */
@@ -560,7 +598,6 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         return nTag;
     }
 
-    private static final long serialVersionUID = 1L;
     protected long count;
     protected double[] blockSums;
     protected double[][] sums, lSums;
