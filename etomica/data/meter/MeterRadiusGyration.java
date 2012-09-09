@@ -58,10 +58,10 @@ public class MeterRadiusGyration extends DataSourceScalar {
         iterator.reset();
         int nLeafAtomsTot = 0;
         double r2Tot = 0.0;
-        for (IMolecule atom = iterator.nextMolecule(); atom != null;
-             atom = iterator.nextMolecule()) {
+        for (IMolecule molecule = iterator.nextMolecule(); molecule != null;
+             molecule = iterator.nextMolecule()) {
             // loop over molecules
-            IAtomList childList = atom.getChildList();
+            IAtomList childList = molecule.getChildList();
             if (childList.getAtomCount() < 2) {
                 // a monatomic molecule
                 continue;
