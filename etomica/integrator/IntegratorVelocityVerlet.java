@@ -85,10 +85,10 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent((IAtom)a);
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);
             IVectorMutable r = a.getPosition();
             IVectorMutable v = a.getVelocity();
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
             }
             v.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
@@ -111,10 +111,10 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             workTensor.Ev1v2(velocity,velocity);
             workTensor.TE(((IAtom)a).getType().getMass());
             pressureTensor.PE(workTensor);
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtom)a)).force);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent(a)).force);
             }
-            velocity.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtom)a)).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
 
         pressureTensor.TE(1/box.getBoundary().volume());
