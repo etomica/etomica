@@ -123,6 +123,7 @@ public class CellLattice extends RectangularLattice {
                     idx[i] = (lattice.getSize()[i]-1)/2;
                 }
             }
+            if (idx[0] == 0) throw new RuntimeException("not very nice");
             super.setRange(idx);
         }
         
