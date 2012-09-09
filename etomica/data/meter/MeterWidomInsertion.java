@@ -98,16 +98,18 @@ public class MeterWidomInsertion extends DataSourceScalar {
      * <code>residual</code> is false
      */
     public double getDataAsScalar() {
-        if (integrator == null) throw new IllegalStateException("must call setBox before using meter");
-        IBox box = integrator.getBox();
         double sum = 0.0; //sum for local insertion average
         energyMeter.setTarget(testMolecule);
+        if (integrator != null) temperature = integrator.getTemperature();
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             box.addMolecule(testMolecule);
             double u = energyMeter.getDataAsScalar();
-            sum += Math.exp(-u / integrator.getTemperature());
+            sum += Math.exp(-u / temperature);
+            if (Double.isInfinite(sum)) {
+                throw new RuntimeException("oops");
+            }
             box.removeMolecule(testMolecule);
         }
 
@@ -129,13 +131,27 @@ public class MeterWidomInsertion extends DataSourceScalar {
 
     /**
      * Sets the integrator associated with this class.  The box, potentialMaster
-     * and temperature are taken from the integrator.
+     * and temperature are taken from the integrator.  Alternatively, you can
+     * set the temperature, box and energy meter separately.
      */
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
-        energyMeter = new MeterPotentialEnergy(integrator.getPotentialMaster());
-        energyMeter.setBox(integrator.getBox());
-        positionSource.setBox(integrator.getBox());
+        setEnergyMeter(new MeterPotentialEnergy(integrator.getPotentialMaster()));
+        setBox(integrator.getBox());
+    }
+
+    public void setEnergyMeter(MeterPotentialEnergy newEnergyMeter) {
+        energyMeter = newEnergyMeter;
+    }
+
+    public void setBox(IBox newBox) {
+        this.box = newBox;
+        energyMeter.setBox(box);
+        positionSource.setBox(box);
+    }
+
+    public void setTemperature(double newTemperature) {
+        this.temperature = newTemperature;
     }
     
     /**
@@ -144,7 +160,10 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     public void setPositionSource(RandomPositionSource newPositionSource) {
         positionSource = newPositionSource;
-        if (integrator != null) {
+        if (box != null) {
+            positionSource.setBox(box);
+        }
+        else if (integrator != null) {
             positionSource.setBox(integrator.getBox());
         }
     }
@@ -156,7 +175,6 @@ public class MeterWidomInsertion extends DataSourceScalar {
         return positionSource;
     }
 
-    private static final long serialVersionUID = 1L;
     private IntegratorBox integrator;
 
     /**
@@ -171,4 +189,6 @@ public class MeterWidomInsertion extends DataSourceScalar {
     private MoleculeActionTranslateTo atomTranslator;
     protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeter;
+    protected IBox box;
+    protected double temperature;
 }
