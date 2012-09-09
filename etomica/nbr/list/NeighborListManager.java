@@ -167,12 +167,20 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
                 System.out.println("Updating neighbors");
             }
             if (unsafe) {
-                System.err.println("Atoms exceeded the safe neighbor limit");
+                numUnsafe++;
+                if (numUnsafe == 1 || (Long.toString(numUnsafe).matches("10*"))) {
+                    System.err.print("Atoms exceeded the safe neighbor limit");
+                    if (numUnsafe > 1) {
+                        System.err.print(" ("+numUnsafe+" times)");
+                    }
+                    System.err.println();
+                }
             }
             if (doApplyPBC) {
                 pbcEnforcer.actionPerformed();
             }
             neighborSetup();
+            numUpdates++;
             eventManager.neighborsUpdated();
         }
     }
@@ -192,6 +200,13 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     public void setUpdateInterval(int updateInterval) {
         this.updateInterval = updateInterval;
         iieCount = updateInterval;
+    }
+
+    /**
+     * Returns the number of times the neighbor lists have been updated.
+     */
+    public int getNumUpdates() {
+        return numUpdates;
     }
 
     public NeighborCriterion[] getCriterion(IAtomType atomType) {
@@ -378,6 +393,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     protected final PotentialMasterList potentialMaster;
     private BoxImposePbc pbcEnforcer;
     private boolean quiet;
+    protected long numUnsafe;
     protected final AtomLeafAgentManager agentManager2Body;
     protected final AtomLeafAgentManager agentManager1Body;
     private NeighborListEventManager eventManager;
@@ -385,6 +401,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     private NeighborCriterion[] oldCriteria;
     protected boolean initialized;
     protected boolean doApplyPBC;
+    protected int numUpdates;
 
     public Class getAgentClass() {
         return AtomNeighborLists.class;
