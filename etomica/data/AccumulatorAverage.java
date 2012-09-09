@@ -102,6 +102,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      *            new block size.
      */
     public void setBlockSize(long newBlockSize) {
+        if (newBlockSize == 0) throw new IllegalArgumentException("block size must be positive");
         blockSize = newBlockSize;
         reset();
     }
@@ -190,6 +191,10 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         return count;
     }
 
+    public long getSampleCount() {
+        return blockSize*count + (blockSize-blockCountDown);
+    }
+
     /**
      * Include correction to the uncertainty from block correlation function as
      * prescribed in
@@ -230,7 +235,6 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,BLOCK_CORRELATION};
     }
 
-    private static final long serialVersionUID = 1L;
     protected IData mostRecent;//most recent value
     protected IData average, error, standardDeviation;
     protected IData blockCorrelation;
