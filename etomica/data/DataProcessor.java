@@ -6,7 +6,7 @@ package etomica.data;
  * DataSink.
  */
 
-public abstract class DataProcessor implements DataPipe, java.io.Serializable {
+public abstract class DataProcessor implements DataPipe {
 
     public DataProcessor() {
         tag = new DataTag();

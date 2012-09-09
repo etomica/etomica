@@ -8,7 +8,7 @@ import etomica.units.Dimension;
  * Particular data source for which the data is a simple scalar of type double.
  */
  
-public abstract class DataSourceScalar implements IEtomicaDataSource, java.io.Serializable {
+public abstract class DataSourceScalar implements IEtomicaDataSource {
     
     public DataSourceScalar(String label, Dimension dimension) {
         data = new DataDouble();
