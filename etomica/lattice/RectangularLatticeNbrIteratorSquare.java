@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
+import etomica.util.Debug;
 
 
 /**
@@ -38,12 +39,21 @@ public class RectangularLatticeNbrIteratorSquare extends
      * to setLattice, setSite, setRange, or setDirection.
      */
     protected void updateNeighborList() {
+        if (range[0] == 0) {
+            throw new RuntimeException("this won't end well");
+        }
         neighborCount = 0; //(direction == null) ? 2*halfNeighborCount : halfNeighborCount;
         int centralSiteIndex = lattice.arrayIndex(centralSite);
         cursor = 0;
         if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
         if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
         needNeighborUpdate = false;
+        if (Debug.ON && neighborCount == 0) {
+            cursor = 0;
+            if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
+            if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
+            throw new RuntimeException("that doesn't seem right!");
+        }
     }
 
     
