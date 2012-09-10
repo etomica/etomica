@@ -51,7 +51,7 @@ public final class Constants {
      * Planck's constant, in simulation units.  Specifically, equal to approximately 39.903127 D-A^2/ps.
      */
     //convert from J-s to simulation units
-    public static final double PLANCK_H = Joule.UNIT.toSim(6.62606896e-34) * 1e12;
+    public static final double PLANCK_H = Joule.UNIT.toSim(6.62606957e-34) * 1e12;
 
     /**
      * Rydberg's constant, in Angstroms.
