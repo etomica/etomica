@@ -27,7 +27,7 @@ public class IdenticalGraphFilter extends GlobalFilter {
         if (isoGraph.compareTo(g1) == 0) {
           isoGraph.coefficient().add(g1.coefficient());
           result = false;
-          if (isoGraph.coefficient().getNumerator() == 0) {
+          if (isoGraph.coefficient().getValue() == 0) {
             set.remove(isoGraph);
             break;
           }
