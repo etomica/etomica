@@ -2,6 +2,7 @@ package etomica.virial;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import etomica.graph.operations.GraphOp;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.IsoFree.IsoFreeParams;
 import etomica.graph.operations.MaxIsomorph;
+import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.SplitOneBiconnected;
@@ -201,12 +203,27 @@ public class PYGenerator extends IEGenerator {
 
     public static Set<Graph> getICPYCorrection(byte n, boolean useE) {
         MetadataImpl.rootPointsSpecial = true;
+        final HashMap<Character,Integer> colorOrderMap = VirialDiagrams.initMetaDataComparator();
+        if (colorOrderMap != null) {
+            colorOrderMap.put('f', 3);
+            colorOrderMap.put('e', 4);
+        }
+
         GraphIterator it = new IteratorEF(n, useE);
         IsomorphismFilter iso = new IsomorphismFilter(it);
+        MaxIsomorph maxIso = new MaxIsomorph();
+        Property root01 = new Property() {
+            public boolean check(Graph graph) {
+                return graph.getNode((byte)0).getType() == Metadata.TYPE_NODE_ROOT && graph.getNode((byte)1).getType() == Metadata.TYPE_NODE_ROOT;
+            }
+        };
+        MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), root01);
         
-        Set<Graph> pycc = new HashSet<Graph>();
+        Set<Graph> pycc = VirialDiagrams.makeGraphList();
         while (iso.hasNext()) {
-            pycc.add(iso.next());
+            Graph g = iso.next();
+            Graph giso = maxIso.apply(g, mip);
+            pycc.add(giso);
         }
         return pycc;
     }
@@ -362,21 +379,32 @@ public class PYGenerator extends IEGenerator {
             ClusterViewer.createView("B correctionEF", correctionB);
         }
 
-        Set<Graph> correctionIC = VirialDiagrams.makeGraphList();
-        correctionIC.addAll(PYGenerator.getICPYCorrection((byte)(m+2), false));
+        Set<Graph> correctionIC = PYGenerator.getICPYCorrection((byte)(m+2), false);
         System.out.println("c"+(m+2)+" - c"+(m+2)+"ICPY (F)");
         for (Graph g : correctionIC) {
             System.out.println(g);
         }
         ClusterViewer.createView("ICcorrectionF", correctionIC);
 
-        correctionIC = VirialDiagrams.makeGraphList();
-        correctionIC.addAll(PYGenerator.getICPYCorrection((byte)(m+2), true));
+        correctionIC = PYGenerator.getICPYCorrection((byte)(m+2), true);
         System.out.println("c"+(m+2)+" - c"+(m+2)+"ICPY (EF)");
         for (Graph g : correctionIC) {
             System.out.println(g);
         }
         ClusterViewer.createView("ICcorrectionEF", correctionIC);
+
+        IsoFree isoFree = new IsoFree();
+        Set<Graph> correctionICB = VirialDiagrams.makeGraphList();
+        MulScalar mulScalar = new MulScalar();
+        MulScalarParameters msp = new MulScalarParameters(-1, m+2);
+        Set<Graph> cb = mulScalar.apply(correctionIC, msp);
+        for (Graph g : cb) {
+            g.getNode((byte)0).setType(Metadata.TYPE_NODE_FIELD);
+            g.getNode((byte)1).setType(Metadata.TYPE_NODE_FIELD);
+        }
+        MaxIsomorph maxIso = new MaxIsomorph();
+        correctionICB.addAll(maxIso.apply(isoFree.apply(cb, null), MaxIsomorph.PARAM_ALL));
+        ClusterViewer.createView("B ICcorrectionEF", correctionICB);
     }
 
     public static class IteratorEF implements GraphIterator {
