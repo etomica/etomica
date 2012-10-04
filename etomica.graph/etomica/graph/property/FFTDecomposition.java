@@ -93,7 +93,7 @@ public class FFTDecomposition implements Property {
     }
   }
 
-  protected int testPair(Graph g, byte start, byte end, List myStrands) {
+  public int testPair(Graph g, byte start, byte end, List myStrands) {
     int maxSegment = 0;
     g = g.copy();
     if (start != 0 || end != 1) {
