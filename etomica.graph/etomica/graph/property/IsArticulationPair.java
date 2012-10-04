@@ -28,26 +28,16 @@ public class IsArticulationPair {
 		
 		if(c.nodeCount()==0)return true;
 	
-	//	System.out.println("Articulation pair dropped");
-		
-		for(int i = 0;(i<c.nodeCount()); i++){       // To find all bonds
-			for(int j=0;j<c.getOutDegree( (byte) i);j++){
-	//			System.out.println(i+","+c.getOutNode( (byte) i,(byte) j )+" are the new bonds after dropping orphan bonds");
-			}
-		}
-		
 		if(c.nodeCount()<g.nodeCount()-2) {
 	//			System.out.println("c.nodeCount()<g.nodeCount()-2");
-				return true;
-			}
-		else if(!m.check(c)) {
+			return true;
+		}
+		if(!m.check(c)) {
 	//		System.out.println("isDisconnected(c) is true");
-				return true;
-			}
-		else {
+			return true;
+		}
 	//		System.out.println("isDisconnected(c) is not true");
-				return false;
-			 }
+		return false;
 	}
 
 }
