@@ -19,4 +19,6 @@ public interface Coefficient {
   public void setDenominator(int value);
 
   public void setNumerator(int value);
+  
+  public boolean hasOverflow();
 }
