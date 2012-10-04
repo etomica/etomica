@@ -23,7 +23,6 @@ public class MetadataImpl implements Metadata {
   // should also be special since they are rooted at a specific distance from
   // each other.
   public static boolean rootPointsSpecial = false;//only true for Wertheim diagram generator
-  public static boolean rootPointLabelSpecial= false;//HNCGenerator
   
   protected MetadataImpl(char type, char color) {
 
