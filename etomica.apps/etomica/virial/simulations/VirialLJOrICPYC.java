@@ -30,7 +30,7 @@ import etomica.units.Pixel;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.CalcFFT2;
+import etomica.virial.CalcFFT;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
@@ -117,7 +117,7 @@ public class VirialLJOrICPYC {
             rBondList = (int[][])Arrays.addObject(rBondList, new int[]{1,i});
             strandList.add(3);
         }
-        CalcFFT2 calcFFTRef = new CalcFFT2(new IFunction() {
+        CalcFFT calcFFTRef = new CalcFFT(new IFunction() {
             public double f(double x) {
                 return fRef.f(null, x*x, 1.0/temperature);
             }
