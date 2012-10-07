@@ -223,7 +223,7 @@ public class VirialHeNonAdditive {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{new SpeciesSpheresMono(space, new ElementSimple("A"))}, new int[]{nPoints},
                 temperature, new ClusterAbstract[]{refCluster,targetCluster}, targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
 
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         ///////////////////////////////////////////////
         // Initialize non-overlapped configuration
