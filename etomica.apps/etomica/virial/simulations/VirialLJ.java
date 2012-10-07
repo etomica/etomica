@@ -100,7 +100,7 @@ public class VirialLJ {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));

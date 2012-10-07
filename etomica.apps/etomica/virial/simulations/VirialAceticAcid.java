@@ -88,7 +88,7 @@ public class VirialAceticAcid {
         steps /= 1000;
         
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space,new SpeciesAceticAcid(space),temperature,refCluster,targetCluster, false);
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
     	SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
     	AceticAcidModPotentialHelper.initPotential(space, species, p);
 

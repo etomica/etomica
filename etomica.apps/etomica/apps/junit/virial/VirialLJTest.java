@@ -47,7 +47,7 @@ public class VirialLJTest extends TestCase {
         refCluster.setTemperature(temperature);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("LJ")), temperature,refCluster,targetCluster);
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
         sim.integratorOS.setNumSubSteps(1000);
         // this will run a short simulation to find it
         sim.initRefPref(null, steps/100);

@@ -517,7 +517,7 @@ public class VirialHePI {
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
 
         // we'll use substeps=1000 initially (to allow for better initialization)

@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,11 +39,8 @@ import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterTorsionAceticAcid;
 import etomica.virial.MCMoveClusterWiggleAceticAcid;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesAlkane;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 
@@ -173,7 +169,7 @@ public class VirialAceticAcidFlex {
         ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setConstraintMap(constraintMap);
         ((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setConstraintMap(constraintMap);
         
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
     	species = (SpeciesAceticAcid)sim.getSpecies(0);
     	AceticAcidModPotentialHelper.initPotential(space, species, p);
 

@@ -251,7 +251,7 @@ public class VirialHePYCorrection {
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
 		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("He")), temperature, refCluster, targetCluster);
-        sim.integratorOS.setAgressiveAdjustStepFraction(true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
         
         long t1 = System.currentTimeMillis();
         // The diagram which constitutes B4-B4PY is zero for an overlapped configuration.  Without ConfigurationClusterMove, the initial configuration will be overlapped, and gamma/pi will be zero.

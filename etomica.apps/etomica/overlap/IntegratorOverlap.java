@@ -80,7 +80,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      * if the actual reference fraction is less than the ideal, the integrator
      * only runs the reference system. 
      */
-    public void setAgressiveAdjustStepFraction(boolean b) {
+    public void setAggressiveAdjustStepFraction(boolean b) {
         doAggressiveAdjustStepFrac = b;
     }
     

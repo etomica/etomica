@@ -198,7 +198,7 @@ public class SimOverlapLJModule {
         module.setTargetDataInterval(numMolecules);
         module.setReferenceDataInterval(1);
         module.integratorOverlap.setDoAdjustOnTime(false);
-        module.integratorOverlap.setAgressiveAdjustStepFraction(true);
+        module.integratorOverlap.setAggressiveAdjustStepFraction(true);
 
         //start simulation
         module.getIntegratorOverlap().setNumSubSteps(1000);
