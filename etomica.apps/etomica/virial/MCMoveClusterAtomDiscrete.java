@@ -19,7 +19,16 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
         setStepSize(1.2);
         setStepSizeMin(2*dr);
         this.dr = dr;
+        rPow = 0;
 	}
+
+    public void setRPow(double newRPow) {
+        rPow = newRPow;
+    }
+
+    public double getRPow() {
+        return rPow;
+    }
 
     public boolean doTrial() {
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -39,8 +48,10 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     public double getA() {
         if (uOld == 0) return Double.POSITIVE_INFINITY;
         double ratio = uNew/uOld;
-        // we need to give r=0 double weight since we visit r=-1 and r=+1 
-        if (oldR == 0) ratio *= 0.5;
+        // if rPow is given, use it (if r=0, we have trouble)
+        if (rPow != 0) ratio *= Math.pow(newR/oldR, rPow);
+        // we need to give r=0 double weight since we visit r=-1 and r=+1
+        else if (oldR == 0) ratio *= 0.5;
         else if (newR == 0) ratio *= 2;
         return ratio;
     }
@@ -59,7 +70,5 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    private static final long serialVersionUID = 1L;
-
-    protected double dr, oldR, newR;
+    protected double dr, oldR, newR, rPow;
 }
