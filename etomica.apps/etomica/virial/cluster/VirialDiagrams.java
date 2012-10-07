@@ -948,7 +948,42 @@ public class VirialDiagrams {
         comp.addComparator(new ComparatorNumNodes());
         GraphList<Graph> graphList = new GraphList<Graph>(comp);
         return graphList;
-    }        
+    }
+
+    public static HashMap<Character,Integer> initMetaDataComparator() {
+        final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
+        if (MetadataImpl.metaDataComparator != null) {
+            System.err.println("metaDataComparator already created");
+            return null;
+        }
+        
+        MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
+            public int compare(Metadata m1, Metadata m2) {
+                Integer o1 = colorOrderMap.get(m1.getColor());
+                Integer o2 = colorOrderMap.get(m2.getColor());
+                if (o1 == o2) {
+                    return m1.getColor() > m2.getColor() ? 1 : -1;
+                }
+                if (o1 == null) {
+                    if (o2 == null) {
+                        return m1.getColor() > m2.getColor() ? 1 : -1;
+                    }
+                    return -1;
+                }
+                if (o2 == null) {
+                    return 1;
+                }
+                if (o1 != o2) {
+                    return o1 > o2 ? 1 : -1;
+                }
+                if (m1.getType() != m2.getType()) {
+                    return m1.getType() > m2.getType() ? 1 : -1;
+                }
+                return 0;
+            }
+        };
+        return colorOrderMap;
+    }
     
     public void makeRhoDiagrams() {
         flexColors = new char[0];
@@ -964,35 +999,7 @@ public class VirialDiagrams {
             }
         }
 
-        final HashMap<Character,Integer> colorOrderMap = new HashMap<Character,Integer>();
-        if (MetadataImpl.metaDataComparator == null) {
-            MetadataImpl.metaDataComparator = new Comparator<Metadata>() {
-    
-                public int compare(Metadata m1, Metadata m2) {
-                    Integer o1 = colorOrderMap.get(m1.getColor());
-                    Integer o2 = colorOrderMap.get(m2.getColor());
-                    if (o1 == o2) {
-                        return m1.getColor() > m2.getColor() ? 1 : -1;
-                    }
-                    if (o1 == null) {
-                        if (o2 == null) {
-                            return m1.getColor() > m2.getColor() ? 1 : -1;
-                        }
-                        return -1;
-                    }
-                    if (o2 == null) {
-                        return 1;
-                    }
-                    if (o1 != o2) {
-                        return o1 > o2 ? 1 : -1;
-                    }
-                    if (m1.getType() != m2.getType()) {
-                        return m1.getType() > m2.getType() ? 1 : -1;
-                    }
-                    return 0;
-                }
-            };
-        }
+        final HashMap<Character,Integer> colorOrderMap = initMetaDataComparator();
 
         GraphList<Graph> topSet = makeGraphList();
 
@@ -1010,11 +1017,13 @@ public class VirialDiagrams {
         Metadata.DASH_MAP.put(ffBond, 3);
         Metadata.DASH_MAP.put(mxcBond, 3);
         Metadata.DASH_MAP.put(MxcBond, 3);
-        colorOrderMap.put(oneBond, 0);
-        colorOrderMap.put(mBond, 1);
-        colorOrderMap.put(efbcBond, 2);
-        colorOrderMap.put(fBond, 3);
-        colorOrderMap.put(eBond, 4);
+        if (colorOrderMap != null) {
+            colorOrderMap.put(oneBond, 0);
+            colorOrderMap.put(mBond, 1);
+            colorOrderMap.put(efbcBond, 2);
+            colorOrderMap.put(fBond, 3);
+            colorOrderMap.put(eBond, 4);
+        }
         lnfXi = new HashSet<Graph>();
         IsoFree isoFree = new IsoFree();
 
