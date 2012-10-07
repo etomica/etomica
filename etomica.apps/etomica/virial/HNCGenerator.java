@@ -21,7 +21,7 @@ public class HNCGenerator {
 		Set<Graph> t0 = new GraphList<Graph>();
 		Set<Graph> h0 = new GraphList<Graph>();
 		
-		MetadataImpl.rootPointLabelSpecial= false;
+//		MetadataImpl.rootPointLabelSpecial= false;
 		MetadataImpl.rootPointsSpecial = false;
 		        
 		//create a Map
@@ -181,7 +181,7 @@ public class HNCGenerator {
         
         IsoFree Isofree = new IsoFree();
         
-        MetadataImpl.rootPointLabelSpecial= false;
+//        MetadataImpl.rootPointLabelSpecial= false;
         MetadataImpl.rootPointsSpecial = false;
             
         Set<Graph> temp = Isofree.apply(c, null);
