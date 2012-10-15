@@ -2,6 +2,7 @@ package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
 import etomica.api.IBox;
+import etomica.api.IFunction;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -11,6 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
+import etomica.util.Function;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -18,23 +20,23 @@ import etomica.units.Pressure;
  * @author David Kofke
  */
 public class MCMoveVolume extends MCMoveBoxStep {
-    
-    private static final long serialVersionUID = 2L;
+
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
     private final int D;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
+    protected IFunction vBias;
 
-    private transient double uOld, hOld, vNew, vScale, hNew;
+    private transient double biasOld, uOld, hOld, vNew, vScale, hNew;
     private transient double uNew = Double.NaN;
 
     public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
     		            ISpace _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
-    
+
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
@@ -52,8 +54,9 @@ public class MCMoveVolume extends MCMoveBoxStep {
         setPressure(pressure);
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
+        vBias = new Function.Constant(1);
     }
-    
+
     public void setInflater(BoxInflate newInflate) {
         inflate = newInflate;
         inflate.setBox(box);
@@ -65,11 +68,16 @@ public class MCMoveVolume extends MCMoveBoxStep {
         inflate.setBox(p);
         affectedAtomIterator.setBox(p);
     }
-    
+
+    public void setVolumeBias(IFunction vBias) {
+        this.vBias = vBias;
+    }
+
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
+        biasOld = vBias.f(vOld);
         vScale = (2.*random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
@@ -79,25 +87,26 @@ public class MCMoveVolume extends MCMoveBoxStep {
         hNew = uNew + pressure*vNew;
         return true;
     }//end of doTrial
-    
+
     public double getA() {
         // N, not N+1 here because of the shell volume
         // D. S. Corti, Mol. Phys. 100, 1887 (2002).
-        return Math.exp(box.getMoleculeList().getMoleculeCount()*vScale);
+        double biasNew = vBias.f(box.getBoundary().volume());
+        return biasNew/biasOld*Math.exp(box.getMoleculeList().getMoleculeCount()*vScale);
     }
-    
+
     public double getB() {
         return -(hNew - hOld);
     }
-    
+
     public void acceptNotify() {  /* do nothing */}
-    
+
     public void rejectNotify() {
         inflate.undo();
     }
 
     public double energyChange() {return uNew - uOld;}
-    
+
     public AtomIterator affectedAtoms() {
         return affectedAtomIterator;
     }
