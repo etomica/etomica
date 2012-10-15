@@ -217,6 +217,14 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         oldEnergy = Double.NaN;
     }
 
+    /**
+     * Configures the thermostat to remove any net momenta imparted
+     * to the system.
+     */
+    public void setThermostatNoDrift(boolean newNoDrift) {
+        thermostatNoDrift = newNoDrift;
+    }
+
     public ThermostatType getThermostat() {
         return thermostat;
     }
@@ -250,7 +258,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         thermostatting = true;
         thermostatCount = thermostatInterval;
         boolean rejected = false;
-        if (thermostat == ThermostatType.ANDERSEN || thermostat == ThermostatType.ANDERSEN_NODRIFT || thermostat == ThermostatType.HYBRID_MC || !initialized) {
+        if (thermostat == ThermostatType.ANDERSEN || thermostat == ThermostatType.HYBRID_MC || !initialized) {
             if (thermostat == ThermostatType.HYBRID_MC) {
                 if (!Double.isNaN(oldEnergy)) {
                     // decide whether or not to go back to the old configuration
@@ -294,6 +302,10 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 }
             }
             randomizeMomenta();
+            if (thermostatNoDrift) {
+                shiftMomenta();
+                currentKineticEnergy = meterKE.getDataAsScalar();
+            }
             if (thermostat == ThermostatType.ANDERSEN) {
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
@@ -318,16 +330,9 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 oldEnergy += currentKineticEnergy;
             }
         }
-        if (thermostat == ThermostatType.VELOCITY_SCALING || thermostat == ThermostatType.ANDERSEN_NODRIFT || !isothermal) {
+        if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
             shiftMomenta();
-            if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
-                scaleMomenta();
-            }
-            else {
-                // shifting changes the kinetic energy, so we need to recalculate it
-                // (scaleMomenta does this on its own)
-                currentKineticEnergy = meterKE.getDataAsScalar();
-            }
+            scaleMomenta();
         }
         else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
             if (initialized) {
@@ -541,6 +546,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     protected double currentTime;
     protected final ISpace space;
     protected boolean thermostatting = false;
+    protected boolean thermostatNoDrift = false;
 
     protected double oldEnergy = Double.NaN, oldPotentialEnergy = Double.NaN;
     protected long nRejected = 0, nAccepted = 0;
