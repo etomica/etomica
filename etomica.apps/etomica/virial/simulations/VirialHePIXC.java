@@ -10,14 +10,11 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -127,7 +124,7 @@ public class VirialHePIXC {
         MCMoveBox ring;
         double energyFac = nSpheres*Math.PI/(lambda*lambda);
         if (aRef < 1) {
-            MCMoveClusterRingPartialRegrow ringMove = new MCMoveClusterRingPartialRegrow(sim.getRandom(), space, new int[][]{{0,1}});
+            MCMoveClusterRingPartialRegrow ringMove = new MCMoveClusterRingPartialRegrow(sim.integrator.getPotentialMaster(), sim.getRandom(), space, new int[][]{{0,1}});
             ringMove.setEnergyFactor(energyFac);
             int numRegrowBeads = nSpheres/3;
             System.out.println("regrow "+numRegrowBeads+" beads");
@@ -144,7 +141,7 @@ public class VirialHePIXC {
         }
         sim.integrator.getMoveManager().addMCMove(ring);
         
-        MCMoveClusterRingScale ringScale = new MCMoveClusterRingScale(sim.getRandom(), space, new int[][]{{0,1}});
+        MCMoveClusterRingScale ringScale = new MCMoveClusterRingScale(sim.integrator.getPotentialMaster(), sim.getRandom(), space, new int[][]{{0,1}});
         ringScale.setEnergyFactor(energyFac);
         sim.integrator.getMoveManager().addMCMove(ringScale);
         sim.integrator.getMoveManager().setFrequency(ringScale, 0.01);
@@ -185,12 +182,12 @@ public class VirialHePIXC {
             ((DisplayBoxCanvasG3DSys)displayBox.canvas).setBackgroundColor(Color.WHITE);
             
 //            IAtomList leafList = sim.box.getLeafList();
-            AtomPair pair = new AtomPair();
-            for (int i=0; i<leafList.getAtomCount()-1; i++) {
-                pair.atom0 = leafList.getAtom(i);
-                pair.atom1 = leafList.getAtom(i+1);
-                ((DisplayBoxCanvasG3DSys)displayBox.canvas).makeBond(pair, null);
-            }
+//            AtomPair pair = new AtomPair();
+//            for (int i=0; i<leafList.getAtomCount()-1; i++) {
+//                pair.atom0 = leafList.getAtom(i);
+//                pair.atom1 = leafList.getAtom(i+1);
+//                ((DisplayBoxCanvasG3DSys)displayBox.canvas).makeBond(pair, null);
+//            }
 //            pair.atom0 = leafList.getAtom(leafList.getAtomCount()-1);
 //            pair.atom1 = leafList.getAtom(0);
 //            ((DisplayBoxCanvasG3DSys)displayBox.canvas).makeBond(pair, null);
