@@ -1,12 +1,10 @@
 package etomica.atom.iterator;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IMoleculeList;
 
 /**
- * Iterator that returns coupled iterates; the first pair contains the first
- * atom from each basis.  The second pair has the second atom from each basis.
- *
- * @author Andrew Schultz
  */
 public class ApiIntergroupExchange extends ApiIntergroup {
 
@@ -37,26 +35,28 @@ public class ApiIntergroupExchange extends ApiIntergroup {
     	//outer = iterator over atoms in polymer 1 
     	//inner = iterator over atoms in polymer 2
     	
-    	if (atom1 >= aiOuter.size()) {
+    	if (atom1 >= aiOuterSize) {
             return null;
         }
     	
         pair.atom0 = aiOuter.nextAtom();
         pair.atom1 = aiInner.nextAtom();
+        //System.out.println(pair);
         atom1++;
         atom2++;
-        if (atom2 == aiInner.size()) { 
+        if (atom2 == aiInnerSize) { 
         	atom2=0;
         	aiInner.reset();
         	monomer1++;
         	atom1=monomer1*P;
-        	if (atom1 < aiOuter.size()) {
+        	if (atom1 < aiOuterSize) {
         		((AtomIteratorAtomDependent)aiOuter).setAtom(((AtomIteratorArrayListSimple)aiOuter).getList().getAtom(atom1));
         	}
         	
         } else if (atom1 % P == 0) { 
         	atom1=monomer1*P;
         	((AtomIteratorAtomDependent)aiOuter).setAtom(((AtomIteratorArrayListSimple)aiOuter).getList().getAtom(atom1));
+        	aiOuter.reset();
         }
         
         
@@ -64,6 +64,10 @@ public class ApiIntergroupExchange extends ApiIntergroup {
     }
 
     public void reset() {
+    	((AtomIteratorAtomDependent)aiOuter).setAtom(startAtom0);
+    	((AtomIteratorAtomDependent)aiInner).setAtom(startAtom1);
+    	aiOuterSize = aiOuter.size();
+        aiInnerSize = aiInner.size();
         aiOuter.reset();
         aiInner.reset();
         monomer1 = 0;
@@ -71,8 +75,20 @@ public class ApiIntergroupExchange extends ApiIntergroup {
         atom2 = 0;
     }
     
+    public void setBasis(IMoleculeList basisAtoms) {
+        super.setBasis(basisAtoms);
+        if (basisAtoms != null) {
+        	startAtom0 = basisAtoms.getMolecule(0).getChildList().getAtom(0);
+        	startAtom1 = basisAtoms.getMolecule(1).getChildList().getAtom(0);
+        }
+    }
+    
     protected final int P;
     protected int monomer1;
     protected int atom1;
     protected int atom2;
+    protected IAtom startAtom0;
+    protected IAtom startAtom1;
+    protected int aiOuterSize;
+    protected int aiInnerSize;
 }
