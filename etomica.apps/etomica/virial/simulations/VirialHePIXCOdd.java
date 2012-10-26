@@ -721,7 +721,7 @@ public class VirialHePIXCOdd {
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
-        sim.ai.setMaxSteps(1000);
+        sim.ai.setMaxSteps(steps); //sim.ai.setMaxSteps(1000);
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
         
@@ -785,10 +785,10 @@ public class VirialHePIXCOdd {
      */
     public static class VirialHePIParam extends ParameterBase {
         public int[] rings = {3,1}; //length of array indicates number of rings (and hard spheres); elements indicate number of molecules in each ring
-        public int nBeads = 64;
+        public int nBeads = 16;
         public double temperature = 7;   // Kelvin
-        public long blocks = 1000;  //NOT overlap blocks
-        public int stepsPerBlock = 1000;
+        public long blocks = 10000;  //NOT overlap blocks
+        public int stepsPerBlock = 10000;
         public long blocksEq=10; //NOT overlap steps
         public double refFrac = 0.5; //not adjustment of step freqency if positive
         public boolean doHist = false;
