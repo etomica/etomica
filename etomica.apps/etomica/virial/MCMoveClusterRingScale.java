@@ -3,11 +3,13 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
+import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.ISpace;
 
@@ -17,18 +19,19 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterRingScale extends MCMoveBox {
 
-    public MCMoveClusterRingScale(IRandom random, ISpace _space) {
-        this(random, _space, new int[0][0]);
+    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, ISpace _space) {
+        this(potentialMaster, random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingScale(IRandom random, ISpace _space, int[][] tangledMolecules) {
-        super(null);
+    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, ISpace _space, int[][] tangledMolecules) {
+        super(potentialMaster);
         this.space = _space;
         this.random = random;
         this.tangledMolecules = tangledMolecules;
         com = space.makeVector();
         leafIterator = new AtomIteratorLeafAtoms();
         myAtoms = new AtomArrayList();
+        energyMeter = new MeterPotentialEnergy(potential);
 	}
     
     public void setEnergyFactor(double factor) {
@@ -38,9 +41,12 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     public void setBox(IBox p) {
         super.setBox(p);
         leafIterator.setBox(p);
+        energyMeter.setBox(p);
     }
     
 	public boolean doTrial() {
+		uOld = energyMeter.getDataAsScalar();
+		
         weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList molecules = box.getMoleculeList();
@@ -79,7 +85,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
             com.PE(atoms.getAtom(j).getPosition());
         }
         com.TE(1.0/nAtoms);
-        System.out.println(com);
+        //System.out.println(com);
         boolean scaleUp = random.nextInt(2) == 1;
         scale = scaleUp ? 1.001 : 1.0/1.001;
         double uOld = 0;
@@ -104,6 +110,9 @@ public class MCMoveClusterRingScale extends MCMoveBox {
         ((BoxCluster)box).trialNotify();
         weightNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        System.out.println(wOld+" =?=> "+wNew);
+        
+        uNew = energyMeter.getDataAsScalar();
+        
 		return true;
 	}
 	
@@ -113,7 +122,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     }
 
     public double getB() {
-    	return 0.0;
+        return -(uNew - uOld);
     }
     
     public void rejectNotify() {
@@ -152,11 +161,12 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     protected IAtomList atoms;
     protected final ISpace space;
     protected final IRandom random;
-    protected double weightOld, weightNew;
+    protected double weightOld, weightNew, uOld, uNew;
     protected final IVectorMutable com;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
     protected final int[][] tangledMolecules;
     protected final AtomArrayList myAtoms;
     protected int iMolecule;
+    protected final MeterPotentialEnergy energyMeter;
 }

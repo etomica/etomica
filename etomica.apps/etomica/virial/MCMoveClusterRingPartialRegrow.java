@@ -4,12 +4,14 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
+import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.space.ISpace;
 import etomica.util.HistogramExpanding;
@@ -24,12 +26,12 @@ import etomica.util.HistogramExpanding;
  */
 public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
 
-    public MCMoveClusterRingPartialRegrow(IRandom random, ISpace _space) {
-        this(random, _space, new int[0][0]);
+    public MCMoveClusterRingPartialRegrow(IPotentialMaster potentialMaster, IRandom random, ISpace _space) {
+        this(potentialMaster, random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingPartialRegrow(IRandom random, ISpace _space, int[][] tangledMolecules) {
-        super(null);
+    public MCMoveClusterRingPartialRegrow(IPotentialMaster potentialMaster, IRandom random, ISpace _space, int[][] tangledMolecules) {
+        super(potentialMaster);
         this.space = _space;
         this.random = random;
         this.tangledMolecules = tangledMolecules;
@@ -37,6 +39,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
         dcom = space.makeVector();
         leafIterator = new AtomIteratorLeafAtoms();
         myAtoms = new AtomArrayList();
+        energyMeter = new MeterPotentialEnergy(potential);
 	}
     
     public void setNumTrial(int newNumTrial) {
@@ -70,6 +73,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
 
     public void setBox(IBox p) {
         super.setBox(p);
+        energyMeter.setBox(p);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         hist = new HistogramExpanding[nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
@@ -84,6 +88,8 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     
 	//note that total energy is calculated
 	public boolean doTrial() {
+		uOld = energyMeter.getDataAsScalar();
+		
         weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList molecules = box.getMoleculeList();
@@ -218,9 +224,17 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
             }
 
         ((BoxCluster)box).trialNotify();
-        weightNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        weightNew = calcWeight();
 //        System.out.println(wOld+" =?=> "+wNew);
+        
+        
+        uNew = energyMeter.getDataAsScalar();
+        
 		return true;
+	}
+	
+	protected double calcWeight() {
+		return ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 	}
 	
     public double getA() {
@@ -229,7 +243,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     }
 
     public double getB() {
-    	return 0.0;
+        return -(uNew - uOld);
     }
     
     public void rejectNotify() {
@@ -272,7 +286,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     // Rosenbluth weights
     protected double wOld, wNew;
     // cluster weights
-    protected double weightOld, weightNew;
+    protected double weightOld, weightNew, uOld, uNew;
     protected final IVectorMutable dcom;
     protected final AtomIteratorLeafAtoms leafIterator;
     protected double fac;
@@ -281,4 +295,5 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     protected final AtomArrayList myAtoms;
     protected int numBeads, maxNumBeads;
     protected int kStart, iMolecule;
+    protected final MeterPotentialEnergy energyMeter;
 }
