@@ -244,7 +244,12 @@ public class VirialHePIXCOdd {
             weights[0] = 1.0;
     	} else if (nRings == 3) {
     		//attempt at B4Odd diagram with 1 dimer and 2 monomers
-            clusters[0] = new ClusterBondsNonAdditive(3, new int[1][0][0], new int[][]{{},{},{},{0}}); 
+    		if (pairOnly) {
+    			int[][][] bondList = {{{0,1},{0,2},{1,2}}, {}};
+                clusters[0] = new ClusterBonds(3, bondList, false);
+    		} else {
+    			clusters[0] = new ClusterBondsNonAdditive(3, new int[1][0][0], new int[][]{{},{},{},{0}}); 
+    		}
             weights[0] = 1.0;
     	} else {
         	throw new RuntimeException("Error in rings array.");
@@ -365,8 +370,10 @@ public class VirialHePIXCOdd {
         System.out.println(1000+" steps per overlap-sampling block");
         
         SpeciesSpheres[] species = new SpeciesSpheres[nRings];
+        int[] simMolecules = new int[nRings];
         for (int i=0;i<nRings;i++) {
         	species[i] = new SpeciesSpheres(space, (rings[i]*nBeads), new AtomTypeLeaf(new ElementChemical("He"+rings[i]+i, heMass, 2)), new ConformationLinear(space, 0));
+        	simMolecules[i] = 1;
         }
       
         
@@ -374,7 +381,7 @@ public class VirialHePIXCOdd {
         
         
         // new int[]{nPoints+(doFlex?1:0)} needed at fourth (but not third) order
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, new int[]{1,1}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, simMolecules, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                   new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
 
         //Garberoglio and Harvey's U12 
@@ -784,11 +791,11 @@ public class VirialHePIXCOdd {
      * Inner class for parameters
      */
     public static class VirialHePIParam extends ParameterBase {
-        public int[] rings = {3,1}; //length of array indicates number of rings (and hard spheres); elements indicate number of molecules in each ring
+        public int[] rings = {2,1,1}; //length of array indicates number of rings (and hard spheres); elements indicate number of molecules in each ring
         public int nBeads = 16;
         public double temperature = 7;   // Kelvin
-        public long blocks = 10000;  //NOT overlap blocks
-        public int stepsPerBlock = 10000;
+        public long blocks = 1000;  //NOT overlap blocks
+        public int stepsPerBlock = 1000;
         public long blocksEq=10; //NOT overlap steps
         public double refFrac = 0.5; //not adjustment of step freqency if positive
         public boolean doHist = false;
