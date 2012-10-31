@@ -99,6 +99,11 @@ public class VirialHePIXCOdd {
         for (int i=0; i<nRings; i++) {
         	nPoints = nPoints + rings[i];
         	System.out.println(rings[i]+"-molecule ring");
+        	if  (i>0) {
+        		if (rings[i]>rings[i-1]) {
+        			throw new RuntimeException("list rings in descending order.");
+        		}
+        	}
         }
         
         if (sigmaHSRef == -1) {
@@ -234,8 +239,12 @@ public class VirialHePIXCOdd {
             }
         };
         
-    	ClusterBonds[] clusters = new ClusterBonds[1];
-    	double[] weights = new double[1];
+        int nDiagrams = 1;
+        if (nRings == 3 && pairOnly) {
+        	nDiagrams = 4;
+        }
+    	ClusterBonds[] clusters = new ClusterBonds[nDiagrams];
+    	double[] weights = new double[nDiagrams];
     	
     	if (nRings == 2) {
     		// works for B3Odd and B4Odd diagrams with two clusters
@@ -245,12 +254,23 @@ public class VirialHePIXCOdd {
     	} else if (nRings == 3) {
     		//attempt at B4Odd diagram with 1 dimer and 2 monomers
     		if (pairOnly) {
-    			int[][][] bondList = {{{0,1},{0,2},{1,2}}, {}};
-                clusters[0] = new ClusterBonds(3, bondList, false);
+    			int[][][] bondList0 = {{{0,1},{0,2},{1,2}}, {}};
+    			int[][][] bondList1 = {{{0,1},{0,2}}, {}};
+    			int[][][] bondList2 = {{{0,1},{1,2}}, {}};
+    			int[][][] bondList3 = {{{0,2},{1,2}}, {}};
+                clusters[0] = new ClusterBonds(3, bondList0, false);
+                clusters[1] = new ClusterBonds(3, bondList1, false);
+                clusters[2] = new ClusterBonds(3, bondList2, false);
+                clusters[3] = new ClusterBonds(3, bondList3, false);
+                weights[0] = 1.0;
+                weights[1] = 1.0;
+                weights[2] = 1.0;
+                weights[3] = 1.0;
     		} else {
     			clusters[0] = new ClusterBondsNonAdditive(3, new int[1][0][0], new int[][]{{},{},{},{0}}); 
+    			weights[0] = 1.0;
     		}
-            weights[0] = 1.0;
+            
     	} else {
         	throw new RuntimeException("Error in rings array.");
         }
@@ -802,7 +822,7 @@ public class VirialHePIXCOdd {
         public double sigmaHSRef = -1; // -1 means use equation for sigmaHSRef
         public int beadFac = 1;  //2 if subtract half, 1 if not
         public boolean subtractHalf = false;
-        public boolean calcApprox = false;
+        public boolean calcApprox = true;
         public boolean subtractApprox = false;
         public boolean pairOnly = true;
         public boolean doTotal = false;
