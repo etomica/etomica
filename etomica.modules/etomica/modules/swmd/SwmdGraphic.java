@@ -3,8 +3,6 @@ package etomica.modules.swmd;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
@@ -21,6 +19,7 @@ import etomica.action.SimulationRestart;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
@@ -33,12 +32,11 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergyFromIntegrator;
@@ -94,9 +92,9 @@ import etomica.units.Time;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
+import etomica.util.Constants.CompassDirection;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramSimple;
-import etomica.util.Constants.CompassDirection;
 
 public class SwmdGraphic extends SimulationGraphic {
 
@@ -110,7 +108,7 @@ public class SwmdGraphic extends SimulationGraphic {
     protected P2Ideal potentialIdeal;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
     public double lambda, epsilon, mass, sigma;
-    protected Unit eUnit, dUnit, pUnit, mUnit;
+    protected Unit tUnit, eUnit, dUnit, pUnit, mUnit;
     protected Swmd sim;
     
     private boolean showConfig = true;
@@ -129,7 +127,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
     	this.sim = simulation;
 
-        Unit tUnit = Kelvin.UNIT;
+        tUnit = Kelvin.UNIT;
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
@@ -185,12 +183,11 @@ public class SwmdGraphic extends SimulationGraphic {
         
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
-        tempSlider.setUnit(Kelvin.UNIT);
+        tempSlider.setUnit(tUnit);
 //        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
         tempSlider.setMaximum(1500.0);
         tempSlider.setSliderMajorValues(3);
-        tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
 
         JPanel statePanel = new JPanel(new GridBagLayout());
@@ -464,7 +461,7 @@ public class SwmdGraphic extends SimulationGraphic {
 	    final IAction temperatureAction = new IAction() {
 		    public void actionPerformed() {
 		        resetDataAction.actionPerformed();
-		        mbDistribution.setTemperature(Kelvin.UNIT.toSim(tempSlider.getTemperature()));
+		        mbDistribution.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
 		        mbSource.update();
 		        vPlot.doUpdate();
 		        vPlot.repaint();
