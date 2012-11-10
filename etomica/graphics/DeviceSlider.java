@@ -164,6 +164,7 @@ public class DeviceSlider extends Device {
     public void setUnit(Unit u) {
         super.setUnit(u);
         setLabelDefault();
+        if (modifyAction!=null) doUpdate();
     }
 
     public void setBorderAlignment(int align) {
