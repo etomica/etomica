@@ -168,8 +168,8 @@ public class MeterVirialExternalFieldOverlapConfinedRho implements ClusterWeight
     		x[0] += v;
     	    	
     	    	int istart = (int)Math.ceil((ghighestatom)/0.01);
-    	    	int ilast = (int)Math.floor((glowestatom - 1 + walldistance)/0.01);
-    	    	for (int i = istart; i < ilast; i++){
+    	    	int ilast = (int)Math.floor((glowestatom - 1 + walldistance)/0.01) ;
+    	    	for (int i = istart; i <= ilast; i++){
 
     		      //for (int i=0; i <= wallPosition.length; i++){
     	    		double wallPosition = 0.01*i - walldistance + 0.5;    	    		
@@ -210,18 +210,26 @@ public class MeterVirialExternalFieldOverlapConfinedRho implements ClusterWeight
     	    		}   
     	    		
     	    		int numWallPosition = (int)Math.round((walldistance-1)/0.01) + 1 ;
-    	    		int j = i > (numWallPosition-1)/2 ? numWallPosition-i : i;
-    	    		
+    	    		int j = i > (numWallPosition-1)/2 ? numWallPosition - i - 1 : i;
+    	    		/*if(i==127){
+    	    			 System.out.println("j="+j+" numWallPosition="+numWallPosition);
+    	    		}*/
     	    	
     	    		x[j + 1] += g1*g4*v;
+    	    		if(j==0){
+    	    			x[x.length-2] += 0.005*g1*g4*v;
+    	    		}
+    	    		else{
     	    		x[x.length-2] += 0.01*g1*g4*v;
+    	    		}
         	    	x[x.length-1] += Math.abs(0.01*g1*g4*v);  
     	    	}    	    	
 	    	    	  
     	    
       	}  
     	for(int i=0;i<Math.round((walldistance-1)/0.02);i++){
-    	x[i] = x[i]/2; 
+    		
+    	x[i+1] = x[i+1]/2; 
     	}
         return data; 
         
