@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +15,6 @@ import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.traversal.BCVisitor;
 import etomica.graph.traversal.Biconnected;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
 import etomica.virial.cluster.ExternalVirialDiagrams;
 
 /**
@@ -35,10 +33,15 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
 		Set<Graph> gset = diagrams.getMSMCGraphsEX(true);
 		clusters = new ArrayList<ClusterAbstract>(gset.size());
 		listsPoint = new ArrayList<List<List<Byte>>>(gset.size());
-		comparator = new RangeComparator();
-	    		
-		for(Graph g : gset){
-
+	    
+		//int gNum = 0;
+		
+		for(Graph g : gset){	
+				
+			//if (gNum < 5) {
+			//	gNum++;continue;
+			//	}	 
+			 
 			ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
             ArrayList<Double> weights = new ArrayList<Double>();
             diagrams.populateEFBonds(g, allBonds, weights, false);  
@@ -96,11 +99,14 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
 		        prvLayerList = layerList;
             }
             listsPoint.add(listComponent);
-            
+           
+            //if(gNum == 5){
+            //	break;
+            //}
 		}
 		
 		for (ClusterAbstract cluster : clusters){
-			cluster.setTemperature(1);
+			cluster.setTemperature(temperature);
 		}
 		
 		this.wallDistance = walldistance;
@@ -127,21 +133,26 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
         IAtomList atoms = box.getLeafList();
         for(int i=0; i<x.length; i++){
         	x[i]=0;
-        }                    
-            
+        }          
+        
+        //atoms.getAtom(1).getPosition().setX(2,+0.01);
+       // atoms.getAtom(2).getPosition().setX(2,+0.6);
+        //atoms.getAtom(3).getPosition().setX(2,-0.6);       
+        
     	for(int c=0; c<clusters.size();c++){
-    		double v =clusters.get(c).value(box);        			
+    		double v =clusters.get(c).value(box);       
+    		//v = Math.exp(1/0.6)-1;
     		if (v==0){
     	    	continue;
     	    }
-    		      
+    		
     	    List<List<Byte>> cList = listsPoint.get(c);
     	    List<Byte> gList = cList.get(0);    	    
     	 
     	    double glowestatom = 0.0;
     	    double ghighestatom = 0.0;     	   	    
     	    double [] z = new double [atoms.getAtomCount()];       	   
-    	    
+    
     	    for(byte g : gList){
     	    	z[g] = atoms.getAtom(g).getPosition().getX(2);
     	    	if (z[g] < glowestatom){
@@ -152,20 +163,21 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
     	    	}
     	    }  
     	   	     	  
-    	    x[0] += v;
+    		x[0] += v;
     	    
     	    for (int j=0; j<wallDistance.length; j++){
-    
+    	    	
     	    	int istart = (int)Math.ceil(((ghighestatom + 0.5) - wallDistance[j])/0.01);
     	    	int ilast = (int)Math.floor((glowestatom - 0.5)/0.01);
     	    	for (int iwallPosition = istart; iwallPosition < ilast; iwallPosition++){    	    		
-    	    		double wallPosition = iwallPosition*0.01;
+    	    		double wallPosition = iwallPosition * 0.01;    	    		
     	    		double g1 = 1;
-    	    		for(byte g : gList){    	    		
+    	    		for(byte g : gList){
+    	    			
     	    				if (z[g] < wallPosition + 0.5 + lambdaWF){
     	    					g1 *= Math.exp(epsilonWF / temperature);    	    				
     	    				}
-    	    				if (z[g] < wallPosition + wallDistance[j] - 0.5 - lambdaWF){
+    	    				if (z[g] > wallPosition + wallDistance[j] - 0.5 - lambdaWF){
     	    					g1 *= Math.exp(epsilonWF / temperature); 
     	    				}    	    				
     	    			}    	    	
@@ -173,9 +185,9 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
     	    		double g4 = 1;	    		
     	    		for(int i=0; i<cList.size()-1; i++){
     	    			List<Byte> gm1List = cList.get(i+1);
-    	    			double g2 = 1;
+    	    			double g2 = 1;    	    		
+    	    			for(byte gm1 :gm1List){
     	    			
-    	    			for(byte gm1 :gm1List){ 
     	    				if (atoms.getAtom(gm1).getPosition().getX(2) < wallPosition + 0.5 || wallPosition + wallDistance[j] - 0.5 < atoms.getAtom(gm1).getPosition().getX(2)){
     	    					g2 *= 0;
     	    				}    	   
@@ -186,16 +198,22 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
     	    					g2 *= Math.exp(epsilonWF / temperature); 
     	    				}
     	    					    			
-    	    			}
+    	    			}   	    		  	    			
+    	    			
     	    			double g3 = g2 - 1; 
     	    			g4 *= g3;
-    	    		}    	    		
-    	    		 x[j+1] += 0.01*g1*g4*v;
-    	    	}
-    	    	
-    	    	 x[x.length-1] += Math.abs(x[j+1]);      
+    	    		}     	    		
+    	    		//System.out.println("wp = " + wallPosition+ " target = " +g1*g4*v+ " v = "+v);
+    	    		//double wp = wallPosition;
+    	    		//double ta = g1*g4*v;
+    	    		//double a = v;
+    	    		x[j+1] += 0.01*g1*g4*v;
+    	    		
+    	    	}    	    	
+    	    	//System.out.println("gm1 = " + atoms.getAtom(1).getPosition().getX(2) + " ta = " + x[j+1] + " v =" + v);		    	    	
+    	    	x[x.length-1] += Math.abs(x[j+1]);      
     	    }
-    	  
+    	    
       	}   
         return data; 
         
@@ -214,23 +232,8 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
 	private final DataDoubleArray data;
 	private final IEtomicaDataInfo dataInfo;
     private final DataTag tag;
-    protected final RangeComparator comparator;
     private final double [] wallDistance;
     private BoxCluster box;
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;    
     
-    protected static class RangeComparator implements Comparator<DoubleRange>{
-
-		public int compare(DoubleRange o1, DoubleRange o2) {
-			if(o1.maximum() < o2.maximum()){
-			// TODO Auto-generated method stub
-			return -1;
-			}
-			if(o1.maximum() > o2.maximum()){
-				return +1;
-			}
-			return 0;
-		}
-    	
-    }
 }
