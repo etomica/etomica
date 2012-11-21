@@ -96,7 +96,7 @@ public class VirialExternalFieldConfinedOverlapSW {
         
         MetadataImpl.rootPointsSpecial=true;
         
-        ExternalVirialDiagrams refDiagrams = new ExternalVirialDiagrams(nPoints, false, false);
+        ExternalVirialDiagrams refDiagrams = new ExternalVirialDiagrams(nPoints, true, false, false);
         refDiagrams.setDoShortcut(true);
         ClusterSum refCluster = refDiagrams.makeRhoCluster(fRef, false);        
         
@@ -110,12 +110,14 @@ public class VirialExternalFieldConfinedOverlapSW {
 		
 		final ClusterWeightSumWall targetSampleCluster =  new ClusterWeightSumWall(meter, nPoints);
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, new ClusterAbstract[] {refCluster,targetSampleCluster}, new ClusterWeight[] {sampleCluster, targetSampleCluster}, false);
-              sim.box[1].getLeafList().getAtom(1).getPosition().setX(2, -0.1); 
-              //sim.box[1].getLeafList().getAtom(2).getPosition().setX(2, +0.9);
-              sim.box[1].trialNotify();
-              sim.box[1].acceptNotify();
-              targetSampleCluster.value(sim.box[1]);
-
+		
+        do {
+			for (int i = 1; i<nPoints; i++){
+				sim.box[1].getLeafList().getAtom(i).getPosition().setX(2, sim.getRandom().nextDouble()-0.5); 
+			}
+			sim.box[1].trialNotify();
+		    sim.box[1].acceptNotify();
+		} while (targetSampleCluster.value(sim.box[1]) == 0);            
        
         DataProcessorFunction dividedbyPi = new DataProcessorFunction(null) {
 
@@ -176,13 +178,12 @@ public class VirialExternalFieldConfinedOverlapSW {
      */
     public static class VirialExternalFieldParam extends ParameterBase {
         public int nPoints = 2;
-        public double temperature = 1.0;
-        public long numSteps = 1000L;
-        public double [] walldistance = new double[]{10, 8};
-        public double lambda = 1.5;
-        public double lambdaWF = 1.0;
+        public double temperature = 1.2;
+        public long numSteps = 100L;       
         public double epsilon = 1.0;
-        public double epsilonWF = 2.0;
-        
+        public double lambda = 1.5;
+        public double epsilonWF = 0.0;
+        public double lambdaWF = 0.0;
+        public double [] walldistance = new double[]{5, 4};
     }
 }

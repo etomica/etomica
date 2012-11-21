@@ -67,6 +67,16 @@ public class VirialExternalFieldOverlapRho {
         HSb[7] = 1.0/720.0*(153664.0*Math.pow(Standard.B2HS(sigmaHSRef), 6)-246960.0*Math.pow(Standard.B2HS(sigmaHSRef), 4)*Standard.B3HS(sigmaHSRef)+79380.0*Math.pow(Standard.B2HS(sigmaHSRef), 2)*Math.pow(Standard.B3HS(sigmaHSRef), 2)-2835.0*Math.pow(Standard.B3HS(sigmaHSRef), 3)+62720.0*Math.pow(Standard.B2HS(sigmaHSRef), 3)*Standard.B4HS(sigmaHSRef)-20160.0*Standard.B2HS(sigmaHSRef)*Standard.B3HS(sigmaHSRef)*Standard.B4HS(sigmaHSRef)+640.0*Math.pow(Standard.B4HS(sigmaHSRef), 2)-12600.0*Math.pow(Standard.B2HS(sigmaHSRef), 2)*Standard.B5HS(sigmaHSRef)+1350.0*Standard.B3HS(sigmaHSRef)*Standard.B5HS(sigmaHSRef)+1728.0*Standard.B2HS(sigmaHSRef)*Standard.B6HS(sigmaHSRef)-120.0*Standard.B7HS(sigmaHSRef));
         HSb[8] = 1.0/315.0*(-262144.0*Math.pow(Standard.B2HS(sigmaHSRef), 7)+516096.0*Math.pow(Standard.B2HS(sigmaHSRef), 5)*Standard.B3HS(sigmaHSRef)-241920.0*Math.pow(Standard.B2HS(sigmaHSRef), 3)*Math.pow(Standard.B3HS(sigmaHSRef), 2)+22680.0*Standard.B2HS(sigmaHSRef)*Math.pow(Standard.B3HS(sigmaHSRef), 3)-143360.0*Math.pow(Standard.B2HS(sigmaHSRef), 4)*Standard.B4HS(sigmaHSRef)+80640.0*Math.pow(Standard.B2HS(sigmaHSRef), 2)*Standard.B3HS(sigmaHSRef)*Standard.B4HS(sigmaHSRef)-3780.0*Math.pow(Standard.B3HS(sigmaHSRef), 2)*Standard.B4HS(sigmaHSRef)-4480.0*Math.pow(Standard.B4HS(sigmaHSRef), 2)*Standard.B2HS(sigmaHSRef)+33600.0*Math.pow(Standard.B2HS(sigmaHSRef), 3)*Standard.B5HS(sigmaHSRef)-9450.0*Standard.B2HS(sigmaHSRef)*Standard.B3HS(sigmaHSRef)*Standard.B5HS(sigmaHSRef)+525.0*Standard.B4HS(sigmaHSRef)*Standard.B5HS(sigmaHSRef)-6048.0*Math.pow(Standard.B2HS(sigmaHSRef), 2)*Standard.B6HS(sigmaHSRef)+567.0*Standard.B3HS(sigmaHSRef)*Standard.B6HS(sigmaHSRef)+735.0*Standard.B2HS(sigmaHSRef)*Standard.B7HS(sigmaHSRef)-45.0*Standard.B8HS(sigmaHSRef));
         
+        //for exp apprx
+        final double[] eHSb = new double[9];
+        eHSb[2] = 2*HSb[2];
+        eHSb[3] = -2.0*Math.pow(HSb[2], 2) + 3.0* HSb[3];
+        eHSb[4] = 8.0/3.0*Math.pow(HSb[2], 3) - 6.0*HSb[2]*HSb[3] + 4.0*HSb[4];
+        eHSb[5] = -4.0*Math.pow(HSb[2], 4) + 12.0*Math.pow(HSb[2], 2)*HSb[3] - 8*HSb[2]*HSb[4] + 1.0/24.0*(-108.0*Math.pow(HSb[3], 2)+120.0*HSb[5]);       
+        eHSb[6] = 32.0/5.0*Math.pow(HSb[2], 5) - 24.0*Math.pow(HSb[2], 3)*HSb[3] + 16.0*Math.pow(HSb[2], 2)*HSb[4] + 1.0/120.0*HSb[2]*(2160.0*Math.pow(HSb[3], 2)-1200.0*HSb[5]) + 1.0/120.0*(-1440.0*HSb[3]*HSb[4]+720.0*HSb[6]);
+        eHSb[7] = -32.0/5.0*Math.pow(HSb[2], 6) + 48.0*Math.pow(HSb[2], 4)*HSb[3] - 32.0*Math.pow(HSb[2], 3)*HSb[4] + 1.0/720.0*Math.pow(HSb[2], 2)*(-38880.0*Math.pow(HSb[3], 2)+14400.0*HSb[5]) + 1.0/720.0*HSb[2]*(34560.0*HSb[3]-8640.0*HSb[6]) + 1.0/720.0*(6480.0*Math.pow(HSb[3], 3)-5760.0*Math.pow(HSb[4], 2)-10800.0*HSb[3]*HSb[5]+5040.0*HSb[7]);
+
+        
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("b2HS: "+HSb[2]);
         System.out.println("b3HS: "+HSb[3]);
@@ -83,17 +93,15 @@ public class VirialExternalFieldOverlapRho {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);                               
         MetadataImpl.rootPointsSpecial=true;
         
-        ExternalVirialDiagrams refDiagrams = new ExternalVirialDiagrams(nPoints, false, false);
+        ExternalVirialDiagrams refDiagrams = new ExternalVirialDiagrams(nPoints, false, false, false);
         refDiagrams.setDoShortcut(true);
-        ClusterSum refCluster = refDiagrams.makeRhoCluster(fRef, false);
-        
+        ClusterSum refCluster = refDiagrams.makeRhoCluster(fRef, false);        
         
         refCluster.setTemperature(temperature);
         
         System.out.println(steps+" steps");
         
-        ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
-       
+        ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);       
 		
 		double[] wallposition = new double[(nPoints-1)*100+1];
         for (int i=0; i < wallposition.length; i++){
@@ -103,10 +111,19 @@ public class VirialExternalFieldOverlapRho {
 		
 		final ClusterWeightSumWall targetSampleCluster =  new ClusterWeightSumWall(meter, nPoints);
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, new ClusterAbstract[] {refCluster,targetSampleCluster}, new ClusterWeight[] {sampleCluster, targetSampleCluster}, false);
-              sim.box[1].getLeafList().getAtom(1).getPosition().setX(2, -0.1);
+        
+        do {
+        	  for (int i = 1; i<nPoints; i++){
+        		  sim.box[1].getLeafList().getAtom(i).getPosition().setX(2, sim.getRandom().nextDouble()-0.5); 
+        	  }
+        	  sim.box[1].trialNotify();
+              sim.box[1].acceptNotify();
+          } while (targetSampleCluster.value(sim.box[1]) == 0);
+        /*sim.box[1].getLeafList().getAtom(1).getPosition().setX(2, -0.1);
+              //sim.box[1].getLeafList().getAtom(2).getPosition().setX(2, -0.2);
               sim.box[1].trialNotify();
               sim.box[1].acceptNotify();
-        meter.setBox(sim.box[0]);
+        meter.setBox(sim.box[0]);*/
        
         DataProcessorFunction dividedbyPi = new DataProcessorFunction(null) {
 
@@ -124,6 +141,7 @@ public class VirialExternalFieldOverlapRho {
 			}
         	
 		};
+		
 		DataPumpListener pump = new DataPumpListener(meter, dividedbyPi);
         sim.integrators[1].getEventManager().addListener(pump);
         AccumulatorAverageCovariance average = new AccumulatorAverageCovariance(false);
@@ -146,7 +164,8 @@ public class VirialExternalFieldOverlapRho {
         
         sim.getController().actionPerformed();
 
-        
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
        
       
         
@@ -155,27 +174,29 @@ public class VirialExternalFieldOverlapRho {
         double sum=0;
         for (int i=0; i < wallposition.length; i++){
             //sum+=(((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[i+1]*HSb[nPoints]-HSb[nPoints])*0.01;
+        	IData covarianceData = allYourBase.getData(average.BLOCK_COVARIANCE.index);
+            double correlationCoef = covarianceData.getValue(i+1)/Math.sqrt(covarianceData.getValue(0))/allYourBase.getData(average.STANDARD_DEVIATION.index).getValue(i+1);
+            correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
             System.out.println(String.format("wallposition= %6.2f",wallposition[i]) + " target average: "+((DataDoubleArray)allYourBase.getData(average.AVERAGE.index)).getData()[i+1]
                                           
-                                             +" error: "+((DataDoubleArray)allYourBase.getData(average.ERROR.index)).getData()[i+1]+" cov: "+allYourBase.getData(average.COVARIANCE.index).getValue(i+1));	
+                                             +" error: "+((DataDoubleArray)allYourBase.getData(average.ERROR.index)).getData()[i+1]+" cov: "+correlationCoef);	
         }
-        /*System.out.println("sum="+sum);
-        System.out.println("surfacevirial "+" ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length+1]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length+1] + " target average: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[wallposition.length+1]
-                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[wallposition.length+1]
-                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulator.ERROR.index)).getData()[wallposition.length+1]);
-        System.out.println("b"+nPoints+"="+((((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length+1])*HSb[nPoints]-(nPoints-1)*HSb[nPoints])
-                         +" error: "+HSb[nPoints]*((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length+1]);*/
+        //System.out.println("sum="+sum);
+        System.out.println("surfacevirial target average: "+((DataDoubleArray)allYourBase.getData(average.AVERAGE.index)).getData()[wallposition.length+1]
+                           +" error: "+((DataDoubleArray)allYourBase.getData(average.ERROR.index)).getData()[wallposition.length+1]+" cov: "+allYourBase.getData(average.COVARIANCE.index).getValue(wallposition.length+1));
+        //System.out.println("b"+nPoints+"="+((((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO.index)).getData()[wallposition.length+1])*HSb[nPoints]-(nPoints-1)*HSb[nPoints])
+                         //+" error: "+HSb[nPoints]*((DataDoubleArray)allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[wallposition.length+1]);*/
     }
-	
+
+    
 
     /**
      * Inner class for parameters
      */
     public static class VirialExternalFieldParam extends ParameterBase {
-        public int nPoints = 2;
+        public int nPoints = 3;
         public double temperature = 1.5;
-        public long numSteps = 100L;
+        public long numSteps = 100000L;
         
     }
 }
