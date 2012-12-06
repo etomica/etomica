@@ -25,18 +25,27 @@ import etomica.virial.cluster.ExternalVirialDiagrams;
  * divided by the sampling bias from the sampling cluster.
  */
 public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSumWall.DataSourceClusterWall, java.io.Serializable {
-
+	
+	private double temperature;
+	
     /**
 	 * Constructor for MeterVirial.
 	 */
-	public MeterVirialExternalFieldOverlapConfined(ExternalVirialDiagrams diagrams, MayerFunction f, double [] walldistance) {
+	public MeterVirialExternalFieldOverlapConfined(ExternalVirialDiagrams diagrams, MayerFunction f, double [] walldistance, double temperature) {
+	
 		Set<Graph> gset = diagrams.getMSMCGraphsEX(true);
 		clusters = new ArrayList<ClusterAbstract>(gset.size());
 		listsPoint = new ArrayList<List<List<Byte>>>(gset.size());
 		comparator = new RangeComparator();
+		
+		//int gNum = 0;
 	    		
-		for(Graph g : gset){
-
+		for(Graph g : gset){			
+			
+		    //if (gNum < 5) {
+			//gNum++;continue;
+			//}	   
+			
 			ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
 			ArrayList<Double> weights = new ArrayList<Double>();
 			diagrams.populateEFBonds(g, allBonds, weights, false);  
@@ -93,14 +102,19 @@ public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSum
 		        prvLayerList = layerList;
             }
             listsPoint.add(listComponent);
+           
+            //if(gNum == 5){
+            //	break;
+            //}
             
 		}
 		
 		for (ClusterAbstract cluster : clusters){
-			cluster.setTemperature(1);
+			cluster.setTemperature(temperature);
 		}
 		
 		this.wallDistance = walldistance;
+		this.temperature =temperature;
         data = new DataDoubleArray(walldistance.length + 2);
         dataInfo = new DataInfoDoubleArray("Cluster Value",Null.DIMENSION, new int[]{walldistance.length + 2});
         tag = new DataTag();
@@ -121,14 +135,18 @@ public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSum
         IAtomList atoms = box.getLeafList();
         for(int i=0; i<x.length; i++){
         	x[i]=0;
-        }                    
-            
+        }  
+        
+//        atoms.getAtom(1).getPosition().setX(2,+0.01);
+//        atoms.getAtom(2).getPosition().setX(2,+0.6);
+//        atoms.getAtom(3).getPosition().setX(2,-0.6);
+        
     	for(int c=0; c<clusters.size();c++){
     		double v =clusters.get(c).value(box);        			
     		if (v==0){
     	    	continue;
     	    }
-    		      
+    		
     	    List<List<Byte>> cList = listsPoint.get(c);
     	    List<Byte> gList = cList.get(0);
     	    
@@ -170,18 +188,21 @@ public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSum
     	    	    
     	 
     	    for (int j=0; j<wallDistance.length; j++){
-    	    	double l1 = 0;
         	    double l2 = 0;    	   
-        	    double l = 0;  
-    	    	double high = ghighestatom - wallDistance[j] + 1; 
+    	    	double high = ghighestatom - wallDistance[j] + 1;
     	    	
-    	    	for(int i=0; i<cList.size()-1; i++){	    		
+    	    	if (high > glowestatom){
+    	    		//x[j+1] = 0;
+    	    		continue;
+    	    	}
+    	    	
+    	    	for(int i=0; i<cList.size()-1; i++){	    
     	    		
-    	    		/*if (gm1lowhigh[0].maximum() < ghighestatom){
-    	    			l0 = 1;
-    	    			break;    	    			
-    	    		}*/
-    	    		if (gm1lowhigh[i].maximum() - wallDistance[j] +1 < high){
+    	    		if (gm1lowhigh[i].maximum() - wallDistance[j] + 1 > gm1lowhigh[i].minimum()){    	    			
+    	    			continue;
+    	    		}
+    	    		
+    	    		else if (gm1lowhigh[i].maximum() - wallDistance[j] + 1 < high){
     	    			if (gm1lowhigh[i].minimum() > high){
     	    				high = gm1lowhigh[i].minimum();
     	    				if (high > glowestatom){
@@ -190,23 +211,31 @@ public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSum
         	    			}
     	    			}     	    			
     	    		}
-    	    		else {    	    			
-    	    			l2 += gm1lowhigh[i].maximum() - wallDistance[j]+1- high;
+    	    		
+    	    		else if (gm1lowhigh[i].maximum() - wallDistance[j] + 1 > glowestatom){    	    			
+    	    				break;
+    	    			}
+    	    		
+    	    		else {   	    			    	    			    	    			
+    	    			l2 += gm1lowhigh[i].maximum() - wallDistance[j] + 1 - high;  
+    	    			//high = Math.max(high, Math.max(gm1lowhigh[i].minimum(), gm1lowhigh[i].maximum() - wallDistance[j] + 1));
     	    			high = gm1lowhigh[i].minimum();
+    	    			
     	    			if (high > glowestatom){
     	    				high = glowestatom;
     	    				break;
     	    			}
     	    		}    	    		
     	    	}   	    		    	    	
-    	    	l1 = glowestatom - high;
+    	    	double l1 = glowestatom - high;
     	    	    	    	
-    	    	l = l1 + l2;    	    	    	    	
+    	    	double l = l1 + l2;       	    	    	   	    	
     	    	
+    	    	x[x.length-1] +=Math.abs(l * v);
     	    	
-    	    	x[x.length-1] +=Math.abs(l * v);  
-    	    	     	     	    	
-        	    x[j+1] += (l * v);         	   
+    	    	 //if ( c == 5){    	     	    	
+        	    x[j+1] += (l * v);
+    	    	 //}
     	    }
     	    	    	       	    
       	}   
