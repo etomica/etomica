@@ -10,6 +10,8 @@ import etomica.data.IData;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.impl.MetadataImpl;
+import etomica.potential.P2SquareWell;
+import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -22,6 +24,7 @@ import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ClusterWeightSumWall;
+import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirialExternalFieldOverlapConfined;
 import etomica.virial.cluster.ExternalVirialDiagrams;
@@ -56,6 +59,10 @@ public class VirialExternalFieldConfinedOverlap {
         double temperature = params.temperature;
         long steps = params.numSteps;
         double sigmaHSRef = 1;
+        //
+        double lambda = params.lambda;
+        double epsilon = params.epsilon;
+        //
         double [] walldistance = params.walldistance;
        
 
@@ -81,10 +88,15 @@ public class VirialExternalFieldConfinedOverlap {
 		
         Space space = Space3D.getInstance();
         
-        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);                               
+        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef); 
+        //
+        Potential2Spherical pTarget = new P2SquareWell(space, 1.0, lambda, epsilon, false);
+        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
+        //then change meter and add input
+        
         MetadataImpl.rootPointsSpecial=true;
         
-        ExternalVirialDiagrams refDiagrams = new ExternalVirialDiagrams(nPoints, false, false);
+        ExternalVirialDiagrams refDiagrams = new ExternalVirialDiagrams(nPoints, true, false, false);
         refDiagrams.setDoShortcut(true);
         ClusterSum refCluster = refDiagrams.makeRhoCluster(fRef, false);        
         
@@ -94,16 +106,20 @@ public class VirialExternalFieldConfinedOverlap {
         
         ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);       
 		
-		MeterVirialExternalFieldOverlapConfined meter = new MeterVirialExternalFieldOverlapConfined(refDiagrams, fRef, walldistance );
+		//MeterVirialExternalFieldOverlapConfined meter = new MeterVirialExternalFieldOverlapConfined(refDiagrams, fRef, walldistance );
+		MeterVirialExternalFieldOverlapConfined meter = new MeterVirialExternalFieldOverlapConfined(refDiagrams, fTarget, walldistance, temperature );
 		
 		final ClusterWeightSumWall targetSampleCluster =  new ClusterWeightSumWall(meter, nPoints);
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, new ClusterAbstract[] {refCluster,targetSampleCluster}, new ClusterWeight[] {sampleCluster, targetSampleCluster}, false);
-              sim.box[1].getLeafList().getAtom(1).getPosition().setX(2, -0.1); 
-              //sim.box[1].getLeafList().getAtom(2).getPosition().setX(2, +0.9);
-              sim.box[1].trialNotify();
-              sim.box[1].acceptNotify();
-              targetSampleCluster.value(sim.box[1]);
-
+        
+        do {
+      	  for (int i = 1; i<nPoints; i++){
+      		  sim.box[1].getLeafList().getAtom(i).getPosition().setX(2, sim.getRandom().nextDouble()-0.5); 
+      	  }
+      	  sim.box[1].trialNotify();
+            sim.box[1].acceptNotify();
+        } while (targetSampleCluster.value(sim.box[1]) == 0);
+        
        
         DataProcessorFunction dividedbyPi = new DataProcessorFunction(null) {
 
@@ -163,10 +179,14 @@ public class VirialExternalFieldConfinedOverlap {
      * Inner class for parameters
      */
     public static class VirialExternalFieldParam extends ParameterBase {
-        public int nPoints = 4;
-        public double temperature = 1.5;
+        public int nPoints = 3;
+        public double temperature = 0.5;
         public long numSteps = 10000L;
-        public double [] walldistance = new double[]{10, 8, 6, 4, 3, 2, 1.5};
+        //
+        public double epsilon = 1.0;
+        public double lambda = 1.5;
+        //
+        public double [] walldistance = new double[]{5, 4, 3, 2, 1.1};
         
     }
 }
