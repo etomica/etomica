@@ -14,8 +14,8 @@ import etomica.species.Species;
 /**
  *  
  * Species Naphthalene molecule
- * this is for TraPPE, the Naphthalene is rigid , LJ potential + QQ 
- * reference: TraPPE 4, UA description of linear and branched alkanes and alkylbenzenes
+ * this is for TraPPE, the Naphthalene is rigid , LJ potential
+ * reference: TraPPE 4, UA description of linear and branched alkanes and alkylbenzenes, Siepmann
  * 
  * @author shu
  * Oct, 20, 2010
