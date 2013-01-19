@@ -46,7 +46,7 @@ public class SpeciesPh3site545 extends Species {
      }
 
      public IMolecule makeMolecule() {
-         Molecule Phenanthrene = new Molecule(this, 10);
+         Molecule Phenanthrene = new Molecule(this, 3);
          // 2 Carbon without H, 8 Carbon with H
          Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
          
