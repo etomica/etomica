@@ -30,7 +30,7 @@ public final class Constants {
      * Avogadro's number, 6.0221415e23 molecules/mole.
      */
     // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
-    public static final double AVOGADRO = 6.02214179e23;
+    public static final double AVOGADRO = 6.02214129e23; 
         
     
     /**
