@@ -44,43 +44,132 @@ import etomica.virial.overlap.DataVirialOverlap;
  */
 public class SimulationVirialOverlap2 extends Simulation {
 
-	/*
-	 * If this constructor is used to instantiate the simulation, then doWiggle is set to false, and 
-	 * ClusterAbstract[] is set to {refCluster,targetCluster}
-	 */
+    /**
+     * This constructor will create your simulation class, but you may call
+     * set methods before using it.  When you are done calling set methods,
+     * you must call init() before using it.
+     */
+    public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, int nMolecules,
+            double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
+        this(aSpace, new ISpecies[]{species}, new int[]{nMolecules}, temperature, refCluster, targetCluster);
+    }
+
+
+    /**
+     * This constructor will create your simulation class, but you may call
+     * set methods before using it.  When you are done calling set methods,
+     * you must call init() before using it.
+     */
+    public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules,
+            double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
+        super(aSpace);
+        this.species = species;
+        this.temperature = temperature;
+        this.nMolecules = nMolecules;
+        valueClusters = new ClusterAbstract[]{refCluster, targetCluster};
+        sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)};
+        meters = new MeterVirial[2];
+        integrators = new IntegratorMC[2];
+        dpVirialOverlap = new DataProcessorVirialOverlap[2];
+        box = new BoxCluster[2];
+        accumulators = new AccumulatorRatioAverageCovarianceFull[2];
+        extraTargetClusters = new ClusterAbstract[0];
+        boxFactory = new BoxClusterFactory();
+    }
+
+
+    /*
+     * If this constructor is used to instantiate the simulation, then doWiggle is set to false, and 
+     * ClusterAbstract[] is set to {refCluster,targetCluster}
+     */
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
             double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
-        this(aSpace,species,temperature,refCluster, targetCluster, false);
+        this(aSpace, new ISpecies[]{species}, new int[]{refCluster.pointCount()}, temperature, refCluster, targetCluster);
+        init();
     }
 
     // this constructor allows you to specify doWiggle=true
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
             double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster, boolean doWiggle) {
-        this(aSpace,species,temperature,new ClusterAbstract[]{refCluster,targetCluster},
-                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)}, doWiggle);
+        this(aSpace,species,temperature,refCluster,targetCluster);
+        setDoWiggle(doWiggle);
+        init();
     }
     
     // this constructor allows you to specify your own sampleClusters
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, new ISpecies[]{species}, new int[]{aValueClusters[0].pointCount()}, temperature, aValueClusters, new ClusterAbstract[0], aSampleClusters, doWiggle);
+        this(aSpace, species, temperature, aValueClusters[0], aValueClusters[1]);
+        setDoWiggle(doWiggle);
+        setSampleClusters(aSampleClusters);
+        init();
     }
 
     // this constructor allows you to perform the calculation for a mixture
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, species, nMolecules, temperature, aValueClusters, new ClusterAbstract[0], aSampleClusters, doWiggle);
+        this(aSpace, species, nMolecules, temperature, aValueClusters[0], aValueClusters[1]);
+        setSampleClusters(aSampleClusters);
+        setDoWiggle(doWiggle);
+        init();
     }
 
     // this constructor allows you to perform the calculation for a mixture or a flexible molecule (with an alternate/ghost molecule)
     // this constructor also allows you to specify extra target diagrams to be calculated during the simulation
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules,
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterAbstract[] extraTargetClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
+        this(aSpace, species, nMolecules, temperature, aValueClusters[0], aValueClusters[1]);
+        setSampleClusters(aSampleClusters);
+        setDoWiggle(doWiggle);
+        setExtraTargetClusters(extraTargetClusters);
+        init();
+	}
+    
+    public void setDoWiggle(boolean newDoWiggle) {
+        if (initialized) throw new RuntimeException("too late");
+        doWiggle = newDoWiggle;
+    }
+    
+    public boolean getDoWiggle() {
+        return doWiggle;
+    }
 
-	    super(aSpace);
-	    numExtraTargetClusters = extraTargetClusters.length;
-		PotentialMaster potentialMaster = new PotentialMaster();
-        sampleClusters = aSampleClusters;
+    public void setExtraTargetClusters(ClusterAbstract[] extraTargetClusters) {
+        if (!initialized) throw new RuntimeException("too late");
+        this.extraTargetClusters = extraTargetClusters;
+    }
+    
+    public ClusterAbstract[] getExtraTargetClusters() {
+        return extraTargetClusters;
+    }
+    
+    public void setSampleClusters(ClusterWeight[] sampleClusters) {
+        if (!initialized) throw new RuntimeException("too late");
+        this.sampleClusters[0] = sampleClusters[0];
+        this.sampleClusters[1] = sampleClusters[1];
+    }
+    
+    public ClusterAbstract[] getSampleClusters() {
+        return sampleClusters;
+    }
+    
+    public void setBoxFactory(BoxClusterFactory newBoxFactory) {
+        if (!initialized) throw new RuntimeException("too late");
+        boxFactory = newBoxFactory;
+    }
+    
+    public BoxClusterFactory getBoxFactory() {
+        return boxFactory;
+    }
+    
+    public void init() {
+        if (initialized) throw new RuntimeException("you can only call me once");
+        // we aren't actually initialized yet, but we will be unless we crash.
+        // if we crash, we shouldn't get called again!
+        initialized = true;
+
+        numExtraTargetClusters = extraTargetClusters.length;
+        PotentialMaster potentialMaster = new PotentialMaster();
         boolean doRotate = false;
         boolean multiAtomic = false;
         for (int i=0; i<species.length; i++) {
@@ -92,25 +181,20 @@ public class SimulationVirialOverlap2 extends Simulation {
                 multiAtomic = true;
             }
         }
-        accumulators = new AccumulatorRatioAverageCovarianceFull[sampleClusters.length];
-        accumulatorPumps = new DataPumpListener[sampleClusters.length];
-        box = new BoxCluster[sampleClusters.length];
-        integrators = new IntegratorMC[sampleClusters.length];
-        meters = new MeterVirial[sampleClusters.length];
-        mcMoveTranslate = new MCMoveBoxStep[sampleClusters.length];
-        dpVirialOverlap = new DataProcessorVirialOverlap[sampleClusters.length];
+        accumulatorPumps = new DataPumpListener[2];
+        mcMoveTranslate = new MCMoveBoxStep[2];
         if (doRotate) {
-            mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
+            mcMoveRotate = new MCMoveBoxStep[2];
         }
         if (doWiggle) {
-            mcMoveWiggle = new MCMoveBoxStep[sampleClusters.length];
+            mcMoveWiggle = new MCMoveBoxStep[2];
         }
         
         blockSize = 1000;
         
-        for (int iBox=0; iBox<sampleClusters.length; iBox++) {
+        for (int iBox=0; iBox<2; iBox++) {
             // integrator for iBox samples based on iBox cluster
-            box[iBox] = new BoxCluster(sampleClusters[iBox], space);
+            box[iBox] = boxFactory.makeBox(space, sampleClusters[iBox], iBox==0);
             addBox(box[iBox]);
             for (int i=0; i<species.length; i++) {
                 box[iBox].setNMolecules(species[i], nMolecules[i]);
@@ -128,7 +212,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (doRotate) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, aValueClusters[0].pointCount()-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, valueClusters[0].pointCount()-1);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
@@ -150,7 +234,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                         mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(potentialMaster, random, 0.5, space);
                     }
                     else {
-                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, aValueClusters[0].pointCount(), space);
+                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, valueClusters[0].pointCount(), space);
                     }
                     moveManager.addMCMove(mcMoveWiggle[iBox]);
                 }
@@ -159,13 +243,13 @@ public class SimulationVirialOverlap2 extends Simulation {
             ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.initializeCoordinates(box[iBox]);
             if (iBox == 0) {
-                meters[iBox] = new MeterVirial(new ClusterAbstract[]{aValueClusters[0],aSampleClusters[1].makeCopy()});
+                meters[iBox] = new MeterVirial(new ClusterAbstract[]{valueClusters[0],sampleClusters[1].makeCopy()});
             }
             else {
                 ClusterAbstract[] allClustersForTarget = new ClusterAbstract[extraTargetClusters.length+2];
-                allClustersForTarget[0] = aValueClusters[1];
+                allClustersForTarget[0] = valueClusters[1];
                 System.arraycopy(extraTargetClusters, 0, allClustersForTarget, 1, extraTargetClusters.length);
-                allClustersForTarget[allClustersForTarget.length-1] = aSampleClusters[0].makeCopy();
+                allClustersForTarget[allClustersForTarget.length-1] = sampleClusters[0].makeCopy();
                 meters[iBox] = new MeterVirial(allClustersForTarget);
             }
             meters[iBox].setBox(box[iBox]);
@@ -182,10 +266,11 @@ public class SimulationVirialOverlap2 extends Simulation {
         integratorOS.setEventInterval(1);
         ai = new ActivityIntegrate(integratorOS);
         getController().addAction(ai);
-		
-		dvo = new DataVirialOverlap(dpVirialOverlap[0], accumulators[0], accumulators[1]);
+        
+        dvo = new DataVirialOverlap(dpVirialOverlap[0], accumulators[0], accumulators[1]);
         integratorOS.setReferenceFracSource(dvo);
-	}
+
+    }
 
     public void setAccumulatorBlockSize(long newBlockSize) {
         blockSize = newBlockSize;
@@ -228,7 +313,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         dpVirialOverlap[1].setNumAlpha(1);
         dpVirialOverlap[1].setBennetParam(newRefPref, 1);
     }
-    
+
     public void initRefPref(String fileName, long initSteps) {
         // use the old refpref value as a starting point so that an initial
         // guess can be provided
@@ -418,9 +503,18 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
-	public final DataVirialOverlap dvo;
+    protected final ISpecies[] species;
+    protected final double temperature;
+    protected final ClusterAbstract[] valueClusters;
+    protected boolean initialized;
+    protected boolean doWiggle;
+    protected ClusterAbstract[] extraTargetClusters;
+    protected final int[] nMolecules;
+    protected BoxClusterFactory boxFactory;
+    
+	public DataVirialOverlap dvo;
     public final AccumulatorRatioAverageCovarianceFull[] accumulators;
-    protected final DataPumpListener[] accumulatorPumps;
+    protected DataPumpListener[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
     public final BoxCluster[] box;
     public final IntegratorMC[] integrators;
@@ -428,11 +522,17 @@ public class SimulationVirialOverlap2 extends Simulation {
     public MCMoveBoxStep[] mcMoveTranslate;
     public MCMoveBoxStep[] mcMoveWiggle;
     public final MeterVirial[] meters;
-    public final int numExtraTargetClusters;
+    public int numExtraTargetClusters;
     public final DataProcessorVirialOverlap[] dpVirialOverlap;
-    public final ActivityIntegrate ai;
-    public final IntegratorOverlap integratorOS;
+    public ActivityIntegrate ai;
+    public IntegratorOverlap integratorOS;
     public double refPref;
     protected long blockSize;
     protected int numAlpha = 1;
+    
+    public static class BoxClusterFactory {
+        public BoxCluster makeBox(ISpace space, ClusterWeight sampleCluster, boolean isRef) {
+            return new BoxCluster(sampleCluster, space);
+        }
+    }
 }
