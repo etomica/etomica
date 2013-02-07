@@ -97,10 +97,6 @@ public class LJMC extends Simulation {
             }
         };
         mcMoveID.setSpecies(species);
-        
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
-        System.out.println("initial energy "+meterPE.getDataAsScalar());
     }
     
     public static void main(String[] args) {
