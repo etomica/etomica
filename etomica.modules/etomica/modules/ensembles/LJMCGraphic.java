@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
@@ -38,6 +39,8 @@ import etomica.modifier.ModifierBoolean;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
+import etomica.util.DoubleRange;
+import etomica.util.HistogramCollapsing;
 import etomica.util.HistoryCollapsingAverage;
 
 public class LJMCGraphic extends SimulationGraphic {
@@ -65,13 +68,19 @@ public class LJMCGraphic extends SimulationGraphic {
         DataSourceCountSteps timeCounter = new DataSourceCountSteps(sim.integrator);
 
 		// Number density box
-	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
+	    final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
         AccumulatorHistory dHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         dHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing dAccumulator = new AccumulatorAverageCollapsing();
         dAccumulator.setPushInterval(10);
-        DataFork dFork = new DataFork(new IDataSink[]{dHistory, dAccumulator});
+        final HistogramCollapsing dh = new HistogramCollapsing();
+        double dmin = ((int)(densityMeter.getDataAsScalar() * 100))*0.01;
+        if (dmin > 0) dmin -= 0.005;
+        dh.setXRange(new DoubleRange(dmin, dmin+0.1));
+        final AccumulatorHistogram dHistogram = new AccumulatorHistogram(dh);
+        dHistogram.setPushInterval(10);
+        DataFork dFork = new DataFork(new IDataSink[]{dHistory, dAccumulator, dHistogram});
         final DataPumpListener dPump = new DataPumpListener(densityMeter, dFork, 100);
         sim.integrator.getEventManager().addListener(dPump);
         dHistory.setPushInterval(1);
@@ -82,7 +91,11 @@ public class LJMCGraphic extends SimulationGraphic {
         dPlot.setDoLegend(false);
         dPlot.setLabel("Density");
 
-        
+        DisplayPlot dHistogramPlot = new DisplayPlot();
+        dHistogram.setDataSink(dHistogramPlot.getDataSet().makeDataSink());
+        dHistogramPlot.setDoLegend(false);
+        dHistogramPlot.setLabel("Density histogram");
+
         MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory peHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         peHistory.setTimeDataSource(timeCounter);
@@ -139,7 +152,12 @@ public class LJMCGraphic extends SimulationGraphic {
 
         IAction resetAction = new IAction() {
         	public void actionPerformed() {
-                // Reset density (Density is set and won't change, but
+
+                double dmin = ((int)(densityMeter.getDataAsScalar() * 100))*0.01;
+                if (dmin > 0) dmin -= 0.005;
+                dh.setXRange(new DoubleRange(dmin, dmin+0.1));
+
+        	    // Reset density (Density is set and won't change, but
         		// do this anyway)
         		dPump.actionPerformed();
         		dDisplay.putData(dAccumulator.getData());
@@ -257,6 +275,7 @@ public class LJMCGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(vnPanel, vertGBC);
         
         add(dPlot);
+        add(dHistogramPlot);
     	add(ePlot);
         add(pPlot);
     	add(dDisplay);
