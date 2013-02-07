@@ -35,7 +35,7 @@ public class LJMC extends Simulation {
         super(_space);
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, 2.5, space);
         potentialMaster.setCellRange(2);
-        int N = 182;  //number of atoms
+        int N = 200;  //number of atoms
         
         //controller and integrator
 	    integrator = new IntegratorMC(potentialMaster, random, 1.0);

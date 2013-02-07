@@ -19,8 +19,10 @@ import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
+import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterVolume;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.graphics.ColorSchemeByType;
@@ -28,6 +30,7 @@ import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -125,8 +128,6 @@ public class LJMCGraphic extends SimulationGraphic {
         //************* Lay out components ****************//
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-
-//        getDisplayBox(sim.box).setScale(0.7);
 
         //temperature selector
         DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
@@ -235,6 +236,26 @@ public class LJMCGraphic extends SimulationGraphic {
         muPanel.add(muSlider.graphic(), vertGBC);
         getPanel().controlPanel.add(muPanel, vertGBC);
 
+        DisplayTextBox vBox = new DisplayTextBox();
+        vBox.setLabel("Volume");
+        MeterVolume meterVolume = new MeterVolume();
+        meterVolume.setBox(sim.box);
+        DataPumpListener vPump = new DataPumpListener(meterVolume, vBox, 100);
+        sim.integrator.getEventManager().addListener(vPump);
+        
+        DisplayTextBox nBox = new DisplayTextBox();
+        nBox.setLabel("N");
+        MeterNMolecules meterN = new MeterNMolecules();
+        meterN.setBox(sim.box);
+        DataPumpListener nPump = new DataPumpListener(meterN, nBox, 100);
+        sim.integrator.getEventManager().addListener(nPump);
+        
+        JPanel vnPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
+        vnPanel.add(vBox.graphic(), horizGBC);
+        vnPanel.add(nBox.graphic(), horizGBC);
+        getPanel().controlPanel.add(vnPanel, vertGBC);
+        
         add(dPlot);
     	add(ePlot);
         add(pPlot);
