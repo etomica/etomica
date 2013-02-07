@@ -29,8 +29,8 @@ public class MCMoveVolume extends MCMoveBoxStep {
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected IFunction vBias;
 
-    private transient double biasOld, uOld, hOld, vNew, vScale, hNew;
-    private transient double uNew = Double.NaN;
+    protected double biasOld, uOld, hOld, vNew, vScale, hNew;
+    protected double uNew = Double.NaN;
 
     public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
     		            ISpace _space) {
