@@ -67,18 +67,25 @@ public class LJMC extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
-        
+
         mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, 1) {
-            public void acceptNotify() {
-                if (vNew < Math.pow(6, space.D())) {
-                    rejectNotify();
-                    uNew = uOld;
-                    return;
-                }
-                super.acceptNotify();
+            public boolean doTrial() {
+                double vOld = box.getBoundary().volume();
+                uOld = energyMeter.getDataAsScalar();
+                hOld = uOld + pressure*vOld;
+                biasOld = vBias.f(vOld);
+                vScale = (2.*random.nextDouble()-1.)*stepSize;
+                vNew = vOld * Math.exp(vScale); //Step in ln(V)
+                if (vNew < Math.pow(6, space.D())) return false;
+                double rScale = Math.exp(vScale/D);
+                inflate.setScale(rScale);
+                inflate.actionPerformed();
+                uNew = energyMeter.getDataAsScalar();
+                hNew = uNew + pressure*vNew;
+                return true;
             }
         };
-        
+
         mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space) {
             public void acceptNotify() {
                 if (moleculeList.getMoleculeCount()>999 && insert) {
