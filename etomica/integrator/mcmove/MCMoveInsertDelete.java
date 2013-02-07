@@ -25,8 +25,7 @@ import etomica.util.Debug;
  * @author David Kofke
  */
 public class MCMoveInsertDelete extends MCMoveBox {
-    
-    private static final long serialVersionUID = 2L;
+
     //chemical potential
     protected double mu;
     
@@ -103,10 +102,10 @@ public class MCMoveInsertDelete extends MCMoveBox {
             
             if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
             else testMolecule = species.makeMolecule();
-            box.addMolecule(testMolecule);
 
             atomTranslator.setDestination(positionSource.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
+            box.addMolecule(testMolecule);
         } else {//delete
             if(box.getNMolecules(species) == 0) {
                 testMolecule = null;
@@ -116,24 +115,30 @@ public class MCMoveInsertDelete extends MCMoveBox {
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();
+            uNew = 0.0;
         } 
         uNew = Double.NaN;
         return true;
     }//end of doTrial
     
     public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? box.getBoundary().volume()/box.getNMolecules(species) 
-                      : (box.getNMolecules(species)+1)/box.getBoundary().volume();        
+        int numMolecules = box.getNMolecules(species);
+        double a = box.getBoundary().volume()/numMolecules;
+        return insert ? a : 1.0/a;
     }
     
     public double getB() {
         if(insert) {
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar();
-            return (+mu - uNew);
         }
-        uNew = 0.0;
-        return (-mu + uOld);
+        else {
+            uNew = 0;
+        }
+        double b = uOld - uNew;
+        if (insert) b += mu;
+        else b -= mu;
+        return b;
     }
     
     public void acceptNotify() {
@@ -166,6 +171,10 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if(testMolecule == null) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setList(testMolecule.getChildList());
         return affectedAtomIterator;
+    }
+
+    public boolean lastMoveInsert() {
+        return insert;
     }
 
     /**
