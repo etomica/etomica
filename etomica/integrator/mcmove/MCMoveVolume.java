@@ -22,10 +22,10 @@ import etomica.util.Function;
 public class MCMoveVolume extends MCMoveBoxStep {
 
     protected double pressure;
-    private MeterPotentialEnergy energyMeter;
+    protected MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
-    private final int D;
-    private IRandom random;
+    protected final int D;
+    protected IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected IFunction vBias;
 
