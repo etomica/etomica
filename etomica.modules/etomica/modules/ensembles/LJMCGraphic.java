@@ -23,9 +23,7 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
-import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
@@ -41,12 +39,10 @@ import etomica.util.HistoryCollapsingAverage;
 
 public class LJMCGraphic extends SimulationGraphic {
 
-    private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
+    private final static String APP_NAME = "Ensembles";
     private final static int REPAINT_INTERVAL = 100;
-    private DeviceThermoSlider temperatureSelect;
-    protected LJMC sim;
+    protected final LJMC sim;
     
-    private boolean showConfig = false;
     protected boolean volumeChanges = false;
     protected boolean constMu = false;
 
@@ -58,7 +54,6 @@ public class LJMCGraphic extends SimulationGraphic {
         
     	this.sim = simulation;
 
-       
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
         colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
@@ -134,17 +129,12 @@ public class LJMCGraphic extends SimulationGraphic {
 //        getDisplayBox(sim.box).setScale(0.7);
 
         //temperature selector
-        temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
+        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
         temperatureSelect.setPrecision(1);
         temperatureSelect.setMinimum(0.0);
         temperatureSelect.setMaximum(10.0);
         temperatureSelect.setSliderMajorValues(4);
 	    temperatureSelect.setIsothermalButtonsVisibility(false);
-
-        // show config button
-        DeviceButton configButton = new DeviceButton(sim.getController());
-        configButton.setLabel("Show Config");
-        configButton.setAction(new ActionConfigWindow(sim.box));
 
         IAction resetAction = new IAction() {
         	public void actionPerformed() {
@@ -244,11 +234,6 @@ public class LJMCGraphic extends SimulationGraphic {
         muPanel.add(muCheckbox.graphic(), vertGBC);
         muPanel.add(muSlider.graphic(), vertGBC);
         getPanel().controlPanel.add(muPanel, vertGBC);
-
-        
-        if(showConfig == true) {
-            add(configButton);
-        }
 
         add(dPlot);
     	add(ePlot);
