@@ -11,21 +11,15 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
-import etomica.data.IData;
 import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterVolume;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataTensor;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
@@ -153,9 +147,9 @@ public class LJMCGraphic extends SimulationGraphic {
         IAction resetAction = new IAction() {
         	public void actionPerformed() {
 
-                double dmin = ((int)(densityMeter.getDataAsScalar() * 100))*0.01;
-                if (dmin > 0) dmin -= 0.005;
-                dh.setXRange(new DoubleRange(dmin, dmin+0.1));
+                double dMin = ((int)(densityMeter.getDataAsScalar() * 100))*0.01;
+                if (dMin > 0) dMin -= 0.005;
+                dh.setXRange(new DoubleRange(dMin, dMin+0.1));
 
         	    // Reset density (Density is set and won't change, but
         		// do this anyway)
@@ -311,7 +305,7 @@ public class LJMCGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space sp = Space2D.getInstance();
+	        Space sp = Space3D.getInstance();
             LJMCGraphic ljmdGraphic = new LJMCGraphic(new LJMC(sp), sp);
 
 		    getContentPane().add(ljmdGraphic.getPanel());
@@ -319,38 +313,6 @@ public class LJMCGraphic extends SimulationGraphic {
 
         private static final long serialVersionUID = 1L;
     }
-    
-    /**
-     * Inner class to find the total pressure of the system from the pressure
-     * tensor.
-     */
-    public static class DataProcessorTensorTrace extends DataProcessor {
-
-        public DataProcessorTensorTrace() {
-            data = new DataDouble();
-        }
-        
-        protected IData processData(IData inputData) {
-            // take the trace and divide by the dimensionality
-            data.x = ((DataTensor)inputData).x.trace()/((DataTensor)inputData).x.D();
-            return data;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
-            return dataInfo;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
-            }
-            return null;
-        }
-
-        protected final DataDouble data;
-    }
-
 }
 
 
