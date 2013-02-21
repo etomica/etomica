@@ -248,8 +248,46 @@ public final class SpecialFunctions {
         //        result->err  = 2.0 * fabs(F * prec);
         //        result->err += 2.0 * GSL_DBL_EPSILON * (n-1.0) * fabs(F);
     }
-    
-    
+
+    protected static double[] lp = new double[]{1};
+    protected static double lastLPX = 0;
+    protected static int maxLPN = 0;
+
+    /**
+     * Calculates Pn(x), Legendre polynomial of order n for the given input value.
+     * The method method makes use of a recursive method to calculate the return
+     * value, so calling the method for all n in a sequence should not be much
+     * more expensive than the call for the highest order.
+     */
+    public static double calcLegendrePolynomial(int n, double x) {
+        if (n==0 || (x == lastLPX && n<=maxLPN)) {
+            return lp[n];
+        }
+        if (x != lastLPX) {
+            // x changed.  pretend we have a cached value, but only for n=0
+            maxLPN = 0;
+        }
+        if (n >= lp.length) {
+            // increase size by 2 or 50%, whichever is greater
+            int newSize = n+2;
+            if (newSize < lp.length*3/2) {
+                newSize = lp.length*3/2;
+            }
+            double[] newLP = new double[newSize];
+            System.arraycopy(lp, 0, newLP, 0, maxLPN+1);
+            lp = newLP;
+        }
+        lp[1] = x;
+        if (maxLPN == 0) maxLPN=1;
+        for (int i=maxLPN+1; i<=n; i++) {
+            lp[i] = ((2*i-1)*x*lp[i-1] - (i-1)*lp[i-2])/i;
+            System.out.println((2*i-1)*x*lp[i-1]/i + " "+(1-i)*lp[i-2]/i+" "+lp[i]);
+        }
+        maxLPN = n;
+        lastLPX = x;
+        return lp[n];
+    }
+
     public static void main(String[] args) {
     	System.out.println(confluentHypergeometric1F1(-0.25,0.5,1.0));
         System.out.println();
