@@ -18,6 +18,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
+import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Mole;
@@ -54,7 +55,7 @@ public class VirialN2TraPPE {
 		}
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
-        long steps = params.steps;
+        long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
         
@@ -74,6 +75,20 @@ public class VirialN2TraPPE {
         HSB[6] = Standard.B6HS(sigmaHSRef);
         HSB[7] = Standard.B7HS(sigmaHSRef);
         HSB[8] = Standard.B8HS(sigmaHSRef);
+//        double beta = 107.8 * 0.5 * Math.PI/ 180.0;
+//        double asin =  Math.asin(    Math.sin(beta ) * 2 / Math.sqrt(3)    );
+//        double a = Math.PI - asin; 
+//        double real  = a * 180.0 / Math.PI;
+//        double real1 = (Math.PI - Math.asin(    Math.sin(107.8 * 0.5 * Math.PI/ 180.0 ) * 2 / Math.sqrt(3)    )) * 180.0 / Math.PI;
+  //      System.out.println("real is "+real);
+ //       System.out.println("beta is "+beta);
+  //      System.out.println("real1 is "+real1);
+        
+   //     double beta1 = Math.PI- 110.7 * Math.PI / 180.0;
+   //     double real2 = Math.acos(   1 - 1.5 * Math.sin(beta1)* Math.sin(beta1));
+   //     System.out.println("real2 is "+real2 * 180.0 / Math.PI);
+
+        
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
         System.out.println(" twice B2HS:"+  2 * HSB[2]);
@@ -87,7 +102,7 @@ public class VirialN2TraPPE {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);        
-       
+        // P2CO2EMP(ISpace space, double sigmaC, double sigmaCO, double sigmaO, double epsilonC, double epsilonCO, double epsilonO, double chargeC) 
         P2CO2EMP pN2 = new P2CO2EMP(space, sigmaA, sigmaAN, sigmaN, 0.0, 0.0, Kelvin.UNIT.toSim(epsilonN), Electron.UNIT.toSim(charge));
         MayerGeneral fN2 = new MayerGeneral(pN2);
         MayerEGeneral eN2 = new MayerEGeneral(pN2);
@@ -95,14 +110,12 @@ public class VirialN2TraPPE {
         
         refCluster.setTemperature(temperature);
         targetCluster.setTemperature(temperature);
-
-        System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
         
         // nitrogen conformation
         final IConformation conformation = new IConformation() {
         	public void initializePositions(IAtomList atomList) {
         		// atoms are N-COM("A")-N, 1-0-2 
-        		double bondL = 1.10;
+        		double bondL = 1.10;// length of N--N
                 atomList.getAtom(0).getPosition().E(0);// COM("A")
                 atomList.getAtom(1).getPosition().E(0);// Nitrogen atom on the left
                 atomList.getAtom(1).getPosition().setX(0, -0.5 * bondL);
@@ -117,9 +130,12 @@ public class VirialN2TraPPE {
         
         //simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster, false);
-        sim.box[1].getSampleCluster().value(sim.box[1]);
+//        sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
-        
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
+        steps /= 1000;
+	// graphical part
         if (false) {
             double size = 5.0;
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
@@ -132,15 +148,15 @@ public class VirialN2TraPPE {
             //set diameters
             DiameterHashByType diameter = new DiameterHashByType(sim); 
             diameter.setDiameter(species.getAtomType(0),0.2);
-            diameter.setDiameter(species.getAtomType(1),0.5);
+            diameter.setDiameter(species.getAtomType(1),0.2);
             
             
-            simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
             simGraphic.getDisplayBox(sim.box[0]).setDiameterHash(diameter);
+            simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
             
             ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
             colorScheme.setColor(sim.getSpecies(0).getAtomType(0), Color.gray);
-            colorScheme.setColor(sim.getSpecies(0).getAtomType(1), Color.red);
+            colorScheme.setColor(sim.getSpecies(0).getAtomType(1), Color.cyan);
             
             simGraphic.makeAndDisplayFrame();
 
@@ -177,10 +193,12 @@ public class VirialN2TraPPE {
         }
 
         System.out.println("equilibration finished");
-        sim.setAccumulatorBlockSize((int)steps);
 
+        sim.setAccumulatorBlockSize(steps);
+        sim.integratorOS.setNumSubSteps((int)steps);
+        sim.ai.setMaxSteps(1000);
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
+
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -189,7 +207,7 @@ public class VirialN2TraPPE {
              sim.integratorOS.setAdjustStepFraction(false);
         }
 
-        if (true) {
+        if (false) {
             IIntegratorListener progressReport = new IIntegratorListener() {
                 public void integratorInitialized(IIntegratorEvent e) {}
                 public void integratorStepStarted(IIntegratorEvent e) {}
@@ -211,22 +229,33 @@ public class VirialN2TraPPE {
         /*
         // convert results' units
         Unit convertFromMacro = new UnitRatio(Liter.UNIT, Mole.UNIT);
-        double ref = 16.9; 
-        System.out.println("reference B2 at T =500K :" + convertFromMacro.toSim(ref/1000));
+        double ref = 21.3; 
+        System.out.println("reference B2 at T =600K :" + convertFromMacro.toSim(ref/1000));
         Unit convertFromSimUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);       
         System.out.println("convert simulation units to macro units:");
 
-        double simResult_B2= -4.136754e+02;
-        System.out.println("B2 (A3/atom)  :  " + simResult_B2);
+        double simResult_B2= -94.54719724658284  ;
+        System.out.println("B2 ********************** (A3/atom)  :  " + simResult_B2);
         System.out.println("convert  to L/mol :  " + convertFromSimUnit.toSim(simResult_B2));
-        System.out.println( "or in  L/mol :  " + simResult_B2 * 6.0221415 / 10000.0);
-        System.out.println( "or in  cm3/mol :  " + simResult_B2 * 6.0221415 / 10.0);
+        System.out.println( "or in  L/mol :  " + simResult_B2 * 6.02214129/ 10000.0);
+        System.out.println( "or in  cm3/mol :  " + simResult_B2 * 6.02214129 / 10.0);
         
-        double simResult_B3 =2.889870e+04         ;
+        double simResult_B3 = 3608.75979282736     ;
         System.out.println("my B3 (A3/atom)^2  :  " + simResult_B3);
-        System.out.println( "convert  to L2/mol2 :  "+ simResult_B3 * 6.0221415 * 6.0221415 / 10000.0 / 10000.0);/////?????
-        System.out.println( "convert  to cm6/mol2 :  "+ simResult_B3 * 6.0221415 * 6.0221415 / 100.0);/////?????
-        */
+        System.out.println( "convert  to L2/mol2 :  "+ simResult_B3 * 6.02214129 * 6.02214129 / 10000.0 / 10000.0);/////?????
+        System.out.println( "convert  to cm6/mol2 :  "+ simResult_B3 * 6.02214129 * 6.02214129 / 100.0);/////?????
+        
+        Unit fromMacro_epsilon = new UnitRatio(Joule.UNIT, Mole.UNIT);
+        System.out.println("in sim unit the epsilon is : " + fromMacro_epsilon.toSim(0.60807 * 1000));
+        System.out.println("in sim unit the epsilon is : " + fromMacro_epsilon.toSim(0.586 * 1000));
+
+        Unit fromSim_epsilon = new UnitRatio(Mole.UNIT , Joule.UNIT);
+        System.out.println("***epsilon is : " + fromSim_epsilon.toSim(70.60));
+ //       System.out.println(" epsilon is : " + fromMacro_epsilon.toSim(0.60807 * 1000));
+   //     System.out.println(" is : " + fromMacro_epsilon.toSim(0.60807 * 1000));
+  //      System.out.println(" is : " + fromMacro_epsilon.toSim(0.60807 * 1000));
+ //       System.out.println("in sim unit the epsilon is : " + fromMacro_epsilon.toSim(0.60807 * 1000));
+*/
 	}
 
     /**
@@ -234,8 +263,8 @@ public class VirialN2TraPPE {
      */
     public static class VirialN2Param extends ParameterBase {
         public int nPoints = 2;
-        public double temperature = 298;
-        public long steps = 1000000;
+        public double temperature = 291.41;
+        public long numSteps = 1000000000;
         public double sigmaHSRef = 5.0;
         public double sigmaA = 1.0;// set arbitrarily
         public double sigmaN = 3.31;
