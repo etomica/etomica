@@ -9,6 +9,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveEventManager;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.util.IEvent;
 import etomica.util.IEventManager;
@@ -43,6 +44,7 @@ public class IntegratorMC extends IntegratorBox {
         moveManager = new MCMoveManager(random);
         moveEventManager = new MCMoveEventManager();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
+        trialFailedEvent = new MCMoveTrialFailedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
 	}
@@ -88,8 +90,10 @@ public class IntegratorMC extends IntegratorBox {
     	//perform the trial
     	//returns false if the trial cannot be attempted; for example an
     	// atom-displacement trial in a box with no molecules
-    	if (!move.doTrial())
+    	if (!move.doTrial()) {
+    	    moveEventManager.fireEvent(trialFailedEvent);
     		return;
+    	}
 
         //notify any listeners that move has been attempted
 		moveEventManager.fireEvent(trialEvent);
@@ -141,7 +145,7 @@ public class IntegratorMC extends IntegratorBox {
     protected final IRandom random;
     protected MCMoveManager moveManager;
     protected final IEventManager moveEventManager;
-    private final IEvent trialEvent;
+    private final IEvent trialEvent, trialFailedEvent;
     private final IEvent acceptedEvent, rejectedEvent;
     public static boolean dodebug;
 }
