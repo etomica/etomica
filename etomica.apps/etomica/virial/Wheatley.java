@@ -1,5 +1,12 @@
 package etomica.virial;
 
+/* 
+ * Implementation of Wheatley's algorithm for computing sum of biconnected diagrams. For a graph of order n
+ * the partitions are represented by bit strings of length n, formed as integers from 1 to 2^n. Thus, for example,
+ * for n = 4, the bits 1101 (integer 13) indicates the partition {4,3,1}. The complement of this partition is
+ * given by ~13, equal to 0010 (integer 2) (after masking leading 1's).
+ */
+
 public class Wheatley {
     
     final int n, nf, mask;
@@ -21,6 +28,9 @@ public class Wheatley {
         }
     }
     
+    /*
+     * Computation of sum of connected diagrams.
+     */
     public double fcCalc(double[][] eArray) {
         
         //Compute all of the fQ's
@@ -60,7 +70,7 @@ public class Wheatley {
             fC[i] = fQ[i];
             for(int j=0; j<i; j++) {
                 if((i & j) == 0) continue; //see that i and j have some bits in common
-                fC[i-1] -= fC[j-1] * fQ[(i & ~j)-1];//flip the bits on j; use only those appearing in i
+                fC[i-1] -= fC[j-1] * fQ[(i & ~j)-1];//for fQ, flip the bits on j; use only those appearing in i
             }
         }
         
@@ -76,6 +86,10 @@ public class Wheatley {
             }
         }
         double fc = w.fcCalc(eArray);
+        int maxInt = (1<<31) - 1;
+        int mask = (1<<4)-1;
+        System.out.println(mask & (~13));
+        System.out.println(maxInt);
     }
 
 }
