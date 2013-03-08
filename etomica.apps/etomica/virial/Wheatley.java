@@ -23,7 +23,7 @@ public class Wheatley {
         iMask = new int[n];
         for(int i=0; i<n; i++) {
             iMask[i] = 1<<i;  //all bits 0 except for bit i
-            fQ[iMask[i]-1] = 1.0;
+            fQ[iMask[i]] = 1.0;
  //           fC[iMask[i]-1] = 1.0;
         }
     }
@@ -37,8 +37,8 @@ public class Wheatley {
         for(int k1=1; k1<n; k1++) {
             for(int k2=0; k2<k1; k2++) {
                 int index = (iMask[k1] | iMask[k2]);
-                System.out.println(index-1);
-                fQ[index-1] = eArray[k1][k2];
+                System.out.println(index);
+                fQ[index] = eArray[k1][k2];
             }
         }
         
@@ -50,8 +50,8 @@ public class Wheatley {
                 for(int i=0; i<iMask[k2]; i++) {//loop over indices below where k2 is most significant bit
                     int index1 = i | iMask[k1];
                     int index2 = index1 | iMask[k2];
-                    System.out.println(index2-1);
-                    fQ[index2-1] = e * fQ[index1-1];
+                    System.out.println(index2);
+                    fQ[index2] = e * fQ[index1];
                 }
             }
         }
@@ -61,16 +61,21 @@ public class Wheatley {
         //where i < M
         for(int k1=1; k1<n; k1++) {
             for(int i=1; i<iMask[k1]; i++) {
-                fQ[(i | iMask[k1]) - 1] *= fQ[i-1];
+                fQ[i | iMask[k1]] *= fQ[i];
             }
         }
         
         //Compute the fC's
-        for(int i=0; i<nf; i++) {
+        for(int i=1; i<nf; i++) {
             fC[i] = fQ[i];
-            for(int j=0; j<i; j++) {
-                if((i & j) == 0) continue; //see that i and j have some bits in common
-                fC[i-1] -= fC[j-1] * fQ[(i & ~j)-1];//for fQ, flip the bits on j; use only those appearing in i
+            int iLowOneBit = i & -i;
+            for(int j=1; j<i; j++) {
+                //if((i & j) == 0) continue; //see that i and j have some bits in common
+                if ((iLowOneBit & j) == 0) continue;
+                int jComp = i & ~j;
+                if ((jComp | j) != i) continue;
+                fC[i] -= fC[j] * fQ[jComp];//for fQ, flip the bits on j; use only those appearing in i
+                System.out.println(i+" "+fC[i]);
             }
         }
         
@@ -78,14 +83,16 @@ public class Wheatley {
     }
     
     public static void main(String[] args) {
-        Wheatley w = new Wheatley(5);
-        double[][] eArray = new double[5][5];
-        for(int k1=0; k1<5; k1++) {
+        int n = 3;
+        Wheatley w = new Wheatley(n);
+        double[][] eArray = new double[n][n];
+        for(int k1=0; k1<n; k1++) {
             for(int k2=0; k2<k1; k2++) {
-                eArray[k1][k2] = k1+k2;//just fill in some values for development
+                eArray[k1][k2] = (k1+2)+(k2+2);//just fill in some values for development
             }
         }
         double fc = w.fcCalc(eArray);
+        System.out.println("fc "+fc);
         int maxInt = (1<<31) - 1;
         int mask = (1<<4)-1;
         System.out.println(mask & (~13));
