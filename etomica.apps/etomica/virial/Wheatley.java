@@ -28,18 +28,19 @@ public class Wheatley {
     }
     
     /*
-     * Computation of sum of connected diagrams.
+     * Computation of sum of biconnected diagrams.
      */
     public double fcCalc(double[][] eArray) {
         int nf = 1<<n;
         
+        // generate all partitions and compute product of e-bonds fo
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
             if (i==j) continue; // 1-point set
             int k = (i&~j); // k is the points in i other than j
             int jj = Integer.numberOfTrailingZeros(j); // jj = log2(j)
             fQ[i] = fQ[k];
-            for (int l=0; l<n; l++) {
+            for (int l=jj+1; l<n; l++) {
                 int ll = 1<<l;
                 if ((ll&k)==0) continue;
                 // l is a point in i, but is not j
@@ -70,7 +71,7 @@ public class Wheatley {
             //at this point jBits has 1 and next lowest bit in i
             for (int j=3; j<i; j+=2) {//sum over partitions of i containing 1
                 if ((j & jBits) != jBits) continue;//ensure jBits are in j
-                int jComp = i & ~j; //subset of i complementing j
+                int jComp = (i & ~j); //subset of i complementing j
                 if (jComp==0 || (jComp | j) != i) continue;
                 fA[0][i] += fB[0][j] * fC[jComp|1];
             }
@@ -81,17 +82,17 @@ public class Wheatley {
             int vs1 = 1<<v;
             for (int i=1; i<nf; i++) {
                 fA[v][i] = 0;
-                fB[v][i] = fB[v-1][i];
+                fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
+                //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
                 if ((i & vs1) == 0) continue;//if i doesn't contain v, fA and fB are done
                 int jBits = (i&-i); //lowest bit in i
                 if (jBits != vs1) { //lowest bit is not v; add v to it
                     jBits |= vs1;
-                }
-                else { //lowest bit is v; add next lowest bit to it
+                } 
+                else if(jBits == i) { //lowest bit is only bit; fA and fB are done
+                    continue;
+                } else {              //lowest bit is v; add next lowest bit to it
                     int ii = i & ~jBits;
-                    if (ii==0) { //lowest bit is only bit
-                        continue;
-                    }
                     jBits |= (ii & -ii);
                 }
                 //at this point jBits has (lowest bit + v) or (v + next lowest bit)
