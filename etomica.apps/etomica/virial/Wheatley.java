@@ -34,7 +34,7 @@ public class Wheatley {
         int nf = 1<<n;
         
         for (int i=3; i<nf; i++) {
-            int j = i & -i;
+            int j = i & -i;//lowest bit in i
             if (i==j) continue; // 1-point set
             int k = (i&~j); // k is the points in i other than j
             int jj = Integer.numberOfTrailingZeros(j); // jj = log2(j)
@@ -62,50 +62,54 @@ public class Wheatley {
         // find fA1
         for (int i=1; i<nf; i++) {
             fA[0][i] = 0;
+            fB[0][i] = fC[i];
+            if((i & 1) == 0) continue;//if i doesn't contain 1, fA and fB are done
             int jBits = (i&-i);
-            if (jBits != 1) {
+            if (jBits != 1) { //lowest bit is not 1; add 1 to it
                 jBits |= 1;
             }
-            else {
-                int ii = i & ~jBits;
-                if (ii==0) {
+            else { //lowest bit is 1; add next lowest bit to it
+                int ii = i & ~jBits;//all bits in i but lowest
+                if (ii==0) { //lowest is only bit
                     continue;
                 }
-                jBits |= (ii & ~ii);
+                jBits |= (ii & -ii);
             }
-            for (int j=3; j<i; j+=2) {
-                if ((j & jBits) != jBits) continue;
-                int jComp = i & ~j;
+            //at this point jBits has 1 and next lowest bit in i
+            for (int j=3; j<i; j+=2) {//sum over partitions of i containing 1
+                if ((j & jBits) != jBits) continue;//ensure jBits are in j
+                int jComp = i & ~j; //subset of i complementing j
                 if (jComp==0 || (jComp | j) != i) continue;
                 fA[0][i] += fB[0][j] * fC[jComp|1];
             }
-            fB[0][i] = fC[i] - fA[0][i];
+            fB[0][i] -= fA[0][i];//remove from B graphs that contain articulation point at 0
         }
         
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
             for (int i=1; i<nf; i++) {
-//                if ((i & vs1) == 0) continue;
                 fA[v][i] = 0;
-                int jBits = (i&-i);
-                if (jBits != vs1) {
+                fB[v][i] = fB[v-1][i];
+                if ((i & vs1) == 0) continue;//if i doesn't contain v, fA and fB are done
+                int jBits = (i&-i); //lowest bit in i
+                if (jBits != vs1) { //lowest bit is not v; add v to it
                     jBits |= vs1;
                 }
-                else {
+                else { //lowest bit is v; add next lowest bit to it
                     int ii = i & ~jBits;
-                    if (ii==0) {
-                        fB[v][i] = fB[v-1][i] - fA[v][i];
+                    if (ii==0) { //lowest bit is only bit
                         continue;
                     }
-                    jBits |= (ii & ~ii);
+                    jBits |= (ii & -ii);
                 }
-                for (int j=3; j<i; j++) {
-                    if ((j & jBits) != jBits) continue;
-                    int jComp = i & ~j;
+                //at this point jBits has (lowest bit + v) or (v + next lowest bit)
+                for (int j=3; j<i; j++) {//sum over partitions of i
+                    if ((j & jBits) != jBits) continue;//ensure jBits are in j
+                    int jComp = i & ~j;//subset of i complementing j
                     if (jComp==0 || (jComp | j) != i) continue;
                     fA[v][i] += fB[v][j] * (fB[v][jComp|vs1] + fA[v][jComp|vs1]);
                 }
-                fB[v][i] = fB[v-1][i] - fA[v][i];
+                fB[v][i] -= fA[v][i];//remove from B graphs that contain articulation point at v
             }
         }
 
