@@ -109,23 +109,32 @@ public class ClusterWheatley implements ClusterAbstract {
         }
 
         // find fA1
-        for (int i=1; i<nf; i++) {
+        for (int i=2; i<nf; i+=2) {
+            // all even sets don't contain 1
+            //fA[0][i] = 0;
+            fB[0][i] = fC[i];
+        }
+        fA[0][1] = 0;
+        fB[0][1] = fC[1];
+        for (int i=3; i<nf; i+=2) {
+            // every set will contain 1
             fA[0][i] = 0;
             fB[0][i] = fC[i];
-            if((i & 1) == 0 || i == 1) continue;//if i doesn't contain 1, or is 1, fA and fB are done
-            //at this point we know lowest bit in i is 1; add next lowest bit to it
             int ii = i - 1;//all bits in i but lowest
-            int jBits = 1 | (ii & -ii);
-            //at this point jBits has 1 and next lowest bit in i
-            for (int j=3; j<i; j+=2) {//sum over partitions of i containing 1
-                if ((j & jBits) != jBits) continue;//ensure jBits are in j
+            int iLow2Bit = (ii & -ii);//next lowest bit
+            int jBits = 1 | iLow2Bit;
+            if (jBits==i) continue;
+            //jBits has 1 and next lowest bit in i
+            int iii = ii ^ iLow2Bit;//i with 2 lowest bits off
+            int jInc = (iii & -iii);//3rd lowest bit, also increment for j
+            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
                 int jComp = (i & ~j); //subset of i complementing j
                 if (jComp==0 || (jComp | j) != i) continue;
                 fA[0][i] += fB[0][j] * fC[jComp|1];
             }
             fB[0][i] -= fA[0][i];//remove from B graphs that contain articulation point at 0
         }
-        
+
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
             for (int i=1; i<nf; i++) {
@@ -133,24 +142,48 @@ public class ClusterWheatley implements ClusterAbstract {
                 fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
                 //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
                 if ((i & vs1) == 0) continue;//if i doesn't contain v, fA and fB are done
-                int jBits = (i&-i); //lowest bit in i
-                if (jBits != vs1) { //lowest bit is not v; add v to it
-                    jBits |= vs1;
-                }
-                else if (jBits == i) { //lowest bit is only bit; fA and fB are done
+                int iLowBit = (i&-i);//lowest bit in i
+                if (iLowBit == i) { //lowest bit is only bit; fA and fB are done
                     continue;
                 }
+                int jBits;
+                int ii = i ^ iLowBit;
+                int iLow2Bit = (ii & -ii);
+                if (iLowBit != vs1 && iLow2Bit != vs1) {
+                    //v is not in the lowest 2 bits
+                    // jBits is the lowest bit and v
+                    jBits = iLowBit | vs1;
+
+                    // we can only increment by the 2nd lowest
+                    int jInc = iLow2Bit;
+
+                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
+                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
+                        if ((j & jBits) != jBits) continue;//ensure jBits are in j
+                        int jComp = i & ~j;//subset of i complementing j
+                        if (jComp==0 || (jComp | j) != i) continue;
+                        fA[v][i] += fB[v][j] * (fB[v][jComp|vs1] + fA[v][jComp|vs1]);
+                    }
+                }
                 else {
-                    int ii = i & ~jBits;
-                    jBits |= (ii & -ii);
+                    //lowest 2 bits contain v
+                    // jBits is the lowest 2 bits
+                    // we can start at jBits and increment by the 3rd lowest bit
+                    jBits = iLowBit | iLow2Bit;
+                    if (jBits == i) continue; // no bits left for jComp
+                    
+                    int iii = ii ^ iLow2Bit;
+                    int jInc = (iii & -iii);
+
+                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
+                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
+                        // start=jBits and jInc ensure that every set includes jBits
+                        int jComp = i & ~j;//subset of i complementing j
+                        if (jComp==0 || (jComp | j) != i) continue;
+                        fA[v][i] += fB[v][j] * (fB[v][jComp|vs1] + fA[v][jComp|vs1]);
+                    }
                 }
-                //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-                for (int j=3; j<i; j++) {//sum over partitions of i
-                    if ((j & jBits) != jBits) continue;//ensure jBits are in j
-                    int jComp = i & ~j;//subset of i complementing j
-                    if (jComp==0 || (jComp | j) != i) continue;
-                    fA[v][i] += fB[v][j] * (fB[v][jComp|vs1] + fA[v][jComp|vs1]);
-                }
+
                 fB[v][i] -= fA[v][i];//remove from B graphs that contain articulation point at v
             }
         }
