@@ -63,18 +63,10 @@ public class Wheatley {
         for (int i=1; i<nf; i++) {
             fA[0][i] = 0;
             fB[0][i] = fC[i];
-            if((i & 1) == 0) continue;//if i doesn't contain 1, fA and fB are done
-            int jBits = (i&-i);
-            if (jBits != 1) { //lowest bit is not 1; add 1 to it
-                jBits |= 1;
-            }
-            else { //lowest bit is 1; add next lowest bit to it
-                int ii = i & ~jBits;//all bits in i but lowest
-                if (ii==0) { //lowest is only bit
-                    continue;
-                }
-                jBits |= (ii & -ii);
-            }
+            if((i & 1) == 0 || i == 1) continue;//if i doesn't contain 1, or is 1, fA and fB are done
+            //at this point we know lowest bit in i is 1; add next lowest bit to it
+            int ii = i - 1;//all bits in i but lowest
+            int jBits = 1 | (ii & -ii);
             //at this point jBits has 1 and next lowest bit in i
             for (int j=3; j<i; j+=2) {//sum over partitions of i containing 1
                 if ((j & jBits) != jBits) continue;//ensure jBits are in j
