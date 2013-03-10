@@ -19,7 +19,6 @@ public class ClusterWheatley implements ClusterAbstract {
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
-
     
     public ClusterWheatley(int nPoints, MayerFunction f) {
         this.n = nPoints;
@@ -137,7 +136,7 @@ public class ClusterWheatley implements ClusterAbstract {
 
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
-            for (int i=1; i<nf; i++) {
+            for (int i=vs1+1; i<nf; i++) {
                 fA[v][i] = 0;
                 fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
                 //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
