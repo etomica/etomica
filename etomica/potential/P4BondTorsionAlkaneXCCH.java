@@ -28,8 +28,7 @@ import etomica.util.RandomNumberGenerator;
  * Mar 2013
  */
 public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft {
-// P4BondTorsion p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
-    public P4BondTorsionAlkaneXCCH(ISpace space, double a0, double a1, double a2, double a3) {
+	public P4BondTorsionAlkaneXCCH(ISpace space, double a0, double a1, double a2, double a3) {
     	
         super(4, space);
         dr21 = space.makeVector();
@@ -72,7 +71,14 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
         dr34.PEa1Tv1(-dr34.dot(dr23)/dr23Sq, dr23);
         
         double cosphi = dr21.dot(dr34)/Math.sqrt(dr21.squared()*dr34.squared());
+        // :::::::::::::: check torsion angles ::::::::::::::::: //
+//        	int i0 = atom0.getIndex();
+//        	int i1 = atom1.getIndex();
+//        	int i2 = atom2.getIndex();
+//        	int i3 = atom3.getIndex();
+//        		System.out.println(String.format("%2d %2d %2d %2d %f", i0, i1, i2, i3, cosphi));
         return energyAtAngle(cosphi);
+        
     }
     
     public double energyAtAngle(double cosphi) {
