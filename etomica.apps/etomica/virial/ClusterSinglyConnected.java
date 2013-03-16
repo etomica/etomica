@@ -116,11 +116,11 @@ public class ClusterSinglyConnected implements ClusterAbstract {
                 fL[iH|i] = bSum[iH|i]*(fL[i]+fN[i]);
                 fN[iH|i] = 0.0;
                 final int iLowBit = i & -i;
-                for(int j=1; j<i; j++) {
-                    if ((j & iLowBit) == 0) continue;
-                    final int jComp = i & ~j;
-                    if ((jComp | j) != i) continue;
-                    fN[iH|i] += fL[iH|j]*(fL[iH|jComp] + fN[iH|jComp]);
+                for(int iS=1; iS<i; iS++) {
+                    if ((iS & iLowBit) == 0) continue;
+                    final int iSComp = i & ~iS;
+                    if ((iSComp | iS) != i) continue;
+                    fN[iH|i] += fL[iH|iS]*(fL[iH|iSComp] + fN[iH|iSComp]);
                 }
             }
         }
