@@ -135,7 +135,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void setExtraTargetClusters(ClusterAbstract[] extraTargetClusters) {
-        if (!initialized) throw new RuntimeException("too late");
+        if (initialized) throw new RuntimeException("too late");
         this.extraTargetClusters = extraTargetClusters;
     }
     
@@ -144,7 +144,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
     
     public void setSampleClusters(ClusterWeight[] sampleClusters) {
-        if (!initialized) throw new RuntimeException("too late");
+        if (initialized) throw new RuntimeException("too late");
         this.sampleClusters[0] = sampleClusters[0];
         this.sampleClusters[1] = sampleClusters[1];
     }
@@ -154,7 +154,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
     
     public void setBoxFactory(BoxClusterFactory newBoxFactory) {
-        if (!initialized) throw new RuntimeException("too late");
+        if (initialized) throw new RuntimeException("too late");
         boxFactory = newBoxFactory;
     }
     
