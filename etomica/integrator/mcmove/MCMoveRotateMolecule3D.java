@@ -25,7 +25,15 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
         positionDefinition = new AtomPositionGeometricCenter(space);
     }
      
-    public boolean doTrial() {
+    public IAtomPositionDefinition getPositionDefinition() {
+		return positionDefinition;
+    }
+
+	public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+		this.positionDefinition = positionDefinition;
+	}
+
+	public boolean doTrial() {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
         if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
