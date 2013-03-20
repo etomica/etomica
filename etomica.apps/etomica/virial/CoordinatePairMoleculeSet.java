@@ -35,7 +35,18 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
         positionDefinition = new AtomPositionGeometricCenter(space);
     }
     
-    /**
+    
+    public IAtomPositionDefinition getPositionDefinition() {
+		return positionDefinition;
+	}
+
+
+	public void setPositionDefinition(IAtomPositionDefinition positionDefinition) {
+		this.positionDefinition = positionDefinition;
+	}
+
+
+	/**
      * Returns atom pair for ith and jth atoms in set.
      */
     public double getr2(int i, int j) {
