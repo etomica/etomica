@@ -8,6 +8,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
@@ -69,7 +70,9 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
         energyMeter.setBox(p);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
     }
-    
+    public void setSpecies(ISpecies newSpecies) {
+        species = newSpecies;
+    }
     public void setTemperature(double temperature) {
         int nBins = probabilityBins.length - 1;
         int nSubBins = 100;
@@ -415,4 +418,6 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
     protected IVectorMutable[][] oldPositions;
     protected final IVectorMutable oldCenter;
     protected double wOld, wNew, bias;
+    protected ISpecies species;
+
 }
