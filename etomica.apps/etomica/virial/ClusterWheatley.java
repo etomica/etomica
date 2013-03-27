@@ -14,7 +14,7 @@ public class ClusterWheatley implements ClusterAbstract {
     protected final MayerFunction f;
     
 //    protected final double[][] eValues;
-    protected final double[] fQ, fC, bond;
+    protected final double[] fQ, fC;
     protected final double[][] fA, fB;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
@@ -27,7 +27,6 @@ public class ClusterWheatley implements ClusterAbstract {
         int nf = 1<<n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
-        bond = new double[nf];
         for(int i=0; i<n; i++) {
             fQ[1<<i] = 1.0;
         }
@@ -85,12 +84,14 @@ public class ClusterWheatley implements ClusterAbstract {
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
             if (i==j) continue; // 1-point set
-            fQ[i] = fQ[i&~j]; //initialize with previously-computed product of all pairs in partition, other than j
+            int k = i&~j; //strip j bit from i
+            if (k == (k&-k)) continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
+            fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
             //loop over pairs formed from j and each point in partition; multiply by bond for each pair
             //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            for (int l=(j<<1); l<nf; l=(l<<1)) {
+            for (int l=(j<<1); l<=i; l=(l<<1)) {
                 if ((l&i)==0) continue; //l is not in partition
-                fQ[i] *= bond[l | j];
+                fQ[i] *= fQ[l | j];
             }
         }
 
@@ -197,7 +198,7 @@ public class ClusterWheatley implements ClusterAbstract {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                bond[(1<<i)|(1<<j)] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
+                fQ[(1<<i)|(1<<j)] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
             }
         }
     }
