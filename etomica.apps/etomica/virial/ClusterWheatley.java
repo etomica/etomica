@@ -13,8 +13,8 @@ public class ClusterWheatley implements ClusterAbstract {
     protected final int n;
     protected final MayerFunction f;
     
-    protected final double[][] eValues;
-    protected final double[] fQ, fC;
+//    protected final double[][] eValues;
+    protected final double[] fQ, fC, bond;
     protected final double[][] fA, fB;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
@@ -23,10 +23,11 @@ public class ClusterWheatley implements ClusterAbstract {
     public ClusterWheatley(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
-        eValues = new double[nPoints][nPoints];
+//        eValues = new double[nPoints][nPoints];
         int nf = 1<<n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
+        bond = new double[nf];
         for(int i=0; i<n; i++) {
             fQ[1<<i] = 1.0;
         }
@@ -80,18 +81,16 @@ public class ClusterWheatley implements ClusterAbstract {
     protected void calcValue() {
         int nf = 1<<n;
         
-        // generate all partitions and compute product of e-bonds fo
+        // generate all partitions and compute product of e-bonds for all pairs in partition
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
             if (i==j) continue; // 1-point set
-            int k = (i&~j); // k is the points in i other than j
-            int jj = Integer.numberOfTrailingZeros(j); // jj = log2(j)
-            fQ[i] = fQ[k];
-            for (int l=jj+1; l<n; l++) {
-                int ll = 1<<l;
-                if ((ll&k)==0) continue;
-                // l is a point in i, but is not j
-                fQ[i] *= eValues[jj][l];
+            fQ[i] = fQ[i&~j]; //initialize with previously-computed product of all pairs in partition, other than j
+            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
+            //all such pairs will be with bits higher than j, as j is the lowest bit in i
+            for (int l=(j<<1); l<nf; l=(l<<1)) {
+                if ((l&i)==0) continue; //l is not in partition
+                fQ[i] *= bond[l | j];
             }
         }
 
@@ -198,9 +197,7 @@ public class ClusterWheatley implements ClusterAbstract {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                double x = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
-                eValues[i][j] = x;
-                eValues[j][i] = x;
+                bond[(1<<i)|(1<<j)] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
             }
         }
     }
