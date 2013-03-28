@@ -91,7 +91,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     // this constructor allows you to specify doWiggle=true
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
             double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster, boolean doWiggle) {
-        this(aSpace,species,temperature,refCluster,targetCluster);
+        this(aSpace,new ISpecies[]{species}, new int[]{refCluster.pointCount()},temperature,refCluster,targetCluster);
         setDoWiggle(doWiggle);
         init();
     }
