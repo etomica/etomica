@@ -1,7 +1,5 @@
 package etomica.virial;
 
-import etomica.math.SpecialFunctions;
-
 /**
  * This class calculates the sum of all purely singly-connected clusters using an adaptation of Wheatley's
  * recursive formulation.
@@ -115,9 +113,10 @@ public class ClusterSinglyConnected implements ClusterAbstract {
             for(int i=1; i<iH; i++) {
                 fL[iH|i] = bSum[iH|i]*(fL[i]+fN[i]);
                 fN[iH|i] = 0.0;
-                final int iLowBit = i & -i;
-                for(int iS=1; iS<i; iS++) {
-                    if ((iS & iLowBit) == 0) continue;
+                final int iL = i & -i;
+                final int inc = iL<<1;
+                for(int iS=iL; iS<i; iS+=inc) {
+                    //if ((iS & iL) == 0) continue; (enforced by loop)
                     final int iSComp = i & ~iS;
                     if ((iSComp | iS) != i) continue;
                     fN[iH|i] += fL[iH|iS]*(fL[iH|iSComp] + fN[iH|iSComp]);
