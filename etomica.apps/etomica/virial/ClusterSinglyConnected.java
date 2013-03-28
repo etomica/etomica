@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import etomica.math.SpecialFunctions;
+
 /**
  * This class calculates the sum of all purely singly-connected clusters using an adaptation of Wheatley's
  * recursive formulation.
@@ -11,7 +13,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     protected final int n, nf;
     protected final MayerFunction f;
     
-    protected final double[][] eValues;
+    protected final double[][] fValues;
     protected final double[] fL, fN;
     protected final double[] bSum;
     protected int cPairID = -1, lastCPairID = -1;
@@ -21,7 +23,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     public ClusterSinglyConnected(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
-        eValues = new double[nPoints][nPoints];
+        fValues = new double[nPoints][nPoints];
         nf = 1<<n;  // 2^n
         fL = new double[nf];
         fN = new double[nf];
@@ -72,6 +74,20 @@ public class ClusterSinglyConnected implements ClusterAbstract {
       return value;
     }
 
+    public long numDiagrams() {
+        double savedValue = value;
+        for (int i=0; i<n; i++) {
+            for (int j=i+1; j<n; j++) {
+                fValues[i][j] = 1;
+                fValues[j][i] = 1;
+            }
+        }
+        calcValue();
+        long num = (int)Math.round(value);
+        value = savedValue;
+        return num;
+    }
+
     /*
      * Computation of sum of purely singly-connected diagrams.
      */
@@ -100,10 +116,10 @@ public class ClusterSinglyConnected implements ClusterAbstract {
             
             //compute bSum values
             //in this way, loops are set up so we know what low bit is, and don't need log2
-            for(int j=m-1; j>0; j--) { //j loops down the bits to the right of m
+            for(int j=m-1; j>=0; j--) { //j loops down the bits to the right of m
                 final int iL = 1<<j; //low bit
                 final int inc = iL<<1;
-                bSum[iH|iL] = eValues[m][j];
+                bSum[iH|iL] = fValues[m][j];
                 for(int i=inc; i<iH; i+=inc) {
                     bSum[iH|i|iL] = bSum[iH|i] + bSum[iH|iL];
                 }
@@ -135,9 +151,9 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                double x = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
-                eValues[i][j] = x;
-                eValues[j][i] = x;
+                double x = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                fValues[i][j] = x;
+                fValues[j][i] = x;
             }
         }
     }
