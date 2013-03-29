@@ -68,6 +68,20 @@ public class ClusterChain implements ClusterAbstract {
       return value;
     }
 
+    public long numDiagrams() {
+        double savedValue = value;
+        for (int i=0; i<n; i++) {
+            for (int j=i+1; j<n; j++) {
+                fL[i][j][i|j] = 1;
+                fL[j][i][i|j] = 1;
+            }
+        }
+        calcValue();
+        long num = (int)Math.round(value);
+        value = savedValue;
+        return num;
+    }
+
     /*
      * Computation of sum of purely singly-connected diagrams.
      */
