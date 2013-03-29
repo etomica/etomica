@@ -24,7 +24,7 @@ public class ClusterChain implements ClusterAbstract {
         fL = new double[n][n][nf];
         bond = new double[nf];
         for(int i=0; i<n; i++) {
-                fL[i][i][1<<i] = 1.0;
+            fL[i][i][1<<i] = 1.0;
         }
     }
 
@@ -69,16 +69,17 @@ public class ClusterChain implements ClusterAbstract {
     }
 
     public long numDiagrams() {
-        double savedValue = value;
-        for (int i=0; i<n; i++) {
+        for (int i=0; i<n-1; i++) {
             for (int j=i+1; j<n; j++) {
-                fL[i][j][i|j] = 1;
-                fL[j][i][i|j] = 1;
+                int k = (1<<i) | (1<<j);
+                fL[i][j][k] = 1;
+                fL[j][i][k] = 1;
             }
         }
+        double oldValue = value;
         calcValue();
-        long num = (int)Math.round(value);
-        value = savedValue;
+        long num = (long)value;
+        value = oldValue;
         return num;
     }
 
@@ -89,7 +90,7 @@ public class ClusterChain implements ClusterAbstract {
         
         //Compute the fL and fN's
         // fL[j][k][i] is sum of all permutations of partition i in which j and k are at the ends
-        for(int i=1; i<nf; i++) {//sum over subsets of points
+iLoop:  for(int i=1; i<nf; i++) {//sum over subsets of points
             for(int iS=1; iS<i; iS++) {//sum over partitions of i
                 int iSComp = i & ~iS;
                 if ((iSComp | iS) != i) continue;
@@ -100,6 +101,7 @@ public class ClusterChain implements ClusterAbstract {
                     for(int jR=0; jR<n; jR++) {//leaf on the other partition
                         int iR = 1<<jR;
                         if((iR & iSComp) == 0) continue;
+                        if ((iL|iR) == i) continue iLoop;
                         fL[jL][jR][i] = 0.0;
                         for(int jM=0; jM<n; jM++) {//leaf where chains are spliced
                             int iM = 1<<jM;
@@ -164,7 +166,7 @@ public class ClusterChain implements ClusterAbstract {
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
                 int index = (1<<i)|(1<<j);
-                fL[j][i][index] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
+                fL[j][i][index] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                 fL[i][j][index] = fL[j][i][index];
             }
         }
