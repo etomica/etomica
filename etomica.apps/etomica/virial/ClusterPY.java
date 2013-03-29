@@ -32,7 +32,7 @@ public class ClusterPY extends ClusterWheatley {
         }
         
         int nf = 1<<n;
-        for(int i=1; i<nf; i++) {//sum over subsets of points
+iLoop:  for(int i=1; i<nf; i++) {//sum over subsets of points
 
             //compute tn = sum[ c_j h_{n-j-1}, j=0,n-1]
             for(int iS=1; iS<i; iS++) {//sum over partitions of i
@@ -44,6 +44,7 @@ public class ClusterPY extends ClusterWheatley {
                     if((iL & iS) == 0) continue;
                     for(int jR=0; jR<n; jR++) {//leaf on the other partition
                         int iR = 1<<jR;
+                        if ((iR|iL) == i) continue iLoop;
                         if((iR & iSComp) == 0) continue;
                         t[jL][jR][i] = 0.0;
                         for(int jM=0; jM<n; jM++) {//leaf where chains are spliced
@@ -73,7 +74,7 @@ public class ClusterPY extends ClusterWheatley {
             }
         }
 
-        value -= (1-n)*sum/SpecialFunctions.factorial(n);
+        value -= -sum/n;
 
     }
 
