@@ -49,7 +49,7 @@ iLoop:  for(int i=1; i<nf; i++) {//sum over subsets of points
                         t[jL][jR][i] = 0.0;
                         for(int jM=0; jM<n; jM++) {//leaf where chains are spliced
                             int iM = 1<<jM;
-                            if(jM==jL || jM==jR || (iM&i)==0) continue;
+                            if(jM==jL || jM==jR || (iM&iS)==0) continue;
                             t[jL][jR][i] += c[jL][jM][iS|iM]*h[jM][jR][iSComp|iM];
                         }
                     }
@@ -66,7 +66,7 @@ iLoop:  for(int i=1; i<nf; i++) {//sum over subsets of points
                 }
             }
         }
-        
+
         double sum = 0.0;
         for(int jR=1; jR<n; jR++) {
             for(int jL=0; jL<jR; jL++) {
@@ -74,7 +74,10 @@ iLoop:  for(int i=1; i<nf; i++) {//sum over subsets of points
             }
         }
 
-        value -= -sum/n;
+        // we need to divide by not only (-1/n) but also the number of pairs above
+        // (each pair would give us the appropriate value, we use all pairs to get
+        // all permutations)
+        value -= -sum/(n*n*(n-1)/2);
 
     }
 
