@@ -350,7 +350,7 @@ public class PYGenerator extends IEGenerator {
             List<Set<Graph>> cList = PYGenerator.PYGenerate(m, 'f');
             Set<Graph> cm = VirialDiagrams.makeGraphList();
             cm.addAll(cList.get(m));
-            System.out.println("c"+m);
+            System.out.println("c"+m+"PY");
             for (Graph g : cm) {
                 System.out.println(g);
             }
@@ -358,7 +358,7 @@ public class PYGenerator extends IEGenerator {
     
             Set<Graph> correction = VirialDiagrams.makeGraphList();
             correction.addAll(PYGenerator.getPYCorrection((byte)(m+2)));
-            System.out.println("c"+(m+2)+" - c"+(m+2)+"PY");
+            System.out.println("c"+(m)+" - c"+(m)+"PY");
             for (Graph g : correction) {
                 System.out.println(g);
             }
@@ -380,14 +380,14 @@ public class PYGenerator extends IEGenerator {
         }
 
         Set<Graph> correctionIC = PYGenerator.getICPYCorrection((byte)(m+2), false);
-        System.out.println("c"+(m+2)+" - c"+(m+2)+"ICPY (F)");
+        System.out.println("c"+(m)+" - c"+(m)+"ICPY (F)");
         for (Graph g : correctionIC) {
             System.out.println(g);
         }
         ClusterViewer.createView("ICcorrectionF", correctionIC);
 
         correctionIC = PYGenerator.getICPYCorrection((byte)(m+2), true);
-        System.out.println("c"+(m+2)+" - c"+(m+2)+"ICPY (EF)");
+        System.out.println("c"+(m)+" - c"+(m)+"ICPY (EF)");
         for (Graph g : correctionIC) {
             System.out.println(g);
         }
