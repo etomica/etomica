@@ -167,87 +167,89 @@ public final class SpecialFunctions {
      * (GSL license info to be added) GSL home page is http://www.gnu.org/software/gsl/
      */
     public static double confluentHypergeometric1F1(double a, double c, double xin) {
-        final double RECUR_BIG = 1.0e+50;
-        final double GSL_DBL_EPSILON = 2.2204460492503131e-16;
-        final int nmax = 5000;
-        int n = 3;
-        final double x = -xin;
-        final double x3 = x * x * x;
-        final double t0 = a / c;
-        final double t1 = (a + 1.0) / (2.0 * c);
-        final double t2 = (a + 2.0) / (2.0 * (c + 1.0));
-        double F = 1.0;
-        double prec;
+    	/*
+    	takes in the numerator parameter of 1F1 (ap), the denominator parameter of 1F1 (cp) and the value of the arguement (z)&
+    	returns either the value of the rational approximation of 1F1 when it converges to a given tolerance or,if that given 
+    	tolerance is not met, will ask for different values of ap, cp & z.
+    	Also: A and B	will contain the values of the numerator and denominator polynomials, respectively, for all degrees 
+    	from 0 to n inclusive where n is the maximum degree for which the values of the polynomials are to be calculated
+    	*/
 
-        double Bnm3 = 1.0; /* B0 */
-        double Bnm2 = 1.0 + t1 * x; /* B1 */
-        double Bnm1 = 1.0 + t2 * x * (1.0 + t1 / 3.0 * x); /* B2 */
 
-        double Anm3 = 1.0; /* A0 */
-        double Anm2 = Bnm2 - t0 * x; /* A1 */
-        double Anm1 = Bnm1 - t0 * (1.0 + t2 * x) * x + t0 * t1
-                * (c / (c + 1.0)) * x * x; /* A2 */
+    	double x = -xin;
+    	double [] arrayA = new double [101]; //the numerator of the rational approx.
+    	double [] arrayB = new double [101]; //the denominator of the rational approx.
+    	double [] arrayR = new double [101]; //the value of the rational aproximations.
+    	double [] arrayD = new double [101]; //difference in subsequent rational approx.
+    	int n = 100; //number of iterations,if you change this number must also change condition of the last if statement
+    	int n1 = n+1; 
+    	double tolerance = 1E-15;//specified tolerance
 
-        while (true) {
-            double npam1 = n + a - 1;
-            double npcm1 = n + c - 1;
-            double npam2 = n + a - 2;
-            double npcm2 = n + c - 2;
-            double tnm1 = 2 * n - 1;
-            double tnm3 = 2 * n - 3;
-            double tnm5 = 2 * n - 5;
-            double F1 = (n - a - 2) / (2 * tnm3 * npcm1);
-            double F2 = (n + a) * npam1 / (4 * tnm1 * tnm3 * npcm2 * npcm1);
-            double F3 = -npam2 * npam1 * (n - a - 2)
-                    / (8 * tnm3 * tnm3 * tnm5 * (n + c - 3) * npcm2 * npcm1);
-            double E = -npam1 * (n - c - 1) / (2 * tnm3 * npcm2 * npcm1);
+    	double zero = 0.0;
+    	double one = 1.0;
+    	double two = 2.0;
+    	double three = 3.0;
 
-            double An = (1.0 + F1 * x) * Anm1 + (E + F2 * x) * x * Anm2 + F3
-                    * x3 * Anm3;
-            double Bn = (1.0 + F1 * x) * Bnm1 + (E + F2 * x) * x * Bnm2 + F3
-                    * x3 * Bnm3;
-            double r = An / Bn;
 
-            prec = Math.abs((F - r) / F);
-            F = r;
+    	// to understand the following code refer to rational approximation of 1F1(ap; cp; -z)
 
-            if (prec < GSL_DBL_EPSILON || n > nmax)
-                break;
+    	double ct1 = a*x/c;
+    	double xn3 = zero;
+    	double xn1 = two;
+    	double z2 = x/two;
+    	double ct2 = z2/(one+c);
+    	double xn2 = one;
 
-            if (Math.abs(An) > RECUR_BIG || Math.abs(Bn) > RECUR_BIG) {
-                An /= RECUR_BIG;
-                Bn /= RECUR_BIG;
-                Anm1 /= RECUR_BIG;
-                Bnm1 /= RECUR_BIG;
-                Anm2 /= RECUR_BIG;
-                Bnm2 /= RECUR_BIG;
-                Anm3 /= RECUR_BIG;
-                Bnm3 /= RECUR_BIG;
-            } else if (Math.abs(An) < 1.0 / RECUR_BIG
-                    || Math.abs(Bn) < 1.0 / RECUR_BIG) {
-                An *= RECUR_BIG;
-                Bn *= RECUR_BIG;
-                Anm1 *= RECUR_BIG;
-                Bnm1 *= RECUR_BIG;
-                Anm2 *= RECUR_BIG;
-                Bnm2 *= RECUR_BIG;
-                Anm3 *= RECUR_BIG;
-                Bnm3 *= RECUR_BIG;
-            }
+    	arrayA[0] = one;
+    	arrayB[0] = one;
+    	arrayB[1] = one+(one+a)*z2/c;
+    	arrayA[1] = arrayB[1]-ct1;
+    	arrayB[2] = one+(two+arrayB[1])*(two+a)/three*ct2;
+    	arrayA[2] = arrayB[2]-(one+ct2)*ct1;
+    	ct1 = three;
+    	double xn0 = three;
+    	//for i=3,...,n the values of arrayA[1+i] and arrayB[1+i] are calculated using the recurrence relations below*/
 
-            n++;
-            Bnm3 = Bnm2;
-            Bnm2 = Bnm1;
-            Bnm1 = Bn;
-            Anm3 = Anm2;
-            Anm2 = Anm1;
-            Anm1 = An;
-        }
+    	for (int i=3; i<=n; i++){
+    		//calculation of the multipliers for the recursion
+    		ct2 = z2/ct1/(c+xn1);
+    		double g1 = one + ct2*(xn2-a);
+    		ct2 = ct2*(a+xn1)/(c+xn2);
+    		double g2 = ct2*((c-xn1)+(a+xn0)/(ct1+two)*z2);
+    		double g3 = ct2*z2*z2/ct1/(ct1-two)*(a+xn2)/(c+xn3)*(a-xn2);
 
-        return F;
-        //        result->err  = 2.0 * fabs(F * prec);
-        //        result->err += 2.0 * GSL_DBL_EPSILON * (n-1.0) * fabs(F);
-    }
+    		//the recurrance relations for arrayA[i+1] and arrayB[i+1] are as follows
+
+    		arrayB[i] = g1*arrayB[i-1] + g2*arrayB[i-2] + g3*arrayB[i-3];
+    		arrayA[i] = g1*arrayA[i-1] + g2*arrayA[i-2] + g3*arrayA[i-3];
+
+    		xn3 = xn2;
+    		xn2 = xn1;
+    		xn1 = xn0;
+    		xn0 = xn0 + one;
+    		ct1 = ct1 + two;	
+    	}//end for	
+
+    	arrayD[n1-1] = zero; 
+    	for (int j1 = 1; j1<=n+1; j1++){
+    		arrayR[j1-1] = (arrayA[j1-1])/(arrayB[j1-1]);//rational approximation of 1f1
+    		if (j1>1){
+    			arrayD[j1-2] = (arrayR[j1-1]) - (arrayR[j1-2]);
+    		}
+    		if (j1>=5 && Math.abs(arrayD[j1-2]/arrayR[j1-1])<= tolerance ){
+    			//checking for convergence of the rational approximation to a given tolerance
+    			//if that tolerance is met then exit the loop and return the value of the approximation
+    			return arrayR[j1-1];
+    		}//end if
+    		//if that tolerance is not met within the given numberof iterations then the program will
+    		//ask you to check the values entered
+    		if (j1 == n){
+    			throw new RuntimeException("please check your the values a, c & xin");
+    		}
+    	}//end for
+
+    	return arrayR[n];	
+    }//end main	
 
     protected static double[] lp = new double[]{1};
     protected static double lastLPX = 0;
