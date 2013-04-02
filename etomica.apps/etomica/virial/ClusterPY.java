@@ -49,6 +49,7 @@ public class ClusterPY extends ClusterWheatley {
                 int iSSize = Integer.bitCount(iS);
                 if (iSSize<2) continue;
 
+                // fac is the number of ways to choose cj hk (in the loops below)
                 long fac = SpecialFunctions.factorial(iSize-2)/(SpecialFunctions.factorial(iSSize-2)*SpecialFunctions.factorial(iSize-iSSize-1));
 
                 for(int jL=0; jL<n; jL++) {//leaf on one partition
