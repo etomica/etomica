@@ -42,6 +42,7 @@ public class Biconnected extends AbstractTraversal {
     visited = new int[graph.nodeCount()];
     low = new int[graph.nodeCount()];
     time = 0;
+    edgesStack.clear();
     return true;
   }
 
@@ -50,14 +51,15 @@ public class Biconnected extends AbstractTraversal {
     low[nodeID] = ++time;
     visited[nodeID] = low[nodeID];
     // this is a singleton component
-    if (graph.getOutDegree(nodeID) == 0) {
+    byte od = graph.getOutDegree(nodeID);
+    if (od == 0) {
       status(STATUS_START_BICOMPONENT);
       localVisit(nodeID);
       seen(nodeID);
       status(STATUS_VISITED_BICOMPONENT);
     }
     else {
-      for (byte i = 0; i < graph.getOutDegree(nodeID); i++) {
+      for (byte i = 0; i < od; i++) {
         NodePair lastEdge = null;
         if (!edgesStack.isEmpty()) {
           lastEdge = edgesStack.getLast();
@@ -145,7 +147,6 @@ public class Biconnected extends AbstractTraversal {
 
   @Override
   protected void traverseComponent(byte nodeID, Graph graph) {
-
     traverseBCC(nodeID, graph, false);
   }
 }
