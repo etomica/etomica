@@ -19,5 +19,14 @@ public interface MayerFunctionNonAdditive {
      */
 	public double f(IMoleculeList molecules, double[] r2, double beta);
 
+	/**
+     * returns exp(-beta*(U - Upair))
+     * 
+     * This method allows an implementation to operate on distances and indices
+     * instead of molecules.  The arrays can be longer than needed for
+     * nMolecules (extra elements will be ignored).
+	 */
+	public double f(IMoleculeList molecules, int nMolecules, int[] moleculeIndices, double[] r2, double beta);
+
 	public void setBox(IBox box);
 }

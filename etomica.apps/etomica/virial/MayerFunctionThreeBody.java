@@ -17,19 +17,28 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
 
     protected double[] lastValue;
     protected int totalMolecules;
+    protected int[] myMoleculeIndices = new int[0];
+
+    public double f(IMoleculeList molecules, double[] r2, double beta) {
+        // just construct info to pass to the other method
+        int nMolecules = molecules.getMoleculeCount();
+        for (int i=0; i<nMolecules; i++) {
+            myMoleculeIndices[i] = molecules.getMolecule(i).getIndex();
+        }
+        return f(molecules, nMolecules, myMoleculeIndices, r2, beta);
+    }
 
     /*
      * We assume that this will be called for all triplets before it is called
      * for anything else.  We'll calculate the higher order energies by summing
      * the triplet contributions
      */
-    public double f(IMoleculeList molecules, double[] r2, double beta) {
-        int nMolecules = molecules.getMoleculeCount();
+    public double f(IMoleculeList molecules, int nMolecules, int[] moleculeIndices, double[] r2, double beta) {
         if (nMolecules<3) throw new RuntimeException("need at least 3");
         if (nMolecules==3) {
-            int id0 = molecules.getMolecule(0).getIndex();
-            int id1 = molecules.getMolecule(1).getIndex();
-            int id2 = molecules.getMolecule(2).getIndex();
+            int id0 = moleculeIndices[0];
+            int id1 = moleculeIndices[1];
+            int id2 = moleculeIndices[2];
             int tripletID = VirialDiagrams.tripletId(id0, id1, id2, totalMolecules);
             double betaU = -beta*energy(molecules, r2);
             lastValue[tripletID] = betaU;
@@ -38,12 +47,13 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
         double betaUSum = 0;
         // compute sum of triplet energies for all triplets composed of our molecules
         for (int i=0; i<nMolecules-2; i++) {
-            int id0 = molecules.getMolecule(i).getIndex();
+            int id0 = moleculeIndices[i];
             for (int j=i+1; j<nMolecules-1; j++) {
-                int id1 = molecules.getMolecule(j).getIndex();
+                int id1 = moleculeIndices[j];
+                int tripletIDij = VirialDiagrams.tripletId(id0, id1, id1, totalMolecules);
                 for (int k=j+1; k<nMolecules; k++) {
-                    int id2 = molecules.getMolecule(k).getIndex();
-                    int tripletID = VirialDiagrams.tripletId(id0, id1, id2, totalMolecules);
+                    int id2 = moleculeIndices[k];
+                    int tripletID = tripletIDij + (id2 - id1 - 1);
                     betaUSum += lastValue[tripletID];
                 }
             }
@@ -70,5 +80,8 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
         if (totalMolecules<3) throw new RuntimeException("need at least 3");
         int nTriplets = VirialDiagrams.tripletId(totalMolecules-3, totalMolecules-2, totalMolecules-1, totalMolecules)+1;
         lastValue = new double[nTriplets];
+        if (totalMolecules > myMoleculeIndices.length) {
+            myMoleculeIndices = new int[totalMolecules];
+        }
     }
 }
