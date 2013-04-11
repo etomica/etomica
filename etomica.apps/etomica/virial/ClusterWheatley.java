@@ -93,10 +93,10 @@ public class ClusterWheatley implements ClusterAbstract {
       
       updateF(box);
       
-      calcValue();
+      calcValue(box);
       if (Double.isNaN(value) || Double.isInfinite(value)) {
           updateF(box);
-          calcValue();
+          calcValue(box);
           throw new RuntimeException("oops");
       }
       return value;
@@ -106,7 +106,7 @@ public class ClusterWheatley implements ClusterAbstract {
      * This calculates all FQ values given that the entries for pairs have
      * already been populated.
      */
-    protected void calcFullFQ() {
+    protected void calcFullFQ(BoxCluster box) {
         int nf = 1<<n;
         // generate all partitions and compute product of e-bonds for all pairs in partition
         for (int i=3; i<nf; i++) {
@@ -127,7 +127,7 @@ public class ClusterWheatley implements ClusterAbstract {
     /*
      * Computation of sum of biconnected diagrams.
      */
-    protected void calcValue() {
+    protected void calcValue(BoxCluster box) {
         int nf = 1<<n;
 
         if (doBiconCheck) {
@@ -185,7 +185,7 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
             }            
         }
 
-        calcFullFQ();
+        calcFullFQ(box);
 
         //Compute the fC's
         for(int i=1; i<nf; i++) {
@@ -230,7 +230,7 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
             int vs1 = 1<<v;
             for (int i=vs1+1; i<nf; i++) {
                 fA[i] = 0;
-//                fB[i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
+//                fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
                 //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
                 if ((i & vs1) == 0) continue;//if i doesn't contain v, fA and fB are done
                 int iLowBit = (i&-i);//lowest bit in i
