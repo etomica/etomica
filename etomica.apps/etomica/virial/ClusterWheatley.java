@@ -1,5 +1,16 @@
 package etomica.virial;
 
+import java.util.List;
+
+import etomica.graph.model.Bitmap;
+import etomica.graph.model.BitmapFactory;
+import etomica.graph.model.Coefficient;
+import etomica.graph.model.Edge;
+import etomica.graph.model.EdgeVisitor;
+import etomica.graph.model.Graph;
+import etomica.graph.model.Node;
+import etomica.graph.model.NodeVisitor;
+import etomica.graph.property.IsBiconnected;
 import etomica.math.SpecialFunctions;
 
 /**
@@ -13,17 +24,20 @@ public class ClusterWheatley implements ClusterAbstract {
     protected final int n;
     protected final MayerFunction f;
     
-//    protected final double[][] eValues;
     protected final double[] fQ, fC;
     protected final double[][] fA, fB;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
+    protected final Bitmap bondMap;
+    protected final MyGraph myGraph;
+    protected final IsBiconnected isBi;
+    protected boolean doBiconCheck, doCliqueCheck;
+    protected final byte[] outDegree;
     
     public ClusterWheatley(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
-//        eValues = new double[nPoints][nPoints];
         int nf = 1<<n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
@@ -32,6 +46,20 @@ public class ClusterWheatley implements ClusterAbstract {
         }
         fA = new double[n][nf];
         fB = new double[n][nf];
+        bondMap = BitmapFactory.createBitmap((byte)n, false);
+        outDegree = new byte[n];
+        myGraph = new MyGraph((byte)nPoints, bondMap, outDegree);
+        isBi = new IsBiconnected();
+        doBiconCheck = true;
+        doCliqueCheck = true;
+    }
+    
+    public void setDoBiconCheck(boolean newDoBiconCheck) {
+        doBiconCheck = newDoBiconCheck;
+    }
+
+    public void setDoCliqueCheck(boolean newDoCliqueCheck) {
+        doCliqueCheck = newDoCliqueCheck;
     }
 
     public ClusterAbstract makeCopy() {
@@ -79,7 +107,62 @@ public class ClusterWheatley implements ClusterAbstract {
      */
     protected void calcValue() {
         int nf = 1<<n;
-        
+
+        if (doBiconCheck) {
+            int bit=0;
+            for (int i=0; i<n; i++) {
+                outDegree[i] = 0;
+            }
+
+            for (int i=0; i<n-1; i++) {
+                for (int j=i+1; j<n; j++) {
+                    boolean fBond = (fQ[(1<<i)|(1<<j)] == 0); 
+                    if (fBond) {
+                        bondMap.setBit(bit);
+                        outDegree[i]++;
+                        outDegree[j]++;
+                    }
+                    else {
+                        bondMap.clearBit(bit);
+                    }
+                    bit++;
+                }
+            }
+            for (int i=0; i<n; i++) {
+                if (outDegree[i] < 2) {
+                    value = 0;
+                    return;
+                }
+            }
+            if (!isBi.check(myGraph)) {
+                value = 0;
+                return;
+            }
+
+            if (doCliqueCheck) {
+                for (byte i=0; i<n; i++) {
+                    if (outDegree[i] < 6 && outDegree[i] < n-1) {
+                        boolean isClique = true;
+jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
+                            byte jj = myGraph.getOutNode(i, j);
+                            if (outDegree[jj] < outDegree[i]-1) continue;
+                            for (byte k=(byte)(j+1); k<outDegree[i]; k++) {
+                                byte kk = myGraph.getOutNode(i, k);
+                                if ((fQ[(1<<kk)|(1<<jj)] != 0)) {
+                                    isClique = false;
+                                    break jLoop;
+                                }
+                            }
+                        }
+                        if (isClique) {
+                            value = 0;
+                            return;
+                        }
+                    }
+                }
+            }            
+        }
+
         // generate all partitions and compute product of e-bonds for all pairs in partition
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
@@ -205,5 +288,129 @@ public class ClusterWheatley implements ClusterAbstract {
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
+    }
+
+    /**
+     * This is a minimal implemenation of Graph that is sufficient to handle
+     * the biconnectivity test (via IsBiconnected)
+     * 
+     * @author Andrew Schultz
+     */
+    public static class MyGraph implements Graph {
+
+        protected final Bitmap bitmapStore;
+        protected final byte n;
+        protected final byte[] outDegree;
+
+        /*
+         * We just wrap the bitmapStore and outDegree.
+         * ClusterWheatley will update both as needed.
+         */
+        public MyGraph(byte n, Bitmap bitmapStore, byte[] outDegree) {
+            this.n = n;
+            this.bitmapStore = bitmapStore;
+            this.outDegree = outDegree;
+        }
+
+        public int compareTo(Graph o) {throw new RuntimeException("don't be calling me");}
+        public Coefficient coefficient() {throw new RuntimeException("don't be calling me");}
+        public int[] factors() {throw new RuntimeException("don't be calling me");}
+        public void addFactors(int[] newFactors) {throw new RuntimeException("don't be calling me");}
+        public void setNumFactors(int numFactors) {throw new RuntimeException("don't be calling me");}
+        public Graph copy() {throw new RuntimeException("don't be calling me");}
+        public void deleteEdge(byte edgeId) {throw new RuntimeException("don't be calling me");}
+        public void deleteEdge(byte fromNode, byte toNode) {throw new RuntimeException("don't be calling me");}
+        public List<Edge> edges() {throw new RuntimeException("don't be calling me");}
+        public String edgesToString() {throw new RuntimeException("don't be calling me");}
+        public Edge getEdge(byte edgeId) {throw new RuntimeException("don't be calling me");}
+        public Edge getEdge(byte fromNode, byte toNode) {throw new RuntimeException("don't be calling me");}
+
+        public byte edgeCount() {
+            return (byte)bitmapStore.bitCount();
+        }
+
+        public byte getEdgeId(byte fromNode, byte toNode) {
+            byte id0 = fromNode;
+            byte id1 = toNode;
+            if (id0 > id1) {
+                id0 = toNode;
+                id1 = fromNode;
+            }
+            return (byte)((2*n-id0-1)*id0/2 + (id1-id0-1));
+        }
+
+        public byte getFromNode(byte edgeId) {
+            for (int i=0; i<n; i++) {
+                if ((2*n-i-1)*i/2 > edgeId) {
+                    return (byte)(i-1);
+                }
+            }
+            throw new RuntimeException("invalid edgeID");
+        }
+
+        public byte getOutDegree(byte node) {
+            // called
+            return outDegree[node];
+        }
+
+        public byte getOutNode(byte node, byte index) {
+            // called
+            byte c = 0;
+            int bit = node-1;
+            for (byte i=0; i<node; i++) {
+                if (bitmapStore.testBit(bit)) {
+                    if (c==index) return i;
+                    c++;
+                }
+                bit += n-i-2;
+            }
+            bit++;
+            for (byte i=(byte)(node+1); i<n; i++) {
+                if (bitmapStore.testBit(bit)) {
+                    if (c==index) return i;
+                    c++;
+                }
+                bit++;
+            }
+            throw new RuntimeException("not that many bonds");
+        }
+
+        public Bitmap getStore() {
+            return bitmapStore;
+        }
+
+        public byte getToNode(byte edgeId) {
+            for (int i=0; i<n; i++) {
+                int foo = (2*n-i-1)*i/2;
+                if (foo > edgeId) {
+                    return (byte)(i+(foo-edgeId));
+                }
+            }
+            throw new RuntimeException("invalid edgeID");
+        }
+
+        public boolean hasEdge(byte edgeId) {
+            return bitmapStore.testBit(edgeId);
+        }
+
+        public boolean hasEdge(byte fromNode, byte toNode) {
+            return hasEdge(getEdgeId(fromNode, toNode));
+        }
+
+        public byte nodeCount() {
+            // called
+            return n;
+        }
+
+        public Node getNode(byte node) {throw new RuntimeException("don't be calling me");}
+        public String getSignature() {throw new RuntimeException("don't be calling me");}
+        public List<Node> nodes() {throw new RuntimeException("don't be calling me");}
+        public String nodesToString() {throw new RuntimeException("don't be calling me");}
+        public void putEdge(byte edgeId) {throw new RuntimeException("don't be calling me");}
+        public void putEdge(byte fromNode, byte toNode) {throw new RuntimeException("don't be calling me");}
+        public String toSVG(int dim) {throw new RuntimeException("don't be calling me");}
+        public void visitEdges(EdgeVisitor visitor) {throw new RuntimeException("don't be calling me");}
+        public void visitNodes(NodeVisitor visitor) {throw new RuntimeException("don't be calling me");}
+        public void createReverseEdges() {throw new RuntimeException("don't be calling me");}
     }
 }
