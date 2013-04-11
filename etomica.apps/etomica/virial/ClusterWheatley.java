@@ -25,7 +25,7 @@ public class ClusterWheatley implements ClusterAbstract {
     protected final MayerFunction f;
     
     protected final double[] fQ, fC;
-    protected final double[][] fA, fB;
+    protected final double[] fA, fB;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
@@ -44,8 +44,8 @@ public class ClusterWheatley implements ClusterAbstract {
         for(int i=0; i<n; i++) {
             fQ[1<<i] = 1.0;
         }
-        fA = new double[n][nf];
-        fB = new double[n][nf];
+        fA = new double[nf];
+        fB = new double[nf];
         bondMap = BitmapFactory.createBitmap((byte)n, false);
         outDegree = new byte[n];
         myGraph = new MyGraph((byte)nPoints, bondMap, outDegree);
@@ -100,6 +100,28 @@ public class ClusterWheatley implements ClusterAbstract {
           throw new RuntimeException("oops");
       }
       return value;
+    }
+
+    /**
+     * This calculates all FQ values given that the entries for pairs have
+     * already been populated.
+     */
+    protected void calcFullFQ() {
+        int nf = 1<<n;
+        // generate all partitions and compute product of e-bonds for all pairs in partition
+        for (int i=3; i<nf; i++) {
+            int j = i & -i;//lowest bit in i
+            if (i==j) continue; // 1-point set
+            int k = i&~j; //strip j bit from i and set result to k
+            if (k == (k&-k)) continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
+            fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
+            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
+            //all such pairs will be with bits higher than j, as j is the lowest bit in i
+            for (int l=(j<<1); l<i; l=(l<<1)) {
+                if ((l&i)==0) continue; //l is not in partition
+                fQ[i] *= fQ[l | j];
+            }
+        }
     }
 
     /*
@@ -163,20 +185,7 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
             }            
         }
 
-        // generate all partitions and compute product of e-bonds for all pairs in partition
-        for (int i=3; i<nf; i++) {
-            int j = i & -i;//lowest bit in i
-            if (i==j) continue; // 1-point set
-            int k = i&~j; //strip j bit from i and set result to k
-            if (k == (k&-k)) continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
-            fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
-            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
-            //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            for (int l=(j<<1); l<i; l=(l<<1)) {
-                if ((l&i)==0) continue; //l is not in partition
-                fQ[i] *= fQ[l | j];
-            }
-        }
+        calcFullFQ();
 
         //Compute the fC's
         for(int i=1; i<nf; i++) {
@@ -193,15 +202,15 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
         // find fA1
         for (int i=2; i<nf; i+=2) {
             // all even sets don't contain 1
-            //fA[0][i] = 0;
-            fB[0][i] = fC[i];
+            //fA[i] = 0;
+            fB[i] = fC[i];
         }
-        fA[0][1] = 0;
-        fB[0][1] = fC[1];
+        fA[1] = 0;
+        fB[1] = fC[1];
         for (int i=3; i<nf; i+=2) {
             // every set will contain 1
-            fA[0][i] = 0;
-            fB[0][i] = fC[i];
+            fA[i] = 0;
+            fB[i] = fC[i];
             int ii = i - 1;//all bits in i but lowest
             int iLow2Bit = (ii & -ii);//next lowest bit
             int jBits = 1 | iLow2Bit;
@@ -212,16 +221,16 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
             for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
                 int jComp = (i & ~j); //subset of i complementing j
                 if (jComp==0 || (jComp | j) != i) continue;
-                fA[0][i] += fB[0][j] * fC[jComp|1];
+                fA[i] += fB[j] * fC[jComp|1];
             }
-            fB[0][i] -= fA[0][i];//remove from B graphs that contain articulation point at 0
+            fB[i] -= fA[i];//remove from B graphs that contain articulation point at 0
         }
 
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
             for (int i=vs1+1; i<nf; i++) {
-                fA[v][i] = 0;
-                fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
+                fA[i] = 0;
+//                fB[i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
                 //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
                 if ((i & vs1) == 0) continue;//if i doesn't contain v, fA and fB are done
                 int iLowBit = (i&-i);//lowest bit in i
@@ -244,7 +253,7 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
                         if ((j & jBits) != jBits) continue;//ensure jBits are in j
                         int jComp = i & ~j;//subset of i complementing j
                         if (jComp==0 || (jComp | j) != i) continue;
-                        fA[v][i] += fB[v][j] * (fB[v][jComp|vs1] + fA[v][jComp|vs1]);
+                        fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
                     }
                 }
                 else {
@@ -262,15 +271,15 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
                         // start=jBits and jInc ensure that every set includes jBits
                         int jComp = i & ~j;//subset of i complementing j
                         if (jComp==0 || (jComp | j) != i) continue;
-                        fA[v][i] += fB[v][j] * (fB[v][jComp|vs1] + fA[v][jComp|vs1]);
+                        fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
                     }
                 }
 
-                fB[v][i] -= fA[v][i];//remove from B graphs that contain articulation point at v
+                fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
             }
         }
 
-        value = (1-n)*fB[n-1][nf-1]/SpecialFunctions.factorial(n);
+        value = (1-n)*fB[nf-1]/SpecialFunctions.factorial(n);
     }
 
     protected void updateF(BoxCluster box) {
