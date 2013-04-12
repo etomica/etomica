@@ -17,6 +17,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSum;
+import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
@@ -27,9 +28,10 @@ import etomica.virial.cluster.VirialDiagrams;
  * MSMC computations (via overlap sampling) of the bridge diagram(s) within the
  * f-bond-only formulation.  Diagrams are filtered from the full set of
  * biconnected diagrams.  It is also possible to select diagrams with
- * un-FFT-able biconnected components of 
+ * un-FFT-able biconnected components of a certain size.
  * 
  * Kate Shaul
+ * Andrew Schultz
  */
 public class VirialLJBridge {
 
@@ -91,7 +93,7 @@ public class VirialLJBridge {
                 }
             }
 //            System.out.println(maxSegment+" "+segmentSize);
-            if (iGraph < 0 && segmentSize >= -iGraph) {
+            if (iGraph < 0 && segmentSize == -iGraph) {
                 bridgeGraphs.add(g);
                 System.out.println(g);
             }
@@ -127,6 +129,8 @@ public class VirialLJBridge {
         sim.integratorOS.setNumSubSteps(1000);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         
+        ConfigurationClusterMove config = new ConfigurationClusterMove(space, sim.getRandom());
+        config.initializeCoordinates(sim.box[1]);
         
         steps /= 1000;
         long t1 = System.currentTimeMillis();
