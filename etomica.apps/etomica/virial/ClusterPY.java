@@ -17,8 +17,8 @@ public class ClusterPY extends ClusterWheatley {
     }
 
     //compute PY diagrams and subtract from doubly-connected diagrams computed in superclass
-    protected void calcValue() {
-        super.calcValue();
+    protected void calcValue(BoxCluster box) {
+        super.calcValue(box);
         
         //fill in c0 and h0 with pair f-bonds
         for(int i=0; i<n-1; i++) {
