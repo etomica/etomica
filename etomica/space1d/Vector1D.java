@@ -119,11 +119,11 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
     }
 
     public void setRandomCube(IRandom random) {
-        x = random.nextDouble() - 0.5;
+        x = random.nextFixedDouble() - 0.5;
     }
 
     public void setRandomInSphere(IRandom random) {
-        x = random.nextDouble() - 0.5;
+        x = random.nextFixedDouble() - 0.5;
     }
 
     public void setRandomSphere(IRandom random) {

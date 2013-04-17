@@ -176,14 +176,14 @@ public class Vector2D implements IVectorRandom, java.io.Serializable {
     }
 
     public void setRandomCube(IRandom random) {
-        x = random.nextDouble() - 0.5;
-        y = random.nextDouble() - 0.5;
+        x = random.nextFixedDouble() - 0.5;
+        y = random.nextFixedDouble() - 0.5;
     }
 
     public void setRandomSphere(IRandom random) {
-        x = Math.cos(2 * Math.PI * random.nextDouble());
+        x = Math.cos(2 * Math.PI * random.nextFixedDouble());
         y = Math.sqrt(1.0 - x * x);
-        if (random.nextDouble() < 0.5)
+        if (random.nextInt(2) == 0)
             y = -y;
     }
 
@@ -192,8 +192,8 @@ public class Vector2D implements IVectorRandom, java.io.Serializable {
         double z2 = 0.0;
         double rsq;
         do {
-            z1 = 1.0 - 2.0 * random.nextDouble();
-            z2 = 1.0 - 2.0 * random.nextDouble();
+            z1 = 1.0 - 2.0 * random.nextFixedDouble();
+            z2 = 1.0 - 2.0 * random.nextFixedDouble();
             rsq = z1 * z1 + z2 * z2;
         } while (rsq > 1.0);
         x = z1;

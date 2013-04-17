@@ -197,24 +197,27 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
     }
 
     public void setRandomCube(IRandom random) {
-        x = random.nextDouble() - 0.5;
-        y = random.nextDouble() - 0.5;
-        z = random.nextDouble() - 0.5;
+        x = random.nextFixedDouble() - 0.5;
+        y = random.nextFixedDouble() - 0.5;
+        z = random.nextFixedDouble() - 0.5;
     }
 
-    public void setRandomInSphere(IRandom random) {//check before using
+    public void setRandomInSphere(IRandom random) {
         double z1 = 0.0;
         double z2 = 0.0;
         double z3 = 0.0;
-        double rsq;
-        do {
+        double s12;
+        while (true) {
 
-            z1 = 1.0 - 2.0 * random.nextDouble();
-            z2 = 1.0 - 2.0 * random.nextDouble();
-            z3 = 1.0 - 2.0 * random.nextDouble();
+            z1 = 1.0 - 2.0 * random.nextFixedDouble();
+            z2 = 1.0 - 2.0 * random.nextFixedDouble();
+            s12 = z1*z1 + z2*z2;
+            // this only helps a bit.  but it does help
+            if (s12 > 1) continue;
+            z3 = 1.0 - 2.0 * random.nextFixedDouble();
 
-            rsq = z1 * z1 + z2 * z2 + z3 * z3;
-        } while (rsq > 1.0);
+            if  (s12 + z3*z3 <= 1) break;
+        }
         x = z1;
         y = z2;
         z = z3;
@@ -231,8 +234,8 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
     public void setRandomSphere(IRandom random) {
         double z1, z2, zsq;
         do  {
-            z1 = 2.0 * random.nextDouble() - 1.0;
-            z2 = 2.0 * random.nextDouble() - 1.0;
+            z1 = 2.0 * random.nextFixedDouble() - 1.0;
+            z2 = 2.0 * random.nextFixedDouble() - 1.0;
             zsq = z1 * z1 + z2 * z2;
         } while (zsq > 1.0);
 
