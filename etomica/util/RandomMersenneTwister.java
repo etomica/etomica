@@ -167,7 +167,7 @@ public class RandomMersenneTwister implements IRandom {
     }
 
     public long nextLong() {
-        return (((long)nextInt()) << 32) | nextInt();
+        return (((long)nextInt()) << 32) | (nextInt() & ((1L<<32)-1));
     }
 
     /**
@@ -187,6 +187,12 @@ public class RandomMersenneTwister implements IRandom {
             s = nextInt() & LOWER_MASK;
         } while  (s > maxRand);
         return s % max;
+    }
+
+    public double nextFixedDouble() {
+        // yes, yes, only 53 bits matter.  who cares.
+        // if you need that, call nextDouble
+        return (nextLong() >>> 1)/((double)(-1L>>>1));
     }
 
     public double nextDouble() {

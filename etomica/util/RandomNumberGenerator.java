@@ -19,10 +19,15 @@ public class RandomNumberGenerator implements IRandom, java.io.Serializable {
         jRandom = new Random(seed);
     }
     
+    // XXX we're just wrapping Java's implementation, which will be fixed-point
     public double nextDouble() {
         return jRandom.nextDouble();
     }
     
+    public double nextFixedDouble() {
+        return jRandom.nextDouble();
+    }
+
     public int nextInt(int maxInt) {
         return jRandom.nextInt(maxInt);
     }

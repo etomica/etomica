@@ -200,6 +200,12 @@ public class RandomNumberGeneratorUnix implements IRandom {
         return s/((1L << 53) * byteOffsetFac);
     }
     
+    public double nextFixedDouble() {
+        // yes, yes, only 53 bits matter.  who cares.
+        // if you need that, call nextDouble
+        return (nextLong() >>> 1)/((double)(-1L>>>1));
+    }
+
     /**
      * Returns a double taken from a Gaussian distribution with 0 mean and
      * variance of 1.
@@ -285,7 +291,6 @@ public class RandomNumberGeneratorUnix implements IRandom {
         }
     }
 
-    private static final long serialVersionUID = 1L;
     protected final FileInputStream fReader;
     protected final byte[] buf = new byte[8];
 }
