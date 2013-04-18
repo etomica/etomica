@@ -265,4 +265,10 @@ public class DataGroup implements IData, java.io.Serializable {
             data[i].TE(y);
         }
     }
+
+    public void DE(double y) {
+        for (int i=0; i<data.length; i++) {
+            data[i].DE(y);
+        }
+    }
 }

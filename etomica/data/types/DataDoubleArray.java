@@ -210,6 +210,13 @@ public class DataDoubleArray implements IData, java.io.Serializable {
     }
 
     /**
+     * Divide-equals (*=) operation. Divides all elements by the given value.
+     */
+    public void DE(double y) {
+        TE(1.0/y);
+    }
+
+    /**
      * Replaces all values by the value of the function applied to each.
      */
     public void map(IFunction function) {

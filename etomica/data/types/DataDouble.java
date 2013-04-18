@@ -85,11 +85,19 @@ public class DataDouble implements IData, java.io.Serializable {
     }
 
     /**
-     * Plus-equals (*=) operation. Multiplies this value by that in the given
+     * Times-equals (*=) operation. Multiplies this value by that in the given
      * instance.
      */
     public void TE(double y) {
         x *= y;
+    }
+
+    /**
+     * Divide-equals (/=) operation. Divides this value by that in the given
+     * instance.
+     */
+    public void DE(double y) {
+        x /= y;
     }
 
     /**

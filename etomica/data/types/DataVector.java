@@ -96,6 +96,13 @@ public class DataVector implements IData, java.io.Serializable {
     }
 
     /**
+     * Divide-equals (*=) operation. Divides all elements by the given value.
+     */
+    public void DE(double y) {
+        x.TE(1.0/y);
+    }
+
+    /**
      * Returns true if any vector element is not-a-number, as given by Double.isNaN.
      */
     public boolean isNaN() {

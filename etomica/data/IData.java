@@ -82,6 +82,12 @@ public interface IData {
     public void TE(double y);
 
     /**
+     * Divide-equals (*=) operation, dividing all values in data by given
+     * value.
+     */
+    public void DE(double y);
+
+    /**
      * Maps the function on all data values, replace each with the value given
      * by the function applied to it.
      */
