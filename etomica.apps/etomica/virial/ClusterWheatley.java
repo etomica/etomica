@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import java.util.HashSet;
 import java.util.List;
 
 import etomica.graph.model.Bitmap;
@@ -11,7 +12,6 @@ import etomica.graph.model.Graph;
 import etomica.graph.model.Node;
 import etomica.graph.model.NodeVisitor;
 import etomica.graph.property.IsBiconnected;
-import etomica.math.SpecialFunctions;
 
 /**
  * This class calculates the sum of all biconnected clusters using Wheatley's
@@ -34,7 +34,7 @@ public class ClusterWheatley implements ClusterAbstract {
     protected final IsBiconnected isBi;
     protected boolean doBiconCheck, doCliqueCheck;
     protected final byte[] outDegree;
-    
+
     public ClusterWheatley(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
@@ -50,16 +50,16 @@ public class ClusterWheatley implements ClusterAbstract {
         outDegree = new byte[n];
         myGraph = new MyGraph((byte)nPoints, bondMap, outDegree);
         isBi = new IsBiconnected();
-        doBiconCheck = true;
-        doCliqueCheck = true;
+        doBiconCheck = n>2;
+        doCliqueCheck = n>3;
     }
     
     public void setDoBiconCheck(boolean newDoBiconCheck) {
-        doBiconCheck = newDoBiconCheck;
+        doBiconCheck = newDoBiconCheck && n>2;
     }
 
     public void setDoCliqueCheck(boolean newDoCliqueCheck) {
-        doCliqueCheck = newDoCliqueCheck;
+        doCliqueCheck = newDoCliqueCheck && n>3;
     }
 
     public ClusterAbstract makeCopy() {
@@ -129,7 +129,12 @@ public class ClusterWheatley implements ClusterAbstract {
      */
     protected void calcValue(BoxCluster box) {
         int nf = 1<<n;
-
+        if (false && total>0 && total%1000000==0) {
+            System.out.println("screened: "+((double)screened)/total+"     zero-not-screened: "+((double)(total-screened-notzero))/(total-screened));
+        }
+        total++;
+        screened++;
+        edgeCount = 0;
         if (doBiconCheck) {
             int bit=0;
             for (int i=0; i<n; i++) {
@@ -143,6 +148,7 @@ public class ClusterWheatley implements ClusterAbstract {
                         bondMap.setBit(bit);
                         outDegree[i]++;
                         outDegree[j]++;
+                        edgeCount++;
                     }
                     else {
                         bondMap.clearBit(bit);
@@ -156,14 +162,10 @@ public class ClusterWheatley implements ClusterAbstract {
                     return;
                 }
             }
-            if (!isBi.check(myGraph)) {
-                value = 0;
-                return;
-            }
 
             if (doCliqueCheck) {
                 for (byte i=0; i<n; i++) {
-                    if (outDegree[i] < 6 && outDegree[i] < n-1) {
+                    if (outDegree[i] < n-1) {
                         boolean isClique = true;
 jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
                             byte jj = myGraph.getOutNode(i, j);
@@ -182,19 +184,25 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
                         }
                     }
                 }
-            }            
+            }
         }
-
+        screened--;
         calcFullFQ(box);
 
         //Compute the fC's
         for(int i=1; i<nf; i++) {
             fC[i] = fQ[i];
             int iLowBit = i & -i;
-            for(int j=1; j<i; j++) {
-                if ((j & iLowBit) == 0) continue;
+            int inc = iLowBit<<1;
+            for(int j=iLowBit; j<i; j+=inc) {
                 int jComp = i & ~j;
-                if ((jComp | j) != i) continue;
+                while ((j|jComp) != i && j<i) {
+                    int jHighBits = j^iLowBit;
+                    int jlow = jHighBits & -jHighBits;
+                    j += jlow;
+                    jComp = (i & ~j);
+                }
+                if (j==i) break;
                 fC[i] -= fC[j] * fQ[jComp];//for fQ, flip the bits on j; use only those appearing in i
             }
         }
@@ -220,7 +228,13 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
             int jInc = (iii & -iii);//3rd lowest bit, also increment for j
             for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
                 int jComp = (i & ~j); //subset of i complementing j
-                if (jComp==0 || (jComp | j) != i) continue;
+                while ((j|jComp) != i && j<i) {
+                    int jHighBits = j^jBits;
+                    int jlow = jHighBits & -jHighBits;
+                    j += jlow;
+                    jComp = (i & ~j);
+                }
+                if (j==i) break;
                 fA[i] += fB[j] * fC[jComp|1];
             }
             fB[i] -= fA[i];//remove from B graphs that contain articulation point at 0
@@ -250,9 +264,20 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
 
                     //at this point jBits has (lowest bit + v) or (v + next lowest bit)
                     for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                        if ((j & jBits) != jBits) continue;//ensure jBits are in j
+                        if ((j & jBits) != jBits) {
+                            //ensure jBits are in j
+                            j |= vs1;
+                            if (j==i) break;
+                        }
                         int jComp = i & ~j;//subset of i complementing j
-                        if (jComp==0 || (jComp | j) != i) continue;
+                        while ((j|jComp) != i && j<i) {
+                            int jHighBits = j^jBits;
+                            int jlow = jHighBits & -jHighBits;
+                            j += jlow; // this might knock out the v bit
+                            j |= vs1;
+                            jComp = (i & ~j);
+                        }
+                        if (j==i) break;
                         fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
                     }
                 }
@@ -270,7 +295,13 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
                     for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
                         // start=jBits and jInc ensure that every set includes jBits
                         int jComp = i & ~j;//subset of i complementing j
-                        if (jComp==0 || (jComp | j) != i) continue;
+                        while ((j|jComp) != i && j<i) {
+                            int jHighBits = j^jBits;
+                            int jlow = jHighBits & -jHighBits;
+                            j += jlow;
+                            jComp = (i & ~j);
+                        }
+                        if (j==i) break;
                         fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
                     }
                 }
@@ -279,8 +310,23 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
             }
         }
 
-        value = (1-n)*fB[nf-1]/SpecialFunctions.factorial(n);
+        value = (1-n)*fB[nf-1]; ///SpecialFunctions.factorial(n);
+        if (value != 0) {
+            notzero++;
+        }
     }
+    
+    /**
+     * Returns edgeCount (number of overlaps) of configuration passed to
+     * checkConfig
+     */
+    public int getEdgeCount() {
+        return edgeCount;
+    }
+
+    protected long total, notzero, screened;
+    protected int edgeCount;
+    HashSet<String> zeroMaps = new HashSet<String>();
 
     protected void updateF(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
