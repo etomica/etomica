@@ -87,7 +87,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         count++;
         sum.PE(currentBlockSum);
         blockCountDown = blockSize;
-        currentBlockSum.TE(1 / (double) blockSize);//compute block average
+        currentBlockSum.DE(blockSize);//compute block average
         work.E(currentBlockSum);
         work.TE(currentBlockSum);
         sumBlockSquare.PE(work);
@@ -114,7 +114,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         if (count > 0) {
             // calculate block average (discarded if !doStrictBlockData)
             average.E(sum);
-            average.TE(1.0 / (count*blockSize));
+            average.DE(count*blockSize);
             work.E(average);
             work.TE(average);
         }
@@ -122,7 +122,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             // calculate other block properties (these require 2 or more blocks)
             
             error.E(sumBlockSquare);
-            error.TE(1 / (double) count);
+            error.DE(count);
             error.ME(work);
             error.map(negativeChop);
 
@@ -133,13 +133,13 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             blockCorrelation.PE(mostRecentBlock);
             blockCorrelation.TE(average);
             blockCorrelation.PE(correlationSum);
-            blockCorrelation.TE(1.0/(count-1));
+            blockCorrelation.DE(count-1);
             blockCorrelation.PE(work);
             blockCorrelation.DE(error);
             blockCorrelation.map(sanityCheckBC);
             
             // ok, now finish up with error
-            error.TE(1 / (double) (count - 1));
+            error.DE(count - 1);
             error.map(Function.Sqrt.INSTANCE);
 
             if (doIncludeACInError && count > 3) {
@@ -163,18 +163,18 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             if (!doStrictBlockData) {
                 average.E(sum);
                 average.PE(currentBlockSum);
-                average.TE(1.0 / nTotalData);
+                average.DE(nTotalData);
                 work.E(average);
                 work.TE(average);
             }
             else {
                 work.E(sum);
                 work.PE(currentBlockSum);
-                work.TE(1.0 / nTotalData);
+                work.DE(nTotalData);
                 work.TE(average);
             }
             standardDeviation.E(sumSquare);
-            standardDeviation.TE(1.0 / nTotalData);
+            standardDeviation.DE(nTotalData);
             standardDeviation.ME(work);
             standardDeviation.map(negativeChop);
             standardDeviation.map(Function.Sqrt.INSTANCE);
