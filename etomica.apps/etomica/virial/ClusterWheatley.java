@@ -1,17 +1,12 @@
 package etomica.virial;
 
 import java.util.HashSet;
-import java.util.List;
 
-import etomica.graph.model.Bitmap;
-import etomica.graph.model.BitmapFactory;
-import etomica.graph.model.Coefficient;
-import etomica.graph.model.Edge;
-import etomica.graph.model.EdgeVisitor;
 import etomica.graph.model.Graph;
-import etomica.graph.model.Node;
-import etomica.graph.model.NodeVisitor;
-import etomica.graph.property.IsBiconnected;
+import etomica.graph.model.impl.GraphImpl;
+import etomica.graph.operations.GraphOp.GraphOpNull;
+import etomica.graph.operations.MaxIsomorph;
+import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
 
 /**
  * This class calculates the sum of all biconnected clusters using Wheatley's
@@ -29,11 +24,9 @@ public class ClusterWheatley implements ClusterAbstract {
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
-    protected final Bitmap bondMap;
-    protected final MyGraph myGraph;
-    protected final IsBiconnected isBi;
-    protected boolean doBiconCheck, doCliqueCheck;
     protected final byte[] outDegree;
+    protected final int[] fullBondMask;
+    protected final boolean[] cliqueSet;
 
     public ClusterWheatley(int nPoints, MayerFunction f) {
         this.n = nPoints;
@@ -46,20 +39,9 @@ public class ClusterWheatley implements ClusterAbstract {
         }
         fA = new double[nf];
         fB = new double[nf];
-        bondMap = BitmapFactory.createBitmap((byte)n, false);
         outDegree = new byte[n];
-        myGraph = new MyGraph((byte)nPoints, bondMap, outDegree);
-        isBi = new IsBiconnected();
-        doBiconCheck = n>2;
-        doCliqueCheck = n>3;
-    }
-    
-    public void setDoBiconCheck(boolean newDoBiconCheck) {
-        doBiconCheck = newDoBiconCheck && n>2;
-    }
-
-    public void setDoCliqueCheck(boolean newDoCliqueCheck) {
-        doCliqueCheck = newDoCliqueCheck && n>3;
+        fullBondMask = new int[nf];
+        cliqueSet = new boolean[nf];
     }
 
     public ClusterAbstract makeCopy() {
@@ -93,7 +75,7 @@ public class ClusterWheatley implements ClusterAbstract {
       
       updateF(box);
       
-      calcValue(box);
+      calcValue(box, true);
       if (Double.isNaN(value) || Double.isInfinite(value)) {
           updateF(box);
           calcValue(box);
@@ -115,6 +97,7 @@ public class ClusterWheatley implements ClusterAbstract {
             int k = i&~j; //strip j bit from i and set result to k
             if (k == (k&-k)) continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
             fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
+            if (fQ[i] == 0) continue;
             //loop over pairs formed from j and each point in partition; multiply by bond for each pair
             //all such pairs will be with bits higher than j, as j is the lowest bit in i
             for (int l=(j<<1); l<i; l=(l<<1)) {
@@ -124,71 +107,140 @@ public class ClusterWheatley implements ClusterAbstract {
         }
     }
 
-    /*
-     * Computation of sum of biconnected diagrams.
-     */
-    protected void calcValue(BoxCluster box) {
-        int nf = 1<<n;
+    public boolean checkConfig(BoxCluster box) {
         if (false && total>0 && total%1000000==0) {
             System.out.println("screened: "+((double)screened)/total+"     zero-not-screened: "+((double)(total-screened-notzero))/(total-screened));
         }
+        updateF(box);
         total++;
         screened++;
         edgeCount = 0;
-        if (doBiconCheck) {
-            int bit=0;
-            for (int i=0; i<n; i++) {
-                outDegree[i] = 0;
-            }
 
-            for (int i=0; i<n-1; i++) {
-                for (int j=i+1; j<n; j++) {
-                    boolean fBond = (fQ[(1<<i)|(1<<j)] == 0); 
-                    if (fBond) {
-                        bondMap.setBit(bit);
-                        outDegree[i]++;
-                        outDegree[j]++;
-                        edgeCount++;
-                    }
-                    else {
-                        bondMap.clearBit(bit);
-                    }
-                    bit++;
-                }
-            }
-            for (int i=0; i<n; i++) {
-                if (outDegree[i] < 2) {
-                    value = 0;
-                    return;
-                }
-            }
+        for (int i=0; i<n; i++) {
+            outDegree[i] = 0;
+        }
+        int nf = 1<<n;
+        for (int i=0; i<nf; i++) {
+            fullBondMask[i] = 0;
+        }
 
-            if (doCliqueCheck) {
-                for (byte i=0; i<n; i++) {
-                    if (outDegree[i] < n-1) {
-                        boolean isClique = true;
-jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
-                            byte jj = myGraph.getOutNode(i, j);
-                            if (outDegree[jj] < outDegree[i]-1) continue;
-                            for (byte k=(byte)(j+1); k<outDegree[i]; k++) {
-                                byte kk = myGraph.getOutNode(i, k);
-                                if ((fQ[(1<<kk)|(1<<jj)] != 0)) {
-                                    isClique = false;
-                                    break jLoop;
-                                }
-                            }
-                        }
-                        if (isClique) {
-                            value = 0;
-                            return;
-                        }
-                    }
+        for (int i=0; i<n-1; i++) {
+            for (int j=i+1; j<n; j++) {
+                int k = (1<<i)|(1<<j);
+                boolean fBond = (fQ[k] == 0); 
+                cliqueSet[k] = fBond;
+                if (fBond) {
+                    outDegree[i]++;
+                    outDegree[j]++;
+                    edgeCount++;
+                    fullBondMask[1<<i] |= 1<<j;
+                    fullBondMask[1<<j] |= 1<<i;
                 }
             }
         }
+
+        int maxEdges = n*(n-1)/2;
+        if (edgeCount==maxEdges) {
+            screened--;
+            return true;
+        }
+        if (edgeCount==maxEdges-1) return false;
+        for (int i=0; i<n; i++) {
+            if (outDegree[i] < 2) {
+                return false;
+            }
+        }
+
+        // the existence of a clique separator indicates that the value for
+        // this configuration is zero.  Loop through all sets, considering
+        // each as a clique separator.
+iLoop:  for (int i=1; i<nf-3; i++) {
+            int j = i & -i;//lowest bit in i
+            if (i==j) {
+                // 1-point set.  check as an articulation point
+                if (cliqueCheck(i, nf-1)) return false;
+                continue;
+            }
+            int k = i&~j; //strip j bit from i and set result to k
+            if (k == (k&-k)) {
+                // 2-point set.  cliqueSet[i] was set in the above loop
+                // over pairs.
+                if (cliqueSet[i] && cliqueCheck(i, nf-1)) return false;
+                continue;
+            }
+            cliqueSet[i] = cliqueSet[k]; //initialize with previously-computed product of all pairs in partition, other than j
+
+            if (!cliqueSet[i]) continue;
+            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
+            //all such pairs will be with bits higher than j, as j is the lowest bit in i
+            for (int l=(j<<1); l<i; l=(l<<1)) {
+                if ((l&i)==0) continue; //l is not in partition
+                if (!cliqueSet[l|j]) {
+                    cliqueSet[i] = false;
+                    continue iLoop;
+                }
+            }
+            // i is a clique
+            if (cliqueCheck(i, nf-1)) return false;
+        }
+
         screened--;
+        return true;
+    }
+
+    /**
+     * Checks to see if the set |clique| is a clique separator.  The graph
+     * connectivity is described by the fullBondMask array.
+     */
+    protected boolean cliqueCheck(int clique, int nfm1) {
+        int cComp = nfm1^clique;
+        int m = cComp & -cComp;
+        if (m==cComp) {
+            // there is only one point not in the clique
+            return false;
+        }
+        int seen = m | clique;
+
+        while (true) {
+            int newSeen = seen;
+            while (m != 0) {
+                int lb = m & -m;
+                newSeen |= fullBondMask[lb];
+                m = m ^ lb;
+            }
+            if (newSeen == seen) {
+                // we didn't pick up any new points
+                return true;
+            }
+            if (newSeen == nfm1) {
+                // we found all points
+                return false;
+            }
+            m = newSeen - seen;
+            seen = newSeen;
+        }
+    }
+
+    /**
+     * Returns the cluster value for the given configuraiton.  You must call
+     * doCheck(BoxCluster) before calling this method.
+     */
+    public double calcValue(BoxCluster box) {
+        calcValue(box, false);
+        return value;
+    }
+
+    /*
+     * Computation of sum of biconnected diagrams.
+     */
+    protected void calcValue(BoxCluster box, boolean doCheck) {
+        if (doCheck && !checkConfig(box)) {
+            value = 0;
+            return;
+        }
         calcFullFQ(box);
 
+        int nf = 1<<n;
         //Compute the fC's
         for(int i=1; i<nf; i++) {
             fC[i] = fQ[i];
@@ -313,6 +365,48 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
         value = (1-n)*fB[nf-1]; ///SpecialFunctions.factorial(n);
         if (value != 0) {
             notzero++;
+            // disable check above and then enable this to see if non-zero
+            // configurations would be screened
+            if (false && !checkConfig(box)) {
+                Graph g = new GraphImpl((byte)n);
+                for (int i=0; i<n-1; i++) {
+                    for (int j=i+1; j<n; j++) {
+                        if ((fullBondMask[i] & (1<<j)) != 0) {
+                            g.putEdge((byte)i, (byte)j);
+                        }
+                    }
+                }
+//                MaxIsomorph maxIso = new MaxIsomorph();
+//                MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpNull(), MaxIsomorph.PROPERTY_ALL);
+//                g = maxIso.apply(g, mip);
+                String s = g.getStore().toNumberString();
+                System.out.println("**** oops thought this was zero: "+s);
+                checkConfig(box);
+            }
+        }
+        else if (false) {
+            // enable this to see what zero-value configurations are not being
+            // screened
+            Graph g = new GraphImpl((byte)n);
+            for (int i=0; i<n-1; i++) {
+                for (int j=i+1; j<n; j++) {
+                    if ((fullBondMask[i] & (1<<j)) != 0) {
+                        g.putEdge((byte)i, (byte)j);
+                    }
+                }
+            }
+            MaxIsomorph maxIso = new MaxIsomorph();
+            MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpNull(), MaxIsomorph.PROPERTY_ALL);
+            g = maxIso.apply(g, mip);
+            String s = g.getStore().toNumberString();
+            if (!zeroMaps.contains(s)) {
+                System.out.println(s+" is zero");
+                zeroMaps.add(s);
+                for (String ss : zeroMaps) {
+                    System.out.print(ss+",");
+                }
+                System.out.println();
+            }
         }
     }
     
@@ -343,129 +437,5 @@ jLoop:                  for (byte j=0; j<outDegree[i]-1; j++) {
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
-    }
-
-    /**
-     * This is a minimal implemenation of Graph that is sufficient to handle
-     * the biconnectivity test (via IsBiconnected)
-     * 
-     * @author Andrew Schultz
-     */
-    public static class MyGraph implements Graph {
-
-        protected final Bitmap bitmapStore;
-        protected final byte n;
-        protected final byte[] outDegree;
-
-        /*
-         * We just wrap the bitmapStore and outDegree.
-         * ClusterWheatley will update both as needed.
-         */
-        public MyGraph(byte n, Bitmap bitmapStore, byte[] outDegree) {
-            this.n = n;
-            this.bitmapStore = bitmapStore;
-            this.outDegree = outDegree;
-        }
-
-        public int compareTo(Graph o) {throw new RuntimeException("don't be calling me");}
-        public Coefficient coefficient() {throw new RuntimeException("don't be calling me");}
-        public int[] factors() {throw new RuntimeException("don't be calling me");}
-        public void addFactors(int[] newFactors) {throw new RuntimeException("don't be calling me");}
-        public void setNumFactors(int numFactors) {throw new RuntimeException("don't be calling me");}
-        public Graph copy() {throw new RuntimeException("don't be calling me");}
-        public void deleteEdge(byte edgeId) {throw new RuntimeException("don't be calling me");}
-        public void deleteEdge(byte fromNode, byte toNode) {throw new RuntimeException("don't be calling me");}
-        public List<Edge> edges() {throw new RuntimeException("don't be calling me");}
-        public String edgesToString() {throw new RuntimeException("don't be calling me");}
-        public Edge getEdge(byte edgeId) {throw new RuntimeException("don't be calling me");}
-        public Edge getEdge(byte fromNode, byte toNode) {throw new RuntimeException("don't be calling me");}
-
-        public byte edgeCount() {
-            return (byte)bitmapStore.bitCount();
-        }
-
-        public byte getEdgeId(byte fromNode, byte toNode) {
-            byte id0 = fromNode;
-            byte id1 = toNode;
-            if (id0 > id1) {
-                id0 = toNode;
-                id1 = fromNode;
-            }
-            return (byte)((2*n-id0-1)*id0/2 + (id1-id0-1));
-        }
-
-        public byte getFromNode(byte edgeId) {
-            for (int i=0; i<n; i++) {
-                if ((2*n-i-1)*i/2 > edgeId) {
-                    return (byte)(i-1);
-                }
-            }
-            throw new RuntimeException("invalid edgeID");
-        }
-
-        public byte getOutDegree(byte node) {
-            // called
-            return outDegree[node];
-        }
-
-        public byte getOutNode(byte node, byte index) {
-            // called
-            byte c = 0;
-            int bit = node-1;
-            for (byte i=0; i<node; i++) {
-                if (bitmapStore.testBit(bit)) {
-                    if (c==index) return i;
-                    c++;
-                }
-                bit += n-i-2;
-            }
-            bit++;
-            for (byte i=(byte)(node+1); i<n; i++) {
-                if (bitmapStore.testBit(bit)) {
-                    if (c==index) return i;
-                    c++;
-                }
-                bit++;
-            }
-            throw new RuntimeException("not that many bonds");
-        }
-
-        public Bitmap getStore() {
-            return bitmapStore;
-        }
-
-        public byte getToNode(byte edgeId) {
-            for (int i=0; i<n; i++) {
-                int foo = (2*n-i-1)*i/2;
-                if (foo > edgeId) {
-                    return (byte)(i+(foo-edgeId));
-                }
-            }
-            throw new RuntimeException("invalid edgeID");
-        }
-
-        public boolean hasEdge(byte edgeId) {
-            return bitmapStore.testBit(edgeId);
-        }
-
-        public boolean hasEdge(byte fromNode, byte toNode) {
-            return hasEdge(getEdgeId(fromNode, toNode));
-        }
-
-        public byte nodeCount() {
-            // called
-            return n;
-        }
-
-        public Node getNode(byte node) {throw new RuntimeException("don't be calling me");}
-        public String getSignature() {throw new RuntimeException("don't be calling me");}
-        public List<Node> nodes() {throw new RuntimeException("don't be calling me");}
-        public String nodesToString() {throw new RuntimeException("don't be calling me");}
-        public void putEdge(byte edgeId) {throw new RuntimeException("don't be calling me");}
-        public void putEdge(byte fromNode, byte toNode) {throw new RuntimeException("don't be calling me");}
-        public String toSVG(int dim) {throw new RuntimeException("don't be calling me");}
-        public void visitEdges(EdgeVisitor visitor) {throw new RuntimeException("don't be calling me");}
-        public void visitNodes(NodeVisitor visitor) {throw new RuntimeException("don't be calling me");}
-        public void createReverseEdges() {throw new RuntimeException("don't be calling me");}
     }
 }
