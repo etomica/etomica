@@ -22,20 +22,30 @@ public class GraphNumber {
       display = true;
       graphNumStr = args[1];
     }
-    long graphNum = Long.parseLong(graphNumStr);
-    Graph g;
+    byte nodeCount = -1;
     if ((!display && args.length == 2) || (display && args.length == 3)) {
-      byte nodeCount = Byte.parseByte(display ? args[2] : args[1]);
-      g = makeGraph(graphNum, nodeCount);
+      nodeCount = Byte.parseByte(display ? args[2] : args[1]);
+    }
+    GraphList<Graph> list = display ? new GraphList<Graph>(null) : null;
+    if (graphNumStr.contains(",")) {
+      String[] graphNumArray = graphNumStr.split(",");
+      for (int i=0; i<graphNumArray.length; i++) {
+        handleGraph(graphNumArray[i], nodeCount, list);
+      }
     }
     else {
-      g = makeGraph(graphNum);
+      handleGraph(graphNumStr, nodeCount, list);
     }
+    ClusterViewer.createView("Graph "+graphNumStr, list);
+  }
+  
+  public static void handleGraph(String graphNumStr, byte nodeCount, GraphList<Graph> list) {
+    long graphNum = Long.parseLong(graphNumStr);
+    Graph g = makeGraph(graphNum, nodeCount);
+
     System.out.println(g.nodeCount()+" "+g.edgesToString());
-    if (display) {
-      GraphList<Graph> list = new GraphList<Graph>();
+    if (list != null) {
       list.add(g);
-      ClusterViewer.createView("Graph "+graphNumStr, list);
     }
   }
 
@@ -56,6 +66,7 @@ public class GraphNumber {
   }
     
   public static Graph makeGraph(long graphNum, byte nodeCount) {
+    if (nodeCount==-1) return makeGraph(graphNum);
     int numBits = 64-Long.numberOfLeadingZeros(graphNum);
     int nLeadingZeros = nodeCount*(nodeCount-1)/2 - numBits;
     String bitmapString = "";
