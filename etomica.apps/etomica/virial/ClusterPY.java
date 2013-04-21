@@ -17,8 +17,9 @@ public class ClusterPY extends ClusterWheatley {
     }
 
     //compute PY diagrams and subtract from doubly-connected diagrams computed in superclass
-    protected void calcValue(BoxCluster box) {
+    public double calcValue(BoxCluster box) {
         super.calcValue(box);
+        value /= SpecialFunctions.factorial(n);
         
         //fill in c0 and h0 with pair f-bonds
         for(int i=0; i<n-1; i++) {
@@ -87,7 +88,7 @@ public class ClusterPY extends ClusterWheatley {
         // (each pair would give us the appropriate value, we use all pairs to get
         // all permutations)
         value -= -sum/(n*n*(n-1));
-
+        return value;
     }
 
     

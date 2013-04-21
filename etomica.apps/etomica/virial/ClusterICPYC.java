@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import etomica.math.SpecialFunctions;
+
 
 /**
  * Cluster class that computes the correction to the ICPY (incrementally
@@ -16,7 +18,7 @@ public class ClusterICPYC extends ClusterWheatley {
         super(nPoints, f);
     }
 
-    protected void calcValue(BoxCluster box) {
+    public double calcValue(BoxCluster box) {
         /*
          * The recipe for the incrementally-corrected PY correction is
          * 1. take all biconnected f-diagrams that do not have a bond between 0-1
@@ -28,9 +30,8 @@ public class ClusterICPYC extends ClusterWheatley {
         double icpycValue = 0;
         tot++;
         
-        if (allPermutations && doBiconCheck) {
+        if (allPermutations) {
             // if the full graph is not biconnected, we won't be able to remove a bond and make it biconnected!
-            int bit=0;
             for (int i=0; i<n; i++) {
                 outDegree[i] = 0;
             }
@@ -39,25 +40,21 @@ public class ClusterICPYC extends ClusterWheatley {
                 for (int j=i+1; j<n; j++) {
                     boolean fBond = (fQ[(1<<i)|(1<<j)] == 0); 
                     if (fBond) {
-                        bondMap.setBit(bit);
                         outDegree[i]++;
                         outDegree[j]++;
                     }
-                    else {
-                        bondMap.clearBit(bit);
-                    }
-                    bit++;
                 }
             }
             for (int i=0; i<n; i++) {
                 if (outDegree[i] < 2) {
                     value = 0;
-                    return;
+                    return 0;
                 }
             }
-            if (!isBi.check(myGraph)) {
+            //XXX haha, broken!
+            if (!checkConfig(box)) {
                 value = 0;
-                return;
+                return value;
             }
         }
         
@@ -68,17 +65,17 @@ public class ClusterICPYC extends ClusterWheatley {
                 if (ek == 0) {
                     if (!allPermutations) {
                         value = 0;
-                        return;
+                        return value;
                     }
                     continue;
                 }
                 fQ[k] = 1;
                 super.calcValue(box);
                 fQ[k] = ek;
-                icpycValue += value*ek;
+                icpycValue += value/SpecialFunctions.factorial(n)*ek;
                 if (!allPermutations) {
                     value = icpycValue;
-                    return;
+                    return value;
                 }
             }
         }
@@ -86,5 +83,6 @@ public class ClusterICPYC extends ClusterWheatley {
         // now divide by the number of pairs.
         // this only helps precision a bit
         value = icpycValue / (n*(n-1)/2);
+        return value;
     }
 }
