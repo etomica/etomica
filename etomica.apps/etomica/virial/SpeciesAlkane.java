@@ -25,7 +25,7 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         IVectorMutable vector1 = space.makeVector();
         vector1.setX(0, bondL);
         IVectorMutable vector2 = space.makeVector();
-        vector2.setX(0, bondL*Math.cos(bondTheta));
+        vector2.setX(0, -bondL*Math.cos(bondTheta));
         vector2.setX(1, bondL*Math.sin(bondTheta));
         conformation = new ConformationChainZigZag2(space, vector1, vector2);
     }
@@ -35,10 +35,10 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
         //make straight alkane CH3-CH2-...-CH2-CH3
         group.addChildAtom(makeLeafAtom(childTypes[0]));
         for(int j = 0; j < childCount[1]; j++) {
-            group.addChildAtom(makeLeafAtom(childTypes[1]));
+            group.addChildAtom(makeLeafAtom(childTypes[1]));//CH2
         }
         if (childCount[0] > 1) {
-            group.addChildAtom(makeLeafAtom(childTypes[0]));
+            group.addChildAtom(makeLeafAtom(childTypes[0]));//CH3
         }
         conformation.initializePositions(group.getChildList());
         return group;
@@ -54,11 +54,11 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
     
     public void setTotalChildren(int newTotalChildren) {
         if (newTotalChildren > 1) {
-            childCount[0] = 2;
-            childCount[1] = newTotalChildren - 2;
+            childCount[0] = 2;// CH3
+            childCount[1] = newTotalChildren - 2;//CH2
         }
         else {
-            childCount[0] = 1;
+            childCount[0] = 1;// CH4???????????????????????
             childCount[1] = 0;
         }
     }
