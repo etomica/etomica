@@ -1,9 +1,17 @@
 package etomica.virial.simulations;
 
+import java.util.Set;
+
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
+import etomica.graph.iterators.filters.IsomorphismFilter;
+import etomica.graph.model.Graph;
+import etomica.graph.model.impl.MetadataImpl;
+import etomica.graph.operations.IsoFree;
+import etomica.graph.operations.MulScalar;
+import etomica.graph.operations.MulScalarParameters;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.Potential2Spherical;
@@ -20,7 +28,7 @@ import etomica.virial.ClusterSum;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.MayerXSpherical;
+import etomica.virial.PYGenerator;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 
@@ -52,10 +60,15 @@ public class VirialHePYCorrection {
         }
         else {
             // customize parameters here
+            params.nPoints = 6;
+            params.semiClassical = true;
+            params.calcApprox = false;
+            params.subtractApprox = true;
+            params.temperature = 1000;
+            params.numSteps = 1000000;
         }
         
     	final int nPoints = params.nPoints;
-    	final boolean compressibility = params.compressibility;
         final double temperatureK = params.temperature;
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
@@ -97,8 +110,6 @@ public class VirialHePYCorrection {
 
         MayerGeneralSpherical fTarget;
         MayerGeneralSpherical fTargetApprox;
-        MayerXSpherical xTarget;
-        MayerXSpherical xTargetApprox;
         if (semiClassical) {
             P2HeSimplified p2cApprox = new P2HeSimplified(space);
             Potential2Spherical p2Approx = p2cApprox.makeQFH(temperature);
@@ -108,13 +119,6 @@ public class VirialHePYCorrection {
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
-
-            if (!compressibility) {
-	    	    // need to add du to the semiclassical potential to do this.
-	    	    throw new RuntimeException("can't do virial route with semiclassical potential");
-	    	}
-	    	xTarget = null;
-            xTargetApprox = null;
         } else {
             P2HeSimplified p2Approx = new P2HeSimplified(space);
             
@@ -122,118 +126,32 @@ public class VirialHePYCorrection {
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
-
-            xTarget = new MayerXSpherical(p2);
-            xTargetApprox = new MayerXSpherical(p2Approx);
         }
 
-        
-        ClusterSum fullTargetCluster; 
-        
-        if (nPoints == 4) {
-        	
-        	if (compressibility) {
-        		
-        		int[][][] bondList = {{{0,1},{1,2},{2,3},{3,0}}, {{0,2},{1,3}}};
-    	        
-    	        ClusterBonds cluster = new ClusterBonds(4, bondList, false);
-        		
-        		System.out.println("Target diagram: Correction to Percus-Yevick approximation of virial coefficient: B4-B4PY(c)");
-        		
-    	        double[] weights = {-1.0/8.0};
-    	     
-    		    fullTargetCluster =  new ClusterSum(new ClusterBonds[] {cluster},weights,new MayerFunction[]{fTarget});
-    		    
-        	} else {
-        		System.out.println("Target diagram: Correction to Percus-Yevick approximation of virial coefficient: B4-B4PY(v)");
-        		
-        		int[][][] bondList = {{{0,1},{1,2},{2,3},{3,0},{0,2},{1,3}}, {}};
-    	        
-    	        ClusterBonds cluster = new ClusterBonds(4, bondList, false);
-        		
-        		int[][][] bondList2 = {{{0,2},{0,3},{1,2},{1,3}}, {{0,1}}};
-        		
-        		ClusterBonds cluster2 = new ClusterBonds(4, bondList2, false);
-        		
-        		double[] weights = {-1.0/8.0,1.0/12.0};
-       	     
-    		    fullTargetCluster =  new ClusterSum(new ClusterBonds[] {cluster, cluster2},weights,new MayerFunction[]{fTarget, xTarget});
-        	}
-		    
-        } else if (nPoints == 5) { 
-        	
-        	if (compressibility) {
-        		
-        		// B5-B5PY = -1/5*S1 + 1/2*S2 - 1/3*S3 + S4 
-        		System.out.println("Target diagram: Correction to Percus-Yevick approximation of virial coefficient: B5-B5PY(c)");
-        	
-	        	int[][][] bondList1 = { {{0,1},{1,2},{2,3},{3,4},{4,0}}, {{0,2},{0,3},{1,3},{1,4},{2,4}} };
-		        
-		        ClusterBonds cluster1 = new ClusterBonds(5, bondList1, false);
-		        
-		        int[][][] bondList2 = { {{0,1},{1,2},{2,3},{3,4},{4,0},{0,3},{1,3},{2,4}}, {{0,2},{1,4}} };
-		        
-		        ClusterBonds cluster2 = new ClusterBonds(5, bondList2, false);
-		        
-		        int[][][] bondList3 = { {{1,2},{2,3},{3,4},{4,0},{0,2},{1,4}}, {{0,1},{0,3},{1,3},{2,4}} };
-		        
-		        ClusterBonds cluster3 = new ClusterBonds(5, bondList3, false);
-		        
-		        int[][][] bondList4 = { {{0,1},{1,2},{2,3},{3,4},{4,0},{1,3},{2,4}}, {{0,2},{1,4}} };
-		        
-		        ClusterBonds cluster4 = new ClusterBonds(5, bondList4, false);
-	        	
-		        double[] weights = {-0.2, 0.5, -1.0/3.0, 1.0};
-	        	
-	        	fullTargetCluster =  new ClusterSum(new ClusterBonds[] {cluster1, cluster2, cluster3, cluster4},weights,new MayerFunction[]{fTarget});
-         
-        	} else {
-        		
-        		System.out.println("Target diagram: Correction to Percus-Yevick approximation of virial coefficient: B5-B5PY(v)");
-        		
-        		int[][][] bondList1 = { {{0,1},{1,2},{2,3},{3,4},{4,0},{0,3},{1,3},{2,4}}, {}, {{0,2},{1,4}} };
-    	        
-    	        ClusterBonds c1 = new ClusterBonds(5, bondList1, false);
-    	        
-    	        int[][][] bondList2 = { {{1,2},{2,3},{3,4},{4,0},{0,2},{1,4}}, {}, {{0,1},{0,3},{1,3},{2,4}} };
-    	        
-    	        ClusterBonds c2 = new ClusterBonds(5, bondList2, false);
-    	        
-    	        int[][][] bondList3 = { {{0,1},{1,2},{2,3},{3,4},{4,0},{0,2},{0,3},{1,3},{1,4},{2,4}}, {} };
-    	        
-    	        ClusterBonds c3 = new ClusterBonds(5, bondList3, false);
-    	        
-    	        int[][][] bondList4 = { {{0,1},{1,2},{2,3},{3,4},{4,0}}, {{2,4}} };
-    	        
-    	        ClusterBonds c4 = new ClusterBonds(5, bondList4, false);
-    	        
-    	        int[][][] bondList5 = { {{0,1},{1,2},{2,3},{3,4},{4,0},{1,3}}, {{0,3}} };
-    	        
-    	        ClusterBonds c5 = new ClusterBonds(5, bondList5, false);
-    	        
-    	    	double[] weights = {0.5,-1.0/3.0,-0.2, 1.0/6.0, 1.0/3.0};
-          	     
-    		    fullTargetCluster =  new ClusterSum(new ClusterBonds[] {c1, c2, c3, c4, c5},weights,new MayerFunction[]{fTarget, xTarget});
+        IsomorphismFilter.DEBUG_MODE = false;
+        Set<Graph> correction = VirialDiagrams.makeGraphList();
+        System.out.println("starting");
+        correction.addAll(PYGenerator.getPYCorrection((byte)nPoints));
+        System.out.println("here");
+        MetadataImpl.rootPointsSpecial = false;
+        IsoFree isoFree = new IsoFree();
+        MulScalar mulScalar = new MulScalar();
+        MulScalarParameters msp = new MulScalarParameters(-1, nPoints);
+        Set<Graph> correctionB = VirialDiagrams.makeGraphList();
+        correctionB.addAll(isoFree.apply(mulScalar.apply(correction, msp), null));
 
-        	}
-        	
-        } else {
-        	
-        	throw new IllegalArgumentException("Cannot yet compute correction to Percus-Yevick approximation for that order of virial coefficient");
-        	
-        }
+        VirialDiagrams diagrams = new VirialDiagrams(nPoints, false, false);
+        diagrams.setDoReeHoover(true);
+        diagrams.setAllPermutations(false);
+        diagrams.setDoShortcut(true);
+        ClusterSum fullTargetCluster = diagrams.makeVirialCluster(correctionB, fTarget, null);
 
         ClusterAbstract targetCluster = null;
         if (subtractApprox) {
             final ClusterSum[] targetSubtract = new ClusterSum[1];
             ClusterBonds[] minusBonds = fullTargetCluster.getClusters();
             double[] wMinus = fullTargetCluster.getWeights();
-            if (compressibility) {
-                targetSubtract[0] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetApprox});
-            }
-            else {
-                targetSubtract[0] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetApprox, xTargetApprox});
-            }
+            targetSubtract[0] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetApprox});
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         }
         else {
@@ -296,12 +214,7 @@ public class VirialHePYCorrection {
                 refFileName += "sa";
             }
             refFileName += "PY";
-            if (compressibility) {
-                refFileName += "C";
-            }
-            else {
-                refFileName += "V";
-            }
+            refFileName += "C";
         }
 
         sim.initRefPref(refFileName, steps/40);
@@ -344,7 +257,6 @@ public class VirialHePYCorrection {
     public static class VirialHePYCParam extends ParameterBase {
         // don't change these
         public int nPoints = 4;
-        public boolean compressibility = true;
         public double temperature = 100;
         public long numSteps = 10000000;
         public double refFrac = -1;
