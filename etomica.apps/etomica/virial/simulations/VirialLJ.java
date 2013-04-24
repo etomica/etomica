@@ -2,44 +2,29 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
+import etomica.api.IIntegratorEvent;
+import etomica.api.IIntegratorListener;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.types.DataDouble;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
-import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.Volume;
-import etomica.util.Constants.CompassDirection;
+import etomica.util.DoubleRange;
+import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
+import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.VirialDiagrams;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -57,43 +42,31 @@ public class VirialLJ {
         
         runVirial(params);
     }
-    
+
     public static void runVirial(VirialLJParam params) {
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
+        boolean doHist = params.doHist;
 
-        final double[] HSB = new double[9];
-        HSB[2] = Standard.B2HS(sigmaHSRef);
-        HSB[3] = Standard.B3HS(sigmaHSRef);
-        HSB[4] = Standard.B4HS(sigmaHSRef);
-        HSB[5] = Standard.B5HS(sigmaHSRef);
-        HSB[6] = Standard.B6HS(sigmaHSRef);
-        HSB[7] = Standard.B7HS(sigmaHSRef);
-        HSB[8] = Standard.B8HS(sigmaHSRef);
+        final double HSBn = Standard.BHS(nPoints, sigmaHSRef);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-        System.out.println("B2HS: "+HSB[2]);
-        System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
-        System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
-        System.out.println("B5HS: "+HSB[5]+" = 0.110252 B2HS^4");
-        System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
-        System.out.println("B7HS: "+HSB[7]+" = 0.013046 B2HS^6");
-        System.out.println("B8HS: "+HSB[8]+" = 0.004164 B2HS^7");
+        System.out.println("B"+nPoints+"HS: "+HSBn);
         System.out.println("Lennard Jones overlap sampling B"+nPoints+" at T="+temperature);
 		
         Space space = Space3D.getInstance();
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         Potential2Spherical pTarget = new P2LennardJones(space,1.0,1.0);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
-        MayerESpherical eTarget = new MayerESpherical(pTarget);
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);
-        targetCluster.setTemperature(temperature);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
+        VirialDiagrams diagrams = new VirialDiagrams(nPoints, false, false);
+        diagrams.setDoReeHoover(true);
+        ClusterAbstract refCluster = diagrams.makeVirialCluster(fRef);
         refCluster.setTemperature(temperature);
+        ClusterAbstract targetCluster = diagrams.makeVirialCluster(fTarget);
+        targetCluster.setTemperature(temperature);
 
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 		
@@ -124,7 +97,7 @@ public class VirialLJ {
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.getController().removeAction(sim.ai);
@@ -139,42 +112,6 @@ public class VirialLJ {
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
-            final DisplayTextBox averageBox = new DisplayTextBox();
-            averageBox.setLabel("Average");
-            final DisplayTextBox errorBox = new DisplayTextBox();
-            errorBox.setLabel("Error");
-            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
-            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
-            simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
-            
-            IAction pushAnswer = new IAction() {
-                public void actionPerformed() {
-                    double[] ratioAndError = sim.dvo.getAverageAndError();
-                    double ratio = ratioAndError[0];
-                    double error = ratioAndError[1];
-                    data.x = ratio;
-                    averageBox.putData(data);
-                    data.x = error;
-                    errorBox.putData(data);
-                }
-                
-                DataDouble data = new DataDouble();
-            };
-            IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
-            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
-            averageBox.putDataInfo(dataInfo);
-            averageBox.setLabel("average");
-            averageBox.setUnit(unit);
-            errorBox.putDataInfo(dataInfo);
-            errorBox.setLabel("error");
-            errorBox.setPrecision(2);
-            errorBox.setUnit(unit);
-            sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
-            
             return;
         }
 
@@ -183,11 +120,11 @@ public class VirialLJ {
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
-//        sim.setRefPref(1.0082398078547523);
-        sim.initRefPref(refFileName, steps/100);
+        //sim.setRefPref(1.0082398078547523);
+        sim.initRefPref(refFileName, steps/20);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, steps/40);
+        sim.equilibrate(refFileName, steps/10);
         
         System.out.println("equilibration finished");
         
@@ -196,18 +133,59 @@ public class VirialLJ {
             sim.integratorOS.setAdjustStepFraction(false);
         }
 
-//        IAction progressReport = new IAction() {
-//            public void actionPerformed() {
-//                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-//                double ratio = sim.dsvo.getDataAsScalar();
-//                double error = sim.dsvo.getError();
-//                System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-//            }
-//        };
-//        sim.integratorOS.addIntervalAction(progressReport);
-//        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+        
+        final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 4));
+        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+            public void integratorStepStarted(IIntegratorEvent e) {}
+            
+            public void integratorStepFinished(IIntegratorEvent e) {
+                CoordinatePairSet cPairs = sim.box[1].getCPairSet();
+                for (int i=0; i<nPoints; i++) {
+                    for (int j=i+1; j<nPoints; j++) {
+                        double r2 = cPairs.getr2(i, j);
+                        double r = Math.sqrt(r2);
+                        if (r > 1) {
+                            r = Math.log(r);
+                        }
+                        else {
+                            r -= 1;
+                        }
+                        targHist.addValue(r);
+                    }
+                }
+
+            }
+
+            public void integratorInitialized(IIntegratorEvent e) {}
+        };
+
+        if (doHist) {
+            System.out.println("collecting histograms");
+            // only collect the histogram if we're forcing it to run the reference system
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+        }
+        
+        
+        IIntegratorListener progressReport = new IIntegratorListener() {
+            
+            public void integratorStepStarted(IIntegratorEvent e) {}
+            
+            public void integratorStepFinished(IIntegratorEvent e) {
+                if (sim.integratorOS.getStepCount() % 100 != 0) return;
+                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                double[] ratioAndError = sim.dvo.getAverageAndError();
+                System.out.println("abs average: "+ratioAndError[0]*HSBn+", error: "+ratioAndError[1]*HSBn);
+            }
+            
+            public void integratorInitialized(IIntegratorEvent e) {}
+                
+        };
+        if (false) {
+            sim.integratorOS.getEventManager().addListener(progressReport);
+        }
 
         sim.integratorOS.setNumSubSteps((int)steps);
+        sim.setAccumulatorBlockSize(steps);
         sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
@@ -215,10 +193,27 @@ public class VirialLJ {
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
 
+        if (doHist) {
+            double[] xValues = targHist.xValues();
+            double[] h = targHist.getHistogram();
+            for (int i=0; i<xValues.length; i++) {
+                if (!Double.isNaN(h[i])) {
+                    double r = xValues[i];
+                    double y = h[i];
+                    if (r < 0) r += 1;
+                    else {
+                        r = Math.exp(r);
+                        y /= r;
+                    }
+                    System.out.println(r+" "+y);
+                }
+            }
+        }
+
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
-        sim.printResults(HSB[nPoints]);
+        sim.printResults(HSBn);
         System.out.println("time: "+(t2-t1)/1000.0);
     }
 
@@ -232,5 +227,6 @@ public class VirialLJ {
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
         public double refFrac = -1;
+        public boolean doHist = false;
     }
 }
