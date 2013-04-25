@@ -1,9 +1,8 @@
 package etomica.virial;
 
-import etomica.math.SpecialFunctions;
 
 /**
- * This class calculates the sum of all purely singly-connected clusters using an adaptation of Wheatley's
+ * This class calculates the sum of all tree clusters using an adaptation of Wheatley's
  * recursive formulation.
  * 
  * @author David Kofke and Andrew Schultz 
@@ -13,7 +12,6 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     protected final int n, nf;
     protected final MayerFunction f;
     
-    protected final double[][] fValues;
     protected final double[] fL, fN;
     protected final double[] bSum;
     protected int cPairID = -1, lastCPairID = -1;
@@ -23,7 +21,6 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     public ClusterSinglyConnected(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
-        fValues = new double[nPoints][nPoints];
         nf = 1<<n;  // 2^n
         fL = new double[nf];
         fN = new double[nf];
@@ -78,8 +75,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         double savedValue = value;
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
-                fValues[i][j] = 1;
-                fValues[j][i] = 1;
+                bSum[(1<<i)|(1<<j)] = 1;
             }
         }
         calcValue();
@@ -89,7 +85,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     }
 
     /*
-     * Computation of sum of purely singly-connected diagrams.
+     * Computation of sum of tree diagrams.
      */
     protected void calcValue() {
         
@@ -99,28 +95,16 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         for(int m=1; m<n; m++) {//structure as nested loops so we know what high bit is
             final int iH = 1<<m; //high bit
             
-            // 2 ways to compute bSum values //
-            //both used stored values to increment sums as new terms are added 
-            
             //compute bSum values
-//            for(int i=1; i<iHighBit; i++) {
-//                int j = i & -i;//lowest bit in i
-//                int jj = Integer.numberOfTrailingZeros(j); // jj = log2(j)
-//                if(i==j) { //only one bit
-//                    bSum[m|i] = eValues[m][jj];
-//                } else {
-//                    int k = (i&~j);//strip off lowest bit to get previously accumulated value
-//                    bSum[m|i] = bSum[m|k] + eValues[m][jj];
-//                }
-//            }
             
-            //compute bSum values
-            //in this way, loops are set up so we know what low bit is, and don't need log2
+            //bSum[i] is the sum of all bonds formed from the high-bit of i with each other non-zero bit of i
+            
+            //calculation is performed for any i by adding the high-low (iH|iL) bit interaction to the sum
+            //obtained without iL, obtained from a previous iteration
             for(int j=m-1; j>=0; j--) { //j loops down the bits to the right of m
                 final int iL = 1<<j; //low bit
                 final int inc = iL<<1;
-                bSum[iH|iL] = fValues[m][j];
-                for(int i=inc; i<iH; i+=inc) {
+                for(int i=inc; i<iH; i+=inc) {//loop over all bit combinations between iH and iL bits
                     bSum[iH|i|iL] = bSum[iH|i] + bSum[iH|iL];
                 }
             }
@@ -129,11 +113,10 @@ public class ClusterSinglyConnected implements ClusterAbstract {
             for(int i=1; i<iH; i++) {
                 fL[iH|i] = bSum[iH|i]*(fL[i]+fN[i]);
                 fN[iH|i] = 0.0;
-                final int iL = i & -i;
-                final int inc = iL<<1;
-                for(int iS=iL; iS<i; iS+=inc) {
-                    //if ((iS & iL) == 0) continue; (enforced by loop)
-                    final int iSComp = i & ~iS;
+                int iL = i & -i;
+                int inc = iL<<1;
+                for(int iS=iL; iS<i; iS+=inc) {//structure loop to force iS to contain iL bit
+                    int iSComp = i & ~iS;
                     if ((iSComp | iS) != i) continue;
                     fN[iH|i] += fL[iH|iS]*(fL[iH|iSComp] + fN[iH|iSComp]);
                 }
@@ -151,9 +134,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                double x = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                fValues[i][j] = x;
-                fValues[j][i] = x;
+                bSum[(1<<i)|(1<<j)]= f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
             }
         }
     }
