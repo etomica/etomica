@@ -40,17 +40,18 @@ public class ClusterChain extends ClusterSinglyConnected {
     protected void calcValue() {
         
         super.calcValue();
-        
-        //no loop needed here because f2 points to same array as fN
-        // v=1, no restriction on clusters that don't have the 1-vertex
-//        for (int i=2; i<nf; i+=2) { // all even sets; none contain 1
-//            //fA[i] = 0;
-//            f2[i] = (fL[i] + fN[i]);
-//        }
 
-        for (int i=3; i<nf; i+=2) { // every set will contain 1
-            //f1 is initialized to fL, so it is all filled in correctly at this point
-            //f2 is initialized to fN; we need to remove branch points to correct it
+        //f1, f2, and f3 are sums of graphs in which all vertices of index less than v are not a branch
+        //the "v" index is not explicit; instead these are computed for each v in succession without saving values for previous v's
+        //f1 is sum of all graphs in which v is a leaf (exactly one bond)
+        //f2 is sum of all graphs in which v has exactly two bonds
+        //f3 is sum of all graphs in which v is a branch (has three or more bonds)
+
+        //f1 is same as fL array from parent class, and thus has is already the sum of all graphs for which 1 is a leaf
+        //f2 starts as fN array from parent, which is sum of all graphs where vertex 1 is not a leaf; 
+        //    we start by subtracting from this the graphs where 1 is a branch 
+        for (int i=3; i<nf; i+=2) { // sum over odd indices, since even-i graphs have no restriction when v=1
+
             f3[i] = 0.0;  //initialize sum; when done looping this will be sum of graphs where branch is at v=1
 
             int ii = i - 1;//all bits in i but lowest
@@ -75,6 +76,7 @@ public class ClusterChain extends ClusterSinglyConnected {
             f2[i] -= f3[i];//remove from f2 graphs having branch at v=1
         }
 
+        //now work our way up to where v = n, and no contributions come from graphs having a branch
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
             for (int i=vs1+1; i<nf; i++) {
@@ -120,8 +122,8 @@ public class ClusterChain extends ClusterSinglyConnected {
                             jComp = (i & ~j);
                         }
                         if (j==i) break;
-                        f2[i] += f1[j] * f1[jComp|vs1];
-                        f3[i] += f1[j] * (f2[jComp|vs1] + f3[jComp|vs1]);
+                        f2[i] += f1[j] * f1[jComp|vs1];//join two leaves at v to make a chain
+                        f3[i] += f1[j] * (f2[jComp|vs1] + f3[jComp|vs1]);//join leaf to non-leaf to make (or extend) branch 
                     }
                 }
                 else {
@@ -145,11 +147,11 @@ public class ClusterChain extends ClusterSinglyConnected {
                             jComp = (i & ~j);
                         }
                         if (j==i) break;
-                        f2[i] += f1[j] * f1[jComp|vs1];
-                        f3[i] += f1[j] * (f2[jComp|vs1] + f3[jComp|vs1]);
+                        f2[i] += f1[j] * f1[jComp|vs1];//join two leaves at v to make a chain
+                        f3[i] += f1[j] * (f2[jComp|vs1] + f3[jComp|vs1]);//join leaf to non-leaf to make (or extend) branch 
                     }
                 }
-
+                
                 f1[i] -= (f2[i] + f3[i]);//remove from f1 graphs where v is not a leaf
             }
         }
