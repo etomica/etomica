@@ -28,6 +28,9 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         for(int i=0; i<n; i++) {
             fL[1<<i] = 1.0;
             fN[1<<i] = 0.0;
+            for(int j=i+1; j<n; j++) {
+                fN[(1<<i)|(1<<j)] = 0.0;
+            }
         }
     }
 
@@ -90,35 +93,28 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     protected void calcValue() {
         
         //Compute the fL and fN's
-        // fL[i] is sum of all graphs in which high-bit node is a leaf
-        // fN[i] is sum of all graphs in which high-bit node is not a leaf
-        for(int m=1; m<n; m++) {//structure as nested loops so we know what high bit is
+        // fL[i] is sum of all graphs in which low-bit node is a leaf
+        // fN[i] is sum of all graphs in which low-bit node is not a leaf
+        for(int m=2; m<n; m++) {//structure as nested loops so we know what high bit is
             final int iH = 1<<m; //high bit
             
-            //compute bSum values
+            //bSum[i] is the sum of all bonds formed from the low-bit of i with each other non-zero bit of i
             
-            //bSum[i] is the sum of all bonds formed from the high-bit of i with each other non-zero bit of i
-            
-            //calculation is performed for any i by adding the high-low (iH|iL) bit interaction to the sum
+            //calculation of bSum is performed for any i by adding the high-low (iH|iL) bit interaction to the sum
             //obtained without iL, obtained from a previous iteration
-            for(int j=m-1; j>=0; j--) { //j loops down the bits to the right of m
-                final int iL = 1<<j; //low bit
-                final int inc = iL<<1;
-                for(int i=inc; i<iH; i+=inc) {//loop over all bit combinations between iH and iL bits
-                    bSum[iH|i|iL] = bSum[iH|i] + bSum[iH|iL];
-                }
-            }
-                      
-            //compute fN and fL values
-            for(int i=1; i<iH; i++) {
-                fL[iH|i] = bSum[iH|i]*(fL[i]+fN[i]);
-                fN[iH|i] = 0.0;
-                int iL = i & -i;
-                int inc = iL<<1;
-                for(int iS=iL; iS<i; iS+=inc) {//structure loop to force iS to contain iL bit
+            for(int i=iH+3; i<(iH<<1); i++) {
+                int iL = i & -i;//low bit
+                int i0 = i^iL;//i, without the low bit
+                if(i0 == iH) continue;//only two bits in i; we skip this because we start with all pairs in bSum and fL
+                bSum[i] = bSum[i0] + bSum[iH|iL];
+
+                //compute fN and fL values
+                fL[i] = bSum[i]*(fL[i0]+fN[i0]);
+                fN[i] = 0.0;
+                for(int iS=iH+iL; iS<i; iS+=i0) {//structure loop to force iS to contain iH and iL bits
                     int iSComp = i & ~iS;
                     if ((iSComp | iS) != i) continue;
-                    fN[iH|i] += fL[iH|iS]*(fL[iH|iSComp] + fN[iH|iSComp]);
+                    fN[i] += fL[iS]*(fL[iL|iSComp] + fN[iL|iSComp]);
                 }
             }
         }
@@ -134,12 +130,20 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                bSum[(1<<i)|(1<<j)]= f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                int index = (1<<i)|(1<<j);
+                bSum[index]= f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                fL[index] = bSum[index];
             }
         }
     }
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
+    }
+    
+    public static void main(String[] args) {
+        for(int i=0; i<100; i++) {
+            System.out.println(Integer.toBinaryString((1<<10)|i));
+        }
     }
 }
