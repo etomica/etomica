@@ -39,11 +39,12 @@ public class ClusterChain extends ClusterSinglyConnected {
         
         super.calcValue();
 
-        //f1, f2, and f3 are sums of graphs in which all vertices of index less than v are not a branch
-        //the "v" index is not explicit; instead these are computed for each v in succession without saving values for previous v's
-        //f1 is sum of all graphs in which v is a leaf (exactly one bond)
-        //f2 is sum of all graphs in which v has exactly two bonds
-        //f3 is sum of all graphs in which v is a branch (has three or more bonds)
+        //f1, f2, and f3 are sums of graphs in which all vertices of index less than v are not a branch.
+        //In addition:
+        //f1 is sum of all such graphs in which v is a leaf (exactly one bond)
+        //f2 is sum of all such graphs in which v has exactly two bonds
+        //f3 is sum of all such graphs in which v is a branch (has three or more bonds)
+        //The "v" index is not explicit; instead these are computed for each v in succession without saving values for previous v's
 
         //f1 is same as fL array from parent class, and thus has is already the sum of all graphs for which 1 is a leaf
         //f2 starts as fN array from parent, which is sum of all graphs where vertex 1 is not a leaf; 
@@ -155,11 +156,6 @@ public class ClusterChain extends ClusterSinglyConnected {
         }
 
         value = f1[nf-1] + f2[nf-1];
-
-    }
-
-    public void setTemperature(double temperature) {
-        beta = 1/temperature;
     }
 
     public static void main(String[] args) {
