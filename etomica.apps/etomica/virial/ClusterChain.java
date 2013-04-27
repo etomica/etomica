@@ -154,21 +154,8 @@ public class ClusterChain extends ClusterSinglyConnected {
             }
         }
 
-        value = f1[nf-1] + f2[nf-1]; 
+        value = f1[nf-1] + f2[nf-1];
 
-    }
-
-    protected void updateF(BoxCluster box) {
-        CoordinatePairSet cPairs = box.getCPairSet();
-        AtomPairSet aPairs = box.getAPairSet();
-
-        f.setBox(box);
-        // recalculate all f values for all pairs
-        for(int i=0; i<n-1; i++) {
-            for(int j=i+1; j<n; j++) {
-                f1[(1<<i)|(1<<j)] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-            }
-        }
     }
 
     public void setTemperature(double temperature) {
