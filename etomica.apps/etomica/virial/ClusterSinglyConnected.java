@@ -76,11 +76,6 @@ public class ClusterSinglyConnected implements ClusterAbstract {
 
     public long numDiagrams() {
         double savedValue = value;
-//        bSum[5] = 1;
-//        bSum[9] = 1;
-//        bSum[10] = 1;
-//        bSum[18] = 1;
-//        bSum[20] = 1;
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                 bSum[(1<<i)|(1<<j)] = 1;
