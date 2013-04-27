@@ -79,6 +79,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                 bSum[(1<<i)|(1<<j)] = 1;
+                fL[(1<<i)|(1<<j)] = bSum[(1<<i)|(1<<j)];
             }
         }
         calcValue();
