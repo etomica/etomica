@@ -76,12 +76,18 @@ public class ClusterSinglyConnected implements ClusterAbstract {
 
     public long numDiagrams() {
         double savedValue = value;
+//        bSum[5] = 1;
+//        bSum[9] = 1;
+//        bSum[10] = 1;
+//        bSum[18] = 1;
+//        bSum[20] = 1;
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                 bSum[(1<<i)|(1<<j)] = 1;
                 fL[(1<<i)|(1<<j)] = bSum[(1<<i)|(1<<j)];
             }
         }
+        
         calcValue();
         long num = (int)Math.round(value);
         value = savedValue;
@@ -96,6 +102,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         //Compute the fL and fN's
         // fL[i] is sum of all graphs in which low-bit node is a leaf
         // fN[i] is sum of all graphs in which low-bit node is not a leaf
+        for(int i=0; i<nf; i++) fN[i] = 0;
         for(int m=2; m<n; m++) {//structure as nested loops so we know what high bit is
             final int iH = 1<<m; //high bit
             
@@ -106,13 +113,15 @@ public class ClusterSinglyConnected implements ClusterAbstract {
             for(int i=iH+3; i<(iH<<1); i++) {
                 int iL = i & -i;//low bit
                 int i0 = i^iL;//i, without the low bit
+                int iH0 = i^iH;
                 if(i0 == iH) continue;//only two bits in i; we skip this because we start with all pairs in bSum and fL
-                bSum[i] = bSum[i0] + bSum[iH|iL];
+                bSum[i] = bSum[iH0] + bSum[iH|iL];
 
                 //compute fN and fL values
                 fL[i] = bSum[i]*(fL[i0]+fN[i0]);
-                fN[i] = 0.0;
-                for(int iS=iH+iL; iS<i; iS+=i0) {//structure loop to force iS to contain iH and iL bits
+                //fN[i] = 0.0;
+                int inc = i0 & -i0;
+                for(int iS=iH+iL; iS<i; iS+=inc) {//structure loop to force iS to contain iH and iL bits
                     int iSComp = i & ~iS;
                     if ((iSComp | iS) != i) continue;
                     fN[i] += fL[iS]*(fL[iL|iSComp] + fN[iL|iSComp]);
@@ -146,5 +155,10 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         for(int i=0; i<100; i++) {
             System.out.println(Integer.toBinaryString((1<<10)|i));
         }
+        ClusterChain cc = new ClusterChain(5, null);
+        ClusterSinglyConnected cs = new ClusterSinglyConnected(5, null);
+        System.out.println(cc.numDiagrams());
+        System.out.println(cs.numDiagrams());
+
     }
 }

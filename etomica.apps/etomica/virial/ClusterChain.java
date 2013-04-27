@@ -9,13 +9,11 @@ package etomica.virial;
 public class ClusterChain extends ClusterSinglyConnected {
 
     protected final double[] f1, f2, f3;
-    protected double value;
-    protected double beta;
     
     public ClusterChain(int nPoints, MayerFunction f) {
         super(nPoints, f);
-        f1 = fL;//new double[nf];
-        f2 = fN;//new double[nf];
+        f1 = fL;
+        f2 = fN;
         f3 = new double[nf];
         for(int i=0; i<n; i++) {
             f1[1<<i] = 1.0;
@@ -175,5 +173,14 @@ public class ClusterChain extends ClusterSinglyConnected {
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
+    }
+
+    public static void main(String[] args) {
+        
+        for(int n=2; n<10; n++) {
+            ClusterChain cc = new ClusterChain(n, null);
+            ClusterSinglyConnected cs = new ClusterSinglyConnected(n, null);
+            System.out.println(n+"\t"+cc.numDiagrams()+"\t"+cs.numDiagrams());
+        }
     }
 }
