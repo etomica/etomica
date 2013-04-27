@@ -102,24 +102,22 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         //Compute the fL and fN's
         // fL[i] is sum of all graphs in which low-bit node is a leaf
         // fN[i] is sum of all graphs in which low-bit node is not a leaf
-        for(int i=0; i<nf; i++) fN[i] = 0;
         for(int m=2; m<n; m++) {//structure as nested loops so we know what high bit is
             final int iH = 1<<m; //high bit
             
-            //bSum[i] is the sum of all bonds formed from the low-bit of i with each other non-zero bit of i
-            
-            //calculation of bSum is performed for any i by adding the high-low (iH|iL) bit interaction to the sum
-            //obtained without iL, obtained from a previous iteration
             for(int i=iH+3; i<(iH<<1); i++) {
                 int iL = i & -i;//low bit
                 int i0 = i^iL;//i, without the low bit
-                int iH0 = i^iH;
                 if(i0 == iH) continue;//only two bits in i; we skip this because we start with all pairs in bSum and fL
-                bSum[i] = bSum[iH0] + bSum[iH|iL];
+
+                //bSum[i] is the sum of all bonds formed from the low-bit of i with each other non-zero bit of i.          
+                //Calculation of bSum is performed for any i by adding the high-low (iH|iL) bit interaction to the sum
+                //obtained without iH, computed from a previous iteration
+                bSum[i] = bSum[i^iH] + bSum[iH|iL];
 
                 //compute fN and fL values
                 fL[i] = bSum[i]*(fL[i0]+fN[i0]);
-                //fN[i] = 0.0;
+                fN[i] = 0.0;
                 int inc = i0 & -i0;
                 for(int iS=iH+iL; iS<i; iS+=inc) {//structure loop to force iS to contain iH and iL bits
                     int iSComp = i & ~iS;
