@@ -89,7 +89,7 @@ public class ClusterChain implements ClusterAbstract {
 
 
     /*
-     * Computation of sum of purely singly-connected diagrams.
+     * Computation of sum of chain or ring diagrams.
      */
     protected void calcValue() {
         
@@ -110,7 +110,7 @@ public class ClusterChain implements ClusterAbstract {
                 nC[m][index] = 0;
                 for(int k=1; k<n; k++) {//loop over indices in i
                     int ik = 1<<k;
-                    //if(ik > i) break;
+                    if(ik > i) break;
                     if((ik & i) == 0) continue;//skip if k is not in i
                     nC[m][index] += fValues[m][k]*nC[k][i];
                 }
