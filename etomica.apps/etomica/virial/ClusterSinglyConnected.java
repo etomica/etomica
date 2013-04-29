@@ -84,7 +84,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         }
         
         calcValue();
-        long num = (int)Math.round(value);
+        long num = Math.round(value);
         value = savedValue;
         return num;
     }
