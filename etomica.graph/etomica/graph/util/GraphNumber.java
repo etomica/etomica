@@ -5,12 +5,14 @@ import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphList;
+import etomica.graph.model.Node;
 import etomica.graph.viewer.ClusterViewer;
 
 
 public class GraphNumber {
 
   public static void main(String[] args) {
+	  
     String usage = "usage: GraphNumber [-display] num [nodeCount]";
     if (args.length == 0) {
       System.out.println(usage);
@@ -36,17 +38,32 @@ public class GraphNumber {
     else {
       handleGraph(graphNumStr, nodeCount, list);
     }
-    ClusterViewer.createView("Graph "+graphNumStr, list);
+    if (display){
+    	ClusterViewer.createView("Graph "+graphNumStr, list);
+    }
   }
   
-  public static void handleGraph(String graphNumStr, byte nodeCount, GraphList<Graph> list) {
-    long graphNum = Long.parseLong(graphNumStr);
-    Graph g = makeGraph(graphNum, nodeCount);
+  public static void handleGraph(String graphStr, byte nodeCount, GraphList<Graph> list) {
 
-    System.out.println(g.nodeCount()+" "+g.edgesToString());
-    if (list != null) {
-      list.add(g);
-    }
+	  String graphNumStr=graphStr.replaceAll("[A-Za-z]", "");
+	  String graphLetterStr=graphStr.replaceAll("[0-9]", "");
+
+	  Integer graphNum = Integer.valueOf(graphNumStr);
+	  Graph g = makeGraph(graphNum,nodeCount);
+	  
+	  if(graphLetterStr.length()>0){
+		  if (g.nodeCount()!=graphLetterStr.length()){
+			  throw new RuntimeException("improper value of graphLetter string!");
+		  }
+		  for (byte m = 0; m<g.nodeCount();m++){
+			  g.getNode(m).setColor(graphLetterStr.charAt(m));
+		  }
+	  }
+
+	  System.out.println(g.nodeCount()+" "+g.edgesToString());
+	  if (list != null) {
+		  list.add(g);
+	  }
   }
 
   public static Graph makeGraph(long graphNum) {
