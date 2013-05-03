@@ -221,7 +221,7 @@ public class MCMoveManager implements Serializable {
          * current number of molecules in the boxes affected by the move.
          */
         void resetFullFrequency() {
-            fullFrequency = (int)(frequency * move.getNominalFrequency());
+            fullFrequency = (int)Math.round(frequency * move.getNominalFrequency());
             if ((move instanceof MCMoveBox) && ((MCMoveBox)move).getBox() != null
                     && ((MCMoveBox)move).isNominallyPerParticleFrequency() ) {
                 fullFrequency *= ((MCMoveBox)move).getBox().getMoleculeList().getMoleculeCount();
