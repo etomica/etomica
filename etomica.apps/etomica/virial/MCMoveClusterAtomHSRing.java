@@ -95,7 +95,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                                 axis1.setX(0,0);
                                 axis1.setX(1,1);
                                 axis1.setX(2,0);
-                                
+
                                 axis2.setX(0,0);
                                 axis2.setX(1,0);
                                 axis2.setX(2,1);
@@ -442,7 +442,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
             for (int i=2; i<7; i++) {
                 for (int jx=1; jx<100*i; jx++) {
                     double r= dr*jx;
-                    System.out.println(r+" "+separationProbability(i, r)/ClusterChain.separationProbability(i, r));
+                    System.out.println(r+" "+separationProbability(i, r));
                 }
                 System.out.println("&");
             }
