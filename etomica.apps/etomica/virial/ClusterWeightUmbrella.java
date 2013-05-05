@@ -14,15 +14,15 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
 	 */
 	public ClusterWeightUmbrella(ClusterAbstract[] allClusters) {
 		clusterArray = allClusters;
-		weightRatio = new double[allClusters.length];
-		for (int i=0; i<weightRatio.length; i++) {
-			weightRatio[i] = 1.0/weightRatio.length;
+		weightCoefficients = new double[allClusters.length];
+		for (int i=0; i<weightCoefficients.length; i++) {
+			weightCoefficients[i] = 1.0/weightCoefficients.length;
 		}
 	}
     
     public ClusterAbstract makeCopy() {
         ClusterWeightUmbrella newCluster = new ClusterWeightUmbrella(clusterArray);
-        newCluster.setWeightRatio(weightRatio);
+        newCluster.setWeightCoefficients(weightCoefficients);
         return newCluster;
     }
 	
@@ -35,19 +35,17 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
 		double sum = 0.0;
 		for (int i=0; i<clusterArray.length; i++) {
 			double v = clusterArray[i].value(box);
-			sum += v*v*weightRatio[i];
+			sum += v*weightCoefficients[i];
 		}
-		return Math.sqrt(sum);
+		return sum;
 	}
 	
-	public void setWeightRatio(double[] aWeightRatio) {
-		for (int i=weightRatio.length-1; i>=0; i--) {
-			weightRatio[i] = aWeightRatio[i]/aWeightRatio[0];
-		}
+	public void setWeightCoefficients(double[] a) {
+	    System.arraycopy(a, 0, weightCoefficients, 0, a.length);
 	}
 	
-	public double[] getWeightRatio() {
-		return weightRatio;
+	public double[] getWeightCoefficients() {
+		return weightCoefficients;
 	}
     
     public void setTemperature(double temp) {
@@ -62,5 +60,5 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
     
     private static final long serialVersionUID = 1L;
     private final ClusterAbstract[] clusterArray;
-    private final double[] weightRatio;
+    private final double[] weightCoefficients;
 }
