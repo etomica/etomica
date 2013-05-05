@@ -526,7 +526,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     protected final static double fac5 = (90.*(-2773712 + 6640625*ArcCoth(4) + 3727*Math.log(3)));
     protected final static double fac6 = (4.42368e6*(-270257 + 905418*ArcCoth(5) + 6245*Math.log(2)));
     protected final static double fac7 = -15825661837824. + 3573372188392.*ArcCoth(4) + 65635383907142.*ArcCoth(6) + 12807215*Math.log(3);
-    protected final static double fac8 = -1.756251137152512e19*8192*(-1846795758* + 468503*ArcCoth(3) + 1247929879*ArcCoth(5) + 8522825728.0*ArcCoth(7))/2.001737863125e12;
+    protected final static double fac8 = -1.756251137152512e19*8192*(-1846795758 + 468503*ArcCoth(3) + 1247929879*ArcCoth(5) + 8522825728.0*ArcCoth(7))/2.001737863125e12;
     
     public static void main1(String[] args) {
         if (false) {
