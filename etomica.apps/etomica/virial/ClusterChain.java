@@ -238,6 +238,7 @@ public class ClusterChain implements ClusterAbstract {
                 break;
             case 7: b = 0.331708;
                 break;
+            case 8: b = 0.29308;
             default: throw new IllegalArgumentException();
         }
         
