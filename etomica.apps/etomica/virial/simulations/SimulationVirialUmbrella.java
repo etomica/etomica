@@ -78,7 +78,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 //		while (true) {
 			SimulationVirialUmbrella sim = new SimulationVirialUmbrella(space, temperature, refCluster, 
 					new ClusterAbstract[]{targetCluster});
-			((ClusterWeightUmbrella)sim.sampleCluster).setWeightRatio(new double[] {1.0,weightRatio});
+			((ClusterWeightUmbrella)sim.sampleCluster).setWeightCoefficients(new double[] {1.0-weightRatio,weightRatio});
 			sim.ai.setMaxSteps(steps);
 //            sim.integrator.setEquilibrating(true);
 			sim.ai.actionPerformed();
