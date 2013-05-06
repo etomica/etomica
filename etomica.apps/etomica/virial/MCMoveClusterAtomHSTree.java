@@ -1,11 +1,9 @@
 package etomica.virial;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IRandom;
+import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -15,8 +13,6 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
     public MCMoveClusterAtomHSTree(IRandom random, ISpace _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = (IVectorRandom)space.makeVector();
-        bonds = new ArrayList<int[]>();
     }
     
     public void setBox(IBox box) {
@@ -24,6 +20,8 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
         int n = box.getLeafList().getAtomCount();
         degree = new int[n];
         a = new int[n-2];
+        inserted = new int[n];
+        bonds = new int[n*(n-1)/2][2];
     }
 
     public boolean doTrial() {
@@ -38,12 +36,14 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
             degree[a[i]]++;
         }
 
-        bonds.clear();
+        int numBonds = 0;
         for (int i=0; i<n-2; i++) {
             int ii = a[i];
             for (int j=0; j<n; j++) {
                 if (degree[j] == 1) {
-                    bonds.add(new int[]{ii,j});
+                    bonds[numBonds][0] = ii;
+                    bonds[numBonds][1] = j;
+                    numBonds++;
                     degree[ii]--;
                     degree[j]--;
                     break;
@@ -61,19 +61,22 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                 }
             }
         }
-        bonds.add(new int[]{u,v});
+        bonds[numBonds][0] = u;
+        bonds[numBonds][1] = v;
+        numBonds++;
 
         leafAtoms.getAtom(0).getPosition().E(0);
-        List<Integer> inserted = new ArrayList<Integer>();
-        inserted.add(0);
+        inserted[0] = 0;
+        int numInserted = 1;
         // inserted is a list of points that have inserted, but not coordinated
-        List<Integer> coordinated = new ArrayList<Integer>();
-        // coordinted is a list of points that have been inserted and coordinated
-//        int[] c = new int[n];
-        while (inserted.size() > 0) {
-            int nbr = inserted.remove(0);
-            coordinated.add(nbr);
-            for (int[] b : bonds) {
+        // coordinated is a list of points that have been inserted and coordinated
+        int coordinatedMask = 0;
+        while (numInserted > 0) {
+            int nbr = inserted[numInserted-1];
+            numInserted--;
+            coordinatedMask |= 1<<nbr;
+            for (int iBond = 0; iBond<numBonds; iBond++) {
+                int[] b = bonds[iBond];
                 int nbr2 = -1;
                 if (b[0] == nbr) {
                     nbr2 = b[1];
@@ -84,7 +87,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                 else {
                     continue;
                 }
-                if (coordinated.contains(nbr2)) {
+                if ((coordinatedMask & (1<<nbr2)) != 0) {
                     // already inserted nbr2, move along
                     continue;
                 }
@@ -94,24 +97,10 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                 pos.setRandomInSphere(random);
                 pos.TE(sigma);
                 pos.PE(leafAtoms.getAtom(nbr).getPosition());
-                inserted.add(nbr2);
-                
-//                c[nbr]++;
-//                c[nbr2]++;
+                inserted[numInserted] = nbr2;
+                numInserted++;
             }
         }
-        
-        /*t++;
-        for (int i=0; i<n; i++) {
-            if (c[i]==n-1) {
-                System.out.println("b "+i);
-                bb[i]++;
-                br++;
-            }
-        } */
-//        if (t%1000 == 0) {
-//            System.out.print(String.format("%d  %5.3f %5.3f %5.3f %5.3f %5.3f\n", t, t/((double)br), t/((double)bb[0]), t/((double)bb[1]), t/((double)bb[2]), t/((double)bb[3])));
-//        }
 
 		((BoxCluster)box).trialNotify();
 		return true;
@@ -134,9 +123,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final IVectorRandom dr;
-    protected final List<int[]> bonds;
+    protected int[][] bonds;
     protected int[] degree, a;
-    /*public static long br, t;
-    public static long[] bb = new long[5]; */
+    protected int[] inserted;
 }
