@@ -10,7 +10,7 @@ import etomica.space.IVectorRandom;
  */
 public final class Vector3D implements IVectorRandom, java.io.Serializable {
 
-    double x, y, z;
+    protected double x, y, z;
     private static final long serialVersionUID = 1L;
 
     public int getD() {
@@ -202,25 +202,21 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         z = random.nextFixedDouble() - 0.5;
     }
 
+    //generate point on surface of sphere according to method (4) here:
+    //http://www.math.niu.edu/~rusin/known-math/96/sph.rand
+    //and scale into the interior according to r^2
     public void setRandomInSphere(IRandom random) {
-        double z1 = 0.0;
-        double z2 = 0.0;
-        double z3 = 0.0;
-        double s12;
-        while (true) {
-
-            z1 = 1.0 - 2.0 * random.nextFixedDouble();
-            z2 = 1.0 - 2.0 * random.nextFixedDouble();
-            s12 = z1*z1 + z2*z2;
-            // this only helps a bit.  but it does help
-            if (s12 > 1) continue;
-            z3 = 1.0 - 2.0 * random.nextFixedDouble();
-
-            if  (s12 + z3*z3 <= 1) break;
-        }
-        x = z1;
-        y = z2;
-        z = z3;
+        double r = cubeRoot(random.nextFixedDouble());
+        double u, v, s;
+        do {
+            u = 1.0 - 2.0*random.nextFixedDouble();
+            v = 1.0 - 2.0*random.nextFixedDouble();
+            s = u*u + v*v;
+        } while(s > 1);
+        double ra = 2.*r * Math.sqrt(1.-s);
+        x = ra * u;
+        y = ra * v;
+        z = r * (2*s- 1.);
     }
 
     /**
@@ -268,5 +264,30 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         x = function.f(x);
         y = function.f(y);
         z = function.f(z);
+    }
+
+    protected static final int nLookUp = 5000;
+    protected static final double[] lookUp;
+    static {
+        lookUp = new double[nLookUp];
+        for(int i=0; i<nLookUp; i++) {
+            lookUp[i] = Math.pow((double)(i+1)/nLookUp,1.0/3.0);
+        }
+    }
+
+    //cube root via look-up and Newton/Halley iteration
+    //see here: http://metamerist.com/cbrt/cbrt.htm
+    protected static double cubeRoot(double R) {
+        int iR = (int)(R*nLookUp);
+        // method is accurate to machine precision except for very small r.
+        // fall back to pow
+        if (iR < 10) return Math.pow(R, 1.0/3.0);
+        double a = lookUp[iR];
+        for(int i=0; i<2; i++) {
+            double a3 = a*a*a;
+            double t1 = a3 + R;
+            a = a*(t1+R)/(t1+a3);
+        }
+        return a;
     }
 }
