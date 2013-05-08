@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -21,15 +22,17 @@ import etomica.space.ISpace;
  */
 public class AtomPositionGeometricCenterAlkaneEH implements IAtomPositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenterAlkaneEH(ISpace space) {
+    public AtomPositionGeometricCenterAlkaneEH(ISpace space, ISpecies speciesAlkane) {
         center = space.makeVector();
+        this.speciesAlkane =speciesAlkane; 
     }
 
     public IVector position(IMolecule atom) {
         center.E(0.0);
         IAtomList children = atom.getChildList();
         int nAtoms = children.getAtomCount();
-        int numCarbons = (nAtoms-2)/3;
+        // get the species info in the virial main class, if it is alkaneEH species, then use (n-2)/3, use nAtoms for CO2/N2/etc.
+        int numCarbons = atom.getType()== speciesAlkane? (nAtoms-2)/3 : nAtoms;
         for (int i=0; i<numCarbons; i++) {// loop over all carbons ONLY
             center.PE(children.getAtom(i).getPosition());
         }
@@ -39,4 +42,5 @@ public class AtomPositionGeometricCenterAlkaneEH implements IAtomPositionDefinit
 
     private static final long serialVersionUID = 1L;
     private final IVectorMutable center;
+    private final ISpecies speciesAlkane;
 }
