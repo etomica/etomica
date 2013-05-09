@@ -34,6 +34,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
@@ -189,7 +190,7 @@ public class VirialAlkaneEHTest {
         int iGraph = 0;
         boolean[] diagramFlexCorrection = new boolean[targetDiagrams.length];
         for (Graph g : singleGraphs) {
-        	System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString());
+        	System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
         	targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
 
             Graph cancelGraph = cancelMap.get(g);
@@ -223,7 +224,6 @@ public class VirialAlkaneEHTest {
         }
 
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-
         // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
         
@@ -289,9 +289,9 @@ public class VirialAlkaneEHTest {
     	
         //*********************************** Set Geometric center *********************************//
     	// geometric center is based on all carbons, hydrogens not included
-    	AtomPositionGeometricCenterAlkaneEH center = new AtomPositionGeometricCenterAlkaneEH(space);
-    	((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[0]).setPositionDefinition(center);
-    	((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setPositionDefinition(center);
+    	AtomPositionGeometricCenterAlkaneEH center = new AtomPositionGeometricCenterAlkaneEH(space,species);
+    	((MCMoveRotateMolecule3D)sim.mcMoveRotate[0]).setPositionDefinition(center);
+    	((MCMoveRotateMolecule3D)sim.mcMoveRotate[1]).setPositionDefinition(center);
     	((CoordinatePairMoleculeSet)sim.box[0].getCPairSet()).setPositionDefinition(center);
     	((CoordinatePairMoleculeSet)sim.box[1].getCPairSet()).setPositionDefinition(center);
     	
@@ -764,12 +764,15 @@ public class VirialAlkaneEHTest {
         
         if (nSpheres > 2) {
             System.out.println("Wiggle move acceptance "+ wiggleMove[0].getTracker().acceptanceRatio()+" "+
-            		wiggleMove[1].getTracker().acceptanceRatio());
+     	       		wiggleMove[1].getTracker().acceptanceRatio());
+        	System.out.println("Wiggle move step sizes " + wiggleMove[0].getStepSize() + " "+	wiggleMove[1].getStepSize());
         }
         
         if (nSpheres > 3) {
-            System.out.println("Torsion move acceptance "+torsionMove[0].getTracker().acceptanceRatio()+" "+
-                    torsionMove[1].getTracker().acceptanceRatio());
+        	System.out.println("Torsion move acceptance "+torsionMove[0].getTracker().acceptanceRatio()+" "+
+    	                torsionMove[1].getTracker().acceptanceRatio());
+        	System.out.println("Torsion move step size "+torsionMove[0].getStepSize() + " "+   torsionMove[1].getStepSize());
+           
         }
         if (false) {
             final double refIntegralF = refIntegral;
@@ -842,7 +845,7 @@ public class VirialAlkaneEHTest {
 
     }
     public static double[] append(double[] inArray, double[] newWeights) {
-        double[] outArray = new double[inArray.length + newWeights.length];
+    	double[] outArray = new double[inArray.length + newWeights.length];
         System.arraycopy(inArray, 0, outArray, 0, inArray.length);
         System.arraycopy(newWeights, 0, outArray, inArray.length, newWeights.length);
         return outArray;
@@ -853,8 +856,8 @@ public class VirialAlkaneEHTest {
      */
     public static class VirialParam extends ParameterBase {
         public int nPoints = 3;
-        public int nSpheres = 20;
-        public double temperature = 395;   // Kelvin
+        public int nSpheres = 6;
+        public double temperature = 1500;   // Kelvin
         public long numSteps = 1000000;
         public double refFreq = -1;
     }
