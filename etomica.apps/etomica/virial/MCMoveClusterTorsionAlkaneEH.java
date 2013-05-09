@@ -7,6 +7,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
+import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
@@ -42,7 +43,6 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
             IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
     	super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);
-        positionDefinition = new AtomPositionGeometricCenterAlkaneEH(space);
         probabilityBins = new double[nBins+1];
         binSize = new double[nBins];
         probabilityReverseMap = new int[nBins+1];
@@ -169,6 +169,14 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
         }
         throw new RuntimeException("oops");
     } 
+    
+    
+    public void setSpecies(ISpecies newSpecies) {
+        species = newSpecies;
+        positionDefinition = new AtomPositionGeometricCenterAlkaneEH(space,species);
+
+    }
+    
     //note that total energy is calculated
     public boolean doTrial() {
    // 	System.out.println("--------------- torsion move -------------------------------");
@@ -377,4 +385,6 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     protected IVectorMutable[][] oldPositions;
     protected final IVectorMutable oldCenter;
     protected double wOld, wNew, bias;
+    protected ISpecies species;
+
 }
