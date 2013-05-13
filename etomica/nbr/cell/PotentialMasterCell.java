@@ -82,7 +82,9 @@ public class PotentialMasterCell extends PotentialMasterSite {
     public NeighborCellManager getNbrCellManager(IBox box) {
         NeighborCellManager manager = (NeighborCellManager)boxAgentManager.getAgent(box);
         manager.setPotentialRange(range);
-        manager.setCellRange(getCellRange());
+        int cr = getCellRange();
+        if (cr == 0) throw new RuntimeException("need to set cell range first");
+        manager.setCellRange(cr);
         return manager;
     }
     
