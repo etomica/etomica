@@ -23,6 +23,8 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Time;
@@ -279,13 +281,15 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     }
                     else {
                         // accepting the trajectory.  save positions
-                        IAtomList leafAtoms = box.getLeafList();
-                        for (int i=0; i<leafAtoms.getAtomCount(); i++) {
-                            IAtom a = leafAtoms.getAtom(i);
-                            ((IVectorMutable)oldPositionAgentManager.getAgent(a)).E(a.getPosition());
+                        if (integratorMC != null) {
+                            IAtomList leafAtoms = box.getLeafList();
+                            for (int i=0; i<leafAtoms.getAtomCount(); i++) {
+                                IAtom a = leafAtoms.getAtom(i);
+                                ((IVectorMutable)oldPositionAgentManager.getAgent(a)).E(a.getPosition());
+                            }
+                            oldPotentialEnergy = newPotentialEnergy;
+                            oldEnergy = newPotentialEnergy;
                         }
-                        oldPotentialEnergy = newPotentialEnergy;
-                        oldEnergy = newPotentialEnergy;
 //                        System.out.println("accepted "+energyDiff);
                         nAccepted++;
                     }
@@ -314,14 +318,17 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     for (int i=0; i<mcSteps; i++) {
                         integratorMC.doStep();
                     }
+                    IAtomList leafAtoms = box.getLeafList();
+                    for (int i=0; i<leafAtoms.getAtomCount(); i++) {
+                        IAtom a = leafAtoms.getAtom(i);
+                        ((IVectorMutable)oldPositionAgentManager.getAgent(a)).E(a.getPosition());
+                    }
                     reset();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
                 }
-//                if (nAccepted > 0) System.out.println("acceptance: "+((double)nAccepted)/(nAccepted+nRejected));
                 else if (rejected) {
                     // we've put the atoms back, need to reset (force recalc)
-//                    partialResetter.setNeedUpdate();
                     reset();
                 }
                 else {
@@ -375,7 +382,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
         }
     }
-    
+
     /**
      * randomizes the velocity of an atom in the given box using velocities
      * chosen form a Maxwell-Boltzmann distribution as in the Andersen 
