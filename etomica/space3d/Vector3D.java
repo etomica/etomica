@@ -187,6 +187,24 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
                 * ((Vector3D) u).z;
     }
 
+    /*
+     * Sets this vector to an arbitrary vector in the plane normal to the given vector.
+     * Does not normalize this vector on completion.  Assumes that the given vector is not identically zero.
+     */
+    public void setPerpendicularTo(IVector v) {
+        Vector3D v3 = (Vector3D)v;
+        if(v3.z != 0) {
+            x = v3.z;
+            y = v3.z;
+            z = -(v3.x + v3.y);
+        } else {
+            x = -(v3.y + v3.z);
+            y = v3.x;
+            z = v3.x;
+        }
+    }
+
+
     public void setX(int a, double d) {
         if (a == 0)
             x = d;
