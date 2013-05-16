@@ -317,7 +317,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     protected void randomLensPoint(IVector r1, IVector r2, Vector3D point) {
         r12.Ev1Mv2(r1, r2);  //separation vector
         double d = Math.sqrt(r12.squared()); //distance between spheres
-        randomLensPoint(d, standardLensPoint); //select point for two spheres in standard configuration and separated by this amount
+        randomLensPoint2(d, standardLensPoint); //select point for two spheres in standard configuration and separated by this amount
         r12.TE(1./d);//normalize
         normalVector.setPerpendicularTo(r12); 
         normalVector.normalize();
@@ -327,6 +327,23 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         point.PEa1Tv1(standardLensPoint.getX(1),normalVector);
         normalVector.XE(r12);
         point.PEa1Tv1(standardLensPoint.getX(2),normalVector);
+    }
+    
+    protected void randomLensPoint2(double d, Vector3D point) {
+
+        if(d > 2) throw new IllegalArgumentException("No overlap point if spheres are separated by a distance "+d);
+        double max0 = 2 - d;
+        double d24 = 1 - 0.25*d*d;
+        double max12 = 2*Math.sqrt(d24);
+        double x, y, z, q;
+        do {
+            x = max0*(random.nextFixedDouble()-0.5);
+            y = max12*(random.nextFixedDouble()-0.5);
+            z = max12*(random.nextFixedDouble()-0.5);
+            q = x*x + y*y + z*z - d24;
+        } while (d*x < q || -d*x < q);
+        
+        point.E(x, y, z);
     }
     
     /** 
@@ -351,16 +368,16 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         double x = H - h; //distance from center plane of sphere pair (origin)
         double xS = 1 - h; //distance from center of negative-x sphere
         if(random.nextFixedDouble() > 0.5) x = -x;
-        double circleRadius = Math.sqrt(1 - xS*xS);
+        double circleDiameter = 2*Math.sqrt(1 - xS*xS);
         
         double y, z;
         do {
-            y = 2.*random.nextDouble() - 1;
-            z = 2.*random.nextDouble() - 1;
-        } while(y*y + z*z > 1.0);
+            y = random.nextFixedDouble() - 0.5;
+            z = random.nextFixedDouble() - 0.5;
+        } while(y*y + z*z > 0.25);
         
-        y *= circleRadius;
-        z *= circleRadius;
+        y *= circleDiameter;
+        z *= circleDiameter;
 
         point.E(x, y, z);
         
@@ -856,7 +873,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         f.setMaximumFractionDigits(16);
         RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
         MCMoveClusterAtomHSRing move = new MCMoveClusterAtomHSRing(random,Space.getInstance(3), 1.0);
-        double d = 1.0;
+        double d = 0.7;
         Vector3D vector1 = (Vector3D)Space.makeVector(3);
         Vector3D vector2 = (Vector3D)Space.makeVector(3);
         Vector3D vector3 = (Vector3D)Space.makeVector(3);
