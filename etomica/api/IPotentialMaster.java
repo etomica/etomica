@@ -41,7 +41,7 @@ public interface IPotentialMaster {
 	 * is different from the length of the species array.  Thus, for example, if
 	 * giving a 2-body potential, then the array should contain exactly
 	 * two species; the species may refer to the same instance (appropriate for an 
-	 * intra-species potential, defining the iteractions between molecules of the
+	 * intra-species potential, defining the interactions between molecules of the
 	 * same species).
 	 */
 	public void addPotential(IPotentialMolecular potential, ISpecies[] species);
