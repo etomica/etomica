@@ -11,13 +11,32 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
+import etomica.space3d.Vector3D;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGeneratorUnix;
 
 public class MCMoveClusterAtomHSRing extends MCMoveAtom {
 
+    private static final int nLookUp = 5000;
+    private static final double[] lookUpL;
     protected final double biasdr;
+    private final Vector3D standardLensPoint, r12, normalVector;
+    
+    static {
+        lookUpL = new double[nLookUp];
+        for(int i=0; i<nLookUp; i++) {
+            double U = (double)(i+1)/nLookUp/1.5;
+            lookUpL[i] = lensRootExact(U);
+        }
+    }
+    
+    private static final double lensRootExact(double U) {
+        double theta = (Math.atan2((Math.sqrt(3)*Math.sqrt((4 - 3*U)*U)),(-2 + 3*U)))/3.;
+        return 1 + Math.cos(theta) - Math.sqrt(3)*Math.sin(theta);
+    }
+
     public MCMoveClusterAtomHSRing(IRandom random, ISpace _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
@@ -25,6 +44,9 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         axis0 = space.makeVector();
         axis1 = space.makeVector();
         axis2 = space.makeVector();
+        standardLensPoint = (Vector3D)space.makeVector();
+        r12 = (Vector3D)space.makeVector();
+        normalVector = (Vector3D)space.makeVector();
         rotTensor = new RotationTensor3D();
         double[] b = new double[]{0,1.1,0.9*1.19776,0.674043,0.543464,0.4489,0.381788,0.331708,0.29308,0.262442,0.237574};
         gaussPrefac = new double[b.length];
@@ -283,6 +305,83 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
 		((BoxCluster)box).trialNotify();
 		return true;
 	}
+    
+    /**
+     * Sets a given vector to a point chosen uniformly at random in the lens-shaped region
+     * formed by the overlap of two spheres of unit radius located at the given positions r1 and r2.
+     * @param r1 (input) position of one sphere
+     * @param r2 (input) position of other sphere
+     * @param point (output) random position selected in overlap of the given spheres
+     * @throws IllegalArgumentException if given spheres do not overlap
+     */
+    protected void randomLensPoint(IVector r1, IVector r2, Vector3D point) {
+        r12.Ev1Mv2(r1, r2);  //separation vector
+        double d = Math.sqrt(r12.squared()); //distance between spheres
+        randomLensPoint(d, standardLensPoint); //select point for two spheres in standard configuration and separated by this amount
+        r12.TE(1./d);//normalize
+        normalVector.setPerpendicularTo(r12); 
+        normalVector.normalize();
+        point.Ev1Pv2(r1,r2);
+        point.TE(0.5);//midpoint between spheres
+        point.PEa1Tv1(standardLensPoint.getX(0),r12);
+        point.PEa1Tv1(standardLensPoint.getX(1),normalVector);
+        normalVector.XE(r12);
+        point.PEa1Tv1(standardLensPoint.getX(2),normalVector);
+    }
+    
+    /** 
+     * Returns a randomly selected point from within the lens-shaped region of
+     * overlap of two spheres of unit radius separated by a distance d.  The positions
+     * of the spheres are on the x-axis, with the midpoint between them at the origin.
+     * 
+     * This is used to select a point where a third sphere could be positioned such that
+     * it would overlap the two others, with all having unit diameter.
+     * 
+     * @param d the distance between the spheres
+     * @param point (output) the randomly selected point
+     * @throws IllegalArgumentException if d > 2, corresponding to non-overlapping spheres
+     */
+    protected void randomLensPoint(double d, Vector3D point) {
+        
+        if(d > 2) throw new IllegalArgumentException("No overlap point if spheres are separated by a distance "+d);
+        
+        double H = 1.0 - 0.5*d; //distance from origin to tip of sphere
+        double U = random.nextFixedDouble() * H*H*(1.-H/3.);
+        double h = lensRoot(U); //randomly-selected distance from tip of sphere 
+        double x = H - h; //distance from center plane of sphere pair (origin)
+        double xS = 1 - h; //distance from center of negative-x sphere
+        if(random.nextFixedDouble() > 0.5) x = -x;
+        double circleRadius = Math.sqrt(1 - xS*xS);
+        
+        double y, z;
+        do {
+            y = 2.*random.nextDouble() - 1;
+            z = 2.*random.nextDouble() - 1;
+        } while(y*y + z*z > 1.0);
+        
+        y *= circleRadius;
+        z *= circleRadius;
+
+        point.E(x, y, z);
+        
+    }
+    
+    // desired root of a^2 - a^3/3 - U = 0, via look-up and Newton iteration
+    private static double lensRoot(double U) {
+        final double twoThirds = 2./3.; 
+        int iR = (int)Math.round(1.5*U*nLookUp)-1;
+        if(iR < 5) return lensRootExact(U);
+        if(iR == nLookUp) iR--;
+        double a = lookUpL[iR];
+
+        for(int i=0; i<3; i++) {
+            //a = (3*a*a - 2*a*a*a + 3*U)/(6*a - 3*a*a);
+            a = (a*a*(1 - twoThirds*a) + U)/((2 - a)*a);
+        }
+        return a;
+    }
+
+
 	
     /**
      * Normalized probability for the separation of the centers of two spheres located at the
@@ -327,11 +426,11 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                     rm3 = r - 3;
                     rm32 = rm3*rm3;
                     return (-11.645519426547745417 + rm3)*(2.9955737735903254375 + rm3)*
-                    (8.699501424572235734 + rm3)*(13.97637523661338622 + rm3)*
-                    (21.342480273228225428 + rm3)*(0.7342909491741547658 - 1.667110360558664731*rm3 + 
-                      rm32)*(1.0303848213615477176 - 1.5307636570742344459*rm3 + rm32)*
-                    (2.3897772117330571797 - 0.8886883892789973696*rm3 + rm32)*
-                    (15.643325581592968058 + 7.7181511254554691437*rm3 + rm32)/(r*fac5);
+                        (8.699501424572235734 + rm3)*(13.97637523661338622 + rm3)*
+                        (21.342480273228225428 + rm3)*(0.7342909491741547658 - 1.667110360558664731*rm3 + 
+                          rm32)*(1.0303848213615477176 - 1.5307636570742344459*rm3 + rm32)*
+                        (2.3897772117330571797 - 0.8886883892789973696*rm3 + rm32)*
+                        (15.643325581592968058 + 7.7181511254554691437*rm3 + rm32)/(r*fac5);
                 }
                 // 3 < r < 5
                 rm5 = r-5;
@@ -342,12 +441,12 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
             case 6:
                 if(r < 2) {
                     return 10*(-20.663272399445758108 + r)*(-12.670131734239847386 + r)*
-                    (8.5812267463490890752 + r)*(14.483969838752005272 + r)*(22.472894082217685734 + r)*
-                    (12.627138033294569079 - 7.0774518544647587239*r + r2)*
-                    (12.791198774472720108 - 6.8418369699588631093*r + r2)*
-                    (13.72421926822998938 - 6.1151889532396643285*r + r2)*
-                    (6.706456116575184131 + 3.6433022025736211298*r + r2)*
-                    (4.6778892336765258878 + 4.1864890414564904446*r + r2)/fac6;
+                        (8.5812267463490890752 + r)*(14.483969838752005272 + r)*(22.472894082217685734 + r)*
+                        (12.627138033294569079 - 7.0774518544647587239*r + r2)*
+                        (12.791198774472720108 - 6.8418369699588631093*r + r2)*
+                        (13.72421926822998938 - 6.1151889532396643285*r + r2)*
+                        (6.706456116575184131 + 3.6433022025736211298*r + r2)*
+                        (4.6778892336765258878 + 4.1864890414564904446*r + r2)/fac6;
                 }
                 if(r < 4) { 
                     rm4 = r - 4;
@@ -377,27 +476,27 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                 }
                 if(r < 3) {
                     return 7.5*(-24.499837185351812732 + r)*(-15.844913345579656722 + r)*
-                    (-5.0893323857263886304e-6 + r)*(7.877286483990656681 + r)*
-                    (13.136217777622784723 + r)*(19.559680644241281934 + r)*(28.211509940477606668 + r)*
-                    (21.151685853233686036 - 9.1828852083594505267*r + r2)*
-                    (21.171939154852635151 - 9.0498104825698319163*r + r2)*
-                    (21.213151779102138681 - 8.6773249347811283059*r + r2)*
-                    (22.077019818148285214 - 7.754572190491953564*r + r2)*
-                    (6.853422456448555975 + 2.8324263298735301241*r + r2)*
-                    (3.3173879467885562645 + 3.3922272602603593643*r + r2)/(r*fac7);
+                        (-5.0893323857263886304e-6 + r)*(7.877286483990656681 + r)*
+                        (13.136217777622784723 + r)*(19.559680644241281934 + r)*(28.211509940477606668 + r)*
+                        (21.151685853233686036 - 9.1828852083594505267*r + r2)*
+                        (21.171939154852635151 - 9.0498104825698319163*r + r2)*
+                        (21.213151779102138681 - 8.6773249347811283059*r + r2)*
+                        (22.077019818148285214 - 7.754572190491953564*r + r2)*
+                        (6.853422456448555975 + 2.8324263298735301241*r + r2)*
+                        (3.3173879467885562645 + 3.3922272602603593643*r + r2)/(r*fac7);
                 }
                 if(r < 5) {
                     rm5 = r - 5;
                     rm52 = rm5*rm5;
                     return -3*(-16.662749785120940509 + rm5)*(4.7346182598231468938 + rm5)*
-                    (9.6676685774179364482 + rm5)*(14.088235762311330519 + rm5)*
-                    (19.329584888899402107 + rm5)*(25.844788727614001316 + rm5)*
-                    (34.635638755071043307 + rm5)*(0.7866375529384692204 - 1.7543389558235202893*rm5 + 
-                      rm52)*(0.9068337796477158114 - 1.7165744412374368829*rm5 + rm52)*
-                    (1.2331424606740560288 - 1.6137441143881413453*rm5 + rm52)*
-                    (2.1089511465009502349 - 1.335509407147958674*rm5 + rm52)*
-                    (5.4502260558993646031 - 0.2430001912868617859*rm5 + rm52)*
-                    (27.11365482880402116 + 10.0253819238679988966*rm5 + rm52)/(r*fac7);
+                        (9.6676685774179364482 + rm5)*(14.088235762311330519 + rm5)*
+                        (19.329584888899402107 + rm5)*(25.844788727614001316 + rm5)*
+                        (34.635638755071043307 + rm5)*(0.7866375529384692204 - 1.7543389558235202893*rm5 + 
+                          rm52)*(0.9068337796477158114 - 1.7165744412374368829*rm5 + rm52)*
+                        (1.2331424606740560288 - 1.6137441143881413453*rm5 + rm52)*
+                        (2.1089511465009502349 - 1.335509407147958674*rm5 + rm52)*
+                        (5.4502260558993646031 - 0.2430001912868617859*rm5 + rm52)*
+                        (27.11365482880402116 + 10.0253819238679988966*rm5 + rm52)/(r*fac7);
                 }
                 // 5 < r < 7
                 double rm7n = (r-7)*(r-7);//(r-7)^2
@@ -432,16 +531,16 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                     rm6 = r - 6;
                     rm62 = rm6*rm6;
                     return -7*(-19.167762398755254177 + rm6)*(5.4699074502141796531 + rm6)*
-                    (10.221511396855285446 + rm6)*(14.445389836354267471 + rm6)*
-                    (19.27349980745107378 + rm6)*(24.993150191494885028 + rm6)*
-                    (32.026278513792358258 + rm6)*(41.40543904812347119 + rm6)*
-                    (0.805189915394450896 - 1.7805440363273398668*rm6 + rm62)*
-                    (0.8928448055378504483 - 1.7565486615630626029*rm6 + rm62)*
-                    (1.110713842408393392 - 1.696817723289354033*rm6 + rm62)*
-                    (1.5963919045924004093 - 1.5632022394127791114*rm6 + rm62)*
-                    (2.8355860775799921747 - 1.2193665640844762326*rm6 + rm62)*
-                    (7.466622130539541303 + 0.1041858474042261884*rm6 + rm62)*
-                    (34.399377457727163683 + 11.2448795317425190091*rm6 + rm62)/(fac8*r);
+                        (10.221511396855285446 + rm6)*(14.445389836354267471 + rm6)*
+                        (19.27349980745107378 + rm6)*(24.993150191494885028 + rm6)*
+                        (32.026278513792358258 + rm6)*(41.40543904812347119 + rm6)*
+                        (0.805189915394450896 - 1.7805440363273398668*rm6 + rm62)*
+                        (0.8928448055378504483 - 1.7565486615630626029*rm6 + rm62)*
+                        (1.110713842408393392 - 1.696817723289354033*rm6 + rm62)*
+                        (1.5963919045924004093 - 1.5632022394127791114*rm6 + rm62)*
+                        (2.8355860775799921747 - 1.2193665640844762326*rm6 + rm62)*
+                        (7.466622130539541303 + 0.1041858474042261884*rm6 + rm62)*
+                        (34.399377457727163683 + 11.2448795317425190091*rm6 + rm62)/(fac8*r);
                 }
                 // 6 < r < 8
                 rm8 = r - 8;
@@ -456,52 +555,52 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                 if(r < 1) {
                     double r4 = r2*r2;
                     return 70*(-1339.3818732572790373 + r2)*(-729.14612203399050417 + r2)*
-                    (-387.88675827067060694 + r2)*(-182.06453197357443423 + r2)*
-                    (247.85684584958031176 - 30.775584314506662372*r2 + r4)*
-                    (271.64253396599716354 - 26.122580680557891357*r2 + r4)*
-                    (339.79046405460486136 - 14.816743387077397169*r2 + r4)*
-                    (567.95216483585341562 + 10.194193917656533542*r2 + r4)/fac9;
+                        (-387.88675827067060694 + r2)*(-182.06453197357443423 + r2)*
+                        (247.85684584958031176 - 30.775584314506662372*r2 + r4)*
+                        (271.64253396599716354 - 26.122580680557891357*r2 + r4)*
+                        (339.79046405460486136 - 14.816743387077397169*r2 + r4)*
+                        (567.95216483585341562 + 10.194193917656533542*r2 + r4)/fac9;
                 }
                 if(r < 3) 
                     return -56*(-34.582311920734983338 + r)*(-24.992661957284416945 + r)*(-17.488028192734710061 + r)*
-                    (-1.383150155092837703e-9 + r)*(9.9641140191887944306 + r)*
-                    (15.275628751504522331 + r)*(21.325806539922672215 + r)*(28.648730386050029958 + r)*
-                    (38.325425823332099091 + r)*(28.562622189135126569 - 10.6719123338422403573*r + r2)*
-                    (28.70507115906184515 - 10.5541760339839146887*r + r2)*
-                    (29.05913903831001745 - 10.2731288535746689505*r + r2)*
-                    (29.910351008219846128 - 9.6992281634742121841*r + r2)*
-                    (33.109435948561163527 - 8.5253445394662507222*r + r2)*
-                    (15.602088411365139391 + 3.6984662028815353093*r + r2)*
-                    (8.74429031620716939 + 4.6043633640202096921*r + r2)*
-                    (6.459782693551278648 + 4.944256909578684375*r + r2)/(r*fac9);  
+                        (-1.383150155092837703e-9 + r)*(9.9641140191887944306 + r)*
+                        (15.275628751504522331 + r)*(21.325806539922672215 + r)*(28.648730386050029958 + r)*
+                        (38.325425823332099091 + r)*(28.562622189135126569 - 10.6719123338422403573*r + r2)*
+                        (28.70507115906184515 - 10.5541760339839146887*r + r2)*
+                        (29.05913903831001745 - 10.2731288535746689505*r + r2)*
+                        (29.910351008219846128 - 9.6992281634742121841*r + r2)*
+                        (33.109435948561163527 - 8.5253445394662507222*r + r2)*
+                        (15.602088411365139391 + 3.6984662028815353093*r + r2)*
+                        (8.74429031620716939 + 4.6043633640202096921*r + r2)*
+                        (6.459782693551278648 + 4.944256909578684375*r + r2)/(r*fac9);  
                 if(r < 5) 
                     return 28*(-32.102003289043321523 + r)*(-22.256513774013999868 + r)*
-                    (-0.019481535609513795422 + r)*(6.7554337530156031483 + r)*
-                    (11.394577631317107669 + r)*(16.590631798368255241 + r)*(22.666886952847596752 + r)*
-                    (30.066339108752666659 + r)*(39.853988094659807539 + r)*
-                    (44.413272765229737826 - 13.3228573032607344464*r + r2)*
-                    (44.361461572930625046 - 13.2657621038680272*r + r2)*
-                    (44.237151355715103365 - 13.1303141049877793058*r + r2)*
-                    (43.97780832824351715 - 12.8542250410841235126*r + r2)*
-                    (43.25042168424317674 - 12.2421269588397814766*r + r2)*
-                    (43.510305515279639999 - 10.9664711379826025195*r + r2)*
-                    (8.706003701431280234 + 1.1855700035587559181*r + r2)*
-                    (1.5885655973358157054 + 1.646327906170090721*r + r2)/(r*fac9);
+                        (-0.019481535609513795422 + r)*(6.7554337530156031483 + r)*
+                        (11.394577631317107669 + r)*(16.590631798368255241 + r)*(22.666886952847596752 + r)*
+                        (30.066339108752666659 + r)*(39.853988094659807539 + r)*
+                        (44.413272765229737826 - 13.3228573032607344464*r + r2)*
+                        (44.361461572930625046 - 13.2657621038680272*r + r2)*
+                        (44.237151355715103365 - 13.1303141049877793058*r + r2)*
+                        (43.97780832824351715 - 12.8542250410841235126*r + r2)*
+                        (43.25042168424317674 - 12.2421269588397814766*r + r2)*
+                        (43.510305515279639999 - 10.9664711379826025195*r + r2)*
+                        (8.706003701431280234 + 1.1855700035587559181*r + r2)*
+                        (1.5885655973358157054 + 1.646327906170090721*r + r2)/(r*fac9);
                 if(r < 7) {
                     double rm7 = r-7;
                     double rm72 = rm7*rm7;
                     return -8*(-21.671551106850203861 + rm7)*(6.1658351104757744729 + rm7)*
-                    (10.795082806936117749 + rm7)*(14.886690765689426014 + rm7)*
-                    (19.439779413793422907 + rm7)*(24.671973885987940333 + rm7)*
-                    (30.82512647015834664 + rm7)*(38.323916055253040191 + rm7)*
-                    (48.234343836705240945 + rm7)*(0.8204755636440703225 - 1.8009337679297521787*rm7 + 
-                      rm72)*(0.8875491280110375689 - 1.7846057971090110034*rm7 + rm72)*
-                    (1.045466534148576728 - 1.7461307819268706488*rm7 + rm72)*
-                    (1.3620925810392051405 - 1.6688498854814113808*rm7 + rm72)*
-                    (2.0261760129867730361 - 1.5061616285750895082*rm7 + rm72)*
-                    (3.6849852800828341851 - 1.0961867085438506639*rm7 + rm72)*
-                    (9.802984897298482732 + 0.4622105022694643882*rm7 + rm72)*
-                    (42.534612957672133683 + 12.4694608291474156047*rm7 + rm72)/(r*fac9);
+                        (10.795082806936117749 + rm7)*(14.886690765689426014 + rm7)*
+                        (19.439779413793422907 + rm7)*(24.671973885987940333 + rm7)*
+                        (30.82512647015834664 + rm7)*(38.323916055253040191 + rm7)*
+                        (48.234343836705240945 + rm7)*(0.8204755636440703225 - 1.8009337679297521787*rm7 + 
+                          rm72)*(0.8875491280110375689 - 1.7846057971090110034*rm7 + rm72)*
+                        (1.045466534148576728 - 1.7461307819268706488*rm7 + rm72)*
+                        (1.3620925810392051405 - 1.6688498854814113808*rm7 + rm72)*
+                        (2.0261760129867730361 - 1.5061616285750895082*rm7 + rm72)*
+                        (3.6849852800828341851 - 1.0961867085438506639*rm7 + rm72)*
+                        (9.802984897298482732 + 0.4622105022694643882*rm7 + rm72)*
+                        (42.534612957672133683 + 12.4694608291474156047*rm7 + rm72)/(r*fac9);
                 }
                 // (7 < r < 9)
                 double rm9 = r - 9;
@@ -557,20 +656,20 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                 if(r < 8) {
                     rm8 = r - 8;
                     rm82 = rm8*rm8;
-                return -9*(-24.174516096409674299 + rm8)*(6.8386234163115958519 + rm8)*
-                (11.380365980370445245 + rm8)*(15.379541701854251628 + rm8)*
-                (19.737652581491112093 + rm8)*(24.638107878947582499 + rm8)*
-                (30.2444382224183403 + rm8)*(36.792247977362783739 + rm8)*
-                (44.715010116238448113 + rm8)*(55.111387208307203333 + rm8)*
-                (0.8333065313057948019 - 1.8173616675857947139*rm8 + rm82)*
-                (0.8864369917459426455 - 1.8056861560167640538*rm8 + rm82)*
-                (1.0071149286455085158 - 1.7791532320571232352*rm8 + rm82)*
-                (1.2333222245296995433 - 1.7293665808953077083*rm8 + rm82)*
-                (1.6563519947115410641 - 1.6360801293141934015*rm8 + rm82)*
-                (2.5208398563960954861 - 1.4447080469488793034*rm8 + rm82)*
-                (4.6566996455212848487 - 0.9676064727655324345*rm8 + rm82)*
-                (12.456219501821072562 + 0.8288654241132394173*rm8 + rm82)*
-                (51.44744926980987549 + 13.688237874578266929*rm8 + rm82)/(r*fac10);
+                    return -9*(-24.174516096409674299 + rm8)*(6.8386234163115958519 + rm8)*
+                        (11.380365980370445245 + rm8)*(15.379541701854251628 + rm8)*
+                        (19.737652581491112093 + rm8)*(24.638107878947582499 + rm8)*
+                        (30.2444382224183403 + rm8)*(36.792247977362783739 + rm8)*
+                        (44.715010116238448113 + rm8)*(55.111387208307203333 + rm8)*
+                        (0.8333065313057948019 - 1.8173616675857947139*rm8 + rm82)*
+                        (0.8864369917459426455 - 1.8056861560167640538*rm8 + rm82)*
+                        (1.0071149286455085158 - 1.7791532320571232352*rm8 + rm82)*
+                        (1.2333222245296995433 - 1.7293665808953077083*rm8 + rm82)*
+                        (1.6563519947115410641 - 1.6360801293141934015*rm8 + rm82)*
+                        (2.5208398563960954861 - 1.4447080469488793034*rm8 + rm82)*
+                        (4.6566996455212848487 - 0.9676064727655324345*rm8 + rm82)*
+                        (12.456219501821072562 + 0.8288654241132394173*rm8 + rm82)*
+                        (51.44744926980987549 + 13.688237874578266929*rm8 + rm82)/(r*fac10);
                 }
                 // 8 < r < 10
                 double rm10n = r - 10;// (r-10)
@@ -735,7 +834,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         }
     }
     
-    public static void main(String[] args) {
+    private static void separationProbabilityTest() {
         double dr = 0.125;
         DecimalFormat myFormatter = new DecimalFormat();
         myFormatter.setMaximumFractionDigits(60);
@@ -750,6 +849,36 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
             System.out.println("}");
         }
         System.out.println("}");
-
+    }
+    
+    private static void lensPointTest() {
+        DecimalFormat f = new DecimalFormat();
+        f.setMaximumFractionDigits(16);
+        RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
+        MCMoveClusterAtomHSRing move = new MCMoveClusterAtomHSRing(random,Space.getInstance(3), 1.0);
+        double d = 1.0;
+        Vector3D vector1 = (Vector3D)Space.makeVector(3);
+        Vector3D vector2 = (Vector3D)Space.makeVector(3);
+        Vector3D vector3 = (Vector3D)Space.makeVector(3);
+        vector1.E(d/2,0,0);
+        vector2.E(-d/2,0,0);
+        int nTest = 10000;
+        System.out.print("points = {");
+        for(int i=0; i<nTest; i++) {
+            if(i>0) System.out.print(",");
+//            move.randomLensPoint(d, vector3);
+            move.randomLensPoint(vector1, vector2, vector3);
+            double r2 = vector3.Mv1Squared(vector1);
+            if(r2 > 1) System.out.println("r2: "+r2);
+            r2 = vector3.Mv1Squared(vector2);
+            if(r2 > 1) System.out.println("r2: "+r2);
+            System.out.print("{"+f.format(vector3.getX(0))+","+f.format(vector3.getX(1))+","+f.format(vector3.getX(2))+"}");
+        }
+        System.out.println("};");
+    }
+    
+    public static void main(String[] args) {
+        //separationProbabilityTest();
+        lensPointTest();
     }
 }
