@@ -36,6 +36,16 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         double theta = (Math.atan2((Math.sqrt(3)*Math.sqrt((4 - 3*U)*U)),(-2 + 3*U)))/3.;
         return 1 + Math.cos(theta) - Math.sqrt(3)*Math.sin(theta);
     }
+    
+    private static final double lensRootApprox(double U) {
+        double sqrtU = Math.sqrt(U);
+        return sqrtU*(1 + sqrtU*(0.16666666666666666 + 
+                sqrtU*(0.06944444444444445 + 
+                        sqrtU*(0.037037037037037035 + 
+                           sqrtU*(0.02228009259259259 + 
+                              sqrtU*(0.01440329218106996 + 
+                                 (0.009769643775720165 + (5*sqrtU)/729.)*sqrtU))))));
+    }
 
     public MCMoveClusterAtomHSRing(IRandom random, ISpace _space, double sigma) {
         super(random, null, _space);
@@ -386,11 +396,11 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     // desired root of a^2 - a^3/3 - U = 0, via look-up and Newton iteration
     private static double lensRoot(double U) {
         final double twoThirds = 2./3.; 
-        int iR = (int)Math.round(1.5*U*nLookUp)-1;
-        if(iR < 5) return lensRootExact(U);
+        int iR = (int)(Math.round(1.5*U*nLookUp)-1);
+        if(iR < 6) return lensRootApprox(U);
         if(iR == nLookUp) iR--;
+        
         double a = lookUpL[iR];
-
         for(int i=0; i<3; i++) {
             //a = (3*a*a - 2*a*a*a + 3*U)/(6*a - 3*a*a);
             a = (a*a*(1 - twoThirds*a) + U)/((2 - a)*a);
@@ -896,6 +906,25 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     
     public static void main(String[] args) {
         //separationProbabilityTest();
-        lensPointTest();
+        //lensPointTest();
+        
+        //test of lensRootApprox
+        double Umax = 2./3.;//5./1.5/nLookUp;
+        double nTest = 10000;
+        double maxErr = 0.0;
+        double UmaxErr = 0;
+        double sum = 0.0;
+        for(int i = 0; i < nTest; i++) {
+            double U = i*Umax/nTest;
+            double err = Math.abs(lensRootExact(U)-lensRoot(U));
+            if(err > maxErr) {
+                maxErr = err;
+                UmaxErr = U;
+            }
+            sum += Math.abs(err);
+            //System.out.println(U+" "+err);
+        }
+        System.out.println("max err: "+UmaxErr+" "+maxErr);
+        System.out.println("avg err: "+ (sum/nTest));
     }
 }
