@@ -27,6 +27,9 @@ public class ClusterWheatley implements ClusterAbstract {
     protected final byte[] outDegree;
     protected final int[] fullBondMask;
     protected final boolean[] cliqueSet;
+    protected int cliqueCount, eCliqueCount;
+    protected boolean precalcQ = true;
+    protected final int[] cliqueList;
 
     public ClusterWheatley(int nPoints, MayerFunction f) {
         this.n = nPoints;
@@ -42,6 +45,7 @@ public class ClusterWheatley implements ClusterAbstract {
         outDegree = new byte[n];
         fullBondMask = new int[nf];
         cliqueSet = new boolean[nf];
+        cliqueList = new int[nf];
     }
 
     public ClusterAbstract makeCopy() {
@@ -90,6 +94,7 @@ public class ClusterWheatley implements ClusterAbstract {
      */
     protected void calcFullFQ(BoxCluster box) {
         int nf = 1<<n;
+        eCliqueCount = 0;
         // generate all partitions and compute product of e-bonds for all pairs in partition
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
@@ -104,6 +109,7 @@ public class ClusterWheatley implements ClusterAbstract {
                 if ((l&i)==0) continue; //l is not in partition
                 fQ[i] *= fQ[l | j];
             }
+            if (fQ[i] != 0) eCliqueCount++;
         }
     }
 
@@ -142,6 +148,8 @@ public class ClusterWheatley implements ClusterAbstract {
         int maxEdges = n*(n-1)/2;
         if (edgeCount==maxEdges) {
             screened--;
+            cliqueCount = nf-n-(n*(n-1)/2);
+            calcFullFQ(box);
             return true;
         }
         if (edgeCount==maxEdges-1) return false;
@@ -154,6 +162,7 @@ public class ClusterWheatley implements ClusterAbstract {
         // the existence of a clique separator indicates that the value for
         // this configuration is zero.  Loop through all sets, considering
         // each as a clique separator.
+        cliqueCount = 0;
 iLoop:  for (int i=1; i<nf-3; i++) {
             int j = i & -i;//lowest bit in i
             if (i==j) {
@@ -181,7 +190,15 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 }
             }
             // i is a clique
-            if (cliqueCheck(i, nf-1)) return false;
+            if (cliqueCheck(i, nf-1)) {
+                return false;
+            }
+            cliqueList[cliqueCount] = i;
+            cliqueCount++;
+        }
+        
+        if (precalcQ) {
+            calcFullFQ(box);
         }
 
         screened--;
@@ -238,7 +255,9 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             value = 0;
             return;
         }
-        calcFullFQ(box);
+        if (!precalcQ) {
+            calcFullFQ(box);
+        }
 
         int nf = 1<<n;
         //Compute the fC's
@@ -416,6 +435,30 @@ iLoop:  for (int i=1; i<nf-3; i++) {
      */
     public int getEdgeCount() {
         return edgeCount;
+    }
+    
+    public int getCliqueCount() {
+        return cliqueCount;
+    }
+    
+    public int getECliqueCount() {
+        return eCliqueCount;
+    }
+    
+    public int[] getFullBondMask() {
+        return fullBondMask;
+    }
+    
+    public int[] getCliques() {
+        return cliqueList;
+    }
+    
+    /**
+     * Returns outDegee (number of bonds for each point) of the configuration
+     * passed to checkConfig
+     */
+    public byte[] getOutDegree() {
+        return outDegree;
     }
 
     protected long total, notzero, screened;
