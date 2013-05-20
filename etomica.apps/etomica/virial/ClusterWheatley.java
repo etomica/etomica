@@ -27,12 +27,6 @@ public class ClusterWheatley implements ClusterAbstract {
     protected final byte[] outDegree;
     protected final int[] fullBondMask;
     protected final boolean[] cliqueSet;
-    
-    protected final int[] nBonds;
-    protected final int[] nPts;
-    int bigSum1, bigSum2, count;
-    
-
 
     public ClusterWheatley(int nPoints, MayerFunction f) {
         this.n = nPoints;
@@ -40,8 +34,6 @@ public class ClusterWheatley implements ClusterAbstract {
         int nf = 1<<n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
-        nBonds = new int[nf];
-        nPts = new int[nf];
         for(int i=0; i<n; i++) {
             fQ[1<<i] = 1.0;
         }
@@ -111,28 +103,6 @@ public class ClusterWheatley implements ClusterAbstract {
             for (int l=(j<<1); l<i; l=(l<<1)) {
                 if ((l&i)==0) continue; //l is not in partition
                 fQ[i] *= fQ[l | j];
-                if(fQ[i] == 0) break;
-            }
-        }
-        
-        for (int i=3; i<nf; i++) {
-            nPts[i] = 1;
-            
-            int j = i & -i;//lowest bit in i
-            if (i==j) continue; // 1-point set
-            int k = i&~j; //strip j bit from i and set result to k
-            if (k == (k&-k)) {//2-point set
-                nPts[i] = 2;
-                nBonds[i] = fQ[k|j]==0 ? 1 : 0;//fQ is e-bond, so if zero it means f-bond is nonzero
-                continue;
-            }
-            nBonds[i] = nBonds[k];
-            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
-            //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            for (int l=(j<<1); l<i; l=(l<<1)) {
-                if ((l&i)==0) continue; //l is not in partition
-                nPts[i]++;
-                if(fQ[l | j] == 0) nBonds[i]++;
             }
         }
     }
@@ -297,9 +267,6 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }
         fA[1] = 0;
         fB[1] = fC[1];
-        int sum1 = 0;
-        int sum2 = 0;
-        int counter = 0;
         for (int i=3; i<nf; i+=2) {
             // every set will contain 1
             fA[i] = 0;
@@ -324,15 +291,10 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             }
             fB[i] -= fA[i];//remove from B graphs that contain articulation point at 0
         }
-        for(int i=0; i<nf; i++) {
-            if(fB[i]==0 && nPts[i] > 2) sum2++;
-            counter++;
-        }
 
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
             for (int i=vs1+1; i<nf; i++) {
-                boolean wasZero = fB[i] == 0;
                 fA[i] = 0;
 //                fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
                 //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
@@ -396,49 +358,9 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                     }
                 }
 
-                //if(fB[i]==0 && fA[i]!=0 && nPts[i]>2) System.out.println("fB went from zero to nonzero");
                 fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
-               // if(wasZero && fB[i]!=0 && nPts[i]>2) System.out.println("fB went from zero to nonzero");
-                
-                
             }
-            for(int i=0; i<nf; i++) {
-                if(fB[i]==0 && nPts[i] > 2) sum2++;
-                counter++;
-            }
-            for(int i=0; i<nf; i++) {
-//                if((nBonds[i]+1 < nPts[i]) && fC[i] != 0) {
-//                    System.out.println("problem with fC");
-//                }
-                if((nBonds[i]+1 < nPts[i]) && fB[i] != 0 && nPts[i] > 2) {
-                    System.out.println("problem with fB");
-                }
-//                if(fB[i]!=0 && fC[i] != 0 && nPts[i]>2) {
-//                    System.out.println("problem with fB relation to fC");
-//                }
-            }            
         }
-        
-        for(int i=0; i<nf; i++) {
-            if((nBonds[i]+1 < nPts[i]) && fC[i] != 0) {
-                System.out.println("problem with fC");
-            }
-            if((nBonds[i] < nPts[i]) && fB[i] != 0 && nPts[i] > 2) {
-                System.out.println("problem with fB");
-            }
-//            if(nBonds[i]+1 < nPts[i] && nPts[i] > 2) sum1++;
-//            if(nBonds[i] < nPts[i] && nPts[i] > 2) sum2++;
-            if(fC[i]==0 && nPts[i] > 2) sum1++;
-//            if(fB[i]==0 && nPts[i] > 2) sum2++;
-        }
-        bigSum1 += sum1;
-        bigSum2 += sum2;
-        count++;
-//        System.out.println(sum1+"\t"+sum2+"\t"+nf);
-        System.out.println(((double)(bigSum1)/nf/count)+"\t"+((double)(bigSum2)/nf/n/count)+"\t"+nf+"\t"+counter);
-
-
-        
 
         value = (1-n)*fB[nf-1]; ///SpecialFunctions.factorial(n);
         if (value != 0) {
