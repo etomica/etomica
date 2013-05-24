@@ -229,7 +229,6 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
                 } else {
                     nBonds[i] = 0;
                     sig[i] = 0;
-                    eCliqueCount++;// ***** ANDREW - I put this here but am not sure if it belongs
                 }
                 if(nPtsTabulated >= 2) {
                     fAValues[i] = fAList[2][sig[i]];
@@ -738,21 +737,23 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     public final class FrequencyCounter {
         final int n;
         final int nfreq;
-        final int ncull = 100;
+        int ncull = 100;
         final int[] sigs;
         final int[] freq;
         int counter = 0;
         int entries = 0;
         FrequencyCounter(int n, int nfreq) {
             if(nfreq < 0) nfreq = 0;
+            if (ncull > nfreq/2) ncull=nfreq/2;
             this.n = n;
             this.nfreq = nfreq;
             sigs = new int[nfreq];
             freq = new int[nfreq];
+            reset();
         }
         void reset() {
             for(int i=0; i<nfreq; i++) {
-                sigs[i] = 0;
+                sigs[i] = -1;
                 freq[i] = 0;
                 entries = 0;
                 counter = 0;
@@ -760,11 +761,6 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }
         void add(int sig) {
             counter++;
-            if(counter % (1000*nfreq) == 0) {
-                for(int k=0; k<ncull; k++) {
-                    cull();
-                }
-            }
             //look for instance
             for(int i=0; i<nfreq; i++) {
                 if(sigs[i] == sig) {
@@ -773,8 +769,13 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 }
             }
             //start a new instance
+            if (entries == nfreq) {
+                for(int k=0; k<ncull; k++) {
+                    cull();
+                }
+            }
             for(int i=0; i<nfreq; i++) {
-                if(sigs[i] == 0) {
+                if(sigs[i] < 0) {
                     sigs[i] = sig;
                     freq[i] = 1;
                     entries++;
@@ -788,12 +789,12 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             int min = Integer.MAX_VALUE;
             int imin = 0;
             for(int i=0; i<nfreq; i++) {
-                if(freq[i] < min && sigs[i] != 0) {
+                if(freq[i] < min && sigs[i] >= 0) {
                     imin = i;
                     min = freq[i];
                 }
             }
-            sigs[imin] = 0;
+            sigs[imin] = -1;
             freq[imin] = 0;
             entries--;
         }
@@ -811,7 +812,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             System.out.println("Signature frequencies for n = "+n);
             double[] fractions = getFractions();
             for(int i=0; i<nfreq; i++) {
-                if(sigs[i]!=0) System.out.println(sigs[i]+"\t"+fractions[i]);
+                if(freq[i]>1) System.out.println(String.format("%10d %7.5f %d", sigs[i], fractions[i], freq[i]));
             }
             System.out.println();
         }
