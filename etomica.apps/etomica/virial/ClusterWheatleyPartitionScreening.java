@@ -1,11 +1,12 @@
 package etomica.virial;
 
+import java.util.BitSet;
 import java.util.HashSet;
 
 import etomica.graph.model.Graph;
 import etomica.graph.model.impl.GraphImpl;
-import etomica.graph.operations.GraphOp.GraphOpNull;
 import etomica.graph.operations.MaxIsomorph;
+import etomica.graph.operations.GraphOp.GraphOpNull;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
 
 /**
@@ -16,7 +17,7 @@ import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
  */
 public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
 
-    protected final int n;
+    protected final int n, nf;
     protected final MayerFunction f;
     
     protected final double[] fQ, fC;
@@ -33,20 +34,81 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     
     protected final int[] nBonds;
     protected final int[] nPts;
+    protected final int[] vCount;
+    protected final int[] sig;
     long bigSum1, bigSum2, count, bigSumN, bigSumNCount;
+    public final static int[] fAVals = new int[13];
+    public final static int[] fBVals = new int[13];
 
-    protected static final boolean checkme = true;
+    protected final int[] zero = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+    protected final int[][][] fAList;
+//                                   = {{0},                      //0
+//                                      {0},                      //1
+//                                      {0},                      //2
+//                                      {0,+1, 1, 1},             //3
+//                                      {0,-4,-2, 0, 2},          //4
+//                                      {0,+18, 6, 0, 0, 6},      //5
+//                                      {0,-96,-24,0,0,0,24},     //6
+//                                      {0,+600,120,0,0,0,0,120},  //7
+//                                      {0,-4320,-720,0,0,0,0,0,720},//8
+//                                      {0,+35280,5040,0,0,0,0,0,0,5040},//9
+//                                      {0, -322560, -40320, 0, 0, 0, 0, 0, 0, 0, 40320},//10
+//                                      {0, 3265920, 362880, 0, 0, 0, 0, 0, 0, 0, 0, 362880},//11
+//                                      {0, -36288000, -3628800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3628800},//12
+//                                      {0,+439084800,39916800,0,0,0,0,0,0,0,0,0,0,39916800}//13
+//                                      };
+    protected final int[][][] fBList; 
+//                                   = {{0},                      //0
+//                                      {0},                      //1
+//                                      {0},                      //2
+//                                      {+2, 1, 0,-1},            //3
+//                                      {-6,-2, 0, 0,-2},         //4
+//                                      {+24, 6, 0, 0, 0,-6},      //5
+//                                      {-120,-24,0,0,0,0,-24},    //6
+//                                      {+720,+120,0,0,0,0,0,-120},//7
+//                                      {-5040,-720,0,0,0,0,0,0,-720},//8
+//                                      {+40320,+5040,0,0,0,0,0,0,0,-5040},//9
+//                                      {-362880, -40320, 0, 0, 0, 0, 0, 0, 0, 0, -40320},//10
+//                                      {3628800, 362880, 0, 0, 0, 0, 0, 0, 0, 0, 0, -362880},//11
+//                                      {-39916800, -3628800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3628800},//12    
+//                                      {479001600,+39916800,0,0,0,0,0,0,0,0,0,0,-39916800}//13
+//                                      };
+    protected final int[][] fCList;
+    
+    protected final int[][] fAValues, fBValues;
+    protected final int nPtsTabulated = 5;//tabulate fA,fB,fC values for all graphs up to this size
+    protected static final boolean checkme = false;
+    protected final boolean doStatistics = false;
+    public final FrequencyCounter[] sigCounter;
 
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
-        int nf = 1<<n;  // 2^n
+        nf = 1<<n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
         nBonds = new int[nf];
         nPts = new int[nf];
+        vCount = new int[nf];
+        fAValues = new int[nf][];
+        fBValues = new int[nf][];
+        sig = new int[nf];
+
+        if(doStatistics) {
+            sigCounter = new FrequencyCounter[n];
+            for(int i=1; i<=n; i++) {
+                sigCounter[i-1] = new FrequencyCounter(i, Math.min(2000, Math.abs(1<<nPairs(i))));
+            }
+        } else {
+            sigCounter = null;
+        }
+        
+        for(int i=1; i<nf; i++) {
+            nPts[i] = Integer.bitCount(i);
+        }
         for(int i=0; i<n; i++) {
             fQ[1<<i] = 1.0;
+            nBonds[1<<i] = 0;
         }
         fA = new double[nf];
         fB = new double[nf];
@@ -54,6 +116,59 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         fullBondMask = new int[nf];
         cliqueSet = new boolean[nf];
         cliqueList = new int[nf];
+        
+        fAList = new int[n+1][][];
+        fBList = new int[n+1][][];
+        fCList = new int[n+1][];
+        for(int np=2; np<=nPtsTabulated; np++) {
+            fAList[np] = new int[1<<nPairs(np)][np];
+            fBList[np] = new int[1<<nPairs(np)][np];
+            fCList[np] = new int[1<<nPairs(np)];
+        }
+        int sigMax = (1 << nPairs(nPtsTabulated));
+        int bond = 0;
+        int noBond = 1;
+        //construct table of fA, fB, and fC for each signature for each nPts being tabulated
+        for(int s=1; s<sigMax; s++) {//loop over signatures
+            for(int np=2; np<=nPtsTabulated; np++) {
+                if(s >= (1<<nPairs(np))) continue;//signature has more bonds than can be formed by np points
+                //construct bonds from signature
+                int bondBit = 1;
+                for(int j=(1<<(np-2)); j>0; j=(j>>1)) {
+                    for (int l=(j<<1); l<(1<<np); l=(l<<1)) {
+                        fQ[l | j] = ((s & bondBit) == bondBit) ? bond : noBond;
+                        bondBit = bondBit << 1;
+                    }
+                }
+
+                calcFullFQ(null);
+
+//                System.out.println(np+"\t"+s+"\t"+sig[(1<<np)-1]+"\t"+(s-sig[(1<<np)-1]));
+            
+                calcfC(false);
+                int i = (1<<np) - 1;
+                fCList[np][s] = (int)fC[i];
+                for(int v=0; v<np; v++) {
+                    calcfAB(v, false);
+                    fAList[np][s][v] = (int)fA[i];
+                    fBList[np][s][v] = (int)fB[i];
+                }//end of v-loop
+            }//end of np-loop
+        }//end of s-loop
+        if(checkme) System.out.println("Note -- checkme is true");
+        System.out.println("tabulation complete");
+//        System.exit(1);
+        
+        if(doStatistics) {
+            System.out.println("Note -- doStatistics is true");
+            for(int i=0; i<n; i++) {
+                sigCounter[i].reset();
+            }
+        }        
+   }
+    
+    private int nPairs(int nPts) {
+        return nPts*(nPts-1)/2;
     }
 
     public ClusterAbstract makeCopy() {
@@ -101,45 +216,58 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
      * already been populated.
      */
     protected void calcFullFQ(BoxCluster box) {
-        int nf = 1<<n;
         eCliqueCount = 0;
         // generate all partitions and compute product of e-bonds for all pairs in partition
+        
         for (int i=3; i<nf; i++) {
+            vCount[i] = 0;
+            if(nPts[i] == 1) continue;//1-point sets filled on construction
+            if(nPts[i] == 2) {// 2-point set fQ's were filled when bonds were computed, so skip
+                if(fQ[i] == 0) {
+                    nBonds[i] = 1;//fQ is e-bond, so if zero it means f-bond is nonzero
+                    sig[i] = 1;
+                } else {
+                    nBonds[i] = 0;
+                    sig[i] = 0;
+                    eCliqueCount++;// ***** ANDREW - I put this here but am not sure if it belongs
+                }
+                if(nPtsTabulated >= 2) {
+                    fAValues[i] = fAList[2][sig[i]];
+                    fBValues[i] = fBList[2][sig[i]];
+                    fC[i] = fCList[2][sig[i]];
+                }
+                if(doStatistics) sigCounter[1].add(sig[i]);
+                continue;               
+            }
             int j = i & -i;//lowest bit in i
-            if (i==j) continue; // 1-point set
             int k = i&~j; //strip j bit from i and set result to k
-            if (k == (k&-k)) continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
             fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
-            if (fQ[i] == 0) continue;
+            nBonds[i] = nBonds[k];
+            sig[i] = sig[k];
             //loop over pairs formed from j and each point in partition; multiply by bond for each pair
             //all such pairs will be with bits higher than j, as j is the lowest bit in i
+            
+            int bondBit = 0;
+            boolean doSig = (nPts[i] <= nPtsTabulated); 
+            if(doSig || doStatistics) bondBit = 1 << nPairs(nPts[k]);
             for (int l=(j<<1); l<i; l=(l<<1)) {
                 if ((l&i)==0) continue; //l is not in partition
                 fQ[i] *= fQ[l | j];
-                if(fQ[i] == 0) break;
+                if(fQ[l | j] == 0) {
+                    nBonds[i]++;
+                    if(doSig || doStatistics) sig[i] |= bondBit;
+                } 
+                if(doSig || doStatistics) bondBit = bondBit << 1;
             }
-        }
-        
-        for (int i=3; i<nf; i++) {
-            nPts[i] = 1;
+            if(doSig) {
+                fAValues[i] = fAList[nPts[i]][sig[i]];
+                fBValues[i] = fBList[nPts[i]][sig[i]];
+                fC[i] = fCList[nPts[i]][sig[i]];
+            }
             
-            int j = i & -i;//lowest bit in i
-            if (i==j) continue; // 1-point set
-            int k = i&~j; //strip j bit from i and set result to k
-            if (k == (k&-k)) {//2-point set
-                nPts[i] = 2;
-                nBonds[i] = fQ[k|j]==0 ? 1 : 0;//fQ is e-bond, so if zero it means f-bond is nonzero
-                continue;
-            }
-            nBonds[i] = nBonds[k];
-            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
-            //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            for (int l=(j<<1); l<i; l=(l<<1)) {
-                if ((l&i)==0) continue; //l is not in partition
-                nPts[i]++;
-                if(fQ[l | j] == 0) nBonds[i]++;
-            }
             if (fQ[i] != 0) eCliqueCount++;
+            
+            if(doStatistics) sigCounter[nPts[i]-1].add(sig[i]);
         }
     }
 
@@ -288,202 +416,32 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         if (!precalcQ) {
             calcFullFQ(box);
         }
-
-        int nf = 1<<n;
-        //Compute the fC's
-        for(int i=1; i<nf; i++) {
-            if (!checkme && nBonds[i]+1 < nPts[i]) {
-                fC[i] = 0;
-                continue;
-            }
-            fC[i] = fQ[i];
-            int iLowBit = i & -i;
-            int inc = iLowBit<<1;
-            for(int j=iLowBit; j<i; j+=inc) {
-                int jComp = i & ~j;
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^iLowBit;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                fC[i] -= fC[j] * fQ[jComp];//for fQ, flip the bits on j; use only those appearing in i
-            }
-        }
-
-        // find fA1
-        for (int i=2; i<nf; i+=2) {
-            // all even sets don't contain 1
-            fA[i] = 0;
-            fB[i] = fC[i];
-        }
-        fA[1] = 0;
-        fB[1] = fC[1];
+        
         int sum1 = 0;
         int sum2 = 0;
         int counter = 0;
-        for (int i=3; i<nf; i+=2) {
-            // every set will contain 1
-            fA[i] = 0;
-            fB[i] = fC[i];
-            if (!checkme && nBonds[i]+1 < nPts[i]) {
-                continue;
-            }
-            int ii = i - 1;//all bits in i but lowest
-            int iLow2Bit = (ii & -ii);//next lowest bit
-            int jBits = 1 | iLow2Bit;
-            if (jBits==i) continue;
-            //jBits has 1 and next lowest bit in i
-            int iii = ii ^ iLow2Bit;//i with 2 lowest bits off
-            int jInc = (iii & -iii);//3rd lowest bit, also increment for j
-            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
-                int jComp = (i & ~j); //subset of i complementing j
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^jBits;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                fA[i] += fB[j] * fC[jComp|1];
-            }
-            fB[i] -= fA[i];//remove from B graphs that contain articulation point at 0
-        }
-        if (checkme) {
-            for(int i=0; i<nf; i++) {
-                if(fB[i]==0 && nPts[i] > 2) sum2++;
-                counter++;
-            }
+
+        calcfC(true);
+        
+        for(int i=1; i<nf; i++) {
+            vCount[i] = 0;
         }
 
-        for (int v=1; v<n; v++) {
-            int vs1 = 1<<v;
-            for (int i=vs1+1; i<nf; i++) {
-                if (!checkme && nBonds[i]+1 < nPts[i]) {
-                    continue;
-                }
-//                boolean wasZero = fB[i] == 0;
-                fA[i] = 0;
-//                fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
-                //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
-                if ((i & vs1) == 0) continue;//if i doesn't contain v, fA and fB are done
-                int iLowBit = (i&-i);//lowest bit in i
-                if (iLowBit == i) { //lowest bit is only bit; fA and fB are done
-                    continue;
-                }
-                int jBits;
-                int ii = i ^ iLowBit;
-                int iLow2Bit = (ii & -ii);
-                if (iLowBit != vs1 && iLow2Bit != vs1) {
-                    //v is not in the lowest 2 bits
-                    // jBits is the lowest bit and v
-                    jBits = iLowBit | vs1;
-
-                    // we can only increment by the 2nd lowest
-                    int jInc = iLow2Bit;
-
-                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                        if ((j & jBits) != jBits) {
-                            //ensure jBits are in j
-                            j |= vs1;
-                            if (j==i) break;
-                        }
-                        int jComp = i & ~j;//subset of i complementing j
-                        while ((j|jComp) != i && j<i) {
-                            int jHighBits = j^jBits;
-                            int jlow = jHighBits & -jHighBits;
-                            j += jlow; // this might knock out the v bit
-                            j |= vs1;
-                            jComp = (i & ~j);
-                        }
-                        if (j==i) break;
-                        fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
-                    }
-                }
-                else {
-                    //lowest 2 bits contain v
-                    // jBits is the lowest 2 bits
-                    // we can start at jBits and increment by the 3rd lowest bit
-                    jBits = iLowBit | iLow2Bit;
-                    if (jBits == i) continue; // no bits left for jComp
-                    
-                    int iii = ii ^ iLow2Bit;
-                    int jInc = (iii & -iii);
-
-                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                        // start=jBits and jInc ensure that every set includes jBits
-                        int jComp = i & ~j;//subset of i complementing j
-                        while ((j|jComp) != i && j<i) {
-                            int jHighBits = j^jBits;
-                            int jlow = jHighBits & -jHighBits;
-                            j += jlow;
-                            jComp = (i & ~j);
-                        }
-                        if (j==i) break;
-                        fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
-                    }
-                }
-
-                //if(fB[i]==0 && fA[i]!=0 && nPts[i]>2) System.out.println("fB went from zero to nonzero");
-                fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
-               // if(wasZero && fB[i]!=0 && nPts[i]>2) System.out.println("fB went from zero to nonzero");
-                
-            }
-            if (checkme) {
+        for (int v=0; v<n; v++) {
+            calcfAB(v, true);
+            
+           if (checkme) {
                 for(int i=0; i<nf; i++) {
                     if(fB[i]==0 && nPts[i] > 2) sum2++;
                     counter++;
                 }
                 for(int i=0; i<nf; i++) {
-    //                if((nBonds[i]+1 < nPts[i]) && fC[i] != 0) {
-    //                    System.out.println("problem with fC");
-    //                }
-                    if((nBonds[i]+1 < nPts[i]) && fB[i] != 0 && nPts[i] > 2) {
-                        System.out.println("problem with fB");
-                    }
-    //                if(fB[i]!=0 && fC[i] != 0 && nPts[i]>2) {
-    //                    System.out.println("problem with fB relation to fC");
-    //                }
                 }
-            }
-        }
+            }//end of checkme
+        }//end of v-loop
         
-        if (checkme) {
-            long sumn = 0;
-            long nCount = 0;
-            for(int i=0; i<nf; i++) {
-                if (nPts[i]>2) {
-                    if (nBonds[i] < nPts[i]) {
-                        sumn += nPts[i];
-                        nCount++;
-                    }
-                }
-                if((nBonds[i]+1 < nPts[i]) && fC[i] != 0) {
-                    System.out.println("problem with fC");
-                }
-                if((nBonds[i] < nPts[i]) && fB[i] != 0 && nPts[i] > 2) {
-                    System.out.println("problem with fB");
-                }
-    //            if(nBonds[i]+1 < nPts[i] && nPts[i] > 2) sum1++;
-    //            if(nBonds[i] < nPts[i] && nPts[i] > 2) sum2++;
-                if(fC[i]==0 && nPts[i] > 2) sum1++;
-    //            if(fB[i]==0 && nPts[i] > 2) sum2++;
-            }
-            bigSum1 += sum1;
-            bigSum2 += sum2;
-            bigSumN += sumn;
-            bigSumNCount += nCount;
-            count++;
-    //        System.out.println(sum1+"\t"+sum2+"\t"+nf);
-            System.out.println(((double)(bigSum1)/nf/count)+"\t"+((double)(bigSum2)/nf/n/count)+"\t"+((double)bigSumN)/(bigSumNCount)+"\t"+nf+"\t"+counter);
-        }
+        value = (1-n)*fB[nf-1];
 
-        
-
-        value = (1-n)*fB[nf-1]; ///SpecialFunctions.factorial(n);
         if (value != 0) {
             notzero++;
             // disable check above and then enable this to see if non-zero
@@ -527,6 +485,186 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                     System.out.print(ss+",");
                 }
                 System.out.println();
+            }
+        }
+    }
+    
+    protected final void calcfC(final boolean useTable) {
+
+        for(int i=1; i<nf; i++) {
+            if(fBValues[i] != null & useTable) {
+                continue;//fC was set in calcFullFQ
+            }
+            
+            fC[i] = fQ[i];
+            int iLowBit = i & -i;
+            int inc = iLowBit<<1;
+            for(int j=iLowBit; j<i; j+=inc) {
+                int jComp = i & ~j;
+                while ((j|jComp) != i && j<i) {
+                    int jHighBits = j^iLowBit;
+                    int jlow = jHighBits & -jHighBits;
+                    j += jlow;
+                    jComp = (i & ~j);
+                }
+                if (j==i) break;
+                fC[i] -= fC[j] * fQ[jComp];//for fQ, flip the bits on j; use only those appearing in i
+            }
+        }
+    }
+    
+    protected final void calcfAB(int v, final boolean useTable) {
+        
+        if(v == 0) {
+            if(checkme && useTable) {
+                calcfAB0(false);
+                for(int i=1; i<nf; i++) {
+                    if(fAValues[i] != null) {
+                        int fATable = (i%2==1) ? fAValues[i][vCount[i]] : 0;
+                        int fBTable = (i%2==1) ? fBValues[i][vCount[i]++] : (int)fC[i];
+                        int fAerr = (int)(fA[i]-fATable);
+                        int fBerr = (int)(fB[i]-fBTable);
+                        if(fAerr != 0 || fBerr != 0) System.out.println(v+"\t"+i+"\t"+(int)fA[i]+"\t"+fATable+"\t"+fAerr+"\t"+(int)fB[i]+"\t"+fBTable+"\t"+fBerr);
+                    }
+                }
+                return;
+            }
+            
+            calcfAB0(useTable);
+            return;
+        }
+
+        int vs1 = 1<<v;
+        for (int i=vs1+1; i<nf; i++) {
+            
+//          fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
+            //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
+            if ((i & vs1) == 0) {
+                fA[i] = 0;
+                continue;//if i doesn't contain v, fA and fB are done
+            }
+            
+            if(fAValues[i] != null & useTable) {
+                if(checkme) {
+                    calcfAB(vs1, i);
+                    int fAerr = (int)(fA[i]-fAValues[i][vCount[i]]);
+                    int fBerr = (int)(fB[i]-fBValues[i][vCount[i]]);
+                    if(fAerr != 0 || fBerr != 0) System.out.println(v+"\t"+i+"\t"+(int)fA[i]+"\t"+fAValues[i][vCount[i]]+"\t"+fAerr+"\t"+(int)fB[i]+"\t"+fBValues[i][vCount[i]]+"\t"+fBerr);
+                }
+                fA[i] = fAValues[i][vCount[i]];
+                fB[i] = fBValues[i][vCount[i]];
+                vCount[i]++;
+            } else {
+                calcfAB(vs1, i);
+            }
+
+        }//end of i-loop
+    }
+
+    //used only by calcfAB (note that this takes vs1 and other calcfAB takes v)
+    protected final void calcfAB(int vs1, int i) {
+        
+        fA[i] = 0;
+        int iLowBit = (i&-i);//lowest bit in i
+        if (iLowBit == i) { //lowest bit is only bit; fA and fB are done
+            return;
+        }
+        int jBits;
+        int ii = i ^ iLowBit;
+        int iLow2Bit = (ii & -ii);
+        if (iLowBit != vs1 && iLow2Bit != vs1) {
+            //v is not in the lowest 2 bits
+            // jBits is the lowest bit and v
+            jBits = iLowBit | vs1;
+
+            // we can only increment by the 2nd lowest
+            int jInc = iLow2Bit;
+
+            //at this point jBits has (lowest bit + v) or (v + next lowest bit)
+            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
+                if ((j & jBits) != jBits) {
+                    //ensure jBits are in j
+                    j |= vs1;
+                    if (j==i) break;
+                }
+                int jComp = i & ~j;//subset of i complementing j
+                while ((j|jComp) != i && j<i) {
+                    int jHighBits = j^jBits;
+                    int jlow = jHighBits & -jHighBits;
+                    j += jlow; // this might knock out the v bit
+                    j |= vs1;
+                    jComp = (i & ~j);
+                }
+                if (j==i) break;
+                fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
+            }
+        } 
+        else {
+            //lowest 2 bits contain v
+            // jBits is the lowest 2 bits
+            // we can start at jBits and increment by the 3rd lowest bit
+            jBits = iLowBit | iLow2Bit;
+            if (jBits == i) return; // no bits left for jComp
+            
+            int iii = ii ^ iLow2Bit;
+            int jInc = (iii & -iii);
+
+            //at this point jBits has (lowest bit + v) or (v + next lowest bit)
+            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
+                // start=jBits and jInc ensure that every set includes jBits
+                int jComp = i & ~j;//subset of i complementing j
+                while ((j|jComp) != i && j<i) {
+                    int jHighBits = j^jBits;
+                    int jlow = jHighBits & -jHighBits;
+                    j += jlow;
+                    jComp = (i & ~j);
+                }
+                if (j==i) break;
+                fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
+            }
+        }
+        fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
+    }
+    
+    protected final void calcfAB0(final boolean useTable) {
+
+        for (int i=2; i<nf; i+=2) {
+            // all even sets don't contain 1
+            fA[i] = 0;
+            fB[i] = fC[i];
+        }
+
+        fA[1] = 0;
+        fB[1] = fC[1];
+        for (int i=3; i<nf; i+=2) {
+            // every set will contain 1
+            if(fAValues[i] != null && useTable) {
+                fA[i] = fAValues[i][0];
+                fB[i] = fBValues[i][0];
+                vCount[i] = 1;
+            } else {
+                fA[i] = 0;
+                fB[i] = fC[i];
+    
+                int ii = i - 1;//all bits in i but lowest
+                int iLow2Bit = (ii & -ii);//next lowest bit
+                int jBits = 1 | iLow2Bit;
+                if (jBits==i) continue;
+                //jBits has 1 and next lowest bit in i
+                int iii = ii ^ iLow2Bit;//i with 2 lowest bits off
+                int jInc = (iii & -iii);//3rd lowest bit, also increment for j
+                for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
+                    int jComp = (i & ~j); //subset of i complementing j
+                    while ((j|jComp) != i && j<i) {
+                        int jHighBits = j^jBits;
+                        int jlow = jHighBits & -jHighBits;
+                        j += jlow;
+                        jComp = (i & ~j);
+                    }
+                    if (j==i) break;
+                    fA[i] += fB[j] * fC[jComp|1];
+                }
+                fB[i] -= fA[i];//remove from B graphs that contain articulation point at 0
             }
         }
     }
@@ -579,8 +717,141 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             }
         }
     }
+    
+    //for development purposes.  Configure bonds by hand.
+    protected void updateF() {
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                fQ[(1<<i)|(1<<j)] = 0.0;//f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
+            }
+        }
+        fQ[(1<<2)|(1<<0)] = 1.0;
+        fQ[(1<<0)|(1<<1)] = 1.0;
+        fQ[(1<<1)|(1<<2)] = 1.0;
+    }
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
     }
+    
+    //class used to track the frequency of occurrence of graph signatures
+    public final class FrequencyCounter {
+        final int n;
+        final int nfreq;
+        final int ncull = 100;
+        final int[] sigs;
+        final int[] freq;
+        int counter = 0;
+        int entries = 0;
+        FrequencyCounter(int n, int nfreq) {
+            if(nfreq < 0) nfreq = 0;
+            this.n = n;
+            this.nfreq = nfreq;
+            sigs = new int[nfreq];
+            freq = new int[nfreq];
+        }
+        void reset() {
+            for(int i=0; i<nfreq; i++) {
+                sigs[i] = 0;
+                freq[i] = 0;
+                entries = 0;
+                counter = 0;
+            }
+        }
+        void add(int sig) {
+            counter++;
+            if(counter % (1000*nfreq) == 0) {
+                for(int k=0; k<ncull; k++) {
+                    cull();
+                }
+            }
+            //look for instance
+            for(int i=0; i<nfreq; i++) {
+                if(sigs[i] == sig) {
+                    freq[i]++;
+                    return;
+                }
+            }
+            //start a new instance
+            for(int i=0; i<nfreq; i++) {
+                if(sigs[i] == 0) {
+                    sigs[i] = sig;
+                    freq[i] = 1;
+                    entries++;
+                    return;
+                }
+            }
+        }
+        //method to remove low-frequency entries, if frequency array is filled
+        void cull() {
+            if(entries < nfreq-ncull) return;//no need to cull if there's still more empty slots than targeted buffer size
+            int min = Integer.MAX_VALUE;
+            int imin = 0;
+            for(int i=0; i<nfreq; i++) {
+                if(freq[i] < min && sigs[i] != 0) {
+                    imin = i;
+                    min = freq[i];
+                }
+            }
+            sigs[imin] = 0;
+            freq[imin] = 0;
+            entries--;
+        }
+        double[] getFractions() {
+            double[] fracs = new double[nfreq];
+            for(int i=0; i<nfreq; i++) {
+                fracs[i] = (double)freq[i]/counter;
+            }
+            return fracs;
+        }
+        int[] getSigs() {
+            return sigs;
+        }
+        public void print() {
+            System.out.println("Signature frequencies for n = "+n);
+            double[] fractions = getFractions();
+            for(int i=0; i<nfreq; i++) {
+                if(sigs[i]!=0) System.out.println(sigs[i]+"\t"+fractions[i]);
+            }
+            System.out.println();
+        }
+        public double fractionTabulated() {
+            int sum = 0;
+            for(int i=0; i<nfreq; i++) {
+                sum += freq[i];
+            }
+            return (double)sum/counter;
+        }
+        public int getn() {
+            return n;
+        }
+        public int getEntries() {
+            return entries;
+        }
+    }
+    
+    public static void main(String[] args) {
+        int n = 6;
+        BitSet bits = new BitSet(20);
+        bits.set(5);
+        bits.set(15);
+        long i = (1<<5) | (1L<<63);
+        System.out.println(Long.toBinaryString(i));
+        System.out.println(bits.toString());
+        ClusterWheatleyPartitionScreening cw = new ClusterWheatleyPartitionScreening(n, null);
+        cw.updateF();
+        cw.calcFullFQ(null);
+        cw.calcValue(null, false);
+//        for(int k=0; k<=n; k++) {
+//            System.out.print(fAVals[k]);
+//            if(k<n) System.out.print(", ");
+//        }
+//        System.out.println();
+//        for(int k=0; k<=n; k++) {
+//            System.out.print(fBVals[k]);
+//            if(k<n) System.out.print(", ");
+//        }
+        
+    }
 }
+
