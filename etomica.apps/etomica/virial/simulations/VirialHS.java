@@ -17,10 +17,10 @@ import etomica.graph.model.Graph;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.AllIsomorphs;
-import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
+import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
 import etomica.graph.property.IsFFT;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
@@ -37,16 +37,16 @@ import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
-import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChain;
+import etomica.virial.ClusterChainWheatley;
 import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterPY;
 import etomica.virial.ClusterSinglyConnected;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWheatley;
+import etomica.virial.ClusterWheatleyPartitionScreening;
 import etomica.virial.MCMoveClusterAtomHSChain;
 import etomica.virial.MCMoveClusterAtomHSTree;
 import etomica.virial.MayerHardSphere;
@@ -93,7 +93,7 @@ public class VirialHS {
         diagrams.setDoShortcut(true);
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHS);
-        ClusterAbstract targetCluster = new ClusterWheatley(nPoints, fRef);
+        ClusterAbstract targetCluster = new ClusterWheatleyPartitionScreening(nPoints, fRef);
         Set<Graph> myGraphs = new HashSet<Graph>();
         if (subtractGraphs == VirialHSParam.PY || subtractGraphs == VirialHSParam.ICPY) {
             System.out.println("Computing "+(subtractGraphs==VirialHSParam.ICPY ? "incremental":"")+" correction to PY");
@@ -145,8 +145,8 @@ public class VirialHS {
         }
         else {
             System.out.println("using a chain reference");
-            refCluster = new ClusterChain(nPoints, fRef);
-            numDiagrams = ((ClusterChain)refCluster).numDiagrams();
+            refCluster = new ClusterChainWheatley(nPoints, fRef);
+            numDiagrams = ((ClusterChainWheatley)refCluster).numDiagrams();
         }
         refCluster.setTemperature(1.0);
 
@@ -225,17 +225,26 @@ public class VirialHS {
         
         sim.printResults(refIntegral*numDiagrams);
         System.out.println("time: "+(t2-t1)/1000.0);
+        
+        ClusterWheatleyPartitionScreening tc = (ClusterWheatleyPartitionScreening)targetCluster;
+        if(tc.sigCounter != null) {
+            tc.sigCounter[nPoints-1].print();
+            System.out.println("Fraction tabulated for each n");
+            for(int i=0; i<nPoints; i++) {
+                System.out.println(tc.sigCounter[i].getn()+"\t"+tc.sigCounter[i].fractionTabulated()+"\t"+tc.sigCounter[i].getEntries());
+            }
+        }
     }
 
     /**
      * Inner class for parameters
      */
     public static class VirialHSParam extends ParameterBase {
-        public int nPoints = 2;
-        public long numSteps = 10000000;
-        public int ref = 0;
+        public int nPoints = 8;
+        public long numSteps = 1000000;
+        public int ref = 1;
         public static final int TREE = 0, CHAINS = 1;
-        public int subtractGraphs = 5;
+        public int subtractGraphs = 0;
         public static final int NONE = 0, RINGS = 1, FFT = 2, PY = 3, ICPY = 4, PY2 = 5;
     }
 }
