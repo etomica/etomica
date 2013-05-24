@@ -17,10 +17,10 @@ import etomica.graph.model.Graph;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.AllIsomorphs;
+import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.AllIsomorphs.AllIsomorphsParameters;
 import etomica.graph.property.IsFFT;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
@@ -37,11 +37,11 @@ import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
+import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.Constants.CompassDirection;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChainWheatley;
+import etomica.virial.ClusterChain;
 import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterPY;
 import etomica.virial.ClusterSinglyConnected;
@@ -145,8 +145,8 @@ public class VirialHS {
         }
         else {
             System.out.println("using a chain reference");
-            refCluster = new ClusterChainWheatley(nPoints, fRef);
-            numDiagrams = ((ClusterChainWheatley)refCluster).numDiagrams();
+            refCluster = new ClusterChain(nPoints, fRef);
+            numDiagrams = ((ClusterChain)refCluster).numDiagrams();
         }
         refCluster.setTemperature(1.0);
 
