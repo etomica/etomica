@@ -392,7 +392,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         for (int i=0; i<n; i++) {
             outDegree[i] = 0;
         }
-        int nf = 1<<n;
+
         for (int i=0; i<nf; i++) {
             fullBondMask[i] = 0;
         }
