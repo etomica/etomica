@@ -637,9 +637,10 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             
             int[] iPartitions = vPartitions[i];            
             if (iPartitions == null) {
-                //if i doesn't contain v, or has too few vertices, fA and fB are done
+                //i doesn't contain v, or has too few vertices
                 fA[i] = 0;
                 fAB[i] = fB[i];
+                //fB is unchanged
                 continue;
                 //need not concern about bypassing vCount increment, because
                 //iPartitions==null means v is not in i, or nPts < 3
@@ -672,9 +673,8 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                     if(fAerr != 0 || fABerr != 0) System.out.println(v+"\t"+i+"\t"+(int)fA[i]+"\t"+fATable+"\t"+fAerr+"\t"+(int)fAB[i]+"\t"+fABTable+"\t"+fABerr+"\t"+(int)fB[i]+"\t"+fBTable+"\t"+fBerr);
                     vCount[i]++;
                 }//end if(checkme)
-                
-                fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
             }//end if
+            fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
 
         }//end of i-loop
     }
