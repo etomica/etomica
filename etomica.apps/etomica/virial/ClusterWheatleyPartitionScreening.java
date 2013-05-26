@@ -46,7 +46,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     protected final int[] allZero;
     
     protected final int[][] fAValues, fABValues;
-    protected final int nPtsTabulated = 5;//tabulate fA,fAB,fC values for all graphs up to this size
+    protected final int nPtsTabulated;//tabulate fA,fAB,fC values for all graphs up to this size
     protected static final boolean checkme = false;
     protected final boolean doStatistics = false;
     public final FrequencyCounter[] sigCounter;
@@ -54,6 +54,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
+        nPtsTabulated = nPoints > 5 ? 5 : nPoints;
         nf = 1<<n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
@@ -92,9 +93,9 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         partitions = new int[n][nf][];
         computePartitions();
         
-        fAList = new int[n][][];
-        fABList = new int[n][][];
-        fCList = new int[n][];
+        fAList = new int[n+1][][];
+        fABList = new int[n+1][][];
+        fCList = new int[n+1][];
         computefTables();
         
         if(checkme) System.out.println("Note -- checkme is true");
