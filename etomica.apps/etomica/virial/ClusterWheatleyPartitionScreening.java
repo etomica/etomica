@@ -52,9 +52,13 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     public final FrequencyCounter[] sigCounter;
 
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f) {
+        this(nPoints, f, 5);
+    }
+
+    public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f, int nPtsTabulated) {
         this.n = nPoints;
         this.f = f;
-        nPtsTabulated = nPoints > 5 ? 5 : nPoints;
+        this.nPtsTabulated = nPoints > nPtsTabulated ? nPtsTabulated : nPoints;
         nf = 1<<n;  // 2^n
         fQ = new double[nf];
         fC = new double[nf];
