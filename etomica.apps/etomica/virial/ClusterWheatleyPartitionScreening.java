@@ -21,8 +21,8 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     protected final int n, nf;
     protected final MayerFunction f;
     
-    protected final double[] fQ, fC;
-    protected final double[] fA, fB, fAB;
+    protected final byte[] fQ;
+    protected final int[] fA, fB, fAB, fC;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
@@ -57,11 +57,12 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
 
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f, int nPtsTabulated) {
         this.n = nPoints;
+        if(nPoints > 13) throw new IllegalArgumentException("fA, fB, etc need to be long instead of int for nPoints > 13");
         this.f = f;
         this.nPtsTabulated = nPoints > nPtsTabulated ? nPtsTabulated : nPoints;
         nf = 1<<n;  // 2^n
-        fQ = new double[nf];
-        fC = new double[nf];
+        fQ = new byte[nf];
+        fC = new int[nf];
         nBonds = new int[nf];
         nPts = new int[nf];
         vCount = new int[nf];
@@ -83,12 +84,12 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
             nPts[i] = Integer.bitCount(i);
         }
         for(int i=0; i<n; i++) {
-            fQ[1<<i] = 1.0;
+            fQ[1<<i] = 1;
             nBonds[1<<i] = 0;
         }
-        fA = new double[nf];
-        fB = new double[nf];
-        fAB = new double[nf];
+        fA = new int[nf];
+        fB = new int[nf];
+        fAB = new int[nf];
         outDegree = new byte[n];
         fullBondMask = new int[nf];
         cliqueSet = new boolean[nf];
@@ -210,8 +211,8 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
             fCList[np] = new int[1<<nPairs(np)];
         }
         int sigMax = (1 << nPairs(nPtsTabulated));
-        int bond = 0;
-        int noBond = 1;
+        byte bond = 0;
+        byte noBond = 1;
         long nDuplicate = 0;
         long nArrays = 0;
         //construct table of fA, fB, and fC for each signature for each nPts being tabulated
@@ -368,7 +369,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
             if(nBonds[i]+1 < nPts[i]) {
                 fAValues[i] = allZero;
                 fABValues[i] = allZero;
-                fC[i] = 0.0;
+                fC[i] = 0;
             } else if(doSig) {
                 fAValues[i] = fAList[nPts[i]][sig[i]];
                 fABValues[i] = fABList[nPts[i]][sig[i]];
@@ -378,6 +379,17 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
                 fABValues[i] = null;
             }
             
+            if(doStatistics) {
+                if(fQ[i]!=0 && fQ[i]!=1) System.out.println("unexpected fQ:"+fQ[i]);
+                if(maxC < Math.abs(fC[i])) {
+                    maxC = (long)Math.max(maxC, Math.abs(fC[i]));
+                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                }
+                if(maxQ < Math.abs(fQ[i])) {
+                    maxQ = (long)Math.max(maxQ, Math.abs(fQ[i]));
+                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                }
+            }
             if (fQ[i] != 0) eCliqueCount++;
             
             if(doStatistics) sigCounter[nPts[i]-1].add(sig[i]);
@@ -609,10 +621,18 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 }
                 if (j==i) break;
                 fC[i] -= fC[j] * fQ[jComp];//for fQ, flip the bits on j; use only those appearing in i
+                
+                if(doStatistics) {
+                    if(maxC < Math.abs(fC[i])) {
+                        maxC = (long)Math.max(maxC, Math.abs(fC[i]));
+                        System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                    }
+                }
             }
         }
     }
     
+    long maxA, maxB, maxAB, maxC, maxQ;
     protected final void calcfAB(int v, final boolean useTable) {
         
         if(v == 0) {
@@ -679,7 +699,15 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 }//end if(checkme)
             }//end if
             fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
-
+            
+            if(doStatistics) {
+                if(maxA < Math.abs(fA[i]) || maxB < Math.abs(fB[i]) || maxAB < Math.abs(fAB[i])) {
+                    maxA = (long)Math.max(maxA, Math.abs(fA[i]));
+                    maxB = (long)Math.max(maxB, Math.abs(fB[i]));
+                    maxAB = (long)Math.max(maxAB,Math.abs(fA[i]+fB[i]));
+                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                }
+            }
         }//end of i-loop
     }
 
@@ -713,7 +741,17 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             }
             fAB[i] = fC[i];
             fB[i] = fAB[i] - fA[i];//B is connected graphs that do not contain articulation point at 0
+
+            if(doStatistics) {
+                if(maxA < Math.abs(fA[i]) || maxB < Math.abs(fB[i]) || maxAB < Math.abs(fAB[i])) {
+                    maxA = (long)Math.max(maxA, Math.abs(fA[i]));
+                    maxB = (long)Math.max(maxB, Math.abs(fB[i]));
+                    maxAB = (long)Math.max(maxAB,Math.abs(fA[i]+fB[i]));
+                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                }
+            }
         }
+
     }
     
     /**
@@ -760,7 +798,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                fQ[(1<<i)|(1<<j)] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
+                fQ[(1<<i)|(1<<j)] = (byte)(f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1);
             }
         }
     }
@@ -769,12 +807,12 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     protected void updateF() {
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                fQ[(1<<i)|(1<<j)] = 0.0;//f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
+                fQ[(1<<i)|(1<<j)] = 0;//f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
             }
         }
-        fQ[(1<<2)|(1<<0)] = 1.0;
-        fQ[(1<<0)|(1<<1)] = 1.0;
-        fQ[(1<<1)|(1<<2)] = 1.0;
+        fQ[(1<<2)|(1<<0)] = 1;
+        fQ[(1<<0)|(1<<1)] = 1;
+        fQ[(1<<1)|(1<<2)] = 1;
     }
 
     public void setTemperature(double temperature) {
