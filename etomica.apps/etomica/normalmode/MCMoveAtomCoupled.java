@@ -38,10 +38,11 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
     protected double uNew;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected IPotentialAtomic pairPotential;
+    protected IPotentialAtomic [] pairPotential;
     protected final AtomPair pair;
     protected final AtomSetSinglet atomSinglet;
-    protected boolean doExcludeNonNeighbors, doIncludePair;
+    protected boolean doExcludeNonNeighbors;
+    protected int pairPotentialIndex;
     protected IPotentialAtomic constraintPotential;
 
     public MCMoveAtomCoupled(IPotentialMaster potentialMaster, MeterPotentialEnergy energyMeter,
@@ -61,12 +62,16 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
         pair = new AtomPair();
         atomSinglet = new AtomSetSinglet();
+        
+        setPotential(new IPotentialAtomic[0]);
     }
     
-    public void setPotential(IPotentialAtomic newPotential) {
-        if (newPotential.nBody() != 2) {
-            throw new RuntimeException("must be a 2-body potential");
-        }
+    public void setPotential(IPotentialAtomic[] newPotential) {
+    	for(int i=0;i<newPotential.length;i++){
+    		if (newPotential[i].nBody() != 2) {
+    			throw new RuntimeException("must be a 2-body potential");
+    		}
+    	}
         pairPotential = newPotential;
     }
     
@@ -94,28 +99,27 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         }
         pair.atom0 = atom0;
         pair.atom1 = atom1;
-        doIncludePair = pairPotential != null;
-        if (doIncludePair && doExcludeNonNeighbors && potential instanceof PotentialMasterList) {
-            doIncludePair = false;
+        pairPotentialIndex = -1;
+        if (pairPotential.length > 0 && doExcludeNonNeighbors && potential instanceof PotentialMasterList) {
             IAtomList[] list0 = ((PotentialMasterList)potential).getNeighborManager(box).getDownList(atom0);
             for (int i=0; i<list0.length; i++) {
                 if (((AtomArrayList)list0[i]).indexOf(atom1)>-1) {
-                    doIncludePair = true;
+                	pairPotentialIndex = i;
                     break;
                 }
             }
-            if (!doIncludePair) {
+            if (pairPotentialIndex == -1) {
                 list0 = ((PotentialMasterList)potential).getNeighborManager(box).getUpList(atom0);
                 for (int i=0; i<list0.length; i++) {
                     if (((AtomArrayList)list0[i]).indexOf(atom1)>-1) {
-                        doIncludePair = true;
+                    	pairPotentialIndex = i;
                         break;
                     }
                 }
             }
         }
-        if (doIncludePair) {
-            uOld -= pairPotential.energy(pair);
+        if (pairPotentialIndex > -1) {
+            uOld -= pairPotential[pairPotentialIndex].energy(pair);
         }
 
         translationVector.setRandomCube(random);
@@ -132,8 +136,8 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         uNew = energyMeter.getDataAsScalar();
         energyMeter.setTarget(atom0);
         uNew += energyMeter.getDataAsScalar();
-        if(!Double.isInfinite(uNew) && doIncludePair){
-            uNew -= pairPotential.energy(pair);
+        if(!Double.isInfinite(uNew) && pairPotentialIndex > -1){
+            uNew -= pairPotential[pairPotentialIndex].energy(pair);
         }
         if (constraintPotential != null) {
             // we could be double-counting the "energy" here (if the atoms are
@@ -177,8 +181,8 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
-        if (pairPotential != null) {
-            pairPotential.setBox(p);
+        for(int i=0; i< pairPotential.length; i++){
+            pairPotential[i].setBox(p);
         }
     }
     
