@@ -21,7 +21,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     protected final int n, nf;
     protected final MayerFunction f;
     
-    protected final byte[] fQ;
+    protected final boolean[] fQ;
     protected final int[] fA, fB, fAB, fC;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
@@ -37,7 +37,8 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     protected final int[] nPts;
     protected final int[] vCount;
     protected final int[] sig;
-    protected final int[][][] partitions;
+    protected final int[][][] partitionsA;
+    protected final int[][] partitionsC;
     long bigSum1, bigSum2, count, bigSumN, bigSumNCount;
 
     protected final int[][][] fAList;
@@ -47,9 +48,10 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     
     protected final int[][] fAValues, fABValues;
     protected final int nPtsTabulated;//tabulate fA,fAB,fC values for all graphs up to this size
-    protected static final boolean checkme = false;
+    protected static final boolean checkme = true;
     protected final boolean doStatistics = false;
     public final FrequencyCounter[] sigCounter;
+    long maxA, maxB, maxAB, maxC, maxQ;
 
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f) {
         this(nPoints, f, 5);
@@ -61,7 +63,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         this.f = f;
         this.nPtsTabulated = nPoints > nPtsTabulated ? nPtsTabulated : nPoints;
         nf = 1<<n;  // 2^n
-        fQ = new byte[nf];
+        fQ = new boolean[nf];
         fC = new int[nf];
         nBonds = new int[nf];
         nPts = new int[nf];
@@ -84,7 +86,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
             nPts[i] = Integer.bitCount(i);
         }
         for(int i=0; i<n; i++) {
-            fQ[1<<i] = 1;
+            fQ[1<<i] = false;
             nBonds[1<<i] = 0;
         }
         fA = new int[nf];
@@ -95,8 +97,13 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         cliqueSet = new boolean[nf];
         cliqueList = new int[nf];
 
-        partitions = new int[n][nf][];
-        computePartitions();
+        partitionsC = new int[nf][];
+        for(int i=1; i<nf; i++) {
+            partitionsC[i] = computeCPartitions(i);
+        }
+
+        partitionsA = new int[n][nf][];
+        computeAPartitions();
         
         fAList = new int[n+1][][];
         fABList = new int[n+1][][];
@@ -115,17 +122,45 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         }        
    }
     
-    private final void computePartitions() {
+    private final int[] computeCPartitions(int i) {
+        
+        int partitionCount = 0;
+        int[] iPartitions = new int[10];//start with arbitrary length and resize as needed
+
+        int iLowBit = i & -i;
+        int inc = iLowBit<<1;
+        for(int j=iLowBit; j<i; j+=inc) {
+            int jComp = i & ~j;
+            while ((j|jComp) != i && j<i) {
+                int jHighBits = j^iLowBit;
+                int jlow = jHighBits & -jHighBits;
+                j += jlow;
+                jComp = (i & ~j);
+            }
+            if (j==i) break;
+            partitionCount++;
+            if(iPartitions.length < partitionCount) {
+                iPartitions = Arrays.copyOf(iPartitions, partitionCount+10);
+            }
+            iPartitions[partitionCount-1] = j;            
+        }
+        if(iPartitions.length > partitionCount) {
+            iPartitions = Arrays.copyOf(iPartitions, partitionCount);
+        }
+        return iPartitions;
+    }
+    
+    private final void computeAPartitions() {
         for (int v=0; v<n; v++) {
             int vs1 = 1<<v;
-            int[][] vPartitions = partitions[v];
+            int[][] vPartitions = partitionsA[v];
             for (int i=vs1+1; i<nf; i++) {
-                vPartitions[i] = computePartitions(vs1, i);
+                vPartitions[i] = computeAPartitions(vs1, i);
             }
         }
     }
         
-    protected int[] computePartitions(int vs1, int i) {
+    protected int[] computeAPartitions(int vs1, int i) {
         
         if((vs1 & i)==0 || (nPts[i]<3)) return null;
         
@@ -211,8 +246,6 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
             fCList[np] = new int[1<<nPairs(np)];
         }
         int sigMax = (1 << nPairs(nPtsTabulated));
-        byte bond = 0;
-        byte noBond = 1;
         long nDuplicate = 0;
         long nArrays = 0;
         //construct table of fA, fB, and fC for each signature for each nPts being tabulated
@@ -232,7 +265,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
                 int bondBit = 1;
                 for(int j=(1<<(np-2)); j>0; j=(j>>1)) {
                     for (int l=(j<<1); l<(1<<np); l=(l<<1)) {
-                        fQ[l | j] = ((s & bondBit) == bondBit) ? bond : noBond;
+                        fQ[l | j] = ((s & bondBit) == bondBit);
                         bondBit = bondBit << 1;
                     }
                 }
@@ -329,8 +362,8 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         for (int i=3; i<nf; i++) {
             vCount[i] = 0;
             if(nPts[i] == 1) continue;//1-point sets filled on construction
-            if(nPts[i] == 2) {// 2-point set fQ's were filled when bonds were computed, so skip
-                if(fQ[i] == 0) {
+            if(nPts[i] == 2) {// 2-point set fQ's were filled when bonds were computed
+                if(fQ[i]) {
                     nBonds[i] = 1;//fQ is e-bond, so if zero it means f-bond is nonzero
                     sig[i] = 1;
                 } else {
@@ -358,11 +391,12 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
             if(doSig || doStatistics) bondBit = 1 << nPairs(nPts[k]);
             for (int l=(j<<1); l<i; l=(l<<1)) {
                 if ((l&i)==0) continue; //l is not in partition
-                fQ[i] *= fQ[l | j];
-                if(fQ[l | j] == 0) {
+//                fQ[i] |= fQ[l | j];
+                if(fQ[l | j]) {
                     nBonds[i]++;
                     if(doSig || doStatistics) sig[i] |= bondBit;
-                } 
+                    fQ[i] = true;
+                }
                 if(doSig || doStatistics) bondBit = bondBit << 1;
             }
             
@@ -380,17 +414,12 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
             }
             
             if(doStatistics) {
-                if(fQ[i]!=0 && fQ[i]!=1) System.out.println("unexpected fQ:"+fQ[i]);
                 if(maxC < Math.abs(fC[i])) {
                     maxC = (long)Math.max(maxC, Math.abs(fC[i]));
-                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
-                }
-                if(maxQ < Math.abs(fQ[i])) {
-                    maxQ = (long)Math.max(maxQ, Math.abs(fQ[i]));
-                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                    System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
-            if (fQ[i] != 0) eCliqueCount++;
+            if (!fQ[i]) eCliqueCount++;
             
             if(doStatistics) sigCounter[nPts[i]-1].add(sig[i]);
         }
@@ -416,7 +445,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         for (int i=0; i<n-1; i++) {
             for (int j=i+1; j<n; j++) {
                 int k = (1<<i)|(1<<j);
-                boolean fBond = (fQ[k] == 0); 
+                boolean fBond = fQ[k]; 
                 cliqueSet[k] = fBond;
                 if (fBond) {
                     outDegree[i]++;
@@ -541,18 +570,24 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         if (!precalcQ) {
             calcFullFQ(box);
         }
-
-        calcfC(true);
         
-        for(int i=1; i<nf; i++) {
-            vCount[i] = 0;
-        }
+        if(fAValues[nf-1] != null) {//desired value is tabulated, so bypass whole calculation
+            value = (1-n)*(fABValues[nf-1][n-1] - fAValues[nf-1][n-1]);
+            
+        } else {
 
-        for (int v=0; v<n; v++) {
-            calcfAB(v, true);
-        }
+            calcfC(true);
+            
+            for(int i=1; i<nf; i++) {
+                vCount[i] = 0;
+            }
+    
+            for (int v=0; v<n; v++) {
+                calcfAB(v, true);
+            }
         
-        value = (1-n)*fB[nf-1];
+            value = (1-n)*fB[nf-1];
+        }
 
         if (value != 0) {
             notzero++;
@@ -603,36 +638,34 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     
     protected final void calcfC(final boolean useTable) {
 
+//        int sum1 = 0, sum2 = 0;
         for(int i=1; i<nf; i++) {
             if((fAValues[i] != null) && useTable) {
                 continue;//fC was set in calcFullFQ
             }
             
-            fC[i] = fQ[i];
-            int iLowBit = i & -i;
-            int inc = iLowBit<<1;
-            for(int j=iLowBit; j<i; j+=inc) {
-                int jComp = i & ~j;
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^iLowBit;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                fC[i] -= fC[j] * fQ[jComp];//for fQ, flip the bits on j; use only those appearing in i
+            fC[i] = fQ[i] ? 0 : 1;
+
+            int[] iPartitions = partitionsC[i];
+            final int kmax = iPartitions.length;
+            for(int k=0; k<kmax; k++) {
+                int j = iPartitions[k];
+                int jComp = (i & ~j);
+                if(!fQ[jComp]) fC[i] -= fC[j];
+//                else sum1++;
+//                sum2++;
+            }//end k-loop
                 
-                if(doStatistics) {
-                    if(maxC < Math.abs(fC[i])) {
-                        maxC = (long)Math.max(maxC, Math.abs(fC[i]));
-                        System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
-                    }
+            if(doStatistics) {
+                if(maxC < Math.abs(fC[i])) {
+                    maxC = (long)Math.max(maxC, Math.abs(fC[i]));
+                    System.out.println("MaxA,B,AB,C: "+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
         }
+//        System.out.println(sum1+" "+sum2+" Fraction fC accum avoided:"+((float)sum1/sum2));
     }
     
-    long maxA, maxB, maxAB, maxC, maxQ;
     protected final void calcfAB(int v, final boolean useTable) {
         
         if(v == 0) {
@@ -656,7 +689,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }//end v==0
 
         int vs1 = 1<<v;
-        int[][] vPartitions = partitions[v];
+        int[][] vPartitions = partitionsA[v];
         for (int i=vs1+1; i<nf; i++) {
             
             int[] iPartitions = vPartitions[i];            
@@ -705,7 +738,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                     maxA = (long)Math.max(maxA, Math.abs(fA[i]));
                     maxB = (long)Math.max(maxB, Math.abs(fB[i]));
                     maxAB = (long)Math.max(maxAB,Math.abs(fA[i]+fB[i]));
-                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                    System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
         }//end of i-loop
@@ -722,7 +755,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         fA[1] = 0;
         fB[1] = fC[1];
         fAB[1] = fC[1];
-        int[][] vPartitions = partitions[0];
+        int[][] vPartitions = partitionsA[0];
         for (int i=3; i<nf; i+=2) {// every set will contain 1
             if(fAValues[i] != null && useTable) {
                 fA[i] = fAValues[i][0];
@@ -747,7 +780,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                     maxA = (long)Math.max(maxA, Math.abs(fA[i]));
                     maxB = (long)Math.max(maxB, Math.abs(fB[i]));
                     maxAB = (long)Math.max(maxAB,Math.abs(fA[i]+fB[i]));
-                    System.out.println("MaxQ,A,B,AB,C: "+maxQ+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                    System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
         }
@@ -798,7 +831,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                fQ[(1<<i)|(1<<j)] = (byte)(f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1);
+                fQ[(1<<i)|(1<<j)] = (f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta) == -1);
             }
         }
     }
@@ -807,12 +840,12 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     protected void updateF() {
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                fQ[(1<<i)|(1<<j)] = 0;//f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
+                fQ[(1<<i)|(1<<j)] = true;//f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta)+1;
             }
         }
-        fQ[(1<<2)|(1<<0)] = 1;
-        fQ[(1<<0)|(1<<1)] = 1;
-        fQ[(1<<1)|(1<<2)] = 1;
+        fQ[(1<<2)|(1<<0)] = false;
+        fQ[(1<<0)|(1<<1)] = false;
+        fQ[(1<<1)|(1<<2)] = false;
     }
 
     public void setTemperature(double temperature) {
