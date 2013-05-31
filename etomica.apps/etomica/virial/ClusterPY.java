@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.math.SpecialFunctions;
 
-public class ClusterPY extends ClusterWheatley {
+public class ClusterPY extends ClusterWheatleyHS {
 
     protected final double[][][] t, h, c;
 

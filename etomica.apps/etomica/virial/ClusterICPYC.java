@@ -9,7 +9,7 @@ import etomica.math.SpecialFunctions;
  *
  * @author Andrew Schultz
  */
-public class ClusterICPYC extends ClusterWheatley {
+public class ClusterICPYC extends ClusterWheatleyHS {
 
     protected final boolean allPermutations = true;
     protected int num, tot;
