@@ -7,6 +7,7 @@ import etomica.units.Null;
 import etomica.util.Histogram;
 import etomica.util.HistogramCollapsing;
 import etomica.util.HistogramNotSoSimple;
+import etomica.util.HistogramReweightedData;
 
 /**
  * Accumulator that keeps histogram of data.
@@ -45,7 +46,12 @@ public class AccumulatorHistogram extends DataAccumulator {
     protected void addData(IData inputData) {
     	if (histogram instanceof HistogramNotSoSimple) {
     		((HistogramNotSoSimple)histogram).addValue(inputData.getValue(0), inputData.getValue(1));
-    	} else  histogram.addValue(inputData.getValue(0));
+    	} else if (histogram instanceof HistogramReweightedData) {
+            ((HistogramReweightedData)histogram).addValue(inputData.getValue(0), inputData.getValue(1));
+    	}
+    	else {
+    	    histogram.addValue(inputData.getValue(0));
+    	}
     }
 
     /**
