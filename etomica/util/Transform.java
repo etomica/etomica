@@ -8,7 +8,6 @@ package etomica.util;
 public interface Transform {
 
 	public double[] f(double[] x);
-	public double[] xHat();
 
 	public static class Fourier implements Transform {
 		FastFourierTransform fourier = new FastFourierTransform();
@@ -18,9 +17,6 @@ public interface Transform {
 			fourier.transform();
 			if (REAL) return fourier.getReal();
 			return fourier.getImaginary();
-		}
-		public double[] xHat() {
-			return fourier.getIndex();
 		}
 	}
 }
