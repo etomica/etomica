@@ -51,15 +51,19 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
             work.E(sum);
             work.TE(1.0 / (count*blockSize));
             ratioError.E(error);
-            ratioError.DE(work);
-            ratioError.TE(ratioError);
-            ratioError.PE(ratioError.getValue(0));
-            double covarianceContribution = -2*blockCovariance.getValue(1)/(average.getValue(0)*average.getValue(1)*(count-1));
-            ratioError.PE(covarianceContribution);
-            ratioError.TE(ratio);
-            ratioError.TE(ratio);
-            ratioError.map(negativeChop);
-            ratioError.map(Function.Sqrt.INSTANCE);
+            if (count > 1) {
+                ratioError.DE(work);
+                ratioError.TE(ratioError);
+                ratioError.PE(ratioError.getValue(0));
+                if (average.getValue(0)*average.getValue(1) > 0) {
+                    double covarianceContribution = -2*blockCovariance.getValue(1)/(average.getValue(0)*average.getValue(1)*(count-1));
+                    ratioError.PE(covarianceContribution);
+                }
+                ratioError.TE(ratio);
+                ratioError.TE(ratio);
+                ratioError.map(negativeChop);
+                ratioError.map(Function.Sqrt.INSTANCE);
+            }
         }
         long nTotalData = count*blockSize + (blockSize-blockCountDown);
         if (nTotalData > 0 && !doStrictBlockData) {
