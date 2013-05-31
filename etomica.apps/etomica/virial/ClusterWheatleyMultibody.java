@@ -6,7 +6,7 @@ package etomica.virial;
  * 
  * @author Andrew Schultz
  */
-public class ClusterWheatleyMultibody extends ClusterWheatley {
+public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
 
     protected final MayerFunctionNonAdditive fMulti;
     protected final int[] moleculeIndices;
