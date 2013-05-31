@@ -55,7 +55,6 @@ public class SineTransform {
 		//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		FastFourierTransform fourier = new FastFourierTransform();
-		FastFourierTransform.BACKUP=false;
 		
 		double[] Fr2i = new double[2*(N)]; // no imaginary part
 		fourier.setData(Fr2, Fr2i);
@@ -144,7 +143,6 @@ public class SineTransform {
 		double[] Fk2i = new double[2*(N)]; // no imaginary part
 		
 		FastFourierTransform fourier = new FastFourierTransform();
-		FastFourierTransform.BACKUP=false;
 		fourier.setData(Fk2, Fk2i);
 		fourier.transform();
 		
