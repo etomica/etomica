@@ -21,14 +21,7 @@ public class FastFourierTransform implements java.io.Serializable {
 
 	private double[] real;					// array of real plots
 	private double[] imaginary;				// array of imaginary plots
-	private double[] index; 				// array of frequency indices
 	public int length;						// length of array
-	
-	/* use a back up copy for 
-	 * transformations rather than just 
-	 * manipulating the array directly
-	 */ 
-	public static boolean BACKUP=false; 	
 	
 	/**
 	 * Constructors accepting: nothing; all reals; both real and imaginary
@@ -59,25 +52,8 @@ public class FastFourierTransform implements java.io.Serializable {
 			throw new IllegalArgumentException("Array Index is not a power of 2");
 		}
 		
-	 // Create a duplicate to use instead (use passed arrays as default)		
-		if (BACKUP) {
-			real = new double [length];
-			imaginary = new double [length];
-			for(int i=0;i<length;i++) { 
-				real[i]=dataReal[i];
-				imaginary[i]=dataImaginary[i];
-			}
-		}
-		else {
-			real=dataReal;
-			imaginary=dataImaginary;
-		}	
-	 //	Creates an array of frequency index (in digital frequency units (radians)
-	 	index = new double[length]; 
-		for (int i=0;i<length/2;i++) {
-			index[i]=2*Math.PI*i/length;
-			index[length-(i+1)]=-2*Math.PI*(i+1)/length;
-		}
+		real=dataReal;
+		imaginary=dataImaginary;
 	}
 
 	/**
@@ -185,7 +161,6 @@ public class FastFourierTransform implements java.io.Serializable {
 	 */
 	public double[] getReal() {return real;}
 	public double[] getImaginary() {return imaginary;}
-	public double[] getIndex() {return index;}
 
 // in order to test the fft....	
 	public static void main (String [] arg) {
@@ -205,7 +180,6 @@ public class FastFourierTransform implements java.io.Serializable {
 		
 		FastFourierTransform fourier = new FastFourierTransform();
 		
-		FastFourierTransform.BACKUP=false;
 		fourier.setData(data1,data2);
 		fourier.transform();
 		//fourier.invert();
@@ -214,7 +188,6 @@ public class FastFourierTransform implements java.io.Serializable {
 	    for (int i=0;i<fourier.length;i++) {
 	   		System.out.print("(" + round(fourier.getReal()[i]) + ",");
 	   		System.out.print(round(fourier.getImaginary()[i]) + ":");
-	   		System.out.print(round(fourier.getIndex()[i]) + ")");
 	   		System.out.print("\n");
 	    }
 	}
