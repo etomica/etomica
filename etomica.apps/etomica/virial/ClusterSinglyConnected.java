@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import java.util.Arrays;
+
 
 /**
  * This class calculates the sum of all tree clusters using an adaptation of Wheatley's
@@ -12,27 +14,65 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     protected final int n, nf;
     protected final MayerFunction f;
     
-    protected final double[] fL, fN;
-    protected final double[] bSum;
+    protected final int[] fL, fLN;
+    protected final int[] bSum;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
+    protected final int[][] partitions;
     
     public ClusterSinglyConnected(int nPoints, MayerFunction f) {
         this.n = nPoints;
         this.f = f;
         nf = 1<<n;  // 2^n
-        fL = new double[nf];
-        fN = new double[nf];
-        bSum = new double[nf];
+        fL = new int[nf];
+        fLN = new int[nf];
+        bSum = new int[nf];
         for(int i=0; i<n; i++) {
-            fL[1<<i] = 1.0;
-            fN[1<<i] = 0.0;
-            for(int j=i+1; j<n; j++) {
-                fN[(1<<i)|(1<<j)] = 0.0;
+            fL[1<<i] = 1;
+            fLN[1<<i] = 1;
+//            for(int j=i+1; j<n; j++) {
+//                fNL[(1<<i)|(1<<j)] = 0;
+//            }
+        }
+        partitions = new int[nf][];
+        for(int m=2; m<n; m++) {//structure as nested loops so we know what high bit is
+            int iH = 1<<m; //high bit
+            for(int i=iH+3; i<(iH<<1); i++) {
+                partitions[i] = computePartitions(i,iH);
             }
         }
+
     }
+    
+    protected final int[] computePartitions(int i, int iH) {
+
+        int partitionCount = 0;
+        int[] iPartitions = new int[10];//start with arbitrary length and resize as needed
+
+        int iL = i & -i;//low bit
+        int i0 = i^iL;//i, without the low bit
+        if(i0 == iH) return null;//only two bits in i; we skip this because we start with all pairs in bSum and fL
+
+        int inc = i0 & -i0;
+        for(int iS=iH+iL; iS<i; iS+=inc) {//structure loop to force iS to contain iH and iL bits
+            int iSComp = i & ~iS;
+            if ((iSComp | iS) != i) continue;
+            partitionCount++;
+            if(iPartitions.length < partitionCount) {
+                iPartitions = Arrays.copyOf(iPartitions, partitionCount+10);
+            }
+            iPartitions[partitionCount-1] = iS;            
+        }
+
+        if(iPartitions.length > partitionCount) {
+            iPartitions = Arrays.copyOf(iPartitions, partitionCount);
+        }
+//        System.out.println(i+"\t"+Integer.bitCount(i)+"\t"+iPartitions.length);
+        return iPartitions;
+    }
+        
+
 
     public ClusterAbstract makeCopy() {
         ClusterSinglyConnected c = new ClusterSinglyConnected(n, f);
@@ -80,6 +120,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
             for (int j=i+1; j<n; j++) {
                 bSum[(1<<i)|(1<<j)] = 1;
                 fL[(1<<i)|(1<<j)] = bSum[(1<<i)|(1<<j)];
+                fLN[(1<<i)|(1<<j)] = bSum[(1<<i)|(1<<j)];
             }
         }
         
@@ -93,13 +134,15 @@ public class ClusterSinglyConnected implements ClusterAbstract {
      * Computation of sum of tree diagrams.
      */
     protected void calcValue() {
-        
+
         //Compute the fL and fN's
         // fL[i] is sum of all graphs in which low-bit node is a leaf
-        // fN[i] is sum of all graphs in which low-bit node is not a leaf
+        // fNL[i] is sum of all graphs in which low-bit node is not a leaf or is a leaf
+//        int sum1 = 0;
+//        int sum[] = new int[n];
         for(int m=2; m<n; m++) {//structure as nested loops so we know what high bit is
             final int iH = 1<<m; //high bit
-            
+
             for(int i=iH+3; i<(iH<<1); i++) {
                 int iL = i & -i;//low bit
                 int i0 = i^iL;//i, without the low bit
@@ -109,22 +152,28 @@ public class ClusterSinglyConnected implements ClusterAbstract {
                 //Calculation of bSum is performed for any i by adding the high-low (iH|iL) bit interaction to the sum
                 //obtained without iH, computed from a previous iteration
                 bSum[i] = bSum[i^iH] + bSum[iH|iL];
-
-                //compute fN and fL values
-                fL[i] = bSum[i]*(fL[i0]+fN[i0]);
-                fN[i] = 0.0;
-                int inc = i0 & -i0;
-                for(int iS=iH+iL; iS<i; iS+=inc) {//structure loop to force iS to contain iH and iL bits
-                    int iSComp = i & ~iS;
-                    if ((iSComp | iS) != i) continue;
-                    fN[i] += fL[iS]*(fL[iL|iSComp] + fN[iL|iSComp]);
+//                sum1++;
+                //compute fNL and fL values
+                fL[i] = bSum[i]*fLN[i0];
+                fLN[i] = fL[i];
+                
+                //add to fNL contributions from graphs where low bit is not a leaf
+                int[] iPartitions = partitions[i];
+                final int kmax = iPartitions.length;
+                for(int k=0; k<kmax; k++) {
+                    int iS = iPartitions[k];
+                    int iSComp = (i & ~iS);
+                    fLN[i] += fL[iS]*fLN[iL|iSComp];
+                    //sum[Integer.bitCount(i)-1]++;
                 }
             }
         }
 
-        value = fL[nf-1] + fN[nf-1];
+//        for(int k=0; k<n; k++) System.out.print("("+k+","+sum[k]+")\t");
+//        System.out.println(sum1);
+        value = fLN[nf-1];
     }
-
+    
     protected void updateF(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
@@ -134,8 +183,9 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
                 int index = (1<<i)|(1<<j);
-                bSum[index]= f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                bSum[index]= (int)f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
                 fL[index] = bSum[index];
+                fLN[index] = fL[index];
             }
         }
     }
