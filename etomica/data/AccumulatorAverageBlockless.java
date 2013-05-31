@@ -212,6 +212,26 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         return new StatType[] {MOST_RECENT,AVERAGE,STANDARD_DEVIATION};
     }
 
+    public AllData getRawData() {
+        return new AllData(count, sum, sumSquare);
+    }
+
+    public void setRawData(AllData ad) {
+        count = ad.count;
+        sum.E(ad.sum);
+        sumSquare.E(ad.sumSquare);
+    }
+
+    public static class AllData {
+        public final IData sum, sumSquare;
+        public final long count;
+        public AllData(long count, IData sum, IData sumSquare) {
+            this.sum = sum;
+            this.sumSquare = sumSquare;
+            this.count = count;
+        }
+    }
+
     protected IData mostRecent;//most recent value
     protected IData average, standardDeviation;
     protected DataGroup dataGroup;
