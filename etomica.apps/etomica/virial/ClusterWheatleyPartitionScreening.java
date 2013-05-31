@@ -16,7 +16,7 @@ import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
  * 
  * @author David Kofke and Andrew Schultz 
  */
-public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
+public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
 
     protected final int n, nf;
     protected final MayerFunction f;
@@ -48,7 +48,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
     
     protected final int[][] fAValues, fABValues;
     protected final int nPtsTabulated;//tabulate fA,fAB,fC values for all graphs up to this size
-    protected static final boolean checkme = true;
+    protected static final boolean checkme = false;
     protected final boolean doStatistics = false;
     public final FrequencyCounter[] sigCounter;
     long maxA, maxB, maxAB, maxC, maxQ;
@@ -248,9 +248,14 @@ public class ClusterWheatleyPartitionScreening implements ClusterAbstract {
         int sigMax = (1 << nPairs(nPtsTabulated));
         long nDuplicate = 0;
         long nArrays = 0;
+        long t1 = System.currentTimeMillis();
         //construct table of fA, fB, and fC for each signature for each nPts being tabulated
         for(int s=0; s<sigMax; s++) {//loop over signatures
             int nb = Integer.bitCount(s);
+            if (s>0 && s%10000==0) {
+                long t2 = System.currentTimeMillis();
+                System.out.println(String.format("s=%d/%d  time: %d/%d", s, sigMax, (t2-t1)/1000, (int)(((double)(t2-t1))*sigMax/s/1000)));
+            }
             for(int np=2; np<=nPtsTabulated; np++) {
                 if(s >= (1<<nPairs(np))) continue;//signature has more bonds than can be formed by np points
                 if(nb+1 < np) {
@@ -659,7 +664,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             if(doStatistics) {
                 if(maxC < Math.abs(fC[i])) {
                     maxC = (long)Math.max(maxC, Math.abs(fC[i]));
-                    System.out.println("MaxA,B,AB,C: "+" "+maxA+" "+maxB+" "+maxAB+" "+maxC);
+                    System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
         }
