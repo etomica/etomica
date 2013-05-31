@@ -14,8 +14,8 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     protected final int n, nf;
     protected final MayerFunction f;
     
-    protected final int[] fL, fLN;
-    protected final int[] bSum;
+    protected final long[] fL, fLN;
+    protected final long[] bSum;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
@@ -25,9 +25,9 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         this.n = nPoints;
         this.f = f;
         nf = 1<<n;  // 2^n
-        fL = new int[nf];
-        fLN = new int[nf];
-        bSum = new int[nf];
+        fL = new long[nf];
+        fLN = new long[nf];
+        bSum = new long[nf];
         for(int i=0; i<n; i++) {
             fL[1<<i] = 1;
             fLN[1<<i] = 1;
