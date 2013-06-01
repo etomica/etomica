@@ -303,7 +303,8 @@ public class VirialHS {
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
         sim.setMeter(meter);
-        AccumulatorAverageFixed accumulator = sim.accumulator;
+        AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(1000);
+        sim.setAccumulator(accumulator);
         accumulator.setPushInterval(100000000);
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
