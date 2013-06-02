@@ -647,6 +647,10 @@ public final class Standard {
                 return B9HS(sigma);
             case 10:
                 return B10HS(sigma);
+            case 11:
+                return B11HS(sigma);
+            case 12:
+                return B12HS(sigma);
             default:
                 throw new RuntimeException("HS unknown at order "+n);
 	    }
@@ -707,6 +711,16 @@ public final class Standard {
         return 0.0004035*Math.pow(b0,9);
     }
     
+    public static double B11HS(double sigma) {
+        // Wheatley
+        return 0.198*Math.pow(sigma, 30);
+    }
+
+    public static double B12HS(double sigma) {
+        // Wheatley
+        return 0.090*Math.pow(sigma, 33);
+    }
+
     public static double B2SW(double sigma, double lambda, double ekT) {
         if (lambda < 1) {
             return B2HS(sigma);
