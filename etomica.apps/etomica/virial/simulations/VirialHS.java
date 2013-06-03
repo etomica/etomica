@@ -2,8 +2,6 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,21 +12,13 @@ import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IFunction;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayBox;
@@ -42,14 +32,12 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramReweightedData;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.CalcFFT;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterChain;
+import etomica.virial.ClusterChainHS;
+import etomica.virial.ClusterChainSoft;
 import etomica.virial.ClusterSinglyConnected;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ClusterWeightUmbrella;
@@ -143,14 +131,14 @@ public class VirialHS {
         }
         else if (ref == VirialHSParam.CHAINS) {
             System.out.println("using a chain reference");
-            refCluster = new ClusterChain(nPoints, fRefPos);
-            numDiagrams = ((ClusterChain)refCluster).numDiagrams();
+            refCluster = new ClusterChainHS(nPoints, fRefPos);
+            numDiagrams = ((ClusterChainHS)refCluster).numDiagrams();
             ri = numDiagrams*Math.pow(vhs, nPoints-1);
         }
         else if (ref == VirialHSParam.CRINGS) {
             System.out.println("using a chain->ring reference");
-            refCluster = new ClusterChain(nPoints, fRefPos, true);
-            numDiagrams = ((ClusterChain)refCluster).numDiagrams();
+            refCluster = new ClusterChainHS(nPoints, fRefPos, true);
+            numDiagrams = ((ClusterChainHS)refCluster).numDiagrams();
             final double dr = 0.00001;
             CalcFFT myFFT = new CalcFFT(new IFunction() {
                 public double f(double x) {
@@ -173,8 +161,8 @@ public class VirialHS {
         }
         else if (ref == VirialHSParam.RINGS) {
             System.out.println("using a ring reference");
-            refCluster = new ClusterChain(nPoints, fRefPos, true);
-            numDiagrams = ((ClusterChain)refCluster).numDiagrams();
+            refCluster = new ClusterChainHS(nPoints, fRefPos, true);
+            numDiagrams = ((ClusterChainHS)refCluster).numDiagrams();
             final double dr = 0.00001;
             CalcFFT myFFT = new CalcFFT(new IFunction() {
                 public double f(double x) {
@@ -197,7 +185,7 @@ public class VirialHS {
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {
             System.out.println("using a chain/tree reference ("+chainFrac+" chains)");
-            ClusterChain cc = new ClusterChain(nPoints, fRefPos);
+            ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
             long numTreeDiagrams = 1;
@@ -209,7 +197,7 @@ public class VirialHS {
         }
         else if (ref == VirialHSParam.RING_TREE) {
             System.out.println("using a ring/tree reference ("+ringFrac+" rings)");
-            ClusterChain cr = new ClusterChain(nPoints, fRefPos, true);
+            ClusterChainHS cr = new ClusterChainHS(nPoints, fRefPos, true);
             long numRingDiagrams = cr.numDiagrams();
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cr, ct});
@@ -245,9 +233,9 @@ public class VirialHS {
         }
         else if (ref == VirialHSParam.RING_CHAIN_TREES) {
             System.out.println("using a ring/chain/tree reference ("+ringFrac+" rings, "+chainFrac+" chains)");
-            ClusterChain cr = new ClusterChain(nPoints, fRefPos, true);
+            ClusterChainHS cr = new ClusterChainHS(nPoints, fRefPos, true);
             long numRingDiagrams = cr.numDiagrams();
-            ClusterChain cc = new ClusterChain(nPoints, fRefPos);
+            ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cr, cc, ct});
             long numTreeDiagrams = 1;
@@ -283,7 +271,7 @@ public class VirialHS {
         }
         else if (ref == VirialHSParam.CHAIN_TAIL) {
             System.out.println("using a chain+tail reference");
-            refCluster = new ClusterChain(nPoints, fHSTail);
+            refCluster = new ClusterChainSoft(nPoints, fHSTail);
             vhs *= pow/(pow-3);
             numDiagrams = SpecialFunctions.factorial(nPoints)/2;
             System.out.println("# of chain diagrams "+numDiagrams);

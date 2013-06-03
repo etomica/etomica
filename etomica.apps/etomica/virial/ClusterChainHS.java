@@ -7,7 +7,7 @@ package etomica.virial;
  * 
  * @author David Kofke and Andrew Schultz 
  */
-public class ClusterChain implements ClusterAbstract {
+public class ClusterChainHS implements ClusterAbstract {
 
     protected final int n, nf;
     protected final MayerFunction f;
@@ -20,11 +20,11 @@ public class ClusterChain implements ClusterAbstract {
     protected double beta;
     public final boolean old = true;
     
-    public ClusterChain(int nPoints, MayerFunction f) {
+    public ClusterChainHS(int nPoints, MayerFunction f) {
         this(nPoints, f, false);
     }
     
-    public ClusterChain(int nPoints, MayerFunction f, boolean doRing) {
+    public ClusterChainHS(int nPoints, MayerFunction f, boolean doRing) {
         this.n = nPoints;
         this.f = f;
         this.doRing = doRing;
@@ -35,7 +35,7 @@ public class ClusterChain implements ClusterAbstract {
     }
 
     public ClusterAbstract makeCopy() {
-        ClusterChain c = new ClusterChain(n, f);
+        ClusterChainHS c = new ClusterChainHS(n, f);
         c.setTemperature(1/beta);
         return c;
     }
@@ -256,8 +256,8 @@ public class ClusterChain implements ClusterAbstract {
         for(int n=5; n<13; n++) {
 //            ClusterChainWheatley cc = new ClusterChainWheatley(n, null);
             ClusterSinglyConnected cs = new ClusterSinglyConnected(n, null);
-            ClusterChain cr = new ClusterChain(n, null, true);
-            ClusterChain cc2 = new ClusterChain(n, null);
+            ClusterChainHS cr = new ClusterChainHS(n, null, true);
+            ClusterChainHS cc2 = new ClusterChainHS(n, null);
 //            cc2.old = true;
             System.out.println(n+"\t"+cs.numDiagrams()+
                     "\t"+cr.numDiagrams()+"\t"+cc2.numDiagrams());

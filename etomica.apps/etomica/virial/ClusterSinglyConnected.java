@@ -198,7 +198,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
         for(int i=0; i<100; i++) {
             System.out.println(Integer.toBinaryString((1<<10)|i));
         }
-        ClusterChain cc = new ClusterChain(5, null);
+        ClusterChainHS cc = new ClusterChainHS(5, null);
         ClusterSinglyConnected cs = new ClusterSinglyConnected(5, null);
         System.out.println(cc.numDiagrams());
         System.out.println(cs.numDiagrams());
