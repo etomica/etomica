@@ -3,7 +3,7 @@ package etomica.virial;
 
 
 /**
- * This class calculates the sum of all chain and/or clusters for hard potential, for which the Mayer function
+ * This class calculates the sum of all chain and/or ring clusters for hard potentials, for which the Mayer function
  * can take values of only -1 or 0. Can return a general weighted sum of ring and chain values, special-casing
  * to chain-only and ring-only values if directed at construction.
  * 
@@ -11,12 +11,12 @@ package etomica.virial;
  */
 public class ClusterChainHS implements ClusterAbstract {
 
-    protected final int n, nf;
+    protected final int n, nf1;
     protected final MayerFunction f;
     
     protected final long[][] nC;
     protected final double[][] fValues;
-    protected final double ringFrac, chainFrac;
+    protected double ringFrac, chainFrac;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     public final boolean old = true;
@@ -44,9 +44,9 @@ public class ClusterChainHS implements ClusterAbstract {
         this.f = f;
         this.chainFrac = chainFrac;
         this.ringFrac = ringFrac;
-        nf = 1<<n;  // 2^n
+        nf1 = 1<<(n-1);  // 2^(n-1)
 
-        nC = new long[n][nf];
+        nC = new long[n-1][nf1];
         fValues = new double[n][n];
     }
 
@@ -112,65 +112,61 @@ public class ClusterChainHS implements ClusterAbstract {
      */
     protected void calcValue() {
         
-        //nC[m][i] is the number of chains beginning at 0 and ending at m, traversing all points in i
+        //nC[m][i] is the number of chains beginning at last vertex and ending at m, traversing all points in i
         
-        //Start with all pairwise paths from 0 to each vertex
-        for(int m=1; m<n; m++) {
-            nC[m][(1<<m)|1] = (int)fValues[m][0];
+        //Start with all pairwise paths from last vertex to each other vertex
+        for(int m=0; m<n-1; m++) {
+            nC[m][(1<<m)] = (int)fValues[m][n-1];
         }
         
         //All other paths
-        //(could probably reduce memory by not including redundant first bit)
-                
-        for(int i=3; i<nf-1; i+=2) {//1-bit is always nonzero in i
+        for(int i=1; i<nf1; i++) {//i excludes the last bit, which is implicit in all partitions
             //the following two loops generate all pairs formed by each bit in i with each bit not in i
             
-            //loop over bits not in i; start with full complement of i (i^(nf-1)), and in each iteration
+            //loop over bits not in i; start with full complement of i (i^(nf1-1)), and in each iteration
             //get lowest bit (im=(iC&-iC)) and strip it from complement (iC^=im) until complement is empty (iC=0)
-            for(int iC=i^(nf-1), im=(iC&-iC); iC>0; iC^=im,im=(iC&-iC)) {
+            for(int iC=i^(nf1-1), im=(iC&-iC); iC>0; iC^=im,im=(iC&-iC)) {
                 int m = log2(im);
                 int iim = i|im;
                 nC[m][iim] = 0;
              //loop over bits in i, in same manner as loop over complement
-                for(int it=i-1, ik=(it&-it); ik>0; it^=ik,ik=(it&-it)) {
+                for(int it=i, ik=(it&-it); ik>0; it^=ik,ik=(it&-it)) {
                     int k = log2(ik);
                     nC[m][iim] += fValues[m][k]*nC[k][i];
                 }
             }//end for(iC)
         }//end for(i)
         
-        value = 0;
         long ringValue = 0;
         long chainValue = 0;
         
-        
         if(ringFrac != 0.0) {
-            for(int m=1; m<n; m++) {
-                ringValue += nC[m][nf-1] * fValues[m][0];
+            for(int m=0; m<n-1; m++) {
+                ringValue += nC[m][nf1-1] * fValues[m][n-1];
             }
         } 
 
         if(chainFrac != 0.0) {
         
-            //Sum chains in which first vertex is not a leaf.
+            //Sum chains in which last (n-1) vertex is not a leaf.
             //Consider all partitions, counting paths beginning in one partition and ending in its complement 
             //Use same looping structure as employed above
-            for(int iS=3; iS<nf; iS+=4) {//keep 1 and 2 in iS-partition to prevent double counting
+            for(int iS=1; iS<nf1; iS+=2) {//keep 1 in iS-partition to prevent double counting
                 //loop over bits not in iS
-                int iSComp = iS^(nf-1);
+                int iSComp = iS^(nf1-1);
                 for(int iC=iSComp, im=(iC&-iC); iC>0; iC^=im,im=(iC&-iC)) {
                     int m = log2(im);
                     //loop over bits in iS
-                    for(int it=iS-1, ik=(it&-it); ik>0; it^=ik,ik=(it&-it)) {
+                    for(int it=iS, ik=(it&-it); ik>0; it^=ik,ik=(it&-it)) {
                         int k = log2(ik);
-                        chainValue += nC[m][iSComp|1] * nC[k][iS];
+                        chainValue += nC[m][iSComp] * nC[k][iS];
                     }
                 }
             }
             
-            //Sum chains where first vertex is a leaf
-            for(int m=1; m<n; m++) { 
-                chainValue += nC[m][nf-1];
+            //Sum chains where last (n-1) vertex is a leaf
+            for(int m=0; m<n-1; m++) { 
+                chainValue += nC[m][nf1-1];
             }
             
         }//end if(chainFrac)
