@@ -17,7 +17,6 @@ public class ClusterChainHS implements ClusterAbstract {
     protected final double[][] fValues;
     protected int cPairID = -1, lastCPairID = -1;
     protected long value, lastValue;
-    protected double beta;
     public final boolean old = true;
     
     public ClusterChainHS(int nPoints, MayerFunction f) {
@@ -36,7 +35,7 @@ public class ClusterChainHS implements ClusterAbstract {
 
     public ClusterAbstract makeCopy() {
         ClusterChainHS c = new ClusterChainHS(n, f);
-        c.setTemperature(1/beta);
+        c.setTemperature(1);
         return c;
     }
     
@@ -85,7 +84,7 @@ public class ClusterChainHS implements ClusterAbstract {
         }
         
         calcValue();
-        long num = (int)Math.round(value);
+        long num = Math.round(value);
         value = savedValue;
         return num;
     }
@@ -241,14 +240,14 @@ public class ClusterChainHS implements ClusterAbstract {
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
-                fValues[i][j] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                fValues[i][j] = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), 1);
                 fValues[j][i] = fValues[i][j];
             }
         }
     }
         
     public void setTemperature(double temperature) {
-        beta = 1/temperature;
+        // we don't need no stinkin temperature!
     }
 
     public static void main(String[] args) {
