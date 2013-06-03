@@ -3,7 +3,9 @@ package etomica.virial;
 
 
 /**
- * This class calculates the sum of all chain clusters. Can be configured at construction to do rings instead.
+ * This class calculates the sum of all chain and/or clusters for hard potential, for which the Mayer function
+ * can take values of only -1 or 0. Can return a general weighted sum of ring and chain values, special-casing
+ * to chain-only and ring-only values if directed at construction.
  * 
  * @author David Kofke and Andrew Schultz 
  */
@@ -11,22 +13,37 @@ public class ClusterChainHS implements ClusterAbstract {
 
     protected final int n, nf;
     protected final MayerFunction f;
-    protected final boolean doRing;
     
     protected final long[][] nC;
     protected final double[][] fValues;
+    protected final double ringFrac, chainFrac;
     protected int cPairID = -1, lastCPairID = -1;
-    protected long value, lastValue;
+    protected double value, lastValue;
     public final boolean old = true;
     
+    /**
+     * Constructs with default to perform chain-only calculation, with chainFrac = 1.0
+     */
     public ClusterChainHS(int nPoints, MayerFunction f) {
         this(nPoints, f, false);
     }
-    
+
+    /**
+     * Constructs to perform either chain-only or ring-only calculation, as directed by doRing (true for ring-only)
+     */
     public ClusterChainHS(int nPoints, MayerFunction f, boolean doRing) {
+        this(nPoints, f, doRing?0:1, doRing?1:0);
+    }
+    
+    /**
+     * Constructs to perform linear combination of chain and ring values, with computed cluster values
+     * each weighted by given fractions, and summed to get total value
+     */
+    public ClusterChainHS(int nPoints, MayerFunction f, double chainFrac, double ringFrac) {
         this.n = nPoints;
         this.f = f;
-        this.doRing = doRing;
+        this.chainFrac = chainFrac;
+        this.ringFrac = ringFrac;
         nf = 1<<n;  // 2^n
 
         nC = new long[n][nf];
@@ -75,7 +92,7 @@ public class ClusterChainHS implements ClusterAbstract {
     }
 
     public long numDiagrams() {
-        long savedValue = value;
+        double savedValue = value;
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                  fValues[i][j] = 1;
@@ -104,29 +121,12 @@ public class ClusterChainHS implements ClusterAbstract {
         
         //All other paths
         //(could probably reduce memory by not including redundant first bit)
-//        if(false) {//old
-//        for(int i=3; i<nf-1; i+=2) {//1-bit is always nonzero in i
-//            for(int m=1; m<n; m++) {//loop over indices not in i
-//                int im = 1<<m;
-//                if((im & i) != 0) continue;//skip if m is in i
-//                int index = i|im;
-//                nC[m][index] = 0;
-//                for(int k=1; k<n; k++) {//loop over indices in i
-//                    int ik = 1<<k;
-//                    if(ik > i) break;
-////                    sum1++;
-//                    if((ik & i) == 0) continue;//skip if k is not in i
-////                    sum2++;
-//                    nC[m][index] += fValues[m][k]*nC[k][i];
-//                }
-//            }
-//        }
-//        }
-//        else {//new
                 
         for(int i=3; i<nf-1; i+=2) {//1-bit is always nonzero in i
-            //loop over bits not in i; start with complement of i, and in each iteration
-            //get lowest bit (im=(iC&-iC)) and strip it from complement (iC^=im) until complement is empty (=0)
+            //the following two loops generate all pairs formed by each bit in i with each bit not in i
+            
+            //loop over bits not in i; start with full complement of i (i^(nf-1)), and in each iteration
+            //get lowest bit (im=(iC&-iC)) and strip it from complement (iC^=im) until complement is empty (iC=0)
             for(int iC=i^(nf-1), im=(iC&-iC); iC>0; iC^=im,im=(iC&-iC)) {
                 int m = log2(im);
                 int iim = i|im;
@@ -136,77 +136,46 @@ public class ClusterChainHS implements ClusterAbstract {
                     int k = log2(ik);
                     nC[m][iim] += fValues[m][k]*nC[k][i];
                 }
-            }// while(iC > 0);
-        }//end for i
-//        }
+            }//end for(iC)
+        }//end for(i)
         
         value = 0;
-        if(doRing) {
+        long ringValue = 0;
+        long chainValue = 0;
+        
+        
+        if(ringFrac != 0.0) {
             for(int m=1; m<n; m++) {
-                value += nC[m][nf-1] * fValues[m][0];
+                ringValue += nC[m][nf-1] * fValues[m][0];
             }
-            
-        } else { //chains
+        } 
+
+        if(chainFrac != 0.0) {
         
             //Sum chains in which first vertex is not a leaf.
-            //Consider all partitions, counting paths beginning in one partition and ending in its complement
-//            if(true) {//new
-//            for(int iS=3; iS<nf; iS+=4) {//keep 1 and 2 in iS-partition to prevent double counting
-//                int iSComp = (nf-1)^iS;
-//                for(int m=1; m<n; m++) {
-//                    if(((1<<m)&iS) == 0) { //m is in iSComp
-//                        for(int k=1; k<m; k++) {
-//                            if(((1<<k)&iSComp) == 0) {//k is in iS
-//                                value += nC[m][iSComp|1] * nC[k][iS];
-//                            }
-//                        }                                                
-//                    } else { //m is in iS
-//                        for(int k=2; k<m; k++) {
-//                            if(((1<<k)&iS) == 0) { //k is in iSComp
-//                                value += nC[m][iS] * nC[k][iSComp|1];
-//                            }
-//                        }                        
-//                    }
-//                }
-//            }
-            
+            //Consider all partitions, counting paths beginning in one partition and ending in its complement 
+            //Use same looping structure as employed above
             for(int iS=3; iS<nf; iS+=4) {//keep 1 and 2 in iS-partition to prevent double counting
                 //loop over bits not in iS
                 int iSComp = iS^(nf-1);
                 for(int iC=iSComp, im=(iC&-iC); iC>0; iC^=im,im=(iC&-iC)) {
                     int m = log2(im);
-                    //loop over bits in iS, in same manner as loop over complement
+                    //loop over bits in iS
                     for(int it=iS-1, ik=(it&-it); ik>0; it^=ik,ik=(it&-it)) {
                         int k = log2(ik);
-                        value += nC[m][iSComp|1] * nC[k][iS];
+                        chainValue += nC[m][iSComp|1] * nC[k][iS];
                     }
                 }
             }
             
-            
-
-//            } else {//old
-//            
-//            for(int iS=3; iS<nf; iS+=4) {//keep 1 and 2 in i-partition to prevent double counting
-//                int iSComp = (nf-1)^iS;
-//                for(int m=1; m<n; m++) {
-//                    if(((1<<m)&iS) == 0) continue;//skip if m is not in iS
-//                    for(int k=2; k<n; k++) {
-//                        if(((1<<k)&iSComp) == 0) continue;//skip if k is not in iSComp
-//                        value += nC[m][iS] * nC[k][iSComp|1];
-//                    }
-//                }
-//            }
-//            }
-            
             //Sum chains where first vertex is a leaf
             for(int m=1; m<n; m++) { 
-                value += nC[m][nf-1];
+                chainValue += nC[m][nf-1];
             }
+            
+        }//end if(chainFrac)
         
-        }
-//        System.out.println(sum1+"\t"+sum2+"\t"+(float)(sum1-sum2)/sum1+"\t"+sum3+"\t"+(float)(sum3-sum4)/sum3+"\t"+sum5+"\t"+(float)(sum5-sum6)/sum5);
-        
+        value = chainFrac*chainValue + ringFrac*ringValue;
     }
     
     //gives position of bit for an integer having only one nonzero bit
@@ -228,7 +197,7 @@ public class ClusterChainHS implements ClusterAbstract {
         case (1<<13): return 13;
         case (1<<14): return 14;
         case (1<<15): return 15;
-        default: throw new IllegalArgumentException("Unexpected argument to log2:"+i);
+        default: throw new IllegalArgumentException("Unexpected argument to log2: "+i);
         }
     }
         
