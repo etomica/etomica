@@ -8,7 +8,6 @@ import etomica.util.Rational;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumEF;
 import etomica.virial.ClusterSumNonAdditiveTrimerEnergy;
 import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.MayerFunction;
@@ -172,9 +171,6 @@ public final class Standard {
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
-        if (e != null) {
-            return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
-        }
         return new ClusterSum(clusters,weights,new MayerFunction[]{f});
     }
     
@@ -378,10 +374,7 @@ public final class Standard {
             System.out.println("hi "+clusterD.mReeHooverFactor+" "+weightPrefactor+" "+clusterD.mNumIdenticalPermutations+" "+newWeights[weights.length]);
             weights = newWeights;
         } while (generator.advance());
-        System.out.println("XS weights: "+Arrays.toString(weights));
-        if (e != null) {
-            return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
-        }
+        System.out.println("XS weights: "+java.util.Arrays.toString(weights));
         return new ClusterSum(clusters,weights,new MayerFunction[]{f});
     }
     
@@ -511,9 +504,6 @@ public final class Standard {
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
-        if (e != null) {
-            return new ClusterSumEF(clusters,weights,linearE);
-        }
         return new ClusterSum(clusters,weights,linearF);
     }
     
