@@ -33,7 +33,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
     protected boolean precalcQ = true;
     protected final int[] cliqueList;
     
-    protected final int[] nBonds;
+//    protected final int[] nBonds;
     protected final int[] nPts;
     protected final int[] vCount;
     protected final int[] sig;
@@ -54,7 +54,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
     long maxA, maxB, maxAB, maxC, maxQ;
 
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f) {
-        this(nPoints, f, 5);
+        this(nPoints, f, 2);
     }
 
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f, int nPtsTabulated) {
@@ -65,7 +65,6 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         nf = 1<<n;  // 2^n
         fQ = new boolean[nf];
         fC = new int[nf];
-        nBonds = new int[nf];
         nPts = new int[nf];
         vCount = new int[nf];
         fAValues = new int[nf][];
@@ -87,7 +86,6 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         }
         for(int i=0; i<n; i++) {
             fQ[1<<i] = false;
-            nBonds[1<<i] = 0;
         }
         fA = new int[nf];
         fB = new int[nf];
@@ -275,7 +273,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
                     }
                 }
 
-                calcFullFQ(null);
+                calcfQ(null);
 
 //                System.out.println(np+"\t"+s+"\t"+sig[(1<<np)-1]+"\t"+(s-sig[(1<<np)-1]));
             
@@ -357,78 +355,76 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
     }
 
     /**
-     * This calculates all FQ values given that the entries for pairs have
+     * This calculates all fQ values given that the entries for pairs have
      * already been populated.
      */
-    protected void calcFullFQ(BoxCluster box) {
+    protected void calcfQ(BoxCluster box) {
         eCliqueCount = 0;
         // generate all partitions and compute product of e-bonds for all pairs in partition
-        
-        for (int i=3; i<nf; i++) {
-            vCount[i] = 0;
-            if(nPts[i] == 1) continue;//1-point sets filled on construction
-            if(nPts[i] == 2) {// 2-point set fQ's were filled when bonds were computed
-                if(fQ[i]) {
-                    nBonds[i] = 1;//fQ is e-bond, so if zero it means f-bond is nonzero
-                    sig[i] = 1;
-                } else {
-                    nBonds[i] = 0;
-                    sig[i] = 0;
-                }
-                if(nPtsTabulated >= 2) {
-                    fAValues[i] = fAList[2][sig[i]];
-                    fABValues[i] = fABList[2][sig[i]];
-                    fC[i] = fCList[2][sig[i]];
-                }
-                if(doStatistics) sigCounter[1].add(sig[i]);
-                continue;               
-            }
+loop1:  for (int i=7; i<nf; i++) {
+            if(nPts[i] < 3) continue;//1-point sets filled on construction; 2-point set fQ's were filled when bonds were computed
             int j = i & -i;//lowest bit in i
             int k = i&~j; //strip j bit from i and set result to k
             fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
-            nBonds[i] = nBonds[k];
-            sig[i] = sig[k];
+            if(fQ[i]) continue;//nothing will change if fQ[i] is or becomes true
+
             //loop over pairs formed from j and each point in partition; multiply by bond for each pair
             //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            
-            int bondBit = 0;
-            boolean doSig = (nPts[i] <= nPtsTabulated); 
-            if(doSig || doStatistics) bondBit = 1 << nPairs(nPts[k]);
             for (int l=(j<<1); l<i; l=(l<<1)) {
                 if ((l&i)==0) continue; //l is not in partition
-//                fQ[i] |= fQ[l | j];
-                if(fQ[l | j]) {
-                    nBonds[i]++;
-                    if(doSig || doStatistics) sig[i] |= bondBit;
-                    fQ[i] = true;
-                }
-                if(doSig || doStatistics) bondBit = bondBit << 1;
+                //fQ[i] |= fQ[l|j], but can make equality here because loop breaks if fQ[i] is true
+                fQ[i] = fQ[l | j];//fQ = true indicates a non-zero f-bond (e = 0); so product of e-bonds will be 0 (fQ[i] = true) if any of them are zero
+                if(fQ[i]) continue loop1;
+            }
+
+            //if we get here, fQ[i] is false
+            eCliqueCount++;//for fQ[i]=false, all e-bonds are non-zero
+        }
+    }
+    
+    /**
+     * Compute signatures used for lookup tables of fA, fAB, fC
+     */
+    protected void calcSignatures() {
+        
+        for (int i=3; i<nf; i++) {
+            if(((nPts[i] > nPtsTabulated) || (nPts[i] == 1)) && !doStatistics) continue;
+
+            if(nPts[i] == 2) {
+                sig[i] = fQ[i] ? 1 : 0;
+                fAValues[i] = fAList[2][sig[i]];
+                fABValues[i] = fABList[2][sig[i]];
+                fC[i] = fCList[2][sig[i]];
+                if(doStatistics) sigCounter[1].add(sig[i]);
+                continue;               
             }
             
-            if(nBonds[i]+1 < nPts[i]) {
-                fAValues[i] = allZero;
-                fABValues[i] = allZero;
-                fC[i] = 0;
-            } else if(doSig) {
-                fAValues[i] = fAList[nPts[i]][sig[i]];
-                fABValues[i] = fABList[nPts[i]][sig[i]];
-                fC[i] = fCList[nPts[i]][sig[i]];
-            } else {
-                fAValues[i] = null;
-                fABValues[i] = null;
+            int j = i & -i;//lowest bit in i
+            int k = i^j; //strip j bit from i and set result to k
+            sig[i] = sig[k];
+            int bondBit = 1 << nPairs(nPts[k]);
+            //loop over bits in i, excluding j
+            for(int it=k, l=(it&-it); it>0; it^=l,l=(it&-it)) {
+                if(fQ[l | j]) {
+                    sig[i] |= bondBit;
+                }
+                bondBit = bondBit << 1;
             }
+            
+            fAValues[i] = fAList[nPts[i]][sig[i]];
+            fABValues[i] = fABList[nPts[i]][sig[i]];
+            fC[i] = fCList[nPts[i]][sig[i]];
             
             if(doStatistics) {
                 if(maxC < Math.abs(fC[i])) {
                     maxC = (long)Math.max(maxC, Math.abs(fC[i]));
                     System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
+                sigCounter[nPts[i]-1].add(sig[i]);
             }
-            if (!fQ[i]) eCliqueCount++;
-            
-            if(doStatistics) sigCounter[nPts[i]-1].add(sig[i]);
         }
     }
+
 
     public boolean checkConfig(BoxCluster box) {
         if (false && total>0 && total%100000==0) {
@@ -466,7 +462,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         if (edgeCount==maxEdges) {
             screened--;
             cliqueCount = nf-n-(n*(n-1)/2);
-            calcFullFQ(box);
+            calcfQ(box);
             return true;
         }
         if (edgeCount==maxEdges-1) return false;
@@ -515,7 +511,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }
         
         if (precalcQ) {
-            calcFullFQ(box);
+            calcfQ(box);
         }
 
         screened--;
@@ -573,8 +569,10 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             return;
         }
         if (!precalcQ) {
-            calcFullFQ(box);
+            calcfQ(box);
         }
+        
+        calcSignatures();
         
         if(fAValues[nf-1] != null) {//desired value is tabulated, so bypass whole calculation
             value = (1-n)*(fABValues[nf-1][n-1] - fAValues[nf-1][n-1]);
@@ -965,7 +963,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         System.out.println(bits.toString());
         ClusterWheatleyPartitionScreening cw = new ClusterWheatleyPartitionScreening(n, null);
         cw.updateF();
-        cw.calcFullFQ(null);
+        cw.calcfQ(null);
         cw.calcValue(null, false);
 //        for(int k=0; k<=n; k++) {
 //            System.out.print(fAVals[k]);
