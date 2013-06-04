@@ -279,11 +279,11 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
             
                 calcfC(false);
                 int i = (1<<np) - 1;
-                fCList[np][s] = (int)fC[i];
+                fCList[np][s] = fC[i];
                 for(int v=0; v<np; v++) {
                     calcfAB(v, false);
-                    fAList[np][s][v] = (int)fA[i];
-                    fABList[np][s][v] = (int)fAB[i];
+                    fAList[np][s][v] = fA[i];
+                    fABList[np][s][v] = fAB[i];
                 }//end of v-loop
 
                 //remove duplicate arrays to save memory
@@ -308,9 +308,8 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         
         System.out.println("Removed "+nDuplicate+" duplicate of "+(2*nArrays)+" total arrays");
     }
-    
-        
-    private int nPairs(int nPts) {
+
+    private static int nPairs(int nPts) {
         return nPts*(nPts-1)/2;
     }
 
@@ -417,7 +416,7 @@ loop1:  for (int i=7; i<nf; i++) {
             
             if(doStatistics) {
                 if(maxC < Math.abs(fC[i])) {
-                    maxC = (long)Math.max(maxC, Math.abs(fC[i]));
+                    maxC = Math.max(maxC, Math.abs(fC[i]));
                     System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
                 sigCounter[nPts[i]-1].add(sig[i]);
@@ -661,7 +660,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 
             if(doStatistics) {
                 if(maxC < Math.abs(fC[i])) {
-                    maxC = (long)Math.max(maxC, Math.abs(fC[i]));
+                    maxC = Math.max(maxC, Math.abs(fC[i]));
                     System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
@@ -738,9 +737,9 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             
             if(doStatistics) {
                 if(maxA < Math.abs(fA[i]) || maxB < Math.abs(fB[i]) || maxAB < Math.abs(fAB[i])) {
-                    maxA = (long)Math.max(maxA, Math.abs(fA[i]));
-                    maxB = (long)Math.max(maxB, Math.abs(fB[i]));
-                    maxAB = (long)Math.max(maxAB,Math.abs(fA[i]+fB[i]));
+                    maxA = Math.max(maxA, Math.abs(fA[i]));
+                    maxB = Math.max(maxB, Math.abs(fB[i]));
+                    maxAB = Math.max(maxAB,Math.abs(fA[i]+fB[i]));
                     System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
@@ -780,9 +779,9 @@ iLoop:  for (int i=1; i<nf-3; i++) {
 
             if(doStatistics) {
                 if(maxA < Math.abs(fA[i]) || maxB < Math.abs(fB[i]) || maxAB < Math.abs(fAB[i])) {
-                    maxA = (long)Math.max(maxA, Math.abs(fA[i]));
-                    maxB = (long)Math.max(maxB, Math.abs(fB[i]));
-                    maxAB = (long)Math.max(maxAB,Math.abs(fA[i]+fB[i]));
+                    maxA = Math.max(maxA, Math.abs(fA[i]));
+                    maxB = Math.max(maxB, Math.abs(fB[i]));
+                    maxAB = Math.max(maxAB,Math.abs(fA[i]+fB[i]));
                     System.out.println("MaxA,B,AB,C: "+maxA+" "+maxB+" "+maxAB+" "+maxC);
                 }
             }
