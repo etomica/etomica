@@ -133,7 +133,6 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         sum = incomingDataInfo.makeData();
         sumSquare = incomingDataInfo.makeData();
         work = incomingDataInfo.makeData();
-        work2 = incomingDataInfo.makeData();
         standardDeviation = incomingDataInfo.makeData();
         average = incomingDataInfo.makeData();
         mostRecent = incomingDataInfo.makeData();
@@ -240,6 +239,6 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
 
     protected IData sum; //sum(value)
     protected IData sumSquare;//sum(value^2)
-    protected IData work, work2;
+    protected IData work;
     protected final IFunction negativeChop;
 }
