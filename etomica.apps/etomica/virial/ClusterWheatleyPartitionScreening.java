@@ -640,10 +640,9 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     
     protected final void calcfC(final boolean useTable) {
 
-//        int sum1 = 0, sum2 = 0;
         for(int i=1; i<nf; i++) {
             if((fAValues[i] != null) && useTable) {
-                continue;//fC was set in calcFullFQ
+                continue;//fC was set in calcSignatures
             }
             
             fC[i] = fQ[i] ? 0 : 1;
@@ -654,10 +653,8 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 int j = iPartitions[k];
                 int jComp = (i & ~j);
                 if(!fQ[jComp]) fC[i] -= fC[j];
-//                else sum1++;
-//                sum2++;
             }//end k-loop
-                
+                        
             if(doStatistics) {
                 if(maxC < Math.abs(fC[i])) {
                     maxC = Math.max(maxC, Math.abs(fC[i]));
@@ -665,7 +662,6 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 }
             }
         }
-//        System.out.println(sum1+" "+sum2+" Fraction fC accum avoided:"+((float)sum1/sum2));
     }
     
     protected final void calcfAB(int v, final boolean useTable) {
@@ -717,6 +713,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 final int kmax = iPartitions.length;
                 for(int k=0; k<kmax; k++) {
                     int j = iPartitions[k];
+                    if(fB[j]==0) continue;//this is true about 90% of the time
                     int jComp = (i & ~j) | vs1;
                     fA[i] += fB[j] * fAB[jComp];
                 }//end k-loop
