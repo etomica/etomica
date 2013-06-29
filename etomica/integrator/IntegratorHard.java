@@ -65,7 +65,7 @@ public class IntegratorHard extends IntegratorMD
     protected final CollisionHandlerDown collisionHandlerDown;
 
     protected double collisionTimeStep;
-    protected int collisionCount;
+    protected long collisionCount;
 
     protected AtomLeafAgentManager agentManager;
     protected final AtomTypeAgentManager nullPotentialManager;
@@ -275,7 +275,7 @@ public class IntegratorHard extends IntegratorMD
         if(isothermal) doThermostatInternal();
     }//end of doStep
 
-    public int getCollisionCount() {
+    public long getCollisionCount() {
         return collisionCount;
     }
 
