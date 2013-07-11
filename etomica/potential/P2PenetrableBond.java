@@ -122,8 +122,6 @@ public class P2PenetrableBond extends Potential2HardSpherical {
                 lastEnergyChange = 0.0;
             }
 
-            lastCollisionVirial = 2.0*reduced_m*bij;
-            lastEnergyChange = 0.0;
         }
         else {    // Well collision
             if (Debug.ON && Math.abs(r2 - maxBondLengthSquared)/maxBondLengthSquared > 1.e-9) {
