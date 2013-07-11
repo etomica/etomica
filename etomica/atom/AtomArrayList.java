@@ -91,6 +91,13 @@ public class AtomArrayList implements IAtomList {
         }
         return -1;
     }
+    
+    /**
+     * Returns true if the given atom is in the list, false otherwise
+     */
+    public boolean contains(IAtom elem) {
+        return (indexOf(elem) != -1);
+    }
 
     public IAtom[] toAtomLeafArray() {
         IAtom[] tempList = new IAtom[itemsInList];
