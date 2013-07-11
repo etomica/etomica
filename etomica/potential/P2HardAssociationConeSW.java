@@ -46,7 +46,7 @@ public class P2HardAssociationConeSW extends Potential2 {
     }
 
     /**
-     * Returns infinity.
+     * Returns sigma * cutoffFactor.
      */
     public double getRange() {
         return sigma*cutoffFactor;
