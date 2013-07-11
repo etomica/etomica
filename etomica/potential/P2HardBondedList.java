@@ -11,6 +11,7 @@ import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.simulation.Simulation;
 import etomica.space.Tensor;
+import etomica.util.Debug;
 
 /**
  * Hard potential that wraps two others.  One potential applies to atoms that are found on each other's
@@ -38,8 +39,11 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
     }
 
     public void bump(IAtomList pair, double falseTime) {
-        lastCollisionIsBonded = isBonded(pair);
+        MyBond bond = getBond(pair);
+        lastCollisionIsBonded = (bond != null);
         if(lastCollisionIsBonded) {
+//            bondedPotential.setBondLengthSquared(bond.bondLengthSquared);
+            ((P2PenetrableSquareWell)bondedPotential).setCoreDiameterSquared(bond.bondLengthSquared);
             bondedPotential.bump(pair, falseTime);
         } else {
             nonBondedPotential.bump(pair, falseTime);
@@ -47,7 +51,14 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
     }
 
     public double collisionTime(IAtomList pair, double falseTime) {
-        return isBonded(pair) ? bondedPotential.collisionTime(pair, falseTime) : nonBondedPotential.collisionTime(pair, falseTime);
+        MyBond bond = getBond(pair);
+        if(bond != null) {
+//            bondedPotential.setBondLengthSquared(bond.bondLengthSquared);
+            ((P2PenetrableSquareWell)bondedPotential).setCoreDiameterSquared(bond.bondLengthSquared);
+            return bondedPotential.collisionTime(pair, falseTime);
+        } else {
+            return nonBondedPotential.collisionTime(pair, falseTime);
+        }
     }
 
     public double energyChange() {
@@ -75,8 +86,15 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
     /**
      * Returns true if the pair of atoms are on each others' bonded list; false otherwise.
      */
+    public boolean isBonded(IAtom atom0, IAtom atom1) {
+        return getBondedList(atom0).contains(atom1);
+    }
     public boolean isBonded(IAtomList pair) {
-        return getBondedList(pair.getAtom(0)).contains(pair.getAtom(1));
+        return isBonded(pair.getAtom(0), pair.getAtom(1));
+    }
+    
+    private MyBond getBond(IAtomList pair) {
+        return getBondedList(pair.getAtom(0)).getBond(pair.getAtom(1));
     }
     
     /**
@@ -88,15 +106,13 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
      * @param pair pair of atoms to be bonded or unbonded
      * @throws IndexOutOfBoundsException if specifying unbonding, and atoms are not bonded already
      */
-    public void setBonded(boolean bonding, IAtomList pair) {
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
-        AtomArrayList list0 = getBondedList(atom0);
-        AtomArrayList list1 = getBondedList(atom1);
+    public void setBonded(boolean bonding, IAtom atom0, IAtom atom1, double bondLengthSquared) {
+        BondArrayList list0 = getBondedList(atom0);
+        BondArrayList list1 = getBondedList(atom1);
         if(bonding) {
-            if(isBonded(pair)) return;
-            list0.add(atom1);
-            list1.add(atom0);
+            if(isBonded(atom0, atom1)) return;
+            list0.add(new MyBond(atom1, bondLengthSquared));
+            list1.add(new MyBond(atom0, bondLengthSquared));
         } else {
             list0.remove(list0.indexOf(atom1));//throws exception if not in list
             list1.remove(list1.indexOf(atom0));
@@ -104,22 +120,22 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
     }
     
     /**
-     * Returns the list containing the bonded atoms for the given atom.
+     * Returns the list containing the bonds for the given atom.
      */
-    private AtomArrayList getBondedList(IAtom atom) {
-        return (AtomArrayList)agentManager.getAgent(atom);
+    public BondArrayList getBondedList(IAtom atom) {
+        return (BondArrayList)agentManager.getAgent(atom);
     }
     
     public Class getAgentClass() {
-        return AtomArrayList.class;
+        return BondArrayList.class;
     }
 
     public Object makeAgent(IAtom a) {
-        return new AtomArrayList();
+        return new BondArrayList();
     }
 
     public void releaseAgent(Object agent, IAtom atom) {
-        ((AtomArrayList)agent).clear();
+        ((BondArrayList)agent).clear();
     } 
     
 
@@ -150,6 +166,89 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
             ((AtomLeafAgentManager)agent).dispose();
             
         }
+    }
+    
+    private class MyBond {
+        final double bondLengthSquared;
+        final IAtom partner;
+        
+        MyBond(IAtom partner, double bondLengthSquared) {
+            this.partner = partner;
+            this.bondLengthSquared = bondLengthSquared;
+        }
+    }
+    
+    public class BondArrayList {
+        MyBond[] bondList;
+        int itemsInList = 0;
+        
+        public BondArrayList() {
+            bondList = new MyBond[10];
+        }
+        
+        public int size() {
+            return itemsInList;
+        }
+
+        public void clear() {
+            for(int i = 0; i < itemsInList; i++) {
+                bondList[i] = null;
+            }
+            itemsInList = 0;
+        }
+
+        public int indexOf(IAtom elem) {
+            for(int i = 0; i < itemsInList; i++) {
+                if(elem == bondList[i].partner) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        
+        public MyBond getBond(IAtom elem) {
+            int index = indexOf(elem);
+            if(index == -1) return null;
+            return bondList[index];
+        }
+        
+        public boolean contains(IAtom elem) {
+            return (indexOf(elem) != -1);
+        }
+
+        public boolean add(MyBond bond) {
+
+            if(itemsInList == bondList.length) {
+                MyBond[] tempList = new MyBond[(int)((float)itemsInList * (1.0f + 0.3f)+1)];
+
+                for(int i = 0; i < bondList.length; i++) {
+                    tempList[i] = bondList[i];
+                }
+                bondList = tempList;
+            }
+            bondList[itemsInList] = bond; 
+            itemsInList++;
+
+            return true;
+        }
+
+        public MyBond remove(int index) {
+            MyBond bond = null;
+
+            if(index < 0 || index >= itemsInList) {
+                throw new IndexOutOfBoundsException("AtomLeafArrayList.remove invalid index");
+            }
+
+            bond = bondList[index];
+            for(int i = index; i < itemsInList-1; i++) {
+                bondList[i] = bondList[i+1];
+            }
+            bondList[itemsInList-1] = null;
+            itemsInList--;
+
+            return bond;
+        }
+
     }
  
 }
