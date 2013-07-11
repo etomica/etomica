@@ -92,7 +92,7 @@ public class AtomLeafAgentManager extends BoxListenerAdapter implements Serializ
     }
     
     /**
-     * Notifies the AtomAgentManager it should disconnect itself as a listener.
+     * Notifies the AtomAgentManager it should disconnect itself as a listener and release all of its agents.
      */
     public void dispose() {
         // remove ourselves as a listener to the box
