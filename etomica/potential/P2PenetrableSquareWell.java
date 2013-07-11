@@ -21,9 +21,9 @@ import etomica.util.Debug;
 public class P2PenetrableSquareWell extends Potential2HardSpherical {
 
     private static final long serialVersionUID = 1L;
-    protected double coreDiameter, coreDiameterSquared;
-    protected double wellDiameter, wellDiameterSquared;
-    protected double lambda; //wellDiameter = coreDiameter * lambda
+    protected double coreDiameterSquared;
+    protected double wellDiameterSquared;
+    protected double lambdaSquared; //wellDiameter = coreDiameter * lambda
     protected double epsilon, epsilonCore, deltaEps;
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
@@ -46,7 +46,7 @@ public class P2PenetrableSquareWell extends Potential2HardSpherical {
     }
 
     public double getRange() {
-        return wellDiameter;
+        return Math.sqrt(wellDiameterSquared);
     }
     
     /**
@@ -71,7 +71,7 @@ public class P2PenetrableSquareWell extends Potential2HardSpherical {
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         double ke = bij*bij*reduced_m/(2.0*r2);
-        if(2*r2 < (coreDiameterSquared+wellDiameterSquared) || lambda == 1) {   // Hard-core collision
+        if(2*r2 < (coreDiameterSquared+wellDiameterSquared) || lambdaSquared == 1) {   // Hard-core collision
             if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
@@ -222,7 +222,7 @@ public class P2PenetrableSquareWell extends Potential2HardSpherical {
     /**
      * Accessor method for core diameter.
      */
-    public double getCoreDiameter() {return coreDiameter;}
+    public double getCoreDiameter() {return Math.sqrt(coreDiameterSquared);}
     /**
      * Accessor method for core diameter.
      * Well diameter is defined as a multiple (lambda) of this, and is updated when core diameter is changed
@@ -231,17 +231,19 @@ public class P2PenetrableSquareWell extends Potential2HardSpherical {
         if (c < 0) {
             throw new IllegalArgumentException("diameter must not be negative");
         }
-        coreDiameter = c;
-        coreDiameterSquared = c*c;
-        wellDiameter = coreDiameter*lambda;
-        wellDiameterSquared = wellDiameter*wellDiameter;
+        setCoreDiameterSquared(c*c);
     }
     public Dimension getCoreDiameterDimension() {return Length.DIMENSION;}
+    
+    public void setCoreDiameterSquared(double c2) {
+        coreDiameterSquared = c2;
+        wellDiameterSquared = c2*lambdaSquared;
+    }
 
     /**
      * Accessor method for well-diameter multiplier.
      */
-    public double getLambda() {return lambda;}
+    public double getLambda() {return Math.sqrt(lambdaSquared);}
     /**
      * Accessor method for well-diameter multiplier.
      * Well diameter is defined as this multiple of core diameter, and is updated when 
@@ -249,9 +251,8 @@ public class P2PenetrableSquareWell extends Potential2HardSpherical {
      */
     public void setLambda(double lam) {
         if (lam < 1.0) throw new IllegalArgumentException("Square-well lambda must be greater than 1.0");
-        lambda = lam;
-        wellDiameter = coreDiameter*lambda;
-        wellDiameterSquared = wellDiameter*wellDiameter;
+        lambdaSquared = lam*lam;
+        wellDiameterSquared = coreDiameterSquared*lambdaSquared;
     }
     public Dimension getLambdaDimension() {return Null.DIMENSION;}
 
@@ -275,7 +276,6 @@ public class P2PenetrableSquareWell extends Potential2HardSpherical {
 
     /**
      * Sets height of penetrable core.  Positive value corresponds to a positive height of the core energy.
-     * @param epsilsonCore
      */
     public void setEpsilonCore(double epsilsonCore) {
         this.epsilonCore = epsilsonCore;
