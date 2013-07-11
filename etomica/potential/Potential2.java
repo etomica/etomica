@@ -3,9 +3,7 @@ package etomica.potential;
 import etomica.space.ISpace;
 
 /**
- * Potential acting on or within an atom, or between a pair of atoms or atom
- * groups. Contains other Potential instances that describe the specific
- * interactions between the atoms of the group(s).
+ * Potential acting on 2 atoms or molecules.
  * 
  * @author David Kofke
  */
@@ -13,8 +11,7 @@ import etomica.space.ISpace;
 public abstract class Potential2 extends Potential {
 
     /**
-     * Constructs potential with given space a a default CoordinatePair for
-     * spherical, non-kinetic molecules.
+     * Constructs potential with given space.
      */
     public Potential2(ISpace space) {
         super(2, space);
