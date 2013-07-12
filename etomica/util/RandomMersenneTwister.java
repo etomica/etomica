@@ -72,6 +72,8 @@ public class RandomMersenneTwister implements IRandom {
 
     protected boolean hasNextGaussian = false;
     protected double nextGaussian;
+    protected int[] savedSeedArray;
+    protected int savedSeed;
 
     /**
      * Creates a Mersenne Twister with the given seed.
@@ -92,6 +94,8 @@ public class RandomMersenneTwister implements IRandom {
      * Configures the RNG with the given seed.
      */
     public void setSeed(int s) {
+        savedSeed = s;
+        savedSeedArray = null;
         /* initializes mt[N] with a seed */
         mt[0] = s;
         for (mti=1; mti<N; mti++) {
@@ -115,6 +119,7 @@ public class RandomMersenneTwister implements IRandom {
         int key_length = init_key.length;
         int i, j, k;
         setSeed(19650218);
+        savedSeedArray = init_key.clone();
         i=1; j=0;
         k = (N>key_length ? N : key_length);
         for (; k>0; k--) {
@@ -132,6 +137,15 @@ public class RandomMersenneTwister implements IRandom {
         }
 
         mt[0] = 0x80000000; /* MSB is 1; assuring non-zero initial array */ 
+    }
+
+    public int getSeed() {
+        if (savedSeedArray != null) throw new RuntimeException("it's a seed array");
+        return savedSeed;
+    }
+
+    public int[] getSeedArray() {
+        return savedSeedArray;
     }
 
     /* generates a random number on [0,0xffffffff]-interval */
