@@ -1,69 +1,32 @@
 package etomica.modules.render;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
-import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
-import etomica.atom.DiameterHashByType;
+import etomica.atom.AtomPair;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
-import etomica.data.IDataSink;
-import etomica.data.meter.MeterDensity;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergyFromIntegrator;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressureHard;
-import etomica.data.meter.MeterTemperature;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorHard;
-import etomica.listener.IntegratorListenerAction;
 import etomica.modules.render.ParseObj.BondInfo;
-import etomica.modules.swmd.SwmdGraphic.DataSinkExcludeOverlap;
-import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBondedList;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2PenetrableSquareWell;
 import etomica.potential.PotentialHard;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
-import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Picosecond;
 import etomica.util.ParameterBase;
-import etomica.util.Constants.CompassDirection;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * 
@@ -94,10 +57,9 @@ public class RenderMD extends Simulation {
      */
     public final SpeciesSpheresMono species;
 
-    public final P2HardBondedList potential;
-    public final PotentialHard potentialBonded, potentialNonBonded;
+    public final P2PenetrableCar potentialBonded;
     
-    public final IPotentialMaster potentialMaster;
+    public final PotentialMasterList potentialMaster;
     
     public final ParseObj parser;
     public ActivityIntegrate activityIntegrate;
@@ -111,25 +73,18 @@ public class RenderMD extends Simulation {
     }
     
     public RenderMD(ISpace _space, RenderMDParam params) {
-
+        
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
         super(_space);
+        setRandom(new RandomNumberGenerator(2));
 
-        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 3.0, space) : new PotentialMasterMonatomic(this);
+        potentialMaster = new PotentialMasterList(this, 1, space);
         
         parser = new ParseObj(params.file);
 
         int numAtoms = parser.nAtoms;
-        
-        double neighborRangeFac = 1.2;
-        double sigma = Double.NaN;//not using neighbor lists because potential is different for each pair
-        double lambda = params.lambda;
-        if (params.useNeighborLists) {
-            ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sigma*lambda);
-        }
-
         integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setTemperature(params.temperature);
         integrator.setIsothermal(true);
@@ -143,66 +98,116 @@ public class RenderMD extends Simulation {
         species.setIsDynamic(true);
         addSpecies(species);
         
-        potentialBonded = new P2PenetrableSquareWell(space);
-        potentialNonBonded = new P2Ideal(space);
-        potential = new P2HardBondedList(this, potentialBonded, potentialNonBonded);
-        
-        ((P2PenetrableSquareWell)potentialBonded).setEpsilonCore(params.epsilonCore);
-        ((P2PenetrableSquareWell)potentialBonded).setEpsilon(params.epsilon);
-        ((P2PenetrableSquareWell)potentialBonded).setLambda(params.lambda);
-        
-        IAtomType leafType = species.getLeafType();
-
-        potentialMaster.addPotential(potential,new IAtomType[]{leafType, leafType});
-
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
+
+        potentialBonded = new P2PenetrableCar(space, parser, box);
+        
+        potentialBonded.setEpsilonCore(params.epsilonCore);
+        potentialBonded.setEpsilon(params.epsilon);
+        potentialBonded.setLambda(params.lambda);
+        
+        IAtomType leafType = species.getLeafType();
+
+        potentialMaster.addPotential(potentialBonded,new IAtomType[]{leafType, leafType});
+
         BoxInflate inflater = new BoxInflate(box, space);
 //        inflater.setTargetDensity(params.eta * 2 * space.D() / Math.PI);
         inflater.setTargetDensity(1.0);
         inflater.actionPerformed();
+        potentialMaster.setRange(box.getBoundary().getBoxSize().getX(0)*0.49);
         
-        potential.setBox(box);
         IAtomList leafList = box.getLeafList();
         for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
             IAtom a = leafList.getAtom(iLeaf);
             IVectorMutable pos = a.getPosition();
-            pos.E((Vector3D)parser.vertices.get(iLeaf));
+            pos.E(parser.vertices.get(iLeaf));
         }
         
-        int nBonds = parser.bondList.size();
-        for(int i=0; i<nBonds; i++) {
-            BondInfo bond = parser.bondList.get(i);
-            IAtom atom0 = leafList.getAtom(bond.i0);
-            IAtom atom1 = leafList.getAtom(bond.i1);
-            potential.setBonded(true, atom0, atom1, 0.95*bond.bondLengthSquared);
-        }
+        CriterionCar criterion = new CriterionCar(parser, box);
+        potentialMaster.setCriterion(potentialBonded, criterion);
         
-        int bondSum = 0;
-        int bondMax = 0;
-        int bondMin = 0;
-        for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
-            int bondCount = potential.getBondedList(a).size();
-            bondSum += bondCount;
-            bondMax = Math.max(bondMax, bondCount);
-            bondMin = Math.min(bondMin, bondCount);
-        }
-        System.out.println("Avg, max, min bonds per atom: "+((float)bondSum/numAtoms)+" "+bondMax+" "+bondMin);
+//        int bondSum = 0;
+//        int bondMax = 0;
+//        int bondMin = 0;
+//        for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
+//            IAtom a = leafList.getAtom(iLeaf);
+//            int bondCount = potential.getBondedList(a).size();
+//            bondSum += bondCount;
+//            bondMax = Math.max(bondMax, bondCount);
+//            bondMin = Math.min(bondMin, bondCount);
+//        }
+//        System.out.println("Avg, max, min bonds per atom: "+((float)bondSum/numAtoms)+" "+bondMax+" "+bondMin);
 
 //        new ConfigurationFile(params.file).initializeCoordinates(box);
 //        new ConfigurationCar(space).initializeCoordinates(box);
         
         integrator.setBox(box);
 
-        if (params.useNeighborLists) { 
-            NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(box);
-            integrator.getEventManager().addListener(nbrManager);
+        // find neighbors now.  don't try to update later (neighbors never change)
+        potentialMaster.getNeighborManager(box).reset();
+    }
+    
+    public static class CriterionCar implements NeighborCriterion {
+
+        protected final Map<IAtom,Set<IAtom>> bondedSet;
+        public CriterionCar(ParseObj parser, IBox box) {
+            bondedSet = new HashMap<IAtom,Set<IAtom>>();
+            IAtomList leafList = box.getLeafList();
+            for (int i=0; i<leafList.getAtomCount(); i++) {
+                bondedSet.put(leafList.getAtom(i), new HashSet<IAtom>());
+            }
+            int nBonds = parser.bondList.size();
+            for(int i=0; i<nBonds; i++) {
+                BondInfo bond = parser.bondList.get(i);
+                IAtom atom0 = leafList.getAtom(bond.i0);
+                IAtom atom1 = leafList.getAtom(bond.i1);
+                bondedSet.get(atom0).add(atom1);
+                bondedSet.get(atom1).add(atom0);
+            }
         }
-        else {
-            integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
+            
+        
+        public boolean accept(IAtomList pair) {
+            return bondedSet.get(pair.getAtom(0)).contains(pair.getAtom(1));
         }
+
+        public boolean needUpdate(IAtom atom) {return false;}
+
+        public void setBox(IBox box) {}
+
+        public boolean unsafe() {return false;}
+
+        public void reset(IAtom atom) {}
+    }
+    
+    public static class P2PenetrableCar extends P2PenetrableSquareWell {
+        protected final Map<IAtomList, Double> bondMap;
+        
+        public P2PenetrableCar(ISpace space, ParseObj parser, IBox box) {
+            super(space);
+            bondMap = new HashMap<IAtomList, Double>();
+            IAtomList leafList = box.getLeafList();
+            int nBonds = parser.bondList.size();
+            for(int i=0; i<nBonds; i++) {
+                BondInfo bond = parser.bondList.get(i);
+                IAtom atom0 = leafList.getAtom(bond.i0);
+                IAtom atom1 = leafList.getAtom(bond.i1);
+                bondMap.put(new AtomPair(atom0, atom1), bond.bondLengthSquared*0.95);
+            }
+        }
+        
+        public void bump(IAtomList pair, double falseTime) {
+            setCoreDiameterSquared(bondMap.get(pair));
+            super.bump(pair, falseTime);
+        }
+
+        public double collisionTime(IAtomList pair, double falseTime) {
+            setCoreDiameterSquared(bondMap.get(pair));
+            return super.collisionTime(pair, falseTime);
+        }
+
     }
 
 //    public static void main(String[] args) {
@@ -412,7 +417,7 @@ public class RenderMD extends Simulation {
     public static class RenderMDParam extends ParameterBase {
         public double eta = 0.7;
         public boolean useNeighborLists = false;
-        public String file = "/Users/kofke/Documents/workspace/car self-assembly/mustang.txt";
+        public String file = "mustang.txt";
         public double epsilonCore = 10;
         public double lambda = 1.1;
         public double epsilon = 10;
