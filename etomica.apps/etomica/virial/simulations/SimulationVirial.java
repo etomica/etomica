@@ -17,6 +17,7 @@ import etomica.space.ISpace;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.util.RandomMersenneTwister;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -51,7 +52,14 @@ public class SimulationVirial extends Simulation {
 	}
 	
 	public SimulationVirial(ISpace space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
+	    this(space, species, temperature, aSampleCluster, refCluster, targetClusters, doWiggle, null);
+	}
+	
+	public SimulationVirial(ISpace space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle, int[] seeds) {
 		super(space);
+		if (seeds != null) {
+		    setRandom(new RandomMersenneTwister(seeds));
+		}
         PotentialMaster potentialMaster = new PotentialMaster();
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
@@ -123,7 +131,9 @@ public class SimulationVirial extends Simulation {
                 integrator.getEventManager().removeListener(accumulatorPump);
                 accumulatorPump = null;
             }
-            setAccumulator(accumulator);
+            if (meter != null) {
+                setAccumulator(accumulator);
+            }
         }
 	}
 
