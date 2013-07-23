@@ -1,70 +1,56 @@
 package etomica.modules.render;
 
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JPanel;
 
 import etomica.action.IAction;
+import etomica.api.IAtom;
+import etomica.api.IAtomList;
+import etomica.atom.AtomPair;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
-import etomica.data.DataSourceFunction;
-import etomica.data.DataSourceRmsVelocity;
-import etomica.data.DataSourceUniform;
-import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.DataTag;
-import etomica.data.IData;
 import etomica.data.IDataSink;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressureTensorFromIntegrator;
-import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.data.types.DataTensor;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceNSelector;
+import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.listener.IntegratorListenerAction;
-import etomica.modules.ljmd.Ljmd;
+import etomica.modifier.Modifier;
 import etomica.modules.render.RenderMD.RenderMDParam;
-import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.statmech.MaxwellBoltzmann;
-import etomica.units.DimensionRatio;
+import etomica.units.Dimension;
 import etomica.units.Energy;
-import etomica.units.Length;
 import etomica.units.Null;
-import etomica.units.Time;
+import etomica.units.Prefix;
+import etomica.units.PrefixedUnit;
 import etomica.units.Unit;
 import etomica.units.systems.LJ;
 import etomica.util.Constants.CompassDirection;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
 
 public class RenderMDGraphic extends SimulationGraphic {
 
@@ -78,13 +64,15 @@ public class RenderMDGraphic extends SimulationGraphic {
     public RenderMDGraphic(final RenderMD simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	
+    	RenderMDParam params = new RenderMDParam();
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
     	this.sim = simulation;
 
         LJ unitSystem = new LJ();
-        Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
+        Unit tUnit = new PrefixedUnit(Prefix.CENTI,Energy.DIMENSION.getUnit(unitSystem));
 
         sim.activityIntegrate.setSleepPeriod(0);
         
@@ -202,12 +190,12 @@ public class RenderMDGraphic extends SimulationGraphic {
 
         //temperature selector
         temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
-        temperatureSelect.setPrecision(1);
+        temperatureSelect.setPrecision(3);
         temperatureSelect.setMinimum(0.0);
-        temperatureSelect.setMaximum(3.0);
+        temperatureSelect.setMaximum(1.0);
         temperatureSelect.setSliderMajorValues(3);
-	    temperatureSelect.setUnit(tUnit);
-	    temperatureSelect.setAdiabatic();
+//	    temperatureSelect.setUnit(tUnit);
+//	    temperatureSelect.setIsothermal();
 
         final IAction temperatureAction = new IAction() {
             public void actionPerformed() {
@@ -217,6 +205,90 @@ public class RenderMDGraphic extends SimulationGraphic {
 
 		temperatureSelect.setSliderPostAction(temperatureAction);
         temperatureSelect.setRadioGroupPostAction(temperatureAction);
+
+		DeviceSlider lambdaSlider = new DeviceSlider(null);
+        lambdaSlider = new DeviceSlider(null);
+        lambdaSlider.setShowValues(true);
+        lambdaSlider.setEditValues(true);
+        lambdaSlider.setPrecision(2);
+        lambdaSlider.setMinimum(1);
+        lambdaSlider.setMaximum(6);
+        lambdaSlider.setNMajor(6);
+        lambdaSlider.setValue(params.lambda);
+        
+        lambdaSlider.setModifier(new Modifier(){
+
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "Tightness";
+            }
+
+            public double getValue() {
+                return sim.potentialBonded.getLambda();
+            }
+
+            public void setValue(double value) {
+                sim.potentialBonded.setLambda(value);
+                
+            }
+            
+        });
+
+        // panel for lambda control / display
+        JPanel lambdaSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        lambdaSlider.setShowBorder(false);
+        lambdaSliderPanel.add(lambdaSlider.graphic());
+
+
+        DeviceSlider epsilonSlider = new DeviceSlider(null);
+        epsilonSlider.setShowValues(true);
+        epsilonSlider.setEditValues(true);
+        epsilonSlider.setMinimum(0);
+        epsilonSlider.setMaximum(10000);
+        epsilonSlider.setNMajor(3);
+        epsilonSlider.setNMinor(1);
+        epsilonSlider.setValue(new RenderMDParam().lambda);
+        
+        epsilonSlider.setModifier(new Modifier(){
+
+            public Dimension getDimension() {
+                return Energy.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "Well depth";
+            }
+
+            public double getValue() {
+                return sim.potentialBonded.getEpsilon();
+            }
+
+            public void setValue(double value) {
+                sim.potentialBonded.setEpsilon(value);
+                
+            }
+            
+        });
+
+        // panel for epsilon control / display
+        JPanel epsilonSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        epsilonSlider.setShowBorder(false);
+        epsilonSliderPanel.add(epsilonSlider.graphic());
+ 
+        // Add all state page sub panels onto a single panel
+        JPanel statePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 0;  gbc2.gridy = 0;
+        statePanel.add(temperatureSelect.graphic(), gbc2);
+        gbc2.gridx = 0;  gbc2.gridy = 1;
+        statePanel.add(lambdaSliderPanel, gbc2);
+        gbc2.gridx = 0;  gbc2.gridy = 2;
+        statePanel.add(epsilonSliderPanel, gbc2);
+
+        getPanel().controlPanel.add(statePanel, vertGBC);
 
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());
@@ -246,7 +318,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
+//        getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
 
         if(showConfig == true) {
             add(configButton);
@@ -255,7 +327,56 @@ public class RenderMDGraphic extends SimulationGraphic {
     	add(densityBox);
     	add(tBox);
     	add(peDisplay);
+        //sim.integrator.setTemperature(new RenderMDParam().temperature);
+    	temperatureSelect.setTemperature(new RenderMDParam().temperature);
 
+//    	Integer paintInterval= ((IntegratorListenerAction)getPaintAction(sim.box)).getInterval();
+    	if(params.drawBonds) {
+        	IntegratorListenerAction bondAction = new IntegratorListenerAction(new IAction() {
+                Map<IAtom,Set<IAtom>> bondedSet = sim.criterion.bondedSet;
+        	    DisplayBoxCanvasG3DSys dis = ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas);
+                Map<IAtomList,Double> bondedMap = sim.potentialBonded.bondMap;
+                AtomPair pair = new AtomPair();
+                ArrayList allBonds = new ArrayList();
+    
+        	    public void actionPerformed() {
+        	        IAtomList atoms = simulation.box.getLeafList();
+        	        double lambda2 = sim.potentialBonded.getLambda()*sim.potentialBonded.getLambda();
+        	        int nAtoms = atoms.getAtomCount();
+        	        int nBonds = allBonds.size();
+        	        for(int i=0; i<nBonds; i++) {
+        	            dis.releaseBond(allBonds.get(i));
+        	        }
+        	        allBonds.clear();
+        	        for(int i=0; i<nAtoms; i++) {
+        	            pair.atom0 = atoms.getAtom(i);
+        	            Set<IAtom> aSet = bondedSet.get(pair.atom0);
+        	            Iterator<IAtom> iterator = aSet.iterator();
+        	            while(iterator.hasNext()) {
+        	                pair.atom1 = (IAtom)iterator.next();
+        	                double bondLength2 = bondedMap.get(pair).doubleValue();
+        	                double separation2 = pair.atom1.getPosition().Mv1Squared(pair.atom0.getPosition());
+        	                if(separation2 > 0.999*bondLength2 && separation2 < 1.001*bondLength2*lambda2) {
+        	                    allBonds.add(dis.makeBond(pair, null));
+        	                }
+        	            }
+        	            
+        	        }
+        	    }
+        	}, 20);
+        	sim.integrator.getEventManager().addListener(bondAction);
+    	}
+    	
+    	
+//    	Set<IAtomList> bondPairs = sim.potentialBonded.bondMap.keySet();
+//    	Iterator<IAtomList> iterator = bondPairs.iterator();
+//    	while(iterator.hasNext()) {
+//    	    IAtomList pair = iterator.next();
+////            g3dsys.images.Bond b = ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond((AtomPair)pair,null);
+//    	    ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond((AtomPair)pair,null);
+//    	}
+//        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).releaseAllBonds();
+    	
     }
 
     public static void main(String[] args) {
