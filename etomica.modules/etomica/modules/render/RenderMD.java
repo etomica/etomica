@@ -5,25 +5,30 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
+import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.modules.render.ParseObj.BondInfo;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2HardBondedList;
-import etomica.potential.P2Ideal;
 import etomica.potential.P2PenetrableSquareWell;
-import etomica.potential.PotentialHard;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.RandomNumberGenerator;
@@ -63,6 +68,7 @@ public class RenderMD extends Simulation {
     
     public final ParseObj parser;
     public ActivityIntegrate activityIntegrate;
+    public CriterionCar criterion;
 
     
     /**
@@ -91,7 +97,7 @@ public class RenderMD extends Simulation {
         integrator.setTimeStep(params.timeStep);
 
         activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
+        activityIntegrate.setSleepPeriod(0);
         getController().addAction(activityIntegrate);
 
         species = new SpeciesSpheresMono(this, space);
@@ -111,12 +117,6 @@ public class RenderMD extends Simulation {
         IAtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potentialBonded,new IAtomType[]{leafType, leafType});
-
-        BoxInflate inflater = new BoxInflate(box, space);
-//        inflater.setTargetDensity(params.eta * 2 * space.D() / Math.PI);
-        inflater.setTargetDensity(1.0);
-        inflater.actionPerformed();
-        potentialMaster.setRange(box.getBoundary().getBoxSize().getX(0)*0.49);
         
         IAtomList leafList = box.getLeafList();
         for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
@@ -125,8 +125,9 @@ public class RenderMD extends Simulation {
             pos.E(parser.vertices.get(iLeaf));
         }
         
-        CriterionCar criterion = new CriterionCar(parser, box);
+        criterion = new CriterionCar(parser, box);
         potentialMaster.setCriterion(potentialBonded, criterion);
+        integrator.setThermostat(params.thermostatType);
         
 //        int bondSum = 0;
 //        int bondMax = 0;
@@ -140,11 +141,27 @@ public class RenderMD extends Simulation {
 //        }
 //        System.out.println("Avg, max, min bonds per atom: "+((float)bondSum/numAtoms)+" "+bondMax+" "+bondMin);
 
-//        new ConfigurationFile(params.file).initializeCoordinates(box);
-//        new ConfigurationCar(space).initializeCoordinates(box);
-        
         integrator.setBox(box);
+        BoxImposePbc imposepbc = new BoxImposePbc(space);
+        imposepbc.setBox(box);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
+        double vNew = box.getMoleculeList().getMoleculeCount()/params.density;
+        double scale = Math.pow(vNew/box.getBoundary().volume(), 1.0/3.0);
+
+        if(params.initCar) {
+            Vector3D dimVector = new Vector3D();
+            dimVector.E(box.getBoundary().getBoxSize());
+            dimVector.TE(scale);
+            box.getBoundary().setBoxSize(dimVector);
+        } else {
+            BoxInflate inflater = new BoxInflate(box, space);
+            inflater.setTargetDensity(params.density);
+            inflater.actionPerformed();
+            new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
+        }
+        potentialMaster.setRange(box.getBoundary().getBoxSize().getX(0)*0.49);
+        
         // find neighbors now.  don't try to update later (neighbors never change)
         potentialMaster.getNeighborManager(box).reset();
     }
@@ -184,6 +201,7 @@ public class RenderMD extends Simulation {
     
     public static class P2PenetrableCar extends P2PenetrableSquareWell {
         protected final Map<IAtomList, Double> bondMap;
+        private final double epsMult = 1.0;
         
         public P2PenetrableCar(ISpace space, ParseObj parser, IBox box) {
             super(space);
@@ -194,218 +212,40 @@ public class RenderMD extends Simulation {
                 BondInfo bond = parser.bondList.get(i);
                 IAtom atom0 = leafList.getAtom(bond.i0);
                 IAtom atom1 = leafList.getAtom(bond.i1);
-                bondMap.put(new AtomPair(atom0, atom1), bond.bondLengthSquared*0.95);
+                bondMap.put(new AtomPair(atom0, atom1), bond.bondLengthSquared*0.9999);
             }
         }
         
         public void bump(IAtomList pair, double falseTime) {
+            IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+            IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+            double v2old = atom1.getVelocity().Mv1Squared(atom0.getVelocity());
+
             setCoreDiameterSquared(bondMap.get(pair));
             super.bump(pair, falseTime);
+            
+            double v2new = atom1.getVelocity().Mv1Squared(atom0.getVelocity());
+            if(v2new > 1.01*v2old) {
+//                atom0.getVelocity().TE(0.1);
+//                atom1.getVelocity().TE(0.1);
+            }
+
         }
 
         public double collisionTime(IAtomList pair, double falseTime) {
             setCoreDiameterSquared(bondMap.get(pair));
             return super.collisionTime(pair, falseTime);
         }
+        
+        public void setEpsilon(double eps) {
+            super.setEpsilon(epsMult*eps);
+        }
+        
+        public double getEpsilon() {
+            return super.getEpsilon()/epsMult;
+        }
 
     }
-
-//    public static void main(String[] args) {
-//    	final String APP_NAME = "RenderMD";
-//
-//    	ISpace sp = Space3D.getInstance();
-//        RenderMDParam params = new RenderMDParam();
-//        final RenderMD sim = new RenderMD(sp, params);
-//                
-//        
-//        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
-//
-//        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-//
-//        ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
-//
-//        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-//        nSelector.setResetAction(new SimulationRestart(sim, sp, sim.getController()));
-//        nSelector.setSpecies(sim.species);
-//        nSelector.setBox(sim.box);
-//        ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getAtomType(0),0.1);
-//
-//        nSelector.setPostAction(simGraphic.getPaintAction(sim.box));
-//        simGraphic.add(nSelector);
-//
-//        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-//        
-//        // Simulation Time
-//        final DisplayTextBox displayCycles = new DisplayTextBox();
-//
-//        final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
-//        displayCycles.setPrecision(6);
-//        DataPump pump= new DataPump(meterCycles,displayCycles);
-//        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
-//        displayCycles.setLabel("Simulation time");
-//
-//        //temperature selector
-//        DeviceThermoSlider tempSlider;
-//        tempSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
-//        //tempSlider.setUnit(tUnit);
-////        tempSlider.setPrecision(1);
-//        tempSlider.setMinimum(0.0);
-//        tempSlider.setMaximum(1500.0);
-//        tempSlider.setSliderMajorValues(3);
-//        tempSlider.setAdiabatic();
-//        simGraphic.add(tempSlider);
-//
-//        JPanel statePanel = new JPanel(new GridBagLayout());
-//        GridBagConstraints gbc2 = new GridBagConstraints();
-//        gbc2.gridx = 0;  gbc2.gridy = 0;
-//        statePanel.add(tempSlider.graphic(), gbc2);
-//
-//        DeviceBox sigBox, epsBox, lamBox, massBox;
-//
-////        JPanel parameterPanel = new JPanel(new GridLayout(0,1));
-////        parameterPanel.add(sigBox.graphic());
-////        parameterPanel.add(epsBox.graphic());
-////        parameterPanel.add(lamBox.graphic());
-////        parameterPanel.add(massBox.graphic());
-//
-//        JTabbedPane setupPanel = new JTabbedPane();
-//        setupPanel.add(statePanel, "State");
-//
-//        
-////        ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
-////        sigModifier.setValue(sigma);
-////        ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
-////        ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
-////        ModifierGeneral massModifier = new ModifierGeneral(sim.species.getLeafType().getElement(),"mass");
-////        sigBox.setModifier(sigModifier);
-////        sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
-////        epsBox.setUnit(eUnit);
-////        epsBox.setModifier(epsModifier);
-////        lamBox.setModifier(lamModifier);
-////        massBox.setModifier(massModifier);
-////        massBox.setUnit(mUnit);
-////        sigBox.setController(sim.getController());
-////        epsBox.setController(sim.getController());
-////        lamBox.setController(sim.getController());
-////        massBox.setController(sim.getController());
-//
-//        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-//
-//        //add meter and display for current kinetic temperature
-//
-//        MeterTemperature thermometer = new MeterTemperature(sim.box, sim.space.D());
-//        DataFork temperatureFork = new DataFork();
-//        final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
-//        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
-//        sim.integrator.getEventManager().addListener(temperaturePumpListener);
-//        temperaturePumpListener.setInterval(1);
-//        final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
-//        temperatureAverage.setPushInterval(20);
-//        final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
-//        temperatureHistory.setTimeDataSource(timeCounter);
-//        temperatureFork.setDataSinks(new IDataSink[]{temperatureAverage,temperatureHistory});
-//        final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
-//        tBox.setAccumulator(temperatureAverage);
-//        dataStreamPumps.add(temperaturePump);
-//        //tBox.setUnit(tUnit);
-//        tBox.setLabel("Measured Temperature (K)");
-//        tBox.setLabelPosition(CompassDirection.NORTH);
-//
-//        // Number density box
-//        MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-//        densityMeter.setBox(sim.box);
-//        final DisplayTextBox densityBox = new DisplayTextBox();
-//        //densityBox.setUnit(dUnit);
-//        final DataPump densityPump = new DataPump(densityMeter, densityBox);
-//        IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
-//        sim.integrator.getEventManager().addListener(densityPumpListener);
-//        densityPumpListener.setInterval(1);
-//        dataStreamPumps.add(densityPump);
-//        densityBox.setLabel("Density");
-//        
-//        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
-//        final AccumulatorHistory energyHistory = new AccumulatorHistory();
-//        energyHistory.setTimeDataSource(timeCounter);
-//        final DataSinkExcludeOverlap eExcludeOverlap = new DataSinkExcludeOverlap();
-//        eExcludeOverlap.setDataSink(energyHistory);
-//        final DataPump energyPump = new DataPump(eMeter, eExcludeOverlap);
-//        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
-//        sim.integrator.getEventManager().addListener(energyPumpListener);
-//        dataStreamPumps.add(energyPump);
-//        
-//        MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-//        final AccumulatorHistory peHistory = new AccumulatorHistory();
-//        peHistory.setTimeDataSource(timeCounter);
-//        final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
-//        peAccumulator.setPushInterval(2);
-//        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
-//        final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap();
-//        peExcludeOverlap.setDataSink(peFork);
-//        final DataPump pePump = new DataPump(peMeter, peExcludeOverlap);
-//        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
-//        sim.integrator.getEventManager().addListener(pePumpListener);
-//        dataStreamPumps.add(pePump);
-//
-//        MeterKineticEnergyFromIntegrator keMeter = new MeterKineticEnergyFromIntegrator(sim.integrator);
-//        final AccumulatorHistory keHistory = new AccumulatorHistory();
-//        keHistory.setTimeDataSource(timeCounter);
-//        final DataPump kePump = new DataPump(keMeter, keHistory);
-//        IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
-//        sim.integrator.getEventManager().addListener(kePumpListener);
-//        dataStreamPumps.add(kePump);
-//        int numAtoms = sim.box.getLeafList().getAtomCount();
-//        energyPumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
-//        kePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
-//        pePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
-//        
-//        final DisplayPlot ePlot = new DisplayPlot();
-//        energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-//        ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
-//        peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-//        ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
-//        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-//        ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
-//
-//        ePlot.getPlot().setTitle("Energy History (J/mol)");
-//        ePlot.setDoLegend(true);
-//        ePlot.setLabel("Energy");
-//        //ePlot.setUnit(eUnit);
-//        ePlot.setXUnit(Picosecond.UNIT);
-//        
-//        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
-//        pMeter.setIntegrator(sim.integrator);
-//        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-//        final DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
-//        sim.integrator.getEventManager().addListener(pPump);
-//        pAccumulator.setPushInterval(50);
-//        dataStreamPumps.add(pPump);
-//
-//        final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
-//        peDisplay.setAccumulator(peAccumulator);
-//        peDisplay.setLabel("Potential Energy (J/mol)");
-////        peDisplay.setUnit(eUnit);
-//        
-//        //DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
-//        
-//        simGraphic.getPanel().controlPanel.add(setupPanel, vertGBC);
-//        //simGraphic.getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
-//        //simGraphic.add(configButton);
-//        //simGraphic.add(velocityButton);
-//
-//        simGraphic.add(displayCycles);
-//        simGraphic.add(densityBox);
-//        simGraphic.add(tBox);
-//        simGraphic.add(peDisplay);
-//        
-//        java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
-//        d.width -= 50;
-//        ePlot.getPlot().setSize(d);
-//
-//
-//        simGraphic.makeAndDisplayFrame(APP_NAME);
-//        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-//        colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
-//    }
 
     public static RenderMDParam getParameters() {
         return new RenderMDParam();
@@ -415,14 +255,16 @@ public class RenderMD extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class RenderMDParam extends ParameterBase {
-        public double eta = 0.7;
-        public boolean useNeighborLists = false;
-        public String file = "mustang.txt";
-        public double epsilonCore = 10;
-        public double lambda = 1.1;
-        public double epsilon = 10;
-        public double temperature = 1.0;
+        public String file = "/Users/kofke/Documents/workspace/car self-assembly/mustang.txt";
+        public double epsilonCore = 0.0;
+        public double lambda = 1.01;
+        public double epsilon = 1;
+        public double temperature = 0.1;
+        public double density = 8.0;
         public double timeStep = 0.02;
+        public boolean initCar = true;
+        public boolean drawBonds = true;
+        public ThermostatType thermostatType = ThermostatType.ANDERSEN;
         
     }
 }
