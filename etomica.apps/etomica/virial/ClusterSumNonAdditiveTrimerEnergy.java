@@ -36,6 +36,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
         ClusterSumNonAdditiveTrimerEnergy copy = new ClusterSumNonAdditiveTrimerEnergy(clusters,clusterWeights,f,p3NonAdd);
         copy.setTemperature(1/beta);
         copy.setDeltaCut(Math.sqrt(deltaCut2));
+        copy.setNo72B2B3NonAdd(no72B2B3NonAdd);
         return copy;
     }
 
@@ -247,6 +248,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             if (g12*g13*g14*g23*g24*g34 != 0) {
                 double sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
                 // e123*e124*e134*e234 - 1 = sum(fij) + sum(pairs of fij) + sum(triplets of fij) + f123*f124*f134*f234
+                // equivalently, we could x = sum of betaUijk and do exp(x)-1
                 sum1 = f123 + f124 + f134 + f234;
                 sum2 = f123 * (f124 + f134 + f234) + f124 * (f134 + f234) + f134*f234;
                 sum3 = f123 * f124 * (f134 + f234) + f134 * f234 * (f123 + f124);
