@@ -16,7 +16,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
     
     protected final long[] fL, fLN;
     protected final long[] bSum;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
     protected final int[][] partitions;
@@ -86,7 +86,7 @@ public class ClusterSinglyConnected implements ClusterAbstract {
 
     public double value(BoxCluster box) {
       CoordinatePairSet cPairs = box.getCPairSet();
-      int thisCPairID = cPairs.getID();
+      long thisCPairID = cPairs.getID();
       if (thisCPairID == cPairID) {
           return value;
       }

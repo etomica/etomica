@@ -81,6 +81,10 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         }
         fValues = new double[pointCount][pointCount][maxF+1];
     }
+    
+    public void setCaching(boolean doCaching) {
+        this.doCaching = doCaching;
+    }
 
     // equal point count enforced in constructor 
     public int pointCount() {
@@ -90,33 +94,33 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     public ClusterAbstract makeCopy() {
         ClusterSum copy = new ClusterSum(clusters,clusterWeights,f);
         copy.setTemperature(1/beta);
+        copy.setCaching(doCaching);
         return copy;
     }
 
     public double value(BoxCluster box) {
-        CoordinatePairSet cPairs = box.getCPairSet();
-        int thisCPairID = cPairs.getID();
-//        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
-        if (thisCPairID == cPairID) {
-//            System.out.println("clusterSum "+cPairID+" returning recent "+value);
-            return value;
-        }
-        if (thisCPairID == lastCPairID) {
-            // we went back to the previous cluster, presumably because the last
-            // cluster was a trial that was rejected.  so drop the most recent value/ID
-            if (oldDirtyAtom > -1) {
-                revertF();
+        if (doCaching) {
+            CoordinatePairSet cPairs = box.getCPairSet();
+            long thisCPairID = cPairs.getID();
+//            System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
+            if (thisCPairID == cPairID) {
+//                System.out.println("clusterSum "+cPairID+" returning recent "+value);
+                return value;
             }
-            cPairID = lastCPairID;
-            value = lastValue;
-//            System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
-            return value;
-        }
+            if (thisCPairID == lastCPairID) {
+                // we went back to the previous cluster, presumably because the last
+                // cluster was a trial that was rejected.  so drop the most recent value/ID
+                cPairID = lastCPairID;
+                value = lastValue;
+//                System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
+                return value;
+            }
 
-        // a new cluster
-        lastCPairID = cPairID;
-        lastValue = value;
-        cPairID = thisCPairID;
+            // a new cluster
+            lastCPairID = cPairID;
+            lastValue = value;
+            cPairID = thisCPairID;
+        }
         
         updateF(box);
 //        checkF(cPairs,aPairs);
@@ -145,21 +149,6 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         }
     }
 
-    protected void revertF() {
-        int nPoints = pointCount();
-
-        for(int j=0; j<nPoints; j++) {
-            if (j == oldDirtyAtom) {
-                continue;
-            }
-            for(int k=0; k<f.length; k++) {
-                fValues[oldDirtyAtom][j][k] = fOld[j][k];
-                fValues[j][oldDirtyAtom][k] = fOld[j][k];
-            }
-        }
-        oldDirtyAtom = -1;
-    }
-    
     protected void updateF(BoxCluster box) {
         int nPoints = pointCount();
         CoordinatePairSet cPairs = box.getCPairSet();
@@ -215,12 +204,12 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected final ClusterBonds[] clusters;
     protected final double[] clusterWeights;
-    int[][][] fullBondIndexArray;
+    protected int[][][] fullBondIndexArray;
     protected final MayerFunction[] f;
     protected double[][][] fValues;
     protected final double[][] fOld;
-    protected int oldDirtyAtom;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
+    protected boolean doCaching = true;
 }

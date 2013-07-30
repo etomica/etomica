@@ -19,7 +19,7 @@ import etomica.util.Debug;
  * (after which reset() should be called).  Cluster.value() depends on a one-to-one
  * correspondence between this ID and the positions of atoms in the CoordinatePairLeafSet. 
  */
-public class CoordinatePairMoleculeSet implements java.io.Serializable, CoordinatePairSet {
+public class CoordinatePairMoleculeSet implements CoordinatePairSet {
 
     /**
      * Constructor for CoordinatePairLeafSet.
@@ -60,7 +60,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
         }
     }
     
-    public void reset() {
+    public void reset(long cPairID) {
         for(int i=0; i<numAtoms-1; i++) {
             IMolecule iAtom = atoms[i];
             iPosition.E(positionDefinition.position(iAtom));
@@ -71,7 +71,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
                 r2[i*numAtoms+j] = dr.squared();
             }
         }
-        ID = staticID++;
+        ID = cPairID;
     }
     
     public void E(CoordinatePairLeafSet c) {
@@ -82,17 +82,15 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
         }
     }
     
-    public int getID() {
+    public long getID() {
         return ID;
     }
     
-    private static final long serialVersionUID = 1L;
     protected final double[] r2;
     protected final IMolecule[] atoms;
     protected final int numAtoms;
     protected final IVectorMutable dr;
-    private final IVectorMutable iPosition;
-    private int ID;
+    protected final IVectorMutable iPosition;
+    protected long ID;
     protected IAtomPositionDefinition positionDefinition;
-    private static int staticID;
 }

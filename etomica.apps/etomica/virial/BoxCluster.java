@@ -22,18 +22,22 @@ public class BoxCluster extends Box {
         sampleCluster = cluster;
         this.space = _space;
 	}
-	
+
     /**
      * returns the current coordinate pair set
      */
 	public CoordinatePairSet getCPairSet() {
 		return isTrial ? cPairTrialSet : cPairSet;
 	}
-    
+
+	public long getCPairID() {
+	    return cPairID;
+	}
+
     public AtomPairSet getAPairSet() {
         return aPairSet;
     }
-    
+
 	/**
      * returns the cluster used for sampling in this box
 	 */
@@ -66,9 +70,10 @@ public class BoxCluster extends Box {
             aPairSet = new AtomPairSet(molecules);
         }
 
-        cPairTrialSet.reset();
+        cPairID++;
+        cPairTrialSet.reset(cPairID);
     }
-	
+
     /**
      * Informs the box that the trial was accepted so it will keep the new 
      * coordinate pairs.
@@ -84,7 +89,7 @@ public class BoxCluster extends Box {
 		cPairSet = cPairTrialSet;
 		cPairTrialSet = cPairSetTmp;
 	}
-	
+
     /**
      * Informs the box that the trial was rejected so it will go back to 
      * the old coordinate pairs.
@@ -96,11 +101,12 @@ public class BoxCluster extends Box {
 		// move was rejected.  stop using cPairTrialSet.
 		isTrial = false;
 	}
-	
+
     private static final long serialVersionUID = 1L;
 	private boolean isTrial;
 	private CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
     private AtomPairSet aPairSet;
+    protected long cPairID;
 	private final ClusterWeight sampleCluster;
 	private final ISpace space;
 }

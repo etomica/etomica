@@ -35,27 +35,34 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         ClusterSumPolarizable copy = new ClusterSumPolarizable(clusters,clusterWeights,f);
         copy.setTemperature(1/beta);
         copy.setDeltaCut(Math.sqrt(deltaCut2));
+        copy.setCaching(doCaching);
         return copy;
+    }
+    
+    public void setCaching(boolean doCaching) {
+        this.doCaching = doCaching;
     }
 
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
         IMoleculeList atomSet = box.getMoleculeList();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
-        if (thisCPairID == cPairID) return value;
-        if (thisCPairID == lastCPairID) {
-            // we went back to the previous cluster, presumably because the last
-            // cluster was a trial that was rejected.  so drop the most recent value/ID
-            cPairID = lastCPairID;
-            value = lastValue;
-            return value;
+        if (doCaching) {
+            if (thisCPairID == cPairID) return value;
+            if (thisCPairID == lastCPairID) {
+                // we went back to the previous cluster, presumably because the last
+                // cluster was a trial that was rejected.  so drop the most recent value/ID
+                cPairID = lastCPairID;
+                value = lastValue;
+                return value;
+            }
+            // a new cluster
+            lastCPairID = cPairID;
+            lastValue = value;
+            cPairID = thisCPairID;
         }
-        // a new cluster
-        lastCPairID = cPairID;
-        lastValue = value;
-        cPairID = thisCPairID;
         
         for (int k=0; k<f.length; k++) {
             f[k].setBox(box);
@@ -721,11 +728,12 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     private final double[] clusterWeights;
     private final MayerFunction[] f;
     private final double[][][] fValues;
-    private int cPairID = -1, lastCPairID = -1;
+    private long cPairID = -1, lastCPairID = -1;
     private double value, lastValue;
     private double beta;
     protected final MoleculeArrayList scfAtoms;
     protected double deltaCut2 = Double.POSITIVE_INFINITY;
     protected final double[][] uijPol;
     public double pushR2 = 0;
+    protected boolean doCaching;
 }

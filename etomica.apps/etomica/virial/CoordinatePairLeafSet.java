@@ -16,7 +16,7 @@ import etomica.util.Debug;
  * correspondence between this ID and the positions of atoms in the CoordinatePairLeafSet. 
  */
 
-public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePairSet {
+public class CoordinatePairLeafSet implements CoordinatePairSet {
 
     /**
      * Constructor for CoordinatePairLeafSet.
@@ -44,7 +44,7 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
         }
     }
     
-    public void reset() {
+    public void reset(long cPairID) {
         for(int i=0; i<numAtoms-1; i++) {
             IVectorMutable pos1 = positions[i];
             for(int j=i+1; j<numAtoms; j++) {
@@ -52,7 +52,7 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
                 r2[i*numAtoms+j] = dr.squared();
             }
         }
-        ID = staticID++;
+        ID = cPairID;
     }
     
     public void E(CoordinatePairLeafSet c) {
@@ -63,15 +63,13 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
         }
     }
     
-    public int getID() {
+    public long getID() {
         return ID;
     }
     
-    private static final long serialVersionUID = 1L;
     protected final double[] r2;
     protected final IVectorMutable[] positions;
     protected final int numAtoms;
     protected final IVectorMutable dr;
-    private int ID;
-    private static int staticID;
+    protected long ID;
 }

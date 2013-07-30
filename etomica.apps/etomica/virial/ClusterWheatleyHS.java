@@ -21,7 +21,7 @@ public class ClusterWheatleyHS implements ClusterWheatley {
     
     protected final double[] fQ, fC;
     protected final double[] fA, fB;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
     protected final byte[] outDegree;
@@ -60,7 +60,7 @@ public class ClusterWheatleyHS implements ClusterWheatley {
 
     public double value(BoxCluster box) {
       CoordinatePairSet cPairs = box.getCPairSet();
-      int thisCPairID = cPairs.getID();
+      long thisCPairID = cPairs.getID();
       if (thisCPairID == cPairID) {
           return value;
       }

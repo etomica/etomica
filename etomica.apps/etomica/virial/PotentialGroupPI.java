@@ -34,7 +34,7 @@ public class PotentialGroupPI extends PotentialGroup {
     
     public double energy(IMoleculeList molecules) {
         CoordinatePairSet cPairs = ((BoxCluster)box).getCPairSet();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
         int beadFac = uBeads.length;
         int mIndex0 = molecules.getMolecule(0).getIndex();
         int mIndex1 = molecules.getMolecule(1).getIndex();
@@ -110,5 +110,5 @@ public class PotentialGroupPI extends PotentialGroup {
     
     protected final double[][] uBeads;
     protected boolean[] pairDone;
-    protected int lastPairID, lastBoxIndex;
+    protected long lastPairID, lastBoxIndex;
 }

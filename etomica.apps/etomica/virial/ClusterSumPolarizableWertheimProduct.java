@@ -84,7 +84,7 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
         AtomPairSet aPairs = box.getAPairSet();
         int nPoints = pointCount();
         IMoleculeList atomSet = box.getMoleculeList();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
         
         PotentialPolarizable scfPotential = (PotentialPolarizable) f[0].getPotential();
 
@@ -400,7 +400,7 @@ public class ClusterSumPolarizableWertheimProduct implements ClusterAbstract, ja
     protected double[][][] fValues;
     protected final double[][] fOld;
     protected int oldDirtyAtom;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
     protected final MoleculeArrayList scfAtoms;

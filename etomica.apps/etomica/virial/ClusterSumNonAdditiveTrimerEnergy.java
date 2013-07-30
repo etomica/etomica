@@ -43,7 +43,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
         IAtomList atomSet = box.getLeafList();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
         //System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) return value;
         if (thisCPairID == lastCPairID) {
@@ -725,7 +725,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
     private final double[] clusterWeights;
     private final MayerFunction[] f;
     private final double[][][] fValues;
-    private int cPairID = -1, lastCPairID = -1;
+    private long cPairID = -1, lastCPairID = -1;
     private double value, lastValue;
     private double beta;
     protected final AtomArrayList atoms;

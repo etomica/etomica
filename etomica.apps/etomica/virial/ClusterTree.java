@@ -36,7 +36,7 @@ public class ClusterTree implements ClusterAbstract {
 
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
 //      System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) {
             return value;
@@ -111,7 +111,7 @@ public class ClusterTree implements ClusterAbstract {
     protected final ClusterDiagramTree bondsTree;
     protected final MayerFunction[] f;
     protected final double[][] fValues;
-    private int cPairID = -1, lastCPairID = -1;
+    private long cPairID = -1, lastCPairID = -1;
     private double value, lastValue;
     protected double beta;
     protected final double[][] fOld;

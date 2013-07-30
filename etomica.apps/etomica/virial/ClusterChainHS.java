@@ -17,7 +17,7 @@ public class ClusterChainHS implements ClusterAbstract {
     protected final long[][] nC;
     protected final double[][] fValues;
     protected double ringFrac, chainFrac;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     public final boolean old = true;
     
@@ -63,7 +63,7 @@ public class ClusterChainHS implements ClusterAbstract {
 
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
         if (thisCPairID == cPairID) {
             return value;
         }

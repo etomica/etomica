@@ -8,8 +8,12 @@ public interface CoordinatePairSet {
      */
     public double getr2(int i, int j);
 
-    public void reset();
+    /**
+     * Informs the CoordinatePairSet that the configuration has changed and that it
+     * has a new ID
+     */
+    public void reset(long cPairID);
 
-    public int getID();
+    public long getID();
 
 }

@@ -23,7 +23,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
     
     protected final boolean[] fQ;
     protected final int[] fA, fB, fAB, fC;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
     protected final byte[] outDegree;
@@ -325,7 +325,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
 
     public double value(BoxCluster box) {
       CoordinatePairSet cPairs = box.getCPairSet();
-      int thisCPairID = cPairs.getID();
+      long thisCPairID = cPairs.getID();
       if (thisCPairID == cPairID) {
           return value;
       }

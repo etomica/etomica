@@ -28,23 +28,6 @@ public class ClusterSumEF extends ClusterSum {
         return copy;
     }
 
-    protected void revertF() {
-        int nPoints = pointCount();
-
-        for(int j=0; j<nPoints; j++) {
-            if (j == oldDirtyAtom) {
-                continue;
-            }
-            for(int k=0; k<numF; k++) {
-                double eValue = fOld[j][k];
-                fValues[oldDirtyAtom][j][k+numF] = eValue;
-                fValues[oldDirtyAtom][j][k] = eValue-1;
-                fValues[j][oldDirtyAtom][k+numF] = eValue;
-                fValues[j][oldDirtyAtom][k] = eValue-1;
-            }
-        }
-    }
-    
     protected void updateF(BoxCluster box) {
         int nPoints = pointCount();
         for (int k=0; k<numF; k++) {

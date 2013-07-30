@@ -35,7 +35,7 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
     
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
 //      System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) {
 //          System.out.println("clusterSum "+cPairID+" returning recent "+value);
@@ -90,7 +90,6 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
                 for (int j = 2;j < flipList[actualFlipList[i]].length; j++){
                 	flip(atomList.getMolecule(flipList[actualFlipList[i]][j]),atomList.getMolecule(flipList[actualFlipList[i]][0]));
                 }
-                cPairs.reset();
             }
             if (!didFlipTrue) {
             	// if we flipped every atom from true to false, we must be done
@@ -123,7 +122,7 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
     
     private final ClusterAbstract wrappedCluster;
     protected final ISpace space;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;
     private IVectorMutable childAtomVector;

@@ -15,7 +15,7 @@ public class ClusterChainSoft implements ClusterAbstract {
     
     protected final double[][] nC;
     protected final double[][] fValues;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
     
@@ -46,7 +46,7 @@ public class ClusterChainSoft implements ClusterAbstract {
 
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
         if (thisCPairID == cPairID) {
             return value;
         }

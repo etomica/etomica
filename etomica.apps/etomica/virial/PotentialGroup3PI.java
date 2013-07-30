@@ -38,7 +38,7 @@ public class PotentialGroup3PI extends PotentialGroup {
     
     public double energy(IMoleculeList molecules) {
         CoordinatePairSet cPairs = ((BoxCluster)box).getCPairSet();
-        int thisCPairID = cPairs.getID();
+        long thisCPairID = cPairs.getID();
         int beadFac = uBeads.length;
         int nMolecules = box.getMoleculeList().getMoleculeCount();
 
@@ -113,5 +113,5 @@ public class PotentialGroup3PI extends PotentialGroup {
     
     protected final double[][] uBeads;
     protected boolean[] tripletDone;
-    protected int lastPairID, lastBoxIndex;
+    protected long lastPairID, lastBoxIndex;
 }

@@ -83,7 +83,12 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
         ClusterSumPolarizableWertheimProduct4Pt copy = new ClusterSumPolarizableWertheimProduct4Pt(clusters,clusterWeights,f);
         copy.setTemperature(1/beta);
         copy.setDeltaCut(Math.sqrt(deltaCut2));
+        copy.setCaching(doCaching);
         return copy;
+    }
+    
+    public void setCaching(boolean doCaching) {
+        this.doCaching = doCaching;
     }
 
     public double value(BoxCluster box) {
@@ -91,33 +96,30 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
         AtomPairSet aPairs = box.getAPairSet();
         int nPoints = pointCount();
         IMoleculeList atomSet = box.getMoleculeList();
-        int thisCPairID = cPairs.getID();
-        
         PotentialPolarizable scfPotential = (PotentialPolarizable) f[0].getPotential();
+        if (doCaching) {
+            long thisCPairID = cPairs.getID();
 
-        // deltaD and deltaE run into precision problems for long distances
+            // deltaD and deltaE run into precision problems for long distances
         
-        if (thisCPairID == cPairID) {
-//            System.out.println("clusterSum "+cPairID+" returning recent "+value);
-            return value;
-        }
-        if (thisCPairID == lastCPairID) {
-            // we went back to the previous cluster, presumably because the last
-            // cluster was a trial that was rejected.  so drop the most recent value/ID
-            if (oldDirtyAtom > -1) {
-                revertF();
+            if (thisCPairID == cPairID) {
+//                System.out.println("clusterSum "+cPairID+" returning recent "+value);
+                return value;
             }
-            cPairID = lastCPairID;
-            value = lastValue;
-//            System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
-            return value;
-        }
+            if (thisCPairID == lastCPairID) {
+                // we went back to the previous cluster, presumably because the last
+                // cluster was a trial that was rejected.  so drop the most recent value/ID
+                cPairID = lastCPairID;
+                value = lastValue;
+//                System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
+                return value;
+            }
 
-        // a new cluster
-        lastCPairID = cPairID;
-        lastValue = value;
-        cPairID = thisCPairID;
-        
+            // a new cluster
+            lastCPairID = cPairID;
+            lastValue = value;
+            cPairID = thisCPairID;
+        }
         
         updateF(box);
 //        checkF(cPairs,aPairs);
@@ -408,7 +410,7 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
     protected double[][][] fValues;
     protected final double[][] fOld;
     protected int oldDirtyAtom;
-    protected int cPairID = -1, lastCPairID = -1;
+    protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
     protected final MoleculeArrayList scfAtoms;
@@ -416,4 +418,5 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
     protected final double[][] uijPol;
     public double pushR2 = 0;
     public static boolean debug = false;
+    protected boolean doCaching = true;
 }
