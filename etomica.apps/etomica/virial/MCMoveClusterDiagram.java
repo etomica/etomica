@@ -11,7 +11,6 @@ import etomica.integrator.mcmove.MCMoveBox;
  */
 public class MCMoveClusterDiagram extends MCMoveBox {
 
-    private static final long serialVersionUID = 1L;
     public MCMoveClusterDiagram(IPotentialMaster potentialMaster) {
         super(potentialMaster);
     }
@@ -28,9 +27,6 @@ public class MCMoveClusterDiagram extends MCMoveBox {
         }
         if (cluster1 instanceof ClusterSumStickyEF) {
             cluster = (ClusterSumStickyEF)cluster1;
-        }
-        else {
-            cluster = (ClusterSumStickyEF)((ClusterCoupled)cluster1).getSubCluster();
         }
     }
     
