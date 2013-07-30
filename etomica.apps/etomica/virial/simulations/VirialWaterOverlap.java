@@ -13,6 +13,7 @@ import etomica.species.Species;
 import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
+import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MayerEGeneral;
@@ -104,6 +105,7 @@ public class VirialWaterOverlap {
         ClusterWeight refSampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
 
         if (nPoints == 2) {
+            ((ClusterSum)targetCluster).setCaching(false);
             targetCluster = new ClusterCoupledFlipped(targetCluster, space);
             targetCluster.setTemperature(temperature);
             targetSampleCluster = new ClusterWeightAbs(targetCluster);

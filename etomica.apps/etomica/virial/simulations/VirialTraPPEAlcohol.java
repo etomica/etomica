@@ -23,6 +23,7 @@ import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
+import etomica.virial.ClusterSum;
 import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
@@ -144,6 +145,7 @@ public class VirialTraPPEAlcohol {
         ClusterAbstract targetCluster = Standard.virialCluster(numMolecules, fTarget, numMolecules>3, eTarget, true);
         
         // These models have point charges
+        ((ClusterSum)targetCluster).setCaching(false);
         targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 
         targetCluster.setTemperature(temperature);

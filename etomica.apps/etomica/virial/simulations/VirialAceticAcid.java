@@ -25,6 +25,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
+import etomica.virial.ClusterSum;
 import etomica.virial.MCMoveClusterTorsionAceticAcid;
 import etomica.virial.MCMoveClusterWiggleAceticAcid;
 import etomica.virial.MayerEGeneral;
@@ -78,6 +79,7 @@ public class VirialAceticAcid {
         ClusterAbstract targetCluster = Standard.virialCluster(nBody, fTarget, nBody>3, eTarget, true);
 		if (nBody == 2){
 			System.out.println("Flipping is applied");
+			((ClusterSum)targetCluster).setCaching(false);
 	        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 		}
         targetCluster.setTemperature(temperature);

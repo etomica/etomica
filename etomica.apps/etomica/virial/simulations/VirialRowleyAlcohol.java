@@ -38,6 +38,7 @@ import etomica.util.ParameterBase;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
+import etomica.virial.ClusterSum;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
@@ -194,6 +195,7 @@ public class VirialRowleyAlcohol {
         ClusterAbstract targetCluster = Standard.virialCluster(numMolecules, fTarget, numMolecules>3, eTarget, true);
         
         if (pointCharges) {
+            ((ClusterSum)targetCluster).setCaching(false);
         	targetCluster = new ClusterCoupledFlipped(targetCluster, space);
         }
         targetCluster.setTemperature(temperature);

@@ -138,7 +138,9 @@ public class VirialAceticAcidFlex {
         for (int i=0; i<targetDiagrams.length; i++) {
             targetDiagrams[i].setTemperature(temperature);
         }     
-        
+
+        // caching is handled by the flipper
+        ((ClusterSum)targetCluster).setCaching(false);
 		if (nBody == 2){
 	        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 		}
