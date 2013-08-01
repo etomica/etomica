@@ -11,10 +11,11 @@ package etomica.veos;
  *
  */
 
-public class BigValue {
+public class BigValue implements IBigValue {
 
     private double lnValue;
     private boolean isPositive;
+    public static final BigValue ZERO = new BigValue(0.0);
     
     /**
      * Default constructor sets value to 0.0
@@ -41,8 +42,12 @@ public class BigValue {
     /**
      * Copy constructor.
      */
-    public BigValue(BigValue v) {
+    public BigValue(IBigValue v) {
         this.E(v);
+    }
+    
+    public IBigValue getZero() {
+        return ZERO;
     }
     
     public boolean isZero() {
@@ -55,6 +60,10 @@ public class BigValue {
     public double value() {
         if(this.isZero()) return 0.0;
         return (isPositive ? +1 : -1) * Math.exp(lnValue);
+    }
+    
+    public boolean isPositive() {
+        return isPositive;
     }
     
     /**
@@ -83,16 +92,17 @@ public class BigValue {
      * Equals (=) operation. Assigns given value (specified via another instance of LogValue) to this instance, 
      * replacing current value.
      */
-    public final void E(BigValue lv) {
-        this.lnValue = lv.lnValue;
-        this.isPositive = lv.isPositive;
+    public final void E(IBigValue lv) {
+        this.lnValue = ((BigValue)lv).lnValue;
+        this.isPositive = ((BigValue)lv).isPositive;
     }
         
     /**
      * Plus-equals (+=) operation.  Replaces the current value with the one obtained by adding
      * the given value, considering signs of both.
      */
-    public void PE(BigValue lnx) {
+    public void PE(IBigValue ilnx) {
+        BigValue lnx = (BigValue)ilnx;
         if(lnx.isZero()) return;
         if(this.isZero()) {
             this.E(lnx);
@@ -122,7 +132,8 @@ public class BigValue {
     /**
      * Plus-equals (+=) a1 times v1.
      */
-    public void PEa1Tv1(double a1, BigValue v1) {
+    public void PEa1Tv1(double a1, IBigValue iv1) {
+        BigValue v1 = (BigValue)iv1;
         if(a1 == 0 || v1.isZero()) return;
         if(this.isZero()) {
             this.E(v1);
@@ -139,12 +150,13 @@ public class BigValue {
      * Times-equals (*=) operation.  Replaces the current value with the one obtained by multiplying
      * the given value, considering signs of both.
      */
-    public void TE(BigValue lnx) {
-        if(lnx.isZero()) {
+    public void TE(IBigValue ix) {
+        BigValue x = (BigValue)ix;
+        if(x.isZero()) {
             this.E(0.0);
         } else if(!this.isZero()) {
-            lnValue += lnx.lnValue;
-            if(!lnx.isPositive) isPositive = !isPositive;
+            lnValue += x.lnValue;
+            if(!x.isPositive) isPositive = !isPositive;
         }
     }
     
@@ -152,13 +164,14 @@ public class BigValue {
      * Divide-equals (/=) operation.  Replaces the current value with the one obtained by dividing
      * the given value, considering signs of both.
      */
-    public void DE(BigValue lnx) {
-        if(lnx.isZero()) {
+    public void DE(IBigValue ix) {
+        BigValue x = (BigValue)ix;
+        if(x.isZero()) {
             lnValue = Double.NaN;
             isPositive = false;
         } else if(!this.isZero()) {
-            lnValue -= lnx.lnValue;
-            if(!lnx.isPositive) isPositive = !isPositive;
+            lnValue -= x.lnValue;
+            if(!x.isPositive) isPositive = !isPositive;
         }
     }
     
@@ -189,7 +202,7 @@ public class BigValue {
     }
     
     private static void test(double a, double b) {
-        BigValue lna = new BigValue(a);
+        IBigValue lna = new BigValue(a);
         BigValue lnb = new BigValue(b);
 //        lna.PE(lnb);
 //        lnb.PE(new LogValue(a));
