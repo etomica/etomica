@@ -42,7 +42,7 @@ public class ConformationMethane implements IConformation {
     	double carbonYAxis = - a / 2.0 / Math.cos(alpha) ; 
     	carbon.getPosition().E(new double[]{ 0.0,carbonYAxis, carbonZAxis }); 
     	h4.getPosition().E(new double[] { 0.0 , carbonYAxis, (carbonZAxis + bond) } ); 
-    	if (true){    	  
+    	if (false){    	  
 	    	System.out.println("................ Check initial conformation .................................");
 	    	System.out.println("C position:" + carbon.getPosition());
 	             
