@@ -2,14 +2,13 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
+import etomica.AlkaneEH.SpeciesMethane;
 import etomica.action.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2LennardJones;
@@ -17,11 +16,7 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
-import etomica.units.Liter;
-import etomica.units.Mole;
 import etomica.units.Pixel;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
@@ -29,8 +24,6 @@ import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesAlkane;
-import etomica.virial.SpeciesMethane;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -56,6 +49,7 @@ public class VirialMethaneEH {
         double refFrac = params.refFrac;
 
         System.out.println("new , CH4 (TraPPE-EH) overlap sampling B"+nPoints+" at T="+temperature+" Kelvin");
+        System.out.println("new angle! ");
         temperature = Kelvin.UNIT.toSim(temperature);
 
         final double[] HSB = new double[9];
@@ -81,6 +75,7 @@ public class VirialMethaneEH {
         double epsilonH = Kelvin.UNIT.toSim(15.3);
         double epsilonC = Kelvin.UNIT.toSim(0.01);
         double epsilonCH = Math.sqrt((epsilonH * epsilonC ));
+        //System.out.println(epsilonH*16+epsilonC+epsilonCH*8);
         P2LennardJones p2H = new P2LennardJones(space, sigmaH, epsilonH);// H-H
         P2LennardJones p2C = new P2LennardJones(space, sigmaC, epsilonC);//C-C
         P2LennardJones p2CH = new P2LennardJones(space, sigmaCH, epsilonCH);//C-H
@@ -94,7 +89,7 @@ public class VirialMethaneEH {
 
         //simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster,false);
-//        sim.box[1].getSampleCluster().value(sim.box[1]);
+
         sim.integratorOS.setNumSubSteps(1000);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
@@ -166,10 +161,12 @@ public class VirialMethaneEH {
         }
         
         System.out.println("equilibration finished");
+        
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.ai.setMaxSteps(1000);
         sim.integratorOS.getMoveManager().setEquilibrating(false);
+        
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -209,8 +206,8 @@ public class VirialMethaneEH {
      */
     public static class VirialMethaneParam extends ParameterBase {
         public int nPoints = 2;
-        public double temperature = 250;
-        public long numSteps = 1000000000;
+        public double temperature = 300;
+        public long numSteps = 10000000;
         public double sigmaHSRef = 6;
         public double refFrac = -1;
     }
