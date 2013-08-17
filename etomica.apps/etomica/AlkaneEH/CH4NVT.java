@@ -1,7 +1,5 @@
 package etomica.AlkaneEH;
 
-import java.awt.Color;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -18,6 +16,7 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
@@ -30,6 +29,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialGroup;
+import etomica.potential.PotentialGroupSoft;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -62,7 +62,7 @@ public class CH4NVT extends Simulation {
     public Controller controller; //control the simulation process
 
 	//************************************* constructor ********************************************//
-	public CH4NVT(Space space, int numberMolecules, double boxSize, double temperature){
+	public CH4NVT(Space space, int numberMolecules, double boxSize, double temperature,double truncation){
 		
 		super(space);		
 		//setRandom(new RandomNumberGenerator(1));
@@ -75,7 +75,6 @@ public class CH4NVT extends Simulation {
 		potentialMaster = new PotentialMaster();
 		integrator = new IntegratorMC(this, potentialMaster);
 		
-		
 		//CH4 potential
         double sigmaH = 3.31;// "middle point of CH bond"
         double sigmaC = 3.31;
@@ -86,21 +85,18 @@ public class CH4NVT extends Simulation {
         P2LennardJones p2H = new P2LennardJones(space, sigmaH, epsilonH);// H-H
         P2LennardJones p2C = new P2LennardJones(space, sigmaC, epsilonC);//C-C
         P2LennardJones p2CH = new P2LennardJones(space, sigmaCH, epsilonCH);//C-H
-        double truncationRadius = 20;
-        P2SoftSphericalTruncated potentialTruncated_2H = new P2SoftSphericalTruncated(space, p2H, truncationRadius);
-        P2SoftSphericalTruncated potentialTruncated_2C = new P2SoftSphericalTruncated(space, p2C, truncationRadius);
-        P2SoftSphericalTruncated potentialTruncated_2CH = new P2SoftSphericalTruncated(space, p2CH, truncationRadius);
+        //double truncationRadius = truncation;
+        PotentialGroupSoft pCH4 = new PotentialGroupSoft(2,space,truncation);
+        //PotentialGroup pCH4 = new PotentialGroup(2);
 
-        PotentialGroup pCH4 = new PotentialGroup(2);
-	    
         IAtomType typeC = speciesCH4.getAtomType(0);
         IAtomType typeH = speciesCH4.getAtomType(1);
 
         // build methane potential
-        pCH4.addPotential(potentialTruncated_2C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));//C-C
-        pCH4.addPotential(potentialTruncated_2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));//C-H
-        pCH4.addPotential(potentialTruncated_2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeC }));//H-C
-        pCH4.addPotential(potentialTruncated_2H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeH}));//H-H
+        pCH4.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeC}));//C-C
+        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeC, typeH}));//C-H
+        pCH4.addPotential(p2CH, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeC }));//H-C
+        pCH4.addPotential(p2H, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeH, typeH}));//H-H
         
         //add potential to potential master 
         potentialMaster.addPotential(pCH4, new ISpecies[]{speciesCH4,speciesCH4});
@@ -137,27 +133,33 @@ public class CH4NVT extends Simulation {
 		} else {
 			
 		}
+		long t1 = System.currentTimeMillis();
 		Space space = Space3D.getInstance();
 		int steps = params.steps;
 		boolean isGraphic = params.isGraphic;
 		double temperatureK = params.temperatureK;
 		double temperature = Kelvin.UNIT.toSim(temperatureK);// convert Kelvin temperature to T(sim), essentially kT
 		int numberMolecules = params.numberMolecules;
-		double density = params.density;// in mol/L
+		double density = params.density;
+		double truncation=params.truncation;
 		double densitySim = density * Constants.AVOGADRO * 1e-27;  // convert density to sim unit; in 1/(A)^3
-		System.out.println("density="+density+"mol/L,denisty(sim)="+densitySim+",temperature="+temperatureK+" Kelvin,temperature(sim)="+temperature);
+		System.out.println("******************* methane,TraPPE-EH model, NVT********************");
+		System.out.println("density="+density+"mol/L");
+		System.out.println("denisty(sim)="+densitySim);
+		System.out.println("temperature="+temperatureK+" Kelvin");
+		System.out.println("temperature(sim)="+temperature);
 		double boxSize = Math.pow(numberMolecules / densitySim, (1.0/3.0)); 
 		System.out.println("box size:"+boxSize+",number of molecules="+numberMolecules);
-		System.out.println("******************* methane,TraPPE-EH model, NVT********************");
-		final CH4NVT sim = new CH4NVT(space,numberMolecules,boxSize,temperature);
+		final CH4NVT sim = new CH4NVT(space,numberMolecules,boxSize,temperature,truncation);
 		
     	if (isGraphic){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
 	        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 	        //***********************************  set diameters  ******************************************************
-	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getCType(),1);
-			simGraphic.makeAndDisplayFrame(APP_NAME);
+	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getCType(),.1);
+	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getHType(),.1);
+	        simGraphic.makeAndDisplayFrame(APP_NAME);
 			simGraphic.getDisplayBox(sim.box).repaint();
 	    	return ;
 	    	
@@ -171,7 +173,9 @@ public class CH4NVT extends Simulation {
    		System.out.println("equilibration finished");
     		
     	// pressure
-        MeterPressure pMeter = new MeterPressure(sim.space);
+        MeterPressureMolecular pMeter = new MeterPressureMolecular(sim.space);
+
+        //MeterPressure pMeter = new MeterPressure(sim.space);
         pMeter.setIntegrator(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(10);
         DataPump pPump = new DataPump(pMeter,pAccumulator);
@@ -193,9 +197,12 @@ public class CH4NVT extends Simulation {
         double Zblock_correlation = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(pAccumulator.BLOCK_CORRELATION.index)).x;
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         avgPE /= numberMolecules;
-        System.out.println("Z="+Z+" Zerr="+Zerr +"Z block correlation="+Zblock_correlation);
+        System.out.println("Z="+Z);
+        System.out.println( "Zerr="+Zerr);
+        System.out.println("Z block correlation="+Zblock_correlation);
         System.out.println("PE/epsilon="+avgPE);
-    	
+        long t2 = System.currentTimeMillis();
+ 		System.out.println("simulation time is:"+ (t2-t1));
 	}
 	
 	// ******************* parameters **********************// 
@@ -203,7 +210,8 @@ public class CH4NVT extends Simulation {
 		public boolean isGraphic = false;
 		public double temperatureK = 300.0;
 		public int numberMolecules = 500;
-		public double density = 0.5; // in mol/L
+		public double density = 0.4; // in mol/L
+		public double truncation = 40;
 		public int steps = 100000;
 	    	
 	}
