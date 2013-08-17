@@ -152,24 +152,16 @@ public class PotentialGroup extends PotentialMolecular {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
         double sum = 0.0;
-        for (PotentialLinker link=first; link!= null; link=link.next) {	//????????????
-        	
+        for (PotentialLinker link=first; link!= null; link=link.next) {	
             if(!link.enabled) continue;
             //if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
             link.iterator.setBasis(basisAtoms);
             link.iterator.reset();
-            for (IAtomList atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {          	
-            	sum += link.potential.energy(atoms);
-            	if (Double.isNaN(sum)){// if sum is NAN, print atom pair, call "link" method
-            		link.potential.energy(atoms);
-            		throw new RuntimeException("sum is NaN! atoms pair:"+atoms);
-            		
-            	}
+            for (IAtomList atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
+                sum += link.potential.energy(atoms);
             }
-            
         }
-        
-        return sum; 
+        return sum;
     }
     
     /**
