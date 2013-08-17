@@ -19,6 +19,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.MoleculesetIterator;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
+import etomica.space.ISpace;
 
 /**
  * Collection of potentials that act between the atoms contained in
@@ -36,7 +37,11 @@ public class PotentialGroup extends PotentialMolecular {
      * potentialMaster.makePotentialGroup method to create PotentialGroups.
      */
     public PotentialGroup(int nBody) {
-        super(nBody, null);
+        this(nBody, null);
+    }
+    
+    public PotentialGroup(int nBody, ISpace space) {
+        super(nBody, space);
     }
     
     public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
@@ -147,16 +152,24 @@ public class PotentialGroup extends PotentialMolecular {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
         double sum = 0.0;
-        for (PotentialLinker link=first; link!= null; link=link.next) {	
+        for (PotentialLinker link=first; link!= null; link=link.next) {	//????????????
+        	
             if(!link.enabled) continue;
             //if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
             link.iterator.setBasis(basisAtoms);
             link.iterator.reset();
-            for (IAtomList atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
-                sum += link.potential.energy(atoms);
+            for (IAtomList atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {          	
+            	sum += link.potential.energy(atoms);
+            	if (Double.isNaN(sum)){// if sum is NAN, print atom pair, call "link" method
+            		link.potential.energy(atoms);
+            		throw new RuntimeException("sum is NaN! atoms pair:"+atoms);
+            		
+            	}
             }
+            
         }
-        return sum;
+        
+        return sum; 
     }
     
     /**
