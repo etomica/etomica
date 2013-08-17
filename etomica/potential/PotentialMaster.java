@@ -72,15 +72,15 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
 	        potential.setBox(box);
     	    atomIterator.setTarget(targetMolecule);
     	    atomIterator.setDirection(id.direction());
-    	    if (potential instanceof PotentialGroup) {
-    	        ((PotentialGroup)potential).calculate(atomIterator, id.direction(), targetAtomLeaf, pc);
-    	    }
-    	    else if (pc instanceof PotentialCalculationMolecular) {
+    	    if (pc instanceof PotentialCalculationMolecular) {
     	        atomIterator.reset();
                 for (IMoleculeList atoms = atomIterator.next(); atoms != null;
                      atoms = atomIterator.next()) {
                     ((PotentialCalculationMolecular)pc).doCalculation(atoms, potential);
                 }
+    	    }
+    	    else if (potential instanceof PotentialGroup) {
+    	        ((PotentialGroup)potential).calculate(atomIterator, id.direction(), targetAtomLeaf, pc);
     	    }
         }
         
