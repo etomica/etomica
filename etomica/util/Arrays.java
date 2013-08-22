@@ -72,6 +72,13 @@ public final class Arrays {
         System.arraycopy(oldArray,0,newArray,0,minSize);
         return newArray;
     }
+    
+    public static long[] resizeArray(long[] oldArray, int newSize) {
+        long[] newArray = new long[newSize];
+        int minSize = Math.min(oldArray.length,newSize);
+        System.arraycopy(oldArray,0,newArray,0,minSize);
+        return newArray;
+    }
 
     /**
      * Returns a new array holding the values in the given array, but adjusted
