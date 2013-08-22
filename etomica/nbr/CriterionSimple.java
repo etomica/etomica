@@ -5,6 +5,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -80,7 +81,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = atom.getPosition().Mv1Squared((IVectorMutable)agentManager.getAgent(atom));
+		r2 = atom.getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+r2+" "+atom.getPosition());
         }
@@ -129,7 +130,11 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     }
     
     public Object makeAgent(IAtom atom) {
-        return space.makeVector();
+        IVectorMutable v = space.makeVector();
+        // atom isn't necessarily in the position.  but if atom-adding code is smart,
+        // it will be in the appropriate position.
+        v.E(atom.getPosition());
+        return v;
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}
