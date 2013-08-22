@@ -129,7 +129,10 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         //FIXME but only if we have multi-atomic molecules.  For monatomic
         // molecules, we would only need to call this if the lattice size
         // changes
+        boolean savedDoApplyPBC = doApplyPBC;
+        doApplyPBC = true;
         assignCellAll();
+        doApplyPBC = savedDoApplyPBC;
     }
     
     /**
@@ -246,9 +249,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         if (numCells[0] == 0) return null;
         IVectorMutable position = atom.getPosition();
         v.E(position);
-        if (doApplyPBC) {
-            v.PE(box.getBoundary().centralImage(position));
-        }
+        v.PE(box.getBoundary().centralImage(position));
         Cell atomCell = (Cell)lattice.site(v);
         atomCell.addAtom(atom);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
