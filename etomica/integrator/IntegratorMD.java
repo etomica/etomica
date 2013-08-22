@@ -23,8 +23,6 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.ISpace;
 import etomica.units.Dimension;
 import etomica.units.Time;
@@ -305,12 +303,11 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     oldEnergy = oldPotentialEnergy;
                 }
             }
-            randomizeMomenta();
-            if (thermostatNoDrift) {
-                shiftMomenta();
-                currentKineticEnergy = meterKE.getDataAsScalar();
-            }
             if (thermostat == ThermostatType.ANDERSEN) {
+                randomizeMomenta();
+                if (thermostatNoDrift) {
+                    shiftMomenta();
+                }
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
             else if (thermostat == ThermostatType.HYBRID_MC) {
@@ -323,15 +320,27 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                         IAtom a = leafAtoms.getAtom(i);
                         ((IVectorMutable)oldPositionAgentManager.getAgent(a)).E(a.getPosition());
                     }
+                    randomizeMomenta();
+                    if (thermostatNoDrift) {
+                        shiftMomenta();
+                    }
                     reset();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
                 }
                 else if (rejected) {
                     // we've put the atoms back, need to reset (force recalc)
+                    randomizeMomenta();
+                    if (thermostatNoDrift) {
+                        shiftMomenta();
+                    }
                     reset();
                 }
                 else {
+                    randomizeMomenta();
+                    if (thermostatNoDrift) {
+                        shiftMomenta();
+                    }
                     currentKineticEnergy = meterKE.getDataAsScalar();
                 }
                 oldEnergy += currentKineticEnergy;
