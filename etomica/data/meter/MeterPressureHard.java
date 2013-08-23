@@ -20,7 +20,12 @@ public class MeterPressureHard extends DataSourceScalar implements
         super("Pressure", Pressure.dimension(space.D()));
         dim = space.D();
     }
-        
+
+    public void reset() {
+        virialSum = 0.0;
+        lastTime = integratorHard == null ? 0 : integratorHard.getCurrentTime();
+    }
+    
     /**
      * Returns P = (NT - (virial sum)/((elapsed time)*T*(space dimension)))/V
      * Virial sum and elapsed time apply to period since last call to this method.
@@ -31,6 +36,7 @@ public class MeterPressureHard extends DataSourceScalar implements
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
         if(elapsedTime == 0.0) return Double.NaN;
+        if (elapsedTime < 0) throw new RuntimeException("you should have called reset");
         double numAtomTemp = integratorHard.getKineticEnergy() * 2 / dim;
         if (integratorHard.isIsothermal()) {
             numAtomTemp = integratorHard.getTemperature()*box.getLeafList().getAtomCount();
@@ -78,8 +84,7 @@ public class MeterPressureHard extends DataSourceScalar implements
     public IntegratorHard getIntegrator() {
         return integratorHard;
     }
-    
-    private static final long serialVersionUID = 1L;
+
     protected double virialSum;
     protected IntegratorHard integratorHard;
     protected double lastTime;
