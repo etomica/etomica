@@ -1,6 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IBox;
+import etomica.math.SpecialFunctions;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 import etomica.util.numerical.AkimaSpline;
@@ -9,29 +10,39 @@ public class MCMoveOverlapListener implements IListener {
 
     protected final MCMoveInsertDeleteBiased mcMove;
     protected double[][] sumInsert, sumDelete;
-    protected double[] numInsert, numDelete;
+    protected long[] numInsert, numDelete;
     protected int minNumAtoms;
-    protected double[] alpha, lnAlpha;
+    protected double[] lnAlpha;
     protected double temperature;
     protected double[] ratios;
-    protected double[] y;
+    protected final double[] y;
     protected final AkimaSpline spline;
+    protected final int numAtomsLattice;
+    protected double daDef, daSpan;
+    protected int numAlpha;
     
-    public MCMoveOverlapListener(MCMoveInsertDeleteBiased mcMove, int numAlpha, double alphaCenter, double alphaSpan) {
+    public MCMoveOverlapListener(MCMoveInsertDeleteBiased mcMove, int numAlpha, double daDef, int numAtomsLattice, double daSpan) {
         this.mcMove = mcMove;
         sumInsert = new double[0][0];
         sumDelete = new double[0][0];
-        numInsert = new double[0];
-        numDelete = new double[0];
-        alpha = new double[numAlpha];
-        lnAlpha = new double[numAlpha];
-        for (int i=0; i<numAlpha; i++) {
-            double dx = numAlpha==1 ? 0 : (i - (numAlpha-1)*0.5)/(numAlpha-1)*2.0;
-            alpha[i] = alphaCenter * Math.pow(alphaSpan, dx);
-            lnAlpha[i] = Math.log(alpha[i]);
-        }
+        numInsert = new long[0];
+        numDelete = new long[0];
         y = new double[numAlpha];
         spline = new AkimaSpline();
+        ratios = new double[0];
+        minNumAtoms = Integer.MAX_VALUE;
+        this.numAtomsLattice = numAtomsLattice;
+        this.daDef = daDef;
+        this.daSpan = daSpan;
+        this.numAlpha = numAlpha;
+        lnAlpha = new double[numAlpha];
+    }
+    
+    public void reset() {
+        sumInsert = new double[0][0];
+        sumDelete = new double[0][0];
+        numInsert = new long[0];
+        numDelete = new long[0];
         ratios = new double[0];
         minNumAtoms = Integer.MAX_VALUE;
     }
@@ -48,20 +59,23 @@ public class MCMoveOverlapListener implements IListener {
         if (minNumAtoms == Integer.MAX_VALUE) return ratios;
         for (int na=minNumAtoms; na<sumDelete.length-1; na++) {
             int i = na - minNumAtoms;
-            for (int j=0; j<alpha.length; j++) {
-                double jAlpha = alpha[j];
+            double da = daDef + Math.log(((double)(ratios.length-i))/(minNumAtoms+i+1));
+            for (int j=0; j<numAlpha; j++) {
                 // needs to be negative so y is increasing function of j
-                y[j] = -Math.log((sumInsert[na][j]/numInsert[na]) / (sumDelete[na+1][j]/numDelete[na+1]) / jAlpha);
+                double jLnAlpha = (da + daSpan*(j-(numAlpha-1)*0.5)*2.0/(numAlpha-1.0));
+                lnAlpha[j] = jLnAlpha;
+                y[j] = -Math.log((sumInsert[na][j]/numInsert[na]) / (sumDelete[na+1][j]/numDelete[na+1])) + jLnAlpha;
             }
             if (y[0] * y[y.length-1] > 0) {
 //                System.out.println("failure "+na+" "+(na+1));
                 if (!Double.isInfinite(y[0])) {
                     if (Math.abs(y[0]) < Math.abs(y[y.length-1])) {
-                        ratios[i] = alpha[0];
+                        double lnAlpha0 = (da + daSpan*(-(numAlpha-1)*0.5)*2.0/(numAlpha-1.0));
+                        ratios[i] = Math.exp(lnAlpha0);
                     }
                     else {
-                        int last = alpha.length-1;
-                        ratios[i] = alpha[last-1];
+                        double lnAlphaN = (da + daSpan*((numAlpha-1)-(numAlpha-1)*0.5)*2.0/(numAlpha-1.0));
+                        ratios[i] = Math.exp(lnAlphaN);
                     }
                 }
                 else {
@@ -77,6 +91,7 @@ public class MCMoveOverlapListener implements IListener {
     }
     
     public double[] getHistogram() {
+        if (minNumAtoms == Integer.MAX_VALUE) return new double[]{Double.NaN};
         double[] h = new double[sumDelete.length - minNumAtoms];
         double tot = 0;
         for (int na=minNumAtoms; na<sumDelete.length; na++) {
@@ -90,6 +105,24 @@ public class MCMoveOverlapListener implements IListener {
         return h;
     }
     
+    public long[] getNumInsert() {
+        long[] h = new long[sumDelete.length - minNumAtoms];
+        for (int na=minNumAtoms; na<sumDelete.length; na++) {
+            int i = na - minNumAtoms;
+            h[i] = numInsert[na];
+        }
+        return h;
+    }
+    
+    public long[] getNumDelete() {
+        long[] h = new long[sumDelete.length - minNumAtoms];
+        for (int na=minNumAtoms; na<sumDelete.length; na++) {
+            int i = na - minNumAtoms;
+            h[i] = numDelete[na];
+        }
+        return h;
+    }
+    
     public int getMinNumAtoms() {
         return minNumAtoms;
     }
@@ -97,7 +130,8 @@ public class MCMoveOverlapListener implements IListener {
     public void actionPerformed(IEvent event) {
         if (event instanceof MCMoveTrialFailedEvent) {
             if (((MCMoveEvent)event).getMCMove() != mcMove) return;
-            double w = 1.0;
+            // trial failed, but we were still here.  we need to increment our sums here
+            // for the histogram.
             IBox box = mcMove.getBox();
             int numAtoms = box.getLeafList().getAtomCount();
             if (sumInsert.length < numAtoms+1) {
@@ -107,15 +141,14 @@ public class MCMoveOverlapListener implements IListener {
                 numDelete = etomica.util.Arrays.resizeArray(numDelete, numAtoms+1);
             }
             if (mcMove.lastMoveInsert()) {
-                numInsert[numAtoms] += w;
+                numInsert[numAtoms]++;
             }
             else {
-                numDelete[numAtoms] += w;
+                numDelete[numAtoms]++;
             }
         }
         else if (event instanceof MCMoveTrialInitiatedEvent) {
             if (((MCMoveEvent)event).getMCMove() != mcMove) return;
-            double w = 1.0;
             IBox box = mcMove.getBox();
             int numAtoms = box.getLeafList().getAtomCount();
             double x = mcMove.getA();
@@ -131,22 +164,24 @@ public class MCMoveOverlapListener implements IListener {
                 numDelete = etomica.util.Arrays.resizeArray(numDelete, numAtoms+1);
             }
             if (sumInsert[numAtoms] == null) {
-                sumInsert[numAtoms] = new double[alpha.length];
-                sumDelete[numAtoms] = new double[alpha.length];
+                sumInsert[numAtoms] = new double[numAlpha];
+                sumDelete[numAtoms] = new double[numAlpha];
             }
             if (mcMove.lastMoveInsert()) {
-                for (int i=0; i<alpha.length; i++) {
-                    double iAlpha = alpha[i];
-                    sumInsert[numAtoms][i] += w/(1 + iAlpha/x);
+                double da = daDef + Math.log(((double)(numAtomsLattice-numAtoms))/(numAtoms+1));
+                for (int i=0; i<numAlpha; i++) {
+                    double iLnAlpha = (da + daSpan*(i-(numAlpha-1)*0.5)*2.0/(numAlpha-1.0));
+                    sumInsert[numAtoms][i] += 1.0/(1 + Math.exp(iLnAlpha)/x);
                 }
-                numInsert[numAtoms] += w;
+                numInsert[numAtoms]++;
             }
             else {
-                for (int i=0; i<alpha.length; i++) {
-                    double iAlpha = alpha[i];
-                    sumDelete[numAtoms][i] += w/(iAlpha + 1.0/x);
+                double da = daDef + Math.log(((double)(numAtomsLattice-numAtoms+1))/numAtoms);
+                for (int i=0; i<numAlpha; i++) {
+                    double iLnAlpha = (da + daSpan*(i-(numAlpha-1)*0.5)*2.0/(numAlpha-1.0));
+                    sumDelete[numAtoms][i] += 1.0/(Math.exp(iLnAlpha) + 1.0/x);
                 }
-                numDelete[numAtoms] += w;
+                numDelete[numAtoms]++;
             }
         }
     }
