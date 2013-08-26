@@ -7,19 +7,20 @@ import etomica.api.IAtomList;
  *
  * @author David Kofke
  */
-public interface Potential2Soft extends PotentialSoft {
-    
-	public double hyperVirial(IAtomList pair);
-
-	/**
-	 * Integral used to evaluate correction to truncation of potential.
-	 */
-	public double integral(double rC);
+public interface Potential2Soft extends PotentialSoft, Potential2Spherical {
 
     /**
-     * The pair energy u(r^2).  Anisotropic potentials return an (Boltzmann
-     * weighted) orientationally averaged energy.
-     * @param the square of the distance between the particles.
+     * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
-	public double u(double r2);
+    public double hyperVirial(IAtomList pair);
+
+    /**
+     * Integral used to evaluate correction to truncation of potential.
+     */
+    public double integral(double rC);
+
+    /**
+     * The derivative of the pair energy, times the separation r: r du/dr.
+     */
+    public double du(double r2);
 }
