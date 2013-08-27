@@ -235,6 +235,11 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         return epsilon4*s6*(s6 - 1.0) - (14.0/(5.0*temperature))*Q2*Q2/(r4*r4*r2);
     }
     
+    public double du(double r2) {
+        // should return a Boltzmann-weighted orientational average of du/dr
+        throw new RuntimeException("please implement me");
+    }
+    
     public double integral(double rC) {
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
         double rc = sigma/rC;

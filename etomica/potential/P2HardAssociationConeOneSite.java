@@ -206,6 +206,10 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
 		return epsilon4*s6*(s6 - 1.0);
 	}
 
+    public double du(double r2) {
+        return 0;
+    }
+
 	public IVector[] gradient(IAtomList atoms) {
 		return null;
 	}

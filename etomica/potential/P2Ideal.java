@@ -75,6 +75,13 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Returns zero.
      */
+    public double du(double r2) {
+        return 0;
+    }
+
+    /**
+     * Returns zero.
+     */
     public double lastCollisionVirial() {
         return 0;
     }

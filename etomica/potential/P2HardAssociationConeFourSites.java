@@ -240,6 +240,10 @@ public class P2HardAssociationConeFourSites extends Potential2 implements Potent
 		return 0;
 	}
 
+    public double du(double r2) {
+        return 0;
+    }
+
 	public IVector[] gradient(IAtomList atoms) {
 		return null;
 	}

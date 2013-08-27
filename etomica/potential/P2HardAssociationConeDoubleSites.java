@@ -196,6 +196,10 @@ public class P2HardAssociationConeDoubleSites extends Potential2 implements Pote
 		return 0;
 	}
 
+	public double du(double r2) {
+	    return 0;
+	}
+
 	public IVector[] gradient(IAtomList atoms) {
 		// TODO Auto-generated method stub
 		return null;
