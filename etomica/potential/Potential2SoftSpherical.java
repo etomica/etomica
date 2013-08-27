@@ -16,7 +16,7 @@ import etomica.space.Tensor;
  * @author David Kofke
  */
  
-public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
+public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft {
    
     public Potential2SoftSpherical(ISpace space) {
         super(space);
