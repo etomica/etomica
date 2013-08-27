@@ -108,7 +108,11 @@ public class P2SoftTruncated extends Potential2
     public double u(double r2) {
         return wrappedPotential.u(r2);
     }
-    
+
+    public double du(double r2) {
+        return wrappedPotential.du(r2);
+    }
+
     /**
      * Mutator method for the radial cutoff distance.
      */
@@ -145,7 +149,7 @@ public class P2SoftTruncated extends Potential2
     /**
      * Inner class that implements the long-range correction for this truncation scheme.
      */
-    private static class P0Lrc extends Potential0Lrc {
+    private static class P0Lrc extends Potential0Lrc implements Potential2Soft {
         
         private static final long serialVersionUID = 1L;
         private final double A;
@@ -168,6 +172,10 @@ public class P2SoftTruncated extends Potential2
             return duCorrection(nPairs()/box.getBoundary().volume());
         }
         
+        public double hyperVirial(IAtomList pair) {
+            return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
+        }
+
         public IVector[] gradient(IAtomList atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
         }
@@ -203,6 +211,32 @@ public class P2SoftTruncated extends Potential2
             //need potential to be spherical to apply here
             integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
             return pairDensity*integral;
+        }
+
+        /**
+         * Uses result from integration-by-parts to evaluate integral of
+         * r2 d2u/dr2 using integral of u.
+         * @param pairDensity average pairs-per-volume affected by the potential.
+         */
+        public double d2uCorrection(double pairDensity) {
+            double rCutoff = potential.getRange();
+            double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
+            //need potential to be spherical to apply here
+            integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
+            integral = -A*Math.pow(rCutoff, D+1)*((Potential2SoftSpherical)truncatedPotential).du(rCutoff*rCutoff) - (D+1)*integral;
+            return pairDensity*integral;
+        }
+
+        public double integral(double rC) {
+            throw new RuntimeException("nope");
+        }
+
+        public double u(double r2) {
+            throw new RuntimeException("nope");
+        }
+
+        public double du(double r2) {
+            throw new RuntimeException("nope");
         }
     }//end of P0lrc
     
