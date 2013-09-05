@@ -99,7 +99,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     // this constructor allows you to specify your own sampleClusters
     public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
-        this(aSpace, species, temperature, aValueClusters[0], aValueClusters[1]);
+        this(aSpace, new ISpecies[]{species}, new int[]{aValueClusters[0].pointCount()}, temperature, aValueClusters[0], aValueClusters[1]);
         setDoWiggle(doWiggle);
         setSampleClusters(aSampleClusters);
         init();
