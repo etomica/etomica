@@ -1,6 +1,7 @@
 package etomica.graph.operations;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,16 @@ public class Split implements Unary {
     // they come from the same original graph.
     for (Graph g : argument) {
       Set<Graph> newSet = apply(g, (SplitParameters) params);
+      if (((SplitParameters)params).getDiscardProperty() != null) {
+        Set<Graph> newerSet = new HashSet<Graph>();
+        for (Graph gs : newSet) {
+          if (!((SplitParameters)params).getDiscardProperty().check(gs)) {
+            newerSet.add(gs);
+          }
+        }
+        newSet = newerSet;
+      }
+              
       if (newSet.size() == 1) {
         // split had no effect (g did not contain the bond of interest)
         result.addAll(newSet);
