@@ -2,6 +2,7 @@ package etomica.util.numerical;
 
 import Jama.Matrix;
 import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;
 
 /**
@@ -99,14 +100,7 @@ public class PadeApproximation {
 	public static void main(String[] args){
 		
 		VirialParam params = new VirialParam();
-	    String inputFilename = null;
-        if (args.length > 0) {
-            inputFilename = args[0];
-        }
-        if (inputFilename != null) {
-            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-            readParameters.readParameters();
-        }
+	    ParseArgs.doParseArgs(params, args);
 		
 		double[] c = params.c;
 				
