@@ -45,7 +45,7 @@ public class VirialOptimizer {
 		PadeApproximation pade = new PadeApproximation(bVirial, K, L);
 		pade.solveCoefficients();
 		double[] A = pade.getA();
-		double[] C = pade.getC();
+		double[] C = pade.getB();
 		
 		/*
 		 * Pressure Calculation from Pade
