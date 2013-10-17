@@ -23,7 +23,7 @@ import etomica.util.ReadParameters;
  *
  */
 public class PadeApproximation {
-	public PadeApproximation(double[] b, int K, int L){
+	public PadeApproximation(double[] c, int N, int D){
 		/*
 		 * checking the order and we do not allow K+L > M
 		 * K and L is the order of the power series of the numerator and denominator
@@ -31,29 +31,29 @@ public class PadeApproximation {
 		 *  
 		 * M is the order of the examined polynomial
 		 */
-		int M = (b.length -1);
+		int M = (c.length -1);
 		
-		if((K+L) > M || K<L || L==0){
-			throw new RuntimeException("Pade Approximation class: K plus L should not exceed the M-order -OR- K < L -OR- L = 0");
+		if((N+D) > M || D==0){
+			throw new RuntimeException("Pade Approximation class: N plus D should not exceed the M-order -OR- D = 0");
 		}
 		
-		this.b = b;
-		a = new double[K+1];
-		c = new double[L+1];
+		this.c = c;
+		a = new double[N+1];
+		b = new double[D+1];
 		
-		double[][] y = new double[L][L];
-		double[] z = new double [L];
+		double[][] y = new double[D][D];
+		double[] z = new double [D];
 		
-		for (int icol=0; icol<L; icol++){
-			z[icol] = -b[K+1+icol];
+		for (int icol=0; icol<D; icol++){
+			z[icol] = -c[N+1+icol];
 		}
 		
-		for (int irow=0; irow<L; irow++){
-			for (int icol=0; icol<L; icol++ ){
-				if((K+irow-icol)< 0.0) {
+		for (int irow=0; irow<D; irow++){
+			for (int icol=0; icol<D; icol++ ){
+				if((N+irow-icol)< 0.0) {
 					y[irow][icol] = 0.0;
 				} else {
-					y[irow][icol] = b[K+irow-icol]; 
+					y[irow][icol] = c[N+irow-icol]; 
 				}
 			}
 		}
@@ -70,19 +70,19 @@ public class PadeApproximation {
 		/*
 		 * determine "c" coefficients
 		 */
-		c[0] = 1.0;
-		for (int i=0; i<c.length-1; i++){
-			c[i+1] = cMatrix.get(i, 0);
+		b[0] = 1.0;
+		for (int i=0; i<b.length-1; i++){
+			b[i+1] = cMatrix.get(i, 0);
 		}
 		
 		/*
 		 * determine "a" coefficients
 		 */
 		for (int i=0; i<a.length; i++){
-			for (int j=0; j<c.length; j++){
+			for (int j=0; j<b.length; j++){
 				if((i-j)< 0.0 ) break;
 				
-				a[i] += b[i-j]*c[j];
+				a[i] += c[i-j]*b[j];
 				
 			}
 		}
@@ -92,8 +92,8 @@ public class PadeApproximation {
 		return a;
 	}
 	
-	public double[] getC(){
-		return c;
+	public double[] getB(){
+		return b;
 	}
 	
 	public static void main(String[] args){
@@ -108,15 +108,18 @@ public class PadeApproximation {
             readParameters.readParameters();
         }
 		
-		double[] b = params.bVirial;
+		double[] c = params.c;
 				
-		int K = 5;
-		int L = 3;
-		PadeApproximation pade = new PadeApproximation(b, K, L);
+		int n = params.n;
+		int d = params.d;
+		if (n+d != c.length-1) {
+		    throw new RuntimeException("n+d must equal the number of coefficients");
+		}
+		PadeApproximation pade = new PadeApproximation(c, n, d);
 		pade.solveCoefficients();
 		
 		double[] aValues = pade.getA();
-		double[] cValues = pade.getC();
+		double[] bValues = pade.getB();
 		
 		System.out.println("PadeApproximation\n");
 		for (int i=0; i<aValues.length; i++){
@@ -124,8 +127,8 @@ public class PadeApproximation {
 		}
 		
 		System.out.println();
-		for (int i=0; i<cValues.length; i++){
-			System.out.println("c " + i +"  " + cValues[i]);
+		for (int i=0; i<bValues.length; i++){
+			System.out.println("b " + i +"  " + bValues[i]);
 		}
 		System.out.println("\nAll done");
 		
@@ -134,9 +137,10 @@ public class PadeApproximation {
 	protected double[] a, b, c;
 	protected Matrix Y, Z;
 	
-	   public static class VirialParam extends ParameterBase {
-	        public double[] bVirial = new double[]{     1.0, 3.712218666, 5.55200, 
+	public static class VirialParam extends ParameterBase {
+	    public double[] c = new double[]{     1.0, 3.712218666, 5.55200, 
                     1.44261,     -1.6883,  1.8935, 
                     -1.700,        0.44,  3.0589};
-	    }
+	    public int d = 4, n = 4;
+	}
 }
