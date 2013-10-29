@@ -34,8 +34,9 @@ public class PadeApproximation {
 		 */
 		int M = (c.length -1);
 		
-		if((N+D) > M || D==0){
-			throw new RuntimeException("Pade Approximation class: N plus D should not exceed the M-order -OR- D = 0");
+		if((N+D) > M || D<0){
+		    System.err.println("N+D="+(N+D)+"  and  M="+M);
+			throw new RuntimeException("Pade Approximation class: N plus D should not exceed the M-order -OR- D < 0");
 		}
 		
 		this.c = c;
@@ -59,7 +60,7 @@ public class PadeApproximation {
 			}
 		}
 		
-		Y = new Matrix(y);		
+		Y = D==0 ? new Matrix(0,0) : new Matrix(y);		
 		Z = new Matrix(z, z.length);
 		
 	}
