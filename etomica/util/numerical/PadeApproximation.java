@@ -66,14 +66,14 @@ public class PadeApproximation {
 	
 	public void solveCoefficients(){
 		
-		Matrix cMatrix = Y.solve(Z);
+		Matrix bMatrix = Y.solve(Z);
 	
 		/*
 		 * determine "c" coefficients
 		 */
 		b[0] = 1.0;
 		for (int i=0; i<b.length-1; i++){
-			b[i+1] = cMatrix.get(i, 0);
+			b[i+1] = bMatrix.get(i, 0);
 		}
 		
 		/*
@@ -115,7 +115,6 @@ public class PadeApproximation {
 		double[] aValues = pade.getA();
 		double[] bValues = pade.getB();
 		
-		System.out.println("PadeApproximation\n");
 		for (int i=0; i<aValues.length; i++){
 			System.out.println("a " + i +"  "+ aValues[i]);
 		}
@@ -124,8 +123,6 @@ public class PadeApproximation {
 		for (int i=0; i<bValues.length; i++){
 			System.out.println("b " + i +"  " + bValues[i]);
 		}
-		System.out.println("\nAll done");
-		
 	}
 	
 	protected double[] a, b, c;
