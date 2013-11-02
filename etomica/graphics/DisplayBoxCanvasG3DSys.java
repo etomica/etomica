@@ -690,7 +690,14 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		}
 
 		// make a bond object (Figure)
-		Figure f = new Bond(gsys, ball0, ball1);
+		Figure f = null;
+		if (bondType == null) {
+		    f = new Bond(gsys, ball0, ball1);
+		}
+		else {
+		    short c = G3DSys.getColix((Color)bondType);
+		    f = new Bond(gsys, ball0, ball1, c);
+		}
 		gsys.addFig(f);
 		return f;
 	}
