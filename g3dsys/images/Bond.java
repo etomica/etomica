@@ -1,11 +1,11 @@
 package g3dsys.images;
 
+import g3dsys.control.G3DSys;
+
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
-
-import g3dsys.control.G3DSys;
 
 //TODO: ensure wireframe bonds actually connect
 
@@ -28,9 +28,14 @@ public class Bond extends Figure {
   //TODO: 'a' can cycle between cylinders, wireframe, and bonds off entirely
   private final Point3i p1i, p2i; // same in pixels, not shared
   private int bondType = CYLINDER;
-protected float _d;
+  protected float _d;
+  protected short color;
   
   public Bond(G3DSys g, Ball b0, Ball b1) {
+      this(g, b0, b1, (short)-1);
+  }
+
+  public Bond(G3DSys g, Ball b0, Ball b1, short color) {
     super(g);
     this.p1 = b0.getPoint();
     this.p2 = b1.getPoint();
@@ -38,6 +43,7 @@ protected float _d;
     ball2 = b1;
     p1i = new Point3i();
     p2i = new Point3i();
+    this.color = color;
   }
   
   public void draw() {
@@ -49,13 +55,15 @@ protected float _d;
     _gsys.screenSpace(p2, p2i);
     switch(bondType) {
     case CYLINDER:
-      _gsys.getG3D().fillCylinder(ball1.getColor(),ball2.getColor(),
-          Graphics3D.ENDCAPS_FLAT,
+      short c1 = color==-1 ? ball1.getColor() : color;
+      short c2 = color==-1 ? ball2.getColor() : color;
+      _gsys.getG3D().fillCylinderXYZ(c1, c2, Graphics3D.ENDCAPS_FLAT,
           _gsys.perspective(((int)(ball1.getPoint().z + ball2.getPoint().z))/2, getD()),
           p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
     case WIREFRAME:
-      if (!_gsys.getG3D().setColix(ball1.getColor())) return;
+      short c = color==-1 ? ball1.getColor() : color;
+      if (!_gsys.getG3D().setColix(c)) return;
       _gsys.getG3D().drawDashedLine(0, 0, p1i, p2i);
       //_gsys.getG3D().drawLine(color1,color2,p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
@@ -78,7 +86,7 @@ protected float _d;
   public short getColor1() { return ball1.getColor(); }
   public short getColor2() { return ball2.getColor(); }
 
-/** set the molspace diameter of the figure, when applicable */
-public void setD(float d) { _d = d; }
+  /** set the molspace diameter of the figure, when applicable */
+  public void setD(float d) { _d = d; }
   
 }
