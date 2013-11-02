@@ -57,7 +57,7 @@ public class Bond extends Figure {
     case CYLINDER:
       short c1 = color==-1 ? ball1.getColor() : color;
       short c2 = color==-1 ? ball2.getColor() : color;
-      _gsys.getG3D().fillCylinderXYZ(c1, c2, Graphics3D.ENDCAPS_FLAT,
+      _gsys.getG3D().fillCylinder(c1, c2, Graphics3D.ENDCAPS_FLAT,
           _gsys.perspective(((int)(ball1.getPoint().z + ball2.getPoint().z))/2, getD()),
           p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
