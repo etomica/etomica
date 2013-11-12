@@ -107,6 +107,7 @@ public class VirialDiagramsPT {
     public char fBond, bBond, eBond, excBond, mBond, mmBond, fmBond, efbcBond, ffBond, mxcBond, MxcBond, rBond;
     public char[] aBonds;
     protected int orderBeta;
+    protected boolean doExp;
 
     protected static int[][] tripletStart = new int[0][0];
     protected static int[][] quadStart = new int[0][0];
@@ -138,6 +139,7 @@ public class VirialDiagramsPT {
             virialDiagrams.setDoMinimalBC(true);
         }
         virialDiagrams.setOrderBeta(2);
+        virialDiagrams.setDoExp(true);
         virialDiagrams.makeVirialDiagrams();
     }
 
@@ -266,7 +268,11 @@ public class VirialDiagramsPT {
     public int getOrderBeta() {
         return orderBeta;
     }
-    
+
+    public void setDoExp(boolean newDoExp) {
+        doExp = newDoExp;
+    }
+
     protected void init() {
         fBond = 'f';
         bBond = 'B';
@@ -1559,13 +1565,13 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
             for (int j=0; j<orderBeta; j++) {
                 aBonds[j] = (char)('a'+j);
             }
-            char Xbond = (aBonds.length==1) ? 'a' : 'A';
+            char Xbond = (aBonds.length==1 || doExp) ? 'a' : 'A';
             Property discardCriteria = new DiscardCriteria(Xbond, 1, rBond, orderBeta);
             SplitParameters splitParameters = new SplitParameters(fBond, rBond, Xbond, discardCriteria);
 
             newP = splitter.apply(p, splitParameters);
 
-            for (int i=0; i<aBonds.length-1; i++) {
+            for (int i=0; !doExp && i<aBonds.length-1; i++) {
             	char Ybond = i<aBonds.length-2 ? (char)(Xbond+1) : aBonds[aBonds.length-1];
             	final int ii = i;
                 discardCriteria = new DiscardCriteria(Ybond, ii+2, rBond, orderBeta);
@@ -1576,7 +1582,6 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
         }
         p = makeGraphList();
         p.addAll(newP);
-
         
         newP = new HashSet<Graph>();
         // attempt to factor any graphs with an articulation point
