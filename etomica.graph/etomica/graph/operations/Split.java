@@ -10,6 +10,7 @@ import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphList;
 import etomica.graph.model.Permutator;
+import etomica.graph.property.Property;
 
 public class Split implements Unary {
 
@@ -29,15 +30,6 @@ public class Split implements Unary {
     // they come from the same original graph.
     for (Graph g : argument) {
       Set<Graph> newSet = apply(g, (SplitParameters) params);
-      if (((SplitParameters)params).getDiscardProperty() != null) {
-        Set<Graph> newerSet = new HashSet<Graph>();
-        for (Graph gs : newSet) {
-          if (!((SplitParameters)params).getDiscardProperty().check(gs)) {
-            newerSet.add(gs);
-          }
-        }
-        newSet = newerSet;
-      }
               
       if (newSet.size() == 1) {
         // split had no effect (g did not contain the bond of interest)
@@ -60,6 +52,7 @@ public class Split implements Unary {
   }
 
   public Set<Graph> apply(Graph graph, SplitParameters params) {
+    Property dp = params.getDiscardProperty();
 
     // collect the Ids of all edges we must replace
     List<Byte> edges = new ArrayList<Byte>();
@@ -83,7 +76,9 @@ public class Split implements Unary {
         char newColor = permutation[edgePtr] == 0 ? params.newColor0() : params.newColor1();
         newGraph.getEdge(edges.get(edgePtr)).setColor(newColor);
       }
-      result.add(newGraph);
+      if (dp == null || !dp.check(newGraph)) {
+        result.add(newGraph);
+      }
     }
     return result;
   }
