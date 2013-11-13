@@ -27,15 +27,10 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundDimension;
-import etomica.units.CompoundUnit;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
-import etomica.units.Liter;
-import etomica.units.Mole;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
 import etomica.units.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -44,7 +39,6 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationClusterMove;
-import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MayerSphericalPTAtt;
@@ -67,7 +61,8 @@ public class VirialSwsPT {
         	params.nPoints = 4;
         	params.numSteps = 100000000;
         	params.lambda = 2;
-        	params.order = 5;
+        	params.order = 1;
+        	params.doExp = true;
         }
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
@@ -81,6 +76,8 @@ public class VirialSwsPT {
         else if (sigmaHSRef <= 1.0) {
             sigmaHSRef = (lambda + 1.0) * 0.5;
         }
+        boolean doExp = params.doExp;
+
         final double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -103,20 +100,20 @@ public class VirialSwsPT {
         for (int i=0; i<fTargetAtt.length; i++) {
         	fTargetAtt[i] = new MayerSphericalPTAtt(p2Ref, p2Att, i+1);
         }
-        MayerFunction[] fTarget = new MayerFunction[order+1];
-        fTarget[0] = fTargetRef;
-        for (int i=1; i<fTarget.length; i++) {
-            fTarget[i] = fTargetAtt[i-1];
-        }
 
         VirialDiagramsPT alkaneDiagrams = new VirialDiagramsPT(nPoints, false, false);
+        alkaneDiagrams.setDoExp(doExp);
         alkaneDiagrams.setOrderBeta(order);
+        alkaneDiagrams.setDoShortcut(true);
+        alkaneDiagrams.setDoReeHoover(false);
         ClusterAbstract targetCluster = alkaneDiagrams.makeVirialCluster(fTargetRef, fTargetAtt);
+        alkaneDiagrams = null;
 
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
+        rigidDiagrams.setDoShortcut(true);
         ClusterAbstract refCluster = rigidDiagrams.makeVirialCluster(fHS);
 
-        double refIntegral = HSB[nPoints];
+        final double refIntegral = HSB[nPoints];
 
         targetCluster.setTemperature(1.0);
         refCluster.setTemperature(1.0);
@@ -140,7 +137,7 @@ public class VirialSwsPT {
         }
         steps /= 1000;
 
-        ConfigurationClusterMove ccm = new ConfigurationClusterMove(space, sim.getRandom());
+        ConfigurationClusterMove ccm = new ConfigurationClusterMove(space, sim.getRandom(), lambda);
         ccm.initializeCoordinates(sim.box[1]);
         if (sim.box[1].getSampleCluster().value(sim.box[1])==0) {
         	throw new RuntimeException("couldn't find an initial configuration");
@@ -177,8 +174,8 @@ public class VirialSwsPT {
             sim.getController().removeAction(sim.ai);
             sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
+                    sim.initRefPref(null, 100);
+                    sim.equilibrate(null, 200);
                     sim.ai.setMaxSteps(Long.MAX_VALUE);
                 }
             });
@@ -203,23 +200,20 @@ public class VirialSwsPT {
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
                     double error = ratioAndError[1];
-                    data.x = ratio;
+                    data.x = ratio*refIntegral;
                     averageBox.putData(data);
-                    data.x = error;
+                    data.x = error*refIntegral;
                     errorBox.putData(data);
                 }
                 
                 DataDouble data = new DataDouble();
             };
             IEtomicaDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
-            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
-            averageBox.setUnit(unit);
             errorBox.putDataInfo(dataInfo);
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
-            errorBox.setUnit(unit);
             sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
             
             return;
@@ -281,5 +275,6 @@ public class VirialSwsPT {
         public int order = 1;
         public double lambda = 1.5;
         public double sigmaHSRef = 1.0;
+        public boolean doExp = true;
     }
 }
