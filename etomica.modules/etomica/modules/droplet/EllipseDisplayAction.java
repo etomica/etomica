@@ -2,7 +2,7 @@ package etomica.modules.droplet;
 
 import java.awt.Color;
 
-import javax.vecmath.Point3f;
+import org.jmol.util.Point3f;
 
 import etomica.api.ISimulation;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -16,7 +16,7 @@ public class EllipseDisplayAction {
         nominalDiameter = dropDiameter;
         ISimulation sim = graphic.getSimulation();
         G3DSys gsys = ((DisplayBoxCanvasG3DSys)graphic.getDisplayBox(sim.getBox(0)).canvas).getG3DSys();
-        ellipse = new Ellipse(gsys, G3DSys.getColix(Color.WHITE), new Point3f(0,0,3), nominalDiameter, 1);
+        ellipse = new Ellipse(gsys, G3DSys.getColix(Color.WHITE), Point3f.new3(0,0,3), nominalDiameter, 1);
     }
     public synchronized void displayEllipse(double g) {
         final ISimulation sim = graphic.getSimulation();
