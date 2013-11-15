@@ -4,9 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Panel;
 
-import javax.vecmath.Point3f;
-
-import org.jmol.g3d.Graphics3D;
+import org.jmol.util.Colix;
+import org.jmol.util.Point3f;
 
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
@@ -408,7 +407,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
                     float v1y = (float)rBound(vertices[1].getX(1), 1);
 					float v1z = (float)rBound(vertices[1].getX(2), 2);
 					polytopeLines[i] = new Line(gsys, G3DSys.getColix(boundaryFrameColor),
-					      new Point3f(v0x, v0y, v0z), new Point3f(v1x, v1y, v1z));
+					      Point3f.new3(v0x, v0y, v0z), Point3f.new3(v1x, v1y, v1z));
 					if (displayBox.getShowBoundary() == true) {
 						gsys.addFig(polytopeLines[i]);
 					}
@@ -644,7 +643,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         }
         while (intersectionCount > planeTriangles[iPlane].length+2) {
             planeTriangles[iPlane] = (Triangle[])Arrays.addObject(planeTriangles[iPlane], new Triangle(
-                    gsys, Graphics3D.getColixTranslucent(G3DSys.getColix(planeColor), true, 0.5f), new Point3f(), new Point3f(), new Point3f()));
+                    gsys, Colix.getColixTranslucent3(G3DSys.getColix(planeColor), true, 0.5f), new Point3f(), new Point3f(), new Point3f()));
             gsys.addFig(planeTriangles[iPlane][planeTriangles[iPlane].length-1]);
         }
 

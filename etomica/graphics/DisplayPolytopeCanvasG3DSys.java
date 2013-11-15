@@ -10,7 +10,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Panel;
 
-import javax.vecmath.Point3f;
+import org.jmol.util.Point3f;
 
 public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 
@@ -121,9 +121,9 @@ public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 			for (int i = 0; i < lines.length; i++) {
 				IVector[] vertices = lines[i].getVertices();
 				polytopeLines[i] = new Line(gsys, G3DSys
-						.getColix(boundaryFrameColor), new Point3f(
+						.getColix(boundaryFrameColor), Point3f.new3(
 						(float) vertices[0].getX(0), (float) vertices[0].getX(1),
-						(float) vertices[0].getX(2)), new Point3f(
+						(float) vertices[0].getX(2)), Point3f.new3(
 						(float) vertices[1].getX(0), (float) vertices[1].getX(1),
 						(float) vertices[1].getX(2)));
 				gsys.addFig(polytopeLines[i]);
