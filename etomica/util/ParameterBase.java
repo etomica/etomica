@@ -121,6 +121,9 @@ public abstract class ParameterBase {
                     }
                     field.set(this,array);
                 }
+                else if (subType == String.class) {
+                    field.set(this,strings);
+                }
                 else {
                     throw new RuntimeException("Unrecognized type "+type.getName());
                 }
