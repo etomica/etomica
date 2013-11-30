@@ -84,9 +84,9 @@ public final class Debug {
      */
     public static final int MOLECULE2_INDEX = -1;
 
-    public static final int SPECIES1_INDEX = 1;
+    public static final int SPECIES1_INDEX = 0;
 
-    public static final int SPECIES2_INDEX = 1;
+    public static final int SPECIES2_INDEX = 0;
 
     /**
      * index of box of interest.  -1 indicates no particular box.
@@ -153,8 +153,8 @@ public final class Debug {
             IAtom atom = atoms.getAtom(i);
             if (((atom.getIndex() != ATOM1_INDEX && ATOM1_INDEX != -1) ||
                  atom.getParentGroup().getIndex() != MOLECULE1_INDEX ||
-                 atom.getParentGroup().getType().getIndex() != SPECIES1_INDEX) ||
-                ((atom.getIndex() != ATOM2_INDEX && ATOM1_INDEX != -1) ||
+                 atom.getParentGroup().getType().getIndex() != SPECIES1_INDEX) &&
+                ((atom.getIndex() != ATOM2_INDEX && ATOM2_INDEX != -1) ||
                  atom.getParentGroup().getIndex() != MOLECULE2_INDEX ||
                  atom.getParentGroup().getType().getIndex() != SPECIES2_INDEX)) {
                 return false;
