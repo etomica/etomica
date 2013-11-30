@@ -164,7 +164,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * simulation due to more frequent neighbor list constructing.
      */
     public void setSafetyFactor(double newSafetyFactor) {
-        if (newSafetyFactor <= 0 || newSafetyFactor >= 0.5) {
+        if (newSafetyFactor <= 0 || newSafetyFactor > 0.5) {
             throw new IllegalArgumentException("Safety factor must be between 0 and 0.5");
         }
         safetyFactor = newSafetyFactor;
@@ -325,7 +325,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         NeighborCriterion oldCriterion = getCriterion(potential);
         if (oldCriterion != null) {
             // remove the criterion to all existing NeighborListManagers
-            allCriteria = (NeighborCriterion[]) Arrays.removeObject(allCriteria, criterion);
+            allCriteria = (NeighborCriterion[]) Arrays.removeObject(allCriteria, oldCriterion);
         }
         rangedPotentialIterator.reset();
         boolean success = false;
