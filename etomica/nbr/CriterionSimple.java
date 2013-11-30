@@ -23,7 +23,7 @@ import etomica.util.Debug;
  * @author andrew
  *
  */
-public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.Serializable {
+public class CriterionSimple implements NeighborCriterion, AgentSource {
 
 	public CriterionSimple(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
 		super();
@@ -36,7 +36,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 	
 	public void setSafetyFactor(double f) {
-		if (f <= 0.0 || f >= 0.5) throw new IllegalArgumentException("safety factor must be positive and less than 0.5");
+		if (f <= 0.0 || f > 0.5) throw new IllegalArgumentException("safety factor must be positive and less than 0.5");
 		safetyFactor = f;
 		double displacementLimit = (Math.sqrt(neighborRadius2) - interactionRange) * f;
 		displacementLimit2 = displacementLimit * displacementLimit;
@@ -139,7 +139,6 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     
     public void releaseAgent(Object agent, IAtom atom) {}
 
-    private static final long serialVersionUID = 1L;
     protected final ISpace space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
 	protected final IVectorMutable dr;
