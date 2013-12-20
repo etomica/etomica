@@ -187,8 +187,10 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         }
         this.integratorMC = integratorMC;
         integratorMC.setTemperature(temperature);
-        integratorMC.setBox(box);
-        integratorMC.reset();
+        if (box != null){
+            integratorMC.setBox(box);
+            integratorMC.reset();       	
+        }
         this.mcSteps = mcSteps;
     }
 
