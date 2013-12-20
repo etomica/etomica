@@ -3,6 +3,7 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -11,7 +12,9 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
+import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeArrayList;
+import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
 import etomica.atom.iterator.MoleculeIteratorAll;
@@ -110,7 +113,7 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
 	 */
     public void addPotential(IPotentialMolecular potential, ISpecies[] species) {
     	if (potential.nBody() == 0) {
-    		addPotential(potential, new AtomIterator0(),null);
+    		addPotential(potential, new MoleculeIterator0(),null);
     	}
         else if (potential.nBody() == Integer.MAX_VALUE) {
             addPotential(potential, new MoleculeIteratorAll(species), null);
@@ -309,9 +312,8 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
     protected PotentialLinker first, last;
     protected boolean enabled = true;
 
-    public static class AtomIterator0 implements MoleculesetIteratorPDT {
-        private static final long serialVersionUID = 1L;
-        public AtomIterator0() {}
+    public static class MoleculeIterator0 implements MoleculesetIteratorPDT {
+        public MoleculeIterator0() {}
         public void setBox(IBox box) {}
         public void setTarget(IMolecule target) {}
         public void setDirection(IteratorDirective.Direction direction) {}
@@ -329,6 +331,28 @@ public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
         protected final MoleculeArrayList list = new MoleculeArrayList(0);
         protected boolean finished;
     }
+    //Added
+    public static class AtomIterator0 implements AtomsetIteratorBasisDependent {
+        public AtomIterator0() {}
+        public void setTarget(IAtom target) {}
+        public int nBody() {return 0;}
+        public IAtomList next() {
+            if (finished) {
+                return null;
+            }
+            finished = true;
+            return list;
+        }
+        public void reset() {finished = false;}
+        public int size() {return 1;}
+        public void unset() {finished = true;}
+        protected final AtomArrayList list = new AtomArrayList(0);
+        protected boolean finished;
+		public void setBasis(IMoleculeList atoms) {}
+		public int basisSize() {return 0;}
+		public boolean haveTarget(IAtom target) {return false;}
+    }
+
 
     public static class PotentialLinker implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
