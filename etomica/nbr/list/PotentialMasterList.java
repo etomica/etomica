@@ -30,6 +30,7 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -410,6 +411,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
             // invoke setBox on all potentials
             for (int i=0; i<allPotentials.length; i++) {
                 allPotentials[i].setBox(box);
+                if(allPotentials[i].nBody() == 0){
+                	((PotentialGroup)allPotentials[i]).calculate(new MoleculeIterator0(), id.direction(), null, pc);
+                }
             }
 
             //no target atoms specified
