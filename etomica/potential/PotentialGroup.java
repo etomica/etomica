@@ -19,6 +19,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.MoleculesetIterator;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
+import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.ISpace;
 
 /**
@@ -85,6 +86,9 @@ public class PotentialGroup extends PotentialMolecular {
         if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);}
         else { 
         	switch(types.length) {
+        		case 0:
+        			addPotential(potential, new AtomIterator0());
+        			break;
 	            case 1:
 	                addPotential(potential, new AtomIteratorBasisFilteredType(types[0]),types);
 	                break;
