@@ -12,6 +12,7 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.integrator.IntegratorVelocityVerletShake.BondConstraints;
 import etomica.space.Space;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -42,14 +43,6 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         currentTime += timeStep;
 
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
-            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
-            if (bondConstraints == null) {
-                continue;
-            }
-            
-        }
 
         // RATTLE
         int numBondedMolecules = 0;
@@ -166,11 +159,28 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             }
         }
 
-        
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
+            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            if (bondConstraints == null) {
+                continue;
+            }
+            bondConstraints.relaxMolecule(molecule);
+        }
+
         forceSum.reset();
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
-        
+
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
+            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            if (bondConstraints == null) {
+                continue;
+            }
+            bondConstraints.redistributeForces(molecule, agentManager);
+        }
+
         //Finish integration step
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();

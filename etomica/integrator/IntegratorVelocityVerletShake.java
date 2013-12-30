@@ -116,14 +116,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         currentTime += timeStep;
 
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
-            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
-            if (bondConstraints == null) {
-                continue;
-            }
-            
-        }
 
         // SHAKE
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
@@ -230,12 +222,28 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             }
         }
 
-        
-        
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
+            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            if (bondConstraints == null) {
+                continue;
+            }
+            bondConstraints.relaxMolecule(molecule);
+        }
+
         forceSum.reset();
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
-        
+
+        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            IMolecule molecule = molecules.getMolecule(i);
+            BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
+            if (bondConstraints == null) {
+                continue;
+            }
+            bondConstraints.redistributeForces(molecule, agentManager);
+        }
+
         currentKineticEnergy = 0;
         //Finish integration step
         IAtomList leafList = box.getLeafList();
@@ -302,5 +310,13 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             this.bondedAtoms = bondedAtoms;
             this.bondLengths = bondLengths;
         }
+
+        // redistribute forces to constrained atoms
+        // do nothing by default, allow subclasses to override
+        public void redistributeForces(IMolecule molecule, AtomLeafAgentManager agentManager) {}
+
+        // fix atom positions that may have been omitted from constraints
+        // do nothing by default, allow subclasses to override
+        public void relaxMolecule(IMolecule molecule) {}
     }
 }
