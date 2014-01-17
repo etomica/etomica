@@ -5,7 +5,10 @@ import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
+import etomica.atom.AtomOriented;
+import etomica.atom.AtomOrientedDynamic;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtomTypeOriented;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
@@ -104,6 +107,10 @@ public class SpeciesSpheresHetero extends Species {
     }
 
     protected IAtom makeLeafAtom(IAtomType leafType) {
+        if (leafType instanceof IAtomTypeOriented) {
+            return isDynamic ? new AtomOrientedDynamic(space, leafType)
+                             : new AtomOriented(space, leafType);
+        }
         return isDynamic ? new AtomLeafDynamic(space, leafType)
                          : new Atom(space, leafType);
     }
