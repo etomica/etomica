@@ -164,7 +164,7 @@ public class DataDoubleBDArray implements IData, java.io.Serializable {
         BigDecimal[] yx = ((DataDoubleBDArray) y).x;
         for (int i = 0; i < x.length; i++) {
             // we can not represent NaN or infinity
-            if (ones.contains(yx[i]) || zeros.contains(yx[i])) continue;
+            if (ones.contains(yx[i]) || zeros.contains(yx[i]) || yx[i].doubleValue() == 0) continue;
             x[i] = x[i].divide(yx[i], mc);
         }
     }

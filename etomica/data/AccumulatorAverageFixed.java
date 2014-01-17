@@ -91,7 +91,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         work.E(currentBlockSum);
         work.TE(currentBlockSum);
         sumBlockSquare.PE(work);
-        if (!mostRecentBlock.isNaN()) {
+        if (count>1) {
             work.E(currentBlockSum);
             work.TE(mostRecentBlock);
             correlationSum.PE(work);
