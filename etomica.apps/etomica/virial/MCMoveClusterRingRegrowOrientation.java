@@ -117,23 +117,14 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
             double bondLength = 0.00;
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
-            if (P > 2) {
-            	for (int j=0; j<P; j++) {
-                    bondLength += ((AtomHydrogen)atoms.getAtom(j)).getBondLength()/P;                
-                    int next = j+1;
-                    if (next == P) next = 0;
-                    AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
-                    AtomHydrogen jNext = (AtomHydrogen)atoms.getAtom(next);
-                    uOld += stiffness*dist(jAtom,jNext);
-                }            	
+            for (int j=0; j<P; j++) {
+                bondLength += ((AtomHydrogen)atoms.getAtom(j)).getBondLength()/P;                
+                int next = j+1;
+                if (next == P) next = 0;
+                AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
+                AtomHydrogen jNext = (AtomHydrogen)atoms.getAtom(next);
+                uOld += stiffness*dist(jAtom,jNext);
             }
-            else {
-            	bondLength += (((AtomHydrogen)atoms.getAtom(0)).getBondLength() + ((AtomHydrogen)atoms.getAtom(1)).getBondLength())/P;
-            	AtomHydrogen j0 = (AtomHydrogen)atoms.getAtom(0);
-                AtomHydrogen j1 = (AtomHydrogen)atoms.getAtom(1);
-                uOld += stiffness*dist(j0,j1);             
-            }
-            
             double r = bondLength/2.00;
 //            System.out.println(BohrRadius.UNIT.fromSim(bondLength));
 //            double phi02old = Math.acos(((AtomHydrogen)atoms.getAtom(0)).getOrientation().getDirection().dot(((AtomHydrogen)atoms.getAtom(2)).getOrientation().getDirection()));
@@ -261,22 +252,14 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                     pGenRatio *= aOld;
                     if (Double.isNaN(pGenRatio)) throw new RuntimeException();
                 }
+            }            
+            for (int j=0; j<P; j++) {
+                int next = j+1;
+                if (next == P) next = 0;
+                AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
+                AtomHydrogen jNext = (AtomHydrogen)atoms.getAtom(next);
+                uNew += stiffness*dist(jAtom,jNext);
             }
-            if (P > 2) {
-            	for (int j=0; j<P; j++) {
-                    int next = j+1;
-                    if (next == P) next = 0;
-                    AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
-                    AtomHydrogen jNext = (AtomHydrogen)atoms.getAtom(next);
-                    uNew += stiffness*dist(jAtom,jNext);
-                }            	
-            }
-            else {
-            	AtomHydrogen j0 = (AtomHydrogen)atoms.getAtom(0);
-                AtomHydrogen j1 = (AtomHydrogen)atoms.getAtom(1);
-                uNew += stiffness*dist(j0,j1);             
-            }
-            
             
 //            double phi02new = Math.acos(((AtomHydrogen)atoms.getAtom(0)).getOrientation().getDirection().dot(((AtomHydrogen)atoms.getAtom(2)).getOrientation().getDirection()));
 //            if (Math.abs(phi02new - newAlpha[2]) > 1.0E-10 ) {
