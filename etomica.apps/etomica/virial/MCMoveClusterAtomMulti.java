@@ -61,7 +61,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     
     public void rejectNotify() {
         IAtomList leafAtoms = box.getLeafList();
-        for(int i=1; i<leafAtoms.getAtomCount(); i++) {
+        for(int i=startAtom; i<leafAtoms.getAtomCount(); i++) {
             leafAtoms.getAtom(i).getPosition().ME(translationVectors[i-1]);
         }
     	((BoxCluster)box).rejectNotify();
@@ -71,7 +71,6 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    private static final long serialVersionUID = 1L;
     protected IVectorRandom[] translationVectors;
     protected int startAtom = 1;
 }
