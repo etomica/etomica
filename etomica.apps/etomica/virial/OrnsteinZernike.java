@@ -10,12 +10,7 @@ import etomica.util.SineTransform;
 
 public class OrnsteinZernike {
 	
-	
-	
-	public OrnsteinZernike() {
-	}
-	
-	public double[] tCompute(double[][] cnr, double[][] hnr, int N, int m, double del_r) {
+	public static double[] tCompute(double[][] cnk, double[][] hnk, int N, int m, double del_r) {
 		
 		/*******************************************
 		/*******************************************
@@ -40,70 +35,24 @@ public class OrnsteinZernike {
 		/*******************************************
 		/********************************************/
 
-		// Create transforms hnk and cnk
-		
-		double[][] hnk = new double[m][N];
-		double[][] cnk = new double[m][N];
-	
-		double[] cnrCopy = new double[N];
-		double[] hnrCopy = new double[N];
-		double[] cnkCopy = new double[N];
-		double[] hnkCopy = new double[N];
-		
-		SineTransform dst = new SineTransform();
-		
-		double r_max = del_r*(N-1);
-		
-		for (int n=0; n<(m); n++) {
-			
-			for (int i=0; i<N; i++) {
-			
-				cnrCopy[i] = cnr[n][i];
-				
-				hnrCopy[i] = hnr[n][i];
-			}
-			
-			cnkCopy = dst.forward(cnrCopy, del_r);
-			
-			hnkCopy = dst.forward(hnrCopy, del_r);
-		
-			for (int i=0; i<N; i++) {
-				
-				cnk[n][i] = cnkCopy[i];
-				
-				hnk[n][i] = hnkCopy[i];
-				
-			}
-		
-		}
-
 		double[] tmk = new double[N];
 		
 		for (int k = 0; k < N; k++) {
 			
-			double[] hkn = new double[m];
-			double[] ckn = new double[m];
-			
-			for (int j=0; j<m; j++){
-				
-				hkn[j] = hnk[j][k];
-				ckn[j] = cnk[j][k];
-			}
-				
 			tmk[k] = 0;
-			
-			for (int i=0; i <= m-1; i++) {
-					
-				int j = m-1-i;
-				
-				tmk[k] += hkn[i]*ckn[j];
-				
-			}
-				
 		}
-		
-		double[] tm = new double[N];
-		tm = dst.reverse(tmk, del_r);
+			
+		for (int i=0; i <= m-1; i++) {
+				
+			int j = m-1-i;
+	        for (int k = 0; k < N; k++) {
+			
+	            tmk[k] += hnk[i][k]*cnk[j][k];
+	        }
+			
+		}
+			
+		double[] tm = SineTransform.reverse(tmk, del_r);
 	    
 		return tm;	
 		

@@ -37,24 +37,19 @@ public class HypernettedChain {
 	
 		double[] B = new double[M];
 		
-		SineTransform dst = new SineTransform();
-		double del_k = Math.PI/(del_r*N);
+		double[] fk = SineTransform.forward(fr, del_r);
 		
-		double[] dummy = new double[N];
-		dummy = fr;
-		double[] fk = new double[N];
-		fk = dst.forward(dummy, del_r);
-		
-		// Arrays to store the density expansion coefficients of c(r) and h(r)
-		double[][] cnr = new double[M][N];
-		double[][] hnr = new double[M][N];
-		double[][] tnr = new double[M][N];
+		// Arrays to store the density expansion coefficients of c(r), h(r), c(k) and h(k)
+		double[] cnr = new double[N];
+		double[] hnr = new double[N];
+        double[][] cnk = new double[M][N];
+        double[][] hnk = new double[M][N];
+		double[][] tnr = new double[M][0];
 		
 		// Fill zeroth-order density expansion coefficients of c(r) and h(r)
 		for (int i=0;i<N;i++) {
-			cnr[0][i] = fr[i];
-			hnr[0][i] = fr[i];
-			tnr[0][i] = 0;
+			cnr[i] = fr[i];
+			hnr[i] = fr[i];
 		}
 		
 		double B2 = -1.0/(2.0)*(fk[0]);
@@ -62,7 +57,6 @@ public class HypernettedChain {
 		B[0] = B2;
 		
 		// System.out.println("B2 = " + (B2));
-		double[] cmr = new double[N];
 		
 		//Compute B3 (from c1) up to BM (from c(M-2))
 		for (int m = 1; m <= M-2; m++) {
@@ -75,9 +69,9 @@ public class HypernettedChain {
 			/**************************************************************************************
 			/***************************************************************************************/
 			
-			OrnsteinZernike oz = new OrnsteinZernike();
-			
-			double[] tmr = oz.tCompute(cnr, hnr, N, m, del_r);
+            cnk[m-1] = SineTransform.forward(cnr, del_r);
+			hnk[m-1] = SineTransform.forward(hnr, del_r);
+			tnr[m] = OrnsteinZernike.tCompute(cnk, hnk, N, m, del_r);
 			
 			/**************************************************************************************
 			/**************************************************************************************
@@ -104,19 +98,18 @@ public class HypernettedChain {
 				 *    6       6;  5+1, 4+2, 3+3; 4+1+1, 3+
 				 */
 				
-				tnr[m][i] = tmr[i];
 				boolean specialCased = false;
 				if (specialCased) {
 				
 					if (m == 1) {
-						hnr[m][i] = (fr[i]+1) * tnr[1][i];
+						hnr[i] = (fr[i]+1) * tnr[1][i];
 					} else if (m == 2) {
-						hnr[m][i] = (fr[i]+1) * (tnr[2][i] + (1.0/2.0)*tnr[1][i]*tnr[1][i]);
+						hnr[i] = (fr[i]+1) * (tnr[2][i] + (1.0/2.0)*tnr[1][i]*tnr[1][i]);
 					} else if (m == 3) {
-						hnr[m][i] = (fr[i]+1) * (tnr[3][i]+tnr[1][i]*tnr[2][i]+(1.0/6.0)*tnr[1][i]*tnr[1][i]*tnr[1][i]);
+						hnr[i] = (fr[i]+1) * (tnr[3][i]+tnr[1][i]*tnr[2][i]+(1.0/6.0)*tnr[1][i]*tnr[1][i]*tnr[1][i]);
 					} 	
 					else if (m == 4) {
-						hnr[m][i] = (fr[i]+1) * (tnr[4][i] + tnr[1][i]*tnr[3][i] + (1.0/2.0)*tnr[2][i]*tnr[2][i] + (1.0/2.0)*tnr[2][i]*tnr[1][i]*tnr[1][i] + (1.0/24.0)*tnr[1][i]*tnr[1][i]*tnr[1][i]*tnr[1][i]);
+						hnr[i] = (fr[i]+1) * (tnr[4][i] + tnr[1][i]*tnr[3][i] + (1.0/2.0)*tnr[2][i]*tnr[2][i] + (1.0/2.0)*tnr[2][i]*tnr[1][i]*tnr[1][i] + (1.0/24.0)*tnr[1][i]*tnr[1][i]*tnr[1][i]*tnr[1][i]);
 					} 
 				} else {
 				
@@ -126,15 +119,10 @@ public class HypernettedChain {
 						parts[p]=1;		
 					}
 					
-					double[] tnri = new double[m+1];
-					for (int p=1; p<=m; p++) {			
-						tnri[p]=tnr[p][i];
-					}
-				
 					//How many ways can we condense m 1's to 1 m?
 				    int last = m-1;
 				    boolean incomplete = true;
-				    hnr[m][i]=0;
+				    hnr[i]=0;
 					while (incomplete) {
 						
 						// count like components that are not zero
@@ -179,7 +167,7 @@ public class HypernettedChain {
 								double afactorial=1.0;
 								for (int a=1; a<=count[p]; a++) {
 									tnra = tnra*tnr[parts[p]][i];
-									afactorial = afactorial*(double)a;
+									afactorial = afactorial*a;
 								}
 							
 								plus = plus *tnra/afactorial;
@@ -189,7 +177,7 @@ public class HypernettedChain {
 								}
 							}
 						}
-						hnr[m][i] = hnr[m][i] + (fr[i]+1)*plus;
+						hnr[i] += (fr[i]+1)*plus;
 						if (i==1){
 							System.out.println();
 						}
@@ -224,12 +212,8 @@ public class HypernettedChain {
 
 					
 				}
-				
-				
-			
-				cnr[m][i] = hnr[m][i] - tnr[m][i];
-				
-				cmr[i]=cnr[m][i];
+
+				cnr[i] = hnr[i] - tnr[m][i];
 				
  			}
 			
@@ -239,22 +223,20 @@ public class HypernettedChain {
 			/*******************************************
 			/********************************************/
 			
-			dummy = cmr;
-			double[] cmk = new double[N];
-			cmk = dst.forward(dummy, del_r);
+			double[] cmk = SineTransform.forward(cnr, del_r);
 			
 			double Bm = 0;
 			if (compressibility) { //virial route
-				Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
+				Bm = -1.0/(m+2.0)*(cmk[0]); // B3 for m = 1
 			} else { //virial route
 				
 				for (int i=0;i<N-1;i++) {
 					double r = del_r*i;
-					Bm = Bm + hnr[m][i]*(rdfdr[i])*r*r;
+					Bm = Bm + hnr[i]*(rdfdr[i])*r*r;
 				}
 				
 				double r = del_r*(N-1);
-				Bm = Bm + 0.5*hnr[m][N-1]*(rdfdr[N-1])*r*r;
+				Bm = Bm + 0.5*hnr[N-1]*(rdfdr[N-1])*r*r;
 				Bm = Bm*4.0*Math.PI/6.0*del_r;
 			}
 			
@@ -268,10 +250,9 @@ public class HypernettedChain {
 		}
 		
 		if (DCF) {
-			return cmr;
-		} else {
-			return B;
+			return cnr;
 		}
+		return B;
 	}
 	
 	public void setrdfdr(double[] rdfdr) {

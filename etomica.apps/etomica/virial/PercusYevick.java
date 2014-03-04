@@ -38,21 +38,19 @@ public class PercusYevick {
 		double[] B = new double[M];
 		
 		SineTransform dst = new SineTransform();
-		double r_max = del_r*(N-1);
 		
-		double[] dummy = new double[N];
-		dummy = fr;
-		double[] fk = new double[N];
-		fk = dst.forward(dummy, del_r);
+		double[] fk = dst.forward(fr, del_r);
 		
 		// Arrays to store the density expansion coefficients of c(r) and h(r)
-		double[][] cnr = new double[M][N];
-		double[][] hnr = new double[M][N];
+		double[] cnr = new double[N];
+		double[] hnr = new double[N];
+        double[][] cnk = new double[M][0];
+        double[][] hnk = new double[M][0];
 		
 		// Fill zeroth-order density expansion coefficients of c(r) and h(r)
 		for (int i=0;i<N;i++) {
-			cnr[0][i] = fr[i];
-			hnr[0][i] = fr[i];
+			cnr[i] = fr[i];
+			hnr[i] = fr[i];
 		}
 		
 		double B2;
@@ -76,9 +74,9 @@ public class PercusYevick {
 		B[0] = B2;
 		
 		// System.out.println("B2 = " + (B2));
-		double[] cmr = new double[N];
 		
 		//Compute B3 (from c1) up to BM (from c(M-2))
+        cnk[0] = dst.forward(cnr, del_r);
 		for (int m = 1; m <= M-2; m++) {
 			
 			/**************************************************************************************
@@ -87,9 +85,9 @@ public class PercusYevick {
 			/**************************************************************************************
 			/***************************************************************************************/
 			
-			OrnsteinZernike oz = new OrnsteinZernike();
-			
-			double[] tmr = oz.tCompute(cnr, hnr, N, m, del_r);
+			// we computed cnk during the last iteration
+            hnk[m-1] = SineTransform.forward(hnr, del_r);
+			double[] tmr = OrnsteinZernike.tCompute(cnk, hnk, N, m, del_r);
 			
 			/**************************************************************************************
 			/**************************************************************************************
@@ -99,9 +97,7 @@ public class PercusYevick {
 			
 			for (int i = 0; i < N; i++) {
 				
-				cnr[m][i] = fr[i]*tmr[i];
-				
-				cmr[i] = cnr[m][i];
+				cnr[i] = fr[i]*tmr[i];
 				
  			}
 			
@@ -112,7 +108,7 @@ public class PercusYevick {
 			/********************************************/
             
             for (int i=0; i<N; i++){
-				hnr[m][i] = cnr[m][i]+ tmr[i]; 
+				hnr[i] = cnr[i]+ tmr[i]; 
 			}	
 			
 			/*******************************************
@@ -120,23 +116,21 @@ public class PercusYevick {
 			 * Calculate (m+2)th virial coefficient
 			/*******************************************
 			/********************************************/
-			
-			dummy = cmr;
-			double[] cmk = new double[N];
-			cmk = dst.forward(dummy, del_r);
+			// we'll use this next iteration and here for compressibility route
+			cnk[m] = dst.forward(cnr, del_r);
 			
 			double Bm = 0;
-			if (compressibility) { //virial route
-				Bm = -1.0/((double)m+2.0)*(cmk[0]); // B3 for m = 1
+			if (compressibility) { //compressibility route
+				Bm = -1.0/(m+2.0)*(cnk[m][0]); // B3 for m = 1
 			} else { //virial route
 				
 				for (int i=0;i<N-1;i++) {
 					double r = del_r*i;
-					Bm = Bm + hnr[m][i]*(rdfdr[i])*r*r;
+					Bm = Bm + hnr[i]*(rdfdr[i])*r*r;
 				}
 				
 				double r = del_r*(N-1);
-				Bm = Bm + 0.5*hnr[m][N-1]*(rdfdr[N-1])*r*r;
+				Bm = Bm + 0.5*hnr[N-1]*(rdfdr[N-1])*r*r;
 				Bm = Bm*4.0*Math.PI/6.0*del_r;
 			}
 			
@@ -148,10 +142,9 @@ public class PercusYevick {
 		}
 		
 		if (DCF) {
-			return cmr;
-		} else {
-			return B;
+			return cnr;
 		}
+		return B;
 	}
 	
 	public void setrdfdr(double[] rdfdr) {
