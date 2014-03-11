@@ -30,7 +30,7 @@ public class PrimitiveHexagonal extends Primitive {
     public Primitive makeReciprocal() {
 //        return PrimitiveHexagonalReciprocal(space, 2.0*Math.PI/(ab*sinGamma),
 //                2.0*Math.PI/(ab*sinGamma), 2.0*Math.PI/size[2], 2.0*Math.PI/(size[2]*Math.sin(angle[1])), angle[1]);
-        return new PrimitiveHexagonalReciprocal(space, 2.0 * Math.PI * ab / sinGamma, 2.0 * Math.PI * size[2]);
+        return new PrimitiveHexagonalReciprocal(space, 2.0 * Math.PI / (ab * sinGamma), 2.0 * Math.PI / size[2]);
     }
     
     public void setSizeAB(double newAB) {
@@ -126,10 +126,13 @@ public class PrimitiveHexagonal extends Primitive {
     }
 
     public static void main(String args[]) {
-        PrimitiveHexagonal primitive = new PrimitiveHexagonal(Space3D.getInstance(), 1, 1);
+        PrimitiveHexagonal primitive = new PrimitiveHexagonal(Space3D.getInstance(), 2, 2);
         IVector[] v = primitive.vectors();
         Primitive reciprocal = primitive.makeReciprocal();
         IVector[] vr = reciprocal.vectors();
+        for (int j=0; j<vr.length; j++) {
+            System.out.println(j+" "+v[j]+" "+vr[j]);
+        }
         for (int i=0; i<v.length; i++) {
             for (int j=0; j<vr.length; j++) {
                 System.out.println(i+" "+j+" "+v[i].dot(vr[j]));
