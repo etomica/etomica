@@ -6,8 +6,8 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Null;
 

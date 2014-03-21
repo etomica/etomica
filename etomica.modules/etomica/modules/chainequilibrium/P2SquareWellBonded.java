@@ -1,7 +1,7 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;

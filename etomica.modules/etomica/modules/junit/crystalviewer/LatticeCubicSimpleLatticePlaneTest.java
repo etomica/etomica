@@ -1,8 +1,8 @@
 package etomica.modules.junit.crystalviewer;
 
 import junit.framework.TestCase;
-import etomica.api.IAtomList;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.PrimitiveCubic;

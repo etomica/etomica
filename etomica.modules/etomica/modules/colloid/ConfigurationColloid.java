@@ -5,13 +5,10 @@ import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationLattice;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 

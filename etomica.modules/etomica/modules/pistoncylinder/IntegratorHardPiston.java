@@ -5,7 +5,6 @@ import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.atom.AtomSetSinglet;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;

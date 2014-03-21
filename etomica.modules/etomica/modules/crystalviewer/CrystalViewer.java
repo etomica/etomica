@@ -3,9 +3,8 @@ package etomica.modules.crystalviewer;
 import javax.swing.JTabbedPane;
 
 import etomica.api.IBox;
-import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
-
+import etomica.box.Box;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -23,7 +22,6 @@ import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;

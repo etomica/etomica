@@ -1,8 +1,8 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.api.IBox;
-import etomica.data.IEtomicaDataSource;
 import etomica.data.DataSourceScalar;
+import etomica.data.IEtomicaDataSource;
 import etomica.units.Area;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;

@@ -76,8 +76,8 @@ import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.Unit;
 import etomica.units.systems.LJ;
-import etomica.util.HistoryCollapsingAverage;
 import etomica.util.Constants.CompassDirection;
+import etomica.util.HistoryCollapsingAverage;
 
 /**
  * Graphic UI for interfacial tension module.  Design by Heath Turner.

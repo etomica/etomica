@@ -7,7 +7,6 @@ import etomica.api.IRandom;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
-import etomica.config.IConformation;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
 import etomica.space.ISpace;

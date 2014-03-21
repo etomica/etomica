@@ -2,8 +2,6 @@ package etomica.modules.dcvgcmd;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -16,11 +14,11 @@ import etomica.api.IMolecule;
 import etomica.atom.AtomFilter;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTag;
 import etomica.data.IEtomicaDataSource;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;

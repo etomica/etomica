@@ -1,11 +1,10 @@
 package etomica.modules.entropylottery;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
-
-import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorMC;
 import etomica.box.Box;
+import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;

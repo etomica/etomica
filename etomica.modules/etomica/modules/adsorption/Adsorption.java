@@ -4,7 +4,6 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
-import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -18,7 +17,6 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Simulation for Adsorption module.

@@ -54,7 +54,6 @@ public class Swmd extends Simulation {
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, sigma*lambda);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        integrator.setTimeStep(1);
 
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this, space);//index 1

@@ -25,7 +25,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Coulomb;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
 import etomica.util.IEvent;

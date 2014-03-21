@@ -1,6 +1,5 @@
 package etomica.modules.colloid;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;

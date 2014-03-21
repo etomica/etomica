@@ -1,7 +1,7 @@
 package etomica.modules.reactionequilibrium;
 
-import etomica.api.IAtomKinetic;
 import etomica.api.IAtom;
+import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;

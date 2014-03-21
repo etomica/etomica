@@ -1,7 +1,5 @@
 package etomica.modules.droplet;
 
-import java.util.Random;
-
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;

@@ -3,7 +3,6 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IBox;
-import etomica.api.ISimulation;
 import etomica.graphics.ColorScheme;
 
 public class StrainColorScheme extends ColorScheme {

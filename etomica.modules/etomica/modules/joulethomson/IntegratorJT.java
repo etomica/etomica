@@ -1,10 +1,8 @@
 package etomica.modules.joulethomson;
 
 import etomica.api.IRandom;
-
-import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.modifier.ModifierBoolean;
 
 public class IntegratorJT extends IntegratorManagerMC {
