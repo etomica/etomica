@@ -44,7 +44,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.Function;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
 
@@ -88,7 +88,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         };
         DataPumpListener myPump = new DataPumpListener(myDataSource, log, 10);
         sim.integrator.getEventManager().addListener(myPump);
-        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         history.setTimeDataSource(stepCounter);
         log.setDataSink(history);
         history.setPushInterval(10);
@@ -168,7 +168,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         };
         
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         deltaHistory.setPushInterval(10);
         DataPumpListener exactPump = new DataPumpListener(delta, deltaHistory, 10);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());

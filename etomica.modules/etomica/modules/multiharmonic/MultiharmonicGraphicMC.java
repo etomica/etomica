@@ -39,7 +39,7 @@ import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.Function;
 import etomica.util.HistogramCollapsing;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
 
@@ -74,7 +74,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         });
         sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {sim.accumulator.AVERAGE});
         sim.accumulator.setPushInterval(1);
-        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         history.setTimeDataSource(sim.stepCounter);
         log.setDataSink(history);
         history.setPushInterval(1000);
@@ -152,8 +152,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         };
         
         int historyLength = sim.historyEnergy.getHistory().getHistoryLength();
-        int nCollapseBins = ((HistoryCollapsing)sim.historyEnergy.getHistory()).getNumCollapseBins();
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
+        int nCollapseBins = ((HistoryCollapsingDiscard)sim.historyEnergy.getHistory()).getNumCollapseBins();
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(historyLength, nCollapseBins));
         deltaHistory.setPushInterval(10000);
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
@@ -163,7 +163,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(sim.stepCounter);
         
-        AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
+        AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(historyLength, nCollapseBins));
         uAvgHistory.setPushInterval(10000);
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());

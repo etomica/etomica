@@ -10,7 +10,7 @@ package etomica.util;
  * 
  * @author Andrew Schultz
  */
-public class HistoryCollapsingAverage extends HistoryCollapsing {
+public class HistoryCollapsingAverage extends HistoryCollapsingDiscard {
     
     public HistoryCollapsingAverage() {this(100);}
     public HistoryCollapsingAverage(int n) {

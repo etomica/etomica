@@ -24,7 +24,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 
 public class EntropyLotteryGraphic extends SimulationGraphic {
 
@@ -58,7 +58,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 
         MeterEntropy meterEntropy = new MeterEntropy();
         meterEntropy.setBox(sim.box);
-        AccumulatorHistory entropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
+        AccumulatorHistory entropyHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(100));
         DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
         entropyHistory.setTimeDataSource(stepCounter);
         DataPump pump = new DataPump(meterEntropy, entropyHistory);
@@ -76,7 +76,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         pumpListener = new IntegratorListenerAction(pump);
         sim.integrator.getEventManager().addListener(pumpListener);
         pumpListener.setInterval(20);
-        AccumulatorHistory probabilityEntropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
+        AccumulatorHistory probabilityEntropyHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(100));
         stepCounter = new DataSourceCountSteps(sim.integrator);
         probabilityEntropyHistory.setTimeDataSource(stepCounter);
         entropyProcessor.setDataSink(probabilityEntropyHistory);

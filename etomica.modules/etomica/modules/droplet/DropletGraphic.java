@@ -43,7 +43,7 @@ import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
 import etomica.units.Time;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 import g3dsys.images.Ellipse;
 
 /**
@@ -230,7 +230,7 @@ public class DropletGraphic extends SimulationGraphic {
         
         DataFork radiusFork = new DataFork();
         splitter.setDataSink(0, radiusFork);
-        AccumulatorHistory radiusHistory = new AccumulatorHistory(new HistoryCollapsing());
+        AccumulatorHistory radiusHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
         radiusHistory.setTimeDataSource(timer);
         radiusFork.addDataSink(radiusHistory);
         DisplayPlot radiusPlot = new DisplayPlot();
@@ -241,7 +241,7 @@ public class DropletGraphic extends SimulationGraphic {
 
         DataFork deformationFork = new DataFork();
         splitter.setDataSink(1, deformationFork);
-        AccumulatorHistory deformationHistory = new AccumulatorHistory(new HistoryCollapsing());
+        AccumulatorHistory deformationHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
         deformationHistory.setTimeDataSource(timer);
         deformationFork.addDataSink(deformationHistory);
         DisplayPlot deformPlot = new DisplayPlot();

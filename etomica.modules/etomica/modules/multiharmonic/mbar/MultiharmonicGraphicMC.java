@@ -42,7 +42,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.Function;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
 
@@ -80,7 +80,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         final boolean isBroken = false;
         
         DataSourceScalar myDataSourceMin = new DataSourceFE("average", sim.meterOverlapA, sim.meterOverlapB, isBroken ? -1 : 0);
-        AccumulatorHistory historyMin = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory historyMin = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataPumpListener myPump = new DataPumpListener(myDataSourceMin, historyMin, 10);
         sim.integratorOS.getEventManager().addListener(myPump);
         historyMin.setTimeDataSource(stepCounter);
@@ -89,7 +89,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         plot.setLegend(new DataTag[]{historyMin.getTag()}, isBroken ? "min" : "measured");
         if (isBroken) {
             DataSourceScalar myDataSourceMax = new DataSourceFE("average", sim.meterOverlapA, sim.meterOverlapB, 1);
-            AccumulatorHistory historyMax = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+            AccumulatorHistory historyMax = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
             myPump = new DataPumpListener(myDataSourceMax, historyMax, 10);
             sim.integratorOS.getEventManager().addListener(myPump);
             historyMax.setTimeDataSource(stepCounter);
@@ -230,7 +230,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         };
         
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         deltaHistory.setPushInterval(10);
         DataPumpListener exactPump = new DataPumpListener(delta, deltaHistory, 10);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());

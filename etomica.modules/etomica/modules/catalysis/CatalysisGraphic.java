@@ -49,7 +49,7 @@ import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.Volume;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.HistoryCollapsingAverage;
 
 /**
@@ -146,7 +146,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         final DataPumpListener densityCOPump = new DataPumpListener(meterDensityCO, densityCOFork, 100);
         sim.integrator.getEventManager().addListener(densityCOPump);
         dataStreamPumps.add(densityCOPump);
-        AccumulatorHistory densityCOHistory = new AccumulatorHistory(new HistoryCollapsing());
+        AccumulatorHistory densityCOHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
         densityCOFork.addDataSink(densityCOHistory);
         densityCOHistory.setTimeDataSource(meterCycles);
         DisplayTextBox densityCOBox = new DisplayTextBox();
@@ -159,7 +159,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         final DataPumpListener densityO2Pump = new DataPumpListener(meterDensityO2, densityO2Fork, 100);
         sim.integrator.getEventManager().addListener(densityO2Pump);
         dataStreamPumps.add(densityO2Pump);
-        AccumulatorHistory densityO2History = new AccumulatorHistory(new HistoryCollapsing());
+        AccumulatorHistory densityO2History = new AccumulatorHistory(new HistoryCollapsingDiscard());
         densityO2Fork.addDataSink(densityO2History);
         densityO2History.setTimeDataSource(meterCycles);
         DisplayTextBox densityO2Box = new DisplayTextBox();
@@ -172,7 +172,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         final DataPumpListener densityCO2Pump = new DataPumpListener(meterDensityCO2, densityCO2Fork, 100);
         sim.integrator.getEventManager().addListener(densityCO2Pump);
         dataStreamPumps.add(densityCO2Pump);
-        AccumulatorHistory densityCO2History = new AccumulatorHistory(new HistoryCollapsing());
+        AccumulatorHistory densityCO2History = new AccumulatorHistory(new HistoryCollapsingDiscard());
         densityCO2Fork.addDataSink(densityCO2History);
         densityCO2History.setTimeDataSource(meterCycles);
         DisplayTextBox densityCO2Box = new DisplayTextBox();

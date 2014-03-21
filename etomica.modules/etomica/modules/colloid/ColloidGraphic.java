@@ -47,7 +47,7 @@ import etomica.units.Length;
 import etomica.units.Pixel;
 import etomica.units.Quantity;
 import etomica.util.Function;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 
 /**
  * Colloid module app.  Design by Alberto Striolo.
@@ -350,7 +350,7 @@ public class ColloidGraphic extends SimulationGraphic {
         
         DataProcessorFunction sqrtE2E = new DataProcessorFunction(Function.Sqrt.INSTANCE);
         avgE2E.addDataSink(sqrtE2E, new StatType[]{avgE2E.AVERAGE});
-        AccumulatorHistory historyE2E = new AccumulatorHistory(new HistoryCollapsing());
+        AccumulatorHistory historyE2E = new AccumulatorHistory(new HistoryCollapsingDiscard());
         sqrtE2E.setDataSink(historyE2E);
         DisplayPlot runningAvgE2E = new DisplayPlot();
         historyE2E.setDataSink(runningAvgE2E.getDataSet().makeDataSink());

@@ -24,7 +24,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 
 
 /**
@@ -84,7 +84,7 @@ public class Multiharmonic extends Simulation {
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
         
-        historyEnergy = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        historyEnergy = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {accumulatorEnergy.AVERAGE});
 
         timeCounter = new DataSourceCountTime(integrator);

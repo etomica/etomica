@@ -36,7 +36,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.Function;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 
 public class MultiharmonicGraphic extends SimulationGraphic {
 
@@ -70,7 +70,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
             public double f(double x) {return -Math.log(x);}
         });
         sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {sim.accumulator.AVERAGE});
-        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         history.setTimeDataSource(sim.timeCounter);
         log.setDataSink(history);
         history.setDataSink(plot.getDataSet().makeDataSink());
@@ -137,8 +137,8 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         };
         
         int historyLength = sim.historyEnergy.getHistory().getHistoryLength();
-        int nCollapseBins = ((HistoryCollapsing)sim.historyEnergy.getHistory()).getNumCollapseBins();
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
+        int nCollapseBins = ((HistoryCollapsingDiscard)sim.historyEnergy.getHistory()).getNumCollapseBins();
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(historyLength, nCollapseBins));
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
         IntegratorListenerAction exactPumpListener = new IntegratorListenerAction(exactPump);
@@ -147,7 +147,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(sim.timeCounter);
         
-        AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(historyLength, nCollapseBins));
+        AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(historyLength, nCollapseBins));
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         IntegratorListenerAction uPumpListener = new IntegratorListenerAction(uPump);

@@ -10,14 +10,14 @@ package etomica.util;
  * 
  * @author Andrew Schultz
  */
-public abstract class HistoryCollapsing implements History {
-
-    public HistoryCollapsing() {this(100);}
-    public HistoryCollapsing(int n) {
+public class HistoryCollapsingDiscard implements History {
+    
+    public HistoryCollapsingDiscard() {this(100);}
+    public HistoryCollapsingDiscard(int n) {
         this(n, 2);
     }
-
-    public HistoryCollapsing(int nBins, int nCollapseBins) {
+    
+    public HistoryCollapsingDiscard(int nBins, int nCollapseBins) {
         setNumCollapseBins(nCollapseBins);
         setHistoryLength(nBins);
         reset();
@@ -97,8 +97,40 @@ public abstract class HistoryCollapsing implements History {
     public double[] getXValues() {
         return xValues;
     }
+	
+    /**
+     * adds data to the history.  If insufficient space exists
+     * to store the data, existing data is collapsed by 1/2 and 
+     * future data is taken half as often.
+     */
+    public void addValue(double x, double y) {
+        if (++intervalCount == (interval+1)/2) {
+            if (cursor == history.length) {
+                collapseData();
+            }
+            xValues[cursor] = x;
+            history[cursor] = y;
+            cursor++;
+        }
+        if (intervalCount == interval) {
+            intervalCount = 0;
+        }
+    }
 
-    protected abstract void collapseData();
+    protected void collapseData() {
+        for (int i=0; i<cursor/numCollapseBins; i++) {
+            // j is the middle bin of the to-be-collapsed bins
+            int j = i*numCollapseBins+(numCollapseBins-1)/2;
+            history[i] = history[j];
+            xValues[i] = xValues[j];
+        }
+        for(int i=cursor/numCollapseBins; i<cursor; i++) {
+            history[i] = Double.NaN;
+            xValues[i] = Double.NaN;
+        }
+        cursor /= numCollapseBins;
+        interval *= numCollapseBins;
+    }
     
     /**
      * Returns the history

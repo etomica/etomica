@@ -77,7 +77,7 @@ import etomica.units.Pixel;
 import etomica.units.Quantity;
 import etomica.util.Function;
 import etomica.util.HistogramExpanding;
-import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.HistoryComplete;
 import etomica.util.numerical.AkimaSpline;
 
@@ -316,7 +316,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             }
         };
 
-        AccumulatorHistory feLHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory feLHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataPumpListenerSmart feLPump = new DataPumpListenerSmart(feDataSource, feLHistory, dataInterval, feLHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feLPump);
         feLHistory.setTimeDataSource(stepCounter);
@@ -332,7 +332,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         feLHistoryLn.addDataSink(feLnPlot.getDataSet().makeDataSink());
         feLnPlot.setLegend(new DataTag[]{feLHistoryLn.getTag()}, "fe");
 
-        AccumulatorHistory feLPHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory feLPHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataPumpListenerSmart feLPPump = new DataPumpListenerSmart(fePDataSource, feLPHistory, dataInterval, feLPHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feLPPump);
         feLPHistory.setTimeDataSource(stepCounter);
@@ -348,7 +348,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         feLPHistoryLn.setDataSink(feLnPlot.getDataSet().makeDataSink());
         feLnPlot.setLegend(new DataTag[]{feLPHistoryLn.getTag()}, "fe+");
         
-        AccumulatorHistory feAntibiasHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory feAntibiasHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataPumpListenerSmart feAntibiasPump = new DataPumpListenerSmart(feAntibiasDataSource, feAntibiasHistory, dataInterval, feAntibiasHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feAntibiasPump);
         feAntibiasHistory.setTimeDataSource(stepCounter);
@@ -362,7 +362,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         feAntibiasHistoryLn.addDataSink(feLnPlot.getDataSet().makeDataSink());
         feLnPlot.setLegend(new DataTag[]{feAntibiasHistoryLn.getTag()}, "fe(ab)");
 
-        AccumulatorHistory feAntibiasErrHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory feAntibiasErrHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataPumpListenerSmart feAntibiasErrPump = new DataPumpListenerSmart(feAntibiasPDataSource, feAntibiasErrHistory, dataInterval, feAntibiasErrHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(feAntibiasErrPump);
         feAntibiasErrHistory.setTimeDataSource(stepCounter);
@@ -381,7 +381,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 return sim.integratorOS.getRefStepFraction();
             }
         };
-        AccumulatorHistory fracHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory fracHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         fracHistory.setTimeDataSource(stepCounter);
         DataPumpListener fracPump = new DataPumpListener(fracDataSource, fracHistory, 1);
         sim.integratorOS.getEventManager().addListener(fracPump);
@@ -393,7 +393,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 return dsvo.getIdealRefFraction(sim.integratorOS.getRefStepFraction());
             }
         };
-        AccumulatorHistory frac2History = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory frac2History = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         frac2History.setTimeDataSource(stepCounter);
         DataPumpListenerSmart frac2Pump = new DataPumpListenerSmart(frac2DataSource, frac2History, dataInterval, frac2History.getHistory());
         sim.integratorOS.getEventManager().addListener(frac2Pump);
@@ -401,7 +401,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         fracPlot.setLegend(new DataTag[]{frac2History.getTag()}, "optimal");
         
         DataSourceChiSlope slopeDataSource = new DataSourceChiSlope(dsvo);
-        AccumulatorHistory slopeHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory slopeHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         slopeHistory.setTimeDataSource(stepCounter);
         DataPumpListenerSmart slopePump = new DataPumpListenerSmart(slopeDataSource, slopeHistory, dataInterval, slopeHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(slopePump);
@@ -410,7 +410,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         slopePlot.setLegend(new DataTag[]{slopeHistory.getTag()}, "slope");
 
         final DataSourceUa uaDataSource = new DataSourceUa(dsvo);
-        AccumulatorHistory uaHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory uaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         uaHistory.setTimeDataSource(stepCounter);
         DataPumpListenerSmart uaPump = new DataPumpListenerSmart(uaDataSource, uaHistory, 10*dataInterval, uaHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(uaPump);
@@ -432,7 +432,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         final AccumulatorAverageFixed accTargetUa2 = new AccumulatorAverageFixed();
         dpTargetUa2.setDataSink(accTargetUa2);
         DataSourceUa2 ua2DataSource = new DataSourceUa2(sim.integratorOS, dsvo, accRefUa2, accTargetUa2);
-        AccumulatorHistory ua2History = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory ua2History = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         ua2History.setTimeDataSource(stepCounter);
         DataFork ua2Fork = new DataFork();
         DataPumpListenerSmart ua2Pump = new DataPumpListenerSmart(ua2DataSource, ua2Fork, 10*dataInterval, ua2History.getHistory());
@@ -442,7 +442,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         ua2History.setDataSink(uaPlot.getDataSet().makeDataSink());
         uaPlot.setLegend(new DataTag[]{ua2History.getTag()}, "Ua2");
 
-        final AccumulatorHistory aHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        final AccumulatorHistory aHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataProcessor aDataSource = new DataProcessAHT(uaDataSource, aHistory);
         ua2Fork.addDataSink(aDataSource);
         aHistory.setTimeDataSource(stepCounter);
@@ -835,7 +835,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         nSlider.setLabel("Number of atoms");
         nSlider.setShowBorder(true);
 
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(102, 3));
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataPumpListenerSmart exactPump = new DataPumpListenerSmart(delta, deltaHistory, dataInterval, deltaHistory.getHistory());
         deltaHistory.setDataSink(fePlot.getDataSet().makeDataSink());
         sim.integratorOS.getEventManager().addListener(exactPump);
