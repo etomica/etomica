@@ -55,7 +55,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      * Sets the number of total number of integrator steps the sub-integrators
      * perform for every step of the overlap integrator.  Default value is 1000.
      */
-    public void setNumSubSteps(int n) {
+    public void setNumSubSteps(long n) {
         numSubSteps = n;
     }
     
@@ -63,7 +63,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      * Retruns the number of total number of integrator steps the sub-integrators
      * perform for every step of the overlap integrator.  Default value is 1000.
      */
-    public int getNumSubSteps() {
+    public long getNumSubSteps() {
         return numSubSteps;
     }
     
@@ -105,9 +105,13 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      * Sets how frequently the appropriate reference vs. target step fraction
      * is recalculated.
      */
-    public void setAdjustInterval(int newInterval) {
+    public void setAdjustInterval(long newInterval) {
         adjustInterval = newInterval;
         adjustCountdown = newInterval;
+    }
+
+    public long getAdjustInterval() {
+        return adjustInterval;
     }
 
     // Override superclass so we can run the integrators for different lenghts
@@ -116,7 +120,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         int totSubSteps = 0;
         if (!doAggressiveAdjustStepFrac) {
             for (int i=0; i<nIntegrators; i++) {
-                int iSubSteps = (int)(numSubSteps*stepFrac[i]+0.5);
+                long iSubSteps = (long)(numSubSteps*stepFrac[i]+0.5);
                 if (i==nIntegrators-1) {
                     iSubSteps = numSubSteps - totSubSteps;
                 }
@@ -187,11 +191,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     
     private static final long serialVersionUID = 1L;
     protected final double[] stepFrac;
-    protected int numSubSteps;
+    protected long numSubSteps;
     protected long[] totNumSubSteps;
     protected ReferenceFracSource fracSource;
     protected boolean doAdjustStepFrac, doAggressiveAdjustStepFrac;
-    protected int adjustInterval, adjustCountdown;
+    protected long adjustInterval, adjustCountdown;
     protected long[] totTime;
     protected boolean doAdjustStepsOnTime;
     

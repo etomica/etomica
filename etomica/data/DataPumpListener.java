@@ -5,9 +5,8 @@ import etomica.api.IIntegratorListener;
 
 public class DataPumpListener extends DataPump implements IIntegratorListener {
 
-    private static final long serialVersionUID = 1L;
-    private int interval;
-    private int intervalCount;
+    protected long interval;
+    protected long intervalCount;
     
     public DataPumpListener(IEtomicaDataSource dataSource, IDataSink dataSink) {
         this(dataSource, dataSink, 1);
@@ -28,11 +27,11 @@ public class DataPumpListener extends DataPump implements IIntegratorListener {
         actionPerformed();
     }
     
-    public void setInterval(int i) {
+    public void setInterval(long i) {
         interval = i;
     }
     
-    public int getInterval() {
+    public long getInterval() {
         return interval;
     }
 }
