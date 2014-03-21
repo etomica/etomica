@@ -24,7 +24,7 @@ public interface IDataSink {
      * the Data into this DataSink is responsible for filtering the Data through
      * the returned DataTransformer. 
      * 
-     * @param dataInfo the DataInfo for the Data that will fed to the sink's putData method
+     * @param inputDataInfo the DataInfo for the Data that will fed to the sink's putData method
      */
-    public DataPipe getDataCaster(IEtomicaDataInfo dataInfo);
+    public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo);
 }
