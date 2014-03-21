@@ -9,7 +9,6 @@ import etomica.overlap.IntegratorOverlap.ReferenceFracSource;
 import etomica.util.Debug;
 import etomica.util.numerical.AkimaSpline;
 import etomica.util.numerical.LinearFit;
-import etomica.util.numerical.LinearFit.FitResult;
 
 /**
  * Utility class for overlap sampling.  This class retrieves data from
@@ -22,12 +21,12 @@ import etomica.util.numerical.LinearFit.FitResult;
  */
 public class DataOverlap implements ReferenceFracSource {
 
-    private static final long serialVersionUID = 1L;
     protected DataSourceOverlapAvg refAvg, targetAvg;
 	protected AlphaSource alphaSource;
 	protected AkimaSpline akima;
 	protected double[] lnAlpha, err, lnAlphaDiff, lnRatio;
 	protected double[] tmp = new double[2];
+	protected boolean includeAntibiasErr = true;
 
 	protected static final int REF = 0, TARGET = 1, RATIO = 2;
 
@@ -66,6 +65,20 @@ public class DataOverlap implements ReferenceFracSource {
             lnAlphaDiff = new double[numAlpha];
             lnRatio = new double[numAlpha];
         }
+        double lnNRatio = 0;
+        if (which == RATIO) {
+            double nRatio = refAvg.getSampleCount()/targetAvg.getSampleCount();
+            if (nRatio == 0 || Double.isInfinite(nRatio)) {
+                for (int j=0; j<numAlpha; j++) {
+                    lnAlpha[j] = Double.NaN;
+                    err[j] = Double.NaN;
+                    lnAlphaDiff[j] = Double.NaN;
+                    lnRatio[j] = Double.NaN;
+                }
+                return;
+            }
+            lnNRatio = Math.log(nRatio);
+        }
 
         for (int j=0; j<numAlpha; j++) {
             double avg, jerr;
@@ -103,9 +116,11 @@ public class DataOverlap implements ReferenceFracSource {
                 err[j] = jerr/avg;
             }
             lnAlpha[j] = Math.log(alphaSource.getAlpha(j));
-            lnAlphaDiff[j] = lnRatio[j] - lnAlpha[j];
+            lnAlphaDiff[j] = lnRatio[j] - lnAlpha[j] + lnNRatio;
+            if (dumpit) System.out.println(lnAlpha[j]+" "+lnAlphaDiff[j]+" "+err[j]);
         }
 	}
+	public boolean dumpit;
 	
     /**
      * Returns the ratio of the reference to target overlap-to-virial ratios
@@ -185,8 +200,9 @@ public class DataOverlap implements ReferenceFracSource {
         else if (newAlpha > lnAlpha[numAlpha-1]) {
             newAlpha = lnAlpha[numAlpha-1];
         }
-        tmp[0] = Math.exp(newAlpha);
-        tmp[1] = tmp[0] * newErr;
+        double nRatio = refAvg.getSampleCount()/targetAvg.getSampleCount();
+        tmp[0] = Math.exp(newAlpha) / nRatio;
+        tmp[1] = tmp[0] / nRatio * newErr;
         return tmp;
 	}
 
@@ -230,8 +246,13 @@ public class DataOverlap implements ReferenceFracSource {
 
         double newRatio = 0, newErr = 0;
         double lnNewAlpha = Math.log(iAlpha);
-        if (lnNewAlpha < lnAlpha[0] || lnNewAlpha > lnAlpha[numAlpha-1]) {
-            throw new RuntimeException("alpha value must be within bounds of existing alpha range");
+        if (numAlpha > 1) {
+            if (lnNewAlpha < lnAlpha[0]) {
+                lnNewAlpha = lnAlpha[0];
+            }
+            else if (lnNewAlpha > lnAlpha[numAlpha-1]) {
+                lnNewAlpha = lnAlpha[numAlpha-1];
+            }
         }
         if (numAlpha > 3) {
             if (akima == null) {
@@ -261,15 +282,19 @@ public class DataOverlap implements ReferenceFracSource {
                 }
             }
         }
-        else {
+        else if (numAlpha > 1) {
             //linear interpolation (only 3 points)
-            for (int i=0; i<numAlpha; i++) {
+            for (int i=0; i<numAlpha-1; i++) {
                 if (lnAlpha[i] <= lnNewAlpha && lnAlpha[i+1] >= lnNewAlpha) {
                     double ix = lnRatio[i] + (lnRatio[i+1] - lnRatio[i]) / (lnAlpha[i+1] - lnAlpha[i]) * (lnNewAlpha - lnAlpha[i]);
                     newRatio = ix;
                     newErr = err[i] + (err[i+1] - err[i]) / (lnAlpha[i+1] - lnAlpha[i]) * (lnNewAlpha - lnAlpha[i]);
                 }
             }
+        }
+        else {
+            newRatio = lnRatio[0];
+            newErr = err[0];
         }
 
         if (doLog) {
@@ -311,13 +336,26 @@ public class DataOverlap implements ReferenceFracSource {
             // if apparent error is > 100%, cap it there (>100% just means our estimate for ratio is bad)
             refLnErr = 1.0;
         }
+        else if (includeAntibiasErr) {
+            double refChi = getAverageAndError(true, optimalAlpha)[0];
+            double refCount = refAvg.getSampleCount();
+            double antibiasRefChi = (refChi * refCount + 1) / (refCount+1);
+            double antibiasRefErr = 0.5*Math.log(antibiasRefChi/refChi);
+            refLnErr += antibiasRefErr;
+        }
 
         double targetLnErr = getLogAverageAndError(false, optimalAlpha)[1];
         if (Double.isNaN(targetLnErr)) {
             targetLnErr = 1.0;
         }
+        else if (includeAntibiasErr) {
+            double targetChi = getAverageAndError(false, optimalAlpha)[0];
+            double targetCount = targetAvg.getSampleCount();
+            double antibiasTargetChi = (targetChi * targetCount + 1/optimalAlpha) / (targetCount+1);
+            double antibiasTargetErr = 0.5*Math.log(antibiasTargetChi/targetChi);
+            targetLnErr += antibiasTargetErr;
+        }
         double refFrac = 1.0 / (1 + targetLnErr/refLnErr * Math.sqrt((1-oldFrac)/(oldFrac)));
-
         return refFrac;
     }
 
@@ -381,6 +419,7 @@ public class DataOverlap implements ReferenceFracSource {
     public interface DataSourceOverlapAvg {
         public double getAverage(int iAlpha);
         public double getError(int iAlpha);
+        public double getSampleCount();
     }
     
     /**
@@ -408,6 +447,9 @@ public class DataOverlap implements ReferenceFracSource {
         public double getError(int iAlpha) {
             return ((DataGroup)acc.getData()).getData(acc.ERROR.index).getValue(iAlpha);
         }
+        public double getSampleCount() {
+            return acc.getBlockCount()*acc.getBlockSize();
+        }
     }
 
     /**
@@ -419,26 +461,26 @@ public class DataOverlap implements ReferenceFracSource {
      * quantities (primarily through extrapolation) to correspond to the total
      * number of samples collected.
      */
-    public static class DataSourceOverlapAvgCollapsing implements DataSourceOverlapLogAvg {
-        protected final DataSplitter splitter;
+    public abstract static class DataSourceOverlapAvgCollapsing implements DataSourceOverlapLogAvg {
         protected final double[] lnStdev = new double[4];
         protected final double[] lnN = new double[4];
         protected double[] log = new double[0];
         protected double[] fullLnN = new double[0];
         protected final AkimaSpline akima = new AkimaSpline();
 
-        public DataSourceOverlapAvgCollapsing(DataSplitter splitter) {
-            this.splitter = splitter;
-        }
+        protected abstract AccumulatorAverageCollapsingLog getDataSink(int i);
+
+        protected abstract int getNumDataSinks();
+
         public double getAverage(int iAlpha) {
-            IData data = ((AccumulatorAverageCollapsingLog)splitter.getDataSink(iAlpha)).getAverages();
+            IData data = getDataSink(iAlpha).getAverages();
             if (data.getLength() == 0) {
                 return Double.NaN;
             }
             return data.getValue(0);
         }
         public double getError(int iAlpha) {
-            AccumulatorAverageCollapsingLog acc = (AccumulatorAverageCollapsingLog)splitter.getDataSink(iAlpha);
+            AccumulatorAverageCollapsingLog acc = getDataSink(iAlpha);
             IData data = acc.getStdev();
             if (data.getLength() == 0) {
                 return Double.NaN;
@@ -452,17 +494,17 @@ public class DataOverlap implements ReferenceFracSource {
         }
         
         public double getExtrapolatedLogError(int iAlpha, int nDrop) {
-            AccumulatorAverageCollapsingLog acc = (AccumulatorAverageCollapsingLog)splitter.getDataSink(iAlpha);
+            AccumulatorAverageCollapsingLog acc = getDataSink(iAlpha);
             IData data = acc.getStdevLog();
             int nData = data.getLength();
             if (nData == 0) {
                 return Double.NaN;
             }
             int nFit = 4;
-            if (nData <  nDrop + nFit) {
+            if (nData <  nDrop + nFit || 1<<(nData-1) == acc.getCount()) {
                 return data.getValue(nData-1);
             }
-            boolean doDebug = Debug.ON && Math.random() > 0.98 && iAlpha == (splitter.getNumDataSinks()-1)/2;
+            boolean doDebug = Debug.ON && Math.random() > 0.98 && iAlpha == (getNumDataSinks()-1)/2;
             if (doDebug) {
                 System.out.println("iAlpha stdev"+iAlpha+" "+nData);
                 for (int i=0; i<nData; i++) {
@@ -475,15 +517,15 @@ public class DataOverlap implements ReferenceFracSource {
                 lnN[i] = Math.log(1L << (start+i));
                 lnStdev[i] = Math.log(data.getValue(start+i));
             }
-            FitResult fit = LinearFit.doFit(lnN, lnStdev);
-            double m = fit.m;
-            double b = fit.b;
+            double[] fit = LinearFit.doFit(lnN, lnStdev);
+            double m = fit[1];
+            double b = fit[0];
             if (doDebug) {
                 System.out.println("fit "+start+" "+m+" "+b);
             }
             if (m > 0) {
                 if (doDebug) {
-                    System.out.println("bogus m "+fit.m+" "+fit.b);
+                    System.out.println("bogus m "+m+" "+b);
                 }
                 if (m < -0.5) {
                     m = -0.5;
@@ -504,7 +546,7 @@ public class DataOverlap implements ReferenceFracSource {
         }
         
         public double getLogAverage(int iAlpha) {
-            AccumulatorAverageCollapsingLog acc = (AccumulatorAverageCollapsingLog)splitter.getDataSink(iAlpha);
+            AccumulatorAverageCollapsingLog acc = getDataSink(iAlpha);
             IData data = acc.getAverageLogs();
             int nData = data.getLength();
             if (nData == 0) {
@@ -513,7 +555,7 @@ public class DataOverlap implements ReferenceFracSource {
             if (nData <  11) {
                 return data.getValue(nData-1);
             }
-            boolean doDebug = Debug.ON && Math.random() > 0.99 && iAlpha == (splitter.getNumDataSinks()-1)/2;
+            boolean doDebug = Debug.ON && Math.random() > 0.99 && iAlpha == (getNumDataSinks()-1)/2;
             if (doDebug) {
                 System.out.println("iAlpha log "+iAlpha+" "+nData);
                 for (int i=0; i<nData; i++) {
@@ -550,15 +592,15 @@ public class DataOverlap implements ReferenceFracSource {
                 dfdlnN[i] = Math.log(Math.abs(dfdlnN[i]));
             }
             
-            FitResult fit = LinearFit.doFit(lnN, dfdlnN);
-            double m = fit.m;
-            double b = fit.b;
+            double[] fit = LinearFit.doFit(lnN, dfdlnN);
+            double m = fit[1];
+            double b = fit[0];
             if (doDebug) {
                 System.out.println("fit "+start+" "+m+" "+b);
             }
             if (m < -1 || m > 0) {
                 if (doDebug) {
-                    System.out.println("bogus m "+fit.m+" "+fit.b);
+                    System.out.println("bogus m "+m+" "+b);
                 }
                 if (m < -0.5) {
                     m = -0.5;
@@ -585,5 +627,23 @@ public class DataOverlap implements ReferenceFracSource {
             return avgLog;
         }
 
+        public double getSampleCount() {
+            return getDataSink(0).getCount();
+        }
+    }
+
+    public static class DataSourceOverlapAvgCollapsingSplit extends DataSourceOverlapAvgCollapsing {
+        protected final DataSplitter splitter;
+        public DataSourceOverlapAvgCollapsingSplit(DataSplitter splitter) {
+            this.splitter = splitter;
+        }
+        
+        protected AccumulatorAverageCollapsingLog getDataSink(int i) {
+            return (AccumulatorAverageCollapsingLog)splitter.getDataSink(i);
+        }
+        
+        protected int getNumDataSinks() {
+            return splitter.getNumDataSinks();
+        }
     }
 }
