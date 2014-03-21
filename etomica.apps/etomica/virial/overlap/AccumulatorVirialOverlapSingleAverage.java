@@ -82,7 +82,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     // the values coming in should be gamma1/|gamma1| and |gamma2|/|gamma1|
     // where 1 and 2 are target and reference or vica versa, depending on
     // which box the values are coming from.
-    public void addData(IData value) {
+    public boolean addData(IData value) {
         if (Debug.ON && ((DataDoubleArray)value).getLength() != 2) {
             throw new IllegalArgumentException("must receive cluster value and 'other' weight (only)");
         }
@@ -104,6 +104,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         // superclass sums up blockSum[1], but we drop it on the floor in doBlockSum in
         // favor of blockOverlapSum
         super.addData(value);
+        return true;
     }
     
     protected void doBlockSum() {
