@@ -69,7 +69,6 @@ public class DataPump extends DataProcessor implements IAction {
         return dataSource;
     }
 
-    private static final long serialVersionUID = 1L;
-    private IEtomicaDataInfo dataSourceInfo;
-    private final IEtomicaDataSource dataSource;
+    protected IEtomicaDataInfo dataSourceInfo;
+    protected final IEtomicaDataSource dataSource;
 }
