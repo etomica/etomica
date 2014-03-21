@@ -40,6 +40,10 @@ public class HistoryCollapsingDiscard extends HistoryCollapsing {
         }
     }
 
+    public boolean willDiscardNextData() {
+        return !((intervalCount+1) == (interval+1)/2);
+    }
+
     protected void collapseData() {
         for (int i=0; i<cursor/numCollapseBins; i++) {
             // j is the middle bin of the to-be-collapsed bins
