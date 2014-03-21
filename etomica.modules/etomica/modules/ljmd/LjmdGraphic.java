@@ -269,7 +269,7 @@ public class LjmdGraphic extends SimulationGraphic {
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
-        nSlider.setMaximum(225);
+        nSlider.setMaximum(space.D() == 2 ? 225 : 4000);
         nSlider.setLabel("Number of Atoms");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
@@ -283,7 +283,7 @@ public class LjmdGraphic extends SimulationGraphic {
                 	sim.integrator.setThermostatInterval(400);
                 }
                 else {
-                  sim.integrator.setThermostatInterval(400/n);
+                  sim.integrator.setThermostatInterval(400/n+1);
                 }
                 
                 if (oldN < n) {
@@ -309,7 +309,7 @@ public class LjmdGraphic extends SimulationGraphic {
         temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integrator);
         temperatureSelect.setPrecision(1);
         temperatureSelect.setMinimum(0.0);
-        temperatureSelect.setMaximum(3.0);
+        temperatureSelect.setMaximum(10.0);
         temperatureSelect.setSliderMajorValues(3);
 	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setAdiabatic();

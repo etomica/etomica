@@ -5,10 +5,10 @@ import etomica.api.IBox;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -59,7 +59,7 @@ public class Ljmd extends Simulation {
         dim.E(15);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
+        new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
         integrator.setBox(box);
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
