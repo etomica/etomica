@@ -7,7 +7,6 @@ import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -24,6 +23,8 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 
 /**
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
@@ -31,7 +32,6 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class TestLJMC3D extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
@@ -39,11 +39,7 @@ public class TestLJMC3D extends Simulation {
     public P2LennardJones potential;
     public Controller controller;
     
-    public TestLJMC3D() {
-        this(500);
-    }
-
-    public TestLJMC3D(int numAtoms) {
+    public TestLJMC3D(int numAtoms, int numSteps) {
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
@@ -54,7 +50,7 @@ public class TestLJMC3D extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().setEquilibrating(false);
         ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
-        actionIntegrate.setMaxSteps(200000);
+        actionIntegrate.setMaxSteps(numSteps);
         getController().addAction(actionIntegrate);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -85,11 +81,11 @@ public class TestLJMC3D extends Simulation {
     }
  
     public static void main(String[] args) {
-        int numAtoms = 500;
-        if (args.length > 0) {
-            numAtoms = Integer.valueOf(args[0]).intValue();
-        }
-        TestLJMC3D sim = new TestLJMC3D(numAtoms);
+        SimParams params = new SimParams();
+        ParseArgs.doParseArgs(params, args);
+        int numAtoms = params.numAtoms;
+
+        TestLJMC3D sim = new TestLJMC3D(numAtoms, params.numSteps);
 
         MeterPressure pMeter = new MeterPressure(sim.space);
         pMeter.setIntegrator(sim.integrator);
@@ -106,7 +102,6 @@ public class TestLJMC3D extends Simulation {
         
         sim.getController().actionPerformed();
         
-        //XXX double Z = 1 + ...  ??
         double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         avgPE /= numAtoms;
@@ -129,4 +124,8 @@ public class TestLJMC3D extends Simulation {
         }
     }
 
+    public static class SimParams extends ParameterBase {
+        public int numAtoms = 500;
+        public int numSteps = 200000;
+    }
 }

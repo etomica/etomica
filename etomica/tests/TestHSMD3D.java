@@ -10,9 +10,11 @@ import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.
@@ -22,12 +24,11 @@ import etomica.species.SpeciesSpheresMono;
  
 public class TestHSMD3D extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species, species2;
     public IBox box;
 
-    public TestHSMD3D(Space _space, int numAtoms) {
+    public TestHSMD3D(ISpace _space, int numAtoms, int numSteps) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         
@@ -42,7 +43,7 @@ public class TestHSMD3D extends Simulation {
         integrator.setIsothermal(true);
         ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
         getController().addAction(actionIntegrate);
-        actionIntegrate.setMaxSteps(20000000/numAtoms);
+        actionIntegrate.setMaxSteps(numSteps);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
@@ -75,28 +76,32 @@ public class TestHSMD3D extends Simulation {
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
 //        integrator.addIntervalListener(writeConfig);
     }
-    
+
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        int numAtoms = 500;
-        if (args.length > 0) {
-            numAtoms = Integer.valueOf(args[0]).intValue();
-        }
-        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms);
+        SimParams params = new SimParams();
+        ParseArgs.doParseArgs(params, args);
+
+        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), params.numAtoms, params.numSteps/params.numAtoms);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);
-        
+
         sim.getController().actionPerformed();
-        
+
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);
-        
+
         // compressibility factor for this system should be 5.22
         if (Double.isNaN(Z) || Math.abs(Z-5.22) > 0.04) {
             System.exit(1);
         }
+    }
+
+    public static class SimParams extends ParameterBase {
+        public int numAtoms = 500;
+        public int numSteps = 20000000;
     }
 }

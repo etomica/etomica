@@ -25,9 +25,11 @@ import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 
 /**
  * Simple square-well chain simulation.
@@ -35,16 +37,11 @@ import etomica.species.SpeciesSpheres;
  */
  
 public class TestSWChain extends Simulation {
-    
-    private static final long serialVersionUID = 1L;
+
     public IntegratorHard integrator;
     public IBox box;
 
-    public TestSWChain(Space _space) {
-        this(_space, 500);
-    }
-    
-    public TestSWChain(Space _space, int numMolecules) {
+    public TestSWChain(ISpace _space, int numMolecules, double simTime) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int chainLength = 10;
@@ -54,7 +51,7 @@ public class TestSWChain extends Simulation {
         double neighborRangeFac = 1.2;
         double bondFactor = 0.15;
         double timeStep = 0.005;
-        double simTime = 100000.0/numAtoms;
+        simTime /= chainLength;
         int nSteps = (int)(simTime / timeStep);
 
         // makes eta = 0.35
@@ -99,12 +96,13 @@ public class TestSWChain extends Simulation {
     }
     
     public static void main(String[] args) {
-        int numMolecules = 500;
-        if (args.length > 0) {
-            numMolecules = Integer.valueOf(args[0]).intValue();
-        }
-        Space sp = Space3D.getInstance();
-        TestSWChain sim = new TestSWChain(sp, numMolecules);
+        SimParams params = new SimParams();
+        ParseArgs.doParseArgs(params, args);
+        int numMolecules = params.numAtoms;
+        double simTime = params.numSteps/numMolecules;
+
+        ISpace sp = Space3D.getInstance();
+        TestSWChain sim = new TestSWChain(sp, numMolecules, simTime);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);
@@ -137,5 +135,10 @@ public class TestSWChain extends Simulation {
         if (Double.isNaN(Cv) || Cv < 0.5 || Cv > 4.5) {
             System.exit(1);
         }
+    }
+
+    public static class SimParams extends ParameterBase {
+        public int numAtoms = 500;
+        public int numSteps = 100000;
     }
 }
