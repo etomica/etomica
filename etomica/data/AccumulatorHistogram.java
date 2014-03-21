@@ -43,15 +43,17 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Adds each value in the given Data to its own histogram.
      */
-    protected void addData(IData inputData) {
+    protected boolean addData(IData inputData) {
     	if (histogram instanceof HistogramNotSoSimple) {
     		((HistogramNotSoSimple)histogram).addValue(inputData.getValue(0), inputData.getValue(1));
-    	} else if (histogram instanceof HistogramReweightedData) {
+    	}
+    	else if (histogram instanceof HistogramReweightedData) {
             ((HistogramReweightedData)histogram).addValue(inputData.getValue(0), inputData.getValue(1));
     	}
     	else {
     	    histogram.addValue(inputData.getValue(0));
     	}
+    	return true;
     }
 
     /**

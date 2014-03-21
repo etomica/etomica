@@ -115,12 +115,19 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
      */
-    public void addData(IData data) {
+    public boolean addData(IData data) {
         if (data.isNaN())
-            return;
+            return false;
         double value = data.getValue(0);
-        if (value == 0 || value == Double.POSITIVE_INFINITY) {
+        if (value == Double.POSITIVE_INFINITY) {
             throw new RuntimeException("got "+value);
+        }
+        if (value == 0) {
+            value = Double.MIN_VALUE;
+        }
+        if (lAvg != null) {
+            lData.x = Math.log(value);
+            lAvg.putData(lData);
         }
         if (rawDataBlockSize == 0) {
             // special case early part where we keep every sample as raw data
@@ -147,7 +154,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
                 rawDataBlockSize++;
                 nRawData /= 2;
             }
-            return;
+            return true;
         }
         // process sample as blockSize=0 data
         doSums(sums[0], value);
@@ -178,7 +185,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
                     rawDataBlockSize++;
                     nRawData /= 2;
                 }
-                return;
+                return true;
             }
             // process block average normally
             doSums(sums[i], blockSums[i]);
@@ -186,6 +193,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             blockSums[i+1] += blockSums[i];
             blockSums[i] = 0;
         }
+        return true;
     }
 
     public long getCount() {
@@ -306,8 +314,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
             for (int j=0; j<nRawData; j++) {
                 int idx1 = random.nextInt(nRawData);
                 int idx2 = random.nextInt(nRawData);
-                double sum12 = (rawData2[idx1] + rawData2[idx2])/2;
-                rawData3[j] = sum12;
+                rawData3[j] = 0.5*(rawData2[idx1] + rawData2[idx2]);
             }
         }
         for (int j=0; j<nRawData; j++) {
@@ -517,9 +524,13 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     public int getNumRawData() {
         return nRawData;
     }
-    
+
+    public double[] getRawData() {
+        return rawData;
+    }
+
     /**
-     * Returns the correlation between consecutive values of the log of the raw
+     * Returns the correlation between consecutive values of the log of the "raw"
      * data held by the accumulator.  Raw data may be individual samples, or
      * block averages, depending on how much data has been collected.  The
      * method returning the standard deviation of the log is based on the idea
@@ -549,6 +560,35 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
         double blockCorrelation = (((Math.log(rawData[0]) -2*lSum + Math.log(rawData[nRawData-1])) * (lSum/nRawData) + cSum)/(nRawData-1) + avg2)/var;
         blockCorrelation = (Double.isNaN(blockCorrelation) || blockCorrelation <= -1 || blockCorrelation >= 1) ? 0 : blockCorrelation;
         return blockCorrelation;
+    }
+    
+    public double getSampleVariance() {
+        if (rawDataBlockSize > 0) {
+            return (count*sums[0][1] - sums[0][0]*sums[0][0])/(count*(count-1));
+        }
+        double sums0 = 0, sums1 = 0;
+        for (int i=0; i<nRawData; i++) {
+            sums0 += rawData[i];
+            sums1 += rawData[i]*rawData[i];
+        }
+        return (count*sums1 - sums0*sums0)/(count*(count-1));
+    }
+    
+    public double getSampleLogVariance() {
+        if (rawDataBlockSize > 0) {
+            return (count*lSums[0][1] - lSums[0][0]*lSums[0][0])/(count*(count-1));
+        }
+        double sums0 = 0, sums1 = 0;
+        for (int i=0; i<nRawData; i++) {
+            double l = Math.log(rawData[i]);
+            sums0 += l;
+            sums1 += l*l;
+        }
+        return (count*sums1 - sums0*sums0)/(count*(count-1));
+    }
+
+    public int getRawDataBlockSize() {
+        return rawDataBlockSize;
     }
     
     /**
@@ -597,6 +637,18 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     public DataTag getIndependentTag() {
         return nTag;
     }
+    
+    public void enableRawLogStatistics() {
+        lAvg = new AccumulatorAverageCollapsing(200);
+        lData = new DataDouble();
+        lDataInfo = new DataInfoDouble("raw log", Null.DIMENSION);
+        lDataInfo.addTag(new DataTag());
+        lAvg.putDataInfo(lDataInfo);
+    }
+    
+    public AccumulatorAverage getRawLogAccumulator() {
+        return lAvg;
+    }
 
     protected long count;
     protected double[] blockSums;
@@ -613,6 +665,9 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     protected final int nMoments;
     protected int initialSeed;
     protected final boolean withReplacement = true;
+    protected AccumulatorAverageCollapsing lAvg;
+    protected DataDouble lData;
+    protected DataInfoDouble lDataInfo;
     
     public static void main(String[] args) {
         AccumulatorAverageCollapsingLog ac = new AccumulatorAverageCollapsingLog(new RandomNumberGenerator());

@@ -75,6 +75,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
     public IData getData(StatType stat) {
         // populate data
         getData();
+        if (dataGroup == null) return null;
         return dataGroup.getData(stat.index);
     }
 

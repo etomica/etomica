@@ -44,9 +44,9 @@ public class AccumulatorAverageFixedOutputFile extends AccumulatorAverage {
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
      */
-    public void addData(IData data) {
+    public boolean addData(IData data) {
         if (data.isNaN())
-            return;
+            return false;
 
         mostRecent.E(data);
         currentBlockSum.PE(data);
@@ -57,6 +57,7 @@ public class AccumulatorAverageFixedOutputFile extends AccumulatorAverage {
                                     // completion of block
             doBlockSum();
         }
+        return true;
     }
     
     /**

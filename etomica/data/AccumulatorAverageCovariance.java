@@ -37,9 +37,9 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         this.fullCovariance = fullCovariance;
     }
 
-    public void addData(IData data) {
+    public boolean addData(IData data) {
         if (data.isNaN())
-            return;
+            return false;
         super.addData(data);
 
         double[] x = covSum.getData();
@@ -62,6 +62,7 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
                 x[j] += j0x;
             }
         }
+        return true;
     }
     
     protected void doBlockSum() {
@@ -232,7 +233,6 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
     public static final StatType COVARIANCE = new StatType("Covariance", 5);
     public static final StatType BLOCK_COVARIANCE = new StatType("Block covariance", 6);
 
-    private static final long serialVersionUID = 1L;
     protected DataDoubleArray covSum, blockCovSum;
     protected DataDoubleArray covariance, blockCovariance;
     protected final boolean fullCovariance;

@@ -12,23 +12,23 @@ import etomica.util.Arrays;
  * <p>
  * This accumulator can only operate on Data with a single value.
  */
-public class AccumulatorAverageCollapsing extends AccumulatorAverage {
+public class AccumulatorAverageCollapsingPrecise extends AccumulatorAveragePrecise {
 
     /**
      * Default constructor sets block size to Default value, and sets the
      * interval for pushing the output data (pushInterval) to 100.
      */
-    public AccumulatorAverageCollapsing() {
+    public AccumulatorAverageCollapsingPrecise() {
         this(20);
     }
     
-    public AccumulatorAverageCollapsing(int maxBlocks) {
+    public AccumulatorAverageCollapsingPrecise(int maxBlocks) {
         this(maxBlocks, 1);
     }
     
-    public AccumulatorAverageCollapsing(int maxBlocks, int blockSize) {
+    public AccumulatorAverageCollapsingPrecise(int maxBlocks, int blockSize) {
         super(blockSize);
-        blockSums = new double[0];
+        blockAvgs = new double[0];
         setMaxBlocks(maxBlocks);
         setBlockSize(blockSize);
         setPushInterval(100);
@@ -49,7 +49,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         maxBlocks = newMaxBlocks;
         // this would drop stuff at the end, but then we just collapsed the
         // blocks so they should all be 0.
-        blockSums = Arrays.resizeArray(blockSums, maxBlocks);
+        blockAvgs = Arrays.resizeArray(blockAvgs, maxBlocks);
     }
     
     public int getMaxBlocks() {
@@ -75,11 +75,14 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
     public boolean addData(IData data) {
         if (data.isNaN())
             return false;
+        count++;
+        blockDataCount++;
         double value = data.getValue(0);
-        currentBlockSum += value;
-        totalSumSquare += value * value;
+        currentBlockAvg += (value - currentBlockAvg) / blockDataCount;
+        totalAvg += (value - totalAvg) / count;
+        totalSquareAvg += (value * value - totalSquareAvg) / count;
         mostRecent.E(value);
-        if (--blockCountDown == 0) {//count down to zero to determine
+        if (blockDataCount == blockSize) {//count down to zero to determine
                                     // completion of block
             doBlockSum();
         }
@@ -90,50 +93,48 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * Performs the block sum after <tt>blockSize</tt> calls to addData.
      */
     protected void doBlockSum() {
-        
-        totalBlockSum += currentBlockSum;
-        currentBlockSum /= blockSize;
-        if (count > 0) {
-            correlationSum += blockSums[(int)count-1] * currentBlockSum;
-        }
-        blockSums[(int)count] = currentBlockSum;
-        totalSumBlockSq += currentBlockSum * currentBlockSum;
-        currentBlockSum = 0;
-        
-        count++;
-        blockCountDown = blockSize;
+        blockAvg = totalAvg;
 
-        if (count == maxBlocks) {
+        if (blockCount > 0) {
+            correlationAvg += (blockAvgs[(int)blockCount-1] * currentBlockAvg - correlationAvg) / blockCount;
+        }
+        blockAvgs[(int)blockCount] = currentBlockAvg;
+        totalSumBlockSq += currentBlockAvg * currentBlockAvg;
+        currentBlockAvg = 0;
+        
+        blockCount++;
+        blockDataCount = 0;
+
+        if (blockCount == maxBlocks) {
             collapseBlocks();
         }
-
     }
     
     protected void collapseBlocks() {
-        int intCount = (int)count;
+        int intCount = (int)blockCount;
         if (intCount % 2 == 1) {
             // if we have an odd number of blocks, the last block will get
             // dropped.  So add its contribution to the "current" block.
-            currentBlockSum += blockSums[intCount-1];
-            totalBlockSum -= blockSums[intCount-1];
+            blockAvg += (blockAvg - blockAvgs[intCount-1]) / (blockCount-1);
+            currentBlockAvg = (blockAvgs[intCount-1]*blockSize + currentBlockAvg*blockDataCount) / (blockSize+blockDataCount);
+            blockDataCount += blockSize;
         }
         totalSumBlockSq = 0;
-        count /= 2;
-        intCount = (int)count;
-        correlationSum = 0;
+        blockCount /= 2;
+        intCount = (int)blockCount;
+        correlationAvg = 0;
         // the first half of the blocks contain all previous data
         for (int i=0; i<intCount; i++) {
-            blockSums[i] = (blockSums[2*i] + blockSums[2*i+1]) / 2;
-            totalSumBlockSq += blockSums[i] * blockSums[i];
+            blockAvgs[i] = (blockAvgs[2*i] + blockAvgs[2*i+1]) / 2;
+            totalSumBlockSq += blockAvgs[i] * blockAvgs[i];
             if (i>0) {
-                correlationSum += blockSums[i-1]*blockSums[i];
+                correlationAvg += (blockAvgs[i-1]*blockAvgs[i] - correlationAvg) / i;
             }
         }
         // the last half are 0
         for (int i=intCount; i<maxBlocks; i++) {
-            blockSums[i] = 0;
+            blockAvgs[i] = 0;
         }
-        blockCountDown += blockSize;
         blockSize *= 2;
     }
 
@@ -146,39 +147,32 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
             return null;
         }
     	
-        if (count > 1) {
+        if (blockCount > 1) {
             // calculate block properties (these require 2 or more blocks)
-            double blockAvg = totalBlockSum / (count*blockSize);
-            double err = totalSumBlockSq / count - blockAvg * blockAvg;
+            double err = totalSumBlockSq / blockCount - blockAvg * blockAvg;
             if (err < 0) {
                 err = 0;
             }
-            error.E(Math.sqrt(err / (count-1)));
+//            System.out.println("new block variance "+err);
+            error.E(Math.sqrt(err / (blockCount-1)));
 
-            double bc = (((2 * totalBlockSum / blockSize - blockSums[0] - blockSums[(int)count-1]) * blockAvg - correlationSum) / 
-                    (1-count) + blockAvg * blockAvg) / err;
-            // sanity check
-            bc = (Double.isNaN(bc) || bc <= -1 || bc >= 1) ? 0 : bc;
-            blockCorrelation.E(bc);
-
-            if (doIncludeACInError && count > 3) {
-                double c = blockCorrelation.getValue(0);
-                error.TE(Math.sqrt((1+c)/(1-c)));
-            }
+            blockCorrelation.E((correlationAvg - (2 * blockAvg * blockCount - blockAvgs[0] - blockAvgs[(int)blockCount-1]) / (blockCount-1) * blockAvg + blockAvg * blockAvg) / err);
         }
         else {
             error.E(Double.NaN);
             blockCorrelation.E(Double.NaN);
         }
 
-    	long nTotalData = count*blockSize + (blockSize-blockCountDown);
-        if (nTotalData > 0) {
-            double avg = (totalBlockSum+currentBlockSum) / nTotalData;
-            average.E(avg);
-            double variance = totalSumSquare / nTotalData - avg*avg;
+        if (count > 0) {
+            average.E(totalAvg);
+            double variance = totalSquareAvg - totalAvg*totalAvg;
             if (variance < 0) {
+                System.out.println("new negative variance "+variance);
                 variance = 0;
             }
+//            else {
+//                System.out.println("new positive variance "+variance);
+//            }
             standardDeviation.E(Math.sqrt(variance));
         }
         return dataGroup;
@@ -191,10 +185,11 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         blockSize = nominalBlockSize;
         super.reset();
 
-        correlationSum = 0;
-        currentBlockSum = 0;
-        totalSumSquare = 0;
-        totalBlockSum = 0;
+        blockDataCount = 0;
+        correlationAvg = 0;
+        currentBlockAvg = 0;
+        totalSquareAvg = 0;
+        totalAvg = 0;
         totalSumBlockSq = 0;
     }
 
@@ -210,12 +205,36 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
         super.setBlockSize(newBlockSize);
     }
 
+    /**
+     * Adds a new DataSink that will receive a specific subset of the statistics
+     * generated by this accumulator. The DataSink will be given a DataGroup
+     * that has only the specified statistics in it. The output of this
+     * accumulator is passed through a DataGroupFilter that removes the unwanted
+     * Data.
+     * 
+     * @param newDataSink
+     *            the new DataSink
+     * @param types
+     *            array indicating the statistics to be included in the
+     *            DataGroup sent to the sink.
+     */
+    public void addDataSink(IDataSink newDataSink, StatType[] types) {
+        int[] indexes = new int[types.length];
+        for (int i = 0; i < types.length; i++) {
+            indexes[i] = types[i].index;
+        }
+        DataGroupFilter filter = new DataGroupFilter(indexes);
+        addDataSink(filter);
+        filter.setDataSink(newDataSink);
+    }
+
     private static final long serialVersionUID = 1L;
     protected int maxBlocks;
-    protected double[] blockSums;
-    protected double currentBlockSum, totalSumSquare;
+    protected double[] blockAvgs;
+    protected double currentBlockAvg, totalSquareAvg;
     protected double totalSumBlockSq;
-    protected double correlationSum;
-    protected double totalBlockSum;
+    protected double correlationAvg;
+    protected double totalAvg, blockAvg;
     protected long nominalBlockSize;
+    protected long blockDataCount;
 }

@@ -59,9 +59,9 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
      * Add the given values to the sums and block sums. If any of the given data
      * values is NaN, method returns with no effect on accumulation sums.
      */
-    public void addData(IData data) {
+    public boolean addData(IData data) {
         if (data.isNaN())
-            return;
+            return false;
 
         mostRecent.E(data);
         sum.PE(data);
@@ -69,6 +69,7 @@ public class AccumulatorAverageBlockless extends DataAccumulator {
         work.TE(data);
         sumSquare.PE(work);
         count++;
+        return true;
     }
 
     /**

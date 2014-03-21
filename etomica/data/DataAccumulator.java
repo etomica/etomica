@@ -29,8 +29,9 @@ public abstract class DataAccumulator extends DataProcessorForked implements IEt
     
     /**
      * Defined by subclass to specify what this accumulator does when data is added to it.
+     * Returns true if the Accumulator's getData method will now return different data.
      */
-    protected abstract void addData(IData data);
+    protected abstract boolean addData(IData data);
 
     /**
      * Defined by subclass to perform some action that clears accumulated values. 
@@ -51,8 +52,9 @@ public abstract class DataAccumulator extends DataProcessorForked implements IEt
      */
     public IData processData(IData inputData) {
         if(!active) return null;
-        addData(inputData);
-        if (--putCount == 0) {
+        hasUnpushedData = addData(inputData) || hasUnpushedData;
+        if (--putCount <= 0 && hasUnpushedData) {
+            hasUnpushedData = false;
             putCount = pushInterval;
             return getData();
         }
@@ -78,7 +80,7 @@ public abstract class DataAccumulator extends DataProcessorForked implements IEt
      * to putData.  This method returns the current value of pushInterval.  Default
      * value is 1, meaning that accumulated Data is pushed every time addData is called.
      */
-    public final int getPushInterval() {
+    public final long getPushInterval() {
         return pushInterval;
     }
     
@@ -90,7 +92,7 @@ public abstract class DataAccumulator extends DataProcessorForked implements IEt
      * 
      * @throws IllegalArgumentException if argument is less than or equal to zero.
      */
-    public final void setPushInterval(int i) {
+    public final void setPushInterval(long i) {
         if(i > 0) {
             pushInterval = i;
             putCount = pushInterval;
@@ -109,19 +111,20 @@ public abstract class DataAccumulator extends DataProcessorForked implements IEt
     }
 
     
-    private static final long serialVersionUID = 1L;
     /**
 	 * Counter that keeps track of the number of interval events received since last call to updateSums
 	 */
-    protected int putCount;
+    protected long putCount;
 
     /**
      * Accumulated data are pushed to the data sinks after every pushInterval calls
      */
-    private int pushInterval;
+    protected long pushInterval;
 
 	/**
 	 * Flag specifying whether the manager responds to integrator events
 	 */
 	protected boolean active = true;
+	
+	protected boolean hasUnpushedData = false;
 }

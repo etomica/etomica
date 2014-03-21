@@ -41,8 +41,9 @@ public class AccumulatorCounter extends DataAccumulator {
     /**
      * Increments the counter. Argument is ignored.
      */
-    protected void addData(IData dummyData) {
+    protected boolean addData(IData dummyData) {
         data.x++;
+        return true;
     }
 
     /**

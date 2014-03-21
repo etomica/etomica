@@ -73,8 +73,8 @@ public class AccumulatorHistory extends DataAccumulator {
      * history data is discarded and new historys are constructed (this behavior
      * can be modified by overriding the setNData method).
      */
-    protected void addData(IData newData) {
-        history.addValue(timeDataSource.getDataAsScalar(), newData.getValue(0));
+    protected boolean addData(IData newData) {
+        return history.addValue(timeDataSource.getDataAsScalar(), newData.getValue(0));
     }
 
     /**
@@ -125,8 +125,7 @@ public class AccumulatorHistory extends DataAccumulator {
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
-    
-    private static final long serialVersionUID = 1L;
+
     protected History history;
     protected DataSourceIndependentSimple xDataSources;
     private DataFunction data;
@@ -147,8 +146,7 @@ public class AccumulatorHistory extends DataAccumulator {
         public double getDataAsScalar() {
             return count++;
         }
-        
-        private static final long serialVersionUID = 1L;
+
         private int count = 0;
     }
 }
