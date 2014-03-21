@@ -59,7 +59,11 @@ public abstract class HistoryCollapsing implements History {
     public int getHistoryLength() {
         return history.length;
     }
-	
+
+    public int getSampleCount() {
+        return cursor;
+    }
+
     /**
      * Sets the number of "collapse" bins.  When the data is collapsed, one
      * value will be taken from each consecutive n bins, where n is the number
@@ -99,7 +103,7 @@ public abstract class HistoryCollapsing implements History {
     }
 
     protected abstract void collapseData();
-    
+
     /**
      * Returns the history
      */

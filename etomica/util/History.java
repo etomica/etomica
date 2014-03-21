@@ -19,9 +19,13 @@ public interface History {
 
     /**
      * Returns the number of data points tracked by the History.
-     * @return
      */
 	public int getHistoryLength();
+	
+	/**
+	 * Returns the number of data samples currently held by the History.
+	 */
+	public int getSampleCount();
 
     /**
      * Resets the History.  Memory of all data given via addValue is dropped.
@@ -29,9 +33,10 @@ public interface History {
 	public void reset();
 
     /**
-     * Adds the given x, y pair to the History.
+     * Adds the given x, y pair to the History.  Returns true if getHistory
+     * will now return different values.
      */
-    public void addValue(double x, double y);
+    public boolean addValue(double x, double y);
 
     /**
      * Returns an array containing the x values that have been added to the

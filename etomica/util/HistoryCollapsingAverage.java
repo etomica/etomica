@@ -24,9 +24,11 @@ public class HistoryCollapsingAverage extends HistoryCollapsingDiscard {
      * to store the data, existing data is collapsed by 1/2 and 
      * future data is taken half as much.
      */
-    public void addValue(double x, double y) {
+    public boolean addValue(double x, double y) {
+        boolean changed = false;
         if (cursor == history.length) {
             collapseData();
+            changed = true;
         }
         tempXBin += x;
         tempBin += y;
@@ -37,7 +39,9 @@ public class HistoryCollapsingAverage extends HistoryCollapsingDiscard {
             cursor++;
             tempXBin = 0;
             tempBin = 0;
+            changed = true;
         }
+        return changed;
     }
 
     public void reset() {

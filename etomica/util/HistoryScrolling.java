@@ -38,11 +38,15 @@ public class HistoryScrolling implements History, java.io.Serializable {
                 history[i] = Double.NaN;
         	}
         	cursor = originalLength;
+        	full = false;
         }
         else {
         	System.arraycopy(tempX,originalLength-n,xValues,0,n);
             System.arraycopy(tempY,originalLength-n,history,0,n);
-        	cursor = 0;
+            if (cursor > n) {
+                cursor = 0;
+                full = true;
+            }
         }
         tempX = new double[n];
         tempY = new double[n];
@@ -50,6 +54,10 @@ public class HistoryScrolling implements History, java.io.Serializable {
     
     public int getHistoryLength() {
         return history.length;
+    }
+    
+    public int getSampleCount() {
+        return full ? history.length : cursor;
     }
 	
     /**
@@ -61,6 +69,7 @@ public class HistoryScrolling implements History, java.io.Serializable {
             xValues[i] = Double.NaN;
 	    }
 	    cursor = 0;
+	    full = false;
 	}
     
     public double[] getXValues() {
@@ -72,12 +81,15 @@ public class HistoryScrolling implements History, java.io.Serializable {
         return tempX;
     }
 	
-    public void addValue(double x, double y) {
+    public boolean addValue(double x, double y) {
         xValues[cursor] = x;
         history[cursor] = y;
         cursor++;
-        count++;
-        if(cursor == history.length) cursor = 0;
+        if(cursor == history.length) {
+            cursor = 0;
+            full = true;
+        }
+        return true;
     }
 
     /**
@@ -91,6 +103,10 @@ public class HistoryScrolling implements History, java.io.Serializable {
 		
 		return tempY;
     }
+    
+    public boolean willDiscardNextData() {
+        return false;
+    }
 
     private static final long serialVersionUID = 1L;
     private double[] history = new double[0];
@@ -98,6 +114,6 @@ public class HistoryScrolling implements History, java.io.Serializable {
 	private double[] tempY = new double[0];
     private double[] tempX = new double[0];
     private double[] xValues = new double[0];
-	private int count=0;
+    private boolean full = false;
 
 }

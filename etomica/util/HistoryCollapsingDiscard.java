@@ -26,8 +26,10 @@ public class HistoryCollapsingDiscard extends HistoryCollapsing {
      * to store the data, existing data is collapsed by 1/2 and 
      * future data is taken half as often.
      */
-    public void addValue(double x, double y) {
+    public boolean addValue(double x, double y) {
+        boolean changed = false;
         if (++intervalCount == (interval+1)/2) {
+            changed = true;
             if (cursor == history.length) {
                 collapseData();
             }
@@ -38,6 +40,7 @@ public class HistoryCollapsingDiscard extends HistoryCollapsing {
         if (intervalCount == interval) {
             intervalCount = 0;
         }
+        return changed;
     }
 
     public boolean willDiscardNextData() {

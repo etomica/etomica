@@ -45,6 +45,10 @@ public class HistoryComplete implements History {
     public int getHistoryLength() {
         return history.length;
     }
+    
+    public int getSampleCount() {
+        return cursor;
+    }
 	
     /**
      * Removes entire history, setting all values to NaN.
@@ -67,7 +71,7 @@ public class HistoryComplete implements History {
         return xValues;
     }
     
-    public void addValue(double x, double y) {
+    public boolean addValue(double x, double y) {
         if (cursor == history.length) {
             int newLength = history.length*2;
             if (newLength == 0) {
@@ -78,6 +82,7 @@ public class HistoryComplete implements History {
         xValues[cursor] = x;
         history[cursor] = y;
         cursor++;
+        return true;
     }
 
     /**
@@ -103,6 +108,10 @@ public class HistoryComplete implements History {
      */
     public boolean isCollapseOnReset() {
         return doCollapseOnReset;
+    }
+
+    public boolean willDiscardNextData() {
+        return false;
     }
 
     private double[] history = new double[0];
