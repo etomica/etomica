@@ -25,9 +25,7 @@ import etomica.util.RandomNumberGeneratorUnix;
  * Holds a single Space instance that is referenced in
  * many places to obtain spatial elements such as vectors and boundaries.
  */
-
-public class Simulation implements java.io.Serializable, ISimulation  {
-
+public class Simulation implements ISimulation  {
 
     /**
      * Creates a new simulation using the given space

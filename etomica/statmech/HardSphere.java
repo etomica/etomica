@@ -51,15 +51,16 @@ public class HardSphere {
         HardSphere hs = new HardSphere();
         double fid = hs.idFreeEnergy(1.04086);
         for(double rho = 1.0; rho < 1.411; rho += 0.01) {
-            double density = rho;
-            double deltaF = hs.deltaA(1.04086,density,100000);
+            double deltaF = hs.deltaA(1.04086,rho,100000);
 //            System.out.println("rho: "+rho);
 //            System.out.println("Ideal Gas Free Energy = "+fid);
 //            System.out.println("Excess Free Energy = "+fex);
 //            System.out.println("Absolute Free Energy (N= 32) = "+(fex+fid+5.8644));//Fexcess = 5.8644 for N = 32;5.9117 for N = 108 ;5.9208 for N = 256 JCP81 Pg 3191
 //            System.out.println("Absolute Free Energy (N=108) = "+(fex+fid+5.9117));//N = 108
 //            System.out.println("Absolute Free Energy (N=256) = "+(fex+fid+5.9208));//N = 256
-            System.out.println(rho+"\t"+(deltaF+fid+5.9208));
+            double bA = (deltaF+fid+5.9208);
+            double bmu = hs.deltaA(1.04086,rho,100000)+fid+5.9208 + hs.zSolid(rho);
+            System.out.println(String.format("%5.2f  %20.15e  %20.15e", rho, bA, bmu));
         }
     }
 }

@@ -112,7 +112,7 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
     }
 
     
@@ -205,7 +205,7 @@ public abstract class CoordinateDefinition {
     public IVectorMutable getLatticePosition(IAtom atom) {
         // this impl only handles leaf atoms.  subclasses might override this
         // method and handle IMolecules.
-        return (IVectorMutable)siteManager.getAgent(atom);
+        return siteManager.getAgent(atom);
     }
     
     public BasisCell[] getBasisCells() {
@@ -222,7 +222,7 @@ public abstract class CoordinateDefinition {
 
     protected final int coordinateDim;
     protected final IBox box;
-    protected AtomLeafAgentManager siteManager;
+    protected AtomLeafAgentManager<IVectorMutable> siteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;
     protected final Basis basis;
@@ -230,25 +230,21 @@ public abstract class CoordinateDefinition {
     protected BasisCell[] cells;
     protected final ISpace space;
     
-    protected static class SiteSource implements AtomLeafAgentManager.AgentSource, Serializable {
+    protected static class SiteSource implements AtomLeafAgentManager.AgentSource<IVectorMutable> {
         
         public SiteSource(ISpace space) {
             this.space = space;
         }
-        public Class getAgentClass() {
-            return IVectorMutable.class;
-        }
-        public Object makeAgent(IAtom atom) {
+        public IVectorMutable makeAgent(IAtom atom) {
             IVectorMutable vector = space.makeVector();
             vector.E(atom.getPosition());
             return vector;
         }
-        public void releaseAgent(Object agent, IAtom atom) {
+        public void releaseAgent(IVectorMutable agent, IAtom atom) {
             //nothing to do
         }
 
         private final ISpace space;
-        private static final long serialVersionUID = 1L;
     }
     
     public static class BasisCell implements Serializable {

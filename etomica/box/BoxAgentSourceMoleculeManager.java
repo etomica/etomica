@@ -10,7 +10,7 @@ import etomica.box.BoxAgentManager.BoxAgentSource;
  * @author Tai Boon Tan
  *
  */
-public class BoxAgentSourceMoleculeManager implements BoxAgentSource, java.io.Serializable {
+public class BoxAgentSourceMoleculeManager implements BoxAgentSource<MoleculeAgentManager> {
 
     public BoxAgentSourceMoleculeManager(MoleculeAgentSource moleculeAgentSource, ISimulation sim) {
         super();
@@ -18,19 +18,14 @@ public class BoxAgentSourceMoleculeManager implements BoxAgentSource, java.io.Se
         this.moleculeAgentSource = moleculeAgentSource;
     }
 
-    public Class getAgentClass() {
-        return MoleculeAgentManager.class;
-    }
-
-    public Object makeAgent(IBox box) {
+    public MoleculeAgentManager makeAgent(IBox box) {
         return new MoleculeAgentManager(sim, box, moleculeAgentSource);
     }
 
-    public void releaseAgent(Object agent) {
-        ((MoleculeAgentManager)agent).dispose();
+    public void releaseAgent(MoleculeAgentManager agent) {
+        agent.dispose();
     }
 
     protected ISimulation sim;
-    private static final long serialVersionUID = 1L;
     private final MoleculeAgentSource moleculeAgentSource;
 }

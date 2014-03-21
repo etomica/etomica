@@ -25,7 +25,7 @@ import etomica.units.Length;
  * @author Tai Boon Tan
  *
  */
-public class CriterionSimpleMolecular implements NeighborCriterionMolecular, MoleculeAgentSource, java.io.Serializable {
+public class CriterionSimpleMolecular implements NeighborCriterionMolecular, MoleculeAgentSource {
 
 	public CriterionSimpleMolecular(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
 		super();
@@ -34,7 +34,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        boxAgentManager = new BoxAgentManager(new BoxAgentSourceMoleculeManager(this, sim),sim);
+        boxAgentManager = new BoxAgentManager<MoleculeAgentManager>(new BoxAgentSourceMoleculeManager(this, sim),MoleculeAgentManager.class, sim);
         moleculeSite = new AtomPositionGeometricCenter(_space);
 	}
 	
@@ -110,7 +110,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 
 	public void setBox(IBox box) {
         boundary = box.getBoundary();
-        agentManager = (MoleculeAgentManager)boxAgentManager.getAgent(box);
+        agentManager = boxAgentManager.getAgent(box);
 	}
     
 	public boolean unsafe() {
@@ -151,8 +151,6 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
     
     public void releaseAgent(Object agent, IMolecule molecule) {}
 
-
-    private static final long serialVersionUID = 1L;
     protected final ISpace space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
 	protected final IVectorMutable dr;
@@ -160,7 +158,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     protected MoleculeAgentManager agentManager;
-    protected final BoxAgentManager boxAgentManager;
+    protected final BoxAgentManager<MoleculeAgentManager> boxAgentManager;
     protected IAtomPositionDefinition moleculeSite;
 
 }

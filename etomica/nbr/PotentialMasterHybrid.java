@@ -9,6 +9,7 @@ import etomica.api.ISpecies;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
+import etomica.box.BoxCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
@@ -46,11 +47,11 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     }
     
     private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, ISpace space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, BoxCellManager.class), space);
     }
     
     private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource,
-            BoxAgentManager agentManager, ISpace _space) {
+            BoxAgentManager<NeighborCellManager> agentManager, ISpace _space) {
         super(sim, boxAgentSource, agentManager);
         potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, _space);
         potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager, _space);
@@ -137,7 +138,6 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterCell.removePotential(potential);
     }
 
-    private static final long serialVersionUID = 1L;
     private boolean useNbrLists;
     private final PotentialMasterList potentialMasterList;
     private final PotentialMasterCell potentialMasterCell;

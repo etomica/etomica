@@ -37,7 +37,7 @@ import etomica.space.IVectorRandom;
  * 	@author msellers
  */
 
-public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
+public class IntegratorDimerRT extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
 	public IBox box1, box2;
 	public ISimulation sim;
@@ -67,13 +67,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public IVectorMutable [] workVector3;
 	public IVectorRandom [] N, Nstar, Neff, N1;
 	public IVectorMutable NDelta, NstarDelta;
-	public IVectorMutable workVector1;
-	public IVectorMutable workVector2;
+	public IVectorMutable workVector;
 	public IRandom random1;
 	public ISpecies [] movableSpecies;
 	public PotentialCalculationForceSum force0, force1, force2;
 	public AtomArrayList list, list1, list2;
-	public AtomLeafAgentManager atomAgent0, atomAgent1, atomAgent2;
+	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent0, atomAgent1, atomAgent2;
 	public IteratorDirective allatoms;
 	public String file;
 	public ActivityIntegrate activityIntegrate;
@@ -236,8 +235,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		for(int i=0; i<movableSpecies.length; i++){
 		    movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
 		}
-		workVector1 = space.makeVector();
-        workVector2 = space.makeVector();
+		workVector = space.makeVector();
 		
         N = new IVectorRandom [movableAtoms];
         Neff = new IVectorRandom [movableAtoms];
@@ -315,9 +313,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
         energyBox2 = new MeterPotentialEnergy(potentialMaster);
         energyBox2.setBox(box2);		
 		
-		atomAgent0 = new AtomLeafAgentManager(this, box);
-		atomAgent1 = new AtomLeafAgentManager(this, box1);
-		atomAgent2 = new AtomLeafAgentManager(this, box2);
+		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box, IntegratorVelocityVerlet.MyAgent.class);
+		atomAgent1 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box1, IntegratorVelocityVerlet.MyAgent.class);
+		atomAgent2 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box2, IntegratorVelocityVerlet.MyAgent.class);
 
 		force0.setAgentManager(atomAgent0);
 		force1.setAgentManager(atomAgent1);
@@ -506,15 +504,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				THETAstar[i].E(workVectorN1);
 			}
 			// Use N* to offset(rotate) replicas
-			IVectorMutable workVector1 = space.makeVector();
 			for(int i=0; i<Nstar.length; i++){
-			    workVector1.E(list.getAtom(i).getPosition());
-			    workVector1.PEa1Tv1(deltaR, Nstar[i]);
-                list1.getAtom(i).getPosition().E(workVector1);
+			    workVector.E(list.getAtom(i).getPosition());
+			    workVector.PEa1Tv1(deltaR, Nstar[i]);
+                list1.getAtom(i).getPosition().E(workVector);
                 
-                workVector1.E(list.getAtom(i).getPosition());
-                workVector1.PEa1Tv1(-deltaR, Nstar[i]);
-                list2.getAtom(i).getPosition().E(workVector1);
+                workVector.E(list.getAtom(i).getPosition());
+                workVector.PEa1Tv1(-deltaR, Nstar[i]);
+                list2.getAtom(i).getPosition().E(workVector);
             }
 			// Calculate F*'s
 			dimerForcesStar(F1star, F2star, F);     
@@ -563,15 +560,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             }
             
             // Use new N to offset(rotate) replicas
-            IVectorMutable workVector2 = space.makeVector();
             for(int i=0; i<N.length; i++){             
-                workVector2.E(list.getAtom(i).getPosition());
-                workVector2.PEa1Tv1(deltaR, N[i]);
-                list1.getAtom(i).getPosition().E(workVector2);
+                workVector.E(list.getAtom(i).getPosition());
+                workVector.PEa1Tv1(deltaR, N[i]);
+                list1.getAtom(i).getPosition().E(workVector);
                 
-                workVector2.E(list.getAtom(i).getPosition());
-                workVector2.PEa1Tv1(-deltaR, N[i]);
-                list2.getAtom(i).getPosition().E(workVector2);
+                workVector.E(list.getAtom(i).getPosition());
+                workVector.PEa1Tv1(-deltaR, N[i]);
+                list2.getAtom(i).getPosition().E(workVector);
             }        
             
 			rotCounter++;
@@ -686,10 +682,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		// (F2 - F1)[dot]N / 2*deltaR
 		for(int i=0; i<aF1.length; i++){
-			workVector1.E(aF2[i]);
-			workVector1.ME(aF1[i]);
+			workVector.E(aF2[i]);
+			workVector.ME(aF1[i]);
 			
-			curvature += workVector1.dot(aN[i]);
+			curvature += workVector.dot(aN[i]);
 		}
 		
 		curvature = 0.5 * curvature / deltaR;
@@ -757,8 +753,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		// Copy forces of dimer end and center (R1, R) to local array
 		for(int i=0; i<aF1.length; i++){
-			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent1.getAgent(list1.getAtom(i))).force());
-			aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent(list.getAtom(i))).force());
+			aF1[i].E(atomAgent1.getAgent(list1.getAtom(i)).force());
+			aF[i].E(atomAgent0.getAgent(list.getAtom(i)).force());
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);	
 		}
@@ -771,7 +767,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF1star.length; i++){
-			aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent1.getAgent(list1.getAtom(i))).force());
+			aF1star[i].E(atomAgent1.getAgent(list1.getAtom(i)).force());
 			aF2star[i].Ea1Tv1(2.0, aF[i]);
 			aF2star[i].ME(aF1star[i]);	
 		}
@@ -783,7 +779,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF.length; i++){
-	    	aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent(list.getAtom(i))).force());
+	    	aF[i].E(atomAgent0.getAgent(list.getAtom(i)).force());
 		}
 	}
 	
@@ -927,16 +923,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public void setActivityIntegrate(ActivityIntegrate ai){
 		activityIntegrate = ai;
 	}
-	
-	public Class getAgentClass() {
-		return IntegratorVelocityVerlet.MyAgent.class;
-	}
 
-	public Object makeAgent(IAtom a) {
+	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
+	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {
 		// TODO Auto-generated method stub	
 	}
 	

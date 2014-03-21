@@ -13,7 +13,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
 
-public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource{
+public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource<MyAgent> {
 
 	final protected PotentialCalculationForceSum[] pc;
 	protected AtomLeafAgentManager[] atomAgentManager;
@@ -31,12 +31,12 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         }
     }
     
-	public void setAgentManager(AtomLeafAgentManager agentManager) {
+	public void setAgentManager(AtomLeafAgentManager<? extends IntegratorBox.Forcible> agentManager) {
         super.setAgentManager(agentManager);
         atomAgentManager = new AtomLeafAgentManager[pc.length];
         
         for (int i=0; i<pc.length; i++){
-            atomAgentManager[i] = new AtomLeafAgentManager(this, agentManager.getBox());
+            atomAgentManager[i] = new AtomLeafAgentManager<MyAgent>(this, agentManager.getBox(), MyAgent.class);
             pc[i].setAgentManager(atomAgentManager[i]);
             agentManager.getBox();
 		}
@@ -60,7 +60,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         IAtomList atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
-            IVectorMutable force = ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atomArrayList.getAtom(j))).force();
+            IVectorMutable force = integratorAgentManager.getAgent(atomArrayList.getAtom(j)).force();
       
             for(int i=0; i<pc.length; i++){
                 force.PE(((IntegratorBox.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());
@@ -71,15 +71,11 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
             
 	}
     
-    public Class getAgentClass() {
-        return MyAgent.class;
-    }
-
-    public final Object makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(Object object, IAtom atom){
+    public void releaseAgent(MyAgent object, IAtom atom){
         
     }
     

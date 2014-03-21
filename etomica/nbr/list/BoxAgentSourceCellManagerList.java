@@ -4,6 +4,7 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.space.ISpace;
 
 /**
@@ -19,13 +20,12 @@ public class BoxAgentSourceCellManagerList extends BoxAgentSourceCellManager {
         potentialMaster = newPotentialMaster;
     }
 
-    public Object makeAgent(IBox box) {
+    public NeighborCellManager makeAgent(IBox box) {
         NeighborCellManagerList cellManager = new NeighborCellManagerList(sim, box,range,positionDefinition, space);
         cellManager.setPotentialMaster(potentialMaster);
         box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }
 
-    private static final long serialVersionUID = 1L;
     protected PotentialMasterList potentialMaster;
 }

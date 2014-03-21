@@ -7,6 +7,7 @@ import etomica.api.ISpecies;
 import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
+import etomica.box.BoxCellManager;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
@@ -22,8 +23,8 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
 	 * 
 	 */
 
-	protected PotentialMasterNbrMolecular(ISimulation sim, BoxAgentSource boxAgentSource, 
-            BoxAgentManager boxAgentManager) {
+	protected PotentialMasterNbrMolecular(ISimulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource, 
+            BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
         super();
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
@@ -104,7 +105,7 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
         return (PotentialArrayMolecular)speciesAgentManager.getAgent(atomType);
     }
     
-    public final BoxAgentManager getCellAgentManager() {
+    public final BoxAgentManager<? extends BoxCellManager> getCellAgentManager() {
         return boxAgentManager;
     }
     
@@ -126,13 +127,12 @@ public abstract class PotentialMasterNbrMolecular extends PotentialMaster implem
         return simulation;
     }
     
-	private static final long serialVersionUID = 1L;
 	protected SpeciesAgentManager.AgentIterator rangedPotentialIterator;
     protected SpeciesAgentManager.AgentIterator speciesPotentialIterator;
     protected final SpeciesAgentManager rangedAgentManager;
     protected final SpeciesAgentManager speciesAgentManager;
     protected IPotential[] allPotentials = new IPotential[0];
-    protected BoxAgentSource boxAgentSource;
+    protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
     protected final ISimulation simulation;
-    protected BoxAgentManager boxAgentManager;
+    protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
 }

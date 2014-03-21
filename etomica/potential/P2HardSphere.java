@@ -18,7 +18,6 @@ import etomica.util.Debug;
  */
 public class P2HardSphere extends Potential2HardSpherical {
     
-    private static final long serialVersionUID = 1L;
     /**
      * Separation at which spheres first overlap
      */

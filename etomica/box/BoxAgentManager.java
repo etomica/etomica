@@ -23,32 +23,34 @@ import etomica.util.Arrays;
  * point. 
  * @author andrew
  */
-public class BoxAgentManager implements ISimulationListener, java.io.Serializable {
+public class BoxAgentManager<E> implements ISimulationListener {
 
-    public BoxAgentManager(BoxAgentSource source) {
+    public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass) {
         agentSource = source;
+        this.boxAgentClass = boxAgentClass;
         if (source == null) {
-            agents = new Object[0];
+            agents = (E[])Array.newInstance(boxAgentClass, 0);
         }
     }
 
-    public BoxAgentManager(BoxAgentSource source, ISimulation sim) {
+    public BoxAgentManager(BoxAgentSource<E> source, Class boxAgentClass, ISimulation sim) {
         agentSource = source;
+        this.boxAgentClass = boxAgentClass;
         setSimulation(sim);
     }
     
     /**
      * Returns the agent associated with the given box
      */
-    public Object getAgent(IBox box) {
+    public E getAgent(IBox box) {
         return agents[box.getIndex()];
     }
     
-    public void setAgent(IBox box, Object agent) {
+    public void setAgent(IBox box, E agent) {
         int idx = box.getIndex();
         if (idx >= agents.length) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,idx+1);
+            agents = (E[])Arrays.resizeArray(agents,idx+1);
         }
         agents[box.getIndex()] = agent;
     }
@@ -56,8 +58,8 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
     /**
      * Returns an iterator that returns each non-null agent
      */
-    public AgentIterator makeIterator() {
-        return new AgentIterator(this);
+    public AgentIterator<E> makeIterator() {
+        return new AgentIterator<E>(this);
     }
     
     /**
@@ -73,10 +75,10 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
         // the array
         int boxCount = sim.getBoxCount();
         if (agentSource == null) {
-            agents = new Object[boxCount];
+            agents = (E[])Array.newInstance(boxAgentClass, 0);
             return;
         }
-        agents = (Object[])Array.newInstance(agentSource.getAgentClass(),boxCount);
+        agents = (E[])Array.newInstance(boxAgentClass,boxCount);
         for (int i=0; i<boxCount; i++) {
             addAgent(sim.getBox(i));
         }
@@ -116,7 +118,7 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
         for (int i=index; i<agents.length-1; i++) {
             agents[i] = agents[i+1];
         }
-        agents = Arrays.resizeArray(agents,agents.length-1);
+        agents = (E[])Arrays.resizeArray(agents,agents.length-1);
     }
     
     public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {}
@@ -127,7 +129,7 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
     public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {}
     
     protected void addAgent(IBox box) {
-        agents = Arrays.resizeArray(agents,box.getIndex()+1);
+        agents = (E[])Arrays.resizeArray(agents,box.getIndex()+1);
         if (agentSource != null) {
             agents[box.getIndex()] = agentSource.makeAgent(box);
         }
@@ -138,25 +140,24 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
      * upon construction.  AgentSource objects register with the AtomFactory
      * the produces the atom.
      */
-    public interface BoxAgentSource {
-        public Class getAgentClass();
-        
-        public Object makeAgent(IBox box);
+    public interface BoxAgentSource<E> {
+        public E makeAgent(IBox box);
         
         //allow any agent to be disconnected from other elements 
-        public void releaseAgent(Object agent); 
+        public void releaseAgent(E agent); 
     }
 
     private static final long serialVersionUID = 1L;
-    private final BoxAgentSource agentSource;
+    protected final BoxAgentSource<E> agentSource;
+    protected final Class boxAgentClass;
     protected ISimulationEventManager simEventManager;
-    protected Object[] agents;
+    protected E[] agents;
     
     /**
      * Iterator that loops over the agents, skipping null elements
      */
-    public static class AgentIterator {
-        protected AgentIterator(BoxAgentManager agentManager) {
+    public static class AgentIterator<E> {
+        protected AgentIterator(BoxAgentManager<E> agentManager) {
             this.agentManager = agentManager;
         }
         
@@ -175,7 +176,7 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
             return false;
         }
         
-        public Object next() {
+        public E next() {
             cursor++;
             while (cursor-1 < agents.length) {
                 if (agents[cursor-1] != null) {
@@ -186,8 +187,8 @@ public class BoxAgentManager implements ISimulationListener, java.io.Serializabl
             return null;
         }
         
-        private final BoxAgentManager agentManager;
+        private final BoxAgentManager<E> agentManager;
         private int cursor;
-        private Object[] agents;
+        private E[] agents;
     }
 }

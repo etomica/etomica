@@ -40,14 +40,14 @@ import g3dsys.images.Line;
 import g3dsys.images.Triangle;
 
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
-		AgentSource, BondManager {
+		AgentSource<Figure>, BondManager {
 
 
 	// will handle all actual drawing
 	private G3DSys gsys;
 	private final double[] coords;
 
-	protected AtomLeafAgentManager aam;
+	protected AtomLeafAgentManager<Figure> aam;
 
 	private Polytope oldPolytope;
 	private Line[] polytopeLines;
@@ -65,7 +65,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private IVectorMutable work, work2, work3;
     private double[] planeAngles;
     private final ISpace space;
-    protected AtomLeafAgentManager aamOriented;
+    protected AtomLeafAgentManager<Ball[]> aamOriented;
     protected final AtomTypeAgentManager atomTypeOrientedManager;
     protected IVector rMin, rMax;
 
@@ -94,8 +94,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         setPlaneColor(Color.YELLOW);
         // init AtomAgentManager, to sync G3DSys and Etomica models
         // this automatically adds the atoms
-        aam = new AtomLeafAgentManager(this, displayBox.getBox());
-        aamOriented = new AtomLeafAgentManager(null, displayBox.getBox());
+        aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox(), Figure.class);
+        aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox(), Ball[].class);
         atomTypeOrientedManager = new AtomTypeAgentManager(null, sim);
 
         planes = new Plane[0];
@@ -229,8 +229,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void refreshAtomAgentMgr() {
 
 		// Set new atom manager
-		aam = new AtomLeafAgentManager(this, displayBox.getBox());
-		aamOriented = new AtomLeafAgentManager(null, displayBox.getBox());
+		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox(), Figure.class);
+		aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox(), Ball[].class);
 		initialOrient = true;
 	}
 
@@ -337,7 +337,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 			OrientedSite[] sites = (OrientedSite[])atomTypeOrientedManager.getAgent(a.getType());
 			if (sites != null) {
-			    Ball[] ballSites = (Ball[])aamOriented.getAgent(a);
+			    Ball[] ballSites = aamOriented.getAgent(a);
 			    if (ballSites == null) {
 		            ballSites = new Ball[sites.length];
 		            for (int j=0; j<sites.length; j++) {
@@ -725,6 +725,19 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void setOrientationSites(IAtomTypeOriented atomType, OrientedFullSite[] sites) {
 	    atomTypeOrientedManager.setAgent(atomType, sites);
 	}
+	
+	public class OrientedAgentSource implements AgentSource<Ball[]> {
+
+        public Ball[] makeAgent(IAtom a) {
+            return null;
+        }
+
+        public void releaseAgent(Ball[] agent, IAtom atom) {
+            for (int i=0; i<agent.length; i++) {
+                gsys.removeFig(agent[i]);
+            }
+        }
+	}
 
 	private java.util.ArrayList<Object[]> pendingBonds = new java.util.ArrayList<Object[]>();
 
@@ -743,11 +756,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	/***************************************************************************
 	 * AgentSource methods
 	 **************************************************************************/
-	public Class getAgentClass() {
-		return Figure.class;
-	}
-
-	public Object makeAgent(IAtom a) {
+	public Figure makeAgent(IAtom a) {
 		a.getPosition().assignTo(coords);
 
 		float diameter = (float) displayBox.getDiameterHash().getDiameter(a);
@@ -776,8 +785,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return newBall;
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
-		gsys.removeFig((Figure) agent);
+	public void releaseAgent(Figure agent, IAtom atom) {
+		gsys.removeFig(agent);
 	}
 
 	/**

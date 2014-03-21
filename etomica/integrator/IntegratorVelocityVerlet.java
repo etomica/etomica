@@ -1,7 +1,5 @@
 package etomica.integrator;
 
-import java.io.Serializable;
-
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
@@ -20,7 +18,7 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.util.Debug;
 
-public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource {
+public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;;
@@ -28,7 +26,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
 
-    protected AtomLeafAgentManager agentManager;
+    protected AtomLeafAgentManager<MyAgent> agentManager;
 
     public IntegratorVelocityVerlet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -63,7 +61,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             agentManager.dispose();
         }
         super.setBox(p);
-        agentManager = new AtomLeafAgentManager(this,p);
+        agentManager = new AtomLeafAgentManager<MyAgent>(this,p,MyAgent.class);
         forceSum.setAgentManager(agentManager);
     }
 
@@ -85,7 +83,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            MyAgent agent = (MyAgent)agentManager.getAgent(a);
+            MyAgent agent = agentManager.getAgent(a);
             IVectorMutable r = a.getPosition();
             IVectorMutable v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -150,18 +148,13 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
 //--------------------------------------------------------------
     
-    public Class getAgentClass() {
-        return MyAgent.class;
-    }
-
-    public final Object makeAgent(IAtom a) {
+    public MyAgent makeAgent(IAtom a) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom) {}
             
-    public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
+    public final static class MyAgent implements IntegratorBox.Forcible {//need public so to use with instanceof
         public IVectorMutable force;
 
         public MyAgent(ISpace space) {

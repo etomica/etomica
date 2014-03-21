@@ -50,6 +50,7 @@ import etomica.models.OPLS.AceticAcidPotentialHelper;
 import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.models.aceticAcid.DipoleSourceAceticAcid;
 import etomica.nbr.cell.molecule.BoxAgentSourceCellManagerMolecular;
+import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
@@ -106,7 +107,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
 		};
         BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, positionDefinition, space);//tracking neighbors
         bASCellManagerMolecular.setRange(4.2);//association is made within 4.2A of C-C distance
-        BoxAgentManager cellAgentManager = new BoxAgentManager(bASCellManagerMolecular,this);
+        BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(bASCellManagerMolecular,NeighborCellManagerMolecular.class,this);
         System.out.println("pressure = "+pressureBar+"bar");
         System.out.println("initial density = "+densityMolLiter+"mol/L");
         System.out.println("temperature = "+temperatureK+"K");

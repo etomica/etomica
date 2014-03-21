@@ -22,7 +22,9 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
+import etomica.nbr.list.molecule.NeighborCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
@@ -54,7 +56,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		this.space = space;
 		
 		BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-	    BoxAgentManager boxAgentManager = new BoxAgentManager(boxAgentSource);
+	    BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerListMolecular.class);
 	     
 		double ratio = 1.631;
 		double a = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);

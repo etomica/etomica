@@ -35,11 +35,11 @@ import etomica.space.ISpace;
  * 	@author msellers
  */
 
-public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
+public class IntegratorDimerMin extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
 	public ISimulation sim;
 	public IBox boxMin;
-	public AtomLeafAgentManager atomAgent0, atomAgentMin;
+	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
 	public FileWriter fileWriter;
@@ -48,8 +48,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 
 	public IVectorMutable [] N, Nstar;
 	public IVectorMutable NDelta, NstarDelta;
-	public IVectorMutable workVector1;
-	public IVectorMutable workVector2;
+	public IVectorMutable workVector;
 	public IVectorMutable [] saddle;
 	public IVectorMutable [] F0, Fmin, Fmin2;
 	public IVectorMutable [] THETA, THETAstar;
@@ -173,6 +172,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         for(int i=0; i<movableSpecies.length; i++){
             movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
         }
+        workVector = space.makeVector();
         N = new IVectorMutable [movableAtoms];
         F0 = new IVectorMutable [movableAtoms];
         Fmin = new IVectorMutable [movableAtoms];
@@ -224,8 +224,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         energyBoxMin.setBox(boxMin);
          
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
-		atomAgent0 = new AtomLeafAgentManager(this, box);
-		atomAgentMin = new AtomLeafAgentManager(this, boxMin);
+		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box, IntegratorVelocityVerlet.MyAgent.class);
+		atomAgentMin = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, boxMin, IntegratorVelocityVerlet.MyAgent.class);
 		
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);
@@ -395,11 +395,10 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             }
                         
             // Use new N to offset(rotate) replica
-            IVectorMutable workVector2 = space.makeVector();
             for(int i=0; i<N.length; i++){             
-                workVector2.E(list.getAtom(i).getPosition());
-                workVector2.PEa1Tv1(deltaR, N[i]);
-                listMin.getAtom(i).getPosition().E(workVector2);
+                workVector.E(list.getAtom(i).getPosition());
+                workVector.PEa1Tv1(deltaR, N[i]);
+                listMin.getAtom(i).getPosition().E(workVector);
             }     
 						
 			rotCounter++;
@@ -489,8 +488,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		// Copy forces of dimer ends (R1, R2) to local array
 		for(int i=0; i<aF1.length; i++){
 			
-			aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent((IAtom)list.getAtom(i))).force());
-			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtom)listMin.getAtom(i))).force());
+			aF[i].E(atomAgent0.getAgent(list.getAtom(i)).force());
+			aF1[i].E(atomAgentMin.getAgent(listMin.getAtom(i)).force());
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);
 			
@@ -512,7 +511,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
-            aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent((IAtom)listMin.getAtom(i))).force());
+            aF1star[i].E(atomAgentMin.getAgent(listMin.getAtom(i)).force());
             aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }
@@ -544,17 +543,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public void setActivityIntegrate(ActivityIntegrate ai){
 		activityIntegrate = ai;
 	}
-	
-	public Class getAgentClass() {
-		return IntegratorVelocityVerlet.MyAgent.class;
-	}
 
-	public Object makeAgent(IAtom a) {
+	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
-		// TODO Auto-generated method stub	
-	}
+	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {}
 	
 }

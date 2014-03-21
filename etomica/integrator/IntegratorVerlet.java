@@ -15,7 +15,7 @@ import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
-public final class IntegratorVerlet extends IntegratorMD implements AgentSource {
+public final class IntegratorVerlet extends IntegratorMD implements AgentSource<IntegratorVerlet.Agent> {
 
     private static final long serialVersionUID = 1L;
     protected final PotentialCalculationForcePressureSum forceSum;
@@ -26,7 +26,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
 
     IVectorMutable work;
 
-    protected AtomLeafAgentManager agentManager;
+    protected AtomLeafAgentManager<Agent> agentManager;
 
     public IntegratorVerlet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -59,7 +59,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
             agentManager.dispose();
         }
         super.setBox(p);
-        agentManager = new AtomLeafAgentManager(this,p);
+        agentManager = new AtomLeafAgentManager<Agent>(this,p,Agent.class);
         forceSum.setAgentManager(agentManager);
     }
     
@@ -84,7 +84,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
             workTensor.TE(((IAtom)a).getType().getMass());
             pressureTensor.PE(workTensor);
             
-            Agent agent = (Agent)agentManager.getAgent((IAtom)a);
+            Agent agent = agentManager.getAgent(a);
             IVectorMutable r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
@@ -113,7 +113,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            Agent agent = (Agent)agentManager.getAgent((IAtom)a);
+            Agent agent = agentManager.getAgent(a);
             agent.rMrLast.Ea1Tv1(timeStep,a.getVelocity());//06/13/03 removed minus sign before timeStep
         }
     }
@@ -135,21 +135,15 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
      */
     protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
-        Agent agent = (Agent)agentManager.getAgent((IAtom)atom);
+        Agent agent = agentManager.getAgent(atom);
         agent.rMrLast.Ea1Tv1(timeStep,atom.getVelocity());//06/13/03 removed minus sign before timeStep
     }
     
-//--------------------------------------------------------------
-    
-    public Class getAgentClass() {
-        return Agent.class;
-    }
-
-    public final Object makeAgent(IAtom a) {
+    public final Agent makeAgent(IAtom a) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Agent agent, IAtom atom) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVectorMutable force;

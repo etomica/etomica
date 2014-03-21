@@ -147,16 +147,10 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
         public NeighborListSlantyAgentSourceMolecular(double range, ISpace space) {
             super(range, space);
         }
-        
-        public Class getAgentClass() {
-            return NeighborListManagerSlantyMolecular.class;
-        }
-        
-        public Object makeAgent(IBox box) {
+
+        public NeighborListManagerMolecular makeAgent(IBox box) {
             return new NeighborListManagerSlantyMolecular(potentialMaster, range, box, space);
         }
-        
-        private static final long serialVersionUID = 1L;
     }
     
 }

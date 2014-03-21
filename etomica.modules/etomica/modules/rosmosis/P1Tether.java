@@ -21,12 +21,12 @@ import etomica.space.Tensor;
  * 
  * @author Andrew Schultz
  */
-public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
+public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>, PotentialSoft {
 
     public P1Tether(IBox box, ISpecies species, ISpace _space) {
         super(_space);
         this.species = species;
-        agentManager = new AtomLeafAgentManager(this, box);
+        agentManager = new AtomLeafAgentManager<IVectorMutable>(this, box, IVectorMutable.class);
         work = _space.makeVector();
         gradient = new IVectorMutable[]{work};
     }
@@ -42,14 +42,14 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     public double energy(IAtomList atoms) {
         IAtom atom = atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVectorMutable)agentManager.getAgent(atom));
+        work.ME(agentManager.getAgent(atom));
         return 0.5 * epsilon * work.squared();
     }
 
     public IVector[] gradient(IAtomList atoms) {
         IAtom atom = atoms.getAtom(0);
         work.E(atom.getPosition());
-        work.ME((IVectorMutable)agentManager.getAgent(atom));
+        work.ME(agentManager.getAgent(atom));
         work.TE(epsilon);
         return gradient;
     }
@@ -61,13 +61,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
     public double virial(IAtomList atoms) {
         return 0;
     }
-
-    /* AgentSource interface */
-    public Class getAgentClass() {
-        return IVectorMutable.class;
-    }
-
-    public Object makeAgent(IAtom a) {
+    public IVectorMutable makeAgent(IAtom a) {
         if (a.getType().getSpecies() == species) {
             IVectorMutable vec = space.makeVector();
             vec.E(a.getPosition());
@@ -76,12 +70,11 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(IVectorMutable agent, IAtom atom) {
         /* do nothing */
     }
 
-    private static final long serialVersionUID = 1L;
-    protected final AtomLeafAgentManager agentManager;
+    protected final AtomLeafAgentManager<IVectorMutable> agentManager;
     protected final ISpecies species;
     protected final IVectorMutable work;
     protected final IVectorMutable[] gradient;

@@ -274,68 +274,7 @@ public final class LennardJones {
     }
     
     public static void main(String[] args) {
-        double T = 0.692;
-        double rho = 0.962;
-        if (args.length > 0) {
-            T = Double.parseDouble(args[0]);
-        }
-        if (args.length > 1) {
-            rho = Double.parseDouble(args[1]);
-        }
-        double Tm = 0.689;
-
-        double pSat = liquidFccCoexPressure(T);
-        double[] rhoSat = liquidFccCoexDensities(T);
-        System.out.println("Input T, rho: "+ T + "  "+rho);
-        System.out.println("Residual Helmholtz: " + aResidualFcc(T, rho));
-        System.out.println("Helmholtz: "+(aResidualFcc(T,rho) + T*Math.log(rho) - 1.0*T));
-        double betaA = (aResidualFcc(T, rho) + (-1 + Math.log(rho)));
-        System.out.println("betaA: " + betaA);
-        System.out.println("betaA anharmonic: " + Uah(T, rho));
-        System.out.println("Potential energy: " + uFcc(T, rho));
-        System.out.println("Lattice energy: " + uStaticFcc(rho));
-        System.out.println("Compressibility factor: " + ZFcc(T, rho));
-        System.out.println("Liquid-fcc coexistence pressure: " + pSat);
-        System.out.println("liquid, fcc coexistence densities: "+ Arrays.toString(rhoSat));
-        double rhs = aResidualFcc(T,rho)/T - uStaticFcc(rho)/T + 1.5*Math.log(T) - Uah(T,rho) 
-                    + 1.5*Math.log(2*Math.PI);
-        System.out.println("rhs of Eq. 23: " + rhs);
-        double zfcc = pSat/rhoSat[1]/T;
-        System.out.println("Two routes to Z: "+zfcc+" "+ZFcc(T,rhoSat[1]));
-        double psub = vaporFccCoexPressure(T);
-        System.out.println("Sublimation pressure: " + psub);
-        double[] rhosub = vaporFccCoexDensities(T);
-        System.out.println("vapor, fcc coexistence densities: " + Arrays.toString(rhosub));
-        double[] Tarr = {0.625, 0.75, 1.0, 1.2, 1.3, 1.4, 1.5, 2.0, 2.5, 5.0, 10.0};
-        for(int i=0; i<Tarr.length; i++) System.out.println("T, B2(T): " + Tarr[i] + "\t" + B2(Tarr[i])/(2.*Math.PI/3.));
-
-//        for(double Tr=0.2; Tr<=1.01; Tr+=0.2) {
-            for(double Tr=0.0; Tr<=1.01; Tr+=0.05) {
-//            for(rho=0.9; rho<=1.7; rho+=0.1) {
-                Tm = 5.3;
-                rho = 1.4;
-                T = Tr*Tm;
-                double a = uStaticFcc(rho) - (aResidualFcc(T, rho) + T*(-1 + Math.log(rho)));
-//                System.out.println(Tr + "\t" + a);
-//                System.out.println(a);
-                
-                double sum = T * Uah(T, rho); //anharmonic contribution
-                double rhon1 = rho;// rho^(n+1)
-                for (int n = 0; n <= 3; n++) {
-                    sum += T * b[n] / (n + 1) * rhon1;
-                    rhon1 *= rho;
-                }
-//                System.out.println("T, rho, Uah, sum: "+ T + "\t" + rho + "\t" + T*Uah(T,rho) + "\t" + sum);
-//            }
-        }
-            
-//            for(double Tr=0.0; Tr<1.01; Tr+=0.02) {
-//                T = 0.692 + Tr*5;
-//                double[] rhoFreeze = liquidFccCoexDensities(T);
-//                System.out.println(T + "\t" + rhoFreeze[0] + "\t" + rhoFreeze[1]);
-//                //double[] rhoSub = vaporFccCoexDensities(T);
-////                System.out.println(T + "\t" + rhoSub[0] + "\t" + rhoSub[1]);
-//            }
+        System.out.println(aResidualFcc(2, 1.28)/2+(Math.log(1.28) - 1) + 0*(SpecialFunctions.lnFactorial(256)/256 - (Math.log(256)-1)));
     }
     
     //Constants for van der Hoef's formulas, ref[1]

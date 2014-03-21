@@ -22,7 +22,7 @@ import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
-public class FreeRadicalPolymerizationSim extends Simulation implements AgentSource {
+public class FreeRadicalPolymerizationSim extends Simulation implements AgentSource<IAtom[]> {
 
 	public IController controller1;
 	public IntegratorHard integratorHard;
@@ -33,7 +33,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	public P2SquareWellBonded p2AA;
 	public P2SquareWellRadical p2AB, p2BB;
     public ActivityIntegrate activityIntegrate;
-    public AtomLeafAgentManager agentManager = null;
+    public AtomLeafAgentManager<IAtom[]> agentManager = null;
     public final IPotentialMaster potentialMaster;
     public final ConfigurationLatticeFreeRadical config;
 
@@ -75,7 +75,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager(this,box);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box,IAtom[].class);
         resetBonds();
 
 		//potentials
@@ -101,11 +101,11 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         IMoleculeList initiators = box.getMoleculeList(speciesA);
         for (int i=0; i<initiators.getMoleculeCount(); i++) {
             IAtom initiator0 = initiators.getMolecule(i).getChildList().getAtom(0);
-            IAtom[] bonds0 = (IAtom[])agentManager.getAgent(initiator0);
+            IAtom[] bonds0 = agentManager.getAgent(initiator0);
             if (i<initiators.getMoleculeCount()-1) {
                 i++;
                 IAtom initiator1 = initiators.getMolecule(i).getChildList().getAtom(0);
-                IAtom[] bonds1 = (IAtom[])agentManager.getAgent(initiator1);
+                IAtom[] bonds1 = agentManager.getAgent(initiator1);
                 bonds0[0] = initiator1;
                 bonds1[0] = initiator0;
             }
@@ -116,30 +116,26 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         
         IMoleculeList monomers = box.getMoleculeList(speciesB);
         for (int i=0; i<monomers.getMoleculeCount(); i++) {
-            IAtom[] bonds = (IAtom[])agentManager.getAgent(monomers.getMolecule(i).getChildList().getAtom(0));
+            IAtom[] bonds = agentManager.getAgent(monomers.getMolecule(i).getChildList().getAtom(0));
             bonds[0] = null;
             bonds[1] = null;
         }
     }
-    
-    public Class getAgentClass() {
-        return IAtom[].class;
-    }
-    
+
 	/**
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public Object makeAgent(IAtom a) {
+	public IAtom[] makeAgent(IAtom a) {
 	    if (a.getType() == speciesB.getLeafType()) {
 	        return new IAtom[2]; // monomer
 	    }
 		return new IAtom[1]; // initiator
 	}
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(IAtom[] agent, IAtom atom) {}
     
-    public AtomLeafAgentManager getAgentManager() {
+    public AtomLeafAgentManager<IAtom[]> getAgentManager() {
     	return agentManager;
     }
 }

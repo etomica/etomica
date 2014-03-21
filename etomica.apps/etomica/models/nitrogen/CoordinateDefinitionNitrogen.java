@@ -307,7 +307,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         initNominalU(cells[totalCells-1].molecules);
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box,IVectorMutable.class);
     }
     
 /*
@@ -371,7 +371,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	}
     	
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
 
     }
     
@@ -397,7 +397,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	}
     	
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
 
     }
 	
@@ -732,7 +732,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	    	
     	}
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
     }
     
     public void setIsGamma(){

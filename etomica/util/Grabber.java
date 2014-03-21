@@ -297,7 +297,7 @@ public class Grabber {
     }
 
     public static void main(String[] args) {
-        String filename = "/tmp/Px80.png";
+        String filename = "/tmp/plot.png";
         if (args.length > 0) {
             filename = args[0];
         }

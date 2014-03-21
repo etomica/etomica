@@ -26,21 +26,21 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     private static final long serialVersionUID = 1L;
     private double w = 100.0;
     private final IVectorMutable[] force;
-    protected final BoxAgentManager boxAgentManager;
-    protected AtomLeafAgentManager atomAgentManager;
+    protected final BoxAgentManager<AtomLeafAgentManager<? extends IVector>> boxAgentManager;
+    protected AtomLeafAgentManager<? extends IVector> atomAgentManager;
     
     public P1HarmonicSite(ISpace space) {
         super(space);
         force = new IVectorMutable[]{space.makeVector()};
-        boxAgentManager = new BoxAgentManager(null);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<? extends IVector>>(null, AtomLeafAgentManager.class);
     }
 
-    public void setAtomAgentManager(IBox box, AtomLeafAgentManager agentManager) {
+    public void setAtomAgentManager(IBox box, AtomLeafAgentManager<? extends IVector> agentManager) {
         boxAgentManager.setAgent(box, agentManager);
     }
     
     public void setBox(IBox box) {
-        atomAgentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
+        atomAgentManager = boxAgentManager.getAgent(box);
     }
 
     public void setSpringConstant(double springConstant) {
@@ -56,7 +56,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList a) {
-        IVector x0 = (IVector)atomAgentManager.getAgent(a.getAtom(0));
+        IVector x0 = atomAgentManager.getAgent(a.getAtom(0));
         return 0.5*w*a.getAtom(0).getPosition().Mv1Squared(x0);
     }
     
@@ -66,7 +66,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
 
     public IVector[] gradient(IAtomList a){
         IVectorMutable r = a.getAtom(0).getPosition();
-        IVector x0 = (IVector)atomAgentManager.getAgent(a.getAtom(0));
+        IVector x0 = atomAgentManager.getAgent(a.getAtom(0));
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             

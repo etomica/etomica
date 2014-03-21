@@ -24,9 +24,9 @@ import etomica.units.Quantity;
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
-public class MeterChainLength implements IEtomicaDataSource, Serializable, AgentSource, DataSourceIndependent {
+public class MeterChainLength implements IEtomicaDataSource, Serializable, AgentSource<MeterChainLength.AtomTag>, DataSourceIndependent {
 
-    public MeterChainLength(AtomLeafAgentManager aam) {
+    public MeterChainLength(AtomLeafAgentManager<IAtom[]> aam) {
         tag = new DataTag();
         xTag = new DataTag();
         setupData(1);
@@ -62,17 +62,13 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, this);
         dataInfo.addTag(tag);
     }
-    
-    public Class getAgentClass() {
-        return AtomTag.class;
-    }
-    
-    public Object makeAgent(IAtom a) {
+
+    public AtomTag makeAgent(IAtom a) {
         return new AtomTag();
     }
     
     // does nothing
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(AtomTag agent, IAtom atom) {}
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
@@ -87,7 +83,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((AtomTag)tagManager.getAgent(leafList.getAtom(i))).tagged = false;
+            tagManager.getAgent(leafList.getAtom(i)).tagged = false;
         }
 
         int totalAtoms = 0;
@@ -96,7 +92,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
             if (a.getType() == ignoredAtomType) continue;
             // if an Atom is tagged, it was already counted as part of 
             // another chain
-            if (((AtomTag)tagManager.getAgent(a)).tagged) continue;
+            if (tagManager.getAgent(a).tagged) continue;
 
             int chainLength = recursiveTag(a);
             
@@ -137,16 +133,16 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
 
     protected int recursiveTag(IAtom a) {
         if (a.getType() == ignoredAtomType) return 0;
-        ((AtomTag)tagManager.getAgent(a)).tagged = true;
+        tagManager.getAgent(a).tagged = true;
 
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtom[] nbrs = agentManager.getAgent(a);
 
         int ctr = 1;
         
         // count all the bonded partners
         for(int i=0; i<nbrs.length; i++) {
             if(nbrs[i] == null) continue;
-            if(((AtomTag)tagManager.getAgent(nbrs[i])).tagged) {
+            if (tagManager.getAgent(nbrs[i]).tagged) {
                 // this Atom was already counted as being within this chain
                 // so skip it
                 continue;
@@ -168,7 +164,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
             // allow old agentManager to de-register itself as a BoxListener
             tagManager.dispose();
         }
-        tagManager = new AtomLeafAgentManager(this,box);
+        tagManager = new AtomLeafAgentManager<AtomTag>(this,box,AtomTag.class);
     }
 
     public IEtomicaDataInfo getDataInfo() {
@@ -185,8 +181,8 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
 
     private static final long serialVersionUID = 1L;
     protected IBox box;
-    protected AtomLeafAgentManager tagManager;
-    protected AtomLeafAgentManager agentManager;
+    protected AtomLeafAgentManager<AtomTag> tagManager;
+    protected AtomLeafAgentManager<IAtom[]> agentManager;
     protected DataFunction data;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;

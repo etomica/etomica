@@ -43,7 +43,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
         for (int j=0; j<nLeaf; j++) {
             IAtom atom = leafList.getAtom(j);
             final NeighborCriterion[] criterion = getCriterion(atom.getType());
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).clearNbrs();
+            agentManager2Body.getAgent(atom).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
             }
@@ -57,7 +57,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
                     continue;
                 }
                 atomSetSinglet.atom = atom;
-                ((AtomPotentialList)agentManager1Body.getAgent(atom)).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+                agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
             }
         }
         
@@ -78,8 +78,8 @@ public class NeighborListManagerSlanty extends NeighborListManager {
                         continue;
                     }
                     if (criteria[i].accept(pair)) {
-                        ((AtomNeighborLists)agentManager2Body.getAgent(atom0)).addUpNbr(atom1,i);
-                        ((AtomNeighborLists)agentManager2Body.getAgent(atom1)).addDownNbr(atom0,
+                        agentManager2Body.getAgent(atom0).addUpNbr(atom1,i);
+                        agentManager2Body.getAgent(atom1).addDownNbr(atom0,
                                 potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                     }
                 }
@@ -128,8 +128,8 @@ public class NeighborListManagerSlanty extends NeighborListManager {
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((AtomNeighborLists)agentManager2Body.getAgent(pair.atom0)).addUpNbr(pair.atom1,i);
-                    ((AtomNeighborLists)agentManager2Body.getAgent(pair.atom1)).addDownNbr(pair.atom0,
+                    agentManager2Body.getAgent(pair.atom0).addUpNbr(pair.atom1,i);
+                    agentManager2Body.getAgent(pair.atom1).addDownNbr(pair.atom0,
                             potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
@@ -147,15 +147,9 @@ public class NeighborListManagerSlanty extends NeighborListManager {
             super(range, space);
         }
         
-        public Class getAgentClass() {
-            return NeighborListManagerSlanty.class;
-        }
-        
-        public Object makeAgent(IBox box) {
+        public NeighborListManager makeAgent(IBox box) {
             return new NeighborListManagerSlanty(potentialMaster, range, box, space);
         }
-        
-        private static final long serialVersionUID = 1L;
     }
     
 }

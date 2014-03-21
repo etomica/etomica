@@ -38,7 +38,6 @@ public class ColorSchemeDropletSurface extends etomica.graphics.ColorScheme impl
         return liquidFilter.accept(a) ? interiorColor : surfaceColor;
     }
     
-    private static final long serialVersionUID = 1L;
     protected Color surfaceColor, interiorColor;
     protected final AtomFilterCollective liquidFilter;
 }

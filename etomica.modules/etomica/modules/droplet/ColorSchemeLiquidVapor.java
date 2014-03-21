@@ -44,7 +44,6 @@ public class ColorSchemeLiquidVapor extends etomica.graphics.ColorScheme impleme
         return liquidFilter.accept(a) ? liquidColor : vaporColor;
     }
     
-    private static final long serialVersionUID = 1L;
     protected Color vaporColor, liquidColor;
     protected final AtomFilterCollective liquidFilter;
     protected boolean doResetFilter;

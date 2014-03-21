@@ -31,7 +31,7 @@ public class FiniteDifferenceDerivativeCG {
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
 	protected PotentialCalculationForceSum forceSum;
-	protected AtomLeafAgentManager agentManager;
+	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
 	protected Activity activity;
 	
 	protected AnalyticalDerivativeEnergyParacetamol derivativeFunction;
@@ -54,7 +54,7 @@ public class FiniteDifferenceDerivativeCG {
 		hOptimizer = false;
 		
 		MyAgentSource source = new MyAgentSource(space);
-		agentManager = new AtomLeafAgentManager(source, box);
+		agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(source, box, IntegratorVelocityVerlet.MyAgent.class);
 		forceSum.setAgentManager(agentManager);
 	}
 	
@@ -123,17 +123,13 @@ public class FiniteDifferenceDerivativeCG {
 	}
 
 	
-	public static class MyAgentSource implements AgentSource{
+	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 		public MyAgentSource(ISpace space){
 			this.space = space;
 		}
-		public void releaseAgent(Object agent, IAtom atom){}
-		
-		public Class getAgentClass(){
-			return IntegratorVelocityVerlet.MyAgent.class;
-		}
-		
-		public Object makeAgent(IAtom atom){
+		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom){}
+
+		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom){
 			return new IntegratorVelocityVerlet.MyAgent(space);
 		}
 		protected ISpace space;

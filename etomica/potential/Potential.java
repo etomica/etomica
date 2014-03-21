@@ -12,7 +12,7 @@ import etomica.space.ISpace;
  * @author David Kofke
  */
  
-public abstract class Potential implements java.io.Serializable, IPotentialAtomic {
+public abstract class Potential implements IPotentialAtomic {
     
 	private final int nBody;
 	protected final ISpace space;

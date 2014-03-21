@@ -9,7 +9,7 @@ import etomica.space.ISpace;
 import etomica.util.Debug;
 
 public class P2HardSphereMC extends P2HardSphere {
-    public P2HardSphereMC(ISpace space, AtomLeafAgentManager bondManager) {
+    public P2HardSphereMC(ISpace space, AtomLeafAgentManager<? extends IAtomList> bondManager) {
         super(space, 1.0, true);
         this.bondManager = bondManager;
     }
@@ -22,7 +22,7 @@ public class P2HardSphereMC extends P2HardSphere {
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < sig2*(1+1e-9)) {
-            IAtomList bondList = (IAtomList)bondManager.getAgent(pair.getAtom(0));
+            IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
             boolean bonded = false;
             for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
                 bonded = bondList.getAtom(i) == pair.getAtom(1);
@@ -60,7 +60,7 @@ public class P2HardSphereMC extends P2HardSphere {
             if(discr > 0) {  // Hard cores collide next
                 if (r2 < sig2+1e-9) {
                     // check for bonding
-                    IAtomList bondList = (IAtomList)bondManager.getAgent(pair.getAtom(0));
+                    IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
                     boolean bonded = false;
                     for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
                         bonded = bondList.getAtom(i) == pair.getAtom(1);
@@ -94,7 +94,7 @@ public class P2HardSphereMC extends P2HardSphere {
         else {           // Moving away from each other, wells collide next
             if (r2 < sig2+1e-9) {
                 // check for bonding
-                IAtomList bondList = (IAtomList)bondManager.getAgent(pair.getAtom(0));
+                IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
                 boolean bonded = false;
                 for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
                     bonded = bondList.getAtom(i) == pair.getAtom(1);
@@ -106,7 +106,7 @@ public class P2HardSphereMC extends P2HardSphere {
                 }
             }
             else {
-                IAtomList bondList = (IAtomList)bondManager.getAgent(pair.getAtom(0));
+                IAtomList bondList = bondManager.getAgent(pair.getAtom(0));
                 boolean bonded = false;
                 for (int i=0; !bonded && i<bondList.getAtomCount(); i++) {
                     bonded = bondList.getAtom(i) == pair.getAtom(1);
@@ -131,6 +131,6 @@ public class P2HardSphereMC extends P2HardSphere {
         return bondFac;
     }
 
-    protected final AtomLeafAgentManager bondManager;
+    protected final AtomLeafAgentManager<? extends IAtomList> bondManager;
     protected double bondFac;
 }

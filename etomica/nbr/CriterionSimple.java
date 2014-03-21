@@ -23,7 +23,7 @@ import etomica.util.Debug;
  * @author andrew
  *
  */
-public class CriterionSimple implements NeighborCriterion, AgentSource {
+public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMutable> {
 
 	public CriterionSimple(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
 		super();
@@ -32,7 +32,8 @@ public class CriterionSimple implements NeighborCriterion, AgentSource {
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        boxAgentManager = new BoxAgentManager(new BoxAgentSourceAtomManager(this),sim);
+        BoxAgentSourceAtomManager<IVectorMutable> basam = new BoxAgentSourceAtomManager<IVectorMutable>(this, IVectorMutable.class);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<IVectorMutable>>(basam,AtomLeafAgentManager.class,sim);
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -96,7 +97,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource {
 
 	public void setBox(IBox box) {
         boundary = box.getBoundary();
-        agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
+        agentManager = boxAgentManager.getAgent(box);
 	}
     
 	public boolean unsafe() {
@@ -122,14 +123,10 @@ public class CriterionSimple implements NeighborCriterion, AgentSource {
 	}
 	
 	public void reset(IAtom atom) {
-        ((IVectorMutable)agentManager.getAgent(atom)).E(atom.getPosition());
+        agentManager.getAgent(atom).E(atom.getPosition());
 	}
 
-    public Class getAgentClass() {
-        return dr.getClass();
-    }
-    
-    public Object makeAgent(IAtom atom) {
+    public IVectorMutable makeAgent(IAtom atom) {
         IVectorMutable v = space.makeVector();
         // atom isn't necessarily in the position.  but if atom-adding code is smart,
         // it will be in the appropriate position.
@@ -137,7 +134,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource {
         return v;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(IVectorMutable agent, IAtom atom) {}
 
     protected final ISpace space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
@@ -145,6 +142,6 @@ public class CriterionSimple implements NeighborCriterion, AgentSource {
     protected IBoundary boundary;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    protected AtomLeafAgentManager agentManager;
-    protected final BoxAgentManager boxAgentManager;
+    protected AtomLeafAgentManager<IVectorMutable> agentManager;
+    protected final BoxAgentManager<AtomLeafAgentManager<IVectorMutable>> boxAgentManager;
 }

@@ -13,18 +13,13 @@ import etomica.space.ISpace;
 
 public class P1ConstraintNbr implements IPotentialAtomic{
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
     // this could take a NeighborListManager to try to speed up finding neighbors
     public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim) {
         this(space, neighborDistance, sim, 3.0);
     }
     
     public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim, double constraint) {
-        boxManager = new BoxAgentManager(null, sim);
+        boxManager = new BoxAgentManager<int[][]>(null, int[][].class, sim);
         
         neighborRadiusSq = neighborDistance*neighborDistance;
         
@@ -87,7 +82,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
     public void setBox(IBox box) {
         boundary = box.getBoundary();
         leafList = box.getLeafList();
-        neighborAtoms = (int[][])boxManager.getAgent(box);
+        neighborAtoms = boxManager.getAgent(box);
         boxIndex = box.getIndex();
     }
 
@@ -198,7 +193,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
 	protected double neighborRadiusSq;
 	protected IBoundary boundary;
 	protected IAtomList leafList;
-	protected BoxAgentManager boxManager;
+	protected BoxAgentManager<int[][]> boxManager;
 	protected int boxIndex;
 	protected double constraint;
 }

@@ -27,17 +27,17 @@ import etomica.util.IListener;
  *       integrator.addMCMoveListener(associationManager);
  *
  */
-public class AssociationManager implements AgentSource,IListener {
+public class AssociationManager implements AgentSource<AtomArrayList>,IListener {
     
     private AssociationDefinition associationDefinition;
     private final IBox box;
-    private final AtomLeafAgentManager agentManager;
+    private final AtomLeafAgentManager<AtomArrayList> agentManager;
     private final Api1ACell neighborIterator;
     private final AtomArrayList associatedAtoms = new AtomArrayList();
     
     public AssociationManager(IBox box, PotentialMasterCell potentialMaster, AssociationDefinition definition) {
     	this.box = box;
-    	agentManager = new AtomLeafAgentManager(this,box);
+    	agentManager = new AtomLeafAgentManager<AtomArrayList>(this,box,AtomArrayList.class);
         associationDefinition = definition;
         this.neighborIterator = new Api1ACell(3,1.0,potentialMaster.getCellAgentManager());
         }
@@ -49,22 +49,22 @@ public class AssociationManager implements AgentSource,IListener {
         IAtomList atomList = box.getLeafList();//list of all atoms in this box
         for (int i=0; i<atomList.getAtomCount();i+=1) {
         	IAtom atomi = atomList.getAtom(i);
-        	((AtomArrayList)agentManager.getAgent(atomi)).clear();
+        	agentManager.getAgent(atomi).clear();
         }
         for (int i=0; i<atomList.getAtomCount()-1;i+=1) {
         	IAtom atomi = atomList.getAtom(i);//definition of atom i
         	for (int j=i+1; j<atomList.getAtomCount();j+=1) {
             	IAtom atomj = atomList.getAtom(j);
             	if(associationDefinition.isAssociated(atomi,atomj)) {
-                    ((AtomArrayList)agentManager.getAgent(atomi)).add(atomj);//i and j are associated
-                    ((AtomArrayList)agentManager.getAgent(atomj)).add(atomi);
+            	    agentManager.getAgent(atomi).add(atomj);//i and j are associated
+                    agentManager.getAgent(atomj).add(atomi);
                 }
         	}
          }
         associatedAtoms.clear();
         for (int i=0; i<atomList.getAtomCount();i+=1) {
         	IAtom atomi = atomList.getAtom(i);
-        	if(((AtomArrayList)agentManager.getAgent(atomi)).getAtomCount() > 0){
+        	if (agentManager.getAgent(atomi).getAtomCount() > 0){
         		associatedAtoms.add(atomi);
         	}
         }
@@ -84,11 +84,11 @@ public class AssociationManager implements AgentSource,IListener {
         iterator.reset();
         neighborIterator.setBox(box);
         for (IAtom atomi = iterator.nextAtom();atomi != null; atomi =iterator.nextAtom()){
-        	AtomArrayList listi = (AtomArrayList)agentManager.getAgent(atomi);//list of the old bonds
+        	AtomArrayList listi = agentManager.getAgent(atomi);//list of the old bonds
         	if (listi.getAtomCount() > 0){
         		for (int i = 0; i<listi.getAtomCount();i++){
             		IAtom atomj = listi.getAtom(i);
-            		AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
+            		AtomArrayList listj = agentManager.getAgent(atomj);
         			listj.remove(listj.indexOf(atomi));//remove atom i from the listj
         			if ( listj.getAtomCount() == 0) {
         				associatedAtoms.remove(associatedAtoms.indexOf(atomj));
@@ -113,7 +113,7 @@ public class AssociationManager implements AgentSource,IListener {
         				associatedAtoms.add(atomi);
         			}
         			listi.add(atomj); //make atom i and atom j to be associated
-        			AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
+        			AtomArrayList listj = agentManager.getAgent(atomj);
         			if (listj.getAtomCount() == 0) {
         				associatedAtoms.add(atomj);
         			}
@@ -135,7 +135,7 @@ public class AssociationManager implements AgentSource,IListener {
         	if (getAssociatedAtoms(atomj).getAtomCount() == 0){
         		System.out.println("Wrong");
         	} else if(getAssociatedAtoms(atomj).getAtomCount() > 1){
-        		AtomArrayList listj = (AtomArrayList)agentManager.getAgent(atomj);
+        		AtomArrayList listj = agentManager.getAgent(atomj);
         		System.out.println("Wrong:smer");
         		System.out.println("listj = "+listj+" atomi= " +atomi+" atomj= "+atomj);
         	} 
@@ -148,19 +148,13 @@ public class AssociationManager implements AgentSource,IListener {
      * Returns the number of atoms on the list of associations of the given atom.
      */
     public IAtomList getAssociatedAtoms(IAtom atom) {
-       return (AtomArrayList)agentManager.getAgent(atom);
+       return agentManager.getAgent(atom);
     }
 
-	public Class getAgentClass() {
-		return AtomArrayList.class;
-	}
-
-	public Object makeAgent(IAtom a) {
+	public AtomArrayList makeAgent(IAtom a) {
 		return new AtomArrayList();
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
-		
-	}
+	public void releaseAgent(AtomArrayList agent, IAtom atom) {	}
 }
     

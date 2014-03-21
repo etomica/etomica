@@ -5,25 +5,22 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 
-public class BoxAgentSourceAtomManager implements BoxAgentSource, java.io.Serializable {
+public class BoxAgentSourceAtomManager<E> implements BoxAgentSource<AtomLeafAgentManager<E>> {
 
-    public BoxAgentSourceAtomManager(AgentSource atomAgentSource) {
+    public BoxAgentSourceAtomManager(AgentSource<E> atomAgentSource, Class atomAgentClass) {
         super();
         this.atomAgentSource = atomAgentSource;
+        this.atomAgentClass = atomAgentClass;
     }
 
-    public Class getAgentClass() {
-        return AtomLeafAgentManager.class;
+    public AtomLeafAgentManager<E> makeAgent(IBox box) {
+        return new AtomLeafAgentManager<E>(atomAgentSource, box, atomAgentClass);
     }
 
-    public Object makeAgent(IBox box) {
-        return new AtomLeafAgentManager(atomAgentSource,box);
+    public void releaseAgent(AtomLeafAgentManager<E> agent) {
+        agent.dispose();
     }
 
-    public void releaseAgent(Object agent) {
-        ((AtomLeafAgentManager)agent).dispose();
-    }
-
-    private static final long serialVersionUID = 1L;
-    private final AgentSource atomAgentSource;
+    protected final AgentSource<E> atomAgentSource;
+    protected final Class atomAgentClass;
 }

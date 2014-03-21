@@ -12,11 +12,10 @@ import etomica.integrator.IntegratorBox;
  */
 public class PotentialCalculationForceSum implements PotentialCalculation {
         
-    private static final long serialVersionUID = 1L;
-    protected AtomLeafAgentManager integratorAgentManager;
-    protected AtomLeafAgentManager.AgentIterator agentIterator;
+    protected AtomLeafAgentManager<? extends IntegratorBox.Forcible> integratorAgentManager;
+    protected AtomLeafAgentManager.AgentIterator<? extends IntegratorBox.Forcible> agentIterator;
     
-    public void setAgentManager(AtomLeafAgentManager agentManager) {
+    public void setAgentManager(AtomLeafAgentManager<? extends IntegratorBox.Forcible> agentManager) {
         integratorAgentManager = agentManager;
         agentIterator = integratorAgentManager.makeIterator();
     }
@@ -46,18 +45,18 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         IVector[] f = potentialSoft.gradient(atoms);
         switch(nBody) {
             case 1:
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+                integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
                 break;
             case 2:
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-                ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
+                integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
+                integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(f[1]);
                 break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
                 //array of vectors to be large enough for one IAtomSet and then not resize it
                 //back down for another IAtomSet with fewer atoms.
                 for (int i=0; i<atoms.getAtomCount(); i++) {
-                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
+                    integratorAgentManager.getAgent(atoms.getAtom(i)).force().ME(f[i]);
                 }
 		}
 	}

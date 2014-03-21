@@ -34,7 +34,7 @@ import etomica.util.Debug;
  * the calculate method of PotentialMasterNbr, passing a
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
-public class NeighborListManager implements IIntegratorListener, AgentSource, Serializable {
+public class NeighborListManager implements IIntegratorListener, AgentSource<AtomNeighborLists> {
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -50,8 +50,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
         potentialMaster = potentialMasterList;
         cellNbrIterator = new ApiAACell(space.D(), range, box);
         cell1ANbrIterator = new Api1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
-        agentManager2Body = new AtomLeafAgentManager(this, box);
-        agentManager1Body = new AtomLeafAgentManager(new AtomPotential1ListSource(potentialMasterList), box);
+        agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box,AtomNeighborLists.class);
+        agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(new AtomPotential1ListSource(potentialMasterList), box, AtomPotentialList.class);
         initialized = false;
         doApplyPBC = true;
         atomSetSinglet = new AtomSetSinglet();
@@ -73,8 +73,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
             IAtom atom = leafList.getAtom(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
 
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(potentials.length);
-            ((AtomPotentialList)agentManager1Body.getAgent(atom)).setCapacity(potentials.length);
+            agentManager2Body.getAgent(atom).setCapacity(potentials.length);
+            agentManager1Body.getAgent(atom).setCapacity(potentials.length);
         }
     }
 
@@ -243,7 +243,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
         for (int j=0; j<nLeaf; j++) {
             IAtom atom = leafList.getAtom(j);
             final NeighborCriterion[] criterion = getCriterion(atom.getType());
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).clearNbrs();
+            agentManager2Body.getAgent(atom).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
             }
@@ -257,7 +257,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
                     continue;
                 }
                 atomSetSinglet.atom = atom;
-                ((AtomPotentialList)agentManager1Body.getAgent(atom)).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+                agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
             }
         }
         
@@ -280,8 +280,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom0)).addUpNbr(atom1,i);
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom1)).addDownNbr(atom0,
+                    agentManager2Body.getAgent(atom0).addUpNbr(atom1,i);
+                    agentManager2Body.getAgent(atom1).addDownNbr(atom0,
                             potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
@@ -321,8 +321,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom0)).addUpNbr(atom1,i);
-                    ((AtomNeighborLists)agentManager2Body.getAgent(atom1)).addDownNbr(atom0,
+                    agentManager2Body.getAgent(atom0).addUpNbr(atom1,i);
+                    agentManager2Body.getAgent(atom1).addDownNbr(atom0,
                             potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
@@ -364,15 +364,15 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     }
     
     public IAtomList[] getUpList(IAtom atom) {
-        return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
+        return agentManager2Body.getAgent(atom).getUpList();
     }
 
     public IAtomList[] getDownList(IAtom atom) {
-        return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
+        return agentManager2Body.getAgent(atom).getDownList();
     }
 
     public AtomPotentialList getPotential1BodyList(IAtom atom) {
-        return (AtomPotentialList)agentManager1Body.getAgent(atom);
+        return agentManager1Body.getAgent(atom);
     }
     
     public void dispose() {
@@ -394,8 +394,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     private BoxImposePbc pbcEnforcer;
     private boolean quiet;
     protected long numUnsafe;
-    protected final AtomLeafAgentManager agentManager2Body;
-    protected final AtomLeafAgentManager agentManager1Body;
+    protected final AtomLeafAgentManager<AtomNeighborLists> agentManager2Body;
+    protected final AtomLeafAgentManager<AtomPotentialList> agentManager1Body;
     private NeighborListEventManager eventManager;
     protected IBox box;
     private NeighborCriterion[] oldCriteria;
@@ -403,13 +403,9 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
     protected boolean doApplyPBC;
     protected int numUpdates;
 
-    public Class getAgentClass() {
-        return AtomNeighborLists.class;
-    }
-    
-    public Object makeAgent(IAtom atom) {
+    public AtomNeighborLists makeAgent(IAtom atom) {
         if (initialized) {
-            Object oldAgent = agentManager2Body.getAgent(atom);
+            AtomNeighborLists oldAgent = agentManager2Body.getAgent(atom);
             if (oldAgent != null) {
                 // NeighborCellManager got notified first and we already made the
                 // agent (and found the neighbors!).  Return that now.
@@ -422,15 +418,15 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
         return lists;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(AtomNeighborLists agent, IAtom atom) {
         // we need to remove this atom from the neighbor lists of its neighbors.
-        AtomNeighborLists nbrLists = (AtomNeighborLists)agent;
+        AtomNeighborLists nbrLists = agent;
         IAtomList[] upDnLists = nbrLists.getUpList();
         for (int i=0; i<upDnLists.length; i++) {
             int nNbrs = upDnLists[i].getAtomCount();
             for (int j=0; j<nNbrs; j++) {
                 IAtom jAtom = upDnLists[i].getAtom(j);
-                AtomNeighborLists jNbrLists = (AtomNeighborLists)agentManager2Body.getAgent(jAtom);
+                AtomNeighborLists jNbrLists = agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jDnLists = jNbrLists.downList;
                 for (int k=0; k<jDnLists.length; k++) {
                     int idx = jDnLists[k].indexOf(atom);
@@ -445,7 +441,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
             int nNbrs = upDnLists[i].getAtomCount();
             for (int j=0; j<nNbrs; j++) {
                 IAtom jAtom = upDnLists[i].getAtom(j);
-                AtomNeighborLists jNbrLists = (AtomNeighborLists)agentManager2Body.getAgent(jAtom);
+                AtomNeighborLists jNbrLists = agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jUpLists = jNbrLists.upList;
                 for (int k=0; k<jUpLists.length; k++) {
                     int idx = jUpLists[k].indexOf(atom);
@@ -458,19 +454,15 @@ public class NeighborListManager implements IIntegratorListener, AgentSource, Se
         nbrLists.clearNbrs();
     }
 
-    public static class AtomPotential1ListSource implements AtomLeafAgentManager.AgentSource, java.io.Serializable {
-        private static final long serialVersionUID = 2L;
+    public static class AtomPotential1ListSource implements AtomLeafAgentManager.AgentSource<AtomPotentialList> {
         protected final PotentialMasterList potentialMaster;
 
         public AtomPotential1ListSource(PotentialMasterList potentialMaster) {
             this.potentialMaster = potentialMaster;
         }
-        
-        public Class getAgentClass() {
-            return AtomPotentialList.class;
-        }
-        public void releaseAgent(Object obj, IAtom atom) {}
-        public Object makeAgent(IAtom atom) {
+
+        public void releaseAgent(AtomPotentialList obj, IAtom atom) {}
+        public AtomPotentialList makeAgent(IAtom atom) {
             AtomPotentialList lists = new AtomPotentialList();
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
             

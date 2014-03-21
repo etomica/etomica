@@ -44,7 +44,6 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         boundary = box.getBoundary();
     }
 
-    private static final long serialVersionUID = 1L;
     protected final IVectorMutable dr;
     protected IBoundary boundary;
 }

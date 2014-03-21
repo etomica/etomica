@@ -29,7 +29,7 @@ import etomica.units.Pressure;
  *
  * @author David Kofke
  */
-public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAgentManager.AgentSource {
+public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAgentManager.AgentSource<MCMoveVolumeAssociated.Agent> {
     
     private static final long serialVersionUID = 2L;
     protected double pressure;
@@ -44,7 +44,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     protected AssociationManager associationManager;
     protected int numAssociatedAtoms;
     protected int numMer;//number of molecules
-    protected AtomLeafAgentManager atomLeafAgentManager;
+    protected AtomLeafAgentManager<Agent> atomLeafAgentManager;
     protected final AtomArrayList smerList;
     public static boolean dodebug;
     protected FileWriter fileWriter;
@@ -80,7 +80,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
-        atomLeafAgentManager = new AtomLeafAgentManager(this,box);
+        atomLeafAgentManager = new AtomLeafAgentManager<Agent>(this,box,Agent.class);
     }
     
     public boolean doTrial() {
@@ -155,11 +155,11 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     	IAtomList atomList = box.getLeafList();// all atoms in the box
     	for (int i=0; i< atomList.getAtomCount(); i++){
         	IAtom atom = atomList.getAtom(i);
-        	((Agent)atomLeafAgentManager.getAgent(atom)).nAtoms = 0;
+        	atomLeafAgentManager.getAgent(atom).nAtoms = 0;
     	}
     	for (int i=0; i< atomList.getAtomCount(); i++){
         	IAtom atom = atomList.getAtom(i);
-        	if (((Agent)atomLeafAgentManager.getAgent(atom)).nAtoms!= 0){
+        	if (atomLeafAgentManager.getAgent(atom).nAtoms!= 0){
         		continue;
         	}
         	numMer++;
@@ -175,7 +175,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     			}
         	}
         	for (int j=0; j<smerList.getAtomCount(); j+=1){
-        		Agent jAgent = ((Agent)atomLeafAgentManager.getAgent(smerList.getAtom(j)));
+        		Agent jAgent = atomLeafAgentManager.getAgent(smerList.getAtom(j));
         		jAgent.nAtoms = smerList.getAtomCount();
         		jAgent.nextAtom = j<smerList.getAtomCount()-1 ? smerList.getAtom(j+1) : null;//if condition is true, 1st value, if condition is false, 2nd value
         	}
@@ -227,7 +227,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         
         for (int i=0; i< atomList.getAtomCount(); i++){
         	IAtom atom = atomList.getAtom(i);
-        	Agent iAgent = (Agent)atomLeafAgentManager.getAgent(atom);
+        	Agent iAgent = atomLeafAgentManager.getAgent(atom);
         	if (iAgent.nAtoms == 0){
         		continue;
         	}
@@ -270,7 +270,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
             	jAtom.getPosition().Ev1Pv2(r, dr);//move atom2 to the outside of box
             	r.PEa1Tv1(1.0/(count+1), dr);
             	count++;
-            	Agent jAgent = (Agent)atomLeafAgentManager.getAgent(jAtom);
+            	Agent jAgent = atomLeafAgentManager.getAgent(jAtom);
             	jAtom = jAgent.nextAtom;
             	if (dodebug){
             		if (atom.getLeafIndex() == 19){
@@ -292,7 +292,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
 //            	if (jAtom.getLeafIndex()==226 || jAtom.getLeafIndex()==66){
 //            		System.out.println("jAtom= "+jAtom+ "rScale= "+rScale+"translation unscaling "+ r);
 //            	}
-            	Agent jAgent = (Agent)atomLeafAgentManager.getAgent(jAtom);
+            	Agent jAgent = atomLeafAgentManager.getAgent(jAtom);
             	jAgent.nAtoms = 0;//prevent unscaling again
             	jAtom = jAgent.nextAtom;
             }
@@ -431,7 +431,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         	IAtom atom = atomList.getAtom(i);
         	populateList(smerList, atom);
         	for (int j=0; j<smerList.getAtomCount(); j+=1){
-        		Agent jAgent = ((Agent)atomLeafAgentManager.getAgent(atom));
+        		Agent jAgent = atomLeafAgentManager.getAgent(atom);
         		if (jAgent.nAtoms != smerList.getAtomCount()){
         			return 0;
         		}
@@ -481,15 +481,11 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public final double getPressure() {return pressure;}
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
 
-	public Class getAgentClass() {
-		return Agent.class;
-	}
-
-	public Object makeAgent(IAtom a) {
+	public Agent makeAgent(IAtom a) {
 		return new Agent();
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
+	public void releaseAgent(Agent agent, IAtom atom) {
 		
 	}
 	public static class Agent {

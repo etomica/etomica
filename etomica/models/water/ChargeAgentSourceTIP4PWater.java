@@ -4,7 +4,7 @@ import etomica.api.IAtom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.EwaldSummation.MyCharge;
 
-public class ChargeAgentSourceTIP4PWater implements AtomLeafAgentManager.AgentSource {
+public class ChargeAgentSourceTIP4PWater implements AtomLeafAgentManager.AgentSource<MyCharge> {
 	
 	public ChargeAgentSourceTIP4PWater(){
 		myCharge = new MyCharge[ConformationWaterTIP4P.Echarge.length];
@@ -14,20 +14,15 @@ public class ChargeAgentSourceTIP4PWater implements AtomLeafAgentManager.AgentSo
 			
 		}
 	}
-	
-	public Class getAgentClass() {
-		
-		return MyCharge.class;
-	}
 
-	public Object makeAgent(IAtom a) {
+	public MyCharge makeAgent(IAtom a) {
 		
 		int index = a.getIndex();
 		
 		return myCharge[index];
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
+	public void releaseAgent(MyCharge agent, IAtom atom) {
 		// Do nothing
 
 	}

@@ -9,13 +9,13 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 
-public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAgentManager.AgentSource {
+public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAgentManager.AgentSource<Boolean> {
     
     public AtomFilterLiquidAtomic(PotentialMasterList potentialMaster, IBox box) {
         leafList = box.getLeafList();
         nbrListManager = potentialMaster.getNeighborManager(box);
         setMaxNbrsVapor(80);
-        agentManager = new AtomLeafAgentManager(this, box);
+        agentManager = new AtomLeafAgentManager<Boolean>(this, box, Boolean.class);
     }
 
     public void setMaxNbrsVapor(int newMaxNbrsVapor) {
@@ -29,18 +29,16 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
     public void resetFilter() {
 		//color all atoms according to their type
         int nLeaf = leafList.getAtomCount();
-        int nLiquid = 0;
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
             int nbrs = nbrListManager.getUpList(atom)[0].getAtomCount() +
                        nbrListManager.getDownList(atom)[0].getAtomCount();
-            nLiquid += nbrs > maxNbrsVapor ? 1 : 0;
             agentManager.setAgent(atom, nbrs > maxNbrsVapor);
         }
     }
     
     public boolean accept(IAtom a) {
-        Boolean b = (Boolean)agentManager.getAgent(a);
+        Boolean b = agentManager.getAgent(a);
         return b == null ? false : b;
     }
 
@@ -48,20 +46,15 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
         return false;
     }
 
-    public Class getAgentClass() {
-        return Boolean.class;
-    }
-
-    public Object makeAgent(IAtom a) {
+    public Boolean makeAgent(IAtom a) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(Boolean agent, IAtom atom) {
     }
 
-    private static final long serialVersionUID = 1L;
     private final NeighborListManager nbrListManager;
     private final IAtomList leafList;
     protected int maxNbrsVapor;
-    protected AtomLeafAgentManager agentManager;
+    protected AtomLeafAgentManager<Boolean> agentManager;
 }

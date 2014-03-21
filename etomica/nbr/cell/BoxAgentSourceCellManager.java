@@ -9,7 +9,7 @@ import etomica.space.ISpace;
 /**
  * BoxAgentSource responsible for creating a NeighborCellManager.
  */
-public class BoxAgentSourceCellManager implements BoxAgentSource, java.io.Serializable {
+public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellManager> {
 
     public BoxAgentSourceCellManager(ISimulation sim, IAtomPositionDefinition positionDefinition, ISpace _space) {
         this.sim = sim;
@@ -20,21 +20,16 @@ public class BoxAgentSourceCellManager implements BoxAgentSource, java.io.Serial
     public void setRange(double d) {
         range = d;
     }
-    
-    public Class getAgentClass() {
-        return NeighborCellManager.class;
-    }
-    
-    public Object makeAgent(IBox box) {
+
+    public NeighborCellManager makeAgent(IBox box) {
         NeighborCellManager cellManager = new NeighborCellManager(sim, box,range,positionDefinition, space);
         box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }
     
-    public void releaseAgent(Object agent) {
+    public void releaseAgent(NeighborCellManager agent) {
     }
     
-    private static final long serialVersionUID = 1L;
     protected final ISimulation sim;
     protected double range;
     protected final IAtomPositionDefinition positionDefinition;

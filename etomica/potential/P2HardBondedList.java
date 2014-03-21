@@ -3,15 +3,13 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
+import etomica.potential.P2HardBondedList.BondArrayList;
 import etomica.simulation.Simulation;
 import etomica.space.Tensor;
-import etomica.util.Debug;
 
 /**
  * Hard potential that wraps two others.  One potential applies to atoms that are found on each other's
@@ -21,7 +19,7 @@ import etomica.util.Debug;
  * @author David Kofke
  *
  */
-public class P2HardBondedList extends Potential2 implements PotentialHard, AgentSource {
+public class P2HardBondedList extends Potential2 implements PotentialHard, AgentSource<BondArrayList> {
         
     public P2HardBondedList(Simulation sim, PotentialHard bondedPotential, 
             PotentialHard nonBondedPotential) {
@@ -30,8 +28,8 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         this.nonBondedPotential = nonBondedPotential;
         
         //box agent manager is used to handle multiple bonded-atoms lists across boxes
-        BoxAgentSource bas = new MyBoxAgentSource(this);
-        boxAgentManager = new BoxAgentManager(bas, sim);
+        MyBoxAgentSource bas = new MyBoxAgentSource(this);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<BondArrayList>>(bas, AtomLeafAgentManager.class, sim);
     }
 
     public double getRange() {
@@ -56,9 +54,8 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
 //            bondedPotential.setBondLengthSquared(bond.bondLengthSquared);
             ((P2PenetrableSquareWell)bondedPotential).setCoreDiameterSquared(bond.bondLengthSquared);
             return bondedPotential.collisionTime(pair, falseTime);
-        } else {
-            return nonBondedPotential.collisionTime(pair, falseTime);
         }
+        return nonBondedPotential.collisionTime(pair, falseTime);
     }
 
     public double energyChange() {
@@ -78,7 +75,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
     }
 
     public void setBox(IBox box) {
-        agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
+        agentManager = boxAgentManager.getAgent(box);
         bondedPotential.setBox(box);
         nonBondedPotential.setBox(box);
     }
@@ -123,47 +120,39 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
      * Returns the list containing the bonds for the given atom.
      */
     public BondArrayList getBondedList(IAtom atom) {
-        return (BondArrayList)agentManager.getAgent(atom);
-    }
-    
-    public Class getAgentClass() {
-        return BondArrayList.class;
+        return agentManager.getAgent(atom);
     }
 
-    public Object makeAgent(IAtom a) {
+    public BondArrayList makeAgent(IAtom a) {
         return new BondArrayList();
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {
-        ((BondArrayList)agent).clear();
-    } 
+    public void releaseAgent(BondArrayList agent, IAtom atom) {
+        agent.clear();
+    }
     
 
     private final PotentialHard bondedPotential, nonBondedPotential;
     private boolean lastCollisionIsBonded;
-    private AtomLeafAgentManager agentManager;
-    private final BoxAgentManager boxAgentManager;
+    private AtomLeafAgentManager<BondArrayList> agentManager;
+    private final BoxAgentManager<AtomLeafAgentManager<BondArrayList>> boxAgentManager;
     private static final long serialVersionUID = 1L;
     
     //inner class to define BoxAgentSource.  Need to do this instead of implementing
     //BoxAgentSource in P2HardBondedList, because of conflicting definitions of getAgentClass
-    private class MyBoxAgentSource implements BoxAgentSource {
+    private class MyBoxAgentSource implements BoxAgentSource<AtomLeafAgentManager<BondArrayList>> {
 
-        AgentSource as;
-        public MyBoxAgentSource(AgentSource asource) {
+        AgentSource<BondArrayList> as;
+        public MyBoxAgentSource(AgentSource<BondArrayList> asource) {
             as = asource;
         }
 
-        public Class getAgentClass() {
-            return AtomLeafAgentManager.class;
+        public AtomLeafAgentManager<BondArrayList> makeAgent(IBox box) {
+            return new AtomLeafAgentManager<BondArrayList>(as, box, BondArrayList.class);
         }
 
-        public Object makeAgent(IBox box) {
-            return new AtomLeafAgentManager(as, box);
-        }
-
-        public void releaseAgent(Object agent) {
-            ((AtomLeafAgentManager)agent).dispose();
+        public void releaseAgent(AtomLeafAgentManager<BondArrayList> agent) {
+            agent.dispose();
             
         }
     }

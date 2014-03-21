@@ -9,10 +9,10 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.integrator.IntegratorHard.Agent;
 import etomica.integrator.IntegratorHard.CollisionListener;
 
-public class InteractionTracker implements CollisionListener, AgentSource {
+public class InteractionTracker implements CollisionListener, AgentSource<InteractionTracker.CatalysisAgent> {
 
     public InteractionTracker(IBox box, ISpecies speciesSurface) {
-        agentManager = new AtomLeafAgentManager(this, box);
+        agentManager = new AtomLeafAgentManager<CatalysisAgent>(this, box, CatalysisAgent.class);
         this.speciesSurface = speciesSurface;
     }
     
@@ -32,18 +32,18 @@ public class InteractionTracker implements CollisionListener, AgentSource {
         double de = colliderAgent.collisionPotential.energyChange();
         if (de < 0) {
             // capture
-            ((CatalysisAgent)agentManager.getAgent(gasAtom)).nSurfaceBonds++;
+            agentManager.getAgent(gasAtom).nSurfaceBonds++;
         }
         else if (de > 0) {
             // escape
-            ((CatalysisAgent)agentManager.getAgent(gasAtom)).nSurfaceBonds--;
+            agentManager.getAgent(gasAtom).nSurfaceBonds--;
         }
     }
     
     public void reset() {
         IAtomList list = agentManager.getBox().getLeafList();
         for (int i=0; i<list.getAtomCount(); i++) {
-            CatalysisAgent agent = (CatalysisAgent)agentManager.getAgent(list.getAtom(i));
+            CatalysisAgent agent = agentManager.getAgent(list.getAtom(i));
             if (agent == null) {
                 continue;
             }
@@ -53,22 +53,18 @@ public class InteractionTracker implements CollisionListener, AgentSource {
         }
     }
     
-    public AtomLeafAgentManager getAgentManager() {
+    public AtomLeafAgentManager<CatalysisAgent> getAgentManager() {
         return agentManager;
     }
 
-    public Class getAgentClass() {
-        return CatalysisAgent.class;
-    }
-
-    public Object makeAgent(IAtom a) {
+    public CatalysisAgent makeAgent(IAtom a) {
         if (a.getType().getSpecies() == speciesSurface) return null;
         return new CatalysisAgent();
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(CatalysisAgent agent, IAtom atom) {}
 
-    protected final AtomLeafAgentManager agentManager;
+    protected final AtomLeafAgentManager<CatalysisAgent> agentManager;
     protected final ISpecies speciesSurface;
 
     public static class CatalysisAgent {

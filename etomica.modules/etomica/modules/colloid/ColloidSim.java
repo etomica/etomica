@@ -15,6 +15,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.NeighborCriterion;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
@@ -32,7 +33,6 @@ import etomica.util.RandomNumberGenerator;
  */
 public class ColloidSim extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public PotentialMasterList potentialMaster;
     public SpeciesSpheresMono species, speciesColloid;
     public IBox box;
@@ -40,8 +40,8 @@ public class ColloidSim extends Simulation {
     public P2HardWrapper potentialWrapper;
     public ActivityIntegrate activityIntegrate;
     public ConfigurationColloid configuration;
-    public AtomLeafAgentManager colloidMonomerBondManager;
-    public AtomLeafAgentManager monomerMonomerBondManager;
+    public AtomLeafAgentManager<AtomArrayList> colloidMonomerBondManager;
+    public AtomLeafAgentManager<AtomArrayList> monomerMonomerBondManager;
     public P2SquareWellMonomer p2mm;
     public P2HardSphereMC p2mc;
     public P2HardSphere p2pseudo;
@@ -55,7 +55,8 @@ public class ColloidSim extends Simulation {
         super(_space);
         setRandom(new RandomNumberGenerator(1));
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager(boxAgentSource), new NeighborListManagerColloid.NeighborListAgentSourceColloid(6, _space), _space);
+        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource,NeighborCellManager.class),
+                new NeighborListManagerColloid.NeighborListAgentSourceColloid(6, _space), _space);
         
         int nColloid = 1;
         chainLength = 50;
@@ -94,13 +95,12 @@ public class ColloidSim extends Simulation {
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(speciesColloid, nColloid);
 
-        AgentSource bondAgentSource = new AgentSource() {
-            public void releaseAgent(Object agent, IAtom atom) {}
-            public Object makeAgent(IAtom a) {return new AtomArrayList();}
-            public Class getAgentClass() {return AtomArrayList.class;}
+        AgentSource<AtomArrayList> bondAgentSource = new AgentSource<AtomArrayList>() {
+            public void releaseAgent(AtomArrayList agent, IAtom atom) {}
+            public AtomArrayList makeAgent(IAtom a) {return new AtomArrayList();}
         };
-        colloidMonomerBondManager = new AtomLeafAgentManager(bondAgentSource, box);
-        monomerMonomerBondManager = new AtomLeafAgentManager(bondAgentSource, box);
+        colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
+        monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
 
         //instantiate several potentials for selection in combo-box
 	    p2mm = new P2SquareWellMonomer(space, monomerMonomerBondManager);

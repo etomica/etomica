@@ -14,6 +14,7 @@ import etomica.atom.MoleculeSetSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.box.BoxAgentManager;
+import etomica.box.BoxCellManager;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.molecule.CriterionAdapterMolecular;
 import etomica.nbr.molecule.CriterionAllMolecular;
@@ -64,22 +65,22 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     }
 
     public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, ISpace _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class), _space);
     }
 
-    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager agentManager, ISpace _space){
+    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, ISpace _space){
         this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceMolecular(range, _space), _space);
     }
 
     public PotentialMasterListMolecular(ISimulation sim, double range,
     		BoxAgentSourceCellManagerListMolecular boxAgentSource,
-    		BoxAgentManager agentManager,
+    		BoxAgentManager<? extends BoxCellManager> agentManager,
     		NeighborListAgentSourceMolecular neighborListAgentSource, ISpace _space) {
         super(sim, boxAgentSource, agentManager);
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
-        neighborListAgentManager = new BoxAgentManager(neighborListAgentSource);
+        neighborListAgentManager = new BoxAgentManager<NeighborListManagerMolecular>(neighborListAgentSource, NeighborListManagerMolecular.class);
         singletIterator = new MoleculeIteratorSinglet();
         moleculeSetSinglet = new MoleculeSetSinglet();
         moleculePair = new MoleculePair();
@@ -88,7 +89,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
 
         neighborListAgentManager.setSimulation(sim);
 
-        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManagerListMolecular cellManager = (NeighborCellManagerListMolecular)iterator.next();
@@ -116,7 +117,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         ((BoxAgentSourceCellManagerListMolecular)boxAgentSource).setRange(range);
         recomputeCriteriaRanges();
         
-        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManagerMolecular cellManager = (NeighborCellManagerMolecular)iterator.next();
@@ -125,10 +126,10 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
 
         neighborListAgentSource.setRange(newRange);
         
-        iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = (NeighborListManagerMolecular)iterator.next();
+        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iteratorList = neighborListAgentManager.makeIterator();
+        iteratorList.reset();
+        while (iteratorList.hasNext()) {
+            NeighborListManagerMolecular neighborListManager = iteratorList.next();
             neighborListManager.setRange(range);
         }
     }
@@ -211,10 +212,10 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iterator = neighborListAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = (NeighborListManagerMolecular)iterator.next();
+            NeighborListManagerMolecular neighborListManager = iterator.next();
             neighborListManager.updateLists();
         }
     }
@@ -237,10 +238,10 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
         recomputeCriteriaRanges();
         
-        BoxAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iterator = neighborListAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = (NeighborListManagerMolecular)iterator.next();
+            NeighborListManagerMolecular neighborListManager = iterator.next();
             neighborListManager.reset();
         }
     }
@@ -372,10 +373,10 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<NeighborListManagerMolecular> iterator = neighborListAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
-            NeighborListManagerMolecular neighborListManager = (NeighborListManagerMolecular)iterator.next();
+            NeighborListManagerMolecular neighborListManager = iterator.next();
             neighborListManager.updateLists();
         }
     }
@@ -396,7 +397,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IMolecule targetMolecule = id.getTargetMolecule();
-        NeighborListManagerMolecular neighborManager = (NeighborListManagerMolecular)neighborListAgentManager.getAgent(box);
+        NeighborListManagerMolecular neighborManager = neighborListAgentManager.getAgent(box);
         if (targetMolecule == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
@@ -513,7 +514,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     public NeighborListManagerMolecular getNeighborManager(IBox box) {
         // we didn't have the simulation when we made the agent manager.
         // setting the simulation after the first time is a quick return
-        return (NeighborListManagerMolecular)neighborListAgentManager.getAgent(box);
+        return neighborListAgentManager.getAgent(box);
     }
 
     
@@ -524,7 +525,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
 
-        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManagerMolecular cellManager = (NeighborCellManagerMolecular)iterator.next();
@@ -536,13 +537,12 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         return cellRange;
     }
 
-    private static final long serialVersionUID = 1L;
     protected final ISpace space;
     private final MoleculeIteratorSinglet singletIterator;
     protected final MoleculeSetSinglet moleculeSetSinglet;
     protected final MoleculePair moleculePair;
     protected final NeighborListAgentSourceMolecular neighborListAgentSource;
-    protected final BoxAgentManager neighborListAgentManager;
+    protected final BoxAgentManager<NeighborListManagerMolecular> neighborListAgentManager;
     private int cellRange;
     protected double range;
     private double maxPotentialRange = 0;
@@ -552,8 +552,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     // things needed for N-body potentials
     private MoleculeArrayList moleculeArrayList;
     
-    public static class NeighborListAgentSourceMolecular implements BoxAgentManager.BoxAgentSource,
-                                                              java.io.Serializable {
+    public static class NeighborListAgentSourceMolecular implements BoxAgentManager.BoxAgentSource<NeighborListManagerMolecular>{
         public NeighborListAgentSourceMolecular(double range, ISpace space) {
             
             this.range = range;
@@ -567,22 +566,15 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         public void setPotentialMaster(PotentialMasterListMolecular p){
             potentialMaster = p;
         }
-        
-        public Class getAgentClass() {
-            return NeighborListManagerMolecular.class;
-        }
-        
-        public Object makeAgent(IBox box) {
+
+        public NeighborListManagerMolecular makeAgent(IBox box) {
             return new NeighborListManagerMolecular(potentialMaster, range, box, space);
         }
         
-        public void releaseAgent(Object object) {
-            ((NeighborListManagerMolecular)object).dispose();
+        public void releaseAgent(NeighborListManagerMolecular object) {
+            object.dispose();
         }
         
-
-        
-        private static final long serialVersionUID = 1L;
         protected PotentialMasterListMolecular potentialMaster;
         protected double range;
         protected final ISpace space;

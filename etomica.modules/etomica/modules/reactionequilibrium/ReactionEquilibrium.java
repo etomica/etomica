@@ -22,7 +22,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
-public class ReactionEquilibrium extends Simulation implements AgentSource {
+public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom> {
 
     public IController controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
@@ -39,7 +39,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
     public ActivityIntegrate activityIntegrate;
-    private AtomLeafAgentManager agentManager = null;
+    private AtomLeafAgentManager<IAtom> agentManager = null;
     public IAtom[] agents;
     
     public ReactionEquilibrium() {
@@ -70,7 +70,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         integratorHard1.setNullPotential(nullPotential, speciesA.getLeafType());
         integratorHard1.setNullPotential(nullPotential, speciesB.getLeafType());
 
-        agentManager = new AtomLeafAgentManager(this,box);
+        agentManager = new AtomLeafAgentManager<IAtom>(this,box,IAtom.class);
 
         //potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
@@ -99,12 +99,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         getController().addAction(activityIntegrate);
         integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 	}
-    
-    public Class getAgentClass() {
-        return IAtom.class;
-    }
 
-    public AtomLeafAgentManager getAgentManager() {
+    public AtomLeafAgentManager<IAtom> getAgentManager() {
     	return agentManager;
     }
 
@@ -115,11 +111,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
      * @param a  ignored
      * @return Object always null
      */
-    public Object makeAgent(IAtom a) {
+    public IAtom makeAgent(IAtom a) {
         return null;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(IAtom agent, IAtom atom) {}
 
 
 }

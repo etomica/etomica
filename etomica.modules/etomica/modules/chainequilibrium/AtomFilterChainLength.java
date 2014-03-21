@@ -9,21 +9,17 @@ import etomica.atom.AtomLeafAgentManager;
 
 /**
  */
-public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgentManager.AgentSource {
+public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgentManager.AgentSource<AtomFilterChainLength.LengthAgent> {
 
-    public AtomFilterChainLength(AtomLeafAgentManager aam) {
+    public AtomFilterChainLength(AtomLeafAgentManager<IAtom[]> aam) {
         agentManager = aam;
     }
 
-    public Class getAgentClass() {
-        return LengthAgent.class;
-    }
-
-    public Object makeAgent(IAtom a) {
+    public LengthAgent makeAgent(IAtom a) {
         return new LengthAgent();
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(LengthAgent agent, IAtom atom) {}
 
     public void resetFilter() {
         maxChainLength = 0;
@@ -31,14 +27,14 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            ((LengthAgent)chainLengthManager.getAgent(leafList.getAtom(i))).chainLength = 0;
+            chainLengthManager.getAgent(leafList.getAtom(i)).chainLength = 0;
         }
 
         for (int i=0; i<nLeaf; i++) {
             IAtom a = leafList.getAtom(i);
             // if an Atom has a chain length, it was already counted as part of 
             // another chain
-            if (((LengthAgent)chainLengthManager.getAgent(a)).chainLength > 0) continue;
+            if (chainLengthManager.getAgent(a).chainLength > 0) continue;
 
             int chainLength = recursiveTag(a, -1);
             // re-tag with the actual chain length
@@ -50,16 +46,16 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
     }
 
     protected int recursiveTag(IAtom a, int chainLength) {
-        ((LengthAgent)chainLengthManager.getAgent(a)).chainLength = chainLength;
+        chainLengthManager.getAgent(a).chainLength = chainLength;
 
-        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+        IAtom[] nbrs = agentManager.getAgent(a);
 
         int ctr = 1;
         
         // count all the bonded partners
         for(int i=0; i<nbrs.length; i++) {
             if(nbrs[i] == null) continue;
-            if(((LengthAgent)chainLengthManager.getAgent(nbrs[i])).chainLength == chainLength) {
+            if(chainLengthManager.getAgent(nbrs[i]).chainLength == chainLength) {
                 // this Atom was already counted as being within this chain
                 // so skip it
                 continue;
@@ -80,21 +76,20 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
             // allow old agentManager to de-register itself as a BoxListener
             chainLengthManager.dispose();
         }
-        chainLengthManager = new AtomLeafAgentManager(this,box);
+        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box,LengthAgent.class);
     }
 
     public boolean accept(IAtom a) {
-        return ((LengthAgent)chainLengthManager.getAgent((IAtom)a)).chainLength == maxChainLength;
+        return chainLengthManager.getAgent(a).chainLength == maxChainLength;
     }
 
     public boolean accept(IMolecule mole) {
         return false;
     }
 
-    private static final long serialVersionUID = 1L;
     protected IBox box;
-    protected AtomLeafAgentManager chainLengthManager;
-    protected AtomLeafAgentManager agentManager;
+    protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
+    protected AtomLeafAgentManager<IAtom[]> agentManager;
     protected int maxChainLength = 0;
 
     public static class LengthAgent {

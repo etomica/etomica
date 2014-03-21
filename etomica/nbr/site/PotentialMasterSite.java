@@ -1,5 +1,8 @@
 package etomica.nbr.site;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
@@ -15,6 +18,7 @@ import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
+import etomica.box.BoxCellManager;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionType;
@@ -39,21 +43,21 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * to assign cells. 
 	 */
 	public PotentialMasterSite(ISimulation sim, int nCells, ISpace _space) {
-        this(sim, new BoxAgentSiteManager(nCells, _space), _space);
+        this(sim, new BoxAgentSiteSource(nCells, _space), _space);
     }
     
     public PotentialMasterSite(ISimulation sim,
-    		                   BoxAgentSource boxAgentSource, ISpace _space) {
-        this(sim, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
+    		                   BoxAgentSource<BoxCellManager> boxAgentSource, ISpace _space) {
+        this(sim, boxAgentSource, new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class), _space);
     }
     
-    public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource,
-    		BoxAgentManager agentManager, ISpace _space) {
+    public PotentialMasterSite(ISimulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,
+    		BoxAgentManager<BoxCellManager> agentManager, ISpace _space) {
         this(sim, boxAgentSource, agentManager, new Api1ASite(_space.D(),agentManager));
     }
     
-    protected PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource, 
-            BoxAgentManager agentManager, AtomsetIteratorPDT neighborIterator) {
+    protected PotentialMasterSite(ISimulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource, 
+            BoxAgentManager<? extends BoxCellManager> agentManager, AtomsetIteratorPDT neighborIterator) {
         super(sim, boxAgentSource, agentManager);
         atomSetSinglet = new AtomSetSinglet();
         this.neighborIterator = neighborIterator;
@@ -260,28 +264,23 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
         }
     }
-    
-    private static final long serialVersionUID = 1L;
+
 	protected final AtomSetSinglet atomSetSinglet;
     private int cellRange;
     protected final AtomsetIteratorPDT neighborIterator;
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
-    public static class BoxAgentSiteManager implements BoxAgentSource {
-        public BoxAgentSiteManager(int nCells, ISpace _space) {
+    public static class BoxAgentSiteSource implements BoxAgentSource<BoxCellManager> {
+        public BoxAgentSiteSource(int nCells, ISpace _space) {
             this.nCells = nCells;
             this.space = _space;
         }
-        
-        public Class getAgentClass() {
-            return NeighborSiteManager.class;
-        }
-        
-        public Object makeAgent(IBox box) {
+
+        public BoxCellManager makeAgent(IBox box) {
             return new NeighborSiteManager(box,nCells, space);
         }
         
-        public void releaseAgent(Object agent) {
+        public void releaseAgent(BoxCellManager agent) {
         }
         
         private final int nCells;

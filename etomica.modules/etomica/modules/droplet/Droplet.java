@@ -18,7 +18,6 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class Droplet extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono species;
     public final IBox box;
     public final IntegratorDroplet integrator;

@@ -31,7 +31,7 @@ import etomica.chem.models.Model.PotentialAndIterator;
  *
  * @author David Kofke
  */
-public class PotentialMaster implements java.io.Serializable, IPotentialMaster {
+public class PotentialMaster implements IPotentialMaster {
     
     public PotentialMaster() {
         this(IteratorFactory.INSTANCE);

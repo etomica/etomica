@@ -11,9 +11,9 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.MoleculeAgentManager;
+import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.MoleculeListWrapper;
-import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.config.Configuration;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
@@ -163,7 +163,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         initNominalU(cells[totalCells-1].molecules);
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
     }
     
     public void setConfiguration(Configuration configuration){

@@ -127,7 +127,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
                 
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
     }
     
     public void setSpecies(ISpecies speciesA, ISpecies speciesB){

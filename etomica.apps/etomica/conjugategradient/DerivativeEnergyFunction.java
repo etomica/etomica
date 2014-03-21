@@ -31,7 +31,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
 	protected PotentialCalculationForceSum forceSum;
-	protected AtomLeafAgentManager agentManager;
+	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
 	protected Activity activity;
 	protected CoordinateDefinition coordinateDefinition;
 	protected double[] fPrime;
@@ -46,7 +46,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		forceSum = new PotentialCalculationForceSum();
 		
 		MyAgentSource source = new MyAgentSource(space);
-		agentManager = new AtomLeafAgentManager(source, box);
+		agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(source, box,IntegratorVelocityVerlet.MyAgent.class);
 		forceSum.setAgentManager(agentManager);
 		moleculeForce = space.makeVector();
 		
@@ -134,8 +134,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				
 				for (int r=0; r<childList.getAtomCount(); r++){
-					moleculeForce.PE(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent((IAtom)childList.getAtom(r)))
-							   .force);
+					moleculeForce.PE(agentManager.getAgent(childList.getAtom(r)).force);
 				}
 					
 				
@@ -164,20 +163,18 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	
 	
 	
-	public static class MyAgentSource implements AgentSource{
+	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 		
 		public MyAgentSource(ISpace space){
 			this.space = space;
 		}
 		
-		public void releaseAgent(Object agent, IAtom atom){}
-		public Class getAgentClass(){
-			return IntegratorVelocityVerlet.MyAgent.class;
-		}
-		public Object makeAgent(IAtom atom){
+		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom){}
+
+		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom){
 			
-			return new IntegratorVelocityVerlet.MyAgent(space);
-			}
+		    return new IntegratorVelocityVerlet.MyAgent(space);
+		}
 		protected ISpace space;
 	}
 

@@ -22,7 +22,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
 import etomica.units.Null;
 
-public class MeterDADB implements IEtomicaDataSource, AgentSource {
+public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -32,7 +32,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource {
     protected final DataSourceScalar meterPE;
     protected final PotentialCalculationForceSum pcForceSum;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager forceManager;
+    protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final IteratorDirective id;
     protected final IVectorMutable dr;
     protected double latticeEnergy;
@@ -52,7 +52,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource {
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
         pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager(this, coordinateDefinition.getBox());
+        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox(), MyAgent.class);
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster);
@@ -80,7 +80,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource {
             IVector lPos = coordinateDefinition.getLatticePosition(atom);
             IVector pos = atom.getPosition();
             dr.Ev1Mv2(pos, lPos);
-            IVector force = ((MyAgent)forceManager.getAgent(atom)).force;
+            IVector force = forceManager.getAgent(atom).force;
             sum += force.dot(dr);
         }
         if (justDADB) {
@@ -139,13 +139,9 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource {
         return dataInfo;
     }
 
-    public Class getAgentClass() {
-        return MyAgent.class;
-    }
-
-    public final Object makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom) {}
 }

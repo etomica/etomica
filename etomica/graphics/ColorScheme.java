@@ -14,7 +14,7 @@ import etomica.nbr.list.PotentialMasterList;
  * @author David Kofke
  */
  
-public abstract class ColorScheme implements java.io.Serializable {
+public abstract class ColorScheme {
 
     protected Color defaultColor;
     
@@ -36,7 +36,6 @@ public abstract class ColorScheme implements java.io.Serializable {
      * Colors all atoms with baseColor.
      */
     public static class Simple extends ColorScheme {
-        private static final long serialVersionUID = 1L;
         public Simple() {super();}
         public Simple(java.awt.Color color) {super(color);}
         public Color getAtomColor(IAtom a) {return defaultColor;}

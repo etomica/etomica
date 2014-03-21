@@ -28,7 +28,7 @@ import etomica.chem.models.Model;
  * 
  * @author Andrew Schultz
  */
-public class BondListener implements AtomLeafAgentManager.AgentSource, Serializable {
+public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>, Serializable {
     
     /**
      * Creates a new BondListener for the given Box, using the given
@@ -37,7 +37,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
     public BondListener(IBox box, BondManager bondManager) {
         this.box = box;
         bondIteratorsHash = new HashMap<ISpecies,Model.PotentialAndIterator[]>();
-        atomAgentManager = new AtomLeafAgentManager(this, box);
+        atomAgentManager = new AtomLeafAgentManager<ArrayList>(this, box, ArrayList.class);
         this.bondManager = bondManager;
         atomSetSinglet = new MoleculeSetSinglet();
     }
@@ -82,7 +82,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
 
-                    ((ArrayList<Object>)atomAgentManager.getAgent(bondedPair.getAtom(0))).add(bond);
+                    atomAgentManager.getAgent(bondedPair.getAtom(0)).add(bond);
                 }
             }
         }
@@ -101,7 +101,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
              molecule = moleculeIterator.nextMolecule()) {
             IAtomList childList = molecule.getChildList();
             for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                ArrayList<Object> list = (ArrayList<Object>)atomAgentManager.getAgent(childList.getAtom(iChild));
+                ArrayList list = atomAgentManager.getAgent(childList.getAtom(iChild));
                 for (int i=0; i<list.size(); i++) {
                     bondManager.releaseBond(list.get(i));
                 }
@@ -116,11 +116,11 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         return ArrayList.class;
     }
     
-    public Object makeAgent(IAtom newAtom) {
+    public ArrayList makeAgent(IAtom newAtom) {
         // we got a leaf atom in a mult-atom molecule
         ArrayList<Object> bondList = new ArrayList<Object>(); 
         Model.PotentialAndIterator[] bondIterators = bondIteratorsHash.
-                get(((IAtomType)newAtom.getType()).getSpecies());
+                get(newAtom.getType().getSpecies());
         
         if (bondIterators != null) {
             IMolecule molecule = newAtom.getParentGroup();
@@ -154,12 +154,12 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
         return bondList;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(ArrayList agent, IAtom atom) {
         // we only release a bond when the "up" atom from the bond goes away
         // so if only the "down" atom goes away, we would leave the bond in
         // (bad).  However, you're not allowed to mutate the model, so deleting
         // one leaf atom of a covalent bond and not the other would be illegal.
-        ArrayList<Object> list = (ArrayList<Object>)agent;
+        ArrayList<Object> list = agent;
         for (int i=0; i<list.size(); i++) {
             bondManager.releaseBond(list.get(i));
         }
@@ -168,7 +168,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource, Serializa
     
     private static final long serialVersionUID = 1L;
     protected final IBox box;
-    protected final AtomLeafAgentManager atomAgentManager;
+    protected final AtomLeafAgentManager<ArrayList> atomAgentManager;
     protected final HashMap<ISpecies,Model.PotentialAndIterator[]> bondIteratorsHash;
     protected BondManager bondManager;
     protected final MoleculeSetSinglet atomSetSinglet;

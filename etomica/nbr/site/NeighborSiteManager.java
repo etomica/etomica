@@ -30,7 +30,7 @@ import etomica.space.ISpace;
 /*
  * History Created on May 23, 2005 by kofke
  */
-public class NeighborSiteManager implements BoxCellManager, AgentSource {
+public class NeighborSiteManager implements BoxCellManager, AgentSource<AtomSite> {
 
     /**
      * Constructs manager for neighbor cells in the given box. The number of
@@ -50,7 +50,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
         siteIterator.setLattice(lattice);
         siteIterator.reset();
 
-        agentManager = new AtomLeafAgentManager(this,box);
+        agentManager = new AtomLeafAgentManager<AtomSite>(this,box,AtomSite.class);
     }
 
     /**
@@ -71,23 +71,19 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
     }
 
     public AtomSite getSite(IAtom atom) {
-        return (AtomSite)agentManager.getAgent(atom);
-    }
-    
-    public Class getAgentClass() {
-        return AtomSite.class;
+        return agentManager.getAgent(atom);
     }
 
-    public Object makeAgent(IAtom atom) {
+    public AtomSite makeAgent(IAtom atom) {
         AtomSite site = (AtomSite)siteIterator.next();
         site.setAtom(atom);
         return site;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(AtomSite agent, IAtom atom) {}
 
     private final CellLattice lattice;
     private final ISpace space;
     private final RectangularLattice.Iterator siteIterator;
-    private final AtomLeafAgentManager agentManager;
+    private final AtomLeafAgentManager<AtomSite> agentManager;
 }

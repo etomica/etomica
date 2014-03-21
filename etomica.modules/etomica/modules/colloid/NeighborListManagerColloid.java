@@ -5,7 +5,6 @@ import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
-import etomica.nbr.list.AtomNeighborLists;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
@@ -50,8 +49,8 @@ public class NeighborListManagerColloid extends NeighborListManager {
 
         for (int i=0; i<monomers.getMoleculeCount(); i++) {
             IAtom atom = monomers.getMolecule(i).getChildList().getAtom(0);
-            ((AtomNeighborLists)agentManager2Body.getAgent(colloidAtom)).addUpNbr(atom,p2idx);
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).addDownNbr(colloidAtom,p2idx2);
+            agentManager2Body.getAgent(colloidAtom).addUpNbr(atom,p2idx);
+            agentManager2Body.getAgent(atom).addDownNbr(colloidAtom,p2idx2);
         }
         
         p2idx = potentialMaster.getRangedPotentials(monomers.getMolecule(0).getChildList().getAtom(0).getType()).getPotentialIndex(p2pseudo);
@@ -60,8 +59,8 @@ public class NeighborListManagerColloid extends NeighborListManager {
             for (int j=i+chainLength; j<monomers.getMoleculeCount(); j+=chainLength) {
                 IAtom jAtom = monomers.getMolecule(j).getChildList().getAtom(0);
                 // iAtom and jAtom are both bonded to the colloid.  we need to keep them apart with p2seudo
-                ((AtomNeighborLists)agentManager2Body.getAgent(iAtom)).addUpNbr(jAtom,p2idx);
-                ((AtomNeighborLists)agentManager2Body.getAgent(jAtom)).addDownNbr(iAtom,p2idx2);
+                agentManager2Body.getAgent(iAtom).addUpNbr(jAtom,p2idx);
+                agentManager2Body.getAgent(jAtom).addDownNbr(iAtom,p2idx2);
             }
         }
     }
@@ -75,7 +74,7 @@ public class NeighborListManagerColloid extends NeighborListManager {
             super(range, space);
         }
 
-        public Object makeAgent(IBox box) {
+        public NeighborListManagerColloid makeAgent(IBox box) {
             return new NeighborListManagerColloid(potentialMaster, range, box, space);
         }
     }

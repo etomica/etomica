@@ -22,17 +22,12 @@ public class BoxAgentSourceCellManagerListMolecular extends BoxAgentSourceCellMa
         potentialMaster = newPotentialMaster;
     }
 
-    public Object makeAgent(IBox box) {
+    public NeighborCellManagerListMolecular makeAgent(IBox box) {
         NeighborCellManagerListMolecular cellManager = new NeighborCellManagerListMolecular(sim, box,range,positionDefinition, space);
         cellManager.setPotentialMaster(potentialMaster);
         box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }
 
-    public Class getAgentClass() {
-        return NeighborCellManagerListMolecular.class;
-    }
-    
-    private static final long serialVersionUID = 1L;
     protected PotentialMasterListMolecular potentialMaster;
 }

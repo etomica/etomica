@@ -24,7 +24,7 @@ import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
-public class ChainEquilibriumSim extends Simulation implements AgentSource {
+public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom[]> {
 
 	public IController controller1;
 	public IntegratorHard integratorHard;
@@ -37,7 +37,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	public P2HardSphere p2AA, p2BB; //, p2CC, p2BC;
 	public P2SquareWellBonded ABbonded; //, ACbonded;
     public ActivityIntegrate activityIntegrate;
-    public AtomLeafAgentManager agentManager = null;
+    public AtomLeafAgentManager<IAtom[]> agentManager = null;
     public final IPotentialMaster potentialMaster;
     public final ConfigurationLatticeRandom config;
     public int nCrossLinkersAcid;
@@ -125,7 +125,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager(this,box);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box,IAtom[].class);
 
 		//potentials
         p2AA = new P2HardSphere(space, diameter, true);
@@ -156,15 +156,11 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         }
     }
 
-    public Class getAgentClass() {
-        return IAtom[].class;
-    }
-    
 	/**
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public Object makeAgent(IAtom a) {
+	public IAtom[] makeAgent(IAtom a) {
 	    IMolecule m = a.getParentGroup();
 	    int nBonds = 2;
 	    if (m.getType() == speciesA) {
@@ -183,9 +179,9 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		return new IAtom[nBonds];
 	}
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(IAtom[] agent, IAtom atom) {}
     
-    public AtomLeafAgentManager getAgentManager() {
+    public AtomLeafAgentManager<IAtom[]> getAgentManager() {
     	return agentManager;
     }
 }

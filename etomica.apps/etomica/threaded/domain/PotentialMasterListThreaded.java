@@ -11,6 +11,7 @@ import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.Cell;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -22,7 +23,6 @@ import etomica.util.Debug;
 
 public class PotentialMasterListThreaded extends PotentialMasterList {
 
-    private static final long serialVersionUID = 1L;
     PotentialMasterListWorker[] threads;
 	BoxAgentManager agentManagerThreaded;
 	
@@ -42,14 +42,14 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			BoxAgentSourceCellManagerList boxAgentSource, ISpace _space) {
-		this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
+		this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			BoxAgentSourceCellManagerList boxAgentSource,
-			BoxAgentManager agentManager, ISpace _space) {
+			BoxAgentManager<NeighborCellManager> agentManager, ISpace _space) {
 		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range, _space), _space);
-        agentManagerThreaded = new BoxAgentManager(new BoxAgentSourceCellManagerThreaded(sim, null, _space), sim);
+        agentManagerThreaded = new BoxAgentManager<NeighborCellManagerThreaded>(new BoxAgentSourceCellManagerThreaded(sim, null, _space), NeighborCellManagerThreaded.class, sim);
 	}
 	
     public NeighborCellManagerThreaded getNbrCellManagerThreaded(IBox box) {
@@ -180,21 +180,11 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         public NeighborListAgentSourceThreaded(double range, ISpace _space) {
 
             super(range, _space);
-            this.space = _space;
         }
 
-        public Class getAgentClass() {
-            return NeighborListManagerThreaded.class;
-        }
-
-        public Object makeAgent(IBox box) {
+        public NeighborListManagerThreaded makeAgent(IBox box) {
             return new NeighborListManagerThreaded((PotentialMasterListThreaded)potentialMaster, range, box, space);
         }
-
-        private final ISpace space;
-        private static final long serialVersionUID = 1L;
-
-      
     }
 
 

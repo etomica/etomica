@@ -4,6 +4,7 @@ import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager;
+import etomica.box.BoxCellManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.space.ISpace;
 
@@ -41,11 +42,11 @@ public class PotentialMasterCell extends PotentialMasterSite {
     
     public PotentialMasterCell(ISimulation sim, double range, 
     		BoxAgentSourceCellManager boxAgentSource, ISpace _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
     }
     
     public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
-            BoxAgentManager agentManager, ISpace _space) {
+            BoxAgentManager<NeighborCellManager> agentManager, ISpace _space) {
         super(sim, boxAgentSource, agentManager, new Api1ACell(_space.D(),range,agentManager));
         setRange(range);
     }
@@ -57,7 +58,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     public void setCellRange(int d) {
         super.setCellRange(d);
 
-        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
@@ -70,7 +71,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
         ((BoxAgentSourceCellManager)boxAgentSource).setRange(d);
         range = d;
 
-        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
@@ -93,14 +94,13 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * Reassign atoms to cell lists for all boxes.
      */
     public void reset() {
-        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager neighborCellManager = (NeighborCellManager)iterator.next();
             neighborCellManager.assignCellAll();
         }
     }
-    
-    private static final long serialVersionUID = 1L;
+
     private double range;
 }

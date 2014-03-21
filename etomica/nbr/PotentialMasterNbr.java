@@ -10,6 +10,7 @@ import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.SpeciesAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
+import etomica.box.BoxCellManager;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
@@ -17,8 +18,8 @@ import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource, SpeciesAgentManager.AgentSource {
 
-    protected PotentialMasterNbr(ISimulation sim, BoxAgentSource boxAgentSource, 
-            BoxAgentManager boxAgentManager) {
+    public PotentialMasterNbr(ISimulation sim, BoxAgentSource<? extends BoxCellManager> boxAgentSource, 
+            BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
         super();
         simulation = sim;
         this.boxAgentSource = boxAgentSource;
@@ -120,7 +121,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return (PotentialArray)intraAgentManager.getAgent(atomType);
     }
     
-    public final BoxAgentManager getCellAgentManager() {
+    public final BoxAgentManager<? extends BoxCellManager> getCellAgentManager() {
         return boxAgentManager;
     }
     
@@ -154,7 +155,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     protected final AtomTypeAgentManager rangedAgentManager;
     protected final SpeciesAgentManager intraAgentManager;
     protected IPotential[] allPotentials = new IPotential[0];
-    protected BoxAgentSource boxAgentSource;
+    protected BoxAgentSource<? extends BoxCellManager> boxAgentSource;
     protected final ISimulation simulation;
-    protected BoxAgentManager boxAgentManager;
+    protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
 }

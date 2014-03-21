@@ -9,6 +9,7 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
+import etomica.nbr.CriterionPositionWall.DoubleWrapper;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -19,7 +20,7 @@ import etomica.util.Debug;
  * at the box boundaries or at some fixed position within the box.
  * @author andrew
  */
-public class CriterionPositionWall implements NeighborCriterion, AgentSource, java.io.Serializable {
+public class CriterionPositionWall implements NeighborCriterion, AgentSource<DoubleWrapper> {
 
 	public CriterionPositionWall(ISimulation sim) {
 		super();
@@ -27,7 +28,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         this.neighborRange = Double.NaN;
         setBoundaryWall(true);
         setSafetyFactor(0.8);
-        boxAgentManager = new BoxAgentManager(new BoxAgentSourceAtomManager(this),sim);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<DoubleWrapper>>(new BoxAgentSourceAtomManager<DoubleWrapper>(this,DoubleWrapper.class),AtomLeafAgentManager.class,sim);
 	}
 
     /**
@@ -151,7 +152,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 
 	public void setBox(IBox box) {
         boxSize = box.getBoundary().getBoxSize().getX(neighborDim);
-        agentManager = (AtomLeafAgentManager)boxAgentManager.getAgent(box);
+        agentManager = boxAgentManager.getAgent(box);
 	}
     
 	public boolean unsafe() {
@@ -183,25 +184,19 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 	
 	public void reset(IAtom atom) {
-		((DoubleWrapper)agentManager.getAgent(atom)).x = atom.getPosition().getX(neighborDim);
+		agentManager.getAgent(atom).x = atom.getPosition().getX(neighborDim);
 	}
 
-    public Class getAgentClass() {
-        return DoubleWrapper.class;
-    }
-    
-    public Object makeAgent(IAtom atom) {
+    public DoubleWrapper makeAgent(IAtom atom) {
         return new DoubleWrapper();
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(DoubleWrapper agent, IAtom atom) {}
 
-    protected static class DoubleWrapper implements java.io.Serializable {
-        private static final long serialVersionUID = 1L;
+    protected static class DoubleWrapper {
         public double x;
     }
-    
-    private static final long serialVersionUID = 1L;
+
     private double interactionRange, displacementLimit, neighborRange;
     private int neighborDim;
     private boolean isBoundaryWall;
@@ -209,6 +204,6 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     private double boxSize;
 	protected double safetyFactor;
 	protected double dr, rMaxSafe;
-    protected AtomLeafAgentManager agentManager;
-    private final BoxAgentManager boxAgentManager;
+    protected AtomLeafAgentManager<DoubleWrapper> agentManager;
+    private final BoxAgentManager<AtomLeafAgentManager<DoubleWrapper>> boxAgentManager;
 }

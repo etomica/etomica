@@ -12,29 +12,29 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
  * The colorAllAtoms method is called by the display if it determines that the
  * ColorScheme is a subclass of this one.
  */
-public abstract class ColorSchemeCollectiveAgent extends ColorScheme implements AgentSource, ColorSchemeCollective {
+public abstract class ColorSchemeCollectiveAgent extends ColorScheme implements AgentSource<Color>, ColorSchemeCollective {
     
-    protected AtomLeafAgentManager agentManager;
+    protected AtomLeafAgentManager<Color> agentManager;
     
     public ColorSchemeCollectiveAgent(IBox box) {
     	super();
-        agentManager = new AtomLeafAgentManager(this, box);
+        agentManager = new AtomLeafAgentManager<Color>(this, box, Color.class);
     }
     
     public abstract void colorAllAtoms();
     
     public Color getAtomColor(IAtom a) {
-        return (Color)agentManager.getAgent(a);
+        return agentManager.getAgent(a);
     }
    
     public Class getAgentClass() {
         return Color.class;
     }
     
-    public Object makeAgent(IAtom a) {
+    public Color makeAgent(IAtom a) {
         return null;
     }
     
-    public void releaseAgent(Object agent, IAtom atom) {}
+    public void releaseAgent(Color agent, IAtom atom) {}
     
 }

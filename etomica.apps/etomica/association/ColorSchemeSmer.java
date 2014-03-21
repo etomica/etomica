@@ -6,6 +6,7 @@ import java.util.HashMap;
 import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IRandom;
+import etomica.association.ColorSchemeSmer.ColorAgent;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.graphics.ColorScheme;
@@ -16,13 +17,13 @@ import etomica.graphics.ColorScheme;
  * 
  * @author Andrew Schultz
  */
-public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager.AgentSource {
+public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager.AgentSource<ColorAgent> {
 
     public ColorSchemeSmer(IAssociationHelper associationHelper, IBox box, IRandom random) {
         super();
         setMonomerColor(DEFAULT_ATOM_COLOR);
         this.associationHelper = associationHelper;
-        dimerColorManager = new AtomLeafAgentManager(this, box);
+        dimerColorManager = new AtomLeafAgentManager<ColorAgent>(this, box, ColorAgent.class);
         this.random = random;
         oldColors = new HashMap<Color,Integer>();
         smerList = new AtomArrayList();
@@ -39,7 +40,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
 
     protected void reclaim(IAtom atom) {
 //        System.out.println("reclaiming "+atom);
-        ColorAgent colorAgent = (ColorAgent)dimerColorManager.getAgent(atom);
+        ColorAgent colorAgent = dimerColorManager.getAgent(atom);
         if (colorAgent == null) return;
         dimerColorManager.setAgent(atom, null);
         if (oldColors.get(colorAgent.color) == null) {
@@ -53,7 +54,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
     }
     
     public synchronized Color getAtomColor(IAtom a) {
-        ColorAgent colorAgent = (ColorAgent)dimerColorManager.getAgent(a);
+        ColorAgent colorAgent = dimerColorManager.getAgent(a);
         associationHelper.populateList(smerList, a, false);
         if (colorAgent != null) {
             if (smerList.getAtomCount() > 1) {
@@ -98,7 +99,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         // atom is in an smer.  see if any of the atoms were in an smer
         ColorAgent iColorAgent = null;
         for (int i=1; i<smerList.getAtomCount(); i++) {
-            iColorAgent = (ColorAgent)dimerColorManager.getAgent(smerList.getAtom(i));
+            iColorAgent = dimerColorManager.getAgent(smerList.getAtom(i));
             if (iColorAgent != null) {
                 colorAgent = iColorAgent;
                 break;
@@ -164,22 +165,18 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
     public Color getMonomerColor() {
         return monomerColor;
     }
-    
-    public Class getAgentClass() {
-        return ColorAgent.class;
-    }
 
-    public Object makeAgent(IAtom a) {
+    public ColorAgent makeAgent(IAtom a) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IAtom atom) {
+    public void releaseAgent(ColorAgent agent, IAtom atom) {
     }
     
     private static final long serialVersionUID = 1L;
     protected Color monomerColor;
     protected IAssociationHelper associationHelper;
-    protected AtomLeafAgentManager dimerColorManager;
+    protected AtomLeafAgentManager<ColorAgent> dimerColorManager;
     protected IRandom random;
     protected HashMap<Color,Integer> oldColors;
     protected final AtomArrayList smerList;

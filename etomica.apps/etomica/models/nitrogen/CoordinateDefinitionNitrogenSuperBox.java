@@ -217,7 +217,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         initNominalU(cells[totalCells-1].molecules);
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
     }
     
     public void setGammaPositionAndOrientation(IMoleculeList molecules){
@@ -276,7 +276,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	}
     	
     	moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager(new SiteSource(space), box);
+        siteManager = new AtomLeafAgentManager<IVectorMutable>(new SiteSource(space), box, IVectorMutable.class);
 
     }
     

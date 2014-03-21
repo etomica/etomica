@@ -77,9 +77,8 @@ public class MeterPotentialEnergy extends DataSourceScalar {
         energy = newEnergySummer;
     }
 
-    private static final long serialVersionUID = 1L;
-    private IBox box;
-    private final IteratorDirective iteratorDirective = new IteratorDirective();
-    private PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
-    private final IPotentialMaster potential;
+    protected IBox box;
+    protected final IteratorDirective iteratorDirective = new IteratorDirective();
+    protected PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
+    protected final IPotentialMaster potential;
 }
