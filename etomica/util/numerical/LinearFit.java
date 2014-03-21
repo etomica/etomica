@@ -10,7 +10,7 @@ import Jama.Matrix;
  */
 public class LinearFit {
 
-    public static FitResult doFit(double[] x, double[] y) {
+    public static double[] doFit(double[] x, double[] y) {
         double[] w = new double[x.length];
         for (int i=0; i<x.length; i++) {
             w[i] = 1;
@@ -18,12 +18,11 @@ public class LinearFit {
         return doFit(x, y, w);
     }
     
-    public static FitResult doFit(double[] x, double[] y, double[] w) {
+    public static double[] doFit(double[] x, double[] y, double[] w) {
         if (x.length != y.length || x.length != w.length || x.length < 2) {
             // We need at least two data points to do a meaningful fit.
             return null;
         }
-        FitResult result = new FitResult();
         double[][] M = new double[2][2];
         double[] b = new double[2];
         for (int i=0; i<x.length; i++) {
@@ -36,31 +35,14 @@ public class LinearFit {
         }
         Matrix mat = new Matrix(M);
         Matrix sol = mat.solve(new Matrix(b,2));
-        result.m = sol.get(0,0);
-        result.b = sol.get(1,0);
+        double[] result = new double[2];
+        result[1] = sol.get(0,0);
+        result[0] = sol.get(1,0);
         return result;
     }
-    
-    /**
-     * Class for holding results of the linear fit, y = mx + b
-     *
-     * @author Andrew Schultz
-     */
-    public static class FitResult {
 
-        /**
-         * Coefficient multiplying x, the slope of the y vs. x fitted line.
-         */
-        public double m;
-
-        /**
-         * The intercept of the y vs. x fitted line.
-         */
-        public double b;
-    }
-    
     public static void main(String[] args) {
-        FitResult r = doFit(new double[]{1,2,3}, new double[]{0,1,2});
-        System.out.println("m="+r.m+" b="+r.b);
+        double[] r = doFit(new double[]{1,2,3}, new double[]{0,1,2});
+        System.out.println("m="+r[1]+" b="+r[0]);
     }
 }
