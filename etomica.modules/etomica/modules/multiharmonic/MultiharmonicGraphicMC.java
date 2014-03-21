@@ -10,7 +10,9 @@ import javax.swing.JTabbedPane;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsingLog;
+import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataProcessorFunction;
@@ -36,6 +38,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.util.Function;
+import etomica.util.HistogramCollapsing;
 import etomica.util.HistoryCollapsing;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
@@ -70,11 +73,11 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public double f(double x) {return -Math.log(x);}
         });
         sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {sim.accumulator.AVERAGE});
-        sim.accumulator.setPushInterval(1000);
+        sim.accumulator.setPushInterval(1);
         AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing(102, 3));
         history.setTimeDataSource(sim.stepCounter);
         log.setDataSink(history);
-        history.setPushInterval(1);
+        history.setPushInterval(1000);
         history.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{history.getTag()}, "measured");
         
@@ -83,6 +86,15 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.historyEnergy.setDataSink(energyPlot.getDataSet().makeDataSink());
         energyPlot.setLegend(new DataTag[]{sim.historyEnergy.getTag()}, "measured");
         sim.historyEnergy.setPushInterval(10);
+        
+        DataProcessorFunction deltaU = new DataProcessorFunction(Function.Log.INSTANCE);
+        sim.accumulator.addDataSink(deltaU, new StatType[]{sim.accumulator.MOST_RECENT});
+        AccumulatorHistogram duHistogram = new AccumulatorHistogram(new HistogramCollapsing());
+        deltaU.setDataSink(duHistogram);
+        duHistogram.setPushInterval(1000);
+        final DisplayPlot duPlot = new DisplayPlot();
+        duHistogram.setDataSink(duPlot.getDataSet().makeDataSink());
+        duPlot.setDoLegend(false);
         
         DeviceSlider x0Slider = new DeviceSlider(sim.controller);
         final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
@@ -165,6 +177,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         energyPlot.getDataSet().setUpdatingOnAnyChange(true);
         plot.getPlot().setTitle("Free energy difference");
         energyPlot.getPlot().setTitle("Average energy");
+        
+        duPlot.getPlot().setTitle("Energy Difference (A-B)");
 
         final DisplayPlot uPlot = new DisplayPlot();
         final double yMax = 2.0;
@@ -215,6 +229,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sliderPanel.add(omegaBSlider.graphic(), "omegaB");
         
         energyPlot.setSize(350,250);
+        duPlot.setSize(350,250);
         
         JPanel topPanel = new JPanel(new GridBagLayout());
         JPanel displayPanel = new JPanel(new GridBagLayout());
@@ -237,6 +252,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         JPanel tab1 = new JPanel(new GridBagLayout());
         plotTabs.add(tab1, "Energy");
         tab1.add(energyPlot.graphic());
+        tab1.add(duPlot.graphic(), horizGBC);
 
         getPanel().graphicsPanel.add(plotTabs, vertGBC);
 
@@ -250,7 +266,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         uUpdate.actionPerformed();
 
-        AccumulatorAverageCollapsingLog accumulatorEnergy = new AccumulatorAverageCollapsingLog(sim.getRandom());
+        AccumulatorAverageCollapsingLog accumulatorEnergy = new AccumulatorAverageCollapsingLog();
         DataPump dataPumpEnergy = new DataPump(sim.meter, accumulatorEnergy);
         dataStreamPumps.add(dataPumpEnergy);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
