@@ -59,14 +59,14 @@ public class SimOverlapModule {
         accumulatorPumps[0] = new DataPumpListener(meters[0], splitterReference);
         integratorReference.getEventManager().addListener(accumulatorPumps[0]);
         splitterReference.setDataSinkFactory(dataSinkFactory);
-        DataSourceOverlapLogAvg overlapAvgA = new DataOverlap.DataSourceOverlapAvgCollapsing(splitterReference);
+        DataSourceOverlapLogAvg overlapAvgA = new DataOverlap.DataSourceOverlapAvgCollapsingSplit(splitterReference);
 
         DataSplitter splitterTarget = new DataSplitter();
         splitterTarget.setDataSinkFactory(dataSinkFactory);
         accumulatorPumps[1] = new DataPumpListener(meters[1], splitterTarget);
         integratorTarget.getEventManager().addListener(accumulatorPumps[1]);
         splitterTarget.setDataSinkFactory(dataSinkFactory);
-        DataSourceOverlapLogAvg overlapAvgB = new DataOverlap.DataSourceOverlapAvgCollapsing(splitterTarget);
+        DataSourceOverlapLogAvg overlapAvgB = new DataOverlap.DataSourceOverlapAvgCollapsingSplit(splitterTarget);
 
         dataOverlap = new DataOverlap(overlapAvgA, overlapAvgB, meters[0]);
         
