@@ -14,6 +14,7 @@ public abstract class EOSSW {
         // "Surface tension and vapor-­liquid phase coexistence of the square-well fluid"
         //  Jayant K. Singh, David A. Kofke, and Jeffrey R. Errington
         //  J. Chem. Phys. (119) 3405
+        // http://link.aip.org/link/doi/10.1063/1.1590313
         if (lambda != 1.5) throw new RuntimeException("oops, data is for lambda=1.5");
         if (temperature > Tc) throw new IllegalArgumentException("supercritical");
         return Math.exp(3.5211 - 7.1939 / temperature);
