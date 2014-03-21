@@ -1,0 +1,54 @@
+package etomica.data;
+
+import etomica.api.IIntegratorEvent;
+import etomica.api.IIntegratorListener;
+
+/**
+ * DataPump class that takes data at steps pow^i, i=0,1,2,3...
+ * This can be used to take (and retain) data over many orders of magnitude.
+ * Pow is 2 by default.
+ * 
+ * @author Andrew Schultz
+ */
+public class DataPumpListenerPowStrict extends DataPump implements IIntegratorListener {
+
+    protected long interval;
+    protected long intervalCount;
+    protected int pow;
+    
+    public DataPumpListenerPowStrict(IEtomicaDataSource dataSource, IDataSink dataSink) {
+        this(dataSource, dataSink, 2);
+    }
+
+    public DataPumpListenerPowStrict(IEtomicaDataSource dataSource, IDataSink dataSink, int pow) {
+        super(dataSource, dataSink);
+        this.pow = pow;
+        reset();
+    }
+    
+    public void integratorInitialized(IIntegratorEvent e) {}
+    
+    public void integratorStepStarted(IIntegratorEvent e) {}
+    
+    public void integratorStepFinished(IIntegratorEvent e) {
+        if(++intervalCount < interval) {
+            return;
+        }
+        if (interval == 0) {
+            interval = 1;
+        }
+        else {
+            interval *= pow;
+        }
+        intervalCount = 0;
+        actionPerformed();
+    }
+    
+    public void reset() {
+        interval = 0;
+    }
+    
+    public long getInterval() {
+        return interval;
+    }
+}
