@@ -62,6 +62,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         this.space = space;
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
         positionDefinition = new AtomPositionGeometricCenter(space);
+        atomActionTranslateTo.setAtomPositionDefinition(positionDefinition);
         setBoundaryPadding(0);
     }
 
