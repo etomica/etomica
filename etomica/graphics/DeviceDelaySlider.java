@@ -6,6 +6,8 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
+import etomica.api.IIntegrator;
+import etomica.integrator.IntegratorMD;
 import etomica.modifier.Modifier;
 import etomica.units.Dimension;
 import etomica.units.Null;
@@ -14,16 +16,21 @@ public class DeviceDelaySlider {
 
 	private DeviceSlider      delaySlider;
 	private JPanel            delayPanel;
+	protected double threshold = Double.POSITIVE_INFINITY;
+	protected double nominalTimeStep;
+	protected final ActivityIntegrate ai;
 	
     //DELAY_EXPONENT affects how sharply the delay increases as slider is moved from zero -- 
     //a larger value pushes increase off to larger slider values; 1.0 is a linear increase
     //DELAY_MULTIPLIER is set such that sleep period is 100 when slider is at its maximum value of 10
-    private static final double  DELAY_EXPONENT = 2.0;
-    private static final double  DELAY_MULTIPLIER = 100.0 / Math.pow(10.0,DELAY_EXPONENT);
+    protected double  delayExponent;
+    protected int maxSleep;
 
     public DeviceDelaySlider(IController cont, ActivityIntegrate ai) {
-
-    	DelayModifier mod = new DelayModifier(ai);
+        delayExponent = 2.0;
+        maxSleep = 100;
+        this.ai = ai;
+    	DelayModifier mod = new DelayModifier();
 
     	delaySlider = new DeviceSlider(cont, mod);
     	delaySlider.setShowValues(false);
@@ -42,27 +49,71 @@ public class DeviceDelaySlider {
     	delayPanel.setBorder(new TitledBorder(null, "Simulation Delay", TitledBorder.CENTER, TitledBorder.TOP));
 
     	delayPanel.add(delaySlider.graphic());
-
+    }
+    
+    public void setDelayExponent(double newDelayExponent) {
+        delayExponent = newDelayExponent;
+    }
+    
+    public void setMaxSleep(int newMaxSleep) {
+        maxSleep = newMaxSleep;
     }
 
+    public double getDelayExponent() {
+        return delayExponent;
+    }
+    
+    public int getMaxSleep() {
+        return maxSleep;
+    }
+    
+    /**
+     * You play with fire!  This allows the slider to change not increase
+     * the activity integrate sleep period, but also to decrease the integrator
+     * timestep.  This will almost certainly mess up data collection (averages,
+     * etc. need to be reset when moving the slider whenever the slider changes
+     * the timestep).
+     * 
+     * @param t The maximum sleep period that will actually be invoked.  If the
+     * desired sleep period is greater than t, then the sleep period will be
+     * equal to t and the integrator timestep will be lowered so that the amount
+     * slept per simulation time is as desired.
+     */
+    public void setThreshold(int t) {
+        IIntegrator integrator = ai.getIntegrator();
+        if (integrator instanceof IntegratorMD) {
+            nominalTimeStep = ((IntegratorMD)integrator).getTimeStep();
+        }
+        else {
+            throw new RuntimeException("integrator is not MD, cannot set threshold");
+        }
+        if (t < 0.1) {
+            throw new RuntimeException("threshold must be at least 0.1");
+        }
+        threshold = t;
+    }
+    
 	public JPanel graphic() {
 		return delayPanel;
 	}
 
 	private class DelayModifier implements Modifier {
 
-        ActivityIntegrate activityIntegrate;
-
-        public DelayModifier(ActivityIntegrate ai) {
-    	    activityIntegrate = ai;
-        }
-
 	    public double getValue() {
-	    	return Math.pow(activityIntegrate.getSleepPeriod() / DELAY_MULTIPLIER, 1.0/DELAY_EXPONENT);
+	        double delayMultiplier = maxSleep / Math.pow(10.0,delayExponent);
+	    	return Math.pow(ai.getSleepPeriod() / delayMultiplier, 1.0/delayExponent);
 	    }
 
 	    public void setValue(double d) {
-	    	activityIntegrate.setSleepPeriod((int)(Math.pow(d, DELAY_EXPONENT)*DELAY_MULTIPLIER));
+	        double delayMultiplier = maxSleep / Math.pow(10.0,delayExponent);
+            double sleep = Math.pow(d, delayExponent)*delayMultiplier;
+            double tStep = nominalTimeStep;
+            if (sleep > threshold) {
+                tStep /= (sleep/threshold);
+                sleep = threshold;
+            }
+            ai.setSleepPeriod((int)sleep);
+            if (nominalTimeStep>0) ((IntegratorMD)ai.getIntegrator()).setTimeStep(tStep);
 	    }
 
         public Dimension getDimension() {return Null.DIMENSION;}
