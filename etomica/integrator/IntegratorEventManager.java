@@ -1,13 +1,14 @@
 package etomica.integrator;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import etomica.api.IIntegratorEventManager;
 import etomica.api.IIntegratorListener;
 
-public class IntegratorEventManager implements java.io.Serializable, IIntegratorEventManager {
+public class IntegratorEventManager implements IIntegratorEventManager {
     
-    private final LinkedList<IIntegratorListener> intervalListeners = new LinkedList<IIntegratorListener>();
+    private final ArrayList<IIntegratorListener> intervalListeners = new ArrayList<IIntegratorListener>();
+    protected boolean eventing;
 
 
     public synchronized void addListener(IIntegratorListener newListener) {
@@ -22,24 +23,32 @@ public class IntegratorEventManager implements java.io.Serializable, IIntegrator
         intervalListeners.remove(listener);
     }
     
+    public boolean firingEvent() {
+        return eventing;
+    }
+    
     public synchronized void stepStarted() {
+        eventing = true;
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).integratorStepStarted(null);
         }
+        eventing = false;
     }
     
     public synchronized void stepFinished() {
+        eventing = true;
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).integratorStepFinished(null);
         }
-        
+        eventing = false;
     }
     
     public synchronized void initialized() {
+        eventing = true;
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).integratorInitialized(null);
         }
-        
+        eventing = false;
     }
 }
 

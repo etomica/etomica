@@ -11,5 +11,9 @@ public interface IIntegratorEventManager {
      * Removes the given listener from this event manager.
      */
     public void removeListener(IIntegratorListener listener);
-    
+
+    /**
+     * Returns true if the event manager is currently firing events.
+     */
+    public boolean firingEvent();
 }
