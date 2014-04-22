@@ -68,7 +68,7 @@ public class DisplayPlot extends Display implements DataSetListener {
         labelList = new LinkedList<DataTagBag>();
         unitList = new LinkedList<DataTagBag>();
         drawLineList = new LinkedList<DataTagBag>();
-        
+
         final JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem resetMenuItem = new JMenuItem("reset");
         resetMenuItem.addActionListener(new ActionListener() {
@@ -198,6 +198,8 @@ public class DisplayPlot extends Display implements DataSetListener {
         if (doClear) {
             plot.clear(false);
         }
+        boolean xLog = plot.getXLog();
+        boolean yLog = plot.getYLog();
         for(int k=0; k<nSource; k++) {
         	double[] xValues = null;
             double[] data = null;
@@ -214,6 +216,13 @@ public class DisplayPlot extends Display implements DataSetListener {
                 for(int i=0; i<data.length; i++) {
                     double y = units[k].fromSim(data[i]);
                     if (!Double.isNaN(y)) {
+                        if ((yLog && y<=0) || (xLog && xValues[i]<=0)) {
+                            if (!logWarn) {
+                                System.err.println("non-positive values dropped from log scale");
+                                logWarn = true;
+                            }
+                            continue;
+                        }
                         plot.addPoint(k, xUnit.fromSim(xValues[i]), y, drawLine);
                         drawLine = true;
                     }
@@ -387,6 +396,7 @@ public class DisplayPlot extends Display implements DataSetListener {
     protected String xLabel;
     private Unit[] units;
     private Unit defaultUnit;
+    protected boolean logWarn;
 
     /**
      * Opens a window with the raw data from a plot.  The data is re-retrieved
