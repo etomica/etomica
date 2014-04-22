@@ -161,7 +161,7 @@ public class IntegratorHard extends IntegratorMD
             }
             if (collisionTimeStep - oldTime < minDelta) {
                 System.out.println("diff "+(collisionTimeStep - oldTime)+" minDelta "+minDelta);
-                System.out.println("previous collision occured before current one");
+                System.out.println("previous collision occured after current one");
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
@@ -376,7 +376,7 @@ public class IntegratorHard extends IntegratorMD
         int size = listToUpdate.getAtomCount();
         for (int i=0; i<size; i++) {
             IAtom reverseAtom = listToUpdate.getAtom(i);
-            Agent agent = (Agent)agentManager.getAgent(reverseAtom);
+            Agent agent = agentManager.getAgent(reverseAtom);
             if (agent.collisionPotential != null) {
                 agent.eventLinker.remove();
             }
@@ -480,6 +480,17 @@ public class IntegratorHard extends IntegratorMD
      */
     protected void randomizeMomenta() {
         super.randomizeMomenta();
+        // super.randomizeMomenta alters the velocities, so we need to 
+        // recalculate collision times
+        resetCollisionTimes();
+    }
+
+    /**
+     * Updates collision times appropriately after randomizing momenta
+     * as part of the Andersen scaling thermostat.
+     */
+    protected void randomizeTotalKE() {
+        super.randomizeTotalKE();
         // super.randomizeMomenta alters the velocities, so we need to 
         // recalculate collision times
         resetCollisionTimes();
