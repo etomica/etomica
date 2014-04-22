@@ -15,6 +15,7 @@ import etomica.api.IBoxMoleculeIndexEvent;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -46,6 +47,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
         momentum = space.makeVector();
+        temperatureVec = space.makeVector();
     }
 
     /**
@@ -157,12 +159,12 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         private static final long serialVersionUID = 1L;
         public static final ThermostatType VELOCITY_SCALING = new ThermostatType("Velocity Scaling");
         public static final ThermostatType ANDERSEN = new ThermostatType("Anderson");
-        public static final ThermostatType ANDERSEN_NODRIFT = new ThermostatType("Anderson without drift");
         public static final ThermostatType ANDERSEN_SINGLE = new ThermostatType("Andersen Single");
+        public static final ThermostatType ANDERSEN_SCALING = new ThermostatType("Andersen Scaling");
         public static final ThermostatType HYBRID_MC = new ThermostatType("Hybrid MC");
         //public static final ThermostatType NOSE_HOOVER;
         public static ThermostatType[] choices() {
-            return new ThermostatType[] {VELOCITY_SCALING,ANDERSEN,ANDERSEN_SINGLE,ANDERSEN_NODRIFT};
+            return new ThermostatType[] {VELOCITY_SCALING,ANDERSEN,ANDERSEN_SINGLE,HYBRID_MC,ANDERSEN_SCALING};
         }
 
         /**
@@ -215,6 +217,9 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 throw new RuntimeException("still have an integratorMC!");
             }
         }
+        if (thermostat == ThermostatType.ANDERSEN_SCALING) {
+            setThermostatNoDrift(true);
+        }
         oldEnergy = Double.NaN;
     }
 
@@ -259,7 +264,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         thermostatting = true;
         thermostatCount = thermostatInterval;
         boolean rejected = false;
-        if (thermostat == ThermostatType.ANDERSEN || thermostat == ThermostatType.HYBRID_MC || !initialized) {
+        if (thermostat == ThermostatType.ANDERSEN || thermostat == ThermostatType.ANDERSEN_SCALING || thermostat == ThermostatType.HYBRID_MC || !initialized) {
             if (thermostat == ThermostatType.HYBRID_MC) {
                 if (!Double.isNaN(oldEnergy)) {
                     // decide whether or not to go back to the old configuration
@@ -303,15 +308,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     oldPotentialEnergy = meterPE.getDataAsScalar();
                     oldEnergy = oldPotentialEnergy;
                 }
-            }
-            if (thermostat == ThermostatType.ANDERSEN) {
-                randomizeMomenta();
-                if (thermostatNoDrift) {
-                    shiftMomenta();
-                }
-                currentKineticEnergy = meterKE.getDataAsScalar();
-            }
-            else if (thermostat == ThermostatType.HYBRID_MC) {
+
                 if (initialized && integratorMC != null) {
                     for (int i=0; i<mcSteps; i++) {
                         integratorMC.doStep();
@@ -346,6 +343,17 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 }
                 oldEnergy += currentKineticEnergy;
             }
+            else if (thermostat == ThermostatType.ANDERSEN || !initialized) {
+                randomizeMomenta();
+                if (thermostatNoDrift) {
+                    shiftMomenta();
+                }
+                currentKineticEnergy = meterKE.getDataAsScalar();
+            }
+            else if (thermostat == ThermostatType.ANDERSEN_SCALING) {
+                randomizeTotalKE();
+                currentKineticEnergy = meterKE.getDataAsScalar();
+            }
         }
         if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
             shiftMomenta();
@@ -367,7 +375,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             }
         }
         // ANDERSEN was handled at the start
-        else if (thermostat != ThermostatType.ANDERSEN && thermostat != ThermostatType.HYBRID_MC) {
+        else if (thermostat != ThermostatType.ANDERSEN && thermostat != ThermostatType.HYBRID_MC && thermostat != ThermostatType.ANDERSEN_SCALING) {
             throw new RuntimeException("Unknown thermostat: "+thermostat);
         }
         thermostatting = false;
@@ -375,6 +383,47 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
 
     public double getHybridAcceptance() {
         return ((double)nAccepted)/(nAccepted+nRejected);
+    }
+    
+    protected void randomizeTotalKE() {
+        shiftMomenta();
+
+        IAtomList leafList= box.getLeafList();
+        int nLeaf = box.getLeafList().getAtomCount();
+        int nSkipped = 0;
+        double totalMass = 0;
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
+            double mass = ((IAtom)atom).getType().getMass();
+            if(mass == Double.POSITIVE_INFINITY || mass == 0) nSkipped--;
+            else totalMass += mass;
+        }
+        nLeaf -= nSkipped;
+        for (int i=0; i<space.D(); i++) {
+            double sumBKE = 0;
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                double x = random.nextGaussian();
+                sumBKE += x*x;
+            }
+            temperatureVec.setX(i, sumBKE);
+        }
+        temperatureVec.TE(temperature/nLeaf);
+        scaleMomenta(temperatureVec);
+        
+        if (!thermostatNoDrift && totalMass > 0) {
+            // pick net velocity from Maxwell-Boltzmann distribution
+            momentum.E(0);
+            for (int i=0; i<space.D(); i++) {
+                double x = random.nextGaussian();
+                double BKE = x*x;
+                double v = 2*Math.sqrt(BKE*temperature/totalMass);
+                momentum.setX(i, v);
+            }
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
+                atom.getVelocity().PE(momentum);
+            }
+        }
     }
     
     /**
@@ -414,6 +463,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf == 0) return;
+        int nSkipped = 0;
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
@@ -421,13 +471,17 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((IAtomKinetic)a).getVelocity());
                 }
+                else {
+                    nSkipped++;
+                }
             }
-            momentum.TE(1.0/nLeaf);
+            if (nSkipped >= nLeaf-1) return;
+            momentum.TE(1.0/(nLeaf-nSkipped));
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                 double rm = ((IAtom)a).getType().rm();
-                if (rm != 0) {
+                if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
                     a.getVelocity().PEa1Tv1(-rm,momentum);
                 }
             }
@@ -436,11 +490,11 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                     double mass = ((IAtom)a).getType().getMass();
-                    if (mass != Double.POSITIVE_INFINITY) {
+                    if (mass != Double.POSITIVE_INFINITY && mass != 0) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
                     }
                 }
-                momentum.TE(1.0/nLeaf);
+                momentum.TE(1.0/(nLeaf-nSkipped));
                 if (Math.sqrt(momentum.squared()) > 1.e-10) {
                     System.out.println("Net momentum per leaf atom is "+momentum+" but I expected it to be 0");
                 }
@@ -456,6 +510,11 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
      * integrator may need to be updated after calling this method.
      */
     protected void scaleMomenta() {
+        temperatureVec.E(temperature);
+        scaleMomenta(temperatureVec);
+    }
+    
+    protected void scaleMomenta(IVector t) {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         currentKineticEnergy = 0;
@@ -474,7 +533,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 nLeafNotFixed++;
             }
             if (sum == 0) {
-                if (temperature == 0) {
+                if (t.getX(i) == 0) {
                     continue;
                 }
                 if (i > 0) {
@@ -488,7 +547,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 // try again, we could infinite loop in theory
                 continue;
             }
-            double s = Math.sqrt(temperature / (sum / nLeafNotFixed));
+            double s = Math.sqrt(t.getX(i) / (sum / nLeafNotFixed));
             currentKineticEnergy += 0.5*sum*s*s;
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
@@ -571,6 +630,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
 
     protected IntegratorMC integratorMC;
     protected int mcSteps;
+    protected final IVectorMutable temperatureVec;
 
     public static class VectorSource implements AgentSource<IVectorMutable> {
 
