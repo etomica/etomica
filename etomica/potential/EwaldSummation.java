@@ -11,8 +11,9 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.math.SpecialFunctions;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
+import etomica.space3d.Tensor3D;
 import etomica.units.Electron;
-//import etomica.potential.EwaldSumMolecules2.MyCharge;
+
 /**
  * basic Ewald Sum 
  * U(coulomb) = U(real-space) + U(fourier-space) + U(self-correction)
@@ -30,446 +31,495 @@ import etomica.units.Electron;
 //Calc.: alpha = s/rc    ,  F&S: radius => nc=(s*alpha/PI)*L Sabry: n_max=N  , nx = ny = nz ~ N^1/3   ,
 //                            Shu : nx = ny = nz = coefficient_fourier * N^1/3 (coefficient_fourier=4 hERE)
 
-//OLD: public class EwaldSumMolecules implements IPotentialMolecular {
 public class EwaldSummation implements PotentialSoft{
-		
-	public final ISpace space;
-	public final AtomLeafAgentManager atomAgentManager;
-	public final IBox box;
-	public final double alpha;//sqrt of the Frenkel's alpha, follow other authors' convention
-	public final double boxSize;
-	public final double volume;
-	public final double rCut; // real-space spherical cutoff
-	
-	public final double precision_s;
-	public final double exp_s;// = exp(-s*s)/s/s;
-	public final int coefficient_fourier = 4; 
-	public final IMoleculeList moleculeList;
-	public final int numMolecules;
-	public final double q_err; // numberMolecules * charge in sim unit, for err estimate
-	protected IVectorMutable[] gradient;
-	protected double[] sinkrj, coskrj;
-	protected int nc;
-		
+    protected final ISpace space;
+    protected final AtomLeafAgentManager<MyCharge> atomAgentManager;
+    protected final IBox box;
+    protected final double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
+    protected final double boxSize;
+    protected final double volume;
+    protected final double rCut; // real-space spherical cutoff
+
+    protected final double precision_s;
+    protected final int nKs, nRealShells; 
+    protected final IMoleculeList moleculeList;
+    protected final int numMolecules;
+    protected IVectorMutable[] gradient;
+    protected double[] sinkrj, coskrj;
+    protected final Tensor secondDerivative;
+    protected final Tensor tempTensorkk;
+    protected final IVectorMutable rAB;
+    protected final IVectorMutable Lxyz;
+    protected final IVectorMutable drTmp;
+    protected final Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
+    protected final IVectorMutable kVector;
+
 	// *********************************************** constructor ************************************ // 
-	public EwaldSummation(IBox box, AtomLeafAgentManager atomAgentManager, double precision_s, ISpace _space){
-		this.box = box;
-		this.atomAgentManager = atomAgentManager;
-		this.precision_s = precision_s; // =???? | SG
-		this.space = _space;
-		boxSize = box.getBoundary().getBoxSize().getX(0);
-		volume = box.getBoundary().volume();
-		double foo = 2.0;
-		rCut = boxSize / foo ; 
-		alpha = precision_s / rCut;//Separation parameter, obtained from s and L
-		nc = 20; // Converged enough for sI :) 
-				
-		double precision_sSquared = precision_s * precision_s ;
-		exp_s = Math.exp(-precision_sSquared) / precision_sSquared;
-		moleculeList = box.getMoleculeList();
-		numMolecules = moleculeList.getMoleculeCount();
-		//nc = (int)Math.ceil(precision_s * boxSize * alpha / Math.PI);//"n = 2s^2/pi" if rC = L/2
+    public EwaldSummation(IBox box, AtomLeafAgentManager<MyCharge> atomAgentManager, double precision_s, ISpace _space, int nKs, int nRealShells){
 
-		double e = Electron.UNIT.toSim(1.0); 
-		q_err = numMolecules * e * e ;
-		
-//		System.out.println("In Ewald sum class");
-//		System.out.println("exp(-s^2)/s/s:"+exp_s);
-//		System.out.println("box size is : "+boxSize);
-//		System.out.println("rCut = L /"+foo+":"+rCut);
-//		System.out.println("alpha = s / rCut:"+alpha);
-//		System.out.println("cf. 5/L:"+5.0/boxSize);
-//		System.out.println("    3.5/L:"+3.5/boxSize);
-//		System.out.println("q_err= N*q^2:"+ q_err);
-		gradient = new IVectorMutable[0];
-		sinkrj = new double[0];
-		coskrj = new double[0];
-	}
-	
-	//////////////////////////////////////////// begin calculating energy //////////////////////////////////////
-	
-	// *********************************************************************************************//
-	// *************************************  Real-space ******************************************//
-	// *********************************************************************************************//
-	public double uReal(){
-		int nAtoms = box.getLeafList().getAtomCount();
-		
-		double rCutSquared = rCut * rCut; // criteria for spherical cutoff
-		double uReal = 0.0;
-		
-		IVectorMutable rAB = space.makeVector();// vector between site A @ molecule i & site B @ molecule j
-		for (int i=0; i < nAtoms; i++){//H
-			IAtom atomA = box.getLeafList().getAtom(i);
-			int aIndex = atomA.getParentGroup().getIndex();
-			IVectorMutable positionA = atomA.getPosition();
-			double chargeA = ((MyCharge)atomAgentManager.getAgent(atomA)).charge;
-			for (int j=i+1; j < nAtoms; j++){
-				IAtom atomB = box.getLeafList().getAtom(j);
-				int bIndex = atomB.getParentGroup().getIndex();
-				
-				if(aIndex == bIndex) continue;//Skip same molecules!
-				
-				IVectorMutable positionB = atomB.getPosition();
-				double chargeB = ((MyCharge)atomAgentManager.getAgent(atomB)).charge;
-				
- 				rAB.Ev1Mv2(positionA, positionB);// get vector rAB
-				box.getBoundary().nearestImage(rAB);// minimum image
-				double rABMagnitudeSquared = rAB.squared() ;// Squared of |rAB|
-				if (rABMagnitudeSquared < 0.5){
-					throw new RuntimeException();
-				}
-				if (rABMagnitudeSquared > rCutSquared) continue ; // check whether the rAB is within the spherical cutoff
-				double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
+        this.box = box;
+        this.atomAgentManager = atomAgentManager;
+        this.precision_s = precision_s; // =???? | SG
+        this.space = _space;
+        this.secondDerivative = space.makeTensor();
+        this.tempTensorkk = space.makeTensor();
+        this.nRealShells = nRealShells;
+        boxSize = box.getBoundary().getBoxSize().getX(0);
+        volume = box.getBoundary().volume();
+        Lxyz = space.makeVector();
+        rCut = boxSize * (0.49 + nRealShells); 
+        alpha = precision_s / rCut;//Separation parameter, obtained from s and L
+        System.out.println("alpha = "+alpha);
+        alpha2 = alpha*alpha;
+        alpha3 = alpha*alpha2;
+        this.nKs = nKs;
 
-				uReal += chargeA * chargeB * SpecialFunctions.erfc( alpha * rABMagnitude) / rABMagnitude;//Don't worry about 1/2 factor!
-			}// close for all sites in j-th molecule
-		} // close for the outside loop
-		return uReal;
-	}
+        moleculeList = box.getMoleculeList();
+        numMolecules = moleculeList.getMoleculeCount();
+        //nc = (int)Math.ceil(precision_s * boxSize * alpha / Math.PI);//"n = 2s^2/pi" if rC = L/2
 
-	// *********************************************************************************************//
-	// *************************************  Fourier-space ****************************************//
-	// *********************************************************************************************//
-	public double uFourier(){
+        if (false) {
+            double precision_sSquared = precision_s * precision_s ;
+            double exp_s = Math.exp(-precision_sSquared) / precision_sSquared;
+            double e = Electron.UNIT.toSim(1.0); 
+            double q_err = numMolecules * e * e ;
+
+            System.out.println("In Ewald sum class");
+            System.out.println("exp(-s^2)/s/s:"+exp_s);
+            System.out.println("box size is : "+boxSize);
+            System.out.println("rCut = "+rCut);
+            System.out.println("alpha = s / rCut:"+alpha);
+            System.out.println("cf. 5/L:"+5.0/boxSize);
+            System.out.println("    3.5/L:"+3.5/boxSize);
+            System.out.println("q_err= N*q^2:"+ q_err);
+
+            double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
+            double kCut =  basis * nKs;
+            System.out.println("basis vector is :" + basis); 
+            System.out.println("kCutoff is :" + kCut); 
+        }
+        gradient = new IVectorMutable[0];
+        sinkrj = new double[0];
+        coskrj = new double[0];
+        rAB = space.makeVector();
+        drTmp = space.makeVector();
+        kVector = space.makeVector();
+    }
+
+    //////////////////////////////////////////// begin calculating energy //////////////////////////////////////
+
+    // *********************************************************************************************//
+    // *************************************  Real-space ******************************************//
+    // *********************************************************************************************//
+    public double uReal(){
+        int nAtoms = box.getLeafList().getAtomCount();
+
+        double rCutSquared = rCut * rCut; // criteria for spherical cutoff
+        double uReal = 0.0;
+        for (int i=0; i < nAtoms; i++){//H
+            IAtom atomA = box.getLeafList().getAtom(i);
+            double chargeA = atomAgentManager.getAgent(atomA).charge;
+            if (chargeA==0) continue;
+            int aIndex = atomA.getParentGroup().getIndex();
+            IVectorMutable positionA = atomA.getPosition();
+            for (int j=i+1; j < nAtoms; j++){
+                IAtom atomB = box.getLeafList().getAtom(j);
+                int bIndex = atomB.getParentGroup().getIndex();
+
+                if(aIndex == bIndex && nRealShells==0) continue;//Skip same molecules!
+
+                double chargeB = atomAgentManager.getAgent(atomB).charge;
+                if (chargeB==0) continue;
+
+                IVectorMutable positionB = atomB.getPosition();
+
+                rAB.Ev1Mv2(positionA, positionB);// get vector rAB
+                box.getBoundary().nearestImage(rAB);// minimum image
+
+//				double rABMagnitudeSquared = rAB.squared() ;// Squared of |rAB|
+//				if (rABMagnitudeSquared > rCutSquared) continue ; // check whether the rAB is within the spherical cutoff
+//				double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
+
+                for(int nx = -nRealShells; nx <= nRealShells; nx++) {
+                    Lxyz.setX(0, nx*box.getBoundary().getBoxSize().getX(0)); 
+                    for(int ny = -nRealShells; ny <= nRealShells; ny++) {
+                        Lxyz.setX(1, ny*box.getBoundary().getBoxSize().getX(1));
+                        for(int nz = -nRealShells; nz <= nRealShells; nz++) {
+                            if (aIndex==bIndex && nx*nx+ny*ny+nz*nz == 0) continue;
+                            Lxyz.setX(2, nz*box.getBoundary().getBoxSize().getX(2));
+                            drTmp.Ev1Pv2(rAB, Lxyz);
+                            double r2 = drTmp.squared();
+                            if(r2 > rCutSquared) continue;
+                            double drTmpM = Math.sqrt(r2);
+                            uReal += chargeA * chargeB * SpecialFunctions.erfc( alpha * drTmpM) / drTmpM;//Don't worry about 1/2 factor!
+                        }
+                    }
+                }
+            }// close for all sites in j-th molecule
+        } // close for the outside loop
+        return uReal;
+    }
+
+    // *********************************************************************************************//
+    // *************************************  Fourier-space ****************************************//
+    // *********************************************************************************************//
+    public double uFourier(){
 //		System.out.println("coefficient_fourier: " + coefficient_fourier); 
 //		System.out.println("number of k-vectors along one axis is :"+ nc); 
-		// int n =(int)( precision_s * boxSize * alpha / Math.PI);// n(cut): number of vectors along one axis in fourier-space
-		
-		double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
-		double kCut =  basis * nc;
-		double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
-		double coefficient = 2.0 / volume * Math.PI ;
-		//double uFourier = 0.0;
-		double uFourier = 0.0; //>>>>>>>>>>>>>> calculated from cos*cos + sin*sin
-		IVectorMutable kVector = space.makeVector();// fourier space vector
-		IVectorMutable r = space.makeVector();
-		int nAtoms = box.getLeafList().getAtomCount();
+        // int n =(int)( precision_s * boxSize * alpha / Math.PI);// n(cut): number of vectors along one axis in fourier-space
 
-		if (!true){
-			System.out.println("basis vector is :" + basis); 
-			System.out.println("kCutoff is :" + kCut); 
-		}
-		
-		// loop over vectors in k-space. (1)k=(0,0,0) is excluded, (2)within sphere with kCutoff as its radius
-		for (int xAxis = -nc; xAxis < nc+1; xAxis++){
-			kVector.setX(0, (xAxis * basis));// assign value to the x-axis
-			for (int yAxis = -nc; yAxis < nc+1; yAxis++ ){
-				kVector.setX(1, (yAxis * basis));// assign value to the y-axis
-				for (int zAxis = -nc; zAxis < nc+1; zAxis++ ){
-					if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
-					kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
-					double kSquared = kVector.squared();
-					
-					if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
-					
-					double kCoefficientTerm = Math.exp(-kSquared / 4.0 / alpha / alpha) / kSquared;//exp(-k*k/4/alpha/alpha) / k/k , a constant for a given kVector
-					double structureFactorReal =  0.0;//>>>>>>>>>>>>> calculated from cos*cos + sin*sin
-					double structureFactorImagine =  0.0;//>>>>>>>>>>>>> calculated from cos*cos + sin*sin
-					for (int i=0; i< nAtoms ; i++){
-						IAtom atom = box.getLeafList().getAtom(i);
-						IVectorMutable position = atom.getPosition();
-						double charge = ((MyCharge)atomAgentManager.getAgent(atom)).charge;
-							r.E(position);
-							double k_r_dot = kVector.dot(r);
-							structureFactorReal += charge * Math.cos(k_r_dot);// >>>>>>>>>>>>> calculated from cos*cos + sin*sin
-							structureFactorImagine += charge * Math.sin(k_r_dot);// >>>>>>>>>>>>> calculated from cos*cos + sin*sin
-					}// close loop for all sites within 1 molecule
-					double structureFactorSquared = structureFactorReal * structureFactorReal + structureFactorImagine * structureFactorImagine ;//>>>>>>>>>>>>>calculated from cos*cos + sin*sin
-					uFourier +=  kCoefficientTerm * structureFactorSquared; //>>>>>>>>>>>>>calculated from cos*cos + sin*sin
-				}// close for z-axis
-			}//close for y-axis
-		}// close for x-axis(all non-zero kVecors)
-		double u = coefficient * uFourier; 
+        double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
+        double kCut =  basis * nKs;
+        double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
+        double coefficient = 2.0 / volume * Math.PI ;
+        //double uFourier = 0.0;
+        double uFourier = 0.0; //>>>>>>>>>>>>>> calculated from cos*cos + sin*sin
+        IAtomList atoms = box.getLeafList();
+        int nAtoms = atoms.getAtomCount();
 
-		return u; 
-	}
-	
-	
-	// *********************************************************************************************//
-	// ********************** self-correction Part************************************************* // 
-	// *********************************************************************************************//
-	public double uSelf(){
-		double coefficient = -alpha/Math.sqrt(Math.PI);
-		double uSelf = 0.0;
+        // loop over vectors in k-space. (1)k=(0,0,0) is excluded, (2)within sphere with kCutoff as its radius
+        for (int xAxis = -nKs; xAxis < nKs+1; xAxis++){
+            kVector.setX(0, (xAxis * basis));// assign value to the x-axis
+            for (int yAxis = -nKs; yAxis < nKs+1; yAxis++ ){
+                kVector.setX(1, (yAxis * basis));// assign value to the y-axis
+                for (int zAxis = -nKs; zAxis < nKs+1; zAxis++ ){
+                    if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
+                    kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
+                    double kSquared = kVector.squared();
 
-		boolean RPM1_1_78point5 = false;
-		if (RPM1_1_78point5 ){
-//			System.out.println("dielectric permitivity is 78.5,and the system is 1-1 RPM, so I am using u_self = -alpha/sqrt(pi) * number * e*e");
-			double eCharge =  Electron.UNIT.toSim( 1.0/Math.sqrt(78.5)); 
-			uSelf = coefficient * numMolecules * eCharge * eCharge ; 
-		} 
-		else {
-//			System.out.println("More generic algorithm, and I am looping every ion in the system");
-			for (int i=0; i< numMolecules; i++){
-				IMolecule molecule = moleculeList.getMolecule(i);	
-				int numSites = molecule.getChildList().getAtomCount();
-				// each site has a charge. get charge info from every site, loop over all sites
-				for (int site=0; site<numSites; site++){
-					IAtom atom = molecule.getChildList().getAtom(site);					
-					double charge = ((MyCharge)atomAgentManager.getAgent(atom)).charge;
-//					uSelf += coefficient*charge*charge;
-					uSelf += charge*charge;
+                    if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
 
-				}
-			}
-		}
-		
-		uSelf *= coefficient;
-		return uSelf;
-	}
-	public double uBondCorr(){
-		double uCorr = 0.0;
-		IVectorMutable rAB = space.makeVector();// vector between site A @ molecule i & site B @ molecule j
-		for (int i=0; i< numMolecules; i++){
-			IMolecule molecule = moleculeList.getMolecule(i);	
-			int numSites = molecule.getChildList().getAtomCount();
-			for (int siteA=0; siteA<numSites; siteA++){
-				IAtom atomA = molecule.getChildList().getAtom(siteA);
-				IVectorMutable positionA = atomA.getPosition();
-				double chargeA = ((MyCharge)atomAgentManager.getAgent(atomA)).charge;
-				for (int siteB=siteA+1; siteB<numSites; siteB++){
-					IAtom atomB = molecule.getChildList().getAtom(siteB);
-					IVectorMutable positionB = atomB.getPosition();
-					double chargeB = ((MyCharge)atomAgentManager.getAgent(atomB)).charge;
+                    double kCoefficientTerm = Math.exp(-kSquared / 4.0 / alpha2) / kSquared;//exp(-k*k/4/alpha/alpha) / k/k , a constant for a given kVector
+                    double structureFactorReal =  0.0;//>>>>>>>>>>>>> calculated from cos*cos + sin*sin
+                    double structureFactorImagine =  0.0;//>>>>>>>>>>>>> calculated from cos*cos + sin*sin
+                    for (int i=0; i<nAtoms; i++){
+                        IAtom atom = atoms.getAtom(i);
+                        IVectorMutable position = atom.getPosition();
+                        double charge = atomAgentManager.getAgent(atom).charge;
+						if (charge==0) continue;
+						double k_r_dot = kVector.dot(position);
+						structureFactorReal += charge * Math.cos(k_r_dot);// >>>>>>>>>>>>> calculated from cos*cos + sin*sin
+						structureFactorImagine += charge * Math.sin(k_r_dot);// >>>>>>>>>>>>> calculated from cos*cos + sin*sin
+                    }// close loop for all sites within 1 molecule
+                    double structureFactorSquared = structureFactorReal * structureFactorReal + structureFactorImagine * structureFactorImagine ;//>>>>>>>>>>>>>calculated from cos*cos + sin*sin
+                    uFourier +=  kCoefficientTerm * structureFactorSquared; //>>>>>>>>>>>>>calculated from cos*cos + sin*sin
+                }// close for z-axis
+            }//close for y-axis
+        }// close for x-axis(all non-zero kVecors)
+        double u = coefficient * uFourier; 
 
-	 				rAB.Ev1Mv2(positionA, positionB);
-					box.getBoundary().nearestImage(rAB);
-					double rABMagnitudeSquared = rAB.squared();
-					double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
-					
-					uCorr += chargeA*chargeB*(1-SpecialFunctions.erfc(alpha*rABMagnitude))/rABMagnitude;
-				}
-			}
-		}		
-		return uCorr;
-	}
-	// ************************************   non-reduced energy   ******************************************************
-	public double sum(){
-		if (false){
-			long t1_real = System.currentTimeMillis();
-			for ( int i = 0 ;i < 100000; i++){
-				double real = uReal();
-			}
-			long t2_real = System.currentTimeMillis();
-//			System.out.println("delta_t_real: "+ (t2_real- t1_real));
-		}
-		if (false){
-			long t1_fourier = System.currentTimeMillis();
-			for ( int i = 0 ;i < 10000; i++){
-				double fourier = uFourier();
-			}
-			long t2_fourier = System.currentTimeMillis();
-//			System.out.println("delta_t_fourier: "+ (t2_fourier- t1_fourier));
-		}
-		
-		double real = uReal();
-		double fourier = uFourier();
-		double self = uSelf();
-		double bondCorr = uBondCorr();
+        return u; 
+    }
 
-		double nonReducedEnergy = real + fourier + self - bondCorr;
-			
-		if (!false) { 
-//			System.out.println("total:               "+ nonReducedEnergy/numMolecules);
-//			System.out.println("real   : "+ real/numMolecules);
-//			System.out.println("fourier: "+ fourier/numMolecules);
-//			System.out.println("self: "+ self/numMolecules);
-		}
-		
-		return nonReducedEnergy;
-	}
-	
-	
-	public double energy(IMoleculeList atoms) {
-		double energy = sum();	
-		//System.out.print("Total:  "+ energy);
-		return energy;
-	}
+    // *********************************************************************************************//
+    // ********************** self-correction Part************************************************* // 
+    // *********************************************************************************************//
+    public double uSelf(){
+        double uSelf = 0.0;
 
+        IAtomList atoms = box.getLeafList();
+        int nAtoms = atoms.getAtomCount();
+        for (int i=0; i<nAtoms; i++){
+            IAtom atom = atoms.getAtom(i);
+            double charge = atomAgentManager.getAgent(atom).charge;
+            uSelf += charge*charge;
+        }
 
-	
-	public double getRange() {
-		// TODO Auto-generated method stub
-		return Double.POSITIVE_INFINITY;
-	}
+        uSelf *= -alpha/Math.sqrt(Math.PI);
+        return uSelf;
+    }
 
-	public int nBody() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public double uBondCorr(){
+        double uCorr = 0.0;
+        for (int i=0; i< numMolecules; i++){
+            IMolecule molecule = moleculeList.getMolecule(i);
+            int numSites = molecule.getChildList().getAtomCount();
+            for (int siteA=0; siteA<numSites; siteA++){
+                IAtom atomA = molecule.getChildList().getAtom(siteA);
+                IVectorMutable positionA = atomA.getPosition();
+                double chargeA = atomAgentManager.getAgent(atomA).charge;
+                if (chargeA==0) continue;
+                for (int siteB=siteA+1; siteB<numSites; siteB++){
+                    IAtom atomB = molecule.getChildList().getAtom(siteB);
+                    IVectorMutable positionB = atomB.getPosition();
+                    double chargeB = atomAgentManager.getAgent(atomB).charge;
+                    if (chargeB==0) continue;
 
-	public void setBox(IBox box) {
-		// do nothing
-		
-	}
-	//******************************** inner class ********************************************//
-	public static class MyCharge{
-		public MyCharge(double charge){
-			this.charge = charge;
-		}
-		public final double charge;
-		
-	}
-	
-	@Override
-	public double energy(IAtomList atoms) {
-		// TODO Auto-generated method stub
-		double energy = sum();	
-		//System.out.print("Total:  "+ energy);
-		return energy;
-	}
+                    rAB.Ev1Mv2(positionA, positionB);
+                    box.getBoundary().nearestImage(rAB);
+                    double rABMagnitudeSquared = rAB.squared();
+                    double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
 
-	@Override
-	public double virial(IAtomList atoms) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-	//////////////////////////////////////////// begin calculating gradient //////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
-	@Override
-	public IVector[] gradient(IAtomList atoms) {
-		// TODO Auto-generated method stub
-		int nAtoms = box.getLeafList().getAtomCount();
-		double rCutSquared = rCut * rCut; // criteria for spherical cutoff
-		IVectorMutable rAB = space.makeVector();// vector between site A @ molecule i & site B @ molecule j
-		double coeff = 4.0*Math.PI / box.getBoundary().volume();
-		double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
-		double kCut =  basis * nc;
-		double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
-		IVectorMutable kVector = space.makeVector();// fourier space vector
+                    uCorr += chargeA*chargeB*(1-SpecialFunctions.erfc(alpha*rABMagnitude))/rABMagnitude;
+                }
+            }
+        }		
+        return uCorr;
+    }
 
-		if(gradient.length < nAtoms){
-			gradient = new IVectorMutable[nAtoms];
-			sinkrj = new double[nAtoms];
-			coskrj = new double[nAtoms];
-			for(int i=0; i < nAtoms; i++){
-				gradient[i] = space.makeVector();	
-			}
-		}else{
-			for(int i=0; i < nAtoms; i++){
-				gradient[i].E(0); //Vecors and scalar	
-				sinkrj[i] = 0;
-				coskrj[i] = 0;
-			}	
-		}
-		
-//Real gradient  //Cross Interaction
-		for (int i=0; i < nAtoms; i++){
-			IAtom atomA = box.getLeafList().getAtom(i);
-			int aIndex = atomA.getParentGroup().getIndex(); // molecule a
-			IVectorMutable positionA = atomA.getPosition();
-			double chargeA = ((MyCharge)atomAgentManager.getAgent(atomA)).charge;
-				for (int j=i+1; j < nAtoms; j++){
-					IAtom atomB = box.getLeafList().getAtom(j);
-					int bIndex = atomB.getParentGroup().getIndex(); // molecule b
-					
-					if(aIndex == bIndex) continue;//Skip same molecules!
+    public double getRange() {
+        return Double.POSITIVE_INFINITY;
+    }
 
-					IVectorMutable positionB = atomB.getPosition();
-					rAB.Ev1Mv2(positionA, positionB); //rAB == rA - rB
-					box.getBoundary().nearestImage(rAB);
-					double rAB2 = rAB.squared() ;
-					if (rAB2 > rCutSquared) continue ; 
-					double chargeB = ((MyCharge)atomAgentManager.getAgent(atomB)).charge;
-					double rABMagnitude = Math.sqrt(rAB2);
-					double rAB3 = rABMagnitude*rAB2;
-					double B = SpecialFunctions.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/Math.sqrt(Math.PI) * Math.exp(-alpha*alpha*rAB2) ;
-					double realCoeff = - chargeA*chargeB * B / rAB3; // gradU = -F
-			        gradient[i].PEa1Tv1(realCoeff, rAB);
-			        gradient[j].PEa1Tv1(-realCoeff, rAB);
-//			        if(i==0){
-//			            System.out.println("Real = " + gradient[0]);	
-//			        }
-			        
-				}
-			}
+    public int nBody() {
+        return 0;
+    }
 
-		
-		
-//Fourier gradient Part		
+    public void setBox(IBox box) {
+    }
 
-		for (int xAxis = -nc; xAxis < nc+1; xAxis++){
-			kVector.setX(0, (xAxis * basis));// assign value to the x-axis
-			for (int yAxis = -nc; yAxis < nc+1; yAxis++ ){
-				kVector.setX(1, (yAxis * basis));// assign value to the y-axis
-				for (int zAxis = -nc; zAxis < nc+1; zAxis++ ){
-					if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
-					kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
-					double kSquared = kVector.squared();
-					if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
-					double sCoskr = 0.0, sSinkr = 0.0;
-					
-					for (int j=0; j< nAtoms ; j++){ // Loop over atoms (4*nBasis)
-						IAtom atom = box.getLeafList().getAtom(j);
-						IVectorMutable position = atom.getPosition();
-						sinkrj[j] = Math.sin(position.dot(kVector));
-						coskrj[j] = Math.cos(position.dot(kVector));
-						double chargej = ((MyCharge)atomAgentManager.getAgent(atom)).charge;
+    //******************************** inner class ********************************************//
+    public static class MyCharge{
+        public MyCharge(double charge){
+            this.charge = charge;
+        }
+        public final double charge;
+    }
 
-						sCoskr += chargej*coskrj[j];
-						sSinkr += chargej*sinkrj[j]; 
-					}//End loop over j
-					
-					double coeffk = coeff / kSquared * Math.exp(-kSquared/4.0/alpha/alpha);
-					for(int i=0; i<nAtoms; i++){
-						IAtom atom = box.getLeafList().getAtom(i);
-                		double chargei = ((MyCharge)atomAgentManager.getAgent(atom)).charge;
-						double coeffki = coeffk * chargei * (sinkrj[i] * sCoskr - coskrj[i] * sSinkr); 
-						gradient[i].PEa1Tv1(-coeffki , kVector);  // gradU = -F
-					}
+    public double energy(IAtomList atoms) {
+        double real = uReal();
+        double fourier = uFourier();
+        double self = uSelf();
+        double bondCorr = uBondCorr();
+
+        double totalEnergy = real + fourier + self + bondCorr;
+
+        if (false) { 
+            System.out.println("total:               "+ totalEnergy/numMolecules);
+            System.out.println("real   : "+ real/numMolecules);
+            System.out.println("fourier: "+ fourier/numMolecules);
+            System.out.println("self: "+ self/numMolecules);
+            System.out.println("bond correction: "+ bondCorr/numMolecules);
+        }
+
+        return totalEnergy;
+    }
+
+    public double virial(IAtomList atoms) {
+        return 0;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+    //////////////////////////////////////////// begin calculating gradient //////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public IVector[] gradient(IAtomList atoms) {
+        int nAtoms = box.getLeafList().getAtomCount();
+        double rCutSquared = rCut * rCut; // criteria for spherical cutoff
+        double coeff = 4.0*Math.PI / box.getBoundary().volume();
+        double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
+        double kCut =  basis * nKs;
+        double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
+
+        if(gradient.length < nAtoms){
+            gradient = new IVectorMutable[nAtoms];
+            sinkrj = new double[nAtoms];
+            coskrj = new double[nAtoms];
+            for(int i=0; i < nAtoms; i++){
+                gradient[i] = space.makeVector();
+            }
+        }else{
+            for(int i=0; i < nAtoms; i++){
+                gradient[i].E(0); //for Vecors and scalar
+                sinkrj[i] = 0;
+                coskrj[i] = 0;
+            }
+        }
+
+        //Real gradient  //Cross Interaction
+        for (int i=0; i < nAtoms; i++){
+            IAtom atomA = box.getLeafList().getAtom(i);
+            double chargeA = atomAgentManager.getAgent(atomA).charge;
+            if (chargeA==0) continue;
+            int aIndex = atomA.getParentGroup().getIndex(); // molecule a
+            IVectorMutable positionA = atomA.getPosition();
+            for (int j=i+1; j < nAtoms; j++){
+                IAtom atomB = box.getLeafList().getAtom(j);
+                int bIndex = atomB.getParentGroup().getIndex(); // molecule b
+
+                if(nRealShells == 0 && aIndex == bIndex) continue;//Skip same molecules!
+
+                double chargeB = atomAgentManager.getAgent(atomB).charge;
+                if (chargeB==0) continue;
+                IVectorMutable positionB = atomB.getPosition();
+                rAB.Ev1Mv2(positionA, positionB); //rAB == rA - rB
+                box.getBoundary().nearestImage(rAB);
+                for (int nx = -nRealShells; nx <= nRealShells; nx++) {
+                    Lxyz.setX(0, nx*box.getBoundary().getBoxSize().getX(0)); 
+                    for (int ny = -nRealShells; ny <= nRealShells; ny++) {
+                        Lxyz.setX(1, ny*box.getBoundary().getBoxSize().getX(1));
+                        for (int nz = -nRealShells; nz <= nRealShells; nz++) {
+                            if (aIndex==bIndex && nx*nx+ny*ny+nz*nz == 0) continue;
+                            Lxyz.setX(2, nz*box.getBoundary().getBoxSize().getX(2));
+                            drTmp.Ev1Pv2(rAB, Lxyz);
+
+                            double rAB2 = drTmp.squared();
+                            if (rAB2 > rCutSquared) continue; 
+                            double rABMagnitude = Math.sqrt(rAB2);
+                            double rAB3 = rABMagnitude*rAB2;
+                            double B = SpecialFunctions.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/Math.sqrt(Math.PI) * Math.exp(-alpha2*rAB2) ;
+                            double realCoeff = - chargeA*chargeB * B / rAB3; // gradU = -F
+                            gradient[i].PEa1Tv1(realCoeff, rAB);
+                            gradient[j].PEa1Tv1(-realCoeff, rAB);
+                        }
+                    }
+                }
+            }
+        }
+
+        //Fourier gradient Part		
+
+        for (int xAxis = -nKs; xAxis < nKs+1; xAxis++){
+            kVector.setX(0, (xAxis * basis));// assign value to the x-axis
+            for (int yAxis = -nKs; yAxis < nKs+1; yAxis++ ){
+                kVector.setX(1, (yAxis * basis));// assign value to the y-axis
+                for (int zAxis = -nKs; zAxis < nKs+1; zAxis++ ){
+                    if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
+                    kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
+                    double kSquared = kVector.squared();
+                    if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
+                    double sCoskr = 0.0, sSinkr = 0.0;
+
+                    for (int j=0; j< nAtoms ; j++){ // Loop over atoms (4*nBasis)
+                        IAtom atom = box.getLeafList().getAtom(j);
+                        IVectorMutable position = atom.getPosition();
+                        sinkrj[j] = Math.sin(position.dot(kVector));
+                        coskrj[j] = Math.cos(position.dot(kVector));
+                        double chargej = atomAgentManager.getAgent(atom).charge;
+
+                        sCoskr += chargej*coskrj[j];
+                        sSinkr += chargej*sinkrj[j]; 
+                    }//End loop over j
+
+                    double coeffk = coeff / kSquared * Math.exp(-kSquared/4.0/alpha2);
+                    for(int i=0; i<nAtoms; i++){
+                        IAtom atom = box.getLeafList().getAtom(i);
+                        double chargei = atomAgentManager.getAgent(atom).charge;
+                        double coeffki = coeffk * chargei * (sinkrj[i] * sCoskr - coskrj[i] * sSinkr); 
+                        gradient[i].PEa1Tv1(-coeffki , kVector);  // gradU = -F
+                    }
 //		            System.out.println("Fourier = " + gradient[0]);	
+                }//end of storing Sin and Cos
+            }
+        }//End loop over ks
 
-				}//end of storing Sin and Cos
-			}
-		}//End loop over ks
-		
-		
-//Intra-Molecular  gradient:
-		for (int i=0; i< numMolecules; i++){
-			IMolecule molecule = moleculeList.getMolecule(i);	
-			int numSites = molecule.getChildList().getAtomCount();
-			for (int siteA=0; siteA<numSites; siteA++){
-				IAtom atomA = molecule.getChildList().getAtom(siteA); // index = 0, 1, 2, 3|||leafIndex=0...184
-				IVectorMutable positionA = atomA.getPosition();
-				double chargeA = ((MyCharge)atomAgentManager.getAgent(atomA)).charge;
-				for (int siteB=siteA+1; siteB<numSites; siteB++){
-					IAtom atomB = molecule.getChildList().getAtom(siteB);
-					IVectorMutable positionB = atomB.getPosition();
-					double chargeB = ((MyCharge)atomAgentManager.getAgent(atomB)).charge;
+        //Intra-Molecular  gradient:
+        for (int i=0; i< numMolecules; i++){
+            IMolecule molecule = moleculeList.getMolecule(i);	
+            int numSites = molecule.getChildList().getAtomCount();
+            for (int siteA=0; siteA<numSites; siteA++){
+                IAtom atomA = molecule.getChildList().getAtom(siteA); // index = 0, 1, 2, 3|||leafIndex=0...184
+                double chargeA = atomAgentManager.getAgent(atomA).charge;
+                if (chargeA==0) continue;
+                IVectorMutable positionA = atomA.getPosition();
+                for (int siteB=siteA+1; siteB<numSites; siteB++){
+                    IAtom atomB = molecule.getChildList().getAtom(siteB);
+                    double chargeB = atomAgentManager.getAgent(atomB).charge;
+                    if (chargeB==0) continue;
+                    IVectorMutable positionB = atomB.getPosition();
 
-	 				rAB.Ev1Mv2(positionA, positionB);
-					box.getBoundary().nearestImage(rAB);
-					double rAB2 = rAB.squared();
-					double rABMagnitude = Math.sqrt(rAB2);
-					// U = Ur + Uf - Uself - U_intra ====> U_intra = Erf(alpha r)/r
-					// dU = -F = Ur' + Uf' - Uself' - U_intra' ===>   -d[Erf(alpha r)/r]/dx
-					double B = 2*alpha/Math.sqrt(Math.PI) * Math.exp(-alpha*alpha*rAB2)-(1-SpecialFunctions.erfc(alpha*rABMagnitude))/rABMagnitude; 
-					double coeffAB = - chargeA*chargeB * B / rAB2; // gradU = -F
-//					System.out.println(atomA.getLeafIndex());
-//					System.out.println(atomB.getLeafIndex());
-			        gradient[atomA.getLeafIndex()].PEa1Tv1(coeffAB, rAB);
-			        gradient[atomB.getLeafIndex()].PEa1Tv1(-coeffAB, rAB);
-//			        if(i==0 && siteA == 0){
-//			            System.out.println("Intra = " + gradient[0]);	
-//			        }
+                    rAB.Ev1Mv2(positionA, positionB);
+                    box.getBoundary().nearestImage(rAB);
+                    double rAB2 = rAB.squared();
+                    double rABMagnitude = Math.sqrt(rAB2);
+                    // U = Ur + Uf - Uself - U_intra ====> U_intra = Erf(alpha r)/r
+                    // dU = -F = Ur' + Uf' - Uself' - U_intra' ===>   -d[Erf(alpha r)/r]/dx
+                    double B = 2*alpha/Math.sqrt(Math.PI) * Math.exp(-alpha2*rAB2)-(1-SpecialFunctions.erfc(alpha*rABMagnitude))/rABMagnitude; 
+                    double coeffAB = - chargeA*chargeB * B / rAB2; // gradU = -F
+                    gradient[atomA.getLeafIndex()].PEa1Tv1(coeffAB, rAB);
+                    gradient[atomB.getLeafIndex()].PEa1Tv1(-coeffAB, rAB);
+                }
+            }
+        }
+        return gradient;
+    }
 
-				}
-			}
-		}		
-		return gradient;
-	}
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+    //////////////////////////          begin calculating secondDerivative               /////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	@Override
-	public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	
+    public Tensor secondDerivative(IAtom atom0, IAtom atom1){
+        double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
+        double kCut =  basis * nKs;
+        double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
+        IVectorMutable pos0 = atom0.getPosition();
+        IVectorMutable pos1 = atom1.getPosition();
+        rAB.Ev1Mv2(pos0,pos1);
+        box.getBoundary().nearestImage(rAB);
+        double sqrtPI = Math.sqrt(Math.PI);
+
+        double q0 = atomAgentManager.getAgent(atom0).charge;
+        double q1 = atomAgentManager.getAgent(atom1).charge;
+        secondDerivative.E(0);
+        if (q0*q1 == 0) return secondDerivative;
+        double coeff = 4.0*Math.PI/volume;
+
+        //Fourier Space ... Long || ALL pairs of atoms in all unit cells (including atoms in same mol.)		
+        for (int xAxis = -nKs; xAxis < nKs+1; xAxis++){
+            kVector.setX(0, (xAxis * basis));// assign value to the x-axis
+            for (int yAxis = -nKs; yAxis < nKs+1; yAxis++ ){
+                kVector.setX(1, (yAxis * basis));// assign value to the y-axis
+                for (int zAxis = -nKs; zAxis < nKs+1; zAxis++ ){
+                    if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
+                    kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
+                    double kSquared = kVector.squared();
+                    if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
+                    tempTensorkk.Ev1v2(kVector, kVector);
+                    tempTensorkk.TE(Math.exp(-kSquared/4.0/alpha2) * Math.cos(kVector.dot(rAB))/kSquared);
+                    secondDerivative.PE(tempTensorkk);
+                }
+            }
+        }
+        secondDerivative.TE(coeff);
+        double rCutSquared = rCut*rCut;
+        //Rreal.Short..diff mol.
+        boolean intraMolecular = atom0.getParentGroup() == atom1.getParentGroup();
+
+        for(int nx = -nRealShells; nx <= nRealShells; nx++) {
+            Lxyz.setX(0, nx*box.getBoundary().getBoxSize().getX(0)); 
+            for(int ny = -nRealShells; ny <= nRealShells; ny++) {
+                Lxyz.setX(1, ny*box.getBoundary().getBoxSize().getX(1));
+                for(int nz = -nRealShells; nz <= nRealShells; nz++) {
+                    Lxyz.setX(2, nz*box.getBoundary().getBoxSize().getX(2));
+                    drTmp.Ev1Pv2(rAB, Lxyz);
+
+                    double rAB2 = drTmp.squared();
+                    // if we're beyond the cutoff, then skip unless we're 
+                    if (rAB2 > rCutSquared && (!intraMolecular || (nx*nx+ny*ny+nz*nz > 0))) continue;
+                    double rABMagnitude = Math.sqrt(rAB2);
+                    double rAB3 = rABMagnitude*rAB2;
+                    double rAB4 = rAB2*rAB2;
+                    double rAB5 = rABMagnitude*rAB4;
+                    double erfc = SpecialFunctions.erfc(alpha*rABMagnitude);
+                    double exp_Alpha2r2 = Math.exp(-alpha2*rAB2);
+                    double B0 = (6*alpha/rAB4 + 4*alpha3/rAB2)/sqrtPI * exp_Alpha2r2;
+
+                    tempTensorkk.Ev1v2(drTmp, drTmp);
+
+                    if (intraMolecular && nx*nx+ny*ny+nz*nz==0) {
+//                      D = D(real) + D(rec.) - D(Intra)
+                        double A = (1-erfc)/rAB3 - 2*alpha/sqrtPI*exp_Alpha2r2/rAB2;
+                        double B = B0 - 3 * (1-erfc)/rAB5;
+                        tempTensorkk.TE(-B);
+                        tempTensorkk.PEa1Tt1(A,identity);
+                    }
+                    else {
+                        double A = erfc/rAB3 + 2*alpha/sqrtPI*exp_Alpha2r2/rAB2;
+                        double B = B0 + 3*erfc/rAB5;
+                        tempTensorkk.TE(B);
+                        tempTensorkk.PEa1Tt1(A,identity);
+                    }
+
+                    secondDerivative.PE(tempTensorkk);
+                }
+            }
+        }
+
+        secondDerivative.TE(q0*q1);
+        return secondDerivative;
+    }
+
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return null;
+    }
 }
