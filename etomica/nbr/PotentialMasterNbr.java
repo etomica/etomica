@@ -49,7 +49,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         super.potentialAddedNotify(subPotential, pGroup);
         IAtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
-            if (pGroup.nBody() == 1 && subPotential.getRange() == Double.POSITIVE_INFINITY) {
+        	//change
+            if (pGroup.nBody() < 2 && subPotential.getRange() == Double.POSITIVE_INFINITY) {
                 boolean found = false;
                 for (int i=0; i<allPotentials.length; i++) {
                     if (allPotentials[i] == pGroup) {
@@ -60,8 +61,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
                     allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
                 }
                 //pGroup is PotentialGroupNbr
-                ISpecies[] parentType = getSpecies(pGroup);
-                ((PotentialArray)intraAgentManager.getAgent(parentType[0])).addPotential(pGroup);
+                //ADDED S
+                if(pGroup.nBody() == 1){
+                    ISpecies[] parentType = getSpecies(pGroup);
+                    ((PotentialArray)intraAgentManager.getAgent(parentType[0])).addPotential(pGroup);                	
+                }
             }
             else {
                 //FIXME what to do with this case?  Fail!
