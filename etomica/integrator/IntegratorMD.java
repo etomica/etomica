@@ -322,6 +322,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
+                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
@@ -332,6 +333,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
+                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                 }
                 else {
@@ -384,7 +386,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     public double getHybridAcceptance() {
         return ((double)nAccepted)/(nAccepted+nRejected);
     }
-    
+
     protected void randomizeTotalKE() {
         shiftMomenta();
 
@@ -455,34 +457,34 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     }
     
     /**
-     * Subtracts net momentum from all atoms such that the new net momentum of
-     * the whole system is 0.
+     * Subtracts velocity from all atoms such that the new net momentum of
+     * the whole system is 0.  This could also be implemented to subtract
+     * momentum from each atom, but then 0-mass atoms would explode.
      */
     protected void shiftMomenta() {
         momentum.E(0);
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf == 0) return;
-        int nSkipped = 0;
         if (nLeaf > 1) {
+            double totalMass = 0;
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
                 double mass = a.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((IAtomKinetic)a).getVelocity());
-                }
-                else {
-                    nSkipped++;
+                    totalMass += mass;
                 }
             }
-            if (nSkipped >= nLeaf-1) return;
-            momentum.TE(1.0/(nLeaf-nSkipped));
+            if (totalMass == 0) return;
+            momentum.TE(1.0/totalMass);
+            //momentum is now net velocity
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                 double rm = ((IAtom)a).getType().rm();
                 if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
-                    a.getVelocity().PEa1Tv1(-rm,momentum);
+                    a.getVelocity().ME(momentum);
                 }
             }
             if (Debug.ON) {
@@ -490,11 +492,11 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                     double mass = ((IAtom)a).getType().getMass();
-                    if (mass != Double.POSITIVE_INFINITY && mass != 0) {
+                    if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
                     }
                 }
-                momentum.TE(1.0/(nLeaf-nSkipped));
+                momentum.TE(1.0/totalMass);
                 if (Math.sqrt(momentum.squared()) > 1.e-10) {
                     System.out.println("Net momentum per leaf atom is "+momentum+" but I expected it to be 0");
                 }
@@ -513,7 +515,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         temperatureVec.E(temperature);
         scaleMomenta(temperatureVec);
     }
-    
+
     protected void scaleMomenta(IVector t) {
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
@@ -576,10 +578,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     public void boxMoleculeAdded(IBoxMoleculeEvent e) {
 
         IMolecule mole = e.getMolecule();
-        if (mole instanceof IAtomKinetic) {
-            randomizeMomentum((IAtomKinetic)mole);
-            return;
-        }
         IAtomList atomList = mole.getChildList();
         for(int i = 0; i < atomList.getAtomCount(); i++) {
             IAtom a = atomList.getAtom(i);
