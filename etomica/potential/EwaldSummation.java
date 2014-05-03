@@ -88,7 +88,8 @@ public class EwaldSummation implements PotentialSoft{
         boxSize = box.getBoundary().getBoxSize().getX(0);
         volume = box.getBoundary().volume();
         Lxyz = space.makeVector();
-        rCutSquared = (rCut == 0 ? boxSize*0.49: rCut) ;
+        rCut = rCut == 0 ? boxSize*0.49: rCut;
+        rCutSquared = rCut*rCut;
 //        rCut = boxSize * (0.49 + nRealShells);
         nRealShells = (int) Math.ceil(rCut/boxSize - 0.49);
 
@@ -174,7 +175,7 @@ public class EwaldSummation implements PotentialSoft{
                             double r2 = drTmp.squared();
                             if(r2 > rCutSquared) continue;
                             double drTmpM = Math.sqrt(r2);
-                            uReal += chargeA * chargeB * SpecialFunctions.erfc( alpha * drTmpM) / drTmpM;//Don't worry about 1/2 factor!
+                            uReal += chargeA * chargeB * SpecialFunctions.erfc(alpha * drTmpM) / drTmpM;//Don't worry about 1/2 factor!
                         }
                     }
                 }
@@ -312,7 +313,7 @@ public class EwaldSummation implements PotentialSoft{
             System.out.println("real   : "+ real/numMolecules);
             System.out.println("fourier: "+ fourier/numMolecules);
             System.out.println("self: "+ self/numMolecules);
-            System.out.println("bond correction: "+ bondCorr/numMolecules);
+            System.out.println("bond correction: "+ (-bondCorr/numMolecules));
         }
 
         return totalEnergy;
