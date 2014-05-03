@@ -14,6 +14,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.potential.PotentialMaster.PotentialLinker;
 import etomica.util.Arrays;
 
 /**
@@ -166,32 +167,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
     
     public void releaseAgent(Object agent, IAtomType type) {
     }
-    
-    /* (non-Javadoc)
-     * @see etomica.potential.IPotentialMaster#setEnabled(etomica.potential.Potential, boolean)
-     */
-    public void setEnabled(IPotentialAtomic potential, boolean enabled) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-            if(link.potential == potential) {
-                link.enabled = enabled;
-                return;
-            }
-        }
-    }
-    
-    /* (non-Javadoc)
-     * @see etomica.potential.IPotentialMaster#isEnabled(etomica.potential.Potential)
-     */
-    public boolean isEnabled(IPotentialMolecular potential) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-            if(link.potential == potential) {
-                return link.enabled;
-            }
-        }
-        return false;
-    }
-    
-    private static final long serialVersionUID = 1L;
+
     protected final AtomTypeAgentManager.AgentIterator potentialIterator;
     protected IPotential[] allPotentials = new IPotential[0];
     protected final AtomTypeAgentManager potentialAgentManager;
