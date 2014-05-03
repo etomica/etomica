@@ -12,8 +12,7 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.integrator.IntegratorVelocityVerletShake.BondConstraints;
-import etomica.space.Space;
+import etomica.space.ISpace;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -29,12 +28,12 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable dv;
 
-    public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
+    public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, Space _space) {
+            double timeStep, double temperature, ISpace _space) {
         super(sim, potentialMaster,random,timeStep,temperature, _space);
         dv = space.makeVector();
     }
@@ -76,13 +75,15 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                MyAgent agent = (MyAgent)agentManager.getAgent(a);
+                MyAgent agent = agentManager.getAgent(a);
                 IVectorMutable r = a.getPosition();
                 IVectorMutable v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
-                v.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
+                if  (a.getType().getMass() != 0) {
+                    v.PEa1Tv1(0.5*timeStep*a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                }
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             }
 
@@ -188,10 +189,12 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVectorMutable velocity = a.getVelocity();
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet((IAtom)a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent((IAtom)a)).force);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                System.out.println("second "+a+" v="+velocity+", f="+agentManager.getAgent(a).force);
             }
-            velocity.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),((MyAgent)agentManager.getAgent((IAtom)a)).force);  //p += f(new)*dt/2
+            if (a.getType().getMass() != 0) {
+                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a).force);  //p += f(new)*dt/2
+            }
         }
 
         /*
@@ -251,7 +254,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                     break;
                 }
                 if (iter == maxIterations-1) {
-                    System.err.println("failed to converge in shake for molecule "+i);
+                    System.err.println("failed to converge in rattle for molecule "+i);
                 }
             }
         }
@@ -282,6 +285,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             if (bondConstraints == null) {
                 continue;
             }
+            bondConstraints.redistributeForces(molecule, agentManager);
             
             IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;
