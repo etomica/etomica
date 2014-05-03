@@ -74,7 +74,13 @@ public class P2SquareWell extends Potential2HardSpherical {
             if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
-            lastCollisionVirial = 2.0*reduced_m*bij;
+            if (bij > 0) {
+                lastCollisionVirial = 0;
+                nudge = eps;
+            }
+            else {
+                lastCollisionVirial = 2.0*reduced_m*bij;
+            }
             lastEnergyChange = 0.0;
         }
         else {    // Well collision
