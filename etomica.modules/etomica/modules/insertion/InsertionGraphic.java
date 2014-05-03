@@ -68,7 +68,7 @@ public class InsertionGraphic extends SimulationGraphic {
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
     public ItemListener potentialChooserListener;
-    public JComboBox<String> potentialChooser;
+    public JComboBox potentialChooser;
     protected P2HardSphere potentialHS;
     protected P2SquareWell potentialSW;
     public DeviceBox lamBox;
@@ -108,7 +108,7 @@ public class InsertionGraphic extends SimulationGraphic {
         //combo box to select potentials
         final String repulsionOnly = "Repulsion only";
         final String repulsionAttraction = "Repulsion and attraction";
-        potentialChooser = new javax.swing.JComboBox<String>(new String[] {
+        potentialChooser = new javax.swing.JComboBox(new String[] {
                 repulsionOnly, repulsionAttraction});
 
         lamBox = new DeviceBox();
