@@ -16,20 +16,30 @@ import etomica.api.IPotentialMolecular;
  */
 public class PotentialCalculationEnergySum implements PotentialCalculation, PotentialCalculationMolecular, java.io.Serializable {
 
+    public static boolean debug = false;
+    
     /**
 	 * Adds to the energy sum the energy values obtained from application of the given potential to the
-	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
+	 * atoms.
 	 */
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 	    sum += potential.energy(atoms);
+	    if (debug && Double.isInfinite(sum) || Double.isNaN(sum)) {
+	        potential.energy(atoms);
+	        throw new RuntimeException("oops "+sum+" for "+atoms);
+	    }
 	}
 	
     /**
      * Adds to the energy sum the energy values obtained from application of the given potential to the
-     * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
+     * molecules.
      */
-    public void doCalculation(IMoleculeList atoms, IPotentialMolecular potential) {
-        sum += potential.energy(atoms);
+    public void doCalculation(IMoleculeList molecules, IPotentialMolecular potential) {
+        sum += potential.energy(molecules);
+        if (debug && Double.isInfinite(sum) || Double.isNaN(sum)) {
+            potential.energy(molecules);
+            throw new RuntimeException("oops "+sum+" for "+molecules);
+        }
     }
     
 	/**
