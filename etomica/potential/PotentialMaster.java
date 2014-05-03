@@ -1,6 +1,8 @@
 package etomica.potential;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
@@ -39,6 +41,7 @@ public class PotentialMaster implements IPotentialMaster {
     
     public PotentialMaster(IteratorFactory iteratorFactory) {
         this.iteratorFactory = iteratorFactory;
+        potentialList = new ArrayList<PotentialLinker>();
     }
     
     /* (non-Javadoc)
@@ -67,7 +70,7 @@ public class PotentialMaster implements IPotentialMaster {
     	    targetMolecule = targetAtomLeaf.getParentGroup();
     	}
 
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
     	    if(!link.enabled) continue;
     	    final MoleculesetIteratorPDT atomIterator = link.iterator;
     	    final IPotentialMolecular potential = link.potential;
@@ -161,7 +164,7 @@ public class PotentialMaster implements IPotentialMaster {
 	 * @see etomica.potential.IPotentialMaster#getPotential(etomica.api.IAtomType[])
 	 */
     public PotentialGroup getPotential(ISpecies[] types) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             if (link.potential instanceof PotentialGroup) {
                 if(Arrays.equals(types,link.types)) {
                     return (PotentialGroup)link.potential;
@@ -172,7 +175,7 @@ public class PotentialMaster implements IPotentialMaster {
     }
     
     public ISpecies[] getSpecies(IPotentialMolecular potential) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             if (link.potential == potential) {
                 return link.types;
             }
@@ -187,18 +190,7 @@ public class PotentialMaster implements IPotentialMaster {
         }
         //Set up to evaluate zero-body potentials last, since they may need other potentials
         //to be configured for calculation first
-        if(potential instanceof Potential0) {//put zero-body potential at end of list
-            if(last == null) {
-                last = new PotentialLinker(potential, iterator, types, null);
-                first = last;
-            } else {
-                last.next = new PotentialLinker(potential, iterator, types, null);
-                last = last.next;
-            }
-        } else {//put other potentials at beginning of list
-            first = new PotentialLinker(potential, iterator, types, first);
-            if(last == null) last = first;
-        }
+        potentialList.add(new PotentialLinker(potential, iterator, types));
         if (potential instanceof PotentialGroup) {
             ((PotentialGroup)potential).setPotentialMaster(this);
         }
@@ -208,29 +200,25 @@ public class PotentialMaster implements IPotentialMaster {
 	 * @see etomica.potential.IPotentialMaster#removePotential(etomica.api.IPotential)
 	 */
     public synchronized void removePotential(IPotentialMolecular potential) {
-        PotentialLinker previous = null;
         
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             if(link.potential == potential) {
-                //found it
-                if(previous == null) first = link.next;  //it's the first one
-                else previous.next = link.next;          //it's not the first one
-                //removing last; this works also if last was also first (then removing only, and set last to null)
-                if(link == last) last = previous;
+                potentialList.remove(link);
                 return;
             }
-            previous = link;
         }
+        throw new RuntimeException("potential not found");
     }
     
     public synchronized void removePotential(IPotentialAtomic potential) {
         
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-            if (link.potential instanceof PotentialGroup && 
-                     ((PotentialGroup)link.potential).removePotential(potential)) {
+        for(PotentialLinker link : potentialList) {
+            if (link.potential instanceof PotentialGroup && ((PotentialGroup)link.potential).contains(potential)) {
+                ((PotentialGroup)link.potential).removePotential(potential);
                 return;
             }
         }
+        throw new RuntimeException("potential not found");
     }
 
  
@@ -251,7 +239,7 @@ public class PotentialMaster implements IPotentialMaster {
 	 * @see etomica.potential.IPotentialMaster#setEnabled(etomica.potential.Potential, boolean)
 	 */
     public void setEnabled(IPotentialMolecular potential, boolean enabled) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             if(link.potential == potential) {
                 link.enabled = enabled;
                 return;
@@ -260,7 +248,7 @@ public class PotentialMaster implements IPotentialMaster {
     }
     
     public void setEnabled(IPotentialAtomic potential, boolean enabled) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             if (link.potential instanceof PotentialGroup && ((PotentialGroup)link.potential).contains(potential)) {
                 ((PotentialGroup)link.potential).setEnabled(potential, enabled);
                 return;
@@ -269,7 +257,7 @@ public class PotentialMaster implements IPotentialMaster {
     }
     
     public boolean isEnabled(IPotentialAtomic potential) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             if (link.potential instanceof PotentialGroup && ((PotentialGroup)link.potential).contains(potential)) {
                 return ((PotentialGroup)link.potential).isEnabled(potential);
             }
@@ -281,7 +269,7 @@ public class PotentialMaster implements IPotentialMaster {
 	 * @see etomica.potential.IPotentialMaster#isEnabled(etomica.potential.Potential)
 	 */
     public boolean isEnabled(IPotentialMolecular potential) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             if(link.potential == potential) {
                 return link.enabled;
             }
@@ -293,23 +281,18 @@ public class PotentialMaster implements IPotentialMaster {
 	 * @see etomica.potential.IPotentialMaster#getPotentials()
 	 */
     public IPotentialMolecular[] getPotentials() {
-        int nPotentials=0;
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-            nPotentials++;
-        }
-        IPotentialMolecular[] potentials = new IPotentialMolecular[nPotentials];
+        IPotentialMolecular[] potentials = new IPotentialMolecular[potentialList.size()];
         int i=0;
-        for(PotentialLinker link=first; link!=null; link=link.next) {
+        for(PotentialLinker link : potentialList) {
             potentials[i++] = link.potential;
         }
         return potentials;
     }
     
-    private static final long serialVersionUID = 1L;
 	protected PotentialMasterLrc lrcMaster;
 	protected IteratorFactory iteratorFactory;
 
-    protected PotentialLinker first, last;
+    protected List<PotentialLinker> potentialList;
     protected boolean enabled = true;
 
     public static class MoleculeIterator0 implements MoleculesetIteratorPDT {
@@ -354,18 +337,15 @@ public class PotentialMaster implements IPotentialMaster {
     }
 
 
-    public static class PotentialLinker implements java.io.Serializable {
-        private static final long serialVersionUID = 1L;
+    public static class PotentialLinker {
         public final IPotentialMolecular potential;
         public final MoleculesetIteratorPDT iterator;
         public final ISpecies[] types;
-        public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(IPotentialMolecular a, MoleculesetIteratorPDT i, ISpecies[] t, PotentialLinker l) {
+        public PotentialLinker(IPotentialMolecular a, MoleculesetIteratorPDT i, ISpecies[] t) {
             potential = a;
             iterator = i;
-            next = l;
             if (t != null) {
                 types = t.clone();
             }
