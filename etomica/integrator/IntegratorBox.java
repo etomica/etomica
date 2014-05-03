@@ -5,6 +5,7 @@ import etomica.api.IPotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
 
@@ -57,6 +58,9 @@ public abstract class IntegratorBox extends Integrator {
             currentPotentialEnergy = meterPE.getDataAsScalar();
             if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
                 System.err.println("overlap in configuration for "+box+" when resetting integrator");
+                PotentialCalculationEnergySum.debug = true;
+                meterPE.getDataAsScalar();
+                PotentialCalculationEnergySum.debug = false;
                 throw new ConfigurationOverlapException(box);
             }
         }
