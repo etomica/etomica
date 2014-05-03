@@ -212,6 +212,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         coreDiameter = c;
         coreDiameterSquared = c*c;
         wellDiameter = coreDiameter*lambda;
+        if (coreDiameter==0) wellDiameter = lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
     }
     public Dimension getCoreDiameterDimension() {return Length.DIMENSION;}
@@ -229,6 +230,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         if (lam < 1.0) throw new IllegalArgumentException("Square-well lambda must be greater than 1.0");
         lambda = lam;
         wellDiameter = coreDiameter*lambda;
+        if (coreDiameter==0) wellDiameter = lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
     }
     public Dimension getLambdaDimension() {return Null.DIMENSION;}
