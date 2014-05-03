@@ -73,10 +73,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
             }
             return;
         }
-        if (subPotential.getRange() == Double.POSITIVE_INFINITY && subPotential.nBody() > 1) {
-            // -- should only happen for 0 or 1-body potentials, which should be fine
-            throw new RuntimeException("you have an infinite-ranged potential that's type based!  I don't like you.");
-        }
         for (int i=0; i<atomTypes.length; i++) {
             addRangedPotential(subPotential,atomTypes[i]);
         }

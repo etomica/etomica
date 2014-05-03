@@ -181,6 +181,44 @@ public class PotentialMasterList extends PotentialMasterNbr {
         return safetyFactor;
     }
 
+
+    /**
+     * Add the given potential to be used for the given atom types and the
+     * given criterion.  If multiple types are given, then the potential will
+     * be used for any set of atoms containing only the atom types listed;
+     * if types A and B are passed, then the potential will be used for
+     * A-A, A-B, B-A and B-B.  The criterion must handle any additional
+     * filtering.
+     * 
+     * The given potential will not be held by a PotentialGroup.
+     */
+    public void addPotentialNbrList(IPotentialAtomic potential, IAtomType[] atomTypes, NeighborCriterion criterion) {
+        if (potential.getRange() == Double.POSITIVE_INFINITY) {
+            throw new RuntimeException("not the method you wanted to call");
+        }
+        for (int i=0; i<atomTypes.length; i++) {
+            addRangedPotential(potential, atomTypes[i]);
+        }
+
+        // add the criterion to all existing NeighborListManagers
+        allCriteria = (NeighborCriterion[]) Arrays.addObject(allCriteria, criterion);
+        
+        for (int i=0; i<atomTypes.length; i++) {
+            ((PotentialArray)rangedAgentManager.getAgent(atomTypes[i])).setCriterion(potential, criterion);
+        }
+        if (potential.getRange() > maxPotentialRange) {
+            maxPotentialRange = potential.getRange();
+        }
+        recomputeCriteriaRanges();
+
+        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborListManager neighborListManager = iterator.next();
+            neighborListManager.updateLists();
+        }
+    }
+
     /**
      * Adds the potential as a ranged potential that applies to the given 
      * AtomTypes.  This method creates a criterion for the potential and 
@@ -192,7 +230,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
         // (since recomputeCriteriaRange will bail in that case)
         NeighborCriterion criterion;
         if (atomType.length == 2) {
-            CriterionSimple rangedCriterion = new CriterionSimple(getSimulation(), space, potential.getRange(), 0.0);
+            NeighborCriterion rangedCriterion;
+            if (potential.getRange() < Double.POSITIVE_INFINITY) {
+                rangedCriterion = new CriterionSimple(getSimulation(), space, potential.getRange(), 0.0);
+            }
+            else {
+                rangedCriterion = new CriterionAll();
+            }
             criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
             ISpecies moleculeType0 = atomType[0].getSpecies();
             ISpecies moleculeType1 = atomType[1].getSpecies();
@@ -213,7 +257,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         for (int i=0; i<atomType.length; i++) {
             ((PotentialArray)rangedAgentManager.getAgent(atomType[i])).setCriterion(potential, criterion);
         }
-        if (potential.getRange() > maxPotentialRange) {
+        if (potential.getRange() > maxPotentialRange && potential.getRange() < Double.POSITIVE_INFINITY) {
             maxPotentialRange = potential.getRange();
         }
         recomputeCriteriaRanges();
