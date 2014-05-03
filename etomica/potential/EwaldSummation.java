@@ -52,7 +52,7 @@ public class EwaldSummation implements PotentialSoft{
     protected final IVectorMutable drTmp;
     protected final Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
     protected final IVectorMutable kVector;
-    protected final double rCutSquared;
+    protected double rCut, rCutSquared;
     protected final double sqrtPI = Math.sqrt(Math.PI);
     protected boolean doRealSum = true;
 
@@ -90,6 +90,7 @@ public class EwaldSummation implements PotentialSoft{
         volume = box.getBoundary().volume();
         Lxyz = space.makeVector();
         rCut = rCut == 0 ? boxSize*0.49: rCut;
+        this.rCut = rCut;
         rCutSquared = rCut*rCut;
 //        rCut = boxSize * (0.49 + nRealShells);
         nRealShells = (int) Math.ceil(rCut/boxSize - 0.49);
@@ -130,6 +131,22 @@ public class EwaldSummation implements PotentialSoft{
         rAB = space.makeVector();
         drTmp = space.makeVector();
         kVector = space.makeVector();
+    }
+
+    /**
+     * Sets a new value of rCut
+     * This will not alter values of alpha or nRealShells!
+     */
+    public void setRCut(double newRCut) {
+        rCut = newRCut;
+        rCutSquared = rCut*rCut;
+    }
+
+    /**
+     * Returns real-space cutoff
+     */
+    public double getRCut() {
+        return rCut;
     }
 
     //////////////////////////////////////////// begin calculating energy //////////////////////////////////////
@@ -582,7 +599,7 @@ public class EwaldSummation implements PotentialSoft{
         }
 
         public double getRange() {
-            return Math.sqrt(rCutSquared);
+            return rCut;
         }
 
         public void setBox(IBox box) {}
