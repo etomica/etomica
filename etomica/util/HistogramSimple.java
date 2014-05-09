@@ -99,4 +99,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
     public double[] xValues() {
         return xValues;
     }
+    public long[] getBinCounts(){
+    	return counts;
+    }
 }
