@@ -200,7 +200,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		
 		    		
 		
-        if (MCMoveChangeBondLengthBruteForce.U0 == 0) MCMoveChangeBondLengthBruteForce.U0 = nMolecules*P*v(r0);
+//        if (MCMoveChangeBondLengthBruteForce.U0 == 0) MCMoveChangeBondLengthBruteForce.U0 = nMolecules*P*v(r0);
 //        {IAtomList atoms = box.getMoleculeList().getMolecule(0).getChildList();
 //        ((AtomHydrogen)atoms.getAtom(0)).setBondLength(0.981838106371022);
 //        ((AtomHydrogen)atoms.getAtom(1)).setBondLength(0.7651082776025715);
@@ -876,6 +876,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
     	}
 //    	if (flagAdjusted) System.out.print("moveCount = "+moveCount+" accepted \n");
         ((BoxCluster)box).acceptNotify();        
+        
     }
     protected boolean foo;
     
