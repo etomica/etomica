@@ -7,6 +7,7 @@ import etomica.graph.model.impl.GraphImpl;
 import etomica.graph.operations.GraphOp.GraphOpNull;
 import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
+import etomica.math.SpecialFunctions;
 
 /**
  * This class calculates the sum of all biconnected clusters using Wheatley's
@@ -29,7 +30,7 @@ public class ClusterWheatleyHS implements ClusterWheatley {
     protected final boolean[] cliqueSet;
     protected int cliqueCount, eCliqueCount;
     protected boolean precalcQ = true;
-    protected final int[] cliqueList;
+    protected final int[] cliqueList, eCliqueList;
 
     public ClusterWheatleyHS(int nPoints, MayerFunction f) {
         this.n = nPoints;
@@ -46,6 +47,7 @@ public class ClusterWheatleyHS implements ClusterWheatley {
         fullBondMask = new int[nf];
         cliqueSet = new boolean[nf];
         cliqueList = new int[nf];
+        eCliqueList = new int[nf];
     }
 
     public ClusterAbstract makeCopy() {
@@ -109,7 +111,10 @@ public class ClusterWheatleyHS implements ClusterWheatley {
                 if ((l&i)==0) continue; //l is not in partition
                 fQ[i] *= fQ[l | j];
             }
-            if (fQ[i] != 0) eCliqueCount++;
+            if (fQ[i] != 0) {
+                eCliqueList[eCliqueCount] = i;
+                eCliqueCount++;
+            }
         }
     }
 
@@ -171,24 +176,20 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 continue;
             }
             int k = i&~j; //strip j bit from i and set result to k
-            if (k == (k&-k)) {
+            int jj = k & -k; // 2nd lowest bit
+            if (k == jj) {
                 // 2-point set.  cliqueSet[i] was set in the above loop
                 // over pairs.
                 if (cliqueSet[i] && cliqueCheck(i, nf-1)) return false;
                 continue;
             }
-            cliqueSet[i] = cliqueSet[k]; //initialize with previously-computed product of all pairs in partition, other than j
+
+            int kk = i&~jj; // strip jj bit from i
+
+            cliqueSet[i] = cliqueSet[k] && cliqueSet[kk] && cliqueSet[j|jj];
 
             if (!cliqueSet[i]) continue;
-            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
-            //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            for (int l=(j<<1); l<i; l=(l<<1)) {
-                if ((l&i)==0) continue; //l is not in partition
-                if (!cliqueSet[l|j]) {
-                    cliqueSet[i] = false;
-                    continue iLoop;
-                }
-            }
+
             // i is a clique
             if (cliqueCheck(i, nf-1)) {
                 return false;
@@ -381,7 +382,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             }
         }
 
-        value = (1-n)*fB[nf-1]; ///SpecialFunctions.factorial(n);
+        value = (1-n)*fB[nf-1]/SpecialFunctions.factorial(n);
         if (value != 0) {
             notzero++;
             // disable check above and then enable this to see if non-zero
@@ -452,7 +453,11 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     public int[] getCliques() {
         return cliqueList;
     }
-    
+
+    public int[] getECliques() {
+        return eCliqueList;
+    }
+
     /**
      * Returns outDegee (number of bonds for each point) of the configuration
      * passed to checkConfig
@@ -480,5 +485,29 @@ iLoop:  for (int i=1; i<nf-3; i++) {
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
+    }
+
+    public static class AllSigs extends ClusterWheatleyHS {
+        protected long sig;
+        
+        public AllSigs(int nPoints) {
+            super(nPoints, null);
+        }
+        
+        public long valueForSig(long s) {
+            sig = s;
+            calcValue(null, true);
+            return (long)value;
+        }
+        
+        public void updateF(BoxCluster box) {
+            long b = 1;
+            for (int i=0; i<n-1; i++) {
+                for (int j=i+1; j<n; j++) {
+                    fQ[(1<<i)|(1<<j)] = ((sig & b) == 0) ? 1 : 0;
+                    b <<= 1;
+                }
+            }
+        }
     }
 }
