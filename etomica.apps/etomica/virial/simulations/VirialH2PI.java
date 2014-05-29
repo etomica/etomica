@@ -549,13 +549,13 @@ public class VirialH2PI {
             ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setConstraintMap(constraintMap);
         }
 
-        if (hackedup) {
-            ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
-            ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setTunable(false);
-            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[0]).hackedup = true;
-            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[0]).dx = dx;
-            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[0]).continuous = continuous;
-        }
+//        if (hackedup) {
+//            ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
+//            ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setTunable(false);
+//            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[0]).hackedup = true;
+//            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[0]).dx = dx;
+//            ((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[0]).continuous = continuous;
+//        }
         
         // rotation is a bit pointless when we can regrow the chain completely
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveRotate[0]);
@@ -578,13 +578,13 @@ public class VirialH2PI {
 //        System.out.println(2*nBeads*Math.PI/(lambda*lambda)+" "+2*move0.getStiffness()+" "+2*move1.getStiffness());
         sim.integrators[0].getMoveManager().addMCMove(move0);
         sim.integrators[1].getMoveManager().addMCMove(move1);
-        MCMoveOrientationBruteForce orBF0 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
-        MCMoveOrientationBruteForce orBF1 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
-
-        ((MCMoveStepTracker)orBF0.getTracker()).setNoisyAdjustment(true);        
-        orBF0.setStepSize(0.001);
-        ((MCMoveStepTracker)orBF1.getTracker()).setNoisyAdjustment(true);
-        orBF1.setStepSize(0.001);
+//        MCMoveOrientationBruteForce orBF0 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
+//        MCMoveOrientationBruteForce orBF1 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
+//
+//        ((MCMoveStepTracker)orBF0.getTracker()).setNoisyAdjustment(true);        
+//        orBF0.setStepSize(0.001);
+//        ((MCMoveStepTracker)orBF1.getTracker()).setNoisyAdjustment(true);
+//        orBF1.setStepSize(0.001);
 //        sim.integrators[0].getMoveManager().addMCMove(orBF0);
 //        sim.integrators[1].getMoveManager().addMCMove(orBF1);
         
