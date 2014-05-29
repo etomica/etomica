@@ -18,5 +18,16 @@ public class AtomHydrogen extends AtomOriented {
     public void setBondLength(double x) {
         bondLength = x;
     }
+    
+    public static double getAvgBondLength(double x) {
+        double a0 = 0.0766111;
+        double a1 = 6.84704E-07;
+        double a2 = -3.89889E-11;
+        double a3 = 6.73971E-14;
+        double y = 10*(a0 + a1*x + a2*x*x + a3*x*x*x);
+//        System.out.println(x+" "+y);
+//        System.exit(1);
+        return y;
+    }
 
 }
