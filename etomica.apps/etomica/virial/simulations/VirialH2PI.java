@@ -92,7 +92,7 @@ import etomica.virial.MCMoveChangeBondLength;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRingRegrow;
 import etomica.virial.MCMoveClusterRingRegrowOrientation;
-import etomica.virial.MCMoveOrientationBruteForce;
+//import etomica.virial.MCMoveOrientationBruteForce;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerFunctionNonAdditive;
