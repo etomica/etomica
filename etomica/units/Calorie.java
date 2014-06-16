@@ -16,7 +16,7 @@ public final class Calorie extends SimpleUnit {
     
     private Calorie() {
         super(Energy.DIMENSION,
-        	Constants.AVOGADRO*1000.*1e20*1e-24/0.238845896628, //6.022e22; conversion from calories to Joules kg-m^2/s^2 to Dalton-A^2/ps^2
+        	Constants.AVOGADRO*1000.*1e20*1e-24*4.184, //6.022e22; conversion from calories to Joules kg-m^2/s^2 to Dalton-A^2/ps^2
         	"calories", "cal", Prefix.ALLOWED
         	);   
     }
