@@ -45,13 +45,14 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.IPotentialAtomicMultibody;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2Harmonic;
+import etomica.potential.P2HydrogenGarberoglioHindePatkowski.P2HydrogenGarberoglioHindePatkowskiAtomic;
 import etomica.potential.P2HydrogenHindePatkowski;
+import etomica.potential.P2HydrogenPatkowski;
 import etomica.potential.P2HydrogenPatkowskiIso;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
@@ -61,6 +62,7 @@ import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
+import etomica.units.BohrRadius;
 import etomica.units.CompoundDimension;
 import etomica.units.CompoundUnit;
 import etomica.units.Dimension;
@@ -158,23 +160,24 @@ public class VirialH2PI {
             parseArgs.parseArgs(args, true);
         }
         else {
-//            params.calcApprox = true;
-//            params.semiClassical = true;            
-//            params.doDiff = true;
+        	params.potentialLevel = levelOptions.iso;
+        	params.subtractWhat = subOptions.semiClassical;        	
+        	params.nBeads = 8;
+            params.temperature = 100;
+//            params.doHist = true;
 //            params.hackedup = true;
 //            params.doHist = true;
 //            params.refFrac = 0.9;
-//            params.continuous = false;
-//            params.nBeads = 4;
+//            params.continuous = false;            
 //            params.numSteps = 1000000;
-//            params.temperature = 273.15;
+
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperature;
         long steps = params.numSteps;
         final boolean pairOnly = params.nPoints == 2 || params.pairOnly;
         double refFreq = params.refFrac;
-        boolean subtractHalf = params.subtractHalf;
+        
         double sigmaHSRef = params.sigmaHSRef;
         if (sigmaHSRef == -1) {
             // these correlations work fairly well over the temperature range of interest
@@ -188,31 +191,42 @@ public class VirialH2PI {
                 }
             }
         }
-        boolean variableBondLength = params.vbl;
+        
         boolean hackedup = params.hackedup;
         if (hackedup) sigmaHSRef = 40;
         boolean continuous = params.continuous;
         if (continuous) sigmaHSRef = 7;
         int nBins = hackedup?4000:100;
-        double dx = sigmaHSRef/nBins;        
-        final boolean calcApprox = params.calcApprox;
+        double dx = sigmaHSRef/nBins;
+//        System.out.println(Mole.UNIT.fromSim(1));
+//        System.exit(1);
+        
         final String p3ParametersFile = params.p3ParametersFile;
-        final int startBeadHalfs = params.startBeadHalfs;
-        final int beadFac = subtractHalf ? params.beadFac : 1;
+        final int startBeadHalfs = params.startBeadHalfs;        
         final int finalNumBeads = params.finalNumBeads;
         final double[] HSB = new double[8];
+        final levelOptions potentialLevel = params.potentialLevel;
+        final subOptions subtractWhat = params.subtractWhat;
+        System.out.println("Subtract what = "+subtractWhat);
+        System.out.println("Potential level = "+potentialLevel);
+        boolean variableBondLength = (potentialLevel == levelOptions.hindePatkowski);        
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
-        int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);
-        final boolean doDiff = params.doDiff;
-        final boolean semiClassical = params.semiClassical;
-        final boolean subtractApprox = params.subtractApprox;
+        int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);        
         final boolean doTotal = params.doTotal;
+        final int beadFac = (subtractWhat == subOptions.half) ? params.beadFac : 1;
+        if (subtractWhat == subOptions.half) {
+        	if (nb <= 2) throw new RuntimeException("oops!");        	
+        }        
+        if (subtractWhat == subOptions.iso && potentialLevel == levelOptions.iso) {
+        	throw new RuntimeException("oops!");        	
+        }
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
         int origNB = nb;
-        if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
-        if (subtractHalf) {
+        
+        if (potentialLevel == levelOptions.iso && subtractWhat == subOptions.none) System.out.println("Calculating coefficients for isotropic potential");
+        if (subtractWhat == subOptions.half) {
             int totalHalfs = (int)Math.ceil(Math.log((nb+finalNumBeads-1)/finalNumBeads)/Math.log(beadFac));
             int totalFac = (int)Math.round(Math.pow(beadFac, totalHalfs));
             int endBeads = (nb + totalFac -1) / totalFac;
@@ -224,43 +238,42 @@ public class VirialH2PI {
                 throw new RuntimeException("it is unnecessary to half "+(startBeadHalfs)+" times");
             }
             if (nb <= finalNumBeads) {
-                if (doDiff) {
-                    if (semiClassical) {
-                        System.out.println("Calculating difference between "+nb+" beads and semiclassical");
-                    }
-                    else {
-                        System.out.println("Calculating difference between "+nb+" beads and classical");
-                    }
-                }
-                else {
-                    System.out.println("Perturbing from "+nb+" beads to hard spheres");
-                }
-                subtractHalf = false;
+//                if (doDiff) {
+//                    if (semiClassical) {
+//                        System.out.println("Calculating difference between "+nb+" beads and semiclassical");
+//                    }
+//                    else {
+//                        System.out.println("Calculating difference between "+nb+" beads and classical");
+//                    }
+//                }
+//                else {
+//                    System.out.println("Perturbing from "+nb+" beads to hard spheres");
+//                }
+//                subtractHalf = false;
+            	throw new RuntimeException("oh-oh hot dog!"+nb+" "+finalNumBeads);
             }
             else {
                 System.out.println("Calculating difference between "+nb/beadFac+" and "+nb+" beads");
             }
         }
-        else {
-            System.out.println("H2-H2 Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
-            if (doDiff) {
-                if (semiClassical) {
-                    System.out.println("computing difference from semiclassical");
-                }
-                else if (subtractApprox) {
-                    System.out.println("computing difference from approximate H2-H2");
-                }
-                else {
-                    System.out.println("computing difference from classical");
-                }
-            }
+        else System.out.println("H2-H2 Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
+
+        if (subtractWhat == subOptions.semiClassical) {
+        	System.out.println("computing difference from semiclassical");
         }
+        if (subtractWhat == subOptions.iso) {
+        	System.out.println("computing difference from isotropical H2-H2");
+        }
+        if (subtractWhat == subOptions.classical) {
+        	System.out.println("computing difference from classical");
+        }        
         if (pairOnly) {
             System.out.println("computing pairwise contribution");
         }
         else {
             System.out.println("computing non-additive contribution");
-        }
+        }       
+        
         final int nBeads = nb;
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -272,12 +285,22 @@ public class VirialH2PI {
         Space space = Space3D.getInstance();
         
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
+        double avgBL = AtomHydrogen.getAvgBondLength(temperatureK);
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        final Potential2SoftSpherical p2Approx = new P2HydrogenPatkowskiIso(space);
+        final P2HydrogenPatkowskiIso p2patIso = new P2HydrogenPatkowskiIso(space);
 //        final IPotentialAtomic p2 = calcApprox ? p2Approx : new P2HydrogenPatkowski.P2HydrogenPatkowskiAtomic(space);
-        final IPotentialAtomic p2 = calcApprox ? p2Approx : new P2HydrogenHindePatkowski.P2HydrogenHindePatkowskiAtomic(space);
-
+//        final IPotentialAtomic p2pat = new P2HydrogenPatkowski.P2HydrogenPatkowskiAtomic(space);
+        final IPotentialAtomic p2hp = new P2HydrogenHindePatkowski.P2HydrogenHindePatkowskiAtomic(space);
+//        final IPotentialAtomic p2sc = new P2EffectiveFeynmanHibbs(space, (Potential2SoftSpherical)p2patIso);
+//        final IPotentialAtomic p2gar = new P2HydrogenGarberoglioHindePatkowskiAtomic(space,avgBL);
+        IPotentialAtomic p2 = null;
+        IPotentialAtomic p2Approx = p2patIso;
+        
+        if (potentialLevel == levelOptions.iso) p2 = p2patIso;        
+        if (potentialLevel == levelOptions.hindePatkowski) p2 = p2hp;
+        
+        
         
         PotentialGroupPI pTargetGroup = new PotentialGroupPI(beadFac);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
@@ -287,16 +310,17 @@ public class VirialH2PI {
         }
 
         PotentialGroupPI pTargetApproxGroup = new PotentialGroupPI(beadFac);
+
         pTargetApproxGroup.addPotential(p2Approx, new ApiIntergroupCoupled());
         PotentialGroupPISkip[] pTargetApproxSkip = new PotentialGroupPISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
             pTargetApproxSkip[i] = pTargetApproxGroup.new PotentialGroupPISkip(i);
         }
         final P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
-        if ((calcApprox || subtractApprox) && !pairOnly) {
+        if ((potentialLevel == levelOptions.iso || subtractWhat == subOptions.iso) && !pairOnly) {
 //            p3Approx.setParameters(p3ParametersFile);
         }
-        final IPotentialAtomicMultibody p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
+        final IPotentialAtomicMultibody p3 = (potentialLevel == levelOptions.iso) ? p3Approx : new P3CPSNonAdditiveHe(space);
 
         PotentialGroup3PI p3TargetGroup = new PotentialGroup3PI(beadFac);
         p3TargetGroup.addPotential(p3, new ANIntergroupCoupled(3));
@@ -312,12 +336,10 @@ public class VirialH2PI {
         }
 
         final MayerGeneralSpherical fTargetClassical = null;//new MayerGeneralSpherical(p2);
-        P2EffectiveFeynmanHibbs p2SemiClassical = null;//semiClassical ? new P2EffectiveFeynmanHibbs(space, (Potential2SoftSpherical)p2) : null;
-        if (semiClassical) {
-            p2SemiClassical = new P2EffectiveFeynmanHibbs(space,(Potential2SoftSpherical)p2Approx);
-            p2SemiClassical.setMass(Hydrogen.INSTANCE.getMass()*2);
-            p2SemiClassical.setTemperature(temperature);            
-        }        
+        P2EffectiveFeynmanHibbs p2SemiClassical = new P2EffectiveFeynmanHibbs(space,(Potential2SoftSpherical)p2patIso);
+        p2SemiClassical.setMass(Hydrogen.INSTANCE.getMass()*2);
+        p2SemiClassical.setTemperature(temperature);
+                
         final MayerGeneralSpherical fTargetSemiClassical = new MayerGeneralSpherical(p2SemiClassical);
 
         MayerGeneral[] fTargetSkip = new MayerGeneral[beadFac];
@@ -371,52 +393,50 @@ public class VirialH2PI {
         rigidDiagrams.setDoReeHoover(true);
         rigidDiagrams.setDoShortcut(true);
         ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
-        final ClusterSum[] targetSubtract = new ClusterSum[subtractHalf ? beadFac : 1];
+        final ClusterSum[] targetSubtract = new ClusterSum[(subtractWhat == subOptions.half) ? beadFac : 1];
         final ClusterSum fullTargetCluster;
 
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[0];
         int[] targetDiagramNumbers = new int[0];
 
-        if (doDiff || subtractHalf) {
+        if (subtractWhat != subOptions.none) {
             fullTargetCluster = (ClusterSum)targetCluster;
             ClusterBonds[] minusBonds = fullTargetCluster.getClusters();
             double[] wMinus = fullTargetCluster.getWeights();
             for (int i=0; i<targetSubtract.length; i++) {
                 if (pairOnly) {
-                    if  (subtractHalf) {
+                    if  (subtractWhat == subOptions.half) {
                         targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetSkip[i]});
+                    }                    
+                    if (subtractWhat == subOptions.semiClassical) {
+                    	targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{(fTargetSemiClassical)});
                     }
-                    else {
-                        if (semiClassical) {
-                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{(fTargetSemiClassical)});
-                        }
-                        else if (subtractApprox) {
-                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetApprox});
-                        }
-                        else {
-                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetClassical});
-                        }
+                    if (subtractWhat == subOptions.iso) {
+                    	targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetApprox});
                     }
+                    if (subtractWhat == subOptions.classical) {
+                    	targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetClassical});
+                    }
+
                 }
                 else {
-                    if (subtractHalf) {
+                    if (subtractWhat == subOptions.half) {
                         targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetSkip[i]},
                                 new MayerFunctionNonAdditive[]{f3TargetSkip[i]});
+                    }                    
+                    if (subtractWhat == subOptions.semiClassical) {
+                    	targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetSemiClassical},
+                    			new MayerFunctionNonAdditive[]{f3TargetClassical});
                     }
-                    else {
-                        if (semiClassical) {
-                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetSemiClassical},
-                                    new MayerFunctionNonAdditive[]{f3TargetClassical});
-                        }
-                        else if (subtractApprox) {
-                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox},
-                                    new MayerFunctionNonAdditive[]{f3TargetApprox});
-                        }
-                        else {
-                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetClassical},
-                                    new MayerFunctionNonAdditive[]{f3TargetClassical});
-                        }
+                    if (subtractWhat == subOptions.iso) {
+                    	targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox},
+                    			new MayerFunctionNonAdditive[]{f3TargetApprox});
                     }
+                    if (subtractWhat == subOptions.classical) {
+                    	targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetClassical},
+                    			new MayerFunctionNonAdditive[]{f3TargetClassical});
+                    }
+
                 }
             }
 
@@ -516,8 +536,9 @@ public class VirialH2PI {
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");        
         IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);        
         SpeciesSpheresHetero species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
-            protected IAtom makeLeafAtom(IAtomType leafType) {
-                return new AtomHydrogen(space,(IAtomTypeOriented)leafType, AtomHydrogen.getAvgBondLength(temperatureK));
+            protected IAtom makeLeafAtom(IAtomType leafType) {            	
+            	double bl = BohrRadius.UNIT.toSim(1.448736);// AtomHydrogen.getAvgBondLength(temperatureK);
+                return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
             }
         };
         species.setChildCount(new int [] {nBeads});
@@ -604,7 +625,7 @@ public class VirialH2PI {
             sim.integratorOS.setRefStepFraction(refFreq);
         }
 
-        if (doDiff || subtractHalf || !pairOnly) {
+        if ((subtractWhat != subOptions.none) || !pairOnly) {
             AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
             IVectorRandom groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
             MoleculeChildAtomAction moveMoleculeAction = new MoleculeChildAtomAction(translator);
@@ -743,27 +764,25 @@ public class VirialH2PI {
             refFileName = "refpref"+nPoints;
             refFileName += pairOnly ? "_2b" : "_3b";
             refFileName += "_"+tempString+"_"+nBeads;
-            if (subtractHalf) {
+            if (subtractWhat == subOptions.half) {
                 refFileName += "_sh";
-                if (calcApprox) {
-                    // ==> sha
-                    refFileName += "a";
+                if (potentialLevel == levelOptions.iso) {
+                    // ==> shi
+                    refFileName += "i";
                 }
             }
-            else if (doDiff) {
-                if (semiClassical) {
-                    refFileName += "_sc";
-                    if (calcApprox) {
-                        // ==> sca
-                        refFileName += "a";
-                    }
-                }
-                else if (subtractApprox) {
-                    refFileName += "_sa";
-                }
-                else {
-                    refFileName += "_c";
-                }
+            if (subtractWhat == subOptions.semiClassical) {
+            	refFileName += "_sc";
+            	if (potentialLevel == levelOptions.iso) {
+            		// ==> sci
+            		refFileName += "i";
+            	}
+            }
+            if (subtractWhat == subOptions.iso) {
+            	refFileName += "_si";
+            }
+            if (subtractWhat == subOptions.classical) {
+            	refFileName += "_c";
             }
         }
         long t1 = System.currentTimeMillis();
@@ -869,7 +888,7 @@ public class VirialH2PI {
                     double ratio = ratioAndError[0];
                     double error = ratioAndError[1];
 //                    System.out.println("abs average: "+ratio*refIntegralF+" error: "+error*refIntegralF);
-                    System.out.println("abs average: "+ratio*refIntegralF*1E-24/Mole.UNIT.fromSim(1)+" error: "+error*refIntegralF*1E-24/Mole.UNIT.fromSim(1));
+                    System.out.println("abs average: "+ratio*refIntegralF*1E-24/1.6605389210321898E-24+" error: "+error*refIntegralF*1E-24/Mole.UNIT.fromSim(1));
                     if (ratio == 0 || Double.isNaN(ratio)) {
                         throw new RuntimeException("oops");
                     }
@@ -923,8 +942,11 @@ public class VirialH2PI {
         if (params.doHist) {
             double[] xValues = hist.xValues();
             double[] h = hist.getHistogram();
+            
             for (int i=0; i<xValues.length; i++) {
+            	double u = p2SemiClassical.u(xValues[i]*xValues[i]);
                 if (!Double.isNaN(h[i])) {
+//                    System.out.println(xValues[i]+" "+(-2*h[i]+1)+" "+Math.exp(-u/temperature));
                     System.out.println(xValues[i]+" "+(-2*h[i]+1));
                 }
             }
@@ -979,7 +1001,7 @@ public class VirialH2PI {
 //        catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
-        if (!variableBondLength) System.out.println("Temperature = "+ temperatureK +" Average BondLength used = "+ AtomHydrogen.getAvgBondLength(temperatureK));
+        if (variableBondLength) System.out.println("Temperature = "+ temperatureK +" Average BondLength used = "+ AtomHydrogen.getAvgBondLength(temperatureK));
 
         if ((t2-t1)/1000.0 > 24*3600) {
             System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
@@ -1007,6 +1029,14 @@ public class VirialH2PI {
         System.arraycopy(inArray, 0, outArray, 0, inArray.length);
         System.arraycopy(newWeights, 0, outArray, inArray.length, newWeights.length);
         return outArray;
+    }
+    
+    enum subOptions {
+    	half, semiClassical, iso, classical, none;
+    }
+    
+    enum levelOptions {
+    	iso, hindePatkowski;
     }    
 
     /**
@@ -1015,24 +1045,21 @@ public class VirialH2PI {
     public static class VirialH2PIParam extends ParameterBase {
         public int nPoints = 2;
         public int nBeads = 8;
-        public double temperature = 500.0;   // Kelvin
+        public double temperature = 1000.0;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;
         public boolean doHist = false;
         public double sigmaHSRef = 3.0; // -1 means use equation for sigmaHSRef
-        public boolean doDiff = false;
-        public boolean semiClassical = false;
-        public boolean subtractHalf = false;
         public int startBeadHalfs = 0;
         public int beadFac = 2;
         public int finalNumBeads = 2;
         public boolean pairOnly = true;
         public boolean doTotal = false;
-        public boolean calcApprox = false;
-        public boolean subtractApprox = false;
+        
         public String p3ParametersFile = "paramsOriginal.dat";
         public boolean hackedup = false;
-        public boolean continuous = false;
-        public boolean vbl = true;
+        public boolean continuous = false;        
+        public subOptions subtractWhat = subOptions.none;
+        public levelOptions potentialLevel = levelOptions.hindePatkowski;        
     }
 }
