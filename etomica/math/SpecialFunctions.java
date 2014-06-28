@@ -8,8 +8,10 @@ public final class SpecialFunctions {
     
     private SpecialFunctions() {}
     
-    
     /**
+     * consider using org.apache.commons.math3.special.Erf.erfc()
+     * this method is substantially faster (~10x - 100x), but only accurate to ~10^-7
+     * 
      * Complementary error function, computed using the approximant 7.1.26 of Abramowitz & Stegun.
      * Defined for x >= 0
      */
