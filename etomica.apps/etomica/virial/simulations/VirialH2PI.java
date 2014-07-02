@@ -160,10 +160,10 @@ public class VirialH2PI {
             parseArgs.parseArgs(args, true);
         }
         else {
-        	params.potentialLevel = levelOptions.iso;
-        	params.subtractWhat = subOptions.semiClassical;        	
-        	params.nBeads = 8;
-            params.temperature = 100;
+        	params.potentialLevel = levelOptions.hindePatkowski;
+        	params.subtractWhat = subOptions.iso;        	
+        	params.nBeads = 2;
+            params.temperature = 500;
 //            params.doHist = true;
 //            params.hackedup = true;
 //            params.doHist = true;
@@ -207,8 +207,8 @@ public class VirialH2PI {
         final double[] HSB = new double[8];
         final levelOptions potentialLevel = params.potentialLevel;
         final subOptions subtractWhat = params.subtractWhat;
-        System.out.println("Subtract what = "+subtractWhat);
         System.out.println("Potential level = "+potentialLevel);
+        System.out.println("Subtract what = "+subtractWhat);        
         boolean variableBondLength = (potentialLevel == levelOptions.hindePatkowski);        
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);        
@@ -764,26 +764,13 @@ public class VirialH2PI {
             refFileName = "refpref"+nPoints;
             refFileName += pairOnly ? "_2b" : "_3b";
             refFileName += "_"+tempString+"_"+nBeads;
-            if (subtractWhat == subOptions.half) {
-                refFileName += "_sh";
-                if (potentialLevel == levelOptions.iso) {
-                    // ==> shi
-                    refFileName += "i";
-                }
-            }
-            if (subtractWhat == subOptions.semiClassical) {
-            	refFileName += "_sc";
-            	if (potentialLevel == levelOptions.iso) {
-            		// ==> sci
-            		refFileName += "i";
-            	}
-            }
-            if (subtractWhat == subOptions.iso) {
-            	refFileName += "_si";
-            }
-            if (subtractWhat == subOptions.classical) {
-            	refFileName += "_c";
-            }
+            if (potentialLevel == levelOptions.iso) refFileName += "_i";
+            if (potentialLevel == levelOptions.hindePatkowski) refFileName += "_hp";
+            if (subtractWhat == subOptions.half) refFileName += "H";
+            if (subtractWhat == subOptions.iso) refFileName += "I";
+            if (subtractWhat == subOptions.none) refFileName += "N";
+            if (subtractWhat == subOptions.semiClassical) refFileName += "SC";
+            if (subtractWhat == subOptions.classical) refFileName += "C";            
         }
         long t1 = System.currentTimeMillis();
         // this will either read the refpref in from a file or run a short simulation to find it

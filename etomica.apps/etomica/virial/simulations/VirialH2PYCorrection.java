@@ -176,10 +176,7 @@ public class VirialH2PYCorrection {
                 tempString = ""+(int)temperatureK;
             }
             refFileName = "refpref"+nPoints+"_2b_"+tempString;
-            refFileName += "_sc";
-            
-            refFileName += "PY";
-            refFileName += "C";
+            refFileName += "_scPYC";
         }
 
         sim.initRefPref(refFileName, steps/40);

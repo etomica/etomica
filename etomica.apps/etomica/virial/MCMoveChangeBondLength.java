@@ -54,7 +54,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
     protected double u0;    
     public HistogramSimple h1;
     public HistogramSimple h2;
-    public boolean deleteMode = true, doHist = true, flagAdjusted;
+    public boolean deleteMode = true, doHist = false, flagAdjusted;
     public int moveCount;
     protected int nBins = 100;
     protected double xMin = 0.35,xMax = 1.25;
@@ -585,7 +585,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                     uActNew3 += - kHarmonic*dist(jAtom,jPrev); 
                 }            	
             }
-            eAvg += etaOld[3]*etaOld[3];
+//            eAvg += etaOld[3]*etaOld[3];
         }        
         
         double uA1New = mpe.getDataAsScalar();// - nMolecules*P*v(r0);
