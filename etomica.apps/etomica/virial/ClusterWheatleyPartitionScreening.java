@@ -31,7 +31,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
     protected final boolean[] cliqueSet;
     protected int cliqueCount, eCliqueCount;
     protected boolean precalcQ = true;
-    protected final int[] cliqueList;
+    protected final int[] cliqueList, eCliqueList;
     
 //    protected final int[] nBonds;
     protected final int[] nPts;
@@ -94,6 +94,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         fullBondMask = new int[nf];
         cliqueSet = new boolean[nf];
         cliqueList = new int[nf];
+        eCliqueList = new int[nf];
 
         partitionsC = new int[nf][];
         for(int i=1; i<nf; i++) {
@@ -109,7 +110,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         computefTables();
         
         if(checkme) System.out.println("Note -- checkme is true");
-        System.out.println("tabulation complete");
+//        System.out.println("tabulation complete");
 //        System.exit(1);
         
         if(doStatistics) {
@@ -246,14 +247,14 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         int sigMax = (1 << nPairs(nPtsTabulated));
         long nDuplicate = 0;
         long nArrays = 0;
-        long t1 = System.currentTimeMillis();
+//        long t1 = System.currentTimeMillis();
         //construct table of fA, fB, and fC for each signature for each nPts being tabulated
         for(int s=0; s<sigMax; s++) {//loop over signatures
             int nb = Integer.bitCount(s);
-            if (s>0 && s%10000==0) {
-                long t2 = System.currentTimeMillis();
-                System.out.println(String.format("s=%d/%d  time: %d/%d", s, sigMax, (t2-t1)/1000, (int)(((double)(t2-t1))*sigMax/s/1000)));
-            }
+//            if (s>0 && s%10000==0) {
+//                long t2 = System.currentTimeMillis();
+//                System.out.println(String.format("s=%d/%d  time: %d/%d", s, sigMax, (t2-t1)/1000, (int)(((double)(t2-t1))*sigMax/s/1000)));
+//            }
             for(int np=2; np<=nPtsTabulated; np++) {
                 if(s >= (1<<nPairs(np))) continue;//signature has more bonds than can be formed by np points
                 if(nb+1 < np) {
@@ -306,7 +307,7 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
             }//end of np-loop
         }//end of s-loop
         
-        System.out.println("Removed "+nDuplicate+" duplicate of "+(2*nArrays)+" total arrays");
+//        System.out.println("Removed "+nDuplicate+" duplicate of "+(2*nArrays)+" total arrays");
     }
 
     private static int nPairs(int nPts) {
@@ -353,6 +354,18 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
       return value;
     }
 
+    public long getCPairID() {
+        return cPairID;
+    }
+    
+    public long getLastCPairID() {
+        return lastCPairID;
+    }
+
+    public double getLastValue() {
+        return lastValue;
+    }
+
     /**
      * This calculates all fQ values given that the entries for pairs have
      * already been populated.
@@ -375,7 +388,7 @@ loop1:  for (int i=7; i<nf; i++) {
                 fQ[i] = fQ[l | j];//fQ = true indicates a non-zero f-bond (e = 0); so product of e-bonds will be 0 (fQ[i] = true) if any of them are zero
                 if(fQ[i]) continue loop1;
             }
-
+            eCliqueList[eCliqueCount] = i;
             //if we get here, fQ[i] is false
             eCliqueCount++;//for fQ[i]=false, all e-bonds are non-zero
         }
@@ -810,6 +823,10 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         return cliqueList;
     }
     
+    public int[] getECliques() {
+        return eCliqueList;
+    }
+
     /**
      * Returns outDegee (number of bonds for each point) of the configuration
      * passed to checkConfig
@@ -833,6 +850,25 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 fQ[(1<<i)|(1<<j)] = (f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta) == -1);
             }
         }
+    }
+    
+    public long calcSignature(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        AtomPairSet aPairs = box.getAPairSet();
+
+        f.setBox(box);
+        // recalculate all f values for all pairs
+        int s = 0;
+        long sig = 0;
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                if (f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta) != 0) {
+                  sig |= (1L<<s);
+                }
+                s++;
+            }
+        }
+        return sig;
     }
     
     //for development purposes.  Configure bonds by hand.
