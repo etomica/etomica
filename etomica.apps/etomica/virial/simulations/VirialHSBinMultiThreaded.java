@@ -35,7 +35,6 @@ import etomica.virial.MCMoveClusterAtomHSRing;
 import etomica.virial.MCMoveClusterAtomHSTree;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirialBDBin2MultiThreaded;
 import etomica.virial.MeterVirialBDBinMulti.IntSet;
 import etomica.virial.MeterVirialBDBinMulti.PropertyBin;
 import etomica.virial.MeterVirialBDBinMultiThreaded;
@@ -206,7 +205,7 @@ public class VirialHSBinMultiThreaded {
         }
         System.out.println("tRatio: "+tRatio+"   tc: "+tc+"  ts: "+t0);
 
-        MeterVirialBDBinMultiThreaded.setTRatio(tRatio);
+//        MeterVirialBDBinMultiThreadedOld.setTRatio(tRatio);
 
 
         long t1 = System.currentTimeMillis();
@@ -261,7 +260,7 @@ public class VirialHSBinMultiThreaded {
             if (!Double.isNaN(litHSB)) System.out.println("lit value "+litHSB);
             System.out.println();
             
-            MeterVirialBDBin2MultiThreaded.recomputeWeights(allMyData, nThreads*steps);
+            MeterVirialBDBinMultiThreaded.recomputeWeights(allMyData, nThreads*steps);
 
             List<IntSet> pvs = new ArrayList<IntSet>();
             pvs.addAll(allMyData.keySet());
@@ -362,7 +361,7 @@ public class VirialHSBinMultiThreaded {
         protected final long[] totalCount;
         protected final boolean doReweight;
         protected final int[] mySeeds;
-        public MeterVirialBDBin2MultiThreaded meter;
+        public MeterVirialBDBinMultiThreaded meter;
         protected final boolean doWheatley;
         
         public SimulationWorker(int iThread, int nPtsTabulated, int nPoints, MayerFunction fRef,
@@ -525,7 +524,7 @@ public class VirialHSBinMultiThreaded {
                     return pv;
                 }
             };
-            meter = new MeterVirialBDBin2MultiThreaded(targetCluster, sim.getRandom(), doWheatley ? (nPoints<6 ? pod : (nPoints<12 ? pefcliqueEF : pefclique2)) : pod0, totalCount, allMyData, iThread, doReweight);
+            meter = new MeterVirialBDBinMultiThreaded(targetCluster, sim.getRandom(), doWheatley ? (nPoints<6 ? pod : (nPoints<12 ? pefcliqueEF : pefclique2)) : pod0, totalCount, allMyData, iThread, doReweight);
             meter.setBox(sim.box);
             if (w>=0) {
                 meter.setWeight(w);
@@ -565,7 +564,7 @@ public class VirialHSBinMultiThreaded {
                 sim.integrator.getMoveManager().addMCMove(mcMoveHST);
                 sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
             }
-            MeterVirialBDBin2MultiThreaded.setTRatio(tRatio);
+            MeterVirialBDBinMultiThreaded.setTRatio(tRatio);
 
             sim.ai.setMaxSteps(steps);
             sim.getController().actionPerformed();
