@@ -34,6 +34,14 @@ public interface ClusterWheatley extends ClusterAbstract {
     public int[] getCliques();
 
     /**
+     * Returns an array containing the clique sets (based on e-bonds) for the
+     * configuration passed to checkConfig.  The array is filled from the
+     * beginning and may contain cruft at the end (use getCliqueCount to know
+     * where to stop).
+     */
+    public int[] getECliques();
+    
+    /**
      * Returns outDegee (number of bonds for each point) of the configuration
      * passed to checkConfig
      */
