@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +35,6 @@ public class MeterVirialBinMultiThreaded implements IAction {
 
     protected final IRandom random;
     protected final ClusterWheatley targetCluster;
-    protected final MathContext mc = new MathContext(40);
     protected BoxCluster box;
     protected final Map<IntSet,MyData> allMyData;
     protected static double tRatio;
@@ -54,13 +52,14 @@ public class MeterVirialBinMultiThreaded implements IAction {
      * Constructor for MeterVirial.
      */
     public MeterVirialBinMultiThreaded(ClusterWheatley targetCluster, IRandom random, PropertyBin prop) {
-        this(targetCluster, random, prop, new long[1], new HashMap<IntSet,MyData>(), 0, true);
+        this(targetCluster, random, prop, new long[1], null, 0, true);
     }
 
     public MeterVirialBinMultiThreaded(ClusterWheatley targetCluster, IRandom random, PropertyBin prop, long[] totalCount, Map<IntSet,MyData> allMyData, int iThread, boolean doReweight) {
+        System.out.println("Bin2");
         this.targetCluster = targetCluster;
         this.random = random;
-        this.allMyData = allMyData;
+        this.allMyData = allMyData == null ? new HashMap<IntSet,MyData>() : allMyData;
         property = prop;
         this.totalCount = totalCount;
         this.iThread = iThread;
@@ -136,26 +135,35 @@ public class MeterVirialBinMultiThreaded implements IAction {
                 amd = new MyData();
                 amd.weight = nominalWeight;
                 allMyData.put(pvCopy, amd);
+//                int foo = allMyData.size();
+//                if (foo == 1<<(int)(Math.log(foo)/Math.log(2))) {
+//                    System.out.println(foo+" sets, "+totalCount/foo+" steps/set");
+//                }
             }
 
             amd.unscreenedCount++;
         }
         double myWeight = amd.weight;
         if (myWeight < 1 && myWeight < random.nextDouble()) {
+//            lastLastCPairID = lastCPairID;
+//            lastCPairID = box.getCPairSet().getID();
             return;
         }
         double x = 0;
         double v = targetCluster.calcValue(box);
         if (v != 0) {
+//            long cPairIDNow = box.getCPairSet().getID();
             double pi = box.getSampleCluster().value(box);
-            x = v / pi;
+//            long cPairIDNow2 = box.getCPairSet().getID();
+            x = v/pi;
         }
-        
 
         synchronized (amd) {
             // synchronize to prevent recomputeWeights from reading data now
             amd.addData(x);
         }
+//        lastLastCPairID = lastCPairID;
+//        lastCPairID = box.getCPairSet().getID();
     }
     
     public void writeData(String filename) {
@@ -204,9 +212,26 @@ public class MeterVirialBinMultiThreaded implements IAction {
         }
     }
 
+    public void mergeData(Map<IntSet,MyData> moreData) {
+        Set<IntSet> pvs = moreData.keySet();
+        for (IntSet pv : pvs) {
+            MyData amd = allMyData.get(pv);
+            if (amd == null) {
+                amd = new MyData();
+                allMyData.put(pv, amd);
+            }
+            MyData amdMore = moreData.get(pv);
+            amd.sum += amdMore.sum;
+            amd.sum2 += amdMore.sum2;
+            amd.sampleCount += amdMore.sampleCount;
+            amd.unscreenedCount += amdMore.unscreenedCount;
+        }
+    }
+
     public void readData(String[] filenames) {
         Map<IntSet,Double> sums = new HashMap<IntSet,Double>();
         Map<IntSet,Double> sumSquares = new HashMap<IntSet,Double>();
+        Map<IntSet,Double> dsums = new HashMap<IntSet,Double>();
         Map<IntSet,Long> sampleCounts = new HashMap<IntSet,Long>();
         try {
             for (String filename : filenames) {
@@ -233,8 +258,8 @@ public class MeterVirialBinMultiThreaded implements IAction {
                         MyData amd = allMyData.get(pv);
                         amd.unscreenedCount += usc;
                         sampleCounts.put(pv, sampleCounts.get(pv)+sampleCount);
-                        sumSquares.put(pv, sumSquares.get(pv)+sumSquare);
-                        sums.put(pv, sums.get(pv)+sum);
+                        sums.put(pv, sums.get(pv) +sum);
+                        sumSquares.put(pv, sumSquares.get(pv) + sumSquare);
                     }
                     else {
                         MyData amd = new MyData();
@@ -244,6 +269,7 @@ public class MeterVirialBinMultiThreaded implements IAction {
                         sampleCounts.put(pv, sampleCount);
                         sums.put(pv, sum);
                         sumSquares.put(pv, sumSquare);
+                        dsums.put(pv, Double.parseDouble(values[2]));
                     }
                 }
                 bufReader.close();
@@ -259,23 +285,6 @@ public class MeterVirialBinMultiThreaded implements IAction {
             amd.sum2 = sumSquares.get(pv);
         }
     }
-    
-    public static void mergeData(MathContext mc, Map<IntSet,MeterVirialBinMultiThreaded.MyData> masterData, Map<IntSet,MeterVirialBinMultiThreaded.MyData> singleData) {
-        Set<IntSet> pvs = singleData.keySet();
-        for (IntSet pv : pvs) {
-            MyData amdMaster = masterData.get(pv);
-            if (amdMaster == null) {
-                amdMaster = new MyData();
-                masterData.put(pv, amdMaster);
-            }
-            MyData amdSingle = singleData.get(pv);
-            amdMaster.sum += amdSingle.sum;
-            amdMaster.sum2 += amdSingle.sum2;
-            amdMaster.sampleCount += amdSingle.sampleCount;
-            amdMaster.unscreenedCount += amdSingle.unscreenedCount;
-        }
-    }
-
 
     public void readWeights(String filename) {
         File f = new File(filename);
@@ -312,7 +321,7 @@ public class MeterVirialBinMultiThreaded implements IAction {
         for (int i=0; i<totalCount.length; i++) {
             tc += totalCount[i];
         }
-        recomputeWeights(allMyData, tc);
+        recomputeWeights(allMyData, tc, true);
         nextReweightStep = tc * 2;
     }
 
@@ -345,13 +354,11 @@ public class MeterVirialBinMultiThreaded implements IAction {
         double avgSqValue = totalSqValue / totalSampleCount;
         double t0 = totalCount;
         double t1 = totalSampleCount*tRatio;
-        double E0 = 0;
         double E0a = 0, E0a2 = 0;
         double E1 = 0;
         // E0 = sum(sci*(steps-sci)/steps * ai^2)
         // E1 = sum(sci*sci*stdev*stdev/sampci)
 
-        double maxw = 0;
         Map<IntSet,Double> localWeight = new HashMap<IntSet,Double>();
         
         for (IntSet pv : allMyData.keySet()) {
@@ -366,11 +373,10 @@ public class MeterVirialBinMultiThreaded implements IAction {
                 average = amd.getAvg();
                 var = amd.getVar();
             }
-            double lwi = doPadVar ? avgSqValue/sampleCount : 0;
+            double lwi = doPadVar ? (avgSqValue/sampleCount) : 0;
 
             if (average != 0) {
                 // E0 = sum(sci*(steps-sci)/steps * ai^2)
-                E0 += c*((double)(totalCount-c))/totalCount * average*average;
                 E0a += c*average;
                 E0a2 += c*average*average;
             }
@@ -378,73 +384,64 @@ public class MeterVirialBinMultiThreaded implements IAction {
             if (sampleCount<2) {
                 // we have never seen i bonds, or the configuration was always screened
                 // or we just have no statistics
-                localWeight.put(pv, lwi);
+                localWeight.put(pv, Math.sqrt(lwi));
                 continue;
             }
 
-            if (sampleCount > 1) {
-                lwi += var;
-                if (sampleCount > 10 && lwi > maxw) maxw = lwi;
-            }
-            localWeight.put(pv, lwi);
+            lwi += var;
+            localWeight.put(pv, Math.sqrt(lwi));
 
             // E1 = sum(sci*sci*stdev*stdev/sampci)
             E1 += c*((double)c)/sampleCount * var;
         }
-        double E0ave = E0a/totalCount;
-        double E00 = E0a2/totalCount - E0ave*E0ave;
-        if (E0 == 0) {
+        if (E0a2 == 0) {
             return;
         }
-        if (maxw==0) {
-            // nonsense, but whatever
-            maxw = avgSqValue/totalSampleCount;
-        }
+        double E0ave = E0a/totalCount;
+        double E0 = E0a2/totalCount - E0ave*E0ave;
+        E1 /= totalCount;
         if (E1 == 0 && doPadVar) {
-            // no value fluctuations, perhaps B4?
+            // no value fluctuations, perhaps B4 or B5?
             E1 = avgSqValue/totalSampleCount;
         }
-        E0 /= totalCount;
-//        System.out.println("E0 (old,new): "+E0+" "+E00);
-        E1 /= totalCount;
-
 //        System.out.println("weights");
+        double k = Math.sqrt(1/(E0*tRatio));
+//        k=1e-8;
+
         double newT1 = 0;
-        for (IntSet pv : allMyData.keySet()) {
-            MyData amd = allMyData.get(pv);
-            long c = amd.unscreenedCount;
-            if (c==0) continue;
-            double w = localWeight.get(pv)/maxw;
-            amd.weight = w;
-            newT1 += tRatio * c * w / totalCount;
-        }
-        double y1 = Math.sqrt(E1*t1/(E0*t0));
-        // newT1 is the new fraction of time we would spend calculating cluster values
-        // y is the optimal fraction of time.
-        // if y<newT, then we scale everything down (happy)
-        // if y>newT1, then we scale up, but some weights>1.
-        //    we'll still calculate all of them, but can't actually cause it to visit more than 100%
-        double x1 = y1==0 ? 0 : y1/newT1;
-        newT1 = 0;
         long totalUnscreened = 0;
         double newE1 = 0;
+        double E1all = 0;
+        double allT1 = 0;
         for (IntSet pv : allMyData.keySet()) {
             MyData amd = allMyData.get(pv);
-            double w = amd.weight*x1;
-            if (w > 1) w = 1;
-            else if (amd.sampleCount < 2) w = 1;
+            long c = amd.unscreenedCount;
+            if (c == 0) continue;
+            double w = localWeight.get(pv)*k;
+            if (w > 1 || amd.sampleCount < 2) {
+                w = 1;
+            }
 //            if (i>=targetCluster.pointCount()) System.out.println(String.format("%2d %12d  %6.4f  %6.4f  %6.4f", i, (count[i]-screenedCount[i]), weight[i], w, tRatio * (count[i]-screenedCount[i]) * w / totalCount));
             amd.weight = w;
-            long c = amd.unscreenedCount;
             newT1 += c * w;
+            allT1 += c;
             totalUnscreened += c;
             double s = amd.getVar();
-            if (s>0) newE1 += c*s/w;
+            if (s > 0) {
+                newE1 += c*s/w;
+                E1all += c*s;
+            }
         }
-        newE1 /= totalCount;
         newT1 *= tRatio/totalCount;
-//        System.out.println(E00+" "+newE1+" "+newT1);
-        if (!quiet) System.out.print(String.format("var0 frac %8.5f   t0 frac %8.5f  ideal t0 frac %5.3f  new t0 frac %5.3f   measure frac %5.3f  difficulty %10.4e\n", E0/(E0+E1), t0/(t0+t1), 1/(1+y1), 1/(1+newT1), newT1*(totalCount/tRatio/totalUnscreened), Math.sqrt((E00+newE1)*(1+newT1))));
+        allT1 *= tRatio/totalCount;
+        newE1 /= totalCount;
+        E1all /= totalCount;
+//        System.out.println(E0+" "+E1+" "+newE1+" "+newT1);
+        if (!quiet) {
+            System.out.print(String.format("var0 frac %8.5f (opt: %8.5f)  t0 frac %8.5f  k %8.2e  new t0 frac %5.3f   measure frac %7.5f\n", E0/(E0+E1), E0/(E0+newE1), t0/(t0+t1), k, 1/(1+newT1), newT1*(totalCount/tRatio/totalUnscreened)));
+            // difficulty:   opt   actual   w=1    w=0
+            System.out.print(String.format(" Difficulty: %10.4e %10.4e %10.4e %10.4e\n", Math.sqrt((E0+newE1)*(1+newT1)), Math.sqrt((E0+E1)*(1+t1/t0)), Math.sqrt((E0+E1all)*(1+allT1)), Math.sqrt(E0+E1all)));
+        }
         System.out.flush();
     }
     
@@ -463,11 +460,7 @@ public class MeterVirialBinMultiThreaded implements IAction {
     public Map<IntSet,MyData> getAllMyData() {
         return allMyData;
     }
-    
-    public MathContext getMathContext() {
-        return mc;
-    }
-    
+
     public long getTotalCount() {
         long tc = 0;
         for (int i=0; i<totalCount.length; i++) {
@@ -480,8 +473,6 @@ public class MeterVirialBinMultiThreaded implements IAction {
         public long unscreenedCount, sampleCount;
         public double weight;
         public double sum, sum2;
-
-        public MyData() {}
         
         public double getAvg() {
             return sum/sampleCount;
@@ -491,7 +482,7 @@ public class MeterVirialBinMultiThreaded implements IAction {
             if (sampleCount < 1) return Double.NaN;
             double avg = getAvg();
             double avg2 = avg*avg;
-            double var = sum/sampleCount - avg2;
+            double var = sum2/sampleCount - avg2;
             if (var < avg2*1e-7) var = 0;
             return var;
         }
@@ -501,5 +492,4 @@ public class MeterVirialBinMultiThreaded implements IAction {
             sum2 += value*value;
             sampleCount++;
         }
-    }
-}
+    }}
