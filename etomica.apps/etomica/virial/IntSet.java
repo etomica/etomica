@@ -32,4 +32,8 @@ public class IntSet implements Comparable<IntSet> {
     public String toString() {
         return Arrays.toString(v);
     }
+    
+    public interface PropertyBin {
+        public IntSet value();
+    }
 }
