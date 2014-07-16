@@ -2,7 +2,6 @@ package etomica.virial;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
 
 import etomica.api.IAtomList;
 import etomica.api.IBox;
@@ -11,8 +10,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
-import etomica.space.Space;
-import etomica.space3d.RotationTensor3D;
+import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGeneratorUnix;
@@ -21,8 +19,10 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
 
     private static final int nLookUp = 5000;
     private static final double[] lookUpL;
-    protected final double biasdr;
-    private final Vector3D standardLensPoint, r12, normalVector;
+    protected final Vector3D standardLensPoint, normalVector;
+    protected double[] maxBias, maxBiasR, p0;
+    
+    public int[] seq;
     
     static {
         lookUpL = new double[nLookUp];
@@ -50,34 +50,47 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     public MCMoveClusterAtomHSRing(IRandom random, ISpace _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
-        rotAxis = space.makeVector();
         axis0 = space.makeVector();
-        axis1 = space.makeVector();
-        axis2 = space.makeVector();
         standardLensPoint = (Vector3D)space.makeVector();
-        r12 = (Vector3D)space.makeVector();
         normalVector = (Vector3D)space.makeVector();
-        rotTensor = new RotationTensor3D();
         double[] b = new double[]{0,1.1,0.9*1.19776,0.674043,0.543464,0.4489,0.381788,0.331708,0.29308,0.262442,0.237574};
-        gaussPrefac = new double[b.length];
-        bias = new double[b.length*2+1][0];
         normalWidth = new double[b.length];
         numInserts = new long[b.length*2+1];
         numTrials = new long[b.length*2+1];
-        biasdr = 0.1;
         for (int i=1; i<b.length; i++) {
             normalWidth[i] = Math.sqrt(0.5/b[i]);
-            
-            // (2*Math.sqrt(b/Math.PI))
-            gaussPrefac[i] = 2*Math.sqrt(b[i]/Math.PI);
         }
-        for (int i=1; i<bias.length; i++) {
-            bias[i] = new double[(int)Math.round(i/biasdr)+1];
+        maxBias = new double[b.length*2+1];
+        maxBiasR = new double[b.length*2+1];
+        p0 = new double[b.length*2+1];
+        for (int i=2; i<b.length; i++) {
+            p0[i] = separationProbability(i, 0);
+            double sp2 = 0.5/b[i];
+            double s = 0.5/Math.sqrt(b[i]);
+            double rmin = 0;
+            double maxr = -1;
+            double maxbias = -1;
+            for (int k=5; k<=50; k+=3) {
+                double dr = s/(1L<<k);
+                for (int j=0; j<1000; j++) {
+                    double r = rmin + j*dr;
+                    double pAct = separationProbability(i, r);
+                    pAct *= pAct;
+                    double pGauss = Math.exp(-r*r/sp2);
+                    double pRatio = pAct/pGauss;
+                    if (pRatio > maxbias) {
+                        maxbias = pRatio;
+                        maxr = r;
+                    }
+                }
+//                System.out.print(String.format("%2d %2d %22.15e %19.15f %19.15f\n", i, k, dr, maxr, maxbias));
+                rmin = maxr - 500*dr/8;
+            }
+            maxBias[i] = maxbias;
+            maxBiasR[i] = maxr;
         }
-        twoOSqrtPI = 2/Math.sqrt(Math.PI);
-        twoOSqrtPI3 = twoOSqrtPI*twoOSqrtPI*twoOSqrtPI;
     }
-    
+
     public void setBox(IBox box) {
         super.setBox(box);
         inserted = new boolean[box.getLeafList().getAtomCount()];
@@ -96,6 +109,21 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         }
 
         totalCount++;
+
+        if (seq == null) {
+            seq = new int[n];
+        }
+        for (int i=0; i<n; i++) {
+            seq[i] = i;
+        }
+        for (int i=0; i<n; i++) {
+            int j = i+random.nextInt(n-i);
+            int k = seq[j];
+            seq[j] = seq[i];
+            seq[i] = k;
+        }
+//        System.out.println(Arrays.toString(seq));
+        leafAtoms.getAtom(seq[0]).getPosition().E(0);
         while (true) {
             int prevInserted = 0;
             boolean didInsert = false;
@@ -111,133 +139,61 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             // we divided an even gap into two odd ones
                             j--;
                         }
+                        else if (((i-prevInserted)&1)==1) {
+                            j = prevInserted+1;
+                        }
                         inserted[j] = true;
-                        IVectorMutable pos = leafAtoms.getAtom(j).getPosition();
+                        IVectorMutable pos = leafAtoms.getAtom(seq[j]).getPosition();
                         // insert j (between prevInserted and nextInserted)
                         if (i-prevInserted == 2) {
+
                             // insertion into a lens
-                            IVector posPrev = leafAtoms.getAtom(prevInserted).getPosition();
-                            IVectorMutable posNext = leafAtoms.getAtom(nextInserted).getPosition();
+                            IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
+                            IVectorMutable posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             
                             axis0.Ev1Mv2(posNext, posPrev);
                             double r2 = axis0.squared();
-                            double rij = Math.sqrt(r2);
-                            axis0.TE(1.0/rij);
-
-                            if (Math.abs(axis0.getX(0)) > 0.9999999) {
-                                axis1.setX(0,0);
-                                axis1.setX(1,1);
-                                axis1.setX(2,0);
-
-                                axis2.setX(0,0);
-                                axis2.setX(1,0);
-                                axis2.setX(2,1);
-                            }
-                            else if (Math.abs(axis0.getX(0)) > 0.6) {
-                                rotAxis.setX(0,1);
-                                rotAxis.setX(1,0);
-                                rotAxis.setX(2,0);
-                                rotAxis.XE(axis0);
-                                rotAxis.normalize();
-                                rotTensor.setRotationAxisCT(rotAxis, axis0.getX(0));
-                                
-                                axis1.setX(0,0);
-                                axis1.setX(1,1);
-                                axis1.setX(2,0);
-                                rotTensor.transform(axis1);
-                                
-                                axis2.setX(0,0);
-                                axis2.setX(1,0);
-                                axis2.setX(2,1);
-                                rotTensor.transform(axis2);
-                            }
-                            else if (Math.abs(axis0.getX(1)) > 0.6)  {
-                                rotAxis.setX(0,0);
-                                rotAxis.setX(1,1);
-                                rotAxis.setX(2,0);
-                                rotAxis.XE(axis0);
-                                rotAxis.normalize();
-                                rotTensor.setRotationAxisCT(rotAxis, axis0.getX(1));
-                                
-                                axis1.setX(0,1);
-                                axis1.setX(1,0);
-                                axis1.setX(2,0);
-                                rotTensor.transform(axis1);
-                                
-                                axis2.setX(0,0);
-                                axis2.setX(1,0);
-                                axis2.setX(2,1);
-                                rotTensor.transform(axis2);
+                            if (r2 < 1) {
+                                randomLensPointInBox(posPrev, posNext, (IVectorRandom)pos);
                             }
                             else {
-                                rotAxis.setX(0,0);
-                                rotAxis.setX(1,0);
-                                rotAxis.setX(2,1);
-                                rotAxis.XE(axis0);
-                                rotAxis.normalize();
-                                rotTensor.setRotationAxisCT(rotAxis, axis0.getX(2));
-                                
-                                axis1.setX(0,1);
-                                axis1.setX(1,0);
-                                axis1.setX(2,0);
-                                rotTensor.transform(axis1);
-                                
-                                axis2.setX(0,0);
-                                axis2.setX(1,1);
-                                axis2.setX(2,0);
-                                rotTensor.transform(axis2);
-                            }
-
-                            double max0 = 2 - rij;
-                            double max12 = Math.sqrt(4 - r2);
-                            while (true) {
-                                numTrials[i-prevInserted]++;
-                                pos.Ev1Pv2(posPrev, posNext);
-                                pos.TE(0.5);
-                                pos.PEa1Tv1(max0*(random.nextFixedDouble()-0.5), axis0);
-                                pos.PEa1Tv1(max12*(random.nextFixedDouble()-0.5), axis1);
-                                pos.PEa1Tv1(max12*(random.nextFixedDouble()-0.5), axis2);
-                                double r2p = pos.Mv1Squared(posPrev);
-                                if (r2p > 1) continue;
-                                double r2n = pos.Mv1Squared(posNext);
-                                if (r2n < 1) break;
+                                randomLensPoint(posPrev, posNext, (Vector3D)pos, axis0, r2);
                             }
                         }
-                        else if (false && i-prevInserted == 3) {
-                            double sn = normalWidth[2];
-                            IVector posPrev = leafAtoms.getAtom(prevInserted).getPosition();
-                            IVector posNext = leafAtoms.getAtom(nextInserted).getPosition();
+                        else if (j-prevInserted==1) {
+                            // odd gap.  even it up  n = 1 + (n-1)
+                            IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
+                            IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             while (true) {
                                 numTrials[i-prevInserted]++;
-                                double x = random.nextGaussian();
-                                double x2 = x*x;
-                                pos.setX(0, x*sn);
-                                x = random.nextGaussian();
-                                x2 += x*x;
-                                pos.setX(1, x*sn);
-                                x = random.nextGaussian();
-                                x2 += x*x;
-                                pos.setX(2, x*sn);
-                                pos.PE(posNext);
-                                if (pos.Mv1Squared(posPrev) < 1) {
-                                    // compare Gaussian with true probability
-                                    double pGauss = twoOSqrtPI3* Math.exp(-0.5*x2);
-                                    double rn = Math.sqrt(pos.Mv1Squared(posNext));
-                                    double pn = separationProbability(i-j,rn);
-                                    if (pn == 0) continue;
-                                    if (pn/pGauss>bias[i-prevInserted][0]) {
-                                        bias[i-prevInserted][0] = pn/pGauss;
-                                    }
-                                    if (random.nextDouble() < pn/(bias[i-prevInserted][0]*pGauss)) {
-                                        break;
-                                    }                    
+                                ((IVectorRandom)pos).setRandomInSphere(random);
+                                pos.PE(posPrev);
+                                double rn = Math.sqrt(pos.Mv1Squared(posNext));
+                                double pn = separationProbability(i-j,rn);
+                                if (pn == 0) continue;
+                                double p = pn;
+                                double rand = random.nextDouble();
+
+                                double r2 = posPrev.Mv1Squared(posNext);
+                                double fullBias = 0;
+                                if (r2 < 1) {
+                                    // if prev core overlaps next center, then maxBias is the separationProbability(0)
+                                    fullBias = p0[i-j];
+                                }
+                                else {
+                                    // maxBias is separationProbability evaluated at the edge of prev's core
+                                    double myR = Math.sqrt(r2) - 1;
+                                    fullBias = separationProbability(i-j, myR);
+                                }
+                                if (rand < p/fullBias) {
+                                    break;
                                 }
                             }
                         }
                         else {
                             // Gaussian distributions with bisection
-                            IVector posPrev = leafAtoms.getAtom(prevInserted).getPosition();
-                            IVector posNext = leafAtoms.getAtom(nextInserted).getPosition();
+                            IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
+                            IVector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
                             double rpn = Math.sqrt(posNext.Mv1Squared(posPrev));
                             while (true) {
                                 numTrials[i-prevInserted]++;
@@ -247,17 +203,13 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                                 double sn2 = sn*sn;
                                 double s = Math.sqrt(sp2*sn2/(sp2+sn2));
                                 double x = random.nextGaussian();
-                                double x2 = x*x;
                                 pos.setX(0, x*s);
                                 x = random.nextGaussian();
-                                x2 += x*x;
                                 pos.setX(1, x*s);
                                 x = random.nextGaussian();
-                                x2 += x*x;
                                 pos.setX(2, x*s);
                                 // (2*Math.sqrt(b/Math.PI))
                                 // (2/(sqrt(b/pi))^3
-                                double pGauss = gaussPrefac[j-prevInserted]*gaussPrefac[i-j] * Math.exp(-0.5*x2);
                                 pos.PEa1Tv1(sn2/(sp2+sn2), posPrev);
                                 pos.PEa1Tv1(sp2/(sp2+sn2), posNext);
                                 double rp = Math.sqrt(pos.Mv1Squared(posPrev));
@@ -267,14 +219,21 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                                 double pn = separationProbability(i-j,rn);
                                 if (pn == 0) continue;
                                 double p = pp*pn;
-                                int biasBin = (int)(rpn/biasdr);
-                                if (p/pGauss>bias[i-prevInserted][biasBin]) {
-//                                    if (i-prevInserted==8) {
-//                                        System.out.println((i-prevInserted)+" "+rpn+" "+Math.sqrt(x2)+" "+p/pGauss);
-  //                                  }
-                                    bias[i-prevInserted][biasBin] = p/pGauss;
+
+                                double fullBias = 0;
+                                if (rpn < 2*maxBiasR[i-j]) {
+                                    // if prev and next are close enough, the maxBias is our precomputed value
+                                    fullBias = maxBias[i-j];
                                 }
-                                if (random.nextDouble() < p/(bias[i-prevInserted][biasBin]*pGauss)) {
+                                else {
+                                    // maxBias is p ratio evaluated at the midpoint
+                                    fullBias = separationProbability(i-j, 0.5*rpn);
+                                    fullBias *= fullBias;
+                                    fullBias /= Math.exp(-0.5*(0.5*rpn*0.5*rpn + 0.5*rpn*0.5*rpn)/sp2);
+                                }
+                                // recalc without normalization
+                                double pGaussFull = Math.exp(-0.5*(rp*rp/sp2 + rn*rn/sn2));
+                                if (random.nextDouble() < p/(fullBias*pGaussFull)) {
                                     break;
                                 }
                             }
@@ -286,13 +245,14 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
             }
             if (!didInsert) break;
         }
-//        for (int i=1; i<n; i++) {
-//            IVector pos = leafAtoms.getAtom(i).getPosition();
-//            System.out.println(Math.sqrt(pos.Mv1Squared(leafAtoms.getAtom(i-1).getPosition())));
-//        }
+        if (sigma != 1) {
+            for (int i=1; i<n; i++) {
+                leafAtoms.getAtom(seq[i]).getPosition().TE(sigma);
+            }
+        }
 //        System.out.println(Math.sqrt(leafAtoms.getAtom(0).getPosition().Mv1Squared(leafAtoms.getAtom(n-1).getPosition())));
 
-        if (false && random.nextDouble() < 0.0001) {
+        if (false && random.nextDouble() < 0.00001) {
             long s = 0;
             for (int i=0; i<numTrials.length; i++){
                 if (numInserts[i] > 0) {
@@ -315,7 +275,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
 		((BoxCluster)box).trialNotify();
 		return true;
 	}
-    
+
     /**
      * Sets a given vector to a point chosen uniformly at random in the lens-shaped region
      * formed by the overlap of two spheres of unit radius located at the given positions r1 and r2.
@@ -324,12 +284,11 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
      * @param point (output) random position selected in overlap of the given spheres
      * @throws IllegalArgumentException if given spheres do not overlap
      */
-    protected void randomLensPoint(IVector r1, IVector r2, Vector3D point) {
-        r12.Ev1Mv2(r1, r2);  //separation vector
-        double d = Math.sqrt(r12.squared()); //distance between spheres
-        randomLensPoint2(d, standardLensPoint); //select point for two spheres in standard configuration and separated by this amount
+    protected void randomLensPoint(IVector r1, IVector r2, Vector3D point, IVectorMutable r12, double rSquared) {
+        double d = Math.sqrt(rSquared); //distance between spheres
+        randomLensPoint(d, standardLensPoint); //select point for two spheres in standard configuration and separated by this amount
         r12.TE(1./d);//normalize
-        normalVector.setPerpendicularTo(r12); 
+        normalVector.setPerpendicularTo(r12);
         normalVector.normalize();
         point.Ev1Pv2(r1,r2);
         point.TE(0.5);//midpoint between spheres
@@ -338,24 +297,49 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         normalVector.XE(r12);
         point.PEa1Tv1(standardLensPoint.getX(2),normalVector);
     }
-    
-    protected void randomLensPoint2(double d, Vector3D point) {
 
-        if(d > 2) throw new IllegalArgumentException("No overlap point if spheres are separated by a distance "+d);
-        double max0 = 2 - d;
-        double d24 = 1 - 0.25*d*d;
-        double max12 = 2*Math.sqrt(d24);
-        double x, y, z, q;
-        do {
-            x = max0*(random.nextFixedDouble()-0.5);
-            y = max12*(random.nextFixedDouble()-0.5);
-            z = max12*(random.nextFixedDouble()-0.5);
-            q = x*x + y*y + z*z - d24;
-        } while (d*x < q || -d*x < q);
-        
-        point.E(x, y, z);
+    protected void randomLensPointInBox(IVector r0, IVector r1, IVectorRandom point) {
+        double minX = r0.getX(0) - 1;
+        double a = r1.getX(0) - 1;
+        double maxX = 0;
+        if (a>minX) {
+            maxX = minX+2;
+            minX = a;
+        }
+        else {
+            maxX = a+2;
+        }
+        double minY = r0.getX(1) - 1;
+        a = r1.getX(1) - 1;
+        double maxY = 0;
+        if (a>minY) {
+            maxY = minY+2;
+            minY = a;
+        }
+        else {
+            maxY = a+2;
+        }
+        double minZ = r0.getX(2) - 1;
+        a = r1.getX(2) - 1;
+        double maxZ = 0;
+        if (a>minZ) {
+            maxZ = minZ+2;
+            minZ = a;
+        }
+        else {
+            maxZ = a+2;
+        }
+        double dx = maxX - minX;
+        double dy = maxY - minY;
+        double dz = maxZ - minZ;
+        while (true) {
+            point.setX(0, minX + dx*random.nextFixedDouble());
+            point.setX(1, minY + dy*random.nextFixedDouble());
+            point.setX(2, minZ + dz*random.nextFixedDouble());
+            if (point.Mv1Squared(r0) < 1 && point.Mv1Squared(r1) < 1) return;
+        }            
     }
-    
+
     /** 
      * Returns a randomly selected point from within the lens-shaped region of
      * overlap of two spheres of unit radius separated by a distance d.  The positions
@@ -711,14 +695,6 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         }
     }
 
-    private static double Power(double x, int n) {
-        double xp = x;
-        for(int j=1; j<n; j++) {
-            xp *= x;
-        }
-        return xp;
-    }
-    
     private static double ArcCoth(double x) {
         return 0.5 * Math.log((x+1)/(x-1));
     }
@@ -740,12 +716,8 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     }
 
     protected final double sigma;
-    protected final RotationTensor3D rotTensor;
-    protected final IVectorMutable rotAxis, axis0, axis1, axis2;
+    protected final IVectorMutable axis0;
     protected final double[] normalWidth;
-    protected final double[][] bias;
-    protected final double twoOSqrtPI, twoOSqrtPI3;
-    protected final double[] gaussPrefac;
     protected boolean[] inserted;
     protected long[] numInserts, numTrials;
     protected long totalCount;
@@ -758,18 +730,34 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
     protected final static double fac9 = 1.0850962247457076546e23;//-63504*(-10426242710867380224. + 42472111822285718.*ArcCoth(4) + 16104102360845723218.*ArcCoth(6) + 47728241004256868637.*ArcCoth(8) + 1366272181*Math.log(3));
     protected final static double fac10 = 1.2839372233185790761e27;//-72477573120L*(-130183458512569272L + 55413583302L*ArcCoth(3) + 3559737320287686L*ArcCoth(5) + 385043557076036577L*ArcCoth(7) + 505161285400390625L*ArcCoth(9));
     
-    public static void main1(String[] args) {
+    public static void main(String[] args) {
+//        lensPointTest();
+//        System.exit(0);
+//        new MCMoveClusterAtomHSRing(new RandomNumberGenerator(), Space3D.getInstance(), 1.0);
+//        System.exit(1);
         if (false) {
             double dr = 0.01;
-            for (int i=2; i<7; i++) {
+            for (int i=10; i<11; i++) {
+                double lasty=0, lastdy=0, lastddy=0, lastd3y = 0;
                 for (int jx=1; jx<100*i; jx++) {
-                    double r= dr*jx;
-                    System.out.println(r+" "+separationProbability(i, r));
+                    double r = dr*jx;
+                    double y = Math.log(separationProbability(i, r));
+                    double dydx = (y-lasty)/dr;
+                    double ddydxx = (dydx-lastdy)/dr;
+                    double d3y = (ddydxx-lastddy)/dr;
+                    double d4y = (d3y-lastd3y)/dr;
+                    if (jx>6 && (Double.isInfinite(d3y))) break;
+                    if (jx>5) System.out.println(r+" "+Math.abs(y)+" "+Math.abs(dydx)+" "+Math.abs(ddydxx)+" "+Math.abs(d3y)+" "+Math.abs(d4y));
+                    lasty = y;
+                    lastdy = dydx;
+                    lastddy = ddydxx;
+                    lastd3y = d3y;
                 }
                 System.out.println("&");
             }
+            System.exit(1);
         }
-        double[] b = new double[]{0,0.4,0.9*1.19776,0.674043,0.543464,0.4489,0.381788,0.331708};
+        double[] b = new double[]{0,1.1,0.9*1.19776,0.674043,0.543464,0.4489,0.381788,0.331708,0.29308,0.262442,0.237574};
         RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
         FileWriter fw = null;
 //        try {
@@ -778,79 +766,62 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
 //        catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
-        for (int i=3; i<=12; i++) {
+        long maxmaxk = -1;
+        for (int i=4; i<=12; i+=2) {
             int j = i/2;
             double normalWidthP = Math.sqrt(0.5/b[j]);
             double normalWidthN = Math.sqrt(0.5/b[i-j]);
-            double gaussPrefacP = 2*Math.sqrt(b[j]/Math.PI);
-            double gaussPrefacN = 2*Math.sqrt(b[i-j]/Math.PI);
-            double bias = 0;
-            int lastBiasBin = -1;
+            double gaussPrefacP = 1; //2*Math.sqrt(b[j]/Math.PI);
+            double gaussPrefacN = 1; //2*Math.sqrt(b[i-j]/Math.PI);
+            double v = 0;
             for (int jr=0; jr<100*i; jr++) {
                 double rij = jr*0.01;
-                int biasBin = jr/10;
-                if (biasBin > lastBiasBin) {
-                    if (lastBiasBin > -1) {
-                        System.out.println(i+" "+lastBiasBin*0.1+" "+bias);
-                        if (fw != null) {
-                            try {
-                                fw.write(i+" "+lastBiasBin+" "+bias+"\n");
-                            }
-                            catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }
-                    bias = 0;
-                }
+                double bias = 0;
                 double sp = normalWidthP;
                 double sp2 = sp*sp;
                 double sn = normalWidthN;
                 double sn2 = sn*sn;
                 double s = Math.sqrt(sp2*sn2/(sp2+sn2));
                 double cx = sp2/(sp2+sn2)*rij;
-                long nk = 100000;
+                long nk = 10000000;
+                double maxy = -1;
+                long maxk = -1;
                 for (long k=0; k<=nk; k++) {
-                    double x = random.nextGaussian();
-                    if (k==0 || (i&1)==0) x = 0;
-                    double x2 = x*x;
+                    double x = 0;
                     double jx = x*s;
-                    x = random.nextGaussian();
-                    if (k==0) x = 0;
-                    x2 += x*x;
+                    x = k*0.000001;
                     double jy = x*s;
-                    x = random.nextGaussian();
-                    if (k==0) x = 0;
-                    x2 += x*x;
-                    double jz = x*s;
                     // (2*Math.sqrt(b/Math.PI))
                     // (2/(sqrt(b/pi))^3
-                    double pGauss = gaussPrefacP*gaussPrefacN * Math.exp(-0.5*x2);
+                    double pGauss = gaussPrefacP*gaussPrefacN * Math.exp(-jy*jy/sp2 - cx*cx/sp2);
                     jx += cx;
-                    double rp = Math.sqrt(jx*jx + jy*jy + jz*jz);
-                    double rn = Math.sqrt((rij-jx)*(rij-jx) + jy*jy + jz*jz);
+                    double rp = Math.sqrt(jx*jx + jy*jy);
+                    double rn = Math.sqrt((rij-jx)*(rij-jx) + jy*jy);
                     double pp = separationProbability(j,rp);
                     if (pp == 0) continue;
                     double pn = separationProbability(i-j,rn);
                     if (pn == 0) continue;
                     double p = pp*pn;
                     if (p/pGauss>bias) {
-                        System.out.println(i+" "+rij+" "+(jx-cx)+" "+Math.sqrt(jy*jy+jz*jz)+" "+p/pGauss);
+//                        System.out.println(i+" "+rij+" "+(jx-cx)+" "+jy+" "+p/pGauss);
                         bias = p/pGauss;
+                        maxy = jy;
+                        maxk = k;
                     }
+                    else {
+//                        break;
+                    }
+//                    System.out.println(k+" "+jy+" "+p/pGauss);
                 }
-                lastBiasBin = biasBin;
-            }
-            if (fw != null) {
-                System.out.println(i+" "+lastBiasBin*0.1+" "+bias);
-                try {
-                    fw.write(i+" "+lastBiasBin+" "+bias+"\n");
-                }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+//                if (true) System.exit(1);
+                if (maxy==0) break;
+                if (jr==0) v = maxy;
+                System.out.println(i+" "+rij+" "+maxy+" "+(v*v - maxy*maxy - 0.25*rij*rij)+" "+bias);
+                if (maxk > maxmaxk) maxmaxk = maxk;
+                break;
             }
         }
+        System.out.println("global max k "+maxmaxk);
         if (fw != null) {
             try {
                 fw.close();
@@ -861,70 +832,5 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         }
     }
     
-    private static void separationProbabilityTest() {
-        double dr = 0.125;
-        DecimalFormat myFormatter = new DecimalFormat();
-        myFormatter.setMaximumFractionDigits(60);
-        System.out.print("{");
-        for(int n=3; n<11; n++) {
-            if(n>3) System.out.print(",");
-            System.out.print("{");            
-            for(double r=dr; r<=n; r+=dr) {
-                if(r>dr) System.out.print(",");
-                System.out.print("{"+r+","+myFormatter.format(MCMoveClusterAtomHSRing.separationProbability(n, r))+"}");
-            }
-            System.out.println("}");
-        }
-        System.out.println("}");
-    }
     
-    private static void lensPointTest() {
-        DecimalFormat f = new DecimalFormat();
-        f.setMaximumFractionDigits(16);
-        RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
-        MCMoveClusterAtomHSRing move = new MCMoveClusterAtomHSRing(random,Space.getInstance(3), 1.0);
-        double d = 0.7;
-        Vector3D vector1 = (Vector3D)Space.makeVector(3);
-        Vector3D vector2 = (Vector3D)Space.makeVector(3);
-        Vector3D vector3 = (Vector3D)Space.makeVector(3);
-        vector1.E(d/2,0,0);
-        vector2.E(-d/2,0,0);
-        int nTest = 10000;
-        System.out.print("points = {");
-        for(int i=0; i<nTest; i++) {
-            if(i>0) System.out.print(",");
-//            move.randomLensPoint(d, vector3);
-            move.randomLensPoint(vector1, vector2, vector3);
-            double r2 = vector3.Mv1Squared(vector1);
-            if(r2 > 1) System.out.println("r2: "+r2);
-            r2 = vector3.Mv1Squared(vector2);
-            if(r2 > 1) System.out.println("r2: "+r2);
-            System.out.print("{"+f.format(vector3.getX(0))+","+f.format(vector3.getX(1))+","+f.format(vector3.getX(2))+"}");
-        }
-        System.out.println("};");
-    }
-    
-    public static void main(String[] args) {
-        //separationProbabilityTest();
-        //lensPointTest();
-        
-        //test of lensRootApprox
-        double Umax = 2./3.;//5./1.5/nLookUp;
-        double nTest = 10000;
-        double maxErr = 0.0;
-        double UmaxErr = 0;
-        double sum = 0.0;
-        for(int i = 0; i < nTest; i++) {
-            double U = i*Umax/nTest;
-            double err = Math.abs(lensRootExact(U)-lensRoot(U));
-            if(err > maxErr) {
-                maxErr = err;
-                UmaxErr = U;
-            }
-            sum += Math.abs(err);
-            //System.out.println(U+" "+err);
-        }
-        System.out.println("max err: "+UmaxErr+" "+maxErr);
-        System.out.println("avg err: "+ (sum/nTest));
-    }
 }
