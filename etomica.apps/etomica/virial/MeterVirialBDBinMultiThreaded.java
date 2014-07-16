@@ -16,9 +16,7 @@ import java.util.Set;
 
 import etomica.action.IAction;
 import etomica.api.IRandom;
-import etomica.virial.MeterVirialBDBinMulti.IntSet;
 import etomica.virial.MeterVirialBDBinMulti.PropertyBin;
-import etomica.virial.MeterVirialBDBinMultiThreadedOld.MyData;
 
 /**
  * Measures cluster averages for virial coefficients.  Configurations are
@@ -243,7 +241,7 @@ public class MeterVirialBDBinMultiThreaded implements IAction {
 
         synchronized (amd) {
             // synchronize to prevent recomputeWeights from reading data now
-            amd.addData(x, mc, propValue, iThread);
+            amd.addData(x, mc);
         }
 //        lastLastCPairID = lastCPairID;
 //        lastCPairID = box.getCPairSet().getID();
@@ -295,7 +293,7 @@ public class MeterVirialBDBinMultiThreaded implements IAction {
         }
     }
 
-    public void mergeData(Map<IntSet,MeterVirialBDBinMultiThreadedOld.MyData> moreData) {
+    public void mergeData(Map<IntSet,MeterVirialBDBinMultiThreaded.MyData> moreData) {
         Set<IntSet> pvs = moreData.keySet();
         for (IntSet pv : pvs) {
             MyData amd = allMyData.get(pv);
@@ -421,7 +419,7 @@ public class MeterVirialBDBinMultiThreaded implements IAction {
      * and write to MyData.weight.
      */
     public static void recomputeWeights(Map<IntSet,MyData> allMyData, long totalCount, boolean doPadVar) {
-        MeterVirialBDBinMultiThreadedOld.recomputeWeights(allMyData, totalCount, doPadVar);
+        //MeterVirialBDBinMultiThreadedOld.recomputeWeights(allMyData, totalCount, doPadVar);
         // tRatio is the ratio of the time needed to compute the biconnected
         // value (and reference value) for one configuration to the time needed
         // to generate a configuration and screen it (and any other overhead).
@@ -565,4 +563,62 @@ public class MeterVirialBDBinMultiThreaded implements IAction {
         return tc;
     }
 
+    public static class MyData {
+        public long unscreenedCount, sampleCount;
+        public double weight;
+        public BigDecimal sum;
+        public double dsum, dsum2;
+        public BigDecimal sum2;
+//        public boolean locked;
+        public MyData() {
+            sum = BDZERO;
+            sum2 = BDZERO;
+        }
+        
+        public double getAvgDouble() {
+            return sum.doubleValue()/sampleCount;
+        }
+        
+        public double getDoubleAvg() {
+            return dsum/sampleCount;
+        }
+        
+        public double getDoubleVar() {
+            if (sampleCount < 1) return Double.NaN;
+            double avg = getDoubleAvg();
+            double avg2 = avg*avg;
+            double var = dsum2/sampleCount - avg2;
+            if (var < avg2*1e-7) var = 0;
+            return var;
+        }
+        
+        public double getVarDouble() {
+            if (sampleCount < 1) return Double.NaN;
+            double avg = getAvgDouble();
+            double avg2 = avg*avg;
+            double var = sum2.doubleValue()/sampleCount - avg2;
+            if (var < avg2*1e-13) var = 0;
+            return var;
+        }
+
+        public double getVar(MathContext mc) {
+            if (sampleCount < 1) return Double.NaN;
+            BigDecimal avg = sum.divide(new BigDecimal(sampleCount, mc), mc);
+            BigDecimal avg2 = avg.multiply(avg, mc);
+            BigDecimal varBD = sum2.divide(new BigDecimal(sampleCount, mc), mc).subtract(avg2, mc);
+            double var = varBD.doubleValue();
+            if (var < avg2.doubleValue()*1e-25) var = 0;
+            return var;
+        }
+
+        
+        public void addData(BigDecimal value, MathContext mc) {
+            sum = sum.add(value, mc);
+            dsum += value.doubleValue();
+            dsum2 += value.doubleValue() * value.doubleValue();
+            value = value.multiply(value, mc);
+            sum2 = sum2.add(value, mc);
+            sampleCount++;
+        }
+    }
 }

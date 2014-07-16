@@ -14,7 +14,6 @@ import java.util.Set;
 
 import etomica.action.IAction;
 import etomica.api.IRandom;
-import etomica.virial.MeterVirialBDBinMulti.IntSet;
 import etomica.virial.MeterVirialBDBinMulti.PropertyBin;
 
 /**
