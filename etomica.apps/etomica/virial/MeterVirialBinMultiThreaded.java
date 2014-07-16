@@ -95,10 +95,6 @@ public class MeterVirialBinMultiThreaded implements IAction {
 
     public void actionPerformed() {
         
-        if (excludeBogusConfigs) {
-            if (MCMoveClusterAtomHSRing.fullWouldReject) return;
-        }
-        
         if (iThread == 0) {
             long tc = 0;
             for (int i=0; i<totalCount.length; i++) {
