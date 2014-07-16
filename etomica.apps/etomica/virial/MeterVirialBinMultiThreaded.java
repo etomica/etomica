@@ -14,7 +14,7 @@ import java.util.Set;
 
 import etomica.action.IAction;
 import etomica.api.IRandom;
-import etomica.virial.MeterVirialBDBinMulti.PropertyBin;
+import etomica.virial.IntSet.PropertyBin;
 
 /**
  * Measures cluster averages for virial coefficients.  Configurations are
