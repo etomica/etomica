@@ -75,6 +75,7 @@ import etomica.util.Arrays;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterBondsNonAdditive;
 import etomica.virial.ClusterSum;
+import etomica.virial.ClusterSumHS;
 import etomica.virial.ClusterSumMultibody;
 import etomica.virial.ClusterSumMultibodyShell;
 import etomica.virial.ClusterSumShell;
@@ -112,6 +113,8 @@ public class VirialDiagrams {
     protected boolean allPermutations = false;
     public char fBond, bBond, eBond, excBond, mBond, mmBond, fmBond, efbcBond, ffBond, mxcBond, MxcBond;
 
+    protected static int[][][] groupStart = new int[0][0][0];
+    protected static int[][] myIds = new int[0][0];
     protected static int[][] tripletStart = new int[0][0];
     protected static int[][] quadStart = new int[0][0];
     protected static int[][] quintStart = new int[0][0];
@@ -416,6 +419,21 @@ public class VirialDiagrams {
         return new ClusterSumMultibody(allBonds.toArray(new ClusterBonds[0]), w, new MayerFunction[]{f}, new MayerFunctionNonAdditive[]{fMulti});
     }
 
+    public ClusterSumHS makeVirialClusterHS(Set<Graph> graphs, MayerFunction f) {
+        
+        ArrayList<ClusterBonds> allBonds = new ArrayList<ClusterBonds>();
+        ArrayList<Double> weights = new ArrayList<Double>();
+        for (Graph g : graphs) {
+            populateEFBonds(g, allBonds, weights, false);
+        }
+
+        double[] w = new double[weights.size()];
+        for (int i=0; i<w.length; i++) {
+            w[i] = weights.get(i);
+        }
+        return new ClusterSumHS(allBonds.toArray(new ClusterBonds[0]), w, f);
+    }
+
     public ClusterSum makeVirialClusterTempDeriv(MayerFunction f, MayerFunction e, MayerFunction dfdT) {
         if (p == null) {
             makeVirialDiagrams();
@@ -679,11 +697,13 @@ public class VirialDiagrams {
                     }
                 }
             }
+            int gn = g.nodeCount();
+            if (flex) gn++;
             if (ebonds.size() > 0) {
-                allBonds.add(new ClusterBonds(flex ? n+1 : n, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0])}));
+                allBonds.add(new ClusterBonds(gn, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0])}));
             }
             else {
-                allBonds.add(new ClusterBonds(flex ? n+1 : n, new int[][][]{fbonds.toArray(new int[0][0])}));
+                allBonds.add(new ClusterBonds(gn, new int[][][]{fbonds.toArray(new int[0][0])}));
             }
             double w = g.coefficient().getValue();
             if (flex) {
@@ -2092,7 +2112,7 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
 
                 // we don't need to re-isofree p, we know that's still good.
                 // some of our new disconnected diagrams might condense with the old ones
-                disconnectedP = isoFree.apply(maxIsomorph.apply(disconnectedP, mip), null);
+                disconnectedP = maxIsomorph.apply(isoFree.apply(disconnectedP, null), mip);
             }
 
             ComponentSubst compSubst = new ComponentSubst();
@@ -2186,7 +2206,7 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
                         // now mi1 = Mi - Mi2 - Mi3 - ...
                         // where mi1 is the fully connected diagram of size i
                         ComponentSubstParameters csp = new ComponentSubstParameters(gbc, bcSubst, mfp);
-                        disconnectedP = isoFree.apply(maxIsomorph.apply(compSubst.apply(disconnectedP, csp), mip), null);
+                        disconnectedP = maxIsomorph.apply(isoFree.apply(compSubst.apply(disconnectedP, csp), null), mip);
                         cpsList.add(csp);
                         if (!doExchange) break;
                     }
@@ -2247,7 +2267,7 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
                         }
                     }
     
-                    newDisconnectedP[i+1] = isoFree.apply(maxIsomorph.apply(newDisconnectedP[i+1], mip), null);
+                    newDisconnectedP[i+1] = maxIsomorph.apply(isoFree.apply(newDisconnectedP[i+1], null), mip);
     
                     disconnectedP.addAll(newDisconnectedP[i]);
                 }
@@ -2260,6 +2280,7 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
             topSet.addAll(p);
             topSet.addAll(disconnectedP);
             System.out.println("\nP");
+            System.out.println(topSet.size()+" graphs");
             for (Graph g : topSet) {
                 System.out.println(g);
                 if (cancelMap != null) {
@@ -2422,20 +2443,51 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
     }
 
     public static int getGroupID(int[] ids, int n) {
-        switch (ids.length) {
-            case 3: 
-                return tripletId(ids[0], ids[1], ids[2], n);
-            case 4:
-                return quadId(ids[0], ids[1], ids[2], ids[3], n);
-            case 5:
-                return quintId(ids[0], ids[1], ids[2], ids[3], ids[4], n);
-            case 6:
-                return sixId(ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], n);
-            default:
-                throw new RuntimeException("don't know how to handle group size "+ids.length);
+        int idl = ids.length;
+        if (idl == 1) return ids[0];
+
+        while (groupStart.length <= idl) {
+            groupStart = (int[][][])Arrays.addObject(groupStart, new int[0][0]);
         }
+        while (groupStart[idl].length <= n) {
+            groupStart[idl] = (int[][])Arrays.addObject(groupStart[idl], new int[0]);
+        }
+        while (myIds.length <= idl) {
+            myIds = (int[][])Arrays.addObject(myIds, new int[myIds.length]);
+        }
+        
+        if (groupStart[idl][n].length == 0) {
+            int[] nGroupStart = new int[n-idl+1];
+            int nGroups = 0;
+            int num = n-1;
+            int den1 = n-1-(idl-1);
+            int den2 = idl-1;
+            int g = (int)(SpecialFunctions.factorial(num)/(SpecialFunctions.factorial(den1)*SpecialFunctions.factorial(den2)));
+            for (int i=0; i<n-(idl-1); i++) {
+                nGroupStart[i] = nGroups;
+                nGroups += g;
+                g *= (den1-i);
+                g /= (num-i);
+            }
+            groupStart[idl][n] = nGroupStart;
+        }
+        for (int j=0; j<idl-1; j++) {
+            myIds[idl-1][j] = ids[j+1]-ids[0]-1;
+        }
+        return groupStart[idl][n][ids[0]] + getGroupID(myIds[idl-1], n-ids[0]-1);
     }
 
+    public static int singletId(int id0, int n) {
+        return id0;
+    }
+
+    /**
+     * Returns the pair ID for the given indices (id0, id1, id2)
+     */
+    public static int pairId(int id0, int id1, int n) {
+        return (2*n-id0-1)*id0/2 + (id1-id0-1);
+    }
+    
     /**
      * Returns the triplet ID for the given indices (id0, id1, id2) and given
      * number of molecules (n).  Triplets are ordered as
