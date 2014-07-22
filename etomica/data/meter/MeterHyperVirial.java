@@ -2,27 +2,77 @@ package etomica.data.meter;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorBox;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.PotentialCalculationHyperVirialSum;
+import etomica.potential.PotentialCalculationVirialSum;
+import etomica.space.ISpace;
 import etomica.units.Null;
 
 /**
  * Meter for measurement of the hypervirial, r^2 d2u/dr2 + r du/dr
  */
-public class MeterHyperVirial extends DataSourceScalar {
+public class MeterHyperVirial implements IEtomicaDataSource {
 
-    private IntegratorBox integrator;
-    private IteratorDirective iteratorDirective;
+    protected final IEtomicaDataInfo dataInfo;
+    protected final IData data;
+    protected final DataTag tag;
+    protected final IteratorDirective iteratorDirective;
     protected final PotentialCalculationHyperVirialSum hyperVirial;
     protected IPotentialMaster potentialMaster;
     protected IBox box;
 
+    private final PotentialCalculationVirialSum virial;
+    protected double temperature;
+    private final int dim;
+
     public MeterHyperVirial() {
-        super("hypervirial", Null.DIMENSION);
+        this(null, false);
+    }
+
+    /**
+     * If full is true, then the pressure is also calculated and three values
+     * are returned.  The first is the hypervirial value that would be returned
+     * normally.  The second is the pressure.  The last is
+     *   hypervirial/(dim*dim*n) + pressure/density
+     * This is part of the expression for dP/drho 
+     *
+     * @param space
+     * @param doFull
+     */
+    public MeterHyperVirial(ISpace space, boolean doFull) {
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
         hyperVirial = new PotentialCalculationHyperVirialSum();
+        tag = new DataTag();
+
+        if (doFull) {
+            dataInfo = new DataInfoDoubleArray("hyperVirial", Null.DIMENSION, new int[]{3});
+            data = new DataDoubleArray(3);
+            dim = space.D();
+            virial = new PotentialCalculationVirialSum();
+        }
+        else {
+            dataInfo = new DataInfoDouble("hyperVirial", Null.DIMENSION);
+            data = new DataDouble();
+            dim = 0;
+            virial = null;
+        }
+        dataInfo.addTag(tag);
+    }
+
+    public IEtomicaDataInfo getDataInfo() {
+        return dataInfo;
+    }
+
+    public DataTag getTag() {
+        return tag;
     }
 
     public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
@@ -33,13 +83,8 @@ public class MeterHyperVirial extends DataSourceScalar {
         box = newBox;
     }
 
-    /**
-     * Returns the integrator associated with this instance.  The pressure is 
-     * calculated for the box the integrator acts on and integrator's 
-     * temperature is used for the ideal gas contribution.
-     */
-    public IntegratorBox getIntegrator() {
-        return integrator;
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
     }
 
     /**
@@ -62,12 +107,29 @@ public class MeterHyperVirial extends DataSourceScalar {
 	  * Computes total pressure in box by summing virial over all pairs, and adding
 	  * ideal-gas contribution.
 	  */
-    public double getDataAsScalar() {
-        if (potentialMaster == null || box == null) {
-            throw new IllegalStateException("You must call setIntegrator before using this class");
-        }
+    public IData getData() {
         hyperVirial.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, hyperVirial);
-        return hyperVirial.getSum();
+        double x = hyperVirial.getSum();
+        
+        if (virial != null) {
+            double[] y = ((DataDoubleArray)data).getData();
+            y[0] = x;
+            virial.zeroSum();
+    
+            potentialMaster.calculate(box, iteratorDirective, virial);
+            //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
+            double V = box.getBoundary().volume();
+            int n = box.getMoleculeList().getMoleculeCount();
+            double rho = n/V; 
+            double p = rho*temperature - virial.getSum()/(box.getBoundary().volume()*dim);
+            y[1] = p;
+            y[2] = x/(9*n) + p/rho;
+        }
+        else {
+            ((DataDouble)data).x = x;
+        }
+        
+        return data;
     }
 }
