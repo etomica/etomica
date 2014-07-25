@@ -49,5 +49,5 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 2L;
-    private String confName;
+    protected String confName;
 }
