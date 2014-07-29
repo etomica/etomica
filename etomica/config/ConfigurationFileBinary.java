@@ -10,6 +10,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.ISpecies;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
@@ -76,30 +77,28 @@ public class ConfigurationFileBinary implements Configuration {
      * then written out to outFilename (also as binary).  The density and
      * original number of atoms are required as input.
      */
-    public void replicate(int numAtoms0, double density, int[] reps, String outConfigname, ISpace space) {
+    public static void replicate(Configuration config, IBox box1, int[] reps, ISpace space) {
         Simulation sim = new Simulation(space);
         IBox box0 = new Box(space);
         sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
-        box0.setNMolecules(species, numAtoms0);
-        BoxInflate inflater = new BoxInflate(box0, space);
-        inflater.setTargetDensity(density);
-        inflater.actionPerformed();
-        initializeCoordinates(box0);
-
-        int numAtoms1 = numAtoms0;
+        
+        int numAtoms1 = box1.getLeafList().getAtomCount();
+        int numAtoms0 = numAtoms1;
         for (int i=0; i<reps.length; i++) {
-            numAtoms1 *= reps[i];
+            numAtoms0 /= reps[i];
         }
-        IBox box1 = new Box(space);
-        sim.addBox(box1);
-        box1.setNMolecules(species, numAtoms1);
-        inflater.setBox(box1);
-        inflater.setTargetDensity(density);
-        inflater.actionPerformed();
-        IAtomList leafList0 = box0.getLeafList();
-        IAtomList leafList1 = box1.getLeafList();
+        box0.setNMolecules(species, numAtoms0);
+        
+        IVectorMutable boundaryBox0 = space.makeVector();
+        boundaryBox0.setX(0, box1.getBoundary().getBoxSize().getX(0)/reps[0]);
+        boundaryBox0.setX(1, box1.getBoundary().getBoxSize().getX(1)/reps[1]);
+        boundaryBox0.setX(2, box1.getBoundary().getBoxSize().getX(2)/reps[2]);
+        box0.getBoundary().setBoxSize(boundaryBox0);
+        config.initializeCoordinates(box0);
+        IAtomList leafList0 = box0.getLeafList();//184 = 4*46
+        IAtomList leafList1 = box1.getLeafList();//1472 = 4*46*8
         double[] xyzShift = new double[3];
         for (int i=0; i<reps[0]; i++) {
             xyzShift[0] = box0.getBoundary().getBoxSize().getX(0)*(-0.5*(reps[0]-1) + i); 
@@ -118,10 +117,6 @@ public class ConfigurationFileBinary implements Configuration {
                 }
             }
         }
-        WriteConfigurationBinary writeConfig = new WriteConfigurationBinary(space);
-        writeConfig.setFileName(outConfigname+".pos");
-        writeConfig.setBox(box1);
-        writeConfig.actionPerformed();
     }
 
     /**
