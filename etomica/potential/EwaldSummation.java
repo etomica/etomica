@@ -1,5 +1,7 @@
 package etomica.potential;
 
+import org.apache.commons.math3.special.Erf;
+
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
@@ -8,23 +10,11 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.math.SpecialFunctions;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Tensor3D;
-import etomica.units.Electron;
-
-/**
- * basic Ewald Sum 
- * U(coulomb) = U(real-space) + U(fourier-space) + U(self-correction)
- * Frenkel&Smit, <Understanding Molecular Simulation from Algorithms to Applications> 
- * p292-300.especially equation(12.1.25)
- * also Allen, computer simulation of liquids Ch5
- * 
- * 
- * @author shu
- * Date:08-09-2012
- */
+import etomica.units.Joule;
+import etomica.util.Constants;
 
 /**Sabry*/
 //Given: rc=L/2  ,  s  ,  
@@ -36,11 +26,9 @@ public class EwaldSummation implements PotentialSoft{
     protected final AtomLeafAgentManager<MyCharge> atomAgentManager;
     protected final IBox box;
     protected final double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
-    protected final double boxSize;
+    protected final double[] boxSize, basis;
     protected final double volume;
-
-    protected final double precision;
-    protected final int nKs, nRealShells; 
+    protected final int[] nKs, nRealShells; 
     protected final IMoleculeList moleculeList;
     protected final int numMolecules;
     protected IVectorMutable[] gradient;
@@ -52,79 +40,50 @@ public class EwaldSummation implements PotentialSoft{
     protected final IVectorMutable drTmp;
     protected final Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
     protected final IVectorMutable kVector;
-    protected double rCut, rCutSquared;
+    protected double rCutRealES, rCutSquared, kCut;
     protected final double sqrtPI = Math.sqrt(Math.PI);
     protected boolean doRealSum = true;
 
 	// *********************************************** constructor ************************************ // 
-    public EwaldSummation(IBox box, AtomLeafAgentManager<MyCharge> atomAgentManager, double precision, ISpace _space, int nKs, double rCut){
+    public EwaldSummation(IBox box, AtomLeafAgentManager<MyCharge> atomAgentManager, ISpace _space, double kCut, double rCutRealES){
 
         this.box = box;
         this.atomAgentManager = atomAgentManager;
         this.space = _space;
         this.secondDerivative = space.makeTensor();
         this.tempTensorkk = space.makeTensor();
-        this.precision = precision; // =???? | SG
-        if (precision >= Math.exp(-1)) {
-            // you really want better precision than this.
-            // also the root finder used below requires this condition
-            throw new RuntimeException("precision too large");
-        }
-        double precision_splus = 0;
-        double precision_sminus = Math.sqrt(-Math.log(precision));
-        double f = 1;
-        double precision_s = 0;
-        while (true){
-            precision_s = (precision_sminus + precision_splus)/2;
-            if(precision_s == precision_sminus || precision_s == precision_splus) break;
-            f = Math.exp(-precision_s*precision_s) - precision_s*precision_s*precision;
-            if (f==0) break;
-            if(f > 0){
-                precision_splus = precision_s;
-            }
-            else {
-                precision_sminus = precision_s;
-            }
-        }
-        boxSize = box.getBoundary().getBoxSize().getX(0);
-        volume = box.getBoundary().volume();
-        Lxyz = space.makeVector();
-        rCut = rCut == 0 ? boxSize*0.49: rCut;
-        this.rCut = rCut;
-        rCutSquared = rCut*rCut;
-//        rCut = boxSize * (0.49 + nRealShells);
-        nRealShells = (int) Math.ceil(rCut/boxSize - 0.49);
-
-        alpha = precision_s / rCut;//Separation parameter, obtained from s and L
-        alpha2 = alpha*alpha;
-        alpha3 = alpha*alpha2;
-        this.nKs = nKs;
+        this.kCut = kCut;
 
         moleculeList = box.getMoleculeList();
         numMolecules = moleculeList.getMoleculeCount();
-        //nc = (int)Math.ceil(precision_s * boxSize * alpha / Math.PI);//"n = 2s^2/pi" if rC = L/2
+        boxSize = new double[] {box.getBoundary().getBoxSize().getX(0),  box.getBoundary().getBoxSize().getX(1),  box.getBoundary().getBoxSize().getX(2)};
+        volume = box.getBoundary().volume();
+        Lxyz = space.makeVector();
+        this.rCutRealES = rCutRealES;
+        rCutSquared = rCutRealES*rCutRealES;
+        nRealShells = new int[] {(int) Math.ceil(rCutRealES/boxSize[0] - 0.49999), (int) Math.ceil(rCutRealES/boxSize[1] - 0.49999), (int) Math.ceil(rCutRealES/boxSize[2] - 0.49999)};
+        
+		nKs = new int[] {(int) Math.ceil(boxSize[0]/2.0/Math.PI*kCut) , (int) Math.ceil(boxSize[1]/2.0/Math.PI*kCut), (int) Math.ceil(boxSize[2]/2.0/Math.PI*kCut)};
 
-        if (false) {
-            double precision_sSquared = precision_s * precision_s ;
-            double exp_s = Math.exp(-precision_sSquared) / precision_sSquared;
-            double e = Electron.UNIT.toSim(1.0); 
-            double q_err = numMolecules * e * e ;
-
-            System.out.println("In Ewald sum class");
-            System.out.println("exp(-s^2)/s/s:"+exp_s);
-            System.out.println("alpha = "+alpha);
-            System.out.println("box size is : "+boxSize);
-            System.out.println("rCut = "+rCut);
-            System.out.println("alpha = s / rCut:"+alpha);
-            System.out.println("cf. 5/L:"+5.0/boxSize);
-            System.out.println("    3.5/L:"+3.5/boxSize);
-            System.out.println("q_err= N*q^2:"+ q_err);
-
-            double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
-            double kCut =  basis * nKs;
-            System.out.println("basis vector is :" + basis); 
-            System.out.println("kCutoff is :" + kCut); 
+		double s = Math.sqrt(rCutRealES*kCut/2);
+		
+		alpha = s/rCutRealES; //=0.2406189232882774  //nX=1
+		
+		
+        int nAtoms = box.getLeafList().getAtomCount();
+        double Q2=0;
+        for (int i=0; i < nAtoms; i++){//H
+            IAtom atom = box.getLeafList().getAtom(i);
+            double charge = atomAgentManager.getAgent(atom).charge;
+            Q2 += charge*charge;
         }
+        Q2 /= numMolecules;
+        
+
+        alpha2 = alpha*alpha;
+        alpha3 = alpha*alpha2;
+
+        basis = new double[]{2*Math.PI/boxSize[0], 2*Math.PI/boxSize[1], 2*Math.PI/boxSize[2]};
         gradient = new IVectorMutable[0];
         sinkrj = new double[0];
         coskrj = new double[0];
@@ -134,19 +93,19 @@ public class EwaldSummation implements PotentialSoft{
     }
 
     /**
-     * Sets a new value of rCut
+     * Sets a new value of rCutRealES
      * This will not alter values of alpha or nRealShells!
      */
-    public void setRCut(double newRCut) {
-        rCut = newRCut;
-        rCutSquared = rCut*rCut;
+    public void setRCut(double newRCutRealES) {
+        rCutRealES = newRCutRealES;
+        rCutSquared = rCutRealES*rCutRealES;
     }
 
     /**
      * Returns real-space cutoff
      */
     public double getRCut() {
-        return rCut;
+        return rCutRealES;
     }
 
     //////////////////////////////////////////// begin calculating energy //////////////////////////////////////
@@ -156,44 +115,45 @@ public class EwaldSummation implements PotentialSoft{
     // *********************************************************************************************//
     public double uReal(){
         int nAtoms = box.getLeafList().getAtomCount();
-
         double uReal = 0.0;
         for (int i=0; i < nAtoms; i++){//H
             IAtom atomA = box.getLeafList().getAtom(i);
             double chargeA = atomAgentManager.getAgent(atomA).charge;
+
             if (chargeA==0) continue;
+ 
             int aIndex = atomA.getParentGroup().getIndex();
             IVectorMutable positionA = atomA.getPosition();
-            for (int j=i+1; j < nAtoms; j++){
+            for (int j=i; j < nAtoms; j++){
                 IAtom atomB = box.getLeafList().getAtom(j);
                 int bIndex = atomB.getParentGroup().getIndex();
-
-                if(aIndex == bIndex && nRealShells==0) continue;//Skip same molecules!
-
+     
+                if(aIndex == bIndex && nRealShells[0]==0 && nRealShells[1]==0 && nRealShells[2]==0) continue;//Skip atom-pairs in the same molecule in the orig. cell.
+      
                 double chargeB = atomAgentManager.getAgent(atomB).charge;
+              
                 if (chargeB==0) continue;
 
                 IVectorMutable positionB = atomB.getPosition();
-
                 rAB.Ev1Mv2(positionA, positionB);// get vector rAB
                 box.getBoundary().nearestImage(rAB);// minimum image
-
-//				double rABMagnitudeSquared = rAB.squared() ;// Squared of |rAB|
-//				if (rABMagnitudeSquared > rCutSquared) continue ; // check whether the rAB is within the spherical cutoff
-//				double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
-
-                for(int nx = -nRealShells; nx <= nRealShells; nx++) {
-                    Lxyz.setX(0, nx*box.getBoundary().getBoxSize().getX(0)); 
-                    for(int ny = -nRealShells; ny <= nRealShells; ny++) {
-                        Lxyz.setX(1, ny*box.getBoundary().getBoxSize().getX(1));
-                        for(int nz = -nRealShells; nz <= nRealShells; nz++) {
-                            if (aIndex==bIndex && nx*nx+ny*ny+nz*nz == 0) continue;
-                            Lxyz.setX(2, nz*box.getBoundary().getBoxSize().getX(2));
+            	boolean isSelf = i == j;
+                for(int nx = -nRealShells[0]; nx <= nRealShells[0]; nx++) {
+                    Lxyz.setX(0, nx*boxSize[0]); 
+                    for(int ny = -nRealShells[1]; ny <= nRealShells[1]; ny++) {
+                        Lxyz.setX(1, ny*boxSize[1]);
+                        for(int nz = -nRealShells[2]; nz <= nRealShells[2]; nz++) {
+                        	boolean centerImage = nx*nx+ny*ny+nz*nz == 0;
+                        	
+                            if (aIndex==bIndex && centerImage) continue;//Skip atom-pairs in the same molecule in the orig. cell & ignores self+centerImage too
+                            
+                            Lxyz.setX(2, nz*boxSize[2]);
                             drTmp.Ev1Pv2(rAB, Lxyz);
                             double r2 = drTmp.squared();
                             if(r2 > rCutSquared) continue;
                             double drTmpM = Math.sqrt(r2);
-                            uReal += chargeA * chargeB * SpecialFunctions.erfc(alpha * drTmpM) / drTmpM;//Don't worry about 1/2 factor!
+                            double tmepReal = chargeA * chargeB * Erf.erfc(alpha * drTmpM) / drTmpM;//Don't worry about 1/2 factor;j>i
+                            uReal+= (isSelf ? 0.5 : 1.0)*tmepReal;
                         }
                     }
                 }
@@ -206,27 +166,20 @@ public class EwaldSummation implements PotentialSoft{
     // *************************************  Fourier-space ****************************************//
     // *********************************************************************************************//
     public double uFourier(){
-//		System.out.println("coefficient_fourier: " + coefficient_fourier); 
-//		System.out.println("number of k-vectors along one axis is :"+ nc); 
-        // int n =(int)( precision_s * boxSize * alpha / Math.PI);// n(cut): number of vectors along one axis in fourier-space
-
-        double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
-        double kCut =  basis * nKs;
         double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
-        double coefficient = 2.0 / volume * Math.PI ;
-        //double uFourier = 0.0;
+        double coefficient = 2.0*Math.PI/volume;
         double uFourier = 0.0; //>>>>>>>>>>>>>> calculated from cos*cos + sin*sin
         IAtomList atoms = box.getLeafList();
         int nAtoms = atoms.getAtomCount();
 
         // loop over vectors in k-space. (1)k=(0,0,0) is excluded, (2)within sphere with kCutoff as its radius
-        for (int xAxis = -nKs; xAxis < nKs+1; xAxis++){
-            kVector.setX(0, (xAxis * basis));// assign value to the x-axis
-            for (int yAxis = -nKs; yAxis < nKs+1; yAxis++ ){
-                kVector.setX(1, (yAxis * basis));// assign value to the y-axis
-                for (int zAxis = -nKs; zAxis < nKs+1; zAxis++ ){
+        for (int xAxis = -nKs[0]; xAxis < nKs[0]+1; xAxis++){
+            kVector.setX(0, (xAxis * basis[0]));// assign value to the x-axis
+            for (int yAxis = -nKs[1]; yAxis < nKs[1]+1; yAxis++ ){
+                kVector.setX(1, (yAxis * basis[1]));// assign value to the y-axis
+                for (int zAxis = -nKs[2]; zAxis < nKs[2]+1; zAxis++ ){
                     if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
-                    kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
+                    kVector.setX(2, (zAxis * basis[2]));// assign value to the z-axis, now the vector is specified
                     double kSquared = kVector.squared();
 
                     if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
@@ -249,7 +202,6 @@ public class EwaldSummation implements PotentialSoft{
             }//close for y-axis
         }// close for x-axis(all non-zero kVecors)
         double u = coefficient * uFourier; 
-
         return u; 
     }
 
@@ -286,13 +238,10 @@ public class EwaldSummation implements PotentialSoft{
                     IVectorMutable positionB = atomB.getPosition();
                     double chargeB = atomAgentManager.getAgent(atomB).charge;
                     if (chargeB==0) continue;
-
                     rAB.Ev1Mv2(positionA, positionB);
-                    box.getBoundary().nearestImage(rAB);
                     double rABMagnitudeSquared = rAB.squared();
                     double rABMagnitude = Math.sqrt(rABMagnitudeSquared);
-
-                    uCorr += chargeA*chargeB*(1-SpecialFunctions.erfc(alpha*rABMagnitude))/rABMagnitude;
+                    uCorr += chargeA*chargeB*Erf.erf(alpha*rABMagnitude)/rABMagnitude;
                 }
             }
         }		
@@ -324,8 +273,7 @@ public class EwaldSummation implements PotentialSoft{
         double self = uSelf();
         double bondCorr = uBondCorr();
 
-        double totalEnergy = real + fourier + self - bondCorr;
-
+        double totalEnergy = real + fourier + self - bondCorr;       
         if (false) { 
             System.out.println("total:               "+ totalEnergy/numMolecules);
             System.out.println("real   : "+ real/numMolecules);
@@ -347,9 +295,7 @@ public class EwaldSummation implements PotentialSoft{
 
     public IVector[] gradient(IAtomList atoms) {
         int nAtoms = box.getLeafList().getAtomCount();
-        double coeff = 4.0*Math.PI / box.getBoundary().volume();
-        double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
-        double kCut =  basis * nKs;
+        double coeff = 4.0*Math.PI/volume;
         double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
 
         if(gradient.length < nAtoms){
@@ -379,27 +325,27 @@ public class EwaldSummation implements PotentialSoft{
                     IAtom atomB = box.getLeafList().getAtom(j);
                     int bIndex = atomB.getParentGroup().getIndex(); // molecule b
     
-                    if(nRealShells == 0 && aIndex == bIndex) continue;//Skip same molecules!
+                    if(nRealShells[0] == 0 && nRealShells[1] == 0 && nRealShells[2] == 0 && aIndex == bIndex) continue;//Skip same molecules!
     
                     double chargeB = atomAgentManager.getAgent(atomB).charge;
                     if (chargeB==0) continue;
                     IVectorMutable positionB = atomB.getPosition();
                     rAB.Ev1Mv2(positionA, positionB); //rAB == rA - rB
                     box.getBoundary().nearestImage(rAB);
-                    for (int nx = -nRealShells; nx <= nRealShells; nx++) {
-                        Lxyz.setX(0, nx*box.getBoundary().getBoxSize().getX(0)); 
-                        for (int ny = -nRealShells; ny <= nRealShells; ny++) {
-                            Lxyz.setX(1, ny*box.getBoundary().getBoxSize().getX(1));
-                            for (int nz = -nRealShells; nz <= nRealShells; nz++) {
+                    for (int nx = -nRealShells[0]; nx <= nRealShells[0]; nx++) {
+                        Lxyz.setX(0, nx*boxSize[0]); 
+                        for (int ny = -nRealShells[1]; ny <= nRealShells[1]; ny++) {
+                            Lxyz.setX(1, ny*boxSize[1]);
+                            for (int nz = -nRealShells[2]; nz <= nRealShells[2]; nz++) {
                                 if (aIndex==bIndex && nx*nx+ny*ny+nz*nz == 0) continue;
-                                Lxyz.setX(2, nz*box.getBoundary().getBoxSize().getX(2));
+                                Lxyz.setX(2, nz*boxSize[2]);
                                 drTmp.Ev1Pv2(rAB, Lxyz);
     
                                 double rAB2 = drTmp.squared();
                                 if (rAB2 > rCutSquared) continue; 
                                 double rABMagnitude = Math.sqrt(rAB2);
                                 double rAB3 = rABMagnitude*rAB2;
-                                double B = SpecialFunctions.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/sqrtPI * Math.exp(-alpha2*rAB2) ;
+                                double B = Erf.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/sqrtPI * Math.exp(-alpha2*rAB2) ;
                                 double realCoeff = - chargeA*chargeB * B / rAB3; // gradU = -F
                                 gradient[i].PEa1Tv1(realCoeff, drTmp);
                                 gradient[j].PEa1Tv1(-realCoeff, drTmp);
@@ -412,13 +358,13 @@ public class EwaldSummation implements PotentialSoft{
 
         //Fourier gradient Part		
 
-        for (int xAxis = -nKs; xAxis < nKs+1; xAxis++){
-            kVector.setX(0, (xAxis * basis));// assign value to the x-axis
-            for (int yAxis = -nKs; yAxis < nKs+1; yAxis++ ){
-                kVector.setX(1, (yAxis * basis));// assign value to the y-axis
-                for (int zAxis = -nKs; zAxis < nKs+1; zAxis++ ){
+        for (int xAxis = -nKs[0]; xAxis < nKs[0]+1; xAxis++){
+            kVector.setX(0, (xAxis * basis[0]));// assign value to the x-axis
+            for (int yAxis = -nKs[1]; yAxis < nKs[1]+1; yAxis++ ){
+                kVector.setX(1, (yAxis * basis[1]));// assign value to the y-axis
+                for (int zAxis = -nKs[2]; zAxis < nKs[2]+1; zAxis++ ){
                     if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
-                    kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
+                    kVector.setX(2, (zAxis * basis[2]));// assign value to the z-axis, now the vector is specified
                     double kSquared = kVector.squared();
                     if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
                     double sCoskr = 0.0, sSinkr = 0.0;
@@ -441,7 +387,6 @@ public class EwaldSummation implements PotentialSoft{
                         double coeffki = coeffk * chargei * (sinkrj[i] * sCoskr - coskrj[i] * sSinkr); 
                         gradient[i].PEa1Tv1(-coeffki , kVector);  // gradU = -F
                     }
-//		            System.out.println("Fourier = " + gradient[0]);	
                 }//end of storing Sin and Cos
             }
         }//End loop over ks
@@ -465,9 +410,7 @@ public class EwaldSummation implements PotentialSoft{
                     box.getBoundary().nearestImage(rAB);
                     double rAB2 = rAB.squared();
                     double rABMagnitude = Math.sqrt(rAB2);
-                    // U = Ur + Uf - Uself - U_intra ====> U_intra = Erf(alpha r)/r
-                    // dU = -F = Ur' + Uf' - Uself' - U_intra' ===>   -d[Erf(alpha r)/r]/dx
-                    double B = 2*alpha/sqrtPI * Math.exp(-alpha2*rAB2)-(1-SpecialFunctions.erfc(alpha*rABMagnitude))/rABMagnitude; 
+                    double B = 2*alpha/sqrtPI * Math.exp(-alpha2*rAB2)-Erf.erf(alpha*rABMagnitude)/rABMagnitude; 
                     double coeffAB = - chargeA*chargeB * B / rAB2; // gradU = -F
                     gradient[atomA.getLeafIndex()].PEa1Tv1(coeffAB, rAB);
                     gradient[atomB.getLeafIndex()].PEa1Tv1(-coeffAB, rAB);
@@ -478,12 +421,10 @@ public class EwaldSummation implements PotentialSoft{
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-    //////////////////////////          begin calculating secondDerivative               /////////////////////////
+    //////////////////////////          begin calculating secondDerivatives               /////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Tensor secondDerivative(IAtom atom0, IAtom atom1){
-        double basis = 2 * Math.PI / boxSize; // basis(unit) vector magnitude of fourier space vector
-        double kCut =  basis * nKs;
         double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
         IVectorMutable pos0 = atom0.getPosition();
         IVectorMutable pos1 = atom1.getPosition();
@@ -496,14 +437,13 @@ public class EwaldSummation implements PotentialSoft{
         if (q0*q1 == 0) return secondDerivative;
         double coeff = 4.0*Math.PI/volume;
 
-        //Fourier Space ... Long || ALL pairs of atoms in all unit cells (including atoms in same mol.)		
-        for (int xAxis = -nKs; xAxis < nKs+1; xAxis++){
-            kVector.setX(0, (xAxis * basis));// assign value to the x-axis
-            for (int yAxis = -nKs; yAxis < nKs+1; yAxis++ ){
-                kVector.setX(1, (yAxis * basis));// assign value to the y-axis
-                for (int zAxis = -nKs; zAxis < nKs+1; zAxis++ ){
+        for (int xAxis = -nKs[0]; xAxis < nKs[0]+1; xAxis++){
+            kVector.setX(0, (xAxis * basis[0]));// assign value to the x-axis
+            for (int yAxis = -nKs[1]; yAxis < nKs[1]+1; yAxis++ ){
+                kVector.setX(1, (yAxis * basis[1]));// assign value to the y-axis
+                for (int zAxis = -nKs[2]; zAxis < nKs[2]+1; zAxis++ ){
                     if( (xAxis * xAxis + yAxis * yAxis + zAxis * zAxis) == 0) continue;// first check: k is a non-zero vector
-                    kVector.setX(2, (zAxis * basis));// assign value to the z-axis, now the vector is specified
+                    kVector.setX(2, (zAxis * basis[2]));// assign value to the z-axis, now the vector is specified
                     double kSquared = kVector.squared();
                     if (kSquared > kCutSquared) continue;// k-vector should be within the sphere with kCutoff as the radius
                     tempTensorkk.Ev1v2(kVector, kVector);
@@ -513,48 +453,45 @@ public class EwaldSummation implements PotentialSoft{
             }
         }
         secondDerivative.TE(coeff);
-        //Rreal.Short..diff mol.
         boolean intraMolecular = atom0.getParentGroup() == atom1.getParentGroup();
 
-        for(int nx = -nRealShells; nx <= nRealShells; nx++) {
-            Lxyz.setX(0, nx*box.getBoundary().getBoxSize().getX(0)); 
-            for(int ny = -nRealShells; ny <= nRealShells; ny++) {
-                Lxyz.setX(1, ny*box.getBoundary().getBoxSize().getX(1));
-                for(int nz = -nRealShells; nz <= nRealShells; nz++) {
-                    Lxyz.setX(2, nz*box.getBoundary().getBoxSize().getX(2));
+        for(int nx = -nRealShells[0]; nx <= nRealShells[0]; nx++) {
+            Lxyz.setX(0, nx*boxSize[0]); 
+            for(int ny = -nRealShells[1]; ny <= nRealShells[1]; ny++) {
+                Lxyz.setX(1, ny*boxSize[1]);
+                for(int nz = -nRealShells[2]; nz <= nRealShells[2]; nz++) {
+                    Lxyz.setX(2, nz*boxSize[2]);
                     drTmp.Ev1Pv2(rAB, Lxyz);
 
                     double rAB2 = drTmp.squared();
-                    // if we're beyond the cutoff, then skip unless we're 
                     if (rAB2 > rCutSquared && (!intraMolecular || (nx*nx+ny*ny+nz*nz > 0))) continue;
                     double rABMagnitude = Math.sqrt(rAB2);
                     double rAB3 = rABMagnitude*rAB2;
                     double rAB4 = rAB2*rAB2;
                     double rAB5 = rABMagnitude*rAB4;
-                    double erfc = SpecialFunctions.erfc(alpha*rABMagnitude);
+                    double erfc = Erf.erfc(alpha*rABMagnitude);
                     double exp_Alpha2r2 = Math.exp(-alpha2*rAB2);
                     double B0 = (6*alpha/rAB4 + 4*alpha3/rAB2)/sqrtPI * exp_Alpha2r2;
 
                     tempTensorkk.Ev1v2(drTmp, drTmp);
 
                     if (intraMolecular && nx*nx+ny*ny+nz*nz==0) {
-//                      D = D(real) + D(rec.) - D(Intra)
-                        double A = (1-erfc)/rAB3 - 2*alpha/sqrtPI*exp_Alpha2r2/rAB2;
+                        double A = (1.0-erfc)/rAB3 - 2*alpha/sqrtPI*exp_Alpha2r2/rAB2;
                         double B = B0 - 3 * (1-erfc)/rAB5;
                         tempTensorkk.TE(-B);
-                        tempTensorkk.PEa1Tt1(A,identity);
+                        tempTensorkk.PEa1Tt1(-A,identity);//ch
                     }
                     else {
                         double A = erfc/rAB3 + 2*alpha/sqrtPI*exp_Alpha2r2/rAB2;
                         double B = B0 + 3*erfc/rAB5;
-                        tempTensorkk.TE(B);
+                        tempTensorkk.TE(-B);//ch
                         tempTensorkk.PEa1Tt1(A,identity);
                     }
 
                     secondDerivative.PE(tempTensorkk);
-                }
-            }
-        }
+                }//nz
+            }//ny
+        }//nx
 
         secondDerivative.TE(q0*q1);
         return secondDerivative;
@@ -568,7 +505,35 @@ public class EwaldSummation implements PotentialSoft{
         doRealSum = false;
         return new P2EwaldReal();
     }
-    
+    public static void computeScaledSysParams(double sigma_Er_sim,double alpha0,double volume, double Q2){
+		double alpha = alpha0/Math.sqrt(7); //nX=2  
+        double precision_splus = 0;
+        double precision_sminus = Math.pow(-Math.log(sigma_Er_sim),2.0/3.0);
+        double f = 1;
+        double precision_s = 0;
+        while (true){
+            precision_s = (precision_sminus + precision_splus)/2;
+            if(precision_s == precision_sminus || precision_s == precision_splus) break;
+            f = Math.exp(-precision_s*precision_s)*Q2*Math.sqrt(precision_s/2/alpha/volume) - precision_s*precision_s*sigma_Er_sim;
+            if (f==0) break;
+            if(f > 0){
+                precision_splus = precision_s;
+            } 
+            else {
+                precision_sminus = precision_s;
+            }
+        }
+        double scaledAlpha =  alpha;
+        System.out.println("Scaled s = "+ precision_sminus); 
+        System.out.println("Scaled alpha = "+ scaledAlpha); 
+        System.out.println("Scaled rCutES = "+ precision_sminus/scaledAlpha);
+        System.out.println("Scaled kCut = "+ 2.0*precision_sminus*scaledAlpha); 
+        sigma_Er_sim = Q2*Math.sqrt(precision_sminus/2/scaledAlpha/volume)*Math.exp(-precision_sminus*precision_sminus)/precision_sminus/precision_sminus;
+        double sigma_Er = Joule.UNIT.fromSim(sigma_Er_sim)*1.0E-3*Constants.AVOGADRO;
+        System.out.println("sigma(Er) = Q/N*(s/2/alpha/L^3)^1/2 * exp(-s^2)/s/s  (kJ/mol) =  " + sigma_Er);
+        System.out.println("sigma(Er_sim) = " + sigma_Er_sim);
+
+    }
     public class P2EwaldReal implements PotentialSoft {
 
         protected final IVectorMutable[] gradient2;
@@ -595,11 +560,11 @@ public class EwaldSummation implements PotentialSoft{
             double r2 = rAB.squared();
             if(r2 > rCutSquared) return 0;
             double r = Math.sqrt(r2);
-            return chargeA * chargeB * SpecialFunctions.erfc(alpha * r) / r;//Don't worry about 1/2 factor!
+            return chargeA * chargeB * Erf.erfc(alpha * r) / r;//Don't worry about 1/2 factor!
         }
 
         public double getRange() {
-            return rCut;
+            return rCutRealES;
         }
 
         public void setBox(IBox box) {}
@@ -634,7 +599,7 @@ public class EwaldSummation implements PotentialSoft{
 
             double rABMagnitude = Math.sqrt(rAB2);
             double rAB3 = rABMagnitude*rAB2;
-            double B = SpecialFunctions.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/sqrtPI * Math.exp(-alpha2*rAB2) ;
+            double B = Erf.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/sqrtPI * Math.exp(-alpha2*rAB2) ;
             double realCoeff = - chargeA*chargeB * B / rAB3; // gradU = -F
             gradient2[0].Ea1Tv1(realCoeff, rAB);
             gradient2[1].Ea1Tv1(-realCoeff, rAB);
