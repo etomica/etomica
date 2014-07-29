@@ -5,8 +5,6 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
-import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
@@ -20,7 +18,7 @@ import etomica.space.Tensor;
  
 public class Potential2SoftSphericalLS extends Potential2 implements PotentialSoft{
    
-    public Potential2SoftSphericalLS(ISpace space, double rCut, double a0, Potential2Soft p2Soft) {
+    public Potential2SoftSphericalLS(ISpace space, double rCut, double[] a0, Potential2Soft p2Soft) {
          super(space);
         gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();
@@ -31,29 +29,30 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
         this.p2Soft = p2Soft;
     	Lxyz = space.makeVector();
 		drtmp = space.makeVector();
-		nShells = (int) Math.ceil(rCut/a0 - 0.49);
-    }
+		nShells = new int[] {(int) Math.ceil(rCut/a0[0] - 0.49999), (int) Math.ceil(rCut/a0[1] - 0.49999), (int) Math.ceil(rCut/a0[2] - 0.49999)};
+	}
         
     public double energy(IAtomList atoms) {
-		double tmpU = 0;
+    	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
+		double u_LJ = 0;
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
-        for(int nx = -nShells; nx <= nShells; nx++) {
-        	Lxyz.setX(0, nx*a0);
-            for(int ny = -nShells; ny <= nShells; ny++) {
-            	Lxyz.setX(1, ny*a0);
-                for(int nz = -nShells; nz <= nShells; nz++) {
-                	Lxyz.setX(2, nz*a0);
+        for(int nx = -nShells[0]; nx <= nShells[0]; nx++) {
+        	Lxyz.setX(0, nx*a0[0]);
+            for(int ny = -nShells[1]; ny <= nShells[1]; ny++) {
+            	Lxyz.setX(1, ny*a0[1]);
+                for(int nz = -nShells[2]; nz <= nShells[2]; nz++) {
+                	Lxyz.setX(2, nz*a0[2]);
 					drtmp.Ev1Pv2(dr, Lxyz);
 					double dr2 = drtmp.squared();
 					if(dr2 > rCut2 ) continue;
-					if(dr2 != 0.0){
-						tmpU += p2Soft.u(dr2);
-					}
+                	boolean centerImage = (nx*nx+ny*ny+nz*nz == 0);
+                	if(isSelf && centerImage) continue;
+                	u_LJ += (isSelf ? 0.5 : 1.0)*p2Soft.u(dr2);
                 }
             }
         }
-        return tmpU;
+        return u_LJ;
     }
     
     /**
@@ -63,12 +62,12 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
         double tmpVir = 0;
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
-		for(int nx = -nShells; nx <= nShells; nx++) {
-        	Lxyz.setX(0, nx*a0);
-            for(int ny = -nShells; ny <= nShells; ny++) {
-            	Lxyz.setX(1, ny*a0);
-                for(int nz = -nShells; nz <= nShells; nz++) {
-                	Lxyz.setX(2, nz*a0);
+		for(int nx = -nShells[0]; nx <= nShells[0]; nx++) {
+        	Lxyz.setX(0, nx*a0[0]);
+            for(int ny = -nShells[1]; ny <= nShells[1]; ny++) {
+            	Lxyz.setX(1, ny*a0[1]);
+                for(int nz = -nShells[2]; nz <= nShells[2]; nz++) {
+                	Lxyz.setX(2, nz*a0[2]);
 					drtmp.Ev1Pv2(dr, Lxyz);
 					tmpVir += p2Soft.du(drtmp.squared());
                 }
@@ -82,17 +81,22 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
      * Gradient of the pair potential as given by the du(double) method.
      */
     public IVector[] gradient(IAtomList atoms) {
+    	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         gradient[0].E(0);
         gradient[1].E(0);
-        for(int nx = -nShells; nx <= nShells; nx++) {
-        	Lxyz.setX(0, nx*a0);
-            for(int ny = -nShells; ny <= nShells; ny++) {
-            	Lxyz.setX(1, ny*a0);
-                for(int nz = -nShells; nz <= nShells; nz++) {
-                	Lxyz.setX(2, nz*a0);
+        for(int nx = -nShells[0]; nx <= nShells[0]; nx++) {
+        	Lxyz.setX(0, nx*a0[0]);
+            for(int ny = -nShells[1]; ny <= nShells[1]; ny++) {
+            	Lxyz.setX(1, ny*a0[1]);
+                for(int nz = -nShells[2]; nz <= nShells[2]; nz++) {
+                	boolean nonCenterImage = (nx*nx+ny*ny+nz*nz > 0);
+                	if(isSelf && nonCenterImage) continue;
+                	Lxyz.setX(2, nz*a0[2]);
 					drtmp.Ev1Pv2(dr, Lxyz);
+					double dr2 = drtmp.squared();
+					if(dr2 > rCut2 ) continue;
 			        gradient[1].PEa1Tv1(p2Soft.du(drtmp.squared())/drtmp.squared(),drtmp);
                 }
             }
@@ -122,8 +126,8 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
 
     protected final IVectorMutable[] gradient;
     protected IBoundary boundary;
-    protected final int nShells;
-    protected final double a0;
+    protected final int[] nShells;
+    protected final double[] a0;
     protected final Potential2Soft p2Soft;
     protected final IVectorMutable Lxyz;
     protected final IVectorMutable dr;
