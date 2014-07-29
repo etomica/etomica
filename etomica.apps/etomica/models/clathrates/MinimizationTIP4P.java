@@ -64,7 +64,6 @@ public class MinimizationTIP4P extends Simulation{
 	protected static double selfELJ;
 	public MinimizationTIP4P(ISpace space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis,  boolean isIce, double kCut, String configFile,boolean includeM) {
 		super(space);
-//		final long startTime = System.currentTimeMillis();
 		this.space = space;
 		species = new SpeciesWater4P(space);
 		addSpecies(species);
@@ -78,8 +77,7 @@ public class MinimizationTIP4P extends Simulation{
 		AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box,MyCharge.class);
 		double sigma, epsilon;
 		if(isIce){
-//			sigma = 3.1668; epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice			
-			sigma = 3.1589; epsilon = Kelvin.UNIT.toSim(93.2);//TIP4P/2005			
+			sigma = 3.1668; epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice			
 		}else{//TIP4P
 		    double A = 600E3; // kcal A^12 / mol
 		    double C = 610.0; // kcal A^6 / mol
@@ -105,7 +103,7 @@ public class MinimizationTIP4P extends Simulation{
 	        ConfigurationFileBinary.replicate(config, box, nC, space);			
 		}
 		
-//Wrap MOLECULES (make O in the BOX)
+//Wrap all MOLECULES (make O in the BOX)
 		if(!true){
 	      for(int i=0;i<box.getMoleculeList().getMoleculeCount();i++){
 	    	IMolecule molecule = box.getMoleculeList().getMolecule(i);
@@ -134,9 +132,6 @@ public class MinimizationTIP4P extends Simulation{
         System.out.println("E (kJ/mol)  = " + E);
         System.out.println("E (kCal/mol)  = " + E*0.239005736);
         System.out.println("");
-//        long endTime = System.currentTimeMillis();
-//        System.out.println("Time taken (sec): " + (endTime - startTime)/1000.0); 
-//        System.exit(0);
 	}
 	
 	public static void main (String[] args){
@@ -335,7 +330,6 @@ public class MinimizationTIP4P extends Simulation{
             IMolecule iMol = sim.box.getMoleculeList().getMolecule(i);
             p.E(pos.position(iMol));
             for (int j=0; j<3; j++) {
-//			System.out.println(x0[i*3+j]+" => "+p.getX(j)+"    "+(p.getX(j)-x0[i*3+j]));
                 xf[i*3+j] = p.getX(j);
                 double dx = xf[i*3+j] - x0[i*3+j];
                 disp += dx*dx;
@@ -345,7 +339,6 @@ public class MinimizationTIP4P extends Simulation{
             orientf[i].ME(pos.position(iMol));
             orientf[i].normalize();
             angleDisp += orientf[i].Mv1Squared(orient0[i]);
-//            System.out.println("     "+Math.sqrt(orientf[i].Mv1Squared(orient0[i])));
         }
         disp = Math.sqrt(disp)/3.0/nBasis;
         angleDisp = Math.sqrt(angleDisp);
@@ -382,48 +375,6 @@ public class MinimizationTIP4P extends Simulation{
         }
         WriteConfiguration writeConfig = new WriteConfiguration(sim.space);
         writeConfig.setBox(sim.box);
-        
-//Unwrap!!!        
-//        IVectorMutable dx = sim.space.makeVector();
-//        for(int i=0;i<sim.box.getMoleculeList().getMoleculeCount();i++){
-//        	IMolecule mol = sim.box.getMoleculeList().getMolecule(i);
-//        	IVectorMutable posO = mol.getChildList().getAtom(2).getPosition();
-//          posO.ME(sim.box.getBoundary().centralImage(posO));
-//
-//        	for(int j=0;j<mol.getChildList().getAtomCount();j++){
-//        		IVectorMutable posk = mol.getChildList().getAtom(j).getPosition();
-//              sim.box.getBoundary().centralImage(posk);
-//        		dx.Ev1Mv2(posk, posO);
-//        		sim.box.getBoundary().nearestImage(dx);
-//        		posk.Ev1Pv2(posO, dx);
-//        	}
-//        }
-        
-//      Scale!!!
-	      if(!true){
-		      int nMolecules = sim.box.getMoleculeList().getMoleculeCount();
-		      double L0 = sim.box.getBoundary().getBoxSize().getX(0);
-		      double rho0 =  nMolecules/L0/L0/L0;
-		      double L = 23.530278185; 
-		      double rho = 46*2*2*2/L/L/L; 
-		      rho = 0.0282466295;
-		      double fact = Math.pow(rho0/rho, 1.0/3.0);
-		      IVectorMutable Lv = sim.space.makeVector();
-		      Lv.setX(0, L0*fact);      Lv.setX(1, L0*fact);      Lv.setX(2, L0*fact);
-		      sim.box.getBoundary().setBoxSize(Lv);
-		      IVectorMutable drO = sim.space.makeVector(); 
-		      IVectorMutable posO;
-		      for(int i=0;i<nMolecules;i++){
-		      	IMolecule mol = sim.box.getMoleculeList().getMolecule(i);
-		      	posO = mol.getChildList().getAtom(2).getPosition();
-		      	drO.Ea1Tv1((fact-1),posO);
-		      	for(int j=0;j<mol.getChildList().getAtomCount();j++){
-		      		IVectorMutable posk = mol.getChildList().getAtom(j).getPosition();
-		      		posk.Ev1Pv2(posk, drO);
-		      	}
-		      }
-		}        
-        
         writeConfig.setDoApplyPBC(false);//false ... ok
         
         writeConfig.setFileName("finalPos.pos");
@@ -435,7 +386,6 @@ public class MinimizationTIP4P extends Simulation{
 		    simGraphic.add(display);
 		    ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.GREEN);
 		    ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getOxygenType(), Color.RED);
-		    //Sabry
 		    ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getOxygenType(),2.0);
 		    ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getHydrogenType(),1.0);
 		
@@ -463,7 +413,6 @@ public class MinimizationTIP4P extends Simulation{
             boundary.nearestImage(r);
             rotationTensor.transform(r);
             r.PE(O);
-//          r.PE(boundary.centralImage(r));//to wrap EVERY atom inside the BOX
         }
     }
 	// ********************* charges & epsilon_r ********************************//
@@ -473,12 +422,10 @@ public class MinimizationTIP4P extends Simulation{
 			myCharge = new MyCharge[3];
 			double chargeH;
 			if(isIce){
-//				chargeH = Electron.UNIT.toSim(0.5897); //TIP4P/Ice				
-				chargeH = Electron.UNIT.toSim(0.5564); //TIP4P2005				
+				chargeH = Electron.UNIT.toSim(0.5897); //TIP4P/Ice				
 			}else{
 				chargeH = Electron.UNIT.toSim(0.52); // TIP4P				
 			}
-			//H1H2OM = 0,1,2,3
 			myCharge[species.getHydrogenType().getChildIndex()] = new MyCharge(chargeH);
 			myCharge[species.getOxygenType().getChildIndex()] = new MyCharge(0);
 			myCharge[species.getMType().getChildIndex()] = new MyCharge(-2.0*chargeH);
@@ -495,19 +442,11 @@ public class MinimizationTIP4P extends Simulation{
 	}
 
     public static class SimParams extends ParameterBase {
-//		public String configFile = "config_sI"; 
-//    	public String configFile = "config_from_paper_HHO_shiftedL_2_sI"; 
-//    	public String configFile = "config_from_paper_HHO_shiftedL_2_sII"; 
-    	public String configFile = "config_from_paper_HHO_shiftedL_2_sH"; 
-//		public int nBasis = 46;//sI
-//		public int nBasis = 136;//sII
-		public int nBasis = 68;//sH
-//		public int nBasis = 368;//sI 2X2X2
+		public String configFile = "config_sI"; 
+		public int nBasis = 46;//sI
 		int nX = 1;
 		public int[] nC = new int[] {nX, nX, nX};
-//		public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
-//		public double[] a0 = new double[]{17.31, 17.31, 17.31};//sII
-		public double[] a0 = new double[]{12.21 , 21.15 , 10.14};//sH
+		public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
 		public double rCutLJ = 1.0;
 		public double rCutRealES = 1.724496;
 		public double kCut = 0.1103499;
