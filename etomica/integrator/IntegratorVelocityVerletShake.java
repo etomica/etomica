@@ -42,7 +42,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected boolean[][] moved;
     protected IVectorMutable[] drOld;
     protected final IVectorMutable temp;
-    public int printInterval = 100;
+    public int printInterval = 0;
 
     public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
@@ -94,6 +94,10 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     
     public BondConstraints getBondConstratins(ISpecies species) {
         return (BondConstraints)shakeAgentManager.getAgent(species);
+    }
+    
+    public SpeciesAgentManager getShakeAgentManager(){
+    	return shakeAgentManager;
     }
     
     public void setShakeTolerance(double newShakeTol) {
@@ -152,7 +156,9 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
                 }
-                v.PEa1Tv1(0.5*timeStep*a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                if (a.getType().getMass() != 0) {
+                    v.PEa1Tv1(0.5*timeStep*a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                }
                 temp.E(r);
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
 //                System.out.println(iLeaf+" "+r);
@@ -256,7 +262,9 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             // v(t+dt) = (r(t+dt) - r(t))/dt + 0.5 * f(t+dt) / m
             velocity.PE(a.getPosition());
             velocity.TE(1.0/timeStep);
-            velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a).force);  //p += f(new)*dt/2
+            if (a.getType().getMass() != 0) {
+                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a).force);  //p += f(new)*dt/2
+            }
             currentKineticEnergy += a.getType().getMass() * velocity.squared();
         }
         currentKineticEnergy *= 0.5;
