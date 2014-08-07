@@ -11,19 +11,18 @@ import etomica.util.EnumeratedType;
  * @author David Kofke
  *
  */
-public class IntegratorEvent implements java.io.Serializable {
+public class IntegratorEvent {
 
     // Typed constants used to indicate the type of event integrator is
     // announcing
     
-    private static final long serialVersionUID = 1L;
-    private final Type type;
-    private IIntegrator source;
+    protected final Type type;
+    protected IIntegrator source;
 
     /**
      * 
      */
-    IntegratorEvent(IIntegrator source, Type type) {
+    public IntegratorEvent(IIntegrator source, Type type) {
         this.source = source;
         this.type = type;
     }
