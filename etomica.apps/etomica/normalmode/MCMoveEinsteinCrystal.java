@@ -35,6 +35,7 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
 
     /**
      * Sets the Einstein spring constant
+     * u = alpha * r^2
      */
     public void setAlphaEin(double newAlpha) {
         alpha = newAlpha;
@@ -51,17 +52,12 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
         coordinateDefinition = newCoordinateDefinition;
     }
-    
+
     public boolean doTrial() {
         IAtomList atomList = box.getLeafList();
-        double einFac = Math.sqrt(temperature/alpha);
+        double einFac = Math.sqrt(temperature/(2*alpha));
         int end = atomList.getAtomCount();
         if (fixedCOM) {
-            // each motion (i) also acts on all particles but in the opposite direction and less by 1/N (so that COM is unchanged) 
-            // for normalization, each motion is a bit more by 1/sqrt(1-1/N) = sqrt(N/(N-1))
-            einFac = Math.sqrt(temperature/alpha/Math.sqrt(1.0-1.0/end));
-            // don't expclitly move the last atom
-            end--;
             dr.E(0);
         }
         for (int i=0; i<end; i++) {
@@ -72,16 +68,16 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
                 p.setX(k, einFac * random.nextGaussian() );
             }
             if (fixedCOM) {
-                dr.ME(p);
+                dr.PE(p);
             }
             p.PE(site);
         }
         if (fixedCOM) {
-            dr.TE(1.0/(end+1));
-            for (int i=0; i<=end; i++) {
+            dr.TE(-1.0/end);
+            for (int i=0; i<end; i++) {
                 IAtom a = atomList.getAtom(i);
                 IVectorMutable p = a.getPosition();
-                p.ME(dr);
+                p.PE(dr);
             }
         }
         return true;
