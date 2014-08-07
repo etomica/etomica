@@ -28,7 +28,6 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveAtomCoupled extends MCMoveBoxStep {
     
-    private static final long serialVersionUID = 2L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
     protected final AtomArrayList affectedAtomList;
     protected final MeterPotentialEnergy energyMeter;
@@ -104,7 +103,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         pair.atom0 = atom0;
         pair.atom1 = atom1;
         pairPotentialIndex = -1;
-        if (pairPotential.length > 0 && doExcludeNonNeighbors && potential instanceof PotentialMasterList) {
+        if (pairPotential.length > 0 && doExcludeNonNeighbors) {
             IAtomList[] list0 = ((PotentialMasterList)potential).getNeighborManager(box).getDownList(atom0);
             for (int i=0; i<list0.length; i++) {
                 if (((AtomArrayList)list0[i]).indexOf(atom1)>-1) {
@@ -211,6 +210,9 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
      * PotentialMasterList
      */
     public void setDoExcludeNonNeighbors(boolean newDoExcludeNonNeighbors) {
+        if (potential == null || !(potential instanceof PotentialMasterList)) {
+            throw new RuntimeException("I need a PotentialMasterList to exclude non-neighbors");
+        }
         doExcludeNonNeighbors = newDoExcludeNonNeighbors;
     }
 
