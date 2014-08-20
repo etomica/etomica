@@ -220,24 +220,33 @@ public class VirialLJOrC {
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         
         System.out.println((long)(steps*1000*(1.0-sim.integratorOS.getRefStepFraction())/bs)+" target blocks");
+        long targetSteps = (long)(steps*1000*(1.0-sim.integratorOS.getRefStepFraction()));
         double refIntegral = 0;
         for (int i=0; i<rRef.length; i++) {
-            refIntegral -= rRef[i]*Math.pow(i*dr,rPow)/nPoints;
+            refIntegral -= rRef[i]*Math.pow(i*dr,rPow)*nPoints;
         }
         System.out.println("HSB: "+refIntegral);
         sim.printResults(refIntegral);
         System.out.println();
+        DataGroup allYourBaseRef = (DataGroup)sim.accumulators[0].getData();
+        IData refAverageData = allYourBaseRef.getData(sim.accumulators[0].AVERAGE.index);
+        double ra = refAverageData.getValue(0);
+        double roa = refAverageData.getValue(1);
+        DataGroup allYourBaseTarget = (DataGroup)sim.accumulators[1].getData();
+        IData targetAverageData = allYourBaseTarget.getData(sim.accumulators[1].AVERAGE.index);
+        double toa = targetAverageData.getValue(1);
         for (int i=0; i<nAcc; i++) {
             AccumulatorAverageFixed accumulator = (AccumulatorAverageFixed)dataDistributer.getDataSink(i);
             if (accumulator == null || accumulator.getBlockCount() == 0) {
                 if (dr*i > 1.1) break;
                 System.out.print(String.format("r: "+rfmt, +dr*i));
                 System.out.print("  0 blocks  0 steps  ");
-                System.out.print(String.format("average: % 20.15e  error: %9.4e  cor: % 6.4f\n", 0.0, 0.0, 0.0));
+                System.out.print(String.format("avg: % 20.15e  %9.4e   c(r): % 20.15e  %9.4e   cor: % 6.4f\n", 0.0, 0.0, 0.0, 0.0, 0.0));
                 continue;
             }
             System.out.print(String.format("r: "+rfmt, +dr*i));
-            System.out.print("  "+accumulator.getBlockCount()+" blocks  "+accumulator.getSampleCount()+" steps  ");
+            long iSteps = accumulator.getSampleCount();
+            System.out.print("  "+accumulator.getBlockCount()+" blocks  "+iSteps+" steps  ");
             DataGroup allYourBase = (DataGroup)accumulator.getData();
             IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
             IData errorData = allYourBase.getData(accumulator.ERROR.index);
@@ -248,8 +257,12 @@ public class VirialLJOrC {
                 throw new RuntimeException("oops");
             }
 
-            System.out.print(String.format("average: % 20.15e  error: %9.4e  cor: % 6.4f\n",
-                    averageData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+            double avg = averageData.getValue(0);
+            double err = errorData.getValue(0);
+            double fac = iSteps*roa*refIntegral/(toa*ra*(dr*i)*(dr*i)*targetSteps);
+            
+            System.out.print(String.format("avg: % 20.15e  %9.4e   c(r): % 20.15e  %9.4e   cor: % 6.4f\n",
+                    avg, err, avg*fac, err*Math.abs(fac), correlationData.getValue(0)));
         }
 
         System.out.println("time: "+(t2-t1)/1000.0);
