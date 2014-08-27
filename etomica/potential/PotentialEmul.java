@@ -78,7 +78,7 @@ public class PotentialEmul extends PotentialMolecular {
         
     	for (int i=0; i<molecules.getMoleculeCount(); i++) {
     	    IAtom atomi = molecules.getMolecule(i).getChildList().getAtom(0);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
+            for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
                 IAtom atomj = molecules.getMolecule(j).getChildList().getAtom(0);
                 r12Vec.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                 boundary.nearestImage(r12Vec);
