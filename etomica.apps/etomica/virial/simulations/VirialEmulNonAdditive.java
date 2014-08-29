@@ -38,16 +38,6 @@ import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 
-/* 
- * Adapted by Kate from VirialGCPM
- * 
- * Computes only the nonadditive component of either the third, fourth, or fifth virial coefficient for the
- * ab initio non-additive trimer potential for He developed by Cencek, Patkowski, and Szalewicz (JCP 131 064105 2009). 
- * 
- * 
- */
-
-
 public class VirialEmulNonAdditive {
 
     public static void main(String[] args) {
