@@ -31,12 +31,12 @@ import etomica.virial.CalcFFT;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
+import etomica.virial.ClusterWheatleySoft;
 import etomica.virial.MCMoveClusterAtomDiscrete;
 import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerSphericalPlus;
-import etomica.virial.cluster.VirialDiagrams;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -84,10 +84,6 @@ public class VirialLJOrC {
             powerOffset = 20-power;
         }
 
-        // we just need a functioning VirialDiagrams object to make our target cluster
-        VirialDiagrams diagrams = new VirialDiagrams(nPoints, false, false);
-        // we need to poke diagrams enough so that it initializes itself properly
-
         int[][] rBondList = new int[0][0];
         List<Integer> strandList = new ArrayList<Integer>();
         for (int i=2; i<nPoints; i++) {
@@ -110,8 +106,7 @@ public class VirialLJOrC {
         ClusterBonds refBonds = new ClusterBonds(nPoints, new int[][][]{rBondList});
         ClusterAbstract refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double[]{1}, new MayerFunction[]{fRef});
         
-        diagrams.setAllPermutations(true);
-        ClusterAbstract targetCluster = diagrams.makeVirialCluster(fTarget);
+        ClusterAbstract targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
 
