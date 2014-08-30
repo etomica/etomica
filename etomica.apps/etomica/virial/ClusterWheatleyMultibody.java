@@ -13,10 +13,13 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
     protected final double[] r2;
 
     public ClusterWheatleyMultibody(int nPoints, MayerFunction f, MayerFunctionNonAdditive fMulti) {
-        super(nPoints, f);
+        super(nPoints, f, 1e-12);
         this.fMulti = fMulti;
         moleculeIndices = new int[nPoints];
         r2 = new double[nPoints*(nPoints-1)/2];
+        // clusterBD is going to fail completely here... set its temperature to
+        // 0 so the failure isn't silent 
+        clusterBD.setTemperature(0);
     }
 
     protected void calcFullFQ(BoxCluster box) {
