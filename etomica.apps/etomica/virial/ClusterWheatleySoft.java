@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import etomica.math.SpecialFunctions;
+
 
 /**
  * This class calculates the sum of all biconnected clusters using Wheatley's
@@ -23,8 +25,10 @@ public class ClusterWheatleySoft implements ClusterAbstract {
     protected int cliqueCount, eCliqueCount;
     protected final int[] cliqueList;
     public static boolean pushme = false;
+    protected double tol;
+    protected final ClusterWheatleySoftBD clusterBD;
 
-    public ClusterWheatleySoft(int nPoints, MayerFunction f) {
+    public ClusterWheatleySoft(int nPoints, MayerFunction f, double tol) {
         this.n = nPoints;
         this.f = f;
         int nf = 1<<n;  // 2^n
@@ -39,10 +43,12 @@ public class ClusterWheatleySoft implements ClusterAbstract {
         fullBondMask = new int[nf];
         cliqueSet = new boolean[nf];
         cliqueList = new int[nf];
+        this.tol = tol;
+        clusterBD = new ClusterWheatleySoftBD(nPoints, f, -3*(int)Math.log10(tol));
     }
 
     public ClusterAbstract makeCopy() {
-        ClusterWheatleySoft c = new ClusterWheatleySoft(n, f);
+        ClusterWheatleySoft c = new ClusterWheatleySoft(n, f, tol);
         c.setTemperature(1/beta);
         return c;
     }
@@ -368,8 +374,11 @@ iLoop:  for (int i=1; i<nf-3; i++) {
                 fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
             }
         }
-
-        value = (1-n)*fB[nf-1]; ///SpecialFunctions.factorial(n);
+        if (Math.abs(fB[nf-1]) < tol) {
+            value = clusterBD.value(box);
+            return;
+        }
+        value = (1-n)*fB[nf-1]/SpecialFunctions.factorial(n);
         if (pushme && maxR2 > 2*2) {
 //            value *= Math.pow(maxR2/4, 6);
         }
@@ -416,5 +425,6 @@ iLoop:  for (int i=1; i<nf-3; i++) {
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
+        clusterBD.setTemperature(temperature);
     }
 }
