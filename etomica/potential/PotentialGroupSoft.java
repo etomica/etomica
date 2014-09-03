@@ -59,7 +59,7 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 		return super.energy(pair);
 
 	}
-	@Override
+
 	public double virial(IMoleculeList pair) {//pass molecular pair
 		// COM from atompositiondefinition 
 		IMolecule molecule_a = pair.getMolecule(0);//1st molecule in the pair
