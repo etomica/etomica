@@ -150,6 +150,14 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
         secondaryDirection.PEa1Tv1(sindt, v3);
     }
 
+    /**
+     * Normalizes both direction and secondaryDirection
+     */
+    public void relax() {
+        direction.TE(1/Math.sqrt(direction.squared()));
+        secondaryDirection.TE(1/Math.sqrt(secondaryDirection.squared()));
+    }
+
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable direction, secondaryDirection;
     protected final IVectorMutable v2, v3;
