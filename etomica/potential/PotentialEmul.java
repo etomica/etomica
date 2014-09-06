@@ -144,19 +144,23 @@ public class PotentialEmul extends PotentialMolecular {
             while ((line = bufReader.readLine()) != null) {
                 fw.write(line+"\n");
                 if (line.matches("^%molecule$")) {
-                    fw.write("0 1\n");
-                    // XXX we only handle mono-atomic atoms
+                    // now "0 1"
+                    fw.write(bufReader.readLine()+"\n");
+                    // the next line has the element and we add the x-y-z coordinate
+                    // XXX we only handle mono-atomic molecules
                     IAtom atom = molecules.getMolecule(nAtomsWritten).getChildList().getAtom(0);
                     IVector p = atom.getPosition();
-                    fw.write(atom.getType().getElement().getSymbol()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
+                    fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                     nAtomsWritten++;
                 }
                 else if (line.matches("^%cluster$")) {
-                	fw.write("0 1\n");
+                    // now "0 1"
+                    fw.write(bufReader.readLine()+"\n");
+                    // the following lines have the element and we add the x-y-z coordinate
                 	for (int i=0; i<molecules.getMoleculeCount(); i++) {
                         IAtom atom = molecules.getMolecule(i).getChildList().getAtom(0);
                 	    IVector p = atom.getPosition();
-                	    fw.write(atom.getType().getElement().getSymbol()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
+                        fw.write(bufReader.readLine()+" "+p.getX(0)+" "+p.getX(1)+" "+p.getX(2)+"\n");
                 	}
                 }
             }
