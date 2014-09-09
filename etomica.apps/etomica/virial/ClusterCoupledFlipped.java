@@ -85,7 +85,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         return value;
     }
     
-    private void flip(IMolecule flippedMolecule) {
+    protected void flip(IMolecule flippedMolecule) {
         IVector COM = positionDefinition.position(flippedMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
 		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
@@ -99,7 +99,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         wrappedCluster.setTemperature(temperature);
     }
     
-    private final ClusterAbstract wrappedCluster;
+    protected final ClusterAbstract wrappedCluster;
     protected final ISpace space;
     protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
