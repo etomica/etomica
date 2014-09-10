@@ -167,7 +167,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
      * Returns an iterator giving molecule that is being added or deleted 
      * in the current or most recent trial.
      */
-    public final AtomIterator affectedAtoms() {
+    public AtomIterator affectedAtoms() {
         if(testMolecule == null) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setList(testMolecule.getChildList());
         return affectedAtomIterator;
@@ -180,7 +180,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     /**
      * Mutator method for the chemical potential of the insertion/deletion species.
      */
-    public final void setMu(double mu) {this.mu = mu;}
+    public void setMu(double mu) {this.mu = mu;}
     
     /**
      * Accessor method for the chemical potential of th insertion/deletion species.
