@@ -54,6 +54,16 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
         lnbias[n] = nBias;
     }
 
+    public void setMu(double newMu) {
+        super.setMu(newMu);
+        if (lnbias != null && lnbias.length > 0) {
+            lnbias[0] = 0;
+            for (int i=1; i<lnbias.length; i++) {
+                lnbias[i] = lnbias[i-1] + mu;
+            }
+        }
+    }
+
     public double getA() {
         return Math.exp(getLnBiasDiff()) * super.getA();
     }
