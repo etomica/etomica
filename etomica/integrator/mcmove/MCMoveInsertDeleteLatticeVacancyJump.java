@@ -347,6 +347,7 @@ public class MCMoveInsertDeleteLatticeVacancyJump extends
         return ((double)totalDeleteCandidateTimes)/(totalDeleteCandidateTimes + numNewDeleteCandidates);
     }
 
+    // We have 2 atoms
     public AtomIterator affectedAtoms() {
         AtomArrayList list = (AtomArrayList)affectedAtomIterator.getList();
         list.clear();
@@ -354,14 +355,16 @@ public class MCMoveInsertDeleteLatticeVacancyJump extends
         list.add(testAtom);
         return affectedAtomIterator;
     }
-    
+
+    // Superclass methods have no idea what we're doing...
     public void acceptNotify() {
         box.removeMolecule(chosenAtom.getParentGroup());
         testAtom = chosenAtom;
         dirty = true;
     }
-    
-    public void rejectNotify() {
+
+    // Superclass methods have no idea what we're doing...
+    public void myRejectNotify() {
         box.removeMolecule(testAtom.getParentGroup());
     }
 }
