@@ -71,7 +71,6 @@ import etomica.util.ParseArgs;
  
 public class SimHSMDVacancy extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public final PotentialMasterList potentialMasterList;
     public final ActivityIntegrate ai;
     public IntegratorHardMDMC integrator;
@@ -82,7 +81,7 @@ public class SimHSMDVacancy extends Simulation {
     public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDeleteLatticeVacancyJump mcMoveJump;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
-    public CoordinateDefinitionLeaf coordinateDefinition;
+    
 
     public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int fixedN, final int maxDN, final double mu) {
         super(Space3D.getInstance());
@@ -135,10 +134,10 @@ public class SimHSMDVacancy extends Simulation {
         integrator.setThermostat(ThermostatType.HYBRID_MC);
         integrator.setThermostatInterval(hybridInterval);
         
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
         // we just needed this to initial coordinates, to keep track of lattice positions of atoms
-        coordinateDefinition.getSiteManager().dispose();
+        coordinateDefinition = null;
         
         integrator.getEventManager().addListener(potentialMasterList.getNeighborManager(box));
         //potentialMasterList.reset();
@@ -592,6 +591,7 @@ public class SimHSMDVacancy extends Simulation {
                 public void setValue(double newValue) {
                     sim.mcMoveID.setMu(newValue);
                     feHistogram.setMu(newValue);
+                    feHistogramImposed.setMu(newValue);
                     avgP.setMu(newValue);
                     avgP2.setBetaMu(newValue);
                     pmu.setMu(newValue);
@@ -775,9 +775,12 @@ public class SimHSMDVacancy extends Simulation {
         DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
         double muRoot = dsmr.getDataAsScalar();
 
+        // histogram of # of atoms based on free energy differences
         final DataSourceFEHistogram feHistogram = new DataSourceFEHistogram(mcMoveOverlapMeter, muRoot);
+        // actual free energy differences
         final DataSourceFE dsfe = new DataSourceFE(mcMoveOverlapMeter);
         final DataSourceFE dsfe2 = new DataSourceFE(mcMoveOverlapMeter);
+        // subtract off combinatorial entropy
         dsfe2.setSubtractComb(true);
         IData nData = feHistogram.getIndependentData(0);
         IData fenData = feHistogram.getData();
@@ -823,6 +826,6 @@ public class SimHSMDVacancy extends Simulation {
         public int numV = 5;
         public boolean doReweight = true;
         public double daDef = Double.NaN;
-        public boolean fluid = true;
+        public boolean fluid = false;
     }
 }
