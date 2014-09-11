@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import etomica.api.IAtom;
 import etomica.api.IBoundary;
@@ -47,8 +48,8 @@ public class PotentialEmul extends PotentialMolecular {
 	
 	public PotentialEmul(ISpace space, String templateName, double rCore) {
 	    this(space, templateName, countMolecules(templateName), rCore);
-	    
 	}
+
 	protected PotentialEmul(ISpace space, String templateName, int nBody, double rCore) {
 		super(nBody, space);
 		this.r2Core = rCore*rCore;
@@ -93,7 +94,19 @@ public class PotentialEmul extends PotentialMolecular {
 		makeInputFile(molecules);
 		runEmul();
 
-		double energy = readOutputFile();
+		double energy = 0;
+		try {
+		    energy = readOutputFile();
+		}
+		catch (RuntimeException ex) {
+		    System.err.println("failed to get energy.");
+		    System.err.println("Here are the atomic coordinates:");
+	        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+	            IAtom atomi = molecules.getMolecule(i).getChildList().getAtom(0);
+	            System.out.println(i+" "+atomi.getPosition());
+	        }
+	        throw new RuntimeException(ex);
+		}
 		
 		return energy;
 	}
@@ -113,7 +126,7 @@ public class PotentialEmul extends PotentialMolecular {
 	        String line;
 
 	        while ((line = bufReader.readLine()) != null) {
-	        	System.out.println(line);
+	        	// System.out.println(line);
 	            if (line.indexOf("kcal/mol") > -1) {
 	                String[] strings = line.split(" +");
 	                String stringVal = strings[strings.length-1];
@@ -127,7 +140,26 @@ public class PotentialEmul extends PotentialMolecular {
 	        throw new RuntimeException(e);
 	    }
 	    if (Double.isNaN(energy)) {
-	        throw new RuntimeException("could not find energy in calc.out");
+	        System.err.println("could not find energy in calc.out");
+	        System.err.println("this is was calc.out looked like:");
+            System.err.println("==============");
+	        try{    
+	            FileReader fileReader = new FileReader(file);           
+	            BufferedReader bufReader = new BufferedReader(fileReader);
+	                
+	            String line;
+
+	            while ((line = bufReader.readLine()) != null) {
+	                System.out.println(line);
+	            }
+	            bufReader.close();
+	        }
+	        catch (IOException e){
+	            throw new RuntimeException(e);
+	        }
+            System.err.println("==============");
+
+	        throw new RuntimeException();
 	    }
 	    return emulEnergyUnit.toSim(energy);
 	}
@@ -176,10 +208,30 @@ public class PotentialEmul extends PotentialMolecular {
 	
 	protected void runEmul() {
 		try{
-			Runtime rt0 = Runtime.getRuntime();
-			String[] args = new String[]{execPath,"calc.in"};
-			Process proc0 = rt0.exec(args);
-			proc0.waitFor();
+	        File file = new File("calc.out");   
+	        if (file.exists()) {
+	            if (!file.delete()) {
+	                throw new RuntimeException("unable to clear out calc.out");
+	            }
+	        }
+            ProcessBuilder pb = new ProcessBuilder(execPath, "calc.in");
+            pb.redirectErrorStream(true);
+            Process proc = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            boolean unhappy = false;
+            String line = reader.readLine();
+            if (line != null) {
+                unhappy = true;
+                System.err.println("emul produced unexpected output:");
+            }
+            while (line!= null) {
+                System.err.println(line);
+                line = reader.readLine();
+            }
+            
+            proc.waitFor();
+            if (unhappy) throw new RuntimeException("emul was unhappy");
 		}
 		catch (IOException e){
 			System.out.println("Problem running Emul.");
@@ -190,7 +242,6 @@ public class PotentialEmul extends PotentialMolecular {
 			throw new RuntimeException(err);
 		}
 	}
-
 
 	public double getRange() {
 		return Double.POSITIVE_INFINITY;
