@@ -174,7 +174,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         boolean multiAtomic = false;
         for (int i=0; i<species.length; i++) {
             addSpecies(species[i]);
-            if (!(species[i] instanceof SpeciesSpheresMono)) {
+            if (!(species[i] instanceof SpeciesSpheresMono) || species[i] instanceof SpeciesSpheresRotating ) {
                 doRotate = true;
             }
             if (!(species[i] instanceof SpeciesSpheresMono || species[i] instanceof SpeciesSpheresRotating)) {
@@ -212,7 +212,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (doRotate) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, valueClusters[0].pointCount()-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, valueClusters[0].pointCount());
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
