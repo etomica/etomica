@@ -47,8 +47,8 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
     public void selectAtoms() {
         IAtomList leafList = box.getLeafList();
         int total = leafList.getAtomCount();
-    	for(int i=1; i<total; i++) {
-    		selectedAtoms[i-1] = (IAtomOriented)leafList.getAtom(i);
+    	for(int i=0; i<total; i++) {
+    		selectedAtoms[i] = (IAtomOriented)leafList.getAtom(i);
     	}
     }
 
