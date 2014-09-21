@@ -83,8 +83,7 @@ public class VirialLJ {
         diagrams = new VirialDiagrams(nPoints, false, false);
         diagrams.setDoReeHoover(doReeHoover);
         diagrams.setDoShortcut(true);
-        final ClusterAbstract targetFullCluster = (doWheatley&&!doHist) ? null : diagrams.makeVirialCluster(fTarget);
-        final ClusterAbstract targetCluster = doWheatley ? new ClusterWheatleySoft(nPoints, fTarget, 1e-12) : targetFullCluster;
+        final ClusterAbstract targetCluster = doWheatley ? new ClusterWheatleySoft(nPoints, fTarget, 1e-12) : diagrams.makeVirialCluster(fTarget);
         targetCluster.setTemperature(temperature);
 
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
