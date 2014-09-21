@@ -11,7 +11,6 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -20,6 +19,8 @@ import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterWheatleyHS;
+import etomica.virial.ClusterWheatleySoft;
 import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
@@ -39,6 +40,14 @@ public class VirialLJ {
             params.writeRefPref = true;
         }
         ParseArgs.doParseArgs(params, args);
+        if (args.length == 0) {
+            params.nPoints = 4;
+            params.temperature = 1;
+            params.numSteps = 10000000L;
+            params.doWheatley = true;
+            params.doHist = false;
+            params.doReeHoover = false;
+        }
         
         runVirial(params);
     }
@@ -50,6 +59,8 @@ public class VirialLJ {
         double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
         boolean doHist = params.doHist;
+        boolean doWheatley = params.doWheatley;
+        boolean doReeHoover = params.doReeHoover;
 
         final double HSBn = Standard.BHS(nPoints, sigmaHSRef);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
@@ -59,17 +70,25 @@ public class VirialLJ {
         Space space = Space3D.getInstance();
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        Potential2Spherical pTarget = new P2LennardJones(space,1.0,1.0);
+        P2LennardJones pTarget = new P2LennardJones(space);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
+        if (doWheatley) System.out.println("Wheatley");
+        else System.out.println("Ree-Hoover: "+doReeHoover);
         VirialDiagrams diagrams = new VirialDiagrams(nPoints, false, false);
         diagrams.setDoReeHoover(true);
-        ClusterAbstract refCluster = diagrams.makeVirialCluster(fRef);
+        diagrams.setDoShortcut(true);
+        ClusterAbstract refCluster = doWheatley ? new ClusterWheatleyHS(nPoints, fRef) : diagrams.makeVirialCluster(fRef);
         refCluster.setTemperature(temperature);
-        ClusterAbstract targetCluster = diagrams.makeVirialCluster(fTarget);
+
+        diagrams = new VirialDiagrams(nPoints, false, false);
+        diagrams.setDoReeHoover(doReeHoover);
+        diagrams.setDoShortcut(true);
+        final ClusterAbstract targetFullCluster = (doWheatley&&!doHist) ? null : diagrams.makeVirialCluster(fTarget);
+        final ClusterAbstract targetCluster = doWheatley ? new ClusterWheatleySoft(nPoints, fTarget, 1e-12) : targetFullCluster;
         targetCluster.setTemperature(temperature);
 
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
-		
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
@@ -226,7 +245,9 @@ public class VirialLJ {
         public long numSteps = 10000000;
         public double sigmaHSRef = 1.5;
         public boolean writeRefPref = false;
+        public boolean doReeHoover = true;
         public double refFrac = -1;
         public boolean doHist = false;
+        public boolean doWheatley = true;
     }
 }
