@@ -181,7 +181,6 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
             boundary.nearestImage(dr);
             double rij=Math.sqrt(dr.squared());
             if(rij<=c){ //calculating dv^2/dxdx, dv^2/dxdx, dv^2/dxdz etc for all i or j components
-                int i=0;
                 double dv2dr2=(3*rij*(2*c4*rij+c3)+c2)*(c-rij)*(c-rij)+rij*(rij*(rij*      
                         (c4*rij+c3)+c2)+c1)+2*(rij-c)*(rij*(rij*(4*c4*rij+3*c3)+2*c2)+c1)+c0;
                 double dvdr=(rij-c)*(2*(c0+rij*(c1+rij*(c2+rij*(c3+c4*rij))))+(rij-c)*(c1+rij*(2*c2+rij*(3*c3+4*c4*rij))));
