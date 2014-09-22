@@ -1,0 +1,369 @@
+package etomica.meam;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.box.Box;
+import etomica.chem.elements.Tungsten;
+import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
+import etomica.data.IDataInfo;
+import etomica.data.meter.MeterEnergy;
+import etomica.data.meter.MeterKineticEnergy;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPressure;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.lattice.crystal.BasisCubicBcc;
+import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MeterDADB;
+import etomica.simulation.Simulation;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
+import etomica.units.Bar;
+import etomica.units.CompoundUnit;
+import etomica.units.ElectronVolt;
+import etomica.units.Energy;
+import etomica.units.Joule;
+import etomica.units.Kelvin;
+import etomica.units.Mole;
+import etomica.units.Pascal;
+import etomica.units.SimpleUnit;
+import etomica.units.Unit;
+import etomica.util.History;
+import etomica.util.HistoryCollapsingAverage;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
+
+/**
+ * Molecular-Dynamics Simulation Using the extended Finnis-Sinclair Method 
+ * (EFS) Potential.  
+ * 
+ * The EFS potential is intended for use with metallic and covalently-bonded
+ * solid systems.
+ * 
+ * The EFS potential for an atom is built using terms describing parts of the
+ * relationships between the atom and each of its neighbors, the number of which 
+ * is determined by a cutoff variable.  Each type of pair-
+ * wise term is summed over all the neighbors, and then used in expressions 
+ * describing the embedding energy and the repulsive energy of the atom.   
+ * Effectively, the EFS potential is a many-body potential.  
+ * 
+ * This class was adapted from LjMd3D.java by K.R. Schadel and A. Schultz in July 
+ * 2005.  Intitially, it employed a version of the embedded-atom method potential, 
+ * and was later adapted in February 2006 to use the modified embedded-atom method
+ * potential. Finally it was modified to use the extended Finnis-Sinclair Method in 
+ * October 2013.
+ * 
+ * @author Joe Kromph
+ */
+ 
+public class EFSTungsten extends Simulation {
+    
+    private static final String APP_NAME = "MEAM Md3D";
+    public final PotentialMasterList potentialMaster;
+    public IntegratorVelocityVerlet integrator;
+    public SpeciesSpheresMono w;
+    public IBox box;
+    public PotentialEFS potentialN;
+    public Controller controller;
+    public DisplayBox display;
+    public DisplayPlot plot;
+    public MeterEnergy energy;
+    public ActivityIntegrate activityIntegrate;
+    public IDataInfo info2;
+    public CoordinateDefinition coordinateDefinition;
+
+    public static class Params extends ParameterBase{
+        public int numatoms=2*7*7*7;
+        public double density=1.0/16.870; //2/3.151/3.151/3.151;//2/3.15961/3.15961/3.15961;//Mole.UNIT.toSim(1/16.870e24);
+        public double temperature=300;
+        public long numsteps=1000000;
+        public boolean doHistory = true;
+    }
+
+    public static void main(String[] args) {
+        Params parameters=new Params();
+        ParseArgs.doParseArgs(parameters, args);
+        int numatoms=parameters.numatoms;
+        double density=parameters.density;
+        //System.out.println(Mole.UNIT.fromSim(16.870e24));
+        double temperature=parameters.temperature;
+        long numsteps=parameters.numsteps;
+        boolean doHistory = parameters.doHistory;
+        
+    	EFSTungsten sim = new EFSTungsten(numatoms, density, temperature);
+    	
+    	System.out.println("EFS Tungsten at rho="+density+" and T="+temperature+"K");
+    	System.out.println(numatoms+" atoms");
+    	System.out.println(numsteps+" steps");
+    	
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
+        MeterEnergy totalEnergyMeter = new MeterEnergy(sim.potentialMaster,sim.box);
+        MeterDADB DADBMeter = new MeterDADB(sim.getSpace(),energyMeter,sim.potentialMaster,sim.coordinateDefinition,Kelvin.UNIT.toSim(temperature));
+        MeterPressure pressureMeter = new MeterPressure(sim.getSpace());
+
+    	energyMeter.setBox(sim.box);
+    	kineticMeter.setBox(sim.box);
+    	System.out.println("lattice energy "+ElectronVolt.UNIT.fromSim(energyMeter.getDataAsScalar()/numatoms));
+    	System.out.println("eV is "+ElectronVolt.UNIT.fromSim(1));
+    	System.out.println("K is "+Kelvin.UNIT.fromSim(1));
+        DADBMeter.setLatticeEnergy(energyMeter.getDataAsScalar());
+        MeterDADB.justU = true;
+        pressureMeter.setBox(sim.box);
+        pressureMeter.setIntegrator(sim.integrator);
+        DADBMeter.getData();
+                
+        AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        AccumulatorHistory totalEnergyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        AccumulatorHistory DADBAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        AccumulatorHistory pressureAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        
+        
+    	if(true){ //graph?
+            AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
+            AccumulatorAverageCollapsing accumulatorAverageKE = new AccumulatorAverageCollapsing();
+            AccumulatorAverageCollapsing accumulatorAverageDADB = new AccumulatorAverageCollapsing();
+            AccumulatorAverageCollapsing accumulatorAveragePressure = new AccumulatorAverageCollapsing();
+            
+            DataPumpListener energyPump = new DataPumpListener(energyMeter,accumulatorAveragePE,10);    
+            DataPumpListener kineticPump = new DataPumpListener(kineticMeter, accumulatorAverageKE);
+            DataPumpListener totalEnergyPump = new DataPumpListener(totalEnergyMeter, totalEnergyAccumulator,10);
+            DataPumpListener DADBPump = new DataPumpListener(DADBMeter, DADBAccumulator,10);
+            DataPumpListener pressurePump = new DataPumpListener(pressureMeter, pressureAccumulator,10);
+            
+            sim.integrator.getEventManager().addListener((energyPump));
+            sim.integrator.getEventManager().addListener((kineticPump));
+            sim.integrator.getEventManager().addListener((totalEnergyPump));
+            sim.integrator.getEventManager().addListener((DADBPump));
+            sim.integrator.getEventManager().addListener((pressurePump));
+            
+        	accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
+        	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{accumulatorAverageKE.MOST_RECENT});
+        	accumulatorAverageDADB.addDataSink(DADBAccumulator, new StatType[]{accumulatorAverageDADB.MOST_RECENT});
+        	accumulatorAveragePressure.addDataSink(pressureAccumulator, new StatType[]{accumulatorAveragePressure.MOST_RECENT});
+        	
+        	DisplayPlot plotPE = new DisplayPlot();
+            plotPE.setLabel("PE Plot");
+            plotPE.setUnit(new SimpleUnit(Energy.DIMENSION, numatoms, "", "", false));
+            DisplayPlot plotKE = new DisplayPlot();
+            plotKE.setLabel("KE Plot");
+            DisplayPlot plottotalEnergy = new DisplayPlot();
+            plottotalEnergy.setLabel("Total Energy Plot");
+            DisplayPlot plotPressure = new DisplayPlot();
+            plotPressure.setLabel("Pressure");
+        	
+            energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
+            kineticAccumulator.setDataSink(plotKE.getDataSet().makeDataSink());
+            totalEnergyAccumulator.setDataSink(plottotalEnergy.getDataSet().makeDataSink());
+            DADBAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
+            pressureAccumulator.setDataSink(plotPressure.getDataSet().makeDataSink());
+            
+            //energyAccumulator.setBlockSize(50);
+        	accumulatorAveragePE.setPushInterval(1);
+        	accumulatorAverageKE.setPushInterval(1);
+        	accumulatorAverageDADB.setPushInterval(1);
+        	accumulatorAveragePressure.setPushInterval(1);
+        	
+        	//Heat Capacity (PE)
+        	DataProcessorCvMD dataProcessorPE = new DataProcessorCvMD();
+        	dataProcessorPE.setIntegrator(sim.integrator);
+        	
+        	//Heat Capacity (KE)
+        	DataProcessorCvMD dataProcessorKE = new DataProcessorCvMD();
+        	dataProcessorKE.setIntegrator(sim.integrator);
+        	
+        	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{accumulatorAveragePE.STANDARD_DEVIATION});
+        	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{accumulatorAverageKE.STANDARD_DEVIATION});
+           
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+            ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
+            dataStreamPumps.add(energyPump);
+            dataStreamPumps.add(kineticPump);
+            dataStreamPumps.add(DADBPump);
+            dataStreamPumps.add(pressurePump);
+            
+        	DisplayTextBox cvBoxPE = new DisplayTextBox();
+        	dataProcessorPE.setDataSink(cvBoxPE);
+        	cvBoxPE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
+        	cvBoxPE.setLabel("PE Cv contrib.");
+        	DisplayTextBox cvBoxKE = new DisplayTextBox();
+        	dataProcessorKE.setDataSink(cvBoxKE);
+        	cvBoxKE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
+        	cvBoxKE.setLabel("KE Cv contrib.");
+        	plotPressure.setUnit(Bar.UNIT);
+    
+        	simGraphic.add(plotPE);
+        	simGraphic.add(plotKE);
+            simGraphic.add(plottotalEnergy);
+            simGraphic.add(plotPressure);
+                    	
+        	simGraphic.getPanel().controlPanel.add(cvBoxKE.graphic(), SimulationPanel.getVertGBC());
+        	simGraphic.getPanel().controlPanel.add(cvBoxPE.graphic(), SimulationPanel.getVertGBC());
+    
+        	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+    
+        	simGraphic.makeAndDisplayFrame(APP_NAME);
+        	return;
+    	}
+    	
+    	sim.activityIntegrate.setMaxSteps(numsteps/10);
+    	sim.getController().actionPerformed();
+        sim.getController().reset();
+        sim.activityIntegrate.setMaxSteps(numsteps);
+        
+
+        AccumulatorAverageFixed accumulatorAveragePE = null;
+        AccumulatorAverageFixed accumulatorAverageDADB = null;
+        AccumulatorHistory accumulatorHistoryPE = null;
+        AccumulatorHistory accumulatorHistoryDADB = null;
+
+        if (!doHistory) {
+            accumulatorAveragePE = new AccumulatorAverageFixed((numsteps/10)/100);
+            accumulatorAverageDADB = new AccumulatorAverageFixed((numsteps/10)/100);
+
+            DataPumpListener energyPump = new DataPumpListener(energyMeter,accumulatorAveragePE,10);
+	        DataPumpListener dadbPump = new DataPumpListener(DADBMeter, accumulatorAverageDADB, 10);
+
+	        sim.integrator.getEventManager().addListener(energyPump);
+	        sim.integrator.getEventManager().addListener(dadbPump);
+        }
+        else {
+            accumulatorHistoryPE = new AccumulatorHistory(new HistoryCollapsingAverage(200));
+            accumulatorHistoryDADB = new AccumulatorHistory(new HistoryCollapsingAverage(200));
+
+            DataPumpListener energyPump = new DataPumpListener(energyMeter,accumulatorHistoryPE,10);
+	        DataPumpListener dadbPump = new DataPumpListener(DADBMeter, accumulatorHistoryDADB, 10);
+
+	        sim.integrator.getEventManager().addListener(energyPump);
+	        sim.integrator.getEventManager().addListener(dadbPump);        	
+        }
+        
+        
+        long t1 = System.currentTimeMillis();
+        sim.getController().actionPerformed();
+        long t2 = System.currentTimeMillis();
+
+        if (doHistory) {
+        	History histPE = accumulatorHistoryPE.getHistory();
+        	History histDADB = accumulatorHistoryDADB.getHistory();
+        	double[] x = histPE.getXValues();
+        	double[] hpe = histPE.getHistory();
+        	double[] hdadb = histDADB.getHistory();
+        	try {
+        	    double fac = ElectronVolt.UNIT.fromSim(1.0/(numatoms));
+        		FileWriter hWriter = new FileWriter("pe.dat");
+        		for (int i=0; i<x.length; i++) {
+        		    if (!Double.isNaN(hpe[i])) {
+        		        hWriter.write(x[i]+" "+hpe[i]*fac+"\n");
+        		    }
+        		}
+        		hWriter.close();
+                hWriter = new FileWriter("dadb.dat");
+                for (int i=0; i<x.length; i++) {
+                    if (!Double.isNaN(hdadb[i])) {
+                        hWriter.write(x[i]+" "+hdadb[i]*fac+"\n");
+                    }
+                }
+                hWriter.close();
+        	}
+        	catch (IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+        else {
+	    	double PE = accumulatorAveragePE.getData(accumulatorAveragePE.AVERAGE).getValue(0)
+	                    /sim.box.getLeafList().getAtomCount();
+	        double PEerror = accumulatorAveragePE.getData(accumulatorAveragePE.ERROR).getValue(0)
+	                /sim.box.getLeafList().getAtomCount();
+	        double PEcor = accumulatorAveragePE.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
+	                /sim.box.getLeafList().getAtomCount();
+	        double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
+	
+	    	double dadb = accumulatorAverageDADB.getData(accumulatorAveragePE.AVERAGE).getValue(0)
+	                /sim.box.getLeafList().getAtomCount();
+	    	double dadbError = accumulatorAverageDADB.getData(accumulatorAveragePE.ERROR).getValue(0)
+	                /sim.box.getLeafList().getAtomCount();
+	    	double dadbCor = accumulatorAverageDADB.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
+	                /sim.box.getLeafList().getAtomCount();
+	
+	        System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);
+	//        System.out.println("PV(ev)= "+ElectronVolt.UNIT.fromSim(PV));
+	        System.out.println("dadb(eV) "+ElectronVolt.UNIT.fromSim(dadb)+" error: "+ElectronVolt.UNIT.fromSim(dadbError)+ " corrolation: "+dadbCor);
+        }
+        System.out.println("time: "+(t2-t1)*0.001);
+    }    
+    
+    public EFSTungsten(int numatoms, double density, double temperature) {
+        super(Space3D.getInstance());
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integrator.setTimeStep(0.001);
+        integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
+        integrator.setThermostatInterval(100);
+        integrator.setIsothermal(true);
+        integrator.setThermostatNoDrift(true);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
+        w.setIsDynamic(true);
+        
+        addSpecies(w);
+        
+        box = new Box(space);
+        addBox(box);
+        box.setNMolecules(w, numatoms);
+        
+
+        //BCC W
+        
+        BoxInflate inflate=new BoxInflate(box,space);
+        inflate.setTargetDensity(density); //(atoms/A^3)
+        inflate.actionPerformed();
+        int nCells=(int)Math.round(Math.pow(numatoms/2, 1.0/3.0));
+		coordinateDefinition=new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, box.getBoundary().getBoxSize().getX(0)/nCells), new BasisCubicBcc(), space);
+		coordinateDefinition.initializeCoordinates(new int[]{nCells,nCells,nCells});
+		
+		
+		double c,c0,c1,c2,c3,c4,A,d,B ;
+		
+		c=3.25;
+		c0=ElectronVolt.UNIT.toSim(48.52796);
+		c1=ElectronVolt.UNIT.toSim(-33.79621);
+		c2=ElectronVolt.UNIT.toSim(5.854334);
+		c3=ElectronVolt.UNIT.toSim(-0.0098221);
+		c4=ElectronVolt.UNIT.toSim(0.033338);
+		A=ElectronVolt.UNIT.toSim(1.885948);
+		d=4.41;
+		B=0;
+
+		potentialN = new PotentialEFS(space,c,c0,c1,c2,c3,c4,A,d,B);
+
+        this.potentialMaster.addPotential(potentialN, new IAtomType[]{w.getLeafType()});    
+        potentialMaster.setRange(potentialN.getRange()*1.3);
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.3));
+//        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+
+        integrator.setBox(box);
+        potentialMaster.getNeighborManager(box).reset();
+    }
+}
