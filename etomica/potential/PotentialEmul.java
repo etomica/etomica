@@ -204,7 +204,7 @@ public class PotentialEmul extends PotentialMolecular {
 	    }
 	}
 	
-	public static String execPath = "/home/fenglai/emul/trunk/src/debug_test/virial/emul";
+	public static String execPath = "/opt/emul/emul";
 	
 	protected void runEmul() {
 		try{
