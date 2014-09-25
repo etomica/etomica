@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,6 +83,12 @@ public class VirialAlkaneFlex2 {
         if (isCommandline) {
             ParseArgs parseArgs = new ParseArgs(params);
             parseArgs.parseArgs(args, true);
+        }
+        else {
+            params.nPoints = 3;
+            params.nSpheres = 3;
+            params.numSteps = 10000000;
+            params.temperature = 500;
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
@@ -176,13 +181,14 @@ public class VirialAlkaneFlex2 {
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         // overerr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
-        System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
         SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
                 new int[]{nPoints+1},temperature, new ClusterAbstract[]{refCluster, targetCluster}, sampleClusters, true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         if (alkaneFlex) {
             int[] constraintMap = new int[nPoints+1];
@@ -358,7 +364,7 @@ public class VirialAlkaneFlex2 {
         // if running interactively, don't use the file
         String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
-        sim.initRefPref(refFileName, steps/40);
+        sim.initRefPref(refFileName, (steps/1000)/40);
 
         MeterVirial meterDiagrams = new MeterVirial(targetDiagrams);
         meterDiagrams.setBox(sim.box[1]);
@@ -371,13 +377,14 @@ public class VirialAlkaneFlex2 {
         
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, steps/20);
+        sim.equilibrate(refFileName, (steps/1000)/20);
 
         if (nSpheres > 2) {
             accumulatorDiagrams.reset();
+            accumulatorDiagrams.setBlockSize(steps/1000);
         }
 
-        sim.setAccumulatorBlockSize(steps);
+        sim.setAccumulatorBlockSize(steps/1000);
         
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
@@ -409,8 +416,11 @@ public class VirialAlkaneFlex2 {
         }
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
+        sim.integratorOS.setNumSubSteps((int)(steps/1000));
+        sim.ai.setMaxSteps(1000);
+        long t1 = System.currentTimeMillis();
         sim.getController().actionPerformed();
+        long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
@@ -435,6 +445,7 @@ public class VirialAlkaneFlex2 {
             }
             System.out.println();
         }
+        System.out.print(String.format("time: %9.3f\n", (t2-t1)*0.001));
 	}
     
     public static ClusterBonds[] append(ClusterBonds[] inArray, ClusterBonds[] newBonds) {
