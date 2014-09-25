@@ -241,8 +241,10 @@ public class VirialDiagrams {
         }
         doNegativeExchange = newDoNegativeExchange;
     }
-            
 
+    /**
+     * Only include graphs with nonadditive bonds.
+     */
     public void setDoMinimalMulti(boolean newDoMinimalMulti) {
         if (!multibody) {
             throw new RuntimeException("can't set minimalMulti without multi");
@@ -697,8 +699,7 @@ public class VirialDiagrams {
                     }
                 }
             }
-            int gn = g.nodeCount();
-            if (flex) gn++;
+            int gn = flex ? n+1 : n;
             if (ebonds.size() > 0) {
                 allBonds.add(new ClusterBonds(gn, new int[][][]{fbonds.toArray(new int[0][0]),ebonds.toArray(new int[0][0])}));
             }
