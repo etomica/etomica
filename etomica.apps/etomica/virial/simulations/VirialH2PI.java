@@ -52,7 +52,6 @@ import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2Harmonic;
 //import etomica.potential.P2HydrogenGarberoglioHindePatkowski.P2HydrogenGarberoglioHindePatkowskiAtomic;
 import etomica.potential.P2HydrogenHindePatkowski;
-import etomica.potential.P2HydrogenPatkowski;
 import etomica.potential.P2HydrogenPatkowskiIso;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
@@ -62,7 +61,6 @@ import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.units.BohrRadius;
 import etomica.units.CompoundDimension;
 import etomica.units.CompoundUnit;
 import etomica.units.Dimension;
@@ -104,6 +102,7 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
+import etomica.virial.P1HydrogenDummy;
 import etomica.virial.PotentialGroup3PI;
 import etomica.virial.PotentialGroup3PI.PotentialGroup3PISkip;
 import etomica.virial.PotentialGroupPI;
@@ -160,9 +159,9 @@ public class VirialH2PI {
             parseArgs.parseArgs(args, true);
         }
         else {
-        	params.potentialLevel = levelOptions.hindePatkowski;
-        	params.subtractWhat = subOptions.iso;        	
-        	params.nBeads = 2;
+//        	params.potentialLevel = levelOptions.hindePatkowski;
+//        	params.subtractWhat = subOptions.iso;        	
+        	params.nBeads = 8;
             params.temperature = 500;
 //            params.doHist = true;
 //            params.hackedup = true;
@@ -537,7 +536,7 @@ public class VirialH2PI {
         IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);        
         SpeciesSpheresHetero species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
             protected IAtom makeLeafAtom(IAtomType leafType) {            	
-            	double bl = BohrRadius.UNIT.toSim(1.448736);// AtomHydrogen.getAvgBondLength(temperatureK);
+            	double bl = AtomHydrogen.getAvgBondLength(temperatureK);
                 return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
             }
         };
@@ -550,9 +549,10 @@ public class VirialH2PI {
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
 
         PotentialGroup pIntra1 = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
-        P1HydrogenMielkeAtomic p1 = new P1HydrogenMielkeAtomic(space);
-//        P1HydrogenMielkeApproxAtomic pA1 = new P1HydrogenMielkeApproxAtomic(space);
+        
+        P1HydrogenMielkeAtomic p1 = new P1HydrogenMielkeAtomic(space);        
         pIntra1.addPotential(p1, new ANIntragroupExchange(1, nBeads));
+//        We use ANIntragroupExchange here by purpose even though we are not doing exchange
         sim.integrators[1].getPotentialMaster().addPotential(pIntra1,new ISpecies[]{sim.getSpecies(0)});
         // we'll use substeps=1000 initially (to allow for better initialization)
         // and then later switch to 1000 overlap steps
@@ -597,8 +597,11 @@ public class VirialH2PI {
         move0.setStiffness(temperature, species.getAtomType(0));
         move1.setStiffness(temperature, species.getAtomType(0));
 //        System.out.println(2*nBeads*Math.PI/(lambda*lambda)+" "+2*move0.getStiffness()+" "+2*move1.getStiffness());
-        sim.integrators[0].getMoveManager().addMCMove(move0);
-        sim.integrators[1].getMoveManager().addMCMove(move1);
+        boolean fixedOrientation = false;
+        if (!fixedOrientation) {
+        	sim.integrators[0].getMoveManager().addMCMove(move0);
+        	sim.integrators[1].getMoveManager().addMCMove(move1);
+        }        
 //        MCMoveOrientationBruteForce orBF0 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
 //        MCMoveOrientationBruteForce orBF1 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
 //
@@ -615,9 +618,11 @@ public class VirialH2PI {
         if (variableBondLength) {
             sim.integrators[0].getMoveManager().addMCMove(cbl0);
             sim.integrators[1].getMoveManager().addMCMove(cbl1);
-            cbl0.setStiffness(species.getAtomType(0));
-            cbl1.setStiffness(species.getAtomType(0));
+            cbl0.setStiffness(species.getAtomType(0),p1);
+            cbl1.setStiffness(species.getAtomType(0),p1);
         }
+        cbl0.setFixedOrientation(fixedOrientation);
+        cbl1.setFixedOrientation(fixedOrientation);
 
 
         if (refFreq >= 0) {
@@ -949,6 +954,7 @@ public class VirialH2PI {
             System.out.println("Fancy: Target bond length acceptance "+cbl1.getTracker().acceptanceRatio());
             System.out.println("Fancy: Reference bond length acceptance "+cbl0.getTracker().acceptanceRatio());            
         }
+        
 
         sim.printResults(refIntegral);
 
@@ -988,6 +994,17 @@ public class VirialH2PI {
 //        catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
+        double[] xValues = cbl0.hEtaOld.xValues();
+        double[] hEtaOld = cbl0.hEtaOld.getHistogram();
+        double[] hEtaNew = cbl0.hEtaNew.getHistogram();
+        
+        for (int i=0; i<xValues.length; i++) {
+        
+            if (!Double.isNaN(hEtaOld[i]) && !Double.isNaN(hEtaNew[i])) {
+//                System.out.println(xValues[i]+" "+(-2*h[i]+1)+" "+Math.exp(-u/temperature));
+//                System.out.println(xValues[i]+" "+hEtaOld[i]+" "+hEtaNew[i]);
+            }
+        }
         if (variableBondLength) System.out.println("Temperature = "+ temperatureK +" Average BondLength used = "+ AtomHydrogen.getAvgBondLength(temperatureK));
 
         if ((t2-t1)/1000.0 > 24*3600) {
