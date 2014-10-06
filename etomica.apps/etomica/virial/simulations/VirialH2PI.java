@@ -102,7 +102,6 @@ import etomica.virial.MayerGeneral;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
-import etomica.virial.P1HydrogenDummy;
 import etomica.virial.PotentialGroup3PI;
 import etomica.virial.PotentialGroup3PI.PotentialGroup3PISkip;
 import etomica.virial.PotentialGroupPI;
