@@ -12,9 +12,9 @@ import etomica.space.ISpace;
  * @author David Kofke
  */
  
-public abstract class PotentialMolecular implements java.io.Serializable, IPotentialMolecular {
+public abstract class PotentialMolecular implements IPotentialMolecular {
     
-	private final int nBody;
+	protected final int nBody;
 	protected final ISpace space;
 
     /**
