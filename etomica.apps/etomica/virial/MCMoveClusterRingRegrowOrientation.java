@@ -27,9 +27,7 @@ import etomica.space.IVectorRandom;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
-import etomica.units.Mole;
 import etomica.util.Constants;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramNotSoSimple;
@@ -55,17 +53,18 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         dr = space.makeVector();
         dr1 = space.makeVector();
         dr2 = space.makeVector();
+        dummy = space.makeVector();
 	}  
     public void setBox(IBox p) {
         super.setBox(p);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         xOld = new double[nMolecules][P];
         xNew = new double[nMolecules][P];
-        oldOrientations = new IOrientation3D[nMolecules][0];
+        oldOrientations = new IOrientation3D[nMolecules][];
         for (int i=0; i<nMolecules; i++) {
             int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().getAtomCount();
-            oldOrientations[i] = new IOrientation3D[nAtoms];
-            for (int j=0; j<nAtoms; j++) {
+            oldOrientations[i] = new IOrientation3D[nAtoms+1];
+            for (int j=0; j<nAtoms+1; j++) {
                 oldOrientations[i][j] = (IOrientation3D) space.makeOrientation();
             }
         }
@@ -101,7 +100,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         IVectorMutable oldCenter = space.makeVector();
         IVectorMutable newCenter = space.makeVector();                
         IMoleculeList molecules = box.getMoleculeList();
-        IOrientation3D [][] newOrientations = new IOrientation3D[molecules.getMoleculeCount()][P];                
+        IOrientation3D [][] newOrientations = new IOrientation3D[molecules.getMoleculeCount()][P+1];                
         double [] oldAlpha = new double [P];
         newAlpha = new double [P];
         double [] theta = new double [P];        
@@ -112,18 +111,20 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         double pGenOld = 1.00;
         double pGenNew = 1.00;
         double pGenRatio = 1.00;
-        
+        IVectorMutable pVecOld = space.makeVector();
+        IVectorMutable pVecNew = space.makeVector();
+        IVectorMutable prevOldCenter = space.makeVector();
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             double bondLength = 0.00;
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
             for (int j=0; j<P; j++) {
                 bondLength += ((AtomHydrogen)atoms.getAtom(j)).getBondLength()/P;                
-                int next = j+1;
-                if (next == P) next = 0;
+                int prev = j-1;
+                if (prev < 0) prev = P-1;
                 AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
-                AtomHydrogen jNext = (AtomHydrogen)atoms.getAtom(next);
-                uOld += stiffness*dist(jAtom,jNext);
+                AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
+                uOld += stiffness*dist(jAtom,jPrev);
             }
             double r = bondLength/2.00;
 //            System.out.println(BohrRadius.UNIT.fromSim(bondLength));
@@ -142,8 +143,19 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 //            rV1.E(ex);
             newOrientations[i][0] = (IOrientation3D)((IAtomOriented) atoms.getAtom(0)).getOrientation();
             newOrientations[i][0].setDirection(rV1);
+            oldOrientations[i][P].setDirection(oldOrientations[i][0].getDirection());
+            newOrientations[i][P] = (IOrientation3D) space.makeOrientation();
+            newOrientations[i][P].setDirection(newOrientations[i][0].getDirection());
+            pVecOld.E(oldOrientations[i][0].getDirection());
+            pVecNew.E(newOrientations[i][0].getDirection());
             for (int dr = 2; dr<= P; dr*=2){
                 double kEff = 8*stiffness*r*r*dr/P;
+                double y0 = 0;
+                double sA = 0;
+                double kEff1Old = 0;
+                double kEff1New = 0;
+                double a = 0;
+                double y1 = 0;
                 for (int nr = 1; nr<dr; nr+=2){
                     int imageIndex = nr*P/dr;
 //                    System.out.println("image # = "+imageIndex);                    
@@ -152,40 +164,47 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                     newOrientations[i][imageIndex] = (IOrientation3D) jAtom.getOrientation();
                     fromImage = (nr-1)*P/dr;
                     toImage = (nr+1)*P/dr;
-                    if (toImage == P) toImage = 0;
-                    oldCenter.Ev1Pv2(oldOrientations[i][fromImage].getDirection(), oldOrientations[i][toImage].getDirection());                    
-                    oldCenter.normalize();
-                    double y0 = oldOrientations[i][fromImage].getDirection().dot(oldOrientations[i][toImage].getDirection());
-                    if (y0 > 1.0) y0 = 1.0;
-                    if (y0 < -1.0) y0 = -1.0;
-                    double kEff1Old = kEff*Math.sqrt((1+y0)/2.0);                    
-                    y0 = newOrientations[i][fromImage].getDirection().dot(newOrientations[i][toImage].getDirection());
-                    if (y0 > 1.0) y0 = 1.0;
-                    if (y0 < -1.0) y0 = -1.0;
-                    double kEff1New = kEff*Math.sqrt((1+y0)/2.0);                    
-                    y0 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());                    
-                    if (y0 > 1.0) y0 = 1.0;
-                    if (y0 < -1.0) y0 = -1.0;
-                    oldAlpha[imageIndex] = Math.acos(y0);                    
-                    double x = random.nextDouble();
-                    xNew[i][imageIndex] = x;                    
-//                    double y1_new = (-kEff1New + Math.log(Math.exp(2*kEff1New)-x*(Math.exp(2*kEff1New)-1)))/kEff1New;                                        
-                    double a = Math.log(1 - x)/kEff1New + Math.log(1 + x*Math.exp(-2*kEff1New)/(1-x))/kEff1New;                    
-//                    double a = Math.log(1 - xNew[i][imageIndex])/kEff1New + Math.log(1 + xNew[i][imageIndex]*Math.exp(-2*kEff1New)/(1-xNew[i][imageIndex]))/kEff1New;
-//                    if (firstMove && imageIndex == 2) y1 = Math.cos(Degree.UNIT.toSim(20));                                        
-                    if (a > 0) {                        
-                        a = 0;
+                    
+                    if (imageIndex == P/2 && doExchange) {
+                    	pVecOld.TE(-1);
+                    	pVecNew.TE(-1);
+                    	oldOrientations[i][P].setDirection(pVecOld);
+                    	newOrientations[i][P].setDirection(pVecNew);
+                    }                    
+                    else {                    
+                    	oldCenter.Ev1Pv2(oldOrientations[i][fromImage].getDirection(), oldOrientations[i][toImage].getDirection());                    
+                    	oldCenter.normalize();
+                    	y0 = oldOrientations[i][fromImage].getDirection().dot(oldOrientations[i][toImage].getDirection());
+                    	if (y0 > 1.0) y0 = 1.0;
+                    	if (y0 < -1.0) y0 = -1.0;
+                    	kEff1Old = kEff*Math.sqrt((1+y0)/2.0);                    
+                    	y0 = newOrientations[i][fromImage].getDirection().dot(newOrientations[i][toImage].getDirection());
+                    	if (y0 > 1.0) y0 = 1.0;
+                    	if (y0 < -1.0) y0 = -1.0;
+                    	kEff1New = kEff*Math.sqrt((1+y0)/2.0);                    
+                    	y0 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());                    
+                    	if (y0 > 1.0) y0 = 1.0;
+                    	if (y0 < -1.0) y0 = -1.0;
+                    	oldAlpha[imageIndex] = Math.acos(y0);                    
+                    	double x = random.nextDouble();
+                    	xNew[i][imageIndex] = x;                    
+//                  	double y1_new = (-kEff1New + Math.log(Math.exp(2*kEff1New)-x*(Math.exp(2*kEff1New)-1)))/kEff1New;                                        
+                    	a = Math.log(1 - x)/kEff1New + Math.log(1 + x*Math.exp(-2*kEff1New)/(1-x))/kEff1New;                    
+//                  	double a = Math.log(1 - xNew[i][imageIndex])/kEff1New + Math.log(1 + xNew[i][imageIndex]*Math.exp(-2*kEff1New)/(1-xNew[i][imageIndex]))/kEff1New;
+//                  	if (firstMove && imageIndex == 2) y1 = Math.cos(Degree.UNIT.toSim(20));                                        
+                    	if (a > 0) {                        
+                    		a = 0;
+                    	}
+                    	if (a < -2.0) {                        
+                    		a = -2.0;
+                    	}
+                    	y1 = 1 + a;
+                    	sA = Math.sqrt(-2*a - a*a);
+                    	if (Double.isNaN(sA)) throw new RuntimeException(a+" "+(2*a + a*a));
+                    	newAlpha[imageIndex] = Math.acos(y1);
+                    	if (newAlpha[imageIndex] != newAlpha[imageIndex] || y1 != y1) throw new RuntimeException("x = " +2*kEff1New);
+//                  	if (imageIndex == 2) hist1.addValue(newAlpha[imageIndex]);
                     }
-                    if (a < -2.0) {                        
-                        a = -2.0;
-                    }
-                    double y1 = 1 + a;
-                    double sT = Math.sqrt(-2*a - a*a);
-                    if (Double.isNaN(sT)) throw new RuntimeException(a+" "+(2*a + a*a));
-                    newAlpha[imageIndex] = Math.acos(y1);
-                    if (newAlpha[imageIndex] != newAlpha[imageIndex] || y1 != y1) throw new RuntimeException("x = " +2*kEff1New);
-//                    if (imageIndex == 2) hist1.addValue(newAlpha[imageIndex]);
-
                     if (imageIndex == P/2) {
                         newOrientations[i][imageIndex].setDirection(rV1);
                         IVectorMutable rV2 = space.makeVector();
@@ -197,12 +216,17 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                         }
                         rV2.PEa1Tv1(-rV2.dot(rV1), rV1);
                         rV2.normalize();
-                        double alpha = 2*Math.PI*random.nextDouble();                        
-                        rotateBy(Math.cos(alpha), Math.sin(alpha), rV1, rV2);
+                        double dummyAlpha = 2*Math.PI*random.nextDouble();                        
+                        rotateBy(Math.cos(dummyAlpha), Math.sin(dummyAlpha), rV1, rV2);
 //                        newAlpha[imageIndex] = Degree.UNIT.toSim(0);
-//                        y1 = 1.0;
-                        
-                        rotateBy(y1,sT,rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());                        
+//                        y1 = 1.0;                        
+                        if (!doExchange) {
+                        	rotateBy(y1,sA,rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());                        
+                        }
+                        else {
+                        	double angle = 2*Math.PI*random.nextDouble();
+                        	rotateBy(Math.cos(angle), Math.sin(angle),rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+                        }
                         theta[imageIndex] = 0;
                                                 
                     }
@@ -223,7 +247,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 //                        double alpha = 2*Math.PI*random.nextDouble();                        
 //                        rotateBy(Math.cos(alpha), Math.sin(alpha),newCenter, e1);
                         
-                        rotateBy(y1,sT, e1,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+                        rotateBy(y1,sA, e1,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
                         theta[imageIndex] = random.nextDouble()*2*Math.PI;                
                         newOrientations[i][imageIndex].rotateBy(theta[imageIndex], newCenter);
 //                        double phi02new = Math.acos(((AtomHydrogen)atoms.getAtom(0)).getOrientation().getDirection().dot(((AtomHydrogen)atoms.getAtom(2)).getOrientation().getDirection()));
@@ -234,31 +258,33 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 //                      
                     }
                     if (newOrientations[i][imageIndex].getDirection().isNaN()) throw new RuntimeException("bead "+imageIndex+" orientation is NaN");
-                    oldCenter.ME(oldOrientations[i][imageIndex].getDirection());
-                    double v = oldCenter.squared();
-                    double v1 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());
-                    double s1 = v - v1*v1;
-                    double y0m1 = -s1/(1+y0);
-                    if (xOld[i][imageIndex] == 0) xOld[i][imageIndex] = xNew[i][imageIndex];
-//                    pGenOld *= Math.exp(kEff1Old*y0)*kEff1Old/Math.sinh(kEff1Old);                    
-//                    pGenNew *= Math.exp(kEff1New*y1)*kEff1New/Math.sinh(kEff1New);
-//                    pGenOld *= 2*Math.exp(kEff1Old*y0m1)*kEff1Old/(1 - Math.exp(-2*kEff1Old));                    
-//                    pGenNew *= 2*Math.exp(kEff1New*a)*kEff1New/(1 - Math.exp(-2*kEff1New));
-//                    System.out.println(kEff1Old+" "+kEff1New+" "+y0m1+" "+(y0-1)+" "+a+" "+(y1_new-1));
-//                    pGenRatio *= Math.exp(kEff1New*a - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));
-                    double aNew = kEff1New*(-xNew[i][imageIndex] + 1/(1 - Math.exp(-2*kEff1New)))/(kEff1Old*(-xOld[i][imageIndex] + 1/(1 - Math.exp(-2*kEff1Old))));
-                    double aOld =  Math.exp(kEff1New*a - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));
-//                    System.out.println(aOld+" "+aNew);
-                    pGenRatio *= aOld;
-                    if (Double.isNaN(pGenRatio)) throw new RuntimeException();
+                    if (!doExchange || imageIndex != P/2) {
+                    	oldCenter.ME(oldOrientations[i][imageIndex].getDirection());
+                    	double v = oldCenter.squared();
+                    	double v1 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());
+                    	double s1 = v - v1*v1;
+                    	double y0m1 = -s1/(1+y0);
+//                  	if (xOld[i][imageIndex] == 0) xOld[i][imageIndex] = xNew[i][imageIndex];
+//                  	pGenOld *= Math.exp(kEff1Old*y0)*kEff1Old/Math.sinh(kEff1Old);                    
+//                  	pGenNew *= Math.exp(kEff1New*y1)*kEff1New/Math.sinh(kEff1New);
+//                  	pGenOld *= 2*Math.exp(kEff1Old*y0m1)*kEff1Old/(1 - Math.exp(-2*kEff1Old));                    
+//                  	pGenNew *= 2*Math.exp(kEff1New*a)*kEff1New/(1 - Math.exp(-2*kEff1New));
+//                  	System.out.println(kEff1Old+" "+kEff1New+" "+y0m1+" "+(y0-1)+" "+a+" "+(y1_new-1));
+//                  	pGenRatio *= Math.exp(kEff1New*a - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));
+//                  	double aNew = kEff1New*(-xNew[i][imageIndex] + 1/(1 - Math.exp(-2*kEff1New)))/(kEff1Old*(-xOld[i][imageIndex] + 1/(1 - Math.exp(-2*kEff1Old))));
+                    	double aOld =  Math.exp(kEff1New*a - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));                    
+//                  	System.out.println(aOld+" "+aNew);
+                    	pGenRatio *= aOld;                    
+                    	if (Double.isNaN(pGenRatio)) throw new RuntimeException();
+                    }
                 }
             }            
             for (int j=0; j<P; j++) {
-                int next = j+1;
-                if (next == P) next = 0;
+                int prev = j-1;
+                if (prev < 0) prev = P-1;
                 AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
-                AtomHydrogen jNext = (AtomHydrogen)atoms.getAtom(next);
-                uNew += stiffness*dist(jAtom,jNext);
+                AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
+                uNew += stiffness*dist(jAtom,jPrev);
             }
             
 //            double phi02new = Math.acos(((AtomHydrogen)atoms.getAtom(0)).getOrientation().getDirection().dot(((AtomHydrogen)atoms.getAtom(2)).getOrientation().getDirection()));
@@ -342,7 +368,8 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
     	((BoxCluster)box).rejectNotify();
     }
     
-    public void acceptNotify() {        
+    public void acceptNotify() {
+//    	System.out.println("orientation move accepted");
         if (box.getIndex() == 0) uCurrent = uAcc;
         if (rejected > 100 && box.getIndex() == 0) {
 //            System.out.println("Rejected "+rejected+" moves continuously, printing to Orientation"+rc+".dat");
@@ -392,10 +419,19 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
     public AtomIterator affectedAtoms() {
         return leafIterator;
     }
+    protected boolean doExchange = false;
+    public void setDoExchange(boolean b) {
+    	doExchange = b;
+    }
     protected double dist(AtomHydrogen a0, AtomHydrogen a1) {
+    	dummy.E(a0.getOrientation().getDirection());
+    	if (a0.getIndex() == 0 && doExchange) {
+    		dummy.TE(-1);
+    	}
         dr.Ev1Mv2(a0.getPosition(),a1.getPosition());
-        dr1.Ea1Tv1(a0.getBondLength()/2, a0.getOrientation().getDirection());
+        dr1.Ea1Tv1(a0.getBondLength()/2, dummy);
         dr1.PEa1Tv1(-a1.getBondLength()/2, a1.getOrientation().getDirection());
+//        if (a0.getIndex() == 0 && doExchange) a0.getOrientation().setDirection(dummy);
         double r2 = dr.Mv1Squared(dr1);
 //        if (flag) {
 //            System.out.print("r = "+Math.sqrt(r2)+" ");
@@ -405,7 +441,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         r2 += dr.Mv1Squared(dr1);
         return r2;
     }
-    protected void rotateBy(double cdt, double sdt, IVector axis, IVectorMutable direction) {
+    public static void rotateBy(double cdt, double sdt, IVector axis, IVectorMutable direction) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
@@ -418,7 +454,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         // v4 is a unit vector whose components are v1 and v3
         
         // v1 = v1overAxis * axis
-                
+        ISpace space = Space3D.getInstance();        
         double v1overAxis = axis.dot(direction);
         IVectorMutable temp = space.makeVector();
         IVectorMutable temp2 = space.makeVector();
@@ -458,7 +494,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
     protected double [][] xOld;
     protected double [][] xNew;
     protected boolean flag;
-    protected final IVectorMutable dr,dr1,dr2;
+    protected final IVectorMutable dr,dr1,dr2,dummy;
     public static void main(String[] args) {
         ISpace space = Space3D.getInstance();
         ClusterWeight cluster = new ClusterWeight() {
