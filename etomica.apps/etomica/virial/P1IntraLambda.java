@@ -1,0 +1,47 @@
+package etomica.virial;
+
+import etomica.api.IAtomList;
+import etomica.api.IBox;
+import etomica.api.IPotentialAtomic;
+import etomica.potential.P1IntraMolecular;
+import etomica.space.ISpace;
+
+public class P1IntraLambda implements IPotentialAtomic, P1IntraMolecular {
+	protected double lambda = -1, u0 = 0;
+	protected P1IntraMolecular p1;
+	public P1IntraLambda(ISpace space, double lambda, P1IntraMolecular pot1, double u00) {
+		p1 = pot1;
+		this.lambda = lambda;		        
+		u0 = u00;
+    }
+
+	public double getRange() {
+		return 0;
+	}
+
+	public void setBox(IBox box) {
+		
+	}
+
+	public int nBody() {
+		return 1;
+	}
+
+	public double energy(IAtomList atoms) {
+		if (lambda == -1) throw new RuntimeException("lambda needs to be set first");
+		return lambda*(((IPotentialAtomic)p1).energy(atoms) - u0);
+	}
+	
+	public double du(double r) {	
+		return lambda*p1.du(r);
+	}
+
+	public double d2u(double r) {		
+		return lambda*p1.d2u(r);
+	}
+	
+	public double u(double r) {
+		return lambda*(p1.u(r) - u0);
+	}
+	
+}
