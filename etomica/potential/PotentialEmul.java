@@ -13,7 +13,9 @@ import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.atom.MoleculeArrayList;
 import etomica.box.Box;
+import etomica.chem.elements.Argon;
 import etomica.chem.elements.Helium;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -40,7 +42,6 @@ public class PotentialEmul extends PotentialMolecular {
     public static final Unit emulEnergyUnit = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
     protected double r2Core;
     protected final IVectorMutable r12Vec;
-    protected int nBody;
     
 	public PotentialEmul(ISpace space, String templateName){
 	    this(space, templateName, 2.5);
@@ -57,7 +58,7 @@ public class PotentialEmul extends PotentialMolecular {
 		this.templateName = templateName;
 	}
 	
-	private static int countMolecules(String templateName) {
+	protected static int countMolecules(String templateName) {
         int nBody = 0;
         try {
             FileReader fileReader = new FileReader(templateName);
@@ -256,28 +257,68 @@ public class PotentialEmul extends PotentialMolecular {
 	
 	public static void main(String[] args) {
 	    ISpace space = Space3D.getInstance();
-	    PotentialEmul p2 = new PotentialEmul(space, "template.in");
-	    Simulation sim = new Simulation(space);
-	    Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
-	    sim.addBox(box);
-	    SpeciesSpheresMono species = new SpeciesSpheresMono(space, Helium.INSTANCE);
-	    sim.addSpecies(species);
-	    box.setNMolecules(species, 2);
-	    p2.setBox(box);
-	    P2LennardJones p2LJ = new P2LennardJones(space, 3.1, Kelvin.UNIT.toSim(98));
-	    p2LJ.setBox(box);
-	    P2QChem p2Q = new P2QChem(space);
-	    p2Q.setBox(box);
-	    P2HePCKLJS p2He = new P2HePCKLJS(space);
-	    p2He.setBox(box);
-	    for (int i=10; i<100; i++) {
-	    	double r = i*0.1;
-		    box.getLeafList().getAtom(1).getPosition().setX(0, r);
-		    double uEmul = p2.energy(box.getMoleculeList(species));
-		    double uLJ = p2LJ.energy(box.getLeafList());
-		    double uQ = 0; //p2Q.energy(box.getMoleculeList(species));
-		    double uHe = p2He.energy(box.getLeafList());
-		    System.out.println(r+" "+uEmul+" "+uLJ+" "+uQ+" "+uHe);
+	    if (false) {
+    	    PotentialEmul p2 = new PotentialEmul(space, "template.in");
+    	    Simulation sim = new Simulation(space);
+    	    Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+    	    sim.addBox(box);
+    	    SpeciesSpheresMono species = new SpeciesSpheresMono(space, Helium.INSTANCE);
+    	    sim.addSpecies(species);
+    	    box.setNMolecules(species, 2);
+    	    p2.setBox(box);
+    	    P2LennardJones p2LJ = new P2LennardJones(space, 3.1, Kelvin.UNIT.toSim(98));
+    	    p2LJ.setBox(box);
+    	    P2QChem p2Q = new P2QChem(space);
+    	    p2Q.setBox(box);
+    	    P2HePCKLJS p2He = new P2HePCKLJS(space);
+    	    p2He.setBox(box);
+    	    for (int i=10; i<100; i++) {
+    	    	double r = i*0.1;
+    		    box.getLeafList().getAtom(1).getPosition().setX(0, r);
+    		    double uEmul = p2.energy(box.getMoleculeList(species));
+    		    double uLJ = p2LJ.energy(box.getLeafList());
+    		    double uQ = 0; //p2Q.energy(box.getMoleculeList(species));
+    		    double uHe = p2He.energy(box.getLeafList());
+    		    System.out.println(r+" "+uEmul+" "+uLJ+" "+uQ+" "+uHe);
+    	    }
+	    }
+
+	    if (true) {
+	        PotentialEmul p3 = new PotentialEmul(space, "3body_template.in");
+            PotentialEmul p2 = new PotentialEmul(space, "2body_template.in");
+	        Simulation sim = new Simulation(space);
+	        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+	        sim.addBox(box);
+	        SpeciesSpheresMono species = new SpeciesSpheresMono(space, Argon.INSTANCE);
+	        sim.addSpecies(species);
+	        box.setNMolecules(species, 3);
+            p2.setBox(box);
+	        p3.setBox(box);
+            box.getLeafList().getAtom(0).getPosition().setX(0, -4);
+            box.getLeafList().getAtom(1).getPosition().setX(0, -4);
+            box.getLeafList().getAtom(0).getPosition().setX(1, -3);
+            box.getLeafList().getAtom(1).getPosition().setX(1, 3);
+            MoleculeArrayList molecules02 = new MoleculeArrayList(2);
+            molecules02.add(box.getMoleculeList().getMolecule(0));
+            molecules02.add(box.getMoleculeList().getMolecule(1));
+            double u01 = p2.energy(molecules02);
+            molecules02.clear();
+            molecules02.add(box.getMoleculeList().getMolecule(0));
+            molecules02.add(box.getMoleculeList().getMolecule(2));
+            MoleculeArrayList molecules12 = new MoleculeArrayList(2);
+            molecules12.add(box.getMoleculeList().getMolecule(1));
+            molecules12.add(box.getMoleculeList().getMolecule(2));
+            
+	        for (int i=0; i<100; i++) {
+	            double r = -3 + i*0.1;
+	            box.getLeafList().getAtom(2).getPosition().setX(0, r);
+	            double uEmul = p3.energy(box.getMoleculeList(species));
+                double u02 = p2.energy(molecules02);
+	            double u12 = p2.energy(molecules12);
+	            System.out.printf("%5.2f ", r);
+	            System.out.println(uEmul+" "+(uEmul - (u01+u02+u12)));
+//	            System.out.println("  "+u01+" "+u02+" "+u12);
+	        }
 	    }
 	}
 }
