@@ -264,6 +264,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         integratorOS = new IntegratorOverlap(integrators);
         integratorOS.setNumSubSteps(1000);
         integratorOS.setEventInterval(1);
+        integratorOS.setAggressiveAdjustStepFraction(true);
         ai = new ActivityIntegrate(integratorOS);
         getController().addAction(ai);
         
