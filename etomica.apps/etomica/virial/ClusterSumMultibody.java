@@ -150,6 +150,14 @@ public class ClusterSumMultibody extends ClusterSum {
         }
     }
 
+    public static String m2s(IMoleculeList list) {
+        String s = ""+list.getMolecule(0).getIndex();
+        for (int i=1; i<list.getMoleculeCount(); i++) {
+            s += " "+list.getMolecule(i).getIndex();
+        }
+        return s;
+    }
+
     /*
      * This looks nasty, but is probably still less expensive than computing
      * the multibody potentials.  A more generic while loop implementation
@@ -160,11 +168,19 @@ public class ClusterSumMultibody extends ClusterSum {
         int nPoints = pointCount();
         int nextNeeded = fNonAdditiveNeeded[size].length > 0 ? fNonAdditiveNeeded[size][0] : -1;
         int groupID = 0, iGroup = 0;
-        for(int i=0; i<nPoints-1; i++) {
+        boolean debugme = false; //nfar >= 9 && nclose >= 3;
+        if (debugme && size == 3) {
+            for(int i=0; i<nPoints-1; i++) {
+                for(int j=i+1; j<nPoints; j++) {
+                    System.out.println(i+" "+j+" "+Math.sqrt(cPairs.getr2(i,j))+" "+fValues[i][j][0]);
+                }
+            }
+        }
+        for(int i=0; i<nPoints-2; i++) {
             if (nextNeeded == -1) return;
             moleculeList.clear();
             moleculeList.add(molecules.getMolecule(i));
-            for(int j=i+1; j<nPoints; j++) {
+            for(int j=i+1; j<nPoints-1; j++) {
                 r2[0] = cPairs.getr2(i,j);
                 moleculeList.add(molecules.getMolecule(j));
                 for (int k=j+1; k<nPoints; k++) {
@@ -179,6 +195,9 @@ public class ClusterSumMultibody extends ClusterSum {
                             }
                             else {
                                 fNonAdditiveValues[3][groupID] = 0;
+                            }
+                            if (debugme) {
+                                System.out.println("3 "+groupID+" "+m2s(moleculeList)+" "+fNonAdditiveValues[3][groupID]);
                             }
                             
                             iGroup++;
@@ -202,6 +221,9 @@ public class ClusterSumMultibody extends ClusterSum {
                                 else {
                                     fNonAdditiveValues[4][groupID] = 0;
                                 }
+                                if (debugme) {
+                                    System.out.println("4 "+groupID+" "+m2s(moleculeList)+" "+fNonAdditiveValues[4][groupID]);
+                                }
                                 iGroup++;
                                 nextNeeded = iGroup == fNonAdditiveNeeded[4].length ? -1 : fNonAdditiveNeeded[4][iGroup];
                             }
@@ -224,6 +246,9 @@ public class ClusterSumMultibody extends ClusterSum {
                                     }
                                     else {
                                         fNonAdditiveValues[5][groupID] = 0;
+                                    }
+                                    if (debugme) {
+                                        System.out.println("5 "+groupID+" "+m2s(moleculeList)+" "+fNonAdditiveValues[5][groupID]);
                                     }
                                     iGroup++;
                                     nextNeeded = iGroup == fNonAdditiveNeeded[5].length ? -1 : fNonAdditiveNeeded[5][iGroup];
@@ -249,6 +274,9 @@ public class ClusterSumMultibody extends ClusterSum {
                                         }
                                         else {
                                             fNonAdditiveValues[6][groupID] = 0;
+                                        }
+                                        if (debugme) {
+                                            System.out.println("6 "+groupID+" "+m2s(moleculeList)+" "+fNonAdditiveValues[6][groupID]);
                                         }
                                         iGroup++;
                                         nextNeeded = iGroup == fNonAdditiveNeeded[6].length ? -1 : fNonAdditiveNeeded[6][iGroup];
