@@ -7,6 +7,7 @@ import java.util.Set;
 import etomica.api.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
+import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
@@ -17,7 +18,6 @@ import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.potential.PotentialEmul;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -35,6 +35,8 @@ import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
+import etomica.virial.PotentialEmulCached;
+import etomica.virial.PotentialNonAdditive;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 
@@ -87,13 +89,14 @@ public class VirialEmulNonAdditive {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         
-        PotentialEmul p2 = new PotentialEmul(space, template2, 2.5);
+        PotentialEmulCached p2 = new PotentialEmulCached(space, template2, 2.5, 3);
 
         MayerGeneral fTarget = new MayerGeneral(p2);
 
-        PotentialEmul p3 = new PotentialEmul(space, template3, 2.5);
+        PotentialEmulCached p3 = new PotentialEmulCached(space, template3, 2.5, 3);
+        PotentialNonAdditive p3na = new PotentialNonAdditive(new IPotentialMolecular[]{p2, p3});
 
-        final MayerFunctionMolecularThreeBody f3Target = new MayerFunctionMolecularThreeBody(p3);
+        final MayerFunctionMolecularThreeBody f3Target = new MayerFunctionMolecularThreeBody(p3na);
         
 
         VirialDiagrams multiDiagrams = new VirialDiagrams(nPoints, true, false);
@@ -235,11 +238,11 @@ public class VirialEmulNonAdditive {
             refFileName = "refpref"+nPoints+"_3b_"+tempString;
         }
         // this will either read the refpref in from a file or run a short simulation to find it
-        sim.initRefPref(refFileName, steps/40);
+        sim.initRefPref(refFileName, steps/10);
 
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, steps/20);
+        sim.equilibrate(refFileName, steps/10);
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
@@ -395,11 +398,11 @@ public class VirialEmulNonAdditive {
         // don't change these!
         public int nPoints = 3;
         public double temperature = 300;   // Kelvin
-        public long numSteps = 1000000;
+        public long numSteps = 10000;
         public double refFrac = -1;
         public double sigmaHSRef = 6;
         public boolean doHist = false;
-        public String template2 = "template2.in";
-        public String template3 = "template3.in";
+        public String template2 = "2body_template.in";
+        public String template3 = "3body_template.in";
     }
 }
