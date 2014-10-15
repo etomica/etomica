@@ -5,5 +5,5 @@ import etomica.api.IVector;
 
 public interface IPotentialMolecularTorque extends PotentialMolecularSoft {
 
-    public IVector[][] gradientAndTorque(IMoleculeList atoms);
+    public IVector[][] gradientAndTorque(IMoleculeList molecules);
 }

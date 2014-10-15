@@ -19,20 +19,19 @@ public interface PotentialMolecularSoft extends IPotentialMolecular {
 	 * Returns the gradient of the potential as it applies to each atom in the 
      * given AtomSet, indicating how the energy would change as the position of 
      * the first atom is varied.  The method is allowed to return an array of
-     * Vectors with fewer elements than the number of atoms in the AtomSet.
-	 * @param atoms
-	 * @return
+     * Vectors with fewer elements than the number of molecules in the
+     * IMoleculeList.
 	 */
-	public IVector[] gradient(IMoleculeList atoms);
+	public IVector[] gradient(IMoleculeList molecules);
     
     /**
-     * Returns the same gradient as gradient(AtomSet) and also adds in the
-     * contribution of the AtomSet to the pressureTensor.  Their
+     * Returns the same gradient as gradient(IMoleculeList) and also adds in
+     * the contribution of the molecules to the pressureTensor.  Their
      * contribution is added to the given Tensor.  This combined method exists
      * for computational efficiency.  Calculating the pressureTensor is
      * generally trivial once the gradient is known but often requires
      * intermediate information.
      */
-    public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor);
+    public IVector[] gradient(IMoleculeList molecules, Tensor pressureTensor);
 
 }
