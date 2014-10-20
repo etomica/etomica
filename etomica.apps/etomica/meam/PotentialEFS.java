@@ -95,7 +95,7 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
             double rij=Math.sqrt(dr.squared());
-            if(rij<=c){
+            if(rij<=c && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
                 sumV+=(rij-c)*(rij-c)*(c0+c1*rij+c2*rij*rij+c3*rij*rij*rij+c4*rij*rij*rij*rij);
             }
             if(rij<=d){
@@ -104,7 +104,7 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
             }
         }
         double frho=Math.sqrt(rhoi);
-        double Utot=.5*sumV-frho;
+        double Utot=sumV-frho;
         return Utot;
         
     }
@@ -149,9 +149,9 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
             double rij=Math.sqrt(dr.squared());
-            if(rij<=c){
+            if(rij<=c && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
                 double dvdr=(rij-c)*(2*(c0+rij*(c1+rij*(c2+rij*(c3+c4*rij))))+(rij-c)*(c1+rij*(2*c2+rij*(3*c3+4*c4*rij))));
-                gradient[j].Ea1Tv1(-dvdr/2/rij, dr);
+                gradient[j].Ea1Tv1(-dvdr/rij, dr);
             }
             if(rij<=d){
                 double rd=rij-d;
