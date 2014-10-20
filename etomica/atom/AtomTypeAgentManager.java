@@ -47,6 +47,12 @@ public class AtomTypeAgentManager implements ISimulationListener, java.io.Serial
      * agent is not "released".  This should be done manually if needed.
      */
     public void setAgent(IAtomType atomType, Object newAgent) {
+        if (agents == null) {
+            agents = new Object[atomType.getIndex()+1];
+        }
+        else if (agents.length <= atomType.getIndex()) {
+            agents = Arrays.resizeArray(agents, atomType.getIndex()+1);
+        }
         agents[atomType.getIndex()] = newAgent;
     }
     
