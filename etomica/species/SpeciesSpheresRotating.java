@@ -24,11 +24,15 @@ public class SpeciesSpheresRotating extends SpeciesSpheresMono {
     public SpeciesSpheresRotating(ISpace _space, IElement element) {
         super(_space, new AtomTypeOrientedSphere(element, _space));
     }
+    
+    public void setAxisSymmetric(boolean isAxisSymmetric) {
+        this.isAxisSymmetric = isAxisSymmetric;
+    }
 
     protected IAtom makeLeafAtom() {
-        return isDynamic ? new AtomOrientedDynamic(space, leafAtomType)
-                         : new AtomOriented(space, leafAtomType);
+        return isDynamic ? new AtomOrientedDynamic(space, leafAtomType, isAxisSymmetric)
+                         : new AtomOriented(space, leafAtomType, isAxisSymmetric);
     }
-    
-    private static final long serialVersionUID = 1L;
+
+    protected boolean isAxisSymmetric;
 }
