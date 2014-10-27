@@ -105,8 +105,6 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         zy = work.getX(1);
         zz = work.getX(2);
     }
-    
-    private static final long serialVersionUID = 1L;
 
     /**
      * Method to test rotation tensor.

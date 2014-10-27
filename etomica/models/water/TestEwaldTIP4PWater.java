@@ -154,5 +154,4 @@ public class TestEwaldTIP4PWater extends Simulation {
 	protected final BoundaryRectangularPeriodic boundary;
 	private final static String APP_NAME = "Test Ewald Sum TIP4P Water";
 	private static final int PIXEL_SIZE = 15;
-	private static final long serialVersionUID = 1L;
 }

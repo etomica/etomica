@@ -156,7 +156,6 @@ public class AccumulatorHistogram extends DataAccumulator {
         return dataInfo;
     }
     
-    private static final long serialVersionUID = 2L;
     protected Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;
     private DataFunction data;

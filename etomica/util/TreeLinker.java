@@ -7,7 +7,7 @@ package etomica.util;
  * 
  * @author andrew
  */
-public class TreeLinker implements java.io.Serializable {
+public class TreeLinker {
     public final Object obj;
     public TreeLinker previous, nextLeft, nextRight;
     public double sortKey;
@@ -47,7 +47,7 @@ public class TreeLinker implements java.io.Serializable {
                 newNext = nextRight;
             }
             else {
-                // this section of the algorithm is not meant to be understood
+                // this section of the algorithm is not meant to be understood.
                 // it is meant to work.  So save the Tylenol and believe.
                 newNext = nextRight.nextLeft;
                 while (newNext.nextLeft != null) {
