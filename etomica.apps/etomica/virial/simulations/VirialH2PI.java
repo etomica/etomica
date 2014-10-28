@@ -52,6 +52,7 @@ import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2Harmonic;
 //import etomica.potential.P2HydrogenGarberoglioHindePatkowski.P2HydrogenGarberoglioHindePatkowskiAtomic;
 import etomica.potential.P2HydrogenHindePatkowski;
+import etomica.potential.P2HydrogenPatkowski;
 import etomica.potential.P2HydrogenPatkowskiIso;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
@@ -61,6 +62,7 @@ import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
+import etomica.units.BohrRadius;
 import etomica.units.CompoundDimension;
 import etomica.units.CompoundUnit;
 import etomica.units.Dimension;
@@ -158,8 +160,8 @@ public class VirialH2PI {
             parseArgs.parseArgs(args, true);
         }
         else {
-//        	params.potentialLevel = levelOptions.hindePatkowski;
-//        	params.subtractWhat = subOptions.iso;        	
+        	params.potentialLevel = levelOptions.patkowski;
+        	params.subtractWhat = subOptions.none;        	
         	params.nBeads = 8;
             params.temperature = 500;
 //            params.doHist = true;
@@ -222,7 +224,7 @@ public class VirialH2PI {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
         int origNB = nb;
-        
+        if (potentialLevel == levelOptions.patkowski && subtractWhat != subOptions.none) throw new RuntimeException("Oops");
         if (potentialLevel == levelOptions.iso && subtractWhat == subOptions.none) System.out.println("Calculating coefficients for isotropic potential");
         if (subtractWhat == subOptions.half) {
             int totalHalfs = (int)Math.ceil(Math.log((nb+finalNumBeads-1)/finalNumBeads)/Math.log(beadFac));
@@ -288,14 +290,15 @@ public class VirialH2PI {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         final P2HydrogenPatkowskiIso p2patIso = new P2HydrogenPatkowskiIso(space);
 //        final IPotentialAtomic p2 = calcApprox ? p2Approx : new P2HydrogenPatkowski.P2HydrogenPatkowskiAtomic(space);
-//        final IPotentialAtomic p2pat = new P2HydrogenPatkowski.P2HydrogenPatkowskiAtomic(space);
+        final IPotentialAtomic p2pat = new P2HydrogenPatkowski.P2HydrogenPatkowskiAtomic(space);
         final IPotentialAtomic p2hp = new P2HydrogenHindePatkowski.P2HydrogenHindePatkowskiAtomic(space);
 //        final IPotentialAtomic p2sc = new P2EffectiveFeynmanHibbs(space, (Potential2SoftSpherical)p2patIso);
 //        final IPotentialAtomic p2gar = new P2HydrogenGarberoglioHindePatkowskiAtomic(space,avgBL);
         IPotentialAtomic p2 = null;
         IPotentialAtomic p2Approx = p2patIso;
         
-        if (potentialLevel == levelOptions.iso) p2 = p2patIso;        
+        if (potentialLevel == levelOptions.iso) p2 = p2patIso;
+        if (potentialLevel == levelOptions.patkowski) p2 = p2pat;
         if (potentialLevel == levelOptions.hindePatkowski) p2 = p2hp;
         
         
@@ -532,13 +535,24 @@ public class VirialH2PI {
         }
         
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");        
-        IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);        
-        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
-            protected IAtom makeLeafAtom(IAtomType leafType) {            	
-            	double bl = AtomHydrogen.getAvgBondLength(temperatureK);
-                return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
-            }
-        };
+        IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);
+        SpeciesSpheresHetero species = null;
+        if (potentialLevel != levelOptions.patkowski) {
+            species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
+                protected IAtom makeLeafAtom(IAtomType leafType) {            	
+                    double bl = AtomHydrogen.getAvgBondLength(temperatureK);
+                    return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
+                }
+            };
+        }
+        else {
+            species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
+                protected IAtom makeLeafAtom(IAtomType leafType) {              
+                    double bl = BohrRadius.UNIT.toSim(1.448736);
+                    return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
+                }
+            };
+        }
         species.setChildCount(new int [] {nBeads});
         species.setConformation(new ConformationLinear(space, 0));
         
@@ -993,17 +1007,7 @@ public class VirialH2PI {
 //        catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
-        double[] xValues = cbl0.hEtaOld.xValues();
-        double[] hEtaOld = cbl0.hEtaOld.getHistogram();
-        double[] hEtaNew = cbl0.hEtaNew.getHistogram();
         
-        for (int i=0; i<xValues.length; i++) {
-        
-            if (!Double.isNaN(hEtaOld[i]) && !Double.isNaN(hEtaNew[i])) {
-//                System.out.println(xValues[i]+" "+(-2*h[i]+1)+" "+Math.exp(-u/temperature));
-//                System.out.println(xValues[i]+" "+hEtaOld[i]+" "+hEtaNew[i]);
-            }
-        }
         if (variableBondLength) System.out.println("Temperature = "+ temperatureK +" Average BondLength used = "+ AtomHydrogen.getAvgBondLength(temperatureK));
 
         if ((t2-t1)/1000.0 > 24*3600) {
@@ -1039,7 +1043,7 @@ public class VirialH2PI {
     }
     
     enum levelOptions {
-    	iso, hindePatkowski;
+    	iso, patkowski, hindePatkowski;
     }    
 
     /**
