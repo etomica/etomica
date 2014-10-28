@@ -161,7 +161,7 @@ public class VirialH2PI {
         }
         else {
         	params.potentialLevel = levelOptions.patkowski;
-        	params.subtractWhat = subOptions.none;        	
+        	params.subtractWhat = subOptions.none;
         	params.nBeads = 8;
             params.temperature = 500;
 //            params.doHist = true;
@@ -207,9 +207,12 @@ public class VirialH2PI {
         final double[] HSB = new double[8];
         final levelOptions potentialLevel = params.potentialLevel;
         final subOptions subtractWhat = params.subtractWhat;
+        final blOptions blOption = params.blOption;
+        
         System.out.println("Potential level = "+potentialLevel);
-        System.out.println("Subtract what = "+subtractWhat);        
-        boolean variableBondLength = (potentialLevel == levelOptions.hindePatkowski);        
+        System.out.println("Subtract what = "+subtractWhat);
+        System.out.println("bl Option = "+blOption);
+                
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);        
         final boolean doTotal = params.doTotal;
@@ -224,7 +227,7 @@ public class VirialH2PI {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
         int origNB = nb;
-        if (potentialLevel == levelOptions.patkowski && subtractWhat != subOptions.none) throw new RuntimeException("Oops");
+        if (potentialLevel == levelOptions.patkowski && blOption != blOptions.fixedGround && subtractWhat != subOptions.none) throw new RuntimeException("Check parameter values");
         if (potentialLevel == levelOptions.iso && subtractWhat == subOptions.none) System.out.println("Calculating coefficients for isotropic potential");
         if (subtractWhat == subOptions.half) {
             int totalHalfs = (int)Math.ceil(Math.log((nb+finalNumBeads-1)/finalNumBeads)/Math.log(beadFac));
@@ -537,7 +540,7 @@ public class VirialH2PI {
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");        
         IAtomTypeOriented atype = new AtomTypeOrientedSphere(Hydrogen.INSTANCE, space);
         SpeciesSpheresHetero species = null;
-        if (potentialLevel != levelOptions.patkowski) {
+        if (blOption == blOptions.fixedGround) {
             species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
                 protected IAtom makeLeafAtom(IAtomType leafType) {            	
                     double bl = AtomHydrogen.getAvgBondLength(temperatureK);
@@ -628,7 +631,7 @@ public class VirialH2PI {
         MCMoveChangeBondLength cbl0 = new MCMoveChangeBondLength(sim.integrators[0].getPotentialMaster(), sim.getRandom(),space,temperature);
         MCMoveChangeBondLength cbl1 = new MCMoveChangeBondLength(sim.integrators[0].getPotentialMaster(), sim.getRandom(),space,temperature);
         
-        if (variableBondLength) {
+        if (blOption == blOptions.variable) {
             sim.integrators[0].getMoveManager().addMCMove(cbl0);
             sim.integrators[1].getMoveManager().addMCMove(cbl1);
             cbl0.setStiffness(species.getAtomType(0),p1);
@@ -962,7 +965,7 @@ public class VirialH2PI {
         System.out.println("Target Ring acceptance "+ring1.getTracker().acceptanceRatio());
         System.out.println("Target Ring orientation acceptance "+move1.getTracker().acceptanceRatio());
         System.out.println("Reference Ring orientation acceptance "+move0.getTracker().acceptanceRatio());
-        if (variableBondLength) {
+        if (blOption == blOptions.variable) {
             if ((cbl0.getTracker().acceptanceRatio() == 1 || cbl1.getTracker().acceptanceRatio() == 1)) throw new RuntimeException();
             System.out.println("Fancy: Target bond length acceptance "+cbl1.getTracker().acceptanceRatio());
             System.out.println("Fancy: Reference bond length acceptance "+cbl0.getTracker().acceptanceRatio());            
@@ -1006,9 +1009,8 @@ public class VirialH2PI {
 //        }
 //        catch (IOException e) {
 //            throw new RuntimeException(e);
-//        }
+//        }        
         
-        if (variableBondLength) System.out.println("Temperature = "+ temperatureK +" Average BondLength used = "+ AtomHydrogen.getAvgBondLength(temperatureK));
 
         if ((t2-t1)/1000.0 > 24*3600) {
             System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
@@ -1044,7 +1046,10 @@ public class VirialH2PI {
     
     enum levelOptions {
     	iso, patkowski, hindePatkowski;
-    }    
+    }
+    enum blOptions {
+        fixedGround, fixedTempAvg, variable;
+    }
 
     /**
      * Inner class for parameters
@@ -1067,6 +1072,7 @@ public class VirialH2PI {
         public boolean hackedup = false;
         public boolean continuous = false;        
         public subOptions subtractWhat = subOptions.none;
-        public levelOptions potentialLevel = levelOptions.hindePatkowski;        
+        public levelOptions potentialLevel = levelOptions.hindePatkowski;
+        public blOptions blOption = blOptions.variable;
     }
 }
