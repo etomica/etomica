@@ -113,20 +113,20 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         double pGenRatio = 1.00;
         IVectorMutable pVecOld = space.makeVector();
         IVectorMutable pVecNew = space.makeVector();
-        IVectorMutable prevOldCenter = space.makeVector();
+        IVectorMutable prevOldCenter = space.makeVector();        
+        
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             double bondLength = 0.00;
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
-            for (int j=0; j<P; j++) {
-                bondLength += ((AtomHydrogen)atoms.getAtom(j)).getBondLength()/P;                
+            for (int j=0; j<P; j++) {                                
                 int prev = j-1;
                 if (prev < 0) prev = P-1;
                 AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
                 AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
                 uOld += stiffness*dist(jAtom,jPrev);
             }
-            double r = bondLength/2.00;
+            
 //            System.out.println(BohrRadius.UNIT.fromSim(bondLength));
 //            double phi02old = Math.acos(((AtomHydrogen)atoms.getAtom(0)).getOrientation().getDirection().dot(((AtomHydrogen)atoms.getAtom(2)).getOrientation().getDirection()));
 //            if (printToFile) {
@@ -149,7 +149,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
             pVecOld.E(oldOrientations[i][0].getDirection());
             pVecNew.E(newOrientations[i][0].getDirection());
             for (int dr = 2; dr<= P; dr*=2){
-                double kEff = 8*stiffness*r*r*dr/P;
+                double kEff = 8*stiffness*dr/P;
                 double y0 = 0;
                 double sA = 0;
                 double kEff1Old = 0;
@@ -164,6 +164,17 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                     newOrientations[i][imageIndex] = (IOrientation3D) jAtom.getOrientation();
                     fromImage = (nr-1)*P/dr;
                     toImage = (nr+1)*P/dr;
+                    double r = 0;
+                    for (int k = fromImage; k<= toImage; k++) {
+                        if (k == P) {
+                            r += ((AtomHydrogen)atoms.getAtom(0)).getBondLength()/2.0;                            
+                        }
+                        else {
+                            r += ((AtomHydrogen)atoms.getAtom(k)).getBondLength()/2.0;
+                        }
+                        
+                    }
+                    r *= dr/(2.0*P + dr); // same as r /= (toImage - fromImage + 1)
                     
                     if (imageIndex == P/2 && doExchange) {
                     	pVecOld.TE(-1);
@@ -177,11 +188,11 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                     	y0 = oldOrientations[i][fromImage].getDirection().dot(oldOrientations[i][toImage].getDirection());
                     	if (y0 > 1.0) y0 = 1.0;
                     	if (y0 < -1.0) y0 = -1.0;
-                    	kEff1Old = kEff*Math.sqrt((1+y0)/2.0);                    
+                    	kEff1Old = kEff*r*r*Math.sqrt((1+y0)/2.0);                    
                     	y0 = newOrientations[i][fromImage].getDirection().dot(newOrientations[i][toImage].getDirection());
                     	if (y0 > 1.0) y0 = 1.0;
                     	if (y0 < -1.0) y0 = -1.0;
-                    	kEff1New = kEff*Math.sqrt((1+y0)/2.0);                    
+                    	kEff1New = kEff*r*r*Math.sqrt((1+y0)/2.0);                    
                     	y0 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());                    
                     	if (y0 > 1.0) y0 = 1.0;
                     	if (y0 < -1.0) y0 = -1.0;
