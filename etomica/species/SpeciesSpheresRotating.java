@@ -29,10 +29,14 @@ public class SpeciesSpheresRotating extends SpeciesSpheresMono {
         this.isAxisSymmetric = isAxisSymmetric;
     }
 
+    public boolean isAxisSymmetric() {
+        return isAxisSymmetric;
+    }
+
     protected IAtom makeLeafAtom() {
         return isDynamic ? new AtomOrientedDynamic(space, leafAtomType, isAxisSymmetric)
                          : new AtomOriented(space, leafAtomType, isAxisSymmetric);
     }
 
-    protected boolean isAxisSymmetric;
+    protected boolean isAxisSymmetric = true;
 }
