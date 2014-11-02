@@ -1,8 +1,5 @@
 package etomica.models.co2;
 
-import java.util.Arrays;
-
-import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
@@ -15,11 +12,11 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotentialTorque;
 import etomica.potential.P2SemiclassicalAtomic;
-import etomica.potential.P2SemiclassicalMolecular;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
+import etomica.space3d.IOrientation3D;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
@@ -28,6 +25,7 @@ import etomica.units.Kelvin;
 import etomica.units.Null;
 import etomica.units.Unit;
 import etomica.util.Constants;
+import etomica.util.RandomMersenneTwister;
 
 /**
  * Ab initio potential for CO2-CO2 developed by R. Hellmann.
@@ -310,7 +308,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
     public class P2CO2SC implements IPotentialAtomic {
 
         protected final IVectorMutable[][] gi;
-        protected final Tensor tt0Tensor, rr0Tensor, rr1Tensor;
+        protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;
         protected final Tensor ijRTensor;
         protected final Matrix fullMatrix;
@@ -319,12 +317,14 @@ public class P2CO2Hellmann implements IPotentialTorque {
         protected final IVector[] allOr0, allOr1;
         protected final IVectorMutable drijRot;
         protected final double moment, momentMass;
+        public double[][] d2tot = new double[2][6];
         protected final double temperature, fac;
 
         public P2CO2SC(double temperature) {
             ijTensor = space.makeTensor();
             identity = space.makeTensor();
             tt0Tensor = space.makeTensor();
+            tt1Tensor = space.makeTensor();
             rr0Tensor = space.makeTensor();
             rr1Tensor = space.makeTensor();
             rTensor0 = space.makeTensor();
@@ -373,6 +373,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
             int min = 0;
             if (Math.abs(or.getX(1)) < Math.abs(or.getX(0))) min=1;
             if (Math.abs(or.getX(2)) < Math.abs(or.getX(min))) min=2;
+            perp1.E(0);
             perp1.setX(min, or.getX(max));
             perp1.setX(max, -or.getX(min));
             perp1.normalize();
@@ -394,17 +395,22 @@ public class P2CO2Hellmann implements IPotentialTorque {
             rot0.invert();
             
             IVector or1 = atom1.getOrientation().getDirection();
-            getPerp(or0, or11, or12);
-            allOr1[0] = or0;
+            getPerp(or1, or11, or12);
+            allOr1[0] = or1;
             rot1.E(allOr1);
             rot1.invert();
 
             tt0Tensor.E(0);
+            tt1Tensor.E(0);
             rr0Tensor.E(0);
             rr1Tensor.E(0);
             for (int i=0; i<7; i++) {
                 gi[0][i].E(0);
                 gi[1][i].E(0);
+            }
+            for (int i=0; i<6; i++ ){
+                d2tot[0][i] = 0;
+                d2tot[1][i] = 0;
             }
             double u = 0;
             for (int i=0; i<7; i++) {
@@ -469,7 +475,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
                     double rij6 = rij2*rij2*rij2;
                     double expbr = Math.exp(-br);
                     double u6 = -(1-expbr*sum)*C6[ii][jj]/rij6;
-                    double rdu6dr = (-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum))*C6[ii][jj]/rij6; 
+                    double rdu6dr = (-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum))*C6[ii][jj]/rij6;
                     double r2du26dr2 = (expbr*br*br*sum-expbr*br*dsum -br*expbr*dsum+expbr*d2sum + 6*(-1 + br*expbr*sum-expbr*dsum+expbr*sum) + -6*(-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum)))*C6[ii][jj]/rij6;
 
                     for (int k=7; k<=8; k++) {
@@ -495,6 +501,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
                     double rdudr = rduExpdr + rdu6dr + rdu8dr + rduChargedr;
                     double r2d2udr2 = r2du2Expdr2 + r2du26dr2 + r2du28dr2 + r2d2uChargedr2;
 //                    System.out.println(rij+" "+foo8/rij+" "+foo82/rij2);
+//                    if (i==0) System.out.println(i+" "+j+" "+rij+" "+u+" "+rdudr/rij+" "+r2d2udr2/rij2);
 
                     // molecule 0
                     drijRot.E(drij);
@@ -520,11 +527,13 @@ public class P2CO2Hellmann implements IPotentialTorque {
                     drijRot.E(drij);
                     rot1.transform(drijRot);
                     ijTensor.Ev1v2(drijRot, drijRot);
+//                    System.out.println("r2 "+rij2+" "+ijTensor.component(0,0));
                     ijTensor.TE((rdudr - r2d2udr2)/(rij2*rij2));
                     ijTensor.PEa1Tt1(-rdudr/rij2, identity);
 
                     // we only need tt for 0, both have the same contribution
-//                    tt1Tensor.ME(ijTensor);
+                    tt1Tensor.ME(ijTensor);
+//                    System.out.println("d2 "+r2d2udr2/rij2+" "+ijTensor.component(0,0)+" "+tt1Tensor.component(0,0));
 
                     rTensor1.transpose();
                     ijRTensor.E(rTensor1);
@@ -539,26 +548,33 @@ public class P2CO2Hellmann implements IPotentialTorque {
             }
             
             for (int i=0; i<7; i++) {
-                ri.Ea1Tv1(pos[i], or0);
+                ri.E(0);
+                ri.setX(0, pos[i]);
                 rr0Tensor.PEv1v2(ri, gi[0][i]);
-                rr0Tensor.PEa1Tt1(-ri.dot(gi[0][i]), identity);
+                rr0Tensor.PEa1Tt1(-pos[i]*gi[0][i].getX(0), identity);
 
-                rj.Ea1Tv1(pos[i], or1);
+                rj.E(0);
+                rj.setX(0, pos[i]);
                 rr1Tensor.PEv1v2(rj, gi[1][i]);
-                rr1Tensor.PEa1Tt1(-rj.dot(gi[1][i]), identity);
+                rr1Tensor.PEa1Tt1(-pos[i]*gi[1][i].getX(0), identity);
+
             }
             double sum = 0;
             for (int i=0; i<3; i++){
+                d2tot[0][i] += tt0Tensor.component(i,i);
+                d2tot[1][i] += tt1Tensor.component(i,i);
                 sum += tt0Tensor.component(i,i)/mass;
             }
             for (int i=1; i<3; i++){
+                d2tot[0][3+i] += rr0Tensor.component(i,i);
+                d2tot[1][3+i] += rr1Tensor.component(i,i);
                 sum += (rr0Tensor.component(i,i) + rr1Tensor.component(i,i))/(2*moment);
             }
             return u + fac*sum;
         }
     }
 
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         ISpace space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(200);
         Simulation sim = new Simulation(space);
@@ -647,5 +663,102 @@ public class P2CO2Hellmann implements IPotentialTorque {
 //            lu = u;
 //            ((Orientation3D)atom1.getOrientation()).rotateBy(dx, y);
 //        }
+    }
+    
+    /*
+     * Randomly moves molcules all over, computing and checking 2nd derivative
+     */
+    public static void main(String[] args) {
+        ISpace space = Space3D.getInstance();
+        double temperature = Kelvin.UNIT.toSim(200);
+        Simulation sim = new Simulation(space);
+        SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
+        sim.addSpecies(speciesCO2);
+        IBox box = new etomica.box.Box(space);
+        sim.addBox(box);
+        box.setNMolecules(speciesCO2, 2);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        IAtomList pair = box.getLeafList();
+        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
+//        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
+        IVectorMutable o1 = space.makeVector(new double[]{-1,0,0});
+        atom1.getOrientation().setDirection(o1);
+        P2CO2Hellmann p2 = new P2CO2Hellmann(space, Parameters.B);
+        P2CO2SC p2SC = p2.makeSemiclassical(temperature);
+        System.out.println("or: "+atom0.getOrientation().getDirection()+" "+atom1.getOrientation().getDirection());
+        double lu = 0, lg = 0;
+        double dx = 0.0001;
+        IVector x = null;
+        IVectorMutable y = space.makeVector(new double[]{0,1,0});
+        IVectorMutable z = space.makeVector(new double[]{0,0,1});
+        atom1.getPosition().setX(0, 5);
+//        ((OrientationFull3D)atom1.getOrientation()).rotateBy(-Math.atan2(p2.sitesHH*0.5,p2.sitesOH-cmx), z);
+//        ((OrientationFull3D)atom1.getOrientation()).rotateBy(Math.PI/2, y);
+        IVectorMutable vdx = space.makeVector();
+//        ((OrientationFull3D)atom1.getOrientation()).rotateBy(0.28, z);
+
+        RandomMersenneTwister random = new RandomMersenneTwister(5);
+        IVector[] xyzAxes = new IVector[]{x,y,z};
+        double[] u = new double[3];
+        for (int j=0; j<100; j++) {
+            int imol = random.nextInt(2);
+//            imol = 1;
+            IAtomOriented iAtom = imol == 0 ? atom0 : atom1;
+            x = iAtom.getOrientation().getDirection();
+            xyzAxes[0] = x;
+            p2SC.getPerp(x, y, z);
+//            System.out.println(x+" "+y+" "+z);
+            boolean rot = random.nextInt(2) == 0;
+//            rot = true;
+            double d2 = 0;
+            int xyz = random.nextInt(3);
+//            xyz = 1;
+            vdx.E(xyzAxes[xyz]);
+            if (random.nextInt(2)==0) {
+                if (rot) {
+                    ((IOrientation3D)iAtom.getOrientation()).rotateBy(0.5, vdx);
+                }
+                else {
+                    iAtom.getPosition().PEa1Tv1(0.5, vdx);
+                }
+                continue;
+            }
+            if (rot) {
+//                System.out.println("vdx "+vdx);
+//                if (imol==1 && xyz==0) dx *= 0.1;
+                for (int i=0; i<3; i++) {
+                    ((IOrientation3D)iAtom.getOrientation()).rotateBy(dx, vdx);
+                    u[i] = p2.energy(pair);
+                    
+//                    if (imol==1 && xyz==0) System.out.println(u[i]);
+                    if (i==1) {
+                        p2SC.energy(pair);
+                        d2 = p2SC.d2tot[imol][3+xyz];
+                    }
+                }
+            }
+            else {
+                for (int i=0; i<3; i++) {
+                    iAtom.getPosition().PEa1Tv1(dx, vdx);
+                    u[i] = p2.energy(pair);
+                    if (i==1) {
+                        p2SC.energy(pair);
+                        d2 = p2SC.d2tot[imol][xyz];
+                    }
+                }
+            }
+            double d2fd = (u[0] - 2*u[1] + u[2])/(dx*dx);
+            if (d2==0 && d2fd==0) continue;
+            double check = (d2fd-d2)/(0.5*(Math.abs(d2)+Math.abs(d2fd)));
+            System.out.print(String.format("%d %d %d %d %+10.4e %+10.4e %10.4e", j, imol, rot?1:0, xyz, d2, d2fd, check));
+            if (Math.abs(check) > 0.01) {
+                System.out.println("  oops");
+                if (!rot) throw new RuntimeException("oops");
+            }
+            else {
+                System.out.println();
+            }
+        }
     }
 }
