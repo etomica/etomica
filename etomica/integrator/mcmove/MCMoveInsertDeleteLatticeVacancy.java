@@ -78,6 +78,14 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         oldBoxSize = box.getBoundary().getBoxSize().getX(0);
     }
     
+    public void setFluidNbrDistance(double nbrDistance) {
+        this.nbrDistance = nbrDistance;
+        double maxInsertNbrDistance = nbrDistance + maxInsertDistance;
+        if (maxInsertNbrDistance > maxDistance) {
+            throw new RuntimeException("nbrDistance must be greater than maxInsert distance");
+        }
+        nbrVectors = null;
+    }
     public void makeFccVectors(double nbrDistance) {
         this.nbrDistance = nbrDistance;
         double maxInsertNbrDistance = nbrDistance + maxInsertDistance;
@@ -155,12 +163,24 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             IAtom partner = box.getLeafList().getAtom(insertCandidates.get(random.nextInt(nInsertCandidates)));
 //            System.out.println("inserting next to "+partner);
             uOld = 0;
-            int iLatVec = random.nextInt(nbrVectors.length);
-            dest.setRandomInSphere(random);
-            dest.TE(maxInsertDistance);
-            dest.PE(nbrVectors[iLatVec]);
+            if (nbrVectors != null) {
+                int iLatVec = random.nextInt(nbrVectors.length);
+                dest.setRandomInSphere(random);
+                dest.TE(maxInsertDistance);
+                dest.PE(nbrVectors[iLatVec]);
+            }
+            else {
+                //XXX still wrong
+                dest.setRandomInSphere(random);
+                dest.TE(maxInsertDistance);
+                dr.E(dest);
+                dest.setRandomSphere(random);
+                dest.TE(nbrDistance);
+                dest.PE(dr);
+            }
             testAtom.getPosition().E(partner.getPosition());
             testAtom.getPosition().PE(dest);
+            testAtom.getPosition().PE(box.getBoundary().centralImage(testAtom.getPosition()));
             if (forced==2) {
                 testAtom.getPosition().E(oldPosition);
             }
