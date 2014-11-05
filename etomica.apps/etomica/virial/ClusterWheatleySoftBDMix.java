@@ -1,0 +1,61 @@
+package etomica.virial;
+
+import java.math.BigDecimal;
+
+/**
+ * Cluster class using Whealtey's recursion with BigDecimal to handle mixtures.
+ * 
+ * @author Andrew Schultz
+ */
+public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
+
+    protected final MayerFunction[][] mixF;
+    protected final int[] nTypes;
+    protected final MayerFunction[][] fMap;
+    
+    public ClusterWheatleySoftBDMix(int nPoints, int[] nTypes, MayerFunction[][] f, int precision) {
+        super(nPoints, null, precision);
+        this.nTypes = nTypes;
+        mixF = f;
+        fMap = new MayerFunction[nPoints][nPoints];
+        int iType = 0, jType = 0;
+        int iSum = nTypes[0], jSum = 0;
+        for (int i=0; i<nPoints; i++) {
+            while (i>iSum) {
+                iType++;
+                iSum += nTypes[iType];
+            }
+            jSum = nTypes[0];
+            for (int j=i+1; j<nPoints; j++) {
+                while (j>jSum) {
+                    jType++;
+                    jSum += nTypes[jType];
+                }
+                fMap[i][j] = f[iType][jType];
+            }
+        }
+                
+    }
+    
+    public ClusterAbstract makeCopy() {
+        ClusterWheatleySoftMix c = new ClusterWheatleySoftMix(n, nTypes, mixF, tol);
+        c.setTemperature(1/beta);
+        return c;
+    }
+
+    protected void updateF(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        AtomPairSet aPairs = box.getAPairSet();
+
+//        f.setBox(box);
+        // recalculate all f values for all pairs
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                double ff = fMap[i][j].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+//                if (Math.abs(ff) < 1e-14) ff = 0;
+                fQ[(1<<i)|(1<<j)] = new BigDecimal(ff).add(BDONE, mc);
+            }
+        }
+    }
+
+}

@@ -26,7 +26,8 @@ public class ClusterWheatleySoft implements ClusterAbstract {
     protected final int[] cliqueList;
     public static boolean pushme = false;
     protected double tol;
-    protected final ClusterWheatleySoftBD clusterBD;
+    protected ClusterWheatleySoftBD clusterBD;
+    protected boolean debug = false;
 
     public ClusterWheatleySoft(int nPoints, MayerFunction f, double tol) {
         this.n = nPoints;
@@ -80,9 +81,10 @@ public class ClusterWheatleySoft implements ClusterAbstract {
       
         calcValue(box);
         if (Double.isNaN(value) || Double.isInfinite(value)) {
+            debug = true;
             updateF(box);
             calcValue(box);
-            throw new RuntimeException("oops");
+            throw new RuntimeException("oops "+value);
         }
         return value;
     }
