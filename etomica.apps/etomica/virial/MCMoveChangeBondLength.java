@@ -40,11 +40,11 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
     protected int P;
     protected int[] leftAdjusted,rightAdjusted;
     protected double u0 = -1;    
-    public HistogramSimple h1,hEtaOld,hEtaNew;
+    public HistogramSimple h1,hEta23;
     public HistogramSimple h2;
     public boolean deleteMode = true, doHist = false, flagAdjusted, doDebug = false;
     public int moveCount;
-    protected int nBins = 500;
+    protected int nBins = 100;
     protected double xMin = 0.35,xMax = 1.25, uMin = 0.0;
     protected double deltaX = (xMax - xMin)/nBins;
     public double [] hValues;
@@ -65,8 +65,8 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
         setTemperature(temperature);
         h1 = new HistogramSimple(nBins, new DoubleRange(xMin, xMax));
         h2 = new HistogramSimple(1000, new DoubleRange(xMin, xMax));
-        hEtaOld = new HistogramSimple(1000, new DoubleRange(-4, 4));
-        hEtaNew = new HistogramSimple(1000, new DoubleRange(-4, 4));
+        hEta23 = new HistogramSimple(1000, new DoubleRange(0, 2));
+        
 		hValues = h1.getHistogram();
 		pCummulative = new double[nBins];
         moveCount = 0;
@@ -210,7 +210,8 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                     		eAvg[j] += etaOld[j];
                     		e2Avg[j] += etaOld[j]*etaOld[j];                    		
                     	}
-                	}
+                	}                    
+                    
 
                     int prev = j-1;
                     if (prev < 0) prev = P-1;
@@ -228,6 +229,8 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                     uActOld2 += -2*Math.log(prevBondLength[i][j])/P;
                     uActOld3 += + kHarmonic*dist(jAtom,jPrev);
                 }
+                double hTemp = Math.sqrt(etaOld[1]*etaOld[1] + etaOld[2]*etaOld[2]);
+                hEta23.addValue(hTemp);
                 for (int k=0; k<P; k++) {
                 	if (k != choice ) uGenOld += 0.5*etaOld[k]*etaOld[k]*B[k];
                 }
@@ -312,11 +315,10 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                     for (int k=0; k<P; k++) {
                         etaOld[j] += A[j][k]*(prevBondLength[i][k] - r0);
                     }
+                    
                     uGenOld += 0.5*etaOld[j]*etaOld[j]*B[j];
 
                     etaNew[j] = random.nextGaussian()*sigma[j]; //(j == 0 ? random.nextGaussian()*sigma[j]:etaOld[j]);
-//                    hEtaOld.addValue(etaOld[j]);
-//                    hEtaNew.addValue(etaNew[j]);
                     
                     uGenNew += 0.5*etaNew[j]*etaNew[j]*B[j];
                     
@@ -336,7 +338,9 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                     uActOld2 += -2*Math.log(prevBondLength[i][j])/P;
                     uActOld3 += kHarmonic*dist(jAtom,jPrev);
                 }
-            	
+            	double hTemp = Math.sqrt(etaOld[1]*etaOld[1] + etaOld[2]*etaOld[2]);
+                hEta23.addValue(hTemp);
+                
                 double[] newBL = new double[P];
                 for (int j=0; j<P; j++) {
                     newBL[j] = r0;                    
@@ -507,7 +511,11 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
         boolean done = false;
         for (int i=0; i<maxIter && !done; i++) {
         	cT = 1 - (P - 1)/(P*kHarmonic*x0*x0);
-        	if (cT > 1.0 || cT < -1.0 || Double.isNaN(cT)) throw new RuntimeException("cT = "+cT);
+        	if (Double.isNaN(cT)) throw new RuntimeException("cT = "+cT);
+        	if (cT < -1.0) {
+        	    x0 = 2*x0;
+        	    cT = 1 - (P - 1)/(P*kHarmonic*x0*x0);
+        	}
         	double d2vdr2 = 2*kHarmonic + 2/(x0*x0) + p1.d2u(x0)/(x0*x0*t*P);
         	if (x0 < 0) x0 = BohrRadius.UNIT.toSim(random.nextDouble());
             if (d2vdr2 == 0 || d2vdr2 != d2vdr2) throw new RuntimeException("x0 = "+x0+" d2vdr2 = "+d2vdr2);
