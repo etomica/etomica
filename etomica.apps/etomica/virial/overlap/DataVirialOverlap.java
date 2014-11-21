@@ -154,7 +154,7 @@ public class DataVirialOverlap implements ReferenceFracSource {
                 if (y == 0) {
                     break;
                 }
-                if (y*min > 0) {
+                if (y*ymin > 0) {
                     min = x[0];
                     ymin = y;
                 }
