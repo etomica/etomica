@@ -74,11 +74,10 @@ public class BoxAgentManager<E> implements ISimulationListener {
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
         int boxCount = sim.getBoxCount();
+        agents = (E[])Array.newInstance(boxAgentClass, boxCount);
         if (agentSource == null) {
-            agents = (E[])Array.newInstance(boxAgentClass, 0);
             return;
         }
-        agents = (E[])Array.newInstance(boxAgentClass,boxCount);
         for (int i=0; i<boxCount; i++) {
             addAgent(sim.getBox(i));
         }
