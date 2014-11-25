@@ -10,13 +10,12 @@ import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
@@ -108,9 +107,9 @@ public class TestSWChain extends Simulation {
         pMeter.setIntegrator(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
-        DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
+        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
+        sim.integrator.getEventManager().addListener(energyPump);
         
         sim.getController().actionPerformed();
         
