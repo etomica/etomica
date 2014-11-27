@@ -1,11 +1,15 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
+import etomica.api.IBox;
 import etomica.api.IRandom;
+import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
+import etomica.space3d.IOrientationFull3D;
+import etomica.space3d.Orientation3D;
 
 /**
  * Extension of MCMoveAtom that does trial in which several atom orientations are
@@ -22,7 +26,17 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         }
         setStepSize(1.2);
 	}
-	
+
+    public void setBox(IBox box) {
+        super.setBox(box);
+        if (selectedAtoms[0] == null) selectAtoms();
+        for(int i=0; i<selectedAtoms.length; i++) {
+            if (selectedAtoms[i].getOrientation() instanceof Orientation3D) {
+                oldOrientations[i] = new Orientation3D(space);
+            }
+        }
+    }
+    
 	//note that total energy is calculated
 	public boolean doTrial() {
 		if (selectedAtoms[0] == null) selectAtoms();
@@ -30,6 +44,11 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         for(int i=0; i<selectedAtoms.length; i++) {
             oldOrientations[i].E(selectedAtoms[i].getOrientation());
             selectedAtoms[i].getOrientation().randomRotation(random, stepSize);
+        }
+        if (random.nextInt(100) == 0) {
+            for(int i=0; i<selectedAtoms.length; i++) {
+                ((IVectorMutable)selectedAtoms[i].getOrientation().getDirection()).normalize();
+            }
         }
 		((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -63,7 +82,6 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    private static final long serialVersionUID = 1L;
     private final IAtomOriented[] selectedAtoms;
     private final IOrientation[] oldOrientations;
 }
