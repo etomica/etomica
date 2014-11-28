@@ -24,6 +24,7 @@ public class ClusterWheatleySoftMix extends ClusterWheatleySoft {
                 iSum += nTypes[iType];
             }
             jSum = iSum;
+            jType = iType;
             for (int j=i+1; j<nPoints; j++) {
                 while (j>=jSum) {
                     jType++;
