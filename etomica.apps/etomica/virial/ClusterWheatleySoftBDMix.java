@@ -25,7 +25,8 @@ public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
                 iType++;
                 iSum += nTypes[iType];
             }
-            jSum = nTypes[0];
+            jSum = iSum;
+            jType = iType;
             for (int j=i+1; j<nPoints; j++) {
                 while (j>jSum) {
                     jType++;
