@@ -45,6 +45,8 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.IPotentialAtomicMultibody;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
@@ -94,6 +96,7 @@ import etomica.virial.MCMoveChangeBondLength;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRingRegrow;
 import etomica.virial.MCMoveClusterRingRegrowOrientation;
+import etomica.virial.MCMoveOrientationBruteForce;
 //import etomica.virial.MCMoveOrientationBruteForce;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionMolecularThreeBody;
@@ -160,18 +163,23 @@ public class VirialH2PI {
             parseArgs.parseArgs(args, true);
         }
         else {
-        	params.potentialLevel = levelOptions.patkowski;
+            // default options - choose these before committing to CVS
+        	params.potentialLevel = levelOptions.hindePatkowski;
         	params.subtractWhat = subOptions.none;
+        	params.blOption = blOptions.variable;
         	params.nBeads = 8;
             params.temperature = 500;
-//            params.doHist = true;
-//            params.hackedup = true;
-//            params.doHist = true;
-//            params.refFrac = 0.9;
-//            params.continuous = false;            
+            params.numSteps = 1000000;
+            
+            // runtime options - make changes in these and not the default options above
+//            params.potentialLevel = levelOptions.hindePatkowski;
+//            params.subtractWhat = subOptions.none;
+//            params.blOption = blOptions.fixedGround;
+//            params.nBeads = 8;
+//            params.temperature = 1200;
 //            params.numSteps = 1000000;
-
-        }
+        }        
+        
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperature;
         long steps = params.numSteps;
@@ -198,8 +206,6 @@ public class VirialH2PI {
         if (continuous) sigmaHSRef = 7;
         int nBins = hackedup?4000:100;
         double dx = sigmaHSRef/nBins;
-//        System.out.println(Mole.UNIT.fromSim(1));
-//        System.exit(1);
         
         final String p3ParametersFile = params.p3ParametersFile;
         final int startBeadHalfs = params.startBeadHalfs;        
@@ -542,16 +548,16 @@ public class VirialH2PI {
         SpeciesSpheresHetero species = null;
         if (blOption == blOptions.fixedGround) {
             species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
-                protected IAtom makeLeafAtom(IAtomType leafType) {            	
-                    double bl = AtomHydrogen.getAvgBondLength(temperatureK);
+                protected IAtom makeLeafAtom(IAtomType leafType) {              
+                    double bl = BohrRadius.UNIT.toSim(1.448736);
                     return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
                 }
-            };
+            };            
         }
         else {
             species = new SpeciesSpheresHetero(space,new IAtomTypeOriented [] {atype}) {
                 protected IAtom makeLeafAtom(IAtomType leafType) {              
-                    double bl = BohrRadius.UNIT.toSim(1.448736);
+                    double bl = AtomHydrogen.getAvgBondLength(temperatureK);
                     return new AtomHydrogen(space,(IAtomTypeOriented)leafType,bl);
                 }
             };
@@ -608,16 +614,11 @@ public class VirialH2PI {
         
         sim.integrators[0].getMoveManager().addMCMove(ring0);
         sim.integrators[1].getMoveManager().addMCMove(ring1);
-        MCMoveClusterRingRegrowOrientation move0 = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);        
-        MCMoveClusterRingRegrowOrientation move1 = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
-        move0.setStiffness(temperature, species.getAtomType(0));
-        move1.setStiffness(temperature, species.getAtomType(0));
+        MCMoveClusterRingRegrowOrientation orFancy0 = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);        
+        MCMoveClusterRingRegrowOrientation orFancy1 = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
+        orFancy0.setStiffness(temperature, species.getAtomType(0));
+        orFancy1.setStiffness(temperature, species.getAtomType(0));
 //        System.out.println(2*nBeads*Math.PI/(lambda*lambda)+" "+2*move0.getStiffness()+" "+2*move1.getStiffness());
-        boolean fixedOrientation = false;
-        if (!fixedOrientation) {
-        	sim.integrators[0].getMoveManager().addMCMove(move0);
-        	sim.integrators[1].getMoveManager().addMCMove(move1);
-        }        
 //        MCMoveOrientationBruteForce orBF0 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
 //        MCMoveOrientationBruteForce orBF1 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
 //
@@ -625,9 +626,12 @@ public class VirialH2PI {
 //        orBF0.setStepSize(0.001);
 //        ((MCMoveStepTracker)orBF1.getTracker()).setNoisyAdjustment(true);
 //        orBF1.setStepSize(0.001);
-//        sim.integrators[0].getMoveManager().addMCMove(orBF0);
-//        sim.integrators[1].getMoveManager().addMCMove(orBF1);
         
+        boolean fixedOrientation = false;        
+        if (!fixedOrientation) {
+            sim.integrators[0].getMoveManager().addMCMove(orFancy0);
+            sim.integrators[1].getMoveManager().addMCMove(orFancy1);                    	
+        }
         MCMoveChangeBondLength cbl0 = new MCMoveChangeBondLength(sim.integrators[0].getPotentialMaster(), sim.getRandom(),space,temperature);
         MCMoveChangeBondLength cbl1 = new MCMoveChangeBondLength(sim.integrators[0].getPotentialMaster(), sim.getRandom(),space,temperature);
         
@@ -962,18 +966,21 @@ public class VirialH2PI {
 
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
-        System.out.println("Target Ring acceptance "+ring1.getTracker().acceptanceRatio());
-        System.out.println("Target Ring orientation acceptance "+move1.getTracker().acceptanceRatio());
-        System.out.println("Reference Ring orientation acceptance "+move0.getTracker().acceptanceRatio());
-        if (blOption == blOptions.variable) {
-            if ((cbl0.getTracker().acceptanceRatio() == 1 || cbl1.getTracker().acceptanceRatio() == 1)) throw new RuntimeException();
-            System.out.println("Fancy: Target bond length acceptance "+cbl1.getTracker().acceptanceRatio());
-            System.out.println("Fancy: Reference bond length acceptance "+cbl0.getTracker().acceptanceRatio());            
+        System.out.println("Reference system: ");
+        MCMove [] refMoves = sim.integrators[0].getMoveManager().getMCMoves();
+        for (int i=0; i<refMoves.length; i++) {
+            double acc = refMoves[i].getTracker().acceptanceRatio();
+            System.out.println(refMoves[i].toString()+" acceptance ratio: "+acc);            
         }
-        
-
+        System.out.println("Target system: ");
+        MCMove [] tarMoves = sim.integrators[1].getMoveManager().getMCMoves();
+        for (int i=0; i<tarMoves.length; i++) {
+            double acc = tarMoves[i].getTracker().acceptanceRatio();
+            if (acc == 1) throw new RuntimeException("oops");
+            System.out.println(tarMoves[i].toString()+" acceptance ratio: "+acc);            
+        }
         sim.printResults(refIntegral);
-
+        
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
         IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
         IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
@@ -1004,13 +1011,6 @@ public class VirialH2PI {
             }
             System.out.println();
         }
-//        try {
-//            ((P2HydrogenPatkowski)p2).file.close();
-//        }
-//        catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }        
-        
 
         if ((t2-t1)/1000.0 > 24*3600) {
             System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
@@ -1023,7 +1023,8 @@ public class VirialH2PI {
         }
         else {
             System.out.println("time: "+(t2-t1)/1000.0+" secs");
-        }
+        }        
+        
 	}
     
     public static ClusterBonds[] append(ClusterBonds[] inArray, ClusterBonds[] newBonds) {
