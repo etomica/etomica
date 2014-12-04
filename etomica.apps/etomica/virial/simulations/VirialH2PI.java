@@ -46,13 +46,13 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveStepTracker;
+
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.IPotentialAtomicMultibody;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2Harmonic;
-//import etomica.potential.P2HydrogenGarberoglioHindePatkowski.P2HydrogenGarberoglioHindePatkowskiAtomic;
+
 import etomica.potential.P2HydrogenHindePatkowski;
 import etomica.potential.P2HydrogenPatkowski;
 import etomica.potential.P2HydrogenPatkowskiIso;
@@ -96,8 +96,6 @@ import etomica.virial.MCMoveChangeBondLength;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRingRegrow;
 import etomica.virial.MCMoveClusterRingRegrowOrientation;
-import etomica.virial.MCMoveOrientationBruteForce;
-//import etomica.virial.MCMoveOrientationBruteForce;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerFunctionNonAdditive;
