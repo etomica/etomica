@@ -1,5 +1,8 @@
 package etomica.potential;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
@@ -15,6 +18,8 @@ import etomica.atom.AtomHydrogen;
 import etomica.potential.P2HydrogenHinde.P2HydrogenHindeMolecular;
 import etomica.space.ISpace;
 import etomica.units.BohrRadius;
+import etomica.units.Degree;
+import etomica.units.Kelvin;
 
 public class P2HydrogenHindePatkowski implements IPotential {
     protected IBoundary boundary;
@@ -22,6 +27,8 @@ public class P2HydrogenHindePatkowski implements IPotential {
     protected P2HydrogenHinde p2Hinde;
     protected P2HydrogenPatkowski p2Patkowski;
     protected static final double r0 = BohrRadius.UNIT.toSim(1.448736);
+    protected boolean print = false;
+    public FileWriter filePat = null;
     public P2HydrogenHindePatkowski(ISpace space) {
         p2Hinde = new P2HydrogenHinde(space);
         p2Patkowski = new P2HydrogenPatkowski(space);        
@@ -94,7 +101,13 @@ public class P2HydrogenHindePatkowski implements IPotential {
                 th2 = Math.PI - th2;
                 phi = Math.PI - phi;
             }
-            double E = p2Patkowski.vH2H2(r01,th1,th2,phi) + p2Hinde.vH2H2(r01, r, s, th1, th2, phi) - p2Hinde.vH2H2(r01, r0, r0, th1, th2, phi);
+            double ePat = p2Patkowski.vH2H2(r01,th1,th2,phi);
+            double eHin1 = p2Hinde.vH2H2(r01, r, s, th1, th2, phi);
+            double eHin2 = p2Hinde.vH2H2(r01, r0, r0, th1, th2, phi);
+            double E = 0;
+            if (Double.isInfinite(ePat) || Double.isInfinite(eHin1) || Double.isInfinite(eHin2)) return Double.POSITIVE_INFINITY;
+            E = ePat + eHin1 - eHin2;
+            if (Double.isInfinite(E) || Double.isNaN(E)) throw new RuntimeException("oops "+E);
             return E;
         }
     }
@@ -110,9 +123,7 @@ public class P2HydrogenHindePatkowski implements IPotential {
             IVector hh1 = m1.getOrientation().getDirection();        
             IVector com0 = m0.getPosition();               
             IVector com1 = m1.getPosition();        
-            //            if (com1.squared() > 0) {
-                //                throw new RuntimeException("oops");
-                //            }
+            
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    
             double r01 = Math.sqrt(dr.squared());        
@@ -140,8 +151,30 @@ public class P2HydrogenHindePatkowski implements IPotential {
             }
             if (th2 == 0) phi = 0;
             double r = m0.getBondLength();
-            double s = m1.getBondLength();            
-            double E = p2Patkowski.vH2H2(r01,th1,th2,phi) + p2Hinde.vH2H2(r01, r, s, th1, th2, phi) - p2Hinde.vH2H2(r01, r0, r0, th1, th2, phi);            
+            double s = m1.getBondLength();
+            
+            double ePat = p2Patkowski.vH2H2(r01,th1,th2,phi);
+            double eHin1 = p2Hinde.vH2H2(r01, r, s, th1, th2, phi);
+            double eHin2 = p2Hinde.vH2H2(r01, r0, r0, th1, th2, phi);
+            double E = 0;
+            if (Double.isInfinite(ePat) || Double.isInfinite(eHin1) || Double.isInfinite(eHin2)) return Double.POSITIVE_INFINITY;
+            E = ePat + eHin1 - eHin2;
+            if (Double.isInfinite(E) || Double.isNaN(E)) throw new RuntimeException("oops "+E);
+            if (print && Math.random() < 0.0001) {
+                try {
+                    if (filePat == null) filePat = new FileWriter("patConfigurations.dat");                    
+                    double rBohr = BohrRadius.UNIT.fromSim(r01);
+                    double Ek = Kelvin.UNIT.fromSim(ePat);
+                    double dth1 = Degree.UNIT.fromSim(th1);
+                    double dth2 = Degree.UNIT.fromSim(th2);
+                    double dphi = Degree.UNIT.fromSim(phi);
+                    filePat.write(rBohr+" "+dth1+" "+dth2+" "+dphi+" "+Ek+"\n");
+                    filePat.flush();                    
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             return E;
         } 
     }

@@ -67,13 +67,20 @@ import etomica.util.Constants;
 public class P2HydrogenHinde implements IPotential {
     public static void main(String[] args) {
         ISpace space = Space3D.getInstance();        
-        P2HydrogenHinde pot1 = new P2HydrogenHinde(space);
-        double R = BohrRadius.UNIT.toSim(0.24311786587078155);
+        P2HydrogenHinde pHin = new P2HydrogenHinde(space);
+        P2HydrogenPatkowski pPat = new P2HydrogenPatkowski(space);        
         double r0 = BohrRadius.UNIT.toSim(1.448736);
-        double t1 = 1.173725238959003;
-        double p1 = 0.5539591686077685;
-        double E = pot1.vH2H2(R,r0,r0,t1,t1,p1);
-        System.out.println(E);
+        double t1 = Degree.UNIT.toSim(0);
+        double t2 = Degree.UNIT.toSim(0);
+        double p1 = Degree.UNIT.toSim(90);
+//        System.out.println((Double.POSITIVE_INFINITY-Double.POSITIVE_INFINITY+5));
+//        System.exit(1);
+        for (int i=0; i<1000; i++) {
+            double R = 0.60 + 9.75*i/1000;
+            double eHin = pHin.vH2H2(R,r0,r0,t1,t1,p1);
+            double ePat = pPat.vH2H2(R, t1, t2, p1);
+            System.out.println(R+" "+ePat+" "+eHin);            
+        }
     }    
     protected final double [][][][][] coef = new double[18][3][3][4][4];
     protected final double [][][] arep = new double [3][3][4];
@@ -112,21 +119,22 @@ public class P2HydrogenHinde implements IPotential {
 
 
 //  --- test for R outside spline endpoints.
-//
-        if (pr <= 4.210625) {
+
+        if (pr <= 4.210625) {            
 //            System.out.println("Warning, R is less than recommended R");
            for (int i=0; i<3; i++) {
                for (int j=0; j<3; j++) {
                    for (int k=0; k<4; k++) {
                        vij[i][j][k] = arep[i][j][k]*Math.exp(pr*crep[i][j][k]);
+                       if (Double.isInfinite(vij[i][j][k])) return Double.POSITIVE_INFINITY;
 //                       System.out.println(i+" "+j+" "+k+" "+arep[i][j][k]+" "+crep[i][j][k]);
                    }
                }
-           }
-//           System.exit(1);
+           }           
            goto200 = true;
         }
-        else if (pr>=12.00) {
+        
+        if (pr>=12.00) {
             for (int i=0; i<3; i++) {
                 for (int j=0; j<3; j++) {
                     vij[i][j][0] = cten[i][j]/r10;
@@ -192,12 +200,9 @@ public class P2HydrogenHinde implements IPotential {
 //                    System.out.println((3*i+j)+" "+vv[3*i+j] +" "+vij[i][j][k]);
                 }
             }
-//            System.exit(0);
+
             //  perform symmetry checks.
             if (k == 0 || k == 3) {
-//                for (int i = 0; i<9; i++) {
-//                    System.out.println(k+" "+i+" "+vv[i]);                   
-//                }
                 if (vv[1] != vv[3]) throw new RuntimeException("angular terms dont match");
                 if (vv[2] != vv[6]) throw new RuntimeException("angular terms dont match");
                 if (vv[5] != vv[7]) throw new RuntimeException("angular terms dont match");
@@ -391,9 +396,7 @@ public class P2HydrogenHinde implements IPotential {
             IVector hh1 = m1.getOrientation().getDirection();        
             IVector com0 = m0.getPosition();               
             IVector com1 = m1.getPosition();        
-//            if (com1.squared() > 0) {
-//                throw new RuntimeException("oops");
-//            }
+
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    
             double r01 = Math.sqrt(dr.squared());        
