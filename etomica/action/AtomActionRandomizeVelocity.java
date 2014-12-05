@@ -41,7 +41,7 @@ public class AtomActionRandomizeVelocity implements AtomAction, Serializable {
         // to call setIsDynamic on your species!
         IVectorMutable velocity = ((IAtomKinetic)a).getVelocity();
         double mass = a.getType().getMass();
-        if(Double.isInfinite(mass)) {
+        if(Double.isInfinite(mass) || mass == 0) {
             velocity.E(0.0);
             return;
         }
