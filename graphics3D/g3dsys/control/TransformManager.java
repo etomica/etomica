@@ -1,3 +1,4 @@
+
 /* Class gutted for g3dsys.
  * 
  * $RCSfile$
