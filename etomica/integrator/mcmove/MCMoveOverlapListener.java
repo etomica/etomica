@@ -55,6 +55,9 @@ public class MCMoveOverlapListener implements IListener {
         temperature = newTemperature;
     }
 
+    /**
+     * Returns overlap sampling results (ratio of partition functions).
+     */
     public double[] getRatios() {
         if (ratios.length < (sumDelete.length-1) - minNumAtoms) {
             ratios = new double[(sumDelete.length-1) - minNumAtoms];
@@ -155,6 +158,7 @@ public class MCMoveOverlapListener implements IListener {
             if (((MCMoveEvent)event).getMCMove() != mcMove) return;
             IBox box = mcMove.getBox();
             int numAtoms = box.getLeafList().getAtomCount();
+            // x = V/N*Math.exp(-beta*deltaU)
             double x = mcMove.getA();
             x *= Math.exp(-mcMove.getLnBiasDiff() + mcMove.getB()/temperature);
             if (mcMove.lastMoveInsert()) {
