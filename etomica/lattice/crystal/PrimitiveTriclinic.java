@@ -39,9 +39,11 @@ public class PrimitiveTriclinic extends Primitive {
         aStar.TE(factor);
         bStar.E(latticeVectors[2]);
         bStar.XE(latticeVectors[0]);
+        factor = 2.0*Math.PI/latticeVectors[1].dot(bStar);
         bStar.TE(factor);
         cStar.E(latticeVectors[0]);
         cStar.XE(latticeVectors[1]);
+        factor = 2.0*Math.PI/latticeVectors[2].dot(cStar);
         cStar.TE(factor);
         return new PrimitiveGeneral(space, new IVectorMutable[]{aStar, bStar, cStar});
     }
