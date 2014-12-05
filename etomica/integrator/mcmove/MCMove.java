@@ -19,7 +19,7 @@ import etomica.atom.iterator.AtomIterator;
  * @author David Kofke
  */
 
-public abstract class MCMove implements java.io.Serializable {
+public abstract class MCMove {
 
     /**
      * @param potentialMaster the potential master that move can use to calculate energy
@@ -39,6 +39,10 @@ public abstract class MCMove implements java.io.Serializable {
         potential = potentialMaster;
         moveTracker = acceptanceTracker;
         nominalFrequency = 100;
+    }
+
+    public void setTracker(MCMoveTracker newTracker) {
+        moveTracker = newTracker;
     }
 
 	/**
@@ -126,5 +130,5 @@ public abstract class MCMove implements java.io.Serializable {
 	 */
 	protected int nominalFrequency;
     
-    protected final MCMoveTracker moveTracker;
+    protected MCMoveTracker moveTracker;
 }
