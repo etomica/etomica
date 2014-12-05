@@ -61,6 +61,7 @@ public class SimulationGraphic implements SimulationContainer {
     private int graphicType = GRAPHIC_ONLY;
     protected final ISpace space;
     protected final String appName;
+    protected int repaintSleep = 0;
 
 
     public SimulationGraphic(ISimulation simulation,
@@ -192,6 +193,10 @@ public class SimulationGraphic implements SimulationContainer {
     public void setPaintInterval(IBox box, int interval) {
         IntegratorListenerAction repaintAction = repaintActions.get(box);
 	    repaintAction.setInterval(interval);
+    }
+
+    public void setRepaintSleep(int newRepaintSleep) {
+        repaintSleep = newRepaintSleep;
     }
 
 	/**
@@ -398,6 +403,13 @@ public class SimulationGraphic implements SimulationContainer {
     		repaintAction = new IAction() {
     			public void actionPerformed() {
     			    display.repaint();
+    			    if (repaintSleep != 0) {
+    			        try {
+    			            Thread.sleep(repaintSleep);
+    			        }
+    			        catch (InterruptedException ex) {
+    			        }
+    			    }
     			}
     		};
 
