@@ -47,7 +47,10 @@ public class CellLattice extends RectangularLattice {
     public Object site(IVector r) {
         int idx1D = 0;
         for(int i=0; i<D; i++) {
-            idx1D += ((int)(size[i]*(r.getX(i)/dimensions.getX(i)+0.5)))*jumpCount[i];
+            int j = ((int)(size[i]*(r.getX(i)/dimensions.getX(i)+0.5)));
+            if (j == -1) j = 0;
+            else if (j == size[i]) j = size[i]-1;
+            idx1D += j * jumpCount[i];
         }
         return sites[idx1D];
     }
