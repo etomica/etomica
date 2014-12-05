@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.LinkedList;
 
@@ -103,6 +105,31 @@ public class DisplayPlot extends Display implements DataSetListener {
                     final int kk = k;
                     rawDataMenuItem.addActionListener(new RawDataWindowOpener(kk, DisplayPlot.this));
                     rawMenu.add(rawDataMenuItem);
+                }
+            }
+        };
+        popupMenu.addPopupMenuListener(popupMenuListener);
+        final JMenu writeMenu = new JMenu("write data");
+        popupMenu.add(writeMenu);
+        popupMenuListener = new PopupMenuListener(){
+            public void popupMenuCanceled(PopupMenuEvent e) {}
+
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                writeMenu.removeAll();
+                int nSource = dataSet.getDataCount();
+                // populate the submenu with one element for each data set.
+                for(int k=0; k<nSource; k++) {
+                    String dataLabel = dataSet.getDataInfo(k).getLabel();
+                    DataTagBag tagLabel = DataTagBag.getDataTagBag(labelList, dataSet.getDataInfo(k).getTags());
+                    if (tagLabel != null) {
+                        dataLabel = (String)tagLabel.object;
+                    }
+                    JMenuItem writeDataMenuItem = new JMenuItem(dataLabel);
+                    final int kk = k;
+                    writeDataMenuItem.addActionListener(new DataWriter(kk, DisplayPlot.this));
+                    writeMenu.add(writeDataMenuItem);
                 }
             }
         };
@@ -444,6 +471,47 @@ public class DisplayPlot extends Display implements DataSetListener {
             f.pack();
             f.setSize(400,600);
             f.setVisible(true);
+        }
+    }
+
+    /**
+     * Writes a file with the raw data from a plot.  The data is re-retrieved
+     * from the DataSet, so it won't necessarily be consistent with the plot.
+     *
+     * @author Andrew Schultz
+     */
+    public static final class DataWriter implements ActionListener {
+        private final int kk;
+        private final DisplayPlot displayPlot;
+
+        public DataWriter(int kk, DisplayPlot displayPlot) {
+            this.kk = kk;
+            this.displayPlot = displayPlot;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            try {
+                FileWriter fw = new FileWriter("data"+kk+".dat");
+                DataSet dataSet = displayPlot.getDataSet();
+                String dataLabel = dataSet.getDataInfo(kk).getLabel();
+                DataTagBag tagLabel = DataTagBag.getDataTagBag(displayPlot.labelList, dataSet.getDataInfo(kk).getTags());
+                if (tagLabel != null) {
+                    dataLabel = (String)tagLabel.object;
+                }
+                fw.write(displayPlot.getPlot().getXLabel()+"\t"+dataLabel+"\n");
+                double[] xValues = ((DataInfoFunction)dataSet.getDataInfo(kk)).getXDataSource().getIndependentData(0).getData();
+                double[] data = ((DataFunction)dataSet.getData(kk)).getData();
+                for(int i=0; i<data.length; i++) {
+                    double y = displayPlot.units[kk].fromSim(data[i]);
+                    if (!Double.isNaN(y)) {
+                        fw.write(displayPlot.xUnit.fromSim(xValues[i])+"\t"+y+"\n");
+                    }
+                }
+                fw.close();
+            }
+            catch (IOException ex) {
+                // eat it
+            }
         }
     }
 
