@@ -5,6 +5,7 @@
 package etomica.data.meter;
 import etomica.action.IAction;
 import etomica.api.IAtomList;
+import etomica.api.IAtomType;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IVectorMutable;
@@ -65,6 +66,16 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         return tag;
     }
     
+    public void setAtomType(IAtomType type) {
+        type1 = type;
+        type2 = type;
+    }
+    
+    public void setAtomTypes(IAtomType type1, IAtomType type2) {
+        this.type1 = type1;
+        this.type2 = type2;
+    }
+    
     /**
      * Zero's out the RDF sum tracked by this meter.
      */
@@ -94,6 +105,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         // iterate over all pairs
         for (IAtomList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
+            if (type1 != null && (pair.getAtom(0).getType() != type1 || pair.getAtom(1).getType() != type2)) continue;
             dr.Ev1Mv2(pair.getAtom(1).getPosition(),pair.getAtom(0).getPosition());
             boundary.nearestImage(dr);
             double r2 = dr.squared();       //compute pair separation
@@ -119,7 +131,20 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         }
         
         final double[] y = data.getData();
-	    double norm = 0.5 * callCount * (box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume())*(box.getLeafList().getAtomCount()-1);
+        int numAtomPairs = 0;
+        if (type1 == null) {
+            int numAtoms = box.getLeafList().getAtomCount();
+            numAtomPairs = numAtoms*(numAtoms-1)/2;
+        }
+        else {
+            iterator.setBox(box);
+            iterator.reset();
+            for (IAtomList pair = iterator.next(); pair != null; pair = iterator.next()) {
+                if (pair.getAtom(0).getType() != type1 || pair.getAtom(1).getType() != type2) continue;
+                numAtomPairs++;
+            }
+        }
+	    double norm = numAtomPairs * callCount / box.getBoundary().volume();
 	    double[] r = rData.getData();
 	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
 	    for(int i=0;i<r.length; i++) {
@@ -186,4 +211,5 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     private String name;
     protected final DataTag tag;
     protected int callCount;
+    protected IAtomType type1, type2;
 }
