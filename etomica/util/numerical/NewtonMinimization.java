@@ -9,8 +9,11 @@ import etomica.util.FunctionMultiDimensionalDifferentiable;
 
 public class NewtonMinimization {
 
-    public NewtonMinimization(FunctionMultiDimensionalDifferentiable f) {
+    protected final boolean verbose;
+
+    public NewtonMinimization(FunctionMultiDimensionalDifferentiable f, boolean verbose) {
         this.f = f;
+        this.verbose = verbose;
     }
     
     public double[] minimize(double[] xGuess, double tol, int maxIter) {
@@ -27,8 +30,10 @@ public class NewtonMinimization {
         double val = f.f(x);
         SteepestDescent sd = new SteepestDescent(f);
         for (int iter=0; iter<maxIter; iter++) {
-            if (iter>0) System.out.println(String.format("%4d    %10.4e   %10.4e   %10.4e", iter, val, val-lastVal, stepSize));
-            else System.out.println(String.format("%4d    %10.4e                %10.4e", iter, val, stepSize));
+            if (verbose) {
+                if (iter>0) System.out.println(String.format("%4d    %10.4e   %10.4e   %10.4e", iter, val, val-lastVal, Math.sqrt(stepSize)));
+                else System.out.println(String.format("%4d    %10.4e                %10.4e", iter, val, Math.sqrt(stepSize)));
+            }
             if (lastVal - val < tol) return x;
 
             for (int i=0; i<n; i++) {
@@ -56,7 +61,7 @@ public class NewtonMinimization {
                 val = f.f(x);
 //                System.out.println("    "+(val-lastVal)+" "+totalD);
 //                System.exit(1);
-                if (val < lastVal) {
+                if (val < lastVal+tol) {
                     if (iter%10==0 && false) {
                         double lv = val;
                         System.out.println("(steepest descent for fun)");
@@ -80,6 +85,8 @@ public class NewtonMinimization {
                 }
 
                 dx = dx.times(0.1);
+                stepSize = 0;
+                totalD = 0;
                 for (int i=0; i<n; i++) {
                     stepSize += dx.get(i,0)*dx.get(i,0);
                     totalD += -dx.get(i,0)*Farray[i][0];
@@ -87,6 +94,9 @@ public class NewtonMinimization {
                 }
                 val = f.f(x);
                 if (val < lastVal) continue;
+                for (int i=0; i<n; i++) {
+                    x[i] -= -dx.get(i, 0);
+                }
             }
             else {
                 for (int i=0; i<n; i++) {
@@ -95,7 +105,7 @@ public class NewtonMinimization {
             }
             
             // Newton fails, try steepest descent first
-            System.out.println(String.format("(steepest descent, totalD=%10.4e|%10.4e)", totalD, (val-lastVal)));
+            if (verbose) System.out.println(String.format("(steepest descent, totalD=%10.4e|%10.4e)", totalD, (val-lastVal)));
             double[] xStep = new double[x.length];
             for (int i=0; i<x.length; i++) {
                 xStep[i] = Math.abs(dx.get(i,0))*0.01;
