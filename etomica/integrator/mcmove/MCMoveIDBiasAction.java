@@ -6,7 +6,6 @@ package etomica.integrator.mcmove;
 
 import etomica.action.IAction;
 import etomica.integrator.IntegratorMC;
-import etomica.math.SpecialFunctions;
 
 /**
  * IAction which takes data from an MCMoveOverlapListener about acceptance
@@ -27,6 +26,8 @@ public class MCMoveIDBiasAction implements IAction {
     protected int maxNumAtoms;
     protected double lastDefaultdADef;
     protected double pullFactor;
+    protected final double ratioMaxN = 1, maxBiasMinN = 2;
+    protected boolean playDumb = false;
 
     public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxDN, int fixedN, double mu,
             MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms, double temperature) {
@@ -39,6 +40,15 @@ public class MCMoveIDBiasAction implements IAction {
         this.numAtoms = numAtoms;
         this.temperature = temperature;
         pullFactor = 1;
+    }
+
+    /**
+     * With "play dumb" on, the bias will simply try to produce a flat
+     * histogram based on previously-measured free energy differences
+     * (no fitting or defect free energy will be used).
+     */
+    public void setPlayDumb(boolean playDumb) {
+        this.playDumb = playDumb;
     }
 
     /**
@@ -90,32 +100,35 @@ public class MCMoveIDBiasAction implements IAction {
                 continue;
             }
             double lnratio = daDef + Math.log(((double)(numAtoms - (n0+i)))/(n0+i+1));
-            if (false && !Double.isNaN(ratios[i])) {
-                lnr -= Math.log(ratios[i]);
+            if (playDumb) {
+                lnratio = Math.log(ratios[i]);
             }
-            else if (!Double.isNaN(lnratio)) {
+            if (!Double.isNaN(lnratio)) {
                 if (-lnratio > mu/temperature) {
                     // bias needed for flat histogram is greater than chemical potential
                     // only apply enough bias so that hist[N]/hist[i] ~= 0.25
-                    double d = -lnratio - Math.log(2)/(numAtoms - (n0+i));   // ratios.length-i = number of vacancies from below
+                    double d = -lnratio - Math.log(ratioMaxN)/(1L<<(numAtoms - (n0+i)));
                     if (d < mu/temperature) {
                         d = mu/temperature;
                     }
                     lnr += d;
                 }
                 else {
+                    // apply bias to make the histogram flat
                     lnr -= lnratio;
+                    double offset = (lnbias[i] + mu/temperature) - lnr;
+                    if (offset > Math.log(maxBiasMinN)) {
+                        // we're applying a lot of bias at low N.  apply only enough so
+                        // that p(i+1)/p(i) = maxBiasMinN
+                        offset = Math.log(maxBiasMinN);
+                    }
+                    lnr += offset;
                 }
             }
             else {
                 lnr += mu/temperature;
             }
-            if (lnr - lnbias[i] < mu/temperature) {
-                double offset = (lnbias[i] + mu/temperature) - lnr;
-                if (offset > Math.log(2)) offset = Math.log(2);
-                lnr += offset;
-            }
-            if (hist[i]*hist[i+1] == 0 && hist[i]+hist[i+1] > 10000) {
+            if (!playDumb && hist[i]*hist[i+1] == 0 && hist[i]+hist[i+1] > 10000) {
                 long ni = numInsert[i]+numDelete[i]+1;
                 long nip1 = numInsert[i+1]+numDelete[i+1]+1;
                 lnr += pullFactor*Math.log(((double)ni)/((double)nip1));
@@ -145,6 +158,9 @@ public class MCMoveIDBiasAction implements IAction {
         }
         for (int na=n0-1; na>=minN; na--) {
             double lnratio = daDef + Math.log(((double)(numAtoms-na))/(na+1));
+            if (playDumb) {
+                lnratio = mu/temperature;
+            }
             if (lnratio < mu/temperature) {
                 double offset = -(lnratio + mu/temperature);
                 if (offset < -Math.log(2)) offset = -Math.log(2);
