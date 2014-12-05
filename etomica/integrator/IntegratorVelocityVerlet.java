@@ -1,7 +1,3 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package etomica.integrator;
 
 import etomica.api.IAtom;
@@ -24,7 +20,6 @@ import etomica.util.Debug;
 
 public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
-    private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;;
     protected final IteratorDirective allAtoms;
     protected final Tensor pressureTensor;
@@ -49,6 +44,14 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         allAtoms.setIncludeLrc(true);
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
+    }
+
+    public PotentialCalculationForceSum getForceSum() {
+        return forceSum;
+    }
+
+    public AtomLeafAgentManager<MyAgent> getAgentManager() {
+        return agentManager;
     }
 
     public void setForceSum(PotentialCalculationForceSum pc){
