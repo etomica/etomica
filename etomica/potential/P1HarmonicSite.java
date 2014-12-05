@@ -27,7 +27,6 @@ import etomica.units.Length;
  
 public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     
-    private static final long serialVersionUID = 1L;
     private double w = 100.0;
     private final IVectorMutable[] force;
     protected final BoxAgentManager<AtomLeafAgentManager<? extends IVector>> boxAgentManager;
@@ -61,7 +60,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
 
     public double energy(IAtomList a) {
         IVector x0 = atomAgentManager.getAgent(a.getAtom(0));
-        return 0.5*w*a.getAtom(0).getPosition().Mv1Squared(x0);
+        return w*a.getAtom(0).getPosition().Mv1Squared(x0);
     }
     
     public double virial(IAtomList a) {
@@ -72,7 +71,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
         IVectorMutable r = a.getAtom(0).getPosition();
         IVector x0 = atomAgentManager.getAgent(a.getAtom(0));
         force[0].Ev1Mv2(r,x0);
-        force[0].TE(w);
+        force[0].TE(2*w);
             
         return force;
     }
