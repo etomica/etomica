@@ -22,6 +22,8 @@ public class HardSphereSolid {
     protected static final double[] c = new double[]{-4.338711486444215e-01,3.908120499110030e-01,5.954516832360230e-01,1.859059648880398e+01,-2.881675745716088e+02,3.206943027086472e+03,-2.103760905875148e+04,8.317792071175583e+04,-1.806368017944632e+05,1.702057910137580e+05};
     protected static final double rho0 = 1.0409;
     protected static final double A0 = 5.91901 + idFreeEnergy(rho0);  // Helmholtz free energy at rho=1.0409, A=5.91901(3)
+    protected static final double[] cdz = new double[]{4.664021897071290e+00,3.583111436885733e+02,-7.251681562320791e+03,2.057933864384254e+05,1.356484539042134e+06};
+    protected static final double[] cc = new double[]{6.125493227538938e-01,2.458082847623682e-01,9.725067704701637e+00,-6.145649875550352e+01,1.631732416910175e+02};
 
     public HardSphereSolid(){
     }
@@ -186,6 +188,48 @@ public class HardSphereSolid {
         }
         sum += 0.5*zSolidCorrection(rho)/rho;
         return A0 + dA0 + h*sum;
+    }
+
+    /**
+     * Returns the fraction of lattice sites with a vacancy for the given
+     * lattice density.
+     */
+    public double getVacancyFraction(double rhoLat) {
+        double x = 1 - rhoLat/Math.sqrt(2);
+        double fitSum = 0;
+        double xp = 1;
+        for (int i=0; i<cc.length; i++) {
+          fitSum += cc[i]*xp;
+          xp *= x;
+        }
+        // fitSum = (ln(c)/Zlat + 1)/x
+        double c = (fitSum*x-1)*zSolid(rhoLat);
+        return c;
+    }
+
+    /**
+     * Returns the difference between the pressure with vacancies from the
+     * pressure without vacancies for the given lattice density.
+     */
+    public double getVacancyPressure(double rhoLat) {
+        double c = getVacancyFraction(rhoLat);
+        double x = 1 - rhoLat/Math.sqrt(2);
+        double x2 = x*x;
+        double xp = 1;
+        double y2 = 0;
+        for (int i=0; i<cdz.length; i++) {
+          y2 += cdz[i]*xp;
+          xp *= x2;
+        }
+        return (Math.sqrt(y2) - 3/x)*rhoLat*c;
+    }
+
+    /**
+     * Returns the Helmholtz free energy difference due to the presence of
+     * vacancies at the given lattice density.
+     */
+    public double getVacancyFreeEnergy(double rhoLat) {
+        return getVacancyFraction(rhoLat);
     }
 
     /**
