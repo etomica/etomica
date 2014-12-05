@@ -1,6 +1,7 @@
 package etomica.virial.simulations;
 
 import java.awt.Color;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,7 +34,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.mcmove.MCMove;
 import etomica.listener.IntegratorListenerAction;
-
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P1IntraMolecular;
 import etomica.space.Space;
@@ -331,9 +331,9 @@ public class VirialH2PIXC {
         }
 
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
-        MCMove [] moves = sim.integrator.getMoveManager().getMCMoves();
-        for (int i=0; i<moves.length; i++) {
-        	System.out.println(moves[i].toString()+" acceptance ratio : "+moves[i].getTracker().acceptanceRatio());
+        List<MCMove> moves = sim.integrator.getMoveManager().getMCMoves();
+        for (MCMove m : moves) {
+        	System.out.println(m.toString()+" acceptance ratio : "+m.getTracker().acceptanceRatio());
         }
 //        System.out.println("Target Ring acceptance "+ring0.getTracker().acceptanceRatio());
 //        System.out.println("Orientation acceptance "+move0.getTracker().acceptanceRatio());

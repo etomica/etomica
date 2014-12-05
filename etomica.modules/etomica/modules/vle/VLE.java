@@ -1,5 +1,7 @@
 package etomica.modules.vle;
 
+import java.util.List;
+
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -50,24 +52,24 @@ public class VLE extends SimulationGraphic {
 
         final IAction resetMCMoves = new IAction() {
             public void actionPerformed() {
-                MCMove[] moves = sim.integratorLiquid.getMoveManager().getMCMoves();
-                for (int i=0; i<moves.length; i++) {
-                    if (moves[i].getTracker() instanceof MCMoveStepTracker) {
-                        ((MCMoveStepTracker)moves[i].getTracker()).resetAdjustStep();
+                List<MCMove> moves = sim.integratorLiquid.getMoveManager().getMCMoves();
+                for (int i=0; i<moves.size(); i++) {
+                    if (moves.get(i).getTracker() instanceof MCMoveStepTracker) {
+                        ((MCMoveStepTracker)moves.get(i).getTracker()).resetAdjustStep();
                     }
                 }
 
                 moves = sim.integratorVapor.getMoveManager().getMCMoves();
-                for (int i=0; i<moves.length; i++) {
-                    if (moves[i].getTracker() instanceof MCMoveStepTracker) {
-                        ((MCMoveStepTracker)moves[i].getTracker()).resetAdjustStep();
+                for (int i=0; i<moves.size(); i++) {
+                    if (moves.get(i).getTracker() instanceof MCMoveStepTracker) {
+                        ((MCMoveStepTracker)moves.get(i).getTracker()).resetAdjustStep();
                     }
                 }
                 
                 moves = sim.integratorGEMC.getMoveManager().getMCMoves();
-                for (int i=0; i<moves.length; i++) {
-                    if (moves[i].getTracker() instanceof MCMoveStepTracker) {
-                        ((MCMoveStepTracker)moves[i].getTracker()).resetAdjustStep();
+                for (int i=0; i<moves.size(); i++) {
+                    if (moves.get(i).getTracker() instanceof MCMoveStepTracker) {
+                        ((MCMoveStepTracker)moves.get(i).getTracker()).resetAdjustStep();
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package etomica.virial.simulations;
 
 import java.awt.Color;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,13 +47,11 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.mcmove.MCMove;
-
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.IPotentialAtomicMultibody;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2Harmonic;
-
 import etomica.potential.P2HydrogenHindePatkowski;
 import etomica.potential.P2HydrogenPatkowski;
 import etomica.potential.P2HydrogenPatkowskiIso;
@@ -965,17 +964,17 @@ public class VirialH2PI {
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         System.out.println("Reference system: ");
-        MCMove [] refMoves = sim.integrators[0].getMoveManager().getMCMoves();
-        for (int i=0; i<refMoves.length; i++) {
-            double acc = refMoves[i].getTracker().acceptanceRatio();
-            System.out.println(refMoves[i].toString()+" acceptance ratio: "+acc);            
+        List<MCMove> refMoves = sim.integrators[0].getMoveManager().getMCMoves();
+        for (MCMove m : refMoves) {
+            double acc = m.getTracker().acceptanceRatio();
+            System.out.println(m.toString()+" acceptance ratio: "+acc);            
         }
         System.out.println("Target system: ");
-        MCMove [] tarMoves = sim.integrators[1].getMoveManager().getMCMoves();
-        for (int i=0; i<tarMoves.length; i++) {
-            double acc = tarMoves[i].getTracker().acceptanceRatio();
+        List<MCMove> tarMoves = sim.integrators[1].getMoveManager().getMCMoves();
+        for (MCMove m : tarMoves) {
+            double acc = m.getTracker().acceptanceRatio();
             if (acc == 1) throw new RuntimeException("oops");
-            System.out.println(tarMoves[i].toString()+" acceptance ratio: "+acc);            
+            System.out.println(m.toString()+" acceptance ratio: "+acc);            
         }
         sim.printResults(refIntegral);
         

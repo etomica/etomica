@@ -108,14 +108,13 @@ public class SimulationVirialPT extends Simulation {
             setAccumulator(iTemp,new AccumulatorRatioAverage());
 
             if(iTemp>0) {
-                MCMove swapMove = integratorPT.getMoveManager().getMCMoves()[iTemp-1];
+                MCMove swapMove = integratorPT.getMoveManager().getMCMoves().get(iTemp-1);
                 meterAccept[iTemp-1] = new DataSourceAcceptanceRatio(swapMove);
                 meterAcceptP[iTemp-1] = new DataSourceAcceptanceProbability(swapMove);
             }
         }
 	}
 	
-    private static final long serialVersionUID = 1L;
 	public MeterVirial[] meter;
     public IEtomicaDataSource[] meterAccept;
     public IEtomicaDataSource[] meterAcceptP;
