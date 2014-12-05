@@ -9,6 +9,7 @@ import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
@@ -83,7 +84,11 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * lattice.  
      */
     public void initializeCoordinates(IBox box) {
-        IMoleculeList moleculeList = box.getMoleculeList();
+        initializeCoordinates(box, null);
+    }
+    
+    public void initializeCoordinates(IBox box, ISpecies species) {
+        IMoleculeList moleculeList = species == null ? box.getMoleculeList() : box.getMoleculeList(species);
         int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {
             return;
@@ -223,8 +228,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 latticeDimensions[dmin] = (int) Math.round(shape.getX(dmin)
                         * Math.pow((nCellsLeft / product), 1.0 / dimLeft));
             } else {
-                latticeDimensions[dmin] = (int) Math.ceil(shape.getX(dmin)
-                        * nCellsLeft / product);
+                latticeDimensions[dmin] = nCellsLeft;
             }
             if (latticeDimensions[dmin] == 0){
             	latticeDimensions[dmin] = 1;
