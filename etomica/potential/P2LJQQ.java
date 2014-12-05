@@ -4,25 +4,8 @@
 
 package etomica.potential;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
 import etomica.api.IBox;
-import etomica.api.IVectorMutable;
-import etomica.api.IVector;
-import etomica.atom.IAtomOriented;
-import etomica.box.Box;
-import etomica.exception.MethodNotImplementedException;
-import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
-import etomica.space.Tensor;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Coulomb;
-import etomica.units.Debye;
-import etomica.units.Kelvin;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Lennard Jones molecule with a quadrupole.
@@ -84,9 +67,9 @@ public class P2LJQQ extends Potential2SoftSpherical  {
     public double getTemperature() {
         return temperature;
     }
+
     // return a Boltzmann-weighted orientational average of the energy
     // for the given distance
-    // this is the part I want
     public double u(double r2) {
         double s2 = sigma2/r2;
         if (s2 > 4  ) return Double.POSITIVE_INFINITY ;
@@ -95,27 +78,20 @@ public class P2LJQQ extends Potential2SoftSpherical  {
         return epsilon4*s6*(s6 - 1.0) - (7.0/(5.0*temperature))*Q2*Q2/(r4*r4*r2);
     }
      
-    private static final long serialVersionUID = 1L;
     private double sigma , sigma2;
     private double epsilon, epsilon4;
     private double Q2;
-    private IBoundary boundary;
     protected double temperature;
-	@Override
+
 	public double du(double r2) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public double d2u(double r2) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public double uInt(double rC) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 }
