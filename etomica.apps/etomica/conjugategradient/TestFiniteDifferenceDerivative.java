@@ -28,8 +28,6 @@ public class TestFiniteDifferenceDerivative implements FunctionMultiDimensional 
 		
 		FiniteDifferenceDerivative differentiate = new FiniteDifferenceDerivative(test);
 		differentiate.setH(0.0001);
-		differentiate.setHOptimizer(true);
-		differentiate.setNtab(10);
 		
 		System.out.println("Differentiated Result is: "+ differentiate.df(new int[] {2, 0}, u));
 		System.out.println("Value for function is: "+test.f(u));

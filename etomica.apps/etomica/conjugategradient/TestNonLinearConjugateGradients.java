@@ -42,7 +42,6 @@ public class TestNonLinearConjugateGradients implements FunctionMultiDimensional
 		
 		FiniteDifferenceDerivative finiteDifferenceDerivative = new FiniteDifferenceDerivative(testFunction);
 		finiteDifferenceDerivative.setH(0.001);
-		finiteDifferenceDerivative.setHOptimizer(true);
 		NonLinearConjugateGradients nonLinearCG = new NonLinearConjugateGradients();
 		nonLinearCG.setEpsilonCG(0.1);
 		nonLinearCG.setEpsilonNR(0.1); // 

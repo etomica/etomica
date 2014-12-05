@@ -97,7 +97,6 @@ public class FiniteDifferenceDerivativeCG {
 		
 		FiniteDifferenceDerivative finiteDifferenceDerivative = new FiniteDifferenceDerivative(derivativeFunction);
 		finiteDifferenceDerivative.setH(0.000001);
-		finiteDifferenceDerivative.setHOptimizer(true);
 			
 		/*
 		 * Using Finite Difference Derivative to compute for the second derivative

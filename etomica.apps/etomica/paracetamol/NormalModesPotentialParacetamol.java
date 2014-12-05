@@ -249,8 +249,6 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 					
 		        	FiniteDifferenceDerivative d2W = new FiniteDifferenceDerivative(dW);
 		    		d2W.setH(0.00001);
-		    		d2W.setHOptimizer(false);
-		    		d2W.setNtab(10);
 		    		
 		    		//System.out.println("dimension of u is: "+ u.getLength());
 		    		columnArrayi[k] = d2W.df(d2, u);

@@ -55,8 +55,6 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         finiteDifferenceDerivative = new FiniteDifferenceDerivative(this);
         finiteDifferenceDerivative.setH(0.00001);
-        finiteDifferenceDerivative.setHOptimizer(true);
-        finiteDifferenceDerivative.setNtab(10);
     }
     
 

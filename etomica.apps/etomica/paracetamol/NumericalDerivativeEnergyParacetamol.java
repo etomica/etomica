@@ -51,8 +51,6 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 		
 		finiteDifferenceDerivative = new FiniteDifferenceDerivative(this);
 		finiteDifferenceDerivative.setH(0.00001);
-		finiteDifferenceDerivative.setHOptimizer(true);
-		finiteDifferenceDerivative.setNtab(10);
 		
 		/*
 		 * d only takes in array that compute first-order derivative w.r.t. to corresponding n-th dimension
