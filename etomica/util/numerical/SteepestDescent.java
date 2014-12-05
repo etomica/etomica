@@ -87,6 +87,7 @@ public class SteepestDescent {
                     totalStep = 0;
                     
                     stepSize *= 0.1;
+                    if (stepSize == 0) return x;
                     newTotalD = 0;
                     continue;
                 }
