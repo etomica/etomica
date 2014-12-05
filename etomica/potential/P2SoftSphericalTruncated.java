@@ -113,9 +113,8 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     /**
      * Inner class that implements the long-range correction for this truncation scheme.
      */
-    private static class P0Lrc extends Potential0Lrc {
+    public static class P0Lrc extends Potential0Lrc implements Potential2Soft {
         
-        private static final long serialVersionUID = 1L;
         private final double A;
         private final int D;
         private Potential2Soft potential;
@@ -135,7 +134,11 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         public double virial(IAtomList atoms) {
             return duCorrection(nPairs()/box.getBoundary().volume());
         }
-        
+
+        public double hyperVirial(IAtomList pair) {
+            return d2uCorrection(nPairs()/box.getBoundary().volume()) + duCorrection(nPairs()/box.getBoundary().volume());
+        }
+
         public IVector[] gradient(IAtomList atoms) {
             return null;
         }
@@ -150,6 +153,20 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             return null;
         }
         
+        /**
+         * Uses result from integration-by-parts to evaluate integral of
+         * r2 d2u/dr2 using integral of u.
+         * @param pairDensity average pairs-per-volume affected by the potential.
+         */
+        public double d2uCorrection(double pairDensity) {
+            double rCutoff = potential.getRange();
+            double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
+            //need potential to be spherical to apply here
+            integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
+            integral = -A*space.powerD(rCutoff)*((Potential2SoftSpherical)truncatedPotential).du(rCutoff*rCutoff) - (D+1)*integral;
+            return pairDensity*integral;
+        }
+
         /**
          * Long-range correction to the energy.
          * @param pairDensity average pairs-per-volume affected by the potential.
@@ -173,19 +190,19 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             return pairDensity*integral;
         }
 
-        /**
-         * Uses result from integration-by-parts to evaluate integral of
-         * r^2 d2u/dr2 using integral of u.
-         * @param pairDensity average pairs-per-volume affected by the potential.
-         *
-         * Not implemented: throws RuntimeException.
-         */
-        public double d2uCorrection(double pairDensity) {
-            throw new etomica.exception.MethodNotImplementedException();
+        public double u(double r2) {
+            throw new RuntimeException("nope");
+        }
+
+        public double integral(double rC) {
+            throw new RuntimeException("nope");
+        }
+
+        public double du(double r2) {
+            throw new RuntimeException("nope");
         }
     }//end of P0lrc
     
-    private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected boolean makeLrc = true;
     protected final Potential2SoftSpherical potential;
