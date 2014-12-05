@@ -1,14 +1,16 @@
 package etomica.integrator.mcmove;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import etomica.api.IBox;
 import etomica.api.IRandom;
 
-public class MCMoveManager implements Serializable {
+public class MCMoveManager {
 
     public MCMoveManager(IRandom random) {
         this.random = random;
+        mcMoveList = new ArrayList<MCMoveLinker>();
     }
 
     /**
@@ -16,8 +18,7 @@ public class MCMoveManager implements Serializable {
      * existing moves.
      */
     public void setMCMoves(MCMove[] moves) {
-        firstMoveLink = null;
-        moveCount = 0;
+        mcMoveList.clear();
         for (int i = 0; i < moves.length; i++) {
             addMCMove(moves[i]);
         }
@@ -26,13 +27,12 @@ public class MCMoveManager implements Serializable {
     /**
      * Constructs and returns array of all moves added to the integrator.
      */
-    public MCMove[] getMCMoves() {
-        MCMove[] moves = new MCMove[moveCount];
-        int i = 0;
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            moves[i++] = link.move;
+    public List<MCMove> getMCMoves() {
+        List<MCMove> l = new ArrayList<MCMove>();
+        for (int i=0; i<mcMoveList.size(); i++) {
+            l.add(mcMoveList.get(i).move);
         }
-        return moves;
+        return l;
     }
 
     /**
@@ -45,25 +45,18 @@ public class MCMoveManager implements Serializable {
      */
     public void addMCMove(MCMove move) {
         //make sure move wasn't added already
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            if (move == link.move)
-                return;
+        for (int i=0; i<mcMoveList.size(); i++) {
+            if (mcMoveList.get(i).move == move) throw new RuntimeException("move already added");
         }
-        if (firstMoveLink == null) {
-            firstMoveLink = new MCMoveLinker(move);
-            lastMoveLink = firstMoveLink;
-        } else {
-            lastMoveLink.nextLink = new MCMoveLinker(move);
-            lastMoveLink = lastMoveLink.nextLink;
-        }
+        mcMoveList.add(new MCMoveLinker(move));
+
         MCMoveTracker tracker = move.getTracker();
-        if (tracker instanceof MCMoveStepTracker) {
+        if (tracker instanceof MCMoveStepTracker && !isEquilibrating) {
             ((MCMoveStepTracker)tracker).setTunable(isEquilibrating);
         }
         if (box != null) {
             ((MCMoveBox)move).setBox(box);
         }
-        moveCount++;
         recomputeMoveFrequencies();
     }
 
@@ -74,24 +67,17 @@ public class MCMoveManager implements Serializable {
      */
     public boolean removeMCMove(MCMove move) {
         //make sure move wasn't added already
-        if (move == firstMoveLink.move) {
-            firstMoveLink = firstMoveLink.nextLink;
-            moveCount--;
-            recomputeMoveFrequencies();
-            return true;
-        }
-        for (MCMoveLinker link = firstMoveLink; link.nextLink != null; link = link.nextLink) {
-            if (move == link.nextLink.move) {
-                if (link.nextLink == lastMoveLink) {
-                    lastMoveLink = link;
-                }
-                link.nextLink = link.nextLink.nextLink;
-                moveCount--;
-                recomputeMoveFrequencies();
-                return true;
+        int pos = -1;
+        for (int i=0; i<mcMoveList.size(); i++) {
+            if (mcMoveList.get(i).move == move) {
+                pos = i;
+                break;
             }
         }
-        return false;
+        if (pos == -1) return false;
+        mcMoveList.remove(pos);
+        recomputeMoveFrequencies();
+        return true;
     }
 
     /**
@@ -102,8 +88,8 @@ public class MCMoveManager implements Serializable {
      */
     public void setBox(IBox p) {
         box = p;
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            ((MCMoveBox)link.move).setBox(box);
+        for (int i=0; i<mcMoveList.size(); i++) {
+            ((MCMoveBox)mcMoveList.get(i).move).setBox(box);
         }
     }
 
@@ -119,28 +105,27 @@ public class MCMoveManager implements Serializable {
      * probability in proportion to the frequency value assigned to the move.
      */
     public MCMove selectMove() {
-        if (firstMoveLink == null || frequencyTotal == 0) {
-            selectedLink = null;
-            return null;
-        }
+        if (mcMoveList.size() == 0) return null;
         int i = random.nextInt(frequencyTotal);
-        selectedLink = firstMoveLink;
-        while ((i -= selectedLink.fullFrequency) >= 0) {
-            selectedLink = selectedLink.nextLink;
+        int pos = 0;
+        while ((i -= mcMoveList.get(pos).fullFrequency) >= 0) {
+            pos++;
         }
-        selectedLink.selectionCount++;
+        selectedLink = mcMoveList.get(pos);
         return selectedLink.move;
     }
     
     public MCMove getSelectedMove() {
         return selectedLink.move;
     }
+
     /**
      * Recomputes all the move frequencies.
      */
     public void recomputeMoveFrequencies() {
         frequencyTotal = 0;
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
+        for (int i=0; i<mcMoveList.size(); i++) {
+            MCMoveLinker link = mcMoveList.get(i);
             link.resetFullFrequency();
             frequencyTotal += link.fullFrequency;
         }
@@ -148,8 +133,8 @@ public class MCMoveManager implements Serializable {
     
     public void setEquilibrating(boolean equilibrating) {
         isEquilibrating = equilibrating;
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            MCMoveTracker tracker = link.move.getTracker();
+        for (int i=0; i<mcMoveList.size(); i++) {
+            MCMoveTracker tracker = mcMoveList.get(i).move.getTracker();
             if (tracker instanceof MCMoveStepTracker) {
                 ((MCMoveStepTracker)tracker).setTunable(isEquilibrating);
             }
@@ -164,7 +149,8 @@ public class MCMoveManager implements Serializable {
      * manager.
      */
     public double getFrequency(MCMove move) {
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
+        for (int i=0; i<mcMoveList.size(); i++) {
+            MCMoveLinker link = mcMoveList.get(i);
             if (link.move == move) {
                 return link.frequency;
             }
@@ -180,7 +166,8 @@ public class MCMoveManager implements Serializable {
      * manager.
      */
     public void setFrequency(MCMove move, double newFrequency) {
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
+        for (int i=0; i<mcMoveList.size(); i++) {
+            MCMoveLinker link = mcMoveList.get(i);
             if (link.move == move) {
                 link.frequency = newFrequency;
                 recomputeMoveFrequencies();
@@ -190,25 +177,20 @@ public class MCMoveManager implements Serializable {
         throw new IllegalArgumentException("I don't have "+move);
     }
 
-    private static final long serialVersionUID = 1L;
     private IBox box;
-    private MCMoveLinker firstMoveLink, lastMoveLink;
+    protected final List<MCMoveLinker> mcMoveList;
     private MCMoveLinker selectedLink;
     private int frequencyTotal;
-    private int moveCount;
     private boolean isEquilibrating = true;
     private final IRandom random;
 
     /**
      * Linker used to construct linked-list of MCMove instances
      */
-    private static class MCMoveLinker implements java.io.Serializable {
-        private static final long serialVersionUID = 1L;
-        int fullFrequency;
-        double frequency;
-        final MCMove move;
-        int selectionCount;
-        MCMoveLinker nextLink;
+    private static class MCMoveLinker {
+        protected int fullFrequency;
+        protected double frequency;
+        protected final MCMove move;
 
         MCMoveLinker(MCMove move) {
             this.move = move;
