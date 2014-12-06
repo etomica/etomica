@@ -34,6 +34,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -49,7 +50,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -231,7 +231,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
     
@@ -443,8 +443,8 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
                
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
-        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
+        		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];

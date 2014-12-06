@@ -15,7 +15,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.DataPumpListener;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -31,6 +30,7 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -44,7 +44,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -249,7 +248,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
     
@@ -481,8 +480,8 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         sim.accumulators[0].closeFile();
         sim.accumulators[1].closeFile();
         
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
-        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
+        		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];

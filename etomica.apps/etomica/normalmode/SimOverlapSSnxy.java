@@ -31,16 +31,14 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -53,7 +51,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -67,7 +64,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 
 
 public class SimOverlapSSnxy extends Simulation {
-    private static final long serialVersionUID = 1L;
+
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
@@ -267,7 +264,7 @@ public class SimOverlapSSnxy extends Simulation {
         if (integratorOverlap != null && accumulators[0] != null && 
                 accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
     
@@ -502,8 +499,8 @@ public class SimOverlapSSnxy extends Simulation {
         System.out.println(" ");
         
         System.out.println("final reference optimal step frequency " + 
-                sim.integratorOverlap.getStepFreq0() + " (actual: " + 
-                sim.integratorOverlap.getActualStepFreq0() + ")");
+                sim.integratorOverlap.getIdealRefStepFraction() + " (actual: " + 
+                sim.integratorOverlap.getRefStepFraction() + ")");
 
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
