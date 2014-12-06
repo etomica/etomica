@@ -26,6 +26,8 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomOrientedKinetic;
+import etomica.atom.IMoleculeKinetic;
+import etomica.atom.IMoleculeOrientedKinetic;
 import etomica.atom.IMoleculePositioned;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -44,7 +46,7 @@ import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.SpeciesWater3P;
+import etomica.models.water.SpeciesWater3POriented;
 import etomica.potential.P2Electrostatic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialCalculationForcePressureSum;
@@ -171,7 +173,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             }
             
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
-            IVectorMutable angularMomentum = ((IAtomOrientedKinetic)molecule).getAngularVelocity();
+            IVectorMutable angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
             ISpeciesOriented orientedType = (ISpeciesOriented)molecule.getType();
             IVector moment = orientedType.getMomentOfInertia();
             
@@ -373,8 +375,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             }
     
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
-            IVectorMutable velocity = ((IAtomKinetic)molecule).getVelocity();
-            IVectorMutable angularMomentum = ((IAtomOrientedKinetic)molecule).getAngularVelocity();
+            IVectorMutable velocity = ((IMoleculeKinetic)molecule).getVelocity();
+            IVectorMutable angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
             double mass = ((ISpeciesOriented)molecule.getType()).getMass();
 //            System.out.println("mass = "+mass);
             int D = velocity.getD();
@@ -442,6 +444,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         angularMomentum.DE(moment);
     }
     
+    public void shiftMomenta() {}
+    
     public void reset() {
         super.reset();
 
@@ -476,7 +480,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             //calc angular velocities
             IAtomList children = molecule.getChildList();
             for (int i=0; i<children.getAtomCount(); i++) {
-                IAtomKinetic atom = (IAtomKinetic)children.getAtom(i);
+                IAtom atom = children.getAtom(i);
                 IVectorMutable force = leafAgentManager.getAgent(atom).force;
                 agent.force.PE(force);
 
@@ -552,7 +556,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         Simulation sim = new Simulation(space);
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);
-        SpeciesWater3P species = new SpeciesWater3P(sim.getSpace());
+        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
         sim.addSpecies(species);
         box.setNMolecules(species, 108);
         box.setDensity(1/18.0*Constants.AVOGADRO/1E24);
