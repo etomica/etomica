@@ -20,6 +20,7 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountTime;
 import etomica.data.IDataInfo;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
@@ -89,17 +90,16 @@ public class EFSTungsten extends Simulation {
     public PotentialEFS potentialN;
     public Controller controller;
     public DisplayBox display;
-    public DisplayPlot plot;
     public MeterEnergy energy;
     public ActivityIntegrate activityIntegrate;
     public IDataInfo info2;
     public CoordinateDefinition coordinateDefinition;
 
     public static class Params extends ParameterBase{
-        public int numatoms=2*7*7*7;
+        public int numatoms=2*4*4*4;
         public double density=1.0/16.870; //2/3.151/3.151/3.151;//2/3.15961/3.15961/3.15961;//Mole.UNIT.toSim(1/16.870e24);
         public double temperature=300;
-        public long numsteps=1000000;
+        public long numsteps=10000;
         public boolean doHistory = true;
     }
 
@@ -143,7 +143,7 @@ public class EFSTungsten extends Simulation {
         AccumulatorHistory pressureAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         
         
-    	if(true){ //graph?
+    	if(false){ //graph?
             AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
             AccumulatorAverageCollapsing accumulatorAverageKE = new AccumulatorAverageCollapsing();
             AccumulatorAverageCollapsing accumulatorAverageDADB = new AccumulatorAverageCollapsing();
@@ -234,29 +234,30 @@ public class EFSTungsten extends Simulation {
     	sim.getController().actionPerformed();
         sim.getController().reset();
         sim.activityIntegrate.setMaxSteps(numsteps);
-        
+        System.out.println("equilibration finished");
 
         AccumulatorAverageFixed accumulatorAveragePE = null;
         AccumulatorAverageFixed accumulatorAverageDADB = null;
         AccumulatorHistory accumulatorHistoryPE = null;
         AccumulatorHistory accumulatorHistoryDADB = null;
 
-        if (!doHistory) {
-            accumulatorAveragePE = new AccumulatorAverageFixed((numsteps/10)/100);
-            accumulatorAverageDADB = new AccumulatorAverageFixed((numsteps/10)/100);
+        accumulatorAveragePE = new AccumulatorAverageFixed((numsteps/10)/100);
+        accumulatorAverageDADB = new AccumulatorAverageFixed((numsteps/10)/100);
 
-            DataPumpListener energyPump = new DataPumpListener(energyMeter,accumulatorAveragePE,10);
-	        DataPumpListener dadbPump = new DataPumpListener(DADBMeter, accumulatorAverageDADB, 10);
+        DataPumpListener energyPump = new DataPumpListener(energyMeter,accumulatorAveragePE,10);
+        DataPumpListener dadbPump = new DataPumpListener(DADBMeter, accumulatorAverageDADB, 10);
 
-	        sim.integrator.getEventManager().addListener(energyPump);
-	        sim.integrator.getEventManager().addListener(dadbPump);
-        }
-        else {
+        sim.integrator.getEventManager().addListener(energyPump);
+        sim.integrator.getEventManager().addListener(dadbPump);
+        if (doHistory) {
             accumulatorHistoryPE = new AccumulatorHistory(new HistoryCollapsingAverage(200));
             accumulatorHistoryDADB = new AccumulatorHistory(new HistoryCollapsingAverage(200));
+            DataSourceCountTime timer = new DataSourceCountTime(sim.integrator);
+            accumulatorHistoryPE.setTimeDataSource(timer);
+            accumulatorHistoryDADB.setTimeDataSource(timer);
 
-            DataPumpListener energyPump = new DataPumpListener(energyMeter,accumulatorHistoryPE,10);
-	        DataPumpListener dadbPump = new DataPumpListener(DADBMeter, accumulatorHistoryDADB, 10);
+            energyPump = new DataPumpListener(energyMeter,accumulatorHistoryPE,10);
+	        dadbPump = new DataPumpListener(DADBMeter, accumulatorHistoryDADB, 10);
 
 	        sim.integrator.getEventManager().addListener(energyPump);
 	        sim.integrator.getEventManager().addListener(dadbPump);        	
@@ -278,7 +279,7 @@ public class EFSTungsten extends Simulation {
         		FileWriter hWriter = new FileWriter("pe.dat");
         		for (int i=0; i<x.length; i++) {
         		    if (!Double.isNaN(hpe[i])) {
-        		        hWriter.write(x[i]+" "+hpe[i]*fac+"\n");
+        		        hWriter.write(x[i]+" "+(hpe[i]+1.5*temperature)*fac+"\n");
         		    }
         		}
         		hWriter.close();
@@ -294,26 +295,26 @@ public class EFSTungsten extends Simulation {
         		throw new RuntimeException(e);
         	}
         }
-        else {
-	    	double PE = accumulatorAveragePE.getData(accumulatorAveragePE.AVERAGE).getValue(0)
-	                    /sim.box.getLeafList().getAtomCount();
-	        double PEerror = accumulatorAveragePE.getData(accumulatorAveragePE.ERROR).getValue(0)
-	                /sim.box.getLeafList().getAtomCount();
-	        double PEcor = accumulatorAveragePE.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
-	                /sim.box.getLeafList().getAtomCount();
-	        double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
+
+    	double PE = accumulatorAveragePE.getData(accumulatorAveragePE.AVERAGE).getValue(0)
+                    /sim.box.getLeafList().getAtomCount();
+        double PEerror = accumulatorAveragePE.getData(accumulatorAveragePE.ERROR).getValue(0)
+                /sim.box.getLeafList().getAtomCount();
+        double PEcor = accumulatorAveragePE.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
+                /sim.box.getLeafList().getAtomCount();
+        double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
+
+    	double dadb = accumulatorAverageDADB.getData(accumulatorAveragePE.AVERAGE).getValue(0)
+                /sim.box.getLeafList().getAtomCount();
+    	double dadbError = accumulatorAverageDADB.getData(accumulatorAveragePE.ERROR).getValue(0)
+                /sim.box.getLeafList().getAtomCount();
+    	double dadbCor = accumulatorAverageDADB.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
+                /sim.box.getLeafList().getAtomCount();
 	
-	    	double dadb = accumulatorAverageDADB.getData(accumulatorAveragePE.AVERAGE).getValue(0)
-	                /sim.box.getLeafList().getAtomCount();
-	    	double dadbError = accumulatorAverageDADB.getData(accumulatorAveragePE.ERROR).getValue(0)
-	                /sim.box.getLeafList().getAtomCount();
-	    	double dadbCor = accumulatorAverageDADB.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
-	                /sim.box.getLeafList().getAtomCount();
-	
-	        System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);
+        System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);
 	//        System.out.println("PV(ev)= "+ElectronVolt.UNIT.fromSim(PV));
-	        System.out.println("dadb(eV) "+ElectronVolt.UNIT.fromSim(dadb)+" error: "+ElectronVolt.UNIT.fromSim(dadbError)+ " corrolation: "+dadbCor);
-        }
+        System.out.println("dadb(eV) "+ElectronVolt.UNIT.fromSim(dadb)+" error: "+ElectronVolt.UNIT.fromSim(dadbError)+ " corrolation: "+dadbCor);
+
         System.out.println("time: "+(t2-t1)*0.001);
     }    
     

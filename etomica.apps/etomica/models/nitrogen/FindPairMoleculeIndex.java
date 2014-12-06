@@ -51,11 +51,6 @@ public class FindPairMoleculeIndex {
 		
 		int nSites = 2*nCell+1;
 		siteDisplacement = new double[nSites][nSites][nSites];
-		orientation = new IVectorMutable[4];
-		
-		for (int i=0; i<orientation.length; i++){
-			orientation[i] = space.makeVector();
-		}
 
 		index = new int[5];
 		isNewPair = new boolean[nSites][nSites][nSites][4][4];
@@ -98,11 +93,8 @@ public class FindPairMoleculeIndex {
 	    	 
 		tempOrientB. Ev1Mv2(molBleafPos1, molBleafPos0);
 		tempOrientB.normalize();
-				
-		int[] siteIndex = getSiteDisplacementIndex(tempVec);
-		index[0] = siteIndex[0];
-		index[1] = siteIndex[1];
-		index[2] = siteIndex[2];
+
+		getSiteDisplacementIndex();
 		
 		if(isReverseOrder){
 			index[3] = getOrientationIndex(tempOrientB);
@@ -116,8 +108,7 @@ public class FindPairMoleculeIndex {
 		return index;
 	}
 	
-	public int[] getSiteDisplacementIndex(IVectorMutable siteDisplacement){
-		int[] index = new int[3];
+	public int[] getSiteDisplacementIndex(){
 		index[0] = (int)Math.round(tempVec.getX(0)/halfUnitCellLength) + nCell;
 		index[1] = (int)Math.round(tempVec.getX(1)/halfUnitCellLength) + nCell;
 		index[2] = (int)Math.round(tempVec.getX(2)/halfUnitCellLength) + nCell;
@@ -172,7 +163,6 @@ public class FindPairMoleculeIndex {
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected IAtomPositionDefinition positionDefinition;
 	protected IVectorMutable tempVec, tempOrientA, tempOrientB, molAVec, molBVec;
-	protected IVectorMutable[] orientation;
 	protected double halfUnitCellLength;
 	protected double[][][] siteDisplacement;
 	protected boolean[][][][][] isNewPair;
