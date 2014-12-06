@@ -33,7 +33,6 @@ import etomica.util.Function;
  */
 public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     
-    private static final long serialVersionUID = 2L;
     protected double pressure;
     protected MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
@@ -72,7 +71,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(0.1);
         setStepSizeMin(0.0);
-        setStepSize(0.01);
+        setStepSize(0.001);
         setPressure(pressure);
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
@@ -164,7 +163,8 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         double uLatOld = nMolecules*uLatFunction.f(nMolecules/vOldLocal);
         double uLatNew = nMolecules*uLatFunction.f(nMolecules/vNewLocal);
 
-        latticeScale = Math.exp((pressure*(vNewLocal-vOldLocal)+(uLatNew-uLatOld))/(nMolecules*temperature*D));
+        int transDim = boxSize.getD();
+        latticeScale = Math.exp((pressure*(vNewLocal-vOldLocal)+(uLatNew-uLatOld) - vScaleLocal)/((nMolecules*D-transDim)*temperature));
 
         for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
             IMolecule moleculei = moleculeList.getMolecule(i);
@@ -193,7 +193,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     }
     
     public double getA() {
-        return vNew/vOld;
+        return 1;
     }
     
     public double getB() {

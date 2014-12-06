@@ -8,16 +8,13 @@ import etomica.action.BoxInflateAnisotropic;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
-import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.integrator.Integrator;
 import etomica.space.ISpace;
-import etomica.space3d.Space3D;
-import etomica.units.Dimension;
-import etomica.units.Pressure;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -30,26 +27,21 @@ import etomica.units.Pressure;
 public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
     
     private static final long serialVersionUID = 2L;
-    protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected final BoxInflateAnisotropic inflate;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
 
-    private transient double uOld, hOld, hNew;
+    private transient double uOld;
     private transient double uNew = Double.NaN;
+    protected final IVectorMutable cVec;
 
-    public MCMoveVolumeMonoclinicAngle(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space, IBox box) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0, box);
-    }
-    
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeMonoclinicAngle(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure, IBox box) {
+    		            ISpace _space, IBox box) {
         super(potentialMaster);
         this.random = random;
         inflate = new BoxInflateAnisotropic(box, _space);
@@ -57,9 +49,9 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.01);
-        setPressure(pressure);
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
+        cVec = _space.makeVector();
     }
     
     public void setBox(IBox p) {
@@ -70,34 +62,30 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
     }
      
     public boolean doTrial() {
-        double vOld = box.getBoundary().volume();
         uOld = energyMeter.getDataAsScalar();
-        hOld = uOld + pressure*vOld;
                 
-        IVectorMutable vecCOld = Space3D.makeVector(3);
-        vecCOld.E(box.getBoundary().getEdgeVector(2));
+        cVec.E(box.getBoundary().getEdgeVector(2));
         
         double scale = Math.exp((2.*random.nextDouble()-1.)*stepSize);
-        IVectorMutable vecCNew = Space3D.makeVector(3);
-        vecCNew.E(new double[]{scale*vecCOld.getX(0), vecCOld.getX(1), vecCOld.getX(2)});
+        cVec.setX(0, scale*cVec.getX(0));
 
-        inflate.setCVector(vecCNew);
+        inflate.setCVector(cVec);
         inflate.actionPerformed();
 
         uNew = energyMeter.getDataAsScalar();
-        hNew = uNew + pressure*vOld;
         return true;
     }//end of doTrial
     
     public double getA() {
-        return Math.exp((box.getMoleculeList().getMoleculeCount()+1));
+        return 1;
     }
     
     public double getB() {
-        return -(hNew - hOld);
+        return -(uNew - uOld);
     }
     
-    public void acceptNotify() {  /* do nothing */}
+    public void acceptNotify() {
+    }
     
     public void rejectNotify() {
         inflate.undo();
@@ -108,8 +96,4 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
     public AtomIterator affectedAtoms() {
         return affectedAtomIterator;
     }
-
-    public void setPressure(double p) {pressure = p;}
-    public final double getPressure() {return pressure;}
-    public Dimension getPressureDimension() {return Pressure.DIMENSION;}
 }

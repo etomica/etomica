@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -11,6 +12,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
+import etomica.space.RotationTensor;
 
 
 /**
@@ -24,72 +26,181 @@ import etomica.space.ISpace;
 public class MCMoveVolumeSolidNPTMolecularOriented extends
         MCMoveVolumeSolidNPTMolecular {
 
-    protected final IVectorMutable orientation, orientationLattice, delta, dr0, dr1, com0, com1;
+    protected final IVectorMutable orientation, dr, com;
+    protected final IVectorMutable[] drSum, drSumSave;
+    protected double maxPhi;
+    protected double cosNominalTheta;
+    protected transient RotationTensor rotationTensor;
+    protected int maxMolecule;
+    protected double thetaFrac = 1;
     
     public MCMoveVolumeSolidNPTMolecularOriented(IPotentialMaster potentialMaster, IRandom random,
-            ISpace space, double pressure) {
+            ISpace space, double pressure, IVectorMutable[] drSum) {
         super(potentialMaster, random, space, pressure, 5);
+        rotationTensor = space.makeRotationTensor();
+        this.drSum = drSum;
         orientation = space.makeVector();
-        orientationLattice = space.makeVector();
-        delta = space.makeVector();
-        dr0 = space.makeVector();
-        dr1 = space.makeVector();
-        com0 = space.makeVector();
-        com1 = space.makeVector();
+        dr = space.makeVector();
+        com = space.makeVector();
+        drSumSave = new IVectorMutable[drSum.length];
+        for (int i=0; i<drSumSave.length; i++) {
+            drSumSave[i] = space.makeVector();
+        }
+        maxMolecule = -1;
+    }
+    
+    public void setNominalTheta(double newNominalTheta) {
+        cosNominalTheta = Math.cos(newNominalTheta);
+    }
+    
+    public void setMaxPhi(double newMaxPhi) {
+        maxPhi = newMaxPhi;
+    }
+    
+    public void setThetaFrac(double newThetaFrac) {
+        thetaFrac = newThetaFrac;
+    }
+    
+    public double getThetaFrac() {
+        return thetaFrac;
     }
     
     public void doTransform(double vScaleLocal) {
         super.doTransform(vScaleLocal);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        IMoleculeList moleculeLatticeList = latticeBox.getMoleculeList();
         int nMolecules = moleculeList.getMoleculeCount();
+        if (maxMolecule == -1) {
+            maxMolecule = nMolecules;
+        }
 
+        for (int i=0; i<maxMolecule; i++) {
+            IMolecule molecule = moleculeList.getMolecule(i);
+            
+            IAtomList atoms = molecule.getChildList();
+
+            dr.E(atoms.getAtom(1).getPosition());
+            dr.ME(atoms.getAtom(0).getPosition());
+            dr.normalize();
+            double sintheta = Math.sqrt(dr.getX(0)*dr.getX(0) + dr.getX(1)*dr.getX(1));
+            double costheta = dr.getX(2);
+            double u3 = costheta - cosNominalTheta;
+            
+            double x = dr.getX(0);
+            double y = dr.getX(1);
+            double phi = Math.atan2(y, x);
+            double u4 = phi * sintheta;
+            
+            u3 *= Math.pow(latticeScale, thetaFrac);
+            u4 *= Math.pow(latticeScale, 2.0-thetaFrac);
+            
+            double newCosTheta = u3 + cosNominalTheta;
+            double newSinTheta = Math.sqrt(1-newCosTheta*newCosTheta);
+            double newPhi = u4 / newSinTheta;
+
+            if (newCosTheta < 1e-8 || newCosTheta > 1 - 1e-8 || Math.abs(newPhi) > Math.PI - 1e-8) {
+                // we don't rotate theta past vertical or horizontal.  also can't rotate phi past backwards
+                // bail now (don't rotate).  we'll force move rejection.
+                // when we go to unrotate, we'll stop at the previous molecule
+                maxMolecule = i;
+//                if (newCosTheta < 0 || newCosTheta > 1) {
+//                    System.out.println("bailing because cosTheta "+costheta+" => "+newCosTheta+" for "+molecule);
+//                }
+//                else {
+//                    System.out.println("bailing because phi "+phi+" => "+newPhi+" for "+molecule);
+//                }
+                return;
+            }
+            
+            double a = newSinTheta/sintheta;
+            double b = newCosTheta - newSinTheta/sintheta*costheta;
+            doTransformTheta(molecule, a, b);
+
+            rotationTensor.setAxial(2, newPhi - phi);
+            doTransformPhi(molecule);
+        }
+        maxMolecule = -1;
+    }
+
+    protected void doTransformPhi(IMolecule molecule) {
+        com.E(moleculeCenter.position(molecule));
+        IAtomList childList = molecule.getChildList();
+        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
+            IAtom a = childList.getAtom(iChild);
+            IVectorMutable r = a.getPosition();
+            r.ME(com);
+            box.getBoundary().nearestImage(r);
+            rotationTensor.transform(r);
+            r.PE(com);
+        }
+    }
+
+    protected void doTransformTheta(IMolecule molecule, double a, double b) {
+        com.E(moleculeCenter.position(molecule));
+        IAtomList childList = molecule.getChildList();
+        for (int i=0; i<childList.getAtomCount(); i++) {
+            IVectorMutable p1 = childList.getAtom(i).getPosition();
+            p1.ME(com);
+            double bl = Math.sqrt(p1.squared());
+            if (p1.getX(2) < 0) bl = -bl;
+            p1.TE(a);
+            p1.setX(2, p1.getX(2) + b*bl);
+            p1.PE(com);
+        }
+    }
+
+    public double getA() {
+        if (maxMolecule > -1) {
+            // we over-rotated a molecule (past theta=0 or theta=90)
+            // reject
+            return 0;
+        }
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int nMolecules = moleculeList.getMoleculeCount();
+        for (int i=0; i<drSum.length; i++) {
+            drSumSave[i].E(drSum[i]);
+            drSum[i].E(0);
+        }
+        // now recalculate drSum
         for (int i=0; i<nMolecules; i++) {
-            IMolecule moleculei = moleculeList.getMolecule(i);
-            orientation.Ev1Mv2(moleculei.getChildList().getAtom(1).getPosition(), moleculei.getChildList().getAtom(0).getPosition());
-            orientation.normalize();
-            IMolecule moleculeLattice = moleculeLatticeList.getMolecule(i);
-            orientationLattice.Ev1Mv2(moleculeLattice.getChildList().getAtom(1).getPosition(), moleculeLattice.getChildList().getAtom(0).getPosition());
-            orientationLattice.normalize();
+            IMolecule molecule = moleculeList.getMolecule(i);
             
-            delta.E(orientation);
-            delta.ME(orientationLattice);
-            
-            double d2 = delta.squared();
-            // d2==0 means the molecule is already in its nominal orientation (can't scale)
-            if (d2 == 0) continue;
+            int nPlanes = drSum.length;
+            int iPlane = (molecule.getIndex()/2)%nPlanes;
+            IVectorMutable drSumi = drSum[iPlane];
 
-            double x = d2*0.5;
-            double costheta = 1. - x; 
-            double sintheta = Math.sqrt((2-x)*x);  // sqrt(1 - (1-x)^2) = sqrt(1 - 1 + 2x - x^2) = sqrt(2x - x^2)
-            
-            // r0 is lattice orientation, r1 is current orientation
-            double rScale = Math.exp(vScaleLocal/boxSize.getD());
-            double newX = x*latticeScale*latticeScale*rScale*rScale;
-            double cosNewTheta = 1 - newX;
-            double sinNewTheta = Math.sqrt((2-newX)*newX);
-            
-            double a = sinNewTheta/sintheta;
-            double b = cosNewTheta - sinNewTheta/sintheta*costheta;
+            IAtomList atoms = molecule.getChildList();
+            // add the trial orientation
+            drSumi.PE(atoms.getAtom(1).getPosition());
+            drSumi.ME(atoms.getAtom(0).getPosition());
+        }
 
-            doRotationTransform(moleculei, moleculeLattice, a, b);
+        for (int i=0; i<drSum.length; i++) {
+            double phi = Math.atan2(drSum[i].getX(1), drSum[i].getX(0));
+            if (Math.abs(phi) > maxPhi) {
+//                System.out.println("rejecting because phi "+i+" = "+phi+" (>"+maxPhi+")");
+                return 0;
+            }
+        }
+        return super.getA();
+    }
+
+    public void rejectNotify() {
+        boolean bailed = maxMolecule > -1;
+        super.rejectNotify();
+        if (!bailed) {
+            // if the trial was successful then we calculated new drSum in getA
+            // we rejected the trial, so restore drSum
+            for (int i=0; i<drSum.length; i++) {
+                drSum[i].E(drSumSave[i]);
+            }
+        }
+        if (maxMolecule != -1) {
+            throw new RuntimeException("oops");
         }
     }
     
-    protected void doRotationTransform(IMolecule molecule, IMolecule moleculeLattice, double a, double b) {
-        com0.E(moleculeCenter.position(moleculeLattice));
-        com1.E(moleculeCenter.position(molecule));
-        IAtomList childList = molecule.getChildList();
-        IAtomList latticeChildList = moleculeLattice.getChildList();
-        for (int i=0; i<childList.getAtomCount(); i++) {
-            IVectorMutable p1 = childList.getAtom(i).getPosition();
-            IVectorMutable p0 = latticeChildList.getAtom(i).getPosition();
-            p1.ME(com1);
-            p1.TE(a);
-            p1.PEa1Tv1(b, p0);
-            p1.PEa1Tv1(-b, com0);
-            p1.PE(com1);
-        }
+    public void acceptNotify() {
+        maxMolecule = -1;
     }
 }

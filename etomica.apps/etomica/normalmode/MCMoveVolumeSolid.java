@@ -49,6 +49,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     
     protected Function uLatFunction = uLat0;
     protected Function uLatTruncFunction = uLat0;
+    protected final boolean doCorti = true;
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
@@ -57,6 +58,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     public MCMoveVolumeSolid(IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
     		            ISpace _space, double pressure) {
         super(potentialMaster);
+//        System.out.println("do Corti? "+doCorti);
         this.coordinateDefinition = coordinateDefinition;
         this.random = random;
         this.D = _space.D();
@@ -97,6 +99,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
      */
     public void setULatFunction(Function newULatFunction) {
         uLatFunction = newULatFunction;
+        if (uLatTruncFunction == uLat0) uLatTruncFunction = uLatFunction;
     }
     
     public Function getULatFunction() {
@@ -122,35 +125,49 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         vScale = (2.*random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
+//        System.out.println(stepSize+" "+vScale+" "+rScale);
+//        System.out.println(box.getBoundary().getBoxSize());
+//        System.out.println("atom 0 "+box.getLeafList().getAtom(0).getPosition());
         inflate.setScale(rScale);
         inflate.actionPerformed();
+        System.out.println(box.getBoundary().getBoxSize());
 
         IAtomList leafList = box.getLeafList();
         int nAtoms = leafList.getAtomCount();
         double uLatOld = nAtoms*uLatFunction.f(nAtoms/vOld);
         double uLatNew = nAtoms*uLatFunction.f(nAtoms/vNew);
 
-        latticeScale = Math.exp((pressure*(vNew-vOld)+(uLatNew-uLatOld))/(nAtoms*temperature*D))/rScale;
+        //latticeScale = Math.exp((pressure*(vNew-vOld)+(uLatNew-uLatOld) - vScale)/((nAtoms-1)*temperature*D))/rScale;
+        latticeScale = Math.exp((pressure*(vNew-vOld)+(uLatNew-uLatOld))/((nAtoms)*temperature*D))/rScale;
+//        System.out.println("ls "+latticeScale);
 
         IVector boxSize = box.getBoundary().getBoxSize();
         for (int i=0; i<leafList.getAtomCount(); i++) {
             IAtom atomi = leafList.getAtom(i);
             IVector site = coordinateDefinition.getLatticePosition(atomi);
+//            if (i==0) {
+//                System.out.println("lattice 0 "+site);
+//            }
             dr.E(site);
-            dr.TE(boxSize);
             dr.DE(nominalBoxSize);
+            dr.TE(boxSize);
+//            if (i==0) {
+//                System.out.println("lattice 0 => "+dr);
+//            }
             // dr is now the new lattice site
             dr.TE(1-latticeScale);
             atomi.getPosition().TE(latticeScale);
             atomi.getPosition().PE(dr);
+//            if (i==0) System.out.println("atom 0 => "+atomi.getPosition());
         }
+        System.exit(1);
         
         uNew = energyMeter.getDataAsScalar();
         return true;
     }
     
     public double getA() {
-        return vNew/vOld;
+        return doCorti ? 1.0 : vNew/vOld;
     }
     
     public double getB() {
