@@ -350,7 +350,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		}
 		else {
 			for (int i = 0; i < atoms.getAtomCount(); i++) {
-			gnEi[i].E(0);
+			    gnEi[i].E(0);
 			}
 		}
 		
