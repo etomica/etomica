@@ -13,7 +13,6 @@ import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.mcmove.MCMoveInsertDeleteBiased;
 import etomica.space.ISpace;
 
 /**
@@ -23,7 +22,6 @@ import etomica.space.ISpace;
  * @author Andrew Schultz
  */
 public class IntegratorHardMDMC extends IntegratorHard {
-    protected MCMoveInsertDeleteBiased mcMoveID;
     protected List<IAction> thermostatActions;
 
     public IntegratorHardMDMC(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
@@ -37,10 +35,6 @@ public class IntegratorHardMDMC extends IntegratorHard {
     
     public void addThermostatAction(IAction a) {
         thermostatActions.add(a);
-    }
-    
-    public void setMCMoveID(MCMoveInsertDeleteBiased mcMoveID) {
-        this.mcMoveID = mcMoveID;
     }
 
     public void reset() {
