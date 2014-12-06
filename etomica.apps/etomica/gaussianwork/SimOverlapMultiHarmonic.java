@@ -9,7 +9,6 @@ import etomica.action.activity.IController;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
@@ -24,6 +23,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.listener.IntegratorListenerAction;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -38,7 +38,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 
 
@@ -144,7 +143,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
 	
@@ -244,8 +243,8 @@ public class SimOverlapMultiHarmonic extends Simulation{
 	    sim.getController().actionPerformed();
 	    
 	    System.out.println(" ");
-	    System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
-        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+	    System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
+        		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];

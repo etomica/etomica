@@ -24,6 +24,7 @@ import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -35,7 +36,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * 
@@ -211,7 +211,7 @@ public class SimOverlapBetaN2RP extends Simulation {
         
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
 
@@ -276,7 +276,7 @@ public class SimOverlapBetaN2RP extends Simulation {
 //        System.exit(1);
         
         sim.integratorOverlap.setNumSubSteps(1000);
-        sim.integratorOverlap.setAdjustStepFreq(false);
+        sim.integratorOverlap.setAdjustStepFraction(false);
         numSteps /= 1000;
         
         sim.equilibrate(numSteps);       
@@ -289,8 +289,8 @@ public class SimOverlapBetaN2RP extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
          
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
-        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
+        		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
         System.out.println("numPoint: " +sim.accumulators[0].getNBennetPoints()+ "\n");
         
         System.out.println("ratio averages: \n");

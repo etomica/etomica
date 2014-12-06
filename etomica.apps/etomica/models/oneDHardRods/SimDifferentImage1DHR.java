@@ -14,9 +14,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -37,6 +34,7 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -50,7 +48,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * MC simulation
@@ -71,7 +68,6 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimDifferentImage1DHR extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDifferentImage";
     public Primitive primitive;
     int[] nCellsTarget, nCellsRef;
@@ -402,7 +398,7 @@ public class SimDifferentImage1DHR extends Simulation {
         if (integratorSim != null && accumulators[0] != null && 
                 accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorSim.setDSVO(dsvo);
+            integratorSim.setReferenceFracSource(dsvo);
         }
         
     }
@@ -427,12 +423,12 @@ public class SimDifferentImage1DHR extends Simulation {
 
         
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
+            integrators[i].getMoveManager().setEquilibrating(true);
         }
         getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
+            integrators[i].getMoveManager().setEquilibrating(false);
         }
         
         if (bennettParam == -1) {
@@ -561,8 +557,8 @@ public class SimDifferentImage1DHR extends Simulation {
         sim.activityIntegrate.setMaxSteps(runNumSteps);
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
-                sim.integratorSim.getStepFreq0() + " (actual: " + 
-                sim.integratorSim.getActualStepFreq0() + ")");
+                sim.integratorSim.getIdealRefStepFraction() + " (actual: " + 
+                sim.integratorSim.getRefStepFraction() + ")");
         
         
         //CALCULATION OF HARMONIC ENERGY
