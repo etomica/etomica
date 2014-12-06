@@ -75,6 +75,10 @@ public class P1ConstraintNbr implements IPotentialAtomic{
         boxManager.setAgent(box, neighborAtoms);
     }
 
+    public int[][] getNbrAtoms(IBox box) {
+        return boxManager.getAgent(box);
+    }
+
     public int nBody() {
         return 1;
     }
