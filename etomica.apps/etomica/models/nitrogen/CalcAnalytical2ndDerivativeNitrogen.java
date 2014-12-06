@@ -74,13 +74,9 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 			throw new RuntimeException("C<CalcAnalytical2ndDerivcationNitrogen> CANNOT HANDLE SELF-TERM YET!");
 		}
 		
-		double [][] d2r = new double[5][5];
-		
-		MoleculePair pair = new MoleculePair();
 		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[0]);
 		pair.atom1 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[1]);
 		
-		DataTensor tensorTrans = new DataTensor(Space.getInstance(3));
 		tensorTrans.E(potential.secondDerivative(pair));
 		
 		// i-row and j-column
@@ -137,5 +133,7 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 	protected P2Nitrogen potential;
 	protected IVectorMutable workVec;
 	protected boolean doLatticeSum = false;
-	
+    protected double [][] d2r = new double[5][5];
+    protected MoleculePair pair = new MoleculePair();
+    protected DataTensor tensorTrans = new DataTensor(Space.getInstance(3));
 }
