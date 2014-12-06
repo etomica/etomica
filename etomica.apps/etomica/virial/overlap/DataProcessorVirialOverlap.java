@@ -99,7 +99,7 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
     protected IData processData(IData inputData) {
         double[] x = data.getData();
         for (int i=0; i<numIncomingValues-1; i++) {
-            // pass thru
+            // pass thru the target values
             x[i] = inputData.getValue(i);
         }
         double value1 = inputData.getValue(numIncomingValues-1);
@@ -118,14 +118,12 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
     }
 
     /**
-     * Returns iParam'th factor used in the Bennet sum.  Higher values
-     * indicate the overlap function is more like the 0th value.
+     * Returns ith factor used in the overlap value.
      */
-    public double getAlpha(int iParam) {
-        return alpha[iParam];
+    public double getAlpha(int i) {
+        return alpha[i];
     }
     
-    private static final long serialVersionUID = 1L;
     protected DataDoubleArray data;
     private int numAlpha;
     private double[] alpha;
