@@ -6,8 +6,10 @@ package etomica.normalmode;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.config.IConformation;
+import etomica.config.IConformationOriented;
+import etomica.space.IOrientation;
 import etomica.space.ISpace;
 
  /**
@@ -16,27 +18,34 @@ import etomica.space.ISpace;
   * @author Tai Boon Tan
   *
   */
-public class ConformationHSDimer implements IConformation, java.io.Serializable{
+public class ConformationHSDimer implements IConformationOriented, java.io.Serializable{
 	
-	public ConformationHSDimer(ISpace space){
+	public ConformationHSDimer(ISpace space, double L){
 		this.space = space;
-		vector = space.makeVector();
+		this.L = L;
+        orientationX = space.makeOrientation();
+        IVectorMutable vectorX = space.makeVector();
+        vectorX.setX(0, 1);
+        orientationX.setDirection(vectorX);
 	}
 
-	public void initializePositions(IAtomList atomList) {
-			
-		IAtom n1 = atomList.getAtom(SpeciesHSDimer.indexAtom1);
-		n1.getPosition().E(new double[] {-L/2, 0, 0});
-		
-		IAtom n2 = atomList.getAtom(SpeciesHSDimer.indexAtom2);
-		n2.getPosition().E(new double[] {L/2, 0, 0});
-		
+    public void initializePositions(IAtomList atomList, IOrientation orientation) {
+        IVector orientationDir = orientation.getDirection();
+        IAtom n1 = atomList.getAtom(SpeciesHSDimer.indexAtom1);
+        n1.getPosition().Ea1Tv1(-0.5*L, orientationDir);
+        
+        IAtom n2 = atomList.getAtom(SpeciesHSDimer.indexAtom2);
+        n2.getPosition().Ea1Tv1(+0.5*L, orientationDir);
+    }
+
+    public void initializePositions(IAtomList atomList) {
+        initializePositions(atomList, orientationX);
 	}
 		
 	protected final ISpace space;
-	protected static final double L = 0.6;
+	protected final double L;
 	
-	protected IVectorMutable vector;
+	protected IOrientation orientationX;
 	
 	private static final long serialVersionUID = 1L;
 }
