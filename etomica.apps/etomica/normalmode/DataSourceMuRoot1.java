@@ -27,6 +27,7 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
     protected double mu;
     protected double bALattice, volume, latticeDensity;
     protected double lastP, lastVacancyConcentration;
+    protected double minMu;
     
     public DataSourceMuRoot1(MCMoveOverlapListener mcMoveOverlapMeter, double mu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
@@ -36,6 +37,11 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
         this.latticeDensity = latticeDensity;
         this.bALattice = bALattice;
         this.volume = volume;
+        minMu = Double.NaN;
+    }
+    
+    public void setMinMu(double minMu) {
+        this.minMu = minMu;
     }
     
     public synchronized double getDataAsScalar() {
@@ -46,7 +52,7 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
         double myMu = mu;
         double lastMu = mu;
         double maxMu = Double.POSITIVE_INFINITY;
-        double minMu = Double.NEGATIVE_INFINITY;
+        double thisMinMu = Double.isNaN(minMu) ? Double.NEGATIVE_INFINITY : minMu;
         int n0 = mcMoveOverlapMeter.getMinNumAtoms();
         int nLatticeAtoms = n0 + ratios.length;
         while (true) {
@@ -56,7 +62,10 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
             double vAvg = 0;
             for (int i=0; p/tot > 1e-14; i++) {
                 tot += p;
+                double x = Math.exp(daDef+myMu)/(nLatticeAtoms-i)*(i+1);
+                if (Double.isInfinite(x) || Double.isInfinite(p/x)) throw new RuntimeException("oops "+p+" "+x+" "+daDef+" "+myMu+" "+thisMinMu+" "+i);
                 p /= Math.exp(daDef+myMu)/(nLatticeAtoms-i)*(i+1);
+                if (Double.isInfinite(p)) throw new RuntimeException("oops");
                 if (i>nLatticeAtoms/10) return Double.NaN;
             }
             tot += p;
@@ -96,10 +105,10 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
 //            if (newMu < 15) {
 //                System.out.println("oops");
 //            }
-            if (newMu == myMu || newMu == lastMu || newMu > maxMu || newMu < minMu) {
+            if (newMu == myMu || newMu == lastMu || newMu > maxMu || newMu < thisMinMu) {
                 return newMu;
             }
-            if (((newMu-myMu)*(lastMu-myMu) > 0 && (Math.abs(newMu-myMu) >= Math.abs(lastMu-myMu))) || newMu > maxMu || newMu < minMu) {
+            if (((newMu-myMu)*(lastMu-myMu) > 0 && (Math.abs(newMu-myMu) >= Math.abs(lastMu-myMu))) || newMu > maxMu || newMu < thisMinMu) {
                 // getting worse
                 return myMu;
             }
@@ -109,10 +118,11 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
             }
             else {
                 // myMu was too small
-                if (minMu < myMu) minMu = myMu;
+                if (thisMinMu < myMu) thisMinMu = myMu;
             }
             lastMu = myMu;
             myMu = newMu;
+            if (!Double.isNaN(thisMinMu) && myMu < thisMinMu) return Double.NaN;
         }
     }
     
