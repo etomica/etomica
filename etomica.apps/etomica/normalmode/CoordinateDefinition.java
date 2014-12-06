@@ -61,13 +61,33 @@ public abstract class CoordinateDefinition {
         }
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
+        IVectorMutable minBasis = space.makeVector();
+        minBasis.E(1e10);
+        IVectorMutable maxBasis = space.makeVector();
+        maxBasis.E(-1e10);
+        for (int i=0; i<basisSize; i++) {
+            IVector p = lattice.getBasis().getScaledCoordinates()[i];
+            for (int j=0; j<minBasis.getD(); j++) {
+                if (minBasis.getX(j) > p.getX(j)) {
+                    minBasis.setX(j, p.getX(j));
+                }
+                if (maxBasis.getX(j) < p.getX(j)) {
+                    maxBasis.setX(j, p.getX(j));
+                }
+            }
+        }
+        IVectorMutable basisOffset = space.makeVector();
+        basisOffset.E(maxBasis);
+        basisOffset.PE(minBasis);
+        basisOffset.TE(-0.5);
+        basisOffset.PE(0.5);
 
         IVectorMutable offset = lattice.getSpace().makeVector();
         IVector[] primitiveVectors = primitive.vectors();
         for (int i=0; i<primitiveVectors.length; i++) {
-            offset.PEa1Tv1(nCells[i],primitiveVectors[i]);
+            offset.PEa1Tv1(-0.5*nCells[i],primitiveVectors[i]);
+            offset.PEa1Tv1(basisOffset.getX(i), primitiveVectors[i]);
         }
-        offset.TE(-0.5);
         
         IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(space.D()+1);
         int[] iteratorDimensions = new int[space.D()+1];
@@ -92,7 +112,7 @@ public abstract class CoordinateDefinition {
         for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
             IMolecule molecule = moleculeList.getMolecule(iMolecule);
             // initialize coordinates of child atoms
-           molecule.getType().initializeConformation(molecule);
+            molecule.getType().initializeConformation(molecule);
 
             int[] ii = indexIterator.next();
             position.E((IVector)lattice.site(ii));
@@ -222,6 +242,10 @@ public abstract class CoordinateDefinition {
 
     public Basis getBasis() {
         return basis;
+    }
+
+    public AtomLeafAgentManager<IVectorMutable> getSiteManager() {
+        return siteManager;
     }
 
     protected final int coordinateDim;
