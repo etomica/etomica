@@ -93,7 +93,7 @@ public class MSDProcessor {
                 //Block 1 Loop - Adds XYZ lines from block 1
                 for (int k=0; k<numAtoms; k++){
                     String positionLine = buffReader.readLine();
-                    String[] coordString = positionLine.split("\t");
+                    String[] coordString = positionLine.split("[\t ]");
                     for (int l=0; l<coordString.length; l++) {
                         double coord = Double.valueOf(coordString[l]).doubleValue();
                         coordBlock1[k].setX(l,coord);
@@ -107,17 +107,17 @@ public class MSDProcessor {
                     }
                     for (int iatom=0; iatom<numAtoms; iatom++){
                         String positionLine = buffReader.readLine();
-                        String [] coordString = positionLine.split("\t");
+                        String [] coordString = positionLine.split("[\t ]");
                    
                         for (int icoord=0; icoord<coordString.length; icoord++) {
                             double coord = Double.valueOf(coordString[icoord]).doubleValue();
                             coordVector2.setX(icoord,coord);
                         }
-                        
                         coordVector2.ME(coordBlock1[iatom]);
                         totalRsquared[deltaT-1] += coordVector2.squared();
                         for(int j=0;j<RsquaredXYZ[deltaT-1].length;j++){
-                        	RsquaredXYZ[deltaT-1][j] += Math.pow(coordVector2.getX(j),2.0);
+                            double dx = coordVector2.getX(j);
+                        	RsquaredXYZ[deltaT-1][j] += dx*dx;
                         }
                     }
                 }
@@ -146,21 +146,22 @@ public class MSDProcessor {
         //Writes totalRsquared to file
         try{
             fileWriter = new FileWriter(msdOutput, false);
-            fileWriter.write(numAtoms+"\n");
-            fileWriter.write(numBlocks+"\n");
+//            fileWriter.write(numAtoms+"\n");
+//            fileWriter.write(numBlocks+"\n");
             
             for (int irow=0; irow<deltaTmax; irow++){
-                fileWriter.write(irow+"\t"+totalRsquared[irow]+"\n");
-            }
-            
-            fileWriter.write("Time dependent data for X,Y,Z\n");
-            for(int j=0;j<3;j++){
-            	for(int i=0;i<deltaTmax;i++){
-            		fileWriter.write(RsquaredXYZ[i][j]+"\n");
-            	}
-            	fileWriter.write("\n");
+                fileWriter.write((irow+1)+" "+totalRsquared[irow]+"\n");
             }
             fileWriter.close();
+            
+            String[] dims = new String[]{"X","Y","Z"};
+            for(int j=0;j<3;j++){
+                fileWriter = new FileWriter(msdOutput+dims[j]);
+            	for(int i=0;i<deltaTmax;i++){
+            		fileWriter.write((i+1)+" "+RsquaredXYZ[i][j]+"\n");
+            	}
+            	fileWriter.close();
+            }
         }
         catch (IOException e) {
             throw new RuntimeException(e);
