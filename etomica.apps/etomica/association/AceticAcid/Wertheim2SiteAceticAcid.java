@@ -490,6 +490,7 @@ public class Wertheim2SiteAceticAcid {
         targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FAB,FABFBA,eR, fARef});
         if (numDiagram == 1) {
         	System.out.println("Flipping is applied");
+        	((ClusterSum)targetCluster).setCaching(false);
         	targetCluster = new ClusterCoupledFlipped(targetCluster, space);
         }
         targetCluster.setTemperature(temperature);

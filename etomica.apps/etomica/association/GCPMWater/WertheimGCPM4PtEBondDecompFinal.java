@@ -8,10 +8,8 @@ import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.api.IPotentialMolecular;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.IData;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -246,44 +244,45 @@ public class WertheimGCPM4PtEBondDecompFinal {
 			if (flip){
 				System.out.println("Flipping is applied");
 		        ((ClusterSumPolarizableWertheimProduct4PtFinal)targetCluster).setDeltaCut(deltaCut);
+	            ((ClusterSumPolarizableWertheimProduct4PtFinal)targetCluster).setCaching(false);
 		        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 			}
 		}
         targetCluster.setTemperature(temperature);
         
 		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
-		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA);
+		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA);
 		if (numDiagram == 28) configuration.initializeCoordinatesER(sim.box[1]);
 		if (numDiagram == 29)configuration.initializeCoordinates(sim.box[1]);
 		if ((numDiagram == 16 || numDiagram == 17 ||numDiagram == 30)){
 			if (diagramIndex == 1){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pCA);
 			} else if (diagramIndex == 4){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pAC);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pAC);
 			} else if (diagramIndex == 3){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pAC,pCA);
 			} else if (diagramIndex == 2){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pBC);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pBC);
 			}	
 			configuration.initializeCoordinates2(sim.box[1]);
 			}
 		if (numDiagram == 36){
-			configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA);
+			configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pCA,pCA);
 			configuration.initializeCoordinates4(sim.box[1]);	
 			}
 		if (numDiagram == 12 || numDiagram == 19 ||numDiagram == 34){
 			if (diagramIndex == 1){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pCA, (PNWaterGCPMThreeSite)pCA);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pCA, pCA);
 			}	else if (diagramIndex == 4){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pAC, (PNWaterGCPMThreeSite)pAC);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pAC, pAC);
 			}	else if (diagramIndex == 2){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pBC, (PNWaterGCPMThreeSite)pAC);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pBC, pAC);
 			}	else if (diagramIndex == 3){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA, (PNWaterGCPMThreeSite)pBC);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pAC,pCA, pBC);
 			}	else if (diagramIndex == 5){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pCA,(PNWaterGCPMThreeSite)pAC, (PNWaterGCPMThreeSite)pCA);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pAC, pCA);
 			}	else if (diagramIndex == 6){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),(PNWaterGCPMThreeSite)pAC,(PNWaterGCPMThreeSite)pCA, (PNWaterGCPMThreeSite)pCA);
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pAC,pCA, pCA);
 			}
 			configuration.initializeCoordinates3(sim.box[0]);	
 			configuration.initializeCoordinates3(sim.box[1]);
