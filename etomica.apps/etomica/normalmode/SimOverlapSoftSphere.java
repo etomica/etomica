@@ -14,12 +14,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -30,11 +25,11 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -45,13 +40,10 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -83,7 +75,7 @@ public class SimOverlapSoftSphere extends Simulation {
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
+        final IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
         atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
@@ -150,7 +142,7 @@ public class SimOverlapSoftSphere extends Simulation {
             //((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundaryTarget.getBoxSize().getX(0));
 		}
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
         meterPE.setBox(boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy: " + latticeEnergy);
@@ -173,8 +165,7 @@ public class SimOverlapSoftSphere extends Simulation {
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
         
-        String inFile = "inputSSDB"+numAtoms;
-        normalModes = new NormalModesFromFile(inFile, space.D());
+        normalModes = new NormalModesFromFile(fname, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         /*
          * nuke this line if it is DB
@@ -203,12 +194,14 @@ public class SimOverlapSoftSphere extends Simulation {
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(new MeterPotentialEnergyFromIntegrator(integratorTarget), meterHarmonicEnergy);
+        meterTarget.setFrac(1);
         meterTarget.setTemperature(temperature);
         meterTarget.setLatticeEnergy(latticeEnergy);
         meters[1] = meterTarget;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
         
         MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMasterTarget);
+        meterHarmonic.setFrac(1);
         meterHarmonic.setTemperature(temperature);
         meterHarmonic.setLatticeEnergy(latticeEnergy);
         meters[0] = meterHarmonic;
@@ -225,11 +218,6 @@ public class SimOverlapSoftSphere extends Simulation {
         refPref = refPrefCenter;
         accumulators[0].setBennetParam(refPrefCenter,span);
         accumulators[1].setBennetParam(refPrefCenter,span);
-        // needed for Bennett sampling
-//        if (accumulators[0].getNBennetPoints() == 1) {
-//            ((MeterBoltzmannHarmonic)meters[0]).refPref = refPrefCenter;
-//            ((MeterBoltzmannTarget)meters[1]).refPref = refPrefCenter;
-//        }
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
@@ -260,7 +248,7 @@ public class SimOverlapSoftSphere extends Simulation {
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
     
@@ -429,39 +417,6 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.flush();
         
         
-        /*
-         * To quantify the relative entropy
-         */
-        
-        // Harmonic to Bennett Sampling
-        MeterWorkHarmonicBennet meterWorkHarmonic = 
-        	new MeterWorkHarmonicBennet(sim.move, sim.potentialMasterTarget, sim.refPref);
-        meterWorkHarmonic.setLatticeEnergy(sim.latticeEnergy);
-        meterWorkHarmonic.setTemperature(temperature);
-        
-        DataFork dataForkHarmonic = new DataFork();
-        DataPumpListener dataPumpHarmonic = new DataPumpListener(meterWorkHarmonic, dataForkHarmonic,1);
-        
-        AccumulatorAverageFixed dataAverageHarmonic = new AccumulatorAverageFixed(1);
-        AccumulatorHistogram histogramHarmonicTarget = new AccumulatorHistogram(new HistogramSimple(4000, new DoubleRange(-200, 200)));
-        dataForkHarmonic.addDataSink(dataAverageHarmonic);
-        dataForkHarmonic.addDataSink(histogramHarmonicTarget);
-        sim.integrators[0].getEventManager().addListener(dataPumpHarmonic);
-        
-        // Target to Bennett Sampling
-        MeterWorkTargetBennet meterWorkTarget = 
-        	new MeterWorkTargetBennet(sim.integrators[1], sim.meterHarmonicEnergy, sim.refPref);
-        meterWorkTarget.setLatticeEnergy(sim.latticeEnergy);
-        
-        DataFork dataForkTarget = new DataFork();
-        DataPumpListener dataPumpTarget = new DataPumpListener(meterWorkTarget, dataForkTarget, 1000);
-        
-        AccumulatorAverageFixed dataAverageTarget = new AccumulatorAverageFixed(1);
-        AccumulatorHistogram histogramTargetHarmonic = new AccumulatorHistogram(new HistogramSimple(4000, new DoubleRange(-200, 200)));
-        dataForkTarget.addDataSink(dataAverageTarget);
-        dataForkTarget.addDataSink(histogramTargetHarmonic);
-        sim.integrators[1].getEventManager().addListener(dataPumpTarget);
-        
         
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
@@ -477,8 +432,8 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numMolecules);
         System.out.println(" ");
         
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
-        		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
+        		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
 
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
@@ -490,13 +445,11 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("target free energy per particle: "+ (AHarmonic-temperature*Math.log(ratio))/numMolecules 
         		+" ;error: "+temperature*(error/ratio)/numMolecules);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        double betaFAW = -Math.log(((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]);
         System.out.println("harmonic ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
         
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        double betaFBW = -Math.log(((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]);
         System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
@@ -505,33 +458,8 @@ public class SimOverlapSoftSphere extends Simulation {
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);
         System.out.println("Time taken: " + (endTime - startTime));
-                
-        /*
-         * Refer Wu & Kofke JCp 123,054103(2003) Eq (6)
-         */
-        double betaUAWf = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
-        double betaUBWf = dataAverageTarget.getData().getValue(dataAverageHarmonic.AVERAGE.index);
-
-        double betaUAWr = meterWorkHarmonic.getDataReweighted();  // < beta*U_AW>W
-        double betaUBWr = meterWorkTarget.getDataReweighted();	// < beta*U_BW>W
-        
-        double SAW =  betaUAWf - betaFAW;
-        double SWA = - betaUAWr + betaFAW;
-        
-        double SBW = betaUBWf - betaFBW;
-        double SWB = - betaUBWr + betaFBW;
-
-        System.out.println("");
-        System.out.println("SAW: "+ SAW + " ; betaUAWf: " + betaUAWf + " ;betaFAW: " + betaFAW);
-        System.out.println("SWA: "+ SWA + " ; betaUAWr: " + betaUAWr + " ;betaFAW: " + betaFAW);
-        
-        System.out.println("");
-        System.out.println("SBW: "+ SBW + " ; betaUBWf: " + betaUBWf + " ;betaFBW: " + betaFBW);
-        System.out.println("SWB: "+ SWB + " ; betaUBWr: " + betaUBWr + " ;betaFBW: " + betaFBW);
-    
     }
 
-    private static final long serialVersionUID = 1L;
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
@@ -557,13 +485,13 @@ public class SimOverlapSoftSphere extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules =32;
-        public double density = 12560;
+        public int numMolecules = 32;
+        public double density = 11964;
         public int exponentN = 12;
         public int D = 3;
         public long numSteps = 1000000;
         public double harmonicFudge = 1;
-        public String filename = "inputSSDB32T01";
-        public double temperature =0.1;
+        public String filename = "inputSSDB32_d11964";
+        public double temperature = 0.01;
     }
 }

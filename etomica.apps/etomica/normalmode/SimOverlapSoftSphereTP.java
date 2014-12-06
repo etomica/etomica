@@ -18,6 +18,7 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
@@ -45,8 +46,9 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Function;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
+import etomica.util.ParseArgs;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -121,7 +123,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
 
         box.setBoundary(boundary);
 
-        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
@@ -223,18 +225,18 @@ public class SimOverlapSoftSphereTP extends Simulation {
     public static void main(String[] args) {
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
-        String inputFilename = null;
-        if (args.length > 0) {
-            inputFilename = args[0];
+        ParseArgs.doParseArgs(params, args);
+        if (args.length==0) {
+            params.alpha = new double[0];
+            params.otherTemperatures = new double[0];
+            params.numSteps = 10000000;
+            params.temperature = 0.5;
+            params.pEst = 9.345;
         }
-        if (inputFilename != null) {
-            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-            readParameters.readParameters();
-        }
-        double density = params.density;
+        final double density = params.density;
         int exponentN = params.exponentN;
         long numSteps = params.numSteps;
-        final int numMolecules = params.numMolecules;
+        final int numAtoms = params.numAtoms;
         boolean slanty = params.slanty;
         boolean flex = params.flex;
         double temperature = params.temperature;
@@ -243,14 +245,15 @@ public class SimOverlapSoftSphereTP extends Simulation {
         int numAlpha = params.numAlpha;
         double alphaSpan = params.alphaSpan;
         double rc = params.rc;
+        double pEst = params.pEst;
         
         System.out.println("Running soft sphere overlap simulation");
-        System.out.println(numMolecules+" atoms at density "+density+" and temperature "+temperature);
+        System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println("exponent N: "+ exponentN);
         System.out.println(numSteps+" steps");
 
         //instantiate simulation
-        final SimOverlapSoftSphereTP sim = new SimOverlapSoftSphereTP(Space.getInstance(3), numMolecules, slanty, flex, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
+        final SimOverlapSoftSphereTP sim = new SimOverlapSoftSphereTP(Space.getInstance(3), numAtoms, slanty, flex, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -314,8 +317,54 @@ public class SimOverlapSoftSphereTP extends Simulation {
         
         //start simulation
 
-        sim.initialize(numMolecules*50);
+        sim.initialize(numAtoms*50);
         System.out.flush();
+        
+        MeterPressure meterPressure = new MeterPressure(sim.getSpace());
+        meterPressure.setIntegrator(sim.integrator);
+        AccumulatorAverageFixed accP = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
+        DataPumpListener pumpP = new DataPumpListener(meterPressure, accP, numAtoms);
+        sim.integrator.getEventManager().addListener(pumpP);
+
+        /*
+        MeterSolidPressure meterSolidPressure = new MeterSolidPressure(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition);
+        double pLattice = 12/(3*sim.box.getBoundary().volume())*sim.latticeEnergy;
+        System.out.println("pLattice: "+pLattice);
+        meterSolidPressure.setPressureResidual(pEst, pLattice);
+        meterSolidPressure.setTemperature(temperature);
+        AccumulatorAverageFixed accSolidP = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
+        DataPumpListener pumpSolidP = new DataPumpListener(meterSolidPressure, accSolidP, numAtoms);
+        sim.integrator.getEventManager().addListener(pumpSolidP);
+        
+        MeterSolidPressure meterSolidPressureLow = new MeterSolidPressure(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition);
+        meterSolidPressureLow.setPressureEstimate(pEst-1, pLattice);
+        meterSolidPressureLow.setTemperature(temperature);
+        AccumulatorAverageFixed accSolidPLow = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
+        DataPumpListener pumpSolidPLow = new DataPumpListener(meterSolidPressureLow, accSolidPLow, numAtoms);
+        sim.integrator.getEventManager().addListener(pumpSolidPLow);
+
+        MeterSolidPressure meterSolidPressureHigh = new MeterSolidPressure(sim.getSpace(), sim.potentialMaster, sim.coordinateDefinition);
+        meterSolidPressureHigh.setPressureEstimate(pEst+1, pLattice);
+        meterSolidPressureHigh.setTemperature(temperature);
+        AccumulatorAverageFixed accSolidPHigh = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
+        DataPumpListener pumpSolidPHigh = new DataPumpListener(meterSolidPressureHigh, accSolidPHigh, numAtoms);
+        sim.integrator.getEventManager().addListener(pumpSolidPHigh);*/
+
+        MeterDDP meterDP = new MeterDDP(sim.potentialMaster, sim.getSpecies(0), sim.getSpace(), sim);
+        meterDP.setNumP(1);
+        meterDP.setCoordinateDefinition(sim.coordinateDefinition);
+        meterDP.setOtherDensities(new double[]{density-0.00001, density+0.00001});
+        meterDP.setPCenter(new double[]{pEst, pEst});
+        meterDP.setTemperature(temperature);
+        meterDP.setULatFunction(new Function() {
+            public double f(double x) {
+                return Math.pow(x/density, 4)*sim.latticeEnergy/numAtoms;
+            }
+        });
+        AccumulatorAverageFixed accDP = new AccumulatorAverageFixed(sim.accumulator.getBlockSize());
+        DataPumpListener pumpDP = new DataPumpListener(meterDP, null, numAtoms);
+        sim.integrator.getEventManager().addListener(pumpDP);
+        
         
         final long startTime = System.currentTimeMillis();
        
@@ -324,6 +373,28 @@ public class SimOverlapSoftSphereTP extends Simulation {
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
+
+        double avgP = accP.getData(accP.AVERAGE).getValue(0);
+        double errP = accP.getData(accP.ERROR).getValue(0);
+        double corP = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
+        System.out.println(String.format("pressure: %20.15e %10.4e %3.2f\n", avgP, errP, corP));
+
+        /*
+        double avgSP = accSolidP.getData(accSolidP.AVERAGE).getValue(0);
+        double errSP = accSolidP.getData(accSolidP.ERROR).getValue(0);
+        double corSP = accSolidP.getData(accSolidP.BLOCK_CORRELATION).getValue(0);
+        System.out.println(String.format("solid pressure: %20.15e %10.4e %3.2f\n", avgSP, errSP, corSP));        
+
+        double avgSPL = accSolidPLow.getData(accSolidPLow.AVERAGE).getValue(0);
+        double errSPL = accSolidPLow.getData(accSolidPLow.ERROR).getValue(0);
+        double corSPL = accSolidPLow.getData(accSolidPLow.BLOCK_CORRELATION).getValue(0);
+        System.out.println(String.format("solid pressure (low): %20.15e %10.4e %3.2f\n", avgSPL, errSPL, corSPL));        
+
+        double avgSPH = accSolidPHigh.getData(accSolidPHigh.AVERAGE).getValue(0);
+        double errSPH = accSolidPHigh.getData(accSolidPHigh.ERROR).getValue(0);
+        double corSPH = accSolidPHigh.getData(accSolidPHigh.BLOCK_CORRELATION).getValue(0);
+        System.out.println(String.format("solid pressure (high): %20.15e %10.4e %3.2f\n", avgSPH, errSPH, corSPH));
+        */
 
         System.out.println("\nratio averages:\n");
 
@@ -370,11 +441,11 @@ public class SimOverlapSoftSphereTP extends Simulation {
         System.out.println("Time taken: " + (endTime - startTime)/1000.0);
     }
 
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     public IBox box;
     public Boundary boundary;
+    public CoordinateDefinitionLeaf coordinateDefinition;
     public int[] nCells;
     public Basis basis;
     public Primitive primitive;
@@ -389,17 +460,18 @@ public class SimOverlapSoftSphereTP extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 500;
+        public int numAtoms = 256;
         public boolean slanty = false;
-        public boolean flex = true;
-        public double density = 1.1964;
+        public boolean flex = false;
+        public double density = 1.0;
         public int exponentN = 12;
         public long numSteps = 1000000;
-        public double temperature = 1.2;
+        public double temperature = 1.;
         public double[] alpha = new double[]{0.011};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{1.1};
+        public double[] otherTemperatures = new double[]{1.01};
         public double rc = 2.2;
+        public double pEst = 0;
     }
 }
