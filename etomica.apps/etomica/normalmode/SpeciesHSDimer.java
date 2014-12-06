@@ -25,10 +25,10 @@ import etomica.species.Species;
 public class SpeciesHSDimer extends Species {
 
     public SpeciesHSDimer(ISpace space) {
-        this(space, false);
+        this(space, false, 1.0);
     }
     
-    public SpeciesHSDimer(ISpace space, boolean isDynamic) {
+    public SpeciesHSDimer(ISpace space, boolean isDynamic, double L) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -36,7 +36,7 @@ public class SpeciesHSDimer extends Species {
         dimerAtomType = new AtomTypeLeaf(new ElementSimple("P", 1.0));
         addChildType(dimerAtomType);
 
-        setConformation(new ConformationHSDimer(space)); 
+        setConformation(new ConformationHSDimer(space, L)); 
      }
 
      public IMolecule makeMolecule() {
