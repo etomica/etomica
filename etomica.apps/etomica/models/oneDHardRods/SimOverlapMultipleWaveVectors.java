@@ -14,7 +14,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -33,6 +32,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.WaveVectorFactory;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -46,10 +46,9 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 public class SimOverlapMultipleWaveVectors extends Simulation {
-    private static final long serialVersionUID = 1L;
+
     private static final String APP_NAME = "SimOverlapMultipleWaveVectors";
     Primitive primitive;
     int[] nCells;
@@ -395,7 +394,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         if (integratorSim != null && accumulators[0] != null && 
                 accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorSim.setDSVO(dsvo);
+            integratorSim.setReferenceFracSource(dsvo);
         }
         
     }
@@ -555,8 +554,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
-                sim.integratorSim.getStepFreq0() + " (actual: " + 
-                sim.integratorSim.getActualStepFreq0() + ")");
+                sim.integratorSim.getIdealRefStepFraction() + " (actual: " + 
+                sim.integratorSim.getRefStepFraction() + ")");
         
         //CALCULATION OF HARMONIC ENERGY
         double AHarmonic = CalcHarmonicA.doit(sim.nm, D, temperature, numMolecules);

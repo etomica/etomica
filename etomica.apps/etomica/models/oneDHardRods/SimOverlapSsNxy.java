@@ -14,15 +14,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
-import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -47,7 +41,7 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.SimOverlapSoftSphere;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.SimOverlapSoftSphere.SimOverlapParam;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -57,13 +51,10 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -253,7 +244,7 @@ public class SimOverlapSsNxy extends Simulation {
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorOverlap.setDSVO(dsvo);
+            integratorOverlap.setReferenceFracSource(dsvo);
         }
     }
     
@@ -512,8 +503,8 @@ public class SimOverlapSsNxy extends Simulation {
         System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numMolecules);
         System.out.println(" ");
         
-        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
-                +" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
+                +" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
 
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];

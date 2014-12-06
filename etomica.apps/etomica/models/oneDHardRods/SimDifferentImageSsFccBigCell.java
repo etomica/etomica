@@ -1,7 +1,3 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package etomica.models.oneDHardRods;
 
 import java.io.BufferedReader;
@@ -11,13 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -29,7 +22,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
@@ -41,6 +33,7 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.P1ConstraintNbr;
 import etomica.normalmode.WaveVectorFactory;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -55,7 +48,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * MC simulation
@@ -77,7 +69,6 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimDifferentImageSsFccBigCell extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDifferentImageFCC";
     public Primitive primitive;
     NormalModes nmRef, nmTarg;
@@ -196,10 +187,10 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         nmRef = new NormalModesFromFile(rIn, space.D());
         nmRef.setHarmonicFudge(1.0);
 //        nmRef.setTemperature(temperature);  //not needed - deriv based
-        double[][] omega = nmRef.getOmegaSquared();
+//        double[][] omega = nmRef.getOmegaSquared();
         waveVectorFactoryRef = nmRef.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
-        double[] wvc= nmRef.getWaveVectorFactory().getCoefficients();
+//        double[] wvc= nmRef.getWaveVectorFactory().getCoefficients();
         
         System.out.println("We have " + waveVectorFactoryRef.getWaveVectors().length
                 +" reference wave vectors.");
@@ -214,7 +205,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         MCMoveAtomCoupled mcMoveAtom = new MCMoveAtomCoupled(potentialMaster,
                 meterPE, random, space);
         mcMoveAtom.setPotential(potential);
-        mcMoveAtom.setBox(boxRef);
+        mcMoveAtom.setDoExcludeNonNeighbors(true);
         mcMoveAtom.setStepSize(0.01);
         integratorRef.getMoveManager().addMCMove(mcMoveAtom);
         integratorRef.setMeterPotentialEnergy(meterRefInRef);
@@ -252,10 +243,10 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         nmTarg = new NormalModesFromFile(tIn, space.D());
         nmTarg.setHarmonicFudge(1.0);
 //        nmTarg.setTemperature(temperature);  // notneeded, deriv based
-        omega = nmTarg.getOmegaSquared();
+//        omega = nmTarg.getOmegaSquared();
         waveVectorFactoryTarg = nmTarg.getWaveVectorFactory();
         waveVectorFactoryTarg.makeWaveVectors(boxTarget);
-        wvc = nmTarg.getWaveVectorFactory().getCoefficients();
+//        wvc = nmTarg.getWaveVectorFactory().getCoefficients();
         
         System.out.println("We have " + waveVectorFactoryTarg.getWaveVectors().length 
                 +" target wave vectors.");
@@ -270,8 +261,8 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, meterPE,random, 
                 space);
         mcMoveAtom.setPotential(potential);
+        mcMoveAtom.setDoExcludeNonNeighbors(true);
         
-        mcMoveAtom.setBox(boxTarget);
         mcMoveAtom.setStepSize(0.01);
         integratorTarget.getMoveManager().addMCMove(mcMoveAtom);
         integratorTarget.setMeterPotentialEnergy(meterTargInTarg);
@@ -279,7 +270,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
 //JOINT
         //measuring potential of target in reference system
-        meterTargInRef = new MeterDifferentImageAdd((ISimulation)this, space, 
+        meterTargInRef = new MeterDifferentImageAdd(this, space, 
                 temperature, cDefRef, nmRef, cDefTarget, potentialMaster, 
                 new int[] {1,1,1,}, nmTarg, tIn);
         MeterOverlapSameGaussian meterOverlapInRef = new 
@@ -421,7 +412,7 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         if (integratorSim != null && accumulators[0] != null && 
                 accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorSim.setDSVO(dsvo);
+            integratorSim.setReferenceFracSource(dsvo);
         }
         
     }
@@ -445,16 +436,12 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         integratorSim.getMoveManager().setEquilibrating(true);
         
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) {
-                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
-            }
+            integrators[i].getMoveManager().setEquilibrating(true);
         }
         getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
-            if (integrators[i] instanceof IntegratorMC) {
-                ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
-            }
+            integrators[i].getMoveManager().setEquilibrating(false);
         }
         
         if (bennettParam == -1) {
@@ -502,7 +489,6 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         
         double density = params.density;
         int D = params.D;
-        double harmonicFudge = params.harmonicFudge;
         String filename = params.filename;
         if(filename.length() == 0){
             filename = "nmi_3DSS_FCC_";
@@ -556,8 +542,8 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         }
         
         //Divide out all the steps, so that the subpieces have the proper # of steps
-        runNumSteps /= (int)subBlockSize;
-        eqNumSteps /= (int)subBlockSize;
+        runNumSteps /= subBlockSize;
+        eqNumSteps /= subBlockSize;
         benNumSteps /= subBlockSize;
         
         System.out.println("run " + runNumSteps);
@@ -595,18 +581,19 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         }
         
 //         start simulation
-        System.out.println("RunStart: " + System.currentTimeMillis());
-        sim.setAccumulatorBlockSize((int)runBlockSize);
+        long t1 = System.currentTimeMillis();
+        sim.setAccumulatorBlockSize(runBlockSize);
         sim.integratorSim.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(runNumSteps);
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
-                sim.integratorSim.getStepFreq0() + " (actual: " + 
-                sim.integratorSim.getActualStepFreq0() + ")");
+                sim.integratorSim.getIdealRefStepFraction() + " (actual: " + 
+                sim.integratorSim.getRefStepFraction() + ")");
         
         
         //CALCULATION OF HARMONIC ENERGY        
-        System.out.println("EndCalcStart: " + System.currentTimeMillis());
+        long t2 = System.currentTimeMillis();
+        System.out.println("Calc: " + (t2-t1)/1000.0);
         double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];

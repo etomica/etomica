@@ -11,13 +11,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -40,6 +38,7 @@ import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.P1ConstraintNbr;
 import etomica.normalmode.WaveVectorFactory;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -54,7 +53,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 /**
  * MC simulation
@@ -76,7 +74,6 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimDifferentImageSsFcc extends Simulation {
 
-    private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "SimDifferentImageFCC";
     public Primitive primitive;
     NormalModes nmRef, nmTarg;
@@ -490,7 +487,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         if (integratorSim != null && accumulators[0] != null && 
                 accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorSim.setDSVO(dsvo);
+            integratorSim.setReferenceFracSource(dsvo);
         }
         
     }
@@ -673,8 +670,8 @@ public class SimDifferentImageSsFcc extends Simulation {
         System.out.println("RunStart: " + System.currentTimeMillis());
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
-                sim.integratorSim.getStepFreq0() + " (actual: " + 
-                sim.integratorSim.getActualStepFreq0() + ")");
+                sim.integratorSim.getIdealRefStepFraction() + " (actual: " + 
+                sim.integratorSim.getRefStepFraction() + ")");
         
         
         //CALCULATION OF HARMONIC ENERGY

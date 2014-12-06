@@ -14,7 +14,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -34,6 +33,7 @@ import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WriteS;
+import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -48,10 +48,9 @@ import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 import etomica.virial.overlap.DataSourceVirialOverlap;
-import etomica.virial.overlap.IntegratorOverlap;
 
 public class SimOverlapMultipleWV3DLJ extends Simulation {
-    private static final long serialVersionUID = 1L;
+
     private static final String APP_NAME = "SimOverlapMultipleWV3DLJ";
     Primitive primitiveTarget, primitiveRef;
     int[] nCells;
@@ -438,7 +437,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         if (integratorSim != null && accumulators[0] != null && 
                 accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            integratorSim.setDSVO(dsvo);
+            integratorSim.setReferenceFracSource(dsvo);
         }
         
     }
@@ -606,8 +605,8 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
         System.out.println("final reference optimal step frequency " + 
-                sim.integratorSim.getStepFreq0() + " (actual: " + 
-                sim.integratorSim.getActualStepFreq0() + ")");
+                sim.integratorSim.getIdealRefStepFraction() + " (actual: " + 
+                sim.integratorSim.getRefStepFraction() + ")");
         
         double[][] omega2 = sim.nm.getOmegaSquared(); 
         //Above known from the analytical results. - otherwise it would be from 
