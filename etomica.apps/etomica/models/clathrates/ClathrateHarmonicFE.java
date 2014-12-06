@@ -58,7 +58,6 @@ import etomica.util.ParseArgs;
 
 public class ClathrateHarmonicFE extends Simulation{
 	protected Box box;
-	protected ISpace space;
 	protected PotentialMaster potentialMaster;
 	protected SpeciesWater4P species;
 	protected MeterPotentialEnergy meterPE;
@@ -66,11 +65,9 @@ public class ClathrateHarmonicFE extends Simulation{
 	protected Potential2SoftSpherical potentialLJ;
 	protected Potential2SoftSphericalLS potentialLJLS;
 	protected EwaldSummation potentialES;
-	private static final long serialVersionUID = 1L;
 
 	public ClathrateHarmonicFE(ISpace space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
 		super(space);
-		this.space = space;
 		species = new SpeciesWater4P(space);
 		addSpecies(species);
 		box = new Box(space);
