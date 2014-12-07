@@ -6,6 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
+import etomica.api.IBox;
 import etomica.api.IVector;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -32,6 +33,11 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
      */
     public Potential2SoftSpherical getWrappedPotential() {
         return potential;
+    }
+
+    public void setBox(IBox box) {
+        potential.setBox(box);
+        super.setBox(box);
     }
 
     /**
