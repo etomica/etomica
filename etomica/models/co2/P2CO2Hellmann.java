@@ -4,7 +4,6 @@
 
 package etomica.models.co2;
 
-import Jama.Matrix;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
@@ -114,7 +113,11 @@ public class P2CO2Hellmann implements IPotentialTorque {
             }
         }
     }
-    
+
+    public double getPos(int idx) {
+        return pos[idx];
+    }
+
     protected void ijInit(double[] x, double[][] xx, Unit unit) {
         int k = 0;
         for (int i=0; i<4; i++) {
@@ -315,12 +318,11 @@ public class P2CO2Hellmann implements IPotentialTorque {
         protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;
         protected final Tensor ijRTensor;
-        protected final Matrix fullMatrix;
         protected final Tensor rot0, rot1;
         protected final IVectorMutable or01, or11, or02, or12;
         protected final IVector[] allOr0, allOr1;
         protected final IVectorMutable drijRot;
-        protected final double moment, momentMass;
+        protected final double moment;
         public double[][] d2tot = new double[2][6];
         protected final double temperature, fac;
 
@@ -335,7 +337,6 @@ public class P2CO2Hellmann implements IPotentialTorque {
             rTensor1 = space.makeTensor();
             ijRTensor = space.makeTensor();
             identity.E(new double[][]{{1,0,0},{0,1,0},{0,0,1}});
-            fullMatrix = new Matrix(6,6);
             gi = new IVectorMutable[2][7];
             for (int i=0; i<7; i++) {
                 gi[0][i] = space.makeVector();
@@ -351,7 +352,6 @@ public class P2CO2Hellmann implements IPotentialTorque {
             rot0 = space.makeTensor();
             rot1 = space.makeTensor();
             moment = 2*Oxygen.INSTANCE.getMass()*pos[5];
-            momentMass = Math.sqrt(moment*mass);
             
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
