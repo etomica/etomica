@@ -94,6 +94,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 				count++;
 				
 			}
+			bufReader.close();
 		}catch (IOException e){	
 			throw new RuntimeException(e);
 		}
@@ -161,48 +162,13 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
                 return 0;
             }
         }
-        
-        if (Math.abs(costhetaA) > 1) costhetaA /= Math.abs(costhetaA);
-        if (Math.abs(costhetaB) > 1) costhetaB /= Math.abs(costhetaB);
-        if (Math.abs(costhetaC) > 1) costhetaC /= Math.abs(costhetaC);
 
         double Vexp = 0;
 
         double Rsum = RAB+RBC+RAC;
         
-        //for (int k3 = 0; k3<=0; k3++) {
-        /*
-        for (int k3 = 0; k3<=4; k3++) {
-            double P3A = legendreP(k3,costhetaA);
-            double P3B = legendreP(k3,costhetaB);
-            double P3C = legendreP(k3,costhetaC);
-            for (int k2 = 0; k2<=k3; k2++) {
-                double P2A = legendreP(k2,costhetaA);
-                double P2B = legendreP(k2,costhetaB);
-                double P2C = legendreP(k2,costhetaC);
-                for (int k1 = 0; k1<=k2; k1++) {
-                    double P1A = legendreP(k1,costhetaA);
-                    double P1B = legendreP(k1,costhetaB);
-                    double P1C = legendreP(k1,costhetaC);
-        			
-        			double P = P1A*(P2B*P3C + P2C*P3B)
-        			         + P1B*(P2A*P3C + P2C*P3A)
-        			         + P1C*(P2A*P3B + P2B*P3A);
-        			
-        			Vexp += A[k1][k2][k3]*Math.exp(-alpha[k1][k2][k3]*Rsum)*P;
-        			//Vexp += P;
-        			
-        			//System.out.println(k1 + " " + k2 + " " + k3 + "  " + alpha[k1][k2][k3]);
-        		}
-        	}
-        }
-        */
-        
-    			
     	Vexp = A*Math.exp(-alpha*Rsum)*6.0;
     	Vexp = Vexp + B*Math.exp(-b*Rsum)*6*costhetaA*costhetaB*costhetaC;
-        	
-        
         
         ///////////////////////////////////////////////////////////////////
         //V3Disp
@@ -233,7 +199,6 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         
         double prod = RAB*RAC*RBC;
         double V3disp = D_RAB*D_RAC*D_RBC*3.0*(1.0 + (3.0*costhetaA*costhetaB*costhetaC ))/(prod*prod*prod)*Z;
-        
     	
     	
         double u = Hartree.UNIT.toSim(Vexp+V3disp); 
@@ -269,7 +234,9 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         ISpace space = Space3D.getInstance();
 
         P3CPSNonAdditiveHeSimplified potential = new P3CPSNonAdditiveHeSimplified(space);
-        potential.setParameters("paramsOriginalSimpler.dat");
+        System.out.println(potential.energy(new double[]{4.326850577421106e+00, 4.713606275205238e+03, 4.961477925052809e+03}));
+        System.exit(1);
+//        potential.setParameters("paramsOriginalSimpler.dat");
         //potential.setParameters("fminconSamplingB3NonAdd/params3Sets_RelErrSqrt_EM18_IG2_1e4Iter_100_K_0.dat");
       
         Atom atom0 = new Atom(space);
@@ -362,7 +329,6 @@ System.out.println();
 	        Date date = new Date();
 		       long t0 = date.getTime();
 		       for (int i=0;i<1000000;i++) {
-		            double b = 1+i*0.1;
 		            a = BohrRadius.UNIT.toSim(b);
 		            r0 = space.makeVector(new double[] {0,0,0});
 		            r1 = space.makeVector(new double[] {a,0,0});
@@ -424,7 +390,6 @@ System.out.println();
     
     protected final IVectorMutable drAB, drAC, drBC;
     protected IBoundary boundary;
-    private static final long serialVersionUID = 1L;
     protected final IVectorMutable[] gradient;
     public static boolean bigAngle;
     

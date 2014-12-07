@@ -34,7 +34,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
     protected IBoundary boundary;
     protected double temperature;
     protected double mass;
-    protected double fac, stepFactor = 2.0/3.0;
+    protected double fac, stepFactor = 0.5;
     protected int nPoints = 2;
     
     public P2DiscreteFeynmanHibbs(ISpace space, Potential2Spherical p2Classical) {
@@ -52,12 +52,17 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
     
     public void setStepFactor(double stepFactor) {
         this.stepFactor = stepFactor;
+        calcFacs();
+    }
+    
+    protected void calcFacs() {
+        double hbar = Constants.PLANCK_H/(2*Math.PI);
+        fac = stepFactor/Math.sqrt(6*mass/2*temperature/(hbar*hbar));
     }
     
     public void setTemperature(double temperature) {
         this.temperature = temperature;
-        double hbar = Constants.PLANCK_H/(2*Math.PI);
-        fac = stepFactor/Math.sqrt(6*mass/2*temperature/(hbar*hbar));
+        calcFacs();
     }
     
     /**
@@ -66,8 +71,7 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
      */
     public void setMass(double m) {
         mass = m;
-        double hbar = Constants.PLANCK_H/(2*Math.PI);
-        fac = stepFactor/Math.sqrt(6*mass/2*temperature/(hbar*hbar));
+        calcFacs();
     }
 
     /**
@@ -84,16 +88,16 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
         if (r < nPoints*fac) {
             return Double.POSITIVE_INFINITY;
         }
-        double ueff = p2Classy.u(r2)*r*r;
-        double pnorm = r*r;
+        double ueff = p2Classy.u(r2)*r;
+        double pnorm = r;
         for (int i=1; i<=nPoints; i++) {
             double pi = Math.exp(-(i*i*stepFactor*stepFactor));
             double ri = r + (i*fac);
-            pnorm += pi*ri*ri;
-            ueff += p2Classy.u(ri*ri)*pi*ri*ri;
+            pnorm += pi*ri;
+            ueff += p2Classy.u(ri*ri)*pi*ri;
             ri = r - (i*fac);
-            pnorm += pi*ri*ri;
-            ueff += p2Classy.u(ri*ri)*pi*ri*ri;
+            pnorm += pi*ri;
+            ueff += p2Classy.u(ri*ri)*pi*ri;
         }
         return ueff/pnorm;
     }
@@ -109,16 +113,64 @@ public class P2DiscreteFeynmanHibbs implements Potential2Spherical {
 
     public static void main(String[] args) {
         ISpace space = Space3D.getInstance();
-        double temperature = Kelvin.UNIT.toSim(10);
+        double temperature = Kelvin.UNIT.toSim(1);
         final P2HePCKLJS p2 = new P2HePCKLJS(space);
-        P2DiscreteFeynmanHibbs p2SemiClassical = new P2DiscreteFeynmanHibbs(space, p2);
+        P2DiscreteFeynmanHibbs p2dfh = new P2DiscreteFeynmanHibbs(space, p2);
+        P2EffectiveFeynmanHibbs p2efh = new P2EffectiveFeynmanHibbs(space, p2);
+        P2HeEmpericalQuantum p2eq = new P2HeEmpericalQuantum(space, p2, temperature);
         double heMass = 4.002602;
-        p2SemiClassical.setMass(heMass);
-        p2SemiClassical.setTemperature(temperature);
-        for (int i=25;i<500; i++) {
-            double r = i/100.0;
-            double u = p2SemiClassical.u(r*r);
-            System.out.println(r+" "+Math.exp(-u/temperature));
+        p2dfh.setMass(heMass);
+        p2dfh.setTemperature(temperature);
+        p2dfh.setStepFactor(0.5);
+        p2dfh.setNPoints(2);
+        p2efh.setMass(heMass);
+        p2efh.setTemperature(temperature);
+        for (int i=75;i<5000; i+=50) {
+            double r = i/1000.0;
+            double uc = p2.u(r*r);
+            double ud = p2dfh.u(r*r);
+            double ue = p2efh.u(r*r);
+            double ueq = p2eq.u(r*r);
+            System.out.println(r+" "+Math.exp(-ueq/temperature));
         }
     }
+
+
+    public static final class P2HeEmpericalQuantum extends Potential2SoftSpherical {
+        private final P2HePCKLJS p2;
+        private final double temperature;
+        private final double temperatureK;
+
+        public P2HeEmpericalQuantum(ISpace space, P2HePCKLJS p2,
+                double temperature) {
+            super(space);
+            this.p2 = p2;
+            this.temperature = temperature;
+            this.temperatureK = Kelvin.UNIT.fromSim(temperature);;
+        }
+
+        public double u(double r2) {
+            double u = p2.u(r2);
+            double log10T = Math.log(temperatureK)/Math.log(10);
+            double a = log10T + 2.5;
+            double b = 10.5 + 0.8*log10T*(1 - log10T);
+            double r = Math.sqrt(r2);
+            double uQ = temperature*Math.exp(-a*r + b);
+            return u + uQ;
+        }
+
+        public double uInt(double rC) {
+            throw new RuntimeException("nope");
+        }
+
+        public double du(double r2) {
+            throw new RuntimeException("nope");
+        }
+
+        public double d2u(double r2) {
+            throw new RuntimeException("nope");
+        }
+    }
+
+    
 }
