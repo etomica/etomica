@@ -25,6 +25,7 @@ import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.ISpace;
+import etomica.util.Debug;
 
 /**
  * Collection of potentials that act between the atoms contained in
@@ -167,6 +168,9 @@ public class PotentialGroup extends PotentialMolecular {
             link.iterator.reset();
             for (IAtomList atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
                 sum += link.potential.energy(atoms);
+                if (Debug.ON && Double.isNaN(sum)) {
+                    link.potential.energy(atoms);
+                }
             }
         }
         return sum;
@@ -282,7 +286,6 @@ public class PotentialGroup extends PotentialMolecular {
         return potentials;
     }
     
-    private static final long serialVersionUID = 1L;
     protected PotentialLinker first;
     protected IBox box;
     protected IPotentialMaster potentialMaster;
