@@ -36,12 +36,12 @@ import etomica.util.numerical.AkimaSpline;
  */
 public class DataVirialOverlap implements ReferenceFracSource {
 
-    private static final long serialVersionUID = 1L;
     protected final AccumulatorRatioAverageCovarianceFull refAccumulator, targetAccumulator;
     protected final AlphaSource alphaSource;
     protected final AkimaSpline spline;
     protected final FullResult fullOverlapResult, fullSystemResult, fullRatioResult;
     protected final StatType avgStat, errorStat, ratioStat, ratioErrorStat;
+    protected boolean doIgnoreRefAvg;
 
 	public DataVirialOverlap(AlphaSource alphaSource, AccumulatorRatioAverageCovarianceFull aRefAccumulator, 
 			AccumulatorRatioAverageCovarianceFull aTargetAccumulator) {
@@ -68,6 +68,18 @@ public class DataVirialOverlap implements ReferenceFracSource {
 
     protected int getNumTargets() {
         return ((DataInfoGroup)targetAccumulator.getDataInfo()).getSubDataInfo(0).getLength() - alphaSource.getNumAlpha();
+    }
+
+    /**
+     * Directs this class to ignore the reference average when deciding how
+     * much time to spend on each system.  The reference average is generally
+     * the same across all simulations meaning that it can be precomputed.
+     * This is helpful when the reference average is difficult (compared to the
+     * other averages).  What we need to do for that is to not include the
+     * error contribution from the reference average in getIdealRefFraction()
+     */
+    public void setIgnoreReferenceAvg(boolean newDoIgnoreRefAvg) {
+        doIgnoreRefAvg = newDoIgnoreRefAvg;
     }
 
     /**
@@ -388,16 +400,22 @@ public class DataVirialOverlap implements ReferenceFracSource {
 
     public double getIdealRefFraction(double oldFrac) {
         double alpha = getOverlapAverage();
-        FullResult result = getFullRatioResultForAlpha(alpha);
+        getFullRatioResultForAlpha(alpha);
         
-        double refErrorRatio = Math.abs(result.refErr/result.refAvg);
+        double refErrorRatio = Math.abs(fullRatioResult.refErr/fullRatioResult.refAvg);
+        if (doIgnoreRefAvg) {
+            // we've been directed to ignore the reference average.  so, we're just left
+            // with the reference overlap average.
+            getFullOverlapResultForAlpha(alpha);
+            refErrorRatio = Math.abs(fullOverlapResult.refErr/fullOverlapResult.refAvg);
+        }
         if (Double.isNaN(refErrorRatio) || refErrorRatio > 1) {
             // if we don't have enough data to calc the error, assume it's 100%
             // if apparent error is > 100%, cap it there (>100% just means our estimate for ratio is bad)
             refErrorRatio = 1.0;
         }
 
-        double targetErrorRatio = Math.abs(result.targetErr/result.targetAvg);
+        double targetErrorRatio = Math.abs(fullRatioResult.targetErr/fullRatioResult.targetAvg);
         if (Double.isNaN(targetErrorRatio) || targetErrorRatio > 1) {
             targetErrorRatio = 1.0;
         }
