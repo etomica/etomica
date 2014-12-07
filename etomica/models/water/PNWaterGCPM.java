@@ -6,6 +6,7 @@ package etomica.models.water;
 
 import Jama.Matrix;
 import etomica.api.IAtomList;
+import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -50,6 +51,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         
         comWi = space.makeVector();
         comWj = space.makeVector();
+        shift = space.makeVector();
 
         rijVector = space.makeVector();
 
@@ -90,7 +92,13 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         IVectorMutable O1r = water1Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
         IVectorMutable O2r = water2Atoms.getAtom(SpeciesWater4P.indexO).getPosition();
         
-        double r2 = O1r.Mv1Squared(O2r);
+        work.Ev1Mv2(O1r, O2r);
+        shift.Ea1Tv1(-1,work);
+		boundary.nearestImage(work);
+        shift.PE(work);
+        final boolean zeroShift = shift.squared() < 0.1;
+        
+        double r2 = work.squared();
         
         if(r2<=core) {
             return Double.POSITIVE_INFINITY;
@@ -110,34 +118,81 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         double sixOverGamma = 6/gamma;
    
         double sum = epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);//exp-6 potential(Udisp)
-
-        r2 = H11r.Mv1Squared(H21r);
-        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-
-        r2 = H11r.Mv1Squared(H22r);
-        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-
-        r2 = H12r.Mv1Squared(H21r);
-        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-
-        r2 = H12r.Mv1Squared(H22r);
-        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-        
-        r2 = M1r.Mv1Squared(H21r);
-        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-
-        r2 = M1r.Mv1Squared(H22r);
-        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-
-        r2 = M2r.Mv1Squared(H11r);
-        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-
-        r2 = M2r.Mv1Squared(H12r);
-        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-
-        r2 = M1r.Mv1Squared(M2r);
-        sum += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
-
+        if (zeroShift){
+	        r2 = H11r.Mv1Squared(H21r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	
+	        r2 = H11r.Mv1Squared(H22r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	
+	        r2 = H12r.Mv1Squared(H21r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	
+	        r2 = H12r.Mv1Squared(H22r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	        
+	        r2 = M1r.Mv1Squared(H21r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        r2 = M1r.Mv1Squared(H22r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        r2 = M2r.Mv1Squared(H11r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        r2 = M2r.Mv1Squared(H12r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        r2 = M1r.Mv1Squared(M2r);
+	        sum += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        }
+        else {
+        	shift.PE(H11r);
+        	r2 = H21r.Mv1Squared(shift);
+        	shift.ME(H11r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	        
+	        shift.PE(H11r);
+        	r2 = H22r.Mv1Squared(shift);
+        	shift.ME(H11r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	
+	        shift.PE(H12r);
+        	r2 = H21r.Mv1Squared(shift);
+        	shift.ME(H12r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	
+	        shift.PE(H12r);
+        	r2 = H22r.Mv1Squared(shift);
+        	shift.ME(H12r);
+	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+	        
+	        shift.PE(M1r);
+        	r2 = H21r.Mv1Squared(shift);
+        	shift.ME(M1r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        shift.PE(M1r);
+        	r2 = H22r.Mv1Squared(shift);
+        	shift.ME(M1r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        shift.PE(H11r);
+        	r2 = M2r.Mv1Squared(shift);
+        	shift.ME(H11r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        shift.PE(H12r);
+        	r2 = M2r.Mv1Squared(shift);
+        	shift.ME(H12r);
+	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+	
+	        shift.PE(M1r);
+        	r2 = M2r.Mv1Squared(shift);
+        	shift.ME(M1r);
+	        sum += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        	
+        }
         return sum;
     }
 
@@ -190,16 +245,43 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                 IVectorMutable Hj1r = jLeafAtoms.getAtom(SpeciesWater4P.indexH1).getPosition();
                 IVectorMutable Hj2r = jLeafAtoms.getAtom(SpeciesWater4P.indexH2).getPosition();
                 
-                double comWtoH1 = Math.sqrt(comWi.Mv1Squared(Hj1r));
-                double comWtoH2 = Math.sqrt(comWi.Mv1Squared(Hj2r));
-                double comWtoM = Math.sqrt(comWi.Mv1Squared(Mjr));
-
+                work.Ev1Mv2(O1r, Ojr);
+                shift.Ea1Tv1(-1,work);
+        		boundary.nearestImage(work);
+                shift.PE(work);
+                final boolean zeroShift = shift.squared() < 0.1;
+                double comWtoH1,comWtoH2,comWtoM;
+                
+                if (zeroShift){
+                
+                	comWtoH1 = Math.sqrt(comWi.Mv1Squared(Hj1r));
+                	comWtoH2 = Math.sqrt(comWi.Mv1Squared(Hj2r));
+                	comWtoM = Math.sqrt(comWi.Mv1Squared(Mjr));
+                }
+                else {
+                	shift.PE(comWi);
+                	comWtoH1 = Math.sqrt(Hj1r.Mv1Squared(shift));
+                	shift.ME(comWi);
+                	
+                	shift.PE(comWi);
+                	comWtoH2 = Math.sqrt(Hj2r.Mv1Squared(shift));
+                	shift.ME(comWi);
+                	
+                	shift.PE(comWi);
+                	comWtoM = Math.sqrt(Mjr.Mv1Squared(shift));
+                	shift.ME(comWi);
+                	
+                }
+                
+                
+                
                 // For molecules that are far apart, fac=chargeX/comWtoX^3, but we add up
                 // facs for H and M, which mostly cancel each other out, so we lose quite 
                 // a bit of precision (~2-3 digits).
                 double fac = chargeH/(comWtoH1*comWtoH1*comWtoH1)*((1-SpecialFunctions.erfc(comWtoH1/sqrtHMsigmas))
                         -Math.sqrt(2)*comWtoH1/sqrtPiHMsigmas*Math.exp(-comWtoH1*comWtoH1/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
                 work.Ev1Mv2(comWi, Hj1r);
+                work.PE(shift);
                 work.TE(fac);
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
@@ -208,6 +290,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                 fac = chargeH/(comWtoH2*comWtoH2*comWtoH2)*((1-SpecialFunctions.erfc(comWtoH2/sqrtHMsigmas))
                         -Math.sqrt(2)*comWtoH2/sqrtPiHMsigmas*Math.exp(-comWtoH2*comWtoH2/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
                 work.Ev1Mv2(comWi, Hj2r);
+                work.PE(shift);
                 work.TE(fac);
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
@@ -216,13 +299,21 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                 fac = chargeM/(comWtoM*comWtoM*comWtoM)*((1-SpecialFunctions.erfc(comWtoM/(2*sigmaM)))
                         -Math.sqrt(2)*comWtoM/sqrtPiMMsigmas*Math.exp(-comWtoM*comWtoM/(4*sigmaM*sigmaM)));
                 work.Ev1Mv2(comWi, Mjr);
+                work.PE(shift);
                 work.TE(fac);
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
                 myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.getX(2));
                      
                 if (i<j) {
-                    double OOr2 = O1r.Mv1Squared(Ojr);
+                    double OOr2;
+                    if(zeroShift){
+                    	OOr2 = O1r.Mv1Squared(Ojr);
+                    }else{
+                    	shift.PE(O1r);
+                    	OOr2 = Ojr.Mv1Squared(shift);
+                    	shift.ME(O1r);
+                    }
                     if (OOr2 < core) {
                         UpolAtkins = Double.NaN;
                         return UpolAtkins;
@@ -315,10 +406,11 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     }
     
     public void setBox(IBox box) {
+    	boundary = box.getBoundary();
     }
 
-    private static final long serialVersionUID = 1L;
     protected final MoleculePair pair;
+    protected IBoundary boundary;
     protected final double sigma;
     protected final double epsilon, gamma;
     protected final double chargeH, chargeM;
@@ -326,7 +418,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     protected Matrix[] Eq, A;
     protected IVectorMutable comWi, comWj;
     protected final IVectorMutable rijVector;
-    protected final IVectorMutable work;
+    protected final IVectorMutable work, shift;
     protected final Tensor Tunit, Tij;
     protected final double sigmaM;
     protected final double sigmaH;
