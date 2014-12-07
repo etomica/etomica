@@ -18,17 +18,18 @@ public class IsBiconnected implements Property {
   }
 
   public boolean check(Graph graph) {
-
+    byte n = graph.nodeCount();
     // by definition, a null graph is not biconnected
-    if (graph.nodeCount() == 0) {
+    if (n == 0) {
       return false;
     }
     // by definition, a singleton graph is biconnected
-    if (graph.nodeCount() == 1) {
+    if (n == 1) {
       return true;
     }
+    byte edgeCount = graph.edgeCount();
     // a two-node graph having a single edge is biconnected
-    if (graph.nodeCount() == 2 && graph.edgeCount() == 1) {
+    if (n == 2 && edgeCount == 1) {
       return true;
     }
     // invariant: a biconnected graph with N > 2 nodes has at least N edges
@@ -42,7 +43,7 @@ public class IsBiconnected implements Property {
     // Any two nodes in G are connected by exactly one simple path so removing
     // ANY node with more than one incident edge disconnects the tree. Since
     // G has at least one node with two incident edges, G can be split. Q.E.D.
-    if (graph.edgeCount() < graph.nodeCount()) {
+    if (edgeCount < n) {
       return false;
     }
     // traverse the graph starting at nodeID and return true IFF all nodes in the graph
