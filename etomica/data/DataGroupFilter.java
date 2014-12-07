@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.util.Arrays;
+import java.util.Arrays;
 
 
 /**
@@ -33,7 +33,7 @@ public class DataGroupFilter extends DataProcessor {
      * corresponding to the given index values (with indexes counting from 0).
      */
     public DataGroupFilter(int[] indexes) {
-        this.indexes = (int[])indexes.clone();
+        this.indexes = indexes.clone();
         singleInstance = (indexes.length == 1); 
     }
 
@@ -103,7 +103,6 @@ public class DataGroupFilter extends DataProcessor {
         return null;
     }
     
-    private static final long serialVersionUID = 1L;
     private IData outputData;
     private final boolean singleInstance;
     private final int[] indexes;
