@@ -37,28 +37,63 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        setExponent(n);
+        this.n = n;
+        evenN = n%2 == 0;
     }
 
     /**
      * The energy u.
      */
     public double u(double r2) {
-    	double sig_r = sigma/Math.sqrt(r2);
-    	int expN = getExponent();
+    	double s2 = sigma2/r2;
     	double sig_rn = 1;
     	
     	if (n >= 1e6){
-    		return sig_r <= 1.0 ? 0.0 : Double.POSITIVE_INFINITY; 
+    		return r2 < sigma2 ? 0.0 : Double.POSITIVE_INFINITY; 
     	} 
     	
     	if(n > 50){
-    		sig_rn = Math.pow(sig_r, n);
+    		sig_rn = Math.pow(s2, 0.5*n);
     		
     	} else {
-	    	for (int i=0; i<expN; i++){
-	    			sig_rn *= sig_r;
-	    	}
+    	    switch (n) {
+                case 6:
+                    sig_rn = s2*s2*s2;
+                    break;
+                case 9: 
+                    double s3 = s2*Math.sqrt(s2);
+                    sig_rn = s3*s3*s3;
+                    break;
+                case 12:
+                    double s6 = s2*s2*s2;
+                    sig_rn = s6*s6;
+                    break;
+                case 15:
+                    double s5 = s2*s2*Math.sqrt(s2);
+                    sig_rn = s5*s5*s5;
+                    break;
+                case 16:
+                    double s4 = s2*s2;
+                    sig_rn = s4*s4*s4*s4;
+                    break;
+                case 20:
+                    s4 = s2*s2;
+                    sig_rn = s4*s4*s4*s4*s4;
+                    break;
+                case 24:
+                    s4 = s2*s2;
+                    double s8 = s4*s4;
+                    sig_rn = s8*s8*s8;
+                    break;
+                default:
+                    for (int i=0; i<n/2; i++){
+                        sig_rn *= s2;
+                    }
+                    if (!evenN) {
+                        sig_rn *= Math.sqrt(s2);
+                    }
+                    break;
+            }
     	}
     	
     	return epsilon*sig_rn;
@@ -68,15 +103,7 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-    	double sig_r = sigma/Math.sqrt(r2);
-    	int expN = getExponent();
-    	double sig_rn = 1;
-    
-    	for (int i=0; i<expN; i++){
-    				sig_rn *= sig_r;
-    	}
-    	
-        return -n*epsilon*sig_rn;
+        return -n*u(r2);
     }
 
    /**
@@ -84,14 +111,7 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-    	double sig_r = sigma/Math.sqrt(r2);
-    	int expN = getExponent();
-    	double sig_rn = 1;
-    
-    	for (int i=0; i<expN; i++){
-    				sig_rn *= sig_r;
-    	}
-        return n*(n+1)*epsilon*sig_rn;
+        return n*(n+1)*u(r2);
     }
             
     /**
@@ -126,6 +146,7 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
      */
     public final void setSigma(double sig) {
         sigma = sig;
+        sigma2 = sig*sig;
     }
     public Dimension getSigmaDimension() {return Length.DIMENSION;}
     
@@ -145,15 +166,9 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
      * Accessor method for soft-sphere softness parameter
      */
     public int getExponent() {return n;}
-    /**
-     * Mutator method for soft-sphere softness parameter
-     */
-    public final void setExponent(int en) {
-        n = en;
-    }
-    
-    private static final long serialVersionUID = 1L;
-    private double sigma;
+
+    private double sigma, sigma2;
     private double epsilon;
-    private int n;
+    private final int n;
+    protected final boolean evenN;
 }
