@@ -152,7 +152,7 @@ public class SimHSMDVacancy extends Simulation {
 //        mcMoveID = new MCMoveInsertDelete3(potentialMasterList, random, space, integrator, L*Math.sqrt(0.9), fixedN, maxDN);
 //        mcMoveID = new MCMoveInsertDelete4(potentialMasterList, random, space, integrator, maxDN);
         mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMasterList, random, space, integrator, y, fixedN, maxDN);
-        integrator.setMCMoveID(mcMoveID);
+//        integrator.setMCMoveID(mcMoveID);
 //        integratorMC.getMoveEventManager().addListener(integrator);
         double x = (nbr1-1)/4.0;
         mcMoveID.setMaxInsertDistance(x);
@@ -379,7 +379,6 @@ public class SimHSMDVacancy extends Simulation {
                     return new Color(r, g, b);
                 }
             };
-            final double lc = sim.box.getBoundary().getBoxSize().getX(0) / nc;
             colorScheme = new ColorScheme() {
                 IVectorMutable dr = sim.space.makeVector();
                 double rc = sim.mcMoveID.getMaxDistance();
