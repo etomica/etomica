@@ -343,7 +343,7 @@ public class FFTDecomposition implements Property {
       }
       else {
         int listMaxDepth = findSegmentDepth((List)obj, segment);
-        if (listMaxDepth+1 > myMaxDepth) myMaxDepth = listMaxDepth+1;
+        if (listMaxDepth>-1 && listMaxDepth+1 > myMaxDepth) myMaxDepth = listMaxDepth+1;
       }
     }
     return myMaxDepth;
