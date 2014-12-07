@@ -1,0 +1,144 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+package etomica.normalmode;
+
+import etomica.api.IAtomList;
+import etomica.api.IBox;
+import etomica.api.IMoleculeList;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtomPositionDefinition;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.IEtomicaDataSource;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.space.ISpace;
+import etomica.units.Angle;
+
+/**
+ * Meter that measures the average tilt angle (not the angle of average tilt!)
+ *
+ * @author Andrew Schultz
+ */
+public class MeterPlaneSlip implements IEtomicaDataSource {
+
+    public MeterPlaneSlip(ISpace space, ISpecies species, int nPlanes, int nx, int ny) {
+        this.species = species;
+        pos = new AtomPositionGeometricCenter(space);
+        drSum = new IVectorMutable[nPlanes][2];
+        for (int i=0; i<nPlanes; i++) {
+            drSum[i][0] = space.makeVector();
+            drSum[i][1] = space.makeVector();
+        }
+        data = new DataDoubleArray(nPlanes*2);
+        dataInfo = new DataInfoDoubleArray("slip", Angle.DIMENSION, new int[]{nPlanes*2});
+        tag = new DataTag();
+        dataInfo.addTag(tag);
+        offset0 = new double[nPlanes][2];
+        this.nx = nx;
+        this.ny = ny;
+    }
+    
+    public void setBox(IBox newBox) {
+        box = newBox;
+        
+        int nPlanes = drSum.length;
+        
+        IMoleculeList molecules = box.getMoleculeList(species);
+        int nMolecules = molecules.getMoleculeCount();
+        for (int i=0; i<nPlanes; i++) {
+            drSum[i][0].E(0);
+            drSum[i][1].E(0);
+        }
+        for (int i=0; i<nMolecules; i++) {
+            int iPlane = (i/2)%nPlanes;
+            IAtomList atomList = molecules.getMolecule(i).getChildList();
+            drSum[iPlane][0].PE(atomList.getAtom(0).getPosition());
+            drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
+        }
+        int nMoleculesPerPlane = nMolecules/nPlanes;
+        IVector ba = box.getBoundary().getEdgeVector(0);
+        double a0 = ba.getX(0) / nx;
+        IVector bb = box.getBoundary().getEdgeVector(1);
+        double b0 = bb.getX(1) / ny;
+        IVector bc = box.getBoundary().getEdgeVector(2);
+        
+        for (int i=0; i<nPlanes; i++) {
+            drSum[i][0].TE(1.0/nMoleculesPerPlane);
+            drSum[i][1].TE(1.0/nMoleculesPerPlane);
+        }
+        for (int i=0; i<nPlanes; i++) {
+            if (i > 0) {
+                offset0[i][0] = (drSum[i][0].getX(0) - drSum[i-1][1].getX(0))/a0;
+                offset0[i][1] = (drSum[i][0].getX(1) - drSum[i-1][1].getX(1))/b0;
+            }
+            else {
+                offset0[i][0] = (drSum[i][0].getX(0) - (drSum[nPlanes-1][1].getX(0) - bc.getX(0)))/a0;
+                offset0[i][1] = (drSum[i][0].getX(1) - drSum[nPlanes-1][1].getX(1))/b0;
+            }
+        }
+    }
+
+    public IData getData() {
+        IMoleculeList molecules = box.getMoleculeList(species);
+        int nMolecules = molecules.getMoleculeCount();
+        int nPlanes = drSum.length;
+        for (int i=0; i<nPlanes; i++) {
+            drSum[i][0].E(0);
+            drSum[i][1].E(0);
+        }
+        for (int i=0; i<nMolecules; i++) {
+            int iPlane = (i/2)%nPlanes;
+            IAtomList atomList = molecules.getMolecule(i).getChildList();
+            drSum[iPlane][0].PE(atomList.getAtom(0).getPosition());
+            drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
+        }
+        int nMoleculesPerPlane = nMolecules/nPlanes;
+        IVector ba = box.getBoundary().getEdgeVector(0);
+        double a = ba.getX(0) / nx;
+        IVector bb = box.getBoundary().getEdgeVector(1);
+        double b = bb.getX(1) / ny;
+        IVector bc = box.getBoundary().getEdgeVector(2);
+        
+        for (int i=0; i<nPlanes; i++) {
+            drSum[i][0].TE(1.0/nMoleculesPerPlane);
+            drSum[i][1].TE(1.0/nMoleculesPerPlane);
+        }
+        double[] x = data.getData();
+        for (int i=0; i<nPlanes; i++) {
+            if (i > 0) {
+                x[2*i+0] = (drSum[i][0].getX(0) - drSum[i-1][1].getX(0))/a - offset0[i][0];
+                x[2*i+1] = (drSum[i][0].getX(1) - drSum[i-1][1].getX(1))/b - offset0[i][1];
+            }
+            else {
+                x[2*i+0] = (drSum[i][0].getX(0) - (drSum[nPlanes-1][1].getX(0) - bc.getX(0)))/a - offset0[i][0];
+                x[2*i+1] = (drSum[i][0].getX(1) - drSum[nPlanes-1][1].getX(1))/b - offset0[i][1];
+            }
+        }
+        return data;
+    }
+
+    public IEtomicaDataInfo getDataInfo() {
+        return dataInfo;
+    }
+
+    public DataTag getTag() {
+        return tag;
+    }
+
+    protected final ISpecies species;
+    protected IBox box;
+    protected final IVectorMutable[][] drSum;
+    protected final DataDoubleArray data;
+    protected final DataInfoDoubleArray dataInfo;
+    protected final DataTag tag;
+    protected IAtomPositionDefinition pos;
+    protected final double[][] offset0;
+    protected final int nx, ny;
+}
