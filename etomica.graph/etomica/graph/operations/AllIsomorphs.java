@@ -33,7 +33,7 @@ public class AllIsomorphs implements Unary {
 
   public Set<Graph> apply(Graph g, AllIsomorphsParameters params) {
     Set<Graph> result = new HashSet<Graph>();
-    result.add(g.copy());
+    if (params.propertyFilter == null || params.propertyFilter.check(g)) result.add(g.copy());
     if (g.nodeCount() < 2) {
       return result;
     }
