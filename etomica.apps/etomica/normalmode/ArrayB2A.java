@@ -49,6 +49,7 @@ public class ArrayB2A {
                     fw.write("\n");
                 }
             }
+            fw.close();
         }
         catch (IOException e) {
             throw new RuntimeException(e);
