@@ -331,7 +331,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			}
 			a.getPosition().assignTo(coords);
 			float diameter = (float) diameterHash.getDiameter(a);
-            // deafult diameter
+            // default diameter
 	        if (diameter == -1) diameter = 1;
 			ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
 			ball.setD(diameter);
