@@ -93,6 +93,10 @@ public class MeterWidomInsertion extends DataSourceScalar {
         return nInsert;
     }
 
+    public void setPressure(double newPressure) {
+        pressure = newPressure;
+    }
+
     /**
      * Performs a Widom insertion average, doing nInsert insertion attempts
      * Temperature used to get exp(-uTest/kT) is that of the integrator for the
@@ -120,6 +124,9 @@ public class MeterWidomInsertion extends DataSourceScalar {
         if (!residual) {
             // multiply by V/N
             sum *= box.getBoundary().volume() / (box.getNMolecules(species)+1);
+        }
+        else if (!Double.isNaN(pressure)) {
+            sum *= pressure*box.getBoundary().volume() / ((box.getNMolecules(species) + 1)*temperature);
         }
         return sum / nInsert; //return average
     }
@@ -194,4 +201,5 @@ public class MeterWidomInsertion extends DataSourceScalar {
     private MeterPotentialEnergy energyMeter;
     protected IBox box;
     protected double temperature;
+    protected double pressure = Double.NaN;
 }
