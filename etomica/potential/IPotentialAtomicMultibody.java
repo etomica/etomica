@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IPotentialAtomic;
 
 /**
- * Interface for an atomic non-additive potential.  Although the potential is
+ * Interface for an atomic non-additive potential.  Although the potential
  * varies with the angles between the atoms, the potential is spherically
  * symmetric in that the atoms do not have orientation and the potential can be
  * computed from the iteratomic distances.
@@ -15,5 +15,11 @@ import etomica.api.IPotentialAtomic;
  * @author Andrew Schultz
  */
 public interface IPotentialAtomicMultibody extends IPotentialAtomic {
+    
+    /**
+     * Returns the energy for a configuration of atoms having the given pair
+     * separations (squared distances).  The pairs are listed in the order
+     * 0-1, 0-2... 0-n, 1-2...1-n, 2-3...
+     */
     public double energy(double[] r2);
 }
