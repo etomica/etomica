@@ -276,6 +276,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         sitePos[1][2].PEa1Tv1(sitesOH-cmx, orH2O1);
         sitePos[1][1].PEa1Tv1(+sitesHH, orH2O2);
         sitePos[1][2].PEa1Tv1(-sitesHH, orH2O2);
+        CO = Math.sqrt(sitePos[0][0].Mv1Squared(sitePos[1][0]));
+        if (CO < 4 && !debugging) return Double.POSITIVE_INFINITY;
 //        System.out.println("CO2 C "+sitePos[0][0]);
 //        System.out.println("CO2 O1 "+sitePos[0][1]);
 //        System.out.println("CO2 O2 "+sitePos[0][2]);
@@ -285,6 +287,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
 //        System.exit(1);
         double energy = 0;
 //        System.out.println("*****");
+        minR = Double.POSITIVE_INFINITY;
         boolean checkme = false;
         for (int i=0; i<iparams.length; i++) {
             int ia1 = iparams[i][0]-1;
@@ -297,7 +300,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
 //            System.out.println("ia1 "+ia1+" "+sitePos[0][ia1]);
             double r21 = sitePos[1][ib1].Mv1Squared(sitePos[0][ia1]);
             double rr1 = Math.sqrt(r21);
-            if (rr1 < core) {
+            if (rr1 < minR) minR = rr1;
+            if (rr1 < core && !debugging) {
                 return Double.POSITIVE_INFINITY;
             }
             if (rr1 < checkCore) {
@@ -309,9 +313,10 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
 //                System.out.println(ia1+" "+ib1+" "+ia2+" "+ib2+" "+ir1+" "+rr1+" "+drij);
                 double r22 = sitePos[1][ib2].Mv1Squared(sitePos[0][ia2]);
                 double rr2 = Math.sqrt(r22);
+                if (rr2 < minR) minR = rr2;
                 double rval2 = 1.0/Math.pow(rr2, ir2);
                 energy += rval1*rval2*c1;
-                if (rr2 < core) {
+                if (rr2 < core && !debugging) {
                     return Double.POSITIVE_INFINITY;
                 }
                 if (rr2 < checkCore) {
@@ -327,25 +332,26 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             }
 //            System.out.println((i+1)+" "+Hartree.UNIT.fromSim(energy));
         }
-        if (checkme && !debugging && energy < -1000) {
-            System.out.println("** "+energy);
+        if (checkme && !debugging && energy < 0) {
             IVectorMutable mine = space.makeVector();
             debugging = true;
             mine.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-            for (int i=0; i<500; i++) {
+            System.out.println("** close attraction in CO2-H2O "+energy +" "+minR+" "+Math.sqrt(mine.squared())*bohrConv);
+            for (int i=80; i<150; i++) {
                 atom1.getPosition().E(atom0.getPosition());
                 atom1.getPosition().PEa1Tv1(i*0.01, mine);
                 double uu = energy(atoms);
-                System.out.println(0.01*i*Math.sqrt(mine.squared())+" "+uu);
+                System.out.print(String.format("%6.3f  %6.3f  %6.3f  %g\n", minR, CO, 0.01*i*Math.sqrt(mine.squared())*bohrConv, uu));
             }
             System.exit(1);
         }
-        else if (energy < -10000) System.out.println("-- "+energy);
+        else if (!debugging && energy < -10000) System.out.println("-- "+energy);
 //        System.exit(1);
         return energy;
     }
-    protected static final double core = 3.6;
-    protected static final double checkCore = 4;
+    protected double minR, CO;
+    protected static final double core = 3.1;
+    protected static final double checkCore = 3.2;
     protected boolean debugging = false;
     
     public double getRange() {
@@ -473,7 +479,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             drijRot = space.makeVector();
             mass0 = Carbon.INSTANCE.getMass() + 2*Oxygen.INSTANCE.getMass();
             moment0 = 2*Oxygen.INSTANCE.getMass()*sitesCO2L;
-            // oxygen is at 0,0,0
+
             moment1 = space.makeVector();
             double cm1x = 2*Hydrogen.INSTANCE.getMass()*sitesOH/mass1;
             moment1.setX(0, 2*Hydrogen.INSTANCE.getMass()*(sitesHH));
@@ -550,6 +556,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
                 }
             }
             
+            CO = Math.sqrt(sitePos[0][0].Mv1Squared(sitePos[1][0]));
+            if (CO < 4 && !debugging) return Double.POSITIVE_INFINITY;
             double energy = 0;
             for (int i=0; i<iparams.length; i++) {
                 int ia1 = iparams[i][0]-1;
@@ -806,6 +814,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             if (energy > 10000) {
                 return Double.POSITIVE_INFINITY;
             }
+            if (d2tsum == Double.POSITIVE_INFINITY || d2rsum == Double.POSITIVE_INFINITY) { return Double.POSITIVE_INFINITY; }
             return energy + fac*(d2tsum*bohrConv*bohrConv + d2rsum);
         }
     }
