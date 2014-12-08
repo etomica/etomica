@@ -12,7 +12,6 @@ import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
-import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Orientation3D;
 
 /**
@@ -21,37 +20,41 @@ import etomica.space3d.Orientation3D;
  */
 public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomRotateMulti(IRandom random, ISpace _space, int nAtoms) {
+    public MCMoveClusterAtomRotateMulti(IRandom random, ISpace _space) {
         super(null, random, _space, 1.0, Math.PI, false);
-        selectedAtoms = new IAtomOriented[nAtoms];
-        oldOrientations = new IOrientation[nAtoms];
-        for (int i=0; i<nAtoms; i++) {
-            oldOrientations[i] = _space.makeOrientation();
-        }
         setStepSize(1.2);
 	}
 
     public void setBox(IBox box) {
         super.setBox(box);
-        if (selectedAtoms[0] == null) selectAtoms();
-        for(int i=0; i<selectedAtoms.length; i++) {
-            if (selectedAtoms[i].getOrientation() instanceof Orientation3D) {
+        if (oldOrientations != null) return;
+        IAtomList atoms = box.getLeafList();
+        int nAtoms = atoms.getAtomCount();
+        oldOrientations = new IOrientation[nAtoms];
+        for (int i=0; i<nAtoms; i++) {
+            if (((IAtomOriented)atoms.getAtom(i)).getOrientation() instanceof Orientation3D) {
                 oldOrientations[i] = new Orientation3D(space);
+            }
+            else {
+                oldOrientations[i] = space.makeOrientation();
             }
         }
     }
     
 	//note that total energy is calculated
 	public boolean doTrial() {
-		if (selectedAtoms[0] == null) selectAtoms();
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-        for(int i=0; i<selectedAtoms.length; i++) {
-            oldOrientations[i].E(selectedAtoms[i].getOrientation());
-            selectedAtoms[i].getOrientation().randomRotation(random, stepSize);
+        IAtomList atoms = box.getLeafList();
+        int nAtoms = atoms.getAtomCount();
+        for(int i=0; i<nAtoms; i++) {
+            IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
+            oldOrientations[i].E(a.getOrientation());
+            a.getOrientation().randomRotation(random, stepSize);
         }
         if (random.nextInt(100) == 0) {
-            for(int i=0; i<selectedAtoms.length; i++) {
-                ((IVectorMutable)selectedAtoms[i].getOrientation().getDirection()).normalize();
+            for(int i=0; i<nAtoms; i++) {
+                IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
+                ((IVectorMutable)a.getOrientation().getDirection()).normalize();
             }
         }
 		((BoxCluster)box).trialNotify();
@@ -66,18 +69,13 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
     public double getB() {
     	return 0.0;
     }
-    
-    public void selectAtoms() {
-        IAtomList leafList = box.getLeafList();
-        int total = leafList.getAtomCount();
-    	for(int i=0; i<total; i++) {
-    		selectedAtoms[i] = (IAtomOriented)leafList.getAtom(i);
-    	}
-    }
 
     public void rejectNotify() {
-        for(int i=0; i<selectedAtoms.length; i++) {
-            selectedAtoms[i].getOrientation().E(oldOrientations[i]);
+        IAtomList atoms = box.getLeafList();
+        int nAtoms = atoms.getAtomCount();
+        for(int i=0; i<nAtoms; i++) {
+            IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
+            a.getOrientation().E(oldOrientations[i]);
         }
     	((BoxCluster)box).rejectNotify();
     }
@@ -86,6 +84,5 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
     	((BoxCluster)box).acceptNotify();
     }
 
-    private final IAtomOriented[] selectedAtoms;
-    private final IOrientation[] oldOrientations;
+    private IOrientation[] oldOrientations;
 }
