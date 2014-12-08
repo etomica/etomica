@@ -14,10 +14,8 @@ import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumEF;
 import etomica.virial.ConfigurationClusterMove;
 import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
@@ -96,7 +94,6 @@ public class VirialLJCHNCCorrection {
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
         Potential2Spherical pTarget = new P2LennardJones(space,1.0,1.0);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
-        MayerESpherical eTarget = new MayerESpherical(pTarget);
         
         ClusterAbstract targetCluster;
         
@@ -114,7 +111,7 @@ public class VirialLJCHNCCorrection {
 	
 	        	double[] weights = {-1.0/8.0};
 		    
-		    	targetCluster =  new ClusterSumEF(new ClusterBonds[] {cluster},weights,new MayerFunction[]{eTarget});
+		    	targetCluster =  new ClusterSum(new ClusterBonds[] {cluster},weights,new MayerFunction[]{fTarget});
 		    
         	} else {
         		
@@ -157,7 +154,7 @@ public class VirialLJCHNCCorrection {
 	        	
 	        	double[] weights = {-0.4, 0.2, 0.1, 0.6, -13.0/30.0, -0.1};
 	        	
-	        	targetCluster =  new ClusterSumEF(new ClusterBonds[] {cluster1, cluster2, cluster3, cluster4, cluster5, cluster6},weights,new MayerFunction[]{eTarget});
+	        	targetCluster =  new ClusterSum(new ClusterBonds[] {cluster1, cluster2, cluster3, cluster4, cluster5, cluster6},weights,new MayerFunction[]{fTarget});
         	
         	} else {
 	        
@@ -178,7 +175,7 @@ public class VirialLJCHNCCorrection {
 	        	
 	        	double[] weights = {-1.0, 1.5, -1.0/3.0, -0.2};
 	        	
-	        	targetCluster =  new ClusterSumEF(new ClusterBonds[] {cluster1, cluster2, cluster3, cluster4},weights,new MayerFunction[]{eTarget});
+	        	targetCluster =  new ClusterSum(new ClusterBonds[] {cluster1, cluster2, cluster3, cluster4},weights,new MayerFunction[]{fTarget});
         	}
         	
         } else {
