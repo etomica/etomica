@@ -26,16 +26,12 @@ public class ClusterWheatleySoftBD implements ClusterAbstract {
     protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected double beta;
-    protected final byte[] outDegree;
-    protected final int[] fullBondMask;
-    protected final boolean[] cliqueSet;
-    protected int cliqueCount, eCliqueCount;
-    protected final int[] cliqueList;
     public static boolean pushme = false;
     public static BigDecimal BDONE = new BigDecimal(1.0);
     public static BigDecimal BDZERO = new BigDecimal(0.0);
     protected final MathContext mc;
     protected double tol;
+    protected boolean doCaching;
 
     public ClusterWheatleySoftBD(int nPoints, MayerFunction f, int precision) {
         this.n = nPoints;
@@ -49,16 +45,17 @@ public class ClusterWheatleySoftBD implements ClusterAbstract {
         }
         fA = new BigDecimal[nf];
         fB = new BigDecimal[nf];
-        outDegree = new byte[n];
-        fullBondMask = new int[nf];
-        cliqueSet = new boolean[nf];
-        cliqueList = new int[nf];
         tol = Math.pow(10, -precision+3);
+    }
+
+    public void setDoCaching(boolean newDoCaching) {
+        doCaching = newDoCaching;
     }
 
     public ClusterAbstract makeCopy() {
         ClusterWheatleySoftBD c = new ClusterWheatleySoftBD(n, f, mc.getPrecision());
         c.setTemperature(1/beta);
+        c.setDoCaching(doCaching);
         return c;
     }
 
@@ -67,23 +64,25 @@ public class ClusterWheatleySoftBD implements ClusterAbstract {
     }
 
     public double value(BoxCluster box) {
-        CoordinatePairSet cPairs = box.getCPairSet();
-        long thisCPairID = cPairs.getID();
-        if (thisCPairID == cPairID) {
-            return value;
+        if (doCaching) {
+            CoordinatePairSet cPairs = box.getCPairSet();
+            long thisCPairID = cPairs.getID();
+            if (thisCPairID == cPairID) {
+                return value;
+            }
+            if (thisCPairID == lastCPairID) {
+                // we went back to the previous cluster, presumably because the last
+                // cluster was a trial that was rejected.  so drop the most recent value/ID
+                cPairID = lastCPairID;
+                value = lastValue;
+                return value;
+            }
+    
+            // a new cluster
+            lastCPairID = cPairID;
+            lastValue = value;
+            cPairID = thisCPairID;
         }
-        if (thisCPairID == lastCPairID) {
-            // we went back to the previous cluster, presumably because the last
-            // cluster was a trial that was rejected.  so drop the most recent value/ID
-            cPairID = lastCPairID;
-            value = lastValue;
-            return value;
-        }
-
-        // a new cluster
-        lastCPairID = cPairID;
-        lastValue = value;
-        cPairID = thisCPairID;
       
         updateF(box);
       
@@ -102,7 +101,6 @@ public class ClusterWheatleySoftBD implements ClusterAbstract {
      */
     protected void calcFullFQ(BoxCluster box) {
         int nf = 1<<n;
-        eCliqueCount = 0;
         // generate all partitions and compute product of e-bonds for all pairs in partition
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
@@ -117,122 +115,7 @@ public class ClusterWheatleySoftBD implements ClusterAbstract {
                 if ((l&i)==0) continue; //l is not in partition
                 fQ[i] = fQ[i].multiply(fQ[l | j], mc);
             }
-            if (fQ[i].doubleValue() != 0) eCliqueCount++;
 //            System.out.println(i+" "+fQ[i].toString());
-        }
-    }
-
-    public boolean checkConfig(BoxCluster box) {
-        updateF(box);
-        int edgeCount = 0;
-
-        for (int i=0; i<n; i++) {
-            outDegree[i] = 0;
-        }
-        int nf = 1<<n;
-        for (int i=0; i<nf; i++) {
-            fullBondMask[i] = 0;
-        }
-
-        for (int i=0; i<n-1; i++) {
-            for (int j=i+1; j<n; j++) {
-                int k = (1<<i)|(1<<j);
-                boolean fBond = (fQ[k].doubleValue() == 0); 
-                cliqueSet[k] = fBond;
-                if (fBond) {
-                    outDegree[i]++;
-                    outDegree[j]++;
-                    edgeCount++;
-                    fullBondMask[1<<i] |= 1<<j;
-                    fullBondMask[1<<j] |= 1<<i;
-                }
-            }
-        }
-
-        int maxEdges = n*(n-1)/2;
-        if (edgeCount==maxEdges) {
-            cliqueCount = nf-n-(n*(n-1)/2);
-            calcFullFQ(box);
-            return true;
-        }
-        if (edgeCount==maxEdges-1) return false;
-        for (int i=0; i<n; i++) {
-            if (outDegree[i] < 2) {
-                return false;
-            }
-        }
-
-        // the existence of a clique separator indicates that the value for
-        // this configuration is zero.  Loop through all sets, considering
-        // each as a clique separator.
-        cliqueCount = 0;
-iLoop:  for (int i=1; i<nf-3; i++) {
-            int j = i & -i;//lowest bit in i
-            if (i==j) {
-                // 1-point set.  check as an articulation point
-                if (cliqueCheck(i, nf-1)) return false;
-                continue;
-            }
-            int k = i&~j; //strip j bit from i and set result to k
-            if (k == (k&-k)) {
-                // 2-point set.  cliqueSet[i] was set in the above loop
-                // over pairs.
-                if (cliqueSet[i] && cliqueCheck(i, nf-1)) return false;
-                continue;
-            }
-            cliqueSet[i] = cliqueSet[k]; //initialize with previously-computed product of all pairs in partition, other than j
-
-            if (!cliqueSet[i]) continue;
-            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
-            //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            for (int l=(j<<1); l<i; l=(l<<1)) {
-                if ((l&i)==0) continue; //l is not in partition
-                if (!cliqueSet[l|j]) {
-                    cliqueSet[i] = false;
-                    continue iLoop;
-                }
-            }
-            // i is a clique
-            if (cliqueCheck(i, nf-1)) {
-                return false;
-            }
-            cliqueList[cliqueCount] = i;
-            cliqueCount++;
-        }
-        
-        return true;
-    }
-
-    /**
-     * Checks to see if the set |clique| is a clique separator.  The graph
-     * connectivity is described by the fullBondMask array.
-     */
-    protected boolean cliqueCheck(int clique, int nfm1) {
-        int cComp = nfm1^clique;
-        int m = cComp & -cComp;
-        if (m==cComp) {
-            // there is only one point not in the clique
-            return false;
-        }
-        int seen = m | clique;
-
-        while (true) {
-            int newSeen = seen;
-            while (m != 0) {
-                int lb = m & -m;
-                newSeen |= fullBondMask[lb];
-                m = m ^ lb;
-            }
-            if (newSeen == seen) {
-                // we didn't pick up any new points
-                return true;
-            }
-            if (newSeen == nfm1) {
-                // we found all points
-                return false;
-            }
-            m = newSeen - seen;
-            seen = newSeen;
         }
     }
 
@@ -397,30 +280,6 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         if (pushme && maxR2 > 2*2) {
 //            value *= Math.pow(maxR2/4, 6);
         }
-    }
-
-    public int getCliqueCount() {
-        return cliqueCount;
-    }
-    
-    public int getECliqueCount() {
-        return eCliqueCount;
-    }
-    
-    public int[] getFullBondMask() {
-        return fullBondMask;
-    }
-    
-    public int[] getCliques() {
-        return cliqueList;
-    }
-    
-    /**
-     * Returns outDegee (number of bonds for each point) of the configuration
-     * passed to checkConfig
-     */
-    public byte[] getOutDegree() {
-        return outDegree;
     }
 
     protected void updateF(BoxCluster box) {
