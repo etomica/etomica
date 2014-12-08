@@ -216,7 +216,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (doRotate) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, valueClusters[0].pointCount());
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
@@ -507,7 +507,6 @@ public class SimulationVirialOverlap2 extends Simulation {
                               averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
     }
 
-    private static final long serialVersionUID = 1L;
     protected final ISpecies[] species;
     protected final double temperature;
     protected final ClusterAbstract[] valueClusters;

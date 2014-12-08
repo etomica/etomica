@@ -12,10 +12,8 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -25,7 +23,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Mole;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -124,7 +121,7 @@ public class SimulationVirialOverlap extends Simulation {
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (doRotate) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, aValueClusters[0].pointCount()-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
@@ -402,6 +399,12 @@ public class SimulationVirialOverlap extends Simulation {
         IData errorData = allYourBase.getData(accumulators[0].ERROR.index);
         IData correlationData = allYourBase.getData(accumulators[0].BLOCK_CORRELATION.index);
         IData covarianceData = allYourBase.getData(accumulators[0].BLOCK_COVARIANCE.index);
+        int nData = averageData.getLength();
+        int nCovData = covarianceData.getLength();
+        if (nData != 2 || nCovData != 4) {
+            // we need to know these to grab the right elements of covarianceData
+            throw new RuntimeException("unexpected number of data values");
+        }
         double correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
@@ -418,7 +421,13 @@ public class SimulationVirialOverlap extends Simulation {
         errorData = allYourBase.getData(accumulators[1].ERROR.index);
         correlationData = allYourBase.getData(accumulators[1].BLOCK_CORRELATION.index);
         covarianceData = allYourBase.getData(accumulators[1].BLOCK_COVARIANCE.index);
-        correlationCoef = covarianceData.getValue(1)/(stdevData.getValue(0)*stdevData.getValue(1));
+        nData = averageData.getLength();
+        nCovData = covarianceData.getLength();
+        if (nData*nData != nCovData) {
+            // we need to know these to grab the right elements of covarianceData
+            throw new RuntimeException("unexpected number of data values");
+        }
+        correlationCoef = covarianceData.getValue(1)/(covarianceData.getValue(0)*covarianceData.getValue(nData+1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
         System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",

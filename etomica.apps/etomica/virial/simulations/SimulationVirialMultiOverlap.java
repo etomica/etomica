@@ -12,8 +12,6 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -117,7 +115,7 @@ public class SimulationVirialMultiOverlap extends Simulation {
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
                 if (species[0] instanceof SpeciesSpheresRotating) {
-                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space, nMolecules-1);
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
             }
@@ -299,8 +297,7 @@ public class SimulationVirialMultiOverlap extends Simulation {
             integrators[i].getMoveManager().setEquilibrating(false);
         }
     }
-    
-    private static final long serialVersionUID = 1L;
+
 	protected DisplayPlot plot;
 	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
