@@ -132,6 +132,7 @@ public class VirialSwsPT {
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
                 new int[]{nPoints},1.0, new ClusterAbstract[]{refCluster, targetCluster}, sampleClusters, true);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
@@ -178,8 +179,8 @@ public class VirialSwsPT {
             sim.getController().removeAction(sim.ai);
             sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
+                    sim.initRefPref(null, 1000);
+                    sim.equilibrate(null, 2000);
                     sim.ai.setMaxSteps(Long.MAX_VALUE);
                 }
             });
@@ -235,6 +236,7 @@ public class VirialSwsPT {
 
 
         sim.setAccumulatorBlockSize(steps);
+        sim.integratorOS.setNumSubSteps((int)steps);
         
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes  "+sim.mcMoveTranslate[0].getStepSize()+" "+sim.mcMoveTranslate[1].getStepSize());
@@ -257,7 +259,7 @@ public class VirialSwsPT {
         }
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
+        sim.ai.setMaxSteps(1000);
         long t0 = System.currentTimeMillis();
         sim.getController().actionPerformed();
         long t1 = System.currentTimeMillis();
