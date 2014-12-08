@@ -22,9 +22,9 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
-    private static final long serialVersionUID = 1L;
-    private IVectorRandom[] translationVectors;
+    protected IVectorRandom[] translationVectors;
     protected int[] constraintMap;
+    protected int startMolecule;
 
     public MCMoveClusterMoleculeMulti(ISimulation sim, ISpace _space) {
     	this(null, sim.getRandom(), _space, 1.0);
@@ -40,6 +40,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     public MCMoveClusterMoleculeMulti(IPotentialMaster potentialMaster,
             IRandom random, ISpace _space, double stepSize) {
         super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
+        setStartMolecule(1);
     }
 
     public void setBox(IBox p) {
@@ -59,7 +60,11 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     public void setConstraintMap(int[] newConstraintMap) {
         constraintMap = newConstraintMap;
     }
-    
+
+    public void setStartMolecule(int newStartMolecule) {
+        startMolecule = newStartMolecule;
+    }
+
     //note that total energy is calculated
     public boolean doTrial() {
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -67,7 +72,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 //            throw new RuntimeException("oops, initial configuration unhappy");
 //        }
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=1; i<moleculeList.getMoleculeCount(); i++) {
+        for(int i=startMolecule; i<moleculeList.getMoleculeCount(); i++) {
             int tv = constraintMap[i];
             if (tv == i) {
                 translationVectors[tv].setRandomCube(random);
@@ -83,7 +88,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 	
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=1; i<moleculeList.getMoleculeCount(); i++) {
+        for(int i=startMolecule; i<moleculeList.getMoleculeCount(); i++) {
             groupTranslationVector.Ea1Tv1(-1,translationVectors[constraintMap[i]]);
             moveMoleculeAction.actionPerformed(moleculeList.getMolecule(i));
         }
@@ -94,9 +99,6 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     }
 
     public void acceptNotify() {
-//        if (uNew == 0) {
-//            throw new RuntimeException("oops, accepted illegal configuration");
-//        }
         ((BoxCluster)box).acceptNotify();
     }
     
