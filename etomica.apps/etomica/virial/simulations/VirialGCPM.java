@@ -8,9 +8,6 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IPotentialMolecular;
-import etomica.data.AccumulatorRatioAverage;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.models.water.ConformationWaterGCPM;
@@ -26,6 +23,7 @@ import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
+import etomica.virial.ClusterWheatleySoft;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.Standard;
@@ -40,9 +38,15 @@ public class VirialGCPM {
             ReadParameters paramReader = new ReadParameters(args[0], params);
             paramReader.readParameters();
         }
+        else {
+            params.nPoints = 2;
+            params.numSteps = 10000000;
+            params.temperature = 300;
+        }
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
         long steps = params.numSteps;
+        boolean additive = params.additive;
         int numSubSteps = 1000;
         double deltaCut = 100;
 
@@ -59,8 +63,7 @@ public class VirialGCPM {
         System.out.println("Water overlap sampling B"+nPoints+" at T="+temperature);
         temperature = Kelvin.UNIT.toSim(temperature);
 
-        System.out.println(steps+" steps ("+steps/1000+" blocks of 1000)");
-        steps /= 1000;
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
 
         Space space = Space3D.getInstance();
 
@@ -68,10 +71,22 @@ public class VirialGCPM {
         final IPotentialMolecular pTarget = new PNWaterGCPM(space);
         
         MayerGeneral fTarget = new MayerGeneral(pTarget);
-        ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
-        ((ClusterSumPolarizable)targetCluster).setDeltaCut(deltaCut);
-        ((ClusterSumPolarizable)targetCluster).setCaching(false);
-        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
+        ClusterAbstract targetCluster;
+        if (additive) {
+            // only additive (pairwise) contributions
+            targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
+            if (nPoints == 2) {
+                ((ClusterWheatleySoft)targetCluster).setDoCaching(false);
+                targetCluster = new ClusterCoupledFlipped(targetCluster, space, 20);
+            }
+        }
+        else {
+            // full virial coefficient
+            targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
+            ((ClusterSumPolarizable)targetCluster).setDeltaCut(deltaCut);
+            ((ClusterSumPolarizable)targetCluster).setCaching(false);
+            targetCluster = new ClusterCoupledFlipped(targetCluster, space, 20);
+        }
 
    	    ClusterWeight sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
 
@@ -89,6 +104,10 @@ public class VirialGCPM {
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,
                 temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
+        
+        if  (targetCluster.value(sim.box[1]) == 0) {
+            throw new RuntimeException("oops");
+        }
         
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -123,6 +142,12 @@ public class VirialGCPM {
             return;
         }
 
+        long t1 = System.currentTimeMillis();
+
+        sim.integratorOS.setNumSubSteps(1000);
+        steps /= 1000;
+        sim.setAccumulatorBlockSize(steps);
+
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+params.temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -134,7 +159,8 @@ public class VirialGCPM {
             throw new RuntimeException("oops");
         }
         
-        sim.setAccumulatorBlockSize((int)steps);
+        sim.integratorOS.setNumSubSteps((int)steps);
+        sim.ai.setMaxSteps(1000);
         
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
@@ -156,11 +182,13 @@ public class VirialGCPM {
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
+        long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
         sim.printResults(HSB[nPoints]);
+        System.out.println("time: "+(t2-t1)*0.001);
 	}
 
 
@@ -171,6 +199,7 @@ public class VirialGCPM {
     public static class VirialGCPMParam extends ParameterBase {
         public int nPoints = 3;
         public double temperature = 350;   // Kelvin
-        public long numSteps = 100000;
+        public long numSteps = 10000000;
+        public boolean additive = true;
     }
 }
