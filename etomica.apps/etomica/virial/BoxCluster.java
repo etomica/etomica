@@ -106,11 +106,10 @@ public class BoxCluster extends Box {
 		isTrial = false;
 	}
 
-    private static final long serialVersionUID = 1L;
-	private boolean isTrial;
-	private CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
-    private AtomPairSet aPairSet;
+ 	protected boolean isTrial;
+	protected CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
+    protected AtomPairSet aPairSet;
     protected long cPairID;
-	private final ClusterWeight sampleCluster;
-	private final ISpace space;
+	protected final ClusterWeight sampleCluster;
+	protected final ISpace space;
 }
