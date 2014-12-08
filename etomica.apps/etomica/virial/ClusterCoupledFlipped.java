@@ -16,15 +16,20 @@ import etomica.space.ISpace;
 public class ClusterCoupledFlipped implements ClusterAbstract {
 
     public ClusterCoupledFlipped(ClusterAbstract cluster, ISpace space) {
+        this(cluster, space, 0);
+    }
+    
+    public ClusterCoupledFlipped(ClusterAbstract cluster, ISpace space, double minFlipDistance) {
         this.space = space;
         wrappedCluster = cluster;
         childAtomVector = space.makeVector();
         flippedAtoms = new boolean[cluster.pointCount()];
         positionDefinition = new AtomPositionGeometricCenter(space);
+        this.minFlipDistance = minFlipDistance;
     }
 
     public ClusterAbstract makeCopy() {
-        return new ClusterCoupledFlipped(wrappedCluster.makeCopy(), space);
+        return new ClusterCoupledFlipped(wrappedCluster.makeCopy(), space, minFlipDistance);
     }
 
     public int pointCount() {
@@ -59,11 +64,25 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
 
         final int pointCount = wrappedCluster.pointCount();
         
+        boolean flipit = false;
+        double minR2 = minFlipDistance*minFlipDistance;
         for (int i=0; i<pointCount; i++) {
             flippedAtoms[i] = false;
+            for (int j=i+1; !flipit && j<pointCount; j++) {
+                if (box.getCPairSet().getr2(0,1) > minR2) {
+                    flipit=true;
+                }
+            }
         }
         
+        boolean debugme = box.getCPairSet().getr2(0,1) > 1000 && false;
         double vsum = wrappedCluster.value(box);
+        if (!flipit) {
+            value = vsum;
+            cPairID = cPairs.getID();
+            return vsum;
+        }
+        if (debugme) System.out.print(String.format("%10.4e ", vsum));
 
         IMoleculeList atomList = box.getMoleculeList();
         // loop through the atoms, toggling each one until we toggle one "on"
@@ -80,10 +99,15 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
                 // if we flipped every atom from true to false, we must be done
                 break;
             }
-            vsum += wrappedCluster.value(box);
+            double foo = wrappedCluster.value(box);
+            if (debugme) System.out.print(String.format("%10.4e ", foo));
+            vsum += foo;
+            if (Double.isNaN(vsum)) {throw new RuntimeException("oops");}
         }
         
         value = vsum / Math.pow(2, pointCount);
+        if (debugme) System.out.print(String.format("%10.4e\n", value));
+        if (debugme) System.exit(1);
         
         cPairID = cPairs.getID();
         return value;
@@ -110,4 +134,5 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     protected final boolean[] flippedAtoms;
     private IVectorMutable childAtomVector;
     protected IAtomPositionDefinition positionDefinition;
+    protected final double minFlipDistance;
 }
