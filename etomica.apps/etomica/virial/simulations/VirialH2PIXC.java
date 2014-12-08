@@ -159,7 +159,7 @@ public class VirialH2PIXC {
         MCMoveClusterRingRegrow ring0 = new MCMoveClusterRingRegrow(sim.getRandom(), space);        
         ring0.setEnergyFactor(energyFac);
         MCMoveClusterRingRegrowOrientation move0 = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nSpheres);
-        move0.setStiffness(temperature, species.getAtomType(0));
+        move0.setStiffness(temperature, species.getAtomType(0).getMass());
         move0.setDoExchange(true);
         final MCMoveChangeBondLength cbl0 = new MCMoveChangeBondLength(sim.integrator.getPotentialMaster(), sim.getRandom(),space,temperature);
         cbl0.setDoExchange(true);        
