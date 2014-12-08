@@ -8,6 +8,8 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IAtomList;
+import etomica.api.IVectorMutable;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -26,7 +28,6 @@ import etomica.virial.ClusterSumNonAdditiveTrimerEnergy;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /* 
@@ -74,7 +75,7 @@ public class VirialCPSHeliumNonAdditive {
         	throw new IllegalArgumentException("Incorrect number of arguments passed.");
         }
         
-        
+
         int numSubSteps = 1000;
 
         final double[] HSB = new double[7];
@@ -84,8 +85,6 @@ public class VirialCPSHeliumNonAdditive {
         HSB[5] = Standard.B5HS(sigmaHSRef);
         HSB[6] = Standard.B6HS(sigmaHSRef);
 
-        System.out.println("What is going on?");
-        System.out.println(""+temperatureK);
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
         System.out.println("Helium overlap sampling B"+nPoints+"NonAdd at T="+temperatureK+ " K");
@@ -108,18 +107,19 @@ public class VirialCPSHeliumNonAdditive {
         p3NonAdd.setNullRegionMethod(nullRegionMethod);
     	MayerGeneralSpherical fTarget = new MayerGeneralSpherical(p2);
     	ClusterSumNonAdditiveTrimerEnergy targetCluster = Standard.virialNonAdditiveTrimerEnergy(nPoints, fTarget, p3NonAdd, nPoints>3, false);
-    	targetCluster.setNo72B2B3NonAdd(false);
+    	targetCluster.setNo72B2B3NonAdd(true);
     	targetCluster.setTemperature(temperature);
 
     	
     	MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, (MayerFunction)fRef, nPoints>3, null, false);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
         refCluster.setTemperature(temperature);
 
 
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), 
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), 
                 temperature, refCluster,targetCluster, false);
-        
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
+
         ///////////////////////////////////////////////
         // Initialize non-overlapped configuration
         ///////////////////////////////////////////////
@@ -155,6 +155,18 @@ public class VirialCPSHeliumNonAdditive {
         } else {
         	throw new RuntimeException("Wrong number of points");
         }
+        
+        
+        double r = 4;
+        for (int i=1; i<nPoints; i++) {
+            IVectorMutable v = atoms.getAtom(i).getPosition();
+            v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
+            v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
+        }
+        sim.box[1].trialNotify();
+        sim.box[1].acceptNotify();
+//        System.out.println(targetCluster.value(sim.box[1]));
+//        System.exit(1);
         
         /*
         IAtomList atoms0 = sim.box[0].getLeafList();
@@ -226,10 +238,10 @@ public class VirialCPSHeliumNonAdditive {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);
