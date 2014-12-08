@@ -27,6 +27,7 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
 import etomica.virial.MCMoveClusterAtomMulti;
+import etomica.virial.MCMoveClusterAtomRotateMulti;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterReptateMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
@@ -40,37 +41,91 @@ import etomica.virial.SpeciesFactory;
 public class SimulationVirial extends Simulation {
 
 
+    public IEtomicaDataSource meter;
+    public AccumulatorRatioAverageCovariance accumulator;
+    public IDataSink dataSink;
+    public DataPumpListener accumulatorPump;
+    public ISpecies[] species;
+    public ActivityIntegrate ai;
+    public IntegratorMC integrator;
+    public BoxCluster box;
+    public ClusterAbstract[] allValueClusters;
+    public ClusterWeight sampleCluster;
+    public MCMoveBoxStep mcMoveTranslate;
+    public MCMoveBoxStep mcMoveRotate;
+    public MCMoveBoxStep mcMoveWiggle;
+    public MCMoveBox mcMoveReptate;
+    public double temperature;
+    public boolean doWiggle;
+    public int[] newSeeds;
+    public int[] numMolecules;
+
+    public SimulationVirial(ISpace space, ISpecies[] species, int[] nMolecules, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+        super(space);
+        this.species = species;
+        this.numMolecules = nMolecules;
+        this.temperature = temperature;
+        this.sampleCluster = aSampleCluster;
+        allValueClusters = new ClusterAbstract[targetClusters.length+1];
+        allValueClusters[0] = refCluster;
+        System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
+    }
+    
+    public void setDoWiggle(boolean newDoWiggle) {
+        this.doWiggle = newDoWiggle;
+    }
+
+    public void setSeeds(int[] newSeeds) {
+        this.seeds = newSeeds;
+    }
+
     /**
 	 * Constructor for simulation to determine the ratio between reference and target Clusters
 	 */
 	public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-	    this(space, speciesFactory, temperature, aSampleCluster, refCluster, targetClusters, false);
+	    this(space, new ISpecies[]{speciesFactory.makeSpecies(space)}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
+	    setDoWiggle(false);
+	    init();
 	}
 
     public SimulationVirial(ISpace space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-        this(space, species, temperature, aSampleCluster, refCluster, targetClusters, false);
+        this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
+        setDoWiggle(false);
+        init();
     }
 
     public SimulationVirial(ISpace space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
-	    this(space, speciesFactory.makeSpecies(space), temperature, aSampleCluster, refCluster, targetClusters, doWiggle);
+	    this(space, new ISpecies[]{speciesFactory.makeSpecies(space)}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
+	    setDoWiggle(doWiggle);
+	    init();
 	}
 	
 	public SimulationVirial(ISpace space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
-	    this(space, species, temperature, aSampleCluster, refCluster, targetClusters, doWiggle, null);
+	    this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
+	    setDoWiggle(doWiggle);
+	    init();
 	}
 	
 	public SimulationVirial(ISpace space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle, int[] seeds) {
-		super(space);
+		this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
+		setDoWiggle(doWiggle);
+		setSeeds(seeds);
+		init();
+	}
+	
+	public void init() {
 		if (seeds != null) {
 		    setRandom(new RandomMersenneTwister(seeds));
 		}
         PotentialMaster potentialMaster = new PotentialMaster();
-        sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		box = new BoxCluster(sampleCluster, space);
 		addBox(box);
-        addSpecies(species);
-        box.setNMolecules(species, nMolecules);
+
+		for (int i=0; i<species.length; i++) {
+		    addSpecies(species[i]);
+		    box.setNMolecules(species[i], numMolecules[i]);
+		}
         
         integrator = new IntegratorMC(this, potentialMaster);
         // it's unclear what this accomplishes, but let's do it just for fun.
@@ -82,14 +137,18 @@ public class SimulationVirial extends Simulation {
 		getController().addAction(ai);
 		
 		
-        if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
+        if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {
             mcMoveTranslate = new MCMoveClusterAtomMulti(random, space);
+            if (species[0] instanceof SpeciesSpheresRotating) {
+                mcMoveRotate = new MCMoveClusterAtomRotateMulti(random, space);
+                integrator.getMoveManager().addMCMove(mcMoveRotate);
+            }
         }
         else {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
-            if (species instanceof SpeciesSpheres) {
+            if (species[0] instanceof SpeciesSpheres) {
                 if (doWiggle) {
                     mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules, space);
                     integrator.getMoveManager().addMCMove(mcMoveWiggle);
@@ -104,29 +163,10 @@ public class SimulationVirial extends Simulation {
         ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.initializeCoordinates(box);
 
-        allValueClusters = new ClusterAbstract[targetClusters.length+1];
-        allValueClusters[0] = refCluster;
-        System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters));
         ((MeterVirial)meter).setBox(box);
         setAccumulator(new AccumulatorRatioAverageCovariance());
 	}
-	
-    private static final long serialVersionUID = 1L;
-	public IEtomicaDataSource meter;
-	public AccumulatorRatioAverageCovariance accumulator;
-	public IDataSink dataSink;
-	public DataPumpListener accumulatorPump;
-	public ISpecies species;
-	public ActivityIntegrate ai;
-	public IntegratorMC integrator;
-	public BoxCluster box;
-    public ClusterAbstract[] allValueClusters;
-    public ClusterWeight sampleCluster;
-    public MCMoveBoxStep mcMoveTranslate;
-    public MCMoveBoxStep mcMoveRotate;
-    public MCMoveBoxStep mcMoveWiggle;
-    public MCMoveBox mcMoveReptate;
 
 	public void setMeter(IEtomicaDataSource newMeter) {
 		meter = newMeter;
