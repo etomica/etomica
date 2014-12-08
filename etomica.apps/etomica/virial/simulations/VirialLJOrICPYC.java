@@ -91,11 +91,9 @@ public class VirialLJOrICPYC {
         }
 
         final double[] rWeight = new double[N];
-        VirialDiagrams diagrams = null;
-        
        
         // we just need a functioning VirialDiagrams object to make our target cluster
-        diagrams = new VirialDiagrams(nPoints, false, false);
+        VirialDiagrams diagrams = new VirialDiagrams(nPoints, false, false);
         // we need to poke diagrams enough so that it initializes itself properly
         diagrams.makeRhoDiagrams();
         for (int i=0; i<N; i++) {
