@@ -208,9 +208,6 @@ public class VirialH2PI {
         int nBins = hackedup?4000:100;
         double dx = sigmaHSRef/nBins;
         
-        final String p3ParametersFile = params.p3ParametersFile;
-        final int startBeadHalfs = params.startBeadHalfs;        
-        final int finalNumBeads = params.finalNumBeads;
         final double[] HSB = new double[8];
         final levelOptions potentialLevel = params.potentialLevel;
         final subOptions subtractWhat = params.subtractWhat;
@@ -219,7 +216,7 @@ public class VirialH2PI {
         System.out.println("Potential level = "+potentialLevel);
         System.out.println("Subtract what = "+subtractWhat);
         System.out.println("bl Option = "+blOption);
-                
+
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);        
         final boolean doTotal = params.doTotal;
@@ -233,38 +230,11 @@ public class VirialH2PI {
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
         }
-        int origNB = nb;
         if (potentialLevel == levelOptions.patkowski && blOption != blOptions.fixedGround && subtractWhat != subOptions.none) throw new RuntimeException("Check parameter values");
         if (potentialLevel == levelOptions.iso && subtractWhat == subOptions.none) System.out.println("Calculating coefficients for isotropic potential");
         if (subtractWhat == subOptions.half) {
-            int totalHalfs = (int)Math.ceil(Math.log((nb+finalNumBeads-1)/finalNumBeads)/Math.log(beadFac));
-            int totalFac = (int)Math.round(Math.pow(beadFac, totalHalfs));
-            int endBeads = (nb + totalFac -1) / totalFac;
-            nb = endBeads * totalFac;
-            origNB = nb;
-            System.out.println("H2-H2 Path Integral ("+origNB+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
-            nb /= (int)Math.round(Math.pow(beadFac,startBeadHalfs));
-            if (nb*beadFac <= finalNumBeads) {
-                throw new RuntimeException("it is unnecessary to half "+(startBeadHalfs)+" times");
-            }
-            if (nb <= finalNumBeads) {
-//                if (doDiff) {
-//                    if (semiClassical) {
-//                        System.out.println("Calculating difference between "+nb+" beads and semiclassical");
-//                    }
-//                    else {
-//                        System.out.println("Calculating difference between "+nb+" beads and classical");
-//                    }
-//                }
-//                else {
-//                    System.out.println("Perturbing from "+nb+" beads to hard spheres");
-//                }
-//                subtractHalf = false;
-            	throw new RuntimeException("oh-oh hot dog!"+nb+" "+finalNumBeads);
-            }
-            else {
-                System.out.println("Calculating difference between "+nb/beadFac+" and "+nb+" beads");
-            }
+            System.out.println("H2-H2 Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
+            System.out.println("Calculating difference between "+nb/beadFac+" and "+nb+" beads");
         }
         else System.out.println("H2-H2 Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
 
@@ -617,8 +587,8 @@ public class VirialH2PI {
         sim.integrators[1].getMoveManager().addMCMove(ring1);
         MCMoveClusterRingRegrowOrientation orFancy0 = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);        
         MCMoveClusterRingRegrowOrientation orFancy1 = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
-        orFancy0.setStiffness(temperature, species.getAtomType(0));
-        orFancy1.setStiffness(temperature, species.getAtomType(0));
+        orFancy0.setStiffness(temperature, Hydrogen.INSTANCE.getMass());
+        orFancy1.setStiffness(temperature, Hydrogen.INSTANCE.getMass());
 //        System.out.println(2*nBeads*Math.PI/(lambda*lambda)+" "+2*move0.getStiffness()+" "+2*move1.getStiffness());
 //        MCMoveOrientationBruteForce orBF0 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
 //        MCMoveOrientationBruteForce orBF1 = new MCMoveOrientationBruteForce(sim.getRandom(), space, temperature);
@@ -1066,7 +1036,6 @@ public class VirialH2PI {
         public double sigmaHSRef = 3.0; // -1 means use equation for sigmaHSRef
         public int startBeadHalfs = 0;
         public int beadFac = 2;
-        public int finalNumBeads = 2;
         public boolean pairOnly = true;
         public boolean doTotal = false;
         
