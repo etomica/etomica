@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAtomList;
-import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -76,8 +75,13 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 //        System.out.println(1E-24*Constants.AVOGADRO+" "+Mole.UNIT.fromSim(1)+" "+1/Constants.AVOGADRO);
 //        System.exit(1);
     }
-    public void setStiffness(double t, IAtomType a) {
-        double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*a.getMass()*t));
+    
+    /**
+     * Set PI harmonic spring stiffness for given temperature and atomic mass.
+     * Dimer is assumed to be composed of two atoms of the given mass.
+     */
+    public void setStiffness(double t, double mass) {
+        double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*mass*t));
         stiffness = Math.PI*P/(lambda*lambda);        
 //        System.out.println("Stiffness = "+stiffness);
     }
@@ -558,7 +562,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
             
             for (int iTemp = 40; iTemp <= 40; iTemp+= 2) {               
                 move.foo = 0;
-                move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0));
+                move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0).getMass());
                 integrator.getMoveManager().addMCMove(move);
                 integrator.reset();
                 int total = 100;
