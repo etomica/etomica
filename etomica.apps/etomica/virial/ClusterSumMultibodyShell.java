@@ -25,9 +25,7 @@ public class ClusterSumMultibodyShell extends ClusterSumMultibody {
     }
     
     public ClusterAbstract makeCopy() {
-        ClusterSumMultibodyShell copy = new ClusterSumMultibodyShell(coreCluster, clusters, clusterWeights, f, fNonAdditive);
-        copy.setTemperature(1/beta);
-        return copy;
+        throw new RuntimeException("this will only lead to pain");
     }
     
     protected void updateF(BoxCluster box) {

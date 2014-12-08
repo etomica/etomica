@@ -22,16 +22,14 @@ public class ClusterSumShell extends ClusterSum {
         fValues = coreCluster.getFValues();
         this.coreCluster = coreCluster;
     }
-    
+
     public ClusterAbstract makeCopy() {
-        ClusterSumShell copy = new ClusterSumShell(coreCluster, clusters, clusterWeights, f);
-        copy.setTemperature(1/beta);
-        return copy;
+        throw new RuntimeException("this will only lead to pain");
     }
-    
+
     protected void updateF(BoxCluster box) {
         // our f values are always up to date
     }
-    
+
     protected final ClusterSum coreCluster;
 }

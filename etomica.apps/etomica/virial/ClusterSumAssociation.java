@@ -4,7 +4,6 @@
 
 package etomica.virial;
 
-import java.util.Arrays;
 
 /**
  * repulsive potential: Lennard-Jones potential
