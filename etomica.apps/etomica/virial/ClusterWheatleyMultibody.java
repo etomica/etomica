@@ -55,7 +55,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
             int ll = 0;
             for (int a=0; a<l-1; a++) {
                 for (int b=0; b<l; b++) {
-                    r2[ll] = box.getCPairSet().getr2(a,b);
+                    r2[ll] = box.getCPairSet().getr2(moleculeIndices[a],moleculeIndices[b]);
                     ll++;
                 }
             }
