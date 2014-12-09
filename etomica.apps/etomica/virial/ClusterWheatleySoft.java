@@ -46,7 +46,9 @@ public class ClusterWheatleySoft implements ClusterAbstract {
 
     public void setDoCaching(boolean newDoCaching) {
         doCaching = newDoCaching;
-        clusterBD.setDoCaching(doCaching);
+        if (clusterBD != null) {
+            clusterBD.setDoCaching(doCaching);
+        }
     }
 
     public ClusterAbstract makeCopy() {
@@ -265,7 +267,12 @@ public class ClusterWheatleySoft implements ClusterAbstract {
             }
         }
         if (Math.abs(fB[nf-1]) < tol) {
-            value = clusterBD.value(box);
+            if (clusterBD != null) {
+                value = clusterBD.value(box);
+            }
+            else {
+                value = 0;
+            }
             return;
         }
         value = (1-n)*fB[nf-1]/SpecialFunctions.factorial(n);
@@ -295,6 +302,8 @@ public class ClusterWheatleySoft implements ClusterAbstract {
 
     public void setTemperature(double temperature) {
         beta = 1/temperature;
-        clusterBD.setTemperature(temperature);
+        if (clusterBD != null) {
+            clusterBD.setTemperature(temperature);
+        }
     }
 }
