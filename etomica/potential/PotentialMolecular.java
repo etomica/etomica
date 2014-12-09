@@ -35,10 +35,10 @@ public abstract class PotentialMolecular implements IPotentialMolecular {
     public abstract double getRange();
     
     /**
-     * Returns the interaction energy between the given atoms.  There might be
-     * 0, 1, 2 or more atoms in the AtomSet.
+     * Returns the interaction energy between the given molecules.  There might
+     * be 0, 1, 2 or more atoms in the IMoleculeList.
      */
-    public abstract double energy(IMoleculeList atoms);
+    public abstract double energy(IMoleculeList molecules);
     
     /**
      * Informs the potential of the box on which it acts. Typically this
