@@ -111,7 +111,7 @@ public class P2HydrogenHindePatkowski implements IPotential {
             double E = 0;
             if (Double.isInfinite(ePat) || Double.isInfinite(eHin1) || Double.isInfinite(eHin2)) return Double.POSITIVE_INFINITY;
             E = ePat + eHin1 - eHin2;
-            if (Double.isInfinite(E) || Double.isNaN(E)) throw new RuntimeException("oops "+E);
+            if (Double.isInfinite(E) || Double.isNaN(E)) throw new RuntimeException("oops "+E);            
             return E;
         }
     }
@@ -164,6 +164,8 @@ public class P2HydrogenHindePatkowski implements IPotential {
             if (Double.isInfinite(ePat) || Double.isInfinite(eHin1) || Double.isInfinite(eHin2)) return Double.POSITIVE_INFINITY;
             E = ePat + eHin1 - eHin2;
             if (Double.isInfinite(E) || Double.isNaN(E)) throw new RuntimeException("oops "+E);
+            
+            if (r01 <= 1.00) return Double.POSITIVE_INFINITY; // Repulsive core set at 1 angstroms
             if (print && Math.random() < 0.0001) {
                 try {
                     if (filePat == null) filePat = new FileWriter("patConfigurations.dat");                    
