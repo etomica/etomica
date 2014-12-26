@@ -277,7 +277,9 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         sitePos[1][1].PEa1Tv1(+sitesHH, orH2O2);
         sitePos[1][2].PEa1Tv1(-sitesHH, orH2O2);
         CO = Math.sqrt(sitePos[0][0].Mv1Squared(sitePos[1][0]));
-        if (CO < 4 && !debugging) return Double.POSITIVE_INFINITY;
+        if (CO < coreCO && !debugging) return Double.POSITIVE_INFINITY;
+        boolean checkme = false;
+        if (CO < checkCoreCO) checkme = true;
 //        System.out.println("CO2 C "+sitePos[0][0]);
 //        System.out.println("CO2 O1 "+sitePos[0][1]);
 //        System.out.println("CO2 O2 "+sitePos[0][2]);
@@ -288,7 +290,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         double energy = 0;
 //        System.out.println("*****");
         minR = Double.POSITIVE_INFINITY;
-        boolean checkme = false;
         for (int i=0; i<iparams.length; i++) {
             int ia1 = iparams[i][0]-1;
             int ib1 = iparams[i][1]-3-1;
@@ -332,7 +333,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             }
 //            System.out.println((i+1)+" "+Hartree.UNIT.fromSim(energy));
         }
-        if (checkme && !debugging && energy < 0) {
+        if (checkme && !debugging && energy < 1000) {
             IVectorMutable mine = space.makeVector();
             debugging = true;
             mine.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -350,8 +351,8 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         return energy;
     }
     protected double minR, CO;
-    protected static final double core = 3.1;
-    protected static final double checkCore = 3.2;
+    protected static final double core = 3.1, coreCO = 4;
+    protected static final double checkCore = 3.2, checkCoreCO = 4.2;
     protected boolean debugging = false;
     
     public double getRange() {
@@ -737,7 +738,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
                     double d2fac = (rdu - r2d2u)/(r21*r21);
                     d2.TE(-d2fac);
                     d2.PE(rdu/r21);
-                    d2tsum = 0.5*(d2.getX(0) + d2.getX(1) + d2.getX(2))/mass0;
+                    d2tsum += 0.5*(d2.getX(0) + d2.getX(1) + d2.getX(2))/mass0;
                     d2tot[0][0] += d2.getX(0);
                     d2tot[0][1] += d2.getX(1);
                     d2tot[0][2] += d2.getX(2);
