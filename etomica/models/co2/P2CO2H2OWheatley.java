@@ -1083,12 +1083,12 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             double sum = 0;
             sum += 0.5*gi[0].squared()/mass0;
             sum += 0.5*gi[1].squared()/mass1;
-            sum *= bohrConv*bohrConv;
             sum += 0.5*ti[0].squared()/moment0;
             for (int i=0; i<3; i++) {
             	double tx = ti[1].getX(i);
             	sum += 0.5*tx*tx/moment1.getX(i);
             }
+            sum *= bohrConv*bohrConv;
 //            System.out.println(energy+" "+fac*sum);
             return energy + fac*sum;
         }
