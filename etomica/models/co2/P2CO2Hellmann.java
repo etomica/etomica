@@ -351,7 +351,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
             drijRot = space.makeVector();
             rot0 = space.makeTensor();
             rot1 = space.makeTensor();
-            moment = 2*Oxygen.INSTANCE.getMass()*pos[5];
+            moment = 2*Oxygen.INSTANCE.getMass()*pos[5]*pos[5];
             
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
