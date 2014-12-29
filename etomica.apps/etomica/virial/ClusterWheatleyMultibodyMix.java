@@ -4,8 +4,13 @@
 
 package etomica.virial;
 
+import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
+import etomica.models.water.P2WaterSzalewicz;
+import etomica.space3d.Space3D;
 
 /**
  * This class uses Wheatley's recursion approach to calculating all biconnected
@@ -20,6 +25,8 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
     protected final int[] moleculeIndices;
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
+    protected boolean doMulti;
+    protected boolean nonAdditiveOnly;
 
     /**
      * Constructs a cluster capable of handling mixtures of nonadditive
@@ -34,9 +41,9 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
      *                 (n-0, n-1, n-2..., n-n) 
      * @param fMulti3  3D array of 3-body Mayer functions
      */
-    public ClusterWheatleyMultibodyMix(int nPoints, int[] nTypes, MayerFunction[][] f, MayerFunctionNonAdditive[][][] fMulti3, double tol) {
+    public ClusterWheatleyMultibodyMix(int nPoints, int[] nTypes, MayerFunction[][] f, MayerFunctionNonAdditive[][][] fMulti3, double tol, boolean nonAddOnly) {
         super(nPoints, nTypes, f, tol);
-
+        nonAdditiveOnly = nonAddOnly;
         mixFMulti3 = fMulti3;
         fMap3 = new MayerFunctionNonAdditive[1<<nPoints];
         int iType = 0, jType = 0, kType = 0;
@@ -76,16 +83,31 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
     }
 
     public ClusterAbstract makeCopy() {
-        ClusterWheatleyMultibodyMix c = new ClusterWheatleyMultibodyMix(n, nTypes, mixF, mixFMulti3, tol);
+        ClusterWheatleyMultibodyMix c = new ClusterWheatleyMultibodyMix(n, nTypes, mixF, mixFMulti3, tol, nonAdditiveOnly);
         c.setTemperature(1/beta);
         return c;
     }
+
+    public void calcValue(BoxCluster box) {
+        if (!nonAdditiveOnly) {
+            doMulti = true;
+            super.calcValue(box);
+            return;
+        }
+        // do (multi+pair) - pair here so that we avoid recomputing f bonds
+        doMulti = false;
+        super.calcValue(box);
+        double pairValue = value;
+        doMulti = true;
+        super.calcValue(box);
+        value -= pairValue;
+    }
     
     protected void calcFullFQ(BoxCluster box) {
-        super.calcFullFQ(box);
         int nf = 1<<n;
         IMoleculeList boxMolecules = box.getMoleculeList();
         // generate all partitions and compute product of e-bonds for all pairs in partition
+        CoordinatePairSet cpairs = box.getCPairSet();
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
             if (i==j) continue; // 1-point set
@@ -100,7 +122,7 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
                 if ((l&i)==0) continue; //l is not in partition
                 fQ[i] *= fQ[l | j];
             }
-            if (fMap3[i] == null) continue;
+            if (!doMulti || fMap3[i] == null || fQ[i] == 0) continue;
 
             // this code could easily handle larger sets (4, 5, etc)
             int kk = k&~jj; // strip jj bit from k
@@ -119,11 +141,12 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
                 int ll = 0;
                 for (int a=0; a<l-1; a++) {
                     for (int b=a+1; b<l; b++) {
-                        r2[ll] = box.getCPairSet().getr2(moleculeIndices[a],moleculeIndices[b]);
+                        r2[ll] = cpairs.getr2(moleculeIndices[a],moleculeIndices[b]);
                         ll++;
                     }
                 }
                 fMap3[i].setBox(box);
+                double oldFQ = fQ[i];
                 fQ[i] *= fMap3[i].f(molecules, 3, moleculeIndices, r2, beta)+1;
             }
         }
