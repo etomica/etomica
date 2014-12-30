@@ -967,9 +967,9 @@ public class P2WaterSzalewicz implements IPotentialTorque {
             fac = hbar*hbar/(24/2)/temperature;
             
             moment = space.makeVector();
-            moment.setX(0, 2*Hydrogen.INSTANCE.getMass()*Math.abs(siteDoubles[1][2]) + Oxygen.INSTANCE.getMass()*Math.abs(siteDoubles[0][2]));
-            moment.setX(1, 2*Hydrogen.INSTANCE.getMass()*Math.sqrt(sites[1].squared()) + Oxygen.INSTANCE.getMass()*Math.sqrt(sites[0].squared()));
-            moment.setX(2, 2*Hydrogen.INSTANCE.getMass()*Math.abs(siteDoubles[1][0]));
+            moment.setX(0, 2*Hydrogen.INSTANCE.getMass()*siteDoubles[1][2]*siteDoubles[1][2] + Oxygen.INSTANCE.getMass()*siteDoubles[0][2]*siteDoubles[0][2]);
+            moment.setX(1, 2*Hydrogen.INSTANCE.getMass()*sites[1].squared() + Oxygen.INSTANCE.getMass()*sites[0].squared());
+            moment.setX(2, 2*Hydrogen.INSTANCE.getMass()*siteDoubles[1][0]*siteDoubles[1][0]);
             
             ri = space.makeVector();
             rj = space.makeVector();
@@ -1237,7 +1237,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
             if (Hartree.UNIT.toSim(u0) > 10000) {
                 return Double.POSITIVE_INFINITY;
             }
-            return Hartree.UNIT.toSim(u0 + fac*(d2tsum*bohrConv*bohrConv + d2rsum));
+            return Hartree.UNIT.toSim(u0 + fac*(d2tsum + d2rsum)*bohrConv*bohrConv);
         }
 
         protected double[] ddamp(int n, double beta, double r) {
