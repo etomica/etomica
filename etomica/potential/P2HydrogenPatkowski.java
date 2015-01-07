@@ -110,9 +110,6 @@ public class P2HydrogenPatkowski implements IPotential {
 
     public double vH2H2(double R,double th1,double th2,double phi) {
         double pR = BohrRadius.UNIT.fromSim(R);
-        //  if (pR < 1.448736) return Double.POSITIVE_INFINITY;
-        if (pR < 1.1) return Double.POSITIVE_INFINITY;
-//        if (R > 40) return 0;
         double vTot = potentot(pR,th1,th2,phi);
         return Kelvin.UNIT.toSim(vTot);
     }
@@ -581,9 +578,7 @@ public class P2HydrogenPatkowski implements IPotential {
             IVector hh1 = ((IAtomOriented)m1).getOrientation().getDirection();        
             IVector com0 = m0.getPosition();               
             IVector com1 = m1.getPosition();        
-//            if (com1.squared() > 0) {
-//                throw new RuntimeException("oops");
-//            }
+
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    
             double r01 = Math.sqrt(dr.squared());        
@@ -604,10 +599,14 @@ public class P2HydrogenPatkowski implements IPotential {
                 phi = Math.PI - phi;
             }
             if (th2 == 0) phi = 0;
+            if (r01 < 1.0) return Double.POSITIVE_INFINITY; // Repulsive hard core set at 1 angstroms
+            // same as Garberoglio
             double E = vH2H2(r01,th1,th2,phi);
+                        
             if (E < -20000) {
                 vH2H2(r01,th1,th2,phi);
-            }            
+            }
+           
             if (print && Math.random() < 0.0001) {
                 try {
                     if (file == null) file = new FileWriter("configurations.dat");                    
@@ -616,11 +615,8 @@ public class P2HydrogenPatkowski implements IPotential {
                     double dth1 = Degree.UNIT.fromSim(th1);
                     double dth2 = Degree.UNIT.fromSim(th2);
                     double dphi = Degree.UNIT.fromSim(phi);
-//                    System.out.print(rBohr+" "+th1+" "+th2+" "+phi+" "+Ek+"\n");
                     file.write(rBohr+" "+dth1+" "+dth2+" "+dphi+" "+Ek+"\n");
-//                    file.close(); file=null;
-                    file.flush();
-                    
+                    file.flush();                    
                 }
                 catch (IOException e) {
                     throw new RuntimeException(e);
