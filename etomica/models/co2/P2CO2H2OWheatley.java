@@ -853,14 +853,14 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             ti[1] = space.makeVector();
             drijRot = space.makeVector();
             mass0 = Carbon.INSTANCE.getMass() + 2*Oxygen.INSTANCE.getMass();
-            moment0 = 2*Oxygen.INSTANCE.getMass()*sitesCO2L;
+            moment0 = 2*Oxygen.INSTANCE.getMass()*sitesCO2L*sitesCO2L;
 
             moment1 = space.makeVector();
             double cm1x = 2*Hydrogen.INSTANCE.getMass()*sitesOH/mass1;
-            moment1.setX(0, 2*Hydrogen.INSTANCE.getMass()*(sitesHH));
-            moment1.setX(1, 2*Hydrogen.INSTANCE.getMass()*(sitesOH-cm1x) + Oxygen.INSTANCE.getMass()*cm1x);
-            double cmH = Math.sqrt((sitesOH-cm1x)*(sitesOH-cm1x) + (sitesHH*sitesHH));
-            moment1.setX(2, 2*Hydrogen.INSTANCE.getMass()*cmH + Oxygen.INSTANCE.getMass()*cm1x);
+            moment1.setX(0, 2*Hydrogen.INSTANCE.getMass()*(sitesHH*sitesHH));
+            moment1.setX(1, 2*Hydrogen.INSTANCE.getMass()*(sitesOH-cm1x)*(sitesOH-cm1x) + Oxygen.INSTANCE.getMass()*cm1x*cm1x);
+            double cmH2 = (sitesOH-cm1x)*(sitesOH-cm1x) + (sitesHH*sitesHH);
+            moment1.setX(2, 2*Hydrogen.INSTANCE.getMass()*cmH2 + Oxygen.INSTANCE.getMass()*cm1x*cm1x);
             
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
