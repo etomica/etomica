@@ -23,6 +23,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
+import etomica.potential.P2WCA;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -59,6 +60,7 @@ public class VirialLJOrC {
             params.nPoints = 4;
             params.temperature = 1.0;
             params.dr = 0.01;
+            params.refPotential = PotentialChoice.WCA;
         }
 
         final int nPoints = params.nPoints;  
@@ -68,13 +70,23 @@ public class VirialLJOrC {
         final double dr = params.dr;
         final double refFrac = params.refFrac;
         final double rPow = params.rPow;
+        final PotentialChoice refPotential = params.refPotential;
 
         System.out.println("Calculating LJ "+nPoints+" distributions ");
         System.out.println("r01 weight power: "+rPow);
         
         Space space = Space3D.getInstance();
         
-        Potential2Spherical pTarget = new P2LennardJones(space,1.0,1.0);
+        Potential2Spherical pTarget = null;
+        if (refPotential == PotentialChoice.LJ) {
+            pTarget = new P2LennardJones(space,1.0,1.0);
+        }
+        else if (refPotential == PotentialChoice.WCA) {
+            pTarget = new P2WCA(space, 1.0, 1.0);
+        }
+        else if (refPotential == PotentialChoice.SS) {
+            pTarget = new P2SoftSphere(space, 1.0, 4.0, 12);
+        }
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         final MayerSphericalPlus fRef = new MayerSphericalPlus(pTarget, new P2SoftSphere(space, 1, 1, 20));
         
@@ -126,7 +138,6 @@ public class VirialLJOrC {
         final long bs = blockSize;
         System.out.println("block size: "+blockSize);
 
-        
         DataDistributer.Indexer indexer = null;
         DataSplitter.IDataSinkFactory accFac = new DataSplitter.IDataSinkFactory() {
             public IDataSink makeDataSink(int i) {
@@ -142,8 +153,8 @@ public class VirialLJOrC {
             mcDiscrete[i].setRPow(rPow);
             sim.integrators[i].getMoveManager().addMCMove(mcDiscrete[i]);
             ((MCMoveClusterAtomMulti)sim.mcMoveTranslate[i]).setStartAtom(2);
-            sim.box[i].getLeafList().getAtom(1).getPosition().setX(0, dr*Math.round(1.5/dr));
-            if (nPoints>2) sim.box[i].getLeafList().getAtom(2).getPosition().setX(0, dr*Math.round(1.5/dr));
+            sim.box[i].getLeafList().getAtom(1).getPosition().setX(0, dr*Math.round(0.5/dr));
+            if (nPoints>2) sim.box[i].getLeafList().getAtom(2).getPosition().setX(0, dr*Math.round(0.5/dr));
             sim.box[i].trialNotify();
             sim.box[i].acceptNotify();
 
@@ -267,6 +278,8 @@ public class VirialLJOrC {
         System.out.println("time: "+(t2-t1)/1000.0);
     }
 
+    public enum PotentialChoice { LJ, WCA, SS };
+    
     /**
      * Inner class for parameters
      */
@@ -278,5 +291,6 @@ public class VirialLJOrC {
         public long maxBlockSize = 100;
         public double refFrac = -1;
         public double rPow = 2;
+        public PotentialChoice refPotential = PotentialChoice.LJ;
     }
 }
