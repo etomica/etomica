@@ -35,6 +35,7 @@ import etomica.util.ParseArgs;
 import etomica.virial.CalcFFT;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
+import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWheatleySoft;
 import etomica.virial.MCMoveClusterAtomDiscrete;
@@ -60,7 +61,8 @@ public class VirialLJOrC {
             params.nPoints = 4;
             params.temperature = 1.0;
             params.dr = 0.01;
-            params.refPotential = PotentialChoice.WCA;
+            params.potentialChoice = PotentialChoice.WCA;
+            params.doCorrection = false;
         }
 
         final int nPoints = params.nPoints;  
@@ -70,16 +72,21 @@ public class VirialLJOrC {
         final double dr = params.dr;
         final double refFrac = params.refFrac;
         final double rPow = params.rPow;
-        final PotentialChoice refPotential = params.refPotential;
+        final PotentialChoice refPotential = params.potentialChoice;
+        final boolean doCorrection = params.doCorrection;
 
-        System.out.println("Calculating LJ "+nPoints+" distributions ");
+        System.out.println("Calculating "+(doCorrection?"correction to":"")+" "+refPotential+" "+nPoints+" distributions ");
         System.out.println("r01 weight power: "+rPow);
         
         Space space = Space3D.getInstance();
         
+        P2LennardJones pLJ = new P2LennardJones(space, 1.0, 1.0);
         Potential2Spherical pTarget = null;
         if (refPotential == PotentialChoice.LJ) {
-            pTarget = new P2LennardJones(space,1.0,1.0);
+            if (doCorrection) {
+                throw new RuntimeException("Need to choose something other than LJ for correction");
+            }
+            pTarget = pLJ;
         }
         else if (refPotential == PotentialChoice.WCA) {
             pTarget = new P2WCA(space, 1.0, 1.0);
@@ -87,6 +94,7 @@ public class VirialLJOrC {
         else if (refPotential == PotentialChoice.SS) {
             pTarget = new P2SoftSphere(space, 1.0, 4.0, 12);
         }
+        MayerGeneralSpherical fLJ = new MayerGeneralSpherical(pLJ);
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         final MayerSphericalPlus fRef = new MayerSphericalPlus(pTarget, new P2SoftSphere(space, 1, 1, 20));
         
@@ -123,6 +131,11 @@ public class VirialLJOrC {
         ClusterAbstract refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double[]{1}, new MayerFunction[]{fRef});
         
         ClusterAbstract targetCluster = new ClusterWheatleySoft(nPoints, fTarget, 1e-12);
+        if (doCorrection) {
+            ClusterAbstract targetClusterLJ = new ClusterWheatleySoft(nPoints, fLJ, 1e-12);
+            targetCluster = new ClusterDifference(targetClusterLJ, new ClusterAbstract[]{targetCluster});
+        }
+
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
 
@@ -154,7 +167,7 @@ public class VirialLJOrC {
             sim.integrators[i].getMoveManager().addMCMove(mcDiscrete[i]);
             ((MCMoveClusterAtomMulti)sim.mcMoveTranslate[i]).setStartAtom(2);
             sim.box[i].getLeafList().getAtom(1).getPosition().setX(0, dr*Math.round(0.5/dr));
-            if (nPoints>2) sim.box[i].getLeafList().getAtom(2).getPosition().setX(0, dr*Math.round(0.5/dr));
+            if (nPoints>2) sim.box[i].getLeafList().getAtom(2).getPosition().setX(1, dr*Math.round(0.5/dr));
             sim.box[i].trialNotify();
             sim.box[i].acceptNotify();
 
@@ -269,7 +282,8 @@ public class VirialLJOrC {
 
             double avg = averageData.getValue(0);
             double err = errorData.getValue(0);
-            double fac = iSteps*roa*refIntegral/(toa*ra*(dr*i)*(dr*i)*targetSteps);
+            double fac = iSteps*roa*refIntegral/(toa*ra*targetSteps);
+            if (rPow>0||i>0) fac*=Math.pow(dr*i,-rPow);
             
             System.out.print(String.format("avg: % 20.15e  %9.4e   c(r): % 20.15e  %9.4e   cor: % 6.4f\n",
                     avg, err, avg*fac, err*Math.abs(fac), correlationData.getValue(0)));
@@ -291,6 +305,7 @@ public class VirialLJOrC {
         public long maxBlockSize = 100;
         public double refFrac = -1;
         public double rPow = 2;
-        public PotentialChoice refPotential = PotentialChoice.LJ;
+        public PotentialChoice potentialChoice = PotentialChoice.LJ;
+        public boolean doCorrection = false;
     }
 }
