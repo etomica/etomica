@@ -23,12 +23,16 @@ import etomica.atom.iterator.IteratorDirective.Direction;
  */
 public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Serializable {
 
+	public MoleculeIteratorAll(ISpecies[] species) {
+		this(species,false);
+	}
     /**
      * @param species species for which molecules are returned as iterates. Only
      * species[0] is relevant, and must not be null.
      */
-    public MoleculeIteratorAll(ISpecies[] species) {
+    public MoleculeIteratorAll(ISpecies[] species,boolean oneIterate) {
         this.species = species;
+        this.oneIterate=oneIterate;
         next = new MoleculeListWrapper();
     }
 
@@ -72,7 +76,7 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
     }
     
     public IMoleculeList next() {
-        if (nextCursor + 1 > next.getMoleculeCount()) {
+        if (nextCursor + 1 > next.getMoleculeCount()||(oneIterate && nextCursor>0)) {
             return null;
         }
         if (nextCursor < 0) {
@@ -100,9 +104,9 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
         return next.getMoleculeCount();
     }
 
-    private static final long serialVersionUID = 1L;
-    private final ISpecies[] species;
-    private IBox box;
-    private int nextCursor;
-    private final MoleculeListWrapper next;
+    protected final ISpecies[] species;
+    protected IBox box;
+    protected int nextCursor;
+    protected final MoleculeListWrapper next;
+    protected final boolean oneIterate;
 }
