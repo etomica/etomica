@@ -47,7 +47,50 @@ import etomica.units.Kelvin;
 // are based on the fitting program written by Robert Bukowski et al.
 public class P2HydrogenPatkowski implements IPotential {
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();        
+        ISpace space = Space3D.getInstance();
+        P2HydrogenPatkowski p2 = new P2HydrogenPatkowskiAtomic(space);
+        double dth1 = 0;
+        double dth2 = 0;
+        double dphi = 0;
+        try {
+            FileWriter file1 = new FileWriter("/usr/users/rsubrama/Desktop/Acads/Phd/hydrogen/HP/feb2015/H2Potential.dat");            
+            file1.write("Theta 1 = "+dth1+" Theta 2 = "+ dth2 + " Phi = "+dphi+"\n");
+            for (double i=1.0; i<=5.0; i+= 0.1) {
+                double th1 = Degree.UNIT.toSim(dth1);
+                double th2 = Degree.UNIT.toSim(dth2);
+                double phi = Degree.UNIT.toSim(dphi);
+                double E = p2.vH2H2(i, th1, th2, phi);
+                double Ek = Kelvin.UNIT.fromSim(E);
+                file1.write(i+" "+Ek+"\n");
+            }
+            dth1 = 90;
+            file1.write("Theta 1 = "+dth1+" Theta 2 = "+ dth2 + " Phi = "+dphi+"\n");
+            for (double i=1.0; i<=5.0; i+= 0.1) {
+                double th1 = Degree.UNIT.toSim(dth1);
+                double th2 = Degree.UNIT.toSim(dth2);
+                double phi = Degree.UNIT.toSim(dphi);
+                double E = p2.vH2H2(i, th1, th2, phi);
+                double Ek = Kelvin.UNIT.fromSim(E);
+                file1.write(i+" "+Ek+"\n");
+            }
+            dth1 = 45;
+            dth2 = 45;
+            dphi = 45;
+            file1.write("Theta 1 = "+dth1+" Theta 2 = "+ dth2 + " Phi = "+dphi+"\n");
+            for (double i=1.0; i<=5.0; i+= 0.1) {
+                double th1 = Degree.UNIT.toSim(dth1);
+                double th2 = Degree.UNIT.toSim(dth2);
+                double phi = Degree.UNIT.toSim(dphi);
+                double E = p2.vH2H2(i, th1, th2, phi);
+                double Ek = Kelvin.UNIT.fromSim(E);
+                file1.write(i+" "+Ek+"\n");
+            }            
+            file1.flush();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
     }
     
     protected static final int n_min=4,n_max=9,llex=5,lcex=10,llsp=8,lcsp=32;
@@ -69,6 +112,7 @@ public class P2HydrogenPatkowski implements IPotential {
     protected final double [] rr = new double[10];
     protected final double [] elong = new double[20];
     protected IBoundary boundary;
+    protected static final double rMin = 1.4;
     protected final IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
     protected static double[][] xPos = {{0.0374,-0.2422,0.2792},{-0.0374,0.2422,-0.2792},{-0.016,-1.2877,2.9799},{-0.0196,-2.0073,2.7949},{-0.1047,1.5911,2.54},{0.063,1.7936,3.2349}};
     protected boolean print = false;
@@ -109,6 +153,7 @@ public class P2HydrogenPatkowski implements IPotential {
     //-------------------------------------------------------------------------
 
     public double vH2H2(double R,double th1,double th2,double phi) {
+        if (R < rMin) R = rMin; // rMin = 1.4 angstroms , not so quite hard core
         double pR = BohrRadius.UNIT.fromSim(R);
         double vTot = potentot(pR,th1,th2,phi);
         return Kelvin.UNIT.toSim(vTot);
@@ -599,7 +644,8 @@ public class P2HydrogenPatkowski implements IPotential {
                 phi = Math.PI - phi;
             }
             if (th2 == 0) phi = 0;
-            if (r01 < 1.0) return Double.POSITIVE_INFINITY; // Repulsive hard core set at 1 angstroms
+            
+            if (r01 < rMin) r01 = rMin; // rMin = 1.4 angstroms , not so quite hard core            
             // same as Garberoglio
             double E = vH2H2(r01,th1,th2,phi);
                         
