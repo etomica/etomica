@@ -7,14 +7,32 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOriented;
+import etomica.atom.MoleculePair;
+import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.Hydrogen;
+import etomica.chem.elements.Oxygen;
+import etomica.models.water.ConformationWaterGCPM;
+import etomica.models.water.P2WaterSzalewicz;
+import etomica.models.water.P2WaterSzalewicz.Component;
+import etomica.models.water.PNWaterGCPM;
+import etomica.models.water.SpeciesWater4P;
+import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
 import etomica.space3d.OrientationFull3D;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresRotating;
+import etomica.util.RandomMersenneTwister;
+import etomica.util.RandomNumberGeneratorUnix;
 
 /**
  * 3-body induction potential based on form used by Oakley and Wheatley.
@@ -34,7 +52,7 @@ public class P3Induction implements IPotentialAtomic {
     protected final IVectorMutable rij, rik;
     protected final IVectorMutable or3;
     protected IBoundary boundary;
-    
+
     public P3Induction(ISpace space, AtomTypeAgentManager paramsManager) {
         this.space = space;
         this.paramsManager = paramsManager;
@@ -47,7 +65,7 @@ public class P3Induction implements IPotentialAtomic {
         rik = space.makeVector();
         or3 = space.makeVector();
     }
-    
+
     public double energy(IAtomList atoms) {
         double sum = 0;
         for (int i=0; i<3; i++) {
@@ -79,7 +97,7 @@ public class P3Induction implements IPotentialAtomic {
                     if (orj instanceof OrientationFull3D) {
                         IVector or2 = ((OrientationFull3D)orj).getSecondaryDirection();
                         rj.PEa1Tv1(agj.qSite[jq].getX(1), or2);
-                        or3.E(ori.getDirection());
+                        or3.E(orj.getDirection());
                         or3.XE(or2);
                         rj.PEa1Tv1(agj.qSite[jq].getX(2), or3);
                     }
@@ -89,11 +107,11 @@ public class P3Induction implements IPotentialAtomic {
                     rij.TE(1/Math.sqrt(rij2));
                     for (int kq=0; kq<agk.q.length; kq++) {
                         rk.E(atomk.getPosition());
-                        rk.PEa1Tv1(agk.qSite[kq].getX(0), orj.getDirection());
+                        rk.PEa1Tv1(agk.qSite[kq].getX(0), ork.getDirection());
                         if (ork instanceof OrientationFull3D) {
                             IVector or2 = ((OrientationFull3D)ork).getSecondaryDirection();
                             rk.PEa1Tv1(agk.qSite[kq].getX(1), or2);
-                            or3.E(ori.getDirection());
+                            or3.E(ork.getDirection());
                             or3.XE(or2);
                             rk.PEa1Tv1(agk.qSite[kq].getX(2), or3);
                         }
@@ -106,8 +124,8 @@ public class P3Induction implements IPotentialAtomic {
                 }
             }
         }
-        
-        return -0.5*sum;
+
+        return -sum;
     }
 
     public double getRange() {
@@ -131,5 +149,106 @@ public class P3Induction implements IPotentialAtomic {
             this.q = q;
             this.qSite = qSite;
         }
+    }
+    
+    public static void main(String[] args) {
+        ISpace space = Space3D.getInstance();
+        Simulation sim = new Simulation(space);
+        SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
+        species.setAxisSymmetric(false);
+        sim.addSpecies(species);
+        IBox box = new Box(space);
+        IBox box2 = new Box(space);
+        sim.addBox(box);
+        box.setNMolecules(species, 3);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{10000,10000,10000}));
+        SpeciesWater4P water4P = new SpeciesWater4P(space);
+        water4P.setConformation(new ConformationWaterGCPM(space));
+        sim.addSpecies(water4P);
+        sim.addBox(box2);
+        box2.setNMolecules(water4P, 3);
+        box2.getBoundary().setBoxSize(space.makeVector(new double[]{10000,10000,10000}));
+        IAtomList triplet = box.getLeafList();
+        IAtomOriented atom1 = (IAtomOriented)triplet.getAtom(0);
+        IAtomOriented atom2 = (IAtomOriented)triplet.getAtom(1);
+        IAtomOriented atom3 = (IAtomOriented)triplet.getAtom(2);
+        AtomPair pair12 = new AtomPair(atom1, atom2);
+        AtomPair pair13 = new AtomPair(atom1, atom3);
+        AtomPair pair23 = new AtomPair(atom2, atom3);
+
+        IMoleculeList moleculeTriplet = box2.getMoleculeList();
+        IMolecule molecule1 = moleculeTriplet.getMolecule(0);
+        IMolecule molecule2 = moleculeTriplet.getMolecule(1);
+        IMolecule molecule3 = moleculeTriplet.getMolecule(2);
+        MoleculePair mPair12 = new MoleculePair(molecule1, molecule2);
+        MoleculePair mPair13 = new MoleculePair(molecule1, molecule3);
+        MoleculePair mPair23 = new MoleculePair(molecule2, molecule3);
+
+        P2WaterSzalewicz p2sz = new P2WaterSzalewicz(space, 2);
+        p2sz.setComponent(Component.INDUCTION);
+        p2sz.setBox(box);
+        P2WaterSzalewicz p3sz = new P2WaterSzalewicz(space, 3);
+        p3sz.setComponent(Component.INDUCTION);
+        p3sz.setBox(box);
+
+        AtomTypeAgentManager paramsManager = new AtomTypeAgentManager(null);
+        P3Induction p3i = new P3Induction(space, paramsManager);
+        p3i.setBox(box);
+        double alphaH2O = 1.444;
+
+        IVectorMutable polH2O = space.makeVector();
+        double[] qH2O = P2WaterSzalewicz.getQ();
+        IVector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
+        polH2O.E(qSiteH2O[0]);
+        P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new IVector[]{polH2O}, qH2O, qSiteH2O);
+
+        paramsManager.setAgent(species.getLeafType(), agentH2O);
+
+        PNWaterGCPM pGCPM = new PNWaterGCPM(space);
+        pGCPM.setBox(box2);
+        
+        double r = 5;
+        IVectorMutable dr1 = space.makeVector();
+        IVectorMutable dr2 = space.makeVector();
+        for (int i=0; i<10; i++) {
+            r *= 2;
+            atom2.getPosition().setX(0, r);
+            atom3.getPosition().setX(0, 2*r);
+            
+            if (i==0) dr1.setX(0, r);
+            else dr1.setX(0, r/2);
+            if (i==0) dr2.setX(0, 2*r);
+            else dr2.setX(0, r);
+            for (int j=0; j<4; j++) {
+                molecule2.getChildList().getAtom(j).getPosition().PE(dr1);
+                molecule3.getChildList().getAtom(j).getPosition().PE(dr2);
+            }
+            
+            double u2sz = p2sz.energy(pair12) + p2sz.energy(pair13) + p2sz.energy(pair23);
+            double u3sz = p3sz.energy(triplet);
+            double u2gcpm = pGCPM.energy(mPair12) + pGCPM.energy(mPair13) + pGCPM.energy(mPair23);
+            double u3gcpm = pGCPM.energy(moleculeTriplet);
+            System.out.println(r+" "+(u3sz-u2sz)+" "+p3i.energy(triplet)+" "+(u3gcpm-u2gcpm));
+        }
+        
+        RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
+        for (int j=0; j<10; j++) {
+            System.out.println();
+            r = 5;
+            for (int i=0; i<10; i++) {
+                r *= 2;
+                atom2.getPosition().setX(0, r);
+                atom3.getPosition().setX(0, r);
+                atom3.getPosition().setX(1, r);
+                double u2sz = p2sz.energy(pair12) + p2sz.energy(pair13) + p2sz.energy(pair23);
+                double u3sz = p3sz.energy(triplet);
+                double u2gcpm = pGCPM.energy(mPair12) + pGCPM.energy(mPair13) + pGCPM.energy(mPair23);
+                double u3gcpm = pGCPM.energy(moleculeTriplet);
+                System.out.println(r+" "+(u3sz-u2sz)+" "+p3i.energy(triplet)+" "+(u3gcpm-u2gcpm));
+            }
+            atom2.getOrientation().randomRotation(random, 1);
+            atom3.getOrientation().randomRotation(random, 1);
+        }
+        
     }
 }
