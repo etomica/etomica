@@ -19,6 +19,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
     protected final int[] moleculeIndices;
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
+    protected boolean doMulti;
 
     public ClusterWheatleyMultibody(int nPoints, MayerFunction f, MayerFunctionNonAdditive fMulti) {
         super(nPoints, f, 1e-12);
@@ -30,19 +31,45 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         clusterBD = null;
         molecules = new MoleculeArrayList(nPoints);
     }
+    
+    public ClusterAbstract makeCopy() {
+        ClusterWheatleyMultibody c = new ClusterWheatleyMultibody(n, f, fMulti);
+        c.setTemperature(1/beta);
+        c.setDoCaching(doCaching);
+        return c;
+    }
+
+
+    public void calcValue(BoxCluster box) {
+        // do (multi+pair) - pair here so that we avoid recomputing f bonds
+        doMulti = false;
+        super.calcValue(box);
+        double pairValue = value;
+        doMulti = true;
+        super.calcValue(box);
+        value -= pairValue;
+    }
 
     protected void calcFullFQ(BoxCluster box) {
-        super.calcFullFQ(box);
+        fMulti.setBox(box);
         int nf = 1<<n;
         IMoleculeList boxMolecules = box.getMoleculeList();
         // FQ[i] now contains the exp(-bU2) where U2 is the pair-wise energy for set i.
         // we need to go around and add the non-additive energy for each set.
         for (int i=3; i<nf; i++) {
-            if (fQ[i] == 0) continue; // pair e-bonds already made this 0
             int j = i & -i;//lowest bit in i
             if (i==j) continue; // 1-point set
             int k = i&~j; //strip j bit from i and set result to k
             if (k == (k&-k)) continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
+            fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
+            if (fQ[i] == 0) continue;
+            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
+            //all such pairs will be with bits higher than j, as j is the lowest bit in i
+            for (int l=(j<<1); l<i; l=(l<<1)) {
+                if ((l&i)==0) continue; //l is not in partition
+                fQ[i] *= fQ[l | j];
+            }
+            if (!doMulti) continue;
             int l = 0;
             molecules.clear();
             for (int a=0; a<n; a++) {
