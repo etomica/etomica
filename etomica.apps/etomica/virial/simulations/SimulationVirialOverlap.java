@@ -79,7 +79,7 @@ public class SimulationVirialOverlap extends Simulation {
         for (int i=0; i<speciesFactory.length; i++) {
             species[i] = speciesFactory[i].makeSpecies(space);
             addSpecies(species[i]);
-            if (!(species[i] instanceof SpeciesSpheresMono)) {
+            if (!(species[i] instanceof SpeciesSpheresMono) || species[i] instanceof SpeciesSpheresRotating ) {
                 doRotate = true;
             }
             if (!(species[i] instanceof SpeciesSpheresMono || species[i] instanceof SpeciesSpheresRotating)) {
