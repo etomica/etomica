@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
+import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -25,7 +26,6 @@ import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -133,14 +133,14 @@ public class VirialHePCKLJS {
         sampleCluster1.setTemperature(temperature);
         refSample.setTemperature(temperature);
 
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), 
-                temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), 
+                temperature, refCluster,targetCluster, false);
         
         System.out.println((steps*1000)+" steps ("+steps+" IntegratorOverlap steps of 1000 steps)");
         sim.integratorOS.setNumSubSteps(1000);
         
         // Keep 50-50 split between reference and target
-        sim.integratorOS.setAdjustStepFreq(adjustStepFrequency);
+        sim.integratorOS.setAdjustStepFraction(adjustStepFrequency);
        
         sim.setAccumulatorBlockSize(stepsPerBlock);
         System.out.println(stepsPerBlock+" steps per block");
@@ -200,10 +200,10 @@ public class VirialHePCKLJS {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
         System.out.println();
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println();
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
         System.out.println("ratio average: "+ratio+", error: "+error);

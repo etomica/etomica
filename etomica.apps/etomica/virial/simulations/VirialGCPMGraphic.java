@@ -10,6 +10,7 @@ import java.awt.Color;
 import etomica.action.IAction;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.models.water.ConformationWaterGCPM;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.potential.PotentialMolecular;
@@ -18,11 +19,8 @@ import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSumPolarizable;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactoryWaterGCPM;
 import etomica.virial.cluster.Standard;
 
 
@@ -60,25 +58,22 @@ public class VirialGCPMGraphic {
         ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
         ((ClusterSumPolarizable)targetCluster).setDeltaCut(deltaCut);
 
-   	    ClusterWeight sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
-
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
-        ClusterWeight refSample = ClusterWeightAbs.makeWeightCluster(refCluster);
 
        
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
-        sampleCluster1.setTemperature(temperature);
-        refSample.setTemperature(temperature);
 
+        SpeciesWater4P species = new SpeciesWater4P(space);
+        species.setConformation(new ConformationWaterGCPM(space));
 
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature, refCluster,targetCluster, false);
         sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
         sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
         simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
         simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-        SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
+
         ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
         ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
         ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
