@@ -7,12 +7,14 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2LJQQ;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundUnit;
 import etomica.units.Coulomb;
 import etomica.units.Kelvin;
@@ -26,7 +28,6 @@ import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -95,7 +96,7 @@ public class VirialCO2LJQ {
         //set initial conformation
       
     // to do simulation
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster,false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster,false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
              // graphic part
@@ -152,8 +153,8 @@ public class VirialCO2LJQ {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
         if (refFrac >= 0) {
-            sim.integratorOS.setStepFreq0(refFrac);
-            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
         if (true) {
@@ -163,7 +164,7 @@ public class VirialCO2LJQ {
                 public void integratorStepFinished(IIntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
                 }
             };
@@ -172,10 +173,10 @@ public class VirialCO2LJQ {
 
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
 
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+        double[] ratioAndError = sim.dvo.getAverageAndError();
         System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
         System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
         IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(sim.accumulators[0].RATIO.index);
