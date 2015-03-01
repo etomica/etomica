@@ -69,7 +69,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
                 if ((l&i)==0) continue; //l is not in partition
                 fQ[i] *= fQ[l | j];
             }
-            if (!doMulti) continue;
+            if (!doMulti || fQ[i] == 0) continue;
             int l = 0;
             molecules.clear();
             for (int a=0; a<n; a++) {
