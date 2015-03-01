@@ -5,18 +5,19 @@
 package etomica.modules.vle;
 
 import etomica.atom.iterator.ApiIntergroup;
+import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LJQ;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresRotating;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactoryOrientedSpheres;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap;
+import etomica.virial.simulations.SimulationVirialOverlap2;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -51,7 +52,7 @@ public class VirialLJQB2 {
 
         steps /= 1000;
 		
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryOrientedSpheres(), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -65,7 +66,7 @@ public class VirialLJQB2 {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        double ratio = sim.dsvo.getOverlapAverageAndError()[0];
+        double ratio = sim.dvo.getAverageAndError()[0];
         return ratio*HSB2;
 //        double error = sim.dsvo.getError();
 	}
