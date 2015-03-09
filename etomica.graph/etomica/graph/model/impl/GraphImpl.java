@@ -8,6 +8,7 @@ import static etomica.graph.model.Metadata.COLORS;
 import static etomica.graph.model.Metadata.COLOR_CODES;
 import static etomica.graph.model.Metadata.COLOR_MAP;
 import static etomica.graph.model.Metadata.DASH_MAP;
+import static etomica.graph.model.Metadata.BOND_ORDER_MAP;
 import static etomica.graph.model.Metadata.TYPE_EDGE_ANY;
 import static etomica.graph.model.Metadata.TYPE_NODE_ROOT;
 
@@ -642,9 +643,20 @@ public class GraphImpl implements Graph {
       if (dashLength == null) {
         dashLength = 0;
       }
-      svgEdges += String.format(
-          "<line style=\"stroke: %s;%s\" x1=\"%.2f\" y1=\"%.2f\" x2=\"%.2f\" y2=\"%.2f\"/>\n",
-          svgColor, (dashLength==0) ? "" : " stroke-dasharray:"+dashLength+","+dashLength, x[nodeFrom], y[nodeFrom], x[nodeTo], y[nodeTo]);
+      Integer bondOrderI = BOND_ORDER_MAP.get(e.getColor());
+      int bondOrder = bondOrderI == null ? 1 : bondOrderI;
+      double odx = y[nodeFrom]-y[nodeTo];
+      double ody = x[nodeTo]-x[nodeFrom];
+      double norm = Math.sqrt(odx*odx+ody*ody);
+      odx /= norm;
+      ody /= norm;
+      for (int i=0; i<bondOrder; i++) {
+        int offset = (2*i-(bondOrder-1))*2;
+          
+        svgEdges += String.format(
+            "<line style=\"stroke: %s;%s\" x1=\"%.2f\" y1=\"%.2f\" x2=\"%.2f\" y2=\"%.2f\"/>\n",
+            svgColor, (dashLength==0) ? "" : " stroke-dasharray:"+dashLength+","+dashLength, x[nodeFrom]+offset*odx, y[nodeFrom]+offset*ody, x[nodeTo]+offset*odx, y[nodeTo]+offset*ody);
+      }
     }
     return svgEdges + svgNodes;
   }

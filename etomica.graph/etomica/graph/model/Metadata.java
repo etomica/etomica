@@ -58,6 +58,8 @@ public interface Metadata extends Comparable<Metadata> {
 
   public final static HashMap<Character,Integer> DASH_MAP = new HashMap<Character,Integer>();
 
+  public final static HashMap<Character,Integer> BOND_ORDER_MAP = new HashMap<Character,Integer>();
+
   public char getColor();
 
   public char getType();
