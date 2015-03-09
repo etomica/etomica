@@ -198,6 +198,9 @@ public class VirialHePCKLJS {
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(steps);
+
+        long t1 = System.currentTimeMillis();
+
         sim.getController().actionPerformed();
         System.out.println();
         System.out.println("final reference step frequency "+sim.integratorOS.getRefStepFraction());
@@ -237,6 +240,9 @@ public class VirialHePCKLJS {
         System.out.println();
         System.out.println("cm"+((nPoints-1)*3)+"/mol"+(nPoints-1)+": ");
         System.out.println("abs average: "+ratio*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1)+", error: "+error*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1));
+
+        long t2 = System.currentTimeMillis();
+        System.out.println("time: "+(t2-t1)/1000.0);
 	}
 
 
@@ -254,6 +260,6 @@ public class VirialHePCKLJS {
         public double sigmaHSRef = 3;
         public boolean writeRefPref = false;
         public boolean QFH = true;
-        public boolean adjustStepFrequency = false;
+        public boolean adjustStepFrequency = true;
     }
 }
