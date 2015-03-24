@@ -1,0 +1,127 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+package etomica.potential;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import etomica.api.IAtomList;
+import etomica.api.IBoundary;
+import etomica.api.IBox;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.atom.AtomHydrogen;
+import etomica.space.ISpace;
+import etomica.units.BohrRadius;
+import etomica.units.Degree;
+import etomica.units.Kelvin;
+
+public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
+    protected IBoundary boundary;
+    protected IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
+    protected P2HydrogenHindeAtomic p2Hinde;
+    protected P2HydrogenPatkowskiAtomic p2Patkowski;
+    protected static final double r0 = BohrRadius.UNIT.toSim(1.448736);
+    protected static final double rMin = 1.4;
+    public static final double blMax = 1.2;
+    protected boolean print = false;
+    public FileWriter filePat = null;
+    public P2HydrogenHindePatkowskiAtomic(ISpace space) {
+        p2Hinde = new P2HydrogenHindeAtomic(space);
+        p2Patkowski = new P2HydrogenPatkowskiAtomic(space);        
+        dr = space.makeVector();
+        com0 = space.makeVector();
+        com1 = space.makeVector();  
+        hh0 = space.makeVector();
+        hh1 = space.makeVector();  
+        n0 = space.makeVector();
+        n1 = space.makeVector();
+    }
+
+    public double getRange() {    
+        return Double.POSITIVE_INFINITY;
+    }
+
+
+    public void setBox(IBox box) {    
+        boundary = box.getBoundary();
+        p2Patkowski.setBox(box);
+        p2Hinde.setBox(box);
+    }
+
+
+    public int nBody() {
+        return 2;
+    }
+    
+
+        public double energy(IAtomList atoms) {
+            AtomHydrogen m0 = (AtomHydrogen) atoms.getAtom(0);
+            AtomHydrogen m1 = (AtomHydrogen) atoms.getAtom(1);            
+            IVector hh0 = m0.getOrientation().getDirection();
+            IVector hh1 = m1.getOrientation().getDirection();        
+            IVector com0 = m0.getPosition();               
+            IVector com1 = m1.getPosition();        
+            
+            dr.Ev1Mv2(com1, com0);    
+            boundary.nearestImage(dr);    
+            double r01 = Math.sqrt(dr.squared());        
+            if (r01 != 0) {
+                dr.normalize();
+            }
+            else {
+                dr.E(0);
+                dr.setX(2, 1);
+            }
+            double th1 = Math.acos(dr.dot(hh0));
+            double th2 = Math.acos(dr.dot(hh1));
+            n0.E(hh0);
+            n1.E(hh1);
+            n0.XE(dr);
+            n1.XE(dr);
+            double phi = Math.acos(n0.dot(n1));
+            if (th1 > (Math.PI/2.0)) {
+                th1 = Math.PI - th1;
+                phi = Math.PI - phi;
+            } 
+            if (th2 > (Math.PI/2.0)) {
+                th2 = Math.PI - th2;
+                phi = Math.PI - phi;
+            }
+            if (th2 == 0) phi = 0;
+            double r = m0.getBondLength();
+            double s = m1.getBondLength();
+            if (r01 < rMin) r01 = rMin; // rMin = 1.4 angstroms , not so quite hard core
+            // same as Garberoglio
+            // Max bond length criteria also same as garberoglio
+            if (r > blMax) r = blMax;
+            if (s > blMax) s = blMax;
+            double ePat = p2Patkowski.vH2H2(r01,th1,th2,phi);
+            double eHin1 = p2Hinde.vH2H2(r01, r, s, th1, th2, phi);
+            double eHin2 = p2Hinde.vH2H2(r01, r0, r0, th1, th2, phi);
+            double E = 0;
+            if (Double.isInfinite(ePat) || Double.isInfinite(eHin1) || Double.isInfinite(eHin2)) return Double.POSITIVE_INFINITY;
+            E = ePat + eHin1 - eHin2;
+            if (Double.isInfinite(E) || Double.isNaN(E)) throw new RuntimeException("oops "+E);
+            
+            
+            if (print && Math.random() < 0.0001) {
+                try {
+                    if (filePat == null) filePat = new FileWriter("patConfigurations.dat");                    
+                    double rBohr = BohrRadius.UNIT.fromSim(r01);
+                    double Ek = Kelvin.UNIT.fromSim(ePat);
+                    double dth1 = Degree.UNIT.fromSim(th1);
+                    double dth2 = Degree.UNIT.fromSim(th2);
+                    double dphi = Degree.UNIT.fromSim(phi);
+                    filePat.write(rBohr+" "+dth1+" "+dth2+" "+dphi+" "+Ek+"\n");
+                    filePat.flush();                    
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return E;
+        }
+}
