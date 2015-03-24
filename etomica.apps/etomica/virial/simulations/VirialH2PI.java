@@ -167,20 +167,20 @@ public class VirialH2PI {
             }
             else {
                 // default options - choose these before committing to CVS
-                //        	params.potentialLevel = levelOptions.hindePatkowski;
-                //        	params.subtractWhat = subOptions.none;
-                //        	params.blOption = blOptions.variable;
-                //        	params.nBeads = 8;
-                //            params.temperature = 500;
-                //            params.numSteps = 1000000;
+                params.potentialLevel = levelOptions.hindePatkowski;
+                params.subtractWhat = subOptions.none;
+                params.blOption = blOptions.variable;
+                params.nBeads = 8;
+                params.temperature = 500;
+                params.numSteps = 1000000;
 
                 // runtime options - make changes in these and not the default options above
-                params.potentialLevel = levelOptions.patkowski;
-                params.subtractWhat = subOptions.none;
-                params.blOption = blOptions.fixedGround;
-                params.nBeads = 1;
-                params.temperature = 200;
-                params.numSteps = 1000000;
+//                params.potentialLevel = levelOptions.patkowski;
+//                params.subtractWhat = subOptions.none;
+//                params.blOption = blOptions.fixedGround;
+//                params.nBeads = 1;
+//                params.temperature = 200;
+//                params.numSteps = 1000000;
             }        
             
 //            final double L = 6.0;
