@@ -6,6 +6,7 @@ package etomica.potential;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -68,20 +69,33 @@ public class P2HydrogenHindePatkowskiAtomic implements IPotentialAtomic {
             dr.Ev1Mv2(com1, com0);    
             boundary.nearestImage(dr);    
             double r01 = Math.sqrt(dr.squared());        
-            if (r01 != 0) {
-                dr.normalize();
-            }
-            else {
-                dr.E(0);
-                dr.setX(2, 1);
-            }
-            double th1 = Math.acos(dr.dot(hh0));
-            double th2 = Math.acos(dr.dot(hh1));
+            if (r01 == 0) return Double.POSITIVE_INFINITY;
+            dr.normalize();
+            
+            double cth1 = dr.dot(hh0);
+            double cth2 = -dr.dot(hh1);
+            if (cth1 > 1.0) cth1 = 1.0;
+            if (cth1 < -1.0) cth1 = -1.0;
+            double th1 = Math.acos(cth1);
+            if (cth2 > 1.0) cth2 = 1.0;
+            if (cth2 < -1.0) cth2 = -1.0;
+            double th2 = Math.acos(cth2);
+            
             n0.E(hh0);
+            n0.PEa1Tv1(-cth1, dr);            
+            n0.normalize();
+
             n1.E(hh1);
-            n0.XE(dr);
-            n1.XE(dr);
-            double phi = Math.acos(n0.dot(n1));
+            n1.PEa1Tv1(cth2, dr);
+            n1.normalize();
+            
+            if (n0.isNaN() || n1.isNaN()) throw new RuntimeException("oops");
+
+            double cphi = n0.dot(n1);
+            if (cphi > 1.0) cphi = 1.0;
+            if (cphi < -1.0) cphi = -1.0;
+            double phi = Math.acos(cphi);
+            
             if (th1 > (Math.PI/2.0)) {
                 th1 = Math.PI - th1;
                 phi = Math.PI - phi;
