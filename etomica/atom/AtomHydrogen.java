@@ -24,11 +24,12 @@ public class AtomHydrogen extends AtomOriented {
     }
     
     public static double getAvgBondLength(double x) {
-        double a0 = 0.0766111;
-        double a1 = 6.84704E-07;
-        double a2 = -3.89889E-11;
-        double a3 = 6.73971E-14;
-        double y = 10*(a0 + a1*x + a2*x*x + a3*x*x*x);
+        double a0 = 0.766099;//0.0766111;
+        double a1 = 6.49168e-06;//6.84704E-07;
+        double a2 = 1.55595e-09;//-3.89889E-11;
+        double a3 = -1.27347e-12;//6.73971E-14;
+        double a4 = 5.2509e-16;
+        double y = a0 + a1*x + a2*x*x + a3*x*x*x + a4*x*x*x*x;
 //        System.out.println(x+" "+y);
 //        System.exit(1);
         return y;
