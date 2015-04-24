@@ -6,6 +6,7 @@ package etomica.models.co2;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAtomList;
@@ -20,6 +21,7 @@ import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotentialTorque;
 import etomica.simulation.Simulation;
+import etomica.space.IOrientation;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientation3D;
@@ -461,7 +463,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         protected final double mass0;
         protected final double moment0;
         protected final IVectorMutable moment1;
-        protected final double temperature, fac;
+        protected final double fac;
         protected final IVectorMutable d2, r2a, r2ab, r2b, ga, gb;
         protected final IVectorMutable drijRot;
         protected final IVectorMutable bdrij;
@@ -488,7 +490,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             moment1.setX(2, 2*Hydrogen.INSTANCE.getMass()*cmH2 + Oxygen.INSTANCE.getMass()*cm1x*cm1x);
             d2 = space.makeVector();
             
-            this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
             fac = hbar*hbar/(24/2)/temperature;
             bdrij = space.makeVector();
@@ -857,9 +858,12 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
 
             moment1 = space.makeVector();
             double cm1x = 2*Hydrogen.INSTANCE.getMass()*sitesOH/mass1;
+            // 0: around O-H bisector
             moment1.setX(0, 2*Hydrogen.INSTANCE.getMass()*(sitesHH*sitesHH));
+            // 1: around H-H axis
             moment1.setX(1, 2*Hydrogen.INSTANCE.getMass()*(sitesOH-cm1x)*(sitesOH-cm1x) + Oxygen.INSTANCE.getMass()*cm1x*cm1x);
             double cmH2 = (sitesOH-cm1x)*(sitesOH-cm1x) + (sitesHH*sitesHH);
+            // 2: in-plane rotation
             moment1.setX(2, 2*Hydrogen.INSTANCE.getMass()*cmH2 + Oxygen.INSTANCE.getMass()*cm1x*cm1x);
             
             this.temperature = temperature;
@@ -1094,6 +1098,18 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         }
     }
 
+    public double virial(IAtomList atoms) {
+        return 0;
+    }
+
+    public IVector[] gradient(IAtomList atoms) {
+        return null;
+    }
+
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return null;
+    }
+    
     /*
      * Reads geometry.txt file and computes energy for each configuration
      */
@@ -1278,15 +1294,111 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         }
     }
 
-    public double virial(IAtomList atoms) {
-        return 0;
+    public static void main2(String[] args) {
+        ISpace space = Space3D.getInstance();
+        double temperature = Kelvin.UNIT.toSim(200);
+        Simulation sim = new Simulation(space);
+        SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
+        sim.addSpecies(speciesCO2);
+        SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
+        speciesH2O.setAxisSymmetric(false);
+        sim.addSpecies(speciesH2O);
+        IBox box = new etomica.box.Box(space);
+        sim.addBox(box);
+        box.setNMolecules(speciesCO2, 1);
+        box.setNMolecules(speciesH2O, 1);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        IAtomList pair = box.getLeafList();
+        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
+        IVectorMutable p1 = atom1.getPosition();
+        IOrientation or0 = atom0.getOrientation();
+        OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
+        P2CO2H2OWheatley p2 = new P2CO2H2OWheatley(space);
+        P2CO2H2OSCTI p2SC = p2.makeSemiclassicalTI(temperature);
+        P2CO2H2OSCTI p2CSC = p2.makeSemiclassicalTI(Double.POSITIVE_INFINITY);
+//        ((OrientationFull3D)atom1.getOrientation()).setDirections(o1, o2);
+        System.out.println("OCO: "+or0.getDirection());
+
+        double cmx = 2*Hydrogen.INSTANCE.getMass()*sitesOH/p2.mass1;
+        p1.setX(0, BohrRadius.UNIT.toSim(9+cmx));
+        double uc = p2.energy(pair);
+        double usc = p2SC.energy(pair);
+        double ucsc = p2CSC.energy(pair);
+        System.out.println("rO:  9,0,0");
+        System.out.println("O-H: "+or1.getDirection());
+        System.out.println("H-H: "+or1.getSecondaryDirection());
+        System.out.println(String.format("uc:     %+22.15e", uc));
+        System.out.println(String.format("uTI:    %+22.15e", usc));
+        System.out.println(String.format("uTI-uc: %+22.15e", usc-uc));
+
+        System.out.println();
+        p1.setX(0, BohrRadius.UNIT.toSim(6));
+        p1.setX(1, BohrRadius.UNIT.toSim(6));
+        p1.setX(2, BohrRadius.UNIT.toSim(cmx));
+        or1.setDirections(space.makeVector(new double[]{0,0,1}),space.makeVector(new double[]{1,0,0}));
+        uc = p2.energy(pair);
+        usc = p2SC.energy(pair);
+        ucsc = p2CSC.energy(pair);
+        System.out.println("rO:  6,6,0");
+        System.out.println("O-H: "+or1.getDirection());
+        System.out.println("H-H: "+or1.getSecondaryDirection());
+        System.out.println(String.format("uc:     %+22.15e", uc));
+        System.out.println(String.format("uTI:    %+22.15e", usc));
+        System.out.println(String.format("uTI-uc: %+22.15e", usc-uc));
+
     }
 
-    public IVector[] gradient(IAtomList atoms) {
-        return null;
+    /**
+     * Writes a x-y grid of energies
+     */
+    public static void main2DGrid(String[] args) throws IOException {
+        ISpace space = Space3D.getInstance();
+        double temperature = Kelvin.UNIT.toSim(1);
+        Simulation sim = new Simulation(space);
+        SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
+        sim.addSpecies(speciesCO2);
+        SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
+        speciesH2O.setAxisSymmetric(false);
+        sim.addSpecies(speciesH2O);
+        IBox box = new etomica.box.Box(space);
+        sim.addBox(box);
+        box.setNMolecules(speciesCO2, 1);
+        box.setNMolecules(speciesH2O, 1);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        IAtomList pair = box.getLeafList();
+        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
+        IVectorMutable p0 = atom1.getPosition();
+        IVectorMutable p1 = atom1.getPosition();
+        IOrientation or0 = atom0.getOrientation();
+        OrientationFull3D or1 = (OrientationFull3D)atom1.getOrientation();
+        P2CO2H2OWheatley p2 = new P2CO2H2OWheatley(space);
+        P2CO2H2OSC p2SCFH = p2.makeSemiclassical(temperature);
+        P2CO2H2OSCTI p2SCTI = p2.makeSemiclassicalTI(temperature);
+//        ((OrientationFull3D)atom1.getOrientation()).setDirections(o1, o2);
+        System.out.println("OCO: "+or0.getDirection());
+        System.out.println("OM: "+or1.getDirection());
+        System.out.println("HH: "+or1.getSecondaryDirection());
+        FileWriter fw = new FileWriter("/tmp/foo.dat");
+        
+        double dxy = 0.15;
+        for (int ix=-70; ix<=70; ix++) {
+            double x = dxy*ix;
+            p0.setX(0, x);
+            for (int iy=-70; iy<=70; iy++) {
+                double y = dxy*iy;
+                p0.setX(1, y);
+                double uc = p2.energy(pair);
+                double usc = p2SCFH.energy(pair);
+                double uscTI = p2SCTI.energy(pair);
+                fw.write(String.format("{%2.2f,%2.2f,%3.3f,%3.3f,%3.3f},\n",x,y,Kelvin.UNIT.fromSim(uc),Kelvin.UNIT.fromSim(usc-uc),Kelvin.UNIT.fromSim(uscTI-uc)));
+//                fw.write(String.format("%2.2f %2.2f %3.3f %3.3f %3.3f \n",x,y,Kelvin.UNIT.fromSim(uc),Kelvin.UNIT.fromSim(usc),Kelvin.UNIT.fromSim(uscTI)));
+
+            }
+        }
+        fw.close();
+        
     }
 
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return null;
-    }
 }
