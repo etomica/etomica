@@ -118,6 +118,10 @@ public class P2CO2Hellmann implements IPotentialTorque {
         return pos[idx];
     }
 
+    public double getQ(int idx) {
+        return q[siteID[idx]];
+    }
+
     protected void ijInit(double[] x, double[][] xx, Unit unit) {
         int k = 0;
         for (int i=0; i<4; i++) {
