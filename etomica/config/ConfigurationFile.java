@@ -45,7 +45,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
     }
         
     protected void setPosition(IAtom atom, String string) {
-        String[] coordStr = string.split(" +");
+        String[] coordStr = string.split("[ \t]+");
         IVectorMutable pos = atom.getPosition();
         for (int i=0; i<pos.getD(); i++) {
             pos.setX(i, Double.valueOf(coordStr[i]).doubleValue());
