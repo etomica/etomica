@@ -66,16 +66,17 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         
         boolean flipit = false;
         double minR2 = minFlipDistance*minFlipDistance;
+        boolean debugme = false;
         for (int i=0; i<pointCount; i++) {
             flippedAtoms[i] = false;
-            for (int j=i+1; !flipit && j<pointCount; j++) {
-                if (box.getCPairSet().getr2(0,1) > minR2) {
+            for (int j=i+1; j<pointCount; j++) {
+                if (box.getCPairSet().getr2(i,j) > minR2) {
+                    if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true; 
                     flipit=true;
                 }
             }
         }
         
-        boolean debugme = box.getCPairSet().getr2(0,1) > 1000 && false;
         double vsum = wrappedCluster.value(box);
         if (!flipit) {
             value = vsum;
@@ -107,7 +108,6 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         
         value = vsum / Math.pow(2, pointCount);
         if (debugme) System.out.print(String.format("%10.4e\n", value));
-        if (debugme) System.exit(1);
         
         cPairID = cPairs.getID();
         return value;
