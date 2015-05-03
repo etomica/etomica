@@ -15,10 +15,18 @@ import etomica.space.ISpace;
 
 public class ClusterCoupledFlipped implements ClusterAbstract {
 
+    /**
+     * cluster must have caching disabled
+     */
     public ClusterCoupledFlipped(ClusterAbstract cluster, ISpace space) {
         this(cluster, space, 0);
     }
     
+    /**
+     * cluster must have caching disabled
+     * configurations will be flipped when the minimum distance between any two molecules
+     * exceeds minFlipDistance.  set minFlipDistance to 0 to always flip.
+     */
     public ClusterCoupledFlipped(ClusterAbstract cluster, ISpace space, double minFlipDistance) {
         this.space = space;
         wrappedCluster = cluster;
@@ -49,8 +57,8 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
             return value;
         }
         else if (thisCPairID == lastCPairID) {
-          // we went back to the previous cluster, presumably because the last
-          // cluster was a trial that was rejected.  so drop the most recent value/ID
+            // we went back to the previous cluster, presumably because the last
+            // cluster was a trial that was rejected.  so drop the most recent value/ID
             cPairID = lastCPairID;
             value = lastValue;
 //          System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
@@ -80,7 +88,6 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         double vsum = wrappedCluster.value(box);
         if (!flipit) {
             value = vsum;
-            cPairID = cPairs.getID();
             return vsum;
         }
         if (debugme) System.out.print(String.format("%10.4e ", vsum));
@@ -109,7 +116,6 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         value = vsum / Math.pow(2, pointCount);
         if (debugme) System.out.print(String.format("%10.4e\n", value));
         
-        cPairID = cPairs.getID();
         return value;
     }
     
