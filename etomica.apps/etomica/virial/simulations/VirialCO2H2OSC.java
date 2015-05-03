@@ -8,8 +8,6 @@ import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.ISpecies;
@@ -41,8 +39,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
+import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
@@ -50,7 +47,6 @@ import etomica.virial.ClusterCoupledAtomFlipped;
 import etomica.virial.ClusterWheatleyHS;
 import etomica.virial.ClusterWheatleyMultibodyMix;
 import etomica.virial.ClusterWheatleySoftMix;
-import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerFunctionNonAdditive;
@@ -201,9 +197,9 @@ public class VirialCO2H2OSC {
                 allFNA[1][1][0] = f3;
                 allFNA[1][1][1] = f3;
                 targetCluster = new ClusterWheatleyMultibodyMix(nPoints, nTypes, allF, allFNA, 1e-12, true);
-                if (nonAdditive == Nonadditive.FULL) {
+                if (nonAdditive == Nonadditive.FULL && nTypes[1] > 0) {
                     ((ClusterWheatleyMultibodyMix)targetCluster).setDoCaching(false);
-                    targetCluster = new ClusterCoupledAtomFlipped(targetCluster, space, 20);
+                    targetCluster = new ClusterCoupledAtomFlipped(targetCluster, space, 15);
                 }
             }
         }
@@ -217,6 +213,8 @@ public class VirialCO2H2OSC {
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesH2O}, nTypes, temperature, refCluster, targetCluster);
         sim.init();
+        int[] seeds = sim.getRandomSeeds();
+        System.out.println("Random seeds: "+Arrays.toString(seeds));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
         if (nonAdditive != Nonadditive.NONE && !useSZ) {
@@ -358,7 +356,7 @@ public class VirialCO2H2OSC {
                 // temperature is an integer, use "200" instead of "200.0"
                 tempString = ""+(int)temperatureK;
             }
-            refFileName = "refpref"+nPoints+"_"+(nonAdditive==nonAdditive.NONE?"2":("3"+(nonAdditive==Nonadditive.DISPERSION?"a":"ai")))+(useSZ?"_sz":"")+"_"+tempString;
+            refFileName = "refpref"+nPoints+"_"+(nonAdditive==Nonadditive.NONE?"2":("3"+(nonAdditive==Nonadditive.DISPERSION?"a":"ai")))+(useSZ?"_sz":"")+"_"+tempString;
             refFileName += level == Level.CLASSICAL ? "_c" : (level == Level.SEMICLASSICAL_FH ? "_fh" : "_ti");
             refFileName += "C";
         }
@@ -374,113 +372,14 @@ public class VirialCO2H2OSC {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
 
-        final HistogramNotSoSimple targHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
-        final HistogramNotSoSimple targPiHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
-        int nBins = 100;
-        double dx = sigmaHSRef/nBins;
-        final HistogramNotSoSimple hist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
-        final HistogramNotSoSimple piHist = new HistogramNotSoSimple(nBins, new DoubleRange(dx*0.5, sigmaHSRef+dx*0.5));
-        final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListenerRef = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            
-            public void integratorStepFinished(IIntegratorEvent e) {
-                double r2Max = 0;
-                CoordinatePairSet cPairs = sim.box[0].getCPairSet();
-                for (int i=0; i<nPoints; i++) {
-                    for (int j=i+1; j<nPoints; j++) {
-                        double r2ij = cPairs.getr2(i, j);
-                        if (r2ij > r2Max) r2Max = r2ij;
-                    }
-                }
-                double v = finalTargetCluster.value(sim.box[0]);
-                hist.addValue(Math.sqrt(r2Max), v);
-                piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
-            }
-            
-            public void integratorInitialized(IIntegratorEvent e) {
-            }
-        };
-        IIntegratorListener histListenerTarget = new IIntegratorListener() {
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            
-            public void integratorStepFinished(IIntegratorEvent e) {
-                double r2Max = 0;
-                double r2Min = Double.POSITIVE_INFINITY;
-                CoordinatePairSet cPairs = sim.box[1].getCPairSet();
-                for (int i=0; i<nPoints; i++) {
-                    for (int j=i+1; j<nPoints; j++) {
-                        double r2ij = cPairs.getr2(i, j);
-                        if (r2ij < r2Min) r2Min = r2ij;
-                        if (r2ij > r2Max) r2Max = r2ij;
-                    }
-                }
-
-                double v = finalTargetCluster.value(sim.box[1]);
-                double r = Math.sqrt(r2Max);
-                if (r > 1) {
-                    r = Math.log(r);
-                }
-                else {
-                    r -= 1;
-                }
-                targHist.addValue(r, v);
-                targPiHist.addValue(r, Math.abs(v));
-            }
-
-            public void integratorInitialized(IIntegratorEvent e) {}
-        };
-
         if (params.doHist) {
-            IIntegratorListener histReport = new IIntegratorListener() {
-                public void integratorInitialized(IIntegratorEvent e) {}
-                public void integratorStepStarted(IIntegratorEvent e) {}
-                public void integratorStepFinished(IIntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-                    System.out.println("**** reference ****");
-                    double[] xValues = hist.xValues();
-                    double[] h = hist.getHistogram();
-                    double[] piH = piHist.getHistogram();
-                    for (int i=0; i<xValues.length; i++) {
-                        if (!Double.isNaN(h[i])) {
-                            System.out.println(xValues[i]+" "+h[i]+" "+piH[i]);
-                        }
-                    }
-                    System.out.println("**** target ****");
-                    xValues = targHist.xValues();
-                    h = targHist.getHistogram();
-                    piH = targPiHist.getHistogram();
-                    for (int i=0; i<xValues.length; i++) {
-                        if (!Double.isNaN(h[i])) {
-                            double r = xValues[i];
-                            if (r < 0) r += 1;
-                            else r = Math.exp(r);
-                            System.out.println(r+" "+h[i]+" "+piH[i]);
-                        }
-                    }
-                }
-            };
-            sim.integratorOS.getEventManager().addListener(histReport);
-
-            System.out.println("collecting histograms");
-            // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[0].getEventManager().addListener(histListenerRef);
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+            sim.setupTargetHistogram();
         }
 
         sim.getController().actionPerformed();
         
         if (params.doHist) {
-            double[] xValues = hist.xValues();
-            double[] h = hist.getHistogram();
-            
-            System.out.println("final ref histogram");
-            for (int i=0; i<xValues.length; i++) {
-                if (!Double.isNaN(h[i])) {
-//                    System.out.println(xValues[i]+" "+(-2*h[i]+1)+" "+Math.exp(-u/temperature));
-                    System.out.println(xValues[i]+" "+(-2*h[i]+1));
-                }
-            }
+            sim.printTargetHistogram();
         }
 
 
