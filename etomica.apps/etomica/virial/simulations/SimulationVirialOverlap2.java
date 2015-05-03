@@ -11,6 +11,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IIntegratorEvent;
+import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
 import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.DataPumpListener;
@@ -25,11 +27,15 @@ import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.util.DoubleRange;
+import etomica.util.HistogramNotSoSimple;
+import etomica.util.HistogramSimple;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationCluster;
+import etomica.virial.CoordinatePairSet;
 import etomica.virial.MCMoveClusterAngleBend;
 import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MCMoveClusterAtomRotateMulti;
@@ -221,7 +227,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 }
             }
             else {
-                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
+                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(random, space);
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
                 mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, space);
@@ -317,6 +323,123 @@ public class SimulationVirialOverlap2 extends Simulation {
         dpVirialOverlap[0].setBennetParam(newRefPref, 1);
         dpVirialOverlap[1].setNumAlpha(1);
         dpVirialOverlap[1].setBennetParam(newRefPref, 1);
+    }
+
+    /**
+     * Causes a progress report (coefficient value and uncertainty) 10 times
+     * during the course of the simulation.
+     * 
+     * The listener is returned.
+     */
+    public IIntegratorListener addProgressListener(final double HSB) {
+        return addProgressListener(HSB, false);
+    }
+
+    /**
+     * Causes a progress report (coefficient value and uncertainty) 10 times
+     * during the course of the simulation.  With full=true, the full output
+     * (as would be printed at the end of the simulation) is printed.
+     * 
+     * The listener is returned.
+     */
+    public IIntegratorListener addProgressListener(final double HSB, final boolean full) {
+        IIntegratorListener progressReport = new IIntegratorListener() {
+
+            public void integratorStepStarted(IIntegratorEvent e) {}
+
+            public void integratorStepFinished(IIntegratorEvent e) {
+                long interval = ai.getMaxSteps()/10;
+                if (integratorOS.getStepCount() % interval != 0) return;
+                System.out.print(integratorOS.getStepCount()+" steps: ");
+                if (full) {
+                    System.out.println();
+                    printResults(HSB);
+                }
+                else {
+                    double[] ratioAndError = dvo.getAverageAndError();
+                    System.out.println("abs average: "+ratioAndError[0]*HSB+", error: "+ratioAndError[1]*HSB);
+                }
+            }
+            
+            public void integratorInitialized(IIntegratorEvent e) {}
+        };
+        integratorOS.getEventManager().addListener(progressReport);
+        return progressReport;
+    }
+
+    /**
+     * Sets up a histogram for the target system that measures how often
+     * maximum separation distances are visited.  The histogram is printed
+     * out 10 times during the simulation and may also be printed at the
+     * end of the simulation via printTargetHistogram().
+     */
+    public void setupTargetHistogram() {
+        targHist = new HistogramSimple(90, new DoubleRange(-1, 8));
+        IIntegratorListener histListenerTarget = new IIntegratorListener() {
+            public void integratorStepStarted(IIntegratorEvent e) {}
+
+            public void integratorStepFinished(IIntegratorEvent e) {
+                double r2Max = 0;
+                double r2Min = Double.POSITIVE_INFINITY;
+                CoordinatePairSet cPairs = box[1].getCPairSet();
+                int nPoints = box[1].getMoleculeList().getMoleculeCount();
+                for (int i=0; i<nPoints; i++) {
+                    for (int j=i+1; j<nPoints; j++) {
+                        double r2ij = cPairs.getr2(i, j);
+                        if (r2ij < r2Min) r2Min = r2ij;
+                        if (r2ij > r2Max) r2Max = r2ij;
+                    }
+                }
+
+                double r = Math.sqrt(r2Max);
+                if (r > 1) {
+                    r = Math.log(r);
+                }
+                else {
+                    r -= 1;
+                }
+                targHist.addValue(r);
+            }
+
+            public void integratorInitialized(IIntegratorEvent e) {}
+        };
+
+        IIntegratorListener histReport = new IIntegratorListener() {
+            public void integratorInitialized(IIntegratorEvent e) {}
+            public void integratorStepStarted(IIntegratorEvent e) {}
+            public void integratorStepFinished(IIntegratorEvent e) {
+                long interval = ai.getMaxSteps()/10;
+                if (integratorOS.getStepCount() % interval != 0) return;
+                printTargetHistogram();
+            }
+        };
+        integrators[1].getEventManager().addListener(histListenerTarget);
+        integratorOS.getEventManager().addListener(histReport);
+    }
+
+    /**
+     * Prints out the target histogram of maximum separation distances as
+     * set up by setupTargetHistogram().
+     */
+    public void printTargetHistogram() {
+        if (targHist == null) {
+            throw new RuntimeException("you can't print a histogram you don't have");
+        }
+        System.out.println("**** target histogram ****");
+        double[] xValues = targHist.xValues();
+        double[] h = targHist.getHistogram();
+        for (int i=0; i<xValues.length; i++) {
+            if (!Double.isNaN(h[i])) {
+                double r = xValues[i];
+                double y = h[i];
+                if (r < 0) r += 1;
+                else {
+                    r = Math.exp(r);
+                    y /= r;
+                }
+                System.out.println(r+" "+y);
+            }
+        }
     }
 
     public void initRefPref(String fileName, long initSteps) {
@@ -533,6 +656,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     public double refPref;
     protected long blockSize;
     protected int numAlpha = 1;
+    protected HistogramSimple targHist;
     
     public static class BoxClusterFactory {
         public BoxCluster makeBox(ISpace space, ClusterWeight sampleCluster, boolean isRef) {
