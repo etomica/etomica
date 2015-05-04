@@ -41,71 +41,58 @@ package etomica.potential;
 //
 //
 //
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomHydrogen;
 import etomica.atom.IAtomOriented;
-import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Nitrogen;
-import etomica.chem.elements.Oxygen;
-import etomica.models.co2.P2CO2Hellmann.P2CO2SC;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.util.RandomMersenneTwister;
-import etomica.util.RandomNumberGeneratorUnix;
 
 
 public class P2NitrogenHellmann implements IPotentialAtomic {    
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
-        int [] seeds = RandomNumberGeneratorUnix.getRandSeedArray();        
-        IRandom rand1 = new RandomMersenneTwister(seeds);
-        P2NitrogenHellmann pN2 = new P2NitrogenHellmann(space, rand1);        
-        FileReader fileReader = null;
-        String fileName = "P2NitrogenHellmann_energies.dat";
-        double [] r12 = new double [408];
-        double [] th1 = new double [408];
-        double [] th2 = new double [408];
-        double [] phi = new double [408];
-        double [] eValues = new double [408];
-        
-        try {
-            fileReader = new FileReader(fileName);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
-        }
-        try {
-            BufferedReader bufReader = new BufferedReader(fileReader);            
-            for (int i=0; i < 408; i++) {
-                String[] str = bufReader.readLine().trim().split(" +");
-                r12[i] = Double.valueOf(str[0]).doubleValue();
-                th1[i] = Degree.UNIT.toSim(Double.valueOf(str[1]).doubleValue());
-                th2[i] = Degree.UNIT.toSim(Double.valueOf(str[2]).doubleValue());
-                phi[i] = Degree.UNIT.toSim(Double.valueOf(str[3]).doubleValue());
-                eValues[i] = Double.valueOf(str[4]).doubleValue();                
-            }            
-            fileReader.close();
-        } catch(IOException e) {
-            throw new RuntimeException("Problem reading from "+fileName+", caught IOException: " + e.getMessage());
-        }        
-        
-        for (int i=0; i < 408; i++) {
-            pN2.vN2Angles(r12[i], th1[i], th2[i], phi[i]);
-        }        
+//        ISpace space = Space3D.getInstance();
+//        P2NitrogenHellmann pN2 = new P2NitrogenHellmann(space);
+//        FileReader fileReader = null;
+//        String fileName = "P2NitrogenHellmann_energies.dat";
+//        double [] r12 = new double [408];
+//        double [] th1 = new double [408];
+//        double [] th2 = new double [408];
+//        double [] phi = new double [408];
+//        double [] eValues = new double [408];
+//        
+//        try {
+//            fileReader = new FileReader(fileName);
+//        } catch (IOException e) {
+//            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
+//        }
+//        try {
+//            BufferedReader bufReader = new BufferedReader(fileReader);
+//            for (int i=0; i < 408; i++) {
+//                String[] str = bufReader.readLine().trim().split(" +");
+//                r12[i] = Double.valueOf(str[0]).doubleValue();
+//                th1[i] = Degree.UNIT.toSim(Double.valueOf(str[1]).doubleValue());
+//                th2[i] = Degree.UNIT.toSim(Double.valueOf(str[2]).doubleValue());
+//                phi[i] = Degree.UNIT.toSim(Double.valueOf(str[3]).doubleValue());
+//                eValues[i] = Double.valueOf(str[4]).doubleValue();                
+//            }            
+//            fileReader.close();
+//        } catch(IOException e) {
+//            throw new RuntimeException("Problem reading from "+fileName+", caught IOException: " + e.getMessage());
+//        }        
+//        
+//        for (int i=0; i < 408; i++) {
+//            pN2.vN2Angles(r12[i], th1[i], th2[i], phi[i]);
+//        }
     }
     
     protected IBoundary boundary;    
@@ -113,18 +100,23 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
     protected static final int [] siteID = {0,1,2,1,0};
     protected double[] q;
     protected double[] pos;
+    public boolean parametersB = true; // set this to false if using parameters for V_12^A potential
+    protected static final double[] AA = {0.846144529794E7, -0.825811757649E7, 0.116781452519E8, 0.198375106632E7, -0.889934931566E7, 0.216444280602E8};
+    protected static final double[] alphaA = {2.93660213026, 2.64088584245, 2.92688055782, 2.11392143479, 3.05000862940, 3.22097240942};
+    protected static final double[] bA = {3.10077160627, 3.52966064535, 2.92682684017, 2.44007490969, 1.97080180486, 1.89759495054};
+    protected static final double[] qA = {-794.51215612, 1621.86520764, -1654.70610304, 1621.86520764, -794.51215612};
+    protected static final double[] c6A = {0.224212900521E7, -0.438154598247E7, 0.304119164146E7, 0.103132819062E8, -0.740002575021E7, 0.277494715937E7};
+    protected static final double[] sitePosA = {-0.682390307412, -0.434260425799, 0.00, 0.434260425799, 0.682390307412};
     protected static final double[] AB = {0.973347918383E7,-0.954555977809E7,0.122158259267E8,0.299460243665E7,-0.819908034347E7, 0.163947777734E8};
     protected static final double[] alphaB = {3.06144571072,2.58710992361,2.96686681629,2.15319940621,2.84661195657,2.99548316813};
     protected static final double[] bB = {2.58031350518, 3.45760438302, 2.46746232590, 2.42577961527, 2.02508542307, 1.97117981681};
     protected static final double[] qB = {-832.77884541,1601.24507755,-1536.93246428,1601.24507755, -832.77884541};
     protected static final double[] c6B = {0.298807116692E7, -0.608284467163E7, 0.490318811890E7, 0.146889670654E8, -0.129841807274E8, 0.107874613877E8};
-    protected static final double[] sitePos = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
-    protected final IRandom random;
+    protected static final double[] sitePosB = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
     protected final ISpace space;
     
     
-    public P2NitrogenHellmann(ISpace space, IRandom random) {
-        this.random = random;
+    public P2NitrogenHellmann(ISpace space) {        
         this.space = space;
         A = new double[3][3];
         alpha = new double[3][3];
@@ -133,7 +125,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         q = new double[3];
         pos = new double[5];        
         fillData();
-    }
+    }    
     
     public double vN2Angles (double R12, double th1, double th2, double phi) {
         /* Method to calculate the potential between site i0 on molecule 0
@@ -323,7 +315,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 site1.E(dr);
                 site1.PEa1Tv1(pos[j], a1);                               
                 double r2ij = Math.sqrt(site0.Mv1Squared(site1));
-                if (r2ij == 0) return Double.POSITIVE_INFINITY;
+                if (r2ij < 1.0) return Double.POSITIVE_INFINITY;
                 double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*r2ij);
                 double r6 = r2ij*r2ij*r2ij*r2ij*r2ij*r2ij;
                 double term2 = -f6(b[i0][i1]*r2ij)*c6[i0][i1]/r6;
@@ -348,29 +340,51 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         if (Double.isNaN(sum) || Double.isNaN(term) || Double.isInfinite(sum) || Double.isInfinite(term)) throw new RuntimeException(" oops!"+sum+term);
         return sum;
     }
-
+    
     protected void fillData() {
         int k = 0;
-        for (int i=0; i < 3; i++) {
-            A[i][i] = AB[k];
-            alpha[i][i] = alphaB[k];
-            b[i][i] = bB[k];
-            c6[i][i] = c6B[k];            
-            k++;
-            for (int j=i+1; j < 3; j++) {
-                A[i][j] = A[j][i] = AB[k];
-                alpha[i][j] = alpha[j][i] = alphaB[k];
-                b[i][j] = b[j][i] = bB[k];
-                c6[i][j] = c6[j][i] = c6B[k];                
+        if (parametersB) {
+            for (int i=0; i < 3; i++) {
+                A[i][i] = AB[k];
+                alpha[i][i] = alphaB[k];
+                b[i][i] = bB[k];
+                c6[i][i] = c6B[k];            
                 k++;
+                for (int j=i+1; j < 3; j++) {
+                    A[i][j] = A[j][i] = AB[k];
+                    alpha[i][j] = alpha[j][i] = alphaB[k];
+                    b[i][j] = b[j][i] = bB[k];
+                    c6[i][j] = c6[j][i] = c6B[k];                
+                    k++;
+                }
             }
+            for (int i = 0; i < q.length; i++) {
+                q[i] = qB[i];
+            }
+            pos = sitePosB;
         }
-        for (int i = 0; i < q.length; i++) {
-            q[i] = qB[i];
+        else {
+            for (int i=0; i < 3; i++) {
+                A[i][i] = AA[k];
+                alpha[i][i] = alphaA[k];
+                b[i][i] = bA[k];
+                c6[i][i] = c6A[k];            
+                k++;
+                for (int j=i+1; j < 3; j++) {
+                    A[i][j] = A[j][i] = AA[k];
+                    alpha[i][j] = alpha[j][i] = alphaA[k];
+                    b[i][j] = b[j][i] = bA[k];
+                    c6[i][j] = c6[j][i] = c6A[k];                
+                    k++;
+                }
+            }
+            for (int i = 0; i < q.length; i++) {
+                q[i] = qA[i];
+            }
+            pos = sitePosA;
         }
-        pos = sitePos;
-
     }
+    
     public static void rotateBy(double cdt, double sdt, IVector axis, IVectorMutable direction) {
         // consider a circle on the surface of the unit sphere.  The given axis
         // passes through the center of the circle.  The circle passes through
@@ -412,8 +426,8 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
     }   
      
     public double energy(IAtomList atoms) {
-        AtomHydrogen a0 = (AtomHydrogen)atoms.getAtom(0);
-        AtomHydrogen a1 = (AtomHydrogen)atoms.getAtom(0);                
+        IAtomOriented a0 = (IAtomOriented)atoms.getAtom(0);
+        IAtomOriented a1 = (IAtomOriented)atoms.getAtom(1);                
         IVectorMutable hh0 = space.makeVector();
         hh0.E(a0.getOrientation().getDirection());
         IVectorMutable hh1 = space.makeVector();
@@ -454,8 +468,8 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
             rTensor1 = space.makeTensor();
             ijRTensor = space.makeTensor();
             identity.E(new double[][]{{1,0,0},{0,1,0},{0,0,1}});
-            gi = new IVectorMutable[2][7];
-            for (int i=0; i<7; i++) {
+            gi = new IVectorMutable[2][5];
+            for (int i=0; i<5; i++) {
                 gi[0][i] = space.makeVector();
                 gi[1][i] = space.makeVector();
             }
@@ -468,63 +482,11 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
             drijRot = space.makeVector();
             rot0 = space.makeTensor();
             rot1 = space.makeTensor();
-            moment = 2*Oxygen.INSTANCE.getMass()*pos[5]*pos[5];
+            moment = 2*Nitrogen.INSTANCE.getMass()*pos[4]*pos[4];
             
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
-            fac = hbar*hbar/(24/2)/temperature;
-        }
-        public double vN2SCVectors(double R12, IVectorMutable or0, IVectorMutable or1) {
-            IVectorMutable dr = space.makeVector();
-            IVectorMutable a0 = space.makeVector();
-            IVectorMutable a1 = space.makeVector();
-            IVectorMutable site0 = space.makeVector();
-            IVectorMutable site1 = space.makeVector();
-
-            a0.E(or0);
-            a1.E(or1);
-
-            dr.E(0);
-            dr.setX(0, R12);
-
-            double v = 0;
-            for (int i = 0; i < 5; i++) {
-                int i0 = siteID[i];
-                site0.E(0);
-                site0.PEa1Tv1(pos[i], a0);
-                for (int j = 0; j < 5; j++) {
-                    int i1 = siteID[j];
-                    site1.E(dr);
-                    site1.PEa1Tv1(pos[j], a1);                                   
-                    double rij = Math.sqrt(site0.Mv1Squared(site1));
-                    if (rij == 0) return Double.POSITIVE_INFINITY;
-                    double r2 = rij*rij;
-                    double r6 = r2*r2*r2;
-                    double b7 = b[i0][i1]*b[i0][i1]*b[i0][i1]*b[i0][i1]*b[i0][i1]*b[i0][i1]*b[i0][i1];
-                    double br = b[i0][i1]*rij;
-                    double ft = -f6(br);
-                    double st = c6[i0][i1]/r6;
-                    double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*rij);                    
-                    double term2 = ft*st;
-                    double term3 = q[i0]*q[i1]/rij;                    
-                    v += Kelvin.UNIT.toSim(term1+term2+term3);
-                    double dterm1dr = -alpha[i0][i1]*term1;
-                    double d2term1dr2 = -alpha[i0][i1]*dterm1dr;                    
-                    double dftdr = -b7*r6*Math.exp(-br)/120.0;
-                    double d2ftdr2 = dftdr*(6.0 - br)/rij;
-                    double dstdr = -6*st/rij;
-                    double d2stdr2 = -7*dstdr/rij;
-                    double dterm2dr = ft*dstdr + st*dftdr;
-                    double d2term2dr2 = d2ftdr2 + 2*dftdr*dstdr + d2stdr2;
-                    double dterm3dr = -term3/rij;
-                    double d2term3dr2 = -2*dterm3dr/rij;
-                    double rdudr = rij*(dterm1dr + dterm2dr + dterm3dr);
-                    double r2d2udr2 = r2*(d2term1dr2 + d2term2dr2 + d2term3dr2);
-                    
-                    if (Double.isNaN(v)) throw new RuntimeException("oops "+v);
-                }
-            }
-            return 0;
+            fac = hbar*hbar/(12.00*temperature);
         }
 
         public double getRange() {
@@ -615,7 +577,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                         return Double.POSITIVE_INFINITY;
                     }
                     double ar = alpha[ii][jj]*rij;
-                    double uExp = A[ii][jj]*Math.exp(-alpha[ii][jj]*rij);
+                    double uExp = A[ii][jj]*Math.exp(-ar);
                     double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
                     double r2du2Expdr2 = A[ii][jj]*ar*ar*Math.exp(-ar);
 
@@ -730,7 +692,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 d2tot[1][3+i] += rr1Tensor.component(i,i);
                 sum += (rr0Tensor.component(i,i) + rr1Tensor.component(i,i))/(2*moment);
             }
-            return u + fac*sum;
+            return Kelvin.UNIT.toSim(u + fac*sum);
         }                 
     }
 }
