@@ -34,9 +34,9 @@ public class VirialN2 {
         }
         else {
             // default options - choose these before committing to CVS
-            params.potentialLevel = level.classical;
+            params.potentialLevel = level.semiClassical;
             params.temperatureK = 500;
-            params.numSteps = (long)1E8;
+            params.numSteps = (long)1E6;
             params.pN2HellmannA = false;
 
             // runtime options - make changes in these and not the default options above           
@@ -79,10 +79,11 @@ public class VirialN2 {
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
         
-        final IPotentialAtomic p2 = pLevel == level.classical ? new P2NitrogenHellmann(space) : new P2NitrogenHellmann(space).makeSemiclassical(temperature);
-        if (pN2HellmannA) ((P2NitrogenHellmann)p2).parametersB = false;
-        PotentialMolecularMonatomic p2N2 = new PotentialMolecularMonatomic(space, p2);                
-        MayerGeneral fTar = new MayerGeneral(p2N2);
+        final P2NitrogenHellmann p2N2 = new P2NitrogenHellmann(space);
+        if (pN2HellmannA) p2N2.parametersB = false;
+        final IPotentialAtomic p2 = (pLevel == level.classical ? p2N2 : p2N2.makeSemiclassical(temperature));        
+        PotentialMolecularMonatomic pN2 = new PotentialMolecularMonatomic(space, p2);                
+        MayerGeneral fTar = new MayerGeneral(pN2);
         ClusterWheatleySoft tarCluster = new ClusterWheatleySoft(nPoints, fTar, 1e-12);
         tarCluster.setTemperature(temperature);
         
