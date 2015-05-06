@@ -34,15 +34,15 @@ public class VirialN2 {
         }
         else {
             // default options - choose these before committing to CVS
-            params.potentialLevel = level.semiClassical;
-            params.temperatureK = 500;
-            params.numSteps = (long)1E6;
-            params.pN2HellmannA = false;
+//            params.potentialLevel = level.classical;
+//            params.temperatureK = 500;
+//            params.numSteps = (long)1E6;
+//            params.pN2HellmannA = false;
 
             // runtime options - make changes in these and not the default options above           
-//            params.potentialLevel = level.semiClassical;
-//            params.temperatureK = 500;
-//            params.numSteps = (long)1E8;
+            params.potentialLevel = level.semiClassical;
+            params.temperatureK = 50;
+            params.numSteps = (long)1E7;
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperatureK;
@@ -130,22 +130,25 @@ public class VirialN2 {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
         final double refIntegralF = HSB[nPoints];
-        IIntegratorListener progressReport = new IIntegratorListener() {
-            public void integratorInitialized(IIntegratorEvent e) {}
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            public void integratorStepFinished(IIntegratorEvent e) {
-                if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double[] ratioAndError = sim.dvo.getAverageAndError();
-                double ratio = ratioAndError[0];
-                double error = ratioAndError[1];
-                //                    System.out.println("abs average: "+ratio*refIntegralF+" error: "+error*refIntegralF);
-                System.out.println("abs average: "+ratio*refIntegralF+" error: "+error*refIntegralF);
-                if (ratio == 0 || Double.isNaN(ratio)) {
-                    throw new RuntimeException("oops");
+        if (!isCommandline) {
+            IIntegratorListener progressReport = new IIntegratorListener() {
+                public void integratorInitialized(IIntegratorEvent e) {}
+                public void integratorStepStarted(IIntegratorEvent e) {}
+                public void integratorStepFinished(IIntegratorEvent e) {
+                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
+                    double ratio = ratioAndError[0];
+                    double error = ratioAndError[1];
+                    //                    System.out.println("abs average: "+ratio*refIntegralF+" error: "+error*refIntegralF);
+                    System.out.println("abs average: "+ratio*refIntegralF+" error: "+error*refIntegralF);
+                    if (ratio == 0 || Double.isNaN(ratio)) {
+                        throw new RuntimeException("oops");
+                    }
                 }
-            }
-        };
+            };
+            sim.integratorOS.getEventManager().addListener(progressReport);
+        }
         // this is where the simulation takes place
         sim.getController().actionPerformed();
         //end of simulation
@@ -199,7 +202,7 @@ public class VirialN2 {
         public double temperatureK = 500.0;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;        
-        public double sigmaHSRef = 3.0; // -1 means use equation for sigmaHSRef        
+        public double sigmaHSRef = 4.50; // -1 means use equation for sigmaHSRef        
         public level potentialLevel = level.classical;
         public boolean pairOnly = true;
         public boolean pN2HellmannA = true;

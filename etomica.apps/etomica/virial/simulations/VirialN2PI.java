@@ -254,7 +254,7 @@ public class VirialN2PI {
         public double temperatureK = 500.0;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;        
-        public double sigmaHSRef = 3.0; // -1 means use equation for sigmaHSRef
+        public double sigmaHSRef = 4.50; // -1 means use equation for sigmaHSRef
         public boolean pairOnly = true;
         public boolean pN2HellmannA = true;
         public int beadFac = 2;        
