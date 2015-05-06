@@ -113,10 +113,11 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
     protected static final double[] qB = {-832.77884541,1601.24507755,-1536.93246428,1601.24507755, -832.77884541};
     protected static final double[] c6B = {0.298807116692E7, -0.608284467163E7, 0.490318811890E7, 0.146889670654E8, -0.129841807274E8, 0.107874613877E8};
     protected static final double[] sitePosB = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
+    protected static final double rHSCore = 2.0;
     protected final ISpace space;
     
     
-    public P2NitrogenHellmann(ISpace space) {        
+    public P2NitrogenHellmann(ISpace space) {
         this.space = space;
         A = new double[3][3];
         alpha = new double[3][3];
@@ -232,7 +233,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 site1.E(dr);
                 site1.PEa1Tv1(pos[j], a1);                
                 double rij = Math.sqrt(site0.Mv1Squared(site1));
-                if (rij == 0) return Double.POSITIVE_INFINITY;
+                if (rij < rHSCore) return Double.POSITIVE_INFINITY;                
                 double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*rij);
                 double r6 = rij*rij*rij*rij*rij*rij;
                 double term2 = -f6(b[i0][i1]*rij)*c6[i0][i1]/r6;
@@ -314,12 +315,12 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 int i1 = siteID[j];
                 site1.E(dr);
                 site1.PEa1Tv1(pos[j], a1);                               
-                double r2ij = Math.sqrt(site0.Mv1Squared(site1));
-                if (r2ij < 1.0) return Double.POSITIVE_INFINITY;
-                double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*r2ij);
-                double r6 = r2ij*r2ij*r2ij*r2ij*r2ij*r2ij;
-                double term2 = -f6(b[i0][i1]*r2ij)*c6[i0][i1]/r6;
-                double term3 = q[i0]*q[i1]/r2ij;
+                double rij = Math.sqrt(site0.Mv1Squared(site1));
+                if (rij < rHSCore) return Double.POSITIVE_INFINITY;
+                double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*rij);
+                double r6 = rij*rij*rij*rij*rij*rij;
+                double term2 = -f6(b[i0][i1]*rij)*c6[i0][i1]/r6;
+                double term3 = q[i0]*q[i1]/rij;
                 v += term1 + term2 + term3;
                 if (Double.isNaN(v)) throw new RuntimeException("oops "+v);
             }
@@ -573,9 +574,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                     dr.Ev1Mv2(site1, site0);
                     double rij2 = dr.squared();
                     double rij = Math.sqrt(rij2);
-                    if (rij < 0.9) {
-                        return Double.POSITIVE_INFINITY;
-                    }
+                    if (rij < rHSCore) return Double.POSITIVE_INFINITY;
                     double ar = alpha[ii][jj]*rij;
                     double uExp = A[ii][jj]*Math.exp(-ar);
                     double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
@@ -619,11 +618,9 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                     double rduChargedr = -q[ii]*q[jj]/rij;
                     double r2d2uChargedr2 = 2*q[ii]*q[jj]/rij;
                     
-                    u += uExp + u6 + uCharge;
-                    double rdudr = rduExpdr + rdu6dr + rduChargedr;
-                    double r2d2udr2 = r2du2Expdr2 + r2du26dr2 + r2d2uChargedr2;
-//                    System.out.println(rij+" "+foo8/rij+" "+foo82/rij2);
-//                    if (i==0) System.out.println(i+" "+j+" "+rij+" "+u+" "+rdudr/rij+" "+r2d2udr2/rij2);
+                    u += Kelvin.UNIT.toSim(uExp + u6 + uCharge);
+                    double rdudr = Kelvin.UNIT.toSim(rduExpdr + rdu6dr + rduChargedr);
+                    double r2d2udr2 = Kelvin.UNIT.toSim(r2du2Expdr2 + r2du26dr2 + r2d2uChargedr2);
 
                     // molecule 0
                     drijRot.E(dr);
@@ -691,9 +688,9 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 d2tot[0][3+i] += rr0Tensor.component(i,i);
                 d2tot[1][3+i] += rr1Tensor.component(i,i);
                 sum += (rr0Tensor.component(i,i) + rr1Tensor.component(i,i))/(2*moment);
-            }
-            return Kelvin.UNIT.toSim(u + fac*sum);
-        }                 
+            }            
+            return (u + fac*sum);
+        }
     }
 }
 
