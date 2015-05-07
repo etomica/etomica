@@ -20,6 +20,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
     protected boolean doMulti;
+    protected double rCut2;
 
     public ClusterWheatleyMultibody(int nPoints, MayerFunction f, MayerFunctionNonAdditive fMulti) {
         super(nPoints, f, 1e-12);
@@ -30,6 +31,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         // set it to null so the failure isn't silent
         clusterBD = null;
         molecules = new MoleculeArrayList(nPoints);
+        rCut2 = Double.POSITIVE_INFINITY;
     }
     
     public ClusterAbstract makeCopy() {
@@ -39,8 +41,20 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         return c;
     }
 
+    public void setRCut(double newRCut) {
+        rCut2 = newRCut * newRCut;
+    }
 
     public void calcValue(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                if (cPairs.getr2(i,j) > rCut2) {
+                    value = 0;
+                    return;
+                }
+            }
+        }
         // do (multi+pair) - pair here so that we avoid recomputing f bonds
         doMulti = false;
         super.calcValue(box);

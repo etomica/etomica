@@ -4,13 +4,8 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
-import etomica.models.water.P2WaterSzalewicz;
-import etomica.space3d.Space3D;
 
 /**
  * This class uses Wheatley's recursion approach to calculating all biconnected
@@ -27,6 +22,7 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
     protected final MoleculeArrayList molecules;
     protected boolean doMulti;
     protected boolean nonAdditiveOnly;
+    protected double rCut2;
 
     /**
      * Constructs a cluster capable of handling mixtures of nonadditive
@@ -80,6 +76,7 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
         // set it to null so the failure isn't silent
         clusterBD = null;
         molecules = new MoleculeArrayList(nPoints);
+        rCut2 = Double.POSITIVE_INFINITY;
     }
 
     public ClusterAbstract makeCopy() {
@@ -93,6 +90,15 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
             doMulti = true;
             super.calcValue(box);
             return;
+        }
+        CoordinatePairSet cPairs = box.getCPairSet();
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                if (cPairs.getr2(i,j) > rCut2) {
+                    value = 0;
+                    return;
+                }
+            }
         }
         // do (multi+pair) - pair here so that we avoid recomputing f bonds
         doMulti = false;
@@ -146,7 +152,6 @@ public class ClusterWheatleyMultibodyMix extends ClusterWheatleySoftMix {
                     }
                 }
                 fMap3[i].setBox(box);
-                double oldFQ = fQ[i];
                 fQ[i] *= fMap3[i].f(molecules, 3, moleculeIndices, r2, beta)+1;
             }
         }
