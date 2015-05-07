@@ -375,6 +375,7 @@ public class SimulationVirialOverlap2 extends Simulation {
      */
     public void setupTargetHistogram() {
         targHist = new HistogramSimple(90, new DoubleRange(-1, 8));
+        targPiHist = new HistogramNotSoSimple(90, new DoubleRange(-1, 8));
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
             public void integratorStepStarted(IIntegratorEvent e) {}
 
@@ -398,7 +399,9 @@ public class SimulationVirialOverlap2 extends Simulation {
                 else {
                     r -= 1;
                 }
+                double pi = box[1].getSampleCluster().value(box[1]);
                 targHist.addValue(r);
+                targPiHist.addValue(r, pi);
             }
 
             public void integratorInitialized(IIntegratorEvent e) {}
@@ -425,19 +428,21 @@ public class SimulationVirialOverlap2 extends Simulation {
         if (targHist == null) {
             throw new RuntimeException("you can't print a histogram you don't have");
         }
-        System.out.println("**** target histogram ****");
+        System.out.println("**** target histograms ****");
         double[] xValues = targHist.xValues();
         double[] h = targHist.getHistogram();
+        double[] hPi = targPiHist.getHistogram();
         for (int i=0; i<xValues.length; i++) {
-            if (!Double.isNaN(h[i])) {
+            if (h[i] > 0) {
                 double r = xValues[i];
                 double y = h[i];
+                double pi = hPi[i];
                 if (r < 0) r += 1;
                 else {
                     r = Math.exp(r);
                     y /= r;
                 }
-                System.out.println(r+" "+y);
+                System.out.println(r+" "+y+" "+pi);
             }
         }
     }
@@ -657,6 +662,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected long blockSize;
     protected int numAlpha = 1;
     protected HistogramSimple targHist;
+    protected HistogramNotSoSimple targPiHist;
     
     public static class BoxClusterFactory {
         public BoxCluster makeBox(ISpace space, ClusterWeight sampleCluster, boolean isRef) {
