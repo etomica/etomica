@@ -439,7 +439,9 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         double E = vN2Vectors(R12, hh0, hh1);    
         return E;
     }
-    private static double mass = 2*Nitrogen.INSTANCE.getMass();
+    protected static final double massN2 = 2*Nitrogen.INSTANCE.getMass();
+    public static final double blN2 = 1.1014;
+    protected static final double moment = 0.25*massN2*blN2*blN2;;
     
     public P2NitrogenSC makeSemiclassical(double temperature) {
         return new P2NitrogenSC(temperature);
@@ -453,8 +455,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         protected final Tensor rot0, rot1;
         protected final IVectorMutable or01, or11, or02, or12;
         protected final IVector[] allOr0, allOr1;
-        protected final IVectorMutable drijRot;
-        protected final double moment;
+        protected final IVectorMutable drijRot;        
         public double[][] d2tot = new double[2][6];
         protected final double temperature, fac;        
         
@@ -482,8 +483,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
             allOr1 = new IVectorMutable[]{null, or11, or12};
             drijRot = space.makeVector();
             rot0 = space.makeTensor();
-            rot1 = space.makeTensor();
-            moment = 2*Nitrogen.INSTANCE.getMass()*pos[4]*pos[4];
+            rot1 = space.makeTensor();            
             
             this.temperature = temperature;
             double hbar = Constants.PLANCK_H/(2*Math.PI);
@@ -682,7 +682,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
             for (int i=0; i<3; i++){
                 d2tot[0][i] += tt0Tensor.component(i,i);
                 d2tot[1][i] += tt1Tensor.component(i,i);
-                sum += tt0Tensor.component(i,i)/mass;
+                sum += tt0Tensor.component(i,i)/massN2;
             }
             for (int i=1; i<3; i++){
                 d2tot[0][3+i] += rr0Tensor.component(i,i);
