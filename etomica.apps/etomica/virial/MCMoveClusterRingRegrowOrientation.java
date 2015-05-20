@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.commons.math3.complex.Quaternion;
+
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -43,7 +45,7 @@ import etomica.util.HistogramSimple;
  * regrow the beads such that the beads from multiple molecules are combined
  * to form a larger ring.
  * 
- * @author Andrew Schultz
+ * @author Ram
  */
 public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 
@@ -213,14 +215,14 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                         rV2.PEa1Tv1(-rV2.dot(rV1), rV1);
                         rV2.normalize();
                         double dummyAlpha = 2*Math.PI*random.nextDouble();                        
-                        rotateVectorV(Math.cos(dummyAlpha), Math.sin(dummyAlpha), rV1, rV2);
+                        rotateVectorV(dummyAlpha, rV1, rV2);
                         
                         if (!doExchange) {
-                        	rotateVectorV(y1,sA,rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());                        
+                        	rotateVectorV(newAlpha[imageIndex],rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());                        
                         }
                         else {
                         	double angle = 2*Math.PI*random.nextDouble();
-                        	rotateVectorV(Math.cos(angle), Math.sin(angle),rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+                        	rotateVectorV(angle,rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
                         }
                         theta[imageIndex] = 0;
                                                 
@@ -240,7 +242,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                         e1.PEa1Tv1(-e1.dot(newCenter), newCenter);
                         e1.normalize();
                         
-                        rotateVectorV(y1,sA, e1,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+                        rotateVectorV(newAlpha[imageIndex], e1,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
                         theta[imageIndex] = random.nextDouble()*2*Math.PI;                
                         newOrientations[i][imageIndex].rotateBy(theta[imageIndex], newCenter);                      
                     }
@@ -351,33 +353,20 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         r2 += dr.Mv1Squared(dr1);
         return r2;
     }
-    public static void rotateVectorV(double cdt, double sdt, IVector axis, IVectorMutable v) {
-        // consider a circle on the surface of the unit sphere.  The given axis
-        // passes through the center of the circle.  The circle passes through
-        // the current direction vector and the vector v4 defined below.  We
-        // rotate the direction by the given angle (dt) around the circle.
-        
-        // v1 is the projection of direction onto axis
-        // v2 is the component of direction perpendicular to axis
-        // v3 has the same magnitude as v2 and is perpendicular to both
-        //    direction and axis
-        // v4 is a unit vector whose components are v1 and v3
-        
-        // v1 = v1overAxis * axis
-        ISpace space = Space3D.getInstance();        
-        double v1overAxis = axis.dot(v);
-        IVectorMutable temp = space.makeVector();
-        IVectorMutable temp2 = space.makeVector();
-        temp.Ea1Tv1(-v1overAxis, axis);
-        temp.PE(v);
-        // now temp = v2
-        temp2.E(axis);
-        temp2.XE(v);
-        // now temp2 = v3
-        v.Ea1Tv1(cdt, temp);
-        v.PEa1Tv1(sdt, temp2);
-        v.PEa1Tv1(v1overAxis, axis);
-        
+    public void rotateVectorV(double angle, IVector axis, IVectorMutable v) {
+        double q0 = Math.cos(angle/2.0);
+        double sth2 = Math.sin(angle/2.0);
+        IVectorMutable a1 = space.makeVector();
+        a1.E(axis);
+        a1.TE(sth2);
+        double q1 = a1.getX(0);
+        double q2 = a1.getX(1);
+        double q3 = a1.getX(2);
+        Quaternion q = new Quaternion(q0,q1,q2,q3);
+        Quaternion vec = new Quaternion(0,v.getX(0),v.getX(1),v.getX(2));
+        Quaternion w = q.multiply(vec).multiply(q.getConjugate());
+        if (Math.abs(w.getScalarPart()) > 1E-10 ) throw new RuntimeException("Quaternion product is not a vector!");
+        v.E(w.getVectorPart());   
     }
     protected double uAcc = 0;
     protected FileWriter file = null;
