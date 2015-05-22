@@ -413,6 +413,24 @@ public class Quaternion extends Object {
 	}
 	
 	/**
+	 * Returns an orientation corresponding to the rotation of cartesian coordinate frame {i,j,k}
+	 * by the axis and angle associated with the Quaternion q.
+	 * @author rsubrama
+	 * @return OrientationFull3D or
+	 */
+	public OrientationFull3D getOrientation() {
+	    OrientationFull3D or = (OrientationFull3D) space.makeOrientation();
+	    IVectorMutable [] e = space.makeVectorArray(3);
+	    for (int i=0; i<3; i++) {
+	        e[i].E(0);
+	        e[i].setX(i, 1);
+	    }
+	    or.setDirections(e[0], e[1]);
+	    this.rotateOrientation(or);
+	    return or;
+	}
+	
+	/**
 	 * Returns whether the Quaternion is pure or not
 	 * @author rsubrama
 	 * @return boolean true/false
