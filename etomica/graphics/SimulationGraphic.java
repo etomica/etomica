@@ -387,7 +387,12 @@ public class SimulationGraphic implements SimulationContainer {
 
         }
         else {
-        	getPanel().controlPanel.remove(component);
+            if(device == dcb) {
+                getPanel().graphicsPanel.remove(component);
+            }
+            else {
+                getPanel().controlPanel.remove(component);
+            }
         }
         deviceList.remove(device);
     }
