@@ -295,6 +295,71 @@ public final class SpecialFunctions {
         lastLPX = x;
         return lp[n];
     }
+    
+    /** 
+     * Returns the Wigner 3j symbol associated with coupling angular momenta in quantum mechanics.
+     * Reference: 1. http://mathworld.wolfram.com/Wigner3j-Symbol.html
+     * 2. http://massey.dur.ac.uk/umk/files/python/wigner.py
+     * 
+     * Currently only works for all 6 inputs being integers and not
+     * half integers
+     * @author rsubrama
+     * @return double w3j
+     */
+    public static double wigner3J(int j1, int j2, int j3, int m1, int m2, int m3) {
+        // Rule 1
+        if (Math.abs(m1) > j1) return 0;
+        if (Math.abs(m2) > j2) return 0;
+        if (Math.abs(m3) > j3) return 0;
+        
+        // Rule 2
+        if (m1 + m2 + m3 != 0) return 0;
+        
+        // Rule 3
+        if (j3 > (j1 + j2) || j3 < Math.abs(j1 - j2)) return 0;
+        
+        int t1 = j2 - m1 - j3;
+        int t2 = j1 + m2 - j3;
+        int t3 = j1 + j2 - j3;
+        int t4 = j1 - m1;
+        int t5 = j2 + m2;
+        
+        int tMin = Math.max(0, Math.max(t1,t2));
+        int tMax = Math.min(t3, Math.min(t4,t5)) + 1;
+        int nTerms = tMax - tMin;
+        
+        // Check if number of terms is correct
+        int [] n = new int [9];
+        n[0] = j1 + m1;
+        n[1] = t4;
+        int gamma = Math.min(n[0],n[1]);        
+        n[2] = t5;
+        n[3] = j2 - m2;
+        n[4] = j3 + m3;
+        n[5] = j3 - m3;
+        n[6] = j1 + j2 - j3;
+        n[7] = j2 + j3 - j1;
+        n[8] = j1 + j3 - j2;
+        for (int i=2; i<9; i++) {
+            gamma = Math.min(gamma, n[i]);
+        }
+        gamma ++;
+        if (gamma != nTerms) throw new RuntimeException("Oops number of terms not matching!"+nTerms+gamma);
+        
+        double term1 = Math.pow(-1, j1 - j2 -m3);
+        double term2 = Math.sqrt((double)factorial(n[6]) * (double)factorial(n[8]) * (double)factorial(n[7])/((double)factorial(j1 + j2 + j3 + 1)));
+        double term3 = 1.00;
+        for (int i=0; i<6; i++) {
+            term3 *= (double)factorial(n[i]);
+        }
+        term3 = Math.sqrt(term3);
+        double term4 = 0;
+        for (int t = tMin; t < tMax; t++) {
+            term4 += Math.pow(-1, t)/((double)factorial(t)*(double)factorial(t-t1)*(double)factorial(t-t2)*(double)factorial(t3-t)*(double)factorial(t4-t)*(double)factorial(t5-t));            
+        }
+        double w3j = term1*term2*term3*term4;
+        return w3j;
+    }
 
     public static void main(String[] args) {
     	System.out.println(confluentHypergeometric1F1(-0.25,0.5,1.0));
@@ -313,5 +378,7 @@ public final class SpecialFunctions {
     	    double lnfac = SpecialFunctions.lnFactorial(i);
     	    System.out.println(i+" "+lnfac+" "+(SpecialFunctions.lnGamma(i+1)-lnfac)/lnfac);
     	}
+    	double w = SpecialFunctions.wigner3J(4, 2, 2, -2, 2, 0);
+    	System.out.println(w);
     }
 }
