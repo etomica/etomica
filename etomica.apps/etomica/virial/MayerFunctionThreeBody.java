@@ -57,7 +57,7 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
                 int tripletIDij = VirialDiagrams.tripletId(id0, id1, id1, totalMolecules);
                 for (int k=j+1; k<nMolecules; k++) {
                     int id2 = moleculeIndices[k];
-                    int tripletID = tripletIDij + (id2 - id1 - 1);
+                    int tripletID = tripletIDij + (id2 - id1);
                     betaUSum += lastValue[tripletID];
                 }
             }
