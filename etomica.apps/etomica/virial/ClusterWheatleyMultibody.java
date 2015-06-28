@@ -65,25 +65,20 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
     }
 
     protected void calcFullFQ(BoxCluster box) {
+        super.calcFullFQ(box);
+        if (!doMulti) return;
         fMulti.setBox(box);
         int nf = 1<<n;
         IMoleculeList boxMolecules = box.getMoleculeList();
         // FQ[i] now contains the exp(-bU2) where U2 is the pair-wise energy for set i.
         // we need to go around and add the non-additive energy for each set.
+
         for (int i=3; i<nf; i++) {
             int j = i & -i;//lowest bit in i
             if (i==j) continue; // 1-point set
             int k = i&~j; //strip j bit from i and set result to k
             if (k == (k&-k)) continue; // 2-point set; these fQ's were filled when bonds were computed, so skip
-            fQ[i] = fQ[k]; //initialize with previously-computed product of all pairs in partition, other than j
             if (fQ[i] == 0) continue;
-            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
-            //all such pairs will be with bits higher than j, as j is the lowest bit in i
-            for (int l=(j<<1); l<i; l=(l<<1)) {
-                if ((l&i)==0) continue; //l is not in partition
-                fQ[i] *= fQ[l | j];
-            }
-            if (!doMulti || fQ[i] == 0) continue;
             int l = 0;
             molecules.clear();
             for (int a=0; a<n; a++) {
