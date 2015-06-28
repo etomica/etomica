@@ -30,6 +30,7 @@ import etomica.util.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ClusterWheatleyHS;
@@ -145,6 +146,7 @@ public class VirialHeNonAdditiveWheatley {
             final ClusterWheatleyMultibody[] targetSubtract = new ClusterWheatleyMultibody[1];
             targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, f3TargetApprox);
             targetSubtract[0].setRCut(15);
+            targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         }
         else {
             targetCluster = fullTargetCluster;
