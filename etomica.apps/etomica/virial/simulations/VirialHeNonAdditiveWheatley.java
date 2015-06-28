@@ -81,15 +81,10 @@ public class VirialHeNonAdditiveWheatley {
         final boolean subtractApprox = params.subtractApprox;
         final boolean calcApprox = !subtractApprox && params.calcApprox;
         
-        final double[] HSB = new double[7];
-        HSB[2] = Standard.B2HS(sigmaHSRef);
-        HSB[3] = Standard.B3HS(sigmaHSRef);
-        HSB[4] = Standard.B4HS(sigmaHSRef);
-        HSB[5] = Standard.B5HS(sigmaHSRef);
-        HSB[6] = Standard.B6HS(sigmaHSRef);
+        final double HSBn = Standard.BHS(nPoints, sigmaHSRef);
 
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-        System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
+        System.out.println("B"+nPoints+"HS: "+HSBn);
         System.out.println("Helium overlap sampling B"+nPoints+"NonAdd at T="+temperatureK+ " K");
         System.out.println("Using "+(semiClassical ? "semi" : "")+"classical pair potential");
         System.out.println("null region method = "+nullRegionMethod);
@@ -289,7 +284,7 @@ public class VirialHeNonAdditiveWheatley {
                 }
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                 double[] ratioAndError = sim.dvo.getAverageAndError();
-                System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
+                System.out.println("abs average: "+ratioAndError[0]*HSBn+", error: "+ratioAndError[1]*HSBn);
             }
         };
         if (!isCommandline) {
@@ -344,7 +339,7 @@ public class VirialHeNonAdditiveWheatley {
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
         
-        sim.printResults(HSB[nPoints]);
+        sim.printResults(HSBn);
         
         System.out.println();
         System.out.println("time: "+(t2-t1)/1000.0);
