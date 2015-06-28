@@ -51,7 +51,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         this.nullRegionMethod = nullRegionMethod;
     }
     
-    public static void setParameters(double temperatureK) {
+    public void setParameters(double temperatureK) {
     	
     	//Energies in Hartrees, and distances in Bohr radii.
     	
@@ -73,7 +73,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
     	
     }
     
-    public static void setParameters(String file) {
+    public void setParameters(String file) {
     	 
     	
     	String d = "/usr/users/kate/HeData/potentials/u123NonAddCPS2009Model/5ParameterSimplifications/";
@@ -329,7 +329,7 @@ System.out.println();
 	        Date date = new Date();
 		       long t0 = date.getTime();
 		       for (int i=0;i<1000000;i++) {
-		            a = BohrRadius.UNIT.toSim(b);
+		            a = BohrRadius.UNIT.toSim(potential.b);
 		            r0 = space.makeVector(new double[] {0,0,0});
 		            r1 = space.makeVector(new double[] {a,0,0});
 		            r2 = space.makeVector(new double[] {2*a,0,0});
@@ -399,15 +399,15 @@ System.out.println();
     
     //Energies in Hartrees, and distances in Bohr radii.
     //Default parameter values fitted for nonadditive classical B3 at 100 K with training set 6 at 100 K
-    protected static double A=-371.6663602;
-    protected static double alpha=1.35300572;
-    protected static double Z=1.00129424; 
-    protected static double B=-33.79160965;
-    protected static double b=1.09675524;
-    protected final static double[][] Rpow = new double[3][9];
-    protected static double exitflag;
-    protected static double fval;
-    public  static double[] params = new double[7];//first two are fval and exitflag
+    protected double A=-371.6663602;
+    protected double alpha=1.35300572;
+    protected double Z=1.00129424; 
+    protected double B=-33.79160965;
+    protected double b=1.09675524;
+    protected final double[][] Rpow = new double[3][9];
+    protected double exitflag;
+    protected double fval;
+    public double[] params = new double[7];//first two are fval and exitflag
     public boolean verbose = false;
     private int nullRegionMethod = 2; // What we have been using so far.
 }
