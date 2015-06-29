@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.api.IMoleculeList;
 import etomica.atom.MoleculeArrayList;
+import etomica.math.SpecialFunctions;
 
 /**
  * This class uses Wheatley's recursion approach to calculating all biconnected
@@ -21,15 +22,23 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
     protected final MoleculeArrayList molecules;
     protected boolean doMulti;
     protected double rCut2;
+    protected ClusterWheatleyMultibodyBD clusterMultiBD;
+    protected double multiTol;
 
     public ClusterWheatleyMultibody(int nPoints, MayerFunction f, MayerFunctionNonAdditive fMulti) {
-        super(nPoints, f, 1e-12);
+        this(nPoints, f, fMulti, 1e-12);
+    }
+    
+    public ClusterWheatleyMultibody(int nPoints, MayerFunction f, MayerFunctionNonAdditive fMulti, double tol) {
+        super(nPoints, f, 0);
         this.fMulti = fMulti;
         moleculeIndices = new int[nPoints];
         r2 = new double[nPoints*(nPoints-1)/2];
         // XXX we don't have a clusterBD for multibody.
         // set it to null so the failure isn't silent
         clusterBD = null;
+        clusterMultiBD = new ClusterWheatleyMultibodyBD(nPoints, f, fMulti, -3*(int)Math.log10(tol));
+        multiTol = tol;
         molecules = new MoleculeArrayList(nPoints);
         rCut2 = Double.POSITIVE_INFINITY;
     }
@@ -39,6 +48,13 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         c.setTemperature(1/beta);
         c.setDoCaching(doCaching);
         return c;
+    }
+    
+    public void setTemperature(double newT) {
+        super.setTemperature(newT);
+        if (clusterMultiBD != null) {
+            clusterMultiBD.setTemperature(newT);
+        }
     }
 
     public void setRCut(double newRCut) {
@@ -61,7 +77,21 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         double pairValue = value;
         doMulti = true;
         super.calcValue(box);
+//        System.out.println("pair "+pairValue+"  full "+value+"   NA "+(value-pairValue));
         value -= pairValue;
+//        double doubleVal = value;
+        // we have our own BD cluster for multibody
+        // if an individual integrand (pair/total) is small, it won't trigger a BD calculation
+        // BD only gets triggered here
+        if (Math.abs(value/(1.0-n)*SpecialFunctions.factorial(n)) < multiTol) {
+            if (clusterMultiBD != null) {
+                value = clusterMultiBD.value(box);
+//                if (box.getIndex()==1 && doubleVal != value) System.out.println(doubleVal+" "+value);
+            }
+            else {
+                value = 0;
+            }
+        }
     }
 
     protected void calcFullFQ(BoxCluster box) {
