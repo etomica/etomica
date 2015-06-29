@@ -41,7 +41,7 @@ public class ClusterWheatleySoft implements ClusterAbstract {
         fA = new double[nf];
         fB = new double[nf];
         this.tol = tol;
-        clusterBD = new ClusterWheatleySoftBD(nPoints, f, -3*(int)Math.log10(tol));
+        clusterBD = tol == 0 ? null : new ClusterWheatleySoftBD(nPoints, f, -3*(int)Math.log10(tol));
     }
 
     public void setDoCaching(boolean newDoCaching) {
