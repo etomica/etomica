@@ -360,6 +360,37 @@ public final class SpecialFunctions {
         double w3j = term1*term2*term3*term4;
         return w3j;
     }
+    
+    /**
+     * Calculates the modified bessel function of the first kind (I) for a given order and the variable x.
+     * Reference: http://mathworld.wolfram.com/ModifiedBesselFunctionoftheFirstKind.html
+     * @author rsubrama
+     * @param order
+     * @param x
+     * @return double y
+     */
+    public static double besselI(double order, double x) {
+        if (x == 0) return 0;
+        double term1 = Math.pow(0.5*x,order);
+        double term2 = 0;
+        boolean done = false;
+        long k = 0;
+        double tol = 1E-10;
+        long maxK = (long)1E6;
+        do {
+            double oldT2 = term2;
+            double dr = (double)factorial((int)k)*gamma(order + k + 1);
+            if (Double.isNaN(dr) || dr == 0) throw new RuntimeException("Denominator is NaN or zero!!"+factorial((int)k)+gamma(order + k + 1));
+            term2 += Math.pow(0.25*x*x,k)/dr;
+            double newT2 = term2;
+            if ((newT2 - oldT2)*(newT2 - oldT2) < tol) done = true;
+            k++;
+        } while (!done && k <= maxK);
+        if (!done) throw new RuntimeException("Failed to converge!!");
+        double y = term1*term2;
+        if (Double.isInfinite(y) || Double.isNaN(y)) throw new RuntimeException("Oops"+y);
+        return y;
+    }
 
     public static void main(String[] args) {
     	System.out.println(confluentHypergeometric1F1(-0.25,0.5,1.0));
@@ -380,5 +411,6 @@ public final class SpecialFunctions {
     	}
     	double w = SpecialFunctions.wigner3J(4, 2, 2, -2, 2, 0);
     	System.out.println(w);
+        System.out.println(besselI(0.32,0.25)+" "+besselI(-1.59, 0.25));
     }
 }
