@@ -25,6 +25,7 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterVolume;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
@@ -183,7 +184,7 @@ public class LJMCGraphic extends SimulationGraphic {
         final DeviceSlider pSlider = new DeviceSlider(sim.getController(), sim.mcMoveVolume, "pressure");
         pSlider.setEnabled(volumeChanges);
         pSlider.setMaximum(10);
-        pSlider.setPrecision(1);
+        pSlider.setPrecision(2);
         pSlider.setNMajor(4);
         pSlider.setShowValues(true);
         pSlider.setEditValues(true);
@@ -209,6 +210,7 @@ public class LJMCGraphic extends SimulationGraphic {
                 return volumeChanges;
             }
         });
+        pCheckbox.setController(sim.getController());
         
         pPanel.add(pCheckbox.graphic(), vertGBC);
         pPanel.add(pSlider.graphic(), vertGBC);
@@ -280,6 +282,17 @@ public class LJMCGraphic extends SimulationGraphic {
     	add(pDisplay);
     	add(peDisplay);
 
+        final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
+        slowButton.setAction(new IAction() {
+            public void actionPerformed() {
+                int sleep = sim.activityIntegrate.getSleepPeriod();
+                sleep = 1-sleep;
+                sim.activityIntegrate.setSleepPeriod(sleep);
+                slowButton.setLabel(sleep == 0 ? "Slow" : "Fast");
+            }
+        });
+        slowButton.setLabel("Slow");
+        add(slowButton);
     }
 
     public static void main(String[] args) {
