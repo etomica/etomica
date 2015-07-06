@@ -8,13 +8,16 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IAtomList;
+import etomica.api.IBox;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.ISpecies;
+import etomica.api.IMoleculeList;
+import etomica.api.IPotential;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.math.SpecialFunctions;
 import etomica.potential.IPotentialAtomicMultibody;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
@@ -30,16 +33,15 @@ import etomica.util.HistogramNotSoSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterChainHS;
 import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterWheatleyHS;
 import etomica.virial.ClusterWheatleyMultibody;
 import etomica.virial.CoordinatePairSet;
+import etomica.virial.MCMoveClusterAtomHSChain;
+import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionSphericalThreeBody;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.cluster.Standard;
 
 /**
  * Adapted by Andrew from VirialHeNonAdditive
@@ -60,28 +62,26 @@ public class VirialHeNonAdditiveWheatley {
         }
         else {
             // customize here
-            params.calcApprox = false;
+            params.calcApprox = true;
             params.nPoints = 6;
             params.numSteps = 1000000;
             params.semiClassical = true;
             params.subtractApprox = false;
-            params.temperature = 100;
+            params.temperature = 273.15;
         }
         
     	final int nPoints = params.nPoints;
     	final double temperatureK = params.temperature;
         long steps = params.numSteps;
-        double sigmaHSRef = params.sigmaHSRef;
-        if (sigmaHSRef < 0) {
-            sigmaHSRef = 3.0 + 120/(100+temperatureK);
-        }
+        final double sigmaHSRef = params.sigmaHSRef < 0 ? (3.0 + 120/(100+temperatureK)) : params.sigmaHSRef;
         final boolean semiClassical = params.semiClassical;
         final int nullRegionMethod = params.nullRegionMethod;
         double refFrac = params.refFrac;
         final boolean subtractApprox = params.subtractApprox;
         final boolean calcApprox = !subtractApprox && params.calcApprox;
         
-        final double HSBn = Standard.BHS(nPoints, sigmaHSRef);
+        double vhs = 4.0/3.0*Math.PI*Math.pow(sigmaHSRef, 3);
+        final double HSBn = SpecialFunctions.factorial(nPoints)/2*Math.pow(vhs, nPoints-1);
 
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B"+nPoints+"HS: "+HSBn);
@@ -101,7 +101,15 @@ public class VirialHeNonAdditiveWheatley {
         Space space = Space3D.getInstance();
 
         
-        MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
+        MayerFunction fRef = new MayerFunction() {
+
+            public void setBox(IBox box) {}
+            public IPotential getPotential() {return null;}
+
+            public double f(IMoleculeList pair, double r2, double beta) {
+                return r2 < sigmaHSRef*sigmaHSRef ? 1 : 0;
+            }
+        };
         
         MayerGeneralSpherical fTarget;
         MayerGeneralSpherical fTargetApprox;
@@ -132,8 +140,7 @@ public class VirialHeNonAdditiveWheatley {
         
 
         ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, f3Target);
-        ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
-
+        ClusterAbstract refCluster = new ClusterChainHS(nPoints, fRef);
 
         ClusterAbstract targetCluster = null;
         if (subtractApprox) {
@@ -149,15 +156,17 @@ public class VirialHeNonAdditiveWheatley {
 
         targetCluster.setTemperature(temperature);
     	
-        refCluster.setTemperature(temperature);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints,
+                temperature, refCluster,targetCluster);
+        sim.init();
+        int[] seeds = sim.getRandomSeeds();
+        System.out.println("Random seeds: "+java.util.Arrays.toString(seeds));
 
-        ClusterWeight targetSampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster);
-        ClusterWeight refSampleCluster = ClusterWeightAbs.makeWeightCluster(refCluster);
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{new SpeciesSpheresMono(space, new ElementSimple("A"))}, new int[]{nPoints},
-                temperature, new ClusterAbstract[]{refCluster,targetCluster}, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
-
-        sim.integratorOS.setAggressiveAdjustStepFraction(true);
+        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+        MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
+        sim.integrators[0].getMoveManager().addMCMove(mcMoveHS);
+        sim.accumulators[0].setBlockSize(1);
 
         ///////////////////////////////////////////////
         // Initialize non-overlapped configuration
