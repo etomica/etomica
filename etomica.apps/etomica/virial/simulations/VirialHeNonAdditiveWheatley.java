@@ -41,7 +41,6 @@ import etomica.virial.MCMoveClusterAtomHSChain;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionSphericalThreeBody;
 import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
 
 /**
  * Adapted by Andrew from VirialHeNonAdditive
@@ -138,16 +137,19 @@ public class VirialHeNonAdditiveWheatley {
 
         final MayerFunctionSphericalThreeBody f3Target = new MayerFunctionSphericalThreeBody(calcApprox ? p3Approx : p3);
         
+        double[] rCut = new double[]{0,0,0,1e5,120,40,20,16,14};
 
-        ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, f3Target);
+        ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, f3Target, 1e-14);
+        // B7 calculations seem to drift apart after 16A
+        fullTargetCluster.setRCut(rCut[nPoints]);
         ClusterAbstract refCluster = new ClusterChainHS(nPoints, fRef);
 
         ClusterAbstract targetCluster = null;
         if (subtractApprox) {
             MayerFunctionSphericalThreeBody f3TargetApprox = new MayerFunctionSphericalThreeBody(p3Approx);
             final ClusterWheatleyMultibody[] targetSubtract = new ClusterWheatleyMultibody[1];
-            targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, f3TargetApprox);
-            targetSubtract[0].setRCut(15);
+            targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, f3TargetApprox, 1e-14);
+            targetSubtract[0].setRCut(rCut[nPoints]);
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         }
         else {
