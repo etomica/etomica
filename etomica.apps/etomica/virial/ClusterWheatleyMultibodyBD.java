@@ -27,6 +27,8 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
     protected boolean doMulti;
     protected double rCut2;
     protected final BigDecimal[] fQmulti;
+    protected ClusterWheatleyMultibodyBD clusterWheatleyBDBD;
+    protected int precisionLimit;
 
     /**
      * @param nPoints number of points
@@ -79,11 +81,18 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
         fQmulti = new BigDecimal[1<<n];
         fQmulti[0] = fQmulti[1] = fQmulti[2] = BDONE;
     }
-    
+
+    public void setPrecisionLimit(int newLimit) {
+        if (newLimit > 300) newLimit = 300;
+        precisionLimit = newLimit;
+        clusterWheatleyBDBD = null;
+    }
+
     public ClusterAbstract makeCopy() {
         ClusterWheatleyMultibodyBD c = new ClusterWheatleyMultibodyBD(n, f, fMulti, mc.getPrecision());
         c.setTemperature(1/beta);
         c.setDoCaching(doCaching);
+        c.setPrecisionLimit(precisionLimit);
         return c;
     }
 
@@ -113,6 +122,24 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
         doMulti = true;
         super.calcValue(box);
 //        if (debugme) System.out.println("BDpair "+pairValue+"  full "+value+"   NA "+(value-pairValue));
+        double fBdiff = fB[nf-1].subtract(fBPair, mc).doubleValue();
+        if (Math.log10(Math.abs(fBdiff)) < -(mc.getPrecision()-5)) {
+            // value is too small for us to compute it precisely
+            if (mc.getPrecision() >= precisionLimit) {
+                value = 0;
+                return;
+            }
+            if (clusterWheatleyBDBD == null) {
+                int p = mc.getPrecision() + 20;
+                if (p > precisionLimit) p = precisionLimit;
+                clusterWheatleyBDBD = new ClusterWheatleyMultibodyBD(n, f, fMulti, p);
+                clusterWheatleyBDBD.setTemperature(1/beta);
+                clusterWheatleyBDBD.setDoCaching(doCaching);
+                clusterWheatleyBDBD.setPrecisionLimit(precisionLimit);
+            }
+            value = clusterWheatleyBDBD.value(box);
+            return;
+        }
         value = (1-n)*fB[nf-1].subtract(fBPair, mc).doubleValue()/SpecialFunctions.factorial(n);
     }
 
