@@ -20,6 +20,7 @@ import etomica.math.SpecialFunctions;
 public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
 
     protected final MayerFunctionNonAdditive[] fMulti;
+    protected final MayerFunctionNonAdditive fNonAdditive;
     protected final int[] moleculeIndices;
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
@@ -39,8 +40,38 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
      * @param precision number of digits used for internal computation and storage
      */
     public ClusterWheatleyMultibodyBD(int nPoints, MayerFunction f, MayerFunctionNonAdditive[] fMulti, int precision) {
+        this(nPoints, f, null, fMulti, precision);
+    }
+    
+    /**
+     * @param nPoints number of points
+     * @param f pair Mayer function
+     * @param fNonAdditive Mayer function that returns non-additive value for
+     *          any number of molecules.
+     */
+    public ClusterWheatleyMultibodyBD(int nPoints, MayerFunction f, MayerFunctionNonAdditive fNonAdditive, int precision) {
+        this(nPoints, f, fNonAdditive, new MayerFunctionNonAdditive[0], precision);
+    }
+    
+    /**
+     * @param nPoints number of points
+     * @param f pair Mayer function
+     * @param fNonAdditive Mayer function that returns non-additive value for
+     *          any number of molecules.
+     * @param fMulti array of non-additive Mayer functions.  fMulti[3] is the
+     *          3-body Mayer function (exp(-beta*deltaU3)-1), fMulti[4] is the
+     *          4-body Mayer function, etc.  fMulti null entries will be
+     *          ignored and the array need to not be of size equal to nPoints.
+     *          If only 3-body Mayer function is available, then fMulti can be
+     *          of length 4 (0,1,2,3).
+     * @param tol if the magnitude of the computed cluster value is less than
+     *          the value will be recomputed using BigDecimal.  Use tol=0 to
+     *          prevent BigDecimal computations.
+     */
+    public ClusterWheatleyMultibodyBD(int nPoints, MayerFunction f, MayerFunctionNonAdditive fNonAdditive, MayerFunctionNonAdditive[] fMulti, int precision) {
         super(nPoints, f, precision);
         this.fMulti = fMulti;
+        this.fNonAdditive = fNonAdditive;
         moleculeIndices = new int[nPoints];
         r2 = new double[nPoints*(nPoints-1)/2];
         molecules = new MoleculeArrayList(nPoints);
@@ -125,7 +156,7 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
                     l++;
                 }
             }
-            if (fMulti.length <= l || fMulti[l] == null) continue;
+            if ((fMulti.length <= l || fMulti[l] == null) && fNonAdditive == null) continue;
             int ll = 0;
             for (int a=0; a<l-1; a++) {
                 for (int b=a+1; b<l; b++) {
@@ -133,8 +164,13 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
                     ll++;
                 }
             }
-            fQmulti[i] = new BigDecimal(fMulti[l].f(molecules, l, moleculeIndices, r2, beta),mc).add(BDONE);
+            if (fMulti.length > l && fMulti[l] != null) {
+                fQmulti[i] = new BigDecimal(fMulti[l].f(molecules, l, moleculeIndices, r2, beta),mc).add(BDONE);
+            }
             fQ[i] = fQ[i].multiply(fQmulti[i], mc);
+            if (fNonAdditive != null) {
+                fQ[i] = fQ[i].multiply(new BigDecimal(fNonAdditive.f(molecules, l, moleculeIndices, r2, beta)).add(BDONE), mc);
+            }
         }
     }
 }
