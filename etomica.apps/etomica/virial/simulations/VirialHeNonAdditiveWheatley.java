@@ -29,9 +29,12 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.DoubleRange;
+import etomica.util.HistogramExpanding;
 import etomica.util.HistogramNotSoSimple;
+import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.RandomMersenneTwister;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterChainHS;
 import etomica.virial.ClusterDifference;
@@ -140,7 +143,8 @@ public class VirialHeNonAdditiveWheatley {
         
         MayerFunctionNonAdditive[] fNA = new MayerFunctionNonAdditive[4];
         fNA[3] = f3Target;
-        ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, fNA, 1e-14);
+        ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, fNA);
+        fullTargetCluster.setTolerance(1e-14);
         ClusterAbstract refCluster = new ClusterChainHS(nPoints, fRef);
 
         ClusterAbstract targetCluster = null;
@@ -149,7 +153,8 @@ public class VirialHeNonAdditiveWheatley {
             MayerFunctionNonAdditive[] fNAapprox = new MayerFunctionNonAdditive[4];
             fNAapprox[3] = f3TargetApprox;
             final ClusterWheatleyMultibody[] targetSubtract = new ClusterWheatleyMultibody[1];
-            targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, fNAapprox, 1e-14);
+            targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, fNAapprox);
+            targetSubtract[0].setTolerance(1e-14);
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         }
         else {
@@ -258,26 +263,27 @@ public class VirialHeNonAdditiveWheatley {
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
         
-        final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
-        final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
-        final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
-        IIntegratorListener histListener = new IIntegratorListener() {
+        final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 6));
+        IIntegratorListener histListenerTarget = new IIntegratorListener() {
             public void integratorStepStarted(IIntegratorEvent e) {}
             
             public void integratorStepFinished(IIntegratorEvent e) {
-                double r2Max = 0;
-                CoordinatePairSet cPairs = sim.box[0].getCPairSet();
+                CoordinatePairSet cPairs = sim.box[1].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
                     for (int j=i+1; j<nPoints; j++) {
-                        double r2ij = cPairs.getr2(i, j);
-                        if (r2ij > r2Max) r2Max = r2ij;
+                        double r2 = cPairs.getr2(i, j);
+                        double r = Math.sqrt(r2);
+                        if (r > 1) {
+                            r = Math.log(r);
+                        }
+                        else {
+                            r -= 1;
+                        }
+                        targHist.addValue(r);
                     }
                 }
-                double v = sim.box[1].getSampleCluster().value(sim.box[0]);
-                hist.addValue(Math.sqrt(r2Max), v);
-                piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IIntegratorEvent e) {}
         };
         IIntegratorListener progressReport = new IIntegratorListener() {
@@ -306,12 +312,18 @@ public class VirialHeNonAdditiveWheatley {
                     public void integratorStepStarted(IIntegratorEvent e) {}
                     public void integratorStepFinished(IIntegratorEvent e) {
                         if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-                        double[] xValues = hist.xValues();
-                        double[] h = hist.getHistogram();
-                        double[] piH = piHist.getHistogram();
+                        double[] xValues = targHist.xValues();
+                        double[] h = targHist.getHistogram();
                         for (int i=0; i<xValues.length; i++) {
-                            if (!Double.isNaN(h[i])) {
-                                System.out.println(xValues[i]+" "+h[i]+" "+piH[i]);
+                            if (!Double.isNaN(h[i]) && h[i] != 0) {
+                                double r = xValues[i];
+                                double y = h[i];
+                                if (r < 0) r += 1;
+                                else {
+                                    r = Math.exp(r);
+                                    y /= r;
+                                }
+                                System.out.println(r+" "+y);
                             }
                         }
                     }
@@ -321,10 +333,11 @@ public class VirialHeNonAdditiveWheatley {
         }
         
 
+        if (params.doHist) {
+            sim.integrators[1].getEventManager().addListener(histListenerTarget);
+        }
         if (refFrac >= 0) {
-            if (params.doHist) {
-                sim.integrators[0].getEventManager().addListener(histListener);
-            }
+
             sim.integratorOS.setRefStepFraction(refFrac);
             sim.integratorOS.setAdjustStepFraction(false);
         }
@@ -337,11 +350,18 @@ public class VirialHeNonAdditiveWheatley {
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {
-            double[] xValues = hist.xValues();
-            double[] h = hist.getHistogram();
+            double[] xValues = targHist.xValues();
+            double[] h = targHist.getHistogram();
             for (int i=0; i<xValues.length; i++) {
-                if (!Double.isNaN(h[i]) && h[i]!=0) {
-                    System.out.println(xValues[i]+" "+h[i]);
+                if (!Double.isNaN(h[i]) && h[i] != 0) {
+                    double rr = xValues[i];
+                    double y = h[i];
+                    if (rr < 0) rr += 1;
+                    else {
+                        rr = Math.exp(rr);
+                        y /= rr;
+                    }
+                    System.out.println(rr+" "+y);
                 }
             }
         }
