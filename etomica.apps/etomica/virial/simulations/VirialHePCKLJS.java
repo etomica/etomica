@@ -203,8 +203,8 @@ public class VirialHePCKLJS {
 
         sim.getController().actionPerformed();
         System.out.println();
-        System.out.println("final reference step frequency "+sim.integratorOS.getRefStepFraction());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         System.out.println();
         double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];
