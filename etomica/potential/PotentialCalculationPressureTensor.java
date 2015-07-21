@@ -20,20 +20,35 @@ import etomica.space.Tensor;
  */
 public class PotentialCalculationPressureTensor implements PotentialCalculation {
 
-    private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final ISpace space;
     protected IAtomList leafList;
     protected IntegratorBox integrator;
     protected boolean warningPrinted;
+    protected double temperature;
+    protected final Tensor I;
+    protected boolean doNonEquilibrium;
     
     public PotentialCalculationPressureTensor(ISpace space) {
         this.space = space;
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
+        I = space.makeTensor();
+        for (int i=0; i<space.D(); i++) {
+            I.setComponent(i,i,1);
+        }
     }
-    
+
+    /**
+     * @param doNonEquilibrium
+     *      If true, the kinetic contribution to the pressure tensor will be
+     *      computed from atomic velocities rather than the temperature.
+     */
+    public void setDoNonEquilibrium(boolean doNonEquilibrium) {
+        this.doNonEquilibrium = doNonEquilibrium;
+    }
+
     /**
 	 * Adds the pressure tensor contribution based on the forces acting on each
      * pair of atoms produced by the iterator.
@@ -41,13 +56,17 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 		((PotentialSoft)potential).gradient(atoms, pressureTensor);
 	}
-    
+
     public void setBox(IBox newBox) {
         leafList = newBox.getLeafList();
     }
-    
+
     public void zeroSum() {
         pressureTensor.E(0);
+    }
+
+    public void setTemperature(double newTemperature) {
+        this.temperature = newTemperature;
     }
 
     /**
@@ -58,7 +77,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
     }
-    
+
     /**
      * Returns the pressure tensor based on a previous call to 
      * PotentialMaster.calculate
@@ -67,35 +86,23 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
         if (leafList.getAtomCount() == 0) {
             return pressureTensor;
         }
-        
-        // now handle the kinetic part
-        workTensor.E(0);
 
-        if (leafList.getAtom(0) instanceof IAtomKinetic) {
-            if (integrator != null) {
-                warningPrinted = true;
-                System.out.println("Ignoring Integrator's temperature and using actual Atom velocities.  You shouldn't have given me an Integrator.");
-            }
-        }
-        else if (integrator == null) {
-            throw new RuntimeException("Need an IntegratorBox to provide temperature since this is a non-dynamic simulation");
-        }
-        else {
-            for (int i = 0; i < space.D(); i++) {
-                pressureTensor.PE(leafList.getAtomCount()*integrator.getTemperature());
+        if (doNonEquilibrium) {
+            
+            // use the velocities
+            int nLeaf = leafList.getAtomCount();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
+                workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
+                workTensor.TE(((IAtom)atom).getType().getMass());
+                pressureTensor.PE(workTensor);
             }
             return pressureTensor;
         }
 
-        // simulation is dynamic, use the velocities
-        int nLeaf = leafList.getAtomCount();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
-            workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
-            workTensor.TE(((IAtom)atom).getType().getMass());
-            pressureTensor.PE(workTensor);
-        }
-        
+        // or just include ideal gas term
+        double T = integrator != null ? integrator.getTemperature() : temperature;
+        pressureTensor.PEa1Tt1(leafList.getAtomCount()*T,I);
         return pressureTensor;
     }
 }
