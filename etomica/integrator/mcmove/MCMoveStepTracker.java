@@ -62,6 +62,9 @@ public class MCMoveStepTracker extends MCMoveTracker {
                     lastAdjust++;
                 }
             }
+            else {
+                System.out.println(mcMove+" step size: "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+            }
         } else {
             if (stepSize > mcMove.getStepSizeMin()) {
                 if (lastAdjust > 0) {
@@ -88,6 +91,9 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 else {
                     lastAdjust--;
                 }
+            }
+            else {
+                System.out.println(mcMove+" step size: "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
             }
         }
         // setStepSize will call resetAdjustStep, which is bad, so prevent it
