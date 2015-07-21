@@ -24,7 +24,7 @@ import etomica.units.Pressure;
  *
  * @author Andrew Schultz
  */
-public class MeterPressureTensor implements IEtomicaDataSource, java.io.Serializable {
+public class MeterPressureTensor implements IEtomicaDataSource {
     
     public MeterPressureTensor(IPotentialMaster potentialMaster, ISpace space) {
     	super();
@@ -81,6 +81,10 @@ public class MeterPressureTensor implements IEtomicaDataSource, java.io.Serializ
     public boolean isIncludeLrc() {
     	return iteratorDirective.includeLrc;
     }
+    
+    public void setTemperature(double newT) {
+        pc.setTemperature(newT);
+    }
 
 	 /**
 	  * Computes total pressure in box by summing virial over all pairs, and adding
@@ -97,7 +101,6 @@ public class MeterPressureTensor implements IEtomicaDataSource, java.io.Serializ
         return data;
     }
 
-    private static final long serialVersionUID = 1L;
     protected final DataTag tag;
     protected final DataTensor data;
     protected final DataInfo dataInfo;
