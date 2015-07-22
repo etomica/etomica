@@ -20,6 +20,8 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 
 public class FitTanh extends DataProcessor {
 
+    private boolean debug = false;    
+
     public void setTolerance(double newTolerance) {
         tolerance = newTolerance;
     }
@@ -31,19 +33,23 @@ public class FitTanh extends DataProcessor {
     public void setMaxIterations(int newMaxIterations) {
         maxIterations = newMaxIterations;
     }
-    
+
     public double[] doFit(double[] x, double[] y) {
-        double[] dx = new double[]{0.001, 0.001, 0.001, 0.001};
+        double[] dx = new double[]{0.001, 0.001, 0.01, 0.1};
 
         // if we failed or were just reinitialized, reset parameters
         // otherwise start with old parameters
         if (Double.isNaN(param[0])) {
-            param[0] = 0;  // vapor density
-            param[1] = 1;  // liquid density
+            param[0] = 0.0;  // vapor density
+            param[1] = 0.8;  // liquid density
             param[2] = 3;  // interface width
-            param[3] = x[x.length*3/4];  // location of interface
+            param[3] = x[x.length*2/3];  // location of interface
         }
-        double sumSqErr = Double.POSITIVE_INFINITY;
+//        debug = true;
+        double sumSqErr = getSqErr(x, y);
+//        debug = false;
+//        System.out.println(Arrays.toString(param));
+//        System.out.println((-1)+" "+sumSqErr);
 
         for (int cycle=0; cycle<maxIterations; cycle++) {
             for (int paramNow=0; paramNow<4; paramNow++) {
@@ -71,12 +77,27 @@ public class FitTanh extends DataProcessor {
 //                    System.out.println(paramNow+" fit failed, "+param[paramNow]+" => "+newParam);
                 }
                 param[paramNow] = newParam;
+                if (paramNow==0 && param[0] < 0) param[0] = 0;
+                if (paramNow==1 && param[1] < param[0]*1.5) param[1] = param[0]*1.5;
+                if (paramNow==2) {
+                    if (param[2] < 0.1) param[2] = 0.1;
+                    else if (param[2] > x[x.length-1]*0.5) param[2] = x[x.length-1]*0.5;
+                }
+                if (paramNow==3) {
+                    if (param[3] < 2) param[3] = 2;
+                    else if (param[3] > x[x.length-1]-param[2]*0.5) param[3] = x[x.length-1]-param[2]*0.5;
+                }
             }
+//            debug = true;
+//            System.out.println(Arrays.toString(param));
             double newSumSqErr = getSqErr(x, y);
+//            System.out.println(cycle+" "+newSumSqErr);
+//            System.exit(1);
             if (sumSqErr - newSumSqErr < tolerance) {
                 // bail if we didn't get better by at least tolerance (or got worse)
                 break;
             }
+            sumSqErr = newSumSqErr;
         }
         
         return param;
@@ -86,8 +107,10 @@ public class FitTanh extends DataProcessor {
         int nValues = x.length;
         double sumSqErr = 0;
         for (int i=0; i<nValues; i++) {
-            double yCalc = 0.5 * ((param[1] + param[0]) - (param[1] - param[0]) * Math.tanh(2 * (Math.abs(x[i]) - param[3]) / param[2]));
-//            System.out.println(x[i]+" "+yCalc);
+//            double yCalc = 0.5 * ((param[1] + param[0]) - (param[1] - param[0]) * Math.tanh(2 * (Math.abs(x[i]) - param[3]) / param[2]));
+//            if (debug) System.out.println(x[i]+" "+Math.tanh(2 * (x[i] + param[3]) / param[2])+" "+Math.tanh(2 * (x[i] - param[3]) / param[2]));
+            double yCalc = param[0] + 0.5 * (param[1] - param[0]) * (Math.tanh(2 * (x[i] + param[3]) / param[2]) - Math.tanh(2 * (x[i] - param[3]) / param[2]));
+            if (debug) System.out.println(x[i]+" "+yCalc+" "+y[i]);
             double err = yCalc - y[i];
             sumSqErr += err*err;
         }
@@ -99,7 +122,7 @@ public class FitTanh extends DataProcessor {
     }
     
     protected double tolerance = 1.e-10;
-    protected int maxIterations = 10;
+    protected int maxIterations = 20;
     
     public static void main(String[] args) {
         FileReader fileReader;
