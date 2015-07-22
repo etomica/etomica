@@ -62,7 +62,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                     lastAdjust++;
                 }
             }
-            else {
+            else if (noisyAdjustment) {
                 System.out.println(mcMove+" step size: "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
             }
         } else {
@@ -92,7 +92,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                     lastAdjust--;
                 }
             }
-            else {
+            else if (noisyAdjustment) {
                 System.out.println(mcMove+" step size: "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
             }
         }
@@ -197,7 +197,6 @@ public class MCMoveStepTracker extends MCMoveTracker {
         return noisyAdjustment;
     }
 
-    private static final long serialVersionUID = 1L;
     protected MCMoveStepDependent mcMove;
     protected double acceptanceTarget;
     protected long adjustInterval;
