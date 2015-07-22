@@ -77,29 +77,42 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         double[] x = ((DataDoubleArray)densityProfileMeter.getXDataSource().getData()).getData();
         double[] y = ((DataDoubleArray)densityProfileMeter.getData()).getData();
         double[] param = fit.doFit(x, y);
+        double c = 2/param[2];
 //        System.out.println("fit: "+Arrays.toString(param));
         IAtomList atoms = box.getLeafList();
         double rho = atoms.getAtomCount()/box.getBoundary().volume();
         double L = box.getBoundary().getBoxSize().getX(0);
-        double rhoL2tanh = (Math.tanh(2 * (L/2 - param[3]) / param[2]) + Math.tanh(2 * (L/2 + param[3]) / param[2]));
-        double rhoL2 = param[0] + 0.5 * (param[1] - param[0]) * rhoL2tanh;
-        double dzsdL = (rho-rhoL2)/(param[1]-param[0])/rhoL2tanh;
+        double tL1 = Math.tanh(c * (L/2 - param[3]));
+        double tL2 = Math.tanh(c * (L/2 + param[3]));
+        double rhoL2 = param[0] + 0.5 * (param[1] - param[0]) * (tL2 - tL1);
+        double dzsdL = (rho-rhoL2)/(param[1]-param[0])/(tL2 + tL1);
 
+        pcForce.reset();;
         potentialMaster.calculate(box, allAtoms, pcForce);
         double mapSum = 0;
+
+
+
+        double cL1 = Math.cosh(c*(L/2-param[3]));
+        double cL2 = Math.cosh(c*(L/2+param[3]));
+        double jFac = (param[1]-param[0])/(2*L) * ((tL2-tL1)*c*L + 2*Math.log(cL1/cL2))/(tL1+tL2);
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtom atom = atoms.getAtom(i);
             IVector f = forceAgentManager.getAgent(atom).force();
             double px = atom.getPosition().getX(0);
-            double t1 = Math.tanh(2 * (px + param[3]) / param[2]);
-            double t2 = Math.tanh(2 * (px - param[3]) / param[2]);
+            double t1 = Math.tanh(c * (px + param[3]));
+            double t2 = Math.tanh(c * (px - param[3]));
             double irho = param[0] + 0.5 * (param[1] - param[0]) * (t1 - t2);
-            double foo = param[0]*px/L - (param[1]-param[0])*param[2]/(4*L) * Math.log(Math.cosh(2*(px-param[3])/param[2])/Math.cosh(2*(px-param[3])/param[2]));
+            double cosh1 = Math.cosh(c*(px-param[3]));
+            double cosh2 = Math.cosh(c*(px+param[3]));
+            double foo = param[0]*px/L - (param[1]-param[0])/(2*c*L) * Math.log(cosh1/cosh2);
             double bar = dzsdL * 0.5 * (param[1]-param[0]) * (t1 + t2);
             double xL = (foo - bar)/irho; 
             mapSum += (xL - px/L)*f.getX(0);
-            
-            // still needs Jacobian
+
+            double sech1 = 1.0/Math.cosh(c*(px-param[3]));
+            double sech2 = 1.0/Math.cosh(c*(px+param[3]));
+            mapSum += jFac*(sech1*sech1+sech2*sech2)/(2*rho + (rho-param[1])*(t2 - t1));
         }
         
         data.x = st + mapSum/box.getBoundary().volume();
