@@ -13,7 +13,6 @@ import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage.StatType;
@@ -31,7 +30,6 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
@@ -48,7 +46,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.RandomMersenneTwister;
 
-public class LJMC extends Simulation {
+public class LJNVT extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
     public final SpeciesSpheresMono species;
@@ -56,9 +54,8 @@ public class LJMC extends Simulation {
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtom mcMoveAtom;
-    public final MCMoveVolume mcMoveVolume;
 
-    public LJMC(ISpace _space, int numAtoms, double temperature, double density, double pressure, double rc, int[] seeds) {
+    public LJNVT(ISpace _space, int numAtoms, double temperature, double density, double rc, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -90,11 +87,6 @@ public class LJMC extends Simulation {
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         
-        mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, pressure);
-        mcMoveVolume.setTemperature(temperature);
-        integrator.getMoveManager().addMCMove(mcMoveVolume);
-        integrator.getMoveManager().setFrequency(mcMoveVolume, 5);
-        
         double L = Math.pow(numAtoms/density, 1.0/3.0);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{L,L,L}));
         box.setNMolecules(species, numAtoms);
@@ -115,9 +107,8 @@ public class LJMC extends Simulation {
         ISpace space = Space3D.getInstance();
         final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
+        double temperature0 = params.temperature0;
         double density = params.density;
-        double pressure0 = params.pressure0;
-        double pressure = params.pressure;
         long numSteps = params.numSteps;
         int numRuns = params.numRuns;
         double rc = params.rc;
@@ -125,15 +116,15 @@ public class LJMC extends Simulation {
         final FileWriter fw = params.out == null ? null : new FileWriter(params.out);
         
         System.out.println("N: "+numAtoms);
+        System.out.println("density: "+density);
         System.out.println("numSteps: "+numSteps);
         System.out.println("rc: "+rc);
         System.out.println("T: "+temperature);
-        System.out.println("P: "+pressure);
 
         for (int i=0; i<numRuns; i++){
 
             int[] seeds = null; //new int[]{-475498437, 1044754174, -1894223345, 1180064439};
-            final LJMC sim = new LJMC(space, numAtoms, temperature, density, pressure0, rc, seeds);
+            final LJNVT sim = new LJNVT(space, numAtoms, temperature, density, rc, seeds);
             if (seeds == null) {
                 System.out.println("random seeds: "+Arrays.toString(sim.getRandomSeeds()));
             }
@@ -152,34 +143,13 @@ public class LJMC extends Simulation {
             final MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator();
             meterPE.setIntegrator(sim.integrator);
             
-            if (false) {
+            if (true) {
                 SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
                 ljmcGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(3));
                 
                 SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ Spinodal");
                 
                 List<DataPump> dataStreamPumps = ljmcGraphic.getController().getDataStreamPumps();
-                
-                AccumulatorAverageCollapsing avgDensity = new AccumulatorAverageCollapsing();
-                avgDensity.setPushInterval(1);
-                DataPumpListener pumpDensity = new DataPumpListener(meterDensity, avgDensity, numAtoms);
-                sim.integrator.getEventManager().addListener(pumpDensity);
-                dataStreamPumps.add(pumpDensity);
-                DisplayTextBoxesCAE displayDensity = new DisplayTextBoxesCAE();
-                displayDensity.setAccumulator(avgDensity);
-                ljmcGraphic.add(displayDensity);
-                
-                
-                AccumulatorHistory historyDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
-                avgDensity.addDataSink(historyDensity, new StatType[]{avgDensity.MOST_RECENT});
-                DisplayPlot densityPlot = new DisplayPlot();
-                densityPlot.setLabel("density");
-                historyDensity.addDataSink(densityPlot.getDataSet().makeDataSink());
-                ljmcGraphic.add(densityPlot);
-                densityPlot.setDoLegend(false);
-                
-                DataDump densityDump = new DataDump();
-                historyDensity.addDataSink(densityDump);
                 
                 AccumulatorHistory historyEnergy = new AccumulatorHistory(new HistoryCollapsingAverage());
                 DataPumpListener pumpEnergy = new DataPumpListener(meterPE, historyEnergy, numAtoms);
@@ -192,16 +162,6 @@ public class LJMC extends Simulation {
                 ljmcGraphic.add(energyPlot);
                 energyPlot.setDoLegend(false);
                 
-                DataProcessorXY dpXY = new DataProcessorXY(densityDump);
-                historyEnergy.addDataSink(dpXY);
-                DisplayPlot densityEnergyPlot = new DisplayPlot();
-                dpXY.setDataSink(densityEnergyPlot.getDataSet().makeDataSink());
-                densityEnergyPlot.setLabel("Density/Energy");
-                densityEnergyPlot.getPlot().setYLabel("Potential Energy");
-                densityEnergyPlot.getPlot().setXLabel("Density");
-                densityEnergyPlot.setUnit(new SimpleUnit(Energy.DIMENSION, numAtoms, "energy", "U", false));
-                ljmcGraphic.add(densityEnergyPlot);
-                
                 AccumulatorHistory historyPressure = new AccumulatorHistory(new HistoryCollapsingAverage());
                 DataPumpListener pumpPressure = new DataPumpListener(meterP, historyPressure, numAtoms);
                 sim.integrator.getEventManager().addListener(pumpPressure);
@@ -212,16 +172,16 @@ public class LJMC extends Simulation {
                 ljmcGraphic.add(pressurePlot);
                 pressurePlot.setDoLegend(false);
                 
-                final DeviceSlider pSlider = new DeviceSlider(sim.getController(), sim.mcMoveVolume, "pressure");
-                pSlider.setPrecision(4);
-                pSlider.setNMajor(4);
-                pSlider.setMaximum(0.1);
-                pSlider.setValue(pressure0);
-                pSlider.setShowValues(true);
-                pSlider.setEditValues(true);
-                pSlider.setShowBorder(true);
-                pSlider.setLabel("Pressure");
-                ljmcGraphic.add(pSlider);
+                final DeviceSlider tSlider = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
+                tSlider.setPrecision(3);
+                tSlider.setNMajor(4);
+                tSlider.setMaximum(1.0);
+                tSlider.setValue(temperature0);
+                tSlider.setShowValues(true);
+                tSlider.setEditValues(true);
+                tSlider.setShowBorder(true);
+                tSlider.setLabel("Temperature");
+                ljmcGraphic.add(tSlider);
                 
                 return;
             }
@@ -232,7 +192,7 @@ public class LJMC extends Simulation {
             sim.getController().reset();
             if (numRuns==1) System.out.println("Equilibration finished");
 
-            sim.mcMoveVolume.setPressure(pressure);
+            sim.integrator.setTemperature(temperature);
             sim.activityIntegrate.setMaxSteps(numSteps);
             sim.integrator.getEventManager().addListener(new IIntegratorListener() {
 
@@ -269,7 +229,7 @@ public class LJMC extends Simulation {
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {
                 System.out.println("Run "+(i+1)+" finished");
             }
-            if (fw != null) {
+            if (fw != null && numRuns > 1) {
                 fw.write("\n");
             }
             if (seeds != null) break;
@@ -283,9 +243,8 @@ public class LJMC extends Simulation {
     public static class LJMCParams extends ParameterBase {
         public int numAtoms = 2000;
         public double temperature = 0.7;
-        public double density = 0.002;
-        public double pressure0 = 0.001;
-        public double pressure = 0.01;
+        public double temperature0 = 0.9;
+        public double density = 0.0225;
         public long numSteps = 10000000;
         public int numRuns = 10;
         public double rc = 4;
