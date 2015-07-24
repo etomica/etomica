@@ -35,6 +35,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     protected double biasOld, uOld, hOld, vNew, vScale, hNew;
     protected double uNew = Double.NaN;
+    protected double temperature;
 
     public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
     		            ISpace _space) {
@@ -77,6 +78,18 @@ public class MCMoveVolume extends MCMoveBoxStep {
         this.vBias = vBias;
     }
 
+    /**
+     * Sets the temperature so that chi can be compted in getA, avoiding
+     * potential roundoff.  B and the exponential argument in A can both be
+     * very large for a large system, but they tend to cancel.  Returned
+     * separately, they might be 0 and infinity, causing big trouble.  If 
+     * the move knows the temperature, all can be computed in getA without
+     * risk of roundoff.
+     */
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
+
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
         uOld = energyMeter.getDataAsScalar();
@@ -86,6 +99,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
         inflate.setScale(rScale);
+        //cells+neighbords get updated here
         inflate.actionPerformed();
         uNew = energyMeter.getDataAsScalar();
         hNew = uNew + pressure*vNew;
@@ -96,10 +110,14 @@ public class MCMoveVolume extends MCMoveBoxStep {
         // N, not N+1 here because of the shell volume
         // D. S. Corti, Mol. Phys. 100, 1887 (2002).
         double biasNew = vBias.f(box.getBoundary().volume());
+        if (temperature != 0) {
+            return biasNew/biasOld*Math.exp(box.getMoleculeList().getMoleculeCount()*vScale - (hNew-hOld)/temperature);
+        }
         return biasNew/biasOld*Math.exp(box.getMoleculeList().getMoleculeCount()*vScale);
     }
 
     public double getB() {
+        if (temperature > 0) return 0;
         return -(hNew - hOld);
     }
 
