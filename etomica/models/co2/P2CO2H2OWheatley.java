@@ -120,6 +120,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         {3,5,3,6,4,4}
     };
     
+    // for neutrality, fparams[0] = -0.410682122652
     protected static final double[] fparams = new double[]{
         -0.410682122651,329.403386615392,-3662553.726999491453,0.205341061326,62.365152431380, // 5
         7582.858590874342,0.205341061326,62.365152431376,7582.858590873629,0.205341061326, // 10
@@ -1183,6 +1184,27 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             iline++;
         }
         bufReader.close();
+    }
+
+    /*
+     * Check charges (all sums should be 0 for neutral molecules)
+     */
+    public static void mainQ(String[] args) {
+        double[] c = P2CO2H2OWheatley.fparams;
+        for (int i=0; i<3; i++) {
+            double sum = 0;
+            for (int j=0; j<3; j++) {
+                sum += c[i*9+j*3];
+            }
+            System.out.println("i "+i+" "+Hartree.UNIT.fromSim(sum));
+        }
+        for (int j=0; j<3; j++) {
+            double sum = 0;
+            for (int i=0; i<3; i++) {
+                sum += c[i*9+j*3];
+            }
+            System.out.println("j "+j+" "+Hartree.UNIT.fromSim(sum));
+        }
     }
     
     /*
