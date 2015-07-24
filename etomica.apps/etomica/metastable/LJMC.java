@@ -5,6 +5,7 @@
 package etomica.metastable;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import etomica.action.activity.ActivityIntegrate;
@@ -45,6 +46,7 @@ import etomica.units.SimpleUnit;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.RandomMersenneTwister;
 
 public class LJMC extends Simulation {
     
@@ -56,9 +58,11 @@ public class LJMC extends Simulation {
     public final MCMoveAtom mcMoveAtom;
     public final MCMoveVolume mcMoveVolume;
 
-    public LJMC(ISpace _space, int numAtoms, double temperature, double density, double pressure) {
+    public LJMC(ISpace _space, int numAtoms, double temperature, double density, double pressure, double rc, int[] seeds) {
         super(_space);
-        double rc = 4.0;
+        if (seeds != null) {
+            setRandom(new RandomMersenneTwister(seeds));
+        }
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
         potentialMaster.lrcMaster().setEnabled(false);
@@ -81,15 +85,15 @@ public class LJMC extends Simulation {
         //construct box
 	    box = new Box(space);
         addBox(box);
-        IVectorMutable dim = space.makeVector();
-        box.getBoundary().setBoxSize(dim);
         integrator.setBox(box);
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         
         mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, pressure);
+        mcMoveVolume.setTemperature(temperature);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
+        integrator.getMoveManager().setFrequency(mcMoveVolume, 5);
         
         double L = Math.pow(numAtoms/density, 1.0/3.0);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{L,L,L}));
@@ -97,6 +101,7 @@ public class LJMC extends Simulation {
         
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 
+        potentialMaster.getNbrCellManager(box).assignCellAll();
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
     
@@ -115,15 +120,26 @@ public class LJMC extends Simulation {
         double pressure = params.pressure;
         long numSteps = params.numSteps;
         int numRuns = params.numRuns;
+        double rc = params.rc;
 
-        int nSamples = (int)(numSteps/numAtoms);
-        final double[] P = new double[nSamples];
-        final double[] U = new double[nSamples];
-        final double[] rho = new double[nSamples];
+        final FileWriter fw = params.out == null ? null : new FileWriter(params.out);
         
+        System.out.println("N: "+numAtoms);
+        System.out.println("numSteps: "+numSteps);
+        System.out.println("rc: "+rc);
+        System.out.println("T: "+temperature);
+        System.out.println("P: "+pressure);
+
         for (int i=0; i<numRuns; i++){
 
-            final LJMC sim = new LJMC(space, numAtoms, temperature, density, pressure0);
+            int[] seeds = null; //new int[]{-475498437, 1044754174, -1894223345, 1180064439};
+            final LJMC sim = new LJMC(space, numAtoms, temperature, density, pressure0, rc, seeds);
+            if (seeds == null) {
+                System.out.println("random seeds: "+Arrays.toString(sim.getRandomSeeds()));
+            }
+            else {
+                System.out.println("set random seeds: "+Arrays.toString(seeds));
+            }
             
             final MeterPressure meterP = new MeterPressure(space);
             meterP.setBox(sim.box);
@@ -230,10 +246,18 @@ public class LJMC extends Simulation {
                     interval--;
                     if (interval > 0) return;
                     interval = numAtoms;
-                    U[count] += meterPE.getDataAsScalar()/numAtoms;
-                    P[count] += meterP.getDataAsScalar();
-                    rho[count] += meterDensity.getDataAsScalar();
+                    double U = meterPE.getDataAsScalar()/numAtoms;
+                    double P = meterP.getDataAsScalar();
+                    double rho = meterDensity.getDataAsScalar();
+                    try {
+                        if (fw!=null) fw.write(count+" "+rho+" "+P+" "+U+"\n");
+                        else System.out.println(count+" "+rho+" "+P+" "+U);
+                    }
+                    catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     count++;
+                    if (U<-1) sim.activityIntegrate.setMaxSteps(0);
                 }
                 
                 public void integratorInitialized(IIntegratorEvent e) {
@@ -245,13 +269,15 @@ public class LJMC extends Simulation {
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {
                 System.out.println("Run "+(i+1)+" finished");
             }
+            if (fw != null) {
+                fw.write("\n");
+            }
+            if (seeds != null) break;
         }
-        
-        FileWriter fw = new FileWriter(params.out);
-        for (int i=0; i<U.length; i++) {
-            fw.write(i+" "+rho[i]/numRuns+" "+P[i]/numRuns+" "+U[i]/numRuns+"\n");
+
+        if (fw != null) {
+            fw.close();
         }
-        fw.close();
     }
     
     public static class LJMCParams extends ParameterBase {
@@ -260,8 +286,9 @@ public class LJMC extends Simulation {
         public double density = 0.002;
         public double pressure0 = 0.001;
         public double pressure = 0.01;
-        public long numSteps = 1000000;
-        public int numRuns = 4;
+        public long numSteps = 10000000;
+        public int numRuns = 10;
+        public double rc = 4;
         public String out = "rhoPU.dat";
     }
 }
