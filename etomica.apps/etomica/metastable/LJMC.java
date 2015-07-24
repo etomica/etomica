@@ -3,11 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.metastable;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
+import etomica.api.IIntegratorEvent;
+import etomica.api.IIntegratorListener;
 import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -19,7 +23,7 @@ import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressureTensor;
+import etomica.data.meter.MeterPressure;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
@@ -54,7 +58,7 @@ public class LJMC extends Simulation {
 
     public LJMC(ISpace _space, int numAtoms, double temperature, double density, double pressure) {
         super(_space);
-        double rc = 10.0;
+        double rc = 4.0;
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
         potentialMaster.lrcMaster().setEnabled(false);
@@ -96,7 +100,7 @@ public class LJMC extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         LJMCParams params = new LJMCParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
@@ -104,93 +108,160 @@ public class LJMC extends Simulation {
         else {
         }
         ISpace space = Space3D.getInstance();
-        int numAtoms = params.numAtoms;
+        final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double density = params.density;
         double pressure0 = params.pressure0;
         double pressure = params.pressure;
-        
+        long numSteps = params.numSteps;
+        int numRuns = params.numRuns;
 
-        final LJMC sim = new LJMC(space, numAtoms, temperature, density, pressure0);
+        int nSamples = (int)(numSteps/numAtoms);
+        final double[] P = new double[nSamples];
+        final double[] U = new double[nSamples];
+        final double[] rho = new double[nSamples];
         
-        MeterPressureTensor meterPTensor = new MeterPressureTensor(sim.potentialMaster, space);
-        meterPTensor.setBox(sim.box);
-        meterPTensor.setTemperature(temperature);
-        
-        if (true) {
-            SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
-            ljmcGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(3));
+        for (int i=0; i<numRuns; i++){
+
+            final LJMC sim = new LJMC(space, numAtoms, temperature, density, pressure0);
             
-            SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ Spinodal");
-            
-            List<DataPump> dataStreamPumps = ljmcGraphic.getController().getDataStreamPumps();
-            
-            MeterDensity meterDensity = new MeterDensity(sim.getSpace());
+            final MeterPressure meterP = new MeterPressure(space);
+            meterP.setBox(sim.box);
+            meterP.setPotentialMaster(sim.potentialMaster);
+            meterP.setTemperature(temperature);
+    
+            final MeterDensity meterDensity = new MeterDensity(sim.getSpace());
             meterDensity.setBox(sim.box);
-            AccumulatorAverageCollapsing avgDensity = new AccumulatorAverageCollapsing();
-            avgDensity.setPushInterval(1);
-            DataPumpListener pumpDensity = new DataPumpListener(meterDensity, avgDensity, numAtoms);
-            sim.integrator.getEventManager().addListener(pumpDensity);
-            dataStreamPumps.add(pumpDensity);
-            DisplayTextBoxesCAE displayDensity = new DisplayTextBoxesCAE();
-            displayDensity.setAccumulator(avgDensity);
-            ljmcGraphic.add(displayDensity);
-            
-            
-            AccumulatorHistory historyDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
-            avgDensity.addDataSink(historyDensity, new StatType[]{avgDensity.MOST_RECENT});
-            DisplayPlot densityPlot = new DisplayPlot();
-            densityPlot.setLabel("density");
-            historyDensity.addDataSink(densityPlot.getDataSet().makeDataSink());
-            ljmcGraphic.add(densityPlot);
-            densityPlot.setDoLegend(false);
-            
-            DataDump densityDump = new DataDump();
-            historyDensity.addDataSink(densityDump);
-            
-            MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator();
+    
+            final MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator();
             meterPE.setIntegrator(sim.integrator);
-            AccumulatorHistory historyEnergy = new AccumulatorHistory(new HistoryCollapsingAverage());
-            DataPumpListener pumpEnergy = new DataPumpListener(meterPE, historyEnergy, numAtoms);
-            sim.integrator.getEventManager().addListener(pumpEnergy);
-            dataStreamPumps.add(pumpEnergy);
-            DisplayPlot energyPlot = new DisplayPlot();
-            energyPlot.setUnit(new SimpleUnit(Energy.DIMENSION, numAtoms, "energy", "U", false));
-            energyPlot.setLabel("PE");
-            historyEnergy.addDataSink(energyPlot.getDataSet().makeDataSink());
-            ljmcGraphic.add(energyPlot);
-            energyPlot.setDoLegend(false);
             
-            DataProcessorXY dpXY = new DataProcessorXY(densityDump);
-            historyEnergy.addDataSink(dpXY);
-            DisplayPlot densityEnergyPlot = new DisplayPlot();
-            dpXY.setDataSink(densityEnergyPlot.getDataSet().makeDataSink());
-            densityEnergyPlot.setLabel("Density/Energy");
-            ljmcGraphic.add(densityEnergyPlot);
+            if (false) {
+                SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+                ljmcGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(3));
+                
+                SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ Spinodal");
+                
+                List<DataPump> dataStreamPumps = ljmcGraphic.getController().getDataStreamPumps();
+                
+                AccumulatorAverageCollapsing avgDensity = new AccumulatorAverageCollapsing();
+                avgDensity.setPushInterval(1);
+                DataPumpListener pumpDensity = new DataPumpListener(meterDensity, avgDensity, numAtoms);
+                sim.integrator.getEventManager().addListener(pumpDensity);
+                dataStreamPumps.add(pumpDensity);
+                DisplayTextBoxesCAE displayDensity = new DisplayTextBoxesCAE();
+                displayDensity.setAccumulator(avgDensity);
+                ljmcGraphic.add(displayDensity);
+                
+                
+                AccumulatorHistory historyDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
+                avgDensity.addDataSink(historyDensity, new StatType[]{avgDensity.MOST_RECENT});
+                DisplayPlot densityPlot = new DisplayPlot();
+                densityPlot.setLabel("density");
+                historyDensity.addDataSink(densityPlot.getDataSet().makeDataSink());
+                ljmcGraphic.add(densityPlot);
+                densityPlot.setDoLegend(false);
+                
+                DataDump densityDump = new DataDump();
+                historyDensity.addDataSink(densityDump);
+                
+                AccumulatorHistory historyEnergy = new AccumulatorHistory(new HistoryCollapsingAverage());
+                DataPumpListener pumpEnergy = new DataPumpListener(meterPE, historyEnergy, numAtoms);
+                sim.integrator.getEventManager().addListener(pumpEnergy);
+                dataStreamPumps.add(pumpEnergy);
+                DisplayPlot energyPlot = new DisplayPlot();
+                energyPlot.setUnit(new SimpleUnit(Energy.DIMENSION, numAtoms, "energy", "U", false));
+                energyPlot.setLabel("PE");
+                historyEnergy.addDataSink(energyPlot.getDataSet().makeDataSink());
+                ljmcGraphic.add(energyPlot);
+                energyPlot.setDoLegend(false);
+                
+                DataProcessorXY dpXY = new DataProcessorXY(densityDump);
+                historyEnergy.addDataSink(dpXY);
+                DisplayPlot densityEnergyPlot = new DisplayPlot();
+                dpXY.setDataSink(densityEnergyPlot.getDataSet().makeDataSink());
+                densityEnergyPlot.setLabel("Density/Energy");
+                densityEnergyPlot.getPlot().setYLabel("Potential Energy");
+                densityEnergyPlot.getPlot().setXLabel("Density");
+                densityEnergyPlot.setUnit(new SimpleUnit(Energy.DIMENSION, numAtoms, "energy", "U", false));
+                ljmcGraphic.add(densityEnergyPlot);
+                
+                AccumulatorHistory historyPressure = new AccumulatorHistory(new HistoryCollapsingAverage());
+                DataPumpListener pumpPressure = new DataPumpListener(meterP, historyPressure, numAtoms);
+                sim.integrator.getEventManager().addListener(pumpPressure);
+                dataStreamPumps.add(pumpPressure);
+                DisplayPlot pressurePlot = new DisplayPlot();
+                pressurePlot.setLabel("Pressure");
+                historyPressure.addDataSink(pressurePlot.getDataSet().makeDataSink());
+                ljmcGraphic.add(pressurePlot);
+                pressurePlot.setDoLegend(false);
+                
+                final DeviceSlider pSlider = new DeviceSlider(sim.getController(), sim.mcMoveVolume, "pressure");
+                pSlider.setPrecision(4);
+                pSlider.setNMajor(4);
+                pSlider.setMaximum(0.1);
+                pSlider.setValue(pressure0);
+                pSlider.setShowValues(true);
+                pSlider.setEditValues(true);
+                pSlider.setShowBorder(true);
+                pSlider.setLabel("Pressure");
+                ljmcGraphic.add(pSlider);
+                
+                return;
+            }
             
-            final DeviceSlider pSlider = new DeviceSlider(sim.getController(), sim.mcMoveVolume, "pressure");
-            pSlider.setPrecision(4);
-            pSlider.setNMajor(4);
-            pSlider.setMaximum(0.1);
-            pSlider.setValue(pressure0);
-            pSlider.setShowValues(true);
-            pSlider.setEditValues(true);
-            pSlider.setShowBorder(true);
-            pSlider.setLabel("Pressure");
-            ljmcGraphic.add(pSlider);
+            sim.activityIntegrate.setMaxSteps(numSteps/10);
+            sim.getController().actionPerformed();
+            sim.integrator.resetStepCount();
+            sim.getController().reset();
+            if (numRuns==1) System.out.println("Equilibration finished");
+
+            sim.mcMoveVolume.setPressure(pressure);
+            sim.activityIntegrate.setMaxSteps(numSteps);
+            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+
+                int count = 0;
+                int interval = numAtoms;
+                
+                public void integratorStepStarted(IIntegratorEvent e) {
+                }
+                
+                public void integratorStepFinished(IIntegratorEvent e) {
+                    interval--;
+                    if (interval > 0) return;
+                    interval = numAtoms;
+                    U[count] += meterPE.getDataAsScalar()/numAtoms;
+                    P[count] += meterP.getDataAsScalar();
+                    rho[count] += meterDensity.getDataAsScalar();
+                    count++;
+                }
+                
+                public void integratorInitialized(IIntegratorEvent e) {
+                }
+            });
             
-            return;
+            sim.getController().actionPerformed();
+            
+            if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {
+                System.out.println("Run "+(i+1)+" finished");
+            }
         }
         
-        sim.getController().actionPerformed();
-
+        FileWriter fw = new FileWriter(params.out);
+        for (int i=0; i<U.length; i++) {
+            fw.write(i+" "+rho[i]/numRuns+" "+P[i]/numRuns+" "+U[i]/numRuns+"\n");
+        }
+        fw.close();
     }
     
     public static class LJMCParams extends ParameterBase {
-        public int numAtoms = 4000;
+        public int numAtoms = 2000;
         public double temperature = 0.7;
         public double density = 0.002;
         public double pressure0 = 0.001;
         public double pressure = 0.01;
+        public long numSteps = 1000000;
+        public int numRuns = 4;
+        public String out = "rhoPU.dat";
     }
 }
