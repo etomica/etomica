@@ -56,6 +56,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
         atomTranslator = new MoleculeActionTranslateTo(_space);
         reservoir = new MoleculeArrayList();
         this.random = random;
+        perParticleFrequency = true;
         positionSource = new RandomPositionSourceRectangular(_space, random);
     }
     
