@@ -30,37 +30,42 @@ public class B3LJ {
             reducedTemp = Double.parseDouble(args[0]);
         }
 
+        double[] values = value(reducedTemp);
+		System.out.println(values[0]+" "+values[1]);
+	}
+    
+    public static double[] value(double temperature) {
         double r_max = 50; // Defines range of separation distance, r = [0 rmax)
 
         int power = 12;
         int N = 1<<power;
         double del_r = r_max/N;
         
-		// Get Mayer function (f) and df/dT for this discretization
-		double[] fr = getfr(N, del_r, reducedTemp);
-        double[] dfdT = getdfdT(N, del_r, reducedTemp);
-		
-		SineTransform dst = new SineTransform();
+        // Get Mayer function (f) and df/dT for this discretization
+        double[] fr = getfr(N, del_r, temperature);
+        double[] dfdT = getdfdT(N, del_r, temperature);
+        
+        SineTransform dst = new SineTransform();
 
-		double[] fk = dst.forward(fr, del_r);
+        double[] fk = dst.forward(fr, del_r);
 
-		double[] fk2 = new double[fk.length];
-		for (int i=0; i<fk.length; i++) {
-		    fk2[i] = fk[i]*fk[i];
-		}
-		double[] ffr = dst.reverse(fk2, del_r);
-		// dB/dT is the cluster integral with one one bond as df/dT and a coefficient
-		// of -1 instead of -1/3
-		double sum = 0, dsum = 0;
-		for (int i=0; i<fk.length; i++) {
-		    sum += (ffr[i]*fr[i]*i)*i;
-		    dsum += (ffr[i]*dfdT[i]*i)*i;
-		}
-		double fourpidr3 = 4.0*Math.PI * (del_r*del_r*del_r);
-		sum *= -fourpidr3/3.0;
+        double[] fk2 = new double[fk.length];
+        for (int i=0; i<fk.length; i++) {
+            fk2[i] = fk[i]*fk[i];
+        }
+        double[] ffr = dst.reverse(fk2, del_r);
+        // dB/dT is the cluster integral with one one bond as df/dT and a coefficient
+        // of -1 instead of -1/3
+        double sum = 0, dsum = 0;
+        for (int i=0; i<fk.length; i++) {
+            sum += (ffr[i]*fr[i]*i)*i;
+            dsum += (ffr[i]*dfdT[i]*i)*i;
+        }
+        double fourpidr3 = 4.0*Math.PI * (del_r*del_r*del_r);
+        sum *= -fourpidr3/3.0;
         dsum *= -fourpidr3;
-		System.out.println(sum+" "+dsum);
-	}
+        return new double[]{sum,dsum};
+    }
 
     /**
      * Returns a discretized f function containing N points with a
