@@ -21,13 +21,13 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
+import etomica.graph.operations.DeleteEdge;
+import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -57,7 +57,6 @@ import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumShell;
 import etomica.virial.ClusterWeight;
@@ -67,32 +66,50 @@ import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterTorsionMulti;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirial;
 import etomica.virial.SpeciesAlkane;
 import etomica.virial.cluster.Standard;
 import etomica.virial.cluster.VirialDiagrams;
 
 /**
- * Mayer sampling simulation for alkanes using the TraPPE force field.
+ * Mayer sampling simulation for alkanes using the TraPPE-United Atoms force field.
  *   M.G. Martin and J.I. Siepmann, "Transferable Potentials for Phase
  *   Equilibria. 1. United-Atom Description of n-Alkanes," J. Phys. Chem. B
  *   102, 2569-2577 (1998)
+ *   
+ *   
+ *   modified from VirialAlkaneFlex2 so that eovererr can be used
+ *   March 2013
  */
-public class VirialAlkaneFlex2 {
+public class VirialAlkaneFull {
 
+    public static String getSplitGraphString(Set<Graph> gSplit, VirialDiagrams flexDiagrams, boolean correction) {
+        DeleteEdge edgeDeleter = new DeleteEdge();
+        DeleteEdgeParameters ede = new DeleteEdgeParameters(flexDiagrams.eBond);
+        boolean first = true;
+        String str = "";
+        for (Graph gs : gSplit) {
+            if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
+                str += " "+gs.nodeCount()+"bc";
+            }
+            else {
+                str += " "+gs.getStore().toNumberString();
+                if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
+                    str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
+                }
+            }
+            if (first && correction) str += "c";
+            first = false;
+        }
+        return str;
+    }
 
     public static void main(String[] args) {
         VirialSiepmannSpheresParam params = new VirialSiepmannSpheresParam();
         boolean isCommandline = args.length > 0;
-        if (isCommandline) {
-            ParseArgs parseArgs = new ParseArgs(params);
-            parseArgs.parseArgs(args, true);
-        }
-        else {
-            params.nPoints = 3;
-            params.nSpheres = 3;
-            params.numSteps = 10000000;
-            params.temperature = 500;
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
+        } else {
+
         }
         final int nPoints = params.nPoints;
         int nSpheres = params.nSpheres;
@@ -114,7 +131,7 @@ public class VirialAlkaneFlex2 {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         PotentialGroup pTargetGroup = new PotentialGroup(2);
-        System.out.println("Siepman "+nSpheres+"-mer chains B"+nPoints+" flexible correction at "+temperature+"K");
+        System.out.println(nSpheres+"-mer(TraPPE-UA) B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
         double epsilonCH2 = Kelvin.UNIT.toSim(46.0);
         double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
@@ -127,8 +144,8 @@ public class VirialAlkaneFlex2 {
 
         boolean alkaneFlex = nSpheres > 2 && nPoints > 2;
         VirialDiagrams alkaneDiagrams = new VirialDiagrams(nPoints, false, alkaneFlex);
+        alkaneDiagrams.setDoReeHoover(false);
         ClusterSum targetCluster = alkaneDiagrams.makeVirialCluster(fTarget);
-
         VirialDiagrams rigidDiagrams = new VirialDiagrams(nPoints, false, false);
         ClusterSum refCluster = rigidDiagrams.makeVirialCluster(fRef);
 
@@ -136,23 +153,30 @@ public class VirialAlkaneFlex2 {
 
         ClusterSumShell[] targetDiagrams = new ClusterSumShell[0];
         int[] targetDiagramNumbers = new int[0];
+        boolean[] diagramFlexCorrection = null;
+
         if (nSpheres > 2) {
             targetDiagrams = alkaneDiagrams.makeSingleVirialClusters(targetCluster, null, fTarget);
             targetDiagramNumbers = new int[targetDiagrams.length];
-
             System.out.println("individual clusters:");
             Set<Graph> singleGraphs = alkaneDiagrams.getMSMCGraphs(true, false);
             Map<Graph,Graph> cancelMap = alkaneDiagrams.getCancelMap();
             int iGraph = 0;
+            diagramFlexCorrection = new boolean[targetDiagrams.length];
             for (Graph g : singleGraphs) {
-                System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString());
-                targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
-                Graph cg = cancelMap.get(g);
-                if (cg != null) {
-                    System.out.print(" - "+cg.getStore().toNumberString());
+            	System.out.print(iGraph+" ("+g.coefficient()+") "+g.getStore().toNumberString()); // toNumberString: its corresponding number
+            	targetDiagramNumbers[iGraph] = Integer.parseInt(g.getStore().toNumberString());
+
+                Graph cancelGraph = cancelMap.get(g);
+                if (cancelGraph != null) {
+                    diagramFlexCorrection[iGraph] = true;
+                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(cancelGraph);
+
+                    System.out.print(" - "+getSplitGraphString(gSplit, alkaneDiagrams, false));
+
                 }
-                System.out.println();
-                iGraph++;
+            	System.out.println();
+            	iGraph++;
             }
             System.out.println();
             Set<Graph> disconnectedGraphs = alkaneDiagrams.getExtraDisconnectedVirialGraphs();
@@ -160,17 +184,8 @@ public class VirialAlkaneFlex2 {
                 System.out.println("extra clusters:");
                 
                 for (Graph g : disconnectedGraphs) {
-                    Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(g);
-                    System.out.print(g.coefficient()+" ");
-                    boolean first = true;
-                    for (Graph gs : gSplit) {
-                        if (!first) {
-                            System.out.print("*");
-                        }
-                        System.out.print(gs.getStore().toNumberString());
-                        first = false;
-                    }
-                    System.out.println();
+                	Set<Graph> gSplit = alkaneDiagrams.getSplitDisconnectedVirialGraphs(g);
+                	System.out.println(g.coefficient()+" "+getSplitGraphString(gSplit, alkaneDiagrams, true));
                 }
                 System.out.println();
             }
@@ -183,16 +198,15 @@ public class VirialAlkaneFlex2 {
         }
 
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-        // overerr expects this string, BnHS
+        // eovererr expects this string, BnHS
         System.out.println("B"+nPoints+"HS: "+refIntegral);
-        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
+     
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
         SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
-                new int[]{nPoints+1},temperature, new ClusterAbstract[]{refCluster, targetCluster}, sampleClusters, true);
-        sim.integratorOS.setAggressiveAdjustStepFraction(true);
+                new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperature, new ClusterAbstract[]{refCluster, targetCluster},targetDiagrams,  sampleClusters, true);
 
         if (alkaneFlex) {
             int[] constraintMap = new int[nPoints+1];
@@ -211,7 +225,13 @@ public class VirialAlkaneFlex2 {
             sim.integratorOS.setAdjustStepFraction(false);
             sim.integratorOS.setRefStepFraction(refFreq);
         }
+      
+        sim.integratorOS.setNumSubSteps(1000);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
+        System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
+        steps /= 1000;
 
+        
         IAtomType typeCH3 = species.getAtomType(0);
         IAtomType typeCH2 = species.getAtomType(1);
         pTargetGroup.addPotential(p2CH2, ApiBuilder.makeIntergroupTypeIterator(new IAtomType[]{typeCH2, typeCH2}));
@@ -238,8 +258,10 @@ public class VirialAlkaneFlex2 {
             pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
             // integrators share a common potentialMaster.  so just add to one
             sim.integrators[1].getPotentialMaster().addPotential(pIntra,new ISpecies[]{sim.getSpecies(0)});
+
         }
         MCMoveClusterTorsionMulti[] torsionMoves = null;
+        
         if (nSpheres > 3) {
             P4BondTorsion p4 = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
             int[][] quads = new int[nSpheres-3][4];
@@ -300,13 +322,15 @@ public class VirialAlkaneFlex2 {
             
             
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
-            diameterManager.setDiameter(typeCH2, 0.5*sigmaCH2);
-            diameterManager.setDiameter(typeCH3, 0.5*sigmaCH3);
+            diameterManager.setDiameter(typeCH2, 0.2*sigmaCH2);
+            diameterManager.setDiameter(typeCH3, 0.2*sigmaCH3);
             displayBox1.setDiameterHash(diameterManager);
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
             colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
+            
+            
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
@@ -368,29 +392,21 @@ public class VirialAlkaneFlex2 {
         // if running interactively, don't use the file
         String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
-        sim.initRefPref(refFileName, (steps/1000)/40);
+        sim.initRefPref(refFileName, steps/40);
 
-        MeterVirial meterDiagrams = new MeterVirial(targetDiagrams);
-        meterDiagrams.setBox(sim.box[1]);
-        AccumulatorAverageCovariance accumulatorDiagrams = null;
-        if (nSpheres > 2) {
-            accumulatorDiagrams = new AccumulatorAverageCovariance(steps);
-            DataPumpListener pumpDiagrams = new DataPumpListener(meterDiagrams, accumulatorDiagrams);
-            sim.integrators[1].getEventManager().addListener(pumpDiagrams);
-        }
-        
+                
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, (steps/1000)/20);
+        sim.equilibrate(refFileName, steps/20);
 
-        if (nSpheres > 2) {
-            accumulatorDiagrams.reset();
-            accumulatorDiagrams.setBlockSize(steps/1000);
-        }
-
-        sim.setAccumulatorBlockSize(steps/1000);
+        sim.setAccumulatorBlockSize(steps);
         
         System.out.println("equilibration finished");
+        sim.setAccumulatorBlockSize(steps);
+        sim.integratorOS.setNumSubSteps((int)steps);
+        sim.ai.setMaxSteps(1000);
+        
+        
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
                 +sim.mcMoveRotate[0].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[0].getStepSize())));
@@ -420,60 +436,61 @@ public class VirialAlkaneFlex2 {
         }
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.integratorOS.setNumSubSteps((int)(steps/1000));
-        sim.ai.setMaxSteps(1000);
-        long t1 = System.currentTimeMillis();
         sim.getController().actionPerformed();
-        long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
-
         sim.printResults(refIntegral);
         
+        DataGroup allData = (DataGroup)sim.accumulators[1].getData();
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        // we'll ignore block correlation -- whatever effects are here should be in the full target results
+        int nTotal = (targetDiagrams.length+2);
+        double oVar = dataCov.getValue(nTotal*nTotal-1);
+        
         for (int i=0; i<targetDiagrams.length; i++) {
-            DataGroup allData = (DataGroup)accumulatorDiagrams.getData();
-            IData dataAvg = allData.getData(accumulatorDiagrams.AVERAGE.index);
-            IData dataErr = allData.getData(accumulatorDiagrams.ERROR.index);
-            System.out.print("diagram "+targetDiagramNumbers[i]+" ");
-            System.out.print("average: "+dataAvg.getValue(i)+" error: "+dataErr.getValue(i));
+            if (targetDiagramNumbers[i]<0) {
+                System.out.print("diagram "+(-targetDiagramNumbers[i])+("bc "));
+            }
+            else {
+                System.out.print("diagram "+targetDiagramNumbers[i]);
+//                    if (fTargetDiagramNumbers[i] != 0) {
+//                        System.out.print(fTargetDiagramNumbers[i]);
+//                    }
+
+                if (diagramFlexCorrection[i]) {
+                    System.out.print("c");
+                }
+                System.out.print(" ");
+            }
+            // average is vi/|v| average, error is the uncertainty on that average
+            // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
+            double ivar = dataCov.getValue((i+1)*nTotal+(i+1));
+            double ocor = ivar*oVar == 0 ? 0 : dataCov.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar);
+            System.out.print(String.format("average: %20.15e  error: %10.15e  ocor: %7.5f", dataAvg.getValue(i+1), dataErr.getValue(i+1), ocor));
             if (targetDiagrams.length > 1) {
-                System.out.print(" cov:");
-                IData dataCov = allData.getData(accumulatorDiagrams.BLOCK_COVARIANCE.index);
-                double ivar = dataCov.getValue(i*targetDiagrams.length+i);
+                System.out.print("  dcor:");
                 for (int j=0; j<targetDiagrams.length; j++) {
                     if (i==j) continue;
-                    double jvar = dataCov.getValue(j*targetDiagrams.length+j);
-                    System.out.print(" "+dataCov.getValue(i*targetDiagrams.length+j)/Math.sqrt(ivar*jvar));
+                    double jvar = dataCov.getValue((j+1)*nTotal+(j+1));
+                    double dcor = ivar*jvar == 0 ? 0 : dataCov.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar);
+                    System.out.print(String.format(" %8.6f", dcor));
                 }
             }
             System.out.println();
         }
-        System.out.print(String.format("time: %9.3f\n", (t2-t1)*0.001));
-	}
-    
-    public static ClusterBonds[] append(ClusterBonds[] inArray, ClusterBonds[] newBonds) {
-        ClusterBonds[] outArray = new ClusterBonds[inArray.length + newBonds.length];
-        System.arraycopy(inArray, 0, outArray, 0, inArray.length);
-        System.arraycopy(newBonds, 0, outArray, inArray.length, newBonds.length);
-        return outArray;
-    }
-
-    public static double[] append(double[] inArray, double[] newWeights) {
-        double[] outArray = new double[inArray.length + newWeights.length];
-        System.arraycopy(inArray, 0, outArray, 0, inArray.length);
-        System.arraycopy(newWeights, 0, outArray, inArray.length, newWeights.length);
-        return outArray;
     }
 
     /**
      * Inner class for parameters
      */
     public static class VirialSiepmannSpheresParam extends ParameterBase {
-        public int nPoints = 2;
+        public int nPoints = 4;
         public int nSpheres = 3;
-        public double temperature = 300.0;   // Kelvin
-        public long numSteps = 10000;
+        public double temperature = 298.0;// Kelvin
+        public long numSteps = 1000000;
         public double refFreq = -1;
     }
 }
