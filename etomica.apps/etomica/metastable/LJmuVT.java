@@ -15,12 +15,12 @@ import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataDump;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -30,7 +30,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -57,7 +56,6 @@ public class LJmuVT extends Simulation {
     public final IBox box;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
-    public final MCMoveAtom mcMoveAtom;
     public final MCMoveInsertDelete mcMoveID;
 
     public LJmuVT(ISpace _space, int numAtoms, double temperature, double density, double mu, double rc, int[] seeds) {
@@ -67,7 +65,6 @@ public class LJmuVT extends Simulation {
         }
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
-        potentialMaster.lrcMaster().setEnabled(false);
         
         //controller and integrator
 	    integrator = new IntegratorMC(potentialMaster, random, temperature);
@@ -89,8 +86,6 @@ public class LJmuVT extends Simulation {
         addBox(box);
         integrator.setBox(box);
 
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
         mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveID.setMu(mu);
         mcMoveID.setSpecies(species);
@@ -196,8 +191,8 @@ public class LJmuVT extends Simulation {
         }
         int numAtoms0 = numAtoms/10;
         double density0 = numAtoms0/vol;
-        
-        
+
+
         final FileWriter fw = params.out == null ? null : new FileWriter(params.out);
         
         System.out.println("N: "+numAtoms);
@@ -235,9 +230,9 @@ public class LJmuVT extends Simulation {
             if (false) {
                 SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
                 ljmcGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(3));
-                
+
                 SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ Spinodal");
-                
+
                 List<DataPump> dataStreamPumps = ljmcGraphic.getController().getDataStreamPumps();
                 AccumulatorAverageCollapsing avgDensity = new AccumulatorAverageCollapsing();
                 avgDensity.setPushInterval(1);
@@ -247,8 +242,7 @@ public class LJmuVT extends Simulation {
                 DisplayTextBoxesCAE displayDensity = new DisplayTextBoxesCAE();
                 displayDensity.setAccumulator(avgDensity);
                 ljmcGraphic.add(displayDensity);
-                
-                
+
                 AccumulatorHistory historyDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
                 avgDensity.addDataSink(historyDensity, new StatType[]{avgDensity.MOST_RECENT});
                 DisplayPlot densityPlot = new DisplayPlot();
@@ -256,7 +250,7 @@ public class LJmuVT extends Simulation {
                 historyDensity.addDataSink(densityPlot.getDataSet().makeDataSink());
                 ljmcGraphic.add(densityPlot);
                 densityPlot.setDoLegend(false);
-                
+
                 AccumulatorHistory historyN = new AccumulatorHistory(new HistoryCollapsingAverage());
                 DataPumpListener pumpN = new DataPumpListener(meterN, historyN, numAtoms);
                 sim.integrator.getEventManager().addListener(pumpN);
@@ -266,10 +260,10 @@ public class LJmuVT extends Simulation {
                 historyN.addDataSink(nPlot.getDataSet().makeDataSink());
                 ljmcGraphic.add(nPlot);
                 nPlot.setDoLegend(false);
-                
+
                 DataDump densityDump = new DataDump();
                 historyDensity.addDataSink(densityDump);
-                
+
                 AccumulatorHistory historyEnergy = new AccumulatorHistory(new HistoryCollapsingAverage());
                 DataPumpListener pumpEnergy = new DataPumpListener(meterPE, historyEnergy, numAtoms);
                 sim.integrator.getEventManager().addListener(pumpEnergy);
@@ -312,10 +306,10 @@ public class LJmuVT extends Simulation {
                 muSlider.setShowBorder(true);
                 muSlider.setLabel("mu");
                 ljmcGraphic.add(muSlider);
-                
+
                 return;
             }
-            
+            long tstart = System.currentTimeMillis();
             sim.activityIntegrate.setMaxSteps(numSteps/10);
             sim.getController().actionPerformed();
             sim.integrator.resetStepCount();
@@ -355,10 +349,12 @@ public class LJmuVT extends Simulation {
             });
             
             sim.getController().actionPerformed();
+            long tstop = System.currentTimeMillis();
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {
                 System.out.println("Run "+(i+1)+" finished");
             }
+            System.out.println("time: "+(tstop-tstart)*0.001);
             if (fw != null && numRuns > 1) {
                 fw.write("\n");
             }
