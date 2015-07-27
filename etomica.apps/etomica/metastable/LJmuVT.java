@@ -65,7 +65,7 @@ public class LJmuVT extends Simulation {
         }
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
-        
+
         //controller and integrator
 	    integrator = new IntegratorMC(potentialMaster, random, temperature);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -75,12 +75,12 @@ public class LJmuVT extends Simulation {
 	    species = new SpeciesSpheresMono(this, space);//index 1
 	    species.setIsDynamic(true);
         addSpecies(species);
-        
+
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
 	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
-	    
+
         //construct box
 	    box = new Box(space);
         addBox(box);
@@ -109,8 +109,8 @@ public class LJmuVT extends Simulation {
         muCalc += 1.5 * B3 * density * density;
         dmuCalc += 3 * B3 * density;
         return new double[]{muCalc,dmuCalc};
-    }        
-    
+    }
+
     public static void main(String[] args) throws IOException {
         LJMCParams params = new LJMCParams();
         if (args.length > 0) {
