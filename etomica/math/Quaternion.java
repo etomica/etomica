@@ -166,7 +166,7 @@ public class Quaternion extends Object {
 	 * Constructs the Quaternion q for an input basis vector array. Converts the basis vector array 
      * into a rotation matrix and finally into a Quaternion.
      * This Quaternion represents the rotation of the {i,j,k} coordinate frame to the
-     * orthonormal coordinate frame formed by the the basis vectors.
+     * orthonormal coordinate frame formed by the basis vectors.
      * @author rsubrama
 	 * @param basisVec
 	 */
@@ -271,23 +271,36 @@ public class Quaternion extends Object {
      * @author rsubrama
      */
     protected void updateQuaternion() {
-        double [] q = this.getDoubleArray();
-        for (int i = 0; i<q.length; i++) {
-            if (Double.isInfinite(q[i]) || Double.isNaN(q[i])) throw new RuntimeException("Oops! q["+i+"] = "+q[i]);
-        }
+        if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+        double [] q = this.getDoubleArray();        
         ((IVectorMutable) vec).setX(0, q1);
         ((IVectorMutable) vec).setX(1, q2);
         ((IVectorMutable) vec).setX(2, q3);
         norm = Math.sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
-    }	
+        if (norm == 0) throw new RuntimeException("Norm of quaternion is zero!!! "+ q);
+    }
 	
 	// properties
+    /**
+     * Returns true if even a single component of the quaternion is either infinite or NaN
+     * @author rsubrama
+     * @return boolean true/false
+     */
+    public boolean isIllegal() {
+        if (Double.isInfinite(q0) || Double.isNaN(q0)) return true;
+        if (Double.isInfinite(q1) || Double.isNaN(q1)) return true;
+        if (Double.isInfinite(q2) || Double.isNaN(q2)) return true;
+        if (Double.isInfinite(q3) || Double.isNaN(q3)) return true;
+        return false;
+    }
+    
 	/**
 	 * Returns the q0 component of the Quaternion
 	 * @author rsubrama
 	 * @return double q0
 	 */
 	public double getQ0() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    return q0;
 	}
 	
@@ -297,6 +310,7 @@ public class Quaternion extends Object {
 	 * @return double q1
 	 */
 	public double getQ1() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
         return q1;
     }
 	
@@ -306,6 +320,7 @@ public class Quaternion extends Object {
 	 * @return double q2
 	 */
 	public double getQ2() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
         return q2;
     }
 	
@@ -315,6 +330,7 @@ public class Quaternion extends Object {
 	 * @return double q3
 	 */
 	public double getQ3() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
         return q3;
     }
 	
@@ -324,6 +340,7 @@ public class Quaternion extends Object {
 	 *  @return double q0
 	 */
 	public double getScalar() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    return q0;
 	}
 	
@@ -333,6 +350,7 @@ public class Quaternion extends Object {
 	 * @return IVectorMutable v = q1*i + q2*j + q3*k
 	 */
 	public IVectorMutable getVectorMutable() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    return (IVectorMutable) vec;
 	}
 	
@@ -342,6 +360,7 @@ public class Quaternion extends Object {
 	 * @return IVector v = q1*i + q2*j + q3*k
 	 */
 	public IVector getVector() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    return vec;
 	}
 	
@@ -352,12 +371,14 @@ public class Quaternion extends Object {
 	 * @param angle 
 	 */
 	public void getAxisAngle(IVectorMutable axis, double angle) {
-	    if (! this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion and therefore not a rotation operator. Normalize it first");
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+	    if (! this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion and therefore not a rotation operator. Normalize it first");	    
 	    if (q0 > 1.0) q0 = 1.0;
 	    if (q0 < -1.0) q0 = -1.0;
 	    angle = 2*Math.acos(q0);
 	    axis.E(vec);
-	    axis.normalize();
+	    if (vec.isZero() || vec.isNaN()) throw new RuntimeException("Vector part of quaternion is either zero or NaN "+ vec);
+	    axis.normalize();	    
 	}
 	
 	/**
@@ -366,6 +387,7 @@ public class Quaternion extends Object {
 	 * @return double [] v
 	 */
 	public double[] getVectorAsDoubleArray() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    double [] v = new double[3];
 	    vec.assignTo(v);
 	    return v;
@@ -377,6 +399,7 @@ public class Quaternion extends Object {
 	 * @return double magnitude = |vec|
 	 */
 	public double getVectorMagnitude() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    return Math.sqrt(vec.squared());
 	}
 	
@@ -386,6 +409,7 @@ public class Quaternion extends Object {
 	 * @return double [] q
 	 */
 	public double[] getDoubleArray() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    double [] q = {q0,q1,q2,q3};
 	    return q;
 	}
@@ -396,6 +420,7 @@ public class Quaternion extends Object {
 	 * @return Jama.Matrix A
 	 */
 	public Jama.Matrix getRotationMatrix() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    double[][] a = new double[3][3];
 	    a[0][0] = 2*q0*q0 - 1 + 2*q1*q1;
 	    a[0][1] = 2*q1*q2 - 2*q0*q3;
@@ -419,6 +444,8 @@ public class Quaternion extends Object {
 	 * @return OrientationFull3D or
 	 */
 	public OrientationFull3D getOrientation() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+	    if (!this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion, hence it does not have a corresponding orientation associated with it");
 	    OrientationFull3D or = (OrientationFull3D) space.makeOrientation();
 	    IVectorMutable [] e = space.makeVectorArray(3);
 	    for (int i=0; i<3; i++) {
@@ -436,6 +463,7 @@ public class Quaternion extends Object {
 	 * @return boolean true/false
 	 */
 	public boolean isPureQuaternion() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    if (q0 == 0 || q0*q0 < 1E-15) return true;
 	    return false;
 	}
@@ -447,6 +475,8 @@ public class Quaternion extends Object {
 	 * @return boolean true/false
 	 */
 	public boolean isEqualTo(Quaternion p) {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+	    if (p.isIllegal()) throw new IllegalArgumentException("Argument quaternion has illegal components "+p.q0+" "+p.q1+" "+p.q2+" "+p.q3);
 	    if (q0 == p.q0 && q1 == p.q1 && q2 == p.q2 && q3 == p.q3) return true;
 	    if ((q0 - p.q0)*(q0 - p.q0) < 1E-15 && (q1 - p.q1)*(q1 - p.q1) < 1E-15 && (q2 - p.q2)*(q2 - p.q2) < 1E-15 && (q3 - p.q3)*(q3 - p.q3) < 1E-15) return true;
 	    return false;
@@ -458,6 +488,7 @@ public class Quaternion extends Object {
 	 * @return boolean true/false
 	 */
 	public boolean isUnitQuaternion() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    if (norm == 1 || (norm - 1)*(norm - 1) < 1E-15) return true;
 	    return false;
 	}
@@ -469,6 +500,8 @@ public class Quaternion extends Object {
 	 * @param p
 	 */
 	public void PE(Quaternion p) {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+        if (p.isIllegal()) throw new IllegalArgumentException("Argument quaternion has illegal components "+p.q0+" "+p.q1+" "+p.q2+" "+p.q3);
 	    q0 += p.q0;
 	    q1 += p.q1;
 	    q2 += p.q2;
@@ -482,6 +515,8 @@ public class Quaternion extends Object {
 	 * @param a 
 	 */
 	public void TE(double a) {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+        if (Double.isInfinite(a) || Double.isNaN(a)) throw new IllegalArgumentException("Illegal argument "+a);
 	    if (q0 != 0) q0 *= a;
 	    if (q1 != 0) q1 *= a;
 	    if (q2 != 0) q2 *= a;
@@ -499,6 +534,8 @@ public class Quaternion extends Object {
 	 * @return Quaternion r = pq
 	 */
 	public Quaternion multiply(Quaternion p) {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+        if (p.isIllegal()) throw new IllegalArgumentException("Argument quaternion has illegal components "+p.q0+" "+p.q1+" "+p.q2+" "+p.q3);
 	    double a = p.q0*q0 - p.vec.dot(vec);
 	    IVectorMutable newVec = space.makeVector();
 	    newVec.E(p.vec);
@@ -514,6 +551,7 @@ public class Quaternion extends Object {
 	 * @return Quaternion q* = q0 - qVec
 	 */
 	public Quaternion conjugate() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);        
 	    IVectorMutable vNew = space.makeVector();
 	    vNew.E(vec);
 	    vNew.TE(-1);
@@ -529,6 +567,7 @@ public class Quaternion extends Object {
 	 * @return double N = sart(q0^2 + q1^2 + q2^2 + q3^2)
 	 */
 	public double getNorm(){
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);        
 	    return norm;
 	}
 	
@@ -537,6 +576,7 @@ public class Quaternion extends Object {
 	 * @author rsubrama
 	 */
 	public void normalize(){
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);        
 	    if (norm == 0) throw new RuntimeException("Norm is zero. Can't normalize this Quaternion");
 	    q0 /= norm;
 	    q1 /= norm;
@@ -551,6 +591,7 @@ public class Quaternion extends Object {
 	 * @return Quaternion q^-1
 	 */
 	public Quaternion inverse(){
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);        
 	    if (norm == 0) throw new RuntimeException("Norm is zero. Inverse doesn't exist");
 	    Quaternion p = this.conjugate();
 	    p.TE(1/(this.norm*this.norm));
@@ -563,7 +604,9 @@ public class Quaternion extends Object {
 	 * @author rsubrama
 	 * @param v
 	 */
-	public void rotateVector(IVectorMutable v) {	    
+	public void rotateVector(IVectorMutable v) {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+        if (v.isNaN() || v.isZero()) throw new IllegalArgumentException("Illegal argument "+v);
 	    IVectorMutable w = space.makeVector();
 	    w.E(v);
 	    v.E(vec);
@@ -579,7 +622,7 @@ public class Quaternion extends Object {
 	 * @author rsubrama 
 	 * @param or
 	 */
-	public void rotateOrientation(OrientationFull3D or) {
+	public void rotateOrientation(OrientationFull3D or) {        
 	    this.rotateVector((IVectorMutable)or.getDirection());
 	    this.rotateVector((IVectorMutable)or.getSecondaryDirection());
 	}
@@ -590,6 +633,7 @@ public class Quaternion extends Object {
 	 * @return String
 	 */
 	public String toString() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    String str = q0+" ";
 	    double [] q = this.getDoubleArray();
 	    for (int i=1; i<q.length; i++){
