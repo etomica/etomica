@@ -150,6 +150,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
          *   
          */
 
+        if (R12 < dHSCore) return Double.POSITIVE_INFINITY;
         
         IVectorMutable ex = space.makeVector();
         IVectorMutable ey = space.makeVector();
@@ -231,8 +232,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 int i1 = siteID[j];
                 site1.E(dr);
                 site1.PEa1Tv1(pos[j], a1);                
-                double rij = Math.sqrt(site0.Mv1Squared(site1));
-                if (i == 2 && j == 2 && rij < dHSCore) return Double.POSITIVE_INFINITY;                
+                double rij = Math.sqrt(site0.Mv1Squared(site1));                                
                 double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*rij);
                 double r6 = rij*rij*rij*rij*rij*rij;
                 double term2 = -f6(b[i0][i1]*rij)*c6[i0][i1]/r6;
@@ -262,6 +262,8 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
          * i0 = index of site in molecule 0
          * i1 = index of site in molecule 1  
          */
+        
+        if (R12 < dHSCore) return Double.POSITIVE_INFINITY;
         IVectorMutable ex = space.makeVector();
         IVectorMutable ey = space.makeVector();
         IVectorMutable ez = space.makeVector();
@@ -314,8 +316,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 int i1 = siteID[j];
                 site1.E(dr);
                 site1.PEa1Tv1(pos[j], a1);                               
-                double rij = Math.sqrt(site0.Mv1Squared(site1));
-                if (i == 2 && j == 2 && rij < dHSCore) return Double.POSITIVE_INFINITY;
+                double rij = Math.sqrt(site0.Mv1Squared(site1));                
                 double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*rij);
                 double r6 = rij*rij*rij*rij*rij*rij;
                 double term2 = -f6(b[i0][i1]*rij)*c6[i0][i1]/r6;
@@ -525,6 +526,8 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
             IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
             IVector cm0 = atom0.getPosition();
             IVector cm1 = atom1.getPosition();
+            double R12 = Math.sqrt(cm0.Mv1Squared(cm1));
+            if (R12 < dHSCore) return Double.POSITIVE_INFINITY;
             IVector or0 = atom0.getOrientation().getDirection();
             IVectorMutable site0 = space.makeVector();
             IVectorMutable site1 = space.makeVector();
@@ -575,8 +578,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                     site1.PE(cm1);
                     dr.Ev1Mv2(site1, site0);
                     double rij2 = dr.squared();
-                    double rij = Math.sqrt(rij2);
-                    if (i == 2 && j == 2 && rij < dHSCore) return Double.POSITIVE_INFINITY;
+                    double rij = Math.sqrt(rij2);                    
                     double ar = alpha[ii][jj]*rij;
                     double uExp = A[ii][jj]*Math.exp(-ar);
                     double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
