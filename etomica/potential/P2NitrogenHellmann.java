@@ -98,8 +98,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
     protected IBoundary boundary;    
     protected final double[][] A,alpha,b,c6;
     protected static final int [] siteID = {0,1,2,1,0};
-    protected double[] q;
-    protected double[] pos;
+    protected double[] q, pos;    
     public boolean parametersB = true; // set this to false if using parameters for V_12^A potential
     protected static final double[] AA = {0.846144529794E7, -0.825811757649E7, 0.116781452519E8, 0.198375106632E7, -0.889934931566E7, 0.216444280602E8};
     protected static final double[] alphaA = {2.93660213026, 2.64088584245, 2.92688055782, 2.11392143479, 3.05000862940, 3.22097240942};
@@ -113,7 +112,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
     protected static final double[] qB = {-832.77884541,1601.24507755,-1536.93246428,1601.24507755, -832.77884541};
     protected static final double[] c6B = {0.298807116692E7, -0.608284467163E7, 0.490318811890E7, 0.146889670654E8, -0.129841807274E8, 0.107874613877E8};
     protected static final double[] sitePosB = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
-    protected static final double rHSCore = 2.0;
+    protected static final double dHSCore = 2.0;
     protected final ISpace space;
     
     
@@ -124,7 +123,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         b = new double[3][3];
         c6 = new double[3][3];
         q = new double[3];
-        pos = new double[5];        
+        pos = new double[5];
         fillData();
     }    
     
@@ -233,7 +232,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 site1.E(dr);
                 site1.PEa1Tv1(pos[j], a1);                
                 double rij = Math.sqrt(site0.Mv1Squared(site1));
-                if (rij < rHSCore) return Double.POSITIVE_INFINITY;                
+                if (i == 2 && j == 2 && rij < dHSCore) return Double.POSITIVE_INFINITY;                
                 double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*rij);
                 double r6 = rij*rij*rij*rij*rij*rij;
                 double term2 = -f6(b[i0][i1]*rij)*c6[i0][i1]/r6;
@@ -316,7 +315,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                 site1.E(dr);
                 site1.PEa1Tv1(pos[j], a1);                               
                 double rij = Math.sqrt(site0.Mv1Squared(site1));
-                if (rij < rHSCore) return Double.POSITIVE_INFINITY;
+                if (i == 2 && j == 2 && rij < dHSCore) return Double.POSITIVE_INFINITY;
                 double term1 = A[i0][i1]*Math.exp(-alpha[i0][i1]*rij);
                 double r6 = rij*rij*rij*rij*rij*rij;
                 double term2 = -f6(b[i0][i1]*rij)*c6[i0][i1]/r6;
@@ -436,7 +435,10 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         IVector com0 = a0.getPosition();
         IVector com1 = a1.getPosition();
         double R12 = Math.sqrt(com0.Mv1Squared(com1));
-        double E = vN2Vectors(R12, hh0, hh1);    
+        double E = vN2Vectors(R12, hh0, hh1);
+        if ( E == Double.POSITIVE_INFINITY) {
+            double y = 1;
+        }
         return E;
     }
     protected static final double massN2 = 2*Nitrogen.INSTANCE.getMass();
@@ -459,7 +461,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         public double[][] d2tot = new double[2][6];
         protected final double temperature, fac;        
         
-        public P2NitrogenSC(double temperature) {
+        public P2NitrogenSC(double temperature) { // copied from Andrew's P2CO2Hellmann potential
             ijTensor = space.makeTensor();
             identity = space.makeTensor();
             tt0Tensor = space.makeTensor();
@@ -574,7 +576,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                     dr.Ev1Mv2(site1, site0);
                     double rij2 = dr.squared();
                     double rij = Math.sqrt(rij2);
-                    if (rij < rHSCore) return Double.POSITIVE_INFINITY;
+                    if (rij < dHSCore) return Double.POSITIVE_INFINITY;
                     double ar = alpha[ii][jj]*rij;
                     double uExp = A[ii][jj]*Math.exp(-ar);
                     double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
