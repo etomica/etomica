@@ -576,7 +576,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
                     dr.Ev1Mv2(site1, site0);
                     double rij2 = dr.squared();
                     double rij = Math.sqrt(rij2);
-                    if (rij < dHSCore) return Double.POSITIVE_INFINITY;
+                    if (i == 2 && j == 2 && rij < dHSCore) return Double.POSITIVE_INFINITY;
                     double ar = alpha[ii][jj]*rij;
                     double uExp = A[ii][jj]*Math.exp(-ar);
                     double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
