@@ -150,23 +150,23 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
      * @param box
      * @return int
      */
-    protected int nPairs() {
+    protected long nPairs() {
         if(divisor == 0) return 0;
-        int nPairs = 0;
+        long nPairs = 0;
         ISpecies species0 = types[0].getSpecies();
-        int n0 = box.getNMolecules(species0)*lrcAtomsPerMolecule[0];
+        long n0 = box.getNMolecules(species0)*lrcAtomsPerMolecule[0];
         if(interType) {
             ISpecies species1 = types[1].getSpecies();
             int n1 = box.getNMolecules(species1);
             nPairs = n0*n1*lrcAtomsPerMolecule[1];
         }
         else {
-            nPairs = n0*(n0-1)/2;
+            nPairs = n0*(n0-1)/2L;
         }
-        return (int)Math.round(nPairs/divisor);
+        return Math.round(nPairs/divisor);
     }
 
     protected double divisor;
     protected IBox box;
 
-}//end of Potential0Lrc
+}
