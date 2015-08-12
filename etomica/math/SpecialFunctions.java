@@ -4,6 +4,11 @@
 
 package etomica.math;
 
+import java.math.BigDecimal;
+
+import etomica.units.Dalton;
+import etomica.units.Mole;
+
 /**
  * Static-method library of various functions
  */
@@ -94,7 +99,8 @@ public final class SpecialFunctions {
         for(int i=7; i>-1; i--) {
             ser += lnGammaCoeff[i]/(x+i);
         }
-        return lnsqrt2Pi + (x-0.5)*Math.log(tmp) - tmp + Math.log(ser);
+        double y = lnsqrt2Pi + (x-0.5)*Math.log(tmp) - tmp + Math.log(ser); 
+        return y;
     }
     private static final double lnsqrt2Pi = 0.5*Math.log(2*Math.PI);
     private static final double[] lnGammaCoeff = new double[] {
@@ -109,7 +115,8 @@ public final class SpecialFunctions {
         if (x < 0.5) {
             return Math.PI / (Math.sin(Math.PI*x)*gamma(1-x));
         }
-        return Math.exp(lnGamma(x));
+        double y = Math.exp(lnGamma(x)); 
+        return y;
     }
     
     /**
@@ -298,99 +305,159 @@ public final class SpecialFunctions {
     
     /** 
      * Returns the Wigner 3j symbol associated with coupling angular momenta in quantum mechanics.
-     * Reference: 1. http://mathworld.wolfram.com/Wigner3j-Symbol.html
+     * Reference for code that is commented out: (this code is not much robust)
+     * 1. http://mathworld.wolfram.com/Wigner3j-Symbol.html
      * 2. http://massey.dur.ac.uk/umk/files/python/wigner.py
+     * Robust code taken from Bartolomei's pes-mrci.f file located at
+     * /usr/users/rsubrama/Desktop/Acads/Phd/oxygen/Bartolomei2010/
      * 
      * Currently only works for all 6 inputs being integers and not
      * half integers
      * @author rsubrama
      * @return double w3j
      */
+    protected static int nbin = 100;
+    protected static double [][] binom = new double [nbin][nbin];
     public static double wigner3J(int j1, int j2, int j3, int m1, int m2, int m3) {
-        // Rule 1
-        if (Math.abs(m1) > j1) return 0;
-        if (Math.abs(m2) > j2) return 0;
-        if (Math.abs(m3) > j3) return 0;
-        
-        // Rule 2
-        if (m1 + m2 + m3 != 0) return 0;
-        
-        // Rule 3
-        if (j3 > (j1 + j2) || j3 < Math.abs(j1 - j2)) return 0;
-        
-        int t1 = j2 - m1 - j3;
-        int t2 = j1 + m2 - j3;
-        int t3 = j1 + j2 - j3;
-        int t4 = j1 - m1;
-        int t5 = j2 + m2;
-        
-        int tMin = Math.max(0, Math.max(t1,t2));
-        int tMax = Math.min(t3, Math.min(t4,t5)) + 1;
-        int nTerms = tMax - tMin;
-        
-        // Check if number of terms is correct
-        int [] n = new int [9];
-        n[0] = j1 + m1;
-        n[1] = t4;
-        int gamma = Math.min(n[0],n[1]);        
-        n[2] = t5;
-        n[3] = j2 - m2;
-        n[4] = j3 + m3;
-        n[5] = j3 - m3;
-        n[6] = j1 + j2 - j3;
-        n[7] = j2 + j3 - j1;
-        n[8] = j1 + j3 - j2;
-        for (int i=2; i<9; i++) {
-            gamma = Math.min(gamma, n[i]);
+//        // Rule 1
+//        if (Math.abs(m1) > j1) return 0;
+//        if (Math.abs(m2) > j2) return 0;
+//        if (Math.abs(m3) > j3) return 0;
+//        
+//        // Rule 2
+//        if (m1 + m2 + m3 != 0) return 0;
+//        
+//        // Rule 3
+//        if (j3 > (j1 + j2) || j3 < Math.abs(j1 - j2)) return 0;
+//        
+//        int t1 = j2 - m1 - j3;
+//        int t2 = j1 + m2 - j3;
+//        int t3 = j1 + j2 - j3;
+//        int t4 = j1 - m1;
+//        int t5 = j2 + m2;
+//        
+//        int tMin = Math.max(0, Math.max(t1,t2));
+//        int tMax = Math.min(t3, Math.min(t4,t5)) + 1;
+//        int nTerms = tMax - tMin;
+//        
+//        // Check if number of terms is correct
+//        int [] n = new int [9];
+//        n[0] = j1 + m1;
+//        n[1] = t4;
+//        int gamma = Math.min(n[0],n[1]);        
+//        n[2] = t5;
+//        n[3] = j2 - m2;
+//        n[4] = j3 + m3;
+//        n[5] = j3 - m3;
+//        n[6] = j1 + j2 - j3;
+//        n[7] = j2 + j3 - j1;
+//        n[8] = j1 + j3 - j2;
+//        for (int i=2; i<9; i++) {
+//            gamma = Math.min(gamma, n[i]);
+//        }
+//        gamma ++;
+//        if (gamma != nTerms) throw new RuntimeException("Oops number of terms not matching!"+nTerms+gamma);
+//        
+//        double term1 = Math.pow(-1, j1 - j2 -m3);
+//        double term2 = Math.sqrt((double)factorial(n[6]) * (double)factorial(n[8]) * (double)factorial(n[7])/((double)factorial(j1 + j2 + j3 + 1)));
+//        double term3 = 1.00;
+//        for (int i=0; i<6; i++) {
+//            term3 *= (double)factorial(n[i]);
+//        }
+//        term3 = Math.sqrt(term3);
+//        double term4 = 0;
+//        for (int t = tMin; t < tMax; t++) {
+//            term4 += Math.pow(-1, t)/((double)factorial(t)*(double)factorial(t-t1)*(double)factorial(t-t2)*(double)factorial(t3-t)*(double)factorial(t4-t)*(double)factorial(t5-t));            
+//        }
+//        double w3j = term1*term2*term3*term4;
+        pascal();
+        double threej = 0.0;
+        if (m1+m2+m3 != 0.0) return threej;
+        int i1 = -j1 + j2 + j3 + 1;
+        if (i1 <= 0.0) return threej;
+        int i2 =  j1 - j2 + j3 + 1;
+        if (i2 <= 0.0) return threej;
+        int i3 =  j1 + j2 - j3 + 1;
+        if (i3 <= 0.0) return threej;
+        int k1 =  j1 + m1 + 1;
+        if (k1 <= 0.0) return threej;
+        int k2 =  j2 + m2 + 1;
+        if (k2 <= 0.0) return threej;
+        int k3 =  j3 + m3 + 1;
+        if (k3 <= 0.0) return threej;
+        int l1 =  j1 - m1 + 1;
+        if (l1 <= 0.0) return threej;
+        int l2 =  j2 - m2 + 1;
+        if (l2 <= 0.0) return threej;
+        int l3 =  j3 - m3 + 1;
+        if (l3 <= 0.0) return threej;
+        int n1 = -j1 - m2 + j3;
+        int n2 =  m1 - j2 + j3;
+        int n3 =  j1 - j2 + m3;
+//        System.out.println("i1 ="+i1+" i2 ="+i2+" i3 ="+i3+" k1 ="+k1+" k2 ="+k2+" k3 ="+k3+" l1 ="+l1+" l2 ="+l2+" l3 ="+l3+" n1 ="+n1+" n2 ="+n2+" n3 ="+n3);
+        int imin = Math.max(-n1,-n2);
+        imin = Math.max(imin, 0) + 1;
+        int imax = Math.min(l1,k2);
+        imax = Math.min(imax, i3);    
+        if (imin > imax) return threej;
+//        System.out.println("imin = "+imin+" imax = "+imax);
+        double sign = 1.0;
+        for (int i=imin; i<=imax; i++) {
+            sign = -sign;
+            threej += sign*binom[i1-1][n1+i-1]*binom[i2-1][n2+i-1]*binom[i3-1][i-1];
         }
-        gamma ++;
-        if (gamma != nTerms) throw new RuntimeException("Oops number of terms not matching!"+nTerms+gamma);
-        
-        double term1 = Math.pow(-1, j1 - j2 -m3);
-        double term2 = Math.sqrt((double)factorial(n[6]) * (double)factorial(n[8]) * (double)factorial(n[7])/((double)factorial(j1 + j2 + j3 + 1)));
-        double term3 = 1.00;
-        for (int i=0; i<6; i++) {
-            term3 *= (double)factorial(n[i]);
-        }
-        term3 = Math.sqrt(term3);
-        double term4 = 0;
-        for (int t = tMin; t < tMax; t++) {
-            term4 += Math.pow(-1, t)/((double)factorial(t)*(double)factorial(t-t1)*(double)factorial(t-t2)*(double)factorial(t3-t)*(double)factorial(t4-t)*(double)factorial(t5-t));            
-        }
-        double w3j = term1*term2*term3*term4;
-        return w3j;
+        threej *= Math.sqrt(binom[j2+j2][i3-1]*binom[j1+j1][i2-1]/(binom[j1+j2+j3+1][i3-1]*(j3+j3+1.0)* binom[j1+j1][l1-1]*binom[j2+j2][l2-1]*binom[j3+j3][l3-1]));
+        if (n3+imin % 2 != 0) threej = - threej;
+        return threej;        
     }
+    protected static void pascal() {
+        binom[0][0] = 1.0;
+        for (int i=2; i<=nbin; i++) {
+            binom[i-1][0] = 1.0;
+            binom[i-1][i-1] = 1.0;
+            if (i <= 2) continue;
+            int i1 = i - 1;
+            for (int j=2; j<=i1; j++) {
+                binom[i-1][j-1] = binom[i1-1][j-2] + binom[i1-1][j-1];
+            }
+        }
+    }   
     
     /**
      * Calculates the modified bessel function of the first kind (I) for a given order and the variable x.
+     * Right now works only for integer orders.
      * Reference: http://mathworld.wolfram.com/ModifiedBesselFunctionoftheFirstKind.html
      * @author rsubrama
      * @param order
      * @param x
      * @return double y
      */
-    public static double besselI(double order, double x) {
+    public static double besselI(int order, double x) {
         if (x == 0) return 0;
+        if (Double.isInfinite(x) || Double.isNaN(x)) throw new IllegalArgumentException("Illegal argument "+x);
         double term1 = Math.pow(0.5*x,order);
-        double term2 = 0;
         boolean done = false;
-        long k = 0;
+        int k = 1;
         double tol = 1E-10;
-        long maxK = (long)1E6;
+        int maxK = 10000;
+        double newSum = 1.0;
+        double oldSum = 0.0;
+        double y1 = 1.0/factorial(order);
+        
         do {
-            double oldT2 = term2;
-            double dr = (double)factorial((int)k)*gamma(order + k + 1);
-            if (Double.isNaN(dr) || dr == 0) throw new RuntimeException("Denominator is NaN or zero!!"+factorial((int)k)+gamma(order + k + 1));
-            term2 += Math.pow(0.25*x*x,k)/dr;
-            double newT2 = term2;
-            if ((newT2 - oldT2)*(newT2 - oldT2) < tol) done = true;
+            oldSum = newSum;
+            y1 *= x*x/(4.0*k*(k+order));            
+            newSum += y1;
+            double y2 = newSum - oldSum;
+            if (y2*y2 < tol) done = true;
             k++;
         } while (!done && k <= maxK);
         if (!done) throw new RuntimeException("Failed to converge!!");
-        double y = term1*term2;
-        if (Double.isInfinite(y) || Double.isNaN(y)) throw new RuntimeException("Oops"+y);
+        double y = term1*newSum;
+//        if (Double.isInfinite(y) || Double.isNaN(y)) throw new RuntimeException("Oops"+y);
         return y;
-    }
+    }    
+    
 
     public static void main(String[] args) {
     	System.out.println(confluentHypergeometric1F1(-0.25,0.5,1.0));
@@ -405,12 +472,18 @@ public final class SpecialFunctions {
         System.out.println(0.5+" "+SpecialFunctions.gamma(0.5)+" "+Math.exp(SpecialFunctions.lnGamma(0.5)));
         System.out.println(1+" "+SpecialFunctions.gamma(1));
         System.out.println();
-    	for (int i=2; i<1000; i++) {
-    	    double lnfac = SpecialFunctions.lnFactorial(i);
-    	    System.out.println(i+" "+lnfac+" "+(SpecialFunctions.lnGamma(i+1)-lnfac)/lnfac);
-    	}
+//    	for (int i=2; i<1000; i++) {
+//    	    double lnfac = SpecialFunctions.lnFactorial(i);
+//    	    System.out.println(i+" "+lnfac+" "+(SpecialFunctions.lnGamma(i+1)-lnfac)/lnfac);
+//    	}
     	double w = SpecialFunctions.wigner3J(4, 2, 2, -2, 2, 0);
     	System.out.println(w);
-        System.out.println(besselI(0.32,0.25)+" "+besselI(-1.59, 0.25));
+//        System.out.println(besselI(0.32,0.25)+" "+besselI(-1.59, 0.25));
+//        double ap3 = SpecialFunctions.besselI(3, 200);
+//        System.out.println("ap3 = " + ap3);
+    	double a = 1E-24/Mole.UNIT.fromSim(1);
+    	System.out.println(a*a*3007.044183696613+" "+a*a*198.22529144211072);
+    	System.out.println(a*a*(-28532.603135414935+11560.282978358246)+" "+a*a*Math.sqrt(198.22529144211072*198.22529144211072 + 33.767924918154755*33.767924918154755));
+    
     }
 }
