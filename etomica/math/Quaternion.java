@@ -105,31 +105,22 @@ public class Quaternion extends Object {
 	 */
 	public Quaternion(OrientationFull3D or) {
         // Get basis vectors from orientation
-        IVectorMutable [] v = space.makeVectorArray(3);
-        IVectorMutable ex = space.makeVector();
-        IVectorMutable ey = space.makeVector();
-        IVectorMutable ez = space.makeVector();
-        ex.E(0);
-        ey.E(0);
-        ez.E(0);
-        ex.setX(0, 1);
-        ey.setX(1, 1);
-        ez.setX(2, 1);
+        IVectorMutable [] v = space.makeVectorArray(3);        
         v[0].E(or.getDirection());
         v[1].E(or.getSecondaryDirection());
         v[2].E(v[0]);
         v[2].XE(v[1]);
         v[2].normalize();
         // Direction cosines to Rotation matrix
-        double a00 = v[0].dot(ex);
-        double a01 = v[0].dot(ey);
-        double a02 = v[0].dot(ez);
-        double a10 = v[1].dot(ex);
-        double a11 = v[1].dot(ey);
-        double a12 = v[1].dot(ez);
-        double a20 = v[2].dot(ex);
-        double a21 = v[2].dot(ey);
-        double a22 = v[2].dot(ez);
+        double a00 = v[0].getX(0);
+        double a01 = v[1].getX(0);
+        double a02 = v[2].getX(0);
+        double a10 = v[0].getX(1);
+        double a11 = v[1].getX(1);
+        double a12 = v[2].getX(1);
+        double a20 = v[0].getX(2);
+        double a21 = v[1].getX(2);
+        double a22 = v[2].getX(2);
         double tr = a00 + a11 + a22;
         
         // Rotation matrix to quaternion. Code taken from:
@@ -170,27 +161,18 @@ public class Quaternion extends Object {
      * @author rsubrama
 	 * @param basisVec
 	 */
-	public Quaternion(IVector[] basisVec) {        
-        IVectorMutable ex = space.makeVector();
-        IVectorMutable ey = space.makeVector();
-        IVectorMutable ez = space.makeVector();
-        ex.E(0);
-        ey.E(0);
-        ez.E(0);
-        ex.setX(0, 1);
-        ey.setX(1, 1);
-        ez.setX(2, 1);
+	public Quaternion(IVector[] basisVec) {
         
         // Direction cosines to Rotation matrix 
-        double a00 = basisVec[0].dot(ex);
-        double a01 = basisVec[0].dot(ey);
-        double a02 = basisVec[0].dot(ez);
-        double a10 = basisVec[1].dot(ex);
-        double a11 = basisVec[1].dot(ey);
-        double a12 = basisVec[1].dot(ez);
-        double a20 = basisVec[2].dot(ex);
-        double a21 = basisVec[2].dot(ey);
-        double a22 = basisVec[2].dot(ez);
+        double a00 = basisVec[0].getX(0);
+        double a01 = basisVec[1].getX(0);
+        double a02 = basisVec[2].getX(0);
+        double a10 = basisVec[0].getX(1);
+        double a11 = basisVec[1].getX(1);
+        double a12 = basisVec[2].getX(1);
+        double a20 = basisVec[0].getX(2);
+        double a21 = basisVec[1].getX(2);
+        double a22 = basisVec[2].getX(2);
         double tr = a00 + a11 + a22;
         
         // Rotation matrix to quaternion. Code taken from: 
@@ -345,16 +327,6 @@ public class Quaternion extends Object {
 	}
 	
 	/**
-	 * Returns the vector part of the Quaternion as IVectorMutable
-	 * @author rsubrama
-	 * @return IVectorMutable v = q1*i + q2*j + q3*k
-	 */
-	public IVectorMutable getVectorMutable() {
-	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
-	    return (IVectorMutable) vec;
-	}
-	
-	/**
 	 * Returns the vector part of the Quaternion as IVector
 	 * @author rsubrama
 	 * @return IVector v = q1*i + q2*j + q3*k
@@ -365,20 +337,31 @@ public class Quaternion extends Object {
 	}
 	
 	/**
-	 * Assigns the angle and the axis associated with the Quaternion. Note, axis is a unit vector
+	 * Returns the axis associated with the Quaternion. Note, axis is a unit vector
 	 * @author rsubrama
-	 * @param axis 
-	 * @param angle 
-	 */
-	public void getAxisAngle(IVectorMutable axis, double angle) {
+	 */	
+	public IVectorMutable getAxis() {
 	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
 	    if (! this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion and therefore not a rotation operator. Normalize it first");	    
+	    IVectorMutable axis = space.makeVector();
+	    axis.E(vec);
+	    if (vec.isZero() || vec.isNaN()) throw new RuntimeException("Vector part of quaternion is either zero or NaN "+ vec);
+	    axis.normalize();
+	    return axis;
+	}
+	
+	/**
+	 * Returns the angle associated with the quaternion
+	 * @return
+	 */
+	public double getAngle() {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+        if (! this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion and therefore not a rotation operator. Normalize it first");
+	    double angle = 0;
 	    if (q0 > 1.0) q0 = 1.0;
 	    if (q0 < -1.0) q0 = -1.0;
 	    angle = 2*Math.acos(q0);
-	    axis.E(vec);
-	    if (vec.isZero() || vec.isNaN()) throw new RuntimeException("Vector part of quaternion is either zero or NaN "+ vec);
-	    axis.normalize();	    
+	    return angle;
 	}
 	
 	/**
