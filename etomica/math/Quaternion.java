@@ -587,9 +587,10 @@ public class Quaternion extends Object {
 	 * @author rsubrama
 	 * @param v
 	 */
-	public void rotateVector(IVectorMutable v) {
+	public void rotateVector(IVectorMutable v) {	    
 	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
-        if (v.isNaN() || v.isZero()) throw new IllegalArgumentException("Illegal argument "+v);
+        if (v.isNaN() || v.isZero()) throw new IllegalArgumentException("Illegal argument "+v);        
+        if (! this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion and therefore not a rotation operator. Normalize it first");
 	    IVectorMutable w = space.makeVector();
 	    w.E(v);
 	    v.E(vec);
@@ -605,7 +606,9 @@ public class Quaternion extends Object {
 	 * @author rsubrama 
 	 * @param or
 	 */
-	public void rotateOrientation(OrientationFull3D or) {        
+	public void rotateOrientation(OrientationFull3D or) {
+	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
+        if (! this.isUnitQuaternion()) throw new RuntimeException("This is not a unit quaternion and therefore not a rotation operator. Normalize it first");
 	    this.rotateVector((IVectorMutable)or.getDirection());
 	    this.rotateVector((IVectorMutable)or.getSecondaryDirection());
 	}
