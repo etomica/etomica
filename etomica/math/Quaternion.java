@@ -508,23 +508,23 @@ public class Quaternion extends Object {
 	}
 	
 	/**
-	 * Returns the Quaternion r resulting from multiplying the input Quaternion p to the current Quaternion q.
+	 * Returns the Quaternion r resulting from multiplying the input Quaternion preMultiplier to the current Quaternion q.
 	 * Can be thought of as a pre-multiplication with the current Quaternion.
-	 * Mulitplication is done based on Hamilton's rules and result in (r = pq):
+	 * Mulitplication is done based on Hamilton's rules and result in (r = preMultiplier*q):
 	 * r = p0*q0 - pVec.dot(qVec) + p0*qVec + q0*pVec + pVec X qVec
 	 * @author rsubrama 
-	 * @param p
+	 * @param preMultiplier
 	 * @return Quaternion r = pq
 	 */
-	public Quaternion multiply(Quaternion p) {
+	public Quaternion preMultiply(Quaternion preMultiplier) {
 	    if (this.isIllegal()) throw new RuntimeException("Quaternion has illegal components "+q0+" "+q1+" "+q2+" "+q3);
-        if (p.isIllegal()) throw new IllegalArgumentException("Argument quaternion has illegal components "+p.q0+" "+p.q1+" "+p.q2+" "+p.q3);
-	    double a = p.q0*q0 - p.vec.dot(vec);
+        if (preMultiplier.isIllegal()) throw new IllegalArgumentException("Argument quaternion has illegal components "+preMultiplier.q0+" "+preMultiplier.q1+" "+preMultiplier.q2+" "+preMultiplier.q3);
+	    double a = preMultiplier.q0*q0 - preMultiplier.vec.dot(vec);
 	    IVectorMutable newVec = space.makeVector();
-	    newVec.E(p.vec);
+	    newVec.E(preMultiplier.vec);
 	    newVec.XE(vec); 
-	    newVec.PEa1Tv1(q0, p.vec);
-	    newVec.PEa1Tv1(p.q0, vec);
+	    newVec.PEa1Tv1(q0, preMultiplier.vec);
+	    newVec.PEa1Tv1(preMultiplier.q0, vec);
 	    return new Quaternion(a, newVec);
 	}
 	
