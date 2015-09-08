@@ -130,9 +130,11 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 //        checkF(cPairs,aPairs);
         
         calcValue();
-//        if (Double.isNaN(value) || Double.isInfinite(value)) {
-//            throw new RuntimeException("oops");
-//        }
+        if (false && (Double.isNaN(value) || Double.isInfinite(value))) {
+            updateF(box);
+            calcValue();
+            throw new RuntimeException("oops "+value);
+        }
         return value;
     }
     
@@ -142,7 +144,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
             double v = clusters[i].value(fValues);
             value += clusterWeights[i] * v;
             // enable this to debug bogus values
-            if (false && Double.isNaN(value) || Double.isInfinite(value)) {
+            if (false && (Double.isNaN(value) || Double.isInfinite(value))) {
                 for (int j=0; j<fValues.length; j++) {
                     for (int k=0; k<fValues.length; k++) {
                         System.out.println(j+" "+k+" "+Arrays.toString(fValues[j][k]));
@@ -176,10 +178,10 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                         // we want an eBond
                         fValues[i][j][fk] = fValues[i][j][fk-f.length]+1;
                     }
-//                    if (Double.isNaN(fValues[i][j][fk]) || Double.isInfinite(fValues[i][j][fk])) {
-//                        f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-//                        throw new RuntimeException("oops");
-//                    }
+                    if (false && (Double.isNaN(fValues[i][j][fk]) || Double.isInfinite(fValues[i][j][fk]))) {
+                        f[fk].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+                        throw new RuntimeException("oops f["+i+"]["+j+"]["+fk+"]="+fValues[i][j][fk]);
+                    }
                     fValues[j][i][fk] = fValues[i][j][fk];
                 }
             }
