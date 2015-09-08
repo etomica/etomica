@@ -82,7 +82,12 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
             int numChildren = childList.getAtomCount();
 
-            int j = random.nextInt(numChildren);
+            int j = -1;
+            while (true) {
+                // don't try crankshaft for propane
+                j = random.nextInt(numChildren);
+                if (j!=1 || numChildren>3) break;
+            }
             selectedAtoms[i] = childList.getAtom(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
             IVectorMutable position = selectedAtoms[i].getPosition();
