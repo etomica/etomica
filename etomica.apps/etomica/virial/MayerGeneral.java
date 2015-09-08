@@ -15,8 +15,10 @@ import etomica.api.IPotentialMolecular;
  * General Mayer function, which wraps the Mayer potential around an instance of
  * a Potential2 object.
  */
-public class MayerGeneral implements MayerFunction, java.io.Serializable {
+public class MayerGeneral implements MayerFunction {
 
+    protected static final boolean debug = false;
+    
     /**
      * Constructor Mayer function using given potential.
      */
@@ -26,10 +28,17 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
 
     public double f(IMoleculeList pair, double r2, double beta) {
         double x = -beta*potential.energy(pair);
+        double f = -2;
         if (Math.abs(x) < 0.01) {
-            return x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
+            f = x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;
         }
-        return Math.exp(x) - 1;
+        else {
+            f = Math.exp(x) - 1;
+        }
+        if (debug && (Double.isNaN(f) || Double.isInfinite(f))) {
+            throw new  RuntimeException("bogus f: "+f+"   beta: "+beta+"   u: "+potential.energy(pair));
+        }
+        return f;
     }
 
     public IPotential getPotential() {
