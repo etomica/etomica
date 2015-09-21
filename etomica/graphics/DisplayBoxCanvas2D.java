@@ -36,7 +36,6 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
-    private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
     private final int[] atomOrigin;
     private final IVectorMutable boundingBox;
     protected final ISpace space;
@@ -111,7 +110,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         baseYP = origin[1] + (int)(toPixels*r.getX(1));
         /* Draw the core of the atom, specific to the dimension */
         double sigma = displayBox.getDiameterHash().getDiameter(a);
-        // deafult diameter
+        // default diameter
         if (sigma == -1) sigma = 1;
         sigmaP = (int)(toPixels*sigma);
         sigmaP = (sigmaP == 0) ? 1 : sigmaP;
