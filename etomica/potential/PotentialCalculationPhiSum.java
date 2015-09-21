@@ -31,7 +31,6 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 	    ej = space.makeVector();
 	}
 
-	@Override
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 		// TODO Auto-generated method stub 
 		
@@ -45,7 +44,6 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		
 	}
 
-	@Override
 	public void doCalculation(IMoleculeList molecules, IPotentialMolecular potential) {
 		if(!(potential instanceof IPotentialMolecularSecondDerivative)){
 			return;
