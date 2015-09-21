@@ -272,19 +272,16 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 	}
 
 
-	@Override
 	public Object makeAgent(IMolecule a) {
 		// TODO Auto-generated method stub
 		 return new MoleculeAgent(space);
 	}
 
-	@Override
 	public void releaseAgent(Object agent, IMolecule a) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public Class getMoleculeAgentClass() {
 		// TODO Auto-generated method stub
 		return MoleculeAgent.class;
