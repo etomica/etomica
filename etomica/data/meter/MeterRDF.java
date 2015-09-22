@@ -131,9 +131,9 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
         }
         
         final double[] y = data.getData();
-        int numAtomPairs = 0;
+        long numAtomPairs = 0;
         if (type1 == null) {
-            int numAtoms = box.getLeafList().getAtomCount();
+            long numAtoms = box.getLeafList().getAtomCount();
             numAtomPairs = numAtoms*(numAtoms-1)/2;
         }
         else {
@@ -210,6 +210,6 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     protected double xMax;
     private String name;
     protected final DataTag tag;
-    protected int callCount;
+    protected long callCount;
     protected IAtomType type1, type2;
 }
