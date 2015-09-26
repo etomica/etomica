@@ -3,20 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.mappedvirial;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterRDF;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -24,6 +28,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Histogram;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -72,7 +77,7 @@ public class MappedVirialLJ extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         
         LJMDParams params = new LJMDParams();
         if (args.length > 0) {
@@ -80,10 +85,13 @@ public class MappedVirialLJ extends Simulation {
         }
         else {
             params.density = 0.025;
+            params.numSteps = 1000000;
+            params.rc = 4;
+            params.numAtoms = 1000;
         }
 
         int numAtoms = params.numAtoms;
-        double temperature = params.temperture;
+        double temperature = params.temperature;
         double density = params.density;
         long numSteps = params.numSteps;
         double rc = params.rc;
@@ -91,6 +99,8 @@ public class MappedVirialLJ extends Simulation {
         ISpace space = Space.getInstance(3);
 
         MappedVirialLJ sim = new MappedVirialLJ(space, numAtoms, temperature, density, rc);
+        
+        long t1 = System.currentTimeMillis();
         
         sim.activityIntegrate.setMaxSteps(numSteps/10);
         sim.getController().actionPerformed();
@@ -104,9 +114,9 @@ public class MappedVirialLJ extends Simulation {
         long samplesPerBlock = numSamples/numBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        double[] cutoff = new double[]{0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.492, 1.6, 2.0, 2.5, 3.0, 4.0};
+        double[] cutoff = new double[]{0.9, 0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.492, 1.6, 2.0, 2.5, 3.0, 4.0};
         final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), 
-                sim.p2Truncated, sim.box, nBins, cutoff);
+                sim.p2Truncated, sim.box, nBins, cutoff, 0.1);
         meterMappedVirial.setTemperature(sim.integrator.getTemperature());
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedVirial = new DataPumpListener(meterMappedVirial, accMappedVirial, numAtoms);
@@ -118,7 +128,15 @@ public class MappedVirialLJ extends Simulation {
         DataPumpListener pumpP = new DataPumpListener(meterP, accP, numAtoms);
         sim.integrator.getEventManager().addListener(pumpP);
 
-        
+        final MeterMeanForce meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, 800);
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
+
+        final MeterRDF meterRDF = new MeterRDF(space);
+        meterRDF.setBox(sim.box);
+        meterRDF.getXDataSource().setNValues(800);
+        meterRDF.getXDataSource().setXMax(sim.p2Truncated.getRange());
+        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+
         sim.getController().actionPerformed();
         
         IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
@@ -136,11 +154,39 @@ public class MappedVirialLJ extends Simulation {
         double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
         System.out.print(String.format("Pressure     avg: %12.5e   err: %11.4e   cor: %4.2f\n", pAvg, pErr, pCor));
 
+        FileWriter fw = new FileWriter("gr.dat");
+        IData rdata = meterRDF.getIndependentData(0);
+        IData gdata = meterRDF.getData();
+        for (int i=0; i<rdata.getLength(); i++) {
+            double r = rdata.getValue(i);
+            double g = gdata.getValue(i);
+            double e = Math.exp(-sim.p2Truncated.u(r*r)/temperature);
+            fw.write(String.format("%5.3f %22.15e %22.15e\n", r, g, e));
+        }
+        fw.close();
+        
+        fw = new FileWriter("mf.dat");
+        rdata = meterF.getIndependentData(0);
+        IData fdata = meterF.getData();
+        Histogram f2hist = meterF.getHistogram2();
+        double[] f2 = f2hist.getHistogram();
+        for (int i=0; i<rdata.getLength(); i++) {
+            double r = rdata.getValue(i);
+            double mf = fdata.getValue(i);
+            if (Double.isNaN(mf)) continue;
+            double sdf = Math.sqrt(f2[i]-mf*mf);
+            double pf = -sim.p2Truncated.du(r*r)/r;
+            fw.write(String.format("%5.3f %22.15e %22.15e %22.15e\n", r, mf, sdf, pf));
+        }
+        fw.close();
+
+        long t2 = System.currentTimeMillis();
+        System.out.println("time: "+(t2-t1)*0.001);
     }
     
     public static class LJMDParams extends ParameterBase {
         public int numAtoms = 100;
-        public double temperture = 1.0;
+        public double temperature = 1.0;
         public double density = 0.01;
         public long numSteps = 1000000;
         public double rc = 4;
