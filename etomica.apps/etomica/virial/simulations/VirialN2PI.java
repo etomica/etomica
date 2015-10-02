@@ -3,8 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
-
+import org.json.simple.JSONObject;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IIntegratorEvent;
@@ -16,6 +19,8 @@ import etomica.atom.IAtomTypeOriented;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Nitrogen;
 import etomica.config.ConformationLinear;
+import etomica.data.IData;
+import etomica.data.types.DataGroup;
 import etomica.integrator.mcmove.MCMove;
 import etomica.potential.P2NitrogenHellmann;
 import etomica.space.Space;
@@ -37,8 +42,8 @@ import etomica.virial.cluster.Standard;
 public class VirialN2PI {
     public static void main(String[] args) {
         VirialN2Param params = new VirialN2Param();
-        boolean isCommandline = args.length > 0;
-        if (isCommandline) {
+        boolean isCommandLine = args.length > 0;
+        if (isCommandLine) {
             ParseArgs parseArgs = new ParseArgs(params);
             parseArgs.parseArgs(args, true);
         }
@@ -49,10 +54,10 @@ public class VirialN2PI {
             params.numSteps = (long)1E6;
             params.pN2HellmannA = false;
 
-            // runtime options - make changes in these and not the default options above           
-//            params.potentialLevel = level.semiClassical;
+            // runtime options - make changes in these and not the default options above
+//            params.nBeads = 8;
 //            params.temperatureK = 500;
-//            params.numSteps = (long)1E8;
+//            params.numSteps = (long)1E6;
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperatureK;
@@ -153,7 +158,7 @@ public class VirialN2PI {
         
         System.out.println();
         String refFileName = null;
-        if (isCommandline) {
+        if (isCommandLine) {
             String tempString = ""+temperatureK;
             if (temperatureK == (int)temperatureK) {
                 // temperature is an integer, use "200" instead of "200.0"
@@ -182,7 +187,7 @@ public class VirialN2PI {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
         
         final double refIntegralF = HSB[nPoints];
-        if (! isCommandline) {
+        if (! isCommandLine) {
             IIntegratorListener progressReport = new IIntegratorListener() {        
                 public void integratorInitialized(IIntegratorEvent e) {}
                 public void integratorStepStarted(IIntegratorEvent e) {}
@@ -219,7 +224,7 @@ public class VirialN2PI {
             System.out.println(m.toString()+" acceptance ratio: "+acc);            
         }
         System.out.println("Target system: ");
-        List<MCMove> tarMoves = sim.integrators[1].getMoveManager().getMCMoves();
+        List<MCMove> tarMoves = sim.integrators[1].getMoveManager().getMCMoves();        
         for (MCMove m : tarMoves) {
             double acc = m.getTracker().acceptanceRatio();
 
@@ -227,6 +232,106 @@ public class VirialN2PI {
 //                throw new RuntimeException("something seems fishy");
 //            }
             System.out.println(m.toString()+" acceptance ratio: "+acc);
+        }
+     // Printing results here
+        double[] ratioAndError = sim.dvo.getAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
+        double bn = ratio*HSB[nPoints];
+        double bnError = error*Math.abs(HSB[nPoints]);
+        
+        System.out.println("ratio average: "+ratio+" error: "+error);
+        System.out.println("abs average: "+bn+" error: "+bnError);
+        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData();
+        IData ratioData = allYourBase.getData(sim.accumulators[0].RATIO.index);
+        IData ratioErrorData = allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index);
+        IData averageData = allYourBase.getData(sim.accumulators[0].AVERAGE.index);
+        IData stdevData = allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(sim.accumulators[0].ERROR.index);
+        IData correlationData = allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
+        IData covarianceData = allYourBase.getData(sim.accumulators[0].BLOCK_COVARIANCE.index);
+        double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+        double refAvg = averageData.getValue(0);
+        double refOvAvg = averageData.getValue(1);
+        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
+                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
+        
+        allYourBase = (DataGroup)sim.accumulators[1].getData();
+        ratioData = allYourBase.getData(sim.accumulators[1].RATIO.index);
+        ratioErrorData = allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index);
+        averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
+        stdevData = allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
+        errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
+        correlationData = allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
+        covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        int n = sim.numExtraTargetClusters;
+        correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+        double tarAvg = averageData.getValue(0);
+        double tarOvAvg = averageData.getValue(1);
+        double tarCorr = correlationData.getValue(0);
+        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(n+1), ratioErrorData.getValue(n+1), correlationCoef));
+        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
+        if (isCommandLine) {
+            LinkedHashMap resultsMap = new LinkedHashMap();
+            resultsMap.put("temperature", temperatureK);
+            resultsMap.put("bn", bn);
+            resultsMap.put("bnError", bnError);
+            resultsMap.put("refAvg", refAvg);
+            resultsMap.put("refOvAvg", refOvAvg);
+            resultsMap.put("tarAvg", tarAvg);
+            resultsMap.put("tarOvAvg", tarOvAvg);
+            resultsMap.put("tarCorr", tarCorr);
+            for (MCMove m : tarMoves) {
+                double acc = m.getTracker().acceptanceRatio();
+                resultsMap.put(m.toString(), acc);
+            }
+
+            if ((t2-t1)/1000.0 > 24*3600) {
+                resultsMap.put("time",(t2-t1)/(24*3600*1000.0));
+                resultsMap.put("unit","days");
+                System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
+            }
+            else if ((t2-t1)/1000.0 > 3600) {
+                resultsMap.put("time",(t2-t1)/(3600*1000.0));
+                resultsMap.put("unit","hrs");
+                System.out.println("time: "+(t2-t1)/(3600*1000.0)+" hrs");
+            }
+            else if ((t2-t1)/1000.0 > 60) {
+                resultsMap.put("time",(t2-t1)/(60*1000.0));
+                resultsMap.put("unit","mins");
+                System.out.println("time: "+(t2-t1)/(60*1000.0)+" mins");
+            }
+            else {
+                resultsMap.put("time",(t2-t1)/(1000.0));
+                resultsMap.put("unit","secs");
+                System.out.println("time: "+(t2-t1)/1000.0+" secs");
+            }                    
+            String jsonFileName = params.jarFile + "PI";            
+            
+            if (temperatureK == (int) temperatureK) { 
+                jsonFileName += (int)temperatureK+"K";
+            }
+            else {
+                jsonFileName += temperatureK+"K";
+            }            
+            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";            
+            jsonFileName += ".json";
+            try {
+                FileWriter jsonFile = new FileWriter(jsonFileName);
+                jsonFile.write(JSONObject.toJSONString(resultsMap));
+                jsonFile.write("\n");
+                jsonFile.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }                
         }
         sim.printResults(HSB[nPoints]);        
         
@@ -257,7 +362,8 @@ public class VirialN2PI {
         public double sigmaHSRef = 4.50; // -1 means use equation for sigmaHSRef
         public boolean pairOnly = true;
         public boolean pN2HellmannA = true;
-        public int beadFac = 2;        
+        public int beadFac = 2;
+        public String jarFile = "";        
     }
 
 }
