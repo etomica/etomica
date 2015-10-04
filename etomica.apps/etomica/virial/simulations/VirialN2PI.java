@@ -282,6 +282,7 @@ public class VirialN2PI {
         if (isCommandLine) {
             LinkedHashMap resultsMap = new LinkedHashMap();
             resultsMap.put("temperature", temperatureK);
+            resultsMap.put("P", nBeads);
             resultsMap.put("bn", bn);
             resultsMap.put("bnError", bnError);
             resultsMap.put("refAvg", refAvg);
@@ -321,7 +322,8 @@ public class VirialN2PI {
             }
             else {
                 jsonFileName += temperatureK+"K";
-            }            
+            }
+            jsonFileName += nBeads+"nb";
             jsonFileName += (int)Math.log10((double)params.numSteps)+"s";            
             jsonFileName += ".json";
             try {
