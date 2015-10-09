@@ -207,7 +207,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
             tbet = tbetPT2;
             qajmols = qajmolsPT2;
             qajp1 = qajp1PT2;
-            qajp1 = qajpnPT2;
+            qajpn = qajpnPT2;
             qaa = qaaPT2;
             qbet = qbetPT2;
         }
@@ -225,7 +225,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
             tbet = tbetMRCI;
             qajmols = qajmolsMRCI;
             qajp1 = qajp1MRCI;
-            qajp1 = qajpnMRCI;
+            qajpn = qajpnMRCI;
             qaa = qaaMRCI;
             qbet = qbetMRCI;
         }
