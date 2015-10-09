@@ -47,7 +47,7 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final double[] sum, virialSum, thetaSum;
+    protected final double[] sum;
     protected final double epsilon;
     
     public MeterMappedVirial(ISpace space, IPotentialMaster potentialMaster, Potential2SoftSpherical p2, IBox box, int nbins, double[] rCutoff, double epsilon) {
@@ -72,8 +72,6 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         this.rCutoff = rCutoff;
         q = new double[rCutoff.length];
         sum = new double[rCutoff.length];
-        virialSum = new double[rCutoff.length];
-        thetaSum = new double[rCutoff.length];
         data = new DataDoubleArray(rCutoff.length);
         dataInfo = new DataInfoDoubleArray("mapped virial", Pressure.DIMENSION, new int[]{rCutoff.length});
         tag = new DataTag();
@@ -81,11 +79,6 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         this.epsilon = epsilon;
     }
     
-    protected double integrand(double r2, double r, int j) {
-        double u = p2.u(r2);
-        return Math.exp(-beta*u)*(1-theta(r,j));
-    }
-
     public void setTemperature(double T) {
         beta = 1/T;
         int D = space.D();
@@ -95,11 +88,14 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
             for (int i=1; i<=nbins; i++) {
                 double r = Math.exp(c1*i)-1;
                 double r2 = r*r;
-                double e = Math.exp(-beta*p2.u(r2));
-                q[j] += (D==2 ? r : r2)*(e-1)*(1-theta(r,j))*c1*(r+1);
-                cumint[j][i] = cumint[j][i-1] + (D==2 ? r : r2)*e*c1*(r+1);
+                double eu = Math.exp(-beta*p2.u(r2));
+                double evm1 = (eu-1)*(1-theta(r,j));
+                q[j] += (D==2 ? r : r2)*evm1*c1*(r+1);
+                cumint[j][i] = cumint[j][i-1] + (D==2 ? r : r2)*(evm1+1)*c1*(r+1);
+//                if (rCutoff[j]==1 && r>0.864 && r<0.896) System.out.println(r+" "+(evm1+1)+" "+cumint[j][i]);
             }
             q[j] *= 4*Math.PI;
+//            System.out.println(rCutoff[j]+" "+q[j]);
         }
     }
     
@@ -110,30 +106,35 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         double L = Math.pow(V,1.0/3.0);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{L,L,L}));
         P2LennardJones p2 = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(space, p2, 4.0);
+        P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(space, p2, 20.0);
         p2.setBox(box);
-        double[] cutoff = new double[]{0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.6, 2.0, 2.5, 3.0, 4.0};
-        int nbins = 10000;
-        MeterMappedVirial meter = new MeterMappedVirial(space, null, p2t, box, nbins, cutoff, 0);
+        double[] cutoff = new double[]{0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.6, 2.0, 2.5, 3.0, 4.0,10.0};
+        int nbins = 100000;
+        MeterMappedVirial meter = new MeterMappedVirial(space, null, p2t, box, nbins, cutoff, .1);
         meter.setTemperature(1.0);
-//        for (int i=0; i<cutoff.length; i++) {
-//            System.out.println(i+" "+cutoff[i]+" "+meter.q[i]);
-//        }
-        double rc = p2t.getRange();
+        for (int i=0; i<cutoff.length; i++) {
+            System.out.println(i+" "+cutoff[i]+" "+meter.q[i]);
+        }
+        double rc = 5; //p2t.getRange();
         for (int idx = 0; idx<cutoff.length; idx++) {
+            idx=7;
             for (int i=1; i<1000; i++) {
                 double r = i*rc/1000;
                 double u = p2.u(r*r);
-                System.out.println(r+" "+meter.calcXs(idx, r, u));
+//                meter.calcXs(idx,r,u);
+                System.out.println(r+" "+meter.cumint(idx,r)+" "+meter.calcXs(idx, r, u));
             }
             System.out.println("&");
+            break;
         }
     }
 
     protected double calcXs(int idx, double r, double u) {
-        double qV = q[idx]/vol;
         double y = cumint(idx, r);
-        return -r + 3*(1-qV)*y*Math.exp(beta*u)/(r*r);
+        double eu = Math.exp(-beta*u);
+        double evm1 = (eu-1)*(1-theta(r,idx));
+//        System.out.println(r+" "+eu+" "+theta(r,idx)+" "+(evm1+1)+" "+y);
+        return -r + space.D()*y/(r*r*(evm1+1));
     }
 
     protected double cumint(int idx, double r) {
@@ -153,7 +154,7 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
     public double theta(double r, int idx) {
         return 0.5*(1+Math.tanh((r-rCutoff[idx])/epsilon));
     }
-    
+
     public double dtheta(double r, int idx) {
         double cosh = Math.cosh((r-rCutoff[idx])/epsilon);
         return 0.5/(epsilon*cosh*cosh);
@@ -168,7 +169,7 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         potentialMaster.calculate(box, allAtoms, pcForce);
         IAtomList list = box.getLeafList();
         for (int j=0; j<sum.length; j++) {
-            sum[j] = virialSum[j] = thetaSum[j] = 0;
+            sum[j] = 0;
         }
         int n = list.getAtomCount();
         for (int i=0; i<n; i++) {
@@ -185,20 +186,17 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
                 IVector fj = forceManager.getAgent(b).force;
                 pair.atom1 = b;
                 double u = p2.u(r2);
-                double e = Math.exp(-beta*u);
+                double eu = Math.exp(-beta*u);
                 double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-                double rfij = p2.du(r2);
+                double fij = p2.du(r2);
                 for (int jj=0; jj<rCutoff.length; jj++) {
                     double xs = calcXs(jj, r, u);
                     double theta = theta(r, jj);
-//                    System.out.println(rCutoff[jj]+" "+r+" "+dtheta(r,jj));
-                    thetaSum[jj] += (xs+r)*(e-1)/p(e, theta)*dtheta(r,jj);
-                    double fac = e/p(e,theta)*(1-theta);
-//                    System.out.println(rCutoff[jj]+" "+r+" "+fac);
-                    sum[jj] += xs*(fifj + 2*rfij/r*e/p(e,theta)*(1-theta));
-                    double fac2 = (e/p(e, theta)*(1-theta)-1);
-//                    System.out.println(rCutoff[jj]+" "+r+" "+fac2);
-                    virialSum[jj] += rfij * (e/p(e, theta)*(1-theta)-1);
+                    double up = fij/r;
+                    double ev = 1 + (eu-1)*(1-theta);
+                    double vp = (up*eu*(1-theta) + (eu-1)*dtheta(r,jj)*(r-rCutoff[jj]))/ev;
+                    double wp = 0.5*fifj;
+                    sum[jj] += r*(vp-up) + xs*(vp-wp);
                 }
             }
         }
@@ -208,7 +206,7 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         double[] x = data.getData();
 
         for (int j=0; j<rCutoff.length; j++) {
-            x[j] = density/beta - 0.5*q[j]*density*density/beta  + sum[j]/(2*D*vol) + virialSum[j]/(D*vol);
+            x[j] = density/beta - 0.5*q[j]*density*density/beta  + sum[j]/(2*D*vol);
         }
         return data;
     }

@@ -5,6 +5,7 @@
 package etomica.mappedvirial;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
@@ -73,7 +74,9 @@ public class MappedVirialLJ extends Simulation {
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         integrator.setBox(box);
         potentialMaster.setCellRange(2);
-
+        
+        potentialMaster.getNbrCellManager(box).assignCellAll();
+        
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
     
@@ -84,6 +87,7 @@ public class MappedVirialLJ extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
+            params.temperature = 1;
             params.density = 0.025;
             params.numSteps = 1000000;
             params.rc = 4;
@@ -108,13 +112,21 @@ public class MappedVirialLJ extends Simulation {
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.integrator.getMoveManager().setEquilibrating(false);
         
-        int nBins = 10000;
+        int nBins = 1000000;
         int numBlocks = 100;
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/numBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        double[] cutoff = new double[]{0.9, 0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.492, 1.6, 2.0, 2.5, 3.0, 4.0};
+        double[] cutoff0 = new double[]{0.9, 0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.492, 1.6, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0};
+        double[] cutoff = null;
+        for (int i=0; i<cutoff0.length; i++) {
+            if (cutoff0[i] > params.rc) {
+                cutoff = Arrays.copyOfRange(cutoff0, 0, i);
+                break;
+            }
+        }
+        if (cutoff==null) cutoff = cutoff0;
         final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), 
                 sim.p2Truncated, sim.box, nBins, cutoff, 0.1);
         meterMappedVirial.setTemperature(sim.integrator.getTemperature());
@@ -146,13 +158,13 @@ public class MappedVirialLJ extends Simulation {
             double avg = mappedAvg.getValue(i);
             double err = mappedErr.getValue(i);
             double cor = mappedCor.getValue(i);
-            System.out.print(String.format("xc: %6.3f   avg: %12.5e   err: %11.4e   cor: %4.2f\n", cutoff[i], avg, err, cor));
+            System.out.print(String.format("xc: %6.3f   avg: %13.6e   err: %11.4e   cor: % 4.2f\n", cutoff[i], avg, err, cor));
         }
 
         double pAvg = accP.getData(accP.AVERAGE).getValue(0);
         double pErr = accP.getData(accP.ERROR).getValue(0);
         double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
-        System.out.print(String.format("Pressure     avg: %12.5e   err: %11.4e   cor: %4.2f\n", pAvg, pErr, pCor));
+        System.out.print(String.format("Pressure     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", pAvg, pErr, pCor));
 
         FileWriter fw = new FileWriter("gr.dat");
         IData rdata = meterRDF.getIndependentData(0);
