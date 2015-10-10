@@ -99,6 +99,7 @@ public class MappedVirialLJ extends Simulation {
         double density = params.density;
         long numSteps = params.numSteps;
         double rc = params.rc;
+        boolean collectFunctions = params.collectFunctions;
         
         ISpace space = Space.getInstance(3);
 
@@ -140,14 +141,18 @@ public class MappedVirialLJ extends Simulation {
         DataPumpListener pumpP = new DataPumpListener(meterP, accP, numAtoms);
         sim.integrator.getEventManager().addListener(pumpP);
 
-        final MeterMeanForce meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, 800);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
-
-        final MeterRDF meterRDF = new MeterRDF(space);
-        meterRDF.setBox(sim.box);
-        meterRDF.getXDataSource().setNValues(800);
-        meterRDF.getXDataSource().setXMax(sim.p2Truncated.getRange());
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+        MeterMeanForce meterF = null;
+        MeterRDF meterRDF = null;
+        if (collectFunctions) {
+            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, 800);
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
+    
+            meterRDF = new MeterRDF(space);
+            meterRDF.setBox(sim.box);
+            meterRDF.getXDataSource().setNValues(800);
+            meterRDF.getXDataSource().setXMax(sim.p2Truncated.getRange());
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+        }
 
         sim.getController().actionPerformed();
         
@@ -166,31 +171,33 @@ public class MappedVirialLJ extends Simulation {
         double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
         System.out.print(String.format("Pressure     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", pAvg, pErr, pCor));
 
-        FileWriter fw = new FileWriter("gr.dat");
-        IData rdata = meterRDF.getIndependentData(0);
-        IData gdata = meterRDF.getData();
-        for (int i=0; i<rdata.getLength(); i++) {
-            double r = rdata.getValue(i);
-            double g = gdata.getValue(i);
-            double e = Math.exp(-sim.p2Truncated.u(r*r)/temperature);
-            fw.write(String.format("%5.3f %22.15e %22.15e\n", r, g, e));
+        if (collectFunctions) {
+            FileWriter fw = new FileWriter("gr.dat");
+            IData rdata = meterRDF.getIndependentData(0);
+            IData gdata = meterRDF.getData();
+            for (int i=0; i<rdata.getLength(); i++) {
+                double r = rdata.getValue(i);
+                double g = gdata.getValue(i);
+                double e = Math.exp(-sim.p2Truncated.u(r*r)/temperature);
+                fw.write(String.format("%5.3f %22.15e %22.15e\n", r, g, e));
+            }
+            fw.close();
+            
+            fw = new FileWriter("mf.dat");
+            rdata = meterF.getIndependentData(0);
+            IData fdata = meterF.getData();
+            Histogram f2hist = meterF.getHistogram2();
+            double[] f2 = f2hist.getHistogram();
+            for (int i=0; i<rdata.getLength(); i++) {
+                double r = rdata.getValue(i);
+                double mf = fdata.getValue(i);
+                if (Double.isNaN(mf)) continue;
+                double sdf = Math.sqrt(f2[i]-mf*mf);
+                double pf = -sim.p2Truncated.du(r*r)/r;
+                fw.write(String.format("%5.3f %22.15e %22.15e %22.15e\n", r, mf, sdf, pf));
+            }
+            fw.close();
         }
-        fw.close();
-        
-        fw = new FileWriter("mf.dat");
-        rdata = meterF.getIndependentData(0);
-        IData fdata = meterF.getData();
-        Histogram f2hist = meterF.getHistogram2();
-        double[] f2 = f2hist.getHistogram();
-        for (int i=0; i<rdata.getLength(); i++) {
-            double r = rdata.getValue(i);
-            double mf = fdata.getValue(i);
-            if (Double.isNaN(mf)) continue;
-            double sdf = Math.sqrt(f2[i]-mf*mf);
-            double pf = -sim.p2Truncated.du(r*r)/r;
-            fw.write(String.format("%5.3f %22.15e %22.15e %22.15e\n", r, mf, sdf, pf));
-        }
-        fw.close();
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
@@ -202,5 +209,6 @@ public class MappedVirialLJ extends Simulation {
         public double density = 0.01;
         public long numSteps = 1000000;
         public double rc = 4;
+        public boolean collectFunctions = false;
     }
 }
