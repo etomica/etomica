@@ -206,7 +206,7 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         double[] x = data.getData();
 
         for (int j=0; j<rCutoff.length; j++) {
-            x[j] = density/beta - 0.5*q[j]*density*density/beta  + sum[j]/(2*D*vol);
+            x[j] = density/beta - 0.5*q[j]*density*density/beta  + sum[j]/(D*vol);
         }
         return data;
     }
