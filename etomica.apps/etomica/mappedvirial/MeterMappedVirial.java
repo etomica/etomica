@@ -194,7 +194,7 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
                     double theta = theta(r, jj);
                     double up = fij/r;
                     double ev = 1 + (eu-1)*(1-theta);
-                    double vp = (up*eu*(1-theta) + (eu-1)*dtheta(r,jj))/ev;
+                    double vp = (up*eu*(1-theta) + (eu-1)*dtheta(r,jj)/beta)/ev;
                     double wp = 0.5*fifj;
                     sum[jj] += r*(vp-up) + xs*(vp-wp);
                 }
