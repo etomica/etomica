@@ -100,7 +100,13 @@ public class MappedVirialLJ extends Simulation {
         long numSteps = params.numSteps;
         double rc = params.rc;
         boolean collectFunctions = params.collectFunctions;
-        
+
+        System.out.println("Virial mapped average");
+        System.out.println(numAtoms+" atoms, "+numSteps+" steps");
+        System.out.println("density: "+density);
+        System.out.println("temperature: "+temperature);
+        System.out.println("cutoff: "+rc);
+
         ISpace space = Space.getInstance(3);
 
         MappedVirialLJ sim = new MappedVirialLJ(space, numAtoms, temperature, density, rc);
@@ -122,14 +128,14 @@ public class MappedVirialLJ extends Simulation {
         double[] cutoff0 = new double[]{0.9, 0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.492, 1.6, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0};
         double[] cutoff = null;
         for (int i=0; i<cutoff0.length; i++) {
-            if (cutoff0[i] > params.rc) {
+            if (cutoff0[i]*1.1 > params.rc) {
                 cutoff = Arrays.copyOfRange(cutoff0, 0, i);
                 break;
             }
         }
         if (cutoff==null) cutoff = cutoff0;
         final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), 
-                sim.p2Truncated, sim.box, nBins, cutoff, 0.1);
+                sim.p2Truncated, sim.box, nBins, cutoff);
         meterMappedVirial.setTemperature(sim.integrator.getTemperature());
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedVirial = new DataPumpListener(meterMappedVirial, accMappedVirial, numAtoms);
@@ -159,11 +165,12 @@ public class MappedVirialLJ extends Simulation {
         IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
         IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);
         IData mappedCor = accMappedVirial.getData(accMappedVirial.BLOCK_CORRELATION);
+        double[] epsilon = meterMappedVirial.getEpsilon();
         for (int i=0; i<cutoff.length; i++) {
             double avg = mappedAvg.getValue(i);
             double err = mappedErr.getValue(i);
             double cor = mappedCor.getValue(i);
-            System.out.print(String.format("xc: %6.3f   avg: %13.6e   err: %11.4e   cor: % 4.2f\n", cutoff[i], avg, err, cor));
+            System.out.print(String.format("xc: %6.3f   eps: %6.3f   avg: %13.6e   err: %11.4e   cor: % 4.2f\n", cutoff[i], epsilon[i], avg, err, cor));
         }
 
         double pAvg = accP.getData(accP.AVERAGE).getValue(0);
