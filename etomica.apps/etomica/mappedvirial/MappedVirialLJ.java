@@ -88,10 +88,10 @@ public class MappedVirialLJ extends Simulation {
         }
         else {
             params.temperature = 2;
-            params.density = 0.5;
+            params.density = 0.1;
             params.numSteps = 100000;
             params.rc = 2.5;
-            params.numAtoms = 1000;
+            params.numAtoms = 5000;
             params.functionsFile = "sim";
         }
 
@@ -136,8 +136,8 @@ public class MappedVirialLJ extends Simulation {
         }
         if (cutoff==null) cutoff = cutoff0;
         final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), 
-                sim.p2Truncated, sim.box, nBins, cutoff);
-        meterMappedVirial.setTemperature(sim.integrator.getTemperature());
+                rc, sim.box, nBins, cutoff);
+        meterMappedVirial.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedVirial = new DataPumpListener(meterMappedVirial, accMappedVirial, numAtoms);
         sim.integrator.getEventManager().addListener(pumpMappedVirial);
@@ -153,9 +153,9 @@ public class MappedVirialLJ extends Simulation {
         if (functionsFile != null) {
             int nbins = (int)Math.round(rc/0.01);
             meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
+//            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
     
-            meterRDF = new MeterRDF(space);
+            meterRDF = new MeterRDF(space); //, sim.integrator.getPotentialMaster(), sim.box);
             meterRDF.setBox(sim.box);
             meterRDF.getXDataSource().setNValues(nbins);
             meterRDF.getXDataSource().setXMax(rc);
@@ -167,15 +167,16 @@ public class MappedVirialLJ extends Simulation {
         IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
         IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);
         IData mappedCor = accMappedVirial.getData(accMappedVirial.BLOCK_CORRELATION);
-        double[] epsilon = meterMappedVirial.getEpsilon();
+        double[] epsilon = meterMappedVirial.getPotentialCalculation().getEpsilon();
         for (int i=0; i<cutoff.length; i++) {
             double avg = mappedAvg.getValue(i);
             double err = mappedErr.getValue(i);
             double cor = mappedCor.getValue(i);
-            double q = meterMappedVirial.getQ(i);
+            double q = meterMappedVirial.getPotentialCalculation().getQ(i);
             System.out.print(String.format("xc: %6.3f   eps: %6.3f   q: %18.10e   avg: %13.6e   err: %11.4e   cor: % 4.2f\n", cutoff[i], epsilon[i], q, avg, err, cor));
         }
 
+        
         double pAvg = accP.getData(accP.AVERAGE).getValue(0);
         double pErr = accP.getData(accP.ERROR).getValue(0);
         double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
