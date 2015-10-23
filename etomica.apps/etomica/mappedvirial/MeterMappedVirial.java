@@ -44,6 +44,7 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
     protected final double vol;
     protected final double[] q;
     protected final double[] rCutoff;
+    protected final double x0;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
@@ -80,8 +81,9 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         dataInfo.addTag(tag);
         epsilon = new double[rCutoff.length];
         double pc = p2.getRange();
+        x0 = 0.95*pc;
         for (int i=0; i<rCutoff.length; i++) {
-            epsilon[i] = (pc-rCutoff[i])*0.5;
+            epsilon[i] = (0.95*pc-rCutoff[i])*0.3;
             if (epsilon[i] > 0.3*rCutoff[i]) epsilon[i] = 0.3*rCutoff[i];
         }
     }
@@ -228,7 +230,10 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
                         vp = up*(1-theta) - u*dtheta(r,jj);
                     }
                     double wp = 0.5*fifj;
-                    sum[jj] += r*(vp-up) + xs*(vp-wp);
+                    sum[jj] += r*(vp-up);
+                    if (r < x0) {
+                        sum[jj] += xs*(vp-wp);
+                    }
                 }
             }
         }
