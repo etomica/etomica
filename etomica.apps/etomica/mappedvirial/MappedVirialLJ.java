@@ -172,7 +172,8 @@ public class MappedVirialLJ extends Simulation {
             double avg = mappedAvg.getValue(i);
             double err = mappedErr.getValue(i);
             double cor = mappedCor.getValue(i);
-            System.out.print(String.format("xc: %6.3f   eps: %6.3f   avg: %13.6e   err: %11.4e   cor: % 4.2f\n", cutoff[i], epsilon[i], avg, err, cor));
+            double q = meterMappedVirial.getQ(i);
+            System.out.print(String.format("xc: %6.3f   eps: %6.3f   q: %18.10e   avg: %13.6e   err: %11.4e   cor: % 4.2f\n", cutoff[i], epsilon[i], q, avg, err, cor));
         }
 
         double pAvg = accP.getData(accP.AVERAGE).getValue(0);

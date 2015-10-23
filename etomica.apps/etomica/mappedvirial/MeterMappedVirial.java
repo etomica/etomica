@@ -187,9 +187,9 @@ public class MeterMappedVirial implements IEtomicaDataSource, AgentSource<Integr
         double cosh = Math.cosh((r-rCutoff[idx])/epsilon[idx]);
         return 0.5/(epsilon[idx]*cosh*cosh);
     }
-    
-    public double p(double e, double theta) {
-        return 1 + (e-1)*(1-theta);
+
+    public double getQ(int idx) {
+        return q[idx];
     }
 
     public IData getData() {
