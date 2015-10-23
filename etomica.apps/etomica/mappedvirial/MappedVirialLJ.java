@@ -87,11 +87,12 @@ public class MappedVirialLJ extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.temperature = 1;
-            params.density = 0.025;
-            params.numSteps = 1000000;
-            params.rc = 4;
+            params.temperature = 2;
+            params.density = 0.5;
+            params.numSteps = 100000;
+            params.rc = 2.5;
             params.numAtoms = 1000;
+            params.functionsFile = "sim";
         }
 
         int numAtoms = params.numAtoms;
@@ -99,7 +100,7 @@ public class MappedVirialLJ extends Simulation {
         double density = params.density;
         long numSteps = params.numSteps;
         double rc = params.rc;
-        boolean collectFunctions = params.collectFunctions;
+        String functionsFile = params.functionsFile;
 
         System.out.println("Virial mapped average");
         System.out.println(numAtoms+" atoms, "+numSteps+" steps");
@@ -128,7 +129,7 @@ public class MappedVirialLJ extends Simulation {
         double[] cutoff0 = new double[]{0.9, 0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.492, 1.6, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0};
         double[] cutoff = null;
         for (int i=0; i<cutoff0.length; i++) {
-            if (cutoff0[i]*1.1 > params.rc) {
+            if (cutoff0[i]*1.15 > params.rc) {
                 cutoff = Arrays.copyOfRange(cutoff0, 0, i);
                 break;
             }
@@ -149,14 +150,15 @@ public class MappedVirialLJ extends Simulation {
 
         MeterMeanForce meterF = null;
         MeterRDF meterRDF = null;
-        if (collectFunctions) {
-            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, 800);
+        if (functionsFile != null) {
+            int nbins = (int)Math.round(rc/0.01);
+            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
     
             meterRDF = new MeterRDF(space);
             meterRDF.setBox(sim.box);
-            meterRDF.getXDataSource().setNValues(800);
-            meterRDF.getXDataSource().setXMax(sim.p2Truncated.getRange());
+            meterRDF.getXDataSource().setNValues(nbins);
+            meterRDF.getXDataSource().setXMax(rc);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
 
@@ -178,8 +180,8 @@ public class MappedVirialLJ extends Simulation {
         double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
         System.out.print(String.format("Pressure     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", pAvg, pErr, pCor));
 
-        if (collectFunctions) {
-            FileWriter fw = new FileWriter("gr.dat");
+        if (functionsFile != null) {
+            FileWriter fw = new FileWriter(functionsFile+"_gr.dat");
             IData rdata = meterRDF.getIndependentData(0);
             IData gdata = meterRDF.getData();
             for (int i=0; i<rdata.getLength(); i++) {
@@ -190,7 +192,7 @@ public class MappedVirialLJ extends Simulation {
             }
             fw.close();
             
-            fw = new FileWriter("mf.dat");
+            fw = new FileWriter(functionsFile+"_mf.dat");
             rdata = meterF.getIndependentData(0);
             IData fdata = meterF.getData();
             Histogram f2hist = meterF.getHistogram2();
@@ -216,6 +218,6 @@ public class MappedVirialLJ extends Simulation {
         public double density = 0.01;
         public long numSteps = 1000000;
         public double rc = 4;
-        public boolean collectFunctions = false;
+        public String functionsFile = null;
     }
 }
