@@ -107,6 +107,7 @@ public class MappedVirialLJ extends Simulation {
         System.out.println("density: "+density);
         System.out.println("temperature: "+temperature);
         System.out.println("cutoff: "+rc);
+        System.out.println("x0: "+0.95*rc);
 
         ISpace space = Space.getInstance(3);
 
