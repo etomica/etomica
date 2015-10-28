@@ -29,28 +29,29 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected final ISpace space;
     protected double beta;
     protected final IVectorMutable dr;
-    protected final double c1;
+    protected double c1;
     protected final double[][] cumint;
     protected final AtomPair pair;
     protected final double vol;
     protected final double[] q;
     protected final double[] rCutoff;
-    protected final double x0;
+    protected double x0;
     protected final double[] sum;
     protected final double[] epsilon;
     protected final boolean switchev;
     protected final double[] x;
+    protected final int nbins;
 
     public PotentialCalculationMappedVirial(ISpace space, IBox box, int nbins, double[] rCutoff, AtomLeafAgentManager<MyAgent> forceManager, double pCut) {
         switchev = false;
         this.space = space;
         this.box = box;
+        this.nbins = nbins;
         pair = new AtomPair();
         this.forceManager = forceManager;
         allAtoms = new IteratorDirective();
         dr = space.makeVector();
         cumint = new double[rCutoff.length][nbins+1];
-        c1 = Math.log(pCut+1)/nbins;
         vol = box.getBoundary().volume();
         this.rCutoff = rCutoff;
         q = new double[rCutoff.length];
@@ -64,12 +65,18 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         x = new double[rCutoff.length];
     }
 
+    public void setX0(double newX0) {
+        x0 = newX0;
+    }
+
     public double[] getEpsilon() {
         return epsilon;
     }
     
     public void setTemperature(double T, Potential2SoftSpherical p2) {
         beta = 1/T;
+        double rc = p2.getRange();
+        c1 = Math.log(rc+1)/nbins;
         int D = space.D();
         int nbins = cumint[0].length-1;
         for (int j=0; j<rCutoff.length; j++) {
