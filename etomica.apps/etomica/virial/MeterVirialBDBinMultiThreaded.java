@@ -486,7 +486,8 @@ public class MeterVirialBDBinMultiThreaded implements IAction {
             return;
         }
         double E0ave = E0a/totalCount;
-        double E0 = E0a2/totalCount - E0ave*E0ave;
+        // subtract 1 here to force E0 to be finite, even if sample is perfect so far
+        double E0 = E0a2/(totalCount-1) - E0ave*E0ave;
         E1 /= totalCount;
         sum1 /= totalCount;
         if (E1 == 0 && doPadVar) {
