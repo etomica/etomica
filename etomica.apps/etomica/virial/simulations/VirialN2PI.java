@@ -13,8 +13,12 @@ import etomica.api.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
+import etomica.api.IPotentialAtomic;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOrientedSphere;
+import etomica.atom.IAtomOriented;
 import etomica.atom.IAtomTypeOriented;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.Nitrogen;
@@ -23,6 +27,8 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.integrator.mcmove.MCMove;
 import etomica.potential.P2NitrogenHellmann;
+import etomica.potential.P2SemiclassicalAtomic;
+import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
@@ -53,12 +59,15 @@ public class VirialN2PI {
             params.temperatureK = 500;
             params.numSteps = (long)1E6;
             params.pN2HellmannA = false;
+            
 
             // runtime options - make changes in these and not the default options above
 //            params.nBeads = 8;
 //            params.temperatureK = 500;
 //            params.numSteps = (long)1E6;
+//            params.scBeads = true;
         }
+        
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperatureK;
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
@@ -68,8 +77,8 @@ public class VirialN2PI {
         double refFrac = params.refFrac;
         final boolean pN2HellmannA = params.pN2HellmannA;
         final int nBeads = params.nBeads;
-        final int beadFac = params.beadFac;        
-        
+        final int beadFac = params.beadFac;
+        final boolean scBeads = params.scBeads;        
 
         final double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -81,7 +90,7 @@ public class VirialN2PI {
         
         System.out.println("Overlap sampling for N2 pair potential of Hellmann (2013) at " + temperatureK + " K");
         System.out.println("Path Integral Monte Carlo (PIMC) calculation with P = "+nBeads);
-
+        System.out.println("Semi-classical beads: "+scBeads);
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
         
@@ -97,8 +106,16 @@ public class VirialN2PI {
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
         
-        final P2NitrogenHellmann p2 = new P2NitrogenHellmann(space);
-        if (pN2HellmannA) p2.parametersB = false;
+        final P2NitrogenHellmann p2Full = new P2NitrogenHellmann(space);
+        if (pN2HellmannA) p2Full.parametersB = false;
+        final P2SemiclassicalAtomic p2PISC = new P2SemiclassicalAtomic(space, p2Full, temperature*nBeads*nBeads);
+        final IPotentialAtomic p2;
+        if (scBeads) {
+            p2 = p2PISC;
+        }
+        else {
+            p2 = p2Full;
+        }        
         PotentialGroupPI pTarGroup = new PotentialGroupPI(beadFac);
         pTarGroup.addPotential(p2, new ApiIntergroupCoupled());
         MayerGeneral fTar = new MayerGeneral(pTarGroup) {
@@ -124,7 +141,34 @@ public class VirialN2PI {
 //        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
-        
+        final IVectorMutable[] rv = space.makeVectorArray(4);
+        rv[0].setX(0, massN*blN2*blN2*0.25);
+        rv[0].setX(1, massN*blN2*blN2*0.25);
+        p2PISC.setAtomInfo(speciesN2.getAtomType(0), new AtomInfo() {
+            public IVector[] getMomentAndAxes(IAtomOriented molecule) {
+                
+                // rv[0,2] = 0
+                // rv[3] is the orientation
+                rv[3].E(molecule.getOrientation().getDirection());
+                // rv[1] is an axis perpendicular to rv[3]
+                rv[1].E(0);
+                if (Math.abs(rv[3].getX(0)) < 0.5) {
+                    rv[1].setX(0, 1);
+                }
+                else if (Math.abs(rv[3].getX(1)) < 0.5) {
+                    rv[1].setX(1, 1);
+                }
+                else {
+                    rv[1].setX(2, 1);
+                }
+                rv[2].Ea1Tv1(rv[1].dot(rv[3]), rv[3]);
+                rv[1].ME(rv[2]);
+                // rv[2] is an axis perpendicular to rv[3] and rv[1]
+                rv[2].E(rv[1]);
+                rv[2].XE(rv[3]);
+                return rv;
+            }
+        });
 //        add additional moves here, simulation already has translation and rotation moves
 //        rotation is a bit pointless when we can regrow the ring completely
 
@@ -365,7 +409,8 @@ public class VirialN2PI {
         public boolean pairOnly = true;
         public boolean pN2HellmannA = true;
         public int beadFac = 2;
-        public String jarFile = "";        
+        public boolean scBeads = false;
+        public String jarFile = "";
     }
 
 }
