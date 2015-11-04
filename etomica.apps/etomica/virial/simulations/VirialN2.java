@@ -3,23 +3,40 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.json.simple.JSONObject;
+
+import etomica.api.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.IData;
+import etomica.data.types.DataGroup;
 import etomica.integrator.mcmove.MCMove;
+import etomica.potential.IPotentialTorque;
 import etomica.potential.P2NitrogenHellmann;
+import etomica.potential.P2SemiclassicalAtomic;
+import etomica.potential.P3NitrogenHellmannNonAdditive;
 import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
+import etomica.units.Mole;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWheatleyHS;
+import etomica.virial.ClusterWheatleyMultibody;
 import etomica.virial.ClusterWheatleySoft;
+import etomica.virial.MayerFunctionMolecularThreeBody;
+import etomica.virial.MayerFunctionNonAdditive;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.cluster.Standard;
@@ -27,8 +44,8 @@ import etomica.virial.cluster.Standard;
 public class VirialN2 {
     public static void main(String[] args) {
         VirialN2Param params = new VirialN2Param();
-        boolean isCommandline = args.length > 0;
-        if (isCommandline) {
+        boolean isCommandLine = args.length > 0;
+        if (isCommandLine) {
             ParseArgs parseArgs = new ParseArgs(params);
             parseArgs.parseArgs(args, true);
         }
@@ -36,13 +53,15 @@ public class VirialN2 {
             // default options - choose these before committing to CVS
 //            params.potentialLevel = level.classical;
 //            params.temperatureK = 500;
-//            params.numSteps = (long)1E6;
-//            params.pN2HellmannA = false;
+//            params.numSteps = (long)1E6;            
 
-            // runtime options - make changes in these and not the default options above           
-            params.potentialLevel = level.semiClassical;
-            params.temperatureK = 50;
-            params.numSteps = (long)1E7;
+            // runtime options - make changes in these and not the default options above
+            params.nPoints = 2;
+            params.potentialLevel = level.classical;
+            params.temperatureK = 400;
+            params.numSteps = (long)1E8;
+            params.nonAdditive = false;
+//            params.printInConvertedUnits = true;
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperatureK;
@@ -51,9 +70,12 @@ public class VirialN2 {
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
-        final boolean pN2HellmannA = params.pN2HellmannA;        
-        
+        final boolean p2N2HellmannA = params.p2N2HellmannA;
+        final boolean p3N2HellmannA = params.p3N2HellmannA;
+        final boolean nonAdditive = params.nonAdditive;
         final level pLevel = params.potentialLevel;
+        final int nT = params.nTimes;
+        final boolean printInConvertedUnits = params.printInConvertedUnits;
         final double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -64,7 +86,7 @@ public class VirialN2 {
         
         System.out.println("Overlap sampling for N2 pair potential of Hellmann (2013) at " + temperatureK + " K");
         if (pLevel == level.semiClassical) System.out.println("Quadratic Feymann-Hibbs effective potential employed.");
-        
+        System.out.println("Non - additive = "+nonAdditive);
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
         
         System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
@@ -78,13 +100,26 @@ public class VirialN2 {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
+        ClusterAbstract tarCluster = null;        
         
         final P2NitrogenHellmann p2N2 = new P2NitrogenHellmann(space);
-        if (pN2HellmannA) p2N2.parametersB = false;
-        final IPotentialAtomic p2 = (pLevel == level.classical ? p2N2 : p2N2.makeSemiclassical(temperature));        
-        PotentialMolecularMonatomic pN2 = new PotentialMolecularMonatomic(space, p2);                
-        MayerGeneral fTar = new MayerGeneral(pN2);
-        ClusterWheatleySoft tarCluster = new ClusterWheatleySoft(nPoints, fTar, 1e-12);
+        
+        if (p2N2HellmannA) p2N2.parametersB = false;
+        final IPotentialAtomic p2 = (pLevel == level.classical ? p2N2 : p2N2.makeQFH(temperature));        
+        PotentialMolecularMonatomic p2N2Molecular = new PotentialMolecularMonatomic(space, p2);        
+        MayerGeneral f2Tar = new MayerGeneral(p2N2Molecular);
+        tarCluster = new ClusterWheatleySoft(nPoints, f2Tar, 1e-12);
+        
+        if (nPoints == 3 && nonAdditive) {
+            final P3NitrogenHellmannNonAdditive p3N2NonAdditive = new P3NitrogenHellmannNonAdditive(space);
+            if (p3N2HellmannA) p3N2NonAdditive.parametersB = false;
+            final IPotentialAtomic p3 = p3N2NonAdditive;
+            PotentialMolecularMonatomic p3N2Molecular = new PotentialMolecularMonatomic(space, p3);
+            MayerFunctionMolecularThreeBody f3Tar = new MayerFunctionMolecularThreeBody(p3N2Molecular);            
+            MayerFunctionNonAdditive [] m1 = new MayerFunctionNonAdditive[]{null,null,null,f3Tar};
+            tarCluster = new ClusterWheatleyMultibody(nPoints, f2Tar, m1);
+//            ((ClusterWheatleyMultibody)tarCluster).setDoCaching(false);
+        }        
         tarCluster.setTemperature(temperature);
         
         // make species
@@ -94,13 +129,13 @@ public class VirialN2 {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesUranium, temperature, refCluster, tarCluster);
 //        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
-        steps /= 1000;
+        steps /= 1000;        
         
         // add additional moves here, simulation already has translation and rotation moves
         
         System.out.println();
         String refFileName = null;
-        if (isCommandline) {
+        if (isCommandLine) {
             String tempString = ""+temperatureK;
             if (temperatureK == (int)temperatureK) {
                 // temperature is an integer, use "200" instead of "200.0"
@@ -113,12 +148,25 @@ public class VirialN2 {
             if (pLevel == level.classical) refFileName += "C";            
         }
         long t1 = System.currentTimeMillis();
+        // if using 3-body potential for B3, we must select initial configuration
+        // that is not overlapping for any two molecules
+        if (nPoints == 3 && nonAdditive) {
+            IAtomList tarList = sim.box[1].getLeafList();        
+            for (int i=1; i<tarList.getAtomCount(); i++) {
+                IVectorMutable p = tarList.getAtom(i).getPosition();            
+                p.setX(i, 5.0);                                
+            }
+            sim.box[1].trialNotify();
+            sim.box[1].acceptNotify();
+            sim.box[1].getSampleCluster().value(sim.box[1]);
+        }
         
         sim.initRefPref(refFileName, steps/40);
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
             sim.integratorOS.setAdjustStepFraction(false);
         }
+        
         sim.equilibrate(refFileName, steps/10);
         System.out.println("equilibration finished");
         
@@ -130,7 +178,7 @@ public class VirialN2 {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
         final double refIntegralF = HSB[nPoints];
-        if (!isCommandline) {
+        if (!isCommandLine) {
             IIntegratorListener progressReport = new IIntegratorListener() {
                 public void integratorInitialized(IIntegratorEvent e) {}
                 public void integratorStepStarted(IIntegratorEvent e) {}
@@ -176,20 +224,111 @@ public class VirialN2 {
 //            }
             System.out.println(m.toString()+" acceptance ratio: "+acc);
         }
-        sim.printResults(HSB[nPoints]);        
+
+        // Printing results here
+        double[] ratioAndError = sim.dvo.getAverageAndError();
+        double ratio = ratioAndError[0];
+        double error = ratioAndError[1];
+        double conv = 1.0;
+        if (printInConvertedUnits) conv = Math.pow(1E-24/(Mole.UNIT.fromSim(1)),nPoints-1.0);
+        double bn = ratio*HSB[nPoints]*conv;
+        double bnError = error*Math.abs(HSB[nPoints])*conv;
         
-        if ((t2-t1)/1000.0 > 24*3600) {
-            System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
+        System.out.println("ratio average: "+ratio+" error: "+error);
+        System.out.println("abs average: "+bn+" error: "+bnError);
+        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData();
+        IData ratioData = allYourBase.getData(sim.accumulators[0].RATIO.index);
+        IData ratioErrorData = allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index);
+        IData averageData = allYourBase.getData(sim.accumulators[0].AVERAGE.index);
+        IData stdevData = allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(sim.accumulators[0].ERROR.index);
+        IData correlationData = allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
+        IData covarianceData = allYourBase.getData(sim.accumulators[0].BLOCK_COVARIANCE.index);
+        double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+        double refAvg = averageData.getValue(0);
+        double refOvAvg = averageData.getValue(1);
+        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
+                              averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
+        
+        allYourBase = (DataGroup)sim.accumulators[1].getData();
+        ratioData = allYourBase.getData(sim.accumulators[1].RATIO.index);
+        ratioErrorData = allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index);
+        averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
+        stdevData = allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
+        errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
+        correlationData = allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
+        covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
+        int n = sim.numExtraTargetClusters;
+        correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
+        correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
+        double tarAvg = averageData.getValue(0);
+        double tarOvAvg = averageData.getValue(1);
+        double tarCorr = correlationData.getValue(0);
+        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(n+1), ratioErrorData.getValue(n+1), correlationCoef));
+        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
+        System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+                              averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
+        if (isCommandLine) {
+            LinkedHashMap resultsMap = new LinkedHashMap();
+            resultsMap.put("temperature", temperatureK);
+            resultsMap.put("bn", bn);
+            resultsMap.put("bnError", bnError);
+            resultsMap.put("refAvg", refAvg);
+            resultsMap.put("refOvAvg", refOvAvg);
+            resultsMap.put("tarAvg", tarAvg);
+            resultsMap.put("tarOvAvg", tarOvAvg);
+            resultsMap.put("tarCorr", tarCorr);
+
+            if ((t2-t1)/1000.0 > 24*3600) {
+                resultsMap.put("time",(t2-t1)/(24*3600*1000.0));
+                resultsMap.put("unit","days");
+                System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
+            }
+            else if ((t2-t1)/1000.0 > 3600) {
+                resultsMap.put("time",(t2-t1)/(3600*1000.0));
+                resultsMap.put("unit","hrs");
+                System.out.println("time: "+(t2-t1)/(3600*1000.0)+" hrs");
+            }
+            else if ((t2-t1)/1000.0 > 60) {
+                resultsMap.put("time",(t2-t1)/(60*1000.0));
+                resultsMap.put("unit","mins");
+                System.out.println("time: "+(t2-t1)/(60*1000.0)+" mins");
+            }
+            else {
+                resultsMap.put("time",(t2-t1)/(1000.0));
+                resultsMap.put("unit","secs");
+                System.out.println("time: "+(t2-t1)/1000.0+" secs");
+            }                    
+            String jsonFileName = params.jarFile;
+            if (pLevel == level.classical) jsonFileName += "CL";
+            if (pLevel == level.semiClassical) jsonFileName += "SC";
+            
+            if (temperatureK == (int) temperatureK) { 
+                jsonFileName += (int)temperatureK+"K";
+            }
+            else {
+                jsonFileName += temperatureK+"K";
+            }            
+            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";
+            if (nT > 1) {
+                jsonFileName += "Sim"+nT;
+            }
+            jsonFileName += ".json";
+            try {
+                FileWriter jsonFile = new FileWriter(jsonFileName);
+                jsonFile.write(JSONObject.toJSONString(resultsMap));
+                jsonFile.write("\n");
+                jsonFile.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }                
         }
-        else if ((t2-t1)/1000.0 > 3600) {
-            System.out.println("time: "+(t2-t1)/(3600*1000.0)+" hrs");
-        }
-        else if ((t2-t1)/1000.0 > 60) {
-            System.out.println("time: "+(t2-t1)/(60*1000.0)+" mins");
-        }
-        else {
-            System.out.println("time: "+(t2-t1)/1000.0+" secs");
-        }
+
     }
     enum level {
         classical,semiClassical;
@@ -201,11 +340,16 @@ public class VirialN2 {
         public int nPoints = 2;        
         public double temperatureK = 500.0;   // Kelvin
         public long numSteps = 1000000;
-        public double refFrac = -1;        
+        public double refFrac = -1;
         public double sigmaHSRef = 4.50; // -1 means use equation for sigmaHSRef        
         public level potentialLevel = level.classical;
         public boolean pairOnly = true;
-        public boolean pN2HellmannA = true;
+        public boolean p2N2HellmannA = false;
+        public boolean p3N2HellmannA = false;
+        public boolean nonAdditive = false;
+        public String jarFile = "";
+        public int nTimes = 1; // to run the simulation more than once
+        public boolean printInConvertedUnits = false; // only prints bn and bn_error in converted units
     }
 
 }
