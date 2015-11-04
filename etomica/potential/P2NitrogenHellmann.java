@@ -58,7 +58,7 @@ import etomica.units.Kelvin;
 import etomica.util.Constants;
 
 
-public class P2NitrogenHellmann implements IPotentialAtomic {    
+public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {    
     public static void main(String[] args) {
 //        ISpace space = Space3D.getInstance();
 //        P2NitrogenHellmann pN2 = new P2NitrogenHellmann(space);
@@ -113,8 +113,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
     protected static final double[] c6B = {0.298807116692E7, -0.608284467163E7, 0.490318811890E7, 0.146889670654E8, -0.129841807274E8, 0.107874613877E8};
     protected static final double[] sitePosB = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
     protected static final double dHSCore = 2.0;
-    protected final ISpace space;
-    
+    protected final ISpace space;    
     
     public P2NitrogenHellmann(ISpace space) {
         this.space = space;
@@ -123,7 +122,13 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         b = new double[3][3];
         c6 = new double[3][3];
         q = new double[3];
-        pos = new double[5];
+        pos = new double[5];    
+        gradientAndTorque = new IVectorMutable[2][2];
+        for (int i=0; i<2; i++) {
+            for (int j=0; j<2; j++) {
+                gradientAndTorque[i][j] = space.makeVector();
+            }
+        }
         fillData();
     }    
     
@@ -436,21 +441,18 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         IVector com0 = a0.getPosition();
         IVector com1 = a1.getPosition();
         double R12 = Math.sqrt(com0.Mv1Squared(com1));
-        double E = vN2Vectors(R12, hh0, hh1);
-        if ( E == Double.POSITIVE_INFINITY) {
-            double y = 1;
-        }
+        double E = vN2Vectors(R12, hh0, hh1);        
         return E;
     }
     protected static final double massN2 = 2*Nitrogen.INSTANCE.getMass();
     public static final double blN2 = 1.1014;
     protected static final double moment = 0.25*massN2*blN2*blN2;;
     
-    public P2NitrogenSC makeSemiclassical(double temperature) {
-        return new P2NitrogenSC(temperature);
+    public P2N2QFH makeQFH(double temperature) {
+        return new P2N2QFH(temperature);
     }
     
-    public class P2NitrogenSC implements IPotentialAtomic {        
+    public class P2N2QFH implements IPotentialAtomic {        
         protected final IVectorMutable[][] gi;
         protected final Tensor tt0Tensor, tt1Tensor, rr0Tensor, rr1Tensor;
         protected final Tensor ijTensor, rTensor0, rTensor1, identity;
@@ -462,7 +464,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
         public double[][] d2tot = new double[2][6];
         protected final double temperature, fac;        
         
-        public P2NitrogenSC(double temperature) { // copied from Andrew's P2CO2Hellmann potential
+        public P2N2QFH(double temperature) { // copied from Andrew's P2CO2Hellmann potential
             ijTensor = space.makeTensor();
             identity = space.makeTensor();
             tt0Tensor = space.makeTensor();
@@ -696,5 +698,108 @@ public class P2NitrogenHellmann implements IPotentialAtomic {
             return (u + fac*sum);
         }
     }
+    protected final IVectorMutable[][] gradientAndTorque;
+    
+    public IVector[][] gradientAndTorque(IAtomList atoms) {
+        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+        IVector cm0 = atom0.getPosition();
+        IVector cm1 = atom1.getPosition();
+        IVector or0 = atom0.getOrientation().getDirection();
+        IVector or1 = atom1.getOrientation().getDirection();
+        double R12 = Math.sqrt(cm0.Mv1Squared(cm1));        
+        if (R12 < dHSCore) {
+            gradientAndTorque[0][0].E(Double.NaN);
+            gradientAndTorque[1][0].E(Double.NaN);
+            gradientAndTorque[0][1].E(Double.NaN);
+            gradientAndTorque[1][1].E(Double.NaN);
+            return gradientAndTorque;
+        }
+        IVectorMutable site0 = space.makeVector();
+        IVectorMutable site1 = space.makeVector();
+        IVectorMutable drij = space.makeVector();
+        IVectorMutable torque = space.makeVector();
+        gradientAndTorque[0][0].E(0);
+        gradientAndTorque[0][1].E(0);
+        gradientAndTorque[1][0].E(0);
+        gradientAndTorque[1][1].E(0);
+        for (int i=0; i<5; i++) {
+            int ii = siteID[i];
+            site0.Ea1Tv1(pos[i], or0);
+            site0.PE(cm0);
+            for (int j=0; j<5; j++) {
+                int jj = siteID[j];
+                site1.Ea1Tv1(pos[j], or1);
+                site1.PE(cm1);
+                drij.Ev1Mv2(site1, site0);
+                double rij2 = drij.squared();            
+                double rij = Math.sqrt(rij2);                    
+                double ar = alpha[ii][jj]*rij;                
+                double rduExpdr = -A[ii][jj]*ar*Math.exp(-ar);
+
+                double sum = 1;
+                double dsum = 0;
+                double br = b[ii][jj]*rij;
+                double term = 1;
+                double dterm = 1;                
+                for (int k=1; k<=6; k++) {
+                    term *= br/k;
+                    if (k==1) {
+                        dterm = br;
+                    }
+                    else {
+                        dterm *= br/(k-1);
+                    }                    
+                    sum += term;
+                    dsum += dterm;                    
+                }
+                if (sum==1) {
+                    gradientAndTorque[0][0].E(Double.NaN);
+                    gradientAndTorque[1][0].E(Double.NaN);
+                    gradientAndTorque[0][1].E(Double.NaN);
+                    gradientAndTorque[1][1].E(Double.NaN);
+                    return gradientAndTorque;
+                }                
+                double rij6 = rij2*rij2*rij2;
+                double expbr = Math.exp(-br);
+                double rdu6dr = (-expbr*br*sum + expbr*dsum + 6*(1-expbr*sum))*c6[ii][jj]/rij6;                
+                double rduChargedr = -q[ii]*q[jj]/rij;                
+                double rdudr = Kelvin.UNIT.toSim(rduExpdr + rdu6dr + rduChargedr);
+                
+                // we're done with drij.  replace it with gradient on 1 (force on 0)
+//                System.out.println("g drij "+drij+" "+rdudr/rij2);
+                drij.TE(rdudr/rij2);
+                gradientAndTorque[0][1].PE(drij);
+//                System.out.println("grad 1 "+gradientAndTorque[0][1]);
+                gradientAndTorque[0][0].ME(drij);
+                torque.Ea1Tv1(pos[j], or1);
+                torque.XE(drij);
+                gradientAndTorque[1][1].ME(torque);
+                torque.Ea1Tv1(pos[i], or0);
+                torque.XE(drij);
+                gradientAndTorque[1][0].PE(torque);
+                if (drij.isNaN() || gradientAndTorque[0][1].isNaN()) {
+                    throw new RuntimeException();
+                }
+            }
+        }
+        return gradientAndTorque;
+    }
+
+
+    public double virial(IAtomList atoms) {
+        return 0;
+    }
+
+
+    public IVector[] gradient(IAtomList atoms) {
+        return gradientAndTorque(atoms)[0];
+    }
+
+
+    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+        return gradientAndTorque(atoms)[0];
+    }
+    
 }
 
