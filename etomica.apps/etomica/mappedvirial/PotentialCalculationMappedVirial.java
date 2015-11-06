@@ -9,10 +9,16 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
+import etomica.simulation.Simulation;
 import etomica.space.ISpace;
+import etomica.space3d.Space3D;
 
 
 /**
@@ -34,6 +40,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected final AtomPair pair;
     protected final double vol;
     protected final double[] q;
+    protected double qu;
     protected final double[] rCutoff;
     protected double x0;
     protected final double[] sum;
@@ -65,6 +72,21 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         x = new double[rCutoff.length];
     }
 
+    public static void main(String[] args) {
+        Simulation sim = new Simulation(Space3D.getInstance());
+        IBox box = new Box(sim.getSpace());
+        PotentialCalculationMappedVirial pc = new PotentialCalculationMappedVirial(sim.getSpace(),box, 1000000, new double[]{1.0}, null, 2.5);
+        P2LennardJones potential = new P2LennardJones(sim.getSpace());
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedForceShifted(sim.getSpace(), potential, 2.5);
+        pc.setTemperature(1, p2Truncated);
+        pc.setX0(2.375);
+        for (int i=10; i<30; i++) {
+            double r = i*0.1;
+            if (r>=2.5) r = 2.499999;
+            System.out.println(r+" "+pc.calcXs(0, r, p2Truncated.u(r*r)));
+        }
+    }
+    
     public void setX0(double newX0) {
         x0 = newX0;
     }
@@ -78,12 +100,17 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         double rc = p2.getRange();
         c1 = Math.log(rc+1)/nbins;
         int D = space.D();
-        int nbins = cumint[0].length-1;
+        qu = 0;
         for (int j=0; j<rCutoff.length; j++) {
             
             for (int i=1; i<=nbins; i++) {
                 double r = Math.exp(c1*i)-1;
                 double r2 = r*r;
+                if (r >= p2.getRange()) {
+                    if (i<nbins) throw new RuntimeException("oops "+i+" "+nbins+" "+r+" "+p2.getRange());
+                    r = Math.exp(c1*i*0.9999)-1;
+                    r2 = r*r;
+                }
                 double u = p2.u(r2);
                 double evm1 = 0;
                 if (switchev) {
@@ -95,12 +122,17 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
                     evm1 = Math.exp(-beta*v)-1;
                 }
                 q[j] += (D==2 ? r : r2)*evm1*c1*(r+1);
+                if (j==0) {
+                    double eum1 = Math.exp(-beta*u)-1;
+                    qu += (D==2 ? r : r2)*eum1*c1*(r+1);
+                }
                 cumint[j][i] = cumint[j][i-1] + (D==2 ? r : r2)*(evm1+1)*c1*(r+1);
 //                if (rCutoff[j]==1 && r>0.864 && r<0.896) System.out.println(r+" "+(evm1+1)+" "+cumint[j][i]);
             }
-            q[j] *= 4*Math.PI;
+            q[j] *= (D==2?2:4)*Math.PI;
 //            System.out.println(rCutoff[j]+" "+q[j]);
         }
+        qu *= (D==2?2:4)*Math.PI;
     }
     
     protected double calcXs(int idx, double r, double u) {
@@ -114,7 +146,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
             double v = u*(1-theta(r,idx));
             evm1 = Math.exp(-beta*v)-1;
         }
-        return -r + space.D()*y/(r*r*(evm1+1));
+        return -r + space.D()/(1+q[idx]/vol)*y/(r*r*(evm1+1));
     }
 
     protected double cumint(int idx, double r) {
@@ -136,6 +168,10 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
 
     public double getQ(int idx) {
         return q[idx];
+    }
+    
+    public double getQU() {
+        return qu;
     }
 
     public void reset() {
@@ -179,6 +215,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
             if (r < x0) {
                 sum[jj] += xs*(vp-wp);
             }
+//            if (jj==3) System.out.println(r+" "+sum[jj]);
         }
     }
 
@@ -187,7 +224,9 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         double density = box.getMoleculeList().getMoleculeCount()/vol;
 
         for (int j=0; j<rCutoff.length; j++) {
-            x[j] = density/beta - 0.5*q[j]*density*density/beta  + sum[j]/(D*vol);
+//            System.out.println(density/beta+" "+(- 0.5*q[j]*density*density/beta));
+//            x[j] = density/beta - 0.5*q[j]*density*density/beta  + sum[j]/(D*vol);
+            x[j] = sum[j]/(D*vol);
         }
         return x;
     }
