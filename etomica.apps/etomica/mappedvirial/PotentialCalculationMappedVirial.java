@@ -148,7 +148,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         double fij = p2.du(r2);
         double up = fij/r;
         if (r>x0) {
-            sum += r*up;
+            sum -= r*up;
         }
         else {
             IVector fi = forceManager.getAgent(a).force;
