@@ -95,7 +95,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
             double u = p2.u(r2);
             double evm1 = 0;
             double v = u + vShift;
-            if (r>rc) v = 0;
+            if (r>x0) v = 0;
             evm1 = Math.exp(-beta*v)-1;
             q += (D==2 ? r : r2)*evm1*c1*(r+1);
             double eum1 = Math.exp(-beta*u)-1;
@@ -145,20 +145,20 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         double r2 = dr.squared();
         double r = Math.sqrt(r2);
         if (r > p2.getRange()) return;
-        IVector fi = forceManager.getAgent(a).force;
-        IVector fj = forceManager.getAgent(b).force;
-        pair.atom1 = b;
-        double u = p2.u(r2);
-        double fifj = (fi.dot(dr) - fj.dot(dr))/r;
         double fij = p2.du(r2);
-        double xs = calcXs(r, u);
         double up = fij/r;
-        double vp = up;
-        if (r>x0) vp = 0;
-        double wp = 0.5*fifj;
-        sum += r*(vp-up);
-        if (r < x0) {
-            sum += xs*(vp-wp);
+        if (r>x0) {
+            sum += r*up;
+        }
+        else {
+            IVector fi = forceManager.getAgent(a).force;
+            IVector fj = forceManager.getAgent(b).force;
+            double u = p2.u(r2);
+            double fifj = (fi.dot(dr) - fj.dot(dr))/r;
+            double xs = calcXs(r, u);
+            double vp = up;
+            double wp = 0.5*fifj;
+            sum += r*(vp-up) + xs*(vp-wp);
         }
     }
 
