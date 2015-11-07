@@ -5,7 +5,6 @@
 package etomica.mappedvirial;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
@@ -88,11 +87,11 @@ public class MappedVirialLJ extends Simulation {
         }
         else {
             params.temperature = 2;
-            params.density = 0.1;
-            params.numSteps = 100000;
+            params.density = 0.10;
+            params.numSteps = 10000000;
             params.rc = 2.5;
-            params.numAtoms = 5000;
-            params.functionsFile = "sim";
+            params.numAtoms = 200;
+            params.functionsFile = "0.10";
         }
 
         int numAtoms = params.numAtoms;
@@ -107,7 +106,6 @@ public class MappedVirialLJ extends Simulation {
         System.out.println("density: "+density);
         System.out.println("temperature: "+temperature);
         System.out.println("cutoff: "+rc);
-        System.out.println("x0: "+0.95*rc);
 
         ISpace space = Space.getInstance(3);
 
@@ -127,21 +125,17 @@ public class MappedVirialLJ extends Simulation {
         long samplesPerBlock = numSamples/numBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        double[] cutoff0 = new double[]{0.9, 0.95, 0.97, 1.0, 1.1, 1.2, 1.4, 1.492, 1.6, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0};
-        double[] cutoff = null;
-        for (int i=0; i<cutoff0.length; i++) {
-            if (cutoff0[i]*1.15 > params.rc) {
-                cutoff = Arrays.copyOfRange(cutoff0, 0, i);
-                break;
-            }
-        }
-        if (cutoff==null) cutoff = cutoff0;
         final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), 
-                rc, sim.box, nBins, cutoff);
+                sim.box, nBins);
         meterMappedVirial.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedVirial = new DataPumpListener(meterMappedVirial, accMappedVirial, numAtoms);
         sim.integrator.getEventManager().addListener(pumpMappedVirial);
+        System.out.println("x0: "+meterMappedVirial.getPotentialCalculation().getX0());
+        double qu = meterMappedVirial.getPotentialCalculation().getQU();
+        System.out.println("qu: "+qu);
+        double q = meterMappedVirial.getPotentialCalculation().getQ();
+        System.out.println("q: "+q);
 
         final MeterPressure meterP = new MeterPressure(space);
         meterP.setIntegrator(sim.integrator);
@@ -168,15 +162,10 @@ public class MappedVirialLJ extends Simulation {
         IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
         IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);
         IData mappedCor = accMappedVirial.getData(accMappedVirial.BLOCK_CORRELATION);
-        double[] epsilon = meterMappedVirial.getPotentialCalculation().getEpsilon();
-        for (int i=0; i<cutoff.length; i++) {
-            double avg = mappedAvg.getValue(i);
-            double err = mappedErr.getValue(i);
-            double cor = mappedCor.getValue(i);
-            double q = meterMappedVirial.getPotentialCalculation().getQ(i);
-            System.out.print(String.format("xc: %6.3f   eps: %6.3f   q: %18.10e   avg: %13.6e   err: %11.4e   cor: % 4.2f\n", cutoff[i], epsilon[i], q, avg, err, cor));
-        }
-
+        double avg = mappedAvg.getValue(0);
+        double err = mappedErr.getValue(0);
+        double cor = mappedCor.getValue(0);
+        System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
         
         double pAvg = accP.getData(accP.AVERAGE).getValue(0);
         double pErr = accP.getData(accP.ERROR).getValue(0);
