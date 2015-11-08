@@ -100,6 +100,8 @@ public class MappedVirialLJ extends Simulation {
         long numSteps = params.numSteps;
         double rc = params.rc;
         String functionsFile = params.functionsFile;
+        boolean computeP = params.computeP;
+        boolean computePMA = params.computePMA;
 
         System.out.println("Virial mapped average");
         System.out.println(numAtoms+" atoms, "+numSteps+" steps");
@@ -125,12 +127,11 @@ public class MappedVirialLJ extends Simulation {
         long samplesPerBlock = numSamples/numBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), 
-                sim.box, nBins);
+        final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), sim.box, nBins);
         meterMappedVirial.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedVirial = new DataPumpListener(meterMappedVirial, accMappedVirial, numAtoms);
-        sim.integrator.getEventManager().addListener(pumpMappedVirial);
+        if (computePMA) sim.integrator.getEventManager().addListener(pumpMappedVirial);
         System.out.println("x0: "+meterMappedVirial.getPotentialCalculation().getX0());
         double qu = meterMappedVirial.getPotentialCalculation().getQU();
         System.out.println("qu: "+qu);
@@ -141,7 +142,7 @@ public class MappedVirialLJ extends Simulation {
         meterP.setIntegrator(sim.integrator);
         final AccumulatorAverageFixed accP = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpP = new DataPumpListener(meterP, accP, numAtoms);
-        sim.integrator.getEventManager().addListener(pumpP);
+        if (computeP) sim.integrator.getEventManager().addListener(pumpP);
 
         MeterMeanForce meterF = null;
         MeterRDF meterRDF = null;
@@ -165,12 +166,12 @@ public class MappedVirialLJ extends Simulation {
         double avg = mappedAvg.getValue(0);
         double err = mappedErr.getValue(0);
         double cor = mappedCor.getValue(0);
-        System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
+        if (computePMA) System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
         
         double pAvg = accP.getData(accP.AVERAGE).getValue(0);
         double pErr = accP.getData(accP.ERROR).getValue(0);
         double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
-        System.out.print(String.format("Pressure     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", pAvg, pErr, pCor));
+        if (computeP) System.out.print(String.format("Pressure     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", pAvg, pErr, pCor));
 
         if (functionsFile != null) {
             FileWriter fw = new FileWriter(functionsFile+"_gr.dat");
@@ -211,5 +212,7 @@ public class MappedVirialLJ extends Simulation {
         public long numSteps = 1000000;
         public double rc = 4;
         public String functionsFile = null;
+        public boolean computeP = true;
+        public boolean computePMA = true;
     }
 }
