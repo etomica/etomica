@@ -149,7 +149,7 @@ public class MappedVirialLJ extends Simulation {
         if (functionsFile != null) {
             int nbins = (int)Math.round(rc/0.01);
             meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
-//            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
+            if (computeP && computePMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
     
             meterRDF = new MeterRDF(space); //, sim.integrator.getPotentialMaster(), sim.box);
             meterRDF.setBox(sim.box);
