@@ -44,7 +44,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected double vShift;
     protected final int nbins;
     protected double sum;
-    protected double x0;
+    protected double x0, vCut;
 
     public PotentialCalculationMappedVirial(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
@@ -75,15 +75,20 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     public double getX0() {
         return x0;
     }
+    
+    public void setVCut(double newVCut) {
+        vCut = newVCut;
+    }
 
     public void setTemperature(double T, Potential2SoftSpherical p2) {
         beta = 1/T;
         double rc = p2.getRange();
         x0 = rc*0.95;
+        if (vCut==0) vCut = x0;
         c1 = Math.log(rc+1)/nbins;
         int D = space.D();
         qu = 0;
-        vShift = -p2.u(x0*x0);
+        vShift = -p2.u(vCut*vCut);
         for (int i=1; i<=nbins; i++) {
             double r = Math.exp(c1*i)-1;
             double r2 = r*r;
@@ -95,7 +100,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
             double u = p2.u(r2);
             double evm1 = 0;
             double v = u + vShift;
-            if (r>x0) v = 0;
+            if (r>vCut) v = 0;
             evm1 = Math.exp(-beta*v)-1;
             q += (D==2 ? r : r2)*evm1*c1*(r+1);
             double eum1 = Math.exp(-beta*u)-1;
@@ -109,7 +114,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected double calcXs(double r, double u) {
         double y = cumint(r);
         double v = u + vShift;
-        if (r > x0) v = 0;
+        if (r > vCut) v = 0;
         double evm1 = Math.exp(-beta*v)-1;
         return -r + space.D()/(1+q/vol)*y/(r*r*(evm1+1));
     }
@@ -147,18 +152,17 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         if (r > p2.getRange()) return;
         double fij = p2.du(r2);
         double up = fij/r;
-        if (r>x0) {
-            sum -= r*up;
-        }
-        else {
+        double vp = up;
+        if (r>vCut) vp = 0;
+        sum += r*(vp-up);
+        if (r<x0) {
             IVector fi = forceManager.getAgent(a).force;
             IVector fj = forceManager.getAgent(b).force;
             double u = p2.u(r2);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r, u);
-            double vp = up;
             double wp = 0.5*fifj;
-            sum += r*(vp-up) + xs*(vp-wp);
+            sum += xs*(vp-wp);
         }
     }
 
