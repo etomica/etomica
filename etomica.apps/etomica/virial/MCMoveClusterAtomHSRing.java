@@ -67,6 +67,11 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         maxBias = new double[b.length*2+1];
         maxBiasR = new double[b.length*2+1];
         p0 = new double[b.length*2+1];
+        // this approach to computing maxBias only works for symmetric insertions
+        // in doing the trial, we avoid asymmetric insertions with more than one
+        // point on each side by doing (for instance) 1+6 (handled without using
+        // maxBias computed here) instead of 3+4 (which would need the maxBias
+        // computed here).
         for (int i=2; i<b.length; i++) {
             p0[i] = separationProbability(i, 0);
             double sp2 = 0.5/b[i];
@@ -138,12 +143,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                         int nextInserted = i;
                         if (i==n) nextInserted=0;
                         int j = (prevInserted + i)/2;
-                        int xj = j-prevInserted;
-                        if (xj>2 && (xj&1)==1 && xj==(i-j)) {
-                            // we divided an even gap into two odd ones
-                            j--;
-                        }
-                        else if (((i-prevInserted)&1)==1) {
+                        if (((i-prevInserted)&1)==1) {
                             j = prevInserted+1;
                         }
                         inserted[j] = true;
