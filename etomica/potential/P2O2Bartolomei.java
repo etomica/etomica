@@ -4,6 +4,9 @@
 
 package etomica.potential;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -18,31 +21,65 @@ import etomica.util.Constants;
 
 public class P2O2Bartolomei implements IPotentialAtomic {
     
-//    public static void main (String [] args) {        
-//        int is=0;
-//        double thea=90.0;
-//        double theb=90.0;
-//        double phi=0.0;
-//        double rr = BohrRadius.UNIT.toSim(5.0);
-//        double thearad=Degree.UNIT.toSim(thea);
-//        double thebrad=Degree.UNIT.toSim(theb);
-//        double phirad=Degree.UNIT.toSim(phi);
-//        double vpot = ElectronVolt.UNIT.fromSim(abicipeso4(is,rr,thearad,thebrad,phirad))*1E3;
-//        System.out.println(BohrRadius.UNIT.fromSim(rr)+" "+thea+" "+theb+" "+phi+" "+vpot);
-//
-//}
+    public static void main (String [] args) {        
+        int [] is = new int [] {0,1,2};
+        
+        double theb=90.0;
+        double thea=90.0;
+        double phi = 0.0;
+//        setS(2);
+//        setPT2(true);
+        double thearad=Degree.UNIT.toSim(thea);
+        double thebrad=Degree.UNIT.toSim(theb);
+        double phirad=Degree.UNIT.toSim(phi);
+        int total = 1000;
+//        double rBohr = 2.5;
+//        double rSim = BohrRadius.UNIT.toSim(rBohr);
+//        double vpot = ElectronVolt.UNIT.fromSim(abicipeso4(rSim,thearad,thebrad,phirad))*1E3;
+//        String str = String.format("%9.7f \t %9.7f \t %9.7f \t %9.7f \t %10.7f",rBohr,thea,theb,phi,vpot);
+//        System.out.println(str);
+//        System.out.println(thea+" "+theb+" "+phi);
+        for (int i=0; i<is.length;i++) {
+            setS(is[i]);
+//            System.out.println("s = "+s);
+            for (int k=0; k<1; k++) {
+                setPT2(true);
+//                System.out.println("isPT2 = "+isPT2);
+                try {
+                    String str1 = "/usr/users/rsubrama/Desktop/Acads/Phd/oxygen/Bartolomei2010/pt2EnergiesJavaConfigHs"+s+".dat";
+                    FileWriter foo = new FileWriter(str1);
+//                    for (int l=0; l<total; l++) {
+//                        double phi=90.0*l/(total-1.0);
+                        for (int j=0; j<total; j++) {
+                            double rBohr = 16.0*j/(total-1.0);
+                            double rSim = BohrRadius.UNIT.toSim(rBohr);                    
+                            double vpot = ElectronVolt.UNIT.fromSim(abicipeso4(rSim,thearad,thebrad,phirad))*1E3;
+                            String str = String.format("%9.7f \t %9.7f \t %9.7f \t %9.7f \t %10.7f\n",rBohr,thea,theb,phi,vpot);
+                            foo.write(str);
+                        }
+//                    }
+                    foo.close();
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
+        }
+
+}
 
     protected IBoundary boundary;
     protected final ISpace space;
     public static int s = -1;    
     protected static boolean isPT2 = false;
-    protected static final int nfctmx=101,npun=isPT2?20:18,mxter=47,nbin = 100;
+    protected static final int nfctmx=101,mxter=47,nbin = 100;
+    protected static int npun = -1;
     protected double [] fct = new double [nfctmx];
     protected static double [][] binom = new double [nbin][nbin];
     protected static final int [] lla = {0,2,0,2,2,2,4,0,4,2,4,2,4,2,4,4,4,4,4,6,0,6,2,6,2,6,2,6,4,6,4,6,4,6,8,0,8,2,8,2,8,4,8,4,8,6,8};
     protected static final int [] llb = {0,0,2,2,2,2,0,4,2,4,2,4,2,4,4,4,4,4,4,0,6,2,6,2,6,2,6,4,6,4,6,4,6,6,0,8,2,8,2,8,4,8,4,8,6,8,8};
     protected static final int [] ll = {0,2,2,0,2,4,4,4,2,2,4,4,6,6,0,2,4,6,8,6,6,4,4,6,6,8,8,6,6,8,8,10,10,12,8,8,8,8,10,10,4,4,12,12,14,14,16};    
-    protected static final double rfit0 = 19.00;
+    protected static final double rfit0 = 19.00, rMin = BohrRadius.UNIT.toSim(4.5);
     protected static final double [] c6 = {62.39400,4.458600,4.458600,0.160,0.1913180,1.539733,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00};
     protected static final double [] c8 = {1834.400,517.7426,517.7426,10.84700,-16.69386,85.22080,-23.66100,-23.66100,-0.3892667,-0.3892667,-0.7316414,-0.7316414,-12.94054,-12.94054,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00};
     protected static final double [] cclec = {0.00,0.00,0.00,0.00,0.00,0.8479000E-01,0.00,0.00,0.00,0.00,0.00,0.00,-3.346200,-3.346200,0.00,0.00,0.00,0.00,253.2269,0.00,0.00,0.00,0.00,0.00,0.00,-24.16420,-24.16420,0.00,0.00,0.00,0.00,2983.596,2983.596,52060.48,0.00,0.00,0.00,0.00,-85.20790,-85.20790,0.00,0.00,15580.65,15580.65,377381.7,377381.7,3625362.0};
@@ -124,11 +161,15 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         a1.E(atom1.getOrientation().getDirection());
         
         dr.E(0);
-        dr.setX(0, rCM);
-        th1 = Math.acos(a0.dot(ex));
-        th2 = Math.acos(a1.dot(ex));
-        double cth1 = Math.cos(Degree.UNIT.toSim(th1));
-        double cth2 = Math.cos(Degree.UNIT.toSim(th2));
+        dr.setX(0, rCM);        
+        double cth1 = a0.dot(ex);
+        if (cth1 > 1.0) cth1 = 1.0;
+        if (cth1 < -1.0) cth1 = -1.0;
+        th1 = Math.acos(cth1);
+        double cth2 = a1.dot(ex);
+        if (cth2 > 1.0) cth2 = 1.0;
+        if (cth2 < -1.0) cth2 = -1.0;
+        th2 = Math.acos(cth2);
         IVectorMutable n0 = space.makeVector();
         IVectorMutable n1 = space.makeVector();
         n0.E(a0);
@@ -146,21 +187,19 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         double cphi = n0.dot(n1);
         if (cphi > 1.0) cphi = 1.0;
         if (cphi < -1.0) cphi = -1.0;
-        phi = Math.acos(cphi);
-        if (rCM <= 1.15) return Double.POSITIVE_INFINITY;
-        double u = abicipeso4(rCM, th1, th2, phi);
-        if (u < -200 && rCM > 1.15 && rCM <= 2) {
-            System.out.println(rCM+" "+u);
-            System.exit(1);
-        }
+        phi = Math.acos(cphi);        
+        
+        if (rCM <= rMin) return Double.POSITIVE_INFINITY;
+        double u = abicipeso4(rCM, th1, th2, phi);        
         return u;
     }
     
-    public void setS (int a) {
+    public static void setS (int a) {
         s = a;
     }
-    public void setPT2 (boolean b) {
+    public static void setPT2 (boolean b) {
         isPT2 = b;
+        npun=isPT2?20:18;
     }
 
 //------------------> cortar aqui para su uso en otros programas
@@ -192,7 +231,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
 
 
     public static double abicipeso4 (double rSim, double thearad, double thebrad, double phirad) {
-        if (s == -1) throw new RuntimeException("use setS method to set multiplicity before proceeding further");        
+        if (s == -1 || npun == -1) throw new RuntimeException("use setS method to set multiplicity before proceeding further");        
         if (isPT2) {
             rfit = rfitPT2;
             sajmols = sajmolsPT2;            
@@ -268,7 +307,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         double cthea = Math.cos(thearad);
         double ctheb = Math.cos(thebrad);
 
-        x3lnew = stx3leval(cthea,ctheb,phirad);
+        x3lnew = stx3leval(cthea,ctheb,phirad);        
 
         double sum=0.0;
         double yp1,ypn;
@@ -291,7 +330,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
             else {
                 throw new RuntimeException("Multiplicity is wrong!");
             }
-        }
+        }        
 
         //-------------------- do loop in number of terms, mxter 
         for (int iter=0; iter<mxter; iter++) {
@@ -368,8 +407,6 @@ public class P2O2Bartolomei implements IPotentialAtomic {
                 }
 
             }
-
-
             sum += pot*x3lnew[iter];
             //         write[6,1002] iter,lla[iter],llb[iter],llcen[iter],
             //     &                 sum,x3lnew[iter],pot,
