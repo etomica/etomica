@@ -5,6 +5,7 @@
 package etomica.mappedvirial;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
@@ -13,10 +14,13 @@ import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.meter.MeterPressure;
-import etomica.data.meter.MeterRDF;
+import etomica.data.meter.MeterRDFPC;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
@@ -102,16 +106,47 @@ public class MappedVirialLJ extends Simulation {
         String functionsFile = params.functionsFile;
         boolean computeP = params.computeP;
         boolean computePMA = params.computePMA;
+        boolean graphics = params.graphics;
+        int nBlocks = params.nBlocks;
 
         System.out.println("Virial mapped average");
         System.out.println(numAtoms+" atoms, "+numSteps+" steps");
         System.out.println("density: "+density);
         System.out.println("temperature: "+temperature);
         System.out.println("cutoff: "+rc);
+        System.out.println(nBlocks+" blocks");
 
         ISpace space = Space.getInstance(3);
 
         MappedVirialLJ sim = new MappedVirialLJ(space, numAtoms, temperature, density, rc);
+        
+        if (graphics) {
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            simGraphic.makeAndDisplayFrame();
+
+            ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
+            
+            MeterRDFPC meterRDF = new MeterRDFPC(space, sim.integrator.getPotentialMaster(), sim.box);
+            meterRDF.setBox(sim.box);
+            int nbins = (int)Math.round(rc/0.01);
+            meterRDF.getXDataSource().setNValues(nbins);
+            meterRDF.getXDataSource().setXMax(rc);
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
+
+            DisplayPlot rdfPlot = new DisplayPlot();
+            DataPump rdfPump = new DataPump(meterRDF,rdfPlot.getDataSet().makeDataSink());
+            IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
+            sim.integrator.getEventManager().addListener(rdfPumpListener);
+            rdfPumpListener.setInterval(10);
+            dataStreamPumps.add(rdfPump);
+            
+            rdfPlot.setDoLegend(false);
+            rdfPlot.getPlot().setTitle("Radial Distribution Function");
+            rdfPlot.setLabel("RDF");
+            simGraphic.add(rdfPlot);
+
+            return;
+        }
         
         long t1 = System.currentTimeMillis();
         
@@ -122,9 +157,8 @@ public class MappedVirialLJ extends Simulation {
         sim.integrator.getMoveManager().setEquilibrating(false);
         
         int nBins = 1000000;
-        int numBlocks = 100;
         long numSamples = numSteps/numAtoms;
-        long samplesPerBlock = numSamples/numBlocks;
+        long samplesPerBlock = numSamples/nBlocks;
         if (samplesPerBlock == 0) samplesPerBlock = 1;
 
         final MeterMappedVirial meterMappedVirial = new MeterMappedVirial(space, sim.integrator.getPotentialMaster(), sim.box, nBins);
@@ -145,13 +179,13 @@ public class MappedVirialLJ extends Simulation {
         if (computeP) sim.integrator.getEventManager().addListener(pumpP);
 
         MeterMeanForce meterF = null;
-        MeterRDF meterRDF = null;
+        MeterRDFPC meterRDF = null;
         if (functionsFile != null) {
             int nbins = (int)Math.round(rc/0.01);
             meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
             if (computeP && computePMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
     
-            meterRDF = new MeterRDF(space); //, sim.integrator.getPotentialMaster(), sim.box);
+            meterRDF = new MeterRDFPC(space, sim.integrator.getPotentialMaster(), sim.box);
             meterRDF.setBox(sim.box);
             meterRDF.getXDataSource().setNValues(nbins);
             meterRDF.getXDataSource().setXMax(rc);
@@ -185,20 +219,22 @@ public class MappedVirialLJ extends Simulation {
             }
             fw.close();
             
-            fw = new FileWriter(functionsFile+"_mf.dat");
-            rdata = meterF.getIndependentData(0);
-            IData fdata = meterF.getData();
-            Histogram f2hist = meterF.getHistogram2();
-            double[] f2 = f2hist.getHistogram();
-            for (int i=0; i<rdata.getLength(); i++) {
-                double r = rdata.getValue(i);
-                double mf = fdata.getValue(i);
-                if (Double.isNaN(mf)) continue;
-                double sdf = Math.sqrt(f2[i]-mf*mf);
-                double pf = -sim.p2Truncated.du(r*r)/r;
-                fw.write(String.format("%5.3f %22.15e %22.15e %22.15e\n", r, mf, sdf, pf));
+            if (computeP && computePMA) {
+                fw = new FileWriter(functionsFile+"_mf.dat");
+                rdata = meterF.getIndependentData(0);
+                IData fdata = meterF.getData();
+                Histogram f2hist = meterF.getHistogram2();
+                double[] f2 = f2hist.getHistogram();
+                for (int i=0; i<rdata.getLength(); i++) {
+                    double r = rdata.getValue(i);
+                    double mf = fdata.getValue(i);
+                    if (Double.isNaN(mf)) continue;
+                    double sdf = Math.sqrt(f2[i]-mf*mf);
+                    double pf = -sim.p2Truncated.du(r*r)/r;
+                    fw.write(String.format("%5.3f %22.15e %22.15e %22.15e\n", r, mf, sdf, pf));
+                }
+                fw.close();
             }
-            fw.close();
         }
 
         long t2 = System.currentTimeMillis();
@@ -214,5 +250,7 @@ public class MappedVirialLJ extends Simulation {
         public String functionsFile = null;
         public boolean computeP = true;
         public boolean computePMA = true;
+        public boolean graphics = false;
+        public int nBlocks = 100;
     }
 }
