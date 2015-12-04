@@ -38,7 +38,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected double c1;
     protected final double[] cumint;
     protected final AtomPair pair;
-    protected final double vol;
+    protected double vol;
     protected double q;
     protected double qu;
     protected double vShift;
@@ -78,6 +78,14 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     
     public void setVCut(double newVCut) {
         vCut = newVCut;
+    }
+
+    /**
+     * Sets volume to an arbitrary value (instead of the box volume).  This is
+     * used for 1/(1+q/V) terms.
+     */
+    public void setVolume(double newVol) {
+        vol = newVol;
     }
 
     public void setTemperature(double T, Potential2SoftSpherical p2) {
@@ -168,10 +176,6 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
 
     public double getPressure() {
         int D = space.D();
-        double density = box.getMoleculeList().getMoleculeCount()/vol;
-
-//            System.out.println(density/beta+" "+(- 0.5*q[j]*density*density/beta));
-//            x[j] = density/beta - 0.5*q[j]*density*density/beta  + sum[j]/(D*vol);
-        return sum/(D*vol);
+        return sum/(D*box.getBoundary().volume());
     }
 }
