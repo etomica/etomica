@@ -22,6 +22,7 @@ import etomica.virial.ClusterWheatleyExtendSW;
 import etomica.virial.MCMoveClusterAtomHSChain;
 import etomica.virial.MCMoveClusterAtomHSRing;
 import etomica.virial.MCMoveClusterAtomHSTree;
+import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
 import etomica.virial.MayerSWComponent;
 import etomica.virial.MeterVirialSWWE;
@@ -37,13 +38,12 @@ public class VirialSWWE {
 		if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         }else {
-            params.nPoints = 6;
+            params.nPoints = 4;
             params.numSteps = 100000L;
             params.ref = VirialHSParam.RING_CHAIN_TREES;
             params.chainFrac = 0.1;
             params.treeFrac = 0.1;
             params.ringFrac = (1- params.chainFrac - params.treeFrac);
-            params.nPtsTabulated = 0;
         }
 		
 		final int nPoints = params.nPoints;
@@ -51,17 +51,29 @@ public class VirialSWWE {
         final int ref = params.ref;
         final double sigmaHS = 2.0;
         final double sigmaSW = 1.0;
-        final double lamda = 2.0;
+        final double lambda = 2.0;
         final double chainFrac = params.chainFrac;
         final double treeFrac = params.treeFrac;
         final double ringFrac = (1 - chainFrac - treeFrac);
-        final int nPtsTabulated = params.nPtsTabulated;
         
         double vhs = (4.0/3.0)*Math.PI*sigmaHS*sigmaHS*sigmaHS;
         
         Space space = Space3D.getInstance();
         
-        MayerSWComponent fRef = new MayerSWComponent(sigmaSW, lamda);
+        MayerEHardSphere fTargete2 = new MayerEHardSphere(1.0);
+        MayerFunction fTargetf1 = new MayerFunction() {
+            final double sigma2 = 1.0;
+            final double well2 = lambda*lambda;
+            
+            public void setBox(IBox box) {}
+            
+            public IPotential getPotential() {return null;}
+            
+            public double f(IMoleculeList pair, double r2, double beta) {
+                if (r2 < sigma2 || r2 > well2) return 0;
+                return 1;
+            }
+        };
         MayerFunction fRefPos = new MayerFunction() {
 
             public void setBox(IBox box) {}
@@ -72,7 +84,7 @@ public class VirialSWWE {
             }
         };
         
-        ClusterWheatleyExtendSW targetCluster = new ClusterWheatleyExtendSW(nPoints, fRef);
+        ClusterWheatleyExtendSW targetCluster = new ClusterWheatleyExtendSW(nPoints, fTargetf1, fTargete2);
         
         targetCluster.setTemperature(1.0);
 
@@ -184,9 +196,9 @@ public class VirialSWWE {
         System.out.println("	Display input arguments:");
         System.out.println("	# of total steps = " + sim.ai.getMaxSteps());
         System.out.println("	sigmaHSRef = " + sigmaHS );
-        System.out.println("	sigmaSW = " + fRef.getSigma());
-        System.out.println("	lamda = " + fRef.getLamda());
-        System.out.println("	Y_Value = " + fRef.Y_Value);
+        System.out.println("	sigmaSW = " + 1);
+        System.out.println("	lamda = " + lambda);
+        System.out.println("	Y_Value = " + 1);
         System.out.println("	chainFrac = " + chainFrac + ", treeFrac = " + treeFrac + ", ringFrac = " + ringFrac);
         
         System.out.println("\n	*****" + sim.ai.getMaxSteps() + " steps for chain, tree and ring generation ");
@@ -272,7 +284,6 @@ public class VirialSWWE {
         public double chainFrac = 0.3;
         public double treeFrac = 0.4;
         public double ringFrac = (1-chainFrac-treeFrac);
-        public int nPtsTabulated = 0;
     }
 
 }

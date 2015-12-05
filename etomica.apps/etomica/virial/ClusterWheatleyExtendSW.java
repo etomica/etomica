@@ -11,7 +11,7 @@ import etomica.math.SpecialFunctions;
 public class ClusterWheatleyExtendSW implements ClusterAbstract{
 	
 	protected final int n, nf, npairs;
-    protected final MayerSWComponent f;
+    protected final MayerFunction f1, e2;
     protected final double[][] fQ;
     protected final double[] fQQ;
     protected final double[][] fC, fA, fB;
@@ -21,11 +21,12 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract{
     protected IsBiconnected isB;
     protected Graph g;
     
-    public ClusterWheatleyExtendSW(int nPoints, MayerSWComponent f){
+    public ClusterWheatleyExtendSW(int nPoints, MayerFunction f1, MayerFunction e2){
     	this.n = nPoints;
     	this.nf = 1<<n; //2^n
     	this.npairs = n*(n-1)/2;
-    	this.f = f;
+    	this.f1 = f1;
+    	this.e2 = e2;
     	fQ = new double[nf][npairs+1];
     	for(int i=0; i<n; i++){
      		fQ[1<<i][0] = 1.0;
@@ -53,7 +54,7 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract{
     }
     
 	public ClusterAbstract makeCopy() {
-		ClusterWheatleyExtendSW c = new ClusterWheatleyExtendSW(n, f);
+		ClusterWheatleyExtendSW c = new ClusterWheatleyExtendSW(n, f1, e2);
 		c.setTemperature(1/beta);
 		return c;
 	}
@@ -155,8 +156,8 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract{
         // recalculate all f values for all pairs
         for(int i=0; i<n; i++){
         	for(int j=i+1; j<n; j++){
-        		fQ[1<<i|1<<j][0] = f.e2(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-        		fQ[1<<i|1<<j][1] = f.f1(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+        		fQ[1<<i|1<<j][0] = e2.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
+        		fQ[1<<i|1<<j][1] = f1.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
         		
 //        		System.out.print("fQ["+(1<<i|1<<j)+"]["+ 0 +"]="+fQ[1<<i|1<<j][0]+" ");
 //        		System.out.print("fQ["+(1<<i|1<<j)+"]["+ 1 +"]="+fQ[1<<i|1<<j][1]+" ");
