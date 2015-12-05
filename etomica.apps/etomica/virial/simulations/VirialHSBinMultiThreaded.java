@@ -59,15 +59,15 @@ public class VirialHSBinMultiThreaded {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.nPoints = 5;
-            params.numSteps = 10000000L;
+            params.nPoints = 3;
+            params.numSteps = 100000L;
             params.ref = VirialHSBinParam.TREE_CHAIN_RING;
-            params.chainFrac = 0.2;
-            params.ringFrac = 0.8;
-            params.nPtsTabulated = 6;
-            params.nThreads = 4;
+            params.chainFrac = 0;
+            params.ringFrac = 1;
+            params.nPtsTabulated = 0;
+            params.nThreads = 1;
 //            params.oldTRatio = true;
-            params.doWheatley = false;
+//            params.doWheatley = false;
 //            params.w = 1;
             /*params.randomSeeds = new int[]{735039559, -1020604306, 1247967731, 1429728360,
                                            50165459, -1444698221, -2093020123, -1788518319,
@@ -151,7 +151,7 @@ public class VirialHSBinMultiThreaded {
             System.out.println("using a ring/chain/tree reference ("+ringFrac+" rings, "+chainFrac+" chains)");
         }
         // (nPoints-1)! is simply not included by ClusterWheatley, so do that here.
-        double refIntegral = doWheatley ? 1.0/SpecialFunctions.factorial(nPoints) : 1;
+        double refIntegral = 1;
 
         double tRatio = 0;
         double t0Tree = -3.18286 + nPoints*(1.66621 + nPoints*(-0.199946 + nPoints*0.0113384));
