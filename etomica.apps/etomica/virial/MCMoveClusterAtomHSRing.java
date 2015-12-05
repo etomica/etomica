@@ -196,7 +196,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                         }
                         else {
                             // Gaussian distributions with bisection
-                            if (j-prevInserted != nextInserted-j) {
+                            if (j-prevInserted != i-j) {
                                 throw new RuntimeException("maxBias has only been computed for symmetric insertion");
                             }
                             IVector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
