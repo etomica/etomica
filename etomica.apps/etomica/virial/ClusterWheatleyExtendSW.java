@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.api.IAtomList;
 import etomica.graph.model.Graph;
 import etomica.graph.model.Node;
 import etomica.graph.model.impl.GraphImpl;
@@ -8,15 +7,13 @@ import etomica.graph.model.impl.NodeImpl;
 import etomica.graph.property.IsBiconnected;
 import etomica.math.SpecialFunctions;
 
-public class ClusterWheatleyExtendSW implements ClusterAbstract{
+public class ClusterWheatleyExtendSW implements ClusterAbstract {
 	
 	protected final int n, nf, npairs;
     protected final MayerFunction f1, e2;
     protected final double[][] fQ;
     protected final double[] fQQ;
     protected final double[][] fC, fA, fB;
-    protected long cPairID = -1, lastCPairID = -1;
-    protected double value, lastValue;
     protected double beta;
     protected IsBiconnected isB;
     protected Graph g;
@@ -68,84 +65,13 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract{
 	}
 	
 	public double[] valueArray(BoxCluster box) {
-		CoordinatePairSet cPairs = box.getCPairSet();
-	    long thisCPairID = cPairs.getID();
-
-	    // a new cluster
-	    lastCPairID = cPairID;
-	    lastValue = value;
-	    cPairID = thisCPairID;
-	    
-	    updateF(box);
-	    
-//	    System.out.println("--G="+ g.edgesToString());//print diagram info.
-	    for(int i=0; i<n; i++){
-        	for(int j=i+1; j<n; j++){
-        		if (fQ[1<<i|1<<j][0]==0 || (fQ[1<<i|1<<j][1]>0)){//Means when there is an edge.
-//        			System.out.println(i +","+j+","+ fQ[1<<i|1<<j][0] + "," + fQ[1<<i|1<<j][1]);
-        			g.putEdge((byte)i, (byte)j);
-        		}else if(g.hasEdge((byte)i, (byte)j)){
-        			g.deleteEdge((byte)i, (byte)j);//This is remove edges set by last step. It is a initilization. 
-        		}
-        	}
-	    }
-	    
-	    if(isB.check(g)){//When it is biConnected, compute fB as usuall.
-//	    	System.out.println("isB.check() is true!"); 
-//	    	IAtomList iAL =	box.getLeafList();//print coordinates info.
-//	    	for(int i=0; i<iAL.getAtomCount(); i++){
-//	    		System.out.print("   " + iAL.getAtom(i).getPosition()+",");
-//	    	}
-//	    	System.out.println();
-//	    	for(int i=0; i<n; i++){//print distances between atoms.
-//	         	for(int j=i+1; j<n; j++){
-//	         		System.out.print(String.format("   %.3f,", Math.sqrt(cPairs.getr2(i, j))));
-//	         	}
-//	    	}
-//	    	System.out.println();
-//	    	System.out.println("   Biconncted G="+ g.edgesToString());//print diagram info.
-	    	
-	    	calcFullFQ(box);
-	    	calcValue(box);
-	    	
-//	    	double sum = 0.0;//Check the situation that the fB is 0 while it is biconnected graph.
-//	    	for(int j=0; j<fB[nf-1].length; j++){
-//	    		sum += Math.abs(fB[nf-1][j]);
-//	    	}
-//	    	if (sum==0){
-//	    		System.out.println("BiCheck is Wrong!");
-//	    		for(int i=0; i<n; i++){//print distances between atoms.
-//		         	for(int j=i+1; j<n; j++){
-//		         		System.out.print(String.format("   %.3f,", Math.sqrt(cPairs.getr2(i, j))));
-//		         	}
-//		    	}
-//		    	System.out.println();
-//		    	System.out.println("   Biconncted G="+ g.edgesToString());//print diagram info.
-//		    	throw new RuntimeException("Find a strange diagram!");
-//	    	}
-	    	
-//	    	for(int j=0; j<fB[nf-1].length; j++){//Multiplying the coefficient. This is already done in the final step. 
-//	    		fB[nf-1][j] = (double)(1-n)/SpecialFunctions.factorial(n) * fB[nf-1][j];
-//	    	}
-	    }else{//When it is NOT biConnected, there is no need to compute.
-//	    	System.out.println("isB.check() is false!"); 
-//	    	IAtomList iAL =	box.getLeafList();//print coordinates info.
-//	    	for(int i=0; i<iAL.getAtomCount(); i++){
-//	    		System.out.print("   " + iAL.getAtom(i).getPosition()+",");
-//	    	}
-//	    	System.out.println();
-//	    	for(int i=0; i<n; i++){//print distances between atoms.
-//	         	for(int j=i+1; j<n; j++){
-//	         		System.out.print(String.format("   %.3f,", Math.sqrt(cPairs.getr2(i, j))));
-//	         	}
-//	    	}
-//	    	System.out.println();
-//	    	System.out.println("   G="+ g.edgesToString());//print diagram info.
-	    	
+		if (!checkConfig(box)) {
 	    	for(int j=0; j<fB[nf-1].length; j++){
 	    		fB[nf-1][j] = 0.0;
 	    	}
-	    }
+	    	return fB[nf-1];
+		}
+		calcValue(box);
 	    return fB[nf-1];
 	}
 	
@@ -202,8 +128,8 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract{
 	/**
      * Returns the cluster value for the given configuration.  
      */
-    public void calcValue(BoxCluster box) {
- 
+    public double[] calcValue(BoxCluster box) {
+        calcFullFQ(box);
        //Compute the fC's
        for (int i=1; i<nf; i++){
     	   for (int if1=0; if1<=npairs; if1++){
@@ -346,11 +272,47 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract{
 //        	   if(i==nf-1) System.out.println("fB["+i+"]["+0+"]=" + fB[i][0]);
            }
        }
+       // we're actually messing up fB here, but we don't need it anymore
+       double[] rv = fB[nf-1];
+       double fac = (1.0-n)/SpecialFunctions.factorial(n);
+       for (int i=0; i<rv.length; i++) {
+    	   rv[i] *= fac;
+       }
+       return rv;
 //       System.out.println("fA="); MyUtility.display2DArray(fA);
 //       System.out.println("fB="); MyUtility.display2DArray(fB);
     }
     
 	public void setTemperature(double temperature) {
 		beta = 1/temperature;
+	}
+
+	public int getCoreEdgeCount() {
+		return edgeCountCore;
+	}
+
+	public int getWellEdgeCount() {
+		return edgeCountWell;
+	}
+
+	protected int edgeCountCore, edgeCountWell;
+
+	public boolean checkConfig(BoxCluster box) {
+	    updateF(box);
+	    edgeCountCore = edgeCountWell = 0;
+	    for(int i=0; i<n; i++){
+        	for(int j=i+1; j<n; j++){
+        		double e2 = fQ[1<<i|1<<j][0];
+        		double f1 = fQ[1<<i|1<<j][1];
+        		if (e2==0 || f1>0){//Means when there is an edge.
+        			g.putEdge((byte)i, (byte)j);
+        			if (e2==1) edgeCountWell++;
+        			else edgeCountCore++;
+        		}else if(g.hasEdge((byte)i, (byte)j)){
+        			g.deleteEdge((byte)i, (byte)j);//This is remove edges set by last step. It is a initilization. 
+        		}
+        	}
+	    }
+	    return isB.check(g);
 	}
 }

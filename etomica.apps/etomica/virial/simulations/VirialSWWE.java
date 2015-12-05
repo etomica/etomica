@@ -161,7 +161,7 @@ public class VirialSWWE {
 //            System.out.println("Inside if1---> chainFrac = " + chainFrac + ", treeFrac = " + treeFrac + ", ringFrac = " + ringFrac);	
         }
         
-        final double Coeff = (double)(1-nPoints)/SpecialFunctions.factorial(nPoints);
+        final double Coeff = 1;
         refCluster.setTemperature(1.0);
         
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
