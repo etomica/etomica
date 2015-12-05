@@ -719,7 +719,7 @@ public final class Standard {
      * Return integral for ring of hard spheres of size nPoints
      */
     public static double ringHS(int nPoints) {
-        double[] value = new double[]{0,0,0,
+        double[] value = new double[]{0,0,4.0*Math.PI/3.0,
                 8.2246703342411321824,    // (5 \[Pi]^2)/6
                 23.798821183891502188,    // (2176 \[Pi]^3)/2835
                 73.280512726913686846,    // (40949 \[Pi]^4)/54432
