@@ -24,7 +24,6 @@ import etomica.virial.MCMoveClusterAtomHSRing;
 import etomica.virial.MCMoveClusterAtomHSTree;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
-import etomica.virial.MayerSWComponent;
 import etomica.virial.MeterVirialSWWE;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.VirialHS.VirialHSParam;
