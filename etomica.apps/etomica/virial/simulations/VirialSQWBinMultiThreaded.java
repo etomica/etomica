@@ -77,7 +77,7 @@ public class VirialSQWBinMultiThreaded {
 
         final double vhs = (4.0/3.0)*Math.PI*sigmaHS*sigmaHS*sigmaHS;
 
-        System.out.println("SQW sampling B"+nPoints);
+        System.out.println("SQW sampling B"+nPoints+"  lambda: "+lambda);
 		
         final Space space = Space3D.getInstance();
         
@@ -123,44 +123,20 @@ public class VirialSQWBinMultiThreaded {
             // reweighting is needed, we have to share data
             params.shareData = true;
         }
-        System.out.println("using a ring/chain/tree reference ("+ringFrac+" rings, "+chainFrac+" chains)");
+        System.out.println("using a ring/chain/tree reference ("+ringFrac+" rings, "+chainFrac+" chains, "+(1-ringFrac-chainFrac)+" trees)");
 
-        // (nPoints-1)! is simply not included by ClusterWheatley, so do that here.
         double refIntegral = 1;
 
-        double tRatio = 0;
-        double t0Tree = -3.18286 + nPoints*(1.66621 + nPoints*(-0.199946 + nPoints*0.0113384));
-        double t0Chain = -1.10143 + nPoints*(0.707278 + nPoints*(-0.0830664 + nPoints*0.00582492));
-        double t0Ring = -3.10337 + nPoints*(1.81457 + nPoints*(-0.243239 + nPoints*0.0191835));
-        t0Tree = Math.exp(-8.727299006700907e-01 + 2.437041849455276e-01*nPoints);
-        t0Chain = Math.exp(-1.076280422298466e+00 + 2.319522918620784e-01*nPoints);
-        t0Ring = Math.exp(-6.048590247634202e-01 + 2.898441951777069e-01*nPoints);
-        double tc = Math.exp(8.644763200709733e-01 + 3.227819802929632e-03*nPoints +  5.355934080103668e-02*nPoints*nPoints);
-        double fUnscreenedTree = 0.00446301 + 224.919*Math.pow(nPoints, -5.29);
-        double fUnscreenedChain = 0.00521601 + 90.2381*Math.pow(nPoints, -4.73159);
-        double fUnscreenedRing = 0.0409468 + 1530.97*Math.pow(nPoints, -5.5381);
-        double tRatioTree = 5.858 + 0.0190644*Math.pow(2.65435, nPoints);
-        double tRatioChain = 7.22624 + 0.0431276*Math.pow(2.53604, nPoints);
-        double tRatioRing = 3.95055 + 0.0249246*Math.pow(2.39758, nPoints);
-        double t0 = 0;
-        double t1Tree = t0Tree*(1-chainFrac-ringFrac);  // total time sampling
-        double t2Tree = tRatioTree*fUnscreenedTree*t1Tree; // total time computing
-        double t1Chain = t0Chain*chainFrac;
-        double t2Chain = tRatioChain*fUnscreenedChain*t1Chain;
-        double t1Ring = t0Ring*ringFrac;
-        double t2Ring = tRatioRing*fUnscreenedRing*t1Ring;
-        t0 = t1Tree + t1Chain + t1Ring;
-        double fUnscreened = fUnscreenedTree*(1-chainFrac-ringFrac) + fUnscreenedChain*chainFrac + fUnscreenedRing*ringFrac; // overall fraction unscreened
-//            System.out.println(t0Tree*tRatioTree+" "+t0Chain*tRatioChain+" "+t0Ring*tRatioRing);
-//            System.out.println((1-chainFrac-ringFrac)*t0Tree*tRatioTree + chainFrac*t0Chain*tRatioChain + ringFrac*t0Ring*tRatioRing);
-        tRatio = (t2Tree + t2Chain + t2Ring)/(fUnscreened*(t1Tree + t1Chain + t1Ring));
-        tc = tRatio*t0;
-//            System.out.println("old tRatio: "+tRatio);
-//            System.out.println((t2Tree+t2Chain+t2Ring)/((1-chainFrac-ringFrac)*t0Tree*tRatioTree + chainFrac*t0Chain*tRatioChain + ringFrac*t0Ring*tRatioRing)+" "+fUnscreened);
-//            System.out.println(((1-chainFrac-ringFrac)*t0Tree*tRatioTree + chainFrac*t0Chain*tRatioChain + ringFrac*t0Ring*tRatioRing)/(t1Tree + t1Chain + t1Ring));
-//            System.out.println("new tRatio: "+tc/t0);
-        tRatio = tc/t0;
-        System.out.println("tRatio: "+tRatio+"   tc: "+tc+"  ts: "+t0);
+        // times fit to data from B4 up to B10
+        // time to generate 10^ configurations of each type
+        double tsChain = 0.110096 * Math.pow(nPoints, 1.76928);
+        double tsRing = 0.153615 * Math.pow(nPoints, 1.83366);
+        double tsTree = 0.117435 * Math.pow(nPoints, 1.77962);
+        double ts = (1-chainFrac-ringFrac)*tsTree + chainFrac*tsChain + ringFrac*tsRing;
+        // tc, time to compute SQW fB for 10^6 configurations
+        double tc = 0.480327 + 0.000238842*Math.pow(nPoints,3.15833)*Math.pow(3.56909,nPoints);
+        double tRatio = tc/ts;
+        System.out.println("tRatio: "+tRatio+"   tc: "+tc+"  ts: "+ts);
 
 //        MeterVirialBDBinMultiThreadedOld.setTRatio(tRatio);
 
@@ -225,6 +201,7 @@ public class VirialSQWBinMultiThreaded {
             
             long totalSampleCount = 0;
             long totalNotScreenedCount = 0;
+            System.out.println();
             for (int i=0; i<1+nPoints*(nPoints-1)/2; i++) {
 	            double sum = 0;
 	            double sumErrNum = 0;
@@ -253,10 +230,7 @@ public class VirialSQWBinMultiThreaded {
 	            sum *= refIntegral/(nThreads*steps);
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
 	    
-	            System.out.println();
-	    
-	            System.out.println(i+" average: "+sum+"  error: "+finalErr);
-	            if (sumErrNum > 0) System.out.println("  number variance fraction: "+sumErrNum/(sumErrStdev + sumErrNum));
+	            System.out.println(i+" average: "+sum+"  error: "+finalErr+(sumErrNum>0?("  # var frac: "+sumErrNum/(sumErrStdev + sumErrNum)):""));
 	    
 //	            System.out.println("Difficulty: "+(finalErr*Math.sqrt(t2-t1)));
             }
@@ -365,6 +339,18 @@ public class VirialSQWBinMultiThreaded {
                     return pv;
                 }
             };
+            
+            PropertyBin podOD = new PropertyBin() {
+                final IntSet pv = new IntSet(new int[2]);
+                public IntSet value() {
+                    pv.v[0] = targetCluster.getCoreEdgeCount();
+                    pv.v[1] = targetCluster.getWellEdgeCount();
+                    int[] odc = targetCluster.getOutDegreeCore();
+                    int[] odw = targetCluster.getOutDegreeCore();
+                    
+                    return pv;
+                }
+            };
             meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), pod, totalCount, allMyData, iThread, doReweight);
             meter.setBox(sim.box);
             if (w>=0) {
@@ -399,46 +385,7 @@ public class VirialSQWBinMultiThreaded {
             System.out.println("thread "+iThread+" time: "+(t2-t1)*0.001);
         }
     }
-    
-    public static class DooDad {
-        boolean[] excludedCliques;
-        public DooDad(int nPoints) {
-            excludedCliques = new boolean[1<<nPoints];
-        }
-        public int value(int cliqueCount, int[] cliqueList) {
-            int ncbonds = 0;
-            for (int i=0; i<cliqueCount; i++) {
-                excludedCliques[i] = false;
-            }
-            
-            for (int i=cliqueCount-1; i>=2; i--) {
-                if (excludedCliques[i]) continue;
-                int ci = cliqueList[i];
-                for (int j=i-1; j>=0; j--) {
-                    if (excludedCliques[j]) continue;
-                    if ((ci|cliqueList[j]) == ci) {
-                        // j is a subset of i; ignore j
-                        excludedCliques[j] = true;
-                        continue;
-                    }
-                }
-            }
-            for (int i=cliqueCount-1; i>=1; i--) {
-                if (excludedCliques[i]) continue;
-                int ci = cliqueList[i];
-                for (int j=i-1; j>=0; j--) {
-                    if (excludedCliques[j]) continue;
-                    int cj = cliqueList[j];
-                    if ((ci|cj) != ci+cj) {
-                        // i and j share some points in common
-                        ncbonds++;
-                    }
-                }
-            }
-            return ncbonds;
-        }
-    }
-    
+
     /**
      * Inner class for parameters
      */
