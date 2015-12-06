@@ -48,6 +48,8 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
     	}
     	isB = new IsBiconnected();
     	g = new GraphImpl(nds);
+    	outDegreeCore = new int[n];
+    	outDegreeWell = new int[n];
     }
     
 	public ClusterAbstract makeCopy() {
@@ -296,6 +298,15 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
 	}
 
 	protected int edgeCountCore, edgeCountWell;
+	protected final int[] outDegreeCore, outDegreeWell;
+
+	public int[] getOutDegreeCore() {
+		return outDegreeCore;
+	}
+
+	public int[] getOutDegreeWell() {
+		return outDegreeWell;
+	}
 
 	public boolean checkConfig(BoxCluster box) {
 	    updateF(box);
@@ -306,8 +317,16 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
         		double f1 = fQ[1<<i|1<<j][1];
         		if (e2==0 || f1>0){//Means when there is an edge.
         			g.putEdge((byte)i, (byte)j);
-        			if (e2==1) edgeCountWell++;
-        			else edgeCountCore++;
+        			if (e2==1) {
+        				edgeCountWell++;
+        				outDegreeWell[i]++;
+        				outDegreeWell[j]++;
+        			}
+        			else {
+        				edgeCountCore++;
+        				outDegreeCore[i]++;
+        				outDegreeCore[j]++;
+        			}
         		}else if(g.hasEdge((byte)i, (byte)j)){
         			g.deleteEdge((byte)i, (byte)j);//This is remove edges set by last step. It is a initilization. 
         		}
