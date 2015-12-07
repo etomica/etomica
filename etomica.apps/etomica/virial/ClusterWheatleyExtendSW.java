@@ -50,6 +50,14 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
     	g = new GraphImpl(nds);
     	outDegreeCore = new int[n];
     	outDegreeWell = new int[n];
+        cliqueSetF1 = new boolean[nf];
+        cliqueSetE2 = new boolean[nf];
+        cliqueSetEF = new boolean[nf];
+        cliqueSetNone = new boolean[nf];
+        cliqueListF1 = new int[nf];
+        cliqueListE2 = new int[nf];
+        cliqueListEF = new int[nf];
+        cliqueListNone = new int[nf];
     }
     
 	public ClusterAbstract makeCopy() {
@@ -307,31 +315,130 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
 	public int[] getOutDegreeWell() {
 		return outDegreeWell;
 	}
+	
+	public int getF1CliqueCount() {
+	    return cliqueCountF1;
+	}
 
+	public int getE2CliqueCount() {
+        return cliqueCountE2;
+    }
+
+    public int getEFCliqueCount() {
+        return cliqueCountEF;
+    }
+
+    public int getNoneCliqueCount() {
+        return cliqueCountNone;
+    }
+
+    public int[] getF1Cliques() {
+        return cliqueListF1;
+    }
+    
+    public int[] getE2Cliques() {
+        return cliqueListE2;
+    }
+    
+    public int[] getEFCliques() {
+        return cliqueListEF;
+    }
+
+    public int[] getNoneCliques() {
+        return cliqueListNone;
+    }
+
+	protected int cliqueCountF1, cliqueCountE2, cliqueCountEF, cliqueCountNone;
+    protected final boolean[] cliqueSetF1, cliqueSetE2, cliqueSetEF, cliqueSetNone;
+    protected final int[] cliqueListF1, cliqueListE2, cliqueListEF, cliqueListNone;
+	
 	public boolean checkConfig(BoxCluster box) {
 	    updateF(box);
 	    edgeCountCore = edgeCountWell = 0;
+	    outDegreeWell[0]=outDegreeCore[0]=0;
 	    for(int i=0; i<n; i++){
         	for(int j=i+1; j<n; j++){
-        		double e2 = fQ[1<<i|1<<j][0];
-        		double f1 = fQ[1<<i|1<<j][1];
+        	    if (i==0) {
+        	        outDegreeWell[j]=outDegreeCore[j]=0;
+        	    }
+        	    int k = (1<<i)|(1<<j);
+        	    double e2 = fQ[k][0];
+        		double f1 = fQ[k][1];
         		if (e2==0 || f1>0){//Means when there is an edge.
         			g.putEdge((byte)i, (byte)j);
         			if (e2==1) {
+                        cliqueSetF1[k] = false;
+                        cliqueSetE2[k] = true;
         				edgeCountWell++;
         				outDegreeWell[i]++;
         				outDegreeWell[j]++;
         			}
         			else {
+                        cliqueSetF1[k] = true;
+                        cliqueSetE2[k] = false;
         				edgeCountCore++;
         				outDegreeCore[i]++;
         				outDegreeCore[j]++;
         			}
-        		}else if(g.hasEdge((byte)i, (byte)j)){
-        			g.deleteEdge((byte)i, (byte)j);//This is remove edges set by last step. It is a initilization. 
         		}
+        		else {
+                    cliqueSetF1[k] = cliqueSetE2[k] = false;
+                    if(g.hasEdge((byte)i, (byte)j)){
+                        g.deleteEdge((byte)i, (byte)j);//This is remove edges set by last step. It is a initilization.
+                    }
+        		}
+        		cliqueSetEF[k] = (cliqueSetF1[k] || cliqueSetE2[k]);
+        		cliqueSetNone[k] = !cliqueSetEF[k];
         	}
 	    }
-	    return isB.check(g);
+	    if (!isB.check(g)) return false;
+        // the existence of a clique separator indicates that the value for
+        // this configuration is zero.  Loop through all sets, considering
+        // each as a clique separator.
+        cliqueCountF1 = cliqueCountE2 = cliqueCountEF = cliqueCountNone = 0;
+        for (int i=1; i<nf-3; i++) {
+            int j = i & -i;//lowest bit in i
+            if (i==j) {
+                // 1-point set.
+                continue;
+            }
+            int k = i&~j; //strip j bit from i and set result to k
+            int jj = k & -k; // 2nd lowest bit
+            if (k == jj) {
+                // 2-point set.  cliqueSet[i] was set in the above loop
+                // over pairs.
+                continue;
+            }
+
+            int kk = i&~jj; // strip jj bit from i
+
+            cliqueSetF1[i] = cliqueSetF1[k] && cliqueSetF1[kk] && cliqueSetF1[j|jj];
+            cliqueSetE2[i] = cliqueSetE2[k] && cliqueSetE2[kk] && cliqueSetE2[j|jj];
+            cliqueSetEF[i] = cliqueSetEF[k] && cliqueSetEF[kk] && cliqueSetEF[j|jj];
+            cliqueSetNone[i] = cliqueSetNone[k] && cliqueSetNone[kk] && cliqueSetNone[j|jj];
+
+            if (cliqueSetF1[i]) {
+                // i is a clique
+                cliqueListF1[cliqueCountF1] = i;
+                cliqueCountF1++;
+            }
+            else if (cliqueSetE2[i]) {
+                // i is a clique
+                cliqueListE2[cliqueCountE2] = i;
+                cliqueCountE2++;
+            }
+            if (cliqueSetEF[i]) {
+                // i is a clique
+                cliqueListEF[cliqueCountEF] = i;
+                cliqueCountEF++;
+            }
+            else if (cliqueSetNone[i]) {
+                // i is a clique
+                cliqueListNone[cliqueCountNone] = i;
+                cliqueCountNone++;
+            }
+        }
+	    
+	    return true;
 	}
 }

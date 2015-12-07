@@ -42,6 +42,7 @@ import etomica.virial.MayerFunction;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
 import etomica.virial.MeterVirialEBinMultiThreaded;
 import etomica.virial.cluster.Standard;
+import etomica.virial.simulations.VirialHSBinMultiThreaded.DooDad;
 
 /**
  * Calculation for virial coefficients of hard spheres
@@ -63,7 +64,6 @@ public class VirialSQWBinMultiThreaded {
             params.lambda = 2.0;
             params.nThreads = 1;
         }
-        
 
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
@@ -192,7 +192,7 @@ public class VirialSQWBinMultiThreaded {
         if (doReweight) {
             System.out.println();
             
-            MeterVirialEBinMultiThreaded.setQuiet(false);
+//            MeterVirialEBinMultiThreaded.setQuiet(false);
             MeterVirialEBinMultiThreaded.recomputeWeights(allMyData, nThreads*steps, nPoints);
 
             List<IntSet> pvs = new ArrayList<IntSet>();
@@ -230,7 +230,7 @@ public class VirialSQWBinMultiThreaded {
 	            sum *= refIntegral/(nThreads*steps);
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
 	    
-	            System.out.println(i+" average: "+sum+"  error: "+finalErr+(sumErrNum>0?("  # var frac: "+sumErrNum/(sumErrStdev + sumErrNum)):""));
+	            System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum, finalErr, sumErrNum/(sumErrStdev + sumErrNum)));
 	    
 //	            System.out.println("Difficulty: "+(finalErr*Math.sqrt(t2-t1)));
             }
@@ -340,18 +340,108 @@ public class VirialSQWBinMultiThreaded {
                 }
             };
             
-            PropertyBin podOD = new PropertyBin() {
-                final IntSet pv = new IntSet(new int[2]);
+            PropertyBin podOD4 = new PropertyBin() {
+                final IntSet pv = new IntSet(new int[4]);
                 public IntSet value() {
                     pv.v[0] = targetCluster.getCoreEdgeCount();
                     pv.v[1] = targetCluster.getWellEdgeCount();
+                    pv.v[2] = pv.v[3] = pv.v[4] = 0;
                     int[] odc = targetCluster.getOutDegreeCore();
-                    int[] odw = targetCluster.getOutDegreeCore();
+                    int[] odw = targetCluster.getOutDegreeWell();
+                    for (int i=0; i<odc.length; i++) {
+                        pv.v[2] += odc[i]*odc[i];
+                        pv.v[3] += odw[i]*odw[i];
+                    }
                     
                     return pv;
                 }
             };
-            meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), pod, totalCount, allMyData, iThread, doReweight);
+            PropertyBin podOD5 = new PropertyBin() {
+                final IntSet pv = new IntSet(new int[5]);
+                public IntSet value() {
+                    pv.v[0] = targetCluster.getCoreEdgeCount();
+                    pv.v[1] = targetCluster.getWellEdgeCount();
+                    pv.v[2] = pv.v[3] = pv.v[4] = 0;
+                    int[] odc = targetCluster.getOutDegreeCore();
+                    int[] odw = targetCluster.getOutDegreeWell();
+                    for (int i=0; i<odc.length; i++) {
+                        pv.v[2] += odc[i]*odc[i];
+                        pv.v[3] += odw[i]*odw[i];
+                        pv.v[4] += odc[i]*odw[i];
+                    }
+                    
+                    return pv;
+                }
+            };
+            PropertyBin podOD8 = new PropertyBin() {
+                final IntSet pv = new IntSet(new int[8]);
+                public IntSet value() {
+                    pv.v[0] = targetCluster.getCoreEdgeCount();
+                    pv.v[1] = targetCluster.getWellEdgeCount();
+                    pv.v[2] = pv.v[3] = pv.v[4] = pv.v[5] = pv.v[6] = pv.v[7] = 0;
+                    int[] odc = targetCluster.getOutDegreeCore();
+                    int[] odw = targetCluster.getOutDegreeWell();
+                    for (int i=0; i<nPoints; i++) {
+                        pv.v[2] += odc[i]*odc[i];
+                        pv.v[3] += odw[i]*odw[i];
+                        pv.v[4] += odc[i]*odw[i];
+                        int not = (nPoints-1 - odc[i] - odw[i]);
+                        pv.v[5] += not*not;
+                        pv.v[6] += odc[i]*not;
+                        pv.v[7] += odw[i]*not;
+                    }
+                    
+                    return pv;
+                }
+            };
+            PropertyBin podODCliq = new PropertyBin() {
+                final IntSet pv = new IntSet(new int[9]);
+                public IntSet value() {
+                    pv.v[0] = targetCluster.getCoreEdgeCount();
+                    pv.v[1] = targetCluster.getWellEdgeCount();
+                    pv.v[2] = pv.v[3] = pv.v[4] = 0;
+                    int[] odc = targetCluster.getOutDegreeCore();
+                    int[] odw = targetCluster.getOutDegreeWell();
+                    for (int i=0; i<nPoints; i++) {
+                        pv.v[2] += odc[i]*odc[i];
+                        pv.v[3] += odw[i]*odw[i];
+                        pv.v[4] += odc[i]*odw[i];
+                    }
+                    pv.v[5] = targetCluster.getF1CliqueCount();
+                    pv.v[6] = targetCluster.getE2CliqueCount();
+                    pv.v[7] = targetCluster.getEFCliqueCount();
+//                    pv.v[8] = targetCluster.getNoneCliqueCount();
+                    
+                    return pv;
+                }
+            };
+            final DooDad dooDad = new DooDad(nPoints);
+            PropertyBin podODCliqDoodad = new PropertyBin() {
+                final IntSet pv = new IntSet(new int[13]);
+                public IntSet value() {
+                    pv.v[0] = targetCluster.getCoreEdgeCount();
+                    pv.v[1] = targetCluster.getWellEdgeCount();
+                    pv.v[2] = pv.v[3] = pv.v[4] = 0;
+                    int[] odc = targetCluster.getOutDegreeCore();
+                    int[] odw = targetCluster.getOutDegreeWell();
+                    for (int i=0; i<nPoints; i++) {
+                        pv.v[2] += odc[i]*odc[i];
+                        pv.v[3] += odw[i]*odw[i];
+                        pv.v[4] += odc[i]*odw[i];
+                    }
+                    pv.v[5] = targetCluster.getF1CliqueCount();
+                    pv.v[6] = targetCluster.getE2CliqueCount();
+                    pv.v[7] = targetCluster.getEFCliqueCount();
+                    pv.v[8] = targetCluster.getNoneCliqueCount();
+                    pv.v[9] = dooDad.value(pv.v[5], targetCluster.getF1Cliques());
+                    pv.v[10] = dooDad.value(pv.v[6], targetCluster.getE2Cliques());
+                    pv.v[11] = dooDad.value(pv.v[7], targetCluster.getEFCliques());
+                    pv.v[12] = dooDad.value(pv.v[8], targetCluster.getNoneCliques());
+                    
+                    return pv;
+                }
+            };
+            meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), podODCliqDoodad, totalCount, allMyData, iThread, doReweight);
             meter.setBox(sim.box);
             if (w>=0) {
                 meter.setWeight(w);
