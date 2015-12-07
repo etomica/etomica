@@ -63,7 +63,6 @@ public class MeterVirialBDBinMultiThreaded implements IAction {
     }
 
     public MeterVirialBDBinMultiThreaded(ClusterWheatley targetCluster, IRandom random, PropertyBin prop, long[] totalCount, Map<IntSet,MyData> allMyData, int iThread, boolean doReweight) {
-        System.out.println("Bin2");
         this.targetCluster = targetCluster;
         this.random = random;
         this.allMyData = allMyData == null ? new HashMap<IntSet,MyData>() : allMyData;
@@ -570,7 +569,7 @@ public class MeterVirialBDBinMultiThreaded implements IAction {
         public BigDecimal sum;
         public double dsum, dsum2;
         public BigDecimal sum2;
-//        public boolean locked;
+
         public MyData() {
             sum = BDZERO;
             sum2 = BDZERO;
