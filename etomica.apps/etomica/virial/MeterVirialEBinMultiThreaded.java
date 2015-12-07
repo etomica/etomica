@@ -53,7 +53,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
 //    protected final BufferedReader goodBufReader;
 //    protected long lastCPairID, lastLastCPairID;
     protected boolean excludeBogusConfigs = false;
-    protected static boolean quiet = true;
+    protected static boolean quiet = false;
     protected double[] x;
 
     /**
@@ -64,7 +64,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
     }
 
     public MeterVirialEBinMultiThreaded(ClusterWheatleyExtendSW targetCluster, IRandom random, PropertyBin prop, long[] totalCount, Map<IntSet,MyData> allMyData, int iThread, boolean doReweight) {
-        System.out.println("Bin2");
         this.targetCluster = targetCluster;
         this.random = random;
         this.allMyData = allMyData == null ? new HashMap<IntSet,MyData>() : allMyData;
@@ -357,101 +356,111 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         for (MyData amd : allMyData.values()) {
         	amd.weight = 0;
         }
-    	for (int i=0; i<1+n*(n-1)/2; i++) {
+        double sumE0 = 0;
         long totalSampleCount = 0;
-        double totalSqValue = 0;
-        for (MyData amd : allMyData.values()) {
-            long sc = 0;
-            double average = 0;
-            double var = 0;
-            synchronized (amd) {
-                sc = amd.sampleCount;
-                average = amd.getAvg(i);
-                var = amd.getVar(i);
-            }
-            totalSampleCount += sc;
-            totalSqValue += sc * (var + average*average);
-        }
-        double avgSqValue = totalSqValue / totalSampleCount;
-        double t0 = totalCount;
-        double t1 = totalSampleCount*tRatio;
-        double E0a = 0, E0a2 = 0;
         double E1 = 0;
-//        double sum1 = 0;
-        // E0 = sum(sci*(steps-sci)/steps * ai^2)
-        // E1 = sum(sci*sci*stdev*stdev/sampci)
-
-        Map<IntSet,Double> localWeight = new HashMap<IntSet,Double>();
-        
-        for (IntSet pv : allMyData.keySet()) {
-            MyData amd = allMyData.get(pv);
-            long c = amd.unscreenedCount;
-            if (c == 0) continue;
-            long sampleCount = 0;
-            double average = 0;
-            double var = 0;
-            synchronized (amd) {
-                sampleCount = amd.sampleCount;
-                average = amd.getAvg(i);
-                var = amd.getVar(i);
+        double totTotalSqValue = 0;
+        // weight each bin based on its contribution to the final virial coefficient at Y=1
+    	for (int i=0; i<1+n*(n-1)/2; i++) {
+            double totalSqValue = 0;
+            for (MyData amd : allMyData.values()) {
+                long sc = 0;
+                double average = 0;
+                double var = 0;
+                synchronized (amd) {
+                    sc = amd.sampleCount;
+                    average = amd.getAvg(i);
+                    var = amd.getVar(i);
+                }
+                if (i==0) totalSampleCount += sc;
+                totalSqValue += sc * (var + average*average);
             }
-            double lwi = doPadVar ? (avgSqValue/sampleCount) : 0;
-
-            if (average != 0) {
-                // E0 = sum(sci*(steps-sci)/steps * ai^2)
-                E0a += c*average;
-                E0a2 += c*average*average;
-            }
-
-            if (sampleCount<2) {
-                // we have never seen i bonds, or the configuration was always screened
-                // or we just have no statistics
-                localWeight.put(pv, Math.sqrt(lwi));
-                continue;
-            }
-
-            lwi += var;
-            localWeight.put(pv, Math.sqrt(lwi));
-
+            totTotalSqValue += totalSqValue;
+            double avgSqValue = totalSqValue / totalSampleCount;
+            double E0a = 0, E0a2 = 0;
+            // E0 = sum(sci*(steps-sci)/steps * ai^2)
             // E1 = sum(sci*sci*stdev*stdev/sampci)
-            E1 += c*((double)c)/sampleCount * var;
-//            sum1 += c*Math.sqrt(var); // 
-        }
-        if (E0a2 == 0) {
-            return;
-        }
-        double E0ave = E0a/totalCount;
-        // subtract 1 here to force E0 to be finite, even if sample is perfect so far
-        double E0 = E0a2/(totalCount-1) - E0ave*E0ave;
+
+            Map<IntSet,Double> localWeight = new HashMap<IntSet,Double>();
+        
+            for (IntSet pv : allMyData.keySet()) {
+                MyData amd = allMyData.get(pv);
+                long c = amd.unscreenedCount;
+                if (c == 0) continue;
+                long sampleCount = 0;
+                double average = 0;
+                double var = 0;
+                synchronized (amd) {
+                    sampleCount = amd.sampleCount;
+                    average = amd.getAvg(i);
+                    var = amd.getVar(i);
+                }
+                double lwi = doPadVar ? (avgSqValue/sampleCount) : 0;
+
+                if (average != 0) {
+                    // E0 = sum(sci*(steps-sci)/steps * ai^2)
+                    E0a += c*average;
+                    E0a2 += c*average*average;
+                }
+
+                if (sampleCount<2) {
+                    // we have never seen i bonds, or the configuration was always screened
+                    // or we just have no statistics
+                    localWeight.put(pv, Math.sqrt(lwi));
+                    continue;
+                }
+
+                lwi += var;
+                amd.weight += lwi;
+                localWeight.put(pv, Math.sqrt(lwi));
+
+                // E1 = sum(sci*sci*stdev*stdev/sampci)
+                E1 += c*((double)c)/sampleCount * var;
+            }
+
+            double E0ave = E0a/totalCount;
+            // subtract 1 here to force E0 to be finite, even if sample is perfect so far
+            double E0 = E0a2/(totalCount-1) - E0ave*E0ave;
+            sumE0 += E0;
+    	}
+    	
+    	// we've considered contributions to all Y-expansion coefficients, now
+    	// we can compue weights for individual bins
+
         E1 /= totalCount;
-//        sum1 /= totalCount;
+//      sum1 /= totalCount;
         if (E1 == 0 && doPadVar) {
-            // no value fluctuations, perhaps B4 or B5?
-            E1 = avgSqValue/totalSampleCount;
+          // no value fluctuations, perhaps B4 or B5?
+          E1 = (totTotalSqValue/totalSampleCount)/totalSampleCount;
         }
-//        System.out.println("weights");
-        double k = Math.sqrt(1/(E0*tRatio));
-//        k=1e-8;
+
+        double k = Math.sqrt(1/(sumE0*tRatio));
 
         double newT1 = 0;
         long totalUnscreened = 0;
         double newE1 = 0;
         double E1all = 0;
         double allT1 = 0;
+        double t0 = totalCount;
+        double t1 = totalSampleCount*tRatio;
         for (IntSet pv : allMyData.keySet()) {
             MyData amd = allMyData.get(pv);
             long c = amd.unscreenedCount;
-            if (c == 0) continue;
-            double w = localWeight.get(pv)*k;
+            if (c == 0) {
+                amd.weight = 0;
+                continue;
+            }
+            double lwi = amd.weight;
+            double w = Math.sqrt(lwi)*k;
             if (w > 1 || amd.sampleCount < 2) {
                 w = 1;
             }
 //            if (i>=targetCluster.pointCount()) System.out.println(String.format("%2d %12d  %6.4f  %6.4f  %6.4f", i, (count[i]-screenedCount[i]), weight[i], w, tRatio * (count[i]-screenedCount[i]) * w / totalCount));
-            amd.weight += w;
+            amd.weight = w;
             newT1 += c * w;
             allT1 += c;
             totalUnscreened += c;
-            double s = amd.getVar(i);
+            double s = lwi;
             if (s > 0) {
                 newE1 += c*s/w;
                 E1all += c*s;
@@ -463,15 +472,13 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         E1all /= totalCount;
 //        System.out.println(E0+" "+E1+" "+newE1+" "+newT1);
         if (!quiet) {
-            System.out.print(String.format(i+" var0 frac %8.5f (opt: %8.5f)  t0 frac %8.5f  k %8.2e  new t0 frac %5.3f   measure frac %7.5f\n", E0/(E0+E1), E0/(E0+newE1), t0/(t0+t1), k, 1/(1+newT1), newT1*(totalCount/tRatio/totalUnscreened)));
+            System.out.print(String.format("var0 frac %8.5f (opt: %8.5f)  t0 frac %8.5f  k %8.2e  new t0 frac %5.3f   measure frac %7.5f\n", sumE0/(sumE0+E1), sumE0/(sumE0+newE1), t0/(t0+t1), k, 1/(1+newT1), newT1*(totalCount/tRatio/totalUnscreened)));
             // what is this?  Math.sqrt(E0)+Math.sqrt(tRatio)*sum1
             // difficulty:   opt   actual   w=1    w=0
-            System.out.print(String.format("   Difficulty: %10.4e %10.4e %10.4e %10.4e\n", Math.sqrt((E0+newE1)*(1+newT1)), Math.sqrt((E0+E1)*(1+t1/t0)), Math.sqrt((E0+E1all)*(1+allT1)), Math.sqrt(E0+E1all)));
+            System.out.print(String.format("   Difficulty: %10.4e %10.4e %10.4e %10.4e\n", Math.sqrt((sumE0+newE1)*(1+newT1)), Math.sqrt((sumE0+E1)*(1+t1/t0)), Math.sqrt((sumE0+E1all)*(1+allT1)), Math.sqrt(sumE0+E1all)));
         }
-    	}
-        for (MyData amd : allMyData.values()) {
-        	amd.weight = Math.sqrt(amd.weight);
-        }
+
+
         System.out.flush();
     }
     
