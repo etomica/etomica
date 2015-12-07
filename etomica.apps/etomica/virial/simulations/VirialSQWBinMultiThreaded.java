@@ -345,7 +345,7 @@ public class VirialSQWBinMultiThreaded {
                 public IntSet value() {
                     pv.v[0] = targetCluster.getCoreEdgeCount();
                     pv.v[1] = targetCluster.getWellEdgeCount();
-                    pv.v[2] = pv.v[3] = pv.v[4] = 0;
+                    pv.v[2] = pv.v[3] = 0;
                     int[] odc = targetCluster.getOutDegreeCore();
                     int[] odw = targetCluster.getOutDegreeWell();
                     for (int i=0; i<odc.length; i++) {
@@ -441,7 +441,15 @@ public class VirialSQWBinMultiThreaded {
                     return pv;
                 }
             };
-            meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), podODCliqDoodad, totalCount, allMyData, iThread, doReweight);
+            PropertyBin[] myPODs= new PropertyBin[10];
+            myPODs[4] = podOD5;
+            myPODs[5] = podODCliq;
+            myPODs[6] = podODCliqDoodad;
+            myPODs[7] = podODCliqDoodad;
+            myPODs[8] = podODCliqDoodad;
+            myPODs[9] = podODCliqDoodad;
+            myPODs[10] = podODCliqDoodad;
+            meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), myPODs[nPoints], totalCount, allMyData, iThread, doReweight);
             meter.setBox(sim.box);
             if (w>=0) {
                 meter.setWeight(w);
