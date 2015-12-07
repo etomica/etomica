@@ -237,6 +237,8 @@ public class VirialSQWBinMultiThreaded {
             System.out.println("number time fraction: "+(nThreads*steps)/(nThreads*steps + totalSampleCount*tRatio));
             System.out.println("fraction not screened: "+((double)totalNotScreenedCount)/(nThreads*steps));
             System.out.println("fraction measured: "+((double)totalSampleCount)/totalNotScreenedCount);
+            
+            System.out.println(String.format("expected time: %d\n",(int)((steps*ts+totalSampleCount/nThreads*tc)/1e6)));
         }
         System.out.println("time: "+(t2-t1)/1000.0);
 //        }
@@ -441,7 +443,7 @@ public class VirialSQWBinMultiThreaded {
                     return pv;
                 }
             };
-            PropertyBin[] myPODs= new PropertyBin[10];
+            PropertyBin[] myPODs= new PropertyBin[11];
             myPODs[4] = podOD5;
             myPODs[5] = podODCliq;
             myPODs[6] = podODCliqDoodad;
