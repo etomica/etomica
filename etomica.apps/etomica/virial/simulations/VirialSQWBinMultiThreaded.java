@@ -123,7 +123,10 @@ public class VirialSQWBinMultiThreaded {
             // reweighting is needed, we have to share data
             params.shareData = true;
         }
-        System.out.println("using a ring/chain/tree reference ("+ringFrac+" rings, "+chainFrac+" chains, "+(1-ringFrac-chainFrac)+" trees)");
+        System.out.println("using a ring/chain/tree reference");
+        System.out.println("  rings: "+ringFrac);
+        System.out.println("  chains: "+chainFrac);
+        System.out.println("  trees: "+(1-chainFrac-ringFrac));
 
         double refIntegral = 1;
 
