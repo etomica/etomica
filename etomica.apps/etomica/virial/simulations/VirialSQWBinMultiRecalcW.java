@@ -17,7 +17,7 @@ import etomica.virial.MeterVirialEBinMultiThreaded;
 /**
  * Calculation for virial coefficients of hard spheres
  */
-public class VirilSQWBinMultiRecalcW {
+public class VirialSQWBinMultiRecalcW {
 
 
     public static void main(String[] args) {
