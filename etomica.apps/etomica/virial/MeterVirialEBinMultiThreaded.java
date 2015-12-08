@@ -497,7 +497,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
 
     public static class MyData {
         public long unscreenedCount, sampleCount;
-        public double weight, iWeight;
+        public double weight;
         public double[] sum, sum2;
 
         public MyData(int n) {
