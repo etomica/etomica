@@ -112,7 +112,7 @@ public class VirialSQWBinMultiThreaded {
             // meter0 exists only to allow us to read in the weights file (if it exists) and to populate allMyData
             // this needs to be done (finished) before any thread gets started.
         	MeterVirialEBinMultiThreaded meter0 = new MeterVirialEBinMultiThreaded(null, null, null, new long[1], allMyData, 0, true);
-            meter0.readWeights(params.runName+nPoints+"_weights.dat");
+            meter0.readWeights(params.runName+nPoints+"_weights.dat", nPoints);
             doReweight = allMyData.size() == 0;
         }
         if (!doReweight && !params.shareData) {
@@ -460,7 +460,7 @@ public class VirialSQWBinMultiThreaded {
                 meter.setWeight(w);
             }
             else if (allMyData == null) {
-                meter.readWeights(runName+nPoints+"_weights.dat");
+                meter.readWeights(runName+nPoints+"_weights.dat", nPoints);
             }
 //            double tRatio = nPoints == 4 ? 30.0 : 0.154*Math.exp(1.0683*nPoints);
 
