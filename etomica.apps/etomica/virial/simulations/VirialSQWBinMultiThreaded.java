@@ -192,10 +192,10 @@ public class VirialSQWBinMultiThreaded {
         }
         MeterVirialEBinMultiThreaded.writeData(filename, allMyData, nThreads*steps);
         
-        if (doReweight) {
+        if (true) {
             System.out.println();
             
-//            MeterVirialEBinMultiThreaded.setQuiet(false);
+            MeterVirialEBinMultiThreaded.setQuiet(!doReweight);
             MeterVirialEBinMultiThreaded.recomputeWeights(allMyData, nThreads*steps, nPoints);
 
             List<IntSet> pvs = new ArrayList<IntSet>();
