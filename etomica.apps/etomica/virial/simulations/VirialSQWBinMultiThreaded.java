@@ -207,7 +207,7 @@ public class VirialSQWBinMultiThreaded {
             System.out.println();
             for (int i=0; i<1+nPoints*(nPoints-1)/2; i++) {
 	            double sum = 0;
-	            double sumErrNum = 0;
+	            double E0a2 = 0;
 	            double sumErrStdev = 0;
 	            int nSets = 0;
 	            for (IntSet pv : pvs) {
@@ -226,12 +226,14 @@ public class VirialSQWBinMultiThreaded {
 	                double avg = amd.getAvg(i);
 	                double var = amd.getVar(i);
 	                sum += c*avg;
+	                E0a2 += c*avg*avg;
 	                sumErrStdev += var/sc*c*c;
-	                sumErrNum += c*((double)(nThreads*steps - c))/(nThreads*steps)*avg*avg;
 	            }
 	            if (i==0) System.out.println(nSets+" sets");
-	            sum *= refIntegral/(nThreads*steps);
+	            sum /= nThreads*steps;
+	            double sumErrNum = E0a2 - sum*sum*nThreads*steps;
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
+                sum *= refIntegral;
 	    
 	            System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum, finalErr, sumErrNum/(sumErrStdev + sumErrNum)));
 	    
