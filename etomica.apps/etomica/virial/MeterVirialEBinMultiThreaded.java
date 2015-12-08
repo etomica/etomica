@@ -216,9 +216,9 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             for (int i=0; i<1+n*(n-1)/2; i++) {
 	            amd.sum[i] += amdMore.sum[i];
 	            amd.sum2[i] += amdMore.sum2[i];
-	            amd.sampleCount += amdMore.sampleCount;
-	            amd.unscreenedCount += amdMore.unscreenedCount;
             }
+            amd.sampleCount += amdMore.sampleCount;
+            amd.unscreenedCount += amdMore.unscreenedCount;
         }
     }
 
