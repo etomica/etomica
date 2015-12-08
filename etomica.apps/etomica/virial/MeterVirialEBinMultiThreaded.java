@@ -71,17 +71,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         this.totalCount = totalCount;
         this.iThread = iThread;
         if (!doReweight) nextReweightStep = Long.MAX_VALUE;
-        /*File f = new File("thread"+iThread+"_raw.dat");
-        if (f.exists()) {
-            f.delete();
-        }*/
-//        try {
-//            FileReader fileReader = new FileReader("thread"+iThread+"_good.dat");
-//            goodBufReader = new BufferedReader(fileReader);
-//        }
-//        catch (IOException ex) {
-//            throw new RuntimeException(ex);
-//        }
     }
 
     public void setDoExcludeBogusConfigs(boolean newDoExclude) {
@@ -234,12 +223,11 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         }
     }
 
-    public void readData(String[] filenames) {
+    public void readData(String[] filenames, int n) {
         Map<IntSet,double[]> sums = new HashMap<IntSet,double[]>();
         Map<IntSet,double[]> sumSquares = new HashMap<IntSet,double[]>();
         Map<IntSet,Long> sampleCounts = new HashMap<IntSet,Long>();
         try {
-        	int n = targetCluster.n;
         	for (String filename : filenames) {
                 File f = new File(filename);
                 if (!f.exists()) continue;
@@ -299,14 +287,13 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         }
     }
 
-    public void readWeights(String filename) {
+    public void readWeights(String filename, int n) {
         File f = new File(filename);
         if (!f.exists()) return;
         try {
             FileReader fr = new FileReader(filename);
             BufferedReader bufReader = new BufferedReader(fr);
             String line = null;
-            int n = targetCluster.n;
             while ((line=bufReader.readLine()) != null) {
                 String pvStr = line.replaceAll("].*", "").substring(1);
                 String[] pvSplit = pvStr.split("[, ]+");
