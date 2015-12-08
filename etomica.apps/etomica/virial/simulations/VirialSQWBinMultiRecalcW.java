@@ -57,7 +57,7 @@ public class VirialSQWBinMultiRecalcW {
         System.out.println(String.format(" %6.3f",(t2-t1)*0.001));
 
         t1 = System.currentTimeMillis();
-        meter.recomputeWeights(meter.getAllMyData(), meter.getTotalCount(), false, nPoints);
+        meter.recomputeWeights(meter.getAllMyData(), meter.getTotalCount(), true, nPoints);
         t2 = System.currentTimeMillis();
         System.out.println(String.format("recomputed weights... %6.3f",(t2-t1)*0.001));
 
