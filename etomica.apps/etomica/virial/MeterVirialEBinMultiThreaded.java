@@ -356,7 +356,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         for (MyData amd : allMyData.values()) {
         	amd.weight = 0;
         }
-        double sumE0 = 0;
+        double E0 = 0;
         long totalSampleCount = 0;
         double E1 = 0;
         double totTotalSqValue = 0;
@@ -380,8 +380,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             double E0a = 0, E0a2 = 0;
             // E0 = sum(sci*(steps-sci)/steps * ai^2)
             // E1 = sum(sci*sci*stdev*stdev/sampci)
-
-            Map<IntSet,Double> localWeight = new HashMap<IntSet,Double>();
         
             for (IntSet pv : allMyData.keySet()) {
                 MyData amd = allMyData.get(pv);
@@ -401,18 +399,18 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                     // E0 = sum(sci*(steps-sci)/steps * ai^2)
                     E0a += c*average;
                     E0a2 += c*average*average;
+                    // c*((double)(1 - c/totalCount))*avg*avg;
                 }
 
                 if (sampleCount<2) {
                     // we have never seen i bonds, or the configuration was always screened
                     // or we just have no statistics
-                    localWeight.put(pv, Math.sqrt(lwi));
+                    amd.weight += lwi;
                     continue;
                 }
 
                 lwi += var;
                 amd.weight += lwi;
-                localWeight.put(pv, Math.sqrt(lwi));
 
                 // E1 = sum(sci*sci*stdev*stdev/sampci)
                 E1 += c*((double)c)/sampleCount * var;
@@ -420,8 +418,8 @@ public class MeterVirialEBinMultiThreaded implements IAction {
 
             double E0ave = E0a/totalCount;
             // subtract 1 here to force E0 to be finite, even if sample is perfect so far
-            double E0 = E0a2/(totalCount-1) - E0ave*E0ave;
-            sumE0 += E0;
+            double iE0 = E0a2/(totalCount-1) - E0ave*E0ave;
+            E0 += iE0;
     	}
     	
     	// we've considered contributions to all Y-expansion coefficients, now
@@ -434,7 +432,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
           E1 = (totTotalSqValue/totalSampleCount)/totalSampleCount;
         }
 
-        double k = Math.sqrt(1/(sumE0*tRatio));
+        double k = Math.sqrt(1/(E0*tRatio));
 
         double newT1 = 0;
         long totalUnscreened = 0;
@@ -460,10 +458,9 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             newT1 += c * w;
             allT1 += c;
             totalUnscreened += c;
-            double s = lwi;
-            if (s > 0) {
-                newE1 += c*s/w;
-                E1all += c*s;
+            if (lwi > 0) {
+                newE1 += c*lwi/w;
+                E1all += c*lwi;
             }
         }
         newT1 *= tRatio/totalCount;
@@ -472,10 +469,11 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         E1all /= totalCount;
 //        System.out.println(E0+" "+E1+" "+newE1+" "+newT1);
         if (!quiet) {
-            System.out.print(String.format("var0 frac %8.5f (opt: %8.5f)  t0 frac %8.5f  k %8.2e  new t0 frac %5.3f   measure frac %7.5f\n", sumE0/(sumE0+E1), sumE0/(sumE0+newE1), t0/(t0+t1), k, 1/(1+newT1), newT1*(totalCount/tRatio/totalUnscreened)));
-            // what is this?  Math.sqrt(E0)+Math.sqrt(tRatio)*sum1
+            System.out.print(String.format("var0 frac %8.5f (opt: %8.5f)  t0 frac %8.5f  k %8.2e  new t0 frac %5.3f   measure frac %7.5f\n", E0/(E0+E1), E0/(E0+newE1), t0/(t0+t1), k, 1/(1+newT1), newT1*(totalCount/tRatio/totalUnscreened)));
             // difficulty:   opt   actual   w=1    w=0
-            System.out.print(String.format("   Difficulty: %10.4e %10.4e %10.4e %10.4e\n", Math.sqrt((sumE0+newE1)*(1+newT1)), Math.sqrt((sumE0+E1)*(1+t1/t0)), Math.sqrt((sumE0+E1all)*(1+allT1)), Math.sqrt(sumE0+E1all)));
+            System.out.print(String.format("   Difficulty: %10.4e %10.4e %10.4e %10.4e\n", Math.sqrt((E0+newE1)*(1+newT1)), Math.sqrt((E0+E1)*(1+t1/t0)), Math.sqrt((E0+E1all)*(1+allT1)), Math.sqrt(E0+E1all)));
+            // D = printed * sqrt((ts*totalCount)/totalCount)
+            //   = printed * sqrt(ts)
         }
 
 
