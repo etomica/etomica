@@ -54,7 +54,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
 //    protected long lastCPairID, lastLastCPairID;
     protected boolean excludeBogusConfigs = false;
     protected static boolean quiet = false;
-    protected double[] x;
 
     /**
      * Constructor for MeterVirial.
@@ -348,7 +347,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         double E1 = 0;
         double totTotalSqValue = 0;
         // weight each bin based on its contribution to the final virial coefficient at Y=1
-    	for (int i=0; i<1+n*(n-1)/2; i++) {
+        for (int i=0; i<1+n*(n-1)/2; i++) {
             double totalSqValue = 0;
             for (MyData amd : allMyData.values()) {
                 long sc = 0;
@@ -380,24 +379,22 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                     average = amd.getAvg(i);
                     var = amd.getVar(i);
                 }
-                double lwi = doPadVar ? (avgSqValue/sampleCount) : 0;
-
                 if (average != 0) {
                     // E0 = sum(sci*(steps-sci)/steps * ai^2)
                     E0a += c*average;
                     E0a2 += c*average*average;
-                    // c*((double)(1 - c/totalCount))*avg*avg;
                 }
 
+                if (doPadVar) {
+                    amd.weight += avgSqValue/sampleCount;
+                }
                 if (sampleCount<2) {
                     // we have never seen i bonds, or the configuration was always screened
                     // or we just have no statistics
-                    amd.weight += lwi;
                     continue;
                 }
 
-                lwi += var;
-                amd.weight += lwi;
+                amd.weight += var;
 
                 // E1 = sum(sci*sci*stdev*stdev/sampci)
                 E1 += c*((double)c)/sampleCount * var;
@@ -432,11 +429,12 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             MyData amd = allMyData.get(pv);
             long c = amd.unscreenedCount;
             if (c == 0) {
-                amd.weight = 0;
+                amd.weight = 1;
                 continue;
             }
-            double lwi = amd.weight;
-            double w = Math.sqrt(lwi)*k;
+            double var = amd.weight;
+            double w = Math.sqrt(var)*k;
+
             if (w > 1 || amd.sampleCount < 2) {
                 w = 1;
             }
@@ -445,9 +443,9 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             newT1 += c * w;
             allT1 += c;
             totalUnscreened += c;
-            if (lwi > 0) {
-                newE1 += c*lwi/w;
-                E1all += c*lwi;
+            if (var > 0) {
+                newE1 += c*var/w;
+                E1all += c*var;
             }
         }
         newT1 *= tRatio/totalCount;
