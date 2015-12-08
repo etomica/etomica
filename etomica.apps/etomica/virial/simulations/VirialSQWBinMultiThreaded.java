@@ -190,9 +190,10 @@ public class VirialSQWBinMultiThreaded {
             }
             allMyData = sw[0].meter.getAllMyData();
         }
+        System.out.println(allMyData.size()+" sets");
         MeterVirialEBinMultiThreaded.writeData(filename, allMyData, nThreads*steps);
         
-        if (true) {
+        if (doReweight) {
             System.out.println();
             
             MeterVirialEBinMultiThreaded.setQuiet(!doReweight);
@@ -209,12 +210,10 @@ public class VirialSQWBinMultiThreaded {
 	            double sum = 0;
 	            double E0a2 = 0;
 	            double sumErrStdev = 0;
-	            int nSets = 0;
 	            for (IntSet pv : pvs) {
 	                MyData amd = allMyData.get(pv);
 	                long c = amd.unscreenedCount;
 	    
-	                nSets++;
 	                if (i==0) totalNotScreenedCount += c;
 	                long sc = amd.sampleCount;
 	                if (sc == 0) {
@@ -229,7 +228,6 @@ public class VirialSQWBinMultiThreaded {
 	                E0a2 += c*avg*avg;
 	                sumErrStdev += var/sc*c*c;
 	            }
-	            if (i==0) System.out.println(nSets+" sets");
 	            sum /= nThreads*steps;
 	            double sumErrNum = E0a2 - sum*sum*nThreads*steps;
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
@@ -454,8 +452,10 @@ public class VirialSQWBinMultiThreaded {
             myPODs[6] = podODCliqDoodad;
             myPODs[7] = podODCliqDoodad;
             myPODs[8] = podODCliqDoodad;
-            myPODs[9] = podODCliqDoodad;
-            myPODs[10] = podODCliqDoodad;
+            // podODCliqDoodad yields too many bins.  even if our memory could hold it, it would take
+            // a long time to get any benefit from binning
+            myPODs[9] = podODCliq;
+            myPODs[10] = podODCliq;
             meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), myPODs[nPoints], totalCount, allMyData, iThread, doReweight);
             meter.setBox(sim.box);
             if (w>=0) {
