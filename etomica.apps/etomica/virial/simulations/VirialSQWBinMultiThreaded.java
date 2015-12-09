@@ -39,8 +39,9 @@ import etomica.virial.MCMoveClusterAtomHSRing;
 import etomica.virial.MCMoveClusterAtomHSTree;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
-import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
 import etomica.virial.MeterVirialEBinMultiThreaded;
+import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
+import etomica.virial.MeterVirialEBinMultiThreaded.MyDataCov;
 import etomica.virial.cluster.Standard;
 import etomica.virial.simulations.VirialHSBinMultiThreaded.DooDad;
 
@@ -74,6 +75,7 @@ public class VirialSQWBinMultiThreaded {
         final int nThreads = params.nThreads;
         final double w = params.w;
         final int[] allRandomSeeds = params.randomSeeds;
+        final boolean doCov = params.doCov;
 
         final double vhs = (4.0/3.0)*Math.PI*sigmaHS*sigmaHS*sigmaHS;
 
@@ -112,6 +114,7 @@ public class VirialSQWBinMultiThreaded {
             // meter0 exists only to allow us to read in the weights file (if it exists) and to populate allMyData
             // this needs to be done (finished) before any thread gets started.
         	MeterVirialEBinMultiThreaded meter0 = new MeterVirialEBinMultiThreaded(null, null, null, new long[1], allMyData, 0, true);
+        	meter0.setDoCov(doCov);
             meter0.readWeights(params.runName+nPoints+"_weights.dat", nPoints);
             doReweight = allMyData.size() == 0;
         }
@@ -152,7 +155,7 @@ public class VirialSQWBinMultiThreaded {
             if (mySeeds != null) {
                 System.arraycopy(allRandomSeeds, allRandomSeeds.length/nThreads*it, mySeeds, 0, mySeeds.length);
             }
-            sw[it] = new SimulationWorker(it, nPoints, fTargetf1, fTargete2, fRefPos, lambda, vhs, chainFrac, ringFrac, steps, space, params.runName, tRatio, allMyData, w, totalCount, doReweight, mySeeds);
+            sw[it] = new SimulationWorker(it, nPoints, fTargetf1, fTargete2, fRefPos, lambda, vhs, chainFrac, ringFrac, steps, space, params.runName, tRatio, allMyData, w, totalCount, doReweight, mySeeds, doCov);
         }
         for (int it=0; it<nThreads; it++) {
             sw[it].start();
@@ -206,7 +209,10 @@ public class VirialSQWBinMultiThreaded {
             long totalSampleCount = 0;
             long totalNotScreenedCount = 0;
             System.out.println();
-            for (int i=0; i<1+nPoints*(nPoints-1)/2; i++) {
+            int nn = 1+nPoints*(nPoints-1)/2;
+            double[][] cov = new double[nn][nn];
+            double[] isum = new double[nn];
+            for (int i=0; i<nn; i++) {
 	            double sum = 0;
 	            double E0a2 = 0;
 	            double sumErrStdev = 0;
@@ -227,8 +233,16 @@ public class VirialSQWBinMultiThreaded {
 	                sum += c*avg;
 	                E0a2 += c*avg*avg;
 	                sumErrStdev += var/sc*c*c;
+
+	                if (doCov) {
+	                    for (int j=0; j<nn; j++) {
+	                        cov[i][j] += c*((MyDataCov)amd).getCov(i,j)
+	                                   + c*avg*amd.getAvg(j);
+	                    }
+	                }
 	            }
 	            sum /= nThreads*steps;
+                isum[i] = sum;
 	            double sumErrNum = E0a2 - sum*sum*nThreads*steps;
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
                 sum *= refIntegral;
@@ -236,6 +250,30 @@ public class VirialSQWBinMultiThreaded {
 	            System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum, finalErr, sumErrNum/(sumErrStdev + sumErrNum)));
 	    
 //	            System.out.println("Difficulty: "+(finalErr*Math.sqrt(t2-t1)));
+            }
+            if (doCov) {
+                System.out.println("\nCorrelations:");
+                for (int i=0; i<nn; i++) {
+                    for (int j=0; j<nn; j++) {
+                        cov[i][j] -= isum[i]*isum[j]*(nThreads*steps);
+                    }
+                }
+                for (int i=0; i<nn; i++) {
+                    System.out.print(String.format("%2d ", i));
+                    for (int j=0; j<nn; j++) {
+                        double cor = cov[i][j];
+                        double d = Math.sqrt(cov[i][i]*cov[j][j]);
+                        if (cor!=0) { // && Math.abs(cor) < 10000*d) {
+                            cor /= d;
+                        }
+                        else {
+                            cor = 0;
+                        }
+                        System.out.print(String.format(" % 4.2f", cor));
+                    }
+                    System.out.print("\n");
+                }
+                System.out.println();
             }
             System.out.println("number time fraction: "+(nThreads*steps)/(nThreads*steps + totalSampleCount*tRatio));
             System.out.println("fraction not screened: "+((double)totalNotScreenedCount)/(nThreads*steps));
@@ -265,13 +303,14 @@ public class VirialSQWBinMultiThreaded {
         protected final long[] totalCount;
         protected final boolean doReweight;
         protected final int[] mySeeds;
+        protected final boolean doCov;
         public MeterVirialEBinMultiThreaded meter;
         
         public SimulationWorker(int iThread, int nPoints, MayerFunction fTargetf1, MayerFunction fTargete2,
                 MayerFunction fRefPos, double lambda, double vhs, double chainFrac, double ringFrac,
                 long steps, ISpace space, String runName, double tRatio,
                 Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
-                boolean doReweight, int[] mySeeds) {
+                boolean doReweight, int[] mySeeds, boolean doCov) {
             this.iThread = iThread;
             this.nPoints = nPoints;
             this.fTargetf1 = fTargetf1;
@@ -290,6 +329,7 @@ public class VirialSQWBinMultiThreaded {
             this.totalCount = totalCount;
             this.doReweight = doReweight;
             this.mySeeds = mySeeds;
+            this.doCov = doCov;
         }
         
         public void run() {
@@ -454,9 +494,10 @@ public class VirialSQWBinMultiThreaded {
             myPODs[8] = podODCliqDoodad;
             // podODCliqDoodad yields too many bins.  even if our memory could hold it, it would take
             // a long time to get any benefit from binning
-            myPODs[9] = podODCliq;
-            myPODs[10] = podODCliq;
+            myPODs[9] = doCov ? podOD5 : podODCliq;
+            myPODs[10] = doCov ? podOD5 : podODCliq;
             meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), myPODs[nPoints], totalCount, allMyData, iThread, doReweight);
+            meter.setDoCov(doCov);
             meter.setBox(sim.box);
             if (w>=0) {
                 meter.setWeight(w);
@@ -505,6 +546,7 @@ public class VirialSQWBinMultiThreaded {
         public double w = -1;
         public int[] randomSeeds = new int[0];
         public boolean shareData = true;
+        public boolean doCov = false;
     }
     
 }
