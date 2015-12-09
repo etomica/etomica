@@ -496,17 +496,18 @@ public class MeterVirialEBinMultiThreaded implements IAction {
     public static class MyData {
         public long unscreenedCount, sampleCount;
         public double weight;
+        public int n;
         public double[] sum, sum2;
 
         public MyData(int n) {
-            sum = new double[n];
-            sum2 = new double[n];
+            this.n = n;
         }
-        
+
         public double getAvg(int i) {
+            if (sampleCount < 1) return 0;
             return sum[i]/sampleCount;
         }
-        
+
         public double getVar(int i) {
             if (sampleCount < 1) return Double.NaN;
             double avg = getAvg(i);
@@ -515,8 +516,12 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             if (var < avg2*1e-7) var = 0;
             return var;
         }
-        
+
         public void addData(double[] v) {
+            if (sum == null) {
+                sum = new double[n];
+                sum2 = new double[n];
+            }
         	for (int i=0; i<v.length; i++) {
         		sum[i] += v[i];
         		sum2[i] += v[i]*v[i];
