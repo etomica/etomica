@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,16 +43,13 @@ public class MeterVirialEBinMultiThreaded implements IAction {
     protected BoxCluster box;
     protected final Map<IntSet,MyData> allMyData;
     protected static double tRatio;
-    protected static final BigDecimal BDZERO = new BigDecimal(0);
     protected long nextReweightStep = 100000L;
     protected final long[] totalCount;
     protected final PropertyBin property;
     protected double nominalWeight = 1;
     protected int iThread;
-//    protected final BufferedReader goodBufReader;
-//    protected long lastCPairID, lastLastCPairID;
-    protected boolean excludeBogusConfigs = false;
     protected static boolean quiet = false;
+    protected boolean doCov = false;
 
     /**
      * Constructor for MeterVirial.
@@ -72,10 +68,10 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         if (!doReweight) nextReweightStep = Long.MAX_VALUE;
     }
 
-    public void setDoExcludeBogusConfigs(boolean newDoExclude) {
-        excludeBogusConfigs = newDoExclude;
+    public void setDoCov(boolean newDoCov) {
+        this.doCov = newDoCov;
     }
-    
+
     public void setWeight(double newWeight) {
         nominalWeight = newWeight;
         nextReweightStep = Long.MAX_VALUE;
@@ -124,7 +120,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             if (amd == null) {
                 IntSet pvCopy = propValue.copy();
                 int n = targetCluster.n;
-                amd = new MyData(1+n*(n-1)/2);
+                amd = makeData(1+n*(n-1)/2);
                 amd.weight = nominalWeight;
                 allMyData.put(pvCopy, amd);
             }
@@ -174,6 +170,12 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                 for (int i=0; i<amd.sum.length; i++) {
                 	fw.write(" "+amd.sum[i]+" "+amd.sum2[i]);
                 }
+                if (amd instanceof MyDataCov) {
+                    double[] pairSum = ((MyDataCov)amd).pairSum;
+                    for (int i=0; i<pairSum.length; i++) {
+                        fw.write(" "+pairSum[i]);
+                    }
+                }
                 fw.write("\n");
             }
             fw.close();
@@ -209,13 +211,20 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         for (IntSet pv : pvs) {
             MyData amd = allMyData.get(pv);
             if (amd == null) {
-                amd = new MyData(1+n*(n-1)/2);
+                amd = makeData(1+n*(n-1)/2);
                 allMyData.put(pv, amd);
             }
             MyData amdMore = moreData.get(pv);
             for (int i=0; i<1+n*(n-1)/2; i++) {
 	            amd.sum[i] += amdMore.sum[i];
 	            amd.sum2[i] += amdMore.sum2[i];
+            }
+            if (amd instanceof MyDataCov) {
+                double[] pairSum = ((MyDataCov)amd).pairSum;
+                double[] pairSumMore = ((MyDataCov)amdMore).pairSum;
+                for (int i=0; i<pairSum.length; i++) {
+                    pairSum[i] += pairSumMore[i];
+                }
             }
             amd.sampleCount += amdMore.sampleCount;
             amd.unscreenedCount += amdMore.unscreenedCount;
@@ -225,6 +234,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
     public void readData(String[] filenames, int n) {
         Map<IntSet,double[]> sums = new HashMap<IntSet,double[]>();
         Map<IntSet,double[]> sumSquares = new HashMap<IntSet,double[]>();
+        Map<IntSet,double[]> pairSums = new HashMap<IntSet,double[]>();
         Map<IntSet,Long> sampleCounts = new HashMap<IntSet,Long>();
         try {
         	for (String filename : filenames) {
@@ -255,9 +265,17 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                         	x[i] += Double.parseDouble(values[2+2*i]);
                         	x2[i] += Double.parseDouble(values[2+2*i+1]);
                         }
+                        if (amd instanceof MyDataCov) {
+                            int nn = (1+n*(n-1)/2);
+                            int nnn = 2 + 2*nn + 1;
+                            double[] pairSum = pairSums.get(pv);
+                            for (int i=0; i<pairSum.length; i++) {
+                                pairSum[i] += Double.parseDouble(values[nnn+i]);
+                            }
+                        }
                     }
                     else {
-                        MyData amd = new MyData(1+n*(n-1)/2);
+                        MyData amd = makeData(1+n*(n-1)/2);
                         amd.unscreenedCount = usc;
                         amd.weight = nominalWeight;
                         allMyData.put(pv, amd);
@@ -267,6 +285,15 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                         for (int i=0; i<1+n*(n-1)/2; i++) {
                         	x[i] = Double.parseDouble(values[2+2*i]);
                         	x2[i] = Double.parseDouble(values[2+2*i+1]);
+                        }
+                        if (amd instanceof MyDataCov) {
+                            int nn = (1+n*(n-1)/2);
+                            int nnn = 2 + 2*nn + 1;
+                            double[] pairSum = new double[nn];
+                            for (int i=0; i<pairSum.length; i++) {
+                                pairSum[i] += Double.parseDouble(values[nnn+i]);
+                            }
+                            pairSums.put(pv, pairSum);
                         }
                         sums.put(pv, x);
                         sumSquares.put(pv, x2);
@@ -283,6 +310,9 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             amd.sampleCount = sampleCounts.get(pv);
             amd.sum = sums.get(pv);
             amd.sum2 = sumSquares.get(pv);
+            if (amd instanceof MyDataCov) {
+                ((MyDataCov)amd).pairSum = pairSums.get(pv);
+            }
         }
     }
 
@@ -302,7 +332,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                 }
                 IntSet pv = new IntSet(v);
                 String weightStr = line.replaceAll(".*] ", "");
-                MyData amd = new MyData(1+n*(n-1)/2);
+                MyData amd = makeData(1+n*(n-1)/2);
                 amd.weight = Double.parseDouble(weightStr);
                 amd.unscreenedCount = 0;
                 allMyData.put(pv, amd);
@@ -492,6 +522,10 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         }
         return tc;
     }
+    
+    protected MyData makeData(int n) {
+        return doCov ? new MyDataCov(n) : new MyData(n);
+    }
 
     public static class MyData {
         public long unscreenedCount, sampleCount;
@@ -527,6 +561,39 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         		sum2[i] += v[i]*v[i];
         	}
             sampleCount++;
+        }
+    }
+
+    public static class MyDataCov extends MyData {
+        public double[] pairSum;
+
+        public MyDataCov(int n) {
+            super(n);
+        }
+
+        public void addData(double[] v) {
+            if (pairSum==null) {
+                pairSum = new double[n*(n-1)/2];
+            }
+            super.addData(v);
+            int k = 0;
+            for (int i=0; i<n-1; i++) {
+                for (int j=i+1; j<n; j++) {
+                    pairSum[k] += v[i]*v[j];
+                    k++;
+                }
+            }
+        }
+
+        public double getCov(int i, int j) {
+            if (i==j) return getVar(i);
+            if (i>j) return getCov(j,i);
+            int k = (2*n-i-1)*i/2 + (j-i-1);
+            double avgi = sum[i]/sampleCount;
+            double avgj = sum[j]/sampleCount;
+            double cov = pairSum[k]/sampleCount - avgi*avgj;
+            if (Math.abs(cov/(avgi*avgj)) < 1e-7) cov = 0;
+            return cov;
         }
     }
 }
