@@ -37,6 +37,7 @@ public class VirialSQWBinMultiRecalcW {
         if (tRatio <= 0) {
             throw new RuntimeException("must specify tRatio");
         }
+        boolean extraFile = params.extraFile;
 
         MeterVirialEBinMultiThreaded meter = new MeterVirialEBinMultiThreaded(null, null, null);
         meter.setTRatio(tRatio);
@@ -78,11 +79,13 @@ public class VirialSQWBinMultiRecalcW {
         long totalNotScreenedCount = 0;
         int nSets = 0;
         FileWriter fw = null;
-        try {
-            fw = new FileWriter(params.runName+nPoints+"_new.dat");
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
+        if (extraFile) {
+            try {
+                fw = new FileWriter(params.runName+nPoints+"_new.dat");
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         double[] E0a = new double[sum.length];
         double[] E0a2 = new double[sum.length];
@@ -93,11 +96,13 @@ public class VirialSQWBinMultiRecalcW {
             nSets++;
             totalNotScreenedCount += c;
             long sc = amd.sampleCount;
-            try {
-                fw.write(Arrays.toString(pv.v)+" "+sc+"/"+c+"\n");
-            }
-            catch (IOException e) {
-                throw new RuntimeException(e);
+            if (fw != null) {
+                try {
+                    fw.write(Arrays.toString(pv.v)+" "+sc+"/"+c+"\n");
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             totalSampleCount += sc;
@@ -105,11 +110,13 @@ public class VirialSQWBinMultiRecalcW {
             for (int i=0; i<1+nPoints*(nPoints-1)/2; i++) {
                 
                 if (sc == 0) {
-                    try {
-                        fw.write("   0  0\n");
-                    }
-                    catch (IOException e) {
-                        throw new RuntimeException(e);
+                    if (fw != null) {
+                        try {
+                            fw.write("   0  0\n");
+                        }
+                        catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     continue;
                 }
@@ -119,11 +126,13 @@ public class VirialSQWBinMultiRecalcW {
                 double var = amd.getVar(i);
                 double err = Math.sqrt(var/sc);
 
-                try {
-                    fw.write("   "+avg+"  "+err+"\n");
-                }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
+                if (fw != null) {
+                    try {
+                        fw.write("   "+avg+"  "+err+"\n");
+                    }
+                    catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 sum[i] += c*avg;
 
@@ -134,11 +143,13 @@ public class VirialSQWBinMultiRecalcW {
                 }
             }
         }
-        try {
-            fw.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
+        if (fw != null) {
+            try {
+                fw.close();
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         System.out.println(nSets+" sets");
         System.out.println();
@@ -166,6 +177,7 @@ public class VirialSQWBinMultiRecalcW {
         public String runName = "sqw";
         public int maxRunNumber = -1;
         public double tRatio = 0;
+        public boolean extraFile = false;
     }
     
 }
