@@ -37,6 +37,7 @@ import etomica.virial.IntSet.PropertyBin;
  */
 public class MeterVirialEBinMultiThreaded implements IAction {
 
+    protected final int n;
     protected final IRandom random;
     protected final ClusterWheatleyExtendSW targetCluster;
     protected final MathContext mc = new MathContext(40);
@@ -54,11 +55,12 @@ public class MeterVirialEBinMultiThreaded implements IAction {
     /**
      * Constructor for MeterVirial.
      */
-    public MeterVirialEBinMultiThreaded(ClusterWheatleyExtendSW targetCluster, IRandom random, PropertyBin prop) {
-        this(targetCluster, random, prop, new long[1], null, 0, true);
+    public MeterVirialEBinMultiThreaded(ClusterWheatleyExtendSW targetCluster, IRandom random, PropertyBin prop, int n) {
+        this(targetCluster, random, prop, new long[1], null, 0, true, n);
     }
 
-    public MeterVirialEBinMultiThreaded(ClusterWheatleyExtendSW targetCluster, IRandom random, PropertyBin prop, long[] totalCount, Map<IntSet,MyData> allMyData, int iThread, boolean doReweight) {
+    public MeterVirialEBinMultiThreaded(ClusterWheatleyExtendSW targetCluster, IRandom random, PropertyBin prop, long[] totalCount, Map<IntSet,MyData> allMyData, int iThread, boolean doReweight, int n) {
+        this.n = n;
         this.targetCluster = targetCluster;
         this.random = random;
         this.allMyData = allMyData == null ? new HashMap<IntSet,MyData>() : allMyData;
@@ -119,7 +121,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             amd = allMyData.get(propValue);
             if (amd == null) {
                 IntSet pvCopy = propValue.copy();
-                int n = targetCluster.n;
                 amd = makeData(1+n*(n-1)/2);
                 amd.weight = nominalWeight;
                 allMyData.put(pvCopy, amd);
@@ -154,25 +155,32 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         for (int i=0; i<totalCount.length; i++) {
             tc += totalCount[i];
         }
-        writeData(filename, allMyData, tc);
+        writeData(filename, allMyData, tc, n);
     }
 
-    public static void writeData(String filename, Map<IntSet,MyData> allMyData, long totalCount) {
+    public static void writeData(String filename, Map<IntSet,MyData> allMyData, long totalCount, int n) {
         try {
             FileWriter fw = new FileWriter(filename);
             fw.write(""+totalCount+"\n");
             List<IntSet> pvs = new ArrayList<IntSet>();
             pvs.addAll(allMyData.keySet());
             Collections.sort(pvs);
+            int nn = 1+n*(n-1)/2;
+            double[] zsum = new double[nn];
+            int nnn = nn*(nn-1)/2;
+            double[] zPairSum = new double[nnn];
             for (IntSet pv : pvs) {
                 MyData amd = allMyData.get(pv);
+                if (amd.unscreenedCount==0) continue;
                 fw.write(pv+" "+amd.unscreenedCount+" "+amd.sampleCount);
-                for (int i=0; i<amd.sum.length; i++) {
-                	fw.write(" "+amd.sum[i]+" "+amd.sum2[i]);
+                double[] s = amd.sum != null ? amd.sum : zsum;
+                double[] s2 = amd.sum2 != null ? amd.sum : zsum;
+                for (int i=0; i<nn; i++) {
+                	fw.write(" "+s[i]+" "+s2[i]);
                 }
                 if (amd instanceof MyDataCov) {
-                    double[] pairSum = ((MyDataCov)amd).pairSum;
-                    for (int i=0; i<pairSum.length; i++) {
+                    double[] pairSum = amd.sum != null ? ((MyDataCov)amd).pairSum : zPairSum;
+                    for (int i=0; i<nnn; i++) {
                         fw.write(" "+pairSum[i]);
                     }
                 }
@@ -207,7 +215,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
 
     public void mergeData(Map<IntSet,MeterVirialEBinMultiThreaded.MyData> moreData) {
         Set<IntSet> pvs = moreData.keySet();
-        int n = targetCluster.n;
         for (IntSet pv : pvs) {
             MyData amd = allMyData.get(pv);
             if (amd == null) {
@@ -351,7 +358,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         for (int i=0; i<totalCount.length; i++) {
             tc += totalCount[i];
         }
-        recomputeWeights(allMyData, tc, true, targetCluster.n);
+        recomputeWeights(allMyData, tc, true, n);
         nextReweightStep = tc * 2;
     }
 

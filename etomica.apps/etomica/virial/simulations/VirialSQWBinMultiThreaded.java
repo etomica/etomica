@@ -113,7 +113,7 @@ public class VirialSQWBinMultiThreaded {
         if (w < 0) {
             // meter0 exists only to allow us to read in the weights file (if it exists) and to populate allMyData
             // this needs to be done (finished) before any thread gets started.
-        	MeterVirialEBinMultiThreaded meter0 = new MeterVirialEBinMultiThreaded(null, null, null, new long[1], allMyData, 0, true);
+        	MeterVirialEBinMultiThreaded meter0 = new MeterVirialEBinMultiThreaded(null, null, null, new long[1], allMyData, 0, true, nPoints);
         	meter0.setDoCov(doCov);
             meter0.readWeights(params.runName+nPoints+"_weights.dat", nPoints);
             doReweight = allMyData.size() == 0;
@@ -194,7 +194,7 @@ public class VirialSQWBinMultiThreaded {
             allMyData = sw[0].meter.getAllMyData();
         }
         System.out.println(allMyData.size()+" sets");
-        MeterVirialEBinMultiThreaded.writeData(filename, allMyData, nThreads*steps);
+        MeterVirialEBinMultiThreaded.writeData(filename, allMyData, nThreads*steps, nPoints);
         
         if (doReweight) {
             System.out.println();
@@ -496,7 +496,7 @@ public class VirialSQWBinMultiThreaded {
             // a long time to get any benefit from binning
             myPODs[9] = doCov ? podOD5 : podODCliq;
             myPODs[10] = doCov ? podOD5 : podODCliq;
-            meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), myPODs[nPoints], totalCount, allMyData, iThread, doReweight);
+            meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), myPODs[nPoints], totalCount, allMyData, iThread, doReweight, nPoints);
             meter.setDoCov(doCov);
             meter.setBox(sim.box);
             if (w>=0) {
