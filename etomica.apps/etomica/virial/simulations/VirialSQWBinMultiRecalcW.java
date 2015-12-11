@@ -12,6 +12,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.IntSet;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
+import etomica.virial.MeterVirialEBinMultiThreaded.MyDataCov;
 import etomica.virial.MeterVirialEBinMultiThreaded;
 
 /**
@@ -48,6 +49,7 @@ public class VirialSQWBinMultiRecalcW {
         System.out.print("reading...");
         long t1 = System.currentTimeMillis();
         meter.readData(rawFiles, nPoints);
+        boolean doCov = meter.getDoCov();
         long t2 = System.currentTimeMillis();
         System.out.println(String.format(" %6.3f",(t2-t1)*0.001));
         
@@ -89,6 +91,8 @@ public class VirialSQWBinMultiRecalcW {
         }
         double[] E0a = new double[sum.length];
         double[] E0a2 = new double[sum.length];
+        int nn = 1+nPoints*(nPoints-1)/2;
+        double[][] cov = new double[nn][nn];
         for (IntSet pv : pvs) {
             MyData amd = allMyData.get(pv);
             long c = amd.unscreenedCount;
@@ -107,7 +111,7 @@ public class VirialSQWBinMultiRecalcW {
 
             totalSampleCount += sc;
 
-            for (int i=0; i<1+nPoints*(nPoints-1)/2; i++) {
+            for (int i=0; i<nn; i++) {
                 
                 if (sc == 0) {
                     if (fw != null) {
@@ -141,6 +145,13 @@ public class VirialSQWBinMultiRecalcW {
                 if (var>0) {
                     sumErrStdev[i] += var/sc*c*c;
                 }
+                
+                if (doCov) {
+                    for (int j=0; j<nn; j++) {
+                        cov[i][j] += c*((MyDataCov)amd).getCov(i,j)
+                                   + c*avg*amd.getAvg(j);
+                    }
+                }
             }
         }
         if (fw != null) {
@@ -162,8 +173,33 @@ public class VirialSQWBinMultiRecalcW {
             double finalErr = Math.sqrt((sumErrStdev[i] + E0)/steps);
             System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum[i], finalErr, E0/(sumErrStdev[i] + E0)));
         }
+ 
+        if (doCov) {
+            System.out.println("\nCorrelations:");
+            for (int j=0; j<nn; j++) {
+                for (int k=0; k<nn; k++) {
+                    cov[j][k] -= sum[j]*sum[k]*steps;
+                }
+            }
+            for (int j=0; j<nn; j++) {
+                System.out.print(String.format("%2d ", j));
+                for (int k=0; k<nn; k++) {
+                    double cor = cov[j][k];
+                    double d = Math.sqrt(cov[j][j]*cov[k][k]);
+                    if (cor!=0) {
+                        cor /= d;
+                    }
+                    else {
+                        cor = 0;
+                    }
+                    System.out.print(String.format(" % 4.2f", cor));
+                }
+                System.out.print("\n");
+            }
+        }
 
         System.out.println();
+        System.out.println("total steps: "+steps);
         System.out.println("number time fraction: "+steps/(steps + totalSampleCount*tRatio));
         System.out.println("fraction not screened: "+((double)totalNotScreenedCount)/steps);
         System.out.println("fraction measured: "+((double)totalSampleCount)/totalNotScreenedCount);
