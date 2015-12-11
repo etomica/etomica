@@ -70,6 +70,10 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         if (!doReweight) nextReweightStep = Long.MAX_VALUE;
     }
 
+    public boolean getDoCov() {
+        return doCov;
+    }
+
     public void setDoCov(boolean newDoCov) {
         this.doCov = newDoCov;
     }
@@ -244,6 +248,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         Map<IntSet,double[]> pairSums = new HashMap<IntSet,double[]>();
         Map<IntSet,Long> sampleCounts = new HashMap<IntSet,Long>();
         try {
+            boolean first = true;
         	for (String filename : filenames) {
                 File f = new File(filename);
                 if (!f.exists()) continue;
@@ -260,6 +265,17 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                     }
                     IntSet pv = new IntSet(v);
                     String[] values = line.replaceFirst(".*] ", "").split(" +");
+                    if (first) {
+                        int nn = 1+n*(n-1)/2;
+                        int nnn = nn*(nn-1)/2;
+                        if (values.length == 2+2*nn) doCov = false;
+                        else if (values.length == 2+2*nn+nnn) doCov = true;
+                        else {
+                            bufReader.close();
+                            throw new RuntimeException("I expect to see "+nn+" values for !doCov and "+(2+2*nn+nnn)+" values for doCov, but I actually found "+values.length+" values");
+                        }
+                        first = false;
+                    }
                     long usc = Long.parseLong(values[0]);
                     long sampleCount = Long.parseLong(values[1]);
                     if (allMyData.containsKey(pv)) {
@@ -274,10 +290,10 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                         }
                         if (amd instanceof MyDataCov) {
                             int nn = (1+n*(n-1)/2);
-                            int nnn = 2 + 2*nn + 1;
+                            int nnOffset = 2+2*nn;
                             double[] pairSum = pairSums.get(pv);
                             for (int i=0; i<pairSum.length; i++) {
-                                pairSum[i] += Double.parseDouble(values[nnn+i]);
+                                pairSum[i] += Double.parseDouble(values[nnOffset+i]);
                             }
                         }
                     }
@@ -295,10 +311,11 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                         }
                         if (amd instanceof MyDataCov) {
                             int nn = (1+n*(n-1)/2);
-                            int nnn = 2 + 2*nn + 1;
-                            double[] pairSum = new double[nn];
+                            int nnOffset = 2+2*nn;
+                            int nnn = nn*(nn-1)/2;
+                            double[] pairSum = new double[nnn];
                             for (int i=0; i<pairSum.length; i++) {
-                                pairSum[i] += Double.parseDouble(values[nnn+i]);
+                                pairSum[i] += Double.parseDouble(values[nnOffset+i]);
                             }
                             pairSums.put(pv, pairSum);
                         }
