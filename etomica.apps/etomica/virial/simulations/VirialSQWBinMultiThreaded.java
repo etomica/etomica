@@ -201,86 +201,90 @@ public class VirialSQWBinMultiThreaded {
             
             MeterVirialEBinMultiThreaded.setQuiet(!doReweight);
             MeterVirialEBinMultiThreaded.recomputeWeights(allMyData, nThreads*steps, nPoints);
+        }
 
-            List<IntSet> pvs = new ArrayList<IntSet>();
-            pvs.addAll(allMyData.keySet());
-            Collections.sort(pvs);
+        List<IntSet> pvs = new ArrayList<IntSet>();
+        pvs.addAll(allMyData.keySet());
+        Collections.sort(pvs);
+        
+        long totalSampleCount = 0;
+        long totalNotScreenedCount = 0;
+        System.out.println();
+        int nn = 1+nPoints*(nPoints-1)/2;
+        double[][] cov = new double[nn][nn];
+        double[] isum = new double[nn];
+
+        for (int i=0; i<nn; i++) {
+            double sum = 0;
+            double E0a2 = 0;
+            double sumErrStdev = 0;
+            for (IntSet pv : pvs) {
+                MyData amd = allMyData.get(pv);
+                long c = amd.unscreenedCount;
+    
+                if (i==0) totalNotScreenedCount += c;
+                long sc = amd.sampleCount;
+                if (sc == 0) {
+                    continue;
+                }
+    
+                if (i==0) totalSampleCount += sc;
+    
+                double avg = amd.getAvg(i);
+                double var = amd.getVar(i);
+                sum += c*avg;
+                E0a2 += c*avg*avg;
+                sumErrStdev += var/sc*c*c;
+
+                if (doCov) {
+                    for (int j=0; j<nn; j++) {
+                        cov[i][j] += c*((MyDataCov)amd).getCov(i,j)
+                                   + c*avg*amd.getAvg(j);
+                    }
+                }
+            }
+            sum /= nThreads*steps;
+            isum[i] = sum;
             
-            long totalSampleCount = 0;
-            long totalNotScreenedCount = 0;
-            System.out.println();
-            int nn = 1+nPoints*(nPoints-1)/2;
-            double[][] cov = new double[nn][nn];
-            double[] isum = new double[nn];
-            for (int i=0; i<nn; i++) {
-	            double sum = 0;
-	            double E0a2 = 0;
-	            double sumErrStdev = 0;
-	            for (IntSet pv : pvs) {
-	                MyData amd = allMyData.get(pv);
-	                long c = amd.unscreenedCount;
-	    
-	                if (i==0) totalNotScreenedCount += c;
-	                long sc = amd.sampleCount;
-	                if (sc == 0) {
-	                    continue;
-	                }
-	    
-	                if (i==0) totalSampleCount += sc;
-	    
-	                double avg = amd.getAvg(i);
-	                double var = amd.getVar(i);
-	                sum += c*avg;
-	                E0a2 += c*avg*avg;
-	                sumErrStdev += var/sc*c*c;
-
-	                if (doCov) {
-	                    for (int j=0; j<nn; j++) {
-	                        cov[i][j] += c*((MyDataCov)amd).getCov(i,j)
-	                                   + c*avg*amd.getAvg(j);
-	                    }
-	                }
-	            }
-	            sum /= nThreads*steps;
-                isum[i] = sum;
+            if (doReweight) {
 	            double sumErrNum = E0a2 - sum*sum*nThreads*steps;
 	            double finalErr = Math.sqrt(sumErrStdev + sumErrNum)*Math.abs(refIntegral)/(nThreads*steps);
                 sum *= refIntegral;
-	    
-	            System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum, finalErr, sumErrNum/(sumErrStdev + sumErrNum)));
-	    
-//	            System.out.println("Difficulty: "+(finalErr*Math.sqrt(t2-t1)));
+
+                System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum, finalErr, sumErrNum/(sumErrStdev + sumErrNum)));
             }
-            if (doCov) {
-                System.out.println("\nCorrelations:");
-                for (int i=0; i<nn; i++) {
-                    for (int j=0; j<nn; j++) {
-                        cov[i][j] -= isum[i]*isum[j]*(nThreads*steps);
-                    }
-                }
-                for (int i=0; i<nn; i++) {
-                    System.out.print(String.format("%2d ", i));
-                    for (int j=0; j<nn; j++) {
-                        double cor = cov[i][j];
-                        double d = Math.sqrt(cov[i][i]*cov[j][j]);
-                        if (cor!=0) { // && Math.abs(cor) < 10000*d) {
-                            cor /= d;
-                        }
-                        else {
-                            cor = 0;
-                        }
-                        System.out.print(String.format(" % 4.2f", cor));
-                    }
-                    System.out.print("\n");
-                }
-                System.out.println();
-            }
-            System.out.println("number time fraction: "+(nThreads*steps)/(nThreads*steps + totalSampleCount*tRatio));
-            System.out.println("fraction not screened: "+((double)totalNotScreenedCount)/(nThreads*steps));
-            System.out.println("fraction measured: "+((double)totalSampleCount)/totalNotScreenedCount);
-            
-            System.out.println(String.format("expected time: %d\n",(int)((steps*ts+totalSampleCount/nThreads*tc)/1e6)));
         }
+//	            System.out.println("Difficulty: "+(finalErr*Math.sqrt(t2-t1)));
+        if (doReweight && doCov) {
+            System.out.println("\nCorrelations:");
+            for (int j=0; j<nn; j++) {
+                for (int k=0; k<nn; k++) {
+                    cov[j][k] -= isum[j]*isum[k]*(nThreads*steps);
+                }
+            }
+            for (int j=0; j<nn; j++) {
+                System.out.print(String.format("%2d ", j));
+                for (int k=0; k<nn; k++) {
+                    double cor = cov[j][k];
+                    double d = Math.sqrt(cov[j][j]*cov[k][k]);
+                    if (cor!=0) { // && Math.abs(cor) < 10000*d) {
+                        cor /= d;
+                    }
+                    else {
+                        cor = 0;
+                    }
+                    System.out.print(String.format(" % 4.2f", cor));
+                }
+                System.out.print("\n");
+            }
+            System.out.println();
+        }
+
+        System.out.println("number time fraction: "+(nThreads*steps)/(nThreads*steps + totalSampleCount*tRatio));
+        System.out.println("fraction not screened: "+((double)totalNotScreenedCount)/(nThreads*steps));
+        System.out.println("fraction measured: "+((double)totalSampleCount)/totalNotScreenedCount);
+        
+        System.out.println(String.format("expected time: %d\n",(int)((steps*ts+totalSampleCount/nThreads*tc)/1e6)));
         System.out.println("time: "+(t2-t1)/1000.0);
 //        }
     }
