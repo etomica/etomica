@@ -178,7 +178,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                 if (amd.unscreenedCount==0) continue;
                 fw.write(pv+" "+amd.unscreenedCount+" "+amd.sampleCount);
                 double[] s = amd.sum != null ? amd.sum : zsum;
-                double[] s2 = amd.sum2 != null ? amd.sum : zsum;
+                double[] s2 = amd.sum2 != null ? amd.sum2 : zsum;
                 for (int i=0; i<nn; i++) {
                 	fw.write(" "+s[i]+" "+s2[i]);
                 }
