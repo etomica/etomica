@@ -226,19 +226,27 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                 allMyData.put(pv, amd);
             }
             MyData amdMore = moreData.get(pv);
-            for (int i=0; i<1+n*(n-1)/2; i++) {
-	            amd.sum[i] += amdMore.sum[i];
-	            amd.sum2[i] += amdMore.sum2[i];
-            }
-            if (amd instanceof MyDataCov) {
-                double[] pairSum = ((MyDataCov)amd).pairSum;
-                double[] pairSumMore = ((MyDataCov)amdMore).pairSum;
-                for (int i=0; i<pairSum.length; i++) {
-                    pairSum[i] += pairSumMore[i];
+            // null sum just means the bin was never visited
+            // it was just there to hold the weight.
+            if (amdMore.sum == null) continue;
+            if (amd.sum != null) {
+                for (int i=0; i<1+n*(n-1)/2; i++) {
+    	            amd.sum[i] += amdMore.sum[i];
+    	            amd.sum2[i] += amdMore.sum2[i];
                 }
+                if (amd instanceof MyDataCov) {
+                    double[] pairSum = ((MyDataCov)amd).pairSum;
+                    double[] pairSumMore = ((MyDataCov)amdMore).pairSum;
+                    for (int i=0; i<pairSum.length; i++) {
+                        pairSum[i] += pairSumMore[i];
+                    }
+                }
+                amd.sampleCount += amdMore.sampleCount;
+                amd.unscreenedCount += amdMore.unscreenedCount;
             }
-            amd.sampleCount += amdMore.sampleCount;
-            amd.unscreenedCount += amdMore.unscreenedCount;
+            else {
+                allMyData.put(pv, amdMore);
+            }
         }
     }
 
@@ -554,11 +562,11 @@ public class MeterVirialEBinMultiThreaded implements IAction {
     public static class MyData {
         public long unscreenedCount, sampleCount;
         public double weight;
-        public int n;
+        public byte n;
         public double[] sum, sum2;
 
         public MyData(int n) {
-            this.n = n;
+            this.n = (byte)n;
         }
 
         public double getAvg(int i) {
