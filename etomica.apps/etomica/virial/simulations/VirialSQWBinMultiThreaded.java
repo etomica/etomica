@@ -76,6 +76,7 @@ public class VirialSQWBinMultiThreaded {
         final double w = params.w;
         final int[] allRandomSeeds = params.randomSeeds;
         final boolean doCov = params.doCov;
+        boolean shareData = nThreads == 1 || params.shareData;
 
         final double vhs = (4.0/3.0)*Math.PI*sigmaHS*sigmaHS*sigmaHS;
 
@@ -118,13 +119,16 @@ public class VirialSQWBinMultiThreaded {
             meter0.readWeights(params.runName+nPoints+"_weights.dat", nPoints);
             doReweight = allMyData.size() == 0;
         }
-        if (!doReweight && !params.shareData) {
+        if (!doReweight && !shareData) {
             // reweighting not needed, we don't want to share data
             allMyData = null;
         }
-        else if (doReweight && !params.shareData) {
+        else if (doReweight && !shareData) {
             // reweighting is needed, we have to share data
-            params.shareData = true;
+            shareData = true;
+        }
+        if (!shareData) {
+            System.out.println("Not sharing data between threads");
         }
         System.out.println("using a ring/chain/tree reference");
         System.out.println("  rings: "+ringFrac);
