@@ -42,7 +42,7 @@ public class VirialSQWBinMultiRecalcW {
 
         MeterVirialEBinMultiThreaded meter = new MeterVirialEBinMultiThreaded(null, null, null, nPoints);
         meter.setTRatio(tRatio);
-        String[] rawFiles = new String[params.maxRunNumber+1];
+        String[] rawFiles = new String[params.maxRunNumber];
         for (int i=1; i<=rawFiles.length; i++) {
             rawFiles[i-1] = params.runName+nPoints+"_run"+i+"_raw.dat";
         }
