@@ -502,8 +502,8 @@ public class VirialSQWBinMultiThreaded {
             myPODs[8] = podODCliqDoodad;
             // podODCliqDoodad yields too many bins.  even if our memory could hold it, it would take
             // a long time to get any benefit from binning
-            myPODs[9] = doCov ? podOD5 : podODCliq;
-            myPODs[10] = doCov ? podOD5 : podODCliq;
+            myPODs[9] = podOD5;
+            myPODs[10] = podOD5;
             meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), myPODs[nPoints], totalCount, allMyData, iThread, doReweight, nPoints);
             meter.setDoCov(doCov);
             meter.setBox(sim.box);
