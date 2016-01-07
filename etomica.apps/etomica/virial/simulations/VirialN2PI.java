@@ -62,10 +62,11 @@ public class VirialN2PI {
             
 
             // runtime options - make changes in these and not the default options above
+//            params.nPoints = 3;
 //            params.nBeads = 8;
 //            params.temperatureK = 500;
 //            params.numSteps = (long)1E6;
-//            params.scBeads = true;
+//            params.scBeads = false;
         }
         
         final int nPoints = params.nPoints;
@@ -359,8 +360,10 @@ public class VirialN2PI {
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
             }                    
-            String jsonFileName = params.jarFile + "PI";            
-            
+            String jsonFileName = params.jarFile + "PI";
+            jsonFileName += "B"+nPoints;
+            if (scBeads) jsonFileName += "SC";
+            if (nPoints == 3) jsonFileName += "A";
             if (temperatureK == (int) temperatureK) { 
                 jsonFileName += (int)temperatureK+"K";
             }
