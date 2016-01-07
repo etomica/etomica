@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBox;
@@ -13,7 +12,6 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
-import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Electron;
 import etomica.units.Hartree;
@@ -87,51 +85,7 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         IVector or0 = atom0.getOrientation().getDirection();
         IVector or1 = atom1.getOrientation().getDirection();
         IVector or2 = atom2.getOrientation().getDirection();
-//        ISpace space = Space3D.getInstance();
-//        P2NitrogenHellmann p2 = new P2NitrogenHellmann(space);         
-//        IAtomList aList = new IAtomList() {
-//            
-//            public IAtom getAtom(int i) {
-//                if (i == 0) return (IAtom)atom0;
-//                if (i == 1) return (IAtom)atom1;
-//                return null;
-//            }
-//            
-//            public int getAtomCount() {
-//                return 2;
-//            }
-//            
-//        };        
-//        double E1 = p2.energy(aList);
-//        aList = new IAtomList() {
-//            
-//            public IAtom getAtom(int i) {
-//                if (i == 0) return (IAtom)atom1;
-//                if (i == 1) return (IAtom)atom2;
-//                return null;
-//            }
-//            
-//            public int getAtomCount() {
-//                return 2;
-//            }
-//            
-//        };
-//        double E2 = p2.energy(aList);
-//        aList = new IAtomList() {
-//            
-//            public IAtom getAtom(int i) {
-//                if (i == 0) return (IAtom)atom0;
-//                if (i == 1) return (IAtom)atom2;
-//                return null;
-//            }
-//            
-//            public int getAtomCount() {
-//                return 2;
-//            }
-//            
-//        };
-//        double E3 = p2.energy(aList);
-        
+
         IVectorMutable r0 = space.makeVector();
         IVectorMutable r1 = space.makeVector();
         IVectorMutable r2 = space.makeVector();
@@ -187,8 +141,7 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         if (cmDist12 > 900) return vDisp;
         double cmDist02 = cm0.Mv1Squared(cm2);
         if (cmDist02 > 900) return vDisp;
-//        System.out.println(cmDist01 + " " + cmDist02 + " "+ cmDist12 +" "+vDisp);
-//        System.exit(1);
+
         double vInd0 = 0;
         for (int i=5; i<7; i++) {
             r0.E(cm0);
@@ -214,8 +167,8 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
                 double r02ik = Math.sqrt(r2.squared());
                 double r302ik = r02ik*r02ik*r02ik;
                 dr02.PEa1Tv1(q[jj]/r302ik, r2);
-            }            
-            vInd0 += dr01.dot(dr02);
+            }
+            vInd0 += Kelvin.UNIT.toSim(dr01.dot(dr02));
         }
         vInd0 *= -0.5*alphaIsoSim;
         
@@ -223,9 +176,9 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         for (int i=5; i<7; i++) {            
             r1.E(cm1);
             r1.PEa1Tv1(pos[i], or1);
-            IVectorMutable dr10 = space.makeVector();
+            IVectorMutable dr11 = space.makeVector();
             IVectorMutable dr12 = space.makeVector();
-            dr10.E(0);
+            dr11.E(0);
             dr12.E(0);
             for (int j=0; j<5; j++){
                 int jj = siteID[j];
@@ -235,7 +188,7 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
                 r0.TE(-1.0);
                 double r01ij = Math.sqrt(r0.squared());
                 double r301ij = r01ij*r01ij*r01ij;
-                dr10.PEa1Tv1(q[jj]/r301ij, r0);
+                dr11.PEa1Tv1(q[jj]/r301ij, r0);
                                 
                 r2.E(cm2);
                 r2.PEa1Tv1(pos[j], or2);
@@ -244,8 +197,8 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
                 double r12ik = Math.sqrt(r2.squared());
                 double r312ik = r12ik*r12ik*r12ik;
                 dr12.PEa1Tv1(q[jj]/r312ik, r2);
-            }            
-            vInd1 += dr10.dot(dr12);
+            }
+            vInd1 += Kelvin.UNIT.toSim(dr11.dot(dr12));
         }
         vInd1 *= -0.5*alphaIsoSim;
         
@@ -253,10 +206,10 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         for (int i=5; i<7; i++) {
             r2.E(cm2);
             r2.PEa1Tv1(pos[i], or2);
-            IVectorMutable dr20 = space.makeVector();
-            IVectorMutable dr21 = space.makeVector();            
-            dr20.E(0);
+            IVectorMutable dr21 = space.makeVector();
+            IVectorMutable dr22 = space.makeVector();            
             dr21.E(0);
+            dr22.E(0);
             for (int j=0; j<5; j++){
                 int jj = siteID[j];
                 r0.E(cm0);
@@ -265,7 +218,7 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
                 r0.TE(-1.0);
                 double r02ij = Math.sqrt(r0.squared());
                 double r302ij = r02ij*r02ij*r02ij;
-                dr20.PEa1Tv1(q[jj]/r302ij, r0);
+                dr21.PEa1Tv1(q[jj]/r302ij, r0);
                                 
                 r1.E(cm1);
                 r1.PEa1Tv1(pos[j], or1);
@@ -273,20 +226,13 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
                 r1.TE(-1.0);
                 double r12ik = Math.sqrt(r1.squared());
                 double r312ik = r12ik*r12ik*r12ik;
-                dr21.PEa1Tv1(q[jj]/r312ik, r1);
+                dr22.PEa1Tv1(q[jj]/r312ik, r1);
             }
-            vInd2 += dr20.dot(dr21);
+            vInd2 += Kelvin.UNIT.toSim(dr21.dot(dr22));
         }
         vInd2 *= -0.5*alphaIsoSim;
         
-        double v = vDisp + Kelvin.UNIT.toSim(vInd0 + vInd1 + vInd2);
-//        double total = E1 + E2 + E3 + v;
-//        if (total < 0 && (cmDist01 < 2 || cmDist12 < 2 || cmDist02 < 2)) {
-//            System.out.println("total = "+total+" cm01 = "+cmDist01+" cm12 = "+cmDist12+" cm02 = "+cmDist02);
-//            System.exit(1);
-//        }
-//        System.out.println("total = "+total+" cm01 = "+cmDist01+" cm12 = "+cmDist12+" cm02 = "+cmDist02);
-//        System.exit(1);
+        double v = vInd0 + vInd1 + vInd2 + vDisp;
         return v;
     }
 }
