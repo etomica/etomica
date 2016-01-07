@@ -11,11 +11,8 @@ import java.util.List;
 import org.json.simple.JSONObject;
 
 import etomica.api.IAtomList;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
-import etomica.atom.IAtomOriented;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -28,19 +25,12 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWheatleyHS;
 import etomica.virial.ClusterWheatleyMultibody;
 import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterAtomRotateBob;
-import etomica.virial.MayerFunction;
 import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerFunctionNonAdditive;
 import etomica.virial.MayerGeneral;
@@ -93,9 +83,6 @@ public class VirialN2 {
         System.out.println("Overlap sampling for N2 potential of Hellmann (2013) at " + temperatureK + " K");
         if (pLevel == level.semiClassical) System.out.println("Quadratic Feymann-Hibbs effective potential employed.");
         System.out.println("Non - additive = "+nonAdditive);
-//        System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
-        
-//        System.out.println("B"+nPoints+"HS: "+HSB[nPoints]);
         
         if (steps%1000 != 0) {
             throw new RuntimeException("steps should be a multiple of 1000");
@@ -138,15 +125,13 @@ public class VirialN2 {
         final SpeciesSpheresRotating speciesUranium = new SpeciesSpheresRotating(space,new ElementSimple("U",238.02891));
         
         // make simulation
-//        final SimulationVirialOverlapBob sim = new SimulationVirialOverlapBob(space, speciesUranium, temperature, refCluster, tarCluster);
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesUranium, temperature, refCluster, tarCluster);
-//        sim.init();
+        // sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
         
 
-        // add additional moves here, simulation already has translation and rotation moves        
-
+        // add additional moves here, simulation already has translation and rotation moves
         
         System.out.println();
         String refFileName = null;
