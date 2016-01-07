@@ -316,6 +316,7 @@ public class VirialN2 {
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
             }                    
             String jsonFileName = params.jarFile;
+            jsonFileName += "B"+nPoints;
             if (pLevel == level.classical) jsonFileName += "CL";
             if (pLevel == level.semiClassical) jsonFileName += "SC";
             if (nPoints == 3) {
