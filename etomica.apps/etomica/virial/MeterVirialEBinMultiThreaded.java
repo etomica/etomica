@@ -503,6 +503,154 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             throw new RuntimeException(e);
         }
     }
+    
+    public static void readProcessData(String filename, int n) {
+        try {
+            boolean first = true;
+            boolean doCov = false;
+            File f = new File(filename);
+            if (!f.exists()) throw new RuntimeException("no such file "+filename);
+            FileReader fr = new FileReader(filename);
+            BufferedReader bufReader = new BufferedReader(fr);
+            String line = bufReader.readLine();
+            long totalCount = Long.parseLong(line);
+            int nn = 1+n*(n-1)/2;
+            double[] E0a = new double[nn];
+            double[] E0a2 = new double[nn];
+            double[][] cov = new double[nn][nn];
+            long totalSampleCount = 0;
+            long totalNotScreenedCount = 0;
+            double[] sum = new double[nn];
+            double[] sumErrStdev = new double[sum.length];
+            int nSets =0;
+
+            while ((line=bufReader.readLine()) != null) {
+                nSets++;
+                String pvStr = line.replaceFirst("].*", "").substring(1);
+                String[] pvSplit = pvStr.split("[, ]+");
+                int[] v = new int[pvSplit.length];
+                for (int i=0; i<v.length; i++) {
+                    v[i] = Integer.parseInt(pvSplit[i]);
+                }
+                String[] values = line.replaceFirst(".*] ", "").split(" +");
+                if (first) {
+                    int nnn = nn*(nn-1)/2;
+                    if (values.length == 2+2*nn) doCov = false;
+                    else if (values.length == 2+2*nn+nnn) doCov = true;
+                    else {
+                        bufReader.close();
+                        throw new RuntimeException("I expect to see "+nn+" values for !doCov and "+(2+2*nn+nnn)+" values for doCov, but I actually found "+values.length+" values");
+                    }
+                    first = false;
+                }
+                long usc = Long.parseLong(values[0]);
+                long sampleCount = Long.parseLong(values[1]);
+
+                MyData amd = doCov ? new MyDataCov(1+n*(n-1)/2) : new MyData(1+n*(n-1)/2);
+                amd.unscreenedCount = usc;
+                amd.sampleCount = sampleCount;
+                double[] x = new double[1+n*(n-1)/2];
+                double[] x2 = new double[1+n*(n-1)/2];
+                for (int i=0; i<1+n*(n-1)/2; i++) {
+                    x[i] = Double.parseDouble(values[2+2*i]);
+                    x2[i] = Double.parseDouble(values[2+2*i+1]);
+                }
+                amd.sum = x;
+                amd.sum2 = x2;
+                if (amd instanceof MyDataCov) {
+                    int nnOffset = 2+2*nn;
+                    int nnn = nn*(nn-1)/2;
+                    double[] pairSum = new double[nnn];
+                    for (int i=0; i<pairSum.length; i++) {
+                        pairSum[i] += Double.parseDouble(values[nnOffset+i]);
+                    }
+                    ((MyDataCov) amd).pairSum = pairSum;
+                }
+
+                // now process our data
+                long c = amd.unscreenedCount;
+
+                totalNotScreenedCount += c;
+                long sc = amd.sampleCount;
+
+                totalSampleCount += sc;
+
+                for (int i=0; i<nn; i++) {
+                    
+                    if (sc == 0) {
+                        continue;
+                    }
+
+
+                    double avg = amd.getAvg(i);
+                    double var = amd.getVar(i);
+
+                    sum[i] += c*avg;
+
+                    E0a[i] += c*avg;
+                    E0a2[i] += c*avg*avg;
+                    if (var>0) {
+                        sumErrStdev[i] += var/sc*c*c;
+                    }
+                    
+                    if (doCov) {
+                        for (int j=0; j<nn; j++) {
+                            cov[i][j] += c*((MyDataCov)amd).getCov(i,j)
+                                       + c*avg*amd.getAvg(j);
+                        }
+                    }
+                }
+
+            }
+            bufReader.close();
+            
+            System.out.println(nSets+" sets");
+            System.out.println();
+
+            for  (int i=0; i<sum.length; i++) {
+                double E0ave = E0a[i]/totalCount;
+                double E0 = E0a2[i]/totalCount - E0ave*E0ave;
+                sumErrStdev[i] /= totalCount;
+                sum[i] /= totalCount;
+                double finalErr = Math.sqrt((sumErrStdev[i] + E0)/totalCount);
+                System.out.print(String.format("%2d average: %21.14e   error: %11.5e   # var frac: %5.3f\n", i, sum[i], finalErr, E0/(sumErrStdev[i] + E0)));
+            }
+     
+            if (doCov) {
+                System.out.println("\nCorrelations:");
+                for (int j=0; j<nn; j++) {
+                    for (int k=0; k<nn; k++) {
+                        cov[j][k] -= sum[j]*sum[k]*totalCount;
+                    }
+                }
+                for (int j=0; j<nn; j++) {
+                    System.out.print(String.format("%2d ", j));
+                    for (int k=0; k<nn; k++) {
+                        double cor = cov[j][k];
+                        double d = Math.sqrt(cov[j][j]*cov[k][k]);
+                        if (cor!=0) {
+                            cor /= d;
+                        }
+                        else {
+                            cor = 0;
+                        }
+                        System.out.print(String.format(" % 4.2f", cor));
+                    }
+                    System.out.print("\n");
+                }
+            }
+
+            System.out.println();
+            System.out.println("total steps: "+totalCount);
+            System.out.println("number time fraction: "+totalCount/(totalCount+totalSampleCount*tRatio));
+            System.out.println("fraction not screened: "+((double)totalNotScreenedCount)/totalCount);
+            System.out.println("fraction measured: "+((double)totalSampleCount)/totalNotScreenedCount);
+
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void readDataReBin(String[] filenames, int n, int newNumBins) {
         doCov = false;
