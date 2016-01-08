@@ -250,6 +250,167 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         }
     }
 
+    /**
+     * This method reads all input files in parallel and writes lines out to
+     * the new file as the bin data is known to be complete.
+     */
+    public void readWriteData(String[] readFilenames, String writeFilename, int n) {
+        List<IntSet> bins = new ArrayList<IntSet>();
+        int totalCount = 0;
+
+        try {
+            boolean first = true;
+            List<BufferedReader> bufReaders = new ArrayList<BufferedReader>();
+            for (String filename : readFilenames) {
+                File f = new File(filename);
+                if (!f.exists()) continue;
+                FileReader fr = new FileReader(filename);
+                BufferedReader bufReader = new BufferedReader(fr);
+                bufReaders.add(bufReader);
+                String line = bufReader.readLine();
+                totalCount += Long.parseLong(line);
+                bins.add(null);
+            }
+
+            FileWriter fw = new FileWriter(writeFilename);
+            fw.write(""+totalCount+"\n");
+            int nn = 1+n*(n-1)/2;
+            double[] zsum = new double[nn];
+            int nnn = nn*(nn-1)/2;
+            double[] zPairSum = new double[nnn];
+
+            while (bufReaders.size() > 0) {
+                for (int ir=0; ir<bufReaders.size(); ir++) {
+                    if (bins.get(ir) != null) continue;
+                    BufferedReader bufReader = bufReaders.get(ir);
+                    String line=bufReader.readLine();
+                    if (line == null) {
+                        // no more data in this file.  close and forget about it
+                        bufReader.close();
+                        bins.remove(ir);
+                        bufReaders.remove(ir);
+                        ir--;
+                        continue;
+                    }
+                    
+                    String pvStr = line.replaceFirst("].*", "").substring(1);
+                    String[] pvSplit = pvStr.split("[, ]+");
+                    int[] v = new int[pvSplit.length];
+                    for (int i=0; i<v.length; i++) {
+                        v[i] = Integer.parseInt(pvSplit[i]);
+                    }
+                    IntSet pv = new IntSet(v);
+                    bins.set(ir, pv);
+
+                    String[] values = line.replaceFirst(".*] ", "").split(" +");
+                    if (first) {
+                        if (values.length == 2+2*nn) doCov = false;
+                        else if (values.length == 2+2*nn+nnn) doCov = true;
+                        else {
+                            bufReader.close();
+                            throw new RuntimeException("I expect to see "+nn+" values for !doCov and "+(2+2*nn+nnn)+" values for doCov, but I actually found "+values.length+" values");
+                        }
+                        first = false;
+                    }
+
+                    // dump our data into allMyData as we would for reading files sequentially
+                    long usc = Long.parseLong(values[0]);
+                    long sampleCount = Long.parseLong(values[1]);
+
+                    if (allMyData.containsKey(pv)) {
+                        MyData amd = allMyData.get(pv);
+                        amd.unscreenedCount += usc;
+                        amd.sampleCount += sampleCount;
+                        double[] x = amd.sum;
+                        double[] x2 = amd.sum2;
+                        for (int i=0; i<1+n*(n-1)/2; i++) {
+                            x[i] += Double.parseDouble(values[2+2*i]);
+                            x2[i] += Double.parseDouble(values[2+2*i+1]);
+                        }
+                        if (amd instanceof MyDataCov) {
+                            int nnOffset = 2+2*nn;
+                            double[] pairSum = ((MyDataCov) amd).pairSum;
+                            for (int i=0; i<pairSum.length; i++) {
+                                pairSum[i] += Double.parseDouble(values[nnOffset+i]);
+                            }
+                        }
+                    }
+                    else {
+                        MyData amd = makeData(1+n*(n-1)/2);
+                        amd.unscreenedCount = usc;
+                        amd.sampleCount = sampleCount;
+                        amd.weight = nominalWeight;
+                        allMyData.put(pv, amd);
+                        double[] x = new double[1+n*(n-1)/2];
+                        double[] x2 = new double[1+n*(n-1)/2];
+                        for (int i=0; i<1+n*(n-1)/2; i++) {
+                            x[i] = Double.parseDouble(values[2+2*i]);
+                            x2[i] = Double.parseDouble(values[2+2*i+1]);
+                        }
+                        amd.sum = x;
+                        amd.sum2 = x2;
+                        if (amd instanceof MyDataCov) {
+                            int nnOffset = 2+2*nn;
+                            double[] pairSum = new double[nnn];
+                            for (int i=0; i<pairSum.length; i++) {
+                                pairSum[i] += Double.parseDouble(values[nnOffset+i]);
+                            }
+                            ((MyDataCov) amd).pairSum = pairSum;
+                        }
+                    }
+                }
+                if (bins.size() == 0) break;
+                // we have read a bin from each file.  now write out the minimum bin
+                // and clear that data
+
+
+                IntSet minPV = null;
+                for (IntSet pv : bins) {
+                    if (minPV == null){
+                        minPV = pv;
+                        continue;
+                    }
+                    if (pv.compareTo(minPV) < 0) {
+                        minPV = pv;
+                    }
+                }
+                
+                MyData amd = allMyData.get(minPV);
+                
+                if (amd.unscreenedCount==0) continue;
+                fw.write(minPV+" "+amd.unscreenedCount+" "+amd.sampleCount);
+                double[] s = amd.sum != null ? amd.sum : zsum;
+                double[] s2 = amd.sum2 != null ? amd.sum2 : zsum;
+                for (int i=0; i<nn; i++) {
+                    fw.write(" "+s[i]+" "+s2[i]);
+                }
+                if (amd instanceof MyDataCov) {
+                    double[] pairSum = amd.sum != null ? ((MyDataCov)amd).pairSum : zPairSum;
+                    for (int i=0; i<nnn; i++) {
+                        fw.write(" "+pairSum[i]);
+                    }
+                }
+                fw.write("\n");
+                
+                for (int i=0; i<bins.size(); i++) {
+                    if (bins.get(i).equals(minPV)) {
+                        // set to null rather than remove.
+                        // we need to maintain indices
+                        bins.set(i, null);
+                    }
+                }
+                allMyData.remove(minPV);
+                
+            }
+            
+            fw.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    
     public void readData(String[] filenames, int n) {
         Map<IntSet,double[]> sums = new HashMap<IntSet,double[]>();
         Map<IntSet,double[]> sumSquares = new HashMap<IntSet,double[]>();
@@ -345,6 +506,78 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             if (amd instanceof MyDataCov) {
                 ((MyDataCov)amd).pairSum = pairSums.get(pv);
             }
+        }
+    }
+
+    public void readDataReBin(String[] filenames, int n, int newNumBins) {
+        doCov = false;
+        Map<IntSet,double[]> sums = new HashMap<IntSet,double[]>();
+        Map<IntSet,double[]> sumSquares = new HashMap<IntSet,double[]>();
+        Map<IntSet,double[]> pairSums = new HashMap<IntSet,double[]>();
+        Map<IntSet,Long> sampleCounts = new HashMap<IntSet,Long>();
+        int nLines = 0;
+        try {
+            for (String filename : filenames) {
+                File f = new File(filename);
+                if (!f.exists()) continue;
+                FileReader fr = new FileReader(filename);
+                BufferedReader bufReader = new BufferedReader(fr);
+                String line = bufReader.readLine();
+                totalCount[iThread] += Long.parseLong(line);
+                while ((line=bufReader.readLine()) != null) {
+                    String pvStr = line.replaceFirst("].*", "").substring(1);
+                    String[] pvSplit = pvStr.split("[, ]+");
+                    int[] v = new int[newNumBins];
+                    for (int i=0; i<newNumBins; i++) {
+                        v[i] = Integer.parseInt(pvSplit[i]);
+                    }
+                    IntSet pv = new IntSet(v);
+                    String[] values = line.replaceFirst(".*] ", "").split(" +");
+                    long usc = Long.parseLong(values[0]);
+                    long sampleCount = Long.parseLong(values[1]);
+                    if (allMyData.containsKey(pv)) {
+                        MyData amd = allMyData.get(pv);
+                        amd.unscreenedCount += usc;
+                        sampleCounts.put(pv, sampleCounts.get(pv)+sampleCount);
+                        double[] x = sums.get(pv);
+                        double[] x2 = sumSquares.get(pv);
+                        for (int i=0; i<1+n*(n-1)/2; i++) {
+                            x[i] += Double.parseDouble(values[2+2*i]);
+                            x2[i] += Double.parseDouble(values[2+2*i+1]);
+                        }
+                    }
+                    else {
+                        MyData amd = makeData(1+n*(n-1)/2);
+                        amd.unscreenedCount = usc;
+                        amd.weight = nominalWeight;
+                        allMyData.put(pv, amd);
+                        sampleCounts.put(pv, sampleCount);
+                        double[] x = new double[1+n*(n-1)/2];
+                        double[] x2 = new double[1+n*(n-1)/2];
+                        for (int i=0; i<1+n*(n-1)/2; i++) {
+                            x[i] = Double.parseDouble(values[2+2*i]);
+                            x2[i] = Double.parseDouble(values[2+2*i+1]);
+                        }
+                        sums.put(pv, x);
+                        sumSquares.put(pv, x2);
+                    }
+                    nLines++;
+
+                    if (nLines%100000 == 0) {
+                        System.out.println(nLines+" "+allMyData.size());
+                    }
+                }
+                bufReader.close();
+            }
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (IntSet pv : allMyData.keySet()) {
+            MyData amd = allMyData.get(pv);
+            amd.sampleCount = sampleCounts.get(pv);
+            amd.sum = sums.get(pv);
+            amd.sum2 = sumSquares.get(pv);
         }
     }
 
