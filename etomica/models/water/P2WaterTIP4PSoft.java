@@ -5,6 +5,7 @@
 
 package etomica.models.water;
 
+import etomica.atom.IAtomPositionDefinition;
 import etomica.space.ISpace;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -14,9 +15,9 @@ import etomica.units.Kelvin;
  */
 public class P2WaterTIP4PSoft extends P2Water4PSoft {
 
-    public P2WaterTIP4PSoft(ISpace space) {
+    public P2WaterTIP4PSoft(ISpace space,double rCut,IAtomPositionDefinition positionDefinition) {
         super(space, 3.1540, Kelvin.UNIT.toSim(78.02), 
-                Electron.UNIT.toSim(-1.04), Electron.UNIT.toSim(0.52));
+                Electron.UNIT.toSim(-1.04), Electron.UNIT.toSim(0.52),rCut,positionDefinition);
     }
 
     private static final long serialVersionUID = 1L;
