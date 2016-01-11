@@ -216,10 +216,6 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
          pIntra.addPotential(p4CCOH, new Atomset4IteratorIndexList(new int[][] {{0,1,3,4}}));
          
          DipoleSourceAceticAcid dipoleSource = new DipoleSourceAceticAcid(space);
-         P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(space);
-         pNRF.setDipoleSource(dipoleSource);
-         pNRF.setRange(boxLength*0.49);
-         pNRF.setDielectric(6.2);//we don't have a model value.need to check finite size effect
 
         System.out.println("number of molecules "+box.getMoleculeList().getMoleculeCount());
         System.out.println("volume "+box.getBoundary().volume());
