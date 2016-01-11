@@ -28,6 +28,7 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomOrientedKinetic;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.IMoleculeOrientedKinetic;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -719,7 +720,8 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 
             DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
             dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));
-            P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace());
+            IAtomPositionDefinition positionDefinition = new AtomPositionCOM(space) ;
+            P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),positionDefinition);
             pNRF.setDipoleSource(dipoleSource);
             pNRF.setRange(boxlength*0.5);
             pNRF.setDielectric(78.4);
