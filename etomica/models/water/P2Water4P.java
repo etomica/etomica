@@ -10,6 +10,7 @@ import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
+import etomica.atom.IAtomPositionDefinition;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
 
@@ -21,12 +22,14 @@ import etomica.space.ISpace;
  */
 public class P2Water4P extends PotentialMolecular {
 
-	public P2Water4P(ISpace space, double sigma, double epsilon, double chargeM, double chargeH) {
+	public P2Water4P(ISpace space, double sigma, double epsilon, double chargeM, double chargeH,double rCut, IAtomPositionDefinition positionDefinition) {
 		super(2, space);
         this.sigma = sigma;
         sigma2 = sigma*sigma;
 		work = space.makeVector();
 		shift = space.makeVector();
+		com1 = space.makeVector();
+		com2 = space.makeVector();
         this.epsilon = epsilon;
         epsilon4 = 4*epsilon;
         chargeMM = chargeM * chargeM;
@@ -34,6 +37,8 @@ public class P2Water4P extends PotentialMolecular {
         chargeHH = chargeH * chargeH;
         this.chargeM = chargeM;
         this.chargeH = chargeH;
+        this.rCut = rCut;
+        this.positionDefinition = positionDefinition;
 	}
 
     public void setBox(IBox box) {
@@ -41,8 +46,6 @@ public class P2Water4P extends PotentialMolecular {
     }
 
     public double energy(IMoleculeList pair){
-		double sum = 0.0;
-		double r2 = 0.0;
 
 		IMolecule water1 = pair.getMolecule(0);
 		IMolecule water2 = pair.getMolecule(1);
@@ -56,13 +59,19 @@ public class P2Water4P extends PotentialMolecular {
 		boundary.nearestImage(work);
         shift.PE(work);
         final boolean zeroShift = shift.squared() < 0.1;
-		r2 = work.squared();
+		double r2 = work.squared();
 
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
-	
+		
+		com1.E(positionDefinition.position(water1));
+		com2.E(positionDefinition.position(water2));
+		work.Ev1Mv2(com1, com2);
+		work.PE(shift);
+		if(work.squared() > rCut*rCut) return 0;
+		
 		double s2 = sigma2/(r2);
 		double s6 = s2*s2*s2;
-		sum += epsilon4*s6*(s6 - 1.0);
+		double sum = epsilon4*s6*(s6 - 1.0);
 		
         IVectorMutable H11r = water1.getChildList().getAtom(0).getPosition();
         IVectorMutable H12r = water1.getChildList().getAtom(1).getPosition();
@@ -156,5 +165,7 @@ public class P2Water4P extends PotentialMolecular {
 	protected final double chargeH;
 	protected final double chargeM;
 	protected final double chargeMM, chargeMH, chargeHH;
-	protected final IVectorMutable work, shift;
+	protected final double rCut;
+	protected final IVectorMutable work, shift,com1,com2;
+	protected final IAtomPositionDefinition positionDefinition;
 }
