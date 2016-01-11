@@ -303,8 +303,6 @@ public class IntegratorDimerApproach extends IntegratorBox {
     protected MoleculeChildAtomAction atomGroupActionRotateBy;
     protected MoleculeChildAtomAction atomGroupActionTranslateBy;
    
-    protected IPotentialMaster potentialMaster;
-    
     // vectors used in translateMonomerB()
     protected IVectorMutable newOriginB;
     protected IVectorMutable translationVector;
