@@ -26,11 +26,8 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
 import etomica.data.IData;
-import etomica.data.meter.MeterAngle;
 import etomica.data.meter.MeterDipoleSumSquared1site;
 import etomica.data.meter.MeterDipoleSumSquaredMappedAverage;
 import etomica.data.types.DataDouble;
@@ -45,7 +42,6 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P1ExternalField;
 import etomica.potential.P2LJDipole;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
@@ -55,12 +51,8 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Canonical ensemble Monte Carlo simulation (NVT)
