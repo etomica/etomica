@@ -726,7 +726,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	    }
 	}
 	
-	public void setOrientationSites(IAtomTypeOriented atomType, OrientedFullSite[] sites) {
+	public void setOrientationSites(IAtomTypeOriented atomType, OrientedSite[] sites) {
 	    atomTypeOrientedManager.setAgent(atomType, sites);
 	}
 	
