@@ -20,15 +20,31 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 	 protected final IVectorMutable ei,ej;
 	 protected IVectorMutable Ai;
 	 protected IVectorMutable Aj;
+	 protected IVectorMutable dr;
 	 protected double secondDerivativeSum= 0;
 	 protected DipoleSource dipoleSource;
-
+	 protected final IVectorMutable [] a;
+	 protected final Tensor iT;
+	 
 	public PotentialCalculationPhiSum(ISpace space) {
 		fieldE = space.makeVector();
 		Ai = space.makeVector();
 	    Aj = space.makeVector();
+	    dr = space.makeVector();
 	    ei = space.makeVector();
 	    ej = space.makeVector();
+	    a = new IVectorMutable[3];
+		a[0] = space.makeVector();
+		a[1] = space.makeVector();
+		a[2] = space.makeVector();
+		iT = space.makeTensor();
+		double [] xD = {1,0,0};
+		double [] yD = {0,1,0};
+		double [] zD = {0,0,1};
+		a[0].E(xD);
+		a[1].E(yD);
+		a[2].E(zD);
+		iT.E(a);
 	}
 
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
@@ -59,7 +75,13 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		ej.E(dipoleSource.getDipole(molecule1));
 		ei.normalize();
 		ej.normalize();
+//		System.out.println("ei = " + ei);
+//		System.out.println("ej = " + ej);
+//		System.exit(2);
 		
+		
+//		ei.normalize();//TODO
+//		ej.normalize();
 		
 //		debug only  
 //		IVectorMutable pos0 = atom1.getPosition();
@@ -71,78 +93,59 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 //		System.out.println("ej = " + ej);
 		
 		
-		double si,sj;
-		for(int k = 0; k < 3;k++){
-//		for(int k = 2; k < 3;k++){ //debug only 						TODO!!!!!!!!!!!!!!>>>!>!>!>!>!!>!
-			fieldE.E(0);
-			fieldE.setX(k, 1);
-			
-			//phij*(1-xi^2)(1-xj^2) =  d2udthetaidthetaj.(fieldE cross ej).(field cross ei)*sj*si/sj/si
-			
-			
-			Ai.E(fieldE);
-			Ai.XE(ei);
-			Aj.E(fieldE);
-			Aj.XE(ej);
-//			si = Math.sqrt(1-ei.getX(k)*ei.getX(k));
-//			sj = Math.sqrt(1-ej.getX(k)*ej.getX(k));
-//			System.out.println("fieldE =" + fieldE);
-//			System.out.println("Ai =" + Ai);
-//			System.out.println("Aj =" + Aj);
-			
-			t[0].transform(Aj);
-			secondDerivativeSum += 2.0*Aj.dot(Ai);		//ij 
-			
-			
-//			System.out.println("k = "+ k + " Phij = " + Ai.dot(Aj));//debug only for phij
-			
-//			debug only
-//			System.out.println("dudij = \n" + t[0]);
-//			System.out.println("dudij*Aj = " + Aj);
-//			System.out.println("dudij*Aj*Ai = " + Aj.dot(Ai));
-
-		//	debug only
-//			Aj.E(fieldE);
-//			Aj.XE(ej);
-//			t[0].transpose();
-//			t[0].transform(Ai);
-//			secondDerivativeSum += Ai.dot(Aj);//ji
-//			System.out.println("dudji = \n" + t[0]);
-//			System.out.println("dudji*Ai = " + Ai);
-//			System.out.println("dudji*Ai*Aj = " + Aj.dot(Ai));
-//			System.exit(2);
-			
-			Ai.E(fieldE);
-			Ai.XE(ei);
-			Aj.E(Ai);
-			t[1].transform(Ai);
-			secondDerivativeSum += Ai.dot(Aj);		//ii
-			
-//			System.out.println("k = "+ k + " Phii = " + Ai.dot(Aj)/(si*si*si*si));  //debug only
-			
-			
-			
-			//debug only
-//			System.out.println("dudii = \n" + t[1]);
-//			System.out.println("dudii*Ai = " + Ai);
-//			System.out.println("dudii*Ai*Ai = " + Ai.dot(Aj));
-			
-			
-			Aj.E(fieldE);
-			Aj.XE(ej);
-			Ai.E(Aj);
-			t[2].transform(Ai);
-			secondDerivativeSum += Ai.dot(Aj);		//jj
-			
-//			System.out.println("k = "+ k + " Phjj = " + Ai.dot(Aj)/(sj*sj*sj*sj)); //bebug only for phjj
-			
-			//debug only
-//			System.out.println("dudjj = \n" + t[2]);
-//			System.out.println("dudjj*Aj = " + Ai);
-//			System.out.println("dudjj*Aj*Aj = " + Ai.dot(Aj));
-		}
 		
-//		System.exit(2);//TODO debug only
+		//TODO
+//		System.out.println("ei = " + ei);
+//		System.out.println("ej = " + ej);
+//		System.out.println("t[0] = \n" + t[0]);
+//		System.out.println("trace t[0] = " + t[0].trace());
+		
+		double traceij = t[0].trace();
+		double traceii = t[1].trace();
+		double tracejj = t[2].trace();
+		
+		
+		t[0].transpose();
+		t[0].TE(-1);
+		t[1].transpose();
+		t[1].TE(-1);
+		t[2].transpose();
+		t[2].TE(-1);
+
+	
+		t[0].PEa1Tt1(traceij, iT);
+		t[1].PEa1Tt1(traceii, iT);
+		t[2].PEa1Tt1(tracejj, iT);
+		
+		//TODO
+//		System.out.println("-Transpose(t[0]) + trace(t[0]) = \n"  + t[0]);
+//		System.exit(2);
+		
+		
+		dr.E(ej);
+		t[0].transform(dr);
+		secondDerivativeSum += 2*ei.dot(dr);//ij
+		
+		//TODO
+//		System.out.println("ij = " + 2*ei.dot(dr));
+//		System.exit(2);
+		
+		
+		
+		dr.E(ei);
+		t[1].transform(dr);
+		
+		//TODO
+		secondDerivativeSum += ei.dot(dr);//ii
+		
+		dr.E(ej);
+		t[2].transform(dr);
+		
+		//TODO
+		secondDerivativeSum += ej.dot(dr);//jj
+		
+//		System.exit(2);
+	
 		
 	}
 	
