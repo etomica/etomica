@@ -71,7 +71,7 @@ public class VirialSQWRecalcSmallMem {
 
         System.out.print("writing weights...");
         t1 = System.currentTimeMillis();
-        meter.writeWeights(singleFile);
+        meter.writeWeights(params.runName+nPoints+"_new_weights.dat");
         t2 = System.currentTimeMillis();
         System.out.println(String.format(" %6.3f",(t2-t1)*0.001));
 
