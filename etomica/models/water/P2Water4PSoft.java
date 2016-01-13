@@ -6,6 +6,7 @@
 package etomica.models.water;
 
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -17,6 +18,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.IPotentialMolecularSecondDerivative;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
+import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
 
 /** 
@@ -46,12 +48,10 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 		this.tmpSecondD[1] = space.makeTensor();
 		this.tmpSecondD[2] = space.makeTensor();
 		
-		a = new IVectorMutable[3];
-		a[0] = space.makeVector();
-		a[1] = space.makeVector();
-		a[2] = space.makeVector();
 		
 		tmpDrr = space.makeTensor();
+		
+		rotationTensor3D = new RotationTensor3D();//debug only
 		
 		tmpTensor = new Tensor[4];
 		for(int i=0;i<4;i++){
@@ -64,6 +64,17 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 		dr = space.makeVector();
 		gradientAndTorque = new IVectorMutable[][]{gradient,torque};
 		epsilon48 = epsilon*48.0;
+		
+		//debug only
+		a = new IVectorMutable [2][4];
+		for(int i=0;i<2;i++){
+			for(int j=0;j<4;j++){
+			a[i][j] = space.makeVector();
+			}
+		}
+		
+		
+		centerMass = space.makeVector();//debug only
     }
 
     public IVector[][] gradientAndTorque(IMoleculeList pair){
@@ -238,14 +249,14 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 		return gradientAndTorque;
 	}
     
-   public Tensor [] secondDerivative(IMoleculeList molecules) {
+   public Tensor [] secondDerivative(IMoleculeList pair) {
 	   secondDerivative[0].E(0);
 	   secondDerivative[1].E(0);
 	   secondDerivative[2].E(0);
-	   IMolecule water1 = molecules.getMolecule(0);
-	   IMolecule water2 = molecules.getMolecule(1);
-	   IVectorMutable O1 = (water1.getChildList().getAtom(2)).getPosition();
-	   IVectorMutable O2 = (water2.getChildList().getAtom(2)).getPosition();
+	   IMolecule water1 = pair.getMolecule(0);
+	   IMolecule water2 = pair.getMolecule(1);
+	   IVectorMutable O1 = water1.getChildList().getAtom(2).getPosition();
+	   IVectorMutable O2 = water2.getChildList().getAtom(2).getPosition();
 	   
 	   work.Ev1Mv2(O1, O2);
 	   shift.Ea1Tv1(-1,work);
@@ -268,13 +279,115 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   if(dr.squared() > rCut*rCut){ 
 		   return secondDerivative;
 	   }
-	   //TODO ?????????????? Does the molecule sequence effect the result???????
+	   
+	   //TODO 
 //	   Tensor[] t = atomicToMolecularD(water1, water2);
 	   Tensor[] t = atomicToMolecularD(water2, water1);// debug only
 	   
 	   secondDerivative[0].E(t[0]);
 	   secondDerivative[1].E(t[1]);
 	   secondDerivative[2].E(t[2]);
+	   
+	   System.out.println("dudidj = \n" + t[1]);//ii part
+//	   System.out.println("dudidi = \n" + t[2]);//ii part
+	   
+//	   dr.E(gradientAndTorque(pair)[1][0]);
+//	   System.out.println("torque = " + dr);
+	   
+	   //debug only TODO
+	   if(true){
+		   int rotationAxis = 0;
+		   double prec = 0.001;
+		   double u0 =  energy(pair);
+		   IVectorMutable [][] atom = new IVectorMutable [2][4];
+		   for(int mNumber=0;mNumber<2;mNumber++){
+			   for(int aNumber=0;aNumber<4;aNumber++){
+			   atom[mNumber][aNumber] = pair.getMolecule(mNumber).getChildList().getAtom(aNumber).getPosition();
+			   a[mNumber][aNumber].E(atom[mNumber][aNumber]);//record atom positions
+			   }
+		   }
+		   
+		   centerMass.E(com1);
+		   dr.E(0);
+		   dr.setX(rotationAxis, 1);
+		   rotationTensor3D.setRotationAxis(dr,prec);
+		   doTransform(water1);
+		   double uip = energy(pair);
+		   
+		   centerMass.E(com2);
+		   dr.E(0);
+		   dr.setX(rotationAxis, 1);
+		   rotationTensor3D.setRotationAxis(dr,prec);
+		   doTransform(water2);
+		   double uipjp = energy(pair);
+		   //rotate back 
+		   for(int mNumber=0;mNumber<2;mNumber++){
+			   for(int aNumber=0;aNumber<4;aNumber++){
+				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
+			   }
+		   }
+		   
+		   
+		   centerMass.E(com1);
+		   dr.E(0);
+		   dr.setX(rotationAxis, 1);
+		   rotationTensor3D.setRotationAxis(dr,prec);
+		   doTransform(water1);
+		   
+		   centerMass.E(com2);
+		   dr.E(0);
+		   dr.setX(rotationAxis, -1);
+		   rotationTensor3D.setRotationAxis(dr,prec);
+		   doTransform(water2);
+		   
+		   double uipjm = energy(pair);
+		 //rotate back 
+		   for(int mNumber=0;mNumber<2;mNumber++){
+			   for(int aNumber=0;aNumber<4;aNumber++){
+				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
+			   }
+		   }
+		   
+		   
+		   centerMass.E(com1);
+		   dr.E(0);
+		   dr.setX(rotationAxis, -1);
+		   rotationTensor3D.setRotationAxis(dr,prec);
+		   doTransform(water1);
+		   double uim = energy(pair);
+		   
+		   centerMass.E(com2);
+		   dr.E(0);
+		   dr.setX(rotationAxis, 1);
+		   rotationTensor3D.setRotationAxis(dr,prec);
+		   doTransform(water2);
+		   
+		   double uimjp = energy(pair);
+		 //rotate back 
+		   for(int mNumber=0;mNumber<2;mNumber++){
+			   for(int aNumber=0;aNumber<4;aNumber++){
+				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
+			   }
+		   }
+		   
+		   
+		   //rotate back
+		   for(int mNumber=0;mNumber<2;mNumber++){
+			   for(int aNumber=0;aNumber<4;aNumber++){
+				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
+			   }
+		   }
+		   
+		   
+		   double dudxi = -(uip-u0)/prec;
+		   double dudxidxi = (uip-2*u0+uim)/prec/prec;
+		   double dudxidxj = (uipjp-uipjm-uimjp+uimjp)/4/prec/prec;
+		   System.out.println("dudxi = " + dudxi);
+		   System.out.println("dudxidxi = " +dudxidxi);
+		   System.out.println("dudxidxj = " + dudxidxj);
+		   System.exit(2);
+		   //debug only
+	   }
 	   
 	   return secondDerivative;
     }
@@ -461,19 +574,6 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   double totalMass = 2*hMass + oMass;
 	   
 	   for(int i=0;i<numSites1;i++){
-		   {//jj
-			   IAtom atom1 = mol1.getChildList().getAtom(i);
-			   IVectorMutable poskp = atom1.getPosition();
-			   Xkp.Ev1Mv2(poskp, comkp);
-			   boundary.nearestImage(Xkp);
-			   Xkp.TE(-1);
-			   fkp.Ea1Tv1(-atom1.getType().getMass()/totalMass, f1);
-			   tmpDrr.Ev1v2(Xkp, fkp);
-			   tmpDrr.setComponent(0, 0,  -fkp.getX(1) * Xkp.getX(1) - fkp.getX(2) * Xkp.getX(2)); 
-			   tmpDrr.setComponent(1, 1,  -fkp.getX(0) * Xkp.getX(0) - fkp.getX(2) * Xkp.getX(2)); 
-			   tmpDrr.setComponent(2, 2,  -fkp.getX(0) * Xkp.getX(0) - fkp.getX(1) * Xkp.getX(1)); 
-			   D3rrj.PE(tmpDrr);
-		   }//jj
 		   {//ii
 			   IAtom atom0 = mol0.getChildList().getAtom(i);
 			   IVectorMutable posk = atom0.getPosition();
@@ -487,6 +587,19 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   			tmpDrr.setComponent(2, 2,  -fk.getX(0) * Xk.getX(0) - fk.getX(1) * Xk.getX(1)); 
 	   			D3rri.PE(tmpDrr);
 		   }//ii
+		   {//jj
+			   IAtom atom1 = mol1.getChildList().getAtom(i);
+			   IVectorMutable poskp = atom1.getPosition();
+			   Xkp.Ev1Mv2(poskp, comkp);
+			   boundary.nearestImage(Xkp);
+			   Xkp.TE(-1);
+			   fkp.Ea1Tv1(-atom1.getType().getMass()/totalMass, f1);
+			   tmpDrr.Ev1v2(Xkp, fkp);
+			   tmpDrr.setComponent(0, 0,  -fkp.getX(1) * Xkp.getX(1) - fkp.getX(2) * Xkp.getX(2)); 
+			   tmpDrr.setComponent(1, 1,  -fkp.getX(0) * Xkp.getX(0) - fkp.getX(2) * Xkp.getX(2)); 
+			   tmpDrr.setComponent(2, 2,  -fkp.getX(0) * Xkp.getX(0) - fkp.getX(1) * Xkp.getX(1)); 
+			   D3rrj.PE(tmpDrr);
+		   }//jj
 	   }//i
 	   tmpSecondD[1].PE(D3rri);
 	   tmpSecondD[2].PE(D3rrj);
@@ -523,7 +636,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   			
   			com1.E(positionDefinition.position(water1));
   			com2.E(positionDefinition.position(water2));
-  			dr.Ev1Mv2(com2, com1);
+  			dr.Ev1Mv2(com1, com2);
   			dr.PE(shift);
 
   			double r2 = dr.squared();
@@ -561,10 +674,6 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
       			dW = -q1*q2/r;
       			d2W = 2.0*q1*q2/r;
       		}
-      		
-      		//debug only
-//      		System.out.println("dw =  " + dW);
-//      		System.out.println("d2w = " + d2W);
       		
       		tmpD3.TE(1.0/(r2*r2)*(dW - d2W));
       		tmpD3.PEa1Tt1(-dW/r2,identity);
@@ -610,7 +719,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   			
   			double s2 = sigma2/r2;
   			double s6 = s2*s2*s2;
-  			fWork.PEa1Tv1(24.0*epsilon*s6*(1-2*s6)/r2, work);
+  			fWork.Ea1Tv1(24.0*epsilon*s6*(1-2*s6)/r2, work);
   		}else{
   			double q1 = (atom0.getIndex() == 3)?chargeM:chargeH;
   			double q2 = (atom1.getIndex() == 3)?chargeM:chargeH;
@@ -628,13 +737,13 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
     
     public IVector[] gradient(IMoleculeList atoms, Tensor pressureTensor) {
         gradientAndTorque(atoms);
-        //FIXME  TODO
+        //FIXME  
         //pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
     }
 
     public double virial(IMoleculeList atoms) {
-        //FIXME TODO
+        //FIXME
         return 0;
     }
 
@@ -649,20 +758,41 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	public double getChargeM(){return chargeM;} 
 	public double getChargeH(){return chargeH;}
 	
-	public void setAtomAgentManager(AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAM){
-		atomAgentManager = atomAM;
-	}
+	
+	
+	//TODO debug only
+    protected void doTransform(IMolecule molecule) {
+    	IAtomList childList =  molecule.getChildList();
+            for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
+                IAtom atom = childList.getAtom(iChild);
+                IVectorMutable r = atom.getPosition();
+                r.ME(centerMass);
+                boundary.nearestImage(r);
+                rotationTensor3D.transform(r);
+                r.PE(centerMass);
+            }
+    	
+    	
+    }
+	//debug only
 	
     private static final long serialVersionUID = 1L;
 	protected final IVectorMutable[] gradient, torque,tau;
 	protected final IVectorMutable[][] gradientAndTorque;
-	protected final IVectorMutable [] a;
 	protected final Tensor[] secondDerivative, tmpSecondD ;	
 	protected double epsilon48;
 	protected final IVectorMutable fWork,dr,dr0,dr1;
 	protected  final Tensor tmpDrr;
 	protected final Tensor[] tmpTensor;
-	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager;
+	
+	
+	
+	
+	protected transient RotationTensor3D rotationTensor3D;//debug only
+	protected IVectorMutable centerMass;//debug only
+	protected final IVectorMutable [][] a;//debug only
+	
+//	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager;
 	
 	public interface AtomicTensorAtomicPair{
     	public Tensor atomicTensor(IAtom atom0, IAtom atom1);
