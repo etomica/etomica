@@ -303,7 +303,6 @@ public class TIP4P_NVT extends Simulation {
 		AEEListener.setInterval(sampleAtInterval);
 //		AEEListener.setInterval(1);
 		//TODO	
-		sim.pWater.setAtomAgentManager(AEEMeter.getAtomAgentManager());
 
 		sim.integrator.getEventManager().addListener(AEEListener);
 		sim.activityIntegrate.setMaxSteps(steps);// equilibration period
