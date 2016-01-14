@@ -290,7 +290,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   
 	   
 	   System.out.println("dudidj = \n" + t[0]);
-//	   System.out.println("dudidi = \n" + t[1]);
+	   System.out.println("dudidi = \n" + t[1]);
 //	   System.out.println("dudjdj = \n" + t[2]);
 	   
 //	   dr.E(gradientAndTorque(pair)[1][0]);
@@ -301,7 +301,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   Tensor uii = space.makeTensor();
 	   double prec = 1E-3;
 	   
-	   if(false){//dtau finite test
+	   if(true){//dtau finite test
 	   IVectorMutable tau0 = space.makeVector();
 	   IVectorMutable taui = space.makeVector();
 	   for(int i=0;i<3;i++){
@@ -316,7 +316,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   System.exit(2);
 	   }
 	   
-	   if(true){//dtau finite test
+	   if(false){//dtau finite test
 	   IVectorMutable tau0 = space.makeVector();
 	   IVectorMutable taui = space.makeVector();
 	   for(int i=0;i<3;i++){
@@ -516,13 +516,14 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   			fkp.E( pairForce(atom1, atom0));
   			
 //  			fkp.Ea1Tv1(fkp.dot(Xkp)/Xkp.squared(), Xkp);//TODO
+//  			f1.PE(fkp);//TODO
   			
-  			f1.PE(fkp);
 //  			dr1.E(Xkp);
 //  			dr1.XE(fkp);
 //  			torque1.PE(dr1);
-
-   	   		{//jj begin
+  			
+  			if(false){//TODO focus on ii part 
+   	   		{//jj begin  
    	   			D3rr_.TE(-1.0);  
    	   			Rkp_.E(Rkp);
    	   			Rkp_.TE(D3rr_); 
@@ -536,15 +537,14 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
    	   			tmpDrr.setComponent(2, 2,  -fkp.getX(0) * Xkp.getX(0) - fkp.getX(1) * Xkp.getX(1)); 
    	   			D3rrj.PE(tmpDrr);
    	   		}//jj end
-
+  			}
+  			
    		}//atomkp
-   			
 //   			fk.Ea1Tv1(fk.dot(Xk)/Xk.squared(), Xk);//TODO
-   			f0.PE(fk);
+//   			f0.PE(fk);//TODO
 //   			dr0.E(Xk);
 //   			dr0.XE(fk);
 //   			torque0.PE(dr0);
-   		
    		{//ii
    			D3rr_.E(tmpTensor[atomk]);
    			Rk_.E(Rk);
@@ -552,21 +552,13 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
    			Rk_.TE(Rk);
    			D3rri.ME(Rk_);
    			
-//   			System.out.println("Rk = " + Rk);
-//   			System.out.println("D3rr = " + D3rr);
-//   			System.exit(2);
-   			
    			Xk.TE(-1);
    			tmpDrr.Ev1v2(Xk, fk);
-   			
    			tmpDrr.setComponent(0, 0,  -fk.getX(1) * Xk.getX(1) - fk.getX(2) * Xk.getX(2)); 
    			tmpDrr.setComponent(1, 1,  -fk.getX(0) * Xk.getX(0) - fk.getX(2) * Xk.getX(2)); 
    			tmpDrr.setComponent(2, 2,  -fk.getX(0) * Xk.getX(0) - fk.getX(1) * Xk.getX(1)); 
-   			
    			D3rri.PE(tmpDrr);
    		}
-   		
-   		
 	   }//atomk
 
 	   
@@ -574,59 +566,11 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   tmpSecondD[1].PE(D3rri);
 	   tmpSecondD[2].PE(D3rrj);
 	   
-//	   {//torqe force redistribution 
-//		   IAtom atomOx0 = mol0.getChildList().getAtom(2);
-//		   IVectorMutable ox0 = atomOx0.getPosition();
-//		   Xk.Ev1Mv2(ox0, comk);
-//		   boundary.nearestImage(Xk);
-//		   dr.E(Xk);
-//		   dr.XE(torque0);
-//		   dr.normalize();
-//		   dr.XE(Xk);
-//
-//		   double ratio = 0;
-//		   if(dr.getX(0)>0.1){
-//			   ratio = torque0.getX(0)/dr.getX(0);
-//		   }
-//		   else if(dr.getX(1)>0.1){
-//			   ratio = torque0.getX(1)/dr.getX(1);
-//		   }else{
-//			   ratio = torque0.getX(2)/dr.getX(2);
-//		   }
-//		   dr0.E(torque0);
-//		   dr0.XE(Xkp);
-//		   dr0.normalize();
-//		   dr0.TE(ratio);
-//
-//
-//		   IAtom atomOx1 = mol1.getChildList().getAtom(2);
-//		   IVectorMutable ox1 = atomOx1.getPosition();
-//		   Xkp.Ev1Mv2(ox1, comkp);
-//		   boundary.nearestImage(Xkp);
-//		   dr.E(Xkp);
-//		   dr.XE(torque1);
-//		   dr.normalize();
-//		   dr.XE(Xkp);
-//
-//		   ratio = 0;
-//		   if(dr.getX(0)>0.1){
-//			   ratio = torque0.getX(0)/dr.getX(0);
-//		   }
-//		   else if(dr.getX(1)>0.1){
-//			   ratio = torque0.getX(1)/dr.getX(1);
-//		   }else{
-//			   ratio = torque0.getX(2)/dr.getX(2);
-//		   }
-//		   dr1.E(torque1);
-//		   dr1.XE(Xkp);
-//		   dr1.normalize();
-//		   dr1.TE(ratio);
-//	   }
-	   
 	   D3rr.E(0);
 	   D3rri.E(0);
 	   D3rrj.E(0);
 	   
+	   if(false){
 	   double hMass = mol0.getChildList().getAtom(0).getType().getMass();
 	   double oMass = mol0.getChildList().getAtom(2).getType().getMass();
 	   double totalMass = 2*hMass + oMass;
@@ -659,9 +603,9 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 			   D3rrj.PE(tmpDrr);
 		   }//jj
 	   }//i
-//	   tmpSecondD[1].PE(D3rri);
-//	   tmpSecondD[2].PE(D3rrj);//TODO
-
+	   tmpSecondD[1].PE(D3rri);
+	   tmpSecondD[2].PE(D3rrj);
+   }
 //	   System.out.println("t[0] = "  + tmpSecondD[0]);
 //	   System.out.println("t[1] = "  + tmpSecondD[1]);
 //	   System.out.println("t[2] = "  + tmpSecondD[2]);
