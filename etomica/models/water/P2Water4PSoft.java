@@ -5,6 +5,8 @@
 
 package etomica.models.water;
 
+import javax.management.ImmutableDescriptor;
+
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
@@ -72,8 +74,6 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 			a[i][j] = space.makeVector();
 			}
 		}
-		
-		
 		centerMass = space.makeVector();//debug only
     }
 
@@ -281,114 +281,172 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   }
 	   
 	   //TODO 
-//	   Tensor[] t = atomicToMolecularD(water1, water2);
-	   Tensor[] t = atomicToMolecularD(water2, water1);// debug only
+	   Tensor[] t = atomicToMolecularD(water1, water2);
+//	   Tensor[] t = atomicToMolecularD(water2, water1);// debug only
 	   
 	   secondDerivative[0].E(t[0]);
 	   secondDerivative[1].E(t[1]);
 	   secondDerivative[2].E(t[2]);
 	   
-	   System.out.println("dudidj = \n" + t[1]);//ii part
-//	   System.out.println("dudidi = \n" + t[2]);//ii part
+	   
+	   System.out.println("dudidj = \n" + t[0]);
+//	   System.out.println("dudidi = \n" + t[1]);
+//	   System.out.println("dudjdj = \n" + t[2]);
 	   
 //	   dr.E(gradientAndTorque(pair)[1][0]);
 //	   System.out.println("torque = " + dr);
 	   
 	   //debug only TODO
-	   if(true){
-		   int rotationAxis = 0;
-		   double prec = 0.001;
-		   double u0 =  energy(pair);
-		   IVectorMutable [][] atom = new IVectorMutable [2][4];
-		   for(int mNumber=0;mNumber<2;mNumber++){
-			   for(int aNumber=0;aNumber<4;aNumber++){
-			   atom[mNumber][aNumber] = pair.getMolecule(mNumber).getChildList().getAtom(aNumber).getPosition();
-			   a[mNumber][aNumber].E(atom[mNumber][aNumber]);//record atom positions
-			   }
-		   }
-		   
-		   centerMass.E(com1);
-		   dr.E(0);
-		   dr.setX(rotationAxis, 1);
-		   rotationTensor3D.setRotationAxis(dr,prec);
-		   doTransform(water1);
-		   double uip = energy(pair);
-		   
-		   centerMass.E(com2);
-		   dr.E(0);
-		   dr.setX(rotationAxis, 1);
-		   rotationTensor3D.setRotationAxis(dr,prec);
-		   doTransform(water2);
-		   double uipjp = energy(pair);
-		   //rotate back 
-		   for(int mNumber=0;mNumber<2;mNumber++){
-			   for(int aNumber=0;aNumber<4;aNumber++){
-				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
-			   }
-		   }
-		   
-		   
-		   centerMass.E(com1);
-		   dr.E(0);
-		   dr.setX(rotationAxis, 1);
-		   rotationTensor3D.setRotationAxis(dr,prec);
-		   doTransform(water1);
-		   
-		   centerMass.E(com2);
-		   dr.E(0);
-		   dr.setX(rotationAxis, -1);
-		   rotationTensor3D.setRotationAxis(dr,prec);
-		   doTransform(water2);
-		   
-		   double uipjm = energy(pair);
-		 //rotate back 
-		   for(int mNumber=0;mNumber<2;mNumber++){
-			   for(int aNumber=0;aNumber<4;aNumber++){
-				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
-			   }
-		   }
-		   
-		   
-		   centerMass.E(com1);
-		   dr.E(0);
-		   dr.setX(rotationAxis, -1);
-		   rotationTensor3D.setRotationAxis(dr,prec);
-		   doTransform(water1);
-		   double uim = energy(pair);
-		   
-		   centerMass.E(com2);
-		   dr.E(0);
-		   dr.setX(rotationAxis, 1);
-		   rotationTensor3D.setRotationAxis(dr,prec);
-		   doTransform(water2);
-		   
-		   double uimjp = energy(pair);
-		 //rotate back 
-		   for(int mNumber=0;mNumber<2;mNumber++){
-			   for(int aNumber=0;aNumber<4;aNumber++){
-				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
-			   }
-		   }
-		   
-		   
-		   //rotate back
-		   for(int mNumber=0;mNumber<2;mNumber++){
-			   for(int aNumber=0;aNumber<4;aNumber++){
-				   atom[mNumber][aNumber].E(a[mNumber][aNumber]);
-			   }
-		   }
-		   
-		   
-		   double dudxi = -(uip-u0)/prec;
-		   double dudxidxi = (uip-2*u0+uim)/prec/prec;
-		   double dudxidxj = (uipjp-uipjm-uimjp+uimjp)/4/prec/prec;
-		   System.out.println("dudxi = " + dudxi);
-		   System.out.println("dudxidxi = " +dudxidxi);
-		   System.out.println("dudxidxj = " + dudxidxj);
-		   System.exit(2);
-		   //debug only
+	   Tensor uij = space.makeTensor();
+	   Tensor uii = space.makeTensor();
+	   double prec = 1E-3;
+	   
+	   if(false){//dtau finite test
+	   IVectorMutable tau0 = space.makeVector();
+	   IVectorMutable taui = space.makeVector();
+	   for(int i=0;i<3;i++){
+	   tau0.E(gradientAndTorque(pair)[1][0]);
+	   doRotation(i,water1,1,prec);
+	   taui.E(gradientAndTorque(pair)[1][0]);
+	   taui.ME(tau0);
+	   taui.TE(-1/prec);
+	   doRotation(i,water1,-1,prec);
+	   System.out.println("dtaudxi" +taui);
+	   }
+	   System.exit(2);
 	   }
 	   
+	   if(true){//dtau finite test
+	   IVectorMutable tau0 = space.makeVector();
+	   IVectorMutable taui = space.makeVector();
+	   for(int i=0;i<3;i++){
+	   tau0.E(gradientAndTorque(pair)[1][0]);
+	   doRotation(i,water2,1,prec);
+	   taui.E(gradientAndTorque(pair)[1][0]);
+	   taui.ME(tau0);
+	   taui.TE(-1/prec);
+	   doRotation(i,water2,-1,prec);
+	   System.out.println("dtaudxi" +taui);
+	   }
+	   System.exit(2);
+	   }
+	   
+	   if(false){//du finite test
+	   for(int iAxis = 0;iAxis<3;iAxis++){
+		   for(int jAxis = 0;jAxis<3;jAxis++){
+			  
+			   double u0 =  energy(pair);
+			   IVectorMutable [][] atom = new IVectorMutable [2][4];
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum] = space.makeVector();
+					   atom[mNum][aNum] = pair.getMolecule(mNum).getChildList().getAtom(aNum).getPosition();
+					   a[mNum][aNum].E(atom[mNum][aNum]);//record atom positions
+				   }
+			   }
+
+			   doRotation(iAxis,water1,1,prec);
+			   double uip = energy(pair);
+			   doRotation(jAxis,water2,1,prec);
+			   double uipjp = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+			   
+			   doRotation(iAxis,water1,1,prec);
+			   doRotation(jAxis,water2,-1,prec);
+			   double uipjm = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+
+			   doRotation(iAxis,water1,-1,prec);
+			   double uim = energy(pair);
+			   doRotation(jAxis,water2,1,prec);
+			   double uimjp = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+
+			   doRotation(iAxis,water1,-1,prec);
+			   doRotation(jAxis,water2,-1,prec);
+			   double uimjm = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+			   
+			   //ii and jj part
+			   doRotation(iAxis,water1,1,prec);
+			   doRotation(jAxis,water1,1,prec);
+			   double uipip = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+			   
+			   doRotation(iAxis,water1,-1,prec);
+			   doRotation(jAxis,water1,1,prec);
+			   double uimip = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+			   
+			   doRotation(iAxis,water1,1,prec);
+			   doRotation(jAxis,water1,-1,prec);
+			   double uipim = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+			   
+			   doRotation(iAxis,water1,-1,prec);
+			   doRotation(jAxis,water1,-1,prec);
+			   double uimim = energy(pair);
+			   //rotate back 
+			   for(int mNum=0;mNum<2;mNum++){
+				   for(int aNum=0;aNum<4;aNum++){
+					   atom[mNum][aNum].E(a[mNum][aNum]);
+				   }
+			   }
+			   //ii and jj part
+
+			   double dudxi = -(uip-u0)/prec;
+			   double dudxidxi = (uip-2*u0+uim)/prec/prec;
+			   double dudidj = (uipjp-uipjm-uimjp+uimjm)/4/prec/prec;
+			   double dudidi = (uipip-uimip-uipim+uimim)/4/prec/prec;
+//			   System.out.println("dudxi = " + dudxi);
+//			   System.out.println("dudxidxj = " + dudxidxj);
+//			   System.out.println("dudxidxi = " +dudxidxi);
+			   uij.setComponent(iAxis, jAxis, dudidj);
+			   uii.setComponent(iAxis, jAxis, dudidi);
+//			   System.out.println(iAxis+ ", " + jAxis  +" imip-ipim = " + (uimip-uipim) );
+		   }
+	   }
+	   System.out.println("uij = \n" + uij);
+	   System.out.println("uii = \n" + uii);
+	   System.exit(2);
+	   //TODO debug Only
+   }
+
 	   return secondDerivative;
     }
    
@@ -457,7 +515,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   			fk.PE(pairForce(atom0, atom1));
   			fkp.E( pairForce(atom1, atom0));
   			
-  			fkp.Ea1Tv1(fkp.dot(Xkp)/Xkp.squared(), Xkp);
+//  			fkp.Ea1Tv1(fkp.dot(Xkp)/Xkp.squared(), Xkp);//TODO
   			
   			f1.PE(fkp);
 //  			dr1.E(Xkp);
@@ -481,7 +539,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 
    		}//atomkp
    			
-   			fk.Ea1Tv1(fk.dot(Xk)/Xk.squared(), Xk);
+//   			fk.Ea1Tv1(fk.dot(Xk)/Xk.squared(), Xk);//TODO
    			f0.PE(fk);
 //   			dr0.E(Xk);
 //   			dr0.XE(fk);
@@ -601,8 +659,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 			   D3rrj.PE(tmpDrr);
 		   }//jj
 	   }//i
-	   tmpSecondD[1].PE(D3rri);
-	   tmpSecondD[2].PE(D3rrj);
+//	   tmpSecondD[1].PE(D3rri);
+//	   tmpSecondD[2].PE(D3rrj);//TODO
 
 //	   System.out.println("t[0] = "  + tmpSecondD[0]);
 //	   System.out.println("t[1] = "  + tmpSecondD[1]);
@@ -667,10 +725,6 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
       			double r = Math.sqrt(r2);
       			double q1 = (atom0.getIndex() == 3)?chargeM:chargeH;
       			double q2 = (atom1.getIndex() == 3)?chargeM:chargeH;
-      			
-      			//Debug only
-//      			System.out.println("q1 = " + q1);
-//      			System.out.println("q2 = " + q2);
       			dW = -q1*q2/r;
       			d2W = 2.0*q1*q2/r;
       		}
@@ -711,9 +765,6 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   		work.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
   		work.PE(shift);
   		double r2 = work.squared();
-  		
-//  		System.out.println("atomPair:" + atom0.getIndex()+ " " + atom1.getIndex() );
-//  		System.out.println("r = " + Math.sqrt(r2));
   		
   		if(atom0.getIndex() == 2 &&  atom1.getIndex() == 2){
   			
@@ -771,10 +822,16 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
                 rotationTensor3D.transform(r);
                 r.PE(centerMass);
             }
-    	
-    	
     }
-	//debug only
+    
+    protected void doRotation(int axis,IMolecule mol,double pOrm,double prec){
+    	centerMass.E(positionDefinition.position(mol));
+    	dr.E(0);
+    	dr.setX(axis, pOrm);
+    	rotationTensor3D.setRotationAxis(dr,prec);
+    	doTransform(mol);
+    }
+	//debug only  TODO
 	
     private static final long serialVersionUID = 1L;
 	protected final IVectorMutable[] gradient, torque,tau;
