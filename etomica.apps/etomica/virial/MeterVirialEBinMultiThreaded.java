@@ -221,15 +221,31 @@ public class MeterVirialEBinMultiThreaded implements IAction {
         Set<IntSet> pvs = moreData.keySet();
         for (IntSet pv : pvs) {
             MyData amd = allMyData.get(pv);
-            if (amd == null) {
-                amd = makeData(1+n*(n-1)/2);
-                allMyData.put(pv, amd);
-            }
             MyData amdMore = moreData.get(pv);
-            // null sum just means the bin was never visited
+            if (amd == null || amd.unscreenedCount == 0) {
+                // null amd means was newly visited in the "more" thread
+                // amd.unscreened=0 means bin was never visited, just replace with "more" bin
+                allMyData.put(pv, amdMore);
+                continue;
+            }
+            // unscreened=0 just means the bin was never visited
             // it was just there to hold the weight.
-            if (amdMore.sum == null) continue;
-            if (amd.sum != null) {
+            if (amdMore.unscreenedCount == 0) continue;
+            amd.unscreenedCount += amdMore.unscreenedCount;
+            // sampleCount=0 means the bin was visited but never
+            // measured.  sum, sum2 and pairSum will be null
+            if (amdMore.sampleCount == 0) continue;
+            if (amd.sampleCount == 0) {
+                // value was never measured, just use "more" data
+                amd.sum = amdMore.sum;
+                amd.sum2 = amdMore.sum2;
+                if (amd instanceof MyDataCov) {
+                    ((MyDataCov)amd).pairSum = ((MyDataCov)amdMore).pairSum;
+                }
+            }
+            else {
+                // both threads measured the bin.  sum them up
+                amd.sampleCount += amdMore.sampleCount;
                 for (int i=0; i<1+n*(n-1)/2; i++) {
     	            amd.sum[i] += amdMore.sum[i];
     	            amd.sum2[i] += amdMore.sum2[i];
@@ -241,11 +257,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                         pairSum[i] += pairSumMore[i];
                     }
                 }
-                amd.sampleCount += amdMore.sampleCount;
-                amd.unscreenedCount += amdMore.unscreenedCount;
-            }
-            else {
-                allMyData.put(pv, amdMore);
             }
         }
     }
