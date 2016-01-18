@@ -240,12 +240,12 @@ public class DLJ_NVT_1site extends Simulation {
    		MeterDipoleSumSquared1site dipoleSumSquaredMeter = null;
    		AccumulatorAverage dipoleSumSquaredAccumulator = null;
    		if(mSquare){
-		dipoleSumSquaredMeter = new MeterDipoleSumSquared1site(space,sim.box,dipoleStrength);  	
-		dipoleSumSquaredAccumulator = new AccumulatorAverageFixed(samplePerBlock);
-        DataPump dipolePump = new DataPump(dipoleSumSquaredMeter,dipoleSumSquaredAccumulator);
-        IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
-        dipoleListener.setInterval(sampleAtInterval);
-        sim.integrator.getEventManager().addListener(dipoleListener);
+   			dipoleSumSquaredMeter = new MeterDipoleSumSquared1site(space,sim.box,dipoleStrength);  	
+   			dipoleSumSquaredAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+   			DataPump dipolePump = new DataPump(dipoleSumSquaredMeter,dipoleSumSquaredAccumulator);
+   			IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
+   			dipoleListener.setInterval(sampleAtInterval);
+   			sim.integrator.getEventManager().addListener(dipoleListener);
    		}
    		
    		//AEE
@@ -259,10 +259,9 @@ public class DLJ_NVT_1site extends Simulation {
 		DataPump AEEPump = new DataPump(AEEMeter,AEEAccumulator);
 		IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
 		
-		//TODO debug only
+		
 		AEEListener.setInterval(sampleAtInterval);
-//		AEEListener.setInterval(1);
-		//TODO
+//		AEEListener.setInterval(1);// debug only
 		
 		sim.integrator.getEventManager().addListener(AEEListener);
         
@@ -329,8 +328,6 @@ public class DLJ_NVT_1site extends Simulation {
     		
         	System.out.println("AEEtest:\t" + AEEtest
         		+ " AEEerrtest:\t" + AEEerrtest );
-        	
-        	
         }
         System.out.println(  "Time taken (in mins): " + totalTime); 
 	}
