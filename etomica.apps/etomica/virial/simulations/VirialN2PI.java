@@ -360,18 +360,18 @@ public class VirialN2PI {
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
             }                    
-            String jsonFileName = params.jarFile + "PI";
-            jsonFileName += "B"+nPoints;
+            String jsonFileName = params.jarFile;
+            jsonFileName += "B"+nPoints+"PI";
             if (scBeads) jsonFileName += "SC";
             if (nPoints == 3) jsonFileName += "A";
+            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";
             if (temperatureK == (int) temperatureK) { 
                 jsonFileName += (int)temperatureK+"K";
             }
             else {
                 jsonFileName += temperatureK+"K";
-            }
+            }            
             jsonFileName += nBeads+"nb";
-            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";            
             jsonFileName += ".json";
             try {
                 FileWriter jsonFile = new FileWriter(jsonFileName);

@@ -308,14 +308,14 @@ public class VirialN2 {
                 if (nonAdditive) jsonFileName += "N";
                 jsonFileName += "A";
             }
-            
+            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";            
             if (temperatureK == (int) temperatureK) { 
                 jsonFileName += (int)temperatureK+"K";
             }
             else {
                 jsonFileName += temperatureK+"K";
             }            
-            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";
+            
             if (nT > 1) {
                 jsonFileName += "Sim"+nT;
             }
