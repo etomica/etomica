@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import org.json.simple.JSONObject;
 import etomica.api.IAtom;
+import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
@@ -28,6 +29,8 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.mcmove.MCMove;
 import etomica.potential.P2NitrogenHellmann;
 import etomica.potential.P2SemiclassicalAtomic;
+import etomica.potential.P3NitrogenHellmannNonAdditive;
+import etomica.potential.PotentialMolecularMonatomic;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -37,9 +40,12 @@ import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.ClusterWheatleyHS;
+import etomica.virial.ClusterWheatleyMultibody;
 import etomica.virial.ClusterWheatleySoft;
 import etomica.virial.MCMoveClusterRingRegrow;
 import etomica.virial.MCMoveClusterRingRegrowOrientation;
+import etomica.virial.MayerFunctionMolecularThreeBody;
+import etomica.virial.MayerFunctionNonAdditive;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.PotentialGroupPI;
@@ -55,18 +61,19 @@ public class VirialN2PI {
         }
         else {
             // default options - choose these before committing to CVS
-            params.nBeads = 8;
-            params.temperatureK = 500;
-            params.numSteps = (long)1E6;
-            params.pN2HellmannA = false;
-            
-
-            // runtime options - make changes in these and not the default options above
-//            params.nPoints = 3;
 //            params.nBeads = 8;
 //            params.temperatureK = 500;
 //            params.numSteps = (long)1E6;
-//            params.scBeads = false;
+//            params.pN2HellmannA = false;
+            
+
+            // runtime options - make changes in these and not the default options above
+            params.nPoints = 3;
+            params.nBeads = 8;
+            params.temperatureK = 500;
+            params.numSteps = (long)1E6;
+            params.scBeads = true;
+            params.nonAdditive = true;
         }
         
         final int nPoints = params.nPoints;
@@ -76,10 +83,12 @@ public class VirialN2PI {
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
-        final boolean pN2HellmannA = params.pN2HellmannA;
+        final boolean p2N2HellmannA = params.pN2HellmannA;
         final int nBeads = params.nBeads;
         final int beadFac = params.beadFac;
-        final boolean scBeads = params.scBeads;        
+        final boolean scBeads = params.scBeads;
+        final boolean nonAdditive = params.nonAdditive;
+        final boolean p3N2HellmannA = params.p3N2HellmannA;
 
         final double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -92,6 +101,7 @@ public class VirialN2PI {
         System.out.println("Overlap sampling for N2 pair potential of Hellmann (2013) at " + temperatureK + " K");
         System.out.println("Path Integral Monte Carlo (PIMC) calculation with P = "+nBeads);
         System.out.println("Semi-classical beads: "+scBeads);
+        if (nPoints == 3) System.out.println("Non-additive: "+nonAdditive);
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
         
@@ -108,7 +118,7 @@ public class VirialN2PI {
         refCluster.setTemperature(temperature);
         
         final P2NitrogenHellmann p2Full = new P2NitrogenHellmann(space);
-        if (pN2HellmannA) p2Full.parametersB = false;
+        if (p2N2HellmannA) p2Full.parametersB = false;
         final P2SemiclassicalAtomic p2PISC = new P2SemiclassicalAtomic(space, p2Full, temperature*nBeads*nBeads);
         final IPotentialAtomic p2;
         if (scBeads) {
@@ -124,7 +134,17 @@ public class VirialN2PI {
                 return super.f(pair, r2, beta/nBeads);
             }
         };
+        
         ClusterWheatleySoft tarCluster = new ClusterWheatleySoft(nPoints, fTar, 1e-12);
+        if (nPoints == 3 && nonAdditive) {
+            final P3NitrogenHellmannNonAdditive p3N2NonAdditive = new P3NitrogenHellmannNonAdditive(space);
+            if (p3N2HellmannA) p3N2NonAdditive.parametersB = false;
+            final IPotentialAtomic p3 = p3N2NonAdditive;
+            PotentialMolecularMonatomic p3N2Molecular = new PotentialMolecularMonatomic(space, p3);
+            MayerFunctionMolecularThreeBody f3Tar = new MayerFunctionMolecularThreeBody(p3N2Molecular);            
+            MayerFunctionNonAdditive [] m1 = new MayerFunctionNonAdditive[]{null,null,null,f3Tar};
+            tarCluster = new ClusterWheatleyMultibody(nPoints, fTar, m1);
+        }
         tarCluster.setTemperature(temperature);
         
         // make species        
@@ -214,6 +234,21 @@ public class VirialN2PI {
             refFileName += "_"+tempString+"_PI";
         }
         long t1 = System.currentTimeMillis();
+        // if using 3-body potential for B3, we must select initial configuration
+        // that is not overlapping for any two molecules
+        if (nPoints == 3 && nonAdditive) {
+            IAtomList tarList = sim.box[1].getLeafList();        
+            for (int i=0; i<nBeads; i++) {
+                for (int j=0; j<3; j++) {
+                    int k = j*nBeads + i;
+                    IVectorMutable p = tarList.getAtom(k).getPosition();
+                    p.setX(j, 4.0);
+                }
+            }            
+            sim.box[1].trialNotify();
+            sim.box[1].acceptNotify();
+            sim.box[1].getSampleCluster().value(sim.box[1]);
+        }        
         
         sim.initRefPref(refFileName, steps/40);
         if (refFrac >= 0) {
@@ -363,7 +398,10 @@ public class VirialN2PI {
             String jsonFileName = params.jarFile;
             jsonFileName += "B"+nPoints+"PI";
             if (scBeads) jsonFileName += "SC";
-            if (nPoints == 3) jsonFileName += "A";
+            if (nPoints == 3) {
+                if (nonAdditive) jsonFileName += "N";
+                jsonFileName += "A";
+            }            
             jsonFileName += (int)Math.log10((double)params.numSteps)+"s";
             if (temperatureK == (int) temperatureK) { 
                 jsonFileName += (int)temperatureK+"K";
@@ -382,7 +420,7 @@ public class VirialN2PI {
                 throw new RuntimeException(e.getMessage());
             }                
         }
-        sim.printResults(HSB[nPoints]);        
+//        sim.printResults(HSB[nPoints]);        
         
         if ((t2-t1)/1000.0 > 24*3600) {
             System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
@@ -414,6 +452,8 @@ public class VirialN2PI {
         public int beadFac = 2;
         public boolean scBeads = false;
         public String jarFile = "";
+        public boolean nonAdditive = false;
+        public boolean p3N2HellmannA = false;
     }
 
 }
