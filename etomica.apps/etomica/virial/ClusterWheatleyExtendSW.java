@@ -367,15 +367,16 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
         		if (e2==0 || f1>0){//Means when there is an edge.
         			g.putEdge((byte)i, (byte)j);
         			if (e2==1) {
-                        cliqueSetF1[k] = false;
-                        cliqueSetE2[k] = true;
+        			    //g.getEdge((byte)i, (byte)j).setColor('B');
+                        cliqueSetF1[k] = true;
+                        cliqueSetE2[k] = false;
         				edgeCountWell++;
         				outDegreeWell[i]++;
         				outDegreeWell[j]++;
         			}
         			else {
-                        cliqueSetF1[k] = true;
-                        cliqueSetE2[k] = false;
+                        cliqueSetF1[k] = false;
+                        cliqueSetE2[k] = true;
         				edgeCountCore++;
         				outDegreeCore[i]++;
         				outDegreeCore[j]++;
@@ -396,7 +397,7 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
         // this configuration is zero.  Loop through all sets, considering
         // each as a clique separator.
         cliqueCountF1 = cliqueCountE2 = cliqueCountEF = cliqueCountNone = 0;
-        for (int i=1; i<nf-3; i++) {
+        for (int i=3; i<nf-1; i++) {
             int j = i & -i;//lowest bit in i
             if (i==j) {
                 // 1-point set.
@@ -438,7 +439,7 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
                 cliqueCountNone++;
             }
         }
-	    
+
 	    return true;
 	}
 }
