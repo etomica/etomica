@@ -123,30 +123,23 @@ public class ConfigurationFileBinary implements Configuration {
         }
     }
 
-    /**
-     * Reads the configuration from the file and then rescales the
-     * configuration to the new density (density1).  The new configuration is
-     * then written out to outFilename (also as binary).  The number of atoms
-     * and original density are required as input.
-     */
-    public void rescale(int numAtoms, double density0, double density1, String outConfigname, ISpace space) {
+    public static void rescale(Configuration config, IBox box1, double density1, ISpace space) {
         Simulation sim = new Simulation(space);
-        IBox box = new Box(space);
-        sim.addBox(box);
+        IBox box0 = new Box(space);
+        sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
-        box.setNMolecules(species, numAtoms);
-        BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(density0);
-        inflater.actionPerformed();
-        initializeCoordinates(box);
-
+        box0.setNMolecules(species, box1.getLeafList().getAtomCount());
+        BoxInflate inflater = new BoxInflate(box0, space);
+        config.initializeCoordinates(box0);
         inflater.setTargetDensity(density1);
         inflater.actionPerformed();
-        WriteConfigurationBinary writeConfig = new WriteConfigurationBinary(space);
-        writeConfig.setFileName(outConfigname+".pos");
-        writeConfig.setBox(box);
-        writeConfig.actionPerformed();
+        
+        IAtomList atoms0 = box0.getLeafList();
+        IAtomList atoms1 = box1.getLeafList();
+        for (int i=0; i<atoms0.getAtomCount(); i++) {
+            atoms1.getAtom(i).getPosition().E(atoms0.getAtom(i).getPosition());
+        }
     }
 
     protected final String confName;
