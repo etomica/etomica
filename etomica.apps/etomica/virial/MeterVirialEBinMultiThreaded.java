@@ -237,6 +237,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
             if (amdMore.sampleCount == 0) continue;
             if (amd.sampleCount == 0) {
                 // value was never measured, just use "more" data
+                amd.sampleCount = amdMore.sampleCount;
                 amd.sum = amdMore.sum;
                 amd.sum2 = amdMore.sum2;
                 if (amd instanceof MyDataCov) {
@@ -257,6 +258,9 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                         pairSum[i] += pairSumMore[i];
                     }
                 }
+            }
+            if (amd.sum[0]!=0 && amd.sampleCount ==0) {
+                throw new RuntimeException("oops");
             }
         }
     }
