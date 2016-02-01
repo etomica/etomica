@@ -274,7 +274,9 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     // decide whether or not to go back to the old configuration
                     double newPotentialEnergy = meterPE.getDataAsScalar();
                     double newKineticEnergy = meterKE.getDataAsScalar();
+//                    System.out.println(newPotentialEnergy+" "+newKineticEnergy+" "+oldEnergy);
                     double energyDiff = newPotentialEnergy + newKineticEnergy - oldEnergy;
+//                    System.out.println(energyDiff+" "+Math.exp(-energyDiff/temperature));
                     if (energyDiff > 0 && Math.exp(-energyDiff/temperature) < random.nextDouble() && stepCount > 100) {
                         // energy increased and we are rejecting the trajectory
                         rejected = true;
@@ -284,21 +286,21 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                             a.getPosition().E(oldPositionAgentManager.getAgent(a));
                         }
                         oldEnergy = oldPotentialEnergy;
-//                        System.out.println("rejected "+energyDiff);
+//                        System.out.println("rejected "+energyDiff+" => "+oldEnergy);
+//                        System.out.println(" *** check *** "+meterPE.getDataAsScalar());
                         nRejected++;
                     }
                     else {
                         // accepting the trajectory.  save positions
-                        if (integratorMC != null) {
-                            IAtomList leafAtoms = box.getLeafList();
-                            for (int i=0; i<leafAtoms.getAtomCount(); i++) {
-                                IAtom a = leafAtoms.getAtom(i);
-                                oldPositionAgentManager.getAgent(a).E(a.getPosition());
-                            }
-                            oldPotentialEnergy = newPotentialEnergy;
-                            oldEnergy = newPotentialEnergy;
+                        IAtomList leafAtoms = box.getLeafList();
+                        for (int i=0; i<leafAtoms.getAtomCount(); i++) {
+                            IAtom a = leafAtoms.getAtom(i);
+                            oldPositionAgentManager.getAgent(a).E(a.getPosition());
                         }
-//                        System.out.println("accepted "+energyDiff);
+                        oldPotentialEnergy = newPotentialEnergy;
+                        oldEnergy = newPotentialEnergy;
+//                        System.out.println("accepted "+energyDiff+" => "+oldEnergy);
+
                         nAccepted++;
                     }
                 }
@@ -347,7 +349,9 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     }
                     currentKineticEnergy = meterKE.getDataAsScalar();
                 }
+//                System.out.print(oldEnergy+" ");
                 oldEnergy += currentKineticEnergy;
+//                System.out.println(" ===> "+oldEnergy);
             }
             else if (thermostat == ThermostatType.ANDERSEN || !initialized) {
                 randomizeMomenta();
