@@ -64,7 +64,6 @@ import etomica.units.Energy;
 import etomica.units.Null;
 import etomica.units.SimpleUnit;
 import etomica.util.Function;
-import etomica.util.HistoryCollapsing;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
@@ -105,18 +104,19 @@ public class LjMd3D extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
+
+        double L = Math.pow(numAtoms/density, 1.0/3.0);
+        if (nbrRange > 0.5*L) {
+            if (rcShort > 0.4*L) {
+                throw new RuntimeException("rcShort is too large");
+            }
+            nbrRange = 0.495*L;
+            potentialMasterList.setRange(nbrRange);
+        }
         
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
-        if (nbrRange > 0.5*box.getBoundary().getBoxSize().getX(0)) {
-            if (rcShort > 0.45*box.getBoundary().getBoxSize().getX(0)) {
-                throw new RuntimeException("rcShort is too large");
-            }
-            nbrRange = 0.495*box.getBoundary().getBoxSize().getX(0);
-            potentialMasterList.setRange(nbrRange);
-        }
 
         potential = new P2LennardJones(space, sigma, 1.0);
         IAtomType leafType = species.getLeafType();
