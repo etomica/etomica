@@ -5,52 +5,32 @@
 package etomica.liquidLJ;
 
 import java.io.File;
+import java.util.Arrays;
 
 import etomica.action.WriteConfigurationBinary;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IFunction;
 import etomica.api.IIntegrator;
 import etomica.config.ConfigurationFileBinary;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsingLog;
 import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
 import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.DataProcessorFunction;
 import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
-import etomica.data.DataSplitter;
-import etomica.data.DataSplitter.IDataSinkFactory;
-import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IDataSink;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressure;
-import etomica.data.meter.MeterWidomInsertion;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential0Lrc;
 import etomica.space3d.Space3D;
-import etomica.units.Energy;
 import etomica.units.Null;
-import etomica.units.SimpleUnit;
-import etomica.util.Function;
-import etomica.util.HistoryCollapsingAverage;
-import etomica.util.HistoryCollapsingDiscard;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -103,16 +83,10 @@ public class LjMd3Dv2y {
         boolean graphics = params.graphics;
         final int hybridInterval = params.hybridInterval;
         int nAccBlocks = params.nAccBlocks;
-        boolean calcMu = params.calcMu;
 
     	int fastInterval = hybridInterval;
         int longInterval = (numAtoms / 200 / hybridInterval) * hybridInterval;
         if (longInterval == 0) longInterval = hybridInterval;
-
-        int numFastInsert = (numAtoms*hybridInterval)/10;
-        if (numFastInsert == 0) numFastInsert = 1;
-        int numFullInsert = (numAtoms*hybridInterval)/1000;
-        if (numFullInsert < 10) numFastInsert = 10;
 
     	if (!graphics) {
             System.out.println("Running LJ MD with N="+numAtoms+" at y="+y+" v2="+v2);
@@ -121,13 +95,7 @@ public class LjMd3Dv2y {
     	    System.out.println(steps+" steps ("+(steps*tStep)+" time units)");
     	    System.out.println("short cutoff: "+rcShort);
     	    System.out.println("hybrid MC interval: "+hybridInterval);
-
-    	    if (calcMu) {
-    	        System.out.println("fast Widom insertions: "+numFastInsert+" / 1"); //   full Widom insertions: "+numFullInsert+" / "+longInterval);
-    	    }
-            else {
-                System.out.println("fast energy interval: "+fastInterval+"  full energy interval: "+longInterval);
-    	    }
+            System.out.println("full energy interval: "+longInterval);
     	}
 
     	double L = Math.pow(numAtoms/density, 1.0/3.0);
@@ -185,20 +153,6 @@ public class LjMd3Dv2y {
             }
         }
         
-        if (!graphics && calcMu) {
-            // we are calculating chemical potential via Widom insertion
-            // mu ~= dA/dN ~= A(N+1) - A(N)
-            // we introduce a finite size effect because the difference is centered about a system with slightly higher density
-            // density => density * (N+1)/N
-            // adjust nominal density so that
-            // density * N/(N+0.5) => density * (N+1)/(N+0.5)
-            // which is now centered about "density"
-//            density = (density * numAtoms) / (numAtoms + 0.5);
-            
-            System.out.println("adjusting nominal density => "+density);
-            throw new RuntimeException("fix me");
-        }
-
         sim.potentialMasterList.getNeighborManager(sim.box).reset();
 
         if (!graphics) {
@@ -216,56 +170,7 @@ public class LjMd3Dv2y {
     	
         final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList);
         meterEnergyFast.setBox(sim.box);
-        long bs = steps/(fastInterval*nAccBlocks);
-        final AccumulatorAverageFixed avgEnergyFast = new AccumulatorAverageFixed(bs == 0 ? 1 : bs);
-        DataPumpListener energyPumpFast = new DataPumpListener(meterEnergyFast, avgEnergyFast, fastInterval);
-        if (graphics) {
-            sim.integrator.getEventManager().addListener(energyPumpFast);
-        }
-
-    	
-    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMasterLong);
-        meterEnergy.setBox(sim.box);
-        final double uFac = meterEnergy.getDataAsScalar() - meterEnergyFast.getDataAsScalar();
-        DataProcessor energyReweight = new DataProcessor() {
-            protected final DataDoubleArray data = new DataDoubleArray(4);
-            
-            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-                return null;
-            }
-            
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-                dataInfo = new DataInfoDoubleArray("energy", Energy.DIMENSION, new int[]{4});
-                return dataInfo;
-            }
-
-            protected IData processData(IData inputData) {
-                double[] x = data.getData();
-                x[0] = inputData.getValue(0);
-                double uFast = meterEnergyFast.getDataAsScalar();
-
-                double dx = x[0] - (uFast+uFac);
-                double fac = 1;
-                double w = Math.exp(-dx/temperature)/fac;
-                x[1] = x[0] * w;
-                x[2] = w;
-                x[3] = uFast;
-                return data;
-            }
-        };
-        DataPumpListener energyPump = new DataPumpListener(meterEnergy, energyReweight, longInterval);
-        if (graphics || !calcMu) {
-            sim.integrator.getEventManager().addListener(energyPump);
-        }
-        bs = steps/(longInterval*nAccBlocks);
-        final AccumulatorRatioAverageCovarianceFull avgEnergy = new AccumulatorRatioAverageCovarianceFull(bs == 0 ? 1 : bs);
-        avgEnergy.setPushInterval(1);
-        energyReweight.setDataSink(avgEnergy);
-
-        // blocks should contain at least 25 samples (so they are mostly uncorrelated)
-        long nLogSamples = steps/(longInterval*25);
-        if (nLogSamples < 32) nLogSamples = 32;
-        final int nDoubles = (int)(Math.log(nLogSamples)/Math.log(2));
+        long bs = steps/(longInterval*nAccBlocks);
 
         double rcMax = 0.494*L;
         double fac = 1.2;
@@ -283,386 +188,34 @@ public class LjMd3Dv2y {
         for (int i=0; i<cutoffs.length; i++) {
             uFacCut[i] = uCut.getValue(i) - uFast0;
         }
-        DataProcessor energyReweightCut = new DataProcessor() {
-            protected DataDoubleArray data;
-            
-            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-                return null;
-            }
-            
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-                data = new DataDoubleArray(inputDataInfo.getLength());
-                dataInfo = new DataInfoDoubleArray("energy", Null.DIMENSION, new int[]{inputDataInfo.getLength()});
-                return dataInfo;
-            }
-            
-            protected IData processData(IData inputData) {
-                double[] x = data.getData();
-                double uFast = meterEnergyFast.getDataAsScalar();
-                for (int i=0; i<x.length; i++) {
-                    x[i] = Math.exp(-(inputData.getValue(i) - (uFast+uFacCut[i]))/temperature);
-                }
-                return data;
-            }
-        };
-        DataPumpListener energyPumpCut = new DataPumpListener(meterEnergyCut, energyReweightCut, longInterval);
-        if (graphics || !calcMu) {
-            sim.integrator.getEventManager().addListener(energyPumpCut);
-        }
-        bs = steps/(longInterval*nAccBlocks);
-        DataSplitter uCutSplitter = new DataSplitter();
-        uCutSplitter.setDataSinkFactory(new IDataSinkFactory() {
-            public IDataSink makeDataSink(int i) {
-                AccumulatorAverageCollapsingLog acc = new AccumulatorAverageCollapsingLog(2);
-                acc.setNumRawDataDoubles(nDoubles);
-                return acc;
-            }
-        });
-        energyReweightCut.setDataSink(uCutSplitter);
-        
 
-        final MeterPotentialEnergy meterEnergy2 = new MeterPotentialEnergy(sim.potentialMasterLong);
-        meterEnergy2.setBox(sim.box);
         final ValueCache energyFastCache = new ValueCache(meterEnergyFast, sim.integrator);
-        final ValueCache energyFullCache = new ValueCache(meterEnergy, sim.integrator);
 
-
-        final MeterPressure meterPressureFast = new MeterPressure(sim.getSpace());
-        meterPressureFast.setIntegrator(sim.integrator);
-        bs = steps/(fastInterval*nAccBlocks);
-        final AccumulatorAverageFixed avgPressureFast = new AccumulatorAverageFixed(bs == 0 ? 1 : bs);
-        DataPumpListener pressurePumpFast = new DataPumpListener(meterPressureFast, avgPressureFast, fastInterval);
-        if (graphics) {
-            sim.integrator.getEventManager().addListener(pressurePumpFast);
-        }
-
-        
-        MeterPressure meterPressure = new MeterPressure(sim.getSpace());
-        meterPressure.setPotentialMaster(sim.potentialMasterLong);
-        meterPressure.setTemperature(temperature);
-        meterPressure.setBox(sim.box);
-        DataProcessor pressureReweight = new DataProcessorReweight(temperature, energyFastCache, energyFullCache, uFac, Double.NaN, Double.NaN, sim.box, null);
-        DataPumpListener pressurePump = new DataPumpListener(meterPressure, pressureReweight, longInterval);
-        if (graphics || !calcMu) {
-            sim.integrator.getEventManager().addListener(pressurePump);
-        }
-        bs = steps/(longInterval*nAccBlocks);
-        final AccumulatorRatioAverageCovarianceFull avgPressure = new AccumulatorRatioAverageCovarianceFull(bs == 0 ? 1 : bs);
-        avgPressure.setPushInterval(1);
-        pressureReweight.setDataSink(avgPressure);
-
-        final MeterPU meterPU = new MeterPU(sim.getSpace());
+        final MeterPUCut meterPU = new MeterPUCut(sim.getSpace(), cutoffs);
         meterPU.setBox(sim.box);
         meterPU.setIncludeLrc(false);
-        meterPU.setPotentialMaster(sim.potentialMasterList);
+        meterPU.setPotentialMaster(sim.potentialMasterLongCut);
         meterPU.setTemperature(temperature);
         
         bs = steps/(fastInterval*nAccBlocks);
-        final AccumulatorRatioAverageCovarianceFull avgPU = new AccumulatorRatioAverageCovarianceFull(bs == 0 ? 1 : bs);
-        DataPumpListener pressurePUFast = new DataPumpListener(meterPU, avgPU, fastInterval);
-        if (graphics || !calcMu) {
-            sim.integrator.getEventManager().addListener(pressurePUFast);
-        }
 
+        DataProcessorReweight puReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCut, sim.box, nCutoffs);
+        DataFork puFork = new DataFork();
+        DataPumpListener pumpPU = new DataPumpListener(meterPU, puFork, longInterval);
+        puFork.addDataSink(puReweight);
+        sim.integrator.getEventManager().addListener(pumpPU);
+        final AccumulatorRatioAverageCovarianceFull accPU = new AccumulatorRatioAverageCovarianceFull(bs == 0 ? 1 : bs);
+        puReweight.setDataSink(accPU);
 
-        MeterPotentialEnergy meterEnergyWidomFast = new MeterPotentialEnergy(sim.potentialMasterList);
-        MeterWidomInsertion meterWidomFast = new MeterWidomInsertion(sim.getSpace(), sim.getRandom());
-
-        meterWidomFast.setEnergyMeter(meterEnergyWidomFast);
-        meterWidomFast.setNInsert(numFastInsert);
-        meterWidomFast.setSpecies(sim.species);
-        meterWidomFast.setBox(sim.box);
-        meterWidomFast.setTemperature(temperature);
-        final AccumulatorAverageCollapsingLog avgLogWidomFast = new AccumulatorAverageCollapsingLog(2);
-        // we are going to assume that each sample from widom is independent (allow full reblocking)
-        bs = steps/(hybridInterval*nAccBlocks);
-        final AccumulatorAverageFixed avgWidomFast = new AccumulatorAverageFixed(bs == 0 ? 1 : bs);
-        avgWidomFast.setPushInterval(1);
-        DataPumpListener pumpWidomFast = new DataPumpListener(meterWidomFast, graphics ? avgWidomFast : avgLogWidomFast, fastInterval);
-        if (calcMu) {
-            sim.integrator.getEventManager().addListener(pumpWidomFast);
-        }
-
-        bs = steps/(hybridInterval*10*nAccBlocks);
-        
-        MeterWidomInsertionCorrection meterWidomCorrection = new MeterWidomInsertionCorrection(sim.getSpace(), sim.getRandom());
-        meterWidomCorrection.setEnergyMeter(meterEnergyWidomFast, meterEnergy2);
-        meterWidomCorrection.setNInsert(numFullInsert);
-        meterWidomCorrection.setSpecies(sim.species);
-        meterWidomCorrection.setBox(sim.box);
-        meterWidomCorrection.setTemperature(temperature);
-        meterWidomCorrection.setEnergyFac(uFac);
-
-        bs = steps/(longInterval*nAccBlocks);
-        final AccumulatorRatioAverageCovarianceFull avgWidomCorrection = new AccumulatorRatioAverageCovarianceFull(bs == 0 ? 1 : bs);
-        avgWidomCorrection.setPushInterval(1);
-        DataPumpListener pumpWidomCorrection = new DataPumpListener(meterWidomCorrection, avgWidomCorrection, longInterval);
-        if (calcMu) {
-            sim.integrator.getEventManager().addListener(pumpWidomCorrection);
-        }
-        
-        DataProcessor dpWidomCorrection = new DataProcessor() {
-            protected final DataDouble data = new DataDouble();
-            
-            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-                return null;
-            }
-            
-            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-                dataInfo = new DataInfoDouble("mu", Null.DIMENSION);
-                dataInfo.addTags(inputDataInfo.getTags());
-                return dataInfo;
-            }
-            
-            protected IData processData(IData inputData) {
-                double avgFast = avgWidomFast.getData(avgWidomFast.AVERAGE).getValue(0);
-                data.x = avgFast;
-                if (avgFast > 0) {
-                    double avgFull = inputData.getValue(0);
-                    double avgFastFull = inputData.getValue(1);
-                    double avgFullCorrection = inputData.getValue(2);
-//                    System.out.println(String.format("%15.5e %15.5e %15.5e %15.5e", avgFast, avgFull, avgFastFull, avgFullCorrection));
-                    data.x *= avgFull/(avgFastFull*avgFullCorrection);
-//                    System.out.println(avgFull/(avgFastFull*avgFullCorrection)+" "+inputData.getValue(3)/inputData.getValue(1));
-                    if (data.x == Double.POSITIVE_INFINITY) {
-                        // just preliminary data, or we need to adjust energyFac
-                        data.x = 0;
-                    }
-                }
-                return data;
-            }
-        };
-        
-        avgWidomCorrection.addDataSink(dpWidomCorrection, new StatType[]{avgWidomCorrection.AVERAGE});
-        Function muFunction = new Function() {
-            public double f(double x) {
-                if (x==0) return Double.NaN;
-                return -temperature*Math.log(x);
-            }
-        };
-        DataProcessorFunction muFast = new DataProcessorFunction(muFunction);
-        avgWidomFast.addDataSink(muFast, new StatType[]{avgWidomFast.AVERAGE});
-        DataProcessorFunction muCorrected = new DataProcessorFunction(muFunction);
-        dpWidomCorrection.setDataSink(muCorrected);
-
-        MeterWidomInsertionP meterWidomDFast = new MeterWidomInsertionP(sim.getSpace(), sim.getRandom());
-        meterWidomDFast.setEnergyMeter(meterEnergyWidomFast);
-        meterWidomDFast.setNInsert(numFastInsert);
-        meterWidomDFast.setSpecies(sim.species);
-        meterWidomDFast.setBox(sim.box);
-        meterWidomDFast.setTemperature(temperature);
-        meterWidomDFast.setPressure(Double.NaN);
-        bs = steps/(fastInterval*nAccBlocks);
-        final AccumulatorAverageFixed avgWidomDFast = new AccumulatorAverageFixed(bs == 0 ? 1 : bs);
-        avgWidomDFast.setPushInterval(1);
-        DataPumpListener pumpWidomDFast = new DataPumpListener(meterWidomDFast, avgWidomDFast, fastInterval);
-        if (calcMu) {
-            sim.integrator.getEventManager().addListener(pumpWidomDFast);
-        }
-
-        Function muDFunction = new Function() {
-            public double f(double x) {
-                if (x==0) return Double.NaN;
-                return temperature*Math.log(x);
-            }
-        };
-        DataProcessorFunction muDFast = new DataProcessorFunction(muFunction);
-        avgWidomDFast.addDataSink(muDFast, new StatType[]{avgWidomFast.AVERAGE});
-
-        
     	if (graphics) {
             final String APP_NAME = "LjMd3D";
         	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
     
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-            simGraphic.getController().getDataStreamPumps().add(energyPump);
-            simGraphic.getController().getDataStreamPumps().add(energyPumpFast);
-            simGraphic.getController().getDataStreamPumps().add(pressurePump);
-            simGraphic.getController().getDataStreamPumps().add(pressurePumpFast);
-            simGraphic.getController().getDataStreamPumps().add(pumpWidomCorrection);
-            simGraphic.getController().getDataStreamPumps().add(pumpWidomFast);
-            simGraphic.getController().getDataStreamPumps().add(pumpWidomDFast);
+            simGraphic.getController().getDataStreamPumps().add(pumpPU);
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
-    
-//            DisplayTextBoxesCAE displayEnergy = new DisplayTextBoxesCAE();
-//            displayEnergy.setAccumulator(avgEnergy);
-//            simGraphic.add(displayEnergy);
-//            DisplayTextBoxesCAE displayEnergyFast = new DisplayTextBoxesCAE();
-//            displayEnergyFast.setAccumulator(avgEnergyFast);
-//            simGraphic.add(displayEnergyFast);
-            
-            AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-            DataSourceCountTime timeDataSource = new DataSourceCountTime(sim.integrator);
-            energyHistory.setTimeDataSource(timeDataSource);
-            energyHistory.setPushInterval(1);
-            DataFork energyFork = new DataFork();
-            energyPump.setDataSink(energyFork);
-            energyFork.addDataSink(energyReweight);
-            energyFork.addDataSink(energyHistory);
-            
-            AccumulatorHistory energyCorrectedAvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            energyCorrectedAvgHistory.setTimeDataSource(timeDataSource);
-            energyCorrectedAvgHistory.setPushInterval(1);
-            DataProcessor dpAvgEnergyCorrected = new DataProcessor() {
-                protected final DataDouble data = new DataDouble();
-                
-                public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {return null;}
-                protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-                    dataInfo = new DataInfoDouble("energy", Energy.DIMENSION);
-                    dataInfo.addTags(inputDataInfo.getTags());
-                    return dataInfo;
-                }
-                protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup)inputData).getData(avgEnergy.AVERAGE.index);
-                    data.x = avg.getValue(1)/avg.getValue(2);
-                    return data;
-                }
-            };
-            avgEnergy.addDataSink(dpAvgEnergyCorrected);
-            dpAvgEnergyCorrected.setDataSink(energyCorrectedAvgHistory);
 
-            AccumulatorHistory energyCorrected2AvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            energyCorrected2AvgHistory.setTimeDataSource(timeDataSource);
-            energyCorrected2AvgHistory.setPushInterval(1);
-            DataProcessor dpAvgEnergyCorrected2 = new DataProcessor() {
-                protected final DataDouble data = new DataDouble();
-                
-                public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {return null;}
-                protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-                    dataInfo = new DataInfoDouble("energy", Energy.DIMENSION);
-                    dataInfo.addTags(inputDataInfo.getTags());
-                    return dataInfo;
-                }
-                protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup)inputData).getData(avgEnergy.AVERAGE.index);
-                    data.x = avg.getValue(1)/(avg.getValue(3)*avg.getValue(2)) * avgEnergyFast.getData(avgEnergyFast.AVERAGE).getValue(0);
-                    return data;
-                }
-            };
-            avgEnergy.addDataSink(dpAvgEnergyCorrected2);
-            dpAvgEnergyCorrected2.setDataSink(energyCorrected2AvgHistory);
-
-            AccumulatorHistory energyAvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            energyAvgHistory.setTimeDataSource(timeDataSource);
-            energyAvgHistory.setPushInterval(1);
-            DataProcessor dpAvgEnergy = new DataProcessor() {
-                protected final DataDouble data = new DataDouble();
-                
-                public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {return null;}
-                protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-                    dataInfo = new DataInfoDouble("energy", Energy.DIMENSION);
-                    dataInfo.addTags(inputDataInfo.getTags());
-                    return dataInfo;
-                }
-                protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup)inputData).getData(avgEnergy.AVERAGE.index);
-                    data.x = avg.getValue(0);
-                    return data;
-                }
-            };
-            avgEnergy.addDataSink(dpAvgEnergy);
-            dpAvgEnergy.setDataSink(energyAvgHistory);
-            
-            AccumulatorHistory energyHistoryFast = new AccumulatorHistory(new HistoryCollapsingAverage());
-            energyHistoryFast.setTimeDataSource(timeDataSource);
-            energyHistoryFast.setPushInterval(1);
-            DataFork energyForkFast = new DataFork();
-            energyPumpFast.setDataSink(energyForkFast);
-            energyForkFast.addDataSink(avgEnergyFast);
-            energyForkFast.addDataSink(energyHistoryFast);
-
-            DisplayPlot energyPlot = new DisplayPlot();
-            
-            energyHistoryFast.setDataSink(energyPlot.getDataSet().makeDataSink());
-            energyHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
-            energyAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
-            energyCorrectedAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
-            energyCorrected2AvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
-            energyPlot.setLabel("energy");
-            energyPlot.setLegend(new DataTag[]{energyHistoryFast.getTag()}, "fast energy");
-            energyPlot.setLegend(new DataTag[]{energyHistory.getTag()}, "energy");
-            energyPlot.setLegend(new DataTag[]{energyAvgHistory.getTag()}, "avg energy");
-            energyPlot.setLegend(new DataTag[]{energyCorrectedAvgHistory.getTag()}, "avg corrected energy");
-            energyPlot.setLegend(new DataTag[]{energyCorrected2AvgHistory.getTag()}, "avg corrected2 energy");
-            energyPlot.setUnit(new SimpleUnit(Energy.DIMENSION, numAtoms, "energy", "", false));
-            simGraphic.add(energyPlot);
-            
-            
-            AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-            pressureHistory.setTimeDataSource(timeDataSource);
-            pressureHistory.setPushInterval(1);
-            DataFork pressureFork = new DataFork();
-            pressurePump.setDataSink(pressureFork);
-            pressureFork.addDataSink(pressureReweight);
-            pressureFork.addDataSink(pressureHistory);
-            
-            AccumulatorHistory pressureCorrectedAvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            pressureCorrectedAvgHistory.setTimeDataSource(timeDataSource);
-            pressureCorrectedAvgHistory.setPushInterval(1);
-            DataProcessor dpAvgPressureCorrected = new DataProcessorCorrection(1);
-            avgPressure.addDataSink(dpAvgPressureCorrected);
-            dpAvgPressureCorrected.setDataSink(pressureCorrectedAvgHistory);
-
-            AccumulatorHistory pressureAvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            pressureAvgHistory.setTimeDataSource(timeDataSource);
-            pressureAvgHistory.setPushInterval(1);
-            AccumulatorAverageFixed avgRawPressure = new AccumulatorAverageFixed(bs);
-            pressureFork.addDataSink(avgRawPressure);
-            avgRawPressure.setPushInterval(1);
-            avgRawPressure.addDataSink(pressureAvgHistory, new StatType[]{avgRawPressure.AVERAGE});
-            
-            AccumulatorHistory pressureHistoryFast = new AccumulatorHistory(new HistoryCollapsingAverage());
-            pressureHistoryFast.setTimeDataSource(timeDataSource);
-            pressureHistoryFast.setPushInterval(1);
-            DataFork pressureForkFast = new DataFork();
-            pressurePumpFast.setDataSink(pressureForkFast);
-            pressureForkFast.addDataSink(avgPressureFast);
-            pressureForkFast.addDataSink(pressureHistoryFast);
-
-            DisplayPlot pressurePlot = new DisplayPlot();
-            
-            pressureHistoryFast.setDataSink(pressurePlot.getDataSet().makeDataSink());
-            pressureHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
-            pressureAvgHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
-            pressureCorrectedAvgHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
-            pressurePlot.setLabel("pressure");
-            pressurePlot.setLegend(new DataTag[]{pressureHistoryFast.getTag()}, "fast pressure");
-            pressurePlot.setLegend(new DataTag[]{pressureHistory.getTag()}, "pressure");
-            pressurePlot.setLegend(new DataTag[]{pressureAvgHistory.getTag()}, "avg pressure");
-            pressurePlot.setLegend(new DataTag[]{pressureCorrectedAvgHistory.getTag()}, "avg corrected pressure");
-            simGraphic.add(pressurePlot);
-
-
-            if (calcMu) {
-                AccumulatorHistory widomHistoryFast = new AccumulatorHistory(new HistoryCollapsingDiscard());
-                widomHistoryFast.setTimeDataSource(timeDataSource);
-                widomHistoryFast.setPushInterval(1);
-                muFast.setDataSink(widomHistoryFast);
-    
-                AccumulatorHistory widomCorrectionHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-                widomCorrectionHistory.setTimeDataSource(timeDataSource);
-                widomCorrectionHistory.setPushInterval(1);
-                muCorrected.setDataSink(widomCorrectionHistory);
-    
-                AccumulatorHistory widomDHistoryFast = new AccumulatorHistory(new HistoryCollapsingDiscard());
-                widomDHistoryFast.setTimeDataSource(timeDataSource);
-                widomDHistoryFast.setPushInterval(1);
-                muDFast.setDataSink(widomDHistoryFast);
-    
-    
-                DisplayPlot widomPlot = new DisplayPlot();
-                widomHistoryFast.setDataSink(widomPlot.getDataSet().makeDataSink());
-                widomCorrectionHistory.setDataSink(widomPlot.getDataSet().makeDataSink());
-                widomDHistoryFast.setDataSink(widomPlot.getDataSet().makeDataSink());
-                widomPlot.setLabel("widom");
-                widomPlot.setLegend(new DataTag[]{widomHistoryFast.getTag()}, "widom fast");
-                widomPlot.setLegend(new DataTag[]{widomCorrectionHistory.getTag()}, "widom corrected");
-                widomPlot.setLegend(new DataTag[]{widomDHistoryFast.getTag()}, "widom fast deletion");
-                simGraphic.add(widomPlot);
-            }
-            
-            
             return;
     	}
 
@@ -679,184 +232,95 @@ public class LjMd3Dv2y {
         writeConfig.actionPerformed();
         
         System.out.println("hybrid acceptance: "+sim.integrator.getHybridAcceptance());
+        long numNbrUpdates = sim.potentialMasterList.getNeighborManager(sim.box).getNumUpdates();
+        System.out.println(String.format("avg steps between nbr update: %3.1f",((double)steps)/numNbrUpdates));
+
         System.out.println();
-
-
-        if (!calcMu) {
-            double uFastAvg = avgEnergyFast.getData(avgEnergyFast.AVERAGE).getValue(0);
-            double uFastErr = avgEnergyFast.getData(avgEnergyFast.ERROR).getValue(0);
-            double uFastCor = avgEnergyFast.getData(avgEnergyFast.BLOCK_CORRELATION).getValue(0);
-    
-//            System.out.println(String.format("potential energy (fast): %20.15e   %10.4e   %4.2f", uFastAvg/numAtoms, uFastErr/numAtoms, uFastCor));
-
-            IData uAvgData = avgEnergy.getData(avgEnergy.AVERAGE);
-            IData uRatioData = avgEnergy.getData(avgEnergy.RATIO);
-            IData uErrData = avgEnergy.getData(avgEnergy.ERROR);
-            IData uRatioErrData = avgEnergy.getData(avgEnergy.RATIO_ERROR);
-            IData uCorData = avgEnergy.getData(avgEnergy.BLOCK_CORRELATION);
-            IData uCovData = avgEnergy.getData(avgEnergy.BLOCK_COVARIANCE);
-    
-            double uFullAvg = uAvgData.getValue(0);
-            double uFullErr = uErrData.getValue(0);
-            double uFullCor = uCorData.getValue(0);
-    
-            System.out.println(avgEnergy.getBlockCount()+" energy blocks");
-            System.out.println(String.format("potential energy (full): %20.15e   %10.4e   %4.2f", uFullAvg/numAtoms, uFullErr/numAtoms, uFullCor));
-
-            double uReweightedAvg = uRatioData.getValue(4*1+2);
-            double uReweightedErr = uRatioErrData.getValue(4*1+2);
-            double uReweightedCor = uCorData.getValue(1);
-            if (uCorData.getValue(2) > uReweightedCor) uReweightedCor = uCorData.getValue(2);
-    
-            System.out.println(String.format("potential energy (reweighted): %20.15e   %10.4e   %4.2f", uReweightedAvg/numAtoms, uReweightedErr/numAtoms, uReweightedCor));
-
         
-            if (longInterval > hybridInterval) {
-                double uReweighted2Avg = uAvgData.getValue(1)/(uAvgData.getValue(2)*uAvgData.getValue(3)) * uFastAvg;
-                double uReweighted2Err = Math.pow(uErrData.getValue(1)/uAvgData.getValue(1), 2) + Math.pow(uErrData.getValue(2)/uAvgData.getValue(2), 2) +
-                                                                    Math.pow(uErrData.getValue(3)/uAvgData.getValue(3), 2) + Math.pow(uFastErr/uFastAvg, 2);
-                long blockCount = avgEnergy.getBlockCount();
-                uReweighted2Err += -2*uCovData.getValue(4*1+2)/((blockCount-1)*uAvgData.getValue(1)*uAvgData.getValue(2));
-                uReweighted2Err += -2*uCovData.getValue(4*1+3)/((blockCount-1)*uAvgData.getValue(1)*uAvgData.getValue(3));
-                uReweighted2Err +=  2*uCovData.getValue(4*2+3)/((blockCount-1)*uAvgData.getValue(2)*uAvgData.getValue(3));
-                uReweighted2Err = Math.abs(uReweighted2Avg) * Math.sqrt(uReweighted2Err);
-                        
-                double uReweighted2Cor = uReweightedCor;
-                if (uCorData.getValue(3) > uReweighted2Cor) uReweighted2Cor = uCorData.getValue(3);
-                if (uFastCor > uReweighted2Cor) uReweighted2Cor = uFastCor;
-        
-                System.out.println(String.format("potential energy (reweighted fast): %20.15e   %10.4e   %4.2f", uReweighted2Avg/numAtoms, uReweighted2Err/numAtoms, uReweighted2Cor));
-            }
+        DataGroup dataPU = (DataGroup)accPU.getData();
+        IData avgPU = dataPU.getData(accPU.AVERAGE.index);
+        IData errPU = dataPU.getData(accPU.ERROR.index);
+        IData covPU = dataPU.getData(accPU.COVARIANCE.index);
+        IData corPU = dataPU.getData(accPU.BLOCK_CORRELATION.index);
+        int j = 0;
+        int n = 5*cutoffs.length;
+        System.out.println(n+" "+n*n+" "+covPU.getLength());
+        for (int i=0; i<cutoffs.length; i++) {
 
-            double pFastAvg = avgPressureFast.getData(avgPressureFast.AVERAGE).getValue(0);
-            double pFastErr = avgPressureFast.getData(avgPressureFast.ERROR).getValue(0);
-            double pFastCor = avgPressureFast.getData(avgPressureFast.BLOCK_CORRELATION).getValue(0);
+            P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffs[i]);
+            p2t.setBox(sim.box);
+            Potential0Lrc p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+            p0lrc.setBox(sim.box);
+            double ulrc = p0lrc.energy(null);
 
-//            System.out.println(String.format("pressure (fast): %20.15e   %10.4e   %4.2f", pFastAvg, pFastErr, pFastCor));
+            double avgW = avgPU.getValue(j+4);
+            double errW = errPU.getValue(j+4);
+            double corW = corPU.getValue(j+4);
 
-            IData pAvgData = avgPressure.getData(avgPressure.AVERAGE);
-            IData pRatioData = avgPressure.getData(avgPressure.RATIO);
-            IData pErrData = avgPressure.getData(avgPressure.ERROR);
-            IData pRatioErrData = avgPressure.getData(avgPressure.RATIO_ERROR);
-            IData pCorData = avgPressure.getData(avgPressure.BLOCK_CORRELATION);
-            IData pCovData = avgPressure.getData(avgPressure.BLOCK_COVARIANCE);
-
-            double pFullAvg = pAvgData.getValue(0);
-            double pFullErr = pErrData.getValue(0);
-            double pFullCor = pCorData.getValue(0);
-
-            System.out.println("\n"+avgPressure.getBlockCount()+" pressure blocks");
-            System.out.println(String.format("pressure (full): %20.15e   %10.4e   %4.2f", pFullAvg, pFullErr, pFullCor));
-
-            double pReweightedAvg = pRatioData.getValue(1);
-            double pReweightedErr = pRatioErrData.getValue(1);
-            double pReweightedCor = pCorData.getValue(1);
-//                if (pCorData.getValue(2) > pReweightedCor) pReweightedCor = pCorData.getValue(2);
-
-            System.out.println(String.format("pressure (reweighted): %20.15e   %10.4e   %4.2f", pReweightedAvg, pReweightedErr, pReweightedCor));
-
-            if (longInterval > hybridInterval) {
-                double pReweighted2Avg = pAvgData.getValue(1)/(pAvgData.getValue(2)*pAvgData.getValue(3)) * pFastAvg;
-                double pReweighted2Err = Math.pow(pErrData.getValue(1)/pAvgData.getValue(1), 2) + Math.pow(pErrData.getValue(2)/pAvgData.getValue(2), 2) +
-                                                                    Math.pow(pErrData.getValue(3)/pAvgData.getValue(3), 2) + Math.pow(pFastErr/pFastAvg, 2);
-                long blockCount = avgEnergy.getBlockCount();
-                pReweighted2Err += -2*pCovData.getValue(4*1+2)/((blockCount-1)*pAvgData.getValue(1)*pAvgData.getValue(2));
-                pReweighted2Err += -2*pCovData.getValue(4*1+3)/((blockCount-1)*pAvgData.getValue(1)*pAvgData.getValue(3));
-                pReweighted2Err +=  2*pCovData.getValue(4*2+3)/((blockCount-1)*pAvgData.getValue(2)*pAvgData.getValue(3));
-                pReweighted2Err = Math.abs(pReweighted2Avg) * Math.sqrt(pReweighted2Err);
-                        
-                double pReweighted2Cor = pReweightedCor;
-                if (pCorData.getValue(3) > pReweighted2Cor) pReweighted2Cor = pCorData.getValue(3);
-                if (pFastCor > pReweighted2Cor) pReweighted2Cor = pFastCor;
-
-                System.out.println(String.format("pressure (reweighted fast): %20.15e   %10.4e   %4.2f", pReweighted2Avg, pReweighted2Err, pReweighted2Cor));
-            }
-
-            System.out.println();
+            System.out.println("w "+avgW+" "+errW);
+            System.out.println(String.format("rc: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %5.3f", i, (ulrc + uFacCut[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
             
-            for (int i=0; i<cutoffs.length; i++) {
-                AccumulatorAverageCollapsingLog accFECut = (AccumulatorAverageCollapsingLog)uCutSplitter.getDataSink(i);
-                IData feAvgCutData = accFECut.getAverages();
-                int feCutLength = feAvgCutData.getLength();
-                double feAvgCut = -temperature*Math.log(feAvgCutData.getValue(feCutLength-1));
-                IData feLogErrCutData = accFECut.getStdevLog();
-                double feErrCut = temperature*feLogErrCutData.getValue(feCutLength-1);
-                double feCorCut = accFECut.getRawLogDataCorrelation();
-                
-                P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffs[i]);
-                p2t.setBox(sim.box);
-                Potential0Lrc plrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-                plrc.setBox(sim.box);
-                double ulrc = plrc.energy(null);
+            double avgW2 = avgW*avgW;
+            double errW2 = errW*errW;
 
-                System.out.println(String.format("rc: %d  A-Afast: %20.15e   %10.4e  %4.2f (%d samples)", i, (ulrc + uFacCut[i] + feAvgCut)/numAtoms, feErrCut/numAtoms, feCorCut, accFECut.getNumRawData()));
+            ulrc /= numAtoms;
+            double avgU = avgPU.getValue(j+0);
+            double errU = errPU.getValue(j+0);
+            double uwCor = covPU.getValue((j+0)*n+j+4) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+4)*n+j+4));
+            System.out.println(avgU+" "+errU+"    "+uwCor);
+            errU = Math.sqrt((avgU*avgU/avgW2)*(errU*errU/(avgU*avgU) + errW2/avgW2 - 2*uwCor*errU*errW/(avgU*avgW)));
+            avgU /= avgW;
+            double corU = corPU.getValue(j+0);
+            if (corW>corU) corU = corW;
+            System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 5.2f", i, ulrc + avgU, errU, corU));
+
+            double avgP = avgPU.getValue(j+1);
+            double errP = errPU.getValue(j+1);
+            double pwCor = covPU.getValue((j+1)*n+j+4) / Math.sqrt(covPU.getValue((j+1)*n+j+1) * covPU.getValue((j+4)*n+j+4));
+            System.out.println(avgP+" "+errP+"    "+pwCor);
+            errP = Math.sqrt((avgP*avgP/avgW2)*(errP*errP/(avgP*avgP) + errW2/avgW2 - 2*pwCor*errP*errW/(avgP*avgW)));
+            avgP /= avgW;
+            double corP = corPU.getValue(j+1);
+            if (corW>corP) corP = corW;
+            double vol = sim.box.getBoundary().volume();
+            double plrc = -p0lrc.virial(null)/(3*vol);
+            double puCor = covPU.getValue((j+0)*n+j+1) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+1)*n+j+1));
+            System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, corP, puCor));
+
+            double avgDADy = avgPU.getValue(j+2);
+            double errDADy = errPU.getValue(j+2);
+            double ywCor = covPU.getValue((j+2)*n+j+4) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+4)*n+j+4));
+            System.out.println(avgDADy+" "+errDADy+"    "+ywCor);
+            errDADy = Math.sqrt((avgDADy*avgDADy/avgW2)*(errDADy*errDADy/(avgDADy*avgDADy) + errW2/avgW2 - 2*ywCor*errDADy*errW/(avgDADy*avgW)));
+            if (Double.isNaN(errDADy)) {
+                throw new RuntimeException("oops");
             }
+            double corDADy = corPU.getValue(j+2);
+            if (corW>corDADy) corDADy = corW;
+            double varDADy = (avgDADy*avgDADy/avgW2)*(covPU.getValue((j+2)*n+j+2)/(avgDADy*avgDADy) + covPU.getValue((j+4)*n+j+4)/avgW2 - 2*covPU.getValue((j+2)*n+j+4)/(avgDADy*avgW));
+            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy/avgW, errDADy, corDADy));
+
+            double avgDADv2 = avgPU.getValue(j+3);
+            double errDADv2 = errPU.getValue(j+3);
+            double v2wCor = covPU.getValue((j+3)*n+j+4) / Math.sqrt(covPU.getValue((j+3)*n+j+3) * covPU.getValue((j+4)*n+j+4));
+            System.out.println(avgDADv2+" "+errDADv2+"    "+v2wCor);
+            errDADv2 = Math.sqrt((avgDADv2*avgDADv2/avgW2)*(errDADv2*errDADv2/(avgDADv2*avgDADv2) + errW2/avgW2 - 2*v2wCor*errDADv2*errW/(avgDADv2*avgW)));
+            if (Double.isNaN(errDADv2)) {
+                throw new RuntimeException("oops");
+            }
+            double corDADv2 = corPU.getValue(j+3);
+            
+            // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
+            double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/4;
+            double varDADv2 = (avgDADv2*avgDADv2/avgW2)*(covPU.getValue((j+3)*n+j+3)/(avgDADv2*avgDADv2) + covPU.getValue((j+4)*n+j+4)/avgW2 - 2*covPU.getValue((j+3)*n+j+4)/(avgDADv2*avgW));
+            double dadCor = (covPU.getValue((j+2)*n+j+3) - avgDADv2/avgW * covPU.getValue((j+2)*n+j+4) - avgDADy/avgW * covPU.getValue((j+3)*n+j+4))/avgW2;
+            dadCor /= Math.sqrt(varDADy*varDADv2);
+            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2/avgW, errDADv2, corDADv2, dadCor));
             System.out.println();
 
-            IData puAvg = avgPU.getData(avgPU.AVERAGE);
-            IData puErr = avgPU.getData(avgPU.ERROR);
-            IData puCor = avgPU.getData(avgPU.BLOCK_CORRELATION);
-            IData puCov = avgPU.getData(avgPU.COVARIANCE);
-            System.out.println(String.format("U:     % 20.15e   %10.4e   %4.2f", puAvg.getValue(0), puErr.getValue(0), puCor.getValue(0)));
-            double corPU = puCov.getValue(1)/Math.sqrt(puCov.getValue(0)*puCov.getValue(5));
-            System.out.println(String.format("P:     % 20.15e   %10.4e   %4.2f  %6.4f", puAvg.getValue(1), puErr.getValue(1), puCor.getValue(1), corPU));
-            System.out.println();
-            System.out.println(String.format("DADy:  % 20.15e   %10.4e   %4.2f", puAvg.getValue(2), puErr.getValue(2), puCor.getValue(2)));
-            double cor = puCov.getValue(11)/Math.sqrt(puCov.getValue(10)*puCov.getValue(15));
-            System.out.println(String.format("DADv2: % 20.15e   %10.4e   %4.2f  %6.4f", puAvg.getValue(3), puErr.getValue(3), puCor.getValue(3), -cor));
-
+            j+=5;
         }
-        else {
-//            System.out.println(avgLogWidomFast.getCount()+" fast widom samples");
-    
-            IData muFastAvgData = avgLogWidomFast.getAverages();
-            int muLength = muFastAvgData.getLength();
-            double muFastAvg = -temperature*Math.log(muFastAvgData.getValue(muLength-1));
-            IData muFastLogErrData = avgLogWidomFast.getStdevLog();
-            double muFastErr = temperature*muFastLogErrData.getValue(muLength-1);
-            double muCor = avgLogWidomFast.getRawLogDataCorrelation();
-    
-            System.out.println(String.format("chemical potential (fast): %20.15e   %10.4e  %4.2f  (%d samples)", muFastAvg, muFastErr, muCor, avgLogWidomFast.getNumRawData()));
-        }
-/*
-        if (false) {
-        IData muAvgData = avgWidomCorrection.getData(avgWidomCorrection.AVERAGE);
-        IData muErrData = avgWidomCorrection.getData(avgWidomCorrection.ERROR);
-        IData muCorData = avgWidomCorrection.getData(avgWidomCorrection.BLOCK_CORRELATION);
-        IData muRatioData = avgWidomCorrection.getData(avgWidomCorrection.RATIO);
-        IData muRatioErrData = avgWidomCorrection.getData(avgWidomCorrection.RATIO_ERROR);
-        IData muCovData = avgWidomCorrection.getData(avgWidomCorrection.BLOCK_COVARIANCE);
-        
-        double muFullAvg = muAvgData.getValue(3);
-        double muFullErr = muErrData.getValue(3);
-        double muFullCor = muCorData.getValue(3);
 
-        System.out.println(avgWidomCorrection.getBlockCount()+" full widom blocks");
-
-        System.out.println(String.format("chemical potential (full): %20.15e   %10.4e   %4.2f", -Math.log(muFullAvg), muFullErr/muFullAvg, muFullCor));
-
-        double muReweightedAvg = muRatioData.getValue(4*0+2);
-        double muReweightedErr = muRatioErrData.getValue(4*0+2);
-        double muReweightedCor = muCorData.getValue(0);
-        if (muReweightedCor < muCorData.getValue(2)) muReweightedCor = muCorData.getValue(2);
-
-        System.out.println(String.format("chemical potential (reweighted): %20.15e   %10.4e   %4.2f", -Math.log(muReweightedAvg), muReweightedErr/muReweightedAvg, muReweightedCor));
-
-        double muReweighted2Avg = muReweightedAvg / muAvgData.getValue(1) * muFastAvg;
-        double muReweighted2Err = Math.pow(muErrData.getValue(0)/muAvgData.getValue(0), 2) + Math.pow(muErrData.getValue(1)/muAvgData.getValue(1), 2) 
-                                + Math.pow(muErrData.getValue(2)/muAvgData.getValue(2), 2);
-        long blockCount = avgWidomCorrection.getBlockCount();
-        muReweighted2Err += -2*muCovData.getValue(4*0+1)/((blockCount-1)*muAvgData.getValue(0)*muAvgData.getValue(1));
-        muReweighted2Err += -2*muCovData.getValue(4*0+2)/((blockCount-1)*muAvgData.getValue(0)*muAvgData.getValue(2));
-        muReweighted2Err +=  2*muCovData.getValue(4*1+2)/((blockCount-1)*muAvgData.getValue(1)*muAvgData.getValue(2));
-        muReweighted2Err += Math.pow(muFastErr/muFastAvg, 2);
-        muReweighted2Err = muReweighted2Avg * Math.sqrt(muReweighted2Err);
-        double muReweighted2Cor = muReweightedCor;
-        if (muReweightedCor < muCorData.getValue(1)) muReweightedCor = muCorData.getValue(1);
-
-        System.out.println(String.format("chemical potential (reweighted fast): %20.15e   %10.4e   %4.2f", -Math.log(muReweighted2Avg), muReweighted2Err/muReweighted2Avg, muReweighted2Cor));
-        }
-        */
 
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
     }
@@ -912,28 +376,19 @@ public class LjMd3Dv2y {
     public static class DataProcessorReweight extends DataProcessor {
         private final double temperature;
         private final ValueCache energyFastCache;
-        private final ValueCache energyFullCache;
-        private final double uFac;
+        private final double[] uFac;
         protected DataDoubleArray data;
-        protected final double deltaMu, deltaP;
         protected final IBox box;
-        protected final int numMolecules0;
-        protected final double v0;
-        protected final IFunction vBias;
+        protected final int nCutoffs;
 
         public DataProcessorReweight(double temperature,
-                ValueCache energyFastCache, ValueCache energyFullCache,
-                double uFac, double deltaMu, double deltaP, IBox box, IFunction vBias) {
+                ValueCache energyFastCache,
+                double[] uFac, IBox box, int nCutoffs) {
             this.temperature = temperature;
             this.energyFastCache = energyFastCache;
-            this.energyFullCache = energyFullCache;
             this.uFac = uFac;
-            this.deltaMu = deltaMu;
-            this.deltaP = deltaP;
             this.box = box;
-            this.v0 = box.getBoundary().volume();
-            this.numMolecules0 = box.getMoleculeList().getMoleculeCount();
-            this.vBias = vBias;
+            this.nCutoffs = nCutoffs;
         }
 
         public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
@@ -941,30 +396,29 @@ public class LjMd3Dv2y {
         }
 
         protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            dataInfo = new DataInfoDoubleArray("muX", Null.DIMENSION, new int[]{(inputDataInfo.getLength()+1)});
+            dataInfo = new DataInfoDoubleArray("whatever", Null.DIMENSION, new int[]{(inputDataInfo.getLength()+nCutoffs)});
             data = new DataDoubleArray(dataInfo.getLength());
             return dataInfo;
         }
 
         protected IData processData(IData inputData) {
             double uFast = energyFastCache.getValue();
-            double uFull = energyFullCache.getValue();
-            int numMolecules = box.getMoleculeList().getMoleculeCount();
             double[] x = data.getData();
-            double dx = uFull - (uFast+uFac);
-            double fac = 1;
-            if (!Double.isNaN(deltaMu)) {
-                dx -= deltaMu*(numMolecules-numMolecules0);
+            int j = 0;
+            int nData = inputData.getLength()/nCutoffs;
+            int n = box.getMoleculeList().getMoleculeCount();
+            for (int i=0; i<nCutoffs; i++) {
+                double dx = n*inputData.getValue(j) - (uFast+uFac[i]);
+                double w = Math.exp(-dx/temperature);
+                for (int k=0; k<nData; k++) {
+                    x[j+i+k] = inputData.getValue(j+k)*w;
+                    System.out.print(x[j+i+k]+" ");
+                }
+                x[j+i+nData] = w;
+                System.out.print(x[j+i+nData]+" ");
+                j += inputData.getLength()/nCutoffs;
             }
-            else if (!Double.isNaN(deltaP)) {
-                dx += deltaP*(box.getBoundary().volume() - v0);
-                fac = vBias.f(box.getBoundary().volume());
-            }
-            double w = Math.exp(-dx/temperature)/fac;
-            for (int i=0; i<inputData.getLength(); i++) {
-                x[i] = inputData.getValue(i)*w;
-            }
-            x[inputData.getLength()] = w;
+            System.out.println();
             if (data.isNaN()) {
                 throw new RuntimeException("oops");
             }
@@ -982,6 +436,5 @@ public class LjMd3Dv2y {
         public double rcShort = 2.5;
         public boolean graphics = false;
         public int nAccBlocks = 100;
-        public boolean calcMu = false;
     }
 }
