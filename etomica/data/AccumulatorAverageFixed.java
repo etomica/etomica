@@ -5,6 +5,7 @@
 package etomica.data;
 
 import etomica.api.IFunction;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Function;
 
 /**
@@ -57,6 +58,17 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     public boolean getDoStrictBlockData() {
         return doStrictBlockData;
     }
+    
+    public void setBlockDataSink(IDataSink blockDataSink) {
+        this.blockDataSink = blockDataSink;
+        if (dataInfo != null) {
+            blockDataSink.putDataInfo(((DataInfoGroup)dataInfo).getSubDataInfo(MOST_RECENT.index));
+        }
+    }
+    
+    public IDataSink getBlockDataSink() {
+        return blockDataSink;
+    }
 
     /**
      * Returns null (any data is good data)
@@ -81,10 +93,20 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         if (--blockCountDown == 0) {//count down to zero to determine
                                     // completion of block
             doBlockSum();
+            if (blockDataSink != null) {
+                blockDataSink.putData(mostRecentBlock);
+            }
         }
         return true;
     }
     
+    public void putDataInfo(IEtomicaDataInfo inputDataInfo) {
+        super.putDataInfo(inputDataInfo);
+        if (blockDataSink != null) {
+            blockDataSink.putDataInfo(inputDataInfo);
+        }
+    }
+
     /**
      * Performs the block sum after <tt>blockSize</tt> calls to addData.
      */
@@ -229,8 +251,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         return super.processDataInfo(incomingDataInfo);
     }
 
-
-    private static final long serialVersionUID = 1L;
     protected IData sum; //sum(value)
     protected IData sumBlockSquare;//sum(blockAvg^2)
     protected IData currentBlockSum;//block_sum(value)
@@ -239,4 +259,5 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     protected IData work, work2;
     protected final IFunction negativeChop, sanityCheckBC;
     protected boolean doStrictBlockData = false;
+    protected IDataSink blockDataSink;
 }
