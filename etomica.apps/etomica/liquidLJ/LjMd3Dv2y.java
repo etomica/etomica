@@ -5,7 +5,6 @@
 package etomica.liquidLJ;
 
 import java.io.File;
-import java.util.Arrays;
 
 import etomica.action.WriteConfigurationBinary;
 import etomica.api.IAtomType;
@@ -13,7 +12,6 @@ import etomica.api.IBox;
 import etomica.api.IIntegrator;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorRatioAverageCovarianceFull;
 import etomica.data.DataFork;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
@@ -64,9 +62,9 @@ public class LjMd3Dv2y {
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
             params.graphics = false;
-            params.numAtoms = 500;
+            params.numAtoms = 250;
             params.steps = 100000;
-            params.v2 = 0.8;
+            params.v2 = 0.48;
             params.rcShort = 2.5*Math.pow(params.v2, 1.0/6.0);
             params.y = 1.5;
             params.hybridInterval = 100;
@@ -100,8 +98,7 @@ public class LjMd3Dv2y {
 
     	double L = Math.pow(numAtoms/density, 1.0/3.0);
         final LjMd3D sim = new LjMd3D(numAtoms, temperature, density, Double.NaN, tStep, rcShort, 0.494*L, hybridInterval, null);
-        
-    	
+
     	if (Double.parseDouble(String.format("%4.2f", v2)) != v2) {
     	    throw new RuntimeException(String.format("you're just trying to cause trouble, use v2=%4.2f", v2));
     	}
@@ -167,7 +164,7 @@ public class LjMd3Dv2y {
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
-    	
+
         final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList);
         meterEnergyFast.setBox(sim.box);
         long bs = steps/(longInterval*nAccBlocks);
@@ -204,7 +201,7 @@ public class LjMd3Dv2y {
         DataPumpListener pumpPU = new DataPumpListener(meterPU, puFork, longInterval);
         puFork.addDataSink(puReweight);
         sim.integrator.getEventManager().addListener(pumpPU);
-        final AccumulatorRatioAverageCovarianceFull accPU = new AccumulatorRatioAverageCovarianceFull(bs == 0 ? 1 : bs);
+        final AccumulatorAverageCovariance accPU = new AccumulatorAverageCovariance(bs == 0 ? 1 : bs);
         puReweight.setDataSink(accPU);
 
     	if (graphics) {
@@ -218,6 +215,11 @@ public class LjMd3Dv2y {
 
             return;
     	}
+    	
+    	DataProcessorReweightRatio puReweightRatio = new DataProcessorReweightRatio(nCutoffs);
+    	accPU.setBlockDataSink(puReweightRatio);
+    	AccumulatorAverageCovariance accPUBlocks = new AccumulatorAverageCovariance(1, true);
+    	puReweightRatio.setDataSink(accPUBlocks);
 
     	long t1 = System.currentTimeMillis();
         sim.ai.setMaxSteps(steps);
@@ -225,7 +227,7 @@ public class LjMd3Dv2y {
         long t2 = System.currentTimeMillis();
 
         System.out.println();
-        
+
         WriteConfigurationBinary writeConfig = new WriteConfigurationBinary(sim.getSpace());
         writeConfig.setFileName(configFilename+".pos");
         writeConfig.setBox(sim.box);
@@ -236,15 +238,17 @@ public class LjMd3Dv2y {
         System.out.println(String.format("avg steps between nbr update: %3.1f",((double)steps)/numNbrUpdates));
 
         System.out.println();
-        
+
         DataGroup dataPU = (DataGroup)accPU.getData();
         IData avgPU = dataPU.getData(accPU.AVERAGE.index);
         IData errPU = dataPU.getData(accPU.ERROR.index);
-        IData covPU = dataPU.getData(accPU.COVARIANCE.index);
+        IData covPU = dataPU.getData(accPU.BLOCK_COVARIANCE.index);
         IData corPU = dataPU.getData(accPU.BLOCK_CORRELATION.index);
-        int j = 0;
+        
         int n = 5*cutoffs.length;
-        System.out.println(n+" "+n*n+" "+covPU.getLength());
+        int rcStart = params.rcStart;
+
+        int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
 
             P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffs[i]);
@@ -257,68 +261,60 @@ public class LjMd3Dv2y {
             double errW = errPU.getValue(j+4);
             double corW = corPU.getValue(j+4);
 
-            System.out.println("w "+avgW+" "+errW);
-            System.out.println(String.format("rc: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %5.3f", i, (ulrc + uFacCut[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
-            
-            double avgW2 = avgW*avgW;
-            double errW2 = errW*errW;
+            System.out.println(String.format("rc: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %5.3f", rcStart+i, (ulrc + uFacCut[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
+
+            j+=5;
+        }
+
+        System.out.println();
+        
+        dataPU = (DataGroup)accPUBlocks.getData();
+        avgPU = dataPU.getData(accPU.AVERAGE.index);
+        errPU = dataPU.getData(accPU.ERROR.index);
+        covPU = dataPU.getData(accPU.BLOCK_COVARIANCE.index);
+        corPU = dataPU.getData(accPU.BLOCK_CORRELATION.index);
+        
+        n = 4*cutoffs.length;
+
+        j = 0;
+        for (int i=0; i<cutoffs.length; i++) {
+
+            P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffs[i]);
+            p2t.setBox(sim.box);
+            Potential0Lrc p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+            p0lrc.setBox(sim.box);
+            double ulrc = p0lrc.energy(null);
 
             ulrc /= numAtoms;
             double avgU = avgPU.getValue(j+0);
             double errU = errPU.getValue(j+0);
-            double uwCor = covPU.getValue((j+0)*n+j+4) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+4)*n+j+4));
-            System.out.println(avgU+" "+errU+"    "+uwCor);
-            errU = Math.sqrt((avgU*avgU/avgW2)*(errU*errU/(avgU*avgU) + errW2/avgW2 - 2*uwCor*errU*errW/(avgU*avgW)));
-            avgU /= avgW;
             double corU = corPU.getValue(j+0);
-            if (corW>corU) corU = corW;
-            System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 5.2f", i, ulrc + avgU, errU, corU));
+            System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 5.2f", rcStart+i, ulrc + avgU, errU, corU));
 
             double avgP = avgPU.getValue(j+1);
             double errP = errPU.getValue(j+1);
-            double pwCor = covPU.getValue((j+1)*n+j+4) / Math.sqrt(covPU.getValue((j+1)*n+j+1) * covPU.getValue((j+4)*n+j+4));
-            System.out.println(avgP+" "+errP+"    "+pwCor);
-            errP = Math.sqrt((avgP*avgP/avgW2)*(errP*errP/(avgP*avgP) + errW2/avgW2 - 2*pwCor*errP*errW/(avgP*avgW)));
-            avgP /= avgW;
             double corP = corPU.getValue(j+1);
-            if (corW>corP) corP = corW;
             double vol = sim.box.getBoundary().volume();
             double plrc = -p0lrc.virial(null)/(3*vol);
             double puCor = covPU.getValue((j+0)*n+j+1) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+1)*n+j+1));
-            System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, corP, puCor));
+            System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", rcStart+i, plrc + avgP, errP, corP, puCor));
 
             double avgDADy = avgPU.getValue(j+2);
             double errDADy = errPU.getValue(j+2);
-            double ywCor = covPU.getValue((j+2)*n+j+4) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+4)*n+j+4));
-            System.out.println(avgDADy+" "+errDADy+"    "+ywCor);
-            errDADy = Math.sqrt((avgDADy*avgDADy/avgW2)*(errDADy*errDADy/(avgDADy*avgDADy) + errW2/avgW2 - 2*ywCor*errDADy*errW/(avgDADy*avgW)));
-            if (Double.isNaN(errDADy)) {
-                throw new RuntimeException("oops");
-            }
             double corDADy = corPU.getValue(j+2);
-            if (corW>corDADy) corDADy = corW;
-            double varDADy = (avgDADy*avgDADy/avgW2)*(covPU.getValue((j+2)*n+j+2)/(avgDADy*avgDADy) + covPU.getValue((j+4)*n+j+4)/avgW2 - 2*covPU.getValue((j+2)*n+j+4)/(avgDADy*avgW));
-            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy/avgW, errDADy, corDADy));
+            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 5.2f", rcStart+i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, corDADy));
 
             double avgDADv2 = avgPU.getValue(j+3);
             double errDADv2 = errPU.getValue(j+3);
-            double v2wCor = covPU.getValue((j+3)*n+j+4) / Math.sqrt(covPU.getValue((j+3)*n+j+3) * covPU.getValue((j+4)*n+j+4));
-            System.out.println(avgDADv2+" "+errDADv2+"    "+v2wCor);
-            errDADv2 = Math.sqrt((avgDADv2*avgDADv2/avgW2)*(errDADv2*errDADv2/(avgDADv2*avgDADv2) + errW2/avgW2 - 2*v2wCor*errDADv2*errW/(avgDADv2*avgW)));
-            if (Double.isNaN(errDADv2)) {
-                throw new RuntimeException("oops");
-            }
             double corDADv2 = corPU.getValue(j+3);
             
             // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
             double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/4;
-            double varDADv2 = (avgDADv2*avgDADv2/avgW2)*(covPU.getValue((j+3)*n+j+3)/(avgDADv2*avgDADv2) + covPU.getValue((j+4)*n+j+4)/avgW2 - 2*covPU.getValue((j+3)*n+j+4)/(avgDADv2*avgW));
-            double dadCor = (covPU.getValue((j+2)*n+j+3) - avgDADv2/avgW * covPU.getValue((j+2)*n+j+4) - avgDADy/avgW * covPU.getValue((j+3)*n+j+4))/avgW2;
-            dadCor /= Math.sqrt(varDADy*varDADv2);
-            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2/avgW, errDADv2, corDADv2, dadCor));
+            double dadCor = covPU.getValue((j+2)*n+j+3) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+3)*n+j+3));
+            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", rcStart+i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
             System.out.println();
 
-            j+=5;
+            j+=4;
         }
 
 
@@ -373,6 +369,45 @@ public class LjMd3Dv2y {
         }
     }
     
+
+    public static class DataProcessorReweightRatio extends DataProcessor {
+
+        protected DataDoubleArray data;
+        protected int nCutoffs;
+        
+        public DataProcessorReweightRatio(int nCutoffs) {
+            this.nCutoffs = nCutoffs;
+        }
+
+        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+            return null;
+        }
+
+        protected IData processData(IData inputData) {
+            double[] x = data.getData();
+            int j = 0;
+            int nData = inputData.getLength()/nCutoffs-1;
+            for (int i=0; i<nCutoffs; i++) {
+                double w = inputData.getValue(j+i+nData);
+                for (int k=0; k<nData; k++) {
+                    x[j+k] = inputData.getValue(j+i+k)/w;
+                }
+                j += nData;
+            }
+            if (data.isNaN()) {
+                throw new RuntimeException("oops");
+            }
+            return data;
+        }
+
+        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+            int nData = inputDataInfo.getLength()/nCutoffs-1;
+            dataInfo = new DataInfoDoubleArray("whatever", Null.DIMENSION, new int[]{nData*nCutoffs});
+            data = new DataDoubleArray(dataInfo.getLength());
+            return dataInfo;
+        }
+    }
+
     public static class DataProcessorReweight extends DataProcessor {
         private final double temperature;
         private final ValueCache energyFastCache;
@@ -412,13 +447,10 @@ public class LjMd3Dv2y {
                 double w = Math.exp(-dx/temperature);
                 for (int k=0; k<nData; k++) {
                     x[j+i+k] = inputData.getValue(j+k)*w;
-                    System.out.print(x[j+i+k]+" ");
                 }
                 x[j+i+nData] = w;
-                System.out.print(x[j+i+nData]+" ");
                 j += inputData.getLength()/nCutoffs;
             }
-            System.out.println();
             if (data.isNaN()) {
                 throw new RuntimeException("oops");
             }
@@ -434,6 +466,7 @@ public class LjMd3Dv2y {
         public long steps = 40000;
         public int hybridInterval = 20;
         public double rcShort = 2.5;
+        public int rcStart = 0;
         public boolean graphics = false;
         public int nAccBlocks = 100;
     }
