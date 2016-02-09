@@ -269,10 +269,10 @@ public class LjMd3Dv2y {
         System.out.println();
         
         dataPU = (DataGroup)accPUBlocks.getData();
-        avgPU = dataPU.getData(accPU.AVERAGE.index);
-        errPU = dataPU.getData(accPU.ERROR.index);
-        covPU = dataPU.getData(accPU.BLOCK_COVARIANCE.index);
-        corPU = dataPU.getData(accPU.BLOCK_CORRELATION.index);
+        avgPU = dataPU.getData(accPUBlocks.AVERAGE.index);
+        errPU = dataPU.getData(accPUBlocks.ERROR.index);
+        covPU = dataPU.getData(accPUBlocks.BLOCK_COVARIANCE.index);
+        corPU = dataPU.getData(accPUBlocks.BLOCK_CORRELATION.index);
         
         n = 4*cutoffs.length;
 
@@ -309,7 +309,7 @@ public class LjMd3Dv2y {
             double corDADv2 = corPU.getValue(j+3);
             
             // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
-            double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/4;
+            double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
             double dadCor = covPU.getValue((j+2)*n+j+3) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+3)*n+j+3));
             System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", rcStart+i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
             System.out.println();
