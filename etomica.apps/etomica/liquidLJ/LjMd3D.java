@@ -91,7 +91,6 @@ public class LjMd3D extends Simulation {
         double nbrRange = rcShort*1.6;
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
-        double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMasterList, space);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
@@ -118,7 +117,7 @@ public class LjMd3D extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        potential = new P2LennardJones(space, sigma, 1.0);
+        potential = new P2LennardJones(space, 1.0, 1.0);
         IAtomType leafType = species.getLeafType();
         P2SoftSphericalTruncatedForceShifted potentialTruncatedForceShifted = new P2SoftSphericalTruncatedForceShifted(space, potential, rcShort);
 
@@ -165,7 +164,8 @@ public class LjMd3D extends Simulation {
 
     public static void main(String[] args) {
 
-        // according to http://link.aip.org/link/doi/10.1063/1.2753149
+        // according to Mastny & de Pablo,
+        // http://link.aip.org/link/doi/10.1063/1.2753149
         // triple point
         // T = 0.694
         // liquid density = 0.845435
