@@ -253,7 +253,7 @@ public class LjMd3Dv2y {
     	AccumulatorAverageCovariance accPUBlocks = new AccumulatorAverageCovariance(1, true);
     	puReweightRatio.setDataSink(accPUBlocks);
 
-        DataProcessorReweightRatio puLSReweightRatio = new DataProcessorReweightRatio(nCutoffsLS);
+        DataProcessorReweightRatio puLSReweightRatio = new DataProcessorReweightRatio(nCutoffsLS, nCutoffs-1);
         accPULS.setBlockDataSink(puLSReweightRatio);
         AccumulatorAverageCovariance accPULSBlocks = new AccumulatorAverageCovariance(1, true);
         puLSReweightRatio.setDataSink(accPULSBlocks);
@@ -282,9 +282,6 @@ public class LjMd3Dv2y {
         IData covPU = dataPU.getData(accPU.BLOCK_COVARIANCE.index);
         IData corPU = dataPU.getData(accPU.BLOCK_CORRELATION.index);
         
-        int n = 5*cutoffs.length;
-        int rcStart = params.rcStart;
-
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
 
@@ -298,7 +295,7 @@ public class LjMd3Dv2y {
             double errW = errPU.getValue(j+4);
             double corW = corPU.getValue(j+4);
 
-            System.out.println(String.format("rc: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %5.3f", rcStart+i, (ulrc + uFacCut[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
+            System.out.println(String.format("rc: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %5.3f", i, (ulrc + uFacCut[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
 
             j+=5;
         }
@@ -311,7 +308,7 @@ public class LjMd3Dv2y {
         covPU = dataPU.getData(accPUBlocks.BLOCK_COVARIANCE.index);
         corPU = dataPU.getData(accPUBlocks.BLOCK_CORRELATION.index);
         
-        n = 4*cutoffs.length;
+        int n = 4*cutoffs.length;
 
         j = 0;
         for (int i=0; i<cutoffs.length; i++) {
@@ -326,7 +323,7 @@ public class LjMd3Dv2y {
             double avgU = avgPU.getValue(j+0);
             double errU = errPU.getValue(j+0);
             double corU = corPU.getValue(j+0);
-            System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 5.2f", rcStart+i, ulrc + avgU, errU, corU));
+            System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 5.2f", i, ulrc + avgU, errU, corU));
 
             double avgP = avgPU.getValue(j+1);
             double errP = errPU.getValue(j+1);
@@ -334,12 +331,12 @@ public class LjMd3Dv2y {
             double vol = sim.box.getBoundary().volume();
             double plrc = -p0lrc.virial(null)/(3*vol);
             double puCor = covPU.getValue((j+0)*n+j+1) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+1)*n+j+1));
-            System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", rcStart+i, plrc + avgP, errP, corP, puCor));
+            System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, corP, puCor));
 
             double avgDADy = avgPU.getValue(j+2);
             double errDADy = errPU.getValue(j+2);
             double corDADy = corPU.getValue(j+2);
-            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 5.2f", rcStart+i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, corDADy));
+            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, corDADy));
 
             double avgDADv2 = avgPU.getValue(j+3);
             double errDADv2 = errPU.getValue(j+3);
@@ -348,7 +345,7 @@ public class LjMd3Dv2y {
             // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
             double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
             double dadCor = covPU.getValue((j+2)*n+j+3) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+3)*n+j+3));
-            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", rcStart+i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
+            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
             System.out.println();
 
             j+=4;
@@ -364,31 +361,31 @@ public class LjMd3Dv2y {
         covPU = dataPU.getData(accPULS.BLOCK_COVARIANCE.index);
         corPU = dataPU.getData(accPULS.BLOCK_CORRELATION.index);
         
-        n = 5*cutoffsLS.length;
-
-        j = (cutoffs.length-1)*5;
-        for (int i=cutoffs.length-1; i<cutoffsLS.length; i++) {
-            if (i<cutoffs.length-1) {
+        if (false) {
+            j = 0; //(cutoffs.length-1)*5;
+            for (int i=0*(cutoffs.length-1); i<cutoffsLS.length; i++) {
+                if (i<cutoffs.length-1) {
+                    j+=5;
+                    continue;
+                }
+    
+                P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
+                p2t.setBox(sim.box);
+                Potential0Lrc p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+                p0lrc.setBox(sim.box);
+                double ulrc = p0lrc.energy(null);
+    
+                double avgW = avgPU.getValue(j+4);
+                double errW = errPU.getValue(j+4);
+                double corW = corPU.getValue(j+4);
+    
+                System.out.println(String.format("rcLS: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %5.3f", i, puSelfLRC[0][i] + (ulrc + uFacCutLS[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
+    
                 j+=5;
-                continue;
             }
-
-            P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
-            p2t.setBox(sim.box);
-            Potential0Lrc p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-            p0lrc.setBox(sim.box);
-            double ulrc = p0lrc.energy(null);
-
-            double avgW = avgPU.getValue(j+4);
-            double errW = errPU.getValue(j+4);
-            double corW = corPU.getValue(j+4);
-
-            System.out.println(String.format("rcLS: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %5.3f", rcStart+i, puSelfLRC[0][i] + (ulrc + uFacCutLS[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
-
-            j+=5;
+    
+            System.out.println();
         }
-
-        System.out.println();
         
         dataPU = (DataGroup)accPULSBlocks.getData();
         avgPU = dataPU.getData(accPULSBlocks.AVERAGE.index);
@@ -398,8 +395,10 @@ public class LjMd3Dv2y {
         
         n = 4*cutoffsLS.length;
 
-        j = (cutoffs.length-1)*4;
-        for (int i=cutoffs.length-1; i<cutoffsLS.length; i++) {
+        j =  0;
+        double ulrcRef = 0;
+        double plrcRef = 0;
+        for (int i=0; i<cutoffsLS.length; i++) {
 
             P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
             p2t.setBox(sim.box);
@@ -407,24 +406,28 @@ public class LjMd3Dv2y {
             p0lrc.setBox(sim.box);
             double ulrc = p0lrc.energy(null) / numAtoms;
             ulrc += puSelfLRC[0][i];
+            if (i==cutoffs.length-1) ulrcRef = ulrc;
+            else ulrc -= ulrcRef;
 
             double avgU = avgPU.getValue(j+0);
             double errU = errPU.getValue(j+0);
             double corU = corPU.getValue(j+0);
-            System.out.println(String.format("rcLS: %d  U:       % 22.15e  %10.4e  % 5.2f", rcStart+i, ulrc + avgU, errU, corU));
+            if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  U:       % 22.15e  %10.4e  % 5.2f", i, ulrc + avgU, errU, corU));
 
             double avgP = avgPU.getValue(j+1);
             double errP = errPU.getValue(j+1);
             double corP = corPU.getValue(j+1);
             double vol = sim.box.getBoundary().volume();
             double plrc = -(p0lrc.virial(null) + numAtoms*puSelfLRC[1][i])/(3*vol);
+            if (i==cutoffs.length-1) plrcRef = plrc;
+            else plrc -= plrcRef;
             double puCor = covPU.getValue((j+0)*n+j+1) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+1)*n+j+1));
-            System.out.println(String.format("rcLS: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", rcStart+i, plrc + avgP, errP, corP, puCor));
+            if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, corP, puCor));
 
             double avgDADy = avgPU.getValue(j+2);
             double errDADy = errPU.getValue(j+2);
             double corDADy = corPU.getValue(j+2);
-            System.out.println(String.format("rcLS: %d  DADy:    % 22.15e  %10.4e  % 5.2f", rcStart+i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, corDADy));
+            if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  DADy:    % 22.15e  %10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, corDADy));
 
             double avgDADv2 = avgPU.getValue(j+3);
             double errDADv2 = errPU.getValue(j+3);
@@ -433,8 +436,8 @@ public class LjMd3Dv2y {
             // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
             double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
             double dadCor = covPU.getValue((j+2)*n+j+3) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+3)*n+j+3));
-            System.out.println(String.format("rcLS: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", rcStart+i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
-            System.out.println();
+            if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
+            if (i>cutoffs.length-1) System.out.println();
 
             j+=4;
         }
@@ -495,10 +498,16 @@ public class LjMd3Dv2y {
     public static class DataProcessorReweightRatio extends DataProcessor {
 
         protected DataDoubleArray data;
-        protected int nCutoffs;
+        protected final int nCutoffs;
+        protected final int ref;
         
         public DataProcessorReweightRatio(int nCutoffs) {
+            this(nCutoffs, -1);
+        }
+        
+        public DataProcessorReweightRatio(int nCutoffs, int ref) {
             this.nCutoffs = nCutoffs;
+            this.ref = ref;
         }
 
         public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
@@ -515,6 +524,17 @@ public class LjMd3Dv2y {
                     x[j+k] = inputData.getValue(j+i+k)/w;
                 }
                 j += nData;
+            }
+            if (ref>=0) {
+                j=0;
+                for (int i=0; i<nCutoffs; i++) {
+                    if (i!=ref) {
+                        for (int k=0; k<nData; k++) {
+                            x[j+k] -= x[ref*nData+k];
+                        }
+                    }
+                    j += nData;
+               }
             }
             if (data.isNaN()) {
                 throw new RuntimeException("oops");
@@ -588,7 +608,6 @@ public class LjMd3Dv2y {
         public long steps = 40000;
         public int hybridInterval = 20;
         public double rcShort = 2.5;
-        public int rcStart = 0;
         public boolean graphics = false;
         public int nAccBlocks = 100;
     }
