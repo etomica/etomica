@@ -43,7 +43,7 @@ public class MeterPUCut implements IEtomicaDataSource {
         dataInfo.addTag(tag);
     	dim = space.D();
         iteratorDirective = new IteratorDirective();
-        iteratorDirective.includeLrc = true;
+        iteratorDirective.includeLrc = false;
         pc = new PotentialCalculationSumCutoff(space, cutoffs);
     }
 
@@ -61,26 +61,10 @@ public class MeterPUCut implements IEtomicaDataSource {
     }
 
     /**
-     * Sets flag indicating whether calculated energy should include
-     * long-range correction for potential truncation (true) or not (false).
+     * Computes total pressure in box by summing virial over all pairs, and adding
+     * ideal-gas contribution.
      */
-    public void setIncludeLrc(boolean b) {
-    	iteratorDirective.includeLrc = b;
-    }
-    
-    /**
-     * Indicates whether calculated energy should include
-     * long-range correction for potential truncation (true) or not (false).
-     */
-    public boolean isIncludeLrc() {
-    	return iteratorDirective.includeLrc;
-    }
-
-	 /**
-	  * Computes total pressure in box by summing virial over all pairs, and adding
-	  * ideal-gas contribution.
-	  */
-   public IData getData() {
+    public IData getData() {
         if (potentialMaster == null || box == null) {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
