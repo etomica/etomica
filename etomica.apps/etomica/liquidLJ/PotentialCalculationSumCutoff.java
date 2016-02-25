@@ -43,6 +43,7 @@ public class PotentialCalculationSumCutoff implements PotentialCalculation {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
+        if (r2 > r2Cuts[r2Cuts.length-1]) return;
         double u = ((Potential2SoftSpherical)potential).u(r2);
         double v = ((Potential2SoftSpherical)potential).du(r2);
         for (int i=uSums.length-1; i>=0; i--) {
