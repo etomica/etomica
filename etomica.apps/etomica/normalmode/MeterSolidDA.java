@@ -36,8 +36,8 @@ public class MeterSolidDA implements IEtomicaDataSource {
     	this.potentialMaster = potentialMaster;
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = false;
-        pressureSum = new PotentialCalculationSolidPressureSumSuper(space, coordinateDefinition);
-        pressureSum.setDoSecondDerivative(doD2);
+        pc = new PotentialCalculationSolidSuper(space, coordinateDefinition);
+        pc.setDoSecondDerivative(doD2);
         dim = space.D();
         box = coordinateDefinition.getBox();
         PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();
@@ -80,23 +80,23 @@ public class MeterSolidDA implements IEtomicaDataSource {
      * ideal-gas contribution.
      */
     public IData getData() {
-    	pressureSum.zeroSum();
-        potentialMaster.calculate(box, iteratorDirective, pressureSum);
-        double p1 = pressureSum.getPressure1();
+    	pc.zeroSum();
+        potentialMaster.calculate(box, iteratorDirective, pc);
+        double p1 = pc.getPressure1();
         double[] x = data.getData();
         double V = box.getBoundary().volume();
         double rho = box.getMoleculeList().getMoleculeCount()/V;
-        double measuredP = temperature*rho - pressureSum.getVirialSum()/(dim*V);
+        double measuredP = temperature*rho - pc.getVirialSum()/(dim*V);
         int N = box.getMoleculeList().getMoleculeCount();
-        x[0] = pressureSum.getEnergySum()/N;
+        x[0] = pc.getEnergySum()/N;
         x[1] = measuredP;
-        double buc = (0.5*pressureSum.getDADBSum() + (pressureSum.getEnergySum() - latticeEnergy))/temperature/N;
+        double buc = (0.5*pc.getDADBSum() + (pc.getEnergySum() - latticeEnergy))/temperature/N;
         x[2] = buc;
         double vol = box.getBoundary().volume();
         double fac2 = (-1/vol + pRes/temperature)/(dim*N-dim);
         // P = Plat + Pres + x[5]
         double density = N / vol;
-        double Zc = (p1 + fac2*pressureSum.getDADBSum() - latticePressure)/(density*temperature);
+        double Zc = (p1 + fac2*pc.getDADBSum() - latticePressure)/(density*temperature);
         x[3] = Zc;
         // Pc = x[5]
         // Zc = x[5] / (rho*T)
@@ -112,7 +112,7 @@ public class MeterSolidDA implements IEtomicaDataSource {
     protected DataDoubleArray data;
     protected final IPotentialMaster potentialMaster;
     private IteratorDirective iteratorDirective;
-    private final PotentialCalculationSolidPressureSumSuper pressureSum;
+    private final PotentialCalculationSolidSuper pc;
     protected double temperature;
     protected double latticeEnergy, latticePressure;
     protected final IBox box;
