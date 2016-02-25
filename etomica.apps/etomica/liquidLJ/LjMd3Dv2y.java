@@ -8,29 +8,18 @@ import java.io.File;
 
 import etomica.action.WriteConfigurationBinary;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IIntegrator;
 import etomica.atom.AtomPair;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.DataFork;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
 import etomica.data.DataPumpListener;
-import etomica.data.DataSourceScalar;
 import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.space3d.Space3D;
-import etomica.units.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -212,9 +201,7 @@ public class LjMd3Dv2y {
         bs = steps/(longInterval*nAccBlocks);
 
         DataProcessorReweight puReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCut, sim.box, nCutoffs);
-        DataFork puFork = new DataFork();
-        DataPumpListener pumpPU = new DataPumpListener(meterPU, puFork, longInterval);
-        puFork.addDataSink(puReweight);
+        DataPumpListener pumpPU = new DataPumpListener(meterPU, puReweight, longInterval);
         sim.integrator.getEventManager().addListener(pumpPU);
         final AccumulatorAverageCovariance accPU = new AccumulatorAverageCovariance(bs == 0 ? 1 : bs);
         puReweight.setDataSink(accPU);
@@ -254,9 +241,7 @@ public class LjMd3Dv2y {
                 uFacCutLS[i] = uFacCutLS[i-1];
             }
             DataProcessorReweight puLSReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCutLS, sim.box, nCutoffsLS);
-            DataFork puLSFork = new DataFork();
-            DataPumpListener pumpPULS = new DataPumpListener(meterPULS, puLSFork, intervalLS);
-            puLSFork.addDataSink(puLSReweight);
+            DataPumpListener pumpPULS = new DataPumpListener(meterPULS, puLSReweight, intervalLS);
             sim.integrator.getEventManager().addListener(pumpPULS);
             bs = steps/(intervalLS*nAccBlocks);
             final AccumulatorAverageCovariance accPULS = new AccumulatorAverageCovariance(bs == 0 ? 1 : bs);
@@ -423,160 +408,6 @@ public class LjMd3Dv2y {
         }
 
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
-    }
-    
-    public static class DataProcessorCorrection extends DataProcessor {
-        protected DataDoubleArray data;
-        protected final int nMu;
-        
-        public DataProcessorCorrection(int nMu) {
-            this.nMu = nMu;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {return null;}
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            dataInfo = new DataInfoDoubleArray("foo", Null.DIMENSION, new int[]{((DataInfoGroup)inputDataInfo).getSubDataInfo(AccumulatorAverageCovariance.AVERAGE.index).getLength()-nMu});
-            data = new DataDoubleArray(dataInfo.getLength());
-            return dataInfo;
-        }
-
-        protected IData processData(IData inputData) {
-            IData avg = ((DataGroup)inputData).getData(AccumulatorAverageCovariance.AVERAGE.index);
-            double[] x = data.getData();
-            int nValues = avg.getLength()/nMu;
-            for (int i=0; i<nMu; i++) {
-                double wAvg = avg.getValue((i+1)*nValues-1);
-                for (int j=0; j<nValues-1; j++) {
-                    x[j+i*(nValues-1)] = avg.getValue(j+i*nValues)/wAvg;
-                }
-            }
-            return data;
-        }
-    }
-
-    public static class ValueCache {
-        protected long lastStep = -1;
-        protected double lastValue;
-        protected final DataSourceScalar dss;
-        protected final IIntegrator integrator;
-        public ValueCache(DataSourceScalar dss, IIntegrator integrator) {
-            this.dss = dss;
-            this.integrator = integrator;
-        }
-        public double getValue() {
-            if (integrator.getStepCount() != lastStep) {
-                lastStep = integrator.getStepCount();
-                lastValue = dss.getDataAsScalar();
-            }
-            return lastValue;
-        }
-    }
-    
-
-    public static class DataProcessorReweightRatio extends DataProcessor {
-
-        protected DataDoubleArray data;
-        protected final int nCutoffs;
-        protected final int ref;
-        
-        public DataProcessorReweightRatio(int nCutoffs) {
-            this(nCutoffs, -1);
-        }
-        
-        public DataProcessorReweightRatio(int nCutoffs, int ref) {
-            this.nCutoffs = nCutoffs;
-            this.ref = ref;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            return null;
-        }
-
-        protected IData processData(IData inputData) {
-            double[] x = data.getData();
-            int j = 0;
-            int nData = inputData.getLength()/nCutoffs-1;
-            for (int i=0; i<nCutoffs; i++) {
-                double w = inputData.getValue(j+i+nData);
-                for (int k=0; k<nData; k++) {
-                    x[j+k] = inputData.getValue(j+i+k)/w;
-                }
-                j += nData;
-            }
-            if (ref>=0) {
-                j=0;
-                for (int i=0; i<nCutoffs; i++) {
-                    if (i!=ref) {
-                        for (int k=0; k<nData; k++) {
-                            x[j+k] -= x[ref*nData+k];
-                        }
-                    }
-                    j += nData;
-               }
-            }
-            if (data.isNaN()) {
-                throw new RuntimeException("oops");
-            }
-            return data;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            int nData = inputDataInfo.getLength()/nCutoffs-1;
-            dataInfo = new DataInfoDoubleArray("whatever", Null.DIMENSION, new int[]{nData*nCutoffs});
-            data = new DataDoubleArray(dataInfo.getLength());
-            return dataInfo;
-        }
-    }
-
-    public static class DataProcessorReweight extends DataProcessor {
-        private final double temperature;
-        private final ValueCache energyFastCache;
-        private final double[] uFac;
-        protected DataDoubleArray data;
-        protected final IBox box;
-        protected final int nCutoffs;
-
-        public DataProcessorReweight(double temperature,
-                ValueCache energyFastCache,
-                double[] uFac, IBox box, int nCutoffs) {
-            this.temperature = temperature;
-            this.energyFastCache = energyFastCache;
-            this.uFac = uFac;
-            this.box = box;
-            this.nCutoffs = nCutoffs;
-        }
-
-        public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
-            return null;
-        }
-
-        protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
-            dataInfo = new DataInfoDoubleArray("whatever", Null.DIMENSION, new int[]{(inputDataInfo.getLength()+nCutoffs)});
-            data = new DataDoubleArray(dataInfo.getLength());
-            return dataInfo;
-        }
-
-        protected IData processData(IData inputData) {
-            double uFast = energyFastCache.getValue();
-            double[] x = data.getData();
-            int j = 0;
-            int nData = inputData.getLength()/nCutoffs;
-            int n = box.getMoleculeList().getMoleculeCount();
-            for (int i=0; i<nCutoffs; i++) {
-                double dx = n*inputData.getValue(j) - (uFast+uFac[i]);
-                double w = Math.exp(-dx/temperature);
-                for (int k=0; k<nData; k++) {
-                    x[j+i+k] = inputData.getValue(j+k)*w;
-                }
-                x[j+i+nData] = w;
-                j += inputData.getLength()/nCutoffs;
-            }
-            if (data.isNaN()) {
-                throw new RuntimeException("oops");
-            }
-            return data;
-        }
     }
 
     public static class LjMd3DParams extends ParameterBase {
