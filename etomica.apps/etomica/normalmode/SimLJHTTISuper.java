@@ -200,8 +200,8 @@ public class SimLJHTTISuper extends Simulation {
         double L1 = Math.pow(numAtoms, 1.0/3.0);
         double rc1 = rc*Math.pow(density, 1.0/3.0);
         double rcMax1 = 0.494*L1;
-        double fac = 1;
-        int nCutoffs = 1 + (int)((rcMax1-rc1)/fac);
+        double delta = 1.5;
+        int nCutoffs = 1 + (int)((rcMax1-rc1)/delta);
         if (nCutoffs > bpharm.length) {
             throw new RuntimeException("need more beta P harmonic");
         }
@@ -209,7 +209,7 @@ public class SimLJHTTISuper extends Simulation {
         double[] cutoffs = new double[nCutoffs];
         cutoffs[0] = rc1;
         for (int i=1; i<nCutoffs; i++) {
-            cutoffs[i] = cutoffs[i-1] + fac;
+            cutoffs[i] = cutoffs[i-1] + delta;
         }
         for (int i=0; i<nCutoffs; i++) {
             cutoffs[i] *= Math.pow(density, -1.0/3.0);
@@ -305,7 +305,7 @@ public class SimLJHTTISuper extends Simulation {
             double avgW = avgRawData.getValue(j+5);
             double errW = errRawData.getValue(j+5);
             double corW = corRawData.getValue(j+5);
-            System.out.println(String.format("rc: %2d dbA:   % 21.15e  %10.4e  % 5.3f  %6.4f", i, -Math.log(avgW)/numAtoms, errW/avgW/numAtoms, corW, errW/avgW));
+            System.out.println(String.format("rc: %2d dbA:   % 21.15e  %10.4e  % 5.3f  % 6.4f", i, -Math.log(avgW)/numAtoms, errW/avgW/numAtoms, corW, errW/avgW));
             j += 6;
         }
         System.out.println("\n");
