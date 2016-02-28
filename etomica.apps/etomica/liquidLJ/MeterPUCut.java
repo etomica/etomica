@@ -30,8 +30,8 @@ public class MeterPUCut implements IEtomicaDataSource {
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected IteratorDirective iteratorDirective;
-    protected final PotentialCalculationSumCutoff pc;
-    protected IPotentialMaster potentialMaster;
+    protected final PotentialCalculationSumCutoff pc, pcDADv2;
+    protected IPotentialMaster potentialMaster, potentialMasterDADv2;
     protected double temperature;
     protected IBox box;
     private final int dim;
@@ -45,12 +45,17 @@ public class MeterPUCut implements IEtomicaDataSource {
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = false;
         pc = new PotentialCalculationSumCutoff(space, cutoffs);
+        pcDADv2 = new PotentialCalculationSumCutoff(space, cutoffs);
     }
 
     public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
     
+    public void setPotentialMasterDADv2(IPotentialMaster newPotentialMasterDADv2) {
+        this.potentialMasterDADv2 = newPotentialMasterDADv2;
+    }
+
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
     }
@@ -58,6 +63,7 @@ public class MeterPUCut implements IEtomicaDataSource {
     public void setBox(IBox newBox) {
         box = newBox;
         pc.setBox(box);
+        pcDADv2.setBox(box);
     }
 
     /**
@@ -72,13 +78,23 @@ public class MeterPUCut implements IEtomicaDataSource {
         potentialMaster.calculate(box, iteratorDirective, pc);
         double[] uSum = pc.getUSums();
         double[] vSum = pc.getVSums();
+
+        double[] uSumDADv2 = uSum;
+        double[] vSumDADv2 = vSum;
+        if (potentialMasterDADv2 != null) {
+            pcDADv2.zeroSums();
+            potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
+            uSumDADv2 = pcDADv2.getUSums();
+            vSumDADv2 = pcDADv2.getVSums();
+        }
+
         double[] x = data.getData();
         int j = 0;
         for (int i=0; i<uSum.length; i++) {
             double vol = box.getBoundary().volume();
             int N = box.getMoleculeList().getMoleculeCount();
             double density = N / vol;
-            
+
             double P = density*temperature - vSum[i]/(vol*dim);
             double U = uSum[i]/N;
             x[j+0] = U;
@@ -88,7 +104,10 @@ public class MeterPUCut implements IEtomicaDataSource {
             // (Z - 4u/T)/density  --  for SS, Z-1 = 4u/T
             // dbA/dv2 at constant Y
             // dbA/dv2 = dbA/rho * (-rho^3/2)
-            x[j+3] = -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
+
+            U = uSumDADv2[i]/N;
+            double Pex = -vSumDADv2[i]/(vol*dim);
+            x[j+3] = -(Pex/(temperature*density) - 4 * U / (temperature))*density*density/2;
             
             j+=4;
         }

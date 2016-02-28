@@ -30,12 +30,12 @@ public class MeterPUCutLS implements IEtomicaDataSource {
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected IteratorDirective iteratorDirective;
-    protected final PotentialCalculationSumCutoffLS pc;
-    protected IPotentialMaster potentialMaster;
+    protected final PotentialCalculationSumCutoffLS pc, pcDADv2;
+    protected IPotentialMaster potentialMaster, potentialMasterDADv2;
     protected double temperature;
     protected IBox box;
     private final int dim;
-    
+
     public MeterPUCutLS(ISpace space, int nCut) {
         data = new DataDoubleArray(new int[]{nCut,4});
         dataInfo = new DataInfoDoubleArray("PU", Null.DIMENSION, new int[]{nCut,4});
@@ -45,12 +45,17 @@ public class MeterPUCutLS implements IEtomicaDataSource {
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = false;
         pc = new PotentialCalculationSumCutoffLS(space);
+        pcDADv2 = new PotentialCalculationSumCutoffLS(space);
     }
 
     public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }
-    
+
+    public void setPotentialMasterDADv2(IPotentialMaster newPotentialMasterDADv2) {
+        this.potentialMasterDADv2 = newPotentialMasterDADv2;
+    }
+
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
     }
@@ -66,6 +71,14 @@ public class MeterPUCutLS implements IEtomicaDataSource {
         pc.zeroSums();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double[][] uvSums = pc.getSums();
+        double[][] uvSumsDADv2 = uvSums;
+
+        if (potentialMasterDADv2 != null) {
+            pcDADv2.zeroSums();
+            potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
+            uvSumsDADv2 = pcDADv2.getSums();
+        }
+
         double[] x = data.getData();
         int j = 0;
         for (int i=0; i<uvSums[0].length; i++) {
@@ -78,11 +91,14 @@ public class MeterPUCutLS implements IEtomicaDataSource {
             x[j+0] = U;
             x[j+1] = P;
             x[j+2] = U/(4*Math.pow(density,4));
+
             // dbA/drho at constant Y
             // (Z - 4u/T)/density  --  for SS, Z-1 = 4u/T
             // dbA/dv2 at constant Y
             // dbA/dv2 = dbA/rho * (-rho^3/2)
-            x[j+3] = -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
+            U = uvSumsDADv2[0][i]/N;
+            P = -uvSumsDADv2[1][i]/(vol*dim);
+            x[j+3] = -(P/(temperature*density) - 4 * U / (temperature))*density*density/2;
             
             j+=4;
         }
@@ -96,5 +112,4 @@ public class MeterPUCutLS implements IEtomicaDataSource {
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
-
 }

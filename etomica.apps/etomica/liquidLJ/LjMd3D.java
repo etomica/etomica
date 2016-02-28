@@ -53,9 +53,11 @@ import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.Potential0Lrc;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -81,12 +83,12 @@ public class LjMd3D extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public IBox box;
-    public P2LennardJones potential;
+    public Potential2SoftSpherical potential;
     public IntegratorMC integratorMC;
     public MCMoveVolume mcMoveVolume;
 
 
-    public LjMd3D(int numAtoms, double temperature, double density, double pressure, double tStep, double rcShort, double rcLong, int hybridInterval, IFunction vBias) {
+    public LjMd3D(int numAtoms, double temperature, double density, double pressure, double tStep, double rcShort, double rcLong, int hybridInterval, IFunction vBias, boolean ss) {
         super(Space3D.getInstance());
         double nbrRange = rcShort*1.6;
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
@@ -117,7 +119,7 @@ public class LjMd3D extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
 
-        potential = new P2LennardJones(space, 1.0, 1.0);
+        potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
         IAtomType leafType = species.getLeafType();
         P2SoftSphericalTruncatedForceShifted potentialTruncatedForceShifted = new P2SoftSphericalTruncatedForceShifted(space, potential, rcShort);
 
@@ -242,7 +244,7 @@ public class LjMd3D extends Simulation {
 
         final VolumeBias vBias = new VolumeBias(pFull-pFast, numAtoms);
         
-        final LjMd3D sim = new LjMd3D(numAtoms, temperature, density, pFast, tStep, rcShort, rcLong, hybridInterval, vBias);
+        final LjMd3D sim = new LjMd3D(numAtoms, temperature, density, pFast, tStep, rcShort, rcLong, hybridInterval, vBias, false);
         
     	
     	if (Double.parseDouble(String.format("%5.3f", density)) != density) {
