@@ -155,6 +155,7 @@ public class SimLJHTTISuper extends Simulation {
         double temperature = params.temperature;
         double rc = params.rc;
         double[] bpharm = params.bpharm;
+        double[] bpharmLJ = params.bpharmLJ;
         
         System.out.println("Running "+(ss?"soft-sphere":"Lennard-Jones")+" simulation");
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
@@ -221,26 +222,55 @@ public class SimLJHTTISuper extends Simulation {
         System.out.println();
 
         PotentialMasterList potentialMasterData;
-        potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
         Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
-        potential = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
-        IAtomType sphereType = sim.species.getLeafType();
-        potentialMasterData.addPotential(potential, new IAtomType[] {sphereType, sphereType });
-        potentialMasterData.lrcMaster().setEnabled(false);
-
-        int cellRange = 7;
-        potentialMasterData.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
-        // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        potentialMasterData.getNeighborManager(sim.box).reset();
-        int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        {
+            // |potential is our local potential used for data collection.
+            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
+            potential = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
+            IAtomType sphereType = sim.species.getLeafType();
+            potentialMasterData.addPotential(potential, new IAtomType[] {sphereType, sphereType });
+            potentialMasterData.lrcMaster().setEnabled(false);
+    
+            int cellRange = 7;
+            potentialMasterData.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            potentialMasterData.getNeighborManager(sim.box).reset();
+            int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
+            if (potentialCells < cellRange*2+1) {
+                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            }
+            
+            // extend potential range, so that atoms that move outside the truncation range will still interact
+            // atoms that move in will not interact since they won't be neighbors
+            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
         }
-        
-        // extend potential range, so that atoms that move outside the truncation range will still interact
-        // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
-        
+
+        PotentialMasterList potentialMasterDataLJ = null;
+        P2LennardJones p2LJ = null;
+        Potential2SoftSpherical potentialLJ = null;
+        if (ss) {
+            // |potential is our local potential used for data collection.
+            potentialMasterDataLJ = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
+            p2LJ = new P2LennardJones(sim.getSpace());
+            potentialLJ = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[nCutoffs-1]-0.01);
+            IAtomType sphereType = sim.species.getLeafType();
+            potentialMasterDataLJ.addPotential(potentialLJ, new IAtomType[] {sphereType, sphereType });
+            potentialMasterDataLJ.lrcMaster().setEnabled(false);
+    
+            int cellRange = 7;
+            potentialMasterDataLJ.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            potentialMasterDataLJ.getNeighborManager(sim.box).reset();
+            int potentialCells = potentialMasterDataLJ.getNbrCellManager(sim.box).getLattice().getSize()[0];
+            if (potentialCells < cellRange*2+1) {
+                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            }
+            
+            // extend potential range, so that atoms that move outside the truncation range will still interact
+            // atoms that move in will not interact since they won't be neighbors
+            ((P2SoftSphericalTruncated)potentialLJ).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
+        }
+
         // meter needs lattice energy, so make it now
         MeterSolidDACut meterSolid = new MeterSolidDACut(sim.getSpace(), potentialMasterData, sim.coordinateDefinition, cutoffs);
         meterSolid.setTemperature(temperature);
@@ -258,6 +288,19 @@ public class SimLJHTTISuper extends Simulation {
             System.out.print(" "+bpharm[i]);
         }
         System.out.println();
+        
+        if (ss) {
+            if (bpharmLJ.length != bpharm.length) {
+                throw new RuntimeException("I need LJ harmonic pressures for all cutoffs");
+            }
+            meterSolid.setPotentialMasterDADv2(potentialMasterDataLJ, bpharmLJ);
+            
+            System.out.print("bPharmLJ ");
+            for (int i=0; i<nCutoffs; i++) {
+                System.out.print(" "+bpharmLJ[i]);
+            }
+            System.out.println();
+        }
         
         if (args.length == 0) {
             // quick initialization
@@ -335,16 +378,16 @@ public class SimLJHTTISuper extends Simulation {
             double avgDADv2 = avgData.getValue(j+4);
             double errDADv2 = errData.getValue(j+4);
             double corDADv2 = corData.getValue(j+4);
-    
+
             double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
             double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
             double facDADY = 4*density*density*density*density/temperature;
-    
+
             System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
-            if (!ss) System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
+            System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
             System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
             System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
-    
+
             double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
             System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
             System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
@@ -378,6 +421,7 @@ public class SimLJHTTISuper extends Simulation {
         public double temperature = 0.1;
         public double rc = 2.7;
         public double[] bpharm = new double[0];
+        public double[] bpharmLJ = new double[0];
         public boolean ss = false;
     }
 }

@@ -36,8 +36,8 @@ public class MeterSolidDACut implements IEtomicaDataSource {
         dim = space.D();
         box = coordinateDefinition.getBox();
 
-        latticeEnergy = new double[cutoffs.length];
-        latticePressure = new double[cutoffs.length];
+        latticeEnergyDADv2 = latticeEnergy = new double[cutoffs.length];
+        latticePressureDADv2 = latticePressure = new double[cutoffs.length];
         pc = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
         pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
@@ -60,8 +60,34 @@ public class MeterSolidDACut implements IEtomicaDataSource {
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{n});
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
+
+        pcDADv2 = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
     }
     
+    public void setPotentialMasterDADv2(IPotentialMaster potentialMasterDADv2, double[] bpResDADv2) {
+        this.potentialMasterDADv2 = potentialMasterDADv2;
+        this.bpResDADv2 = bpResDADv2;
+        latticeEnergyDADv2 = new double[latticeEnergy.length];
+        latticePressureDADv2 = new double[latticeEnergy.length];
+
+        pcDADv2.zeroSum();
+        potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
+        double[] energy = pcDADv2.getEnergySum();
+        double[] virial = pcDADv2.getVirialSum();
+        System.out.print("LJ Lattice energy: ");
+        for (int i=0; i<energy.length; i++) {
+            latticeEnergyDADv2[i] = energy[i];
+            System.out.print(" "+latticeEnergyDADv2[i]/box.getMoleculeList().getMoleculeCount());
+            latticePressureDADv2[i] = -virial[i]/(box.getBoundary().volume()*dim);
+        }
+        System.out.println();
+        System.out.print("LJ Lattice pressure: ");
+        for  (int i=0; i<latticePressureDADv2.length; i++) {
+            System.out.print(" "+latticePressureDADv2[i]);
+        }
+        System.out.println();
+    }
+
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
@@ -76,6 +102,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
     
     public void setBPRes(double[] bpRes) {
         this.bpRes = bpRes;
+        bpResDADv2 = bpRes;
     }
     
     /**
@@ -83,31 +110,50 @@ public class MeterSolidDACut implements IEtomicaDataSource {
      * ideal-gas contribution.
      */
     public IData getData() {
-    	pc.zeroSum();
-        potentialMaster.calculate(box, iteratorDirective, pc);
         double V = box.getBoundary().volume();
         int N = box.getMoleculeList().getMoleculeCount();
         double rho = N/V;
-        double[] x = data.getData();
+    	pc.zeroSum();
+        potentialMaster.calculate(box, iteratorDirective, pc);
         double[] p1 = pc.getPressure1();
         double[] virial = pc.getVirialSum();
         double[] energy = pc.getEnergySum();
         double[] dadb = pc.getDADBSum();
-        
+
+        double[] p1DADv2 = p1;
+        double[] energyDADv2 = energy;
+        double[] dadbDADv2 = dadb;
+
+        if (potentialMasterDADv2 != null) {
+            pcDADv2.zeroSum();
+            potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
+            p1DADv2 = pcDADv2.getPressure1();
+            energyDADv2 = pcDADv2.getEnergySum();
+            dadbDADv2 = pcDADv2.getDADBSum();
+        }
+
+        double[] x = data.getData();
         int j=0;
         for (int i=0; i<p1.length; i++) {
             double measuredP = temperature*rho - virial[i]/(dim*V);
+            double buc = (0.5*dadb[i] + (energy[i] - latticeEnergy[i]))/temperature/N;
+            double fac2 = (-1/V + bpRes[i])/(dim*N-dim);
+            double Zc = (p1[i] + fac2*dadb[i] - latticePressure[i])/(rho*temperature);
             x[j+0] = energy[i]/N;
             x[j+1] = measuredP;
-            double buc = (0.5*dadb[i] + (energy[i] - latticeEnergy[i]))/temperature/N;
             x[j+2] = buc;
-            double fac2 = (-1/V + bpRes[i])/(dim*N-dim);
             // P = Plat + Pres + x[5]
-            double Zc = (p1[i] + fac2*dadb[i] - latticePressure[i])/(rho*temperature);
             x[j+3] = Zc;
             // Pc = x[5]
             // Zc = x[5] / (rho*T)
             // this is dbAc/dv2 at constant Y (for LJ)
+            double fac3 = 0;
+            if (potentialMasterDADv2 != null) {
+                buc = (0.5*dadbDADv2[i] + (energyDADv2[i] - latticeEnergyDADv2[i]))/temperature/N;
+                fac3 = (bpResDADv2[i])/(dim*N-dim);
+                Zc = (p1DADv2[i] + fac2*dadbDADv2[i] + fac3*dadb[i] - latticePressureDADv2[i])/(rho*temperature);
+            }
+
             x[j+4] = (4*buc-Zc)*rho*rho/2;
             j+=5;
         }
@@ -120,11 +166,13 @@ public class MeterSolidDACut implements IEtomicaDataSource {
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected final IPotentialMaster potentialMaster;
+    protected IPotentialMaster potentialMasterDADv2;
     private IteratorDirective iteratorDirective;
-    private final PotentialCalculationSolidSuperCut pc;
+    private final PotentialCalculationSolidSuperCut pc, pcDADv2;
     protected double temperature;
     protected double[] latticeEnergy, latticePressure;
+    protected double[] latticeEnergyDADv2, latticePressureDADv2;
     protected final IBox box;
-    protected double[] bpRes;
+    protected double[] bpRes, bpResDADv2;
     protected final CoordinateDefinition coordinteDefinition;
 }

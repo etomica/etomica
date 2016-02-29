@@ -68,13 +68,11 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         drB.Ev1Mv2(site1, site0);
         boundary.nearestImage(drB);
         double r2site = drB.squared();
-        drB.TE(fac1);
         
         double u = potentialSoft.u(r2);
         double du = potentialSoft.du(r2);
-        double dot = dr.dot(drA);
-        double p1 = -du/r2*dr.dot(drB);
-        double dadb = -du/r2*dot;
+        double p1 = -du/r2*dr.dot(drB)*fac1;
+        double dadb = -du/r2*dr.dot(drA);
 
         int n=r2Cut.length;
         for (int i=n-1; i>=0; i--) {
