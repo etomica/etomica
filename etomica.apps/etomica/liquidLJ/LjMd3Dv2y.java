@@ -339,15 +339,17 @@ public class LjMd3Dv2y {
             double avgDADv2 = avgPU.getValue(j+3);
             double errDADv2 = errPU.getValue(j+3);
             double corDADv2 = corPU.getValue(j+3);
-            
+
             // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
 
-            p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[i]);
-            p2t.setBox(sim.box);
-            p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-            p0lrc.setBox(sim.box);
-            ulrc = p0lrc.energy(null)/numAtoms;
-            plrc = -p0lrc.virial(null)/(3*vol);
+            if (p2LJ!=null) {
+                p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[i]);
+                p2t.setBox(sim.box);
+                p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+                p0lrc.setBox(sim.box);
+                ulrc = p0lrc.energy(null)/numAtoms;
+                plrc = -p0lrc.virial(null)/(3*vol);
+            }
 
             double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
             double dadCor = covPU.getValue((j+2)*n+j+3) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+3)*n+j+3));
@@ -361,21 +363,22 @@ public class LjMd3Dv2y {
             AtomPair selfPair = new AtomPair();
             selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().getAtom(0);
             double[][] puSelfLRC = pLS.energyVirialCut(selfPair);
-            double[][] puSelfLJLRC = pLJLS.energyVirialCut(selfPair);
-            
+            double[][] puSelfLJLRC = null;
+            if (pLJLS!=null) puSelfLJLRC = pLJLS.energyVirialCut(selfPair);
+
             dataPU = (DataGroup)accPULSBlocks.getData();
             avgPU = dataPU.getData(accPULSBlocks.AVERAGE.index);
             errPU = dataPU.getData(accPULSBlocks.ERROR.index);
             covPU = dataPU.getData(accPULSBlocks.BLOCK_COVARIANCE.index);
             corPU = dataPU.getData(accPULSBlocks.BLOCK_CORRELATION.index);
-            
+
             n = 4*cutoffsLS.length;
-    
+
             j =  0;
-            double ulrcRef = 0;
-            double plrcRef = 0;
+            double ulrcRef = 0, ulrcRefLJ = 0;
+            double plrcRef = 0, plrcRefLJ = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
-    
+
                 P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
                 p2t.setBox(sim.box);
                 Potential0Lrc p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
@@ -384,12 +387,12 @@ public class LjMd3Dv2y {
                 ulrc += puSelfLRC[0][i];
                 if (i==cutoffs.length-1) ulrcRef = ulrc;
                 else ulrc -= ulrcRef;
-    
+
                 double avgU = avgPU.getValue(j+0);
                 double errU = errPU.getValue(j+0);
                 double corU = corPU.getValue(j+0);
                 if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  U:       % 22.15e  %10.4e  % 5.2f", i, ulrc + avgU, errU, corU));
-    
+
                 double avgP = avgPU.getValue(j+1);
                 double errP = errPU.getValue(j+1);
                 double corP = corPU.getValue(j+1);
@@ -399,34 +402,36 @@ public class LjMd3Dv2y {
                 else plrc -= plrcRef;
                 double puCor = covPU.getValue((j+0)*n+j+1) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+1)*n+j+1));
                 if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, corP, puCor));
-    
+
                 double avgDADy = avgPU.getValue(j+2);
                 double errDADy = errPU.getValue(j+2);
                 double corDADy = corPU.getValue(j+2);
                 if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  DADy:    % 22.15e  %10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, corDADy));
-    
+
                 double avgDADv2 = avgPU.getValue(j+3);
                 double errDADv2 = errPU.getValue(j+3);
                 double corDADv2 = corPU.getValue(j+3);
-                
+
                 // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
-                p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffsLS[i]);
-                p2t.setBox(sim.box);
-                p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-                p0lrc.setBox(sim.box);
-                ulrc = p0lrc.energy(null) / numAtoms;
-                ulrc += puSelfLJLRC[0][i];
-                if (i==cutoffs.length-1) ulrcRef = ulrc;
-                else ulrc -= ulrcRef;
-                plrc = -(p0lrc.virial(null) + numAtoms*puSelfLJLRC[1][i])/(3*vol);
-                if (i==cutoffs.length-1) plrcRef = plrc;
-                else plrc -= plrcRef;
+                if (p2LJ!=null) {
+                    p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffsLS[i]);
+                    p2t.setBox(sim.box);
+                    p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+                    p0lrc.setBox(sim.box);
+                    ulrc = p0lrc.energy(null) / numAtoms;
+                    ulrc += puSelfLJLRC[0][i];
+                    plrc = -(p0lrc.virial(null) + numAtoms*puSelfLJLRC[1][i])/(3*vol);
+                    if (i==cutoffs.length-1) ulrcRefLJ = ulrc;
+                    else ulrc -= ulrcRefLJ;
+                    if (i==cutoffs.length-1) plrcRefLJ = plrc;
+                    else plrc -= plrcRefLJ;
+                }
 
                 double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
                 double dadCor = covPU.getValue((j+2)*n+j+3) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+3)*n+j+3));
                 if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
                 if (i>cutoffs.length-1) System.out.println();
-    
+
                 j+=4;
             }
         }
