@@ -26,12 +26,14 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.liquidLJ.DataProcessorReweight;
 import etomica.liquidLJ.DataProcessorReweightRatio;
+import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.ValueCache;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -139,11 +141,13 @@ public class SimLJHTTISuper extends Simulation {
         SimOverlapParam params = new SimOverlapParam();
         if (args.length == 0) {
             params.numAtoms = 864;
-            params.numSteps = 10000000;
+            params.numSteps = 1000000;
             params.temperature = 1;
             params.density = 1;
+            params.rcMax0 = 6;
             params.rc = 3*Math.pow(params.density, -1.0/3.0);
-            params.bpharm = new double[]{9.557960628737128,9.567450981563097};
+            params.bpharm = new double[]{9.557960628737128,9.562134414822085,9.565225712639370,9.567450981563097,9.568315629215650,9.568746404920836,9.569073133374733}; // 864
+//            params.bpharm = new double[]{9.550752087386252,9.554899656911383,9.557975701182272,9.560182436636252}; //500
         }
         else {
             ParseArgs.doParseArgs(params, args);
@@ -154,6 +158,7 @@ public class SimLJHTTISuper extends Simulation {
         final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double rc = params.rc;
+        double rcMax0 = params.rcMax0;
         double[] bpharm = params.bpharm;
         double[] bpharmLJ = params.bpharmLJ;
         
@@ -201,7 +206,8 @@ public class SimLJHTTISuper extends Simulation {
         double L1 = Math.pow(numAtoms, 1.0/3.0);
         double rc1 = rc*Math.pow(density, 1.0/3.0);
         double rcMax1 = 0.494*L1;
-        double delta = 1.5;
+        if (rcMax1>rcMax0) rcMax1 = rcMax0;
+        double delta = 0.5;
         int nCutoffs = 1 + (int)((rcMax1-rc1)/delta);
         if (nCutoffs > bpharm.length) {
             throw new RuntimeException("need more beta P harmonic");
@@ -215,11 +221,6 @@ public class SimLJHTTISuper extends Simulation {
         for (int i=0; i<nCutoffs; i++) {
             cutoffs[i] *= Math.pow(density, -1.0/3.0);
         }
-        System.out.print("cutoffs: ");
-        for (int i=0; i<nCutoffs; i++) {
-            System.out.print(" "+cutoffs[i]);
-        }
-        System.out.println();
 
         PotentialMasterList potentialMasterData;
         Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
@@ -249,7 +250,7 @@ public class SimLJHTTISuper extends Simulation {
         P2LennardJones p2LJ = null;
         Potential2SoftSpherical potentialLJ = null;
         if (ss) {
-            // |potential is our local potential used for data collection.
+            // |potential| is our local potential used for data collection.
             potentialMasterDataLJ = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
             p2LJ = new P2LennardJones(sim.getSpace());
             potentialLJ = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[nCutoffs-1]-0.01);
@@ -280,14 +281,11 @@ public class SimLJHTTISuper extends Simulation {
         MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster);
         meterEnergyShort.setBox(sim.box);
         final double[] uFacCut = new double[cutoffs.length];
+        double uShort = meterEnergyShort.getDataAsScalar();
         for (int i=0; i<uFacCut.length; i++) {
-            uFacCut[i] = d.getValue(5*i)*numAtoms - meterEnergyShort.getDataAsScalar();
+            uFacCut[i] = d.getValue(5*i)*numAtoms - uShort;
         }
-        System.out.print("bPharm ");
-        for (int i=0; i<nCutoffs; i++) {
-            System.out.print(" "+bpharm[i]);
-        }
-        System.out.println();
+
         
         if (ss) {
             if (bpharmLJ.length != bpharm.length) {
@@ -302,6 +300,71 @@ public class SimLJHTTISuper extends Simulation {
             System.out.println();
         }
         
+        double rcMaxLS = 3*rcMax1;
+        if (rcMax1 >= rcMax0) rcMaxLS=0;
+        else if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
+        int nCutoffsLS = 1 + (int)((rcMaxLS-rc)/delta);
+        if (nCutoffsLS<0) nCutoffsLS = 0;
+        final double[] cutoffsLS = new double[nCutoffsLS];
+        PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
+        Potential2SoftSphericalLSMultiLat pLS = null;
+        PotentialMasterMonatomic potentialMasterLJLS = null;
+        Potential2SoftSphericalLSMultiLat pLJLS = null;
+        final double[] uFacCutLS = new double[cutoffsLS.length];
+        MeterSolidDACut meterSolidLS = null;
+        if (nCutoffsLS>0) {
+            cutoffsLS[0] = cutoffs[0];
+            for (int i=1; i<cutoffsLS.length; i++) {
+                cutoffsLS[i] = cutoffsLS[i-1] + delta;
+            }
+            pLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, sim.potential, sim.coordinateDefinition);
+            potentialMasterLS.addPotential(pLS, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
+
+            meterSolidLS = new MeterSolidDACut(sim.getSpace(), potentialMasterLS, sim.coordinateDefinition, cutoffsLS);
+            meterSolidLS.setTemperature(temperature);
+            meterSolidLS.setBPRes(bpharm);
+            d = meterSolidLS.getData();
+
+            if (params.ss) {
+                potentialMasterLJLS = new PotentialMasterMonatomic(sim);
+                pLJLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, p2LJ, sim.coordinateDefinition);
+                potentialMasterLJLS.addPotential(pLJLS, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
+                meterSolidLS.setPotentialMasterDADv2(potentialMasterLJLS, bpharmLJ);
+            }
+
+            for (int i=0; i<uFacCut.length; i++) {
+                uFacCutLS[i] = uFacCut[i];
+            }
+            for (int i=uFacCut.length; i<uFacCutLS.length; i++) {
+                uFacCutLS[i] = d.getValue(5*i)*numAtoms - uShort;
+            }
+        }
+        System.out.print("cutoffs: ");
+        if (nCutoffsLS>0) {
+            for (int i=0; i<nCutoffsLS; i++) {
+                System.out.print(" "+cutoffsLS[i]);
+            }
+        }
+        else {
+            for (int i=0; i<nCutoffs; i++) {
+                System.out.print(" "+cutoffs[i]);
+            }
+        }
+        System.out.println();
+        System.out.print("bPharm ");
+        if (nCutoffsLS>0) {
+            for (int i=0; i<nCutoffsLS; i++) {
+                System.out.print(" "+bpharm[i]);
+            }
+        }
+        else {
+            for (int i=0; i<nCutoffs; i++) {
+                System.out.print(" "+bpharm[i]);
+            }
+        }
+        System.out.println();
+
+
         if (args.length == 0) {
             // quick initialization
             sim.initialize(numSteps/10);
@@ -311,7 +374,7 @@ public class SimLJHTTISuper extends Simulation {
         }
 
         int numBlocks = 100;
-        int interval = numAtoms;
+        int interval = 2*numAtoms;
         long blockSize = numSteps/(numBlocks*interval);
         if (blockSize == 0) blockSize = 1;
         System.out.println("block size "+blockSize+" interval "+interval);
@@ -319,16 +382,31 @@ public class SimLJHTTISuper extends Simulation {
         final ValueCache energyFastCache = new ValueCache(meterEnergyShort, sim.integrator);
 
         DataProcessorReweight puReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCut, sim.box, cutoffs.length);
-        long bs = numSteps/(numAtoms*100);
-        DataPumpListener pumpPU = new DataPumpListener(meterSolid, puReweight, numAtoms);
+        DataPumpListener pumpPU = new DataPumpListener(meterSolid, puReweight, interval);
         sim.integrator.getEventManager().addListener(pumpPU);
-        final AccumulatorAverageCovariance avgSolid = new AccumulatorAverageCovariance(bs == 0 ? 1 : bs);
+        final AccumulatorAverageCovariance avgSolid = new AccumulatorAverageCovariance(blockSize);
         puReweight.setDataSink(avgSolid);
 
         DataProcessorReweightRatio puReweightRatio = new DataProcessorReweightRatio(cutoffs.length);
         avgSolid.setBlockDataSink(puReweightRatio);
         AccumulatorAverageCovariance accPUBlocks = new AccumulatorAverageCovariance(1, true);
         puReweightRatio.setDataSink(accPUBlocks);
+
+        AccumulatorAverageCovariance accPULSBlocks = null;
+        if (nCutoffsLS>0) {
+            int intervalLS = interval*5;
+            accPULSBlocks = new AccumulatorAverageCovariance(1, true);
+            DataProcessorReweight puLSReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCutLS, sim.box, nCutoffsLS);
+            DataPumpListener pumpPULS = new DataPumpListener(meterSolidLS, puLSReweight, intervalLS);
+            sim.integrator.getEventManager().addListener(pumpPULS);
+            blockSize = numSteps/(intervalLS*numBlocks);
+            final AccumulatorAverageCovariance accPULS = new AccumulatorAverageCovariance(blockSize);
+            puLSReweight.setDataSink(accPULS);
+    
+            DataProcessorReweightRatio puLSReweightRatio = new DataProcessorReweightRatio(nCutoffsLS, nCutoffs-1);
+            accPULS.setBlockDataSink(puLSReweightRatio);
+            puLSReweightRatio.setDataSink(accPULSBlocks);
+        }
 
         
         final long startTime = System.currentTimeMillis();
@@ -395,6 +473,56 @@ public class SimLJHTTISuper extends Simulation {
             j+=5;
         }
 
+        if (nCutoffsLS > 0) {
+            
+            avgData = accPULSBlocks.getData(accPULSBlocks.AVERAGE);
+            errData = accPULSBlocks.getData(accPULSBlocks.ERROR);
+            covData = accPULSBlocks.getData(accPULSBlocks.BLOCK_COVARIANCE);
+            corData = accPULSBlocks.getData(accPULSBlocks.BLOCK_CORRELATION);
+
+            n = avgData.getLength();
+
+            j =  0;
+            for (int i=0; i<cutoffsLS.length; i++) {
+                if (i<=cutoffs.length-1) {
+                    j+=5;
+                    continue;
+                }
+                double avgU = avgData.getValue(j+0);
+                double errU = errData.getValue(j+0);
+                double corU = corData.getValue(j+0);
+                double avgP = avgData.getValue(j+1);
+                double errP = errData.getValue(j+1);
+                double corP = corData.getValue(j+1);
+                double avgBUc = avgData.getValue(j+2);
+                double errBUc = errData.getValue(j+2);
+                double corBUc = corData.getValue(j+2);
+                double avgZc = avgData.getValue(j+3);
+                double errZc = errData.getValue(j+3);
+                double corZc = corData.getValue(j+3);
+                // this is dbAc/drho at constant Y (for LJ)
+                double avgDADv2 = avgData.getValue(j+4);
+                double errDADv2 = errData.getValue(j+4);
+                double corDADv2 = corData.getValue(j+4);
+
+                double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
+                double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
+                double facDADY = 4*density*density*density*density/temperature;
+
+                System.out.print(String.format("rcLS: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
+                System.out.print(String.format("rcLS: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
+                System.out.print(String.format("rcLS: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
+                System.out.print(String.format("rcLS: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
+
+                double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
+                System.out.print(String.format("rcLS: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
+                System.out.print(String.format("rcLS: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
+                System.out.println();
+             
+                j+=5;
+            }
+        }
+
         System.out.println("time: " + (endTime - startTime)/1000.0);
     }
 
@@ -419,7 +547,8 @@ public class SimLJHTTISuper extends Simulation {
         public double density = 1.28;
         public long numSteps = 1000000;
         public double temperature = 0.1;
-        public double rc = 2.7;
+        public double rc = 2.5;
+        public double rcMax0 = 2.7;
         public double[] bpharm = new double[0];
         public double[] bpharmLJ = new double[0];
         public boolean ss = false;

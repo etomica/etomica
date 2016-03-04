@@ -13,6 +13,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.units.Null;
 
@@ -38,30 +39,44 @@ public class MeterSolidDACut implements IEtomicaDataSource {
 
         latticeEnergyDADv2 = latticeEnergy = new double[cutoffs.length];
         latticePressureDADv2 = latticePressure = new double[cutoffs.length];
-        pc = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
+
+        if (potentialMaster instanceof PotentialMasterList) {
+            pc = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
+        }
+        else {
+            pc = new PotentialCalculationSolidSuperCutLS(space, coordinateDefinition, cutoffs);
+        }
         pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double[] energy = pc.getEnergySum();
         double[] virial = pc.getVirialSum();
-        System.out.print("Lattice energy: ");
+        
+        if (false) System.out.print("Lattice energy: ");
         for (int i=0; i<cutoffs.length; i++) {
             latticeEnergy[i] = energy[i];
-            System.out.print(" "+latticeEnergy[i]/box.getMoleculeList().getMoleculeCount());
+            if (false) System.out.print(" "+latticeEnergy[i]/box.getMoleculeList().getMoleculeCount());
             latticePressure[i] = -virial[i]/(box.getBoundary().volume()*dim);
         }
-        System.out.println();
-        System.out.print("Lattice pressure: ");
-        for  (int i=0; i<cutoffs.length; i++) {
-            System.out.print(" "+latticePressure[i]);
+        if (false) {
+            System.out.println();
+            System.out.print("Lattice pressure: ");
+            for  (int i=0; i<cutoffs.length; i++) {
+                System.out.print(" "+latticePressure[i]);
+            }
+            System.out.println();
         }
-        System.out.println();
 
         int n = 5*cutoffs.length;
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{n});
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
 
-        pcDADv2 = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
+        if (potentialMaster instanceof PotentialMasterList) {
+            pcDADv2 = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
+        }
+        else {
+            pcDADv2 = new PotentialCalculationSolidSuperCutLS(space, coordinateDefinition, cutoffs);
+        }
     }
     
     public void setPotentialMasterDADv2(IPotentialMaster potentialMasterDADv2, double[] bpResDADv2) {
@@ -74,32 +89,34 @@ public class MeterSolidDACut implements IEtomicaDataSource {
         potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
         double[] energy = pcDADv2.getEnergySum();
         double[] virial = pcDADv2.getVirialSum();
-        System.out.print("LJ Lattice energy: ");
+        if (false) System.out.print("LJ Lattice energy: ");
         for (int i=0; i<energy.length; i++) {
             latticeEnergyDADv2[i] = energy[i];
-            System.out.print(" "+latticeEnergyDADv2[i]/box.getMoleculeList().getMoleculeCount());
+            if (false) System.out.print(" "+latticeEnergyDADv2[i]/box.getMoleculeList().getMoleculeCount());
             latticePressureDADv2[i] = -virial[i]/(box.getBoundary().volume()*dim);
         }
-        System.out.println();
-        System.out.print("LJ Lattice pressure: ");
-        for  (int i=0; i<latticePressureDADv2.length; i++) {
-            System.out.print(" "+latticePressureDADv2[i]);
+        if (false) {
+            System.out.println();
+            System.out.print("LJ Lattice pressure: ");
+            for  (int i=0; i<latticePressureDADv2.length; i++) {
+                System.out.print(" "+latticePressureDADv2[i]);
+            }
+            System.out.println();
         }
-        System.out.println();
     }
 
     public IEtomicaDataInfo getDataInfo() {
         return dataInfo;
     }
-    
+
     public DataTag getTag() {
         return tag;
     }
-    
+
     public void setTemperature(double temperature) {
         this.temperature = temperature;
     }
-    
+
     public void setBPRes(double[] bpRes) {
         this.bpRes = bpRes;
         bpResDADv2 = bpRes;
@@ -137,6 +154,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
         for (int i=0; i<p1.length; i++) {
             double measuredP = temperature*rho - virial[i]/(dim*V);
             double buc = (0.5*dadb[i] + (energy[i] - latticeEnergy[i]))/temperature/N;
+//            if (i>=1) System.out.println(p1.length+" "+i+" bUc "+dadb[i]+" "+energy[i]+" "+latticeEnergy[i]);
             double fac2 = (-1/V + bpRes[i])/(dim*N-dim);
             double Zc = (p1[i] + fac2*dadb[i] - latticePressure[i])/(rho*temperature);
             x[j+0] = energy[i]/N;
@@ -156,6 +174,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
 
             x[j+4] = (4*buc-Zc)*rho*rho/2;
             j+=5;
+//            if (i>=2) System.out.println(p1.length+" "+i+" bUc "+buc);
         }
 
         return data;
