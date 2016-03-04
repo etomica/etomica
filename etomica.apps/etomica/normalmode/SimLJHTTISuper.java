@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import java.awt.Color;
+import java.util.Arrays;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
@@ -41,6 +42,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.RandomMersenneTwister;
 
 
 
@@ -168,6 +170,8 @@ public class SimLJHTTISuper extends Simulation {
 
         //instantiate simulation
         final SimLJHTTISuper sim = new SimLJHTTISuper(Space.getInstance(3), numAtoms, density, temperature, rc, ss);
+        int[] seeds = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
+        System.out.println("Random seeds: "+Arrays.toString(seeds));
         if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
@@ -225,11 +229,11 @@ public class SimLJHTTISuper extends Simulation {
         PotentialMasterList potentialMasterData;
         Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
         {
-            // |potential is our local potential used for data collection.
+            // |potential| is our local potential used for data collection.
             potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
-            potential = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
+            P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
             IAtomType sphereType = sim.species.getLeafType();
-            potentialMasterData.addPotential(potential, new IAtomType[] {sphereType, sphereType });
+            potentialMasterData.addPotential(potentialT, new IAtomType[] {sphereType, sphereType });
             potentialMasterData.lrcMaster().setEnabled(false);
     
             int cellRange = 7;
@@ -243,7 +247,7 @@ public class SimLJHTTISuper extends Simulation {
             
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
-            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
+            potentialT.setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
         }
 
         PotentialMasterList potentialMasterDataLJ = null;
@@ -317,7 +321,7 @@ public class SimLJHTTISuper extends Simulation {
             for (int i=1; i<cutoffsLS.length; i++) {
                 cutoffsLS[i] = cutoffsLS[i-1] + delta;
             }
-            pLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, sim.potential, sim.coordinateDefinition);
+            pLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, potential, sim.coordinateDefinition);
             potentialMasterLS.addPotential(pLS, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
 
             meterSolidLS = new MeterSolidDACut(sim.getSpace(), potentialMasterLS, sim.coordinateDefinition, cutoffsLS);
@@ -394,7 +398,7 @@ public class SimLJHTTISuper extends Simulation {
 
         AccumulatorAverageCovariance accPULSBlocks = null;
         if (nCutoffsLS>0) {
-            int intervalLS = interval*5;
+            int intervalLS = 5*interval;
             accPULSBlocks = new AccumulatorAverageCovariance(1, true);
             DataProcessorReweight puLSReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCutLS, sim.box, nCutoffsLS);
             DataPumpListener pumpPULS = new DataPumpListener(meterSolidLS, puLSReweight, intervalLS);
@@ -431,7 +435,6 @@ public class SimLJHTTISuper extends Simulation {
         }
         System.out.println("\n");
 
-        
         IData avgData = accPUBlocks.getData(avgSolid.AVERAGE);
         IData errData = accPUBlocks.getData(avgSolid.ERROR);
         IData corData = accPUBlocks.getData(avgSolid.BLOCK_CORRELATION);
