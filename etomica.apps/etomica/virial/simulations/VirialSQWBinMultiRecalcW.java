@@ -192,7 +192,7 @@ public class VirialSQWBinMultiRecalcW {
                     else {
                         cor = 0;
                     }
-                    System.out.print(String.format(" % 4.2f", cor));
+                    System.out.print(String.format(" % 5.3f", cor));
                 }
                 System.out.print("\n");
             }
