@@ -74,12 +74,12 @@ public class VirialSQWBinMultiRecalcW {
         List<IntSet> pvs = new ArrayList<IntSet>();
         pvs.addAll(allMyData.keySet());
         Collections.sort(pvs);
-        double[] sum = new double[1+nPoints*(nPoints-1)/2];
-        double[] sumErrStdev = new double[sum.length];
+        int nn = 1+nPoints*(nPoints-1)/2;
+        double[] sum = new double[nn];
+        double[] sumErrStdev = new double[nn];
         long steps = meter.getTotalCount();
         long totalSampleCount = 0;
         long totalNotScreenedCount = 0;
-        int nSets = 0;
         FileWriter fw = null;
         if (extraFile) {
             try {
@@ -89,15 +89,13 @@ public class VirialSQWBinMultiRecalcW {
                 throw new RuntimeException(e);
             }
         }
-        double[] E0a = new double[sum.length];
-        double[] E0a2 = new double[sum.length];
-        int nn = 1+nPoints*(nPoints-1)/2;
+        double[] E0a = new double[nn];
+        double[] E0a2 = new double[nn];
         double[][] cov = new double[nn][nn];
         for (IntSet pv : pvs) {
             MyData amd = allMyData.get(pv);
             long c = amd.unscreenedCount;
 
-            nSets++;
             totalNotScreenedCount += c;
             long sc = amd.sampleCount;
             if (fw != null) {
@@ -162,7 +160,7 @@ public class VirialSQWBinMultiRecalcW {
                 throw new RuntimeException(e);
             }
         }
-        System.out.println(nSets+" sets");
+        System.out.println(pvs.size()+" sets");
         System.out.println();
 
         for  (int i=0; i<sum.length; i++) {

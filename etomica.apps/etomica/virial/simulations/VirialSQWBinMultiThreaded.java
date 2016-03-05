@@ -119,13 +119,16 @@ public class VirialSQWBinMultiThreaded {
             meter0.readWeights(params.runName+nPoints+"_weights.dat", nPoints);
             doReweight = allMyData.size() == 0;
         }
-        if (!doReweight && !shareData) {
-            // reweighting not needed, we don't want to share data
-            allMyData = null;
-        }
-        else if (doReweight && !shareData) {
-            // reweighting is needed, we have to share data
-            shareData = true;
+        if (!shareData) {
+            if (doReweight) {
+                // reweighting is needed, we have to share data
+                shareData = true;
+                System.out.println("Sharing data between threads");
+            }
+            else {
+                // reweighting not needed, we don't want to share data
+                allMyData = null;
+            }
         }
         if (!shareData) {
             System.out.println("Not sharing data between threads");
