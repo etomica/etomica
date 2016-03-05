@@ -210,7 +210,7 @@ public class SimLJHTTISuper extends Simulation {
         //start simulation
 
         double L = Math.pow(numAtoms, 1.0/3.0);
-        double rcMax1 = 0.494*L*Math.pow(density, -1.0/3.0);
+        double rcMax1 = 0.494*L;
         if (rcMax1>rcMax0) rcMax1 = rcMax0;
         double delta = 0.5;
         int nCutoffs = 1;
@@ -305,11 +305,6 @@ public class SimLJHTTISuper extends Simulation {
             }
             meterSolid.setPotentialMasterDADv2(potentialMasterDataLJ, bpharmLJ);
             
-            System.out.print("bPharmLJ ");
-            for (int i=0; i<nCutoffs; i++) {
-                System.out.print(" "+bpharmLJ[i]);
-            }
-            System.out.println();
         }
         
         double rcMaxLS = 3*rcMax1;
@@ -391,6 +386,20 @@ public class SimLJHTTISuper extends Simulation {
             }
         }
         System.out.println();
+        if (ss) {
+            System.out.print("bPharmLJ ");
+            if (nCutoffsLS>0) {
+                for (int i=0; i<nCutoffsLS; i++) {
+                    System.out.print(" "+bpharmLJ[i]);
+                }
+            }
+            else {
+                for (int i=0; i<nCutoffs; i++) {
+                    System.out.print(" "+bpharmLJ[i]);
+                }
+            }
+            System.out.println();
+        }
 
 
         if (args.length == 0) {
