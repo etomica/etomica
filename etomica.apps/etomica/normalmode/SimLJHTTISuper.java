@@ -397,18 +397,20 @@ public class SimLJHTTISuper extends Simulation {
         puReweightRatio.setDataSink(accPUBlocks);
 
         AccumulatorAverageCovariance accPULSBlocks = null;
+        AccumulatorAverageCovariance accPULS = null;
         if (nCutoffsLS>0) {
             int intervalLS = 5*interval;
-            accPULSBlocks = new AccumulatorAverageCovariance(1, true);
             DataProcessorReweight puLSReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCutLS, sim.box, nCutoffsLS);
             DataPumpListener pumpPULS = new DataPumpListener(meterSolidLS, puLSReweight, intervalLS);
             sim.integrator.getEventManager().addListener(pumpPULS);
             blockSize = numSteps/(intervalLS*numBlocks);
-            final AccumulatorAverageCovariance accPULS = new AccumulatorAverageCovariance(blockSize);
+            accPULS = new AccumulatorAverageCovariance(blockSize);
             puLSReweight.setDataSink(accPULS);
     
             DataProcessorReweightRatio puLSReweightRatio = new DataProcessorReweightRatio(nCutoffsLS, nCutoffs-1);
             accPULS.setBlockDataSink(puLSReweightRatio);
+
+            accPULSBlocks = new AccumulatorAverageCovariance(1, true);
             puLSReweightRatio.setDataSink(accPULSBlocks);
         }
 
@@ -434,6 +436,22 @@ public class SimLJHTTISuper extends Simulation {
             j += 6;
         }
         System.out.println("\n");
+
+        if (nCutoffsLS>0) {
+            avgRawData = accPULS.getData(accPULS.AVERAGE);
+            errRawData = accPULS.getData(accPULS.ERROR);
+            corRawData = accPULS.getData(accPULS.BLOCK_CORRELATION);
+    
+            j = 6;
+            for (int i=1; i<cutoffsLS.length; i++) {
+                double avgW = avgRawData.getValue(j+5);
+                double errW = errRawData.getValue(j+5);
+                double corW = corRawData.getValue(j+5);
+                System.out.println(String.format("rcLS: %2d dbA:   % 21.15e  %10.4e  % 5.3f  % 6.4f", i, -Math.log(avgW)/numAtoms, errW/avgW/numAtoms, corW, errW/avgW));
+                j += 6;
+            }
+            System.out.println("\n");
+        }
 
         IData avgData = accPUBlocks.getData(avgSolid.AVERAGE);
         IData errData = accPUBlocks.getData(avgSolid.ERROR);
