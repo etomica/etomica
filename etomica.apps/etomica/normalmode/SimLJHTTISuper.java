@@ -142,14 +142,16 @@ public class SimLJHTTISuper extends Simulation {
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         if (args.length == 0) {
-            params.numAtoms = 864;
+            params.numAtoms = 500;
             params.numSteps = 1000000;
             params.temperature = 1;
             params.density = 1;
-            params.rcMax0 = 6;
-            params.rc = 3*Math.pow(params.density, -1.0/3.0);
-            params.bpharm = new double[]{9.557960628737128,9.562134414822085,9.565225712639370,9.567450981563097,9.568315629215650,9.568746404920836,9.569073133374733}; // 864
-//            params.bpharm = new double[]{9.550752087386252,9.554899656911383,9.557975701182272,9.560182436636252}; //500
+            params.rcMax0 = 13;
+            params.rc = 3;
+            params.bpharm = new double[]{}; // 864
+            params.bpharm = new double[]{9.550752087386252e+00,9.554899656911383e+00,9.557975701182272e+00,9.561039289571333e+00,9.561785691168332e+00,9.562084920108349e+00,9.562184015777641e+00,9.562223770855450e+00,9.562237600652669e+00}; //500
+            params.bpharmLJ = new double[]{1.361085875265710e+00,1.362422294066396e+00,1.363399142959180e+00,1.364383687422787e+00,1.364621191334029e+00,1.364711705394565e+00,1.364747826183867e+00,1.364760708535937e+00,1.364768368160011e+00}; //500
+            params.ss = true;
         }
         else {
             ParseArgs.doParseArgs(params, args);
@@ -169,7 +171,7 @@ public class SimLJHTTISuper extends Simulation {
         System.out.println(numSteps+" steps");
 
         //instantiate simulation
-        final SimLJHTTISuper sim = new SimLJHTTISuper(Space.getInstance(3), numAtoms, density, temperature, rc, ss);
+        final SimLJHTTISuper sim = new SimLJHTTISuper(Space.getInstance(3), numAtoms, density, temperature, rc*Math.pow(density, -1.0/3.0), ss);
         int[] seeds = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
         System.out.println("Random seeds: "+Arrays.toString(seeds));
         if (false) {
@@ -207,20 +209,26 @@ public class SimLJHTTISuper extends Simulation {
 
         //start simulation
 
-        double L1 = Math.pow(numAtoms, 1.0/3.0);
-        double rc1 = rc*Math.pow(density, 1.0/3.0);
-        double rcMax1 = 0.494*L1;
+        double L = Math.pow(numAtoms, 1.0/3.0);
+        double rcMax1 = 0.494*L*Math.pow(density, -1.0/3.0);
         if (rcMax1>rcMax0) rcMax1 = rcMax0;
         double delta = 0.5;
-        int nCutoffs = 1 + (int)((rcMax1-rc1)/delta);
+        int nCutoffs = 1;
+        double c = rc;
+        for (nCutoffs=1; c<rcMax1; nCutoffs++) {
+            c += delta;
+            if (nCutoffs%2==0) delta += 0.5;
+        }
+        nCutoffs--;
         if (nCutoffs > bpharm.length) {
             throw new RuntimeException("need more beta P harmonic");
         }
-        
+        delta = 0.5;
         double[] cutoffs = new double[nCutoffs];
-        cutoffs[0] = rc1;
+        cutoffs[0] = rc;
         for (int i=1; i<nCutoffs; i++) {
             cutoffs[i] = cutoffs[i-1] + delta;
+            if (i%2==0) delta += 0.5;
         }
         for (int i=0; i<nCutoffs; i++) {
             cutoffs[i] *= Math.pow(density, -1.0/3.0);
@@ -307,8 +315,19 @@ public class SimLJHTTISuper extends Simulation {
         double rcMaxLS = 3*rcMax1;
         if (rcMax1 >= rcMax0) rcMaxLS=0;
         else if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
-        int nCutoffsLS = 1 + (int)((rcMaxLS-rc)/delta);
-        if (nCutoffsLS<0) nCutoffsLS = 0;
+
+        delta = 0.5;
+        int nCutoffsLS = 1;
+        c = rc;
+        for (nCutoffsLS=1; c<rcMaxLS; nCutoffsLS++) {
+            c += delta;
+            if (nCutoffsLS%2==0) delta += 0.5;
+        }
+        nCutoffsLS--;
+        if (nCutoffsLS > bpharm.length) {
+            throw new RuntimeException("need more beta P harmonic");
+        }
+
         final double[] cutoffsLS = new double[nCutoffsLS];
         PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
         Potential2SoftSphericalLSMultiLat pLS = null;
@@ -318,8 +337,13 @@ public class SimLJHTTISuper extends Simulation {
         MeterSolidDACut meterSolidLS = null;
         if (nCutoffsLS>0) {
             cutoffsLS[0] = cutoffs[0];
+            delta = 0.5;
             for (int i=1; i<cutoffsLS.length; i++) {
                 cutoffsLS[i] = cutoffsLS[i-1] + delta;
+                if (i%2==0) delta += 0.5;
+            }
+            for (int i=0; i<nCutoffsLS; i++) {
+                cutoffsLS[i] *= Math.pow(density, -1.0/3.0);
             }
             pLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, potential, sim.coordinateDefinition);
             potentialMasterLS.addPotential(pLS, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
@@ -569,7 +593,7 @@ public class SimLJHTTISuper extends Simulation {
         public long numSteps = 1000000;
         public double temperature = 0.1;
         public double rc = 2.5;
-        public double rcMax0 = 2.7;
+        public double rcMax0 = 100;
         public double[] bpharm = new double[0];
         public double[] bpharmLJ = new double[0];
         public boolean ss = false;
