@@ -151,7 +151,7 @@ public class SimLJHTTISuper extends Simulation {
             params.bpharm = new double[]{}; // 864
             params.bpharm = new double[]{9.550752087386252e+00,9.554899656911383e+00,9.557975701182272e+00,9.561039289571333e+00,9.561785691168332e+00,9.562084920108349e+00,9.562184015777641e+00,9.562223770855450e+00,9.562237600652669e+00}; //500
             params.bpharmLJ = new double[]{1.361085875265710e+00,1.362422294066396e+00,1.363399142959180e+00,1.364383687422787e+00,1.364621191334029e+00,1.364711705394565e+00,1.364747826183867e+00,1.364760708535937e+00,1.364768368160011e+00}; //500
-            params.ss = true;
+            params.ss = false;
         }
         else {
             ParseArgs.doParseArgs(params, args);
@@ -331,7 +331,7 @@ public class SimLJHTTISuper extends Simulation {
         final double[] uFacCutLS = new double[cutoffsLS.length];
         MeterSolidDACut meterSolidLS = null;
         if (nCutoffsLS>0) {
-            cutoffsLS[0] = cutoffs[0];
+            cutoffsLS[0] = rc;
             delta = 0.5;
             for (int i=1; i<cutoffsLS.length; i++) {
                 cutoffsLS[i] = cutoffsLS[i-1] + delta;
