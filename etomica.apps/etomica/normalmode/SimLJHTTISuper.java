@@ -314,7 +314,7 @@ public class SimLJHTTISuper extends Simulation {
         delta = 0.5;
         int nCutoffsLS = 1;
         c = rc;
-        for (nCutoffsLS=1; c<rcMaxLS; nCutoffsLS++) {
+        for (nCutoffsLS=1; c<rcMaxLS*1.0001; nCutoffsLS++) {
             c += delta;
             if (nCutoffsLS%2==0) delta += 0.5;
         }
