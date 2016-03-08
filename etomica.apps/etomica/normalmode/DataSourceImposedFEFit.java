@@ -36,10 +36,10 @@ public class DataSourceImposedFEFit implements IEtomicaDataSource, DataSourceInd
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     protected final DataTag tag, xTag;
-    protected double mu;
+    protected double bmu;
     protected final MCMoveInsertDeleteBiased mcMoveID;
     
-    public DataSourceImposedFEFit(MCMoveOverlapListener mcMoveOverlapMeter, MCMoveInsertDeleteBiased mcMoveID, double mu) {
+    public DataSourceImposedFEFit(MCMoveOverlapListener mcMoveOverlapMeter, MCMoveInsertDeleteBiased mcMoveID, double bmu) {
         tag = new DataTag();
         xTag = new DataTag();
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
@@ -47,16 +47,16 @@ public class DataSourceImposedFEFit implements IEtomicaDataSource, DataSourceInd
         xDataInfo = new DataInfoDoubleArray("bar", Null.DIMENSION, new int[]{0});
         data = new DataFunction(new int[]{0});
         dataInfo = new DataInfoFunction("foo", Null.DIMENSION, this);
-        this.mu = mu;
+        this.bmu = bmu;
     }
     
-    public void setMu(double newMu) {
-        mu = newMu;
+    public void setMu(double newBMu) {
+        bmu = newBMu;
     }
 
     public IData getData() {
         double[] ratios = mcMoveOverlapMeter.getRatios().clone();
-        if (ratios == null) return data;
+        if (ratios == null || ratios.length==0) return data;
         if (ratios.length != dataInfo.getLength()-1) {
             getDataInfo();
         }
@@ -79,7 +79,7 @@ public class DataSourceImposedFEFit implements IEtomicaDataSource, DataSourceInd
         double tot = 0;
         for (int i=ratios.length-1; i>=0; i--) {
             tot += p;
-            p /= Math.exp(daDef+mu)/(n0+i+1)*(ratios.length-i);
+            p /= Math.exp(daDef+bmu)/(n0+i+1)*(ratios.length-i);
         }
         tot += p;
         double[] y = data.getData();
@@ -87,7 +87,7 @@ public class DataSourceImposedFEFit implements IEtomicaDataSource, DataSourceInd
         for (int i=ratios.length; i>=0; i--) {
             y[i] = p2 == 0 ? Double.NaN : p2/tot;
             if (i==0) break;
-            p2 /= Math.exp(daDef+mu)/(n0+i)*(ratios.length-i+1);
+            p2 /= Math.exp(daDef+bmu)/(n0+i)*(ratios.length-i+1);
         }
         return data;
     }

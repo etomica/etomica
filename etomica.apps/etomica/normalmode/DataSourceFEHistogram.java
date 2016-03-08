@@ -31,9 +31,9 @@ public class DataSourceFEHistogram implements IEtomicaDataSource, DataSourceInde
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     protected final DataTag tag, xTag;
-    protected double mu;
+    protected double bmu;
     
-    public DataSourceFEHistogram(MCMoveOverlapListener mcMoveOverlapMeter, double mu) {
+    public DataSourceFEHistogram(MCMoveOverlapListener mcMoveOverlapMeter, double bmu) {
         tag = new DataTag();
         xTag = new DataTag();
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
@@ -41,11 +41,11 @@ public class DataSourceFEHistogram implements IEtomicaDataSource, DataSourceInde
         data = new DataFunction(new int[]{0});
         xData = new DataDoubleArray(0);
         dataInfo = new DataInfoFunction("foo", Null.DIMENSION, this);
-        this.mu = mu;
+        this.bmu = bmu;
     }
     
-    public void setMu(double newMu) {
-        mu = newMu;
+    public void setMu(double newBMu) {
+        bmu = newBMu;
     }
 
     public IData getData() {
@@ -60,7 +60,7 @@ public class DataSourceFEHistogram implements IEtomicaDataSource, DataSourceInde
         for (int i=ratios.length-1; i>=0; i--) {
             tot += p;
             if (Double.isNaN(ratios[i])) continue;
-            p /= ratios[i]*Math.exp(mu);
+            p /= ratios[i]*Math.exp(bmu);
         }
         tot += p;
         double[] y = data.getData();
@@ -69,7 +69,7 @@ public class DataSourceFEHistogram implements IEtomicaDataSource, DataSourceInde
             y[i] = p2 == 0 ? Double.NaN : p2/tot;
             if (i==0) break;
             if (Double.isNaN(ratios[i-1])) continue;
-            p2 /= ratios[i-1]*Math.exp(mu);
+            p2 /= ratios[i-1]*Math.exp(bmu);
         }
         return data;
     }

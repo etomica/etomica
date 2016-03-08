@@ -39,10 +39,10 @@ public class DataSourceImposedFEHistogram implements IEtomicaDataSource, DataSou
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     protected final DataTag tag, xTag;
-    protected double mu;
+    protected double bmu;
     protected final MCMoveInsertDeleteBiased mcMoveID;
     
-    public DataSourceImposedFEHistogram(MCMoveOverlapListener mcMoveOverlapMeter, MCMoveInsertDeleteBiased mcMoveID, double mu) {
+    public DataSourceImposedFEHistogram(MCMoveOverlapListener mcMoveOverlapMeter, MCMoveInsertDeleteBiased mcMoveID, double bmu) {
         tag = new DataTag();
         xTag = new DataTag();
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
@@ -50,11 +50,11 @@ public class DataSourceImposedFEHistogram implements IEtomicaDataSource, DataSou
         xDataInfo = new DataInfoDoubleArray("bar", Null.DIMENSION, new int[]{0});
         data = new DataFunction(new int[]{0});
         dataInfo = new DataInfoFunction("foo", Null.DIMENSION, this);
-        this.mu = mu;
+        this.bmu = bmu;
     }
     
-    public void setMu(double newMu) {
-        mu = newMu;
+    public void setMu(double newBMu) {
+        bmu = newBMu;
     }
 
     public IData getData() {
@@ -68,7 +68,7 @@ public class DataSourceImposedFEHistogram implements IEtomicaDataSource, DataSou
         int n0 = mcMoveOverlapMeter.getMinNumAtoms();
         for (int i=ratios.length-1; i>=0; i--) {
             tot += p;
-            p /= Math.exp(mcMoveID.getLnBias(n0+i) - mcMoveID.getLnBias(n0+i+1))*Math.exp(mu);
+            p /= Math.exp(mcMoveID.getLnBias(n0+i) - mcMoveID.getLnBias(n0+i+1))*Math.exp(bmu);
         }
         tot += p;
         double[] y = data.getData();
@@ -76,7 +76,7 @@ public class DataSourceImposedFEHistogram implements IEtomicaDataSource, DataSou
         for (int i=ratios.length; i>=0; i--) {
             y[i] = p2 == 0 ? Double.NaN : p2/tot;
             if (i==0) break;
-            p2 /= Math.exp(mcMoveID.getLnBias(n0+i-1) - mcMoveID.getLnBias(n0+i))*Math.exp(mu);
+            p2 /= Math.exp(mcMoveID.getLnBias(n0+i-1) - mcMoveID.getLnBias(n0+i))*Math.exp(bmu);
         }
         return data;
     }

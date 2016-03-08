@@ -20,17 +20,17 @@ import etomica.units.Pressure;
 public class DataSourceAvgPressure extends DataSourceScalar {
     protected final DataDistributer pSplitter;
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
-    protected double mu;
+    protected double bmu;
 
-    public DataSourceAvgPressure(DataDistributer pSplitter, MCMoveOverlapListener mcMoveOverlapMeter, double mu) {
+    public DataSourceAvgPressure(DataDistributer pSplitter, MCMoveOverlapListener mcMoveOverlapMeter, double bmu) {
         super("pressure", Pressure.DIMENSION);
         this.pSplitter = pSplitter;
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
-        this.mu = mu;
+        this.bmu = bmu;
     }
 
-    public void setMu(double newMu) {
-        mu = newMu;
+    public void setMu(double newBMu) {
+        bmu = newBMu;
     }
 
     public double getDataAsScalar() {
@@ -44,7 +44,7 @@ public class DataSourceAvgPressure extends DataSourceScalar {
             if (Double.isNaN(ratios[i])) {
                 break;
             }
-            p *= Math.exp(-mu)/ratios[i];
+            p *= Math.exp(-bmu)/ratios[i];
         }
         tot += p;
         double p2 = 1;
@@ -57,7 +57,7 @@ public class DataSourceAvgPressure extends DataSourceScalar {
             }
             pressure += pi*acc.getData().getValue(acc.AVERAGE.index);
             if (ratios.length-1-i >= 0) {
-                p2 *= Math.exp(-mu)/ratios[ratios.length-1-i];
+                p2 *= Math.exp(-bmu)/ratios[ratios.length-1-i];
                 if (Double.isNaN(ratios[ratios.length-1-i])) {
                     break;
                 }

@@ -39,21 +39,21 @@ public class DataSourcePMu implements IEtomicaDataSource, DataSourceIndependent 
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
     protected final DataTag tag, xTag;
-    protected double mu, deltaMu;
+    protected double bmu, deltaBMu;
     protected int nMu;
     protected double bALattice, volume, latticeDensity;
     protected boolean returnMu;
     
-    public DataSourcePMu(MCMoveOverlapListener mcMoveOverlapMeter, double deltaMu, int nMu, double mu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume, boolean returnMu) {
+    public DataSourcePMu(MCMoveOverlapListener mcMoveOverlapMeter, double deltaBMu, int nMu, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume, boolean returnMu) {
         tag = new DataTag();
         xTag = new DataTag();
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
         this.pSplitter = pSplitter;
         xDataInfo = new DataInfoDoubleArray("betaMu", Null.DIMENSION, new int[]{nMu});
         xData = new DataDoubleArray(nMu);
-        this.deltaMu = deltaMu;
+        this.deltaBMu = deltaBMu;
         this.nMu = nMu;
-        setMu(mu);
+        setMu(bmu);
         data = new DataFunction(new int[]{nMu});
         dataInfo = new DataInfoFunction("deltaP", Pressure.DIMENSION, this);
         this.latticeDensity = latticeDensity;
@@ -64,9 +64,9 @@ public class DataSourcePMu implements IEtomicaDataSource, DataSourceIndependent 
     
     public void setMu(double newMu) {
         double[] x = xData.getData();
-        mu = newMu;
+        bmu = newMu;
         for (int i=-nMu/2; i<=nMu/2; i++) {
-            x[i+nMu/2] = mu+i*deltaMu;
+            x[i+nMu/2] = bmu+i*deltaBMu;
         }
         xDataInfo = new DataInfoDoubleArray("betaMu", Null.DIMENSION, new int[]{nMu});
     }

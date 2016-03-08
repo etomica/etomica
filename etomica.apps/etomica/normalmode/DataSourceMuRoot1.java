@@ -24,16 +24,16 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
 
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected final DataDistributer pSplitter;
-    protected double mu;
+    protected double bmu;
     protected double bALattice, volume, latticeDensity;
     protected double lastP, lastVacancyConcentration;
     protected double minMu;
     
-    public DataSourceMuRoot1(MCMoveOverlapListener mcMoveOverlapMeter, double mu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
+    public DataSourceMuRoot1(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
         this.pSplitter = pSplitter;
-        this.mu = mu;
+        this.bmu = bmu;
         this.latticeDensity = latticeDensity;
         this.bALattice = bALattice;
         this.volume = volume;
@@ -49,8 +49,8 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
         if (ratios == null || ratios.length == 0 || pSplitter.getNumDataSinks() < 2) return Double.NaN;
         double daDef = Math.log(ratios[ratios.length-1]*(volume/latticeDensity));
         if (Double.isNaN(daDef)) return Double.NaN;
-        double myMu = mu;
-        double lastMu = mu;
+        double myMu = bmu;
+        double lastMu = bmu;
         double maxMu = Double.POSITIVE_INFINITY;
         double thisMinMu = Double.isNaN(minMu) ? Double.NEGATIVE_INFINITY : minMu;
         int n0 = mcMoveOverlapMeter.getMinNumAtoms();
