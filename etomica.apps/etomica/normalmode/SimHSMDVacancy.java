@@ -44,7 +44,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.mcmove.MCMoveIDBiasAction;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
-import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancyJump;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
@@ -83,7 +82,6 @@ public class SimHSMDVacancy extends Simulation {
     public P2HardSphere potential;
     public IntegratorMC integratorMC;
     public MCMoveVolume mcMoveVolume;
-    public MCMoveInsertDeleteLatticeVacancyJump mcMoveJump;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
     
 
@@ -128,7 +126,8 @@ public class SimHSMDVacancy extends Simulation {
         }
 
         double nbr1 = L/Math.sqrt(2);
-        double y = nbr1+(L-nbr1)*0.6+0.06;
+        double y = 1.25*nbr1; //nbr1+(L-nbr1)*0.6+0.06;
+
         potential = new P2HardSphere(space, y, false);
         IAtomType leafType = species.getLeafType();
 
@@ -161,19 +160,6 @@ public class SimHSMDVacancy extends Simulation {
         mcMoveID.setSpecies(species);
         integratorMC.getMoveManager().addMCMove(mcMoveID);
         integratorMC.getMoveEventManager().addListener(mcMoveID);
-        if ((numAtoms != fixedN || maxDN > 0) && false) {
-            mcMoveJump = new MCMoveInsertDeleteLatticeVacancyJump(potentialMasterList, random, space, integrator, y, potential);
-            mcMoveJump.setMaxInsertDistance(x);
-            mcMoveJump.setSpecies(species);
-            mcMoveJump.makeFccVectors(nbr1);
-            integratorMC.getMoveManager().addMCMove(mcMoveJump);
-            integratorMC.getMoveEventManager().addListener(mcMoveJump);
-            /*
-            mcMoveJump = new MCMoveHop(potentialMasterList, potential, random, space, L);
-            mcMoveJump.setSpecies(species);
-            integratorMC.getMoveManager().addMCMove(mcMoveJump);
-            */
-        }
         integrator.setIntegratorMC(integratorMC, numAtoms);
         potentialMasterList.reset();
 
@@ -184,38 +170,14 @@ public class SimHSMDVacancy extends Simulation {
 
     public static void main(String[] args) {
 
-        // according to http://link.aip.org/link/doi/10.1063/1.2753149
-        // triple point
-        // T = 0.694
-        // liquid density = 0.845435
-        
-        // Agrawal and Kofke:
-        //      small      large
-        // T    0.698    0.687(4)
-        // p    0.0013   0.0011
-        // rho  0.854    0.850 
-        
         HSMDVParams params = new HSMDVParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
             params.graphics = true;
-            params.numAtoms = 32000;
+            params.numAtoms = 4000;
             params.steps = 1000000;
-            params.density = 1.05;
-            // 1.1 44
-            // 1.2 54
-            // 1.3 87
-            params.numV = 20;
-//            params.mu = 17.14576462697026;
-            //       32k     4k     500
-            // 1.05:        -8.1
-            // 1.10:        -8.3
-            // 1.20:        -9.2
-            // 1.30:       -11.2
-            // 1.35        -12.8
-            // 1.40        -17.4
-//            params.daDef = -32;
-//            params.doReweight = true;
+            params.density = 1.0;
+            params.numV = 10;
         }
 
         final int numAtoms = params.numAtoms;
@@ -628,13 +590,21 @@ public class SimHSMDVacancy extends Simulation {
             dsmrHistory.setDataSink(dsmrPlot.getDataSet().makeDataSink());
             simGraphic.add(dsmrPlot);
 
-            DataSourceMuRoot1 dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
-            final AccumulatorHistory dsmr1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            dsmr1History.setTimeDataSource(timeDataSource);
-            DataPumpListener dsmr1Pump = new DataPumpListener(dsmr1, dsmr1History, hybridInterval);
-            sim.integrator.getEventManager().addListener(dsmr1Pump);
-            dsmr1History.setDataSink(dsmrPlot.getDataSet().makeDataSink());
-            dsmrPlot.setLegend(new DataTag[]{dsmr1.getTag()},"v1");
+            DataSourceMuRoot1 dsmr1 = null;
+            final AccumulatorHistory dsmr1History;
+            if (!fluid) {
+                dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
+                dsmr1.setMinMu(10);
+                dsmr1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
+                dsmr1History.setTimeDataSource(timeDataSource);
+                DataPumpListener dsmr1Pump = new DataPumpListener(dsmr1, dsmr1History, hybridInterval);
+                sim.integrator.getEventManager().addListener(dsmr1Pump);
+                dsmr1History.setDataSink(dsmrPlot.getDataSet().makeDataSink());
+                dsmrPlot.setLegend(new DataTag[]{dsmr1.getTag()},"v1");
+            }
+            else {
+                dsmr1History = null;
+            }
             
             DataSourcePN dataSourcePN = new DataSourcePN(pSplitter, numAtoms);
             DisplayPlot plotPN = new DisplayPlot();
@@ -655,13 +625,19 @@ public class SimHSMDVacancy extends Simulation {
             vPlot.setLegend(new DataTag[]{dsmrvc.getTag()}, "avg");
             simGraphic.add(vPlot);
 
-            DataSourceMuRoot1.DataSourceMuRootVacancyConcentration dsmrvc1 = dsmr1.new DataSourceMuRootVacancyConcentration();
-            final AccumulatorHistory dsmrvc1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
-            dsmrvc1History.setTimeDataSource(timeDataSource);
-            DataPumpListener dsmrvc1Pump = new DataPumpListener(dsmrvc1, dsmrvc1History, hybridInterval);
-            sim.integrator.getEventManager().addListener(dsmrvc1Pump);
-            dsmrvc1History.setDataSink(vPlot.getDataSet().makeDataSink());
-            vPlot.setLegend(new DataTag[]{dsmrvc1.getTag()}, "v1");
+            final AccumulatorHistory dsmrvc1History;
+            if (!fluid) {
+                DataSourceMuRoot1.DataSourceMuRootVacancyConcentration dsmrvc1 = dsmr1.new DataSourceMuRootVacancyConcentration();
+                dsmrvc1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
+                dsmrvc1History.setTimeDataSource(timeDataSource);
+                DataPumpListener dsmrvc1Pump = new DataPumpListener(dsmrvc1, dsmrvc1History, hybridInterval);
+                sim.integrator.getEventManager().addListener(dsmrvc1Pump);
+                dsmrvc1History.setDataSink(vPlot.getDataSet().makeDataSink());
+                vPlot.setLegend(new DataTag[]{dsmrvc1.getTag()}, "v1");
+            }
+            else {
+                dsmrvc1History = null;
+            }
 
             final DeviceButton resetButton = new DeviceButton(sim.getController());
             IAction resetAction = new IAction() {
@@ -671,12 +647,15 @@ public class SimHSMDVacancy extends Simulation {
                         mcMoveOverlapMeter.reset();
                         sim.integrator.resetStepCount();
                         meterP.getDataAsScalar();
+                        meterP.reset();
                         nHistogram.reset();
                         nHistory.reset();
                         dsmrHistory.reset();
-                        dsmr1History.reset();
+                        if (dsmr1History != null) {
+                            dsmr1History.reset();
+                            dsmrvc1History.reset();
+                        }
                         dsmrvcHistory.reset();
-                        dsmrvc1History.reset();
                         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
                             AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
                             if (avg != null) avg.reset();
