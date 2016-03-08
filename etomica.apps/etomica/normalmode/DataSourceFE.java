@@ -61,7 +61,7 @@ public class DataSourceFE implements IEtomicaDataSource, DataSourceIndependent {
 
     public IData getData() {
         double[] ratios = mcMoveOverlapMeter.getRatios().clone();
-        if (ratios == null) return data;
+        if (ratios == null || ratios.length==0) return data;
         if (ratios.length != dataInfo.getLength()-1) {
             getDataInfo();
         }
