@@ -154,7 +154,6 @@ public class MeterSolidDACut implements IEtomicaDataSource {
         for (int i=0; i<p1.length; i++) {
             double measuredP = temperature*rho - virial[i]/(dim*V);
             double buc = (0.5*dadb[i] + (energy[i] - latticeEnergy[i]))/temperature/N;
-//            if (i>=1) System.out.println(p1.length+" "+i+" bUc "+dadb[i]+" "+energy[i]+" "+latticeEnergy[i]);
             double fac2 = (-1/V + bpRes[i])/(dim*N-dim);
             double Zc = (p1[i] + fac2*dadb[i] - latticePressure[i])/(rho*temperature);
             x[j+0] = energy[i]/N;
@@ -174,7 +173,6 @@ public class MeterSolidDACut implements IEtomicaDataSource {
 
             x[j+4] = (4*buc-Zc)*rho*rho/2;
             j+=5;
-//            if (i>=2) System.out.println(p1.length+" "+i+" bUc "+buc);
         }
 
         return data;
