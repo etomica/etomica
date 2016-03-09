@@ -146,6 +146,7 @@ public class SimLJHTTISuper extends Simulation {
             params.numSteps = 1000000;
             params.temperature = 1;
             params.density = 1;
+            params.rcMax1 = 15;
             params.rcMax0 = 13;
             params.rc = 3;
             params.bpharm = new double[]{}; // 864
@@ -163,6 +164,8 @@ public class SimLJHTTISuper extends Simulation {
         double temperature = params.temperature;
         double rc = params.rc;
         double rcMax0 = params.rcMax0;
+        double rcMax1 = params.rcMax1;
+        if (rcMax1 > rcMax0) rcMax1 = rcMax0;
         double[] bpharm = params.bpharm;
         double[] bpharmLJ = params.bpharmLJ;
         
@@ -210,12 +213,11 @@ public class SimLJHTTISuper extends Simulation {
         //start simulation
 
         double L = Math.pow(numAtoms, 1.0/3.0);
-        double rcMax1 = 0.494*L;
-        if (rcMax1>rcMax0) rcMax1 = rcMax0;
+        if (rcMax1 > 0.494*L) rcMax1 = 0.494*L;
         double delta = 0.5;
         int nCutoffs = 1;
         double c = rc;
-        for (nCutoffs=1; c<rcMax1; nCutoffs++) {
+        for (nCutoffs=1; c<=rcMax1*1.0001; nCutoffs++) {
             c += delta;
             if (nCutoffs%2==0) delta += 0.5;
         }
@@ -437,6 +439,7 @@ public class SimLJHTTISuper extends Simulation {
             DataPumpListener pumpPULS = new DataPumpListener(meterSolidLS, puLSReweight, intervalLS);
             sim.integrator.getEventManager().addListener(pumpPULS);
             blockSize = numSteps/(intervalLS*numBlocks);
+            if (blockSize == 0) blockSize = 1;
             accPULS = new AccumulatorAverageCovariance(blockSize);
             puLSReweight.setDataSink(accPULS);
     
@@ -602,6 +605,7 @@ public class SimLJHTTISuper extends Simulation {
         public long numSteps = 1000000;
         public double temperature = 0.1;
         public double rc = 2.5;
+        public double rcMax1 = 100;
         public double rcMax0 = 100;
         public double[] bpharm = new double[0];
         public double[] bpharmLJ = new double[0];
