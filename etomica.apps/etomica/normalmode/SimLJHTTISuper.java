@@ -146,7 +146,7 @@ public class SimLJHTTISuper extends Simulation {
             params.numSteps = 1000000;
             params.temperature = 1;
             params.density = 1;
-            params.rcMax1 = 15;
+            params.rcMax1 = 3.5;
             params.rcMax0 = 13;
             params.rc = 3;
             params.bpharm = new double[]{}; // 864
@@ -409,7 +409,9 @@ public class SimLJHTTISuper extends Simulation {
             sim.initialize(numSteps/10);
         }
         else {
-            sim.initialize(numSteps/20 + 50*numAtoms + numAtoms*numAtoms*3);
+            long nSteps = numSteps/20 + 50*numAtoms + numAtoms*numAtoms*3;
+            if (nSteps > numSteps/2) nSteps = numSteps/2;
+            sim.initialize(nSteps);
         }
 
         int numBlocks = 100;
@@ -489,94 +491,120 @@ public class SimLJHTTISuper extends Simulation {
             System.out.println("\n");
         }
 
-        IData avgData = accPUBlocks.getData(avgSolid.AVERAGE);
-        IData errData = accPUBlocks.getData(avgSolid.ERROR);
-        IData corData = accPUBlocks.getData(avgSolid.BLOCK_CORRELATION);
-        IData covData = accPUBlocks.getData(avgSolid.BLOCK_COVARIANCE);
+        IData errData = accPUBlocks.getData(accPUBlocks.ERROR);
+        IData corData = accPUBlocks.getData(accPUBlocks.BLOCK_CORRELATION);
+        IData covData = accPUBlocks.getData(accPUBlocks.BLOCK_COVARIANCE);
 
-        int n = avgData.getLength();
+        int n = errData.getLength();
+        
+        avgRawData = avgSolid.getData(avgSolid.AVERAGE);
+        errRawData = avgSolid.getData(avgSolid.ERROR);
+        corRawData = avgSolid.getData(avgSolid.BLOCK_CORRELATION);
+
+        int jRaw = 0;
         j = 0;
         for  (int i=0; i<cutoffs.length; i++) {
-            double avgU = avgData.getValue(j+0);
+            double avgW = avgRawData.getValue(jRaw+5);
+            double avgU = avgRawData.getValue(jRaw+0)/avgW;
             double errU = errData.getValue(j+0);
             double corU = corData.getValue(j+0);
-            double avgP = avgData.getValue(j+1);
+            double avgP = avgRawData.getValue(jRaw+1)/avgW;
             double errP = errData.getValue(j+1);
             double corP = corData.getValue(j+1);
-            double avgBUc = avgData.getValue(j+2);
+            double avgBUc = avgRawData.getValue(jRaw+2)/avgW;
             double errBUc = errData.getValue(j+2);
             double corBUc = corData.getValue(j+2);
-            double avgZc = avgData.getValue(j+3);
+            double avgZc = avgRawData.getValue(jRaw+3)/avgW;
             double errZc = errData.getValue(j+3);
             double corZc = corData.getValue(j+3);
             // this is dbAc/drho at constant Y (for LJ)
-            double avgDADv2 = avgData.getValue(j+4);
+            double avgDADv2 = avgRawData.getValue(jRaw+4)/avgW;
             double errDADv2 = errData.getValue(j+4);
             double corDADv2 = corData.getValue(j+4);
 
             double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
             double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
             double facDADY = 4*density*density*density*density/temperature;
+            double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
 
             System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
             System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
             System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
             System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
-
-            double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
             System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
             System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
             System.out.println();
             j+=5;
+            jRaw+=6;
         }
 
         if (nCutoffsLS > 0) {
-            
-            avgData = accPULSBlocks.getData(accPULSBlocks.AVERAGE);
+
+            avgRawData = accPULS.getData(accPULS.AVERAGE);
+            errRawData = accPULS.getData(accPULS.ERROR);
+            corRawData = accPULS.getData(accPULS.BLOCK_CORRELATION);
+
             errData = accPULSBlocks.getData(accPULSBlocks.ERROR);
             covData = accPULSBlocks.getData(accPULSBlocks.BLOCK_COVARIANCE);
             corData = accPULSBlocks.getData(accPULSBlocks.BLOCK_CORRELATION);
 
-            n = avgData.getLength();
+            n = errData.getLength();
 
-            j =  0;
+            j = 0;
+            jRaw = 0;
+            double avgUref = 0, avgPref = 0, avgBUCref = 0, avgDADv2ref = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
-                if (i<=cutoffs.length-1) {
+                if (i<cutoffs.length-1) {
                     j+=5;
+                    jRaw+=6;
                     continue;
                 }
-                double avgU = avgData.getValue(j+0);
+                double avgW = avgRawData.getValue(jRaw+5);
+                double avgU = avgRawData.getValue(j+0)/avgW;
                 double errU = errData.getValue(j+0);
                 double corU = corData.getValue(j+0);
-                double avgP = avgData.getValue(j+1);
+                double avgP = avgRawData.getValue(j+1)/avgW;
                 double errP = errData.getValue(j+1);
                 double corP = corData.getValue(j+1);
-                double avgBUc = avgData.getValue(j+2);
+                double avgBUc = avgRawData.getValue(j+2)/avgW;
                 double errBUc = errData.getValue(j+2);
                 double corBUc = corData.getValue(j+2);
-                double avgZc = avgData.getValue(j+3);
+                double avgZc = avgRawData.getValue(j+3)/avgW;
                 double errZc = errData.getValue(j+3);
                 double corZc = corData.getValue(j+3);
                 // this is dbAc/drho at constant Y (for LJ)
-                double avgDADv2 = avgData.getValue(j+4);
+                double avgDADv2 = avgRawData.getValue(j+4)/avgW;
                 double errDADv2 = errData.getValue(j+4);
                 double corDADv2 = corData.getValue(j+4);
 
                 double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
                 double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
                 double facDADY = 4*density*density*density*density/temperature;
+                double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
+
+                if (i==cutoffs.length) {
+                    avgUref = avgU;
+                    avgPref = avgP;
+                    avgBUCref = avgBUc;
+                    avgDADv2ref = avgDADv2;
+                }
+                else {
+                    avgU -= avgUref;
+                    avgP -= avgPref;
+                    avgBUCref -= avgBUCref;
+                    avgDADv2ref -= avgDADv2ref;
+                }
 
                 System.out.print(String.format("rcLS: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
                 System.out.print(String.format("rcLS: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
                 System.out.print(String.format("rcLS: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
                 System.out.print(String.format("rcLS: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
-
-                double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
                 System.out.print(String.format("rcLS: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
                 System.out.print(String.format("rcLS: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
                 System.out.println();
-             
+
                 j+=5;
+                jRaw+=6;
             }
         }
 
