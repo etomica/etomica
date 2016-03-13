@@ -127,7 +127,7 @@ public class SimLJHTTISuper extends Simulation {
     }
     
     public void initialize(long initSteps) {
-        // equilibrate off the lattice to avoid anomolous contributions
+        // equilibrate off the lattice to avoid anomalous contributions
         activityIntegrate.setMaxSteps(initSteps);
         getController().actionPerformed();
         getController().reset();
@@ -146,9 +146,10 @@ public class SimLJHTTISuper extends Simulation {
             params.numSteps = 1000000;
             params.temperature = 1;
             params.density = 1;
-            params.rcMax1 = 3.5;
+            params.rcMax1 = 4;
             params.rcMax0 = 13;
-            params.rc = 3;
+            params.rc = 3.5;
+            params.rc0 = 3;
             params.bpharm = new double[]{}; // 864
             params.bpharm = new double[]{9.550752087386252e+00,9.554899656911383e+00,9.557975701182272e+00,9.561039289571333e+00,9.561785691168332e+00,9.562084920108349e+00,9.562184015777641e+00,9.562223770855450e+00,9.562237600652669e+00}; //500
             params.bpharmLJ = new double[]{1.361085875265710e+00,1.362422294066396e+00,1.363399142959180e+00,1.364383687422787e+00,1.364621191334029e+00,1.364711705394565e+00,1.364747826183867e+00,1.364760708535937e+00,1.364768368160011e+00}; //500
@@ -163,6 +164,7 @@ public class SimLJHTTISuper extends Simulation {
         final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double rc = params.rc;
+        double rc0 = params.rc0;
         double rcMax0 = params.rcMax0;
         double rcMax1 = params.rcMax1;
         if (rcMax1 > rcMax0) rcMax1 = rcMax0;
@@ -216,7 +218,7 @@ public class SimLJHTTISuper extends Simulation {
         if (rcMax1 > 0.494*L) rcMax1 = 0.494*L;
         double delta = 0.5;
         int nCutoffs = 1;
-        double c = rc;
+        double c = rc0;
         for (nCutoffs=1; c<=rcMax1*1.0001; nCutoffs++) {
             c += delta;
             if (nCutoffs%2==0) delta += 0.5;
@@ -227,7 +229,7 @@ public class SimLJHTTISuper extends Simulation {
         }
         delta = 0.5;
         double[] cutoffs = new double[nCutoffs];
-        cutoffs[0] = rc;
+        cutoffs[0] = rc0;
         for (int i=1; i<nCutoffs; i++) {
             cutoffs[i] = cutoffs[i-1] + delta;
             if (i%2==0) delta += 0.5;
@@ -306,16 +308,15 @@ public class SimLJHTTISuper extends Simulation {
                 throw new RuntimeException("I need LJ harmonic pressures for all cutoffs");
             }
             meterSolid.setPotentialMasterDADv2(potentialMasterDataLJ, bpharmLJ);
-            
         }
-        
+
         double rcMaxLS = 3*rcMax1;
         if (rcMax1 >= rcMax0) rcMaxLS=0;
         else if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
 
         delta = 0.5;
         int nCutoffsLS = 1;
-        c = rc;
+        c = rc0;
         for (nCutoffsLS=1; c<rcMaxLS*1.0001; nCutoffsLS++) {
             c += delta;
             if (nCutoffsLS%2==0) delta += 0.5;
@@ -333,7 +334,7 @@ public class SimLJHTTISuper extends Simulation {
         final double[] uFacCutLS = new double[cutoffsLS.length];
         MeterSolidDACut meterSolidLS = null;
         if (nCutoffsLS>0) {
-            cutoffsLS[0] = rc;
+            cutoffsLS[0] = rc0;
             delta = 0.5;
             for (int i=1; i<cutoffsLS.length; i++) {
                 cutoffsLS[i] = cutoffsLS[i-1] + delta;
@@ -465,8 +466,8 @@ public class SimLJHTTISuper extends Simulation {
         IData errRawData = avgSolid.getData(avgSolid.ERROR);
         IData corRawData = avgSolid.getData(avgSolid.BLOCK_CORRELATION);
 
-        int j = 6;
-        for (int i=1; i<cutoffs.length; i++) {
+        int j = 0;
+        for (int i=0; i<cutoffs.length; i++) {
             double avgW = avgRawData.getValue(j+5);
             double errW = errRawData.getValue(j+5);
             double corW = corRawData.getValue(j+5);
@@ -480,8 +481,8 @@ public class SimLJHTTISuper extends Simulation {
             errRawData = accPULS.getData(accPULS.ERROR);
             corRawData = accPULS.getData(accPULS.BLOCK_CORRELATION);
     
-            j = 6;
-            for (int i=1; i<cutoffsLS.length; i++) {
+            j = 0;
+            for (int i=0; i<cutoffsLS.length; i++) {
                 double avgW = avgRawData.getValue(j+5);
                 double errW = errRawData.getValue(j+5);
                 double corW = corRawData.getValue(j+5);
@@ -491,6 +492,7 @@ public class SimLJHTTISuper extends Simulation {
             System.out.println("\n");
         }
 
+        IData avgData = accPUBlocks.getData(accPUBlocks.AVERAGE);
         IData errData = accPUBlocks.getData(accPUBlocks.ERROR);
         IData corData = accPUBlocks.getData(accPUBlocks.BLOCK_CORRELATION);
         IData covData = accPUBlocks.getData(accPUBlocks.BLOCK_COVARIANCE);
@@ -498,27 +500,30 @@ public class SimLJHTTISuper extends Simulation {
         int n = errData.getLength();
         
         avgRawData = avgSolid.getData(avgSolid.AVERAGE);
-        errRawData = avgSolid.getData(avgSolid.ERROR);
-        corRawData = avgSolid.getData(avgSolid.BLOCK_CORRELATION);
 
         int jRaw = 0;
         j = 0;
         for  (int i=0; i<cutoffs.length; i++) {
             double avgW = avgRawData.getValue(jRaw+5);
             double avgU = avgRawData.getValue(jRaw+0)/avgW;
+            double avgU1 = avgData.getValue(j+0);
             double errU = errData.getValue(j+0);
             double corU = corData.getValue(j+0);
             double avgP = avgRawData.getValue(jRaw+1)/avgW;
+            double avgP1 = avgData.getValue(j+1);
             double errP = errData.getValue(j+1);
             double corP = corData.getValue(j+1);
             double avgBUc = avgRawData.getValue(jRaw+2)/avgW;
+            double avgBUc1 = avgData.getValue(j+2);
             double errBUc = errData.getValue(j+2);
             double corBUc = corData.getValue(j+2);
             double avgZc = avgRawData.getValue(jRaw+3)/avgW;
+            double avgZc1 = avgData.getValue(j+3);
             double errZc = errData.getValue(j+3);
             double corZc = corData.getValue(j+3);
-            // this is dbAc/drho at constant Y (for LJ)
+            // this is dbAc/dv2 at constant Y (for LJ)
             double avgDADv2 = avgRawData.getValue(jRaw+4)/avgW;
+            double avgDADv21 = avgData.getValue(j+4);
             double errDADv2 = errData.getValue(j+4);
             double corDADv2 = corData.getValue(j+4);
 
@@ -527,12 +532,12 @@ public class SimLJHTTISuper extends Simulation {
             double facDADY = 4*density*density*density*density/temperature;
             double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
 
-            System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
-            System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
-            System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
-            System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
-            System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
-            System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
+            System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*(avgBUc1-avgBUc), corBUc));
+            System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, avgDADv21-avgDADv2, corDADv2, DADACor));
+            System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgZc, errZc, avgZc1-avgZc, corZc));
+            System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, avgBUc1-avgBUc, corBUc, ZcUcCor));
+            System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgU, errU, avgU1-avgU, corU));
+            System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgP, errP, avgP1-avgP, corP, PUCor));
             System.out.println();
             j+=5;
             jRaw+=6;
@@ -541,9 +546,8 @@ public class SimLJHTTISuper extends Simulation {
         if (nCutoffsLS > 0) {
 
             avgRawData = accPULS.getData(accPULS.AVERAGE);
-            errRawData = accPULS.getData(accPULS.ERROR);
-            corRawData = accPULS.getData(accPULS.BLOCK_CORRELATION);
 
+            avgData = accPULSBlocks.getData(accPULSBlocks.AVERAGE);
             errData = accPULSBlocks.getData(accPULSBlocks.ERROR);
             covData = accPULSBlocks.getData(accPULSBlocks.BLOCK_COVARIANCE);
             corData = accPULSBlocks.getData(accPULSBlocks.BLOCK_CORRELATION);
@@ -552,7 +556,7 @@ public class SimLJHTTISuper extends Simulation {
 
             j = 0;
             jRaw = 0;
-            double avgUref = 0, avgPref = 0, avgBUCref = 0, avgDADv2ref = 0;
+            double avgUref = 0, avgPref = 0, avgZCref = 0, avgBUCref = 0, avgDADv2ref = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
                 if (i<cutoffs.length-1) {
                     j+=5;
@@ -560,20 +564,25 @@ public class SimLJHTTISuper extends Simulation {
                     continue;
                 }
                 double avgW = avgRawData.getValue(jRaw+5);
-                double avgU = avgRawData.getValue(j+0)/avgW;
+                double avgU = avgRawData.getValue(jRaw+0)/avgW;
+                double avgU1 = avgData.getValue(j+0);
                 double errU = errData.getValue(j+0);
                 double corU = corData.getValue(j+0);
-                double avgP = avgRawData.getValue(j+1)/avgW;
+                double avgP = avgRawData.getValue(jRaw+1)/avgW;
+                double avgP1 = avgData.getValue(j+1);
                 double errP = errData.getValue(j+1);
                 double corP = corData.getValue(j+1);
-                double avgBUc = avgRawData.getValue(j+2)/avgW;
+                double avgBUc = avgRawData.getValue(jRaw+2)/avgW;
+                double avgBUc1 = avgData.getValue(j+2);
                 double errBUc = errData.getValue(j+2);
                 double corBUc = corData.getValue(j+2);
-                double avgZc = avgRawData.getValue(j+3)/avgW;
+                double avgZc = avgRawData.getValue(jRaw+3)/avgW;
+                double avgZc1 = avgData.getValue(j+3);
                 double errZc = errData.getValue(j+3);
                 double corZc = corData.getValue(j+3);
                 // this is dbAc/drho at constant Y (for LJ)
-                double avgDADv2 = avgRawData.getValue(j+4)/avgW;
+                double avgDADv2 = avgRawData.getValue(jRaw+4)/avgW;
+                double avgDADv21 = avgData.getValue(j+4);
                 double errDADv2 = errData.getValue(j+4);
                 double corDADv2 = corData.getValue(j+4);
 
@@ -582,25 +591,28 @@ public class SimLJHTTISuper extends Simulation {
                 double facDADY = 4*density*density*density*density/temperature;
                 double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
 
-                if (i==cutoffs.length) {
+                if (i==cutoffs.length-1) {
                     avgUref = avgU;
                     avgPref = avgP;
+                    avgZCref = avgZc;
                     avgBUCref = avgBUc;
                     avgDADv2ref = avgDADv2;
+                    j+=5;
+                    jRaw+=6;
+                    continue;
                 }
-                else {
-                    avgU -= avgUref;
-                    avgP -= avgPref;
-                    avgBUCref -= avgBUCref;
-                    avgDADv2ref -= avgDADv2ref;
-                }
+                avgU -= avgUref;
+                avgP -= avgPref;
+                avgZc -= avgZCref;
+                avgBUc -= avgBUCref;
+                avgDADv2 -= avgDADv2ref;
 
-                System.out.print(String.format("rcLS: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
-                System.out.print(String.format("rcLS: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
-                System.out.print(String.format("rcLS: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
-                System.out.print(String.format("rcLS: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
-                System.out.print(String.format("rcLS: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
-                System.out.print(String.format("rcLS: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
+                System.out.print(String.format("rcLS: %2d DADY:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*(avgBUc1-avgBUc), corBUc));
+                System.out.print(String.format("rcLS: %2d DADv2: % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, avgDADv21-avgDADv2, corDADv2, DADACor));
+                System.out.print(String.format("rcLS: %2d Zc:    % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgZc, errZc, avgZc1-avgZc, corZc));
+                System.out.print(String.format("rcLS: %2d bUc:   % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, avgBUc1-avgBUc, corBUc, ZcUcCor));
+                System.out.print(String.format("rcLS: %2d Uraw:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgU, errU, avgU1-avgU, corU));
+                System.out.print(String.format("rcLS: %2d Praw:  % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgP, errP, avgP1-avgP, corP, PUCor));
                 System.out.println();
 
                 j+=5;
@@ -633,6 +645,7 @@ public class SimLJHTTISuper extends Simulation {
         public long numSteps = 1000000;
         public double temperature = 0.1;
         public double rc = 2.5;
+        public double rc0 = rc;
         public double rcMax1 = 100;
         public double rcMax0 = 100;
         public double[] bpharm = new double[0];
