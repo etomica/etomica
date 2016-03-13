@@ -1,18 +1,7 @@
 package etomica.virial.simulations;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.IntSet;
-import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
-import etomica.virial.MeterVirialEBinMultiThreaded.MyDataCov;
 import etomica.virial.MeterVirialEBinMultiThreaded;
 
 /**
