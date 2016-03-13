@@ -417,8 +417,28 @@ public class SimLJHTTISuper extends Simulation {
 
         int numBlocks = 100;
         int interval = 2*numAtoms;
+        int intervalLS = 5*interval;
         long blockSize = numSteps/(numBlocks*interval);
         if (blockSize == 0) blockSize = 1;
+        long blockSizeLS = numSteps/(numBlocks*intervalLS);
+        if (blockSizeLS == 0) blockSizeLS = 1;
+        int o=2;
+        while (blockSize<numSteps/5 && (numSteps != numBlocks*intervalLS*blockSizeLS || numSteps != numBlocks*interval*blockSize)) {
+            interval = 2*numAtoms+(o%2==0 ? (o/2) : -(o/2));
+            if (interval < 1 || interval > numSteps/5) {
+                throw new RuntimeException("oops interval "+interval);
+            }
+            // only need to enforce intervalLS if nCutoffsLS>0.  whatever.
+            intervalLS = 5*interval;
+            blockSize = numSteps/(numBlocks*interval);
+            if (blockSize == 0) blockSize = 1;
+            blockSizeLS = numSteps/(numBlocks*intervalLS);
+            if (blockSizeLS == 0) blockSizeLS = 1;
+            o++;
+        }
+        if (numSteps != numBlocks*intervalLS*blockSizeLS || numSteps != numBlocks*interval*blockSize) {
+            throw new RuntimeException("unable to find appropriate intervals");
+        }
         System.out.println("block size "+blockSize+" interval "+interval);
 
         final ValueCache energyFastCache = new ValueCache(meterEnergyShort, sim.integrator);
@@ -437,13 +457,10 @@ public class SimLJHTTISuper extends Simulation {
         AccumulatorAverageCovariance accPULSBlocks = null;
         AccumulatorAverageCovariance accPULS = null;
         if (nCutoffsLS>0) {
-            int intervalLS = 5*interval;
             DataProcessorReweight puLSReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCutLS, sim.box, nCutoffsLS);
             DataPumpListener pumpPULS = new DataPumpListener(meterSolidLS, puLSReweight, intervalLS);
             sim.integrator.getEventManager().addListener(pumpPULS);
-            blockSize = numSteps/(intervalLS*numBlocks);
-            if (blockSize == 0) blockSize = 1;
-            accPULS = new AccumulatorAverageCovariance(blockSize);
+            accPULS = new AccumulatorAverageCovariance(blockSizeLS);
             puLSReweight.setDataSink(accPULS);
     
             DataProcessorReweightRatio puLSReweightRatio = new DataProcessorReweightRatio(nCutoffsLS, nCutoffs-1);
