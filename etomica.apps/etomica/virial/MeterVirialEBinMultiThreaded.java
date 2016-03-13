@@ -259,9 +259,6 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                     }
                 }
             }
-            if (amd.sum[0]!=0 && amd.sampleCount ==0) {
-                throw new RuntimeException("oops");
-            }
         }
     }
 
@@ -649,7 +646,7 @@ public class MeterVirialEBinMultiThreaded implements IAction {
                         else {
                             cor = 0;
                         }
-                        System.out.print(String.format(" % 4.2f", cor));
+                        System.out.print(String.format(" % 5.3f", cor));
                     }
                     System.out.print("\n");
                 }
