@@ -310,9 +310,9 @@ public class SimLJHTTISuper extends Simulation {
             meterSolid.setPotentialMasterDADv2(potentialMasterDataLJ, bpharmLJ);
         }
 
-        double rcMaxLS = 3*rcMax1;
+        double rcMaxLS = 3*0.494*L;
+        if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
         if (rcMax1 >= rcMax0) rcMaxLS=0;
-        else if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
 
         delta = 0.5;
         int nCutoffsLS = 1;
@@ -559,16 +559,16 @@ public class SimLJHTTISuper extends Simulation {
 
             // this is dbAc/dv2 at constant Y (for LJ)
             double avgDADv2 = avgRawData.getValue(jRaw+4);
-            double errDADv2 = errRawData.getValue(jRaw+3);
+            double errDADv2 = errRawData.getValue(jRaw+4);
             double corDADv2W = covRawData.getValue(5*nRaw+4)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(4*nRaw+4));
             errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + errWratio2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
             avgDADv2 /= avgW;
             double corDADv2 = corData.getValue(j+4);
 
-            double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
-            double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
             double facDADY = 4*density*density*density*density/temperature;
             double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
+            double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
+            double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
 
             System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
             System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
