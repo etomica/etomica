@@ -43,6 +43,7 @@ public class ClusterWheatleySoftMix extends ClusterWheatleySoft {
     public ClusterAbstract makeCopy() {
         ClusterWheatleySoftMix c = new ClusterWheatleySoftMix(n, nTypes, mixF, tol);
         c.setTemperature(1/beta);
+        c.setDoCaching(doCaching);
         return c;
     }
 
