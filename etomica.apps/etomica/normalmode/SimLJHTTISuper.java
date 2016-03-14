@@ -482,6 +482,7 @@ public class SimLJHTTISuper extends Simulation {
         IData avgRawData = avgSolid.getData(avgSolid.AVERAGE);
         IData errRawData = avgSolid.getData(avgSolid.ERROR);
         IData corRawData = avgSolid.getData(avgSolid.BLOCK_CORRELATION);
+        IData covRawData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
 
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
@@ -517,31 +518,51 @@ public class SimLJHTTISuper extends Simulation {
         int n = errData.getLength();
         
         avgRawData = avgSolid.getData(avgSolid.AVERAGE);
+        errRawData = avgSolid.getData(avgSolid.ERROR);
+        covRawData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
 
         int jRaw = 0;
         j = 0;
+        int nRaw = avgRawData.getLength();
         for  (int i=0; i<cutoffs.length; i++) {
             double avgW = avgRawData.getValue(jRaw+5);
-            double avgU = avgRawData.getValue(jRaw+0)/avgW;
-            double avgU1 = avgData.getValue(j+0);
-            double errU = errData.getValue(j+0);
+            double errW = errRawData.getValue(jRaw+5);
+            double errWratio2 = errW*errW/(avgW*avgW);
+
+            double avgU = avgRawData.getValue(jRaw+0);
+            double errU = errRawData.getValue(jRaw+0);
+            double corUW = covRawData.getValue(5*nRaw+0)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(0*nRaw+0));
+            errU = Math.abs(avgU/avgW)*Math.sqrt(errU*errU/(avgU*avgU) + errWratio2 - 2*errU*errW/(avgU*avgW)*corUW);
+            avgU /= avgW;
             double corU = corData.getValue(j+0);
-            double avgP = avgRawData.getValue(jRaw+1)/avgW;
-            double avgP1 = avgData.getValue(j+1);
-            double errP = errData.getValue(j+1);
+
+            double avgP = avgRawData.getValue(jRaw+1);
+            double errP = errRawData.getValue(jRaw+1);
+            double corPW = covRawData.getValue(5*nRaw+1)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(1*nRaw+1));
+            errP = Math.abs(avgP/avgW)*Math.sqrt(errP*errP/(avgP*avgP) + errWratio2 - 2*errP*errW/(avgP*avgW)*corPW);
+            avgP /= avgW;
             double corP = corData.getValue(j+1);
-            double avgBUc = avgRawData.getValue(jRaw+2)/avgW;
-            double avgBUc1 = avgData.getValue(j+2);
-            double errBUc = errData.getValue(j+2);
+
+            double avgBUc = avgRawData.getValue(jRaw+2);
+            double errBUc = errRawData.getValue(jRaw+2);
+            double corBUcW = covRawData.getValue(5*nRaw+2)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(2*nRaw+2));
+            errBUc = Math.abs(avgBUc/avgW)*Math.sqrt(errBUc*errBUc/(avgBUc*avgBUc) + errWratio2 - 2*errBUc*errW/(avgBUc*avgW)*corBUcW);
+            avgBUc /= avgW;
             double corBUc = corData.getValue(j+2);
-            double avgZc = avgRawData.getValue(jRaw+3)/avgW;
-            double avgZc1 = avgData.getValue(j+3);
-            double errZc = errData.getValue(j+3);
+
+            double avgZc = avgRawData.getValue(jRaw+3);
+            double errZc = errRawData.getValue(jRaw+3);
+            double corZcW = covRawData.getValue(5*nRaw+3)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(3*nRaw+3));
+            errZc = Math.abs(avgZc/avgW)*Math.sqrt(errZc*errZc/(avgZc*avgZc) + errWratio2 - 2*errZc*errW/(avgZc*avgW)*corZcW);
+            avgZc /= avgW;
             double corZc = corData.getValue(j+3);
+
             // this is dbAc/dv2 at constant Y (for LJ)
-            double avgDADv2 = avgRawData.getValue(jRaw+4)/avgW;
-            double avgDADv21 = avgData.getValue(j+4);
-            double errDADv2 = errData.getValue(j+4);
+            double avgDADv2 = avgRawData.getValue(jRaw+4);
+            double errDADv2 = errRawData.getValue(jRaw+3);
+            double corDADv2W = covRawData.getValue(5*nRaw+4)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(4*nRaw+4));
+            errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + errWratio2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
+            avgDADv2 /= avgW;
             double corDADv2 = corData.getValue(j+4);
 
             double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
@@ -549,12 +570,12 @@ public class SimLJHTTISuper extends Simulation {
             double facDADY = 4*density*density*density*density/temperature;
             double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
 
-            System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*(avgBUc1-avgBUc), corBUc));
-            System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, avgDADv21-avgDADv2, corDADv2, DADACor));
-            System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgZc, errZc, avgZc1-avgZc, corZc));
-            System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, avgBUc1-avgBUc, corBUc, ZcUcCor));
-            System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgU, errU, avgU1-avgU, corU));
-            System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgP, errP, avgP1-avgP, corP, PUCor));
+            System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
+            System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
+            System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
+            System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
+            System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
+            System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
             System.out.println();
             j+=5;
             jRaw+=6;
