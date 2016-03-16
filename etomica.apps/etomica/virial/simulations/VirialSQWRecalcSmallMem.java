@@ -49,7 +49,7 @@ public class VirialSQWRecalcSmallMem {
         
         System.out.print("reading without covariance...");
         long t1 = System.currentTimeMillis();
-        meter.readData(new String[]{singleFile}, nPoints, false);
+        meter.readData(new String[]{singleFile}, nPoints, true);
         long t2 = System.currentTimeMillis();
         System.out.println(String.format(" %6.3f",(t2-t1)*0.001));
         
