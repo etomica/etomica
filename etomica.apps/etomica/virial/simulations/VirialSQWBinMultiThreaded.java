@@ -471,6 +471,27 @@ public class VirialSQWBinMultiThreaded {
                     return pv;
                 }
             };
+            PropertyBin podODCliq2 = new PropertyBin() {
+                final IntSet pv = new IntSet(new int[9]);
+                public IntSet value() {
+                    pv.v[0] = targetCluster.getCoreEdgeCount();
+                    pv.v[1] = targetCluster.getWellEdgeCount();
+                    pv.v[2] = pv.v[3] = pv.v[4] = 0;
+                    int[] odc = targetCluster.getOutDegreeCore();
+                    int[] odw = targetCluster.getOutDegreeWell();
+                    for (int i=0; i<nPoints; i++) {
+                        pv.v[2] += odc[i]*odc[i];
+                        pv.v[3] += odw[i]*odw[i];
+                        pv.v[4] += odc[i]*odw[i];
+                    }
+                    pv.v[5] = targetCluster.getF1CliqueCount();
+                    pv.v[6] = targetCluster.getE2CliqueCount();
+                    pv.v[7] = targetCluster.getEFCliqueCount();
+                    pv.v[8] = targetCluster.getNoneCliqueCount();
+                    
+                    return pv;
+                }
+            };
             final DooDad dooDad = new DooDad(nPoints);
             PropertyBin podODCliqDoodad = new PropertyBin() {
                 final IntSet pv = new IntSet(new int[13]);
@@ -502,9 +523,9 @@ public class VirialSQWBinMultiThreaded {
             myPODs[5] = podODCliq;
             myPODs[6] = podODCliqDoodad;
             myPODs[7] = podODCliqDoodad;
-            myPODs[8] = podODCliqDoodad;
             // podODCliqDoodad yields too many bins.  even if our memory could hold it, it would take
             // a long time to get any benefit from binning
+            myPODs[8] = podODCliq2;
             myPODs[9] = podOD5;
             myPODs[10] = podOD5;
             meter = new MeterVirialEBinMultiThreaded(targetCluster, sim.getRandom(), myPODs[nPoints], totalCount, allMyData, iThread, doReweight, nPoints);
