@@ -525,57 +525,74 @@ public class SimLJHTTISuper extends Simulation {
         j = 0;
         int nRaw = avgRawData.getLength();
         for  (int i=0; i<cutoffs.length; i++) {
+            // compute bias based on Taylor series expansion
+            // Xmeasured = Xtrue ( 1 + (ew/w)^2 + (cov_XW)/(X W) )
             double avgW = avgRawData.getValue(jRaw+5);
             double errW = errRawData.getValue(jRaw+5);
             double errWratio2 = errW*errW/(avgW*avgW);
 
             double avgU = avgRawData.getValue(jRaw+0);
             double errU = errRawData.getValue(jRaw+0);
-            double corUW = covRawData.getValue(5*nRaw+0)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(0*nRaw+0));
+            double corUW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+0))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+0)*nRaw+(jRaw+0)));
+            if (errW < 1e-7) corUW=0; // if this is sampled rc
+            double biasU = errWratio2 - errU*errW/(avgU*avgW)*corUW;
             errU = Math.abs(avgU/avgW)*Math.sqrt(errU*errU/(avgU*avgU) + errWratio2 - 2*errU*errW/(avgU*avgW)*corUW);
             avgU /= avgW;
+            avgU /= 1 + biasU;
             double corU = corData.getValue(j+0);
 
             double avgP = avgRawData.getValue(jRaw+1);
             double errP = errRawData.getValue(jRaw+1);
-            double corPW = covRawData.getValue(5*nRaw+1)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(1*nRaw+1));
+            double corPW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+1))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+1)*nRaw+(jRaw+1)));
+            if (errW < 1e-7) corPW=0; // if this is sampled rc
+            double biasP = errWratio2 - errP*errW/(avgP*avgW)*corPW;
             errP = Math.abs(avgP/avgW)*Math.sqrt(errP*errP/(avgP*avgP) + errWratio2 - 2*errP*errW/(avgP*avgW)*corPW);
             avgP /= avgW;
+            avgP /= 1 + biasP;
             double corP = corData.getValue(j+1);
 
             double avgBUc = avgRawData.getValue(jRaw+2);
             double errBUc = errRawData.getValue(jRaw+2);
-            double corBUcW = covRawData.getValue(5*nRaw+2)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(2*nRaw+2));
+            double corBUcW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+2))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+2)*nRaw+(jRaw+2)));
+            if (errW < 1e-7) corBUcW=0; // if this is sampled rc
+            double biasBUc = errWratio2 - errBUc*errW/(avgBUc*avgW)*corBUcW;
             errBUc = Math.abs(avgBUc/avgW)*Math.sqrt(errBUc*errBUc/(avgBUc*avgBUc) + errWratio2 - 2*errBUc*errW/(avgBUc*avgW)*corBUcW);
             avgBUc /= avgW;
+            avgBUc /= 1 + biasBUc;
             double corBUc = corData.getValue(j+2);
 
             double avgZc = avgRawData.getValue(jRaw+3);
             double errZc = errRawData.getValue(jRaw+3);
-            double corZcW = covRawData.getValue(5*nRaw+3)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(3*nRaw+3));
+            double corZcW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+3))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+3)*nRaw+(jRaw+3)));
+            if (errW < 1e-7) corZcW=0; // if this is sampled rc
+            double biasZc = errWratio2 - errZc*errW/(avgZc*avgW)*corZcW;
             errZc = Math.abs(avgZc/avgW)*Math.sqrt(errZc*errZc/(avgZc*avgZc) + errWratio2 - 2*errZc*errW/(avgZc*avgW)*corZcW);
             avgZc /= avgW;
+            avgZc /= 1 + biasZc;
             double corZc = corData.getValue(j+3);
 
             // this is dbAc/dv2 at constant Y (for LJ)
             double avgDADv2 = avgRawData.getValue(jRaw+4);
             double errDADv2 = errRawData.getValue(jRaw+4);
-            double corDADv2W = covRawData.getValue(5*nRaw+4)/Math.sqrt(covRawData.getValue(5*nRaw+5)*covRawData.getValue(4*nRaw+4));
+            double corDADv2W = covRawData.getValue((jRaw+5)*nRaw+(jRaw+4))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+4)*nRaw+(jRaw+4)));
+            if (errW < 1e-7) corDADv2W=0; // if this is sampled rc
+            double biasDADv2 = errWratio2 - errDADv2*errW/(avgDADv2*avgW)*corDADv2W;
             errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + errWratio2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
             avgDADv2 /= avgW;
+            avgDADv2 /= 1 + biasDADv2;
             double corDADv2 = corData.getValue(j+4);
 
             double facDADY = 4*density*density*density*density/temperature;
-            double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
-            double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
-            double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
+            double PUCor = covData.getValue((j+1)*n+(j+0))/Math.sqrt(covData.getValue((j+1)*n+(j+1))*covData.getValue((j+0)*n+(j+0)));
+            double DADACor = covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
+            double ZcUcCor = covData.getValue((j+3)*n+(j+4))/Math.sqrt(covData.getValue((j+3)*n+(j+3))*covData.getValue((j+4)*n+(j+4)));
 
-            System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, corBUc));
-            System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, corDADv2, DADACor));
-            System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 5.3f\n", i, avgZc, errZc, corZc));
-            System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, corBUc, ZcUcCor));
-            System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 5.3f\n", i, avgU, errU, corU));
-            System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, corP, PUCor));
+            System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*avgBUc*biasBUc, corBUc));
+            System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, avgDADv2*biasDADv2, corDADv2, DADACor));
+            System.out.print(String.format("rc: %2d Zc:    % 21.15e  %10.4e  % 10.4e  % 5.3f\n", i, avgZc, errZc, avgZc*biasZc, corZc));
+            System.out.print(String.format("rc: %2d bUc:   % 21.15e  %10.4e  % 10.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, avgBUc*biasBUc, corBUc, ZcUcCor));
+            System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 10.4e  % 5.3f\n", i, avgU, errU, avgU*biasU, corU));
+            System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, avgP*biasP, corP, PUCor));
             System.out.println();
             j+=5;
             jRaw+=6;
@@ -601,6 +618,8 @@ public class SimLJHTTISuper extends Simulation {
                     jRaw+=6;
                     continue;
                 }
+                // estimate bias based on difference between averages using all data and average of block data
+                // that gives us bias in block data.  then divide by number of blocks (bias proportional to variance and covariance)
                 double avgW = avgRawData.getValue(jRaw+5);
                 double avgU = avgRawData.getValue(jRaw+0)/avgW;
                 double avgU1 = avgData.getValue(j+0);
@@ -645,12 +664,12 @@ public class SimLJHTTISuper extends Simulation {
                 avgBUc -= avgBUCref;
                 avgDADv2 -= avgDADv2ref;
 
-                System.out.print(String.format("rcLS: %2d DADY:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*(avgBUc1-avgBUc), corBUc));
-                System.out.print(String.format("rcLS: %2d DADv2: % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, avgDADv21-avgDADv2, corDADv2, DADACor));
-                System.out.print(String.format("rcLS: %2d Zc:    % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgZc, errZc, avgZc1-avgZc, corZc));
-                System.out.print(String.format("rcLS: %2d bUc:   % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, avgBUc1-avgBUc, corBUc, ZcUcCor));
-                System.out.print(String.format("rcLS: %2d Uraw:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgU, errU, avgU1-avgU, corU));
-                System.out.print(String.format("rcLS: %2d Praw:  % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgP, errP, avgP1-avgP, corP, PUCor));
+                System.out.print(String.format("rcLS: %2d DADY:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*(avgBUc1-avgBUc)/numBlocks, corBUc));
+                System.out.print(String.format("rcLS: %2d DADv2: % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, (avgDADv21-avgDADv2)/numBlocks, corDADv2, DADACor));
+                System.out.print(String.format("rcLS: %2d Zc:    % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgZc, errZc, (avgZc1-avgZc)/numBlocks, corZc));
+                System.out.print(String.format("rcLS: %2d bUc:   % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgBUc, errBUc, (avgBUc1-avgBUc)/numBlocks, corBUc, ZcUcCor));
+                System.out.print(String.format("rcLS: %2d Uraw:  % 21.15e  %10.4e  % 11.4e  % 5.3f\n", i, avgU, errU, (avgU1-avgU)/numBlocks, corU));
+                System.out.print(String.format("rcLS: %2d Praw:  % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgP, errP, (avgP1-avgP)/numBlocks, corP, PUCor));
                 System.out.println();
 
                 j+=5;
