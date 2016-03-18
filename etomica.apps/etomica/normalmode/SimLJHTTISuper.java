@@ -538,7 +538,6 @@ public class SimLJHTTISuper extends Simulation {
             double biasU = errWratio2 - errU*errW/(avgU*avgW)*corUW;
             errU = Math.abs(avgU/avgW)*Math.sqrt(errU*errU/(avgU*avgU) + errWratio2 - 2*errU*errW/(avgU*avgW)*corUW);
             avgU /= avgW;
-            avgU /= 1 + biasU;
             double corU = corData.getValue(j+0);
 
             double avgP = avgRawData.getValue(jRaw+1);
@@ -548,7 +547,6 @@ public class SimLJHTTISuper extends Simulation {
             double biasP = errWratio2 - errP*errW/(avgP*avgW)*corPW;
             errP = Math.abs(avgP/avgW)*Math.sqrt(errP*errP/(avgP*avgP) + errWratio2 - 2*errP*errW/(avgP*avgW)*corPW);
             avgP /= avgW;
-            avgP /= 1 + biasP;
             double corP = corData.getValue(j+1);
 
             double avgBUc = avgRawData.getValue(jRaw+2);
@@ -558,7 +556,6 @@ public class SimLJHTTISuper extends Simulation {
             double biasBUc = errWratio2 - errBUc*errW/(avgBUc*avgW)*corBUcW;
             errBUc = Math.abs(avgBUc/avgW)*Math.sqrt(errBUc*errBUc/(avgBUc*avgBUc) + errWratio2 - 2*errBUc*errW/(avgBUc*avgW)*corBUcW);
             avgBUc /= avgW;
-            avgBUc /= 1 + biasBUc;
             double corBUc = corData.getValue(j+2);
 
             double avgZc = avgRawData.getValue(jRaw+3);
@@ -568,7 +565,6 @@ public class SimLJHTTISuper extends Simulation {
             double biasZc = errWratio2 - errZc*errW/(avgZc*avgW)*corZcW;
             errZc = Math.abs(avgZc/avgW)*Math.sqrt(errZc*errZc/(avgZc*avgZc) + errWratio2 - 2*errZc*errW/(avgZc*avgW)*corZcW);
             avgZc /= avgW;
-            avgZc /= 1 + biasZc;
             double corZc = corData.getValue(j+3);
 
             // this is dbAc/dv2 at constant Y (for LJ)
@@ -579,7 +575,6 @@ public class SimLJHTTISuper extends Simulation {
             double biasDADv2 = errWratio2 - errDADv2*errW/(avgDADv2*avgW)*corDADv2W;
             errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + errWratio2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
             avgDADv2 /= avgW;
-            avgDADv2 /= 1 + biasDADv2;
             double corDADv2 = corData.getValue(j+4);
 
             double facDADY = 4*density*density*density*density/temperature;
