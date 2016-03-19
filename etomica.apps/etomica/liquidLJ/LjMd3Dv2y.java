@@ -60,7 +60,7 @@ public class LjMd3Dv2y {
             params.v2 = 0;
             params.rcShort = 2.5; //*Math.pow(params.v2, 1.0/6.0);
             params.y = 1.5;
-            params.hybridInterval = 100;
+            params.hybridInterval = 20;
         }
 
         final int numAtoms = params.numAtoms;
@@ -409,6 +409,7 @@ public class LjMd3Dv2y {
             j+=4;
             jRaw+=5;
         }
+        covPU = corPU = errPU = null;
 
         if (nCutoffsLS > 0) {
             AtomPair selfPair = new AtomPair();
@@ -417,18 +418,31 @@ public class LjMd3Dv2y {
             double[][] puSelfLJLRC = null;
             if (pLJLS!=null) puSelfLJLRC = pLJLS.energyVirialCut(selfPair);
 
-            dataPU = (DataGroup)accPULSBlocks.getData();
-            avgPU = dataPU.getData(accPULSBlocks.AVERAGE.index);
-            errPU = dataPU.getData(accPULSBlocks.ERROR.index);
-            covPU = dataPU.getData(accPULSBlocks.BLOCK_COVARIANCE.index);
-            corPU = dataPU.getData(accPULSBlocks.BLOCK_CORRELATION.index);
+            dataPU = (DataGroup)accPULS.getData();
+            avgPU = dataPU.getData(accPULS.AVERAGE.index);
 
-            n = 4*cutoffsLS.length;
+            dataPU1 = (DataGroup)accPULSBlocks.getData();
+            avgPU1 = dataPU1.getData(accPULSBlocks.AVERAGE.index);
+            errPU1 = dataPU1.getData(accPULSBlocks.ERROR.index);
+            covPU1 = dataPU1.getData(accPULSBlocks.BLOCK_COVARIANCE.index);
+            corPU1 = dataPU1.getData(accPULSBlocks.BLOCK_CORRELATION.index);
+
+            n = avgPU.getLength();
+            int n1 = avgPU1.getLength();
 
             j =  0;
+            int j1 = 0;
             double ulrcRef = 0, ulrcRefLJ = 0;
             double plrcRef = 0, plrcRefLJ = 0;
+            double avgUref = 0, avgPref = 0, avgDADyref = 0, avgDADv2ref = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
+                if (i<cutoffs.length-1) {
+                    j1+=4;
+                    j+=5;
+                    continue;
+                }
+
+                double avgW = avgPU.getValue(j+4);
 
                 P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
                 p2t.setBox(sim.box);
@@ -439,29 +453,38 @@ public class LjMd3Dv2y {
                 if (i==cutoffs.length-1) ulrcRef = ulrc;
                 else ulrc -= ulrcRef;
 
-                double avgU = avgPU.getValue(j+0);
-                double errU = errPU.getValue(j+0);
-                double corU = corPU.getValue(j+0);
-                if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  U:       % 22.15e  %10.4e  % 5.2f", i, ulrc + avgU, errU, corU));
+                double avgU = avgPU.getValue(j+0)/avgW;
+                double avgU1 = avgPU1.getValue(j1+0);
+                double errU1 = errPU1.getValue(j1+0);
+                double corU1 = corPU1.getValue(j1+0);
 
-                double avgP = avgPU.getValue(j+1);
-                double errP = errPU.getValue(j+1);
-                double corP = corPU.getValue(j+1);
+                double avgP = avgPU.getValue(j+1)/avgW;
+                double avgP1 = avgPU1.getValue(j1+1);
+                double errP1 = errPU1.getValue(j1+1);
+                double corP1 = corPU1.getValue(j1+1);
                 double vol = sim.box.getBoundary().volume();
                 double plrc = -(p0lrc.virial(null) + numAtoms*puSelfLRC[1][i])/(3*vol);
                 if (i==cutoffs.length-1) plrcRef = plrc;
                 else plrc -= plrcRef;
-                double puCor = covPU.getValue((j+0)*n+j+1) / Math.sqrt(covPU.getValue((j+0)*n+j+0) * covPU.getValue((j+1)*n+j+1));
-                if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, corP, puCor));
+                double puCor = covPU1.getValue((j1+0)*n1+j1+1) / Math.sqrt(covPU1.getValue((j1+0)*n1+j1+0) * covPU1.getValue((j1+1)*n1+j1+1));
 
-                double avgDADy = avgPU.getValue(j+2);
-                double errDADy = errPU.getValue(j+2);
-                double corDADy = corPU.getValue(j+2);
-                if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  DADy:    % 22.15e  %10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, corDADy));
+                double avgDADy = avgPU.getValue(j+2)/avgW;
+                double avgDADy1 = avgPU1.getValue(j1+2);
+                double errDADy1 = errPU1.getValue(j1+2);
+                double corDADy1 = corPU1.getValue(j1+2);
+                if (i>cutoffs.length-1) {
+                    avgU -= avgUref;
+                    avgP -= avgPref;
+                    avgDADy -= avgDADyref;
+                    System.out.println(String.format("drcLS: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc + avgU, errU1, (avgU-avgU1)/nAccBlocks, corU1));
+                    System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1, puCor));
+                    System.out.println(String.format("drcLS: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy1, (avgDADy-avgDADy1)/nAccBlocks, corDADy1));
+                }
 
-                double avgDADv2 = avgPU.getValue(j+3);
-                double errDADv2 = errPU.getValue(j+3);
-                double corDADv2 = corPU.getValue(j+3);
+                double avgDADv2 = avgPU.getValue(j+3)/avgW;
+                double avgDADv21 = avgPU1.getValue(j1+3);
+                double errDADv21 = errPU1.getValue(j1+3);
+                double corDADv21 = corPU1.getValue(j1+3);
 
                 // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
                 if (p2LJ!=null) {
@@ -478,12 +501,24 @@ public class LjMd3Dv2y {
                     else plrc -= plrcRefLJ;
                 }
 
-                double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
-                double dadCor = covPU.getValue((j+2)*n+j+3) / Math.sqrt(covPU.getValue((j+2)*n+j+2) * covPU.getValue((j+3)*n+j+3));
-                if (i>cutoffs.length-1) System.out.println(String.format("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv2, corDADv2, dadCor));
-                if (i>cutoffs.length-1) System.out.println();
+                if (i==cutoffs.length-1) {
+                    avgUref = avgU;
+                    avgPref = avgP;
+                    avgDADyref = avgDADy;
+                    avgDADv2ref = avgDADv2;
+                    j1+=4;
+                    j+=5;
+                    continue;
+                }
+                avgDADv2 -= avgDADv2ref;
 
-                j+=4;
+                double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
+                double dadCor = covPU1.getValue((j1+2)*n1+j1+3) / Math.sqrt(covPU1.getValue((j1+2)*n1+j1+2) * covPU1.getValue((j1+3)*n1+j1+3));
+                System.out.println(String.format("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv21, (avgDADv21-avgDADv2)/nAccBlocks, corDADv21, dadCor));
+                System.out.println();
+
+                j1+=4;
+                j+=5;
             }
         }
 
