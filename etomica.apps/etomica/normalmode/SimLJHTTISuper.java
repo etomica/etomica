@@ -144,11 +144,11 @@ public class SimLJHTTISuper extends Simulation {
         if (args.length == 0) {
             params.numAtoms = 500;
             params.numSteps = 1000000;
-            params.temperature = 1;
+            params.temperature = 0.96;
             params.density = 1;
             params.rcMax1 = 4;
-            params.rcMax0 = 13;
-            params.rc = 3.5;
+            params.rcMax0 = 11;
+            params.rc = 3;
             params.rc0 = 3;
             params.bpharm = new double[]{}; // 864
             params.bpharm = new double[]{9.550752087386252e+00,9.554899656911383e+00,9.557975701182272e+00,9.561039289571333e+00,9.561785691168332e+00,9.562084920108349e+00,9.562184015777641e+00,9.562223770855450e+00,9.562237600652669e+00}; //500
@@ -638,10 +638,10 @@ public class SimLJHTTISuper extends Simulation {
                 double errDADv2 = errData.getValue(j+4);
                 double corDADv2 = corData.getValue(j+4);
 
-                double DADACor = covData.getValue(2*n+4)/Math.sqrt(covData.getValue(2*n+2)*covData.getValue(4*n+4));
-                double ZcUcCor = covData.getValue(3*n+4)/Math.sqrt(covData.getValue(3*n+3)*covData.getValue(4*n+4));
+                double DADACor = covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
+                double ZcUcCor = covData.getValue((j+3)*n+(j+4))/Math.sqrt(covData.getValue((j+3)*n+(j+3))*covData.getValue((j+4)*n+(j+4)));
                 double facDADY = 4*density*density*density*density/temperature;
-                double PUCor = covData.getValue(1*n+0)/Math.sqrt(covData.getValue(1*n+1)*covData.getValue(0*n+0));
+                double PUCor = covData.getValue((j+1)*n+(j+0))/Math.sqrt(covData.getValue((j+1)*n+(j+1))*covData.getValue((j+0)*n+(j+0)));
 
                 if (i==cutoffs.length-1) {
                     avgUref = avgU;
