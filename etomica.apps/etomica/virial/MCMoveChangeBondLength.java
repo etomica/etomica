@@ -16,12 +16,8 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.potential.P1HydrogenMielke;
-import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P1IntraMolecular;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.util.Constants;
 import etomica.util.DoubleRange;
@@ -501,8 +497,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
         p11 = p1;
         double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*a.getMass()*t));
         kHarmonic = Math.PI*P/(lambda*lambda);
-        double cT = 1.0;
-        if (doExchange) cT = Math.cos(Math.PI/P);        
+        double cT = 1.0;                
         double[][] m = new double[P][P];
         int maxIter = 100000;
         double tol = 1E-15;
@@ -510,7 +505,12 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
         double xNew = 0;        
         boolean done = false;
         for (int i=0; i<maxIter && !done; i++) {
-            cT = 1 - (P - 1)/(P*kHarmonic*x0*x0);
+            if (doExchange) {
+                cT = Math.cos(Math.PI/P);
+            }
+            else {
+                cT = 1 - (P - 1)/(P*kHarmonic*x0*x0);
+            }
             if (Double.isNaN(cT)) throw new RuntimeException("cT = "+cT);
             if (cT < -1.0) {
                 cT = -1.0;
