@@ -235,17 +235,19 @@ public class VirialO2 {
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
         System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                               averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
-        if ((t2-t1)/1000.0 > 24*3600) {            
-            System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
-        }
-        else if ((t2-t1)/1000.0 > 3600) {            
-            System.out.println("time: "+(t2-t1)/(3600*1000.0)+" hrs");
-        }
-        else if ((t2-t1)/1000.0 > 60) {           
-            System.out.println("time: "+(t2-t1)/(60*1000.0)+" mins");
-        }
-        else {           
-            System.out.println("time: "+(t2-t1)/1000.0+" secs");
+        if (!isCommandLine) {
+            if ((t2-t1)/1000.0 > 24*3600) {            
+                System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
+            }
+            else if ((t2-t1)/1000.0 > 3600) {            
+                System.out.println("time: "+(t2-t1)/(3600*1000.0)+" hrs");
+            }
+            else if ((t2-t1)/1000.0 > 60) {           
+                System.out.println("time: "+(t2-t1)/(60*1000.0)+" mins");
+            }
+            else {           
+                System.out.println("time: "+(t2-t1)/1000.0+" secs");
+            }
         }
         if (isCommandLine) {
             LinkedHashMap resultsMap = new LinkedHashMap();
@@ -277,28 +279,10 @@ public class VirialO2 {
                 resultsMap.put("time",(t2-t1)/(1000.0));
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
-            }                    
-            String jsonFileName = params.jarFile + "s"+ s;
-            if (isPT2) {
-                jsonFileName += "PT2CL";
-            }
-            else {
-                jsonFileName += "MRCICL";
-            }
-            
-            if (temperatureK == (int) temperatureK) { 
-                jsonFileName += (int)temperatureK+"K";
-            }
-            else {
-                jsonFileName += temperatureK+"K";
-            }            
-            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";
-            if (nT > 1) {
-                jsonFileName += "Sim"+n;
-            }
-            jsonFileName += ".json";
+            }                   
+
             try {
-                FileWriter jsonFile = new FileWriter(jsonFileName);
+                FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
                 jsonFile.write(JSONObject.toJSONString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
@@ -322,7 +306,7 @@ public class VirialO2 {
         public double sigmaHSRef = 4.50; // -1 means use equation for sigmaHSRef        
         public level potentialLevel = level.classical;
         public boolean pairOnly = true;        
-        public String jarFile = "";
+        public String jsonOutputFileName = "";
         public int nTimes = 1; // to run the simulation more than once
         public int s = 0; // multiplicity
         public boolean isPT2 = false;

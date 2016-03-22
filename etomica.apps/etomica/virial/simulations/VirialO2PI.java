@@ -289,6 +289,7 @@ public class VirialO2PI {
         if (isCommandLine) {
             LinkedHashMap resultsMap = new LinkedHashMap();
             resultsMap.put("temperature", temperatureK);
+            resultsMap.put("P", nBeads);
             resultsMap.put("bn", bn);
             resultsMap.put("bnError", bnError);
             resultsMap.put("refAvg", refAvg);
@@ -321,25 +322,9 @@ public class VirialO2PI {
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
             }
-            String jsonFileName = params.jarFile +"s"+ s;
-            if (isPT2) {
-                jsonFileName += "PT2PI";
-            }
-            else {
-                jsonFileName += "MRCIPI";
-            }
             
-            if (temperatureK == (int) temperatureK) { 
-                jsonFileName += (int)temperatureK+"K";
-            }
-            else {
-                jsonFileName += temperatureK+"K";
-            }            
-            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";
-            
-            jsonFileName += ".json";
             try {
-                FileWriter jsonFile = new FileWriter(jsonFileName);
+                FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
                 jsonFile.write(JSONObject.toJSONString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
@@ -349,17 +334,19 @@ public class VirialO2PI {
         }
 //        sim.printResults(HSB[nPoints]);        
         
-        if ((t2-t1)/1000.0 > 24*3600) {
-            System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
-        }
-        else if ((t2-t1)/1000.0 > 3600) {
-            System.out.println("time: "+(t2-t1)/(3600*1000.0)+" hrs");
-        }
-        else if ((t2-t1)/1000.0 > 60) {
-            System.out.println("time: "+(t2-t1)/(60*1000.0)+" mins");
-        }
-        else {
-            System.out.println("time: "+(t2-t1)/1000.0+" secs");
+        if (!isCommandLine) {
+            if ((t2-t1)/1000.0 > 24*3600) {
+                System.out.println("time: "+(t2-t1)/(24*3600*1000.0)+" days");
+            }
+            else if ((t2-t1)/1000.0 > 3600) {
+                System.out.println("time: "+(t2-t1)/(3600*1000.0)+" hrs");
+            }
+            else if ((t2-t1)/1000.0 > 60) {
+                System.out.println("time: "+(t2-t1)/(60*1000.0)+" mins");
+            }
+            else {
+                System.out.println("time: "+(t2-t1)/1000.0+" secs");
+            }
         }
     }
     public static final double blO2 = BohrRadius.UNIT.toSim(2.28);
@@ -379,7 +366,7 @@ public class VirialO2PI {
         public int beadFac = 2;
         public int s = 0; // multiplicity
         public int nTimes = 1;
-        public String jarFile = "";
+        public String jsonOutputFileName = "";
         public boolean isPT2 = false;
     }
 
