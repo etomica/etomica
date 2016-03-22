@@ -61,19 +61,18 @@ public class VirialN2PI {
         }
         else {
             // default options - choose these before committing to CVS
-//            params.nBeads = 8;
-//            params.temperatureK = 500;
-//            params.numSteps = (long)1E6;
-//            params.pN2HellmannA = false;
+            params.nBeads = 8;
+            params.temperatureK = 500;
+            params.numSteps = (long)1E6;            
             
 
             // runtime options - make changes in these and not the default options above
-            params.nPoints = 3;
-            params.nBeads = 8;
-            params.temperatureK = 500;
-            params.numSteps = (long)1E6;
-            params.scBeads = true;
-            params.nonAdditive = true;
+//            params.nPoints = 3;
+//            params.nBeads = 8;
+//            params.temperatureK = 500;
+//            params.numSteps = (long)1E6;
+//            params.scBeads = true;
+//            params.nonAdditive = true;
         }
         
         final int nPoints = params.nPoints;
@@ -160,7 +159,7 @@ public class VirialN2PI {
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesN2, temperature, refCluster, tarCluster);
 //        sim.init();
-        sim.integratorOS.setNumSubSteps(1000);
+        sim.integratorOS.setNumSubSteps(1000);        
         steps /= 1000;
         final IVectorMutable[] rv = space.makeVectorArray(4);
         rv[0].setX(0, massN*blN2*blN2*0.25);
@@ -394,25 +393,10 @@ public class VirialN2PI {
                 resultsMap.put("time",(t2-t1)/(1000.0));
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
-            }                    
-            String jsonFileName = params.jarFile;
-            jsonFileName += "B"+nPoints+"PI";
-            if (scBeads) jsonFileName += "SC";
-            if (nPoints == 3) {
-                if (nonAdditive) jsonFileName += "N";
-                jsonFileName += "A";
-            }            
-            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";
-            if (temperatureK == (int) temperatureK) { 
-                jsonFileName += (int)temperatureK+"K";
-            }
-            else {
-                jsonFileName += temperatureK+"K";
-            }            
-            jsonFileName += nBeads+"nb";
-            jsonFileName += ".json";
+            }                   
+            
             try {
-                FileWriter jsonFile = new FileWriter(jsonFileName);
+                FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
                 jsonFile.write(JSONObject.toJSONString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
@@ -448,10 +432,10 @@ public class VirialN2PI {
         public double refFrac = -1;        
         public double sigmaHSRef = 4.50; // -1 means use equation for sigmaHSRef
         public boolean pairOnly = true;
-        public boolean pN2HellmannA = true;
+        public boolean pN2HellmannA = false;
         public int beadFac = 2;
         public boolean scBeads = false;
-        public String jarFile = "";
+        public String jsonOutputFileName = "";
         public boolean nonAdditive = false;
         public boolean p3N2HellmannA = false;
     }

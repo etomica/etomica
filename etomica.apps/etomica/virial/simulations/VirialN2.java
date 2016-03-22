@@ -299,29 +299,10 @@ public class VirialN2 {
                 resultsMap.put("time",(t2-t1)/(1000.0));
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
-            }                    
-            String jsonFileName = params.jarFile;
-            jsonFileName += "B"+nPoints;
-            if (pLevel == level.classical) jsonFileName += "CL";
-            if (pLevel == level.semiClassical) jsonFileName += "SC";
-            if (nPoints == 3) {
-                if (nonAdditive) jsonFileName += "N";
-                jsonFileName += "A";
             }
-            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";            
-            if (temperatureK == (int) temperatureK) { 
-                jsonFileName += (int)temperatureK+"K";
-            }
-            else {
-                jsonFileName += temperatureK+"K";
-            }            
             
-            if (nT > 1) {
-                jsonFileName += "Sim"+nT;
-            }
-            jsonFileName += ".json";
             try {
-                FileWriter jsonFile = new FileWriter(jsonFileName);
+                FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
                 jsonFile.write(JSONObject.toJSONString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
@@ -350,7 +331,7 @@ public class VirialN2 {
         public boolean p2N2HellmannA = false;
         public boolean p3N2HellmannA = false;
         public boolean nonAdditive = false;
-        public String jarFile = "";
+        public String jsonOutputFileName = "";
         public int nTimes = 1; // to run the simulation more than once
         public boolean printInConvertedUnits = false; // only prints bn and bn_error in converted units
     }
