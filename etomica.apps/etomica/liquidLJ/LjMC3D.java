@@ -113,9 +113,9 @@ public class LjMC3D extends Simulation {
         if (args.length==0) {
             params.graphics = false;
             params.numAtoms = 250;
-            params.steps = 100000;
+            params.steps = 1000000;
             params.density = 0.1;
-            params.rcShort = 2.5*Math.pow(params.density, -1.0/3.0);
+            params.rcShort = 2.5;
             params.T = 1.5;
         }
 
@@ -123,7 +123,7 @@ public class LjMC3D extends Simulation {
         final double temperature = params.T;
         final double density = params.density;
         long steps = params.steps;
-        double rcShort = params.rcShort;
+        double rcShort = params.rcShort*Math.pow(params.density, -1.0/3.0);
         int nrcMax = params.nrcMax;
         boolean graphics = params.graphics;
         int nAccBlocks = params.nAccBlocks;
@@ -133,7 +133,6 @@ public class LjMC3D extends Simulation {
 
         if (!graphics) {
             System.out.println("Running LJ MD with N="+numAtoms+" at rho="+density+" T="+temperature);
-            System.out.println("  T="+temperature+" density="+density);
             System.out.println(steps+" steps");
             System.out.println("short cutoff: "+rcShort);
             System.out.println("data interval: "+longInterval);
