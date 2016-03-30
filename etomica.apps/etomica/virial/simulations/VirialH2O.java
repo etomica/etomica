@@ -9,10 +9,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.json.simple.JSONObject;
+
 import etomica.api.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
+import etomica.api.IPotentialMolecular;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -21,6 +23,7 @@ import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.integrator.mcmove.MCMove;
 import etomica.models.water.P2WaterSzalewicz;
+import etomica.models.water.P2WaterSzalewicz.Component;
 import etomica.potential.P2WaterPotentialsJankowski;
 import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
@@ -36,9 +39,14 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledAtomFlipped;
 import etomica.virial.ClusterDifference;
 import etomica.virial.ClusterWheatleyHS;
+import etomica.virial.ClusterWheatleyMultibody;
 import etomica.virial.ClusterWheatleySoft;
+import etomica.virial.MayerFunctionMolecularThreeBody;
+import etomica.virial.MayerFunctionNonAdditive;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
+import etomica.virial.PotentialCommonAtomic;
+import etomica.virial.PotentialNonAdditive;
 import etomica.virial.cluster.Standard;
 
 public class VirialH2O {
@@ -56,9 +64,11 @@ public class VirialH2O {
             params.numSteps = (long)1E6;
 
             // runtime options - make changes in these and not the default options above
+//            params.nPoints = 3;
 //            params.iSurf = 1;
-//            params.temperatureK = 473.15;
-//            params.numSteps = (long)1E6;            
+//            params.temperatureK = 673.15;
+//            params.numSteps = (long)1E6;
+//            params.nonAdditive = true;
         }
         final int nPoints = params.nPoints;
         final double temperatureK = params.temperatureK;
@@ -66,9 +76,9 @@ public class VirialH2O {
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
         double refFrac = params.refFrac;
-        final int iSurf = params.iSurf;
-        final int nT = params.nTimes;
+        final int iSurf = params.iSurf;        
         final int iMon = params.iMon;
+        final boolean nonAdditive = params.nonAdditive;
         final double[] HSB = new double[8];
 
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -123,26 +133,59 @@ public class VirialH2O {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         ClusterAbstract refCluster = new ClusterWheatleyHS(nPoints, fRef);
 
-        final IPotentialAtomic p2H2O = new P2WaterPotentialsJankowski(space,iSurf,iMon,temperature);
-        PotentialMolecularMonatomic p2H2OMolecular = new PotentialMolecularMonatomic(space, p2H2O);
-        MayerGeneral f2Tar = new MayerGeneral(p2H2OMolecular);        
-        ClusterAbstract tarCluster = new ClusterWheatleySoft(nPoints, f2Tar, 1e-12);
-        
-        // difference cluster to compute difference between rigid and hybrid potential
         final IPotentialAtomic p2H2ORSC = new P2WaterSzalewicz(space,2).makeSemiclassical(temperature);
-        PotentialMolecularMonatomic p2H2ORSCMolecular = new PotentialMolecularMonatomic(space, p2H2ORSC);
+        final PotentialCommonAtomic p2H2ORSCCommon = new PotentialCommonAtomic(p2H2ORSC);
+        PotentialMolecularMonatomic p2H2ORSCMolecular = new PotentialMolecularMonatomic(space, p2H2ORSCCommon);
+        
+        final IPotentialAtomic p2H2O = new P2WaterPotentialsJankowski(space,iSurf,iMon,temperature, p2H2ORSCCommon);
+        PotentialMolecularMonatomic p2H2OMolecular = new PotentialMolecularMonatomic(space, p2H2O);
+        
+        MayerGeneral f2Tar = new MayerGeneral(p2H2OMolecular);        
+        ClusterAbstract tarCluster = null;
+        
+        // difference cluster to compute difference between hybrid and rigid potentials
         MayerGeneral f2TarSubtract = new MayerGeneral(p2H2ORSCMolecular);
-        ClusterAbstract tarSubtract = new ClusterWheatleySoft(nPoints, f2TarSubtract, 1e-12);
-        final ClusterDifference diffCluster = new ClusterDifference(tarCluster,new ClusterAbstract[] {tarSubtract});
-                
-        // pure B2 for water.  we need flipping.
-        // additive B3 for water should be fine and biconnectivity will help with mixture coefficients.
+        ClusterAbstract tarSubtract = null;
+
+        tarCluster = new ClusterWheatleySoft(nPoints, f2Tar, 1e-12);
         ((ClusterWheatleySoft)tarCluster).setDoCaching(false);
+
+        tarSubtract = new ClusterWheatleySoft(nPoints, f2TarSubtract, 1e-12);
         ((ClusterWheatleySoft)tarSubtract).setDoCaching(false);
-        final ClusterAbstract diffClusterNew = new ClusterCoupledAtomFlipped(diffCluster, space, 20);
+        
+        if (nPoints == 3 && nonAdditive) {
+            P2WaterSzalewicz p23cH2O = new P2WaterSzalewicz(space, 2);
+            p23cH2O.setComponent(Component.NON_PAIR);            
+            IPotentialAtomic p23cH2Oa = p23cH2O.makeSemiclassical(temperature);
+            PotentialCommonAtomic p23cH2OCommon = new PotentialCommonAtomic(p23cH2Oa);
+            PotentialMolecularMonatomic p23H2O = new PotentialMolecularMonatomic(space, p23cH2OCommon);
+            P2WaterSzalewicz p3cH2O = new P2WaterSzalewicz(space, 3);
+            p3cH2O.setComponent(Component.NON_PAIR);
+            IPotentialAtomic p3aH2O = p3cH2O.makeSemiclassical(temperature);
+            PotentialCommonAtomic p3aH2OCommon = new PotentialCommonAtomic(p3aH2O);
+            PotentialMolecularMonatomic p3H2O = new PotentialMolecularMonatomic(space, p3aH2OCommon);
+            MayerFunctionMolecularThreeBody f3H2O = new MayerFunctionMolecularThreeBody(new PotentialNonAdditive(new IPotentialMolecular[]{p23H2O,p3H2O}));
+            MayerFunctionNonAdditive [] m1 = new MayerFunctionNonAdditive[]{null,null,null,f3H2O};
+            tarCluster = new ClusterWheatleyMultibody(nPoints, f2Tar, m1);
+            ((ClusterWheatleyMultibody)tarCluster).setDoCaching(false);
+            ((ClusterWheatleyMultibody)tarCluster).setRCut(100);
+            
+            tarSubtract = new ClusterWheatleyMultibody(nPoints, f2TarSubtract, m1);
+            ((ClusterWheatleyMultibody)tarSubtract).setDoCaching(false);
+            ((ClusterWheatleyMultibody)tarSubtract).setRCut(100);
+        }
+        
+        final ClusterDifference diffCluster = new ClusterDifference(tarCluster,new ClusterAbstract[] {tarSubtract});                
+        // pure B2 for water.  we need flipping.
+        // additive B3 for water should be fine and biconnectivity will help with mixture coefficients.        
+        double flipDist = nPoints==2? 20 : 10;
+        final ClusterAbstract diffClusterNew = new ClusterCoupledAtomFlipped(diffCluster, space, flipDist);
+        System.out.println("Calulating difference from Cc-pol2-sc");
+        System.out.println("Including flip moves starting at a distance of: "+flipDist);
 
         final double refIntegralF = HSB[nPoints];
         System.out.println("nPoints: "+nPoints);
+        if (nonAdditive) System.out.println("Non additive");
         System.out.println("HSB["+nPoints+"]: "+refIntegralF);
         
         refCluster.setTemperature(temperature);
@@ -182,7 +225,7 @@ public class VirialH2O {
         
         // if using 3-body potential for B3, we must select initial configuration
         // that is not overlapping for any two molecules
-        IAtomList tarList = sim.box[1].getLeafList();        
+        IAtomList tarList = sim.box[1].getLeafList();
         for (int i=0; i<tarList.getAtomCount(); i++) {
             IVectorMutable p = tarList.getAtom(i).getPosition();
             p.setX(i, 4.0);                
@@ -199,6 +242,7 @@ public class VirialH2O {
         sim.equilibrate(refFileName, steps/10);
         System.out.println("equilibration finished");        
         
+        // Collecting histogram in reference system
         final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,30));        
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
             public void integratorInitialized(IIntegratorEvent e) {}
@@ -211,6 +255,7 @@ public class VirialH2O {
             }            
         };
         sim.integrators[0].getEventManager().addListener(histListenerTarget);
+        
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -306,7 +351,8 @@ public class VirialH2O {
         else {         
             System.out.println("time: "+(t2-t1)/1000.0+" secs");
         }
-        if (isCommandLine) {
+        
+        if (isCommandLine && params.jsonOutputFileName != null) {        
             LinkedHashMap resultsMap = new LinkedHashMap();
             resultsMap.put("temperature", temperatureK);
             resultsMap.put("bn", bn);
@@ -337,28 +383,9 @@ public class VirialH2O {
                 resultsMap.put("unit","secs");
                 System.out.println("time: "+(t2-t1)/1000.0+" secs");
             }                    
-            String jsonFileName = params.jarFile;
-            jsonFileName += "B"+nPoints + "CL";            
             
-            if (nPoints == 3) {                
-                jsonFileName += "A";
-            }
-            jsonFileName += (int)Math.log10((double)params.numSteps)+"s";            
-            if (temperatureK == (int) temperatureK) { 
-                jsonFileName += (int)temperatureK+"K";
-            }
-            else {
-                jsonFileName += temperatureK+"K";
-            }
-            jsonFileName += "Surf"+iSurf;
-            jsonFileName += "iMon"+iMon;
-            
-            if (nT > 1) {
-                jsonFileName += "Sim"+nT;
-            }
-            jsonFileName += ".json";
             try {
-                FileWriter jsonFile = new FileWriter(jsonFileName);
+                FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
                 jsonFile.write(JSONObject.toJSONString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
@@ -384,7 +411,8 @@ public class VirialH2O {
         public double refFrac = -1;
         public double sigmaHSRef = 5; // -1 means use equation for sigmaHSRef        
         public int iSurf = 1, iMon = 0; // Parameters for the potential class
-        public String jarFile = "";
+        public String jsonOutputFileName = null;
         public int nTimes = 1; // to run the simulation more than once
+        public boolean nonAdditive = false;
     }
 }
