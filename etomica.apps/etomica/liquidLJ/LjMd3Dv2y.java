@@ -303,31 +303,32 @@ public class LjMd3Dv2y {
         }
         System.out.println();
         
-        DataGroup dataPULS = (DataGroup)accPULS.getData();
-        IData avgPULS = dataPULS.getData(accPULS.AVERAGE.index);
-        IData errPULS = dataPULS.getData(accPULS.ERROR.index);
-        IData covPULS = dataPULS.getData(accPULS.BLOCK_COVARIANCE.index);
-        IData corPULS = dataPULS.getData(accPULS.BLOCK_CORRELATION.index);
-        
-        j = 0;
-        for (int i=0; i<cutoffsLS.length; i++) {
+        if (nCutoffsLS > 0) {
+            DataGroup dataPULS = (DataGroup)accPULS.getData();
+            IData avgPULS = dataPULS.getData(accPULS.AVERAGE.index);
+            IData errPULS = dataPULS.getData(accPULS.ERROR.index);
+            IData corPULS = dataPULS.getData(accPULS.BLOCK_CORRELATION.index);
 
-            P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
-            p2t.setBox(sim.box);
-            Potential0Lrc p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-            p0lrc.setBox(sim.box);
-            double ulrc = p0lrc.energy(null);
+            j = 0;
+            for (int i=0; i<cutoffsLS.length; i++) {
 
-            double avgW = avgPULS.getValue(j+4);
-            double errW = errPULS.getValue(j+4);
-            double corW = corPULS.getValue(j+4);
+                P2SoftSphericalTruncated p2t = new P2SoftSphericalTruncated(sim.getSpace(), sim.potential, cutoffsLS[i]);
+                p2t.setBox(sim.box);
+                Potential0Lrc p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+                p0lrc.setBox(sim.box);
+                double ulrc = p0lrc.energy(null);
 
-            System.out.println(String.format("rcLS: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %6.4f", i, (ulrc + uFacCutLS[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
+                double avgW = avgPULS.getValue(j+4);
+                double errW = errPULS.getValue(j+4);
+                double corW = corPULS.getValue(j+4);
 
-            j+=5;
+                System.out.println(String.format("rcLS: %d  A-Afast: % 22.15e  %10.4e  % 5.2f  %6.4f", i, (ulrc + uFacCutLS[i] - temperature*Math.log(avgW))/numAtoms, temperature*errW/avgW/numAtoms, corW, errW/avgW));
+
+                j+=5;
+            }
+
+            System.out.println();
         }
-
-        System.out.println();
         
         DataGroup dataPU1 = (DataGroup)accPUBlocks.getData();
         IData avgPU1 = dataPU1.getData(accPUBlocks.AVERAGE.index);
