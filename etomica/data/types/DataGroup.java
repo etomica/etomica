@@ -95,8 +95,8 @@ public class DataGroup implements IData, java.io.Serializable {
     public String toString() {
         StringBuffer string = new StringBuffer("");
         for(int i=0; i<data.length; i++) {
-            string.append("\n"); //newline?
-            string.append(data.toString());
+            string.append(data[i].toString());
+            if(i < data.length-1) string.append(", ");
         }
         return string.toString();
     }
