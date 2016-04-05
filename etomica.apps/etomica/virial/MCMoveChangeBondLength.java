@@ -448,6 +448,9 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
             }
         }
         int left = right - 1;
+        if (left < 0) {
+            System.out.println("Index out of bounds");
+        }
         
         int iCount = 0;
         double deltaX = (h.getXRange().maximum() - h.getXRange().minimum())/h.getNBins();
@@ -532,7 +535,11 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
             x0 = xNew;
         }
         if (!done) throw new RuntimeException("Newton Raphson method has not converged!!!");
-        cT = 1 - (P - 1)/(P*kHarmonic*r0*r0);
+        if (!doExchange) cT = 1 - (P - 1)/(P*kHarmonic*r0*r0);
+//        if (box.getIndex() == 1) {
+//            System.out.println("Nominal angle: "+Math.acos(cT));
+//            System.exit(1);
+//        }
         u0 = p1.u(r0);
         double diagTerm = 2*kHarmonic + 2/(r0*r0) + p1.d2u(r0)/(r0*r0*t*P);
         //          System.out.println(r0+" "+kHarmonic+" "+diagTerm);
