@@ -7,9 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
-
 import org.json.simple.JSONObject;
-
 import etomica.api.IAtomList;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
@@ -45,7 +43,7 @@ import etomica.virial.MayerFunctionMolecularThreeBody;
 import etomica.virial.MayerFunctionNonAdditive;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.PotentialCommonAtomic;
+//import etomica.virial.PotentialCommonAtomic;
 import etomica.virial.PotentialNonAdditive;
 import etomica.virial.cluster.Standard;
 
@@ -66,7 +64,7 @@ public class VirialH2O {
             // runtime options - make changes in these and not the default options above
 //            params.nPoints = 3;
 //            params.iSurf = 1;
-//            params.temperatureK = 673.15;
+//            params.temperatureK = 1000;
 //            params.numSteps = (long)1E6;
 //            params.nonAdditive = true;
         }
@@ -133,21 +131,23 @@ public class VirialH2O {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         ClusterAbstract refCluster = new ClusterWheatleyHS(nPoints, fRef);
 
-        final IPotentialAtomic p2H2ORSC = new P2WaterSzalewicz(space,2).makeSemiclassical(temperature);
-        final PotentialCommonAtomic p2H2ORSCCommon = new PotentialCommonAtomic(p2H2ORSC);
-        PotentialMolecularMonatomic p2H2ORSCMolecular = new PotentialMolecularMonatomic(space, p2H2ORSCCommon);
+        final IPotentialAtomic p2H2ORigidSC = new P2WaterSzalewicz(space,2).makeSemiclassical(temperature);
+//        final PotentialCommonAtomic p2H2ORSCCommon = new PotentialCommonAtomic(p2H2ORSC);
+//        PotentialMolecularMonatomic p2H2ORSCMolecular = new PotentialMolecularMonatomic(space, p2H2ORSCCommon);
+        PotentialMolecularMonatomic p2H2OMolecularRigidSC = new PotentialMolecularMonatomic(space, p2H2ORigidSC);
         
-        final IPotentialAtomic p2H2O = new P2WaterPotentialsJankowski(space,iSurf,iMon,temperature, p2H2ORSCCommon);
-        PotentialMolecularMonatomic p2H2OMolecular = new PotentialMolecularMonatomic(space, p2H2O);
+//        final IPotentialAtomic p2H2O = new P2WaterPotentialsJankowski(space,iSurf,iMon,temperature, p2H2ORSCCommon);
+        final IPotentialAtomic p2H2OFlex = new P2WaterPotentialsJankowski(space,iSurf,iMon,temperature, p2H2ORigidSC);
+        PotentialMolecularMonatomic p2H2OMolecularFlex = new PotentialMolecularMonatomic(space, p2H2OFlex);
         
-        MayerGeneral f2Tar = new MayerGeneral(p2H2OMolecular);        
+        MayerGeneral f2TarFlex = new MayerGeneral(p2H2OMolecularFlex);        
         ClusterAbstract tarCluster = null;
         
         // difference cluster to compute difference between hybrid and rigid potentials
-        MayerGeneral f2TarSubtract = new MayerGeneral(p2H2ORSCMolecular);
+        MayerGeneral f2TarSubtract = new MayerGeneral(p2H2OMolecularRigidSC);
         ClusterAbstract tarSubtract = null;
 
-        tarCluster = new ClusterWheatleySoft(nPoints, f2Tar, 1e-12);
+        tarCluster = new ClusterWheatleySoft(nPoints, f2TarFlex, 1e-12);
         ((ClusterWheatleySoft)tarCluster).setDoCaching(false);
 
         tarSubtract = new ClusterWheatleySoft(nPoints, f2TarSubtract, 1e-12);
@@ -157,37 +157,43 @@ public class VirialH2O {
             P2WaterSzalewicz p23cH2O = new P2WaterSzalewicz(space, 2);
             p23cH2O.setComponent(Component.NON_PAIR);            
             IPotentialAtomic p23cH2Oa = p23cH2O.makeSemiclassical(temperature);
-            PotentialCommonAtomic p23cH2OCommon = new PotentialCommonAtomic(p23cH2Oa);
-            PotentialMolecularMonatomic p23H2O = new PotentialMolecularMonatomic(space, p23cH2OCommon);
+//            PotentialCommonAtomic p23cH2OCommon = new PotentialCommonAtomic(p23cH2Oa);
+            PotentialMolecularMonatomic p23H2O = new PotentialMolecularMonatomic(space, p23cH2Oa);
             P2WaterSzalewicz p3cH2O = new P2WaterSzalewicz(space, 3);
             p3cH2O.setComponent(Component.NON_PAIR);
             IPotentialAtomic p3aH2O = p3cH2O.makeSemiclassical(temperature);
-            PotentialCommonAtomic p3aH2OCommon = new PotentialCommonAtomic(p3aH2O);
-            PotentialMolecularMonatomic p3H2O = new PotentialMolecularMonatomic(space, p3aH2OCommon);
+//            PotentialCommonAtomic p3aH2OCommon = new PotentialCommonAtomic(p3aH2O);
+            PotentialMolecularMonatomic p3H2O = new PotentialMolecularMonatomic(space, p3aH2O);
             MayerFunctionMolecularThreeBody f3H2O = new MayerFunctionMolecularThreeBody(new PotentialNonAdditive(new IPotentialMolecular[]{p23H2O,p3H2O}));
-            MayerFunctionNonAdditive [] m1 = new MayerFunctionNonAdditive[]{null,null,null,f3H2O};
-            tarCluster = new ClusterWheatleyMultibody(nPoints, f2Tar, m1);
+            MayerFunctionNonAdditive[] fNA = new MayerFunctionNonAdditive[] {null,null,null,f3H2O};
+            
+            tarCluster = new ClusterWheatleyMultibody(nPoints, f2TarFlex, fNA);
             ((ClusterWheatleyMultibody)tarCluster).setDoCaching(false);
             ((ClusterWheatleyMultibody)tarCluster).setRCut(100);
             
-            tarSubtract = new ClusterWheatleyMultibody(nPoints, f2TarSubtract, m1);
+            tarSubtract = new ClusterWheatleyMultibody(nPoints, f2TarSubtract, fNA);
             ((ClusterWheatleyMultibody)tarSubtract).setDoCaching(false);
             ((ClusterWheatleyMultibody)tarSubtract).setRCut(100);
         }
         
-        final ClusterDifference diffCluster = new ClusterDifference(tarCluster,new ClusterAbstract[] {tarSubtract});                
+        final ClusterDifference diffCluster = new ClusterDifference(tarCluster,new ClusterAbstract[] {tarSubtract});
+        
         // pure B2 for water.  we need flipping.
         // additive B3 for water should be fine and biconnectivity will help with mixture coefficients.        
         double flipDist = nPoints==2? 20 : 10;
+        final ClusterAbstract tarFlipped = new ClusterCoupledAtomFlipped(tarCluster,space,flipDist);
+        final ClusterAbstract tarSubFlipped = new ClusterCoupledAtomFlipped(tarSubtract,space,flipDist);
         final ClusterAbstract diffClusterNew = new ClusterCoupledAtomFlipped(diffCluster, space, flipDist);
         System.out.println("Calulating difference from Cc-pol2-sc");
         System.out.println("Including flip moves starting at a distance of: "+flipDist);
 
         final double refIntegralF = HSB[nPoints];
-        System.out.println("nPoints: "+nPoints);
+        System.out.println("nPoints: "+nPoints+" Reference hard sphere diameter used: "+params.sigmaHSRef);
         if (nonAdditive) System.out.println("Non additive");
+        else if (nPoints == 3) System.out.println("Additive");
         System.out.println("HSB["+nPoints+"]: "+refIntegralF);
-        
+        tarFlipped.setTemperature(temperature);
+        tarSubFlipped.setTemperature(temperature);
         refCluster.setTemperature(temperature);
         tarCluster.setTemperature(temperature);
         tarSubtract.setTemperature(temperature);
@@ -243,18 +249,25 @@ public class VirialH2O {
         System.out.println("equilibration finished");        
         
         // Collecting histogram in reference system
-        final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,30));        
+        final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,100));        
+        final HistogramNotSoSimple h2 = new HistogramNotSoSimple(new DoubleRange(0,100));
         IIntegratorListener histListenerTarget = new IIntegratorListener() {
             public void integratorInitialized(IIntegratorEvent e) {}
             public void integratorStepStarted(IIntegratorEvent e) {}
             public void integratorStepFinished(IIntegratorEvent e) {
-                IAtomList atoms = sim.box[0].getLeafList();
-                double x = Math.sqrt(atoms.getAtom(0).getPosition().Mv1Squared(atoms.getAtom(1).getPosition()));                
-                double y = diffClusterNew.makeCopy().value(sim.box[0]);                
-                h1.addValue(x,Math.abs(y));
-            }            
+                IAtomList atoms = sim.box[1].getLeafList();
+                double x01 = Math.sqrt(atoms.getAtom(0).getPosition().Mv1Squared(atoms.getAtom(1).getPosition()));
+                double x02 = Math.sqrt(atoms.getAtom(0).getPosition().Mv1Squared(atoms.getAtom(2).getPosition()));
+                double x12 = Math.sqrt(atoms.getAtom(1).getPosition().Mv1Squared(atoms.getAtom(2).getPosition()));
+                double xMax = Math.max(x01,x02);
+                xMax = Math.max(xMax,x12);
+                double y1 = tarFlipped.makeCopy().value(sim.box[1]);
+                h1.addValue(xMax,Math.abs(y1));
+                double y2 = tarSubFlipped.makeCopy().value(sim.box[1]);
+                h2.addValue(xMax,Math.abs(y2));
+            }
         };
-        sim.integrators[0].getEventManager().addListener(histListenerTarget);
+        sim.integrators[1].getEventManager().addListener(histListenerTarget);
         
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
@@ -393,13 +406,21 @@ public class VirialH2O {
                 throw new RuntimeException(e.getMessage());
             }                
         }
-//        double [] x1 = h1.xValues();
-//        double [] hist1 = h1.getHistogram();
-//        for (int i=0; i<x1.length; i++) {
-//            if (!Double.isInfinite(hist1[i]) && !Double.isNaN(hist1[i])) {
-//                System.out.println(x1[i]+" "+hist1[i]);
-//            }
-//        }
+        double [] x1 = h1.xValues();
+        double [] hist1 = h1.getHistogram();
+        for (int i=0; i<x1.length; i++) {
+            if (!Double.isInfinite(hist1[i]) && !Double.isNaN(hist1[i])) {
+                System.out.println(x1[i]+" "+hist1[i]);
+            }
+        }
+        System.out.println("******");
+        double [] x2 = h2.xValues();
+        double [] hist2 = h2.getHistogram();
+        for (int i=0; i<x2.length; i++) {
+            if (!Double.isInfinite(hist2[i]) && !Double.isNaN(hist2[i])) {
+                System.out.println(x2[i]+" "+hist2[i]);
+            }
+        }
     }
     /**
      * Inner class for parameters
