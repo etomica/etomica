@@ -44,8 +44,8 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
     public HistogramSimple h2;
     public boolean deleteMode = true, doHist = false, flagAdjusted, doDebug = false;
     public int moveCount;
-    protected int nBins = 100;
-    protected double xMin = 0.35,xMax = 1.25, uMin = 0.0;
+    protected int nBins = 100, acc = 0, rej = 0;
+    protected double xMin = BohrRadius.UNIT.toSim(0.2),xMax = 1.4, uMin = 0.0;
     protected double deltaX = (xMax - xMin)/nBins;
     public double [] hValues;
     protected double[] pCummulative;
@@ -100,6 +100,9 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
         return 0;
     }    
     public boolean doTrial() {
+//        if (moveCount == 1000) {
+//            System.out.println("Accepted: "+acc+ " Rejected: "+rej);
+//        }
         if (doDebug && moveCount == 0) System.out.println("Warning: doDebug is on");
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         mpe.setBox(box);
@@ -156,7 +159,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                 }
             }
         }
-        if (u0 == -1) throw new RuntimeException("u0 has not been set!");
+        if (u0 == -1) throw new RuntimeException("u0 has not been set!");        
 
         uA1Old = mpe.getDataAsScalar();// - nMolecules*P*u0;
         for (int i=0; i<nMolecules; i++) {
@@ -258,7 +261,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                         done = true;
                     }
 
-                    if (!done || newChoice < 0) newChoice = getIndex(dummy,pCummulative,1);
+                    if (!done || newChoice < 0) newChoice = getIndex(dummy,pCummulative);
 
                     if (newChoice > 0) done = true;
 
@@ -270,7 +273,9 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
                     if ((newChoice >= leftAdjusted[0] && newChoice <= leftAdjusted[1]) || (newChoice >= rightAdjusted[0] && newChoice <= rightAdjusted[1])) flagAdjusted = true;
                     rStar = y1 + (dummy - x1)*(y2 - y1)/(x2 - x1);
 
-                    if (hValues[newChoice] == 0 || pTotal == 0) throw new RuntimeException("newChoice = "+newChoice+" hValues = "+hValues[newChoice]+" "+" pTotal = "+pTotal+" moveCount = "+moveCount+ " molecule = "+i+" box = "+box.getIndex());
+                    if (hValues[newChoice] == 0 || pTotal == 0) {                        
+                        throw new RuntimeException("newChoice = "+newChoice+" hValues = "+hValues[newChoice]+" "+" pTotal = "+pTotal+" moveCount = "+moveCount+ " molecule = "+i+" box = "+box.getIndex());
+                    }
                     uGenNew += -Math.log(hValues[newChoice]/pTotal);
                     flag1 = true;                	
                     for (int j=0; j<P; j++) {
@@ -373,10 +378,10 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
         
         double uActOld = uA2Old;
         double uActNew = uA2New;      
-        if (!doExchange){
-            uActOld += uA1Old/(t*P);
-            uActNew += uA1New/(t*P);
-        }
+
+        uActOld += uA1Old/(t*P);
+        uActNew += uA1New/(t*P);
+
 
         pRatio = Math.exp(uActOld - uActNew + uGenNew - uGenOld);
 
@@ -412,10 +417,9 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
         return r2;
     }
 
-    protected int getIndex(double a, double [] b, int i) {
-
+    protected int getIndex(double a, double [] b) {
         int start = 0;
-        int end = nBins;    	
+        int end = nBins;
 
         do {
             int mid = (start+end)/2;
@@ -427,8 +431,14 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
             }
         } while (end-start>1);
         if (end < 0 || end == nBins) throw new RuntimeException("you shall not pass "+end);
+        if (b[end] == 0) {
+            System.out.println(a);
+            for (int i=0; i<b.length; i++) {
+                System.out.print(b[i]+" ");
+            }
+            System.exit(1);
+        }
         return end;
-
     }
 
     protected void adjustHistogram(HistogramSimple h) {
@@ -607,10 +617,18 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
     }
 
     public void acceptNotify() {
+//        if (moveCount <1000) {
+//            System.out.println("Accepted");
+//            acc++;
+//        }
         ((BoxCluster)box).acceptNotify();
     }
 
     public void rejectNotify() {
+//        if (moveCount <1000) {
+//            System.out.println("Rejected");
+//            rej++;
+//        }
         int nMolecules = box.getMoleculeList().getMoleculeCount();        
         for (int i=0; i<nMolecules; i++) {
             IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
