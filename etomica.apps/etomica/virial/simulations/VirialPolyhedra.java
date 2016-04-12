@@ -64,7 +64,6 @@ import etomica.virial.ClusterWeightUmbrella;
 import etomica.virial.ClusterWheatleyHS;
 import etomica.virial.ClusterWheatleyPartitionScreening;
 import etomica.virial.MCMoveClusterAtomHSChain;
-import etomica.virial.MCMoveClusterAtomHSChainRing;
 import etomica.virial.MCMoveClusterAtomHSRing;
 import etomica.virial.MCMoveClusterAtomHSTree;
 import etomica.virial.MCMoveClusterAtomQ;
@@ -230,30 +229,6 @@ public class VirialPolyhedra {
             numDiagrams = ((ClusterChainHS)refCluster).numDiagrams();
             ri = numDiagrams*Math.pow(vhs, nPoints-1);
         }
-        else if (ref == VirialHSParam.CRINGS) {
-            System.out.println("using a chain->ring reference");
-            refCluster = new ClusterChainHS(nPoints, fRefPos, true);
-            numDiagrams = ((ClusterChainHS)refCluster).numDiagrams();
-            final double dr = 0.00001;
-            CalcFFT myFFT = new CalcFFT(new IFunction() {
-                public double f(double x) {
-                    if (Math.abs(x-1) < 0.1*dr) {
-                        return 0.5;
-                    }
-                    return x<1 ? 1 : 0;
-                }
-            }, dr, 20);
-            List<Object> strands = new ArrayList<Object>();
-            strands.add(2);
-            List<Integer> list1 = new ArrayList<Integer>();
-            for (int i=1; i<nPoints; i++) {
-                list1.add(2);
-            }
-            strands.add(list1);
-            List<Object> oneMore = new ArrayList<Object>();
-            oneMore.add(strands);
-            ri = numDiagrams*myFFT.value(oneMore, true)[0][0];
-        }
         else if (ref == VirialHSParam.RINGS) {
             System.out.println("using a ring reference");
             refCluster = new ClusterChainHS(nPoints, fRefPos, true);
@@ -357,10 +332,6 @@ public class VirialPolyhedra {
         }
         else if (ref == VirialHSParam.CHAINS) {
             MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
-            sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
-        }
-        else if (ref == VirialHSParam.CRINGS) {
-            MCMoveClusterAtomHSChainRing mcMoveHS = new MCMoveClusterAtomHSChainRing(sim.getRandom(), space, sigmaHSRef);
             sim.integrator.getMoveManager().addMCMove(new MCMoveClusterAtomQ(sim.getRandom(), space, mcMoveHS));
         }
         else if (ref == VirialHSParam.RINGS) {
@@ -676,7 +647,7 @@ public class VirialPolyhedra {
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 2;
         public long numSteps = 100000000;
-        public static final int TREE = 0, CHAINS = 1, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9;
+        public static final int TREE = 0, CHAINS = 1, CHAIN_TREE = 5, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9;
         public int ref = TREE;
         public boolean doHist = false;
         public double chainFrac = 1;
