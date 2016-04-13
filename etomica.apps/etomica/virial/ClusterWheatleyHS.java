@@ -83,8 +83,6 @@ public class ClusterWheatleyHS implements ClusterWheatley {
       lastValue = value;
       cPairID = thisCPairID;
       
-      updateF(box);
-      
       calcValue(box, true);
       if (Double.isNaN(value) || Double.isInfinite(value)) {
           updateF(box);
