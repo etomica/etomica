@@ -11,8 +11,8 @@ import etomica.space.ISpace;
 
 public class ShapeParser {
 
-    public static List<IVector> getVertices(String filename, ISpace space) {
-        List<IVector> list = new ArrayList<IVector>();
+    public static ShapeData doParse(String filename, ISpace space) {
+        ShapeData shape = new ShapeData();
         try {
             FileReader fr = new FileReader(filename);
             BufferedReader bufReader = new BufferedReader(fr);
@@ -20,18 +20,31 @@ public class ShapeParser {
             while ((line=bufReader.readLine()) != null) {
                 line = line.trim();
                 String[] spl = line.split(" +");
+                if (spl[0].equals("V")) {
+                    shape.volume = Double.parseDouble(spl[1]);
+                    continue;
+                }
+                else if (spl[0].equals("vEHS")) {
+                    shape.vEHS= Double.parseDouble(spl[1]);
+                    continue;
+                }
                 double[] xyz = new double[3];
                 for (int i=0; i<3; i++) {
                     xyz[i] = Double.parseDouble(spl[i]);
                 }
-                list.add(space.makeVector(xyz));
+                shape.vertices.add(space.makeVector(xyz));
             }
             bufReader.close();
-            return list;
+            shape.B2 = 4*shape.volume*shape.vEHS;
+            return shape;
         }
         catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
+    public static class ShapeData {
+        public List<IVector> vertices = new ArrayList<IVector>();
+        public double volume, vEHS, B2;
+    }
 }

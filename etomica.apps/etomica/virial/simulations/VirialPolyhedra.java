@@ -84,14 +84,14 @@ public class VirialPolyhedra {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.shapes = new String[]{"Tetrahedron"};
+            params.shapes = new String[]{"Cube"};
             params.nShapes = new int[]{2};
             params.nPoints = 2;
-            params.numSteps = 10000000L;
-            params.ref = VirialHSParam.TREE;
+            params.numSteps = 1000000L;
+            params.ref = VirialHSParam.RING_TREE;
             params.doHist = false;
             params.chainFrac = 1;
-            params.ringFrac = 1;
+            params.ringFrac = 0.7;
             params.doResize = false;
         }
 
@@ -192,7 +192,7 @@ public class VirialPolyhedra {
         SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[shapes.length];
         double shsref = 0;
         for (int i=0; i<shapes.length; i++) {
-            List<IVector> vertices = ShapeParser.getVertices("shape/"+shapes[i]+".dat", space);
+            List<IVector> vertices = ShapeParser.doParse("shape/"+shapes[i]+".dat", space).vertices;
             allSpecies[i] = new SpeciesPolyhedron(space, vertices, 0.0, new ElementSimple("P"+i));
             double s = 2*((AtomTypeSpheroPolyhedron)allSpecies[i].getAtomType(0)).getOuterRadius();
             shsref = shsref < s ? s : shsref;
