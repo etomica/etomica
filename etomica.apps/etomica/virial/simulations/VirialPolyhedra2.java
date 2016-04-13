@@ -97,7 +97,7 @@ public class VirialPolyhedra2 {
 
         ISpace space = Space3D.getInstance();
 
-        P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
+        final P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
 
         SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[1];
         ShapeData shapeData = ShapeParser.doParse("shape/"+shape+".dat", space);
@@ -106,7 +106,7 @@ public class VirialPolyhedra2 {
         final double sigmaHSRef = shsref;
         double B2 = shapeData.B2;
 
-        double[][] uValues = new double[nPoints][nPoints];
+        final double[][] uValues = new double[nPoints][nPoints];
         IPotentialAtomic p2Wrapper = new IPotentialAtomic() {
             
             public void setBox(IBox box) {
