@@ -82,7 +82,6 @@ public class VirialPolyhedra2 {
             params.ref = VirialHSParam.TREE;
             params.doHist = false;
             params.chainFrac = 0.5;
-            params.doResize = false;
         }
 
         final String shape = params.shape;
@@ -105,6 +104,11 @@ public class VirialPolyhedra2 {
         double shsref = 2*((AtomTypeSpheroPolyhedron)allSpecies[0].getAtomType(0)).getOuterRadius();
         final double sigmaHSRef = shsref;
         double B2 = shapeData.B2;
+
+        if (nPoints==2) {
+            System.out.println("abs value: "+B2);
+            System.exit(0);
+        }
 
         final double[][] uValues = new double[nPoints][nPoints];
         IPotentialAtomic p2Wrapper = new IPotentialAtomic() {
@@ -469,7 +473,6 @@ public class VirialPolyhedra2 {
         public int ref = TREE;
         public boolean doHist = false;
         public double chainFrac = 1;
-        public boolean doResize = true;
         public String shape = "";
     }
     
