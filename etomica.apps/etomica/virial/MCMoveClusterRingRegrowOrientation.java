@@ -7,9 +7,6 @@ package etomica.virial;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import org.apache.commons.math3.complex.Quaternion;
-
 import etomica.api.IAtomList;
 import etomica.api.IBox;
 import etomica.api.IMolecule;
@@ -26,13 +23,13 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.Hydrogen;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
+import etomica.math.Quaternion;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.DoubleRange;
@@ -40,10 +37,8 @@ import etomica.util.HistogramNotSoSimple;
 import etomica.util.HistogramSimple;
 
 /**
- * MCMove that fully regrows the beads of a ring polymer, accepting or
- * rejecting the move based on the sampling weight.  The move can (optionally)
- * regrow the beads such that the beads from multiple molecules are combined
- * to form a larger ring.
+ * MCMove that fully regrows the beads of a ring polymer by rotating the images, accepting or
+ * rejecting the move based on the sampling weight.
  * 
  * @author Ram
  */
@@ -90,7 +85,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         return kHarmonic;
     }
 	public boolean doTrial() {
-
+	    moveCount++;
         weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);        
         IVectorRandom e1 = (IVectorRandom) space.makeVector();
         IVectorMutable ex = space.makeVector();
@@ -112,17 +107,17 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         double uNew = 0;
         double pGenRatio = 1.00;
         IVectorMutable pVecOld = space.makeVector();
-        IVectorMutable pVecNew = space.makeVector();
-        
+        IVectorMutable pVecNew = space.makeVector();        
         int nMolecules = molecules.getMoleculeCount();
-        for (int i=0; i<nMolecules; i++) {            
+        for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
-            for (int j=0; j<P; j++) {                                
+            for (int j=0; j<P; j++) {
                 int prev = j-1;
                 if (prev < 0) prev = P-1;
                 AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
                 AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
+                avgAngle += Math.acos(jAtom.getOrientation().getDirection().dot(jPrev.getOrientation().getDirection()));
                 double distance = dist(jAtom,jPrev);                
                 uOld += kHarmonic*distance;                
             }
@@ -139,12 +134,13 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
             for (int dr = 2; dr<= P; dr*=2){
                 double kEff = 8*kHarmonic*dr/P;
                 double y0 = 0;
-                double sA = 0;
                 double kEff1Old = 0;
                 double kEff1New = 0;
-                double a = 0;
+                double pGenNew = 0;
                 double y1 = 0;
                 for (int nr = 1; nr<dr; nr+=2){
+                    boolean piFlagNew = false;
+                    boolean piFlagOld = false;
                     int imageIndex = nr*P/dr;
 //                    System.out.println("image # = "+imageIndex);                    
                     IAtomOriented jAtom = ((IAtomOriented)atoms.getAtom(imageIndex));                   
@@ -173,35 +169,55 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                     else {                    
                     	oldCenter.Ev1Pv2(oldOrientations[i][fromImage].getDirection(), oldOrientations[i][toImage].getDirection());                    
                     	oldCenter.normalize();
+                    	if (oldCenter.isNaN()) throw new RuntimeException("Fix for solving this problem: Set starting orientations in molecule "+i);                    	    
+                    	
                     	y0 = oldOrientations[i][fromImage].getDirection().dot(oldOrientations[i][toImage].getDirection());
                     	if (y0 > 1.0) y0 = 1.0;
                     	if (y0 < -1.0) y0 = -1.0;
-                    	kEff1Old = kEff*r*r*Math.sqrt((1+y0)/2.0);                    
-                    	y0 = newOrientations[i][fromImage].getDirection().dot(newOrientations[i][toImage].getDirection());
+                    	double oldY0 = y0;
+                    	if (y0 == -1.0) piFlagOld = true;
+                    	if (!piFlagOld) kEff1Old = kEff*r*r*Math.sqrt((1+y0)/2.0);
+                    	y0 = newOrientations[i][fromImage].getDirection().dot(newOrientations[i][toImage].getDirection());                    	
                     	if (y0 > 1.0) y0 = 1.0;
                     	if (y0 < -1.0) y0 = -1.0;
-                    	kEff1New = kEff*r*r*Math.sqrt((1+y0)/2.0);                    
+                    	double newY0 = y0;
+                    	if (y0 == -1.0) piFlagNew = true;
+                    	if (!piFlagNew) kEff1New = kEff*r*r*Math.sqrt((1+y0)/2.0);
                     	y0 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());                    
                     	if (y0 > 1.0) y0 = 1.0;
                     	if (y0 < -1.0) y0 = -1.0;
-                    	oldAlpha[imageIndex] = Math.acos(y0);                    
+                    	double oldCenterY0 = y0;
+                    	oldAlpha[imageIndex] = Math.acos(y0);
                     	double x = random.nextDouble();
-//                  	double y1_new = (-kEff1New + Math.log(Math.exp(2*kEff1New)-x*(Math.exp(2*kEff1New)-1)))/kEff1New;                                        
-                    	a = Math.log(1 - x)/kEff1New + Math.log(1 + x*Math.exp(-2*kEff1New)/(1-x))/kEff1New;                    
-//                  	double a = Math.log(1 - xNew[i][imageIndex])/kEff1New + Math.log(1 + xNew[i][imageIndex]*Math.exp(-2*kEff1New)/(1-xNew[i][imageIndex]))/kEff1New;
-                                        
-                    	if (a > 0) {                        
-                    		a = 0;
-                    	}
-                    	if (a < -2.0) {                        
-                    		a = -2.0;
-                    	}
-                    	y1 = 1 + a;
-                    	sA = Math.sqrt(-2*a - a*a);
-                    	if (Double.isNaN(sA)) throw new RuntimeException(a+" "+(2*a + a*a));
-                    	newAlpha[imageIndex] = Math.acos(y1);
-                    	if (newAlpha[imageIndex] != newAlpha[imageIndex] || y1 != y1) throw new RuntimeException("x = " +2*kEff1New);
+//                  	double y1_new = (-kEff1New + Math.log(Math.exp(2*kEff1New)-x*(Math.exp(2*kEff1New)-1)))/kEff1New;
+                    	if (!piFlagNew) {
+                    	    pGenNew = Math.log(1 - x)/kEff1New + Math.log(1 + x*Math.exp(-2*kEff1New)/(1-x))/kEff1New;                    
+//                  	double a = Math.log(1 - xNew[i][imageIndex])/kEff1New + Math.log(1 + xNew[i][imageIndex]*Math.exp(-2*kEff1New)/(1-xNew[i][imageIndex]))/kEff1New;                                        
+                    	    if (pGenNew > 0) {
+                    	        pGenNew = 0;
+                    	    }
+                    	    if (pGenNew < -2.0) {
+                    	        pGenNew = -2.0;
+                    	    }
+                    	    y1 = 1 + pGenNew;
 
+                    	    newAlpha[imageIndex] = Math.acos(y1);
+                    	    if (newAlpha[imageIndex] != newAlpha[imageIndex] || y1 != y1) {
+                    	        System.out.println("a = "+pGenNew);
+                    	        System.out.println("y1 = "+y1);
+                    	        System.out.println("imageIndex = "+imageIndex);
+                    	        System.out.println("newAlpha = "+newAlpha[imageIndex]);                    	    
+                    	        System.out.println("oldY0 = "+oldY0);
+                    	        System.out.println("newY0 = "+newY0);
+                    	        System.out.println("oldCenterY0 = "+oldCenterY0);
+                    	        System.out.println("kEff = "+kEff);
+                    	        System.out.println("r = "+r);
+                    	        throw new RuntimeException("kEff1New = " +kEff1New);
+                    	    }
+                    	}
+                    	else {
+                    	    newAlpha[imageIndex] = 2*Math.PI*x;
+                    	}
                     }
                     if (imageIndex == P/2) {
                         newOrientations[i][imageIndex].setDirection(rV1);
@@ -224,8 +240,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                         	double angle = 2*Math.PI*random.nextDouble();
                         	rotateVectorV(angle,rV2,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
                         }
-                        theta[imageIndex] = 0;
-                                                
+                        theta[imageIndex] = 0; // without the loss of generality                                               
                     }
                     else {
                         newCenter.Ev1Pv2(newOrientations[i][fromImage].getDirection(), newOrientations[i][toImage].getDirection());
@@ -261,10 +276,36 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 //                  	System.out.println(kEff1Old+" "+kEff1New+" "+y0m1+" "+(y0-1)+" "+a+" "+(y1_new-1));
 //                  	pGenRatio *= Math.exp(kEff1New*a - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));
 //                  	double aNew = kEff1New*(-xNew[i][imageIndex] + 1/(1 - Math.exp(-2*kEff1New)))/(kEff1Old*(-xOld[i][imageIndex] + 1/(1 - Math.exp(-2*kEff1Old))));
-                    	double aOld =  Math.exp(kEff1New*a - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));                    
+                    	double pRatio = 0;
+                    	if (!piFlagOld && !piFlagNew) {
+                    	    pRatio = Math.exp(kEff1New*pGenNew - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));                    
+                    	}
+                    	else if (!piFlagOld && piFlagNew){
+                    	    // if piFlag, pGen = 1/(4*Math.PI*r)
+                    	    pRatio = Math.exp(-kEff1Old*y0m1)*(1-Math.exp(-2*kEff1Old))/(kEff1Old*4*Math.PI*r);
+                    	}
+                    	else if (!piFlagNew && piFlagOld) {
+                            // if piFlag, pGen = 1/(4*Math.PI*r)
+                    	    pRatio = Math.exp(kEff1New*pGenNew)*kEff1New*4*Math.PI*r/(1-Math.exp(-2*kEff1New));
+                    	}
+                    	else {
+                    	    pRatio = 1.0;
+                    	}
 
-                    	pGenRatio *= aOld;                    
-                    	if (Double.isNaN(pGenRatio)) throw new RuntimeException();
+                    	pGenRatio *= pRatio;
+                    	if (Double.isNaN(pGenRatio)) {
+                    	    System.out.println("a = "+pGenNew);
+                            System.out.println("y1 = "+y1);
+                            System.out.println("imageIndex = "+imageIndex);
+                            System.out.println("newAlpha = "+newAlpha[imageIndex]);                            
+                            System.out.println("kEff = "+kEff);                            
+                            System.out.println("r = "+r);
+                    	    System.out.println("v = "+v);
+                    	    System.out.println("v1 = "+v1);
+                    	    System.out.println("s1 = "+s1);
+                    	    System.out.println("y0m1 = "+y0m1);
+                    	    throw new RuntimeException();
+                    	}
                     }
                 }
             }            
@@ -364,13 +405,15 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
         double q3 = a1.getX(2);
         Quaternion q = new Quaternion(q0,q1,q2,q3);
         Quaternion vec = new Quaternion(0,v.getX(0),v.getX(1),v.getX(2));
-        Quaternion w = q.multiply(vec).multiply(q.getConjugate());
-        if (Math.abs(w.getScalarPart()) > 1E-10 ) throw new RuntimeException("Quaternion product is not a vector!");
-        v.E(w.getVectorPart());   
+        Quaternion w = q.preMultiply(vec).preMultiply(q.conjugate());
+        if (Math.abs(w.getScalar()) > 1E-10 ) throw new RuntimeException("Quaternion product is not a vector!");
+        v.E(w.getVector());   
     }
     protected double uAcc = 0;
     protected FileWriter file = null;
     public static double uCurrent = 0;
+    public double avgAngle = 0;
+    public long moveCount = 0;
     private static final long serialVersionUID = 1L;
     protected final int P;    
     protected final ISpace space;
@@ -381,6 +424,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
     protected int foo = 0;    
     protected double kHarmonic;
     protected double pacc;
+    
     protected boolean prevAcc = false;
     protected boolean firstMove = true;
     protected int rejected = 0;
