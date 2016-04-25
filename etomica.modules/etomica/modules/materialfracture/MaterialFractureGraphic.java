@@ -4,6 +4,10 @@
 
 package etomica.modules.materialfracture;
 
+import java.awt.GridBagConstraints;
+
+import javax.swing.border.TitledBorder;
+
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -22,10 +26,20 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.units.Dimension;
+import etomica.units.Joule;
+import etomica.units.Mole;
+import etomica.units.Null;
 import etomica.units.Pixel;
+import etomica.units.Prefix;
+import etomica.units.PrefixedUnit;
 import etomica.units.Pressure2D;
+import etomica.units.Second;
+import etomica.units.UnitRatio;
 import etomica.util.HistoryScrolling;
 
 /**
@@ -48,6 +62,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         thermoSlider.setMaximum(600);
+        thermoSlider.setIsothermalButtonsVisibility(false);
         add(thermoSlider);
         
         final MeterStrain meterStrain = new MeterStrain();
@@ -128,12 +143,67 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         internalStressDisplay.setAccumulator(internalStressAverage);
         add(internalStressDisplay);
 
+        final javax.swing.JTabbedPane integratorPanel = new javax.swing.JTabbedPane();
+        integratorPanel.setBorder(new TitledBorder(
+                null, "Integrator", TitledBorder.CENTER, TitledBorder.TOP));
+
+        ModifierGeneral stepModifier = new ModifierGeneral(sim.integrator, "timeStep");
+        DeviceSlider stepSlider = new DeviceSlider(sim.getController(), stepModifier);
+        stepSlider.setUnit(new PrefixedUnit(Prefix.FEMTO, Second.UNIT));
+        stepSlider.setMaximum(10);
+        stepSlider.setNMajor(5);
+        stepSlider.setPrecision(1);
+        stepSlider.setShowValues(true);
+        integratorPanel.add("Timestep (fs)", stepSlider.graphic());
+
+        Modifier nuModifier = new Modifier() {
+            public void setValue(double newValue) {sim.integrator.setThermostatInterval((int)(1.0/newValue));}
+            public double getValue() {return 1.0/sim.integrator.getThermostatInterval();}
+            public String getLabel() {return "";}
+            public Dimension getDimension() {return Null.DIMENSION;}
+        };
+        DeviceSlider nuSlider = new DeviceSlider(sim.getController(), nuModifier);
+        nuSlider.setMaximum(1);
+        nuSlider.setPrecision(2);
+        nuSlider.setNMajor(5);
+        nuSlider.setValue(0.1);
+        nuSlider.setShowValues(true);
+        integratorPanel.add("Andersen nu", nuSlider.graphic());
+
+        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
+        getPanel().controlPanel.add(integratorPanel, vertGBC);
+
+        final javax.swing.JTabbedPane potentialPanel = new javax.swing.JTabbedPane();
+        potentialPanel.setBorder(new TitledBorder(
+                null, "Potential", TitledBorder.CENTER, TitledBorder.TOP));
+
+        ModifierGeneral epsilonModifier = new ModifierGeneral(sim.p2LJ, "epsilon");
+        DeviceSlider epsilonSlider = new DeviceSlider(sim.getController(), epsilonModifier);
+        epsilonSlider.setMaximum(50);
+        epsilonSlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
+        epsilonSlider.setNMajor(5);
+        epsilonSlider.setShowValues(true);
+        potentialPanel.add("Epsilon (kJ/mol)", epsilonSlider.graphic());
+
         ModifierGeneral springConstantModifier = new ModifierGeneral(sim.p1Tension, "springConstant");
         DeviceSlider springConstantSlider = new DeviceSlider(sim.getController(), springConstantModifier);
-        springConstantSlider.setLabel("Spring Constant");
-        springConstantSlider.setShowBorder(true);
-        springConstantSlider.setMaximum(30);
-        add(springConstantSlider);
+        springConstantSlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
+        springConstantSlider.setPrecision(2);
+        springConstantSlider.setMaximum(0.3);
+        springConstantSlider.setNMajor(3);
+        springConstantSlider.setShowValues(true);
+        potentialPanel.add("Spring Constant (J/(mol A^2))", springConstantSlider.graphic());
+        
+        ModifierGeneral cutoffModifier = new ModifierGeneral(sim.pt, "truncationRadius");
+        DeviceSlider cutoffSlider = new DeviceSlider(sim.getController(), cutoffModifier);
+        cutoffSlider.setMinimum(2);
+        cutoffSlider.setMaximum(7);
+        cutoffSlider.setNMajor(5);
+        cutoffSlider.setPrecision(1);
+        cutoffSlider.setShowValues(true);
+        potentialPanel.add("Cutoff (A)", cutoffSlider.graphic());
+
+        getPanel().controlPanel.add(potentialPanel, vertGBC);
 
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
