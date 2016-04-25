@@ -251,6 +251,10 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
         thermostatCount = interval;
     }
 
+    public int getThermostatInterval() {
+        return thermostatInterval;
+    }
+
     /**
      * Fires the thermostat if the appropriate interval has been reached.
      */
