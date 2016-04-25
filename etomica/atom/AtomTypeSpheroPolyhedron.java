@@ -16,6 +16,7 @@ public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
     public AtomTypeSpheroPolyhedron(IElement element,ISpace space, List<IVector> vertices, double sweepRadius) {
         super(element);
         this.vertices = vertices;
+        if (vertices.size() == 1 && sweepRadius == 0) sweepRadius = 0.5;
         this.sweepRadius = sweepRadius;
         int vertexNum = vertices.size();
         IVectorMutable normal = space.makeVector();
@@ -61,8 +62,8 @@ public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
         outRadius = 0.0;
         for (int i = 0; i < vertexNum; i++)
         {
-                double radius = Math.sqrt(vertices.get(i).squared());
-                if (radius > outRadius) outRadius = radius;
+            double radius = Math.sqrt(vertices.get(i).squared());
+            if (radius > outRadius) outRadius = radius;
         }
         outRadius += sweepRadius;
     }
