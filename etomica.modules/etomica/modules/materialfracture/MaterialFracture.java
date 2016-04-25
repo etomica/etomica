@@ -33,6 +33,8 @@ public class MaterialFracture extends Simulation {
     public final SpeciesSpheresMono species;
     public final IntegratorVelocityVerlet integrator;
     public final PotentialCalculationForceStress pc;
+    public final P2SoftSphericalTruncatedForceShifted pt;
+    public final P2LennardJones p2LJ;
     public final P1Tension p1Tension;
 
     public MaterialFracture() {
@@ -46,19 +48,19 @@ public class MaterialFracture extends Simulation {
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);
         integrator.setTimeStep(0.007);
-        integrator.setThermostatInterval(400);
+        integrator.setThermostatInterval(100);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integrator.setThermostatNoDrift(true);
         integrator.setBox(box);
         pc = new PotentialCalculationForceStress(space);
         integrator.setForceSum(pc);
         getController().addAction(new ActivityIntegrate(integrator));
-        P2LennardJones p2LJ = new P2LennardJones(space, 3, 2000);
-        P2SoftSphericalTruncatedForceShifted pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7.5);
+        p2LJ = new P2LennardJones(space, 3, 2000);
+        pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7);
 
         p1Tension = new P1Tension(space); 
         species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(false);
+        species.setIsDynamic(true);
         ((ElementSimple)species.getLeafType().getElement()).setMass(40);
         addSpecies(species);
         box.setNMolecules(species, 198);
