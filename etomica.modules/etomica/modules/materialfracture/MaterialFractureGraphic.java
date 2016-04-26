@@ -62,7 +62,6 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         thermoSlider.setMaximum(600);
-        thermoSlider.setIsothermalButtonsVisibility(false);
         add(thermoSlider);
         
         final MeterStrain meterStrain = new MeterStrain();
