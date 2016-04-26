@@ -826,9 +826,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     public class P2CO2H2OSCTI implements IPotentialAtomic {
 
         protected final IVectorMutable[] gi, ti;
-        protected final Tensor tt0Tensor, rr0Tensor, rr1Tensor;
-        protected final Tensor ijTensor, rTensor0, rTensor1, identity;
-        protected final Tensor ijRTensor;
         protected final double mass0;
         protected final double moment0;
         protected final IVectorMutable moment1;
@@ -838,15 +835,6 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         protected final IVectorMutable bdrij;
 
         public P2CO2H2OSCTI(double temperature) {
-            ijTensor = space.makeTensor();
-            identity = space.makeTensor();
-            tt0Tensor = space.makeTensor();
-            rr0Tensor = space.makeTensor();
-            rr1Tensor = space.makeTensor();
-            rTensor0 = space.makeTensor();
-            rTensor1 = space.makeTensor();
-            ijRTensor = space.makeTensor();
-            identity.E(new double[][]{{1,0,0},{0,1,0},{0,0,1}});
             gi = new IVectorMutable[2];
             gi[0] = space.makeVector();
             gi[1] = space.makeVector();
