@@ -118,7 +118,9 @@ public class VirialN2PI {
         
         final P2NitrogenHellmann p2Full = new P2NitrogenHellmann(space);
         if (p2N2HellmannA) p2Full.parametersB = false;
-        final P2SemiclassicalAtomic p2PISC = new P2SemiclassicalAtomic(space, p2Full, temperature*nBeads*nBeads);
+        final P2SemiclassicalAtomic p2PISC = new P2SemiclassicalAtomic(space, p2Full, temperature*nBeads);
+        // Temperature value for PI with SCB was T*P^2. 
+        // Should be just T*P for SCB-TI as the internal set temperature method squares the argument.
         final IPotentialAtomic p2;
         if (scBeads) {
             p2 = p2PISC;
