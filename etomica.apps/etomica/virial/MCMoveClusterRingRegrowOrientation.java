@@ -281,12 +281,12 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
                     	    pRatio = Math.exp(kEff1New*pGenNew - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));                    
                     	}
                     	else if (!piFlagOld && piFlagNew){
-                    	    // if piFlag, pGen = 1/(4*Math.PI*r)
-                    	    pRatio = Math.exp(-kEff1Old*y0m1)*(1-Math.exp(-2*kEff1Old))/(kEff1Old*4*Math.PI*r);
+                    	    // if piFlag, pGen = 1/2
+                    	    pRatio = Math.exp(-kEff1Old*y0m1)*(1-Math.exp(-2*kEff1Old))/(2*kEff1Old);
                     	}
                     	else if (!piFlagNew && piFlagOld) {
-                            // if piFlag, pGen = 1/(4*Math.PI*r)
-                    	    pRatio = Math.exp(kEff1New*pGenNew)*kEff1New*4*Math.PI*r/(1-Math.exp(-2*kEff1New));
+                            // if piFlag, pGen = 1/2
+                    	    pRatio = Math.exp(kEff1New*pGenNew)*kEff1New*2/(1-Math.exp(-2*kEff1New));
                     	}
                     	else {
                     	    pRatio = 1.0;
