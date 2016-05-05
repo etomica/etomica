@@ -223,17 +223,18 @@ public class VirialN2PI {
         }
         
         System.out.println();
-        String refFileName = null;
-        if (isCommandLine) {
-            String tempString = ""+temperatureK;
-            if (temperatureK == (int)temperatureK) {
-                // temperature is an integer, use "200" instead of "200.0"
-                tempString = ""+(int)temperatureK;
-            }
-            refFileName = "refpref"+nPoints;
-            refFileName += pairOnly ? "_2b" : "_3b";
-            refFileName += "_"+tempString+"_PI";
-        }
+        String refFileName = params.refPrefFileName;
+//        String refFileName = null;
+//        if (isCommandLine) {
+//            String tempString = ""+temperatureK;
+//            if (temperatureK == (int)temperatureK) {
+//                // temperature is an integer, use "200" instead of "200.0"
+//                tempString = ""+(int)temperatureK;
+//            }
+//            refFileName = "refpref"+nPoints;
+//            refFileName += pairOnly ? "_2b" : "_3b";
+//            refFileName += "_"+tempString+"_PI";
+//        }
         long t1 = System.currentTimeMillis();
         // if using 3-body potential for B3, we must select initial configuration
         // that is not overlapping for any two molecules
@@ -440,6 +441,7 @@ public class VirialN2PI {
         public String jsonOutputFileName = "";
         public boolean nonAdditive = false;
         public boolean p3N2HellmannA = false;
+        public String refPrefFileName = null;
     }
 
 }
