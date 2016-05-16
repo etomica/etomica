@@ -2,7 +2,9 @@ package etomica.normalmode;
 
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
+import etomica.api.IVectorMutable;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
+import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat.ReturnValue;
 import etomica.space.ISpace;
 
 /**
@@ -22,21 +24,27 @@ public class PotentialCalculationSolidSuperCutLS extends PotentialCalculationSol
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSphericalLSMultiLat)) return;
         Potential2SoftSphericalLSMultiLat potentialSoft = (Potential2SoftSphericalLSMultiLat)potential;
-        double[][] ijSums = potentialSoft.energyVirialCut(atoms);
-
-        int n = ijSums[0].length;
+        ReturnValue rv = potentialSoft.energyVirialCut(atoms);
+        int n = rv.energySum.length;
         if (n != energySum.length) {
             energySum = new double[n];
             virialSum = new double[n];
             sum1 = new double[n];
             dadbSum = new double[n];
+            pSumXYZ1 = new IVectorMutable[n];
+            pSumXYZ2 = new IVectorMutable[n];
+            for (int i=0; i<n; i++) {
+                pSumXYZ1[i] = space.makeVector();
+                pSumXYZ2[i] = space.makeVector();
+            }
         }
         for (int i=0; i<n; i++) {
-            energySum[i] += ijSums[0][i];
-            virialSum[i] += ijSums[1][i];
-            sum1[i] += ijSums[2][i]*fac1;
-            dadbSum[i] += ijSums[3][i];
+            energySum[i] += rv.energySum[i];
+            virialSum[i] += rv.virialSum[i];
+            sum1[i] += rv.sum1[i]*fac1;
+            dadbSum[i] += rv.dadbSum[i];
+            pSumXYZ1[i].PEa1Tv1(fac1, rv.pSumXYZ1[i]);
+            pSumXYZ2[i].PE(rv.pSumXYZ2[i]);
         }
-        
     }
 }

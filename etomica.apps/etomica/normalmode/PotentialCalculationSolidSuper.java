@@ -20,13 +20,15 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
     protected final CoordinateDefinition coordinateDefinition;
     protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
     protected final ISpace space;
-    protected double sum1, virialSum;
+    protected double pSum, virialSum;
+    protected final IVectorMutable pSumXYZ, pTmp;
     protected double energySum, dadbSum;
-    protected double fac1;
+    protected double fac1, fac2;
     protected IBox box;
     protected IBoundary boundary;
     protected boolean doD2;
     protected double d2sum;
+    protected double pHarmonic, temperature;
     
     public PotentialCalculationSolidSuper(ISpace space, CoordinateDefinition coordinateDefinition) {
         this.coordinateDefinition = coordinateDefinition;
@@ -37,10 +39,17 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         dr = space.makeVector();
         drB = space.makeVector();
         setBox(coordinateDefinition.getBox());
+        pSumXYZ = space.makeVector();
+        pTmp = space.makeVector();
     }
     
     public void setDoSecondDerivative(boolean doD2) {
         this.doD2 = doD2;
+    }
+    
+    public void setPHarmonic(double pHarmonic, double temperature) {
+        this.pHarmonic = pHarmonic;
+        this.temperature = temperature;
     }
 
     /**
@@ -80,7 +89,10 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical)potential;
         
         double du = potentialSoft.du(r2);
-        sum1 -= du/r2*dr.dot(drB);
+        pSum -= du/r2*dr.dot(drB);
+        pTmp.Ea1Tv1(-du/r2, dr);
+        pTmp.TE(drB);
+        pSumXYZ.PE(pTmp);
         virialSum += du;
 
 //        dadbSum -= f[0].dot(drSite0);
@@ -89,6 +101,10 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
 //        System.out.println(f[1].getX(0)+" "+Math.sqrt(f[1].squared()/r2)*dr.getX(0)+" "+potentialSoft.du(r2)/r2*dr.getX(0));
         double dot = dr.dot(drA);
         dadbSum -= du/r2*dot;
+        pSum -= fac2*du/r2*dot;
+        pTmp.Ea1Tv1(-fac2*du/r2, dr);
+        pTmp.TE(drA);
+        pSumXYZ.PE(pTmp);
 //        if (atoms.getAtom(0).getLeafIndex()==0 && atoms.getAtom(1).getLeafIndex()==8) {
 //            System.out.println("new 0 8 "+(dr.dot(f[0])+drA.dot(f[0])*fac1));
 //        }
@@ -124,8 +140,12 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         }
     }
     
-    public double getPressure1() {
-        return sum1;
+    public double getPressureSum() {
+        return pSum;
+    }
+    
+    public IVector getPressureSumXYZ() {
+        return pSumXYZ;
     }
     
     public double getVirialSum() {
@@ -148,10 +168,14 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
     }
     
     public void zeroSum() {
-        sum1 = virialSum = energySum = dadbSum = d2sum = 0;
+        pSum = virialSum = energySum = dadbSum = d2sum = 0;
+        pSumXYZ.E(0);
         boundary = box.getBoundary();
         int D = boundary.getBoxSize().getD();
-        fac1 = 1.0/(D*boundary.volume());
+        double vol = boundary.volume();
+        fac1 = 1.0/(D*vol);
+        int N = box.getMoleculeList().getMoleculeCount();
+        fac2 = (-1/vol + pHarmonic/temperature)/(D*N-D);
     }
     
     public void setBox(IBox box) {

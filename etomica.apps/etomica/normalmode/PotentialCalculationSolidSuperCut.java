@@ -20,12 +20,17 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
     protected final CoordinateDefinition coordinateDefinition;
     protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
     protected final ISpace space;
+    protected IVectorMutable[] pSumXYZ1, pSumXYZ2;
+    protected final IVectorMutable pTmp1, pTmp2;
     protected double[] sum1, virialSum;
     protected double[] energySum, dadbSum;
     protected double fac1;
+    protected double[] fac2;
     protected IBox box;
     protected IBoundary boundary;
     protected final double[] r2Cut;
+    protected double temperature;
+    protected double[] pHarmonic;
     
     public PotentialCalculationSolidSuperCut(ISpace space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinateDefinition = coordinateDefinition;
@@ -44,6 +49,19 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         virialSum = new double[r2Cut.length];
         energySum = new double[r2Cut.length];
         dadbSum = new double[r2Cut.length];
+        pSumXYZ1 = new IVectorMutable[r2Cut.length];
+        pSumXYZ2 = new IVectorMutable[r2Cut.length];
+        for (int i=0; i<pSumXYZ1.length; i++) {
+            pSumXYZ1[i] = space.makeVector();
+            pSumXYZ2[i] = space.makeVector();
+        }
+        pTmp1 = space.makeVector();
+        pTmp2 = space.makeVector();
+    }
+    
+    public void setHarmonicPressure(double[] pHarmonic, double temperature) {
+        this.pHarmonic = pHarmonic;
+        this.temperature = temperature;
     }
     
     /**
@@ -72,7 +90,11 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         double u = potentialSoft.u(r2);
         double du = potentialSoft.du(r2);
         double p1 = -du/r2*dr.dot(drB)*fac1;
+        pTmp1.Ea1Tv1(-du/r2*fac1, dr);
+        pTmp1.TE(drB);
         double dadb = -du/r2*dr.dot(drA);
+        pTmp2.Ea1Tv1(-du/r2, dr);
+        pTmp2.TE(drA);
 
         int n=r2Cut.length;
         for (int i=n-1; i>=0; i--) {
@@ -81,12 +103,22 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
             sum1[i] += p1;
             virialSum[i] += du;
             dadbSum[i] += dadb;
+            pSumXYZ1[i].PE(pTmp1);
+            pSumXYZ2[i].PE(pTmp2);
         }
         
     }
     
     public double[] getPressure1() {
         return sum1;
+    }
+    
+    public IVector[] getPressure1XYZ() {
+        return pSumXYZ1;
+    }
+    
+    public IVector[] getDADBXYZ() {
+        return pSumXYZ2;
     }
     
     public double[] getVirialSum() {
@@ -108,10 +140,13 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         int n = r2Cut.length;
         for (int i=0; i<n; i++) {
             sum1[i] = virialSum[i] = energySum[i] = dadbSum[i] = 0;
+            pSumXYZ1[i].E(0);
+            pSumXYZ2[i].E(0);
         }
         boundary = box.getBoundary();
         int D = boundary.getBoxSize().getD();
-        fac1 = 1.0/(D*boundary.volume());
+        double vol = boundary.volume();
+        fac1 = 1.0/(D*vol);
     }
     
     public void setBox(IBox box) {
