@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
+import etomica.api.IVector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -66,7 +67,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
             System.out.println();
         }
 
-        int n = 5*cutoffs.length;
+        int n = 6*cutoffs.length;
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{n});
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
@@ -78,7 +79,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
             pcDADv2 = new PotentialCalculationSolidSuperCutLS(space, coordinateDefinition, cutoffs);
         }
     }
-    
+
     public void setPotentialMasterDADv2(IPotentialMaster potentialMasterDADv2, double[] bpResDADv2) {
         this.potentialMasterDADv2 = potentialMasterDADv2;
         this.bpResDADv2 = bpResDADv2;
@@ -133,9 +134,11 @@ public class MeterSolidDACut implements IEtomicaDataSource {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double[] p1 = pc.getPressure1();
+        IVector[] p1XYZ = pc.getPressure1XYZ();
         double[] virial = pc.getVirialSum();
         double[] energy = pc.getEnergySum();
         double[] dadb = pc.getDADBSum();
+        IVector[] dadbXYZ = pc.getDADBXYZ();
 
         double[] p1DADv2 = p1;
         double[] energyDADv2 = energy;
@@ -156,6 +159,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
             double buc = (0.5*dadb[i] + (energy[i] - latticeEnergy[i]))/temperature/N;
             double fac2 = (-1/V + bpRes[i])/(dim*N-dim);
             double Zc = (p1[i] + fac2*dadb[i] - latticePressure[i])/(rho*temperature);
+            double PcZaniso = 3*((p1XYZ[i].getX(2) - 0.5*(p1XYZ[i].getX(0)+p1XYZ[i].getX(1))) + fac2*(dadbXYZ[i].getX(2) - 0.5*(dadbXYZ[i].getX(0)+dadbXYZ[i].getX(1))));
             x[j+0] = energy[i]/N;
             x[j+1] = measuredP;
             x[j+2] = buc;
@@ -172,7 +176,9 @@ public class MeterSolidDACut implements IEtomicaDataSource {
             }
 
             x[j+4] = (4*buc-Zc)*rho*rho/2;
-            j+=5;
+            
+            x[j+5] = PcZaniso;
+            j+=6;
         }
 
         return data;

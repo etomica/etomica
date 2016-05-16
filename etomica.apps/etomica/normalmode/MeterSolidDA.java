@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
@@ -69,10 +70,12 @@ public class MeterSolidDA implements IEtomicaDataSource {
     
     public void setTemperature(double temperature) {
         this.temperature = temperature;
+        pc.setPHarmonic(pRes, temperature);
     }
     
     public void setPRes(double pRes) {
         this.pRes = pRes;
+        pc.setPHarmonic(pRes, temperature);
     }
     
     /**
@@ -82,7 +85,9 @@ public class MeterSolidDA implements IEtomicaDataSource {
     public IData getData() {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
-        double p1 = pc.getPressure1();
+        double p1 = pc.getPressureSum();
+        IVector pXYZ = pc.getPressureSumXYZ();
+        System.out.println(p1+" "+pXYZ);
         double[] x = data.getData();
         double V = box.getBoundary().volume();
         double rho = box.getMoleculeList().getMoleculeCount()/V;
@@ -93,10 +98,9 @@ public class MeterSolidDA implements IEtomicaDataSource {
         double buc = (0.5*pc.getDADBSum() + (pc.getEnergySum() - latticeEnergy))/temperature/N;
         x[2] = buc;
         double vol = box.getBoundary().volume();
-        double fac2 = (-1/vol + pRes/temperature)/(dim*N-dim);
         // P = Plat + Pres + x[5]
         double density = N / vol;
-        double Zc = (p1 + fac2*pc.getDADBSum() - latticePressure)/(density*temperature);
+        double Zc = (p1 - latticePressure)/(density*temperature);
         x[3] = Zc;
         // Pc = x[5]
         // Zc = x[5] / (rho*T)
