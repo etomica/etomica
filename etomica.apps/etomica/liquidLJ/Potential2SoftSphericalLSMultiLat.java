@@ -45,15 +45,17 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
 		this.rCutMax = rCut[rCut.length-1];
 		nShells = new int[space.D()];
 		a0 = new double[space.D()];
-		sums = new double[4][rCut.length];
 		this.coordinateDefinition = coordinateDefinition;
+		pTmp1 = space.makeVector();
+		pTmp2 = space.makeVector();
+		rv = new ReturnValue(rCut.length, space);
 	}
 
     public double energy(IAtomList atoms) {
         return 0;
     }
     
-    public double[][] energyVirialCut(IAtomList atoms) {
+    public ReturnValue energyVirialCut(IAtomList atoms) {
     	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         drLat.E(coordinateDefinition.getLatticePosition(atoms.getAtom(1)));
@@ -68,10 +70,10 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
         drTmp.Ev1Mv2(atoms.getAtom(0).getPosition(), coordinateDefinition.getLatticePosition(atoms.getAtom(0)));
         drA.ME(drTmp);
         
-        for (int i=rCut2.length-1; i>=0; i--) {
-            for (int j=0; j<4; j++) {
-                sums[j][i] = 0;
-            }
+        for (int i=0; i<rCut2.length; i++) {
+            rv.dadbSum[i] = rv.energySum[i] = rv.sum1[i] = rv.virialSum[i] = 0;
+            rv.pSumXYZ1[i].E(0);
+            rv.pSumXYZ2[i].E(0);
         }
         for(int nx = -nShells[0]; nx <= nShells[0]; nx++) {
         	Lxyz.setX(0, nx*a0[0]);
@@ -89,26 +91,34 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
                 	double pu = p2Soft.u(dr2);
                 	double dpu = p2Soft.du(dr2);
                     double p1 = -dpu/dr2*drTmp.dot(drLatTmp);
+                    pTmp1.Ea1Tv1(-dpu/dr2, drTmp);
+                    pTmp1.TE(drLatTmp);
                     double dadb = -dpu/dr2*drTmp.dot(drA);
+                    pTmp2.Ea1Tv1(-dpu/dr2, drTmp);
+                    pTmp2.TE(drA);
                 	if (isSelf) {
                 	    pu *= 0.5;
                 	    dpu *= 0.5;
                 	    p1 *= 0.5;
                 	    dadb *= 0.5;
+                	    pTmp1.TE(0.5);
+                        pTmp2.TE(0.5);
                 	}
                     for (int i=rCut2.length-1; i>=0; i--) {
                         if (dr2Lat > rCut2[i]) break;
-                        sums[0][i] += pu;
-                        sums[1][i] += dpu;
-                        sums[2][i] += p1;
-                        sums[3][i] += dadb;
+                        rv.energySum[i] += pu;
+                        rv.virialSum[i] += dpu;
+                        rv.sum1[i] += p1;
+                        rv.dadbSum[i] += dadb;
+                        rv.pSumXYZ1[i].PE(pTmp1);
+                        rv.pSumXYZ2[i].PE(pTmp2);
                     }
                 }
             }
         }
-        return sums;
+        return rv;
     }
-    
+
     /**
      * Virial of the pair as given by the du(double) method
      */
@@ -157,9 +167,26 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     protected final Potential2Soft p2Soft;
     protected final IVectorMutable Lxyz;
     protected final IVectorMutable dr, drTmp, drLat, drA, drLatTmp;
+    protected final IVectorMutable pTmp1, pTmp2;
     protected final double[] rCut2;
     protected final double rCutMax;
-    protected final double[][] sums;
     protected final CoordinateDefinition coordinateDefinition;
+    protected final ReturnValue rv;
 
+    public class ReturnValue {
+        public double[] energySum, virialSum, sum1, dadbSum;
+        public IVectorMutable[] pSumXYZ1, pSumXYZ2;
+        public ReturnValue(int n, ISpace space) {
+            energySum = new double[n];
+            virialSum = new double[n];
+            sum1 = new double[n];
+            dadbSum = new double[n];
+            pSumXYZ1 = new IVectorMutable[n];
+            pSumXYZ2 = new IVectorMutable[n];
+            for (int i=0; i<n; i++) {
+                pSumXYZ1[i] = space.makeVector();
+                pSumXYZ2[i] = space.makeVector();
+            }
+        }
+    }
 }//end of Potential2SoftSpherical
