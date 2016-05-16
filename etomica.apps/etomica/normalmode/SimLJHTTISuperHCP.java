@@ -47,6 +47,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
@@ -168,14 +169,14 @@ public class SimLJHTTISuperHCP extends Simulation {
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         if (args.length == 0) {
-            params.numAtoms = 12*12*12*8;
+            params.numAtoms = 4*4*4*8;
             params.numSteps = 10000000;
             params.temperature = 0.7716049382716044;
             params.density = 1.178511301977579;
             params.rcMax1 = 10;
             params.rcMax0 = 11;
-            params.rc = 10;
-            params.rc0 = 10;
+            params.rc = 3;
+            params.rc0 = 3;
             params.bpharm = new double[]{9.97423151884132,9.97721709086801,9.979113882088319,9.980514061272098,9.980920892526447,9.981107369390061,9.981164701696656};
         }
         else {
@@ -193,7 +194,6 @@ public class SimLJHTTISuperHCP extends Simulation {
         if (rcMax1 > rcMax0) rcMax1 = rcMax0;
         double[] bpharm = params.bpharm;
         double[] bpharmLJ = params.bpharmLJ;
-        boolean only6 = params.only6;
         int[] seeds = params.randomSeeds;
         double alpha = params.alpha;
         
@@ -241,6 +241,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
 
         //start simulation
+        
 
         IVector e2 = sim.box.getBoundary().getEdgeVector(2);
         double L = e2.getX(2)*Math.pow(density, 1.0/3.0);
@@ -294,6 +295,8 @@ public class SimLJHTTISuperHCP extends Simulation {
             // atoms that move in will not interact since they won't be neighbors
             potentialT.setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
         }
+        
+
 
         PotentialMasterList potentialMasterDataLJ = null;
         P2LennardJones p2LJ = null;
@@ -303,13 +306,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             // |potential| is our local potential used for data collection.
             potentialMasterDataLJ = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
             p2LJ = new P2LennardJones(sim.getSpace());
-            if (only6) {
-                p2LJ.only6 = true;
-                System.out.println("Only including r^-6 part of LJ");
-            }
-            else {
-                System.out.println("Including 12+6 LJ");
-            }
+            System.out.println("Including 12+6 LJ");
 
             potentialLJ = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[nCutoffs-1]-0.01);
             IAtomType sphereType = sim.species.getLeafType();
@@ -344,6 +341,15 @@ public class SimLJHTTISuperHCP extends Simulation {
             uFacCut[i] = d.getValue(6*i)*numAtoms - uShort;
         }
         
+        MeterPressureTensor pTensorMeter = new MeterPressureTensor(potentialMasterData, sim.space);
+        pTensorMeter.setBox(sim.box);
+        pTensorMeter.setIncludeLrc(false);
+        pTensorMeter.setTemperature(0);
+        Tensor t = ((DataTensor)pTensorMeter.getData()).x;
+        System.out.println(t);
+        System.out.println("dP "+(t.component(2,2)-0.5*(t.component(0,0)+t.component(1,1))));
+        
+        System.exit(1);
 
         
         if (ss) {
@@ -766,7 +772,6 @@ public class SimLJHTTISuperHCP extends Simulation {
         public double[] bpharm = new double[0];
         public double[] bpharmLJ = new double[0];
         public boolean ss = false;
-        public boolean only6 = false;
         public int[] randomSeeds = null;
         public double alpha = 1.0;
     }
