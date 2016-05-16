@@ -341,17 +341,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             uFacCut[i] = d.getValue(6*i)*numAtoms - uShort;
         }
         
-        MeterPressureTensor pTensorMeter = new MeterPressureTensor(potentialMasterData, sim.space);
-        pTensorMeter.setBox(sim.box);
-        pTensorMeter.setIncludeLrc(false);
-        pTensorMeter.setTemperature(0);
-        Tensor t = ((DataTensor)pTensorMeter.getData()).x;
-        System.out.println(t);
-        System.out.println("dP "+(t.component(2,2)-0.5*(t.component(0,0)+t.component(1,1))));
-        
-        System.exit(1);
 
-        
         if (ss) {
             if (bpharmLJ.length < cutoffs.length) {
                 throw new RuntimeException("I need LJ harmonic pressures for all cutoffs");
