@@ -210,7 +210,8 @@ public class MCMoveManager {
             fullFrequency = (int)Math.round(frequency * move.getNominalFrequency());
             if ((move instanceof MCMoveBox) && ((MCMoveBox)move).getBox() != null
                     && ((MCMoveBox)move).isNominallyPerParticleFrequency() ) {
-                fullFrequency *= ((MCMoveBox)move).getBox().getMoleculeList().getMoleculeCount();
+                int nMolecules = ((MCMoveBox)move).getBox().getMoleculeList().getMoleculeCount();
+                if (nMolecules > 0) fullFrequency *= nMolecules;
             }
         }
 
