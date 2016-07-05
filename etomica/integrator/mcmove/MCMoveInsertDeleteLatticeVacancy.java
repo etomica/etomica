@@ -180,7 +180,13 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             IAtom testAtom = testMolecule.getChildList().getAtom(0);
 
             int nInsertCandidates = insertCandidates.size();
-            if (nInsertCandidates == 0) return false;
+            if (nInsertCandidates == 0) {
+                reservoir.add(testMolecule);
+                // test molecule is no longer in the simulation and should not be 
+                // returned by affectedAtoms
+                testMolecule = null;
+                return false;
+            }
             IAtom partner = box.getLeafList().getAtom(insertCandidates.get(random.nextInt(nInsertCandidates)));
 //            System.out.println("inserting next to "+partner);
             uOld = 0;
