@@ -151,7 +151,7 @@ public class MCMoveIDBiasAction implements IAction {
             int na = n0 + i;
             mcMoveID.setLnBias(na, lnbias[i]);
         }
-        lnr = 0;
+        lnr = lnbias[0];
         if (Double.isNaN(daDef)) {
 //            lastDefaultdADef -= 1;
             daDef = lastDefaultdADef;
