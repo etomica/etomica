@@ -17,7 +17,7 @@ import etomica.integrator.IntegratorMC;
 public class MCMoveIDBiasAction implements IAction {
     protected final int maxDN;
     protected final int fixedN;
-    protected double mu;
+    protected double bmu;
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected final MCMoveInsertDeleteBiased mcMoveID;
     protected final int numAtoms;
@@ -29,13 +29,13 @@ public class MCMoveIDBiasAction implements IAction {
     protected final double ratioMaxN = 1, maxBiasMinN = 2;
     protected boolean playDumb = false;
 
-    public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxDN, int fixedN, double mu,
+    public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxDN, int fixedN, double bmu,
             MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms, double temperature) {
         this.integratorMC = integratorMC;
         this.mcMoveID = mcMoveID;
         this.maxDN = maxDN;
         this.fixedN = fixedN;
-        this.mu = mu;
+        this.bmu = bmu;
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
         this.numAtoms = numAtoms;
         this.temperature = temperature;
@@ -55,8 +55,8 @@ public class MCMoveIDBiasAction implements IAction {
      * Sets a nominal bias for states that have not yet been visited.  The bias given is
      * exp(-mu), so this should actually get something like mu/kT.
      */
-    public void setMu(double mu) {
-        this.mu = mu;
+    public void setMu(double bmu) {
+        this.bmu = bmu;
         actionPerformed();
     }
 
@@ -96,7 +96,7 @@ public class MCMoveIDBiasAction implements IAction {
         for (int i=0; i<ratios.length; i++) {
             lnbias[i] = lnr;
             if (maxNumAtoms>0 && n0+i+1>maxNumAtoms) {
-                lnr += mu/temperature;
+                lnr += bmu;
                 continue;
             }
             double lnratio = daDef + Math.log(((double)(numAtoms - (n0+i)))/(n0+i+1));
@@ -104,19 +104,19 @@ public class MCMoveIDBiasAction implements IAction {
                 lnratio = Math.log(ratios[i]);
             }
             if (!Double.isNaN(lnratio)) {
-                if (-lnratio > mu/temperature) {
+                if (-lnratio > bmu) {
                     // bias needed for flat histogram is greater than chemical potential
                     // only apply enough bias so that hist[N]/hist[i] ~= 0.25
                     double d = -lnratio - Math.log(ratioMaxN)/(1L<<(numAtoms - (n0+i)));
-                    if (d < mu/temperature) {
-                        d = mu/temperature;
+                    if (d < bmu) {
+                        d = bmu;
                     }
                     lnr += d;
                 }
                 else {
                     // apply bias to make the histogram flat
                     lnr -= lnratio;
-                    double offset = (lnbias[i] + mu/temperature) - lnr;
+                    double offset = (lnbias[i] + bmu) - lnr;
                     if (offset > Math.log(maxBiasMinN)) {
                         // we're applying a lot of bias at low N.  apply only enough so
                         // that p(i+1)/p(i) = maxBiasMinN
@@ -126,7 +126,7 @@ public class MCMoveIDBiasAction implements IAction {
                 }
             }
             else {
-                lnr += mu/temperature;
+                lnr += bmu;
             }
             if (!playDumb && hist[i]*hist[i+1] == 0 && hist[i]+hist[i+1] > 10000) {
                 long ni = numInsert[i]+numDelete[i]+1;
@@ -159,10 +159,10 @@ public class MCMoveIDBiasAction implements IAction {
         for (int na=n0-1; na>=minN; na--) {
             double lnratio = daDef + Math.log(((double)(numAtoms-na))/(na+1));
             if (playDumb) {
-                lnratio = mu/temperature;
+                lnratio = bmu;
             }
-            if (lnratio < mu/temperature) {
-                double offset = -(lnratio + mu/temperature);
+            if (lnratio < bmu) {
+                double offset = -(lnratio + bmu);
                 if (offset < -Math.log(2)) offset = -Math.log(2);
                 lnratio += offset;
                 lnr += lnratio;
@@ -174,7 +174,7 @@ public class MCMoveIDBiasAction implements IAction {
         }
 
         for (int na = n0+lnbias.length; na<=maxN; na++) {
-            double lastLnB = lnbias[lnbias.length-1]+(na-(n0+lnbias.length-1))*(mu/temperature);
+            double lastLnB = lnbias[lnbias.length-1]+(na-(n0+lnbias.length-1))*bmu;
             mcMoveID.setLnBias(na, lastLnB);
         }
     }
