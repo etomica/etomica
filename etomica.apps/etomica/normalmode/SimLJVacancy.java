@@ -146,7 +146,7 @@ public class SimLJVacancy extends Simulation {
         
         mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMaster, random, space, integrator, y, fixedN, maxDN);
 
-        double x = (nbr1-1)/4.0;
+        double x = nbr1/40.0;
         mcMoveID.setMaxInsertDistance(x);
         mcMoveID.makeFccVectors(nbr1);
         mcMoveID.setMu(bmu);
@@ -196,7 +196,9 @@ public class SimLJVacancy extends Simulation {
         double daDef = params.daDef;
         if (Double.isNaN(daDef)) {
             // use a correlation.  this should be with ~1
-            daDef = 28 - 20*temperature;
+            double Y = temperature/Math.pow(density, 4)/4;
+            double v2 = 1/(density*density);
+            daDef = (-3.6 - 10.5*Y + 8.2*v2)/Y;
             System.out.println("estimated defect free energy: "+daDef);
         }
         else {
@@ -242,7 +244,10 @@ public class SimLJVacancy extends Simulation {
             public void integratorStepFinished(IIntegratorEvent e) {
                 countDown--;
                 if (countDown==0) {
-                    pSplitter.putData(meterP.getData());
+                    // everything really wants beta P
+                    IData pData = meterP.getData();
+                    pData.TE(1.0/temperature);
+                    pSplitter.putData(pData);
                     countDown=interval;
                 }
             }
@@ -657,6 +662,7 @@ public class SimLJVacancy extends Simulation {
             if (avg != null) avg.reset();
         }
         sim.integrator.resetStepCount();
+        sim.integrator.getMoveManager().setEquilibrating(false);
 
         
         // take real data
@@ -703,7 +709,7 @@ public class SimLJVacancy extends Simulation {
         double pRoot = dsmr.getLastPressure();
         double vRoot = dsmr.getLastVacancyConcentration();
         System.out.println("pressure root: "+pRoot);
-        System.out.println("vacancy concentration root: "+vRoot);
+        System.out.println("vacancy fraction root: "+vRoot);
 
         
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
