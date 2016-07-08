@@ -112,6 +112,7 @@ public class SimLJVacancy extends Simulation {
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setTemperature(temperature);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
+        move.setStepSize(0.2);
         ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(move);
         
@@ -173,7 +174,7 @@ public class SimLJVacancy extends Simulation {
         final int numAtoms = params.numAtoms;
         final double density = params.density;
         final double temperature = params.temperature;
-        final double rc = params.rc;
+        final double rc = params.rc*Math.pow(density, -1.0/3.0);
         long steps = params.steps;
         boolean graphics = params.graphics;
         int maxDN = (params.numV+1)/2;
@@ -608,6 +609,9 @@ public class SimLJVacancy extends Simulation {
         sim.ai.actionPerformed();
 
         IData dsfe3Data = dsfe3.getData();
+        if (dsfe3Data.getLength() == 0) {
+            throw new RuntimeException("no data after initial equilibration");
+        }
         double daDefAvg = dsfe3Data.getValue(0);
         System.out.println("very initial daDef = "+daDefAvg);
         
@@ -696,7 +700,7 @@ public class SimLJVacancy extends Simulation {
                 AccumulatorAverageBlockless pAcc = (AccumulatorAverageBlockless)pSplitter.getDataSink(numAtoms-n);
                 pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
             }
-            if (Math.round(nData.getValue(i)) < numAtoms) {
+            if (dsfeData.getLength() > i) {
                 System.out.println(String.format("%6d %20.15e %20.15e %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i)));
             }
             else {
