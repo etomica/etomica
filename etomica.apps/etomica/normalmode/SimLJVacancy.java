@@ -113,7 +113,7 @@ public class SimLJVacancy extends Simulation {
         integrator.setTemperature(temperature);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         move.setStepSize(0.2);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+//        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(move);
         
         ai = new ActivityIntegrate(integrator);
@@ -167,7 +167,7 @@ public class SimLJVacancy extends Simulation {
             params.steps = 1000000;
             params.density = 1.0;
             params.temperature = 0.7;
-            params.numV = 5;
+            params.numV = 4;
 
         }
 
@@ -707,7 +707,12 @@ public class SimLJVacancy extends Simulation {
                 System.out.println(String.format("%6d %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg));
             }
         }
-        System.out.println("\nfinal daDef: "+dsfe3Data.getValue(0));
+
+        
+        double pAccept = sim.mcMoveID.getTracker().acceptanceProbability();
+        System.out.println("\nInsert/delete acceptance "+pAccept);
+
+        System.out.println("final daDef: "+dsfe3Data.getValue(0));
 
         System.out.println("mu root: "+muRoot);
         double pRoot = dsmr.getLastPressure();
