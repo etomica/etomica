@@ -23,7 +23,7 @@ public class DataSourceMuRoot extends DataSourceScalar {
     protected final DataDistributer pSplitter;
     protected double bmu;
     protected double bALattice, volume, latticeDensity;
-    protected double lastP, lastVacancyConcentration;
+    protected double lastP, lastVacancyConcentration, lastTot;
     
     public DataSourceMuRoot(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
@@ -57,6 +57,7 @@ public class DataSourceMuRoot extends DataSourceScalar {
                 p /= l*ratios[i];
             }
             tot += p;
+            lastTot = tot;
             p = 1;
             double pressure1 = 0;
             for (int i=0; i<pSplitter.getNumDataSinks() && i<=ratios.length; i++) {
@@ -116,6 +117,10 @@ public class DataSourceMuRoot extends DataSourceScalar {
         return lastVacancyConcentration;
     }
     
+    public double getLastTot() {
+        return lastTot;
+    }
+
     public class DataSourceMuRootPressure extends DataSourceScalar {
         public DataSourceMuRootPressure() {
             super("P", Pressure.DIMENSION);
