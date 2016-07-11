@@ -45,7 +45,6 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveIDBiasAction;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -168,7 +167,6 @@ public class SimLJVacancy extends Simulation {
             params.density = 1.0;
             params.temperature = 0.7;
             params.numV = 4;
-
         }
 
         final int numAtoms = params.numAtoms;
@@ -714,16 +712,21 @@ public class SimLJVacancy extends Simulation {
 
         System.out.println("final daDef: "+dsfe3Data.getValue(0));
 
-        System.out.println("mu root: "+muRoot);
+        System.out.println("mu: "+muRoot);
         double pRoot = dsmr.getLastPressure();
         double vRoot = dsmr.getLastVacancyConcentration();
-        System.out.println("pressure root: "+pRoot);
-        System.out.println("vacancy fraction root: "+vRoot);
-
+        System.out.println("pressure: "+pRoot);
+        double deltaP = pRoot-((AccumulatorAverageBlockless)pSplitter.getDataSink(0)).getData().getValue(AccumulatorAverageBlockless.AVERAGE.index);
+        System.out.println("delta P: "+deltaP);
+        System.out.println("vacancy fraction: "+vRoot);
+        double tot = dsmr.getLastTot();
+        double deltaA = -(1-vRoot)*Math.log(tot)/numAtoms - vRoot/density*deltaP/temperature;
+        // free energy change per lattice site
+        System.out.println("delta betaA: "+deltaA);
         
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
     }
-    
+
     public static class LJParams extends ParameterBase {
         public int numAtoms = 500;
         public double density = 1.0;
