@@ -716,7 +716,7 @@ public class SimLJVacancy extends Simulation {
         double pRoot = dsmr.getLastPressure();
         double vRoot = dsmr.getLastVacancyConcentration();
         System.out.println("pressure: "+pRoot);
-        double deltaP = pRoot-((AccumulatorAverageBlockless)pSplitter.getDataSink(0)).getData().getValue(AccumulatorAverageBlockless.AVERAGE.index);
+        double deltaP = dsmr.getLastDPressure();
         System.out.println("delta P: "+deltaP);
         System.out.println("vacancy fraction: "+vRoot);
         double tot = dsmr.getLastTot();
