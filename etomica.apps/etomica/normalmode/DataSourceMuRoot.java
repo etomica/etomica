@@ -23,7 +23,7 @@ public class DataSourceMuRoot extends DataSourceScalar {
     protected final DataDistributer pSplitter;
     protected double bmu;
     protected double bALattice, volume, latticeDensity;
-    protected double lastP, lastVacancyConcentration, lastDP, lastTot;
+    protected double lastP, lastVacancyConcentration, lastDP, lastLnTot;
     
     public DataSourceMuRoot(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
@@ -48,8 +48,10 @@ public class DataSourceMuRoot extends DataSourceScalar {
             double tot = 0;
             double l = Math.exp(myMu);
             double vAvg = 0;
+            double totMinus1 = 0;
             for (int i=ratios.length-1; i>=0; i--) {
                 tot += p;
+                if (i<ratios.length-1) totMinus1 += p;
                 if (Double.isNaN(ratios[i])) {
                     if (i==ratios.length-1) return Double.NaN;
                     break;
@@ -57,7 +59,20 @@ public class DataSourceMuRoot extends DataSourceScalar {
                 p /= l*ratios[i];
             }
             tot += p;
-            lastTot = tot;
+            if (totMinus1 > 0.5) {
+                // probably only happens for large systems where multiple vacanacies are happy
+                lastLnTot = Math.log(tot);
+            }
+            else {
+                // ln(1+x) = x - x^2/2 + x^3/3 + ...
+                lastLnTot = 0;
+                double xn = totMinus1;
+                for (int i=1; i<100; i++) {
+                    if (Math.abs(xn/i) < lastLnTot*1e-15) break;
+                    lastLnTot += xn/i;
+                    xn *= -totMinus1;
+                }
+            }
             p = 1;
             double pressure1 = 0;
             double oneMinusP0 = 0;
@@ -134,8 +149,8 @@ public class DataSourceMuRoot extends DataSourceScalar {
         return lastVacancyConcentration;
     }
     
-    public double getLastTot() {
-        return lastTot;
+    public double getLastLnTot() {
+        return lastLnTot;
     }
 
     public class DataSourceMuRootPressure extends DataSourceScalar {
