@@ -23,7 +23,7 @@ public class DataSourceMuRoot extends DataSourceScalar {
     protected final DataDistributer pSplitter;
     protected double bmu;
     protected double bALattice, volume, latticeDensity;
-    protected double lastP, lastVacancyConcentration, lastTot;
+    protected double lastP, lastVacancyConcentration, lastDP, lastTot;
     
     public DataSourceMuRoot(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
@@ -60,6 +60,17 @@ public class DataSourceMuRoot extends DataSourceScalar {
             lastTot = tot;
             p = 1;
             double pressure1 = 0;
+            double oneMinusP0 = 0;
+            for (int i=0; i<=ratios.length; i++) {
+                if (i>0) oneMinusP0 += p/tot;
+                if (ratios.length-1-i >= 0) {
+                    if (Double.isNaN(ratios[ratios.length-1-i])) {
+                        break;
+                    }
+                    p /= l*ratios[ratios.length-1-i];
+                }
+            }
+            p = 1;
             for (int i=0; i<pSplitter.getNumDataSinks() && i<=ratios.length; i++) {
                 double pi = p/tot;
                 AccumulatorAverageBlockless acc = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
@@ -68,6 +79,8 @@ public class DataSourceMuRoot extends DataSourceScalar {
                     break;
                 }
                 pressure1 += pi*acc.getData().getValue(acc.AVERAGE.index);
+                if (i==0) lastDP = -oneMinusP0*acc.getData().getValue(acc.AVERAGE.index);
+                else lastDP += pi*acc.getData().getValue(acc.AVERAGE.index);
                 vAvg += pi*i;
                 if (ratios.length-1-i >= 0) {
                     if (Double.isNaN(ratios[ratios.length-1-i])) {
@@ -113,6 +126,10 @@ public class DataSourceMuRoot extends DataSourceScalar {
         return lastP;
     }
     
+    public double getLastDPressure() {
+        return lastDP;
+    }
+
     public double getLastVacancyConcentration() {
         return lastVacancyConcentration;
     }
