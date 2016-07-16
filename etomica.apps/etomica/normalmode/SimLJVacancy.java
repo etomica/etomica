@@ -719,8 +719,8 @@ public class SimLJVacancy extends Simulation {
         double deltaP = dsmr.getLastDPressure();
         System.out.println("delta P: "+deltaP);
         System.out.println("vacancy fraction: "+vRoot);
-        double tot = dsmr.getLastTot();
-        double deltaA = -(1-vRoot)*Math.log(tot)/numAtoms - vRoot/density*deltaP/temperature;
+        double lnTot = dsmr.getLastLnTot();
+        double deltaA = -(1-vRoot)*lnTot/numAtoms - vRoot/density*deltaP/temperature;
         // free energy change per lattice site
         System.out.println("delta betaA: "+deltaA);
         
