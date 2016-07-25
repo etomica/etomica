@@ -205,7 +205,7 @@ public final class Debug {
         if (debugPair == null) {
             debugPair = new AtomPair();
         }
-        if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1 && MOLECULE1_INDEX > -1 && MOLECULE2_INDEX > -1) {
+        if ((ATOM1_INDEX > -1 && MOLECULE1_INDEX > -1) || (ATOM2_INDEX > -1 && MOLECULE2_INDEX > -1)) {
             IMoleculeList moleculeList = box.getMoleculeList();
             for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
                 IMolecule molecule = moleculeList.getMolecule(i);
