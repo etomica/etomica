@@ -25,14 +25,14 @@ public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
         int iType = 0, jType = 0;
         int iSum = nTypes[0], jSum = 0;
         for (int i=0; i<nPoints; i++) {
-            while (i>iSum) {
+            while (i>=iSum) {
                 iType++;
                 iSum += nTypes[iType];
             }
             jSum = iSum;
             jType = iType;
             for (int j=i+1; j<nPoints; j++) {
-                while (j>jSum) {
+                while (j>=jSum) {
                     jType++;
                     jSum += nTypes[jType];
                 }
@@ -51,8 +51,12 @@ public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
     protected void updateF(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
+        for (int i=0; i<mixF.length; i++) {
+            for (int j=0; j<mixF[i].length; j++) {
+                mixF[i][j].setBox(box);
+            }
+        }
 
-//        f.setBox(box);
         // recalculate all f values for all pairs
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
