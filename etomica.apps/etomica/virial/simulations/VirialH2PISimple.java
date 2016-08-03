@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONException;
+import org.json.simple.JSONObject;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
