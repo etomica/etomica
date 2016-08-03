@@ -8,8 +8,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
@@ -435,14 +434,11 @@ public class VirialH2PISimple {
 
 			try {
 				FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
-				jsonFile.write(JSONObject.valueToString((resultsMap)));
+				jsonFile.write(JSONObject.toJSONString((resultsMap)));
 				jsonFile.write("\n");
 				jsonFile.close();
 			} catch (IOException e) {
 				throw new RuntimeException(e.getMessage());
-			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
-				System.out.println(e1.getMessage());
 			}
 		}
 		//        sim.printResults(HSB[nPoints]);
