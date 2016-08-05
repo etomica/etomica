@@ -1,0 +1,311 @@
+package etomica.AlkaneEH;
+
+import java.awt.Color;
+
+import etomica.action.BoxImposePbc;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
+import etomica.api.IAtomList;
+import etomica.api.IBox;
+import etomica.api.IMolecule;
+import etomica.api.IPotentialMaster;
+import etomica.api.ISpecies;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.atom.DiameterHashByType;
+import etomica.atom.DipoleSource;
+import etomica.atom.IAtomOriented;
+import etomica.atom.IAtomPositionDefinition;
+import etomica.atom.IAtomTypeOriented;
+import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
+import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
+import etomica.data.meter.MeterDipoleSumSquared1site;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
+import etomica.graphics.SimulationGraphic;
+import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedFullSite;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.lattice.LatticeCubicBcc;
+import etomica.lattice.LatticeCubicFcc;
+import etomica.listener.IntegratorListenerAction;
+import etomica.potential.P2LJDipole;
+import etomica.potential.P2MoleculeTruncated;
+import etomica.potential.P2ReactionFieldDipole;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.ISpace;
+import etomica.space.Space;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresRotating;
+import etomica.units.Pixel;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
+import etomica.util.RandomNumberGenerator;
+
+/**
+ * Canonical ensemble Monte Carlo simulation (NVT)
+ * calculate dielectric constant epsilon for dipolar LJ model
+ * @author shu
+ * Dec 2014
+ */
+
+public class DLJ_NVT_1site extends Simulation {
+
+	private static final long serialVersionUID = 1L;
+	protected final IPotentialMaster potentialMaster;
+	protected final IntegratorMC integrator;
+	protected final MCMoveMolecule moveMolecule;//translation
+	protected final MCMoveRotate rotateMolecule;//rotation, atomic
+	protected final IBox box;
+	protected SpeciesSpheresRotating species;
+	private final static String APP_NAME = "dipolar LJ";
+	private static final int PIXEL_SIZE = 15;
+	public final ActivityIntegrate activityIntegrate;
+    public Controller controller; 
+
+    public static class DipoleSourceDLJ implements DipoleSource{//for potential reaction field
+    	protected final IVectorMutable dipoleVector;
+    	protected double dipoleStrength;
+    	public DipoleSourceDLJ(ISpace space,double s){
+    		dipoleStrength=s;
+    		dipoleVector=space.makeVector();
+    	}
+    	
+//    	public void setDipoleStrength(double dipoleStrength){
+//    		this.dipoleStrength=dipoleStrength;
+//    	}
+		public IVector getDipole(IMolecule molecule) {
+			IAtomList atomList = molecule.getChildList();
+			if(atomList.getAtomCount() !=1){
+				throw new RuntimeException("improper input of the molecule");
+			}
+	        IAtomOriented atom = (IAtomOriented)atomList.getAtom(0);
+	    	dipoleVector.E(atom.getOrientation().getDirection());
+			dipoleVector.TE(dipoleStrength);
+			return dipoleVector; 
+		}
+    }
+    
+	//************************************* constructor ********************************************//
+	public DLJ_NVT_1site(Space space, int numberMolecules,final double sigmaLJ,double epsilonLJ, double mu, 
+			double dielectricOutside, double boxSize, double temperature,double truncation){
+		super(space);		
+		//setRandom(new RandomNumberGenerator(1));
+		species = new SpeciesSpheresRotating(space, new ElementSimple("A")); 
+        addSpecies(species);
+		box = new Box(space);
+		addBox(box);
+		box.setNMolecules(species, numberMolecules);
+		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
+	
+		IAtomPositionDefinition positionDefinition = new IAtomPositionDefinition() {
+			public IVector position(IMolecule molecule) {
+				return molecule.getChildList().getAtom(0).getPosition();
+			}
+		};
+		
+		// dipolar LJ potential
+		P2LJDipole pDLJ = new P2LJDipole(space,sigmaLJ,epsilonLJ,mu);
+		// add reaction field potential
+		DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space,mu);// add reaction field potential
+        P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space);
+        pRF.setDipoleSource(dipoleSourceDLJ);
+        pRF.setRange(truncation);
+        pRF.setDielectric(dielectricOutside);
+        
+    	potentialMaster = new PotentialMaster();
+    	//add truncated potential to potential master
+    	P2MoleculeTruncated p2TruncatedDLJ = new P2MoleculeTruncated(pDLJ, truncation, space, positionDefinition);/////???????????//
+    	P2MoleculeTruncated p2TruncatedRF = new P2MoleculeTruncated(pRF, truncation, space,positionDefinition);/////???????????//
+  
+    	potentialMaster.addPotential(p2TruncatedDLJ, new ISpecies[] {species,species});//u(LJ)+u(dd)
+        potentialMaster.addPotential(p2TruncatedRF, new ISpecies[] {species,species});
+        potentialMaster.lrcMaster().addPotential(pRF.makeP0());
+        
+        // integrator from potential master
+		integrator = new IntegratorMC(this, potentialMaster);
+        // add mc move
+        moveMolecule = new MCMoveMolecule(this, potentialMaster,space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
+        rotateMolecule = new MCMoveRotate(potentialMaster,random,space);
+
+		activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setMaxSteps(10000000);////???????????
+		getController().addAction(activityIntegrate);
+
+		//******************************** periodic boundary condition ******************************** //
+		BoxImposePbc imposePbc = new BoxImposePbc(box, space);
+		imposePbc.setApplyToMolecules(true);
+		//**************************** integrator ****************************** //
+		integrator.setTemperature(temperature);
+	    integrator.setBox(box);
+        integrator.getMoveManager().addMCMove(moveMolecule);
+        integrator.getMoveManager().addMCMove(rotateMolecule);
+		integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
+		
+		//******************************** initial configuration ******************************** //
+		LatticeCubicBcc lattice = new LatticeCubicBcc(space);
+		ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
+		configuration.initializeCoordinates(box);
+	}
+		
+	// **************************** simulation part **************************** //
+	public static void main (String[] args){
+		
+		Param params = new Param();
+		if (args.length > 0) {
+			ParseArgs.doParseArgs(params, args);
+		} else {
+			
+		}
+		long t1 = System.currentTimeMillis();
+		Space space = Space3D.getInstance();
+		int steps = params.steps;
+		boolean isGraphic = params.isGraphic;
+		double temperature = params.temperature;
+	//	double temperatureK = params.temperatureK;
+//		double temperature = Kelvin.UNIT.toSim(temperatureK);// convert Kelvin temperature to T(sim), essentially kT
+		int numberMolecules = params.numberMolecules;
+		double density = params.density;
+		double sigmaLJ=params.sigmaLJ;
+		double epsilonLJ=params.epsilonLJ;
+		double dipoleStrength = Math.sqrt(params.dipoleStrength2);
+		double dielectricOutside = params.dielectricOutside;
+		//double densitySim = density * Constants.AVOGADRO * 1e-27;  // ?????? convert density to sim unit; in 1/(A)^3
+		//System.out.println("Constants.AVOGADRO * 1e-27: "+Constants.AVOGADRO * 1e-27);
+		double densitySim = density;
+		double boxSize = Math.pow(numberMolecules/densitySim,(1.0/3.0)); 
+		double truncation=boxSize* 0.49;
+
+		System.out.println("******************* dipolar LJ, dielectric constant, NVT********************");
+		System.out.println("number of molecules="+numberMolecules);
+		System.out.println("steps="+steps);
+		System.out.println("density="+density);
+		System.out.println("denisty(sim)="+densitySim);
+		System.out.println("temperature="+temperature);
+		System.out.println("box size="+boxSize);
+		System.out.println("truncation="+truncation);
+		System.out.println("sigmaLJ="+sigmaLJ);
+		System.out.println("epsilonLJ="+epsilonLJ);
+		System.out.println("dipoleStrength squared ="+params.dipoleStrength2);
+
+		System.out.println("dipoleStrength="+dipoleStrength);
+		System.out.println("dielectricOutside="+dielectricOutside);
+
+		final DLJ_NVT_1site sim = new DLJ_NVT_1site(space,numberMolecules,sigmaLJ, epsilonLJ, dipoleStrength,
+				dielectricOutside, boxSize,temperature,truncation);
+		
+    	if (isGraphic){
+			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
+	        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));	        
+	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getAtomType(0),1);
+            ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box).getColorScheme();
+            colorScheme.setColor(sim.getSpecies(0).getAtomType(0), Color.red);
+            OrientedFullSite[] sites = new OrientedFullSite[2];
+            sites[0] = new OrientedFullSite(space.makeVector(new double[]{0.5,0,0}), Color.BLUE, 0.2);
+            sites[1] = new OrientedFullSite(space.makeVector(new double[]{-0.5,0,0}), Color.YELLOW, 0.2);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setOrientationSites(
+                    (IAtomTypeOriented)sim.getSpecies(0).getAtomType(0), sites);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setOrientationSites(
+                    (IAtomTypeOriented)sim.getSpecies(0).getAtomType(0), sites);
+            simGraphic.makeAndDisplayFrame(APP_NAME);
+			simGraphic.getDisplayBox(sim.box).repaint();
+	    	return ;
+    	}
+    	
+    	sim.activityIntegrate.setMaxSteps(steps/5);// equilibration period
+   		sim.getController().actionPerformed();
+   		sim.getController().reset();
+   		sim.integrator.getMoveManager().setEquilibrating(false);
+   		System.out.println("equilibration finished");
+   		
+   		int blockNumber = 100;
+   		int sampleAtInterval = numberMolecules;
+   		int samplePerBlock = steps/sampleAtInterval/blockNumber;
+   		System.out.println("number of blocks is : "+blockNumber);
+   		System.out.println("sample per block is : "+samplePerBlock);
+   		// dipoleSumSquared
+   		MeterDipoleSumSquared1site dipoleSumSquaredMeter = new MeterDipoleSumSquared1site(space,sim.box,dipoleStrength);  	
+        AccumulatorAverage dipoleSumSquaredAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+        DataPump dipolePump = new DataPump(dipoleSumSquaredMeter,dipoleSumSquaredAccumulator);
+        IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
+        dipoleListener.setInterval(sampleAtInterval);
+        sim.integrator.getEventManager().addListener(dipoleListener);
+        // energy
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(100);
+        DataPump energyPump = new DataPump(energyMeter, energyAccumulator);
+        energyAccumulator.setBlockSize(50);
+        IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
+        sim.integrator.getEventManager().addListener(energyListener);
+                
+        sim.activityIntegrate.setMaxSteps(steps);// equilibration period
+        sim.getController().actionPerformed();
+                
+        //calculate dipoleSumSquared average
+        double dipoleSumSquared = ((DataDouble)((DataGroup)dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;
+        double dipoleSumSquaredERR = ((DataDouble)((DataGroup)dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.ERROR.index)).x;
+
+        double volume = sim.box.getBoundary().volume();
+        double dipoleFac = 4 * Math.PI * dipoleSumSquared/9.0/volume/temperature;
+        double dielectricOutsideFac = 2*(dielectricOutside-1)/(2*dielectricOutside+1);
+        double x1 =  dipoleSumSquared;
+        double B  = dielectricOutsideFac;
+        double D  = 4 * Math.PI/9.0/volume/temperature;
+
+        double dEpsilondx_1=(B*D+2*D)/(B*D*x1-D*x1+1);
+        double dEpsilondx_2=(B*D-D)*(B*D*x1+2D*x1+1)/Math.pow((B*D*x1-D*x1+1),2);
+        double dEpsilondx =dEpsilondx_1-dEpsilondx_2;
+        double epsilon = (1+B*D*x1+2*D*x1)/(1+B*D*x1-D*x1);
+        double epsilonERR_alt = dEpsilondx*dipoleSumSquaredERR;
+        System.out.println("epsilonERR_alt: "+epsilonERR_alt);
+
+        double epsilonERR = 3 * D / Math.pow((B*D*x1-D*x1+1),2)*dipoleSumSquaredERR;
+        System.out.println("<M^2> :  "+dipoleSumSquared + "   with err:  "+dipoleSumSquaredERR);
+        System.out.println("Epsilon="+epsilon + "   with err: "+epsilonERR);
+        System.out.println("========================");
+        double C = dipoleFac;
+        double A = C/(1+B*C);
+        double dielectricConstant = (1+2*A)/(1-A);
+        System.out.println("(epsilon-1)/(epsilon+2): "+A);
+        System.out.println("dielectric constant is:  "+dielectricConstant);
+        System.out.println("B = "+B);
+        System.out.println("D = "+D);
+        System.out.println("volume = "+volume);
+        double test = 4 * Math.PI/9.0/1.35/boxSize/boxSize/boxSize;
+        System.out.println("D test= "+test);
+
+        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        System.out.println("average energy= "+avgPE);
+        avgPE /= numberMolecules;        
+        System.out.println("average energy per molecule= "+avgPE);
+        System.out.println("PE/epsilon:"+avgPE);
+        
+        long t2 = System.currentTimeMillis();
+        System.out.println("simulation time is:"+ (t2-t1));
+	}
+	
+	// ******************* parameters **********************// 
+	public static class Param extends ParameterBase {
+		public boolean isGraphic = false;
+		public double temperature = 1.35;
+		public int numberMolecules = 256;
+		public double density = 0.8; 
+		public double dipoleStrength2=1.0;
+		public double sigmaLJ=1.0;
+		public double epsilonLJ=1.0;
+		public double dielectricOutside =1000000000;
+		public int steps = 100000;
+	}
+}
