@@ -108,7 +108,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
             // leaf index corresponds to the position in the leaf list
             E agent = agents[i];
             if (agent != null && agentSource != null) {
-                agentSource.releaseAgent(agent, leafList.getAtom(i), null);
+                agentSource.releaseAgent(agent, leafList.getAtom(i), box);
             }
         }
         agents = null;
@@ -151,7 +151,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
             if (agents[index] != null) {
                 // Atom used to have an agent.  nuke it.
                 if (agentSource != null) {
-                    agentSource.releaseAgent(agents[index], childAtom, null);
+                    agentSource.releaseAgent(agents[index], childAtom, box);
                 }
                 agents[index] = null;
             }
