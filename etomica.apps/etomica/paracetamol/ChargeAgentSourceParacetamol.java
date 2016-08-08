@@ -9,6 +9,7 @@ package etomica.paracetamol;
  */
 
 import etomica.api.IAtom;
+import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.potential.EwaldSummation.MyCharge;
 
@@ -35,7 +36,7 @@ public class ChargeAgentSourceParacetamol implements AgentSource {
 		return myCharge[index];
 	}
 
-	public void releaseAgent(Object agent, IAtom atom) {
+	public void releaseAgent(Object agent, IAtom atom, IBox agentBox) {
 		// Do nothing
 
 	}
