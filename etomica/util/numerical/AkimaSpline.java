@@ -214,7 +214,7 @@ public class AkimaSpline {
         this.x = x;
         this.y = y;
         dirty = true;
-    }        
+    }
 
     protected double[] m, t, x, y, interpolatedY, interpolatedDy;
     protected boolean dirty = false;
