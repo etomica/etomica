@@ -23,7 +23,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         return new LengthAgent();
     }
 
-    public void releaseAgent(LengthAgent agent, IAtom atom) {}
+    public void releaseAgent(LengthAgent agent, IAtom atom, IBox agentBox) {}
 
     public void resetFilter() {
         maxChainLength = 0;

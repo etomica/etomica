@@ -123,6 +123,6 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(Forcible agent, IAtom atom) {}
+    public void releaseAgent(Forcible agent, IAtom atom, IBox agentBox) {}
 
 }

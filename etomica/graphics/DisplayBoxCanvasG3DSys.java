@@ -736,7 +736,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             return null;
         }
 
-        public void releaseAgent(Ball[] agent, IAtom atom) {
+        public void releaseAgent(Ball[] agent, IAtom atom, IBox agentBox) {
             for (int i=0; i<agent.length; i++) {
                 gsys.removeFig(agent[i]);
             }
@@ -789,7 +789,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return newBall;
 	}
 
-	public void releaseAgent(Figure agent, IAtom atom) {
+	public void releaseAgent(Figure agent, IAtom atom, IBox agentBox) {
 		gsys.removeFig(agent);
 	}
 

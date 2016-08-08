@@ -131,7 +131,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         return new BondArrayList();
     }
 
-    public void releaseAgent(BondArrayList agent, IAtom atom) {
+    public void releaseAgent(BondArrayList agent, IAtom atom, IBox agentBox) {
         agent.clear();
     }
     

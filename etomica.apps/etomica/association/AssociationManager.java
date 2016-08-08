@@ -159,6 +159,6 @@ public class AssociationManager implements AgentSource<AtomArrayList>,IListener 
 		return new AtomArrayList();
 	}
 
-	public void releaseAgent(AtomArrayList agent, IAtom atom) {	}
+	public void releaseAgent(AtomArrayList agent, IAtom atom, IBox agentBox) {	}
 }
     

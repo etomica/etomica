@@ -63,7 +63,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         return new LengthAgent();
     }
 
-    public void releaseAgent(LengthAgent agent, IAtom atom) {}
+    public void releaseAgent(LengthAgent agent, IAtom atom, IBox agentBox) {}
 
     public void colorAllAtoms() {
         // untag all the Atoms

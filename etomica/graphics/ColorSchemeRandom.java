@@ -31,7 +31,7 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource<Color>
         return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
     }
     
-    public void releaseAgent(Color agent, IAtom atom) {}
+    public void releaseAgent(Color agent, IAtom atom, IBox agentBox) {}
 
     private static final long serialVersionUID = 2L;
     private final AtomLeafAgentManager<Color> agentManager;

@@ -100,7 +100,7 @@ public class ColloidSim extends Simulation {
         box.setNMolecules(speciesColloid, nColloid);
 
         AgentSource<AtomArrayList> bondAgentSource = new AgentSource<AtomArrayList>() {
-            public void releaseAgent(AtomArrayList agent, IAtom atom) {}
+            public void releaseAgent(AtomArrayList agent, IAtom atom, IBox agentBox) {}
             public AtomArrayList makeAgent(IAtom a) {return new AtomArrayList();}
         };
         colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);

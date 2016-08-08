@@ -90,7 +90,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
 
     public void actionPerformed() {
         pcForce.reset();

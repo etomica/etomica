@@ -14,6 +14,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
+import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -505,7 +506,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         return new AtomAgent(space);
     }
     
-    public void releaseAgent(AtomAgent agent, IAtom atom) {}
+    public void releaseAgent(AtomAgent agent, IAtom atom, IBox agentBox) {}
     public void releaseAgent(Object agent, IMolecule atom) {}
             
     public static class MoleculeAgent implements Serializable {  //need public so to use with instanceof

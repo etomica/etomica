@@ -72,7 +72,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
     }
     
     // does nothing
-    public void releaseAgent(AtomTag agent, IAtom atom) {}
+    public void releaseAgent(AtomTag agent, IAtom atom, IBox agentBox) {}
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms

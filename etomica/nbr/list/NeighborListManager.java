@@ -422,7 +422,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         return lists;
     }
     
-    public void releaseAgent(AtomNeighborLists agent, IAtom atom) {
+    public void releaseAgent(AtomNeighborLists agent, IAtom atom, IBox agentBox) {
         // we need to remove this atom from the neighbor lists of its neighbors.
         AtomNeighborLists nbrLists = agent;
         IAtomList[] upDnLists = nbrLists.getUpList();
@@ -465,7 +465,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
             this.potentialMaster = potentialMaster;
         }
 
-        public void releaseAgent(AtomPotentialList obj, IAtom atom) {}
+        public void releaseAgent(AtomPotentialList obj, IAtom atom, IBox agentBox) {}
         public AtomPotentialList makeAgent(IAtom atom) {
             AtomPotentialList lists = new AtomPotentialList();
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();

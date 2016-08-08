@@ -489,7 +489,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
 		return new Agent();
 	}
 
-	public void releaseAgent(Agent agent, IAtom atom) {
+	public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {
 		
 	}
 	public static class Agent {

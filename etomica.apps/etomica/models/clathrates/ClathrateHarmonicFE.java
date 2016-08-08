@@ -9,6 +9,7 @@ import java.awt.Color;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
+import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -284,7 +285,7 @@ public class ClathrateHarmonicFE extends Simulation{
 			    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
 			        return new IntegratorVelocityVerlet.MyAgent(sim.space);
 			    }
-			    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {/**do nothing**/}
+			    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
 	        };
 			AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box , IntegratorVelocityVerlet.MyAgent.class);
 	        pcForce.setAgentManager(atomAgentManager);

@@ -84,7 +84,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource<AtomSite
         return site;
     }
     
-    public void releaseAgent(AtomSite agent, IAtom atom) {}
+    public void releaseAgent(AtomSite agent, IAtom atom, IBox agentBox) {}
 
     private final CellLattice lattice;
     private final ISpace space;

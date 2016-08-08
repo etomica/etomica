@@ -5,6 +5,7 @@
 package etomica.models.water;
 
 import etomica.api.IAtom;
+import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.EwaldSummation.MyCharge;
 
@@ -26,7 +27,7 @@ public class ChargeAgentSourceTIP4PWater implements AtomLeafAgentManager.AgentSo
 		return myCharge[index];
 	}
 
-	public void releaseAgent(MyCharge agent, IAtom atom) {
+	public void releaseAgent(MyCharge agent, IAtom atom, IBox agentBox) {
 		// Do nothing
 
 	}

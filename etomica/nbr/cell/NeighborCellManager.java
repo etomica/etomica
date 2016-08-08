@@ -260,7 +260,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     /**
      * Removes the given atom from the cell.
      */
-    public void releaseAgent(Cell cell, IAtom atom) {
+    public void releaseAgent(Cell cell, IAtom atom, IBox agentBox) {
         cell.removeAtom(atom);
     }
     

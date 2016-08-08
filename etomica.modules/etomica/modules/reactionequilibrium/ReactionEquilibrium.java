@@ -119,7 +119,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         return null;
     }
     
-    public void releaseAgent(IAtom agent, IAtom atom) {}
+    public void releaseAgent(IAtom agent, IAtom atom, IBox agentBox) {}
 
 
 }

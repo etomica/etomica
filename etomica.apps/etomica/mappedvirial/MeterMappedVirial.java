@@ -44,7 +44,7 @@ public class MeterMappedVirial extends DataSourceScalar implements  AgentSource<
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
 
     public PotentialCalculationMappedVirial getPotentialCalculation() {
         return pc;

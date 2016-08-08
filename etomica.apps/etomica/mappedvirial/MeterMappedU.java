@@ -44,7 +44,7 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
 
     public MappedUpotential getPotentialCalculation() {
         return pc;

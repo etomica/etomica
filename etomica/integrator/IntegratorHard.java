@@ -737,7 +737,7 @@ public class IntegratorHard extends IntegratorMD
 
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
-    public void releaseAgent(Agent agent, IAtom atom) {}
+    public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {}
 
     public Class getSpeciesAgentClass() {
         return PotentialHard.class;

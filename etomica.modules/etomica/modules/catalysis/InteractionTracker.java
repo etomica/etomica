@@ -66,7 +66,7 @@ public class InteractionTracker implements CollisionListener, AgentSource<Intera
         return new CatalysisAgent();
     }
 
-    public void releaseAgent(CatalysisAgent agent, IAtom atom) {}
+    public void releaseAgent(CatalysisAgent agent, IAtom atom, IBox agentBox) {}
 
     protected final AtomLeafAgentManager<CatalysisAgent> agentManager;
     protected final ISpecies speciesSurface;

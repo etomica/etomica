@@ -183,7 +183,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 		return new IAtom[nBonds];
 	}
     
-    public void releaseAgent(IAtom[] agent, IAtom atom) {}
+    public void releaseAgent(IAtom[] agent, IAtom atom, IBox agentBox) {}
     
     public AtomLeafAgentManager<IAtom[]> getAgentManager() {
     	return agentManager;

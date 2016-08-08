@@ -268,7 +268,7 @@ public abstract class CoordinateDefinition {
             vector.E(atom.getPosition());
             return vector;
         }
-        public void releaseAgent(IVectorMutable agent, IAtom atom) {
+        public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {
             //nothing to do
         }
 

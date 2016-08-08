@@ -144,7 +144,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
         return new Agent(space);
     }
     
-    public void releaseAgent(Agent agent, IAtom atom) {}
+    public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVectorMutable force;

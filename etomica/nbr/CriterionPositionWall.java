@@ -195,7 +195,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
         return new DoubleWrapper();
     }
     
-    public void releaseAgent(DoubleWrapper agent, IAtom atom) {}
+    public void releaseAgent(DoubleWrapper agent, IAtom atom, IBox agentBox) {}
 
     protected static class DoubleWrapper {
         public double x;

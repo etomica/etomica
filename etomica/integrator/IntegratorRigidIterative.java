@@ -646,7 +646,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         return new MyAgent(space);
     }
 
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {}
+    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {}
 
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;

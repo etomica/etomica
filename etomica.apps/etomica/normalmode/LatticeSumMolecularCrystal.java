@@ -50,7 +50,7 @@ public class LatticeSumMolecularCrystal {
 		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
 		        return new IntegratorVelocityVerlet.MyAgent(space);
 		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {/**do nothing**/}
+		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
         };
 		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 		atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , box,IntegratorVelocityVerlet.MyAgent.class);

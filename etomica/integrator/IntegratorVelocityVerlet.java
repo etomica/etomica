@@ -163,7 +163,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
             
     public final static class MyAgent implements IntegratorBox.Forcible {//need public so to use with instanceof
         public IVectorMutable force;

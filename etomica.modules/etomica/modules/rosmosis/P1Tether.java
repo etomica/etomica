@@ -74,7 +74,7 @@ public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>,
         return null;
     }
 
-    public void releaseAgent(IVectorMutable agent, IAtom atom) {
+    public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {
         /* do nothing */
     }
 

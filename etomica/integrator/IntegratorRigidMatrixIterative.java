@@ -634,7 +634,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         return new AtomAgent(space);
     }
     
-    public void releaseAgent(IntegratorRigidMatrixIterative.AtomAgent agent, IAtom atom) {}
+    public void releaseAgent(IntegratorRigidMatrixIterative.AtomAgent agent, IAtom atom, IBox agentBox) {}
     public void releaseAgent(Object agent, IMolecule molecule) {}
 
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof

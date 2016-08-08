@@ -158,7 +158,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
         return bondList;
     }
     
-    public void releaseAgent(ArrayList agent, IAtom atom) {
+    public void releaseAgent(ArrayList agent, IAtom atom, IBox agentBox) {
         // we only release a bond when the "up" atom from the bond goes away
         // so if only the "down" atom goes away, we would leave the bond in
         // (bad).  However, you're not allowed to mutate the model, so deleting

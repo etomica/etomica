@@ -198,7 +198,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         return new Agent(space);
     }
     
-    public void releaseAgent(Agent agent, IAtom atom) {}
+    public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {}
             
     public static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVectorMutable force;

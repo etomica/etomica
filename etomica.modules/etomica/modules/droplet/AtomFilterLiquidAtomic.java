@@ -54,7 +54,7 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
         return null;
     }
 
-    public void releaseAgent(Boolean agent, IAtom atom) {
+    public void releaseAgent(Boolean agent, IAtom atom, IBox agentBox) {
     }
 
     private final NeighborListManager nbrListManager;

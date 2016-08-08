@@ -932,7 +932,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 
-	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {
+	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {
 		// TODO Auto-generated method stub	
 	}
 	

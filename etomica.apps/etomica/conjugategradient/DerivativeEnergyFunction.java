@@ -173,7 +173,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 			this.space = space;
 		}
 		
-		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom){}
+		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox){}
 
 		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom){
 			

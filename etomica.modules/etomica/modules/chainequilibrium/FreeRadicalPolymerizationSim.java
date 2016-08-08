@@ -137,7 +137,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 		return new IAtom[1]; // initiator
 	}
     
-    public void releaseAgent(IAtom[] agent, IAtom atom) {}
+    public void releaseAgent(IAtom[] agent, IAtom atom, IBox agentBox) {}
     
     public AtomLeafAgentManager<IAtom[]> getAgentManager() {
     	return agentManager;

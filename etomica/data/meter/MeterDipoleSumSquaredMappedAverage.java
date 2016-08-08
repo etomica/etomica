@@ -85,7 +85,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
 		        return new IntegratorVelocityVerlet.MyAgent(space);
 		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {/**do nothing**/}
+		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
         };
 		
 		pcForce = new PotentialCalculationForceSum();

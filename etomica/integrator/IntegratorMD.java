@@ -656,7 +656,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             return p;
         }
 
-        public void releaseAgent(IVectorMutable agent, IAtom atom) {}
+        public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {}
     }
 }
 

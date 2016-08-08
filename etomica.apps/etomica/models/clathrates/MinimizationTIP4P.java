@@ -12,6 +12,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
+import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -175,7 +176,7 @@ public class MinimizationTIP4P extends Simulation{
 		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
 		        return new IntegratorVelocityVerlet.MyAgent(sim.space);
 		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom) {/**do nothing**/}
+		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
         };
 		AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box , IntegratorVelocityVerlet.MyAgent.class);
 
@@ -440,7 +441,7 @@ public class MinimizationTIP4P extends Simulation{
 			int index = a.getType().getChildIndex();
 			return myCharge[index];
 		}
-		public void releaseAgent(MyCharge agent, IAtom atom) {
+		public void releaseAgent(MyCharge agent, IAtom atom, IBox agentBox) {
 			// Do nothing
 		}
 	}

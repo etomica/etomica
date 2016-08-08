@@ -138,7 +138,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
         return v;
     }
     
-    public void releaseAgent(IVectorMutable agent, IAtom atom) {}
+    public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {}
 
     protected final ISpace space;
     protected double interactionRange, displacementLimit2, neighborRadius2;

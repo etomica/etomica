@@ -174,7 +174,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         return null;
     }
 
-    public void releaseAgent(ColorAgent agent, IAtom atom) {
+    public void releaseAgent(ColorAgent agent, IAtom atom, IBox agentBox) {
     }
     
     private static final long serialVersionUID = 1L;
