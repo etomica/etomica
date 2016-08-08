@@ -617,7 +617,7 @@ public class HSNPT extends Simulation {
             count = 0;
         }
         
-        public MyAgent makeAgent(IAtom a) {
+        public MyAgent makeAgent(IAtom a, IBox agentBox) {
             return new MyAgent(space);
         }
         

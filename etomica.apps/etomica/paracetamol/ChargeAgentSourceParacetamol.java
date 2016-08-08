@@ -29,7 +29,7 @@ public class ChargeAgentSourceParacetamol implements AgentSource {
 		return MyCharge.class;
 	}
 
-	public Object makeAgent(IAtom a) {
+	public Object makeAgent(IAtom a, IBox agentBox) {
 		
 		int index = a.getIndex();
 		

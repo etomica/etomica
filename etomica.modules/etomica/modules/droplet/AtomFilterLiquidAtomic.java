@@ -50,7 +50,7 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
         return false;
     }
 
-    public Boolean makeAgent(IAtom a) {
+    public Boolean makeAgent(IAtom a, IBox agentBox) {
         return null;
     }
 

@@ -19,7 +19,7 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         agentManager = aam;
     }
 
-    public LengthAgent makeAgent(IAtom a) {
+    public LengthAgent makeAgent(IAtom a, IBox agentBox) {
         return new LengthAgent();
     }
 

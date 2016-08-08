@@ -27,7 +27,7 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource<Color>
         return Color.class;
     }
     
-    public Color makeAgent(IAtom a) {
+    public Color makeAgent(IAtom a, IBox agentBox) {
         return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
     }
     

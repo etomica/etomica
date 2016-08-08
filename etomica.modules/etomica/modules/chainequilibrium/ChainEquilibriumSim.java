@@ -156,7 +156,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         IAtomList atoms = box.getLeafList();
         for (int i=0; i<atoms.getAtomCount(); i++) {
             IAtom a = atoms.getAtom(i);
-            agentManager.setAgent(a, makeAgent(a));
+            agentManager.setAgent(a, makeAgent(a, box));
         }
     }
 
@@ -164,7 +164,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public IAtom[] makeAgent(IAtom a) {
+	public IAtom[] makeAgent(IAtom a, IBox agentBox) {
 	    IMolecule m = a.getParentGroup();
 	    int nBonds = 2;
 	    if (m.getType() == speciesA) {

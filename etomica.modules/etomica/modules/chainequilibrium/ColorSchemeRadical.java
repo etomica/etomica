@@ -59,7 +59,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         fullColorMap.setAgent(type, color);
     }
 
-    public LengthAgent makeAgent(IAtom a) {
+    public LengthAgent makeAgent(IAtom a, IBox agentBox) {
         return new LengthAgent();
     }
 

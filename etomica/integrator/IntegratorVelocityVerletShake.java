@@ -292,7 +292,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         potentialMaster.calculate(box, allAtoms, forceSum);
     }
 
-    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
+    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     

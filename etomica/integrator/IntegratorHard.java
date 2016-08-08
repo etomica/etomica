@@ -727,7 +727,7 @@ public class IntegratorHard extends IntegratorMD
      * called by the agentManager, which allocates/deallocates 
      * agents as needed.
 	 */
-    public Agent makeAgent(IAtom a) {
+    public Agent makeAgent(IAtom a, IBox agentBox) {
         Agent agent = new Agent(a, this);
         if (nullPotentialManager != null) {
             agent.setNullPotential((PotentialHard)nullPotentialManager.getAgent(a.getType()));

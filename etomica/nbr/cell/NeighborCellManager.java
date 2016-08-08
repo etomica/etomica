@@ -243,7 +243,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * Returns the cell containing the given atom.  The atom is added to the
      * cell's atom list.
      */
-    public Cell makeAgent(IAtom atom) {
+    public Cell makeAgent(IAtom atom, IBox agentBox) {
         // if we have no cells, there's no point in trying here.  cell assignment will happen later
         if (numCells[0] == 0) return null;
         IVectorMutable position = atom.getPosition();

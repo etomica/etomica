@@ -75,7 +75,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
             
 	}
     
-    public final MyAgent makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     

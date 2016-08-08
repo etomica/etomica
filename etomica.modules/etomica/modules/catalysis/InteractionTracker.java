@@ -61,7 +61,7 @@ public class InteractionTracker implements CollisionListener, AgentSource<Intera
         return agentManager;
     }
 
-    public CatalysisAgent makeAgent(IAtom a) {
+    public CatalysisAgent makeAgent(IAtom a, IBox agentBox) {
         if (a.getType().getSpecies() == speciesSurface) return null;
         return new CatalysisAgent();
     }

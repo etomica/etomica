@@ -630,7 +630,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         return new MoleculeAgent(space);
     }
     
-    public final IntegratorRigidMatrixIterative.AtomAgent makeAgent(IAtom a) {
+    public final IntegratorRigidMatrixIterative.AtomAgent makeAgent(IAtom a, IBox agentBox) {
         return new AtomAgent(space);
     }
     

@@ -65,7 +65,7 @@ public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>,
     public double virial(IAtomList atoms) {
         return 0;
     }
-    public IVectorMutable makeAgent(IAtom a) {
+    public IVectorMutable makeAgent(IAtom a, IBox agentBox) {
         if (a.getType().getSpecies() == species) {
             IVectorMutable vec = space.makeVector();
             vec.E(a.getPosition());

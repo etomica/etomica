@@ -40,7 +40,7 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
         allAtoms = new IteratorDirective();
     }
     
-    public MyAgent makeAgent(IAtom a) {
+    public MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     

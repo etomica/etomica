@@ -47,7 +47,7 @@ public class LatticeSumMolecularCrystal {
         double[] kCoefficients = kFactory.getCoefficients(); //kCoefficients=0.5 non-deg.; = 1 degenerate twice!
 
 		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
+		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
 		        return new IntegratorVelocityVerlet.MyAgent(space);
 		    }
 		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}

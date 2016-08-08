@@ -282,7 +282,7 @@ public class ClathrateHarmonicFE extends Simulation{
 			PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 			
 			AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-			    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
+			    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
 			        return new IntegratorVelocityVerlet.MyAgent(sim.space);
 			    }
 			    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}

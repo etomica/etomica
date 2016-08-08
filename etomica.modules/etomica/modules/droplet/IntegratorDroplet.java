@@ -267,7 +267,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 
 //--------------------------------------------------------------
 
-    public final MyAgent makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     

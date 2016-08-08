@@ -191,7 +191,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
 		agentManager.getAgent(atom).x = atom.getPosition().getX(neighborDim);
 	}
 
-    public DoubleWrapper makeAgent(IAtom atom) {
+    public DoubleWrapper makeAgent(IAtom atom, IBox agentBox) {
         return new DoubleWrapper();
     }
     

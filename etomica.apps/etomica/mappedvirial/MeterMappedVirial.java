@@ -40,7 +40,7 @@ public class MeterMappedVirial extends DataSourceScalar implements  AgentSource<
         allAtoms = new IteratorDirective();
     }
     
-    public MyAgent makeAgent(IAtom a) {
+    public MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     

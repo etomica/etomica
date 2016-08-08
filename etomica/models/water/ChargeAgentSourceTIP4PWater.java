@@ -20,7 +20,7 @@ public class ChargeAgentSourceTIP4PWater implements AtomLeafAgentManager.AgentSo
 		}
 	}
 
-	public MyCharge makeAgent(IAtom a) {
+	public MyCharge makeAgent(IAtom a, IBox agentBox) {
 		
 		int index = a.getIndex();
 		

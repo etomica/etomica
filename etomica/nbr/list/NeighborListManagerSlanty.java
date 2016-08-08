@@ -107,7 +107,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
             // control over order here).  make the agent now and then use it
             // again from makeAgent (ugh).  this depends on AtomAgentManager
             // nulling out agents for removed atoms.
-            agentManager2Body.setAgent(atom, makeAgent(atom));
+            agentManager2Body.setAgent(atom, makeAgent(atom, box));
         }
         pair.atom0 = atom;
         IAtomList atomList = box.getLeafList();

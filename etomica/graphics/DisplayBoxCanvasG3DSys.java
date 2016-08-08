@@ -732,7 +732,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	
 	public class OrientedAgentSource implements AgentSource<Ball[]> {
 
-        public Ball[] makeAgent(IAtom a) {
+        public Ball[] makeAgent(IAtom a, IBox agentBox) {
             return null;
         }
 
@@ -760,7 +760,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	/***************************************************************************
 	 * AgentSource methods
 	 **************************************************************************/
-	public Figure makeAgent(IAtom a) {
+	public Figure makeAgent(IAtom a, IBox agentBox) {
 		a.getPosition().assignTo(coords);
 
 		float diameter = (float) displayBox.getDiameterHash().getDiameter(a);

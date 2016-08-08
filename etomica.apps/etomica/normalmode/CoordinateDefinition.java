@@ -263,7 +263,7 @@ public abstract class CoordinateDefinition {
         public SiteSource(ISpace space) {
             this.space = space;
         }
-        public IVectorMutable makeAgent(IAtom atom) {
+        public IVectorMutable makeAgent(IAtom atom, IBox agentBox) {
             IVectorMutable vector = space.makeVector();
             vector.E(atom.getPosition());
             return vector;

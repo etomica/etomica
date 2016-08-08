@@ -35,12 +35,12 @@ public class NeighborCellManagerList extends NeighborCellManager {
         potentialMaster = newPotentialMaster;
     }
 
-    public Cell makeAgent(IAtom atom) {
+    public Cell makeAgent(IAtom atom, IBox agentBox) {
         if (range == 0) {
             // no range, no lattice, etc
             return null;
         }
-        Cell cell = super.makeAgent(atom);
+        Cell cell = super.makeAgent(atom, agentBox);
         // if agentManager is null, we're in the constructor, which means we're
         // just starting up.  And we don't need to do this craziness.
         if (agentManager != null) {

@@ -120,7 +120,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
         return ArrayList.class;
     }
     
-    public ArrayList makeAgent(IAtom newAtom) {
+    public ArrayList makeAgent(IAtom newAtom, IBox agentBox) {
         // we got a leaf atom in a mult-atom molecule
         ArrayList<Object> bondList = new ArrayList<Object>(); 
         Model.PotentialAndIterator[] bondIterators = bondIteratorsHash.

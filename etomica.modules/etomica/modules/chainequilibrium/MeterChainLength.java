@@ -67,7 +67,7 @@ public class MeterChainLength implements IEtomicaDataSource, Serializable, Agent
         dataInfo.addTag(tag);
     }
 
-    public AtomTag makeAgent(IAtom a) {
+    public AtomTag makeAgent(IAtom a, IBox agentBox) {
         return new AtomTag();
     }
     

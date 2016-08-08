@@ -196,7 +196,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
             agents = (E[])Arrays.resizeArray(agents,index+1+reservoirSize);
         }
         if (agentSource != null) {
-            agents[index] = agentSource.makeAgent(a);
+            agents[index] = agentSource.makeAgent(a, box);
         }
     }        
     
@@ -208,13 +208,17 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
 
         /**
          * Returns an agent for the given Atom.
+         * The agentBox is provided for convenience for agent sources that
+         * handle multiple boxes.
+         * @param agentBox TODO
          */
-        public E makeAgent(IAtom a);
+        public E makeAgent(IAtom a, IBox agentBox);
         
         /**
          * This informs the agent source that the agent is going away and that 
-         * the agent source should disconnect the agent from other elements
-         * @param agentBox TODO
+         * the agent source should disconnect the agent from other elements.
+         * The agentBox is provided for convenience for agent sources that
+         * handle multiple boxes.
          */
         public void releaseAgent(E agent, IAtom atom, IBox agentBox);
     }

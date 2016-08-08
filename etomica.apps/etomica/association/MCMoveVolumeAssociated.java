@@ -485,7 +485,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public final double getPressure() {return pressure;}
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
 
-	public Agent makeAgent(IAtom a) {
+	public Agent makeAgent(IAtom a, IBox agentBox) {
 		return new Agent();
 	}
 

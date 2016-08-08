@@ -140,7 +140,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource<
   	}
     
 
-    public Agent makeAgent(IAtom a) {
+    public Agent makeAgent(IAtom a, IBox agentBox) {
         return new Agent(space);
     }
     

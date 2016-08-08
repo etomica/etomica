@@ -548,7 +548,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 		activityIntegrate = ai;
 	}
 
-	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
+	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 

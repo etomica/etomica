@@ -173,7 +173,7 @@ public class MinimizationTIP4P extends Simulation{
 		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 		
 		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
+		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
 		        return new IntegratorVelocityVerlet.MyAgent(sim.space);
 		    }
 		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
@@ -437,7 +437,7 @@ public class MinimizationTIP4P extends Simulation{
 		}
 		
 		// *********************** set half(even # of particles ) as +ion, the other half -ion ***********************
-		public MyCharge makeAgent(IAtom a) {
+		public MyCharge makeAgent(IAtom a, IBox agentBox) {
 			int index = a.getType().getChildIndex();
 			return myCharge[index];
 		}

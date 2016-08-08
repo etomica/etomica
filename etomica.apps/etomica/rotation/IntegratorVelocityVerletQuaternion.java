@@ -502,7 +502,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         return new MoleculeAgent(space);
     }
     
-    public AtomAgent makeAgent(IAtom a) {
+    public AtomAgent makeAgent(IAtom a, IBox agentBox) {
         return new AtomAgent(space);
     }
     

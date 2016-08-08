@@ -194,7 +194,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         }
     }
 
-    public Agent makeAgent(IAtom a) {
+    public Agent makeAgent(IAtom a, IBox agentBox) {
         return new Agent(space);
     }
     

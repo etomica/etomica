@@ -642,7 +642,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         return MyAgent.class;
     }
 
-    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
+    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
 

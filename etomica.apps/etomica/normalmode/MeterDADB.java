@@ -143,7 +143,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     

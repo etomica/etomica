@@ -650,7 +650,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             this.space = space;
         }
 
-        public IVectorMutable makeAgent(IAtom a) {
+        public IVectorMutable makeAgent(IAtom a, IBox agentBox) {
             IVectorMutable p = space.makeVector();
             p.E(a.getPosition());
             return p;

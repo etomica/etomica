@@ -143,7 +143,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         agent.rMrLast.Ea1Tv1(timeStep,atom.getVelocity());//06/13/03 removed minus sign before timeStep
     }
     
-    public final Agent makeAgent(IAtom a) {
+    public final Agent makeAgent(IAtom a, IBox agentBox) {
         return new Agent(space);
     }
     

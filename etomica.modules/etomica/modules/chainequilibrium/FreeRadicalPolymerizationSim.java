@@ -130,7 +130,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public IAtom[] makeAgent(IAtom a) {
+	public IAtom[] makeAgent(IAtom a, IBox agentBox) {
 	    if (a.getType() == speciesB.getLeafType()) {
 	        return new IAtom[2]; // monomer
 	    }

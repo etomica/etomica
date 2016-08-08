@@ -170,7 +170,7 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         return monomerColor;
     }
 
-    public ColorAgent makeAgent(IAtom a) {
+    public ColorAgent makeAgent(IAtom a, IBox agentBox) {
         return null;
     }
 

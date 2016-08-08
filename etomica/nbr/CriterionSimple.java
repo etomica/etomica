@@ -130,7 +130,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
         agentManager.getAgent(atom).E(atom.getPosition());
 	}
 
-    public IVectorMutable makeAgent(IAtom atom) {
+    public IVectorMutable makeAgent(IAtom atom, IBox agentBox) {
         IVectorMutable v = space.makeVector();
         // atom isn't necessarily in the position.  but if atom-adding code is smart,
         // it will be in the appropriate position.

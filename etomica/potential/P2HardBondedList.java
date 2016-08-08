@@ -127,7 +127,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         return agentManager.getAgent(atom);
     }
 
-    public BondArrayList makeAgent(IAtom a) {
+    public BondArrayList makeAgent(IAtom a, IBox agentBox) {
         return new BondArrayList();
     }
 

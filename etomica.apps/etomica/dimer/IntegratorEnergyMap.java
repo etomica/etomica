@@ -81,7 +81,7 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         return IntegratorVelocityVerlet.MyAgent.class;
     }
 
-    public Object makeAgent(IAtom a) {
+    public Object makeAgent(IAtom a, IBox agentBox) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 

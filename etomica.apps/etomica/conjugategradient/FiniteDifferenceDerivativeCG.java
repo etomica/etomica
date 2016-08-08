@@ -132,7 +132,7 @@ public class FiniteDifferenceDerivativeCG {
 		}
 		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox){}
 
-		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom){
+		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, IBox agentBox){
 			return new IntegratorVelocityVerlet.MyAgent(space);
 		}
 		protected ISpace space;

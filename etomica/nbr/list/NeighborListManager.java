@@ -308,7 +308,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
             // control over order here).  make the agent now and then use it
             // again from makeAgent (ugh).  this depends on AtomAgentManager
             // nulling out agents for removed atoms.
-            agentManager2Body.setAgent(atom, makeAgent(atom));
+            agentManager2Body.setAgent(atom, makeAgent(atom, box));
         }
         cell1ANbrIterator.setBox(box);
         cell1ANbrIterator.setTarget(atom);
@@ -407,7 +407,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
     protected boolean doApplyPBC;
     protected int numUpdates;
 
-    public AtomNeighborLists makeAgent(IAtom atom) {
+    public AtomNeighborLists makeAgent(IAtom atom, IBox agentBox) {
         if (initialized) {
             AtomNeighborLists oldAgent = agentManager2Body.getAgent(atom);
             if (oldAgent != null) {
@@ -466,7 +466,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         }
 
         public void releaseAgent(AtomPotentialList obj, IAtom atom, IBox agentBox) {}
-        public AtomPotentialList makeAgent(IAtom atom) {
+        public AtomPotentialList makeAgent(IAtom atom, IBox agentBox) {
             AtomPotentialList lists = new AtomPotentialList();
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
             

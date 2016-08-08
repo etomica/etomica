@@ -129,7 +129,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         return space.D();
     }
 
-    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a) {
+    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 

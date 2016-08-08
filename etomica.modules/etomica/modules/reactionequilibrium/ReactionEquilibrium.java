@@ -115,7 +115,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
      * @param a  ignored
      * @return Object always null
      */
-    public IAtom makeAgent(IAtom a) {
+    public IAtom makeAgent(IAtom a, IBox agentBox) {
         return null;
     }
     

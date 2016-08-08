@@ -78,7 +78,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource<AtomSite
         return agentManager.getAgent(atom);
     }
 
-    public AtomSite makeAgent(IAtom atom) {
+    public AtomSite makeAgent(IAtom atom, IBox agentBox) {
         AtomSite site = (AtomSite)siteIterator.next();
         site.setAtom(atom);
         return site;

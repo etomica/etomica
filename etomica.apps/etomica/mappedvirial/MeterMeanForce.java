@@ -86,7 +86,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
         return hist2;
     }
 
-    public MyAgent makeAgent(IAtom a) {
+    public MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     

@@ -159,7 +159,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
 //--------------------------------------------------------------
     
-    public MyAgent makeAgent(IAtom a) {
+    public MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
     
