@@ -116,10 +116,10 @@ public class DLJ_NVT_1site extends Simulation {
 		};
 		
 		// dipolar LJ potential
-		P2LJDipole pDLJ = new P2LJDipole(space,sigmaLJ,epsilonLJ,mu);
+		P2LJDipole pDLJ = new P2LJDipole(space,sigmaLJ,epsilonLJ,mu, truncation);
 		// add reaction field potential
 		DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space,mu);// add reaction field potential
-        P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space);
+        P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleSourceDLJ);
         pRF.setRange(truncation);
         pRF.setDielectric(dielectricOutside);

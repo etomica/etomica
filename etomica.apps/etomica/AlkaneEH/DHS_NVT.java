@@ -112,7 +112,7 @@ public class DHS_NVT extends Simulation {
         P2HSDipole pTarget = new P2HSDipole(space,sigmaHS, mu);
         DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space,mu);// add reaction field potential
 		System.out.println("in main class, magnitude of dipole:"+dipoleDHS.dipoleStrength);
-        P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space);
+        P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleDHS);
         pRF.setRange(truncation);
         pRF.setDielectric(dielectricOutside);
