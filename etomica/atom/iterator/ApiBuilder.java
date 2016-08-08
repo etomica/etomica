@@ -64,6 +64,11 @@ public final class ApiBuilder {
         if (types.length != 2)
             throw new IllegalArgumentException(
                     "Incorrect number of types; must be 2");
+        if (types[0].getSpecies() == types[1].getSpecies() && types[0] != types[1]) {
+            AtomIteratorBasisFilteredType2 outer = new AtomIteratorBasisFilteredType2(types[0], types[1]);
+            AtomIteratorBasisFilteredType2 inner = new AtomIteratorBasisFilteredType2(types[0], types[1]);
+            return new ApiIntergroupIntraSpecies(outer, inner);
+        }
         AtomIteratorBasisFilteredType outer = new AtomIteratorBasisFilteredType(types[0]);
         AtomIteratorBasisFilteredType inner = new AtomIteratorBasisFilteredType(types[1]);
         return new ApiIntergroup(outer, inner);
