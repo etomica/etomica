@@ -187,7 +187,6 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
         return 2;
     }
 
-    private static final long serialVersionUID = 1L;
     protected final AtomPair pair = new AtomPair();
     protected final AtomIteratorBasisDependent aiInner, aiOuter;
     protected IAtom targetAtom;
