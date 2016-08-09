@@ -141,9 +141,9 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
                     lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
                     lastEnergyChange = epsilon;
                     AtomArrayList iList = wellManager.getAgent(atom0);
-                    iList.remove(iList.indexOf(atom1));
+                    iList.removeAndReplace(iList.indexOf(atom1));
                     AtomArrayList jList = wellManager.getAgent(atom1);
-                    jList.remove(jList.indexOf(atom0));
+                    jList.removeAndReplace(jList.indexOf(atom0));
                 }
             }
             else if(ke > -epsilon) {   // Approach/capture
@@ -383,8 +383,14 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         return rv;
     }
 
-    public void releaseAgent(AtomArrayList agent, IAtom atom, IBox agentBox) {
-        
+    public void releaseAgent(AtomArrayList iList, IAtom atom, IBox agentBox) {
+        // atom is going away.  remove it from all of its neighbor's lists
+        AtomLeafAgentManager<AtomArrayList> agentManager = boxWellManager.getAgent(agentBox);
+        for (int j=0; j<iList.getAtomCount(); j++) {
+            AtomArrayList jList = agentManager.getAgent(iList.getAtom(j));
+            jList.removeAndReplace(jList.indexOf(atom));
+        }
+        iList.clear();
     }
 }
   
