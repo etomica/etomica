@@ -169,7 +169,6 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
             double u = p2.u(r2);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r, u);
-            System.out.println(xs);
             double wp = 0.5*fifj;
             sum += xs*(vp-wp);
         }
