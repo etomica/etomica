@@ -140,7 +140,8 @@ public class MappedUpotential implements PotentialCalculation {
         double v = u + vShift;
         if (r > vCut) v = 0;
         double evm1 = Math.exp(-beta*v);
-        return y/(r*r*evm1);
+        double xs = y/(r*r*evm1);
+        return xs;
     }
 
     protected double cumint( double r) {
@@ -190,7 +191,7 @@ public class MappedUpotential implements PotentialCalculation {
         }
     } 
 
-    public double getPressure() {
+    public double getPressure() {           
         int D = space.D(); 
         return sum;
     }
