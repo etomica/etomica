@@ -6,7 +6,15 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IPotential;
 import etomica.api.IVectorMutable;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.box.BoxAgentManager;
+import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -22,13 +30,14 @@ import etomica.util.Debug;
  * Suitable for use in space of any dimension.
  * Can be used with negative value for epsilon to produce square-shoulder potential. 
  * 
- * This implementation determines which atoms are interacting (in the well) by
- * checking their distance.  This is prone to numerical roundoff issues, and so
- * atoms are bumped off the well after capture and escape.  This can cause
- * issues related to 3-particle collisions.  P2SquareWellRobust can be used
- * instead to avoid such issues.
+ * This implementation keeps track of which atom pairs are in the well,
+ * avoiding numerical roundoff issues after a collision and avoiding any
+ * need to bump atoms apart or together after capture and escape.  If a
+ * simulation component moves atoms around externally, this class will become
+ * confused and fail.  If such movement is necessary, consider using
+ * P2SquareWell instead.
  */
-public class P2SquareWell extends Potential2HardSpherical {
+public class P2SquareWellRobust extends Potential2HardSpherical implements AtomLeafAgentManager.AgentSource<AtomArrayList> {
 
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
@@ -39,12 +48,17 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected double lastEnergyChange;
     protected IVectorMutable dv;
     protected final boolean ignoreOverlap;
+    protected final BoxAgentManager<AtomLeafAgentManager<AtomArrayList>> boxWellManager;
+    protected AtomLeafAgentManager<AtomArrayList> wellManager;
+    protected PotentialMasterList potentialMaster;
+    protected IAtomType[] atomTypes;
+    protected boolean suppressMakeAgent = false;
 
-    public P2SquareWell(ISpace space) {
+    public P2SquareWellRobust(ISpace space) {
         this(space, 1.0, 2.0, 1.0, false);
     }
 
-    public P2SquareWell(ISpace space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
+    public P2SquareWellRobust(ISpace space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);
@@ -52,6 +66,28 @@ public class P2SquareWell extends Potential2HardSpherical {
         dv = space.makeVector();
         lastCollisionVirialTensor = space.makeTensor();
         this.ignoreOverlap = ignoreOverlap;
+        boxWellManager = new BoxAgentManager<AtomLeafAgentManager<AtomArrayList>>(null, AtomLeafAgentManager.class);
+    }
+    
+    /**
+     * Informs the square-well class what the potential master is (if neighbor
+     * listing is used) and the types of atoms interacting with this potential.
+     * This helps the potential construct a list of atom pairs that are in the
+     * well (atoms that do not interact with this potential will be excluded
+     * from the list).
+     * 
+     * If neighbor listing is not used, null should be passed.  If this method
+     * is not called (or if null is passed for both parameters), then the
+     * potential will construct a list including all atom pairs (even those
+     * that do not interact with this potential).  Also, for a large system,
+     * the potential must check all pairs (even pairs with large distances). 
+     * 
+     * @param potentialMaster
+     * @param types
+     */
+    public void setPotentialMaster(PotentialMasterList potentialMaster, IAtomType[] types) {
+        this.potentialMaster = potentialMaster;
+        this.atomTypes = types;
     }
 
     public double getRange() {
@@ -74,18 +110,16 @@ public class P2SquareWell extends Potential2HardSpherical {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double eps = 1.0e-10;
         double rm0 = ((IAtom)atom0).getType().rm();
         double rm1 = ((IAtom)atom1).getType().rm();
         double reduced_m = 1.0/(rm0+rm1);
-        double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared) || lambda == 1) {   // Hard-core collision
             if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
             if (bij > 0) {
-                lastCollisionVirial = 0;
-                nudge = eps;
+                throw new RuntimeException("really?");
+//                lastCollisionVirial = 0;
             }
             else {
                 lastCollisionVirial = 2.0*reduced_m*bij;
@@ -98,26 +132,28 @@ public class P2SquareWell extends Potential2HardSpherical {
             }
             // ke is kinetic energy due to components of velocity
             double ke = bij*bij*reduced_m/(2.0*r2);
-            if(bij > 0.0) {         // Separating
+            if(wellManager.getAgent(atom0).contains(atom1)) {         // Separating
                 if(ke < epsilon) {     // Not enough kinetic energy to escape
                     lastCollisionVirial = 2.0*reduced_m*bij;
-                    nudge = -eps;
                     lastEnergyChange = 0.0;
                 }
                 else {                 // Escape
                     lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
-                    nudge = eps;
                     lastEnergyChange = epsilon;
+                    AtomArrayList iList = wellManager.getAgent(atom0);
+                    iList.remove(iList.indexOf(atom1));
+                    AtomArrayList jList = wellManager.getAgent(atom1);
+                    jList.remove(jList.indexOf(atom0));
                 }
             }
             else if(ke > -epsilon) {   // Approach/capture
                 lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
-                nudge = -eps;
                 lastEnergyChange = -epsilon;
+                wellManager.getAgent(atom0).add(atom1);
+                wellManager.getAgent(atom1).add(atom0);
             }
             else {                     // Not enough kinetic energy to overcome square-shoulder
                 lastCollisionVirial = 2.0*reduced_m*bij;
-                nudge = eps;
                 lastEnergyChange = 0.0;
             }
         }
@@ -127,14 +163,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         atom1.getVelocity().PEa1Tv1(-rm1,dv);
         atom0.getPosition().PEa1Tv1(-falseTime*rm0,dv);
         atom1.getPosition().PEa1Tv1( falseTime*rm1,dv);
-        if(nudge != 0) {
-            if (rm0 > 0) {
-                atom0.getPosition().PEa1Tv1(-nudge,dr);
-            }
-            if (rm1 > 0) {
-                atom1.getPosition().PEa1Tv1(nudge,dr);
-            }
-        }
+
     }//end of bump method
 
     public double lastCollisionVirial() {
@@ -166,7 +195,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         double v2 = dv.squared();
         double time = Double.POSITIVE_INFINITY;
 
-        if(r2 < wellDiameterSquared) {  // Already inside wells
+        if(wellManager.getAgent(coord0).contains(coord1)) {  // Already inside wells
 
             if(bij < 0.0) {    // Check for hard-core collision
                 if(ignoreOverlap && r2 < coreDiameterSquared) {   // Inside core; collision now
@@ -261,6 +290,95 @@ public class P2SquareWell extends Potential2HardSpherical {
         epsilon = eps;
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
+    
+    public void setBox(IBox box) {
+        super.setBox(box);
+        wellManager = boxWellManager.getAgent(box);
+        if (wellManager == null) {
+            wellManager = makeAgent(box);
+            boxWellManager.setAgent(box, wellManager);
+        }
+    }
+    
+    protected AtomArrayList handleNewAtomNbr(IAtom a, AtomLeafAgentManager<AtomArrayList> agentManager, NeighborListManager nbrListManager) {
+        AtomArrayList rv = new AtomArrayList();
+        PotentialArray potentialArray = potentialMaster.getRangedPotentials(a.getType());
+        IPotential[] potentials = potentialArray.getPotentials();
+        int u;
+        for (u=0; u<potentials.length; u++) {
+            if (potentials[u] == this) break;
+        }
+        if (u == potentials.length) return rv;
+        IAtomList upList = nbrListManager.getUpList(a)[u];
+        for (int jj=0; jj<upList.getAtomCount(); jj++) {
+            IAtom jAtom = upList.getAtom(jj);
 
+            dr.Ev1Mv2(a.getPosition(), jAtom.getPosition());
+            boundary.nearestImage(dr);
+
+            double r2 = dr.squared();
+            if (r2 < wellDiameterSquared) {
+                rv.add(jAtom);
+                agentManager.getAgent(jAtom).add(a);
+            }
+        }
+        return rv;
+    }
+    
+    protected AtomArrayList handleNewAtomNoNbr(IAtom a, AtomLeafAgentManager<AtomArrayList> agentManager, IAtomList leafList) {
+        AtomArrayList rv = new AtomArrayList();
+        if (atomTypes != null && a.getType() != atomTypes[0] && a.getType() != atomTypes[1]) return rv;
+        for (int j=a.getLeafIndex()+1; j<leafList.getAtomCount(); j++) {
+            IAtom jAtom = leafList.getAtom(j);
+            if (atomTypes != null && jAtom.getType() != atomTypes[0] && jAtom.getType() != atomTypes[1]) continue;
+            
+            dr.Ev1Mv2(a.getPosition(), jAtom.getPosition());
+            boundary.nearestImage(dr);
+
+            double r2 = dr.squared();
+            if (r2 < wellDiameterSquared) {
+                rv.add(jAtom);
+                agentManager.getAgent(jAtom).add(a);
+            }
+        }
+        return rv;
+    }
+    
+    public AtomLeafAgentManager<AtomArrayList> makeAgent(IBox box) {
+        suppressMakeAgent = true;
+        AtomLeafAgentManager<AtomArrayList> foo = new AtomLeafAgentManager<AtomArrayList>(this, box, AtomArrayList.class);
+        IAtomList leafList = box.getLeafList();
+        if (potentialMaster != null) {
+            NeighborListManager nbrListManager = potentialMaster.getNeighborManager(box);
+            
+            for (int i=0; i<leafList.getAtomCount(); i++) {
+                IAtom a = leafList.getAtom(i);
+                handleNewAtomNbr(a, foo, nbrListManager);
+            }
+        }
+        else {
+            for (int i=0; i<leafList.getAtomCount(); i++) {
+                IAtom a = leafList.getAtom(i);
+                handleNewAtomNoNbr(a, foo, leafList);
+            }
+        }
+        suppressMakeAgent = false;
+        return foo;
+    }
+    
+    public AtomArrayList makeAgent(IAtom atom, IBox agentBox) {
+        if (suppressMakeAgent) {
+            // allow [box] makeAgent to find all interacting pairs
+            return new AtomArrayList();
+        }
+        if (potentialMaster != null) {
+            return handleNewAtomNbr(atom, boxWellManager.getAgent(agentBox), potentialMaster.getNeighborManager(agentBox));
+        }
+        return handleNewAtomNoNbr(atom, boxWellManager.getAgent(agentBox), agentBox.getLeafList());
+    }
+
+    public void releaseAgent(AtomArrayList agent, IAtom atom, IBox agentBox) {
+        
+    }
 }
   
