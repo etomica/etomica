@@ -300,15 +300,17 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         }
     }
     
-    protected AtomArrayList handleNewAtomNbr(IAtom a, AtomLeafAgentManager<AtomArrayList> agentManager, NeighborListManager nbrListManager) {
-        AtomArrayList rv = new AtomArrayList();
+    protected void handleNewAtomNbr(IAtom a, AtomLeafAgentManager<AtomArrayList> agentManager, NeighborListManager nbrListManager, AtomArrayList iList) {
+        if (iList == null) {
+            iList = agentManager.getAgent(a);
+        }
         PotentialArray potentialArray = potentialMaster.getRangedPotentials(a.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         int u;
         for (u=0; u<potentials.length; u++) {
             if (potentials[u] == this) break;
         }
-        if (u == potentials.length) return rv;
+        if (u == potentials.length) return;
         IAtomList upList = nbrListManager.getUpList(a)[u];
         for (int jj=0; jj<upList.getAtomCount(); jj++) {
             IAtom jAtom = upList.getAtom(jj);
@@ -318,16 +320,17 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
 
             double r2 = dr.squared();
             if (r2 < wellDiameterSquared) {
-                rv.add(jAtom);
+                iList.add(jAtom);
                 agentManager.getAgent(jAtom).add(a);
             }
         }
-        return rv;
     }
     
-    protected AtomArrayList handleNewAtomNoNbr(IAtom a, AtomLeafAgentManager<AtomArrayList> agentManager, IAtomList leafList) {
-        AtomArrayList rv = new AtomArrayList();
-        if (atomTypes != null && a.getType() != atomTypes[0] && a.getType() != atomTypes[1]) return rv;
+    protected void handleNewAtomNoNbr(IAtom a, AtomLeafAgentManager<AtomArrayList> agentManager, IAtomList leafList, AtomArrayList iList) {
+        if (iList == null) {
+            iList = agentManager.getAgent(a);
+        }
+        if (atomTypes != null && a.getType() != atomTypes[0] && a.getType() != atomTypes[1]) return;
         for (int j=a.getLeafIndex()+1; j<leafList.getAtomCount(); j++) {
             IAtom jAtom = leafList.getAtom(j);
             if (atomTypes != null && jAtom.getType() != atomTypes[0] && jAtom.getType() != atomTypes[1]) continue;
@@ -337,11 +340,10 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
 
             double r2 = dr.squared();
             if (r2 < wellDiameterSquared) {
-                rv.add(jAtom);
+                iList.add(jAtom);
                 agentManager.getAgent(jAtom).add(a);
             }
         }
-        return rv;
     }
     
     public AtomLeafAgentManager<AtomArrayList> makeAgent(IBox box) {
@@ -353,13 +355,13 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
             
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtom a = leafList.getAtom(i);
-                handleNewAtomNbr(a, foo, nbrListManager);
+                handleNewAtomNbr(a, foo, nbrListManager, null);
             }
         }
         else {
             for (int i=0; i<leafList.getAtomCount(); i++) {
                 IAtom a = leafList.getAtom(i);
-                handleNewAtomNoNbr(a, foo, leafList);
+                handleNewAtomNoNbr(a, foo, leafList, null);
             }
         }
         suppressMakeAgent = false;
@@ -371,10 +373,14 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
             // allow [box] makeAgent to find all interacting pairs
             return new AtomArrayList();
         }
+        AtomArrayList rv = new AtomArrayList();
         if (potentialMaster != null) {
-            return handleNewAtomNbr(atom, boxWellManager.getAgent(agentBox), potentialMaster.getNeighborManager(agentBox));
+            handleNewAtomNbr(atom, boxWellManager.getAgent(agentBox), potentialMaster.getNeighborManager(agentBox), rv);
         }
-        return handleNewAtomNoNbr(atom, boxWellManager.getAgent(agentBox), agentBox.getLeafList());
+        else {
+            handleNewAtomNoNbr(atom, boxWellManager.getAgent(agentBox), agentBox.getLeafList(), rv);
+        }
+        return rv;
     }
 
     public void releaseAgent(AtomArrayList agent, IAtom atom, IBox agentBox) {
