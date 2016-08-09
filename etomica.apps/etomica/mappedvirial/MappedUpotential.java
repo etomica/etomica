@@ -1,4 +1,6 @@
 package etomica.mappedvirial;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
@@ -58,7 +60,7 @@ public class MappedUpotential implements PotentialCalculation {
         vol = box.getBoundary().volume();
     }
 
-    public static void main(String[] args) {
+    public static void main (String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
         IBox box = new Box(sim.getSpace());
         MappedUpotential pc = new MappedUpotential(sim.getSpace(),box, 1000000, null);
@@ -140,8 +142,7 @@ public class MappedUpotential implements PotentialCalculation {
         double v = u + vShift;
         if (r > vCut) v = 0;
         double evm1 = Math.exp(-beta*v);
-        double xs = y/(r*r*evm1);
-        return xs;
+        return y/(r*r*evm1);
     }
 
     protected double cumint( double r) {
@@ -183,16 +184,27 @@ public class MappedUpotential implements PotentialCalculation {
             IVector fi = forceManager.getAgent(a).force;
             IVector fj = forceManager.getAgent(b).force;
             double u = p2.u(r2);
-            sum += u*(beta-1);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r, u);
+//            System.out.println(xs);
+            FileWriter fw;
+			/*try {
+				fw = new FileWriter("xs.dat");
+				fw.write(String.format("\n", xs));
+	            fw.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}*/
             double wp = 0.5*fifj;
             sum += xs*beta*(vp-wp);
         }
+        
     } 
 
     public double getPressure() {           
-        int D = space.D(); 
+       
         return sum;
+        
     }
 }

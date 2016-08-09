@@ -141,7 +141,7 @@ public class MappedVirialLJ extends Simulation {
             dataStreamPumps.add(rdfPump);
             
             rdfPlot.setDoLegend(false);
-            rdfPlot.getPlot().setTitle("Radial Distribution Function");
+//            rdfPlot.getPlot().setTitle("Radial Distribution Function");
             rdfPlot.setLabel("RDF");
             simGraphic.add(rdfPlot);
 

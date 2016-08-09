@@ -94,7 +94,7 @@ public class MappedU extends Simulation {
             params.temperature = 2;
             params.density = 0.10;
             params.numSteps = 10000000;
-            params.rc = 5;
+            params.rc = 2.5;
             params.numAtoms = 200;
             params.functionsFile = "0.10";
         }
