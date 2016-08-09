@@ -155,6 +155,10 @@ public class AtomArrayList implements IAtomList {
         }
     }
 
+    /**
+     * This removes the atom at the given index and shifts the remaining atoms
+     * back (maintaining the order).
+     */
     public IAtom remove(int index) {
         IAtom atom = null;
 
@@ -172,6 +176,10 @@ public class AtomArrayList implements IAtomList {
         return atom;
     }
 
+    /**
+     * This removes the atom at the given index and replaces the hole with the
+     * last atom.  This is faster than the remove() method.
+     */
     public IAtom removeAndReplace(int index) {
         IAtom atom = null;
 
