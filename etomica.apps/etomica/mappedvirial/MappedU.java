@@ -94,7 +94,7 @@ public class MappedU extends Simulation {
             params.temperature = 2;
             params.density = 0.10;
             params.numSteps = 10000000;
-            params.rc = 2.5;
+            params.rc = 5;
             params.numAtoms = 200;
             params.functionsFile = "0.10";
         }
@@ -209,7 +209,7 @@ public class MappedU extends Simulation {
         double UAvg = accU.getData(accU.AVERAGE).getValue(0);
         double UErr = accU.getData(accU.ERROR).getValue(0);
         double UCor = accU.getData(accU.BLOCK_CORRELATION).getValue(0);
-        if (computeU) System.out.print(String.format("Potential     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", UAvg, UErr, UCor));
+        if (computeU) System.out.print(String.format("Potential    avg: %13.6e avg_intensive: %13.6e   err: %11.4e   cor: % 4.2f\n", UAvg,UAvg/numAtoms, UErr, UCor));
 
         if (functionsFile != null) {
             FileWriter fw = new FileWriter(functionsFile+"_gr.dat");
@@ -241,6 +241,7 @@ public class MappedU extends Simulation {
             }
         }
 
+        
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
     }

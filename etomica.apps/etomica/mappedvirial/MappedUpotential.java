@@ -1,6 +1,8 @@
 package etomica.mappedvirial;
+
 import java.io.FileWriter;
 import java.io.IOException;
+
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
@@ -58,20 +60,23 @@ public class MappedUpotential implements PotentialCalculation {
         dr = space.makeVector();
         cumint = new double[nbins+1];
         vol = box.getBoundary().volume();
-    }
+      }
 
-    public static void main (String[] args) {
+    public static void main (String[] args) throws IOException{
         Simulation sim = new Simulation(Space3D.getInstance());
         IBox box = new Box(sim.getSpace());
         MappedUpotential pc = new MappedUpotential(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedForceShifted(sim.getSpace(), potential, 2.5);
         pc.setTemperature(1, p2Truncated);
-        for (int i=10; i<30; i++) {
-            double r = i*0.1;
+        FileWriter fw = new FileWriter("vb.dat");
+        for (int i=13; i<=50; i++) {
+            double r = i*0.05;
             if (r>=2.5) r = 2.499999;
             System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r)));
+            fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
         }
+        fw.close();
     }
     
     public double getX0() {
@@ -151,7 +156,7 @@ public class MappedUpotential implements PotentialCalculation {
         int ii = (int)i;
         double y = cumint[ii] + (cumint[ii+1]-cumint[ii])*(i-ii);
         return y;
-    }
+    } 
 
     public double getQP_Q() {
         return qp_q;
@@ -185,24 +190,15 @@ public class MappedUpotential implements PotentialCalculation {
             IVector fj = forceManager.getAgent(b).force;
             double u = p2.u(r2);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-            double xs = calcXs(r, u);
-//            System.out.println(xs);
-            FileWriter fw;
-			/*try {
-				fw = new FileWriter("xs.dat");
-				fw.write(String.format("\n", xs));
-	            fw.close();
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-			}*/
+            double xs = calcXs(r, u);       
             double wp = 0.5*fifj;
             sum += xs*beta*(vp-wp);
+            
         }
         
-    } 
-
-    public double getPressure() {           
+    }
+    
+       public double getPressure() {           
        
         return sum;
         
