@@ -47,6 +47,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
      * Returns the agent associated with the given box
      */
     public E getAgent(IBox box) {
+        if (box.getIndex() >= agents.length) return null;
         return agents[box.getIndex()];
     }
     
@@ -150,7 +151,6 @@ public class BoxAgentManager<E> implements ISimulationListener {
         public void releaseAgent(E agent); 
     }
 
-    private static final long serialVersionUID = 1L;
     protected final BoxAgentSource<E> agentSource;
     protected final Class boxAgentClass;
     protected ISimulationEventManager simEventManager;
