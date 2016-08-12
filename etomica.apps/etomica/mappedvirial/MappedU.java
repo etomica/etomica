@@ -90,9 +90,9 @@ public class MappedU extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         }
-        else {
-            params.temperature = 2;
-            params.density = 0.10;
+        else { 
+            params.temperature = 2.0;
+            params.density = 0.1;
             params.numSteps = 10000000;
             params.rc = 5;
             params.numAtoms = 200;
@@ -116,6 +116,8 @@ public class MappedU extends Simulation {
         System.out.println("temperature: "+temperature);
         System.out.println("cutoff: "+rc);
         System.out.println(nBlocks+" blocks");
+        
+        FileWriter fwr = new FileWriter("Umapped.dat",true);
 
         ISpace space = Space.getInstance(3);
 
@@ -145,7 +147,6 @@ public class MappedU extends Simulation {
            // rdfPlot.getPlot().setTitle("Radial Distribution Function");
             rdfPlot.setLabel("RDF");
             simGraphic.add(rdfPlot);
-
             return;
         }
         
@@ -203,14 +204,27 @@ public class MappedU extends Simulation {
         double avg = mappedAvg.getValue(0);
         double err = mappedErr.getValue(0);
         double cor = mappedCor.getValue(0);
-        if (computeUMA) System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
-        System.out.println("Uavg: "+ ((-1*qp_q*numAtoms/2)-(avg/numAtoms)));
         
+        double UavgMInt = (-1*qp_q*numAtoms/2)-(avg/numAtoms);
+        
+        if (computeUMA) {
+        	System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
+        	System.out.println("Uavg extensive: "+ UavgMInt*numAtoms);
+        	System.out.println("Uavg intensive: "+ UavgMInt);
+        	System.out.println("error intensive: "+ err/numAtoms);
+        }
+             
         double UAvg = accU.getData(accU.AVERAGE).getValue(0);
         double UErr = accU.getData(accU.ERROR).getValue(0);
         double UCor = accU.getData(accU.BLOCK_CORRELATION).getValue(0);
-        if (computeU) System.out.print(String.format("Potential    avg: %13.6e avg_intensive: %13.6e   err: %11.4e   cor: % 4.2f\n", UAvg,UAvg/numAtoms, UErr, UCor));
-
+        
+        if (computeU){
+        	System.out.print(String.format("Potential ext avg: %13.6e  err: %11.4e   cor: % 4.2f\n", UAvg, UErr, UCor));
+        	System.out.print(String.format("Potential int avg:%13.6e  err int: %11.4e",UAvg/numAtoms,UErr/numAtoms));
+        }
+        
+        fwr.append(density+" "+temperature+" "+UavgMInt+" "+UAvg/numAtoms+" "+err/numAtoms+" "+UErr/numAtoms+"\n");
+        
         if (functionsFile != null) {
             FileWriter fw = new FileWriter(functionsFile+"_gr.dat");
             IData rdata = meterRDF.getIndependentData(0);
@@ -241,9 +255,10 @@ public class MappedU extends Simulation {
             }
         }
 
-        
+        fwr.close();
         long t2 = System.currentTimeMillis();
-        System.out.println("time: "+(t2-t1)*0.001);
+        System.out.println("\n time: "+(t2-t1)*0.001);
+        
     }
     
     public static class LJMDParams extends ParameterBase {
