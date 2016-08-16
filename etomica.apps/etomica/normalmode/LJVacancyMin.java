@@ -100,10 +100,10 @@ public class LJVacancyMin extends Simulation {
         SimOverlapParam params = new SimOverlapParam();
         if (args.length == 0) {
             params.numAtoms = 500;
-            params.numSteps = 1000000;
-            params.density = 1;
+            params.density = Math.sqrt(10);
             params.rc = 3;
             params.ss = false;
+            params.verbose = true;
         }
         else {
             ParseArgs.doParseArgs(params, args);
@@ -112,13 +112,28 @@ public class LJVacancyMin extends Simulation {
         double density = params.density;
         final int numAtoms = params.numAtoms;
         double rc = params.rc;
+        boolean verbose = params.verbose;
         
         System.out.println("Minimizing "+(ss?"soft-sphere":"Lennard-Jones")+" with a vacancy");
         System.out.println(numAtoms+" atoms at density "+density);
+        System.out.println("rc: "+rc);
 
         //instantiate simulation
         final LJVacancyMin sim = new LJVacancyMin(Space.getInstance(3), numAtoms, density, rc*Math.pow(density, -1.0/3.0), ss);
         //start simulation
+        IteratorDirective all = new IteratorDirective();
+        PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();
+        MeterPressure meterP = new MeterPressure(sim.space);
+        meterP.setBox(sim.box);
+        meterP.setIncludeLrc(false);
+        meterP.setPotentialMaster(sim.potentialMaster);
+        meterP.setTemperature(0);
+        double pLat = meterP.getDataAsScalar();
+        System.out.println("pLat: "+pLat);
+        pcEnergy.zeroSum();
+        sim.potentialMaster.calculate(sim.box, all, pcEnergy);
+        double u0 = pcEnergy.getSum();
+        System.out.println("uLat: "+u0/numAtoms);
 
         sim.box.removeMolecule(sim.box.getMoleculeList().getMolecule(0));
 
@@ -129,20 +144,9 @@ public class LJVacancyMin extends Simulation {
         }
         pc.setAgentManager(forceManager);
 
-        IteratorDirective all = new IteratorDirective();
         double[] d = new double[3*(numAtoms-1)];
         double[] dir = new double[d.length];
         double step0 = 1e-5;
-        PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();
-        MeterPressure meterP = new MeterPressure(sim.space);
-        meterP.setBox(sim.box);
-        meterP.setIncludeLrc(false);
-        meterP.setPotentialMaster(sim.potentialMaster);
-        meterP.setTemperature(0);
-        double pLat = meterP.getDataAsScalar();
-        pcEnergy.zeroSum();
-        sim.potentialMaster.calculate(sim.box, all, pcEnergy);
-        double u0 = pcEnergy.getSum();
         double uLast = Double.POSITIVE_INFINITY;
         for (int i=0; i<200; i++) {
             pcEnergy.zeroSum();
@@ -165,10 +169,10 @@ public class LJVacancyMin extends Simulation {
             }
             double dNorm0 = Math.sqrt(dSum);
             if (dNorm0 < 1e-8) {
-                System.out.println("==> "+dNorm0);
+                if (verbose) System.out.println("==> "+dNorm0);
                 break;
             }
-            System.out.print(String.format("%4d  %25.15e  %10.4e", i, u-u0, dNorm0));
+            if (verbose) System.out.print(String.format("%4d  %25.15e  %10.4e", i, u-u0, dNorm0));
             for (int l=0; l<d.length; l++) {
                 dir[l] = d[l]/dNorm0;
             }
@@ -194,12 +198,12 @@ public class LJVacancyMin extends Simulation {
                 }
             }
             double dNorm1 = Math.sqrt(dSum);
-            System.out.print(String.format(" =>  %10.4e", dNorm1));
+            if (verbose) System.out.print(String.format(" =>  %10.4e", dNorm1));
             
             // take a second step; try to jump to 0
             // dNorm2 = dNorm1 + (dNorm1-dNorm0)*step1/step0 = 0
             double step1 = -step0*dNorm1/(dNorm1-dNorm0);
-            System.out.print(String.format("  %10.4e\n", step1));
+            if (verbose) System.out.print(String.format("  %10.4e\n", step1));
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().getAtom(j);
                 IVectorMutable pj = jAtom.getPosition();
@@ -209,6 +213,10 @@ public class LJVacancyMin extends Simulation {
             }
             step0 = step1/100;
         }
+        pcEnergy.zeroSum();
+        sim.potentialMaster.calculate(sim.box, all, pcEnergy);
+        double u1 = pcEnergy.getSum();
+        System.out.println("deltaU: "+(u1-u0));
         double pLat1 = meterP.getDataAsScalar();
         System.out.println("deltaP: "+(pLat1-pLat));
     }
@@ -241,8 +249,8 @@ public class LJVacancyMin extends Simulation {
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 256;
         public double density = 1.28;
-        public long numSteps = 1000000;
         public double rc = 2.5;
         public boolean ss = false;
+        public boolean verbose = false;
     }
 }
