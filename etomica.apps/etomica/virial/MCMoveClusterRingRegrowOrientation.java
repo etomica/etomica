@@ -83,7 +83,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	public void setStiffness(double t, double mass) {
 		double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*mass*t));
 		kHarmonic = Math.PI*P/(lambda*lambda);
-		//        System.out.println("Stiffness = "+stiffness);
+		if (debug) kHarmonic /= 2.0;
 	}
 	public double getStiffness() {
 		return kHarmonic;
@@ -114,7 +114,9 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		IVectorMutable pVecOld = space.makeVector();
 		IVectorMutable pVecNew = space.makeVector();
 		int nMolecules = molecules.getMoleculeCount();
+		molIndexUntouched = random.nextInt(nMolecules);
 		for (int i=0; i<nMolecules; i++) {
+			if (molIndexUntouched == i) continue;
 			IMolecule molecule = molecules.getMolecule(i);
 			IAtomList atoms = molecule.getChildList();
 			for (int j=0; j<P; j++) {
@@ -123,8 +125,8 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
 				AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
 				avgAngle += Math.acos(jAtom.getOrientation().getDirection().dot(jPrev.getOrientation().getDirection()));
-				double distance = dist(jAtom,jPrev,i);
-				uOld += kHarmonic*distance;
+				//				double distance = dist(jAtom,jPrev,i);
+				uOld += debug ? 2*kHarmonic*dist(jAtom,jPrev, i) : kHarmonic*dist(jAtom,jPrev, i);
 			}
 			oldOrientations[i][0].setDirection(((IAtomOriented) atoms.getAtom(0)).getOrientation().getDirection());
 			IVectorRandom rV1 = (IVectorRandom)space.makeVector();
@@ -138,6 +140,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			pVecNew.E(newOrientations[i][0].getDirection());
 			for (int dr = 2; dr<= P; dr*=2){
 				double kEff = 8*kHarmonic*dr/P;
+				if (debug) kEff /= 2.0;
 				double y0 = 0;
 				double kEff1Old = 0;
 				double kEff1New = 0;
@@ -163,7 +166,10 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						}
 
 					}
-					r *= dr/(2.0*P + dr); // same as r /= (toImage - fromImage + 1)
+					r *= dr/(2.0*P + dr);
+					if (debug) r*= 2;
+					// same as r /= (toImage - fromImage + 1)
+					//					if (box.getIndex() == 1) System.out.println("mol Index "+i+" imageIndex "+imageIndex+" radius "+bl);
 
 					if (imageIndex == P/2 && doExchange[i]) {
 						pVecOld.TE(-1);
@@ -188,6 +194,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						double newY0 = y0;
 						if (y0 == -1.0) piFlagNew = true;
 						if (!piFlagNew) kEff1New = kEff*r*r*Math.sqrt((1+y0)/2.0);
+						//						if (box.getIndex() == 1) System.out.println("keffNew "+kEff1New);
 						y0 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());
 						if (y0 > 1.0) y0 = 1.0;
 						if (y0 < -1.0) y0 = -1.0;
@@ -207,8 +214,10 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 							y1 = 1 + pGenNew;
 
 							newAlpha[imageIndex] = Math.acos(y1);
+
 							if (newAlpha[imageIndex] != newAlpha[imageIndex] || y1 != y1) {
-								System.out.println("a = "+pGenNew);
+								System.out.println("x = "+x);
+								System.out.println("pGenNew = "+pGenNew);
 								System.out.println("y1 = "+y1);
 								System.out.println("imageIndex = "+imageIndex);
 								System.out.println("newAlpha = "+newAlpha[imageIndex]);
@@ -216,6 +225,8 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 								System.out.println("newY0 = "+newY0);
 								System.out.println("oldCenterY0 = "+oldCenterY0);
 								System.out.println("kEff = "+kEff);
+								System.out.println("kEffOld = "+kEff1Old);
+								System.out.println("kEffNew = "+kEff1New);
 								System.out.println("r = "+r);
 								throw new RuntimeException("kEff1New = " +kEff1New);
 							}
@@ -298,6 +309,20 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						}
 
 						pGenRatio *= pRatio;
+						if (false && box.getIndex() == 1) {
+							System.out.println("moveCount = "+moveCount);
+							System.out.println("imageIndex = "+imageIndex);
+							System.out.println("pGenNew = "+pGenNew);
+							System.out.println("pRatio = "+pRatio);
+							System.out.println("y1 = "+y1);
+							System.out.println("newAlpha = "+newAlpha[imageIndex]);
+							System.out.println("kEff = "+kEff);
+							System.out.println("r = "+r);
+							System.out.println("v = "+v);
+							System.out.println("v1 = "+v1);
+							System.out.println("s1 = "+s1);
+							System.out.println("y0m1 = "+y0m1);
+						}
 						if (Double.isNaN(pGenRatio)) {
 							System.out.println("a = "+pGenNew);
 							System.out.println("y1 = "+y1);
@@ -319,13 +344,15 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				if (prev < 0) prev = P-1;
 				AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
 				AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
-				uNew += kHarmonic*dist(jAtom,jPrev, i);
+				uNew += debug ? 2*kHarmonic*dist(jAtom,jPrev, i) : kHarmonic*dist(jAtom,jPrev, i);
+
 			}
 		}
 		double pActRatio = Math.exp(uOld-uNew);
 		uAcc = uNew;
 		pacc = pActRatio/pGenRatio;
-
+		//		System.out.println(uOld+" "+uNew);
+		//		System.exit(1);
 		((BoxCluster)box).trialNotify();
 		weightNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
@@ -356,6 +383,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		//        System.out.println("Brute force: orientation move rejected");
 		IMoleculeList molecules = box.getMoleculeList();
 		for (int i=0; i<molecules.getMoleculeCount(); i++) {
+			if (molIndexUntouched == i) continue;
 			IAtomList atoms = molecules.getMolecule(i).getChildList();
 			for (int k=0; k<P; k++) {
 				IAtomOriented kAtom = ((IAtomOriented)atoms.getAtom(k));
@@ -422,6 +450,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		v.E(w.getVector());
 	}
 	protected double uAcc = 0;
+	protected boolean debug = false;
 	protected FileWriter file = null;
 	public static double uCurrent = 0;
 	public double avgAngle = 0;
@@ -436,7 +465,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	protected int foo = 0;
 	protected double kHarmonic;
 	protected double pacc;
-
+	protected int molIndexUntouched = -1;
 	protected boolean prevAcc = false;
 	protected boolean firstMove = true;
 	protected int rejected = 0;
