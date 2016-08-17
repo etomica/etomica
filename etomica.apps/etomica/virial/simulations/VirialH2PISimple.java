@@ -71,12 +71,12 @@ public class VirialH2PISimple {
 			params.numSteps = (long)1E6;
 
 			// runtime options - make changes in these and not the default options above
-			//            params.nBeads = 8;
-			//            params.temperatureK = 100;
-			//            params.numSteps = (long)1E5;
-			//            params.cont = new contribution[]{contribution.XC, contribution.XC};
-			//            params.potentialLevel = levelOptions.HINDE_PATKOWSKI;
-			//            params.blOption = blOptions.VARIABLE;
+			//			params.nBeads = 8;
+			//			params.temperatureK = 100;
+			//			params.numSteps = (long)1E5;
+			//			params.cont = new contribution[]{contribution.B, contribution.B};
+			//			params.potentialLevel = levelOptions.HINDE_PATKOWSKI;
+			//			params.blOption = blOptions.VARIABLE;
 		}
 
 		final int nPoints = params.nPoints;
@@ -186,8 +186,8 @@ public class VirialH2PISimple {
 			sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
 		}
 		//        remove translation too
-		//        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-		//        sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
+		//		sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
+		//		sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
 
 		//        ring regrow translation
 		MCMoveClusterRingRegrow refTr = new MCMoveClusterRingRegrow(sim.getRandom(), space);
@@ -204,18 +204,18 @@ public class VirialH2PISimple {
 		//        ring regrow orientation
 		MCMoveClusterRingRegrowOrientation refOr = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
 		MCMoveClusterRingRegrowOrientation tarOr = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, nBeads);
-		refOr.setStiffness(temperature, massH);
-		tarOr.setStiffness(temperature, massH);
+		refOr.setStiffness(temperature, massH/2.0);
+		tarOr.setStiffness(temperature, massH/2.0);
 		boolean[] xcFlag = new boolean[nPoints];
 		for (int i=0; i<nPoints; i++) {
 			xcFlag[i] = cont[i] == contribution.XC;
 		}
+		refOr.setDoExchange(xcFlag);
+		tarOr.setDoExchange(xcFlag);
 		boolean fixedOrientation = false;
 		if (nBeads != 1) {
 			sim.integrators[0].getMoveManager().addMCMove(refOr);
 			sim.integrators[1].getMoveManager().addMCMove(tarOr);
-			refOr.setDoExchange(xcFlag);
-			tarOr.setDoExchange(xcFlag);
 		}
 		else {
 			fixedOrientation = true;
@@ -226,12 +226,13 @@ public class VirialH2PISimple {
 		if (blOption == blOptions.VARIABLE) {
 			sim.integrators[0].getMoveManager().addMCMove(cbl0);
 			sim.integrators[1].getMoveManager().addMCMove(cbl1);
-			cbl0.setStiffness(speciesH2.getAtomType(0),p1);
-			cbl1.setStiffness(speciesH2.getAtomType(0),p1);
-			//			cbl0.setFixedOrientation(fixedOrientation);
-			//			cbl1.setFixedOrientation(fixedOrientation);
+			cbl0.setFixedOrientation(fixedOrientation);
+			cbl1.setFixedOrientation(fixedOrientation);
 			cbl0.setDoExchange(xcFlag);
 			cbl1.setDoExchange(xcFlag);
+			cbl0.setStiffness(massH,p1);
+			cbl1.setStiffness(massH,p1);
+			System.exit(1);
 		}
 		System.out.println();
 		String refFileName = params.refPrefFileName;
