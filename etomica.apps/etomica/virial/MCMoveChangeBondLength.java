@@ -25,6 +25,7 @@ import etomica.util.HistogramSimple;
 
 public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	protected final AtomIteratorLeafAtoms leafIterator;
+	protected double molIndexUntouched = -1;
 	protected double[][] prevBondLength;
 	protected final IRandom random;
 	protected final MeterPotentialEnergy mpe;
@@ -169,8 +170,9 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		if (u0 == -1) throw new RuntimeException("u0 has not been set!");
 
 		uA1Old = mpe.getDataAsScalar();// - nMolecules*P*u0;
+		molIndexUntouched = random.nextInt(nMolecules);
 		for (int i=0; i<nMolecules; i++) {
-
+			if (molIndexUntouched == i) continue;
 			double[] etaOld = new double[P];
 			double[] etaNew = new double[P];
 			IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
@@ -644,6 +646,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		//        }
 		int nMolecules = box.getMoleculeList().getMoleculeCount();
 		for (int i=0; i<nMolecules; i++) {
+			if (molIndexUntouched == i) continue;
 			IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
 			for (int j=0; j<P; j++) {
 				((AtomHydrogen)atoms.getAtom(j)).setBondLength(prevBondLength[i][j]);
