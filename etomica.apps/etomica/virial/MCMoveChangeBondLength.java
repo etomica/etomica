@@ -6,7 +6,6 @@ package etomica.virial;
 
 import Jama.EigenvalueDecomposition;
 import etomica.api.IAtomList;
-import etomica.api.IAtomType;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -28,6 +27,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	protected double molIndexUntouched = -1;
 	protected double[][] prevBondLength;
 	protected final IRandom random;
+	protected boolean debug = false;
 	protected final MeterPotentialEnergy mpe;
 	protected double wOld,wNew;
 	protected double kHarmonic,pRatio;
@@ -53,7 +53,6 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	protected double pTotal = 0.0;
 	public double [] sigma;
 	protected boolean printOnce = true;
-
 
 	public MCMoveChangeBondLength(IPotentialMaster potentialMaster, IRandom random, ISpace space, double temperature) {
 		super(potentialMaster);
@@ -231,7 +230,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 						uA2Old += -2*Math.log(prevBondLength[i][j])/P + kHarmonic*dist(jAtom,jPrev,i); // to be used when orientation moves are turned off
 					}
 					else {
-						uA2Old += -2*Math.log(prevBondLength[i][j]) + kHarmonic*dist(jAtom,jPrev,i); // to be used when orientation moves are turned on
+						uA2Old += -2*Math.log(prevBondLength[i][j]) + (debug ? 2*kHarmonic*dist(jAtom,jPrev,i) : kHarmonic*dist(jAtom,jPrev,i)); // to be used when orientation moves are turned on
 					}
 					uActOld2 += -2*Math.log(prevBondLength[i][j])/P;
 					uActOld3 += + kHarmonic*dist(jAtom,jPrev,i);
@@ -310,7 +309,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 						uA2New += -2*Math.log(newBL[j])/P + kHarmonic*dist(jAtom,jPrev,i); // to be used when orientation moves are turned off
 					}
 					else {
-						uA2New += -2*Math.log(newBL[j]) + kHarmonic*dist(jAtom,jPrev,i); // to be used when orientation moves are turned on
+						uA2New += -2*Math.log(newBL[j]) + (debug ? 2*kHarmonic*dist(jAtom,jPrev,i) : kHarmonic*dist(jAtom,jPrev,i)); // to be used when orientation moves are turned on
 					}
 
 				}
@@ -341,7 +340,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 						uA2Old += -2*Math.log(prevBondLength[i][j])/P + kHarmonic*dist(jAtom,jPrev,i); // to be used when orientation moves are turned off
 					}
 					else {
-						uA2Old += -2*Math.log(prevBondLength[i][j]) + kHarmonic*dist(jAtom,jPrev,i); // to be used when orientation moves are turned on
+						uA2Old += -2*Math.log(prevBondLength[i][j]) + (debug ? 2*kHarmonic*dist(jAtom,jPrev,i) : kHarmonic*dist(jAtom,jPrev,i)); // to be used when orientation moves are turned on
 					}
 					uActOld2 += -2*Math.log(prevBondLength[i][j])/P;
 					uActOld3 += kHarmonic*dist(jAtom,jPrev,i);
@@ -352,13 +351,15 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 				double[] newBL = new double[P];
 				for (int j=0; j<P; j++) {
 					newBL[j] = r0;
-
 					for (int k=0; k<P; k++) {//mode = k, bondlength = j
 						newBL[j] += eVec[i][k][j]*etaNew[k];
 					}
 
+
 					((AtomHydrogen)atoms.getAtom(j)).setBondLength(newBL[j]);
 				}
+				//				System.out.println();
+				//				System.out.println(r0);
 
 				for (int j=0; j<P; j++) {
 
@@ -372,7 +373,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 						uA2New += dy1 + dy2;
 					}
 					else {
-						uA2New += -2*Math.log(newBL[j]) + kHarmonic*dist(jAtom, jPrev, i); // to be used when orientation moves are turned on
+						uA2New += -2*Math.log(newBL[j]) + (debug ? 2*kHarmonic*dist(jAtom,jPrev,i) : kHarmonic*dist(jAtom,jPrev,i)); // to be used when orientation moves are turned on
 					}
 					uActNew2 += -2*Math.log(newBL[j])/P;
 					uActNew3 += kHarmonic*dist(jAtom,jPrev, i);
@@ -389,10 +390,11 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 
 		uActOld += uA1Old/(t*P);
 		uActNew += uA1New/(t*P);
-
+		//		System.out.println(uA1New+" "+uA2New);
 
 		pRatio = Math.exp(uActOld - uActNew + uGenNew - uGenOld);
-
+		//		System.out.println("uActOld ="+uActOld+" uActNew =" +uActNew+ " uGenOld ="+uGenOld+ " uGenNew ="+uGenNew+" pRatio ="+pRatio+" box = "+box.getIndex()+" moveCount = " +moveCount);
+		//		System.exit(1);
 
 		if (Double.isInfinite(uActNew) || Double.isInfinite(uActOld) || Double.isInfinite(uGenNew) || Double.isInfinite(uGenOld) || Double.isInfinite(pRatio)) {
 			throw new RuntimeException("uActOld ="+uActOld+" uActNew =" +uActNew+ " uGenOld ="+uGenOld+ " uGenNew ="+uGenNew+" pRatio ="+pRatio+" box = "+box.getIndex()+" moveCount = " +moveCount);
@@ -421,7 +423,11 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		double r2 = dr.Mv1Squared(dr1);
 		dr1.TE(-1);
 		r2 += dr.Mv1Squared(dr1);
-		dr.normalize();
+		//		if (debug) {
+		//			dr.Ea1Tv1(a0.getBondLength(), dummy);
+		//			dr1.Ea1Tv1(a1.getBondLength(), a1.getOrientation().getDirection());
+		//			r2 = dr.Mv1Squared(dr1);
+		//		}
 		return r2;
 	}
 
@@ -514,10 +520,12 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		}
 	}
 
-	public void setStiffness(IAtomType a, P1IntraMolecular p1) {
+	public void setStiffness(double mass, P1IntraMolecular p1) {
+		System.out.println(box.getIndex());
 		p11 = p1;
-		double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*a.getMass()*t));
+		double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*mass*t));
 		kHarmonic = Math.PI*P/(lambda*lambda);
+		if (debug) kHarmonic /= 2.0;
 		int nMolecules = box.getMoleculeList().getMoleculeCount();
 		for (int iMolIdx = 0; iMolIdx < nMolecules; iMolIdx++) {
 			double cT = 1.0;
@@ -533,6 +541,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 				}
 				else {
 					cT = 1 - (P - 1)/(P*kHarmonic*x0*x0);
+					if (debug) cT = 1 - (P - 1)/(P*2*kHarmonic*x0*x0);
 				}
 				if (Double.isNaN(cT)) throw new RuntimeException("cT = "+cT);
 				if (cT < -1.0) {
@@ -541,10 +550,12 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 				if (cT >  1.0) {
 					cT = 1.0;
 				}
-				double d2vdr2 = 2*kHarmonic + 2/(x0*x0) + p1.d2u(x0)/(x0*x0*t*P);
+				double d2vdr2 = 2/(x0*x0) + p1.d2u(x0)/(x0*x0*t*P);
+				d2vdr2 += debug ? 4*kHarmonic : 2*kHarmonic;
 				if (x0 < 0) x0 = BohrRadius.UNIT.toSim(random.nextDouble());
 				if (d2vdr2 == 0 || d2vdr2 != d2vdr2) throw new RuntimeException("x0 = "+x0+" d2vdr2 = "+d2vdr2);
-				double dvdr = 2*kHarmonic*x0*(1 - cT) - 2/x0 + p1.du(x0)/(x0*t*P);
+				double dvdr = - 2/x0 + p1.du(x0)/(x0*t*P);
+				dvdr += debug ? 4*kHarmonic*x0*(1 - cT) : 2*kHarmonic*x0*(1 - cT);
 				xNew = x0 - dvdr/d2vdr2;
 				if (xNew != xNew) throw new RuntimeException("xNew =" + xNew+ " x0 = "+x0+" dvdr = "+dvdr+" d2vdr2 ="+d2vdr2);
 
@@ -555,14 +566,18 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 				x0 = xNew;
 			}
 			if (!done) throw new RuntimeException("Newton Raphson method has not converged!!!");
-			if (!doExchange[iMolIdx]) cT = 1 - (P - 1)/(P*kHarmonic*r0*r0);
+			if (!doExchange[iMolIdx]) {
+				cT = 1 - (P - 1)/(P*kHarmonic*r0*r0);
+				if (debug) cT = 1 - (P - 1)/(P*2*kHarmonic*r0*r0);
+			}
 			//        if (box.getIndex() == 1) {
 			//            System.out.println("Nominal angle: "+Math.acos(cT));
 			//            System.exit(1);
 			//        }
 			u0 = p1.u(r0);
-			double diagTerm = 2*kHarmonic + 2/(r0*r0) + p1.d2u(r0)/(r0*r0*t*P);
-			//          System.out.println(r0+" "+kHarmonic+" "+diagTerm);
+			double diagTerm = 2/(r0*r0) + p1.d2u(r0)/(r0*r0*t*P);
+			diagTerm += debug ? 4*kHarmonic : 2*kHarmonic;
+
 			//          System.exit(1);
 			//          if (box.getIndex() == 0) {
 			//        	double la = kHarmonic*r0*r0*0.02*0.02;
@@ -594,14 +609,26 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 				if (prev < 0) prev = P-1;
 				for (int j=0; j<P; j++) {
 					m[i][j] = 0.0;
-					if (j == next || j == prev) m[i][j] = -kHarmonic*cT;
+					if (j == next || j == prev) m[i][j] = debug ? -2*kHarmonic*cT : -kHarmonic*cT;
 					if (j == i) m[i][j] = diagTerm ;
+					//					if (iMolIdx == 0) System.out.print(m[i][j]+" ");
 				}
+				//				if (iMolIdx == 0) System.out.println();
 			}
+
 			Jama.Matrix M = new Jama.Matrix(m);
 			EigenvalueDecomposition E = M.eig();
 			eVec[iMolIdx] = E.getV().transpose().getArray();
 			eVal[iMolIdx] = E.getRealEigenvalues();
+			if (iMolIdx == 0) {
+				for (int i=0; i<P; i++) {
+					for (int j=0; j<P; j++) {
+						System.out.print(eVec[iMolIdx][i][j]+" ");
+					}
+					System.out.println();
+				}
+			}
+			System.exit(1);
 		}
 	}
 
@@ -619,6 +646,8 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 			}
 		}
 		double wNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+		//		System.out.println("Box "+box.getIndex());
+		//		System.out.println("wNew "+wNew+" pRatio "+pRatio+ " wOld "+wOld);
 
 		return wNew*pRatio/wOld;
 	}
