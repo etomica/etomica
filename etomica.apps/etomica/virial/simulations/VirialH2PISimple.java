@@ -232,7 +232,6 @@ public class VirialH2PISimple {
 			cbl1.setDoExchange(xcFlag);
 			cbl0.setStiffness(massH,p1);
 			cbl1.setStiffness(massH,p1);
-			System.exit(1);
 		}
 		System.out.println();
 		String refFileName = params.refPrefFileName;

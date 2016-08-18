@@ -176,7 +176,7 @@ public class VirialH2PIXC {
 		sim.integrator.getMoveManager().addMCMove(ring0);
 		sim.integrator.getMoveManager().addMCMove(move0);
 		sim.integrator.getMoveManager().addMCMove(cbl0);
-		cbl0.setStiffness(species.getAtomType(0), modifiedRefPot);
+		cbl0.setStiffness(Hydrogen.INSTANCE.getMass(), modifiedRefPot);
 		//        sim.integrator.getMoveManager().addMCMove(exMove0);
 		//        sim.integrator.getMoveManager().addMCMove(cblBF0);
 		//        ((MCMoveStepTracker)cblBF0.getTracker()).setNoisyAdjustment(true);
