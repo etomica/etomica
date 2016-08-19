@@ -56,7 +56,9 @@ public class MCMoveOverlapListener implements IListener {
     }
 
     /**
-     * Returns overlap sampling results (ratio of partition functions).
+     * Returns overlap sampling results (ratio of partition functions between
+     * sequential number of atoms).  A ratio less than 1 means the free
+     * energy biases the system towards having a vacancy.
      */
     public double[] getRatios() {
         if (ratios.length < (sumDelete.length-1) - minNumAtoms) {
