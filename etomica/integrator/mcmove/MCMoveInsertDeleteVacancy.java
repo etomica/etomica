@@ -78,6 +78,22 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
         oldPosition = _space.makeVector();
     }
 
+    public void setMinDistance(double minDistance) {
+        this.minDistance = minDistance;
+    }
+
+    public void setMaxDistance(double maxDistance) {
+        this.maxDistance = maxDistance;
+    }
+
+    public double getMaxDistance() {
+        return maxDistance;
+    }
+
+    public void setMaxInsertDistance(double maxInsertDistance) {
+        this.maxInsertDistance = maxInsertDistance;
+    }
+
     public void reset() {
         dirty = true;
     }
