@@ -86,7 +86,7 @@ public class SimLJVacancy extends Simulation {
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
     
 
-    public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int fixedN, final int maxDN, final double bmu) {
+    public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int numV, final double bmu) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
@@ -144,7 +144,7 @@ public class SimLJVacancy extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         potentialMaster.getNbrCellManager(box).assignCellAll();
         
-        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMaster, random, space, integrator, y, fixedN, maxDN);
+        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMaster, random, space, integrator, y, numAtoms, numV);
 
         double x = nbr1/40.0;
         mcMoveID.setMaxInsertDistance(x);
@@ -175,8 +175,7 @@ public class SimLJVacancy extends Simulation {
         final double rc = params.rc*Math.pow(density, -1.0/3.0);
         long steps = params.steps;
         boolean graphics = params.graphics;
-        int maxDN = (params.numV+1)/2;
-        int fixedN = params.numAtoms - maxDN;
+        int numV = params.numV;
         double mu = params.mu;
         double Alat = params.Alat;
         System.out.println("Running N="+params.numAtoms+" at rho="+density);
@@ -186,18 +185,22 @@ public class SimLJVacancy extends Simulation {
             double zLat = LennardJones.ZFcc(temperature, density);
             System.out.println("lattice pressure "+zLat);
             mu = (Alat + zLat);
-            System.out.println("beta mu "+mu);
         }
         else if (Double.isNaN(Alat)) {
             // this should get us pretty close
             Alat = Math.log(density)-1.0 + (LennardJones.aResidualFcc(temperature, density))/temperature;
         }
+        System.out.println("beta mu "+mu);
+        System.out.println("using lattice free energy: "+Alat);
         double daDef = params.daDef;
         if (Double.isNaN(daDef)) {
             // use a correlation.  this should be with ~1
             double Y = temperature/Math.pow(density, 4)/4;
             double v2 = 1/(density*density);
-            daDef = (-3.6 - 10.5*Y + 8.2*v2)/Y;
+            daDef = (-3.81 - 10.01*Y + 8.28*v2)/Y;
+            daDef = (-3.742    - 9.925*Y     - 2.081*Y*Y
+                     +8.209*v2 + 1.929*Y*v2
+                     -0.3479*v2*v2)/Y;
             System.out.println("estimated defect free energy: "+daDef);
         }
         else {
@@ -210,7 +213,7 @@ public class SimLJVacancy extends Simulation {
         System.out.println("steps: "+steps);
    
 
-        final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, fixedN, maxDN, mu);
+        final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu);
 
 
         final int biasInterval = 10*numAtoms;
@@ -256,8 +259,8 @@ public class SimLJVacancy extends Simulation {
         final IntegratorListenerAction mcMoveBiasListener;
 
         if (params.doReweight) {
-            mcMoveBiasAction = new MCMoveIDBiasAction(sim.integrator, sim.mcMoveID, maxDN,
-                    fixedN, mu, mcMoveOverlapMeter, numAtoms, 1);
+            mcMoveBiasAction = new MCMoveIDBiasAction(sim.integrator, sim.mcMoveID, numV,
+                    mu, mcMoveOverlapMeter, numAtoms, 1);
             mcMoveBiasAction.setNMaxReweight(numAtoms);
             mcMoveBiasAction.setDefaultDaDef(daDef);
             mcMoveBiasListener = new IntegratorListenerAction(mcMoveBiasAction, biasInterval);
@@ -630,6 +633,7 @@ public class SimLJVacancy extends Simulation {
         }
 
         final long finalSteps = steps;
+        // wait until 1/4 of the way through 2nd stage initialization, then start readjusting weights again
         sim.integrator.getEventManager().addListener(new IIntegratorListener() {
             boolean reenabled = false;
             public void integratorStepStarted(IIntegratorEvent e) {}
