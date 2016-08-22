@@ -15,8 +15,7 @@ import etomica.integrator.IntegratorMC;
  * @author Andrew Schultz
  */
 public class MCMoveIDBiasAction implements IAction {
-    protected final int maxDN;
-    protected final int fixedN;
+    protected final int maxVacancy;
     protected double bmu;
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected final MCMoveInsertDeleteBiased mcMoveID;
@@ -29,12 +28,11 @@ public class MCMoveIDBiasAction implements IAction {
     protected final double ratioMaxN = 1, maxBiasMinN = 2;
     protected boolean playDumb = false;
 
-    public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxDN, int fixedN, double bmu,
+    public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxVacancy, double bmu,
             MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms, double temperature) {
         this.integratorMC = integratorMC;
         this.mcMoveID = mcMoveID;
-        this.maxDN = maxDN;
-        this.fixedN = fixedN;
+        this.maxVacancy = maxVacancy;
         this.bmu = bmu;
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
         this.numAtoms = numAtoms;
@@ -75,7 +73,6 @@ public class MCMoveIDBiasAction implements IAction {
     public void actionPerformed() {
         double[] ratios = mcMoveOverlapMeter.getRatios();
         double[] hist = mcMoveOverlapMeter.getHistogram();
-        if (Double.isNaN(hist[0])) return;
         long[] numInsert = mcMoveOverlapMeter.getNumInsert();
         long[] numDelete = mcMoveOverlapMeter.getNumDelete();
         int n0 = mcMoveOverlapMeter.getMinNumAtoms();
@@ -143,8 +140,8 @@ public class MCMoveIDBiasAction implements IAction {
 //            }
         }
         lnbias[ratios.length] = lnr;
-        int minN = (fixedN < numAtoms ? fixedN : numAtoms) - maxDN - 1;
-        int maxN = (fixedN > numAtoms ? fixedN : numAtoms) + maxDN + 1;
+        int minN = numAtoms - maxVacancy;
+        int maxN = numAtoms;
         double nominalLnBias = lnbias[lnbias.length-1];
         for (int i=0; i<lnbias.length; i++) {
             lnbias[i] -= nominalLnBias;

@@ -22,24 +22,24 @@ import etomica.util.Arrays;
  */
 public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
 
-    protected int maxDN;
+    protected int minN, maxN;
     protected double[] lnbias;
-    protected final int fixedN;
 
     public MCMoveInsertDeleteBiased(IPotentialMaster potentialMaster,
-            IRandom random, ISpace _space, int fixedN, int maxDN) {
+            IRandom random, ISpace _space, int minN, int maxN) {
         super(potentialMaster, random, _space);
         lnbias = new double[0];
-        this.maxDN = maxDN;
-        this.fixedN = fixedN;
+        this.minN = minN;
+        this.maxN = maxN;
     }
     
     public void setBox(IBox box) {
         super.setBox(box);
     }
     
-    public void setMaxDelete(int newMaxDeltaN) {
-        maxDN = newMaxDeltaN;
+    public void setMinMax(int newMinN, int newMaxN) {
+        minN = newMinN;
+        maxN = newMaxN;
     }
 
     public double getLnBias(int n) {
@@ -113,13 +113,11 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     
     public void acceptNotify() {
         int numAtoms = box.getLeafList().getAtomCount();
-        if ((numAtoms <= fixedN-maxDN && !insert) || (numAtoms > fixedN+maxDN && insert)) {
+        if ((numAtoms <= minN && !insert) || (numAtoms > maxN && insert)) {
             myRejectNotify();
         }
         else {
             myAcceptNotify();
         }
-        
-//        System.out.println("accepted "+(insert ? "insertion" : "deletion")+" => "+box.getLeafList().getAtomCount());
     }
 }

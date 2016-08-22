@@ -55,8 +55,8 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     protected final IVectorMutable oldPosition;
 
     public MCMoveInsertDeleteVacancy(IPotentialMaster potentialMaster, 
-            IRandom random, ISpace _space, IIntegrator integrator, double nbrDistance, int fixedN, int maxDN) {
-        super(potentialMaster, random, _space, fixedN, maxDN);
+            IRandom random, ISpace _space, IIntegrator integrator, double nbrDistance, int maxN, int maxVacancy) {
+        super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.potentialMaster = (PotentialMasterList)potentialMaster;
         dest = (IVectorRandom)_space.makeVector();
         dr = _space.makeVector();
@@ -94,9 +94,6 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
             insert = !insert;
             System.out.println("forcing "+(insert ? "insertion" : "deletion"));
             forced=2;
-        }
-        else if (fixedN==numAtoms && maxDN==0) {
-            insert = !insert;
         }
         else {
             insert = (random.nextInt(2) == 0);
