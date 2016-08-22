@@ -27,67 +27,42 @@ import etomica.units.ElectronVolt;
  */
 public class PotentialEFS extends PotentialN implements PotentialSoft{
 
-    public static void main(String[]args){
-        ISpace space=Space3D.getInstance();
-        Simulation sim=new Simulation(space);
-        Box box=new Box(space);
-        sim.addBox(box);
-        Species species=new SpeciesSpheresMono(sim, space);
-        sim.addSpecies(species);
-        
-        box.setNMolecules(species, 2);
-        
-        double c,c0,c1,c2,c3,c4,A,d,B ;
-        c=3.25;
-        c0=ElectronVolt.UNIT.toSim(48.52796);
-        c1=ElectronVolt.UNIT.toSim(-33.79621);
-        c2=ElectronVolt.UNIT.toSim(5.854334);
-        c3=ElectronVolt.UNIT.toSim(-0.0098221);
-        c4=ElectronVolt.UNIT.toSim(0.033338);
-        A=ElectronVolt.UNIT.toSim(1.885948);
-        d=4.41;
-        B=0;
-        int qmax=1000;
-        
-        PotentialEFS potential=new PotentialEFS(space,c,c0,c1,c2,c3,c4,A,d,B);
-        potential.setBox(box);
-        
-        for(int q=500; q<qmax; q++){
-            box.getLeafList().getAtom(1).getPosition().setX(0, q*.01);
-            double energy=potential.energy(box.getLeafList());
-            System.out.println(q*.01+"   "+energy);
-        } 
-    }
-
-    protected final double c, c0, c1, c2, c3, c4;
-    protected final double A, d, B;
+    protected double rCc, c0, c1, c2, c3, c4;
+    protected double A, rCd, B;
+    protected IVectorMutable dr, drij, drik, drjk;
     protected IBoundary boundary; 
-    protected final IVectorMutable dr;
     protected IVectorMutable[] gradient; 
     protected IVectorMutable[] rhograd;
     protected double [][] secondder;
     
-    public PotentialEFS(ISpace space, double c, double c0, double c1, 
-            double c2, double c3, double c4, double A, double d, double B) {
+    public PotentialEFS(ISpace space, double A, double B, double c, double d, double c0, double c1, 
+            double c2, double c3, double c4) {
         super(space);
         
-        this.c=c;
+        this.rCc=c;
+        this.rCd=d;
         this.c0=c0;
         this.c1=c1;
         this.c2=c2;
         this.c3=c3;
         this.c4=c4;
         this.A=A;
-        this.d=d;
-        this.B=B;    
+        this.B=B;
         dr=space.makeVector();
+        drij=space.makeVector();
+        drik=space.makeVector();
+        drjk=space.makeVector();
         gradient=new IVectorMutable[0];
         rhograd=new IVectorMutable[0];
     }
     
     public double getRange() {
-        return d;
+        return rCd; // d>c
     }
+    public void setRange(double rC) {
+    	rCd = rC; //d>c
+    }
+
     
     public double energy(IAtomList atoms) {
         double sumV=0;
@@ -95,19 +70,21 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
         IVector ipos=atoms.getAtom(0).getPosition();
         
         for(int j=1;j<atoms.getAtomCount();j++){
-            IVector jpos=atoms.getAtom(j).getPosition();
-            dr.Ev1Mv2(ipos, jpos);
-            boundary.nearestImage(dr);
-            double rij=Math.sqrt(dr.squared());
-            if(rij<=c && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
-                sumV+=(rij-c)*(rij-c)*(c0+c1*rij+c2*rij*rij+c3*rij*rij*rij+c4*rij*rij*rij*rij);
-            }
-            if(rij<=d){
-                double rd=rij-d;
-                rhoi+=rd*rd*(1+B*B*rd*rd)*A*A;
-            }
-        }
-        double frho=Math.sqrt(rhoi);
+          IVector jpos=atoms.getAtom(j).getPosition();
+          dr.Ev1Mv2(ipos, jpos);
+          boundary.nearestImage(dr);
+          double rij=Math.sqrt(dr.squared());
+          double rij_c = rij - rCc;
+          if(rij<=rCc && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
+            sumV+=rij_c*rij_c*(c0+c1*rij+c2*rij*rij+c3*rij*rij*rij+c4*rij*rij*rij*rij);
+       	  }
+    	  if(rij<=rCd){
+   		    double rij_d=rij-rCd;
+		    rhoi += rij_d*rij_d*(1+B*B*rij_d*rij_d);
+   		  }
+        }//j
+        
+        double frho=A*Math.sqrt(rhoi);
         double Utot=sumV-frho;
         return Utot;
         
@@ -146,6 +123,7 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
         IVector ipos=atoms.getAtom(0).getPosition();
         
         double rhoi=0;
+        //S: Does NOT start from 0 as it will be -SUM(j>0); see below
         for(int j=1;j<atoms.getAtomCount();j++){
             gradient[j].E(0);
             rhograd[j].E(0);
@@ -153,20 +131,23 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
             double rij=Math.sqrt(dr.squared());
-            if(rij<=c && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
-                double dvdr=(rij-c)*(2*(c0+rij*(c1+rij*(c2+rij*(c3+c4*rij))))+(rij-c)*(c1+rij*(2*c2+rij*(3*c3+4*c4*rij))));
+            double rij_c = rij - rCc;
+            if(rij<=rCc && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
+            	double dvdr;
+                dvdr=rij_c*(2*(c0+rij*(c1+rij*(c2+rij*(c3+c4*rij))))+(rij-rCc)*(c1+rij*(2*c2+rij*(3*c3+4*c4*rij))));
                 gradient[j].Ea1Tv1(-dvdr/rij, dr);
             }
-            if(rij<=d){
-                double rd=rij-d;
-                rhoi+=rd*rd*(1+B*B*rd*rd)*A*A;              
-                double drhodr=A*A*(2*rd+4*B*B*rd*rd*rd);
+            if(rij<=rCd){
+                double rij_d = rij-rCd;
+                double drhodr;
+        		rhoi += A*A*rij_d*rij_d*(1+B*B*rij_d*rij_d);
+                drhodr= A*A*(2*rij_d+4*B*B*rij_d*rij_d*rij_d);
                 rhograd[j].Ea1Tv1(-drhodr/rij, dr);
-            }          
+            }
         }
         double f=Math.sqrt(rhoi);
         for (int j=1;j<atoms.getAtomCount();j++){
-            gradient[j].PEa1Tv1(-.5*1/f,rhograd[j]);
+            gradient[j].PEa1Tv1(-1.0/2.0/f,rhograd[j]);
             gradient[0].ME(gradient[j]);
         }
         return gradient;
@@ -176,41 +157,171 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
         return gradient(atoms);
     }
     
+    
+    
+    
     public double [][] secondder(IAtomList atoms){
+		int ng = atoms.getAtomCount();
+    	secondder = new double[3*ng][3*ng];
         IVector ipos=atoms.getAtom(0).getPosition();
-        
-        for(int j=1;j<atoms.getAtomCount();j++){
+        double rhoi=0;
+    	double dvdr, d2vdr2, g1, g2;
+        double rij, rij2 , rij3 , rij4, sij;
+        double rik, sik;
+        double dphidrij=0,d2phidrij2=0, dudrho, d2udrho2;
+        double dphidrik;
+        double tmpD, tmpD1;
+		
+		//Get rhoi
+        for(int j=1;j<ng;j++){
             IVector jpos=atoms.getAtom(j).getPosition();
-            dr.Ev1Mv2(ipos, jpos);
-            boundary.nearestImage(dr);
-            double rij=Math.sqrt(dr.squared());
-            if(rij<=c){ //calculating dv^2/dxdx, dv^2/dxdx, dv^2/dxdz etc for all i or j components
-                double dv2dr2=(3*rij*(2*c4*rij+c3)+c2)*(c-rij)*(c-rij)+rij*(rij*(rij*      
-                        (c4*rij+c3)+c2)+c1)+2*(rij-c)*(rij*(rij*(4*c4*rij+3*c3)+2*c2)+c1)+c0;
-                double dvdr=(rij-c)*(2*(c0+rij*(c1+rij*(c2+rij*(c3+c4*rij))))+(rij-c)*(c1+rij*(2*c2+rij*(3*c3+4*c4*rij))));
-                for (int q=0; q<3; q++){
-                    double Q= dr.getX(q);
-                    double ddqqq=-(rij*rij-Q*Q)/(rij*rij*rij);
-                    secondder[3*j+q][q]=ddqqq*dvdr;
-                    secondder[q][q]-=secondder[3*j+q][q];
-                    secondder[q][3*j+q]=secondder[3*j+q][q];
-                    secondder[3*j+q][3*j+q]=-secondder[3*j+q][q];
-                    for (int w=q+1; w<3; w++){
-                        double W= dr.getX(w);
-                        double drdqdw=-(Q*W/(rij*rij)); //we have finished filling in for components ij and ji, ii and jj.
-                        double ddqqw=-(Q*W)/(rij*rij*rij);
-                        secondder[3*j+q][w]=dv2dr2*drdqdw+ddqqw*dvdr;
-                        secondder[3*j+w][q]=secondder[3*j+q][w];
-                        secondder[w][3*j+q]=secondder[3*j+q][w];
-                        secondder[q][3*j+w]=secondder[3*j+q][w];
-                        secondder[w][q]-=secondder[3*j+q][w];
-                        secondder[q][w]-=secondder[3*j+q][w];
-                        secondder[3*j+q][3*j+w]=-secondder[3*j+q][w];
-                        secondder[3*j+w][3*j+q]=-secondder[3*j+q][w];
-                    }
-                }
+            drij.Ev1Mv2(ipos, jpos);
+            boundary.nearestImage(drij);
+            rij=Math.sqrt(drij.squared());
+            if(rij<=rCd){
+       		    double rij_d=rij-rCd;
+    		    rhoi += rij_d*rij_d*(1+B*B*rij_d*rij_d);
             }
         }
-        return secondder;
+        rhoi = A*A*rhoi;
+        dudrho   = -1.0/2.0/Math.pow(rhoi, 0.5);
+        d2udrho2 =  1.0/4.0/Math.pow(rhoi, 1.5);
+        
+        for(int j=1;j<ng;j++){
+          IVector jpos=atoms.getAtom(j).getPosition();
+          drij.Ev1Mv2(ipos, jpos);
+          boundary.nearestImage(drij);
+
+          rij=Math.sqrt(drij.squared()); 
+          rij2 = rij*rij;   rij3 = rij*rij2;   rij4 = rij2*rij2;
+          
+          /**pairwise*/
+          if(rij<=rCc && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
+            double rij_c = rij - rCc;
+            dvdr=rij_c*(2*(c0+rij*(c1+rij*(c2+rij*(c3+c4*rij))))+(rij-rCc)*(c1+rij*(2*c2+rij*(3*c3+4*c4*rij))));
+            g1 = rij*dvdr;
+            d2vdr2 =  2.0*(c0+c1*rij+c2*rij2+c3*rij3+c4*rij4)
+            		+ 4.0*rij_c*(c1+2*c2*rij+3*c3*rij2+4*c4*rij3)
+            		+ rij_c*rij_c*(2*c2+6*c3*rij+12*c4*rij2);
+            g2 = rij2*d2vdr2;
+            for (int c=0; c<3; c++){
+              tmpD = -g1/rij2 + (g1-g2)/rij4*drij.getX(c)*drij.getX(c);
+              secondder[c][3*j+c] += tmpD;//ij: xx
+              secondder[3*j+c][c] += tmpD;//ji: xx
+              for (int r=c+1; r<3; r++){
+            	tmpD = (g1-g2)/rij4*drij.getX(r)*drij.getX(c);
+            	secondder[r][3*j+c] += tmpD;//ij: xy
+            	secondder[c][3*j+r] += tmpD;//ij: yx
+            	
+            	secondder[3*j+r][c] += tmpD;//ji: xy
+            	secondder[3*j+c][r] += tmpD;//ji: yx
+              }
+            }
+          }
+           /**EAM: 1st derivative terms*/
+           if(rij > rCd) continue;
+           double rij_d = rij-rCd;
+           double rij_d2 = rij_d*rij_d; 
+           double rij_d3 = rij_d*rij_d*rij_d; 
+           dphidrij   = A*A*(2.0*rij_d + 4*B*B*rij_d3);
+           d2phidrij2 = A*A*(2.0 + 12.0*B*B*rij_d2);
+           for (int c=0; c<3; c++){
+             tmpD = -1/rij*dudrho*dphidrij + 1/rij3*dudrho*dphidrij*drij.getX(c)*drij.getX(c);
+             secondder[c][3*j+c] += tmpD; // ij delta_ab: xx
+             secondder[3*j+c][c] += tmpD; // ji delta_ab: xx
+             for (int r=c+1; r<3; r++){
+               tmpD = 1/rij3*dudrho*dphidrij*drij.getX(r)*drij.getX(c);
+               secondder[r][3*j+c] += tmpD;//ij: xy
+               secondder[c][3*j+r] += tmpD;//ij: yx
+               
+               secondder[3*j+r][c] += tmpD;//ji: xy
+               secondder[3*j+c][r] += tmpD;//ji: yx
+             }
+           }
+            
+           
+            
+            /**EAM: 1st&2nd derivative terms*/
+            //k-loop:             
+            for(int k=1;k<ng;k++){
+              IVector kpos=atoms.getAtom(k).getPosition();
+              drik.Ev1Mv2(ipos, kpos);
+              boundary.nearestImage(drik);
+              rik=Math.sqrt(drik.squared());
+
+              if(rik<=rCd){
+              	double rik_d = rik - rCd;
+            	double rik_d3 = rik_d*rik_d*rik_d;
+            	dphidrik   = A*A*(2.0*rik_d + 4*B*B*rik_d3);
+                for (int c=0; c<3; c++){
+                //xx
+                  //ij
+                  tmpD = -d2udrho2*dphidrij*dphidrik*drij.getX(c)*drik.getX(c)/rij/rik;
+                  secondder[c][3*j+c] += tmpD; //ij Direct: xx 
+                  secondder[3*j+c][c] += tmpD; //ji Direct: xx
+                  if(j==k){//k can equal j for Dij:Direct
+                 	tmpD = -dudrho*d2phidrij2*drij.getX(c)*drij.getX(c)/rij/rij;
+                    secondder[c][3*j+c] += tmpD;// ij Direct (j=k): xx
+                    secondder[3*j+c][c] += tmpD;// ji Direct (j=k): xx
+                  }
+                  //jk
+                  if(j != k){
+                  	tmpD = d2udrho2*dphidrij*dphidrik*drij.getX(c)*drik.getX(c)/rij/rik;
+                    secondder[3*j+c][3*k+c] =  tmpD; // jk Indirect
+                    /**No need to do ji as we have jk and kj*/
+//                  secondder[3*k+c][3*j+c] =  tmpD; // kj Indirect
+                  }
+                  
+                  
+                  
+                  
+              //xy
+                  for (int r=c+1; r<3; r++){
+                  //ij
+                  	tmpD  = -d2udrho2*dphidrij*dphidrik*drij.getX(c)*drik.getX(r)/rij/rik;
+                	tmpD1 = -d2udrho2*dphidrij*dphidrik*drij.getX(r)*drik.getX(c)/rij/rik;
+                   	secondder[r][3*j+c]  += tmpD;  // ij Direct: xy
+                    secondder[c][3*j+r]  += tmpD1; // ij Direct: yx
+                	secondder[3*j+r][c]  += tmpD1; // ji Direct: xy
+                	secondder[3*j+c][r]  += tmpD;  // ji Direct: yx
+                    if(j==k){//k can equal j for Dij:Direct
+                    	tmpD = -dudrho*d2phidrij2*drij.getX(c)*drij.getX(r)/rij/rij;
+                        secondder[r][3*j+c]   += tmpD;// ij direct: xy
+                        secondder[c][3*j+r]   += tmpD;// ij direct: yx
+                        secondder[3*j+r][c]   += tmpD;// ji direct: xy
+                        secondder[3*j+c][r]   += tmpD;// ji direct: yx
+                    }
+                    
+                  //jk
+                    if(j != k){
+                     tmpD  = d2udrho2*dphidrij*dphidrik*drij.getX(r)*drik.getX(c)/rij/rik;
+                     tmpD1 = d2udrho2*dphidrij*dphidrik*drij.getX(c)*drik.getX(r)/rij/rik;
+                      secondder[3*j+r][3*k+c] =  tmpD;  // jk Indirect: xy
+                      secondder[3*j+c][3*k+r] =  tmpD1; // jk Indirect: yx
+                      /**No need to do ji as we have jk and kj*/
+//                    secondder[3*k+r][3*j+c] =  tmpD1; // kj Indirect: xy
+//                    secondder[3*k+c][3*j+r] =  tmpD;  // kj Indirect: yx
+                    }
+                  }
+                }
+              }//if rik<rc2
+            }//k  
+            
+            
+        }//j
+        
+        //Self
+        for(int i=0;i<ng;i++){
+          for(int j=0;j<ng;j++){
+          	if(i != j){
+              for (int c=0; c<3; c++){
+                for (int r=0; r<3; r++){
+                  secondder[3*i+r][3*i+c] -=  secondder[3*i+r][3*j+c];              		
+                }
+              }          		
+          	}
+          }//j
+        }//i
+                return secondder;
     }
 }
