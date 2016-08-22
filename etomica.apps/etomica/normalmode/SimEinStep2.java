@@ -147,7 +147,7 @@ public class SimEinStep2 extends Simulation {
         p1Harmonic.setSpringConstant(1);
         p1Harmonic.setAtomAgentManager(box,coordinateDefinition.siteManager);
         potentialMasterHarmonic = new PotentialMasterMonatomic(this);
-        potentialMasterHarmonic.addPotential(p1Harmonic, new IAtomType[]{sphereType,sphereType});
+        potentialMasterHarmonic.addPotential(p1Harmonic, new IAtomType[]{sphereType});
 
         MeterPotentialEnergyComposite meterPEComposite = new MeterPotentialEnergyComposite(potentialMasterHarmonic, potentialMaster, latticeEnergy, numAtoms);
         meterPEComposite.setBox(box);
