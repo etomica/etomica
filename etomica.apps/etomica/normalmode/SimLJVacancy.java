@@ -224,7 +224,7 @@ public class SimLJVacancy extends Simulation {
             // correct unshifted Alat for shifted potential
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
             meterPE.setBox(sim.box);
-            double uLat = meterPE.getDataAsScalar();
+            double uLat = meterPE.getDataAsScalar()/numAtoms;
             Alat += uLat - params.uLatUnshifted;
             System.out.println("Alat => "+Alat);
         }
