@@ -27,6 +27,7 @@ public class MCMoveIDBiasAction implements IAction {
     protected double pullFactor;
     protected final double ratioMaxN = 1, maxBiasMinN = 2;
     protected boolean playDumb = false;
+    protected double fixedDaDef = Double.NaN;
 
     public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxVacancy, double bmu,
             MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms, double temperature) {
@@ -38,6 +39,10 @@ public class MCMoveIDBiasAction implements IAction {
         this.numAtoms = numAtoms;
         this.temperature = temperature;
         pullFactor = 1;
+    }
+    
+    public void setFixedDaDef(double daDef) {
+        fixedDaDef = daDef;
     }
 
     /**
@@ -76,18 +81,20 @@ public class MCMoveIDBiasAction implements IAction {
         long[] numInsert = mcMoveOverlapMeter.getNumInsert();
         long[] numDelete = mcMoveOverlapMeter.getNumDelete();
         int n0 = mcMoveOverlapMeter.getMinNumAtoms();
-        double daDefTot = 0;
-        double wTot = 0;
-        for (int i=0; i<ratios.length; i++) {
-            if (!Double.isNaN(ratios[i])) {
-                double iDaDef = Math.log(ratios[i]*((n0+i+1)/(ratios.length-i)));
-                double w = 1.0/(1.0/numInsert[i]+1.0/numDelete[i+1]);
-                daDefTot += iDaDef*w;
-                wTot += w;
+        double daDef = fixedDaDef;
+        if (Double.isNaN(daDef)) {
+            double daDefTot = 0;
+            double wTot = 0;
+            for (int i=0; i<ratios.length; i++) {
+                if (!Double.isNaN(ratios[i])) {
+                    double iDaDef = Math.log(ratios[i]*((n0+i+1)/(ratios.length-i)));
+                    double w = 1.0/(1.0/numInsert[i]+1.0/numDelete[i+1]);
+                    daDefTot += iDaDef*w;
+                    wTot += w;
+                }
             }
+            daDef = daDefTot/wTot;
         }
-//        if (wTot == 0) return;
-        double daDef = daDefTot/wTot;
         double lnr = 0;
         double[] lnbias = new double[ratios.length+1];
         for (int i=0; i<ratios.length; i++) {
@@ -143,17 +150,17 @@ public class MCMoveIDBiasAction implements IAction {
         int minN = numAtoms - maxVacancy;
         int maxN = numAtoms;
         double nominalLnBias = lnbias[lnbias.length-1];
-        for (int i=0; i<lnbias.length; i++) {
-            lnbias[i] -= nominalLnBias;
-            int na = n0 + i;
-            mcMoveID.setLnBias(na, lnbias[i]);
+        mcMoveID.setLnBias(numAtoms, 0);
+        for (int na=numAtoms-1; na>=n0; na--) {
+            mcMoveID.setLnBias(na, lnbias[na-n0]-nominalLnBias);
         }
         lnr = lnbias[0];
         if (Double.isNaN(daDef)) {
 //            lastDefaultdADef -= 1;
             daDef = lastDefaultdADef;
         }
-        for (int na=n0-1; na>=minN; na--) {
+        int start = n0<numAtoms ? (n0-1) : (numAtoms-1);
+        for (int na=start; na>=minN; na--) {
             double lnratio = daDef + Math.log(((double)(numAtoms-na))/(na+1));
             if (playDumb) {
                 lnratio = bmu;
@@ -169,6 +176,7 @@ public class MCMoveIDBiasAction implements IAction {
             }
             mcMoveID.setLnBias(na, lnr);
         }
+        if (n0>numAtoms) return;
 
         for (int na = n0+lnbias.length; na<=maxN; na++) {
             double lastLnB = lnbias[lnbias.length-1]+(na-(n0+lnbias.length-1))*bmu;
