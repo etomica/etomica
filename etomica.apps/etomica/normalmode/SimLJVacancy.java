@@ -32,6 +32,7 @@ import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.meter.MeterNMolecules;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DeviceBox;
@@ -219,6 +220,14 @@ public class SimLJVacancy extends Simulation {
 
         final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu);
 
+        if (!Double.isNaN(params.uLatUnshifted)) {
+            // correct unshifted Alat for shifted potential
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+            meterPE.setBox(sim.box);
+            double uLat = meterPE.getDataAsScalar();
+            Alat += uLat - params.uLatUnshifted;
+            System.out.println("Alat => "+Alat);
+        }
 
         final int biasInterval = 10*numAtoms;
 
@@ -575,7 +584,7 @@ public class SimLJVacancy extends Simulation {
                 boolean enabled = true;
                 public void actionPerformed() {
                     if (enabled) {
-                        mcMoveOverlapMeter.reset(sim.box);
+                        mcMoveOverlapMeter.reset();
                         sim.integrator.resetStepCount();
                         nHistogram.reset();
                         nHistory.reset();
@@ -627,7 +636,7 @@ public class SimLJVacancy extends Simulation {
             System.out.println("very initial daDef = "+daDefAvg);
             
             // throw away our data
-            mcMoveOverlapMeter.reset(sim.box);
+            mcMoveOverlapMeter.reset();
             sim.integrator.resetStepCount();
             for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
                 AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
@@ -676,7 +685,7 @@ public class SimLJVacancy extends Simulation {
         }
 
         // and throw away data again
-        mcMoveOverlapMeter.reset(sim.box);
+        mcMoveOverlapMeter.reset();
         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
             AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
             if (avg != null) avg.reset();
@@ -758,5 +767,6 @@ public class SimLJVacancy extends Simulation {
         public double daDef = Double.NaN;
         public double rc = 3;
         public boolean fixedDaDef = false;
+        public double uLatUnshifted = Double.NaN;
     }
 }
