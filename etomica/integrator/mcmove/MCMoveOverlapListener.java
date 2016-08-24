@@ -5,7 +5,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IBox;
-import etomica.math.SpecialFunctions;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 import etomica.util.numerical.AkimaSpline;
@@ -61,11 +60,11 @@ public class MCMoveOverlapListener implements IListener {
      * energy biases the system towards having a vacancy.
      */
     public double[] getRatios() {
+        if (minNumAtoms == Integer.MAX_VALUE) return ratios;
         if (ratios.length < (sumDelete.length-1) - minNumAtoms) {
             ratios = new double[(sumDelete.length-1) - minNumAtoms];
         }
         double[] z = new double[]{0};
-        if (minNumAtoms == Integer.MAX_VALUE) return ratios;
         for (int na=minNumAtoms; na<sumDelete.length-1; na++) {
             int i = na - minNumAtoms;
             double da = daDef + Math.log(((double)(ratios.length-i))/(minNumAtoms+i+1));
@@ -115,6 +114,7 @@ public class MCMoveOverlapListener implements IListener {
     }
     
     public long[] getNumInsert() {
+        if (minNumAtoms == Integer.MAX_VALUE) return new long[0];
         long[] h = new long[sumDelete.length - minNumAtoms];
         for (int na=minNumAtoms; na<sumDelete.length; na++) {
             int i = na - minNumAtoms;
@@ -124,6 +124,7 @@ public class MCMoveOverlapListener implements IListener {
     }
     
     public long[] getNumDelete() {
+        if (minNumAtoms == Integer.MAX_VALUE) return new long[0];
         long[] h = new long[sumDelete.length - minNumAtoms];
         for (int na=minNumAtoms; na<sumDelete.length; na++) {
             int i = na - minNumAtoms;
