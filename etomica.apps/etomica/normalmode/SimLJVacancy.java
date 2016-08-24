@@ -107,6 +107,7 @@ public class SimLJVacancy extends Simulation {
 
         
         potentialMaster = new PotentialMasterCell(this, rc, space);
+        potentialMaster.lrcMaster().setEnabled(false);
         potentialMaster.setCellRange(2);
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setTemperature(temperature);
@@ -161,12 +162,14 @@ public class SimLJVacancy extends Simulation {
         LJParams params = new LJParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = true;
+            params.graphics = false;
             params.numAtoms = 500;
-            params.steps = 1000000;
-            params.density = 1.0;
-            params.temperature = 0.7;
-            params.numV = 4;
+            params.steps = 10000000;
+            params.density = 3.162277660168379;
+            params.temperature = 60;
+            params.mu = 5.820015359183336e+01;
+            params.Alat = 1.560768335245001e+01;
+            params.numV = 1;
         }
 
         final int numAtoms = params.numAtoms;
@@ -178,6 +181,7 @@ public class SimLJVacancy extends Simulation {
         int numV = params.numV;
         double mu = params.mu;
         double Alat = params.Alat;
+        boolean fixedDaDef = params.fixedDaDef;
         System.out.println("Running N="+params.numAtoms+" at rho="+density);
         if (Double.isNaN(mu)) {
             // this should get us pretty close
@@ -263,6 +267,9 @@ public class SimLJVacancy extends Simulation {
                     mu, mcMoveOverlapMeter, numAtoms, 1);
             mcMoveBiasAction.setNMaxReweight(numAtoms);
             mcMoveBiasAction.setDefaultDaDef(daDef);
+            if (fixedDaDef) {
+                mcMoveBiasAction.setFixedDaDef(daDef);
+            }
             mcMoveBiasListener = new IntegratorListenerAction(mcMoveBiasAction, biasInterval);
             sim.integrator.getEventManager().addListener(mcMoveBiasListener);
         }
@@ -568,7 +575,7 @@ public class SimLJVacancy extends Simulation {
                 boolean enabled = true;
                 public void actionPerformed() {
                     if (enabled) {
-                        mcMoveOverlapMeter.reset();
+                        mcMoveOverlapMeter.reset(sim.box);
                         sim.integrator.resetStepCount();
                         nHistogram.reset();
                         nHistory.reset();
@@ -605,27 +612,31 @@ public class SimLJVacancy extends Simulation {
         dsfe3.setAvgDef(true);
 
 
-        // equilibrate off the lattice
-        sim.ai.setMaxSteps(steps/40);
-        sim.ai.actionPerformed();
-
-        IData dsfe3Data = dsfe3.getData();
-        if (dsfe3Data.getLength() == 0) {
-            throw new RuntimeException("no data after initial equilibration");
+        double daDefAvg = 0;
+        IData dsfe3Data = null;
+        if (!fixedDaDef) {
+            // equilibrate off the lattice
+            sim.ai.setMaxSteps(steps/40);
+            sim.ai.actionPerformed();
+    
+            dsfe3Data = dsfe3.getData();
+            if (dsfe3Data.getLength() == 0) {
+                throw new RuntimeException("no data after initial equilibration");
+            }
+            daDefAvg = dsfe3Data.getValue(0);
+            System.out.println("very initial daDef = "+daDefAvg);
+            
+            // throw away our data
+            mcMoveOverlapMeter.reset(sim.box);
+            sim.integrator.resetStepCount();
+            for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
+                AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
+                if (avg != null) avg.reset();
+            }
+            sim.integrator.resetStepCount();
         }
-        double daDefAvg = dsfe3Data.getValue(0);
-        System.out.println("very initial daDef = "+daDefAvg);
-        
-        // throw away our data
-        mcMoveOverlapMeter.reset();
-        sim.integrator.resetStepCount();
-        for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
-            AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
-            if (avg != null) avg.reset();
-        }
-        sim.integrator.resetStepCount();
 
-        if (params.doReweight) {
+        if (fixedDaDef || params.doReweight) {
             // update weights
             mcMoveBiasAction.actionPerformed();
             // and stop adjusting them
@@ -633,25 +644,28 @@ public class SimLJVacancy extends Simulation {
         }
 
         final long finalSteps = steps;
-        // wait until 1/4 of the way through 2nd stage initialization, then start readjusting weights again
-        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
-            boolean reenabled = false;
-            public void integratorStepStarted(IIntegratorEvent e) {}
-            
-            public void integratorStepFinished(IIntegratorEvent e) {
-                if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
-                    sim.integrator.getEventManager().addListener(mcMoveBiasListener);
-                    reenabled = true;
+        if (!fixedDaDef) {
+            // wait until 1/4 of the way through 2nd stage initialization, then start readjusting weights again
+            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+                boolean reenabled = false;
+                public void integratorStepStarted(IIntegratorEvent e) {}
+
+                public void integratorStepFinished(IIntegratorEvent e) {
+                    if (!reenabled && sim.integrator.getStepCount() >= finalSteps/40) {
+                        sim.integrator.getEventManager().addListener(mcMoveBiasListener);
+                        reenabled = true;
+                    }
                 }
-            }
-            
-            public void integratorInitialized(IIntegratorEvent e) {}
-        });
+
+                public void integratorInitialized(IIntegratorEvent e) {}
+            });
+        }
 
         sim.ai.setMaxSteps(steps/10);
         sim.ai.actionPerformed();
+        System.out.println("equilibration finished");
 
-        if (params.doReweight) {
+        if (!fixedDaDef && params.doReweight) {
             dsfe3Data = dsfe3.getData();
             daDefAvg = dsfe3Data.getValue(0);
             System.out.println("using daDef = "+daDefAvg);
@@ -662,7 +676,7 @@ public class SimLJVacancy extends Simulation {
         }
 
         // and throw away data again
-        mcMoveOverlapMeter.reset();
+        mcMoveOverlapMeter.reset(sim.box);
         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
             AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
             if (avg != null) avg.reset();
@@ -743,5 +757,6 @@ public class SimLJVacancy extends Simulation {
         public boolean doReweight = true;
         public double daDef = Double.NaN;
         public double rc = 3;
+        public boolean fixedDaDef = false;
     }
 }
