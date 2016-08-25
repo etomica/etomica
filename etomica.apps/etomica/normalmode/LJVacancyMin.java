@@ -100,7 +100,7 @@ public class LJVacancyMin extends Simulation {
         SimOverlapParam params = new SimOverlapParam();
         if (args.length == 0) {
             params.numAtoms = 500;
-            params.density = Math.sqrt(10);
+            params.density = 1;
             params.rc = 3;
             params.ss = false;
             params.verbose = true;
@@ -132,10 +132,14 @@ public class LJVacancyMin extends Simulation {
         System.out.println("pLat: "+pLat);
         pcEnergy.zeroSum();
         sim.potentialMaster.calculate(sim.box, all, pcEnergy);
-        double u0 = pcEnergy.getSum();
-        System.out.println("uLat: "+u0/numAtoms);
+        double uLat = pcEnergy.getSum();
+        System.out.println("uLat: "+uLat/numAtoms);
 
         sim.box.removeMolecule(sim.box.getMoleculeList().getMolecule(0));
+
+        pcEnergy.zeroSum();
+        sim.potentialMaster.calculate(sim.box, all, pcEnergy);
+        double u0 = pcEnergy.getSum();
 
         PotentialCalculationForceSum pc = new PotentialCalculationForceSum();
         AtomLeafAgentManager<VectorForce> forceManager = new AtomLeafAgentManager<VectorForce>(null, sim.box, VectorForce.class);
@@ -216,7 +220,7 @@ public class LJVacancyMin extends Simulation {
         pcEnergy.zeroSum();
         sim.potentialMaster.calculate(sim.box, all, pcEnergy);
         double u1 = pcEnergy.getSum();
-        System.out.println("deltaU: "+(u1-u0));
+        System.out.println("deltaU: "+(u1-uLat));
         double pLat1 = meterP.getDataAsScalar();
         System.out.println("deltaP: "+(pLat1-pLat));
     }
