@@ -225,7 +225,7 @@ public class SimLJVacancy extends Simulation {
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
             meterPE.setBox(sim.box);
             double uLat = meterPE.getDataAsScalar()/numAtoms;
-            Alat += uLat - params.uLatUnshifted;
+            Alat += (uLat - params.uLatUnshifted)/temperature;
             System.out.println("Alat => "+Alat);
         }
 
