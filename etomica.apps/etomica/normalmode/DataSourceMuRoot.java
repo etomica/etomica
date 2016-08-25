@@ -48,21 +48,18 @@ public class DataSourceMuRoot extends DataSourceScalar {
         while (true) {
 
             double p = 1;
-            double tot = 0;
             double l = Math.exp(myMu);
             double vAvg = 0;
             double totMinus1 = 0;
             for (int i=ratios.length-1; i>=0; i--) {
-                tot += p;
-                if (i<ratios.length-1) totMinus1 += p;
                 if (Double.isNaN(ratios[i])) {
                     if (i==ratios.length-1) return Double.NaN;
                     break;
                 }
                 p /= l*ratios[i];
+                totMinus1 += p;
             }
-            totMinus1 += p;
-            tot += p;
+            double tot = totMinus1 + 1;
             if (totMinus1 > 0.5) {
                 // probably only happens for large systems where multiple vacanacies are happy
                 lastLnTot = Math.log(tot);
