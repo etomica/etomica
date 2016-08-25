@@ -85,7 +85,7 @@ public class SimHSMDVacancy extends Simulation {
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
     
 
-    public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int fixedN, final int maxDN, final double mu) {
+    public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int numV, final double mu) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
@@ -150,7 +150,7 @@ public class SimHSMDVacancy extends Simulation {
 //        mcMoveID = new MCMoveInsertDelete2(potentialMasterList, random, space, integrator, potentialTruncatedForceShifted, maxDN);
 //        mcMoveID = new MCMoveInsertDelete3(potentialMasterList, random, space, integrator, L*Math.sqrt(0.9), fixedN, maxDN);
 //        mcMoveID = new MCMoveInsertDelete4(potentialMasterList, random, space, integrator, maxDN);
-        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMasterList, random, space, integrator, y, fixedN, maxDN);
+        mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMasterList, random, space, integrator, y, numAtoms, numV);
 //        integrator.setMCMoveID(mcMoveID);
 //        integratorMC.getMoveEventManager().addListener(integrator);
         double x = (nbr1-1)/4.0;
@@ -194,8 +194,7 @@ public class SimHSMDVacancy extends Simulation {
             hi = numAtoms/10;
         }
         int hybridInterval = hi;
-        int maxDN = (params.numV+1)/2;
-        int fixedN = params.numAtoms - maxDN;
+        int numV = params.numV;
         double mu = params.mu;
         double Alat = params.Alat;
         System.out.println("Running N="+params.numAtoms+" at rho="+density);
@@ -257,7 +256,7 @@ public class SimHSMDVacancy extends Simulation {
             System.out.println(" => "+steps+" x "+tStep);
         }
 
-        final SimHSMDVacancy sim = new SimHSMDVacancy(numAtoms, density, tStep, hybridInterval, fixedN, maxDN, mu);
+        final SimHSMDVacancy sim = new SimHSMDVacancy(numAtoms, density, tStep, hybridInterval, numV, mu);
 
 
         final int biasInterval = 1000;
@@ -291,8 +290,8 @@ public class SimHSMDVacancy extends Simulation {
         final IntegratorListenerAction mcMoveBiasListener;
 
         if (params.doReweight) {
-            mcMoveBiasAction = new MCMoveIDBiasAction(sim.integratorMC, sim.mcMoveID, maxDN,
-                    fixedN, mu, mcMoveOverlapMeter, numAtoms, 1);
+            mcMoveBiasAction = new MCMoveIDBiasAction(sim.integratorMC, sim.mcMoveID, numV,
+                    mu, mcMoveOverlapMeter, numAtoms, 1);
             mcMoveBiasAction.setNMaxReweight(numAtoms);
             mcMoveBiasAction.setDefaultDaDef(daDef);
             mcMoveBiasListener = new IntegratorListenerAction(mcMoveBiasAction, biasInterval);
@@ -579,7 +578,7 @@ public class SimHSMDVacancy extends Simulation {
             
             simGraphic.add(muBox);
 
-            DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
+            DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, mu, density, numAtoms/density);
             final AccumulatorHistory dsmrHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmrHistory.setTimeDataSource(timeDataSource);
             DataPumpListener dsmrPump = new DataPumpListener(dsmr, dsmrHistory, hybridInterval);
@@ -754,7 +753,7 @@ public class SimHSMDVacancy extends Simulation {
 
         System.out.println();
 
-        DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
+        DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, mu, density, numAtoms/density);
         double muRoot = dsmr.getDataAsScalar();
 
         // histogram of # of atoms based on free energy differences

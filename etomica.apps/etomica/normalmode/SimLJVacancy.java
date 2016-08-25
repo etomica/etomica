@@ -163,14 +163,12 @@ public class SimLJVacancy extends Simulation {
         LJParams params = new LJParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = false;
+            params.graphics = true;
             params.numAtoms = 500;
-            params.steps = 10000000;
-            params.density = 3.162277660168379;
-            params.temperature = 60;
-            params.mu = 5.820015359183336e+01;
-            params.Alat = 1.560768335245001e+01;
+            params.steps = 1000000;
+            params.density = 1.5;
             params.numV = 1;
+            params.temperature = 1;
         }
 
         final int numAtoms = params.numAtoms;
@@ -358,45 +356,7 @@ public class SimLJVacancy extends Simulation {
             };
 
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-            
-            DiameterHash dh = new DiameterHash() {
-                IVectorMutable dr = sim.space.makeVector();
-                double rMax = sim.mcMoveID.getMaxDistance();
-                double rc2 = rc*rc;
-                int nmax = 12;
-                Api1ACell iter = new Api1ACell(3, rMax, sim.potentialMaster.getCellAgentManager());
-                public double getDiameter(IAtom a) {
-                    IVector pi = a.getPosition();
-                    IBoundary boundary = sim.box.getBoundary();
-                    iter.setBox(sim.box);
-                    iter.setDirection(null);
-                    iter.setTarget(a);
-                    try {
-                        iter.reset();
-                    }
-                    catch (NullPointerException ex) {
-                        // during addition
-                        return 0;
-                    }
-                    int n = 0;
-                    for (IAtomList pair = iter.next(); pair!=null; pair=iter.next()) {
-                        IAtom nbrj = pair.getAtom(0);
-                        if (nbrj==a) nbrj=pair.getAtom(1);
-                        dr.Ev1Mv2(pi, nbrj.getPosition());
-                        boundary.nearestImage(dr);
-                        double r2 = dr.squared();
-                        if (r2 < rc2) {
-                            n++;
-                        }
-                    }
-                    if (n < nmax) return 1.0;
-                    if (n == nmax) return 0.1;
-                    return 0.1;
-                }
-            };
-//            simGraphic.getDisplayBox(sim.box).setDiameterHash(dh);
 
-            
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
@@ -529,7 +489,7 @@ public class SimLJVacancy extends Simulation {
             
             simGraphic.add(muBox);
 
-            DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
+            DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, mu, density, numAtoms/density);
             final AccumulatorHistory dsmrHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmrHistory.setTimeDataSource(timeDataSource);
             DataPumpListener dsmrPump = new DataPumpListener(dsmr, dsmrHistory, numAtoms);
@@ -702,7 +662,7 @@ public class SimLJVacancy extends Simulation {
 
         System.out.println();
 
-        DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
+        DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, mu, density, numAtoms/density);
         double muRoot = dsmr.getDataAsScalar();
 
         // histogram of # of atoms based on free energy differences
@@ -739,12 +699,14 @@ public class SimLJVacancy extends Simulation {
 
         System.out.println("final daDef: "+dsfe3Data.getValue(0));
 
-        System.out.println("mu: "+muRoot);
+        System.out.println("bmu: "+muRoot);
         double pRoot = dsmr.getLastPressure();
         double vRoot = dsmr.getLastVacancyConcentration();
         System.out.println("pressure: "+pRoot);
         double deltaP = dsmr.getLastDPressure();
         System.out.println("delta P: "+deltaP);
+        double deltaMu = dsmr.getLastDMu();
+        System.out.println("delta bmu: "+deltaMu);
         System.out.println("vacancy fraction: "+vRoot);
         double lnTot = dsmr.getLastLnTot();
         double deltaA = -(1-vRoot)*lnTot/numAtoms - vRoot/density*deltaP/temperature;

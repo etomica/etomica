@@ -14,27 +14,24 @@ import etomica.units.Pressure;
 /**
  * Datasource that returns an estimate of mu based on thermodynamic
  * self-consistency of pressure measurements and defect free energies.
- * Solution is found using an expression for (mu-muLat) in terms of
- * (P-Plat).  P is computed via one approach, while the expression for
- * (mu-muLat) is derived using the other approach.
  * 
  * @author Andrew Schultz
  */
-public class DataSourceMuRoot extends DataSourceScalar {
+public class DataSourceMuRootPMatch extends DataSourceScalar {
 
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected final DataDistributer pSplitter;
     protected double bmu;
-    protected double bmuLat, volume, latticeDensity;
-    protected double lastP, lastVacancyConcentration, lastDP, lastLnTot, lastDMu;
+    protected double bALattice, volume, latticeDensity;
+    protected double lastP, lastVacancyConcentration, lastDP, lastLnTot;
     
-    public DataSourceMuRoot(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bmuLat, double latticeDensity, double volume) {
+    public DataSourceMuRootPMatch(MCMoveOverlapListener mcMoveOverlapMeter, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume) {
         super("mu", Null.DIMENSION);
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
         this.pSplitter = pSplitter;
         this.bmu = bmu;
         this.latticeDensity = latticeDensity;
-        this.bmuLat = bmuLat;
+        this.bALattice = bALattice;
         this.volume = volume;
     }
     
@@ -61,7 +58,6 @@ public class DataSourceMuRoot extends DataSourceScalar {
                 }
                 p /= l*ratios[i];
             }
-            totMinus1 += p;
             tot += p;
             if (totMinus1 > 0.5) {
                 // probably only happens for large systems where multiple vacanacies are happy
@@ -90,7 +86,6 @@ public class DataSourceMuRoot extends DataSourceScalar {
                 }
             }
             p = 1;
-            double pLat = Double.NaN;
             for (int i=0; i<pSplitter.getNumDataSinks() && i<=ratios.length; i++) {
                 double pi = p/tot;
                 AccumulatorAverageBlockless acc = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
@@ -98,15 +93,9 @@ public class DataSourceMuRoot extends DataSourceScalar {
                     if (i<2) return Double.NaN;
                     break;
                 }
-                double accValue = acc.getData().getValue(acc.AVERAGE.index);
-                pressure1 += pi*accValue;
-                if (i==0) {
-                    pLat = accValue;
-                    lastDP = -oneMinusP0*accValue;
-                }
-                else {
-                    lastDP += pi*accValue;
-                }
+                pressure1 += pi*acc.getData().getValue(acc.AVERAGE.index);
+                if (i==0) lastDP = -oneMinusP0*acc.getData().getValue(acc.AVERAGE.index);
+                else lastDP += pi*acc.getData().getValue(acc.AVERAGE.index);
                 vAvg += pi*i;
                 if (ratios.length-1-i >= 0) {
                     if (Double.isNaN(ratios[ratios.length-1-i])) {
@@ -117,23 +106,31 @@ public class DataSourceMuRoot extends DataSourceScalar {
             }
             lastVacancyConcentration = vAvg / (volume*latticeDensity);
 
-            if (Double.isNaN(pLat)) return Double.NaN;
-            lastP = pressure1;
-            double dmu = lastDP/latticeDensity - lastLnTot/volume;
-            lastDMu = dmu;
-            double newMu = bmuLat + dmu;
-            if (newMu == lastMu) return newMu;
-            if (newMu > maxMu) {
-                return maxMu;
+            // we could take pLattice from the data collected when nVacancy=0,
+            // but for a large system, that might rarely happen
+            double pressure2 = (myMu-bALattice)*latticeDensity+Math.log(tot)/volume;
+            lastP = pressure2;
+            if (Double.isNaN(pressure1) || Double.isNaN(pressure2)) {
+                throw new RuntimeException("oops");
             }
-            if (newMu < minMu) {
-                return minMu;
+            double newMu = myMu - (pressure2-pressure1)/latticeDensity;
+//            if (newMu < 15) {
+//                System.out.println("oops");
+//            }
+            if (newMu == myMu || newMu == lastMu || newMu > maxMu || newMu < minMu) {
+                return newMu;
             }
-            if (newMu > lastMu) {
-                minMu = lastMu;
+            if (((newMu-myMu)*(lastMu-myMu) > 0 && (Math.abs(newMu-myMu) >= Math.abs(lastMu-myMu))) || newMu > maxMu || newMu < minMu) {
+                // getting worse
+                return myMu;
+            }
+            if (newMu < myMu) {
+                // myMu was too large
+                if (maxMu > myMu) maxMu = myMu;
             }
             else {
-                maxMu = lastMu;
+                // myMu was too small
+                if (minMu < myMu) minMu = myMu;
             }
             lastMu = myMu;
             myMu = newMu;
@@ -144,10 +141,6 @@ public class DataSourceMuRoot extends DataSourceScalar {
         return lastP;
     }
     
-    public double getLastDMu() {
-        return lastDMu;
-    }
-
     public double getLastDPressure() {
         return lastDP;
     }
@@ -166,8 +159,8 @@ public class DataSourceMuRoot extends DataSourceScalar {
         }
         
         public double getDataAsScalar() {
-            DataSourceMuRoot.this.getDataAsScalar();
-            return DataSourceMuRoot.this.getLastPressure();
+            DataSourceMuRootPMatch.this.getDataAsScalar();
+            return DataSourceMuRootPMatch.this.getLastPressure();
         }
     }
 
@@ -177,8 +170,8 @@ public class DataSourceMuRoot extends DataSourceScalar {
         }
         
         public double getDataAsScalar() {
-            DataSourceMuRoot.this.getDataAsScalar();
-            return DataSourceMuRoot.this.getLastVacancyConcentration();
+            DataSourceMuRootPMatch.this.getDataAsScalar();
+            return DataSourceMuRootPMatch.this.getLastVacancyConcentration();
         }
     }
 }
