@@ -222,9 +222,12 @@ public class SimLJVacancy extends Simulation {
             // correct unshifted Alat for shifted potential
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
             meterPE.setBox(sim.box);
-            double uLat = meterPE.getDataAsScalar()/numAtoms;
-            Alat += (uLat - params.uLatUnshifted)/temperature;
+            double uLatShifted = meterPE.getDataAsScalar()/numAtoms;
+            Alat += (uLatShifted - params.uLatUnshifted)/temperature;
+            mu += (uLatShifted - params.uLatUnshifted)/temperature;
             System.out.println("Alat => "+Alat);
+            System.out.println("bmuLat => "+mu);
+            sim.mcMoveID.setMu(mu);
         }
 
         final int biasInterval = 10*numAtoms;
