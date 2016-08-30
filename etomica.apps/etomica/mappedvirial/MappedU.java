@@ -28,6 +28,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -43,7 +44,7 @@ public class MappedU extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;
-    public P2SoftSphericalTruncated p2Truncated;
+    public P2SoftSphericalTruncatedShifted p2TruncatedShifted;
     
     public MappedU(ISpace _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
@@ -72,8 +73,8 @@ public class MappedU extends Simulation {
         integrator.getMoveManager().addMCMove(move);
 
 	    P2LennardJones potential = new P2LennardJones(space);
-        p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
-	    potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
+        p2TruncatedShifted = new P2SoftSphericalTruncatedShifted(space, potential, rc);
+	    potentialMaster.addPotential(p2TruncatedShifted, new IAtomType[]{species.getLeafType(), species.getLeafType()});
 	    
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         integrator.setBox(box);
@@ -92,10 +93,10 @@ public class MappedU extends Simulation {
         }
         else { 
             params.temperature = 2.0;
-            params.density = 0.1;
+            params.density = 1.0;
             params.numSteps = 10000000;
-            params.rc = 5;
-            params.numAtoms = 200;
+            params.rc = 3;
+            params.numAtoms = 400;
             params.functionsFile = "0.10";
         }
                           
@@ -117,7 +118,7 @@ public class MappedU extends Simulation {
         System.out.println("cutoff: "+rc);
         System.out.println(nBlocks+" blocks");
         
-        FileWriter fwr = new FileWriter("Umapped.dat",true);
+        FileWriter fwr = new FileWriter("/usr/users/aksharag/workspace/Apps/Ushift/mapped_shifted.dat",true);
 
         ISpace space = Space.getInstance(3);
 
@@ -164,7 +165,7 @@ public class MappedU extends Simulation {
         if (samplesPerBlock == 0) samplesPerBlock = 1;
  
         final MeterMappedU meterMappedU = new MeterMappedU(space, sim.integrator.getPotentialMaster(), sim.box, nBins);
-        meterMappedU.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
+        meterMappedU.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2TruncatedShifted);
         final AccumulatorAverageFixed accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpMappedU = new DataPumpListener(meterMappedU, accMappedVirial, numAtoms);
         if (computeUMA) sim.integrator.getEventManager().addListener(pumpMappedU);
@@ -186,7 +187,7 @@ public class MappedU extends Simulation {
         MeterRDFPC meterRDF = null;
         if (functionsFile != null) {
             int nbins = (int)Math.round(rc/0.01);
-            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
+            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2TruncatedShifted, sim.box, nbins);
             if (computeU && computeUMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
     
             meterRDF = new MeterRDFPC(space, sim.integrator.getPotentialMaster(), sim.box);
@@ -223,7 +224,7 @@ public class MappedU extends Simulation {
         	System.out.print(String.format("Potential int avg:%13.6e  err int: %11.4e",UAvg/numAtoms,UErr/numAtoms));
         }
         
-        fwr.append(density+" "+temperature+" "+UavgMInt+" "+UAvg/numAtoms+" "+err/numAtoms+" "+UErr/numAtoms+"\n");
+        fwr.append(numAtoms+" "+rc+" "+density+" "+temperature+" "+UavgMInt+" "+UAvg/numAtoms+" "+err/numAtoms+" "+UErr/numAtoms+"\n");
         
         if (functionsFile != null) {
             FileWriter fw = new FileWriter(functionsFile+"_gr.dat");
@@ -232,7 +233,7 @@ public class MappedU extends Simulation {
             for (int i=0; i<rdata.getLength(); i++) {
                 double r = rdata.getValue(i);
                 double g = gdata.getValue(i);
-                double e = Math.exp(-sim.p2Truncated.u(r*r)/temperature);
+                double e = Math.exp(-sim.p2TruncatedShifted.u(r*r)/temperature);
                 fw.write(String.format("%5.3f %22.15e %22.15e\n", r, g, e));
             }
             fw.close();
@@ -248,7 +249,7 @@ public class MappedU extends Simulation {
                     double mf = fdata.getValue(i);
                     if (Double.isNaN(mf)) continue;
                     double sdf = Math.sqrt(f2[i]-mf*mf);
-                    double pf = -sim.p2Truncated.du(r*r)/r;
+                    double pf = -sim.p2TruncatedShifted.du(r*r)/r;
                     fw.write(String.format("%5.3f %22.15e %22.15e %22.15e\n", r, mf, sdf, pf));
                 }
                 fw.close();
