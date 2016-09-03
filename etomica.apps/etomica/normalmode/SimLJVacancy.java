@@ -18,7 +18,6 @@ import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.atom.DiameterHash;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageBlockless;
 import etomica.data.AccumulatorHistogram;
@@ -32,7 +31,6 @@ import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DeviceBox;
@@ -56,7 +54,9 @@ import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
@@ -81,13 +81,13 @@ public class SimLJVacancy extends Simulation {
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
     public IBox box;
-    public P2LennardJones p2LJ;
+    public Potential2SoftSpherical p2LJ;
     public P2SoftSphericalTruncated potential;
     public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
     
 
-    public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int numV, final double bmu) {
+    public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int numV, final double bmu, final boolean ss) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
@@ -127,10 +127,7 @@ public class SimLJVacancy extends Simulation {
         if (rc > 0.49*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("rc is too large");
         }
-        double nbr1 = L/Math.sqrt(2);
-        double y = 1.25*nbr1; //nbr1+(L-nbr1)*0.6+0.06;
-
-        p2LJ = new P2LennardJones(space, 1, 1);
+        p2LJ = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space, 1, 1);
         potential = new P2SoftSphericalTruncated(space, p2LJ, rc);
         IAtomType leafType = species.getLeafType();
 
@@ -146,10 +143,12 @@ public class SimLJVacancy extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         potentialMaster.getNbrCellManager(box).assignCellAll();
         
+        double nbr1 = L/Math.sqrt(2);
+        double y = 1.25*nbr1;
+
         mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMaster, random, space, integrator, y, numAtoms, numV);
 
-        double x = nbr1/40.0;
-        mcMoveID.setMaxInsertDistance(x);
+        mcMoveID.setMaxInsertDistance(nbr1/40);
         mcMoveID.makeFccVectors(nbr1);
         mcMoveID.setMu(bmu);
         mcMoveID.setSpecies(species);
@@ -179,28 +178,22 @@ public class SimLJVacancy extends Simulation {
         boolean graphics = params.graphics;
         int numV = params.numV;
         double mu = params.mu;
-        double Alat = params.Alat;
         boolean fixedDaDef = params.fixedDaDef;
+        boolean ss = params.ss;
         System.out.println("Running N="+params.numAtoms+" at rho="+density);
         if (Double.isNaN(mu)) {
             // this should get us pretty close
-            Alat = Math.log(density)-1.0 + (LennardJones.aResidualFcc(temperature, density))/temperature;
+            double Alat = Math.log(density)-1.0 + (LennardJones.aResidualFcc(temperature, density))/temperature;
             double zLat = LennardJones.ZFcc(temperature, density);
-            System.out.println("lattice pressure "+zLat);
             mu = (Alat + zLat);
         }
-        else if (Double.isNaN(Alat)) {
-            // this should get us pretty close
-            Alat = Math.log(density)-1.0 + (LennardJones.aResidualFcc(temperature, density))/temperature;
-        }
         System.out.println("beta mu "+mu);
-        System.out.println("using lattice free energy: "+Alat);
         double daDef = params.daDef;
         if (Double.isNaN(daDef)) {
             // use a correlation.  this should be with ~1
             double Y = temperature/Math.pow(density, 4)/4;
             double v2 = 1/(density*density);
-            daDef = (-3.81 - 10.01*Y + 8.28*v2)/Y;
+            if (ss) v2 = 0;
             daDef = (-3.742    - 9.925*Y     - 2.081*Y*Y
                      +8.209*v2 + 1.929*Y*v2
                      -0.3479*v2*v2)/Y;
@@ -209,26 +202,14 @@ public class SimLJVacancy extends Simulation {
         else {
             System.out.println("using defect free energy: "+daDef);
         }
-        System.out.println("Running LJ MC");
+        System.out.println("Running "+(ss?"SS":"LJ")+" MC");
         System.out.println("N: "+numAtoms);
         System.out.println("T: "+temperature);
         System.out.println("density: "+density);
         System.out.println("steps: "+steps);
    
 
-        final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu);
-
-        if (!Double.isNaN(params.uLatUnshifted)) {
-            // correct unshifted Alat for shifted potential
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-            meterPE.setBox(sim.box);
-            double uLatShifted = meterPE.getDataAsScalar()/numAtoms;
-            Alat += (uLatShifted - params.uLatUnshifted)/temperature;
-            mu += (uLatShifted - params.uLatUnshifted)/temperature;
-            System.out.println("Alat => "+Alat);
-            System.out.println("bmuLat => "+mu);
-            sim.mcMoveID.setMu(mu);
-        }
+        final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu, ss);
 
         final int biasInterval = 10*numAtoms;
 
@@ -363,7 +344,7 @@ public class SimLJVacancy extends Simulation {
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
-    
+            
             final AccumulatorHistory nHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
             DataSourceCountSteps timeDataSource = new DataSourceCountSteps(sim.integrator);
             nHistory.setTimeDataSource(timeDataSource);
@@ -435,7 +416,7 @@ public class SimLJVacancy extends Simulation {
             DataPumpListener avgPPump = new DataPumpListener(avgP, pDisplayBox, numAtoms);
             sim.integrator.getEventManager().addListener(avgPPump);
 
-            final DataSourceAvgPressure2 avgP2 = new DataSourceAvgPressure2(mcMoveOverlapMeter, mu, Alat, density, numAtoms/density);
+            final DataSourceAvgPressure2 avgP2 = new DataSourceAvgPressure2(mcMoveOverlapMeter, mu, Double.NaN, density, numAtoms/density);
             DataPumpListener avgPPump2 = new DataPumpListener(avgP2, pDisplayBox2, numAtoms);
             sim.integrator.getEventManager().addListener(avgPPump2);
             
@@ -445,7 +426,7 @@ public class SimLJVacancy extends Simulation {
             DisplayPlot pmuPlot = new DisplayPlot();
             pmuPlot.setDoLegend(false);
             pmuPlot.setLabel("dP vs. mu");
-            final DataSourcePMu pmu = new DataSourcePMu(mcMoveOverlapMeter, 0.2, 21, mu, pSplitter, Alat, density, numAtoms/density, false);
+            final DataSourcePMu pmu = new DataSourcePMu(mcMoveOverlapMeter, 0.2, 21, mu, pSplitter, Double.NaN, density, numAtoms/density, false);
             DataPumpListener pmuPump = new DataPumpListener(pmu, pmuPlot.getDataSet().makeDataSink(), numAtoms);
             sim.integrator.getEventManager().addListener(pmuPump);
             
@@ -454,7 +435,7 @@ public class SimLJVacancy extends Simulation {
             DisplayPlot muMuPlot = new DisplayPlot();
             muMuPlot.setDoLegend(false);
             muMuPlot.setLabel("mu vs. mu");
-            final DataSourcePMu muMu = new DataSourcePMu(mcMoveOverlapMeter, 0.2, 21, mu, pSplitter, Alat, density, numAtoms/density, true);
+            final DataSourcePMu muMu = new DataSourcePMu(mcMoveOverlapMeter, 0.2, 21, mu, pSplitter, Double.NaN, density, numAtoms/density, true);
             DataPumpListener muMuPump = new DataPumpListener(muMu, muMuPlot.getDataSet().makeDataSink(), numAtoms);
             sim.integrator.getEventManager().addListener(muMuPump);
             
@@ -505,12 +486,12 @@ public class SimLJVacancy extends Simulation {
 
             DataSourceMuRoot1 dsmr1 = null;
             final AccumulatorHistory dsmr1History;
-            dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Alat, density, numAtoms/density);
+            dsmr1 = new DataSourceMuRoot1(mcMoveOverlapMeter, mu, pSplitter, Double.NaN, density, numAtoms/density);
             dsmr1.setMinMu(10);
             dsmr1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmr1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmr1Pump = new DataPumpListener(dsmr1, dsmr1History, numAtoms);
-            sim.integrator.getEventManager().addListener(dsmr1Pump);
+//            sim.integrator.getEventManager().addListener(dsmr1Pump);
             dsmr1History.setDataSink(dsmrPlot.getDataSet().makeDataSink());
             dsmrPlot.setLegend(new DataTag[]{dsmr1.getTag()},"v1");
             
@@ -538,7 +519,7 @@ public class SimLJVacancy extends Simulation {
             dsmrvc1History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmrvc1History.setTimeDataSource(timeDataSource);
             DataPumpListener dsmrvc1Pump = new DataPumpListener(dsmrvc1, dsmrvc1History, numAtoms);
-            sim.integrator.getEventManager().addListener(dsmrvc1Pump);
+//            sim.integrator.getEventManager().addListener(dsmrvc1Pump);
             dsmrvc1History.setDataSink(vPlot.getDataSet().makeDataSink());
             vPlot.setLegend(new DataTag[]{dsmrvc1.getTag()}, "v1");
 
@@ -726,12 +707,11 @@ public class SimLJVacancy extends Simulation {
         public long steps = 1000000;
         public boolean graphics = false;
         public double mu = Double.NaN;
-        public double Alat = Double.NaN;
         public int numV = 5;
         public boolean doReweight = true;
         public double daDef = Double.NaN;
         public double rc = 3;
         public boolean fixedDaDef = false;
-        public double uLatUnshifted = Double.NaN;
+        public boolean ss = false;
     }
 }
