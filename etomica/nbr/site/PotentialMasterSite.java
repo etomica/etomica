@@ -174,7 +174,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             //no target atoms specified
             //call calculate with each molecule
             for (int j=0; j<simulation.getSpeciesCount(); j++) {
-                IMoleculeList moleculeList = box.getMoleculeList();
+                IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(j));
                 int size = moleculeList.getMoleculeCount();
                 PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(j));
                 final IPotential[] intraPotentials = intraPotentialArray.getPotentials();
