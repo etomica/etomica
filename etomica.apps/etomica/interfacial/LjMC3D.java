@@ -69,13 +69,9 @@ public class LjMC3D extends Simulation {
     public ConfigurationLammps config;
 
 
-    public LjMC3D(double temperature, double Lxy, String lammpsFile) {
+    public LjMC3D(double temperature, String lammpsFile) {
         super(Space3D.getInstance());
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
-        IVectorMutable bs = (IVectorMutable)boundary.getBoxSize();
-        bs.setX(0, Lxy);
-        bs.setX(1, Lxy);
-        boundary.setBoxSize(bs);
         box = new Box(boundary, space);
         addBox(box);
         
@@ -88,6 +84,7 @@ public class LjMC3D extends Simulation {
         
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
         config.initializeCoordinates(box);
+        double Lxy = config.getLxy();
         
         potentialMasterCell = new PotentialMasterCell(this, 5.49925, space);
         potentialMasterCell.setCellRange(2);
@@ -158,15 +155,13 @@ public class LjMC3D extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = false;
-            params.lammpsFile = "eq.data.2";
+            params.graphics = true;
+            params.lammpsFile = "eq.data";
             params.steps = 10000;
             params.T = 0.8;
-            params.Lxy = 15.239984;
         }
 
         final double temperature = params.T;
-        final double Lxy = params.Lxy;
         long steps = params.steps;
         boolean graphics = params.graphics;
         String lammpsFile = params.lammpsFile;
@@ -176,7 +171,7 @@ public class LjMC3D extends Simulation {
             System.out.println(steps+" steps");
         }
 
-        final LjMC3D sim = new LjMC3D(temperature, Lxy, lammpsFile);
+        final LjMC3D sim = new LjMC3D(temperature, lammpsFile);
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator();
         meterPE.setIntegrator(sim.integrator);
@@ -298,6 +293,7 @@ public class LjMC3D extends Simulation {
         protected final String filename;
         protected final ISpecies[] species;
         protected IVectorMutable shift;
+        protected double Lxy;
         
         public ConfigurationLammps(ISpace space, String filename, ISpecies topWall, ISpecies bottomWall, ISpecies fluid) {
             this.space = space;
@@ -319,6 +315,13 @@ public class LjMC3D extends Simulation {
                 String line = null;
                 while ((line = bufReader.readLine()) != null) {
                     String[] bits = line.split("\\t");
+                    if (bits.length == 1) {
+                        bits = line.split(" ");
+                        if (bits.length == 4 && bits[2].equals("xlo")) {
+                            Lxy = Double.parseDouble(bits[1]);
+                        }
+                        continue;
+                    }
                     if (bits.length != 5) continue;
                     int aType = Integer.parseInt(bits[1]);
                     IVectorMutable xyz = space.makeVector();
@@ -335,11 +338,11 @@ public class LjMC3D extends Simulation {
                 throw new RuntimeException(ex);
             }
             double Lz = zMax-zMin + 0.8;
-            IVectorMutable bs = (IVectorMutable)box.getBoundary().getBoxSize();
-            bs.setX(2, Lz);
-            box.getBoundary().setBoxSize(bs);
-            shift.setX(0, -0.5*bs.getX(0));
-            shift.setX(1, -0.5*bs.getX(1));
+            shift.setX(0, Lxy);
+            shift.setX(1, Lxy);
+            shift.setX(2, Lz);
+            box.getBoundary().setBoxSize(shift);
+            shift.TE(-0.5);
             shift.setX(2, -0.5*Lz - zMin);
             for (int i=0; i<3; i++) {
                 box.setNMolecules(species[i], coords[i].size());
@@ -355,13 +358,16 @@ public class LjMC3D extends Simulation {
         public IVector getShift() {
             return shift;
         }
+        
+        public double getLxy() {
+            return Lxy;
+        }
     }
 
     public static class LjMC3DParams extends ParameterBase {
         public double T = 2.0;
         public long steps = 100000;
         public boolean graphics = false;
-        public double Lxy = 0;
         public String lammpsFile = "";
     }
 }
