@@ -253,13 +253,36 @@ public class LjMC3D extends Simulation {
             return;
         }
 
-        
+        long bs = steps/100000;
+        if (bs==0) bs=1;
+        AccumulatorAverageFixed accPE = new AccumulatorAverageFixed(bs);
+        forkPE.addDataSink(accPE);
+        AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
+        forkWF.addDataSink(accWF);
+
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
         
         u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);
         System.out.println("Wall force: "+meterWF.getDataAsScalar());
+        
+        double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
+        double errPE = accPE.getData().getValue(accPE.ERROR.index);
+        double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
+        double avgWF = accWF.getData().getValue(accPE.AVERAGE.index);
+        double errWF = accWF.getData().getValue(accPE.ERROR.index);
+        double corWF = accWF.getData().getValue(accPE.BLOCK_CORRELATION.index);
+        
+        if (steps>100000) {
+            System.out.println(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));
+            System.out.println(String.format("Average wall force: %25.15e %10.4e % 5.3f\n",avgWF,errWF,corWF));
+        }
+        else {
+            System.out.println("Average potential energy: "+avgPE);
+            System.out.println("Average wall force: "+avgWF);
+        }
+        
         WriteConfigurationInterfacial configWriter = new WriteConfigurationInterfacial(sim.space);
         configWriter.setSpecies(sim.speciesFluid);
         IVectorMutable unshift = sim.space.makeVector();
@@ -268,15 +291,6 @@ public class LjMC3D extends Simulation {
         configWriter.setBox(sim.box);
         configWriter.setFileName("xyz_000.dat");
         configWriter.actionPerformed();
-        
-        /*
-            long eqSteps = steps/10;
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
-
-            System.out.println("equilibration finished ("+eqSteps+" steps)");
-        */
     }
     
     public static class ConfigurationLammps implements Configuration {
