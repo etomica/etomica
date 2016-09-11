@@ -75,7 +75,6 @@ public class LJMC extends Simulation {
         addSpecies(speciesBottomWall);
         
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
-        config.setTopPadding(5);
         config.initializeCoordinates(box);
         double Lxy = config.getLxy();
         double zMax = config.getMaxZ();
