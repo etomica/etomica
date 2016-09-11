@@ -77,7 +77,7 @@ public class LJMC extends Simulation {
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
         config.initializeCoordinates(box);
         double Lxy = config.getLxy();
-        double zMax = config.getMaxZ();
+        final double zMax = config.getMaxZ();
         
         potentialMasterCell = new PotentialMasterCell(this, 5.49925, space);
         potentialMasterCell.setCellRange(2);
