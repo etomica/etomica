@@ -21,6 +21,7 @@ public class ConfigurationLammps implements Configuration {
     protected IVectorMutable shift;
     protected double Lxy;
     protected double topPadding;
+    protected double zMax;
     
     public ConfigurationLammps(ISpace space, String filename, ISpecies topWall, ISpecies bottomWall, ISpecies fluid) {
         this.space = space;
@@ -39,21 +40,24 @@ public class ConfigurationLammps implements Configuration {
         coords[1] = new ArrayList<IVectorMutable>();
         coords[2] = new ArrayList<IVectorMutable>();
         double zMin = Double.POSITIVE_INFINITY;
-        double zMax = -Double.POSITIVE_INFINITY;
+        zMax = -Double.POSITIVE_INFINITY;
+        boolean readCoords = false;
         try {
             FileReader fr = new FileReader(filename);
             BufferedReader bufReader = new BufferedReader(fr);
             String line = null;
             while ((line = bufReader.readLine()) != null) {
-                String[] bits = line.split("\\t");
-                if (bits.length == 1) {
-                    bits = line.split(" ");
-                    if (bits.length == 4 && bits[2].equals("xlo")) {
-                        Lxy = Double.parseDouble(bits[1]);
-                    }
+                String[] bits = line.split("[\\t ]");
+                if (bits.length == 4 && bits[2].equals("xlo")) {
+                    Lxy = Double.parseDouble(bits[1]);
                     continue;
                 }
-                if (bits.length != 5) continue;
+                if (line.matches("Atoms # atomic")) {
+                    readCoords = true;
+                    continue;
+                }
+                
+                if (!readCoords || bits.length < 5) continue;
                 int aType = Integer.parseInt(bits[1]);
                 IVectorMutable xyz = space.makeVector();
                 for (int i=0; i<3; i++) {
@@ -83,7 +87,7 @@ public class ConfigurationLammps implements Configuration {
                 p.Ev1Pv2(coords[i].get(j), shift);
             }
         }
-        
+        zMax += shift.getX(2);
     }
     
     public IVector getShift() {
@@ -92,5 +96,9 @@ public class ConfigurationLammps implements Configuration {
     
     public double getLxy() {
         return Lxy;
+    }
+    
+    public double getMaxZ() {
+        return zMax;
     }
 }
