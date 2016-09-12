@@ -97,8 +97,4 @@ public class ConfigurationLammps implements Configuration {
     public double getLxy() {
         return Lxy;
     }
-    
-    public double getMaxZ() {
-        return zMax;
-    }
 }
