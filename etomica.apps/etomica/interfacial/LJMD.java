@@ -148,7 +148,7 @@ public class LJMD extends Simulation {
         if (args.length==0) {
             params.graphics = true;
             params.lammpsFile = "eq.data";
-            params.steps = 10000;
+            params.steps = 100000;
             params.T = 0.8;
             params.fixedWall = false;
             params.springPosition = 79;
@@ -166,20 +166,18 @@ public class LJMD extends Simulation {
         double Psat = params.Psat;
         int hybridInterval = params.hybridInterval;
         int mcSteps = params.mcSteps;
+        int dataInterval = params.dataInterval;
         String lammpsFile = params.lammpsFile;
         boolean graphics = params.graphics;
 
-        if (!graphics) {
-            System.out.println("Running MC with T="+temperature);
-            System.out.println(steps+" steps");
-        }
+        if (!graphics) System.out.println(steps+" steps");
 
         final LJMD sim = new LJMD(temperature, tStep, fixedWall, spring, springPosition, Psat, hybridInterval, mcSteps, lammpsFile);
 
-        int dataInterval = 10;
         if (hybridInterval > 0) {
             dataInterval = (dataInterval/hybridInterval)*hybridInterval;
             if (dataInterval == 0) dataInterval = hybridInterval;
+            if (dataInterval != params.dataInterval) System.out.println("dataInterval => "+dataInterval);
         }
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
@@ -200,9 +198,12 @@ public class LJMD extends Simulation {
         
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE2.setBox(sim.box);
+
+        sim.integrator.reset();
         double u = meterPE2.getDataAsScalar();
-        System.out.println("Potential energy: "+u);
-        System.out.println("Wall force: "+meterWF.getDataAsScalar());
+        System.out.println("Initial Potential energy: "+u);
+        System.out.println("Initial Wall force: "+meterWF.getDataAsScalar());
+        System.out.println("Initial Wall position: "+meterWP.getDataAsScalar());
         
         MeterProfileByVolume densityProfileMeter = new MeterProfileByVolume(sim.space);
         densityProfileMeter.setProfileDim(2);
@@ -269,8 +270,8 @@ public class LJMD extends Simulation {
             return;
         }
 
-        long bs = steps/100000;
-        if (bs==0) bs=1;
+        long bs = steps/(100*dataInterval);
+        if (bs==0) bs=dataInterval;
         AccumulatorAverageFixed accPE = new AccumulatorAverageFixed(bs);
         forkPE.addDataSink(accPE);
         AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
@@ -280,23 +281,26 @@ public class LJMD extends Simulation {
         sim.getController().actionPerformed();
         
         u = meterPE2.getDataAsScalar();
-        System.out.println("Potential energy: "+u);
-        System.out.println("Wall force: "+meterWF.getDataAsScalar());
+        System.out.println("Final Potential energy: "+u);
+        System.out.println("Final Wall force: "+meterWF.getDataAsScalar());
+        System.out.println("Final Wall position: "+meterWP.getDataAsScalar());
         
-        double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
-        double errPE = accPE.getData().getValue(accPE.ERROR.index);
-        double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
-        double avgWF = accWF.getData().getValue(accPE.AVERAGE.index);
-        double errWF = accWF.getData().getValue(accPE.ERROR.index);
-        double corWF = accWF.getData().getValue(accPE.BLOCK_CORRELATION.index);
-        
-        if (steps>100000) {
-            System.out.println(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));
-            System.out.println(String.format("Average wall force: %25.15e %10.4e % 5.3f\n",avgWF,errWF,corWF));
-        }
-        else {
-            System.out.println("Average potential energy: "+avgPE);
-            System.out.println("Average wall force: "+avgWF);
+        if (fixedWall) {
+            double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
+            double errPE = accPE.getData().getValue(accPE.ERROR.index);
+            double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
+            double avgWF = accWF.getData().getValue(accPE.AVERAGE.index);
+            double errWF = accWF.getData().getValue(accPE.ERROR.index);
+            double corWF = accWF.getData().getValue(accPE.BLOCK_CORRELATION.index);
+            
+            if (steps>100*dataInterval) {
+                System.out.print(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));
+                System.out.print(String.format("Average wall force: %25.15e %10.4e % 5.3f\n",avgWF,errWF,corWF));
+            }
+            else {
+                System.out.println("Average potential energy: "+avgPE);
+                System.out.println("Average wall force: "+avgWF);
+            }
         }
         
         WriteConfigurationInterfacial configWriter = new WriteConfigurationInterfacial(sim.space);
@@ -321,5 +325,6 @@ public class LJMD extends Simulation {
         public double Psat = 0.030251;
         public int hybridInterval = 0;
         public int mcSteps = 0;
+        public int dataInterval = 10;
     }
 }
