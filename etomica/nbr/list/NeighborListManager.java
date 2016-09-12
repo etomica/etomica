@@ -303,6 +303,19 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
             // things are set up properly (like calling setBox on the criteria).
             return;
         }
+        
+        PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
+        IPotential[] potentials = potentialArray.getPotentials();
+        NeighborCriterion[] criteria = potentialArray.getCriteria();
+
+        for (int i = 0; i < potentials.length; i++) {
+            if (potentials[i].nBody() != 1) {
+                continue;
+            }
+            atomSetSinglet.atom = atom;
+            agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+        }
+        
         if (agentManager2Body.getAgent(atom) == null) {
             // we're getting called before our own makeAgent (we have no
             // control over order here).  make the agent now and then use it
@@ -315,18 +328,15 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         cell1ANbrIterator.reset();
         for (IAtomList pair = cell1ANbrIterator.next(); pair != null;
              pair = cell1ANbrIterator.next()) {
-            IAtom atom0 = pair.getAtom(0);
             IAtom atom1 = pair.getAtom(1);
-            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
+            if (atom1 == atom) atom1 = pair.getAtom(0);
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    agentManager2Body.getAgent(atom0).addUpNbr(atom1,i);
-                    agentManager2Body.getAgent(atom1).addDownNbr(atom0,
+                    agentManager2Body.getAgent(atom).addUpNbr(atom1,i);
+                    agentManager2Body.getAgent(atom1).addDownNbr(atom,
                             potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
