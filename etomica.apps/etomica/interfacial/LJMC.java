@@ -78,7 +78,6 @@ public class LJMC extends Simulation {
         config.setTopPadding(10);
         config.initializeCoordinates(box);
         double Lxy = config.getLxy();
-        final double zMax = config.getMaxZ();
         
         potentialMasterCell = new PotentialMasterCell(this, 5.49925, space);
         potentialMasterCell.setCellRange(2);
@@ -110,8 +109,10 @@ public class LJMC extends Simulation {
         Potential1 p1F = new Potential1(space) {
             
             public double energy(IAtomList atoms) {
-                IVector p = atoms.getAtom(0).getPosition();
-                return (Math.abs(p.getX(2)) > zMax) ? Double.POSITIVE_INFINITY : 0;
+                double pz = atoms.getAtom(0).getPosition().getX(2);
+                double zMin = -0.5*boundary.getBoxSize().getX(2);
+                double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2);
+                return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
             }
         };
         potentialMasterCell.addPotential(p1F,new IAtomType[]{leafType});
