@@ -41,6 +41,7 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 	 * Implemented for only 1- and 2-body potentials.
 	 */
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+	    if (!(potential instanceof PotentialSoft)) return;
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
