@@ -281,7 +281,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
 //                    System.out.println(newPotentialEnergy+" "+newKineticEnergy+" "+oldEnergy);
                     double energyDiff = newPotentialEnergy + newKineticEnergy - oldEnergy;
 //                    System.out.println(energyDiff+" "+Math.exp(-energyDiff/temperature));
-                    if (energyDiff > 0 && Math.exp(-energyDiff/temperature) < random.nextDouble() && stepCount > 100) {
+                    if (energyDiff > 0 && Math.exp(-energyDiff/temperature) < random.nextDouble()) {
                         // energy increased and we are rejecting the trajectory
                         rejected = true;
                         IAtomList leafAtoms = box.getLeafList();
@@ -616,7 +616,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     
     public void boxNumberMolecules(IBoxMoleculeCountEvent e) { }
     
-    private static final long serialVersionUID = 2L;
     /**
      * Elementary time step for the MD simulation
      */
