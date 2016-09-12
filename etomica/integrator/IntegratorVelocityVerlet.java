@@ -108,6 +108,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
 
+        eventManager.forceComputed();
+
         if(forceSum instanceof PotentialCalculationForcePressureSum){
             pressureTensor.E(((PotentialCalculationForcePressureSum)forceSum).getPressureTensor());
         }
