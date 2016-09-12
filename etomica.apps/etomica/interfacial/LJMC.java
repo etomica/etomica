@@ -124,25 +124,6 @@ public class LJMC extends Simulation {
     
     public static void main(String[] args) {
 
-        // according to Mastny & de Pablo
-        // http://link.aip.org/link/doi/10.1063/1.2753149
-        // triple point
-        // T = 0.694
-        // liquid density = 0.845435
-        
-        // Agrawal and Kofke:
-        //      small      large
-        // T    0.698    0.687(4)
-        // p    0.0013   0.0011
-        // rho  0.854    0.850
-        
-        // Orkoulas, http://link.aip.org/link/doi/10.1063/1.4758698 says
-        // T = 0.7085(5)
-        // P = 0.002264(17)
-        // rhoL = 0.8405(3)
-        // rhoFCC = 0.9587(2)
-        // rhoV = 0.002298(18)
-
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
@@ -198,7 +179,7 @@ public class LJMC extends Simulation {
         
         
         if (graphics) {
-            final String APP_NAME = "LjMC3D";
+            final String APP_NAME = "LJMC";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
 
             List<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
