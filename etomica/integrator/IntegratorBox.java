@@ -25,7 +25,6 @@ import etomica.units.Temperature;
 
 public abstract class IntegratorBox extends Integrator {
 
-    private static final long serialVersionUID = 1L;
     protected IBox box;
     protected double temperature;
     protected boolean isothermal = false;

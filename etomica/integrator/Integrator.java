@@ -17,9 +17,8 @@ import etomica.api.IVectorMutable;
  * 
  * @author David Kofke and Andrew Schultz
  */
-public abstract class Integrator implements java.io.Serializable, IIntegrator {
+public abstract class Integrator implements IIntegrator {
 
-    private static final long serialVersionUID = 1L;
     protected boolean initialized = false;
     protected int interval;
     private int iieCount;
