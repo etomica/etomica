@@ -8,12 +8,12 @@ import java.util.ArrayList;
 
 import etomica.api.IIntegratorEventManager;
 import etomica.api.IIntegratorListener;
+import etomica.api.IIntegratorListenerMD;
 
 public class IntegratorEventManager implements IIntegratorEventManager {
-    
-    private final ArrayList<IIntegratorListener> intervalListeners = new ArrayList<IIntegratorListener>();
-    protected boolean eventing;
 
+    protected final ArrayList<IIntegratorListener> intervalListeners = new ArrayList<IIntegratorListener>();
+    protected boolean eventing;
 
     public synchronized void addListener(IIntegratorListener newListener) {
         if(newListener == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
@@ -26,11 +26,11 @@ public class IntegratorEventManager implements IIntegratorEventManager {
     public synchronized void removeListener(IIntegratorListener listener) {
         intervalListeners.remove(listener);
     }
-    
+
     public boolean firingEvent() {
         return eventing;
     }
-    
+
     public synchronized void stepStarted() {
         eventing = true;
         for(int i = 0; i < intervalListeners.size(); i++) {
@@ -38,7 +38,7 @@ public class IntegratorEventManager implements IIntegratorEventManager {
         }
         eventing = false;
     }
-    
+
     public synchronized void stepFinished() {
         eventing = true;
         for(int i = 0; i < intervalListeners.size(); i++) {
@@ -46,11 +46,22 @@ public class IntegratorEventManager implements IIntegratorEventManager {
         }
         eventing = false;
     }
-    
+
     public synchronized void initialized() {
         eventing = true;
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).integratorInitialized(null);
+        }
+        eventing = false;
+    }
+
+    public synchronized void forceComputed() {
+        eventing = true;
+        for(int i = 0; i < intervalListeners.size(); i++) {
+            IIntegratorListener l = intervalListeners.get(i);
+            if (l instanceof IIntegratorListenerMD) {
+                ((IIntegratorListenerMD)intervalListeners.get(i)).integratorForceComputed(null);
+            }
         }
         eventing = false;
     }
