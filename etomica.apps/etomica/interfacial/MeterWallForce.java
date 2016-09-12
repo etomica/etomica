@@ -77,6 +77,7 @@ public class MeterWallForce extends DataSourceScalar {
          * Implemented for only 1- and 2-body potentials.
          */
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+            if (atoms.getAtomCount()==1) return;
             PotentialSoft potentialSoft = (PotentialSoft)potential;
             IVector[] f = potentialSoft.gradient(atoms);
             if (atoms.getAtom(0).getType() == atomType) {
