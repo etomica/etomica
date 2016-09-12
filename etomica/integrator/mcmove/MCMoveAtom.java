@@ -22,8 +22,7 @@ import etomica.space.IVectorRandom;
  * @author David Kofke
  */
 public class MCMoveAtom extends MCMoveBoxStep {
-    
-    private static final long serialVersionUID = 2L;
+
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected final IVectorRandom translationVector;
@@ -38,7 +37,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
     public MCMoveAtom(IRandom random, IPotentialMaster potentialMaster, ISpace _space) {
         this(potentialMaster, random, _space, 1.0, 15.0, false);
     }
-    
+
     public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random,
     		          ISpace _space, double stepSize, double stepSizeMax,
     		          boolean fixOverlap) {
@@ -63,7 +62,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         energyMeter.setIncludeLrc(false);
         this.fixOverlap = fixOverlap;
     }
-    
+
     /**
      * Method to perform trial move.
      */
@@ -80,8 +79,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         atom.getPosition().PE(translationVector);
         return true;
     }//end of doTrial
-    
-    
+
     /**
      * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
      * states encountered before (i) and after (j) the most recent call to doTrial(). 
@@ -90,7 +88,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
      * from state j.
      */
     public double getA() {return 1.0;}
-    
+
     /**
      * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
      * for the states encountered before (i) and after (j) the most recent call to 
@@ -100,15 +98,15 @@ public class MCMoveAtom extends MCMoveBoxStep {
         uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld);
     }
-    
+
     public double energyChange() {return uNew - uOld;}
-    
+
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
     public void acceptNotify() {  /* do nothing */
     }
-    
+
     /**
      * Method called by IntegratorMC in the event that the most recent trial move is
      * rejected.  This method should cause the system to be restored to the condition
@@ -118,25 +116,25 @@ public class MCMoveAtom extends MCMoveBoxStep {
         translationVector.TE(-1);
         atom.getPosition().PE(translationVector);
     }
-        
-    
+
     public AtomIterator affectedAtoms() {
         affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }
-    
+
     public void setBox(IBox p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
     }
-    
+
     /**
      * @return Returns the atomSource.
      */
     public AtomSource getAtomSource() {
         return atomSource;
     }
+
     /**
      * @param atomSource The atomSource to set.
      */
