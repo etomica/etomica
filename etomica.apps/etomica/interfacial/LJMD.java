@@ -26,15 +26,13 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
@@ -46,6 +44,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -55,44 +54,40 @@ public class LJMD extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public final ActivityIntegrate ai;
-    public IntegratorMC integrator;
+    public IntegratorFixedWall integrator;
     public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
     public IBox box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
 
-
-    public LJMD(double temperature, String lammpsFile) {
+    public LJMD(double temperature, double tStep, boolean fixedWall, double spring, double springPosition, double Psat, int hybridInterval, int mcSteps, String lammpsFile) {
         super(Space3D.getInstance());
+        setRandom(new RandomNumberGenerator(2));
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
         box = new Box(boundary, space);
         addBox(box);
         
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
+        speciesFluid.setIsDynamic(true);
         addSpecies(speciesFluid);
-        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW"));
+        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW",fixedWall?Double.POSITIVE_INFINITY:1));
+        speciesTopWall.setIsDynamic(true);
         addSpecies(speciesTopWall);
-        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW"));
+        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW",Double.POSITIVE_INFINITY));
+        speciesBottomWall.setIsDynamic(true);
         addSpecies(speciesBottomWall);
         
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
-        config.initializeCoordinates(box);
         config.setTopPadding(5);
-        double Lxy = config.getLxy();
+        config.initializeCoordinates(box);
         
         potentialMaster = new PotentialMasterList(this, 1.2*5.49925, space);
         potentialMaster.setCellRange(2);
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorFixedWall(potentialMaster, random, tStep, temperature, space);
+        integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
-        MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveAtom.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
-        MCMoveAtom mcMoveAtomBig = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveAtomBig.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
-        mcMoveAtomBig.setStepSize(0.5*Lxy);
-        ((MCMoveStepTracker)mcMoveAtomBig.getTracker()).setTunable(false);
-        
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.getMoveManager().addMCMove(mcMoveAtomBig);
+        integrator.setThermostat(hybridInterval > 0 ? ThermostatType.HYBRID_MC : ThermostatType.ANDERSEN);
+        integrator.setThermostatInterval(hybridInterval > 0 ? hybridInterval : 2000);
         
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
@@ -108,32 +103,45 @@ public class LJMD extends Simulation {
         potentialMaster.addPotential(pTW,new IAtomType[]{leafType,speciesTopWall.getLeafType()});
 
         integrator.setBox(box);
+        
+        if (!fixedWall) {
+            FixedWall fixedWallListener = new FixedWall(space, box, integrator.getAgentManager(), speciesTopWall);
+            integrator.setFixedWall(fixedWallListener);
+            int nWall = box.getMoleculeList(speciesTopWall).getMoleculeCount();
+            double Lz = boundary.getBoxSize().getX(2);
+            double Lxy = boundary.getBoxSize().getX(0);
+            P1Wall p1Wall = new P1Wall(space, spring/nWall, springPosition-0.5*Lz, Psat*Lxy*Lxy/nWall);
+            potentialMaster.addPotential(p1Wall, new IAtomType[]{speciesTopWall.getLeafType()});
+        }
+        
+        if (mcSteps > 0 && hybridInterval > 0) {
+            IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
+            integratorMC.setTemperature(temperature);
+            MCMoveAtomNbr mcMoveAtomBig = new MCMoveAtomNbr(random, potentialMaster, space);
+            mcMoveAtomBig.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
+            mcMoveAtomBig.setStepSize(0.5*config.getLxy());
+            ((MCMoveStepTracker)mcMoveAtomBig.getTracker()).setTunable(false);
+            
+            integratorMC.getMoveManager().addMCMove(mcMoveAtomBig);
 
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
-		
-        potentialMaster.getNbrCellManager(box).assignCellAll();
+            integrator.setIntegratorMC(integratorMC, mcSteps);
+            
+            Potential1 p1F = new Potential1(space) {
+                
+                public double energy(IAtomList atoms) {
+                    double pz = atoms.getAtom(0).getPosition().getX(2);
+                    double zMin = -0.5*boundary.getBoxSize().getX(2);
+                    double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2);
+                    return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
+                }
+            };
+            potentialMaster.addPotential(p1F,new IAtomType[]{leafType});
+        }
+
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
     
     public static void main(String[] args) {
-
-        // according to Mastny & de Pablo
-        // http://link.aip.org/link/doi/10.1063/1.2753149
-        // triple point
-        // T = 0.694
-        // liquid density = 0.845435
-        
-        // Agrawal and Kofke:
-        //      small      large
-        // T    0.698    0.687(4)
-        // p    0.0013   0.0011
-        // rho  0.854    0.850
-        
-        // Orkoulas, http://link.aip.org/link/doi/10.1063/1.4758698 says
-        // T = 0.7085(5)
-        // P = 0.002264(17)
-        // rhoL = 0.8405(3)
-        // rhoFCC = 0.9587(2)
-        // rhoV = 0.002298(18)
 
         LJMDParams params = new LJMDParams();
         ParseArgs.doParseArgs(params, args);
@@ -142,30 +150,53 @@ public class LJMD extends Simulation {
             params.lammpsFile = "eq.data";
             params.steps = 10000;
             params.T = 0.8;
+            params.fixedWall = false;
+            params.springPosition = 79;
+            params.hybridInterval = 100;
+            params.tStep = 0.01;
+            params.mcSteps = 1000;
         }
 
         final double temperature = params.T;
         long steps = params.steps;
-        boolean graphics = params.graphics;
+        double tStep = params.tStep;
+        boolean fixedWall = params.fixedWall;
+        double spring = params.spring;
+        double springPosition = params.springPosition;
+        double Psat = params.Psat;
+        int hybridInterval = params.hybridInterval;
+        int mcSteps = params.mcSteps;
         String lammpsFile = params.lammpsFile;
+        boolean graphics = params.graphics;
 
         if (!graphics) {
             System.out.println("Running MC with T="+temperature);
             System.out.println(steps+" steps");
         }
 
-        final LJMD sim = new LJMD(temperature, lammpsFile);
+        final LJMD sim = new LJMD(temperature, tStep, fixedWall, spring, springPosition, Psat, hybridInterval, mcSteps, lammpsFile);
 
-        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator();
-        meterPE.setIntegrator(sim.integrator);
+        int dataInterval = 10;
+        if (hybridInterval > 0) {
+            dataInterval = (dataInterval/hybridInterval)*hybridInterval;
+            if (dataInterval == 0) dataInterval = hybridInterval;
+        }
+        
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+        meterPE.setBox(sim.box);
         DataFork forkPE = new DataFork();
-        DataPumpListener pumpPE = new DataPumpListener(meterPE, forkPE, 10);
+        DataPumpListener pumpPE = new DataPumpListener(meterPE, forkPE, dataInterval);
         sim.integrator.getEventManager().addListener(pumpPE);
 
         MeterWallForce meterWF = new MeterWallForce(sim.space, sim.potentialMaster, sim.box, sim.speciesTopWall);
         DataFork forkWF = new DataFork();
-        DataPumpListener pumpWF = new DataPumpListener(meterWF, forkWF, 1000);
+        DataPumpListener pumpWF = new DataPumpListener(meterWF, forkWF, dataInterval);
         sim.integrator.getEventManager().addListener(pumpWF);
+        
+        MeterWallPosition meterWP = new MeterWallPosition(sim.box, sim.speciesTopWall);
+        DataFork forkWP = new DataFork();
+        DataPumpListener pumpWP = new DataPumpListener(meterWP, forkWP, dataInterval);
+        sim.integrator.getEventManager().addListener(pumpWP);
         
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE2.setBox(sim.box);
@@ -181,16 +212,14 @@ public class LJMD extends Simulation {
         densityProfileMeter.setDataSource(meterNMolecules);
         AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
         densityProfileAvg.setPushInterval(10);
-        DataPump profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 1000);
+        DataPumpListener profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, dataInterval);
         DataDump profileDump = new DataDump();
         densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
-        IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
-        sim.integrator.getEventManager().addListener(profilePumpListener);
-        profilePumpListener.setInterval(10);
+        sim.integrator.getEventManager().addListener(profilePump);
         
         
         if (graphics) {
-            final String APP_NAME = "LjMC3D";
+            final String APP_NAME = "LJMD";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
 
             List<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
@@ -221,8 +250,17 @@ public class LJMD extends Simulation {
             historyWF.setDataSink(plotWF.getDataSet().makeDataSink());
             plotWF.setLabel("Force");
             simGraphic.add(plotWF);
-            
 
+            if (!fixedWall) {
+                AccumulatorHistory historyWP = new AccumulatorHistory(new HistoryCollapsingAverage());
+                historyWP.setTimeDataSource(dsSteps);
+                forkWP.addDataSink(historyWP);
+                DisplayPlot plotWP = new DisplayPlot();
+                historyWP.setDataSink(plotWP.getDataSet().makeDataSink());
+                plotWP.setLabel("Position");
+                simGraphic.add(plotWP);
+            }
+            
             DisplayPlot profilePlot = new DisplayPlot();
             densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
             profilePlot.setLabel("density");
@@ -277,5 +315,11 @@ public class LJMD extends Simulation {
         public double tStep = 0.001;
         public boolean graphics = false;
         public String lammpsFile = "";
+        public boolean fixedWall = true;
+        public double spring = 0.3;
+        public double springPosition = 70;
+        public double Psat = 0.030251;
+        public int hybridInterval = 0;
+        public int mcSteps = 0;
     }
 }
