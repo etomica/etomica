@@ -93,7 +93,6 @@ public class WriteConfiguration implements IAction {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
                 writeAtom(fileWriter, a);
-                fileWriter.write("\n");
             }
             fileWriter.close();
         } catch(IOException e) {
@@ -114,11 +113,12 @@ public class WriteConfiguration implements IAction {
         for (int i=1; i<writePosition.getD(); i++) {
             fileWriter.write(" "+writePosition.getX(i));
         }
+        fileWriter.write("\n");
     }
 
-    private String confName, fileName;
-    private IBox box;
-    private boolean doApplyPBC;
+    protected String confName, fileName;
+    protected IBox box;
+    protected boolean doApplyPBC;
     protected final IVectorMutable writePosition;
 
 }
