@@ -4,13 +4,16 @@
 
 package etomica.interfacial;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.api.IIntegratorEvent;
+import etomica.api.IIntegratorListener;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.DiameterHashByType;
@@ -24,6 +27,7 @@ import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
+import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterProfileByVolume;
@@ -31,7 +35,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD.ThermostatType;
-import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
@@ -59,6 +62,7 @@ public class LJMD extends Simulation {
     public IBox box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
+    public MCMoveAtomNbr mcMove;
 
     public LJMD(double temperature, double tStep, boolean fixedWall, double spring, double springPosition, double Psat, int hybridInterval, int mcSteps, String lammpsFile) {
         super(Space3D.getInstance());
@@ -117,12 +121,12 @@ public class LJMD extends Simulation {
         if (mcSteps > 0 && hybridInterval > 0) {
             IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
             integratorMC.setTemperature(temperature);
-            MCMoveAtomNbr mcMoveAtomBig = new MCMoveAtomNbr(random, potentialMaster, space);
-            mcMoveAtomBig.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
-            mcMoveAtomBig.setStepSize(0.5*config.getLxy());
-            ((MCMoveStepTracker)mcMoveAtomBig.getTracker()).setTunable(false);
+            mcMove = new MCMoveAtomNbr(random, potentialMaster, space);
+            mcMove.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
+            mcMove.setStepSize(0.5*config.getLxy());
+            ((MCMoveStepTracker)mcMove.getTracker()).setTunable(false);
             
-            integratorMC.getMoveManager().addMCMove(mcMoveAtomBig);
+            integratorMC.getMoveManager().addMCMove(mcMove);
 
             integrator.setIntegratorMC(integratorMC, mcSteps);
             
@@ -148,13 +152,13 @@ public class LJMD extends Simulation {
         if (args.length==0) {
             params.graphics = true;
             params.lammpsFile = "eq.data";
-            params.steps = 100000;
+            params.steps = 10000;
             params.T = 0.8;
             params.fixedWall = false;
-            params.springPosition = 79;
-            params.hybridInterval = 100;
-            params.tStep = 0.01;
-            params.mcSteps = 1000;
+            params.springPosition = 76;
+            params.hybridInterval = 0;
+            params.tStep = 0.0025;
+            params.mcSteps = 0;
         }
 
         final double temperature = params.T;
@@ -166,7 +170,7 @@ public class LJMD extends Simulation {
         double Psat = params.Psat;
         int hybridInterval = params.hybridInterval;
         int mcSteps = params.mcSteps;
-        int dataInterval = params.dataInterval;
+        int foo = params.dataInterval;
         String lammpsFile = params.lammpsFile;
         boolean graphics = params.graphics;
 
@@ -175,33 +179,31 @@ public class LJMD extends Simulation {
         final LJMD sim = new LJMD(temperature, tStep, fixedWall, spring, springPosition, Psat, hybridInterval, mcSteps, lammpsFile);
 
         if (hybridInterval > 0) {
-            dataInterval = (dataInterval/hybridInterval)*hybridInterval;
-            if (dataInterval == 0) dataInterval = hybridInterval;
-            if (dataInterval != params.dataInterval) System.out.println("dataInterval => "+dataInterval);
+            foo = (foo/hybridInterval)*hybridInterval;
+            if (foo == 0) foo = hybridInterval;
+            if (foo != params.dataInterval) System.out.println("dataInterval => "+foo);
         }
+        final int dataInterval = foo;
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setBox(sim.box);
         DataFork forkPE = new DataFork();
         DataPumpListener pumpPE = new DataPumpListener(meterPE, forkPE, dataInterval);
         sim.integrator.getEventManager().addListener(pumpPE);
 
-        MeterWallForce meterWF = new MeterWallForce(sim.space, sim.potentialMaster, sim.box, sim.speciesTopWall);
+        final MeterWallForce meterWF = new MeterWallForce(sim.space, sim.potentialMaster, sim.box, sim.speciesTopWall);
         DataFork forkWF = new DataFork();
         DataPumpListener pumpWF = new DataPumpListener(meterWF, forkWF, dataInterval);
         sim.integrator.getEventManager().addListener(pumpWF);
         
         double zShift = sim.config.getShift().getX(2);
-        MeterWallPosition meterWP = new MeterWallPosition(sim.box, sim.speciesTopWall, zShift);
+        final MeterWallPosition meterWP = new MeterWallPosition(sim.box, sim.speciesTopWall, zShift);
         DataFork forkWP = new DataFork();
         DataPumpListener pumpWP = new DataPumpListener(meterWP, forkWP, dataInterval);
         sim.integrator.getEventManager().addListener(pumpWP);
         
-        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE2.setBox(sim.box);
-
         sim.integrator.reset();
-        double u = meterPE2.getDataAsScalar();
+        double u = meterPE.getDataAsScalar();
         System.out.println("Initial Potential energy: "+u);
         System.out.println("Initial Wall force: "+meterWF.getDataAsScalar());
         System.out.println("Initial Wall position: "+meterWP.getDataAsScalar());
@@ -235,7 +237,7 @@ public class LJMD extends Simulation {
             dh.setDiameter(sim.speciesBottomWall.getLeafType(), 1.09885);
             dh.setDiameter(sim.speciesTopWall.getLeafType(), 1.5);
             
-            DataSourceCountSteps dsSteps = new DataSourceCountSteps(sim.integrator);
+            DataSourceCountTime dsSteps = new DataSourceCountTime(sim.integrator);
 
             AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
             historyPE.setTimeDataSource(dsSteps);
@@ -277,14 +279,54 @@ public class LJMD extends Simulation {
         forkPE.addDataSink(accPE);
         AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
         forkWF.addDataSink(accWF);
+        
+        final FileWriter fw;
+        try {
+            fw = new FileWriter("history.dat");
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+            public void integratorStepStarted(IIntegratorEvent e) {}
+            
+            public void integratorStepFinished(IIntegratorEvent e) {
+                long step = sim.integrator.getStepCount();
+                if (step % dataInterval != 0) return;
+            }
+            public void writeIt() {
+                long step = sim.integrator.getStepCount();
+                double u = meterPE.getDataAsScalar();
+                double wf = meterWF.getDataAsScalar();
+                double wp = meterWP.getDataAsScalar();
+                try {
+                    fw.write(step+" "+u+" "+wf+" "+wp+"\n");
+                }
+                catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            
+            public void integratorInitialized(IIntegratorEvent e) {
+                writeIt();
+            }
+        });
 
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
+
+        try {
+            fw.close();
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
         
-        u = meterPE2.getDataAsScalar();
+        u = meterPE.getDataAsScalar();
         System.out.println("Final Potential energy: "+u);
         System.out.println("Final Wall force: "+meterWF.getDataAsScalar());
         System.out.println("Final Wall position: "+meterWP.getDataAsScalar());
+        if (hybridInterval>0 && mcSteps>0) System.out.println("MC acceptance "+sim.mcMove.getTracker().acceptanceProbability());
         
         if (fixedWall) {
             double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
