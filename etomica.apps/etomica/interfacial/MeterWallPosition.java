@@ -9,15 +9,17 @@ public class MeterWallPosition extends DataSourceScalar {
 
     protected final IBox box;
     protected final ISpecies wallSpecies;
+    protected final double zShift;
     
-    public MeterWallPosition(IBox box, ISpecies wallSpecies) {
+    public MeterWallPosition(IBox box, ISpecies wallSpecies, double zShift) {
         super("Wall position", Length.DIMENSION);
         this.box = box;
         this.wallSpecies = wallSpecies;
+        this.zShift = zShift;
     }
 
     public double getDataAsScalar() {
-        return box.getMoleculeList(wallSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2) + 0.5*box.getBoundary().getBoxSize().getX(2);
+        return box.getMoleculeList(wallSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2) - zShift;
     }
 
 }

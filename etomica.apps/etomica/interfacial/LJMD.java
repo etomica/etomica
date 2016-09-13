@@ -191,7 +191,8 @@ public class LJMD extends Simulation {
         DataPumpListener pumpWF = new DataPumpListener(meterWF, forkWF, dataInterval);
         sim.integrator.getEventManager().addListener(pumpWF);
         
-        MeterWallPosition meterWP = new MeterWallPosition(sim.box, sim.speciesTopWall);
+        double zShift = sim.config.getShift().getX(2);
+        MeterWallPosition meterWP = new MeterWallPosition(sim.box, sim.speciesTopWall, zShift);
         DataFork forkWP = new DataFork();
         DataPumpListener pumpWP = new DataPumpListener(meterWP, forkWP, dataInterval);
         sim.integrator.getEventManager().addListener(pumpWP);
@@ -316,7 +317,7 @@ public class LJMD extends Simulation {
     public static class LJMDParams extends ParameterBase {
         public double T = 2.0;
         public long steps = 10000;
-        public double tStep = 0.001;
+        public double tStep = 0.0025;
         public boolean graphics = false;
         public String lammpsFile = "";
         public boolean fixedWall = true;
