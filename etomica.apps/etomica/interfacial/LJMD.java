@@ -21,12 +21,12 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataDump;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -44,6 +44,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.HistogramExpanding;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -112,9 +113,8 @@ public class LJMD extends Simulation {
             FixedWall fixedWallListener = new FixedWall(space, box, integrator.getAgentManager(), speciesTopWall);
             integrator.setFixedWall(fixedWallListener);
             int nWall = box.getMoleculeList(speciesTopWall).getMoleculeCount();
-            double Lz = boundary.getBoxSize().getX(2);
             double Lxy = boundary.getBoxSize().getX(0);
-            P1Wall p1Wall = new P1Wall(space, spring/nWall, springPosition-0.5*Lz, Psat*Lxy*Lxy/nWall);
+            P1Wall p1Wall = new P1Wall(space, spring/nWall, springPosition+config.getShift().getX(2), Psat*Lxy*Lxy/nWall);
             potentialMaster.addPotential(p1Wall, new IAtomType[]{speciesTopWall.getLeafType()});
         }
         
@@ -211,8 +211,8 @@ public class LJMD extends Simulation {
         MeterProfileByVolume densityProfileMeter = new MeterProfileByVolume(sim.space);
         densityProfileMeter.setProfileDim(2);
         densityProfileMeter.setBox(sim.box);
+        densityProfileMeter.setSpecies(sim.speciesFluid);
         MeterNMolecules meterNMolecules = new MeterNMolecules();
-        meterNMolecules.setSpecies(sim.speciesFluid);
         densityProfileMeter.setDataSource(meterNMolecules);
         AccumulatorAverageFixed densityProfileAvg = new AccumulatorAverageFixed(10);
         densityProfileAvg.setPushInterval(10);
@@ -220,8 +220,11 @@ public class LJMD extends Simulation {
         DataDump profileDump = new DataDump();
         densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         sim.integrator.getEventManager().addListener(profilePump);
-        
-        
+        densityProfileAvg.setPushInterval(1);
+
+        AccumulatorHistogram histogramWP = new AccumulatorHistogram(new HistogramExpanding(0.2));
+        forkWP.addDataSink(histogramWP);
+
         if (graphics) {
             final String APP_NAME = "LJMD";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
@@ -269,7 +272,12 @@ public class LJMD extends Simulation {
             densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
             profilePlot.setLabel("density");
             simGraphic.add(profilePlot);
-            
+
+            DisplayPlot wallHistogramPlot = new DisplayPlot();
+            histogramWP.addDataSink(wallHistogramPlot.getDataSet().makeDataSink());
+            wallHistogramPlot.setLabel("wall");
+            simGraphic.add(wallHistogramPlot);
+
             return;
         }
 
