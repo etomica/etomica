@@ -20,7 +20,6 @@ public class MCMoveIDBiasAction implements IAction {
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
     protected final MCMoveInsertDeleteBiased mcMoveID;
     protected final int numAtoms;
-    protected final double temperature;
     protected final IntegratorMC integratorMC;
     protected int maxNumAtoms;
     protected double lastDefaultdADef;
@@ -30,14 +29,13 @@ public class MCMoveIDBiasAction implements IAction {
     protected double fixedDaDef = Double.NaN;
 
     public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxVacancy, double bmu,
-            MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms, double temperature) {
+            MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms) {
         this.integratorMC = integratorMC;
         this.mcMoveID = mcMoveID;
         this.maxVacancy = maxVacancy;
         this.bmu = bmu;
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
         this.numAtoms = numAtoms;
-        this.temperature = temperature;
         pullFactor = 1;
     }
     
