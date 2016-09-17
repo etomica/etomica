@@ -291,7 +291,7 @@ public class SimHSMDVacancy extends Simulation {
 
         if (params.doReweight) {
             mcMoveBiasAction = new MCMoveIDBiasAction(sim.integratorMC, sim.mcMoveID, numV,
-                    mu, mcMoveOverlapMeter, numAtoms, 1);
+                    mu, mcMoveOverlapMeter, numAtoms);
             mcMoveBiasAction.setNMaxReweight(numAtoms);
             mcMoveBiasAction.setDefaultDaDef(daDef);
             mcMoveBiasListener = new IntegratorListenerAction(mcMoveBiasAction, biasInterval);

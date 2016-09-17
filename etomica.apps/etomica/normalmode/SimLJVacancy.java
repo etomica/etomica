@@ -300,7 +300,7 @@ public class SimLJVacancy extends Simulation {
 
         if (params.doReweight) {
             mcMoveBiasAction = new MCMoveIDBiasAction(sim.integrator, sim.mcMoveID, numV,
-                    mu, mcMoveOverlapMeter, numAtoms, 1);
+                    mu, mcMoveOverlapMeter, numAtoms);
             mcMoveBiasAction.setNMaxReweight(numAtoms);
             mcMoveBiasAction.setDefaultDaDef(daDef);
             if (fixedDaDef) {
