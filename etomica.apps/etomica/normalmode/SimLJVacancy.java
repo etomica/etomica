@@ -31,6 +31,7 @@ import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IDataSink;
 import etomica.data.meter.MeterNMolecules;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DeviceBox;
@@ -56,9 +57,12 @@ import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
+import etomica.potential.Potential0Lrc;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
@@ -85,9 +89,9 @@ public class SimLJVacancy extends Simulation {
     public P2SoftSphericalTruncated potential;
     public MCMoveVolume mcMoveVolume;
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
-    
+    public double uShift;
 
-    public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int numV, final double bmu, final boolean ss) {
+    public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int numV, final double bmu, final boolean ss, boolean shifted) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
@@ -108,7 +112,6 @@ public class SimLJVacancy extends Simulation {
 
         
         potentialMaster = new PotentialMasterCell(this, rc, space);
-        potentialMaster.lrcMaster().setEnabled(false);
         potentialMaster.setCellRange(2);
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setTemperature(temperature);
@@ -124,25 +127,63 @@ public class SimLJVacancy extends Simulation {
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
         
+        integrator.setBox(box);
+
+        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        // we just needed this to initial coordinates, to keep track of lattice positions of atoms
+        coordinateDefinition = null;
+
+        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+
         if (rc > 0.49*box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("rc is too large");
         }
         p2LJ = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space, 1, 1);
         potential = new P2SoftSphericalTruncated(space, p2LJ, rc);
+        potential.setMakeLrc(false);
         IAtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
 
-        integrator.setBox(box);
-        
-        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
-        // we just needed this to initial coordinates, to keep track of lattice positions of atoms
-        coordinateDefinition = null;
-        
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         potentialMaster.getNbrCellManager(box).assignCellAll();
-        
+        if (shifted) {
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+            meterPE.setBox(box);
+            meterPE.setIncludeLrc(false);
+            double uUnshifted = meterPE.getDataAsScalar();
+            
+            potentialMaster.removePotential(potential);
+            potential = new P2SoftSphericalTruncatedShifted(space, p2LJ, rc);
+            potentialMaster.addPotential(potential,new IAtomType[]{leafType,leafType});
+            double uShifted = meterPE.getDataAsScalar();
+            uShift = (uUnshifted - uShifted)/numAtoms;
+            Potential0Lrc pShift = new Potential0Lrc(space, new IAtomType[]{leafType,leafType}, potential) {
+                public double virial(IAtomList atoms) {
+                    return 0;
+                }
+                
+                public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+                    return null;
+                }
+                
+                public IVector[] gradient(IAtomList atoms) {
+                    return null;
+                }
+                
+                public double energy(IAtomList atoms) {
+                    if (divisor==0) return 0;
+                    if (divisor==1) {
+                        // the whole system
+                        return numAtoms*uShift;
+                    }
+                    // single atom
+                    return 2*uShift;
+                }
+            };
+            potentialMaster.lrcMaster().addPotential(pShift);
+        }
+
         double nbr1 = L/Math.sqrt(2);
         double y = 1.25*nbr1;
 
@@ -180,6 +221,7 @@ public class SimLJVacancy extends Simulation {
         double mu = params.mu;
         boolean fixedDaDef = params.fixedDaDef;
         boolean ss = params.ss;
+        boolean shifted = params.shifted;
         System.out.println("Running N="+params.numAtoms+" at rho="+density);
         if (Double.isNaN(mu)) {
             // this should get us pretty close
@@ -209,7 +251,10 @@ public class SimLJVacancy extends Simulation {
         System.out.println("steps: "+steps);
    
 
-        final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu, ss);
+        final SimLJVacancy sim = new SimLJVacancy(numAtoms, temperature, density, rc, numV, mu, ss, shifted);
+        if (shifted) {
+            System.out.println("Shifting the potential (and then correcting by "+sim.uShift+")");
+        }
 
         final int biasInterval = 10*numAtoms;
 
@@ -710,6 +755,7 @@ public class SimLJVacancy extends Simulation {
         public int numV = 5;
         public boolean doReweight = true;
         public double daDef = Double.NaN;
+        public boolean shifted = true;
         public double rc = 3;
         public boolean fixedDaDef = false;
         public boolean ss = false;
