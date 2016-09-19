@@ -28,9 +28,13 @@ import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountTime;
+import etomica.data.IData;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterProfileByVolume;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -302,7 +306,7 @@ public class LJMD extends Simulation {
                 long step = sim.integrator.getStepCount();
                 if (step % dataInterval != 0) return;
             }
-            public void writeIt() {
+            protected void writeIt() {
                 long step = sim.integrator.getStepCount();
                 double u = meterPE.getDataAsScalar();
                 double wf = meterWF.getDataAsScalar();
@@ -335,6 +339,21 @@ public class LJMD extends Simulation {
         System.out.println("Final Wall force: "+meterWF.getDataAsScalar());
         System.out.println("Final Wall position: "+meterWP.getDataAsScalar());
         if (hybridInterval>0 && mcSteps>0) System.out.println("MC acceptance "+sim.mcMove.getTracker().acceptanceProbability());
+        
+        FileWriter fwProfile;
+        try {
+            fwProfile = new FileWriter("density.dat");
+            IData profileAvg = densityProfileAvg.getData(densityProfileAvg.AVERAGE);
+            IData xProfile = ((DataInfoFunction)((DataInfoGroup)densityProfileAvg.getDataInfo()).getSubDataInfo(densityProfileAvg.AVERAGE.index)).getXDataSource().getIndependentData(0);
+            for  (int i=0; i<xProfile.getLength(); i++) {
+                fwProfile.write((xProfile.getValue(i)-sim.config.getShift().getX(2))+" "+profileAvg.getValue(i)+"\n");
+            }
+            fwProfile.close();
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        
         
         if (fixedWall) {
             double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
