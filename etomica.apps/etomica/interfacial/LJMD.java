@@ -305,6 +305,7 @@ public class LJMD extends Simulation {
             public void integratorStepFinished(IIntegratorEvent e) {
                 long step = sim.integrator.getStepCount();
                 if (step % dataInterval != 0) return;
+                writeIt();
             }
             protected void writeIt() {
                 long step = sim.integrator.getStepCount();
