@@ -83,7 +83,7 @@ public class LJMD extends Simulation {
         addSpecies(speciesBottomWall);
         
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
-        config.setTopPadding(5);
+        config.setTopPadding(50);
         config.initializeCoordinates(box);
         
         potentialMaster = new PotentialMasterList(this, 1.2*5.49925, space);
