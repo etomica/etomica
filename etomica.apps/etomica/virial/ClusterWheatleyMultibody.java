@@ -91,7 +91,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
     }
 
     public ClusterAbstract makeCopy() {
-        ClusterWheatleyMultibody c = new ClusterWheatleyMultibody(n, f, fMulti);
+        ClusterWheatleyMultibody c = new ClusterWheatleyMultibody(n, f, fNonAdditive, fMulti, multiTol);
         c.setTemperature(1/beta);
         c.setDoCaching(doCaching);
         return c;
@@ -126,7 +126,6 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         double pairValue = value;
         doMulti = true;
         super.calcValue(box);
-//        System.out.println("pair "+pairValue+"  full "+value+"   NA "+(value-pairValue));
         value -= pairValue;
         // we have our own BD cluster for multibody
         // if an individual integrand (pair/total) is small, it won't trigger a BD calculation
