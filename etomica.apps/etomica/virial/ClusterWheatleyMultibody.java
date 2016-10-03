@@ -148,6 +148,9 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         for (int i=3; i<fMulti.length; i++) {
             if (fMulti[i]!=null) fMulti[i].setBox(box);
         }
+        if (fNonAdditive != null) {
+            fNonAdditive.setBox(box);
+        }
         int nf = 1<<n;
         IMoleculeList boxMolecules = box.getMoleculeList();
         // FQ[i] now contains the exp(-bU2) where U2 is the pair-wise energy for set i.
