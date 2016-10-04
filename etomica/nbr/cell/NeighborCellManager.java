@@ -21,6 +21,7 @@ import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.lattice.CellLattice;
 import etomica.space.ISpace;
 import etomica.util.Debug;
@@ -274,6 +275,9 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
             if (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)evt).isAccepted()) {
                 return;
             }
+            if (evt instanceof MCMoveTrialFailedEvent) {
+                return;
+            }
 
             if (evt instanceof MCMoveEvent) {
                 MCMove move = ((MCMoveEvent)evt).getMCMove();
@@ -289,7 +293,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
             IBoundary boundary = box.getBoundary();
             Cell cell = neighborCellManager.getCell(atom);
             cell.removeAtom(atom);
-            boundary.nearestImage(atom.getPosition());
+            atom.getPosition().PE(boundary.centralImage(atom.getPosition()));
             neighborCellManager.assignCell(atom);
         }
         
