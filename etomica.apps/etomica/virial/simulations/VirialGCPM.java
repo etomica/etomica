@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
+import etomica.action.IAction;
 import etomica.api.IPotentialMolecular;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -17,7 +18,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
-import etomica.util.ReadParameters;
+import etomica.util.ParseArgs;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSumPolarizable;
@@ -32,11 +33,10 @@ import etomica.virial.cluster.Standard;
 public class VirialGCPM {
 
     public static void main(String[] args) {
-
         VirialGCPMParam params = new VirialGCPMParam();
-        if (args.length > 0) {
-            ReadParameters paramReader = new ReadParameters(args[0], params);
-            paramReader.readParameters();
+        boolean isCommandline = args.length > 0;
+        if (isCommandline) {
+            ParseArgs.doParseArgs(params, args);
         }
         else {
             params.nPoints = 2;
@@ -88,7 +88,7 @@ public class VirialGCPM {
             targetCluster = new ClusterCoupledFlipped(targetCluster, space, 20);
         }
 
-   	    ClusterWeight sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
+        ClusterWeight sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
 
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
         ClusterWeight refSample = ClusterWeightAbs.makeWeightCluster(refCluster);
@@ -127,13 +127,13 @@ public class VirialGCPM {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.getController().removeAction(sim.ai);
-//            sim.getController().addAction(new IAction() {
-//                public void actionPerformed() {
-//                    sim.initRefPref(null, 0);
-//                    sim.equilibrate(null,0);
-//                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-//                }
-//            });
+            sim.getController().addAction(new IAction() {
+                public void actionPerformed() {
+                    sim.initRefPref(null, 10);
+                    sim.equilibrate(null, 20);
+                    sim.ai.setMaxSteps(Long.MAX_VALUE);
+                }
+            });
             sim.getController().addAction(sim.ai);
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
@@ -180,7 +180,6 @@ public class VirialGCPM {
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
 
