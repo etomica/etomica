@@ -143,10 +143,10 @@ public class BoundaryDeformablePeriodic extends Boundary {
         return temp1;
     }
 
-	public void nearestImage(IVectorMutable dr) {
-	    // pretend that we last transformed the last+1 vector
-	    // this has the effect we want
-	    int lastTransform = transformVectors.length;
+    public void nearestImage(IVectorMutable dr) {
+        // pretend that we last transformed the last+1 vector
+        // this has the effect we want
+        int lastTransform = transformVectors.length;
         for (int i=0; i!=lastTransform; i++) {
             double dot = transformVectors[i].dot(dr)/tV2[i];
             if (Math.abs(dot) > halfTol) {
@@ -163,7 +163,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
             }
         }
         return;
-	}
+    }
 
 
     /**
@@ -174,15 +174,15 @@ public class BoundaryDeformablePeriodic extends Boundary {
      *             if the spatial dimension of the tensor is inconsistent with
      *             the dimension of the boundary
      */
-	public void deform(etomica.space.Tensor deformationTensor) {
+    public void deform(etomica.space.Tensor deformationTensor) {
         if(deformationTensor.D() != D) {
             throw new IllegalArgumentException("Tensor dimension ("+deformationTensor.D()+") inconsistent with boundary dimension ("+D+")");           
         }
         for(int i=0; i<edgeVectors.length; i++) {
             deformationTensor.transform(edgeVectors[i]);
         }
-		update();
-	}
+        update();
+    }
     
     /**
      * Sets the shape of the boundary as a rectangular parallelepiped (or
