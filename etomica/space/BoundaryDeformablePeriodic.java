@@ -144,19 +144,20 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
 
     public void nearestImage(IVectorMutable dr) {
-        // pretend that we last transformed the last+1 vector
-        // this has the effect we want
-        int lastTransform = transformVectors.length;
-        for (int i=0; i!=lastTransform; i++) {
+        // To get out of the loop, we need to check n consecutive transformVectors
+        // without applying any of them.  If we reach the end, then we wrap back around.
+        for (int noTransformCount=0, i=0; noTransformCount<transformVectors.length; i++) {
             double dot = transformVectors[i].dot(dr)/tV2[i];
             if (Math.abs(dot) > halfTol) {
                 dot = Math.round(dot);
                 dr.PEa1Tv1(-dot, transformVectors[i]);
-                // remember that we transformed with this vector
-                // when we finish the vectors, we'll restart back at 0 and continue until we reach this one again.
-                lastTransform = i;
+                // We transformed, but this now counts as a non-transfomrm -- we don't need to check it again.
+                noTransformCount = 1;
             }
-            if (i==transformVectors.length-1 && lastTransform != transformVectors.length) {
+            else {
+                noTransformCount++;
+            }
+            if (i==transformVectors.length-1) {
                 // we finished a pass, but transformed a vector.
                 // make another pass (we'll stop at the vector we transformed)
                 i=-1;
