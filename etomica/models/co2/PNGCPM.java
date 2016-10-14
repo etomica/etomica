@@ -66,6 +66,7 @@ public class PNGCPM extends PotentialMolecular {
         Ep = new IVectorMutable[0][0];
         mu = new IVectorMutable[0][0];
         component = Component.FULL;
+        pairPolarization = new double[10][10];
     }
     
     public void setComponent(Component comp) {
@@ -73,13 +74,14 @@ public class PNGCPM extends PotentialMolecular {
     }
 
     protected boolean oops = false;
-    public double energy(IMoleculeList atoms){
+    protected final double[][] pairPolarization;
+    public double energy(IMoleculeList molecules){
         double sum = 0;
         if (component != Component.INDUCTION) {
-            for (int i=0; i<atoms.getMoleculeCount()-1; i++) {
-                pair.atom0 = atoms.getMolecule(i);
-                for (int j=i+1; j<atoms.getMoleculeCount(); j++) {
-                    pair.atom1 = atoms.getMolecule(j);
+            for (int i=0; i<molecules.getMoleculeCount()-1; i++) {
+                pair.atom0 = molecules.getMolecule(i);
+                for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
+                    pair.atom1 = molecules.getMolecule(j);
                     sum += getNonPolarizationEnergy(pair);
                     if (Double.isInfinite(sum)) {
                         return sum;
@@ -89,14 +91,52 @@ public class PNGCPM extends PotentialMolecular {
         }
 
         if (component != Component.TWO_BODY) {
-            sum += getPolarizationEnergy(atoms);
+            double up = getPolarizationEnergy(molecules);
+            if (molecules.getMoleculeCount()==2) {
+                int idx0 = molecules.getMolecule(0).getIndex();
+                int idx1 = molecules.getMolecule(1).getIndex();
+                if (idx0>idx1) {
+                    pairPolarization[idx1][idx0] = up;
+                }
+                else {
+                    pairPolarization[idx0][idx1] = up;
+                }
+            }
+            sum += up;
         }
         if (!oops && Double.isNaN(sum)) {
             oops = true;
-            energy(atoms);
+            energy(molecules);
             throw new RuntimeException("oops NaN");
         }
         return sum;
+    }
+    
+    public PNGCPMCached makeCachedPairPolarization() {
+        return new PNGCPMCached();
+    }
+
+    public class PNGCPMCached implements IPotentialMolecular {
+
+        public double energy(IMoleculeList molecules) {
+            int idx0 = molecules.getMolecule(0).getIndex();
+            int idx1 = molecules.getMolecule(1).getIndex();
+            if (idx0>idx1) {
+                return pairPolarization[idx1][idx0];
+            }
+            return pairPolarization[idx0][idx1];
+            
+        }
+
+        public double getRange() {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        public void setBox(IBox box) {}
+
+        public int nBody() {
+            return 2;
+        }
     }
     
     public static boolean debugme = false;
