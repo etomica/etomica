@@ -48,6 +48,7 @@ import etomica.virial.ClusterWheatleyMultibody;
 import etomica.virial.ClusterWheatleySoft;
 import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerFunctionMolecularThreeBody;
+import etomica.virial.MayerFunctionNonAdditiveFull;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.PotentialNonAdditive;
@@ -90,7 +91,6 @@ public class VirialCO2H2OGCPMX {
 
         final double refFrac = params.refFrac;
         final Nonadditive nonAdditive = nPoints < 3 ? Nonadditive.NONE : params.nonAdditive;
-        final double EWater = params.EWater;
         final double kijSigma = params.kijSigma;
         final double kijEpsilon = params.kijEpsilon;
         final double kijGamma = params.kijGamma;
@@ -147,21 +147,39 @@ public class VirialCO2H2OGCPMX {
 
         if (nonAdditive != Nonadditive.NONE) {
             IPotentialMolecular p3ATM = pTarget.makeAxilrodTeller();
-            IPotentialMolecular p3 = p3ATM;
+            PotentialNonAdditive pi = null;
+            IPotentialMolecular[] allPi = new IPotentialMolecular[nPoints-1];
+
             if (nonAdditive != Nonadditive.DISPERSION) {
                 // we can only handle 3-body for now
-                PNGCPM[] allPi = new PNGCPM[3-1];
-                for (int i=0; i<allPi.length; i++) {
-                    allPi[i] = new PNGCPM(space, paramsManager, 6, 2+i);
-                    allPi[i].setComponent(PNGCPM.Component.INDUCTION);
+                allPi[0] = pTarget.makeCachedPairPolarization();
+                for (int i=1; i<allPi.length; i++) {
+                    PNGCPM p = new PNGCPM(space, paramsManager, 6, 2+i);
+                    p.setComponent(PNGCPM.Component.INDUCTION);
+                    allPi[i] = p;
                 }
-    
-                PotentialNonAdditive pi = new PotentialNonAdditive(allPi);
-                p3 = new PotentialMolecularSum(new IPotentialMolecular[]{pi,p3ATM});
+
+                pi = new PotentialNonAdditive(allPi);
+
+                MayerFunctionNonAdditiveFull[] fNA = new MayerFunctionNonAdditiveFull[nPoints+1];
+                for (int i=3; i<=nPoints; i++) {
+                    IPotentialMolecular p = null;
+                    if (i==3 && nTypes[0] > 2) {
+                        p = null;
+                    }
+                    else {
+                        p = pi.makeNB(i);
+                    }
+                    fNA[i] = new MayerFunctionNonAdditiveFull(p);
+                }
+                targetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, fNA);
             }
-            
-            MayerFunctionMolecularThreeBody f3 = new MayerFunctionMolecularThreeBody(p3);
-            targetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, f3);
+            else {
+                MayerFunctionMolecularThreeBody f3 = new MayerFunctionMolecularThreeBody(p3ATM);
+                targetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, f3);
+            }
+
+            ((ClusterWheatleyMultibody)targetCluster).setRCut(100);
             if (nonAdditive == Nonadditive.FULL && nTypes[1] > 0) {
                 // water induction requires flipping
                 ((ClusterWheatleyMultibody)targetCluster).setDoCaching(false);
@@ -439,7 +457,6 @@ public class VirialCO2H2OGCPMX {
         public double sigmaHSRef = 5;
         public boolean doHist = false;
         public Nonadditive nonAdditive = Nonadditive.NONE;
-        public double EWater = 0;
         public double kijSigma = 0.99;
         public double kijEpsilon = 1.10;
         public double kijGamma = 0.96;
