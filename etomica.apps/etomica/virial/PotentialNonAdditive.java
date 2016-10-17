@@ -25,7 +25,7 @@ import etomica.virial.cluster.VirialDiagrams;
  */
 public class PotentialNonAdditive implements IPotentialMolecular {
 
-    protected final int nBody;
+    protected int nBody;
     protected final IPotentialMolecular[] potentials;
     protected final IPotentialMolecular[] p;
     protected final double[][] una;
@@ -56,7 +56,33 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         }
         moleculeList = new MoleculeArrayList(nBody);
     }
-    
+
+    public PotentialNonAdditive(IPotentialMolecular[] potentials, int[] nbody) {
+        this.potentials = potentials;
+        int nb = 0;
+        for (int i=0; i<potentials.length; i++) {
+            if (nbody[i] > nb) nb = nbody[i];
+        }
+        nBody = nb;
+        p = new IPotentialMolecular[nBody+1];
+        for (int i=0; i<potentials.length; i++) {
+            nb = nbody[i];
+            if (p[nb] != null) {
+                throw new RuntimeException("we can handle zero or one "+nb+"-body potentials, but not more");
+            }
+            p[nb] = potentials[i];
+        }
+        una = new double[nBody+1][0];
+        for (int i=2; i<una.length; i++) {
+            int[] ids = new int[i];
+            for (int j=0; j<i; j++) {
+                ids[j] = nBody-i+j;
+            }
+            una[i] = new double[VirialDiagrams.getGroupID(ids, nBody)+1];
+        }
+        moleculeList = new MoleculeArrayList(nBody);
+    }
+
     public double getRange() {
         return Double.POSITIVE_INFINITY;
     }
@@ -199,6 +225,32 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                 moleculeList.remove(1);
             }
             moleculeList.clear();
+        }
+    }
+
+    public PotentialNonAdditiveNB makeNB(int nBodyPretend) {
+        return new PotentialNonAdditiveNB(nBodyPretend);
+    }
+
+    public class PotentialNonAdditiveNB implements IPotentialMolecular {
+        protected int nBodyPretend;
+        public PotentialNonAdditiveNB(int nBody) {
+            nBodyPretend = nBody;
+        }
+        public int nBody() {
+            return nBodyPretend;
+        }
+
+        public double getRange() {
+            return PotentialNonAdditive.this.getRange();
+        }
+
+        public void setBox(IBox box) {
+            PotentialNonAdditive.this.setBox(box);
+        }
+
+        public double energy(IMoleculeList molecules) {
+            return PotentialNonAdditive.this.energy(molecules);
         }
     }
 
