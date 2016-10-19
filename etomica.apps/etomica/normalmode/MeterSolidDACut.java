@@ -58,8 +58,8 @@ public class MeterSolidDACut implements IEtomicaDataSource {
             if (false) System.out.print(" "+latticeEnergy[i]/box.getMoleculeList().getMoleculeCount());
             latticePressure[i] = -virial[i]/(box.getBoundary().volume()*dim);
         }
+        if (false) System.out.print("\n");
         if (false) {
-            System.out.println();
             System.out.print("Lattice pressure: ");
             for  (int i=0; i<cutoffs.length; i++) {
                 System.out.print(" "+latticePressure[i]);
