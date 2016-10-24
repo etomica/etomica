@@ -24,6 +24,7 @@ import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialMolecular;
+import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
@@ -41,7 +42,7 @@ import etomica.units.Kelvin;
  * 
  * @author Andrew and Dave
  */
-public class PNGCPM extends PotentialMolecular {
+public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
     public PNGCPM(ISpace space, AtomTypeAgentManager typeManager, int nAtomTypes) {
         this(space, typeManager, nAtomTypes, Integer.MAX_VALUE);
@@ -443,7 +444,7 @@ for (int iter=0; iter<maxIter; iter++) {
             throw new RuntimeException("bye");
         }
 }
-        double UpolAtkins = 0;
+        UpolAtkins = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             for (int ii=0; ii<molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
                 UpolAtkins += Eq[i][ii].dot(mu[i][ii]);
@@ -460,7 +461,10 @@ for (int iter=0; iter<maxIter; iter++) {
         //alphaPol.  We'll add that bit in when we calculate UpolAtkins.  
         return UpolAtkins;
     }
-    
+    public double getLastPolarizationEnergy() {
+        return UpolAtkins;
+    }
+
     public final double getRange() {
         return Double.POSITIVE_INFINITY;
     }
@@ -955,5 +959,5 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
         System.out.println(uc);
         
     }
-
+    private double UpolAtkins;
 }
