@@ -11,6 +11,8 @@ import etomica.api.IBox;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
+import etomica.chem.elements.Hydrogen;
+import etomica.chem.elements.Oxygen;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
@@ -42,9 +44,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         sigmaM = 0.610;
         sigmaH = 0.455;
         sqrtHMsigmas = Math.sqrt(2*(sigmaH*sigmaH+sigmaM*sigmaM));
-        massH = 1.01;
-        massO = 16.0;
-        totalMass = 18.02;
+        massH = Hydrogen.INSTANCE.getMass();
+        massO = Oxygen.INSTANCE.getMass();
+        totalMass = massH*2+massO;
         sqrtPiHMsigmas = Math.sqrt(Math.PI*(sigmaH*sigmaH+sigmaM*sigmaM));
         sqrtPiMMsigmas = Math.sqrt(Math.PI*(2*sigmaM*sigmaM));
         alphaPol = 1.444;
@@ -58,6 +60,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         work = space.makeVector();
         
         Tunit = space.makeTensor();
+        Tunit.E(new double[][]{{1,0,0},{0,1,0},{0,0,1}});
         Tij = space.makeTensor();
 
         Eq = new Matrix[0];
@@ -76,7 +79,6 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                 }
             }
         }
-        
         sum += getPolarizationEnergy(atoms);
         return sum;
     }
@@ -118,6 +120,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         double sixOverGamma = 6/gamma;
    
         double sum = epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);//exp-6 potential(Udisp)
+
         if (zeroShift){
 	        r2 = H11r.Mv1Squared(H21r);
 	        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
@@ -142,7 +145,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
 	
 	        r2 = M2r.Mv1Squared(H12r);
 	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-	
+
 	        r2 = M1r.Mv1Squared(M2r);
 	        sum += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         }
@@ -186,7 +189,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         	r2 = M2r.Mv1Squared(shift);
         	shift.ME(H12r);
 	        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-	
+
 	        shift.PE(M1r);
         	r2 = M2r.Mv1Squared(shift);
         	shift.ME(M1r);
@@ -304,7 +307,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.getX(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.getX(1));
                 myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.getX(2));
-                     
+
+//                if (i==0) {System.out.println("after "+j); myEq.print(20,12);}
+                
                 if (i<j) {
                     double OOr2;
                     if(zeroShift){
@@ -337,9 +342,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
                     
                     Tij.TE(3*f/(r12*r12));
                     
-                    Tunit.E(g);
-                    
-                    Tij.ME(Tunit);
+                    Tij.PEa1Tt1(-g, Tunit);
                     Tij.TE(1/(r12*r12*r12));
                     
                     //Try matrix inversion solution with Jama library
@@ -358,7 +361,6 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             }
             
         }
-        
         //x here represents P (almost).
         //For x to be P, the A of the Ax=b actually needs an extra factor of
         //alphaPol.  We'll add that bit in when we calculate UpolAtkins.  
