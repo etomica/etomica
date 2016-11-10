@@ -11,6 +11,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
+import etomica.units.Energy;
 import etomica.units.Pressure;
 
 public class MeterMappedU extends DataSourceScalar implements  AgentSource<IntegratorVelocityVerlet.MyAgent> {
@@ -24,7 +25,7 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
     protected final MappedUpotential pc;
     
     public MeterMappedU(ISpace space, IPotentialMaster potentialMaster, IBox box, int nbins) {
-        super("pma",Pressure.DIMENSION);
+        super("pma",Energy.DIMENSION);
         this.space = space;
         this.box = box;
         this.potentialMaster = potentialMaster;

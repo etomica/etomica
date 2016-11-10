@@ -93,9 +93,9 @@ public class MappedU extends Simulation {
         }
         else { 
             params.temperature = 2.0;
-            params.density = 1.0;
+            params.density = .01;
             params.numSteps = 10000000;
-            params.rc = 3;
+            params.rc = 4;
             params.numAtoms = 400;
             params.functionsFile = "0.10";
         }
@@ -210,9 +210,9 @@ public class MappedU extends Simulation {
         
         if (computeUMA) {
         	System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
-        	System.out.println("Uavg extensive: "+ UavgMInt*numAtoms);
-        	System.out.println("Uavg intensive: "+ UavgMInt);
-        	System.out.println("error intensive: "+ err/numAtoms);
+        	System.out.println("UavgM extensive: "+ UavgMInt*numAtoms);
+        	System.out.println("UavgM intensive: "+ UavgMInt);
+        	System.out.println("errorM intensive: "+ err/numAtoms);
         }
              
         double UAvg = accU.getData(accU.AVERAGE).getValue(0);
@@ -220,8 +220,9 @@ public class MappedU extends Simulation {
         double UCor = accU.getData(accU.BLOCK_CORRELATION).getValue(0);
         
         if (computeU){
+        	System.out.println("Uavg intensive "+UAvg/numAtoms);
+        	System.out.println("err intensive "+UErr/numAtoms);
         	System.out.print(String.format("Potential ext avg: %13.6e  err: %11.4e   cor: % 4.2f\n", UAvg, UErr, UCor));
-        	System.out.print(String.format("Potential int avg:%13.6e  err int: %11.4e",UAvg/numAtoms,UErr/numAtoms));
         }
         
         fwr.append(numAtoms+" "+rc+" "+density+" "+temperature+" "+UavgMInt+" "+UAvg/numAtoms+" "+err/numAtoms+" "+UErr/numAtoms+"\n");
@@ -272,6 +273,6 @@ public class MappedU extends Simulation {
         public boolean computeU = true;
         public boolean computeUMA = true;
         public boolean graphics = false;
-        public int nBlocks = 100;
+        public int nBlocks = 1000;
     }
 }

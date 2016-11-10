@@ -1,8 +1,7 @@
 package etomica.mappedvirial;
 
-import java.io.FileWriter;
+ import java.io.FileWriter;
 import java.io.IOException;
-
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
@@ -17,7 +16,6 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
@@ -60,6 +58,7 @@ public class MappedUpotential implements PotentialCalculation {
         dr = space.makeVector();
         cumint = new double[nbins+1];
         vol = box.getBoundary().volume();
+        vol = 1e5;
       }
 
     public static void main (String[] args) throws IOException{
@@ -67,13 +66,16 @@ public class MappedUpotential implements PotentialCalculation {
         IBox box = new Box(sim.getSpace());
         MappedUpotential pc = new MappedUpotential(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedShifted(sim.getSpace(), potential, 2.5);
-        pc.setTemperature(1, p2Truncated);
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedShifted(sim.getSpace(), potential, 4);
+        
+        pc.setTemperature(2, p2Truncated);
         FileWriter fw = new FileWriter("vb.dat");
         for (int i=13; i<=50; i++) {
             double r = i*0.05;
             if (r>=2.5) r = 2.499999;
-            System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r)));
+            double ulrc = potential.uInt(4);
+            double ulr = potential.uInt(r);
+            System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
             fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
         }
         fw.close();
@@ -113,6 +115,7 @@ public class MappedUpotential implements PotentialCalculation {
             double u = p2.u(r2);
             double evm1 = 0;
             double v = u;
+            if(r>vCut) v=0;
             evm1 = Math.exp(-beta*v);
             qp += (D==2 ? r : r2)*evm1*v*c1*(r+1);
             q += (D==2 ? r : r2)*(evm1-1)*c1*(r+1);
@@ -142,6 +145,7 @@ public class MappedUpotential implements PotentialCalculation {
     protected double calcXs(double r, double u) {
         double y = cumint(r);
         double v = u;
+        if(r>vCut) v=0;
         double evm1 = Math.exp(-beta*v);
         return y/(r*r*evm1);
     }
@@ -180,12 +184,15 @@ public class MappedUpotential implements PotentialCalculation {
         double fij = p2.du(r2);
         double up = fij/r;
         double vp = up;
+        if(r>vCut) sum += -p2.u(r2);
         if (r<x0) {
             IVector fi = forceManager.getAgent(a).force;
             IVector fj = forceManager.getAgent(b).force;
             double u = p2.u(r2);
+          //  System.out.println(u+" "+r);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-            double xs = calcXs(r, u);       
+            double xs = calcXs(r, u);    
+          //  System.out.println(xs+" "+r);
             double wp = 0.5*fifj;
             sum += xs*beta*(vp-wp);
             
