@@ -64,11 +64,12 @@ public class LjMd3Dv2y {
         }
 
         final int numAtoms = params.numAtoms;
-        final double y = params.y;
         final boolean ss = params.v2 == 0;
-        final double v2 = ss ? 1 : params.v2;
-        final double density = 1.0/Math.sqrt(v2);
-        final double temperature = 4/(y*v2*v2);
+        boolean useRho = ss && params.density > 0;
+        final double v2 = ss ? (useRho ? 1.0/(params.density*params.density) : 1) : params.v2;
+        final double density = useRho ? params.density : 1.0/Math.sqrt(v2);
+        final double y = useRho ? (4/(v2*v2)) : params.y;
+        final double temperature = useRho ? 1 : 4/(y*v2*v2);
         long steps = params.steps;
         double tStep = 0.002*Math.sqrt(y)*v2 * params.tStepFac;
         double rcShort = params.rcShort;
@@ -82,7 +83,7 @@ public class LjMd3Dv2y {
         int intervalLS = longInterval*5;
 
     	if (!graphics) {
-            System.out.println("Running LJ MD with N="+numAtoms+" at y="+y+" v2="+params.v2);
+            System.out.println("Running LJ MD with N="+numAtoms+(useRho?"":(" at y="+y+" v2="+params.v2)));
     	    System.out.println("  T="+temperature+" density="+density);
     	    System.out.println("time step: "+tStep);
     	    System.out.println(steps+" steps ("+(steps*tStep)+" time units)");
@@ -94,39 +95,75 @@ public class LjMd3Dv2y {
     	double L = Math.pow(numAtoms/density, 1.0/3.0);
         final LjMd3D sim = new LjMd3D(numAtoms, temperature, density, Double.NaN, tStep, rcShort, 0.494*L, hybridInterval, null, ss);
 
-    	if (Double.parseDouble(String.format("%4.2f", params.v2)) != params.v2) {
-    	    throw new RuntimeException(String.format("you're just trying to cause trouble, use v2=%4.2f", params.v2));
-    	}
-    	String configFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, params.v2, y);
-        File inConfigFile = new File(configFilename+".pos");
-        if (inConfigFile.exists()) {
-            ConfigurationFileBinary configFile = new ConfigurationFileBinary(configFilename);
-            configFile.initializeCoordinates(sim.box);
-            System.out.println("Continuing from previous configuration");
+        String configFilename;
+        if (useRho) {
+	    	configFilename = String.format("configN%d_rho%4.2f", numAtoms, density);
+	        File inConfigFile = new File(configFilename+".pos");
+	        if (inConfigFile.exists()) {
+	            ConfigurationFileBinary configFile = new ConfigurationFileBinary(configFilename);
+	            configFile.initializeCoordinates(sim.box);
+	            System.out.println("Continuing from previous configuration");
+	        }
+	        else {
+	            // try 8x fewer atoms
+	            String tmpConfigFilename = String.format("configN%d_rho%4.2f", numAtoms/8, density);
+	            inConfigFile = new File(tmpConfigFilename+".pos");
+	            if (inConfigFile.exists()) {
+	                System.out.println("bringing configuration up from N="+numAtoms/8);
+	                ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+	                ConfigurationFileBinary.replicate(configFile, sim.box, new int[]{2,2,2}, Space3D.getInstance());
+	            }
+	            else {
+	                // try higher density, then lower density
+	                for (int i=10; i>=-10; i--) {
+	                    if (i==0) continue;
+	                    tmpConfigFilename = String.format("configN%d_rho%4.2f", numAtoms, density+0.01*i);
+	                    inConfigFile = new File(tmpConfigFilename+".pos");
+	                    if (inConfigFile.exists()) {
+	                        System.out.println("bringing configuration from rho="+(density+0.01*i));
+	                        ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+	                        configFile.initializeCoordinates(sim.box);
+	                        break;
+	                    }
+	                }
+	            }
+	        }
         }
         else {
-            // try 8x fewer atoms
-            String tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms/8, params.v2, y);
-            inConfigFile = new File(tmpConfigFilename+".pos");
-            if (inConfigFile.exists()) {
-                System.out.println("bringing configuration up from N="+numAtoms/8);
-                ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
-                ConfigurationFileBinary.replicate(configFile, sim.box, new int[]{2,2,2}, Space3D.getInstance());
-            }
-            else {
-                // try lower temperature, then higher temperature
-                for (int i=10; i>=-10; i--) {
-                    if (i==0) continue;
-                    tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, params.v2, y+0.01*i);
-                    inConfigFile = new File(tmpConfigFilename+".pos");
-                    if (inConfigFile.exists()) {
-                        System.out.println("bringing configuration from y="+(y+0.01*i));
-                        ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
-                        configFile.initializeCoordinates(sim.box);
-                        break;
-                    }
-                }
-            }
+	    	if (Double.parseDouble(String.format("%4.2f", params.v2)) != params.v2) {
+	    	    throw new RuntimeException(String.format("you're just trying to cause trouble, use v2=%4.2f", params.v2));
+	    	}
+	    	configFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, params.v2, y);
+	        File inConfigFile = new File(configFilename+".pos");
+	        if (inConfigFile.exists()) {
+	            ConfigurationFileBinary configFile = new ConfigurationFileBinary(configFilename);
+	            configFile.initializeCoordinates(sim.box);
+	            System.out.println("Continuing from previous configuration");
+	        }
+	        else {
+	            // try 8x fewer atoms
+	            String tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms/8, params.v2, y);
+	            inConfigFile = new File(tmpConfigFilename+".pos");
+	            if (inConfigFile.exists()) {
+	                System.out.println("bringing configuration up from N="+numAtoms/8);
+	                ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+	                ConfigurationFileBinary.replicate(configFile, sim.box, new int[]{2,2,2}, Space3D.getInstance());
+	            }
+	            else {
+	                // try lower temperature, then higher temperature
+	                for (int i=10; i>=-10; i--) {
+	                    if (i==0) continue;
+	                    tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, params.v2, y+0.01*i);
+	                    inConfigFile = new File(tmpConfigFilename+".pos");
+	                    if (inConfigFile.exists()) {
+	                        System.out.println("bringing configuration from y="+(y+0.01*i));
+	                        ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+	                        configFile.initializeCoordinates(sim.box);
+	                        break;
+	                    }
+	                }
+	            }
+	        }
         }
 
         sim.potentialMasterList.getNeighborManager(sim.box).reset();
@@ -186,7 +223,7 @@ public class LjMd3Dv2y {
 
         P2LennardJones p2LJ = null;
 
-        if (params.v2 == 0) {
+        if (params.v2 == 0 && !useRho) {
             PotentialMasterMonatomic potentialMasterLJ = new PotentialMasterMonatomic(sim);
             p2LJ = new P2LennardJones(sim.getSpace());
             potentialMasterLJ.addPotential(p2LJ, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
@@ -232,7 +269,7 @@ public class LjMd3Dv2y {
             meterPULS.setPotentialMaster(potentialMasterLS);
             meterPULS.setTemperature(temperature);
 
-            if (params.v2 == 0) {
+            if (params.v2 == 0 && !useRho) {
                 potentialMasterLJLS = new PotentialMasterMonatomic(sim);
                 pLJLS = new Potential2SoftSphericalLSMulti(sim.getSpace(), cutoffsLS, p2LJ);
                 potentialMasterLJLS.addPotential(pLJLS, new IAtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
@@ -360,7 +397,7 @@ public class LjMd3Dv2y {
             errU = Math.abs(avgU/avgW)*Math.sqrt(errU*errU/(avgU*avgU) + ratioW2 - 2*errU*errW/(avgU*avgW)*corUW);
             avgU /= avgW;
             double corU = corPU1.getValue(j+0);
-            System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc + avgU, errU, avgU*biasU, corU));
+            if (!useRho) System.out.println(String.format("rc: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc + avgU, errU, avgU*biasU, corU));
 
             double avgP = avgPU.getValue(jRaw+1);
             double errP = errPU.getValue(jRaw+1);
@@ -372,40 +409,43 @@ public class LjMd3Dv2y {
             double vol = sim.box.getBoundary().volume();
             double plrc = -p0lrc.virial(null)/(3*vol);
             double puCor = covPU1.getValue((j+0)*n+j+1) / Math.sqrt(covPU1.getValue((j+0)*n+j+0) * covPU1.getValue((j+1)*n+j+1));
-            System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, avgP*biasP, corP, puCor));
+            if (useRho) System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, plrc + avgP, errP, avgP*biasP, corP));
+            else System.out.println(String.format("rc: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP, avgP*biasP, corP, puCor));
 
-            double avgDADy = avgPU.getValue(jRaw+2);
-            double errDADy = errPU.getValue(jRaw+2);
-            double corDADyW = covPU.getValue((jRaw+2)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+2)*nRaw+jRaw+2) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
-            double biasDADy = ratioW2 - errDADy*errW/(avgDADy*avgW)*corDADyW;
-            errDADy = Math.abs(avgDADy/avgW)*Math.sqrt(errDADy*errDADy/(avgDADy*avgDADy) + ratioW2 - 2*errDADy*errW/(avgDADy*avgW)*corDADyW);
-            avgDADy /= avgW;
-            double corDADy = corPU1.getValue(j+2);
-            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, avgDADy*biasDADy, corDADy));
-
-            double avgDADv2 = avgPU.getValue(jRaw+3);
-            double errDADv2 = errPU.getValue(jRaw+3);
-            double corDADv2W = covPU.getValue((jRaw+3)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+3)*nRaw+jRaw+3) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
-            double biasDADv2 = ratioW2 - errDADv2*errW/(avgDADv2*avgW)*corDADv2W;
-            errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + ratioW2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
-            avgDADv2 /= avgW;
-            double corDADv2 = corPU1.getValue(j+3);
-
-            // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
-
-            if (p2LJ!=null) {
-                p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[i]);
-                p2t.setBox(sim.box);
-                p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
-                p0lrc.setBox(sim.box);
-                ulrc = p0lrc.energy(null)/numAtoms;
-                plrc = -p0lrc.virial(null)/(3*vol);
+            if (!useRho) {
+	            double avgDADy = avgPU.getValue(jRaw+2);
+	            double errDADy = errPU.getValue(jRaw+2);
+	            double corDADyW = covPU.getValue((jRaw+2)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+2)*nRaw+jRaw+2) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
+	            double biasDADy = ratioW2 - errDADy*errW/(avgDADy*avgW)*corDADyW;
+	            errDADy = Math.abs(avgDADy/avgW)*Math.sqrt(errDADy*errDADy/(avgDADy*avgDADy) + ratioW2 - 2*errDADy*errW/(avgDADy*avgW)*corDADyW);
+	            avgDADy /= avgW;
+	            double corDADy = corPU1.getValue(j+2);
+	            System.out.println(String.format("rc: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy, avgDADy*biasDADy, corDADy));
+	
+	            double avgDADv2 = avgPU.getValue(jRaw+3);
+	            double errDADv2 = errPU.getValue(jRaw+3);
+	            double corDADv2W = covPU.getValue((jRaw+3)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+3)*nRaw+jRaw+3) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
+	            double biasDADv2 = ratioW2 - errDADv2*errW/(avgDADv2*avgW)*corDADv2W;
+	            errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + ratioW2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
+	            avgDADv2 /= avgW;
+	            double corDADv2 = corPU1.getValue(j+3);
+	
+	            // -(P/(temperature*density) - 1 - 4 * U / (temperature))*density*density/2;
+	
+	            if (p2LJ!=null) {
+	                p2t = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[i]);
+	                p2t.setBox(sim.box);
+	                p0lrc = p2t.makeLrcPotential(new IAtomType[]{sim.species.getAtomType(0), sim.species.getAtomType(0)});
+	                p0lrc.setBox(sim.box);
+	                ulrc = p0lrc.energy(null)/numAtoms;
+	                plrc = -p0lrc.virial(null)/(3*vol);
+	            }
+	
+	            double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
+	            double dadCor = covPU1.getValue((j+2)*n+j+3) / Math.sqrt(covPU1.getValue((j+2)*n+j+2) * covPU1.getValue((j+3)*n+j+3));
+	            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv2, avgDADv2*biasDADv2, corDADv2, dadCor));
+	            System.out.println();
             }
-
-            double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
-            double dadCor = covPU1.getValue((j+2)*n+j+3) / Math.sqrt(covPU1.getValue((j+2)*n+j+2) * covPU1.getValue((j+3)*n+j+3));
-            System.out.println(String.format("rc: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv2, avgDADv2*biasDADv2, corDADv2, dadCor));
-            System.out.println();
 
             j+=4;
             jRaw+=5;
@@ -477,9 +517,10 @@ public class LjMd3Dv2y {
                     avgU -= avgUref;
                     avgP -= avgPref;
                     avgDADy -= avgDADyref;
-                    System.out.println(String.format("drcLS: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc + avgU, errU1, (avgU-avgU1)/nAccBlocks, corU1));
-                    System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1, puCor));
-                    System.out.println(String.format("drcLS: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy1, (avgDADy-avgDADy1)/nAccBlocks, corDADy1));
+                    if (!useRho) System.out.println(String.format("drcLS: %d  U:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc + avgU, errU1, (avgU-avgU1)/nAccBlocks, corU1));
+                    if (useRho) System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1));
+                    else System.out.println(String.format("drcLS: %d  P:       % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, plrc + avgP, errP1, (avgP-avgP1)/nAccBlocks, corP1, puCor));
+                    if (!useRho) System.out.println(String.format("drcLS: %d  DADy:    % 22.15e  %10.4e  % 10.4e  % 5.2f", i, ulrc*Math.pow(density,-4)/4 + avgDADy, errDADy1, (avgDADy-avgDADy1)/nAccBlocks, corDADy1));
                 }
 
                 double avgDADv2 = avgPU.getValue(j+3)/avgW;
@@ -513,10 +554,12 @@ public class LjMd3Dv2y {
                 }
                 avgDADv2 -= avgDADv2ref;
 
-                double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
-                double dadCor = covPU1.getValue((j1+2)*n1+j1+3) / Math.sqrt(covPU1.getValue((j1+2)*n1+j1+2) * covPU1.getValue((j1+3)*n1+j1+3));
-                System.out.println(String.format("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv21, (avgDADv21-avgDADv2)/nAccBlocks, corDADv21, dadCor));
-                System.out.println();
+                if (!useRho) {
+	                double DADv2LRC = (-plrc/(temperature*density) + 4*ulrc/temperature)*density*density/2;
+	                double dadCor = covPU1.getValue((j1+2)*n1+j1+3) / Math.sqrt(covPU1.getValue((j1+2)*n1+j1+2) * covPU1.getValue((j1+3)*n1+j1+3));
+	                System.out.println(String.format("drcLS: %d  DADv2:   % 22.15e  %10.4e  % 10.4e  % 5.2f  % 7.4f", i, DADv2LRC + avgDADv2, errDADv21, (avgDADv21-avgDADv2)/nAccBlocks, corDADv21, dadCor));
+	                System.out.println();
+                }
 
                 j1+=4;
                 j+=5;
@@ -537,5 +580,6 @@ public class LjMd3Dv2y {
         public int nrcMax = 100;
         public boolean graphics = false;
         public int nAccBlocks = 100;
+        public double density = 0;
     }
 }
