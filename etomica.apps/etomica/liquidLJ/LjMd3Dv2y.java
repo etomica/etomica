@@ -117,10 +117,11 @@ public class LjMd3Dv2y {
 	                // try higher density, then lower density
 	                for (int i=10; i>=-10; i--) {
 	                    if (i==0) continue;
-	                    tmpConfigFilename = String.format("configN%d_rho%4.2f", numAtoms, density+0.01*i);
+	                    double rho0 = i>0 ? (density+0.01*(11-i)) : (density+0.01*i);
+	                    tmpConfigFilename = String.format("configN%d_rho%4.2f", numAtoms, rho0);
 	                    inConfigFile = new File(tmpConfigFilename+".pos");
 	                    if (inConfigFile.exists()) {
-	                        System.out.println("bringing configuration from rho="+(density+0.01*i));
+	                        System.out.println(String.format("bringing configuration from rho=%4.2f",rho0));
 	                        ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
 	                        configFile.initializeCoordinates(sim.box);
 	                        break;
@@ -153,10 +154,11 @@ public class LjMd3Dv2y {
 	                // try lower temperature, then higher temperature
 	                for (int i=10; i>=-10; i--) {
 	                    if (i==0) continue;
-	                    tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, params.v2, y+0.01*i);
+	                    double y0 = i>0 ? (y+0.01*(11-i)) : (y+0.01*i);
+	                    tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, params.v2, y0);
 	                    inConfigFile = new File(tmpConfigFilename+".pos");
 	                    if (inConfigFile.exists()) {
-	                        System.out.println("bringing configuration from y="+(y+0.01*i));
+	                        System.out.println(String.format("bringing configuration from y=%4.2f",y0));
 	                        ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
 	                        configFile.initializeCoordinates(sim.box);
 	                        break;
