@@ -58,7 +58,7 @@ public class MappedUpotential implements PotentialCalculation {
         dr = space.makeVector();
         cumint = new double[nbins+1];
         vol = box.getBoundary().volume();
-        vol = 1e5;
+      //  vol = 1e5;
       }
 
     public static void main (String[] args) throws IOException{
@@ -73,9 +73,9 @@ public class MappedUpotential implements PotentialCalculation {
         for (int i=13; i<=50; i++) {
             double r = i*0.05;
             if (r>=2.5) r = 2.499999;
-            double ulrc = potential.uInt(4);
-            double ulr = potential.uInt(r);
-            System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
+         //   double ulrc = potential.uInt(4);
+       //     double ulr = potential.uInt(r);
+          //  System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
             fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
         }
         fw.close();
@@ -137,6 +137,7 @@ public class MappedUpotential implements PotentialCalculation {
             double u = p2.u(r2);
             double evm1 = 0;
             double v = u;
+            if(r>vCut) v=0;
             evm1 = Math.exp(-beta*v);
             cumint[i] = cumint[i-1] + (D==2 ? r : r2)*(evm1)*(v+qp_q)*c1*(r+1);
         }

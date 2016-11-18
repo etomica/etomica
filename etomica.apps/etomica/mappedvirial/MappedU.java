@@ -93,10 +93,10 @@ public class MappedU extends Simulation {
         }
         else { 
             params.temperature = 2.0;
-            params.density = .01;
+            params.density = 0.1;
             params.numSteps = 10000000;
             params.rc = 4;
-            params.numAtoms = 400;
+            params.numAtoms = 1000;
             params.functionsFile = "0.10";
         }
                           
@@ -111,7 +111,7 @@ public class MappedU extends Simulation {
         boolean graphics = params.graphics;
         int nBlocks = params.nBlocks;
 
-        System.out.println("Virial mapped average");
+        System.out.println("Virial mapped average Potential");
         System.out.println(numAtoms+" atoms, "+numSteps+" steps");
         System.out.println("density: "+density);
         System.out.println("temperature: "+temperature);
