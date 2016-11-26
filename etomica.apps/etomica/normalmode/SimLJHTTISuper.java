@@ -588,8 +588,9 @@ public class SimLJHTTISuper extends Simulation {
 
             double facDADY = 4*density*density*density*density/temperature;
             double PUCor = covData.getValue((j+1)*n+(j+0))/Math.sqrt(covData.getValue((j+1)*n+(j+1))*covData.getValue((j+0)*n+(j+0)));
-            double DADACor = covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
-            double ZcUcCor = covData.getValue((j+3)*n+(j+4))/Math.sqrt(covData.getValue((j+3)*n+(j+3))*covData.getValue((j+4)*n+(j+4)));
+            // DADY's sign is opposite that of bUc, so correlation is negative.
+            double DADACor = -covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
+            double ZcUcCor = covData.getValue((j+2)*n+(j+3))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+3)*n+(j+3)));
 
             System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*avgBUc*biasBUc, corBUc));
             System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, avgDADv2*biasDADv2, corDADv2, DADACor));
@@ -650,8 +651,8 @@ public class SimLJHTTISuper extends Simulation {
                 double errDADv2 = errData.getValue(j+4);
                 double corDADv2 = corData.getValue(j+4);
 
-                double DADACor = covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
-                double ZcUcCor = covData.getValue((j+3)*n+(j+4))/Math.sqrt(covData.getValue((j+3)*n+(j+3))*covData.getValue((j+4)*n+(j+4)));
+                double DADACor = -covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
+                double ZcUcCor = covData.getValue((j+2)*n+(j+3))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+3)*n+(j+3)));
                 double facDADY = 4*density*density*density*density/temperature;
                 double PUCor = covData.getValue((j+1)*n+(j+0))/Math.sqrt(covData.getValue((j+1)*n+(j+1))*covData.getValue((j+0)*n+(j+0)));
 
