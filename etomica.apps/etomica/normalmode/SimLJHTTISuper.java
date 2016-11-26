@@ -298,8 +298,9 @@ public class SimLJHTTISuper extends Simulation {
         meterEnergyShort.setBox(sim.box);
         final double[] uFacCut = new double[cutoffs.length];
         double uShort = meterEnergyShort.getDataAsScalar();
+        int n0 = d.getLength() / nCutoffs;
         for (int i=0; i<uFacCut.length; i++) {
-            uFacCut[i] = d.getValue(5*i)*numAtoms - uShort;
+            uFacCut[i] = d.getValue(n0*i)*numAtoms - uShort;
         }
 
         
@@ -361,8 +362,9 @@ public class SimLJHTTISuper extends Simulation {
             for (int i=0; i<uFacCut.length; i++) {
                 uFacCutLS[i] = uFacCut[i];
             }
+            n0 = d.getLength() / nCutoffsLS;
             for (int i=uFacCut.length; i<uFacCutLS.length; i++) {
-                uFacCutLS[i] = d.getValue(5*i)*numAtoms - uShort;
+                uFacCutLS[i] = d.getValue(n0*i)*numAtoms - uShort;
             }
         }
         System.out.print("cutoffs: ");
@@ -483,14 +485,16 @@ public class SimLJHTTISuper extends Simulation {
         IData errRawData = avgSolid.getData(avgSolid.ERROR);
         IData corRawData = avgSolid.getData(avgSolid.BLOCK_CORRELATION);
         IData covRawData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
+        n0 = errRawData.getLength()/nCutoffs;
+        int iw = n0-1;
 
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
-            double avgW = avgRawData.getValue(j+5);
-            double errW = errRawData.getValue(j+5);
-            double corW = corRawData.getValue(j+5);
+            double avgW = avgRawData.getValue(j+iw);
+            double errW = errRawData.getValue(j+iw);
+            double corW = corRawData.getValue(j+iw);
             System.out.println(String.format("rc: %2d dbA:   % 21.15e  %10.4e  % 5.3f  % 6.4f", i, -Math.log(avgW)/numAtoms, errW/avgW/numAtoms, corW, errW/avgW));
-            j += 6;
+            j += n0;
         }
         System.out.println("\n");
 
@@ -498,14 +502,16 @@ public class SimLJHTTISuper extends Simulation {
             avgRawData = accPULS.getData(accPULS.AVERAGE);
             errRawData = accPULS.getData(accPULS.ERROR);
             corRawData = accPULS.getData(accPULS.BLOCK_CORRELATION);
+            n0 = errRawData.getLength()/nCutoffsLS;
+            iw = n0-1;
     
             j = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
-                double avgW = avgRawData.getValue(j+5);
-                double errW = errRawData.getValue(j+5);
-                double corW = corRawData.getValue(j+5);
+                double avgW = avgRawData.getValue(j+iw);
+                double errW = errRawData.getValue(j+iw);
+                double corW = corRawData.getValue(j+iw);
                 System.out.println(String.format("rcLS: %2d dbA:   % 21.15e  %10.4e  % 5.3f  % 6.4f", i, -Math.log(avgW)/numAtoms, errW/avgW/numAtoms, corW, errW/avgW));
-                j += 6;
+                j += n0;
             }
             System.out.println("\n");
         }
@@ -516,6 +522,9 @@ public class SimLJHTTISuper extends Simulation {
         IData covData = accPUBlocks.getData(accPUBlocks.BLOCK_COVARIANCE);
 
         int n = errData.getLength();
+        n0 = errData.getLength()/nCutoffs;
+        if (n0*nCutoffs != n) throw new RuntimeException("oops");
+        iw = n0;
         
         avgRawData = avgSolid.getData(avgSolid.AVERAGE);
         errRawData = avgSolid.getData(avgSolid.ERROR);
@@ -527,13 +536,13 @@ public class SimLJHTTISuper extends Simulation {
         for  (int i=0; i<cutoffs.length; i++) {
             // compute bias based on Taylor series expansion
             // Xmeasured = Xtrue ( 1 + (ew/w)^2 + (cov_XW)/(X W) )
-            double avgW = avgRawData.getValue(jRaw+5);
-            double errW = errRawData.getValue(jRaw+5);
+            double avgW = avgRawData.getValue(jRaw+iw);
+            double errW = errRawData.getValue(jRaw+iw);
             double errWratio2 = errW*errW/(avgW*avgW);
 
             double avgU = avgRawData.getValue(jRaw+0);
             double errU = errRawData.getValue(jRaw+0);
-            double corUW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+0))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+0)*nRaw+(jRaw+0)));
+            double corUW = covRawData.getValue((jRaw+iw)*nRaw+(jRaw+0))/Math.sqrt(covRawData.getValue((jRaw+iw)*nRaw+(jRaw+iw))*covRawData.getValue((jRaw+0)*nRaw+(jRaw+0)));
             if (errW < 1e-7) corUW=0; // if this is sampled rc
             double biasU = errWratio2 - errU*errW/(avgU*avgW)*corUW;
             errU = Math.abs(avgU/avgW)*Math.sqrt(errU*errU/(avgU*avgU) + errWratio2 - 2*errU*errW/(avgU*avgW)*corUW);
@@ -542,7 +551,7 @@ public class SimLJHTTISuper extends Simulation {
 
             double avgP = avgRawData.getValue(jRaw+1);
             double errP = errRawData.getValue(jRaw+1);
-            double corPW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+1))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+1)*nRaw+(jRaw+1)));
+            double corPW = covRawData.getValue((jRaw+iw)*nRaw+(jRaw+1))/Math.sqrt(covRawData.getValue((jRaw+iw)*nRaw+(jRaw+iw))*covRawData.getValue((jRaw+1)*nRaw+(jRaw+1)));
             if (errW < 1e-7) corPW=0; // if this is sampled rc
             double biasP = errWratio2 - errP*errW/(avgP*avgW)*corPW;
             errP = Math.abs(avgP/avgW)*Math.sqrt(errP*errP/(avgP*avgP) + errWratio2 - 2*errP*errW/(avgP*avgW)*corPW);
@@ -551,7 +560,7 @@ public class SimLJHTTISuper extends Simulation {
 
             double avgBUc = avgRawData.getValue(jRaw+2);
             double errBUc = errRawData.getValue(jRaw+2);
-            double corBUcW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+2))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+2)*nRaw+(jRaw+2)));
+            double corBUcW = covRawData.getValue((jRaw+iw)*nRaw+(jRaw+2))/Math.sqrt(covRawData.getValue((jRaw+iw)*nRaw+(jRaw+iw))*covRawData.getValue((jRaw+2)*nRaw+(jRaw+2)));
             if (errW < 1e-7) corBUcW=0; // if this is sampled rc
             double biasBUc = errWratio2 - errBUc*errW/(avgBUc*avgW)*corBUcW;
             errBUc = Math.abs(avgBUc/avgW)*Math.sqrt(errBUc*errBUc/(avgBUc*avgBUc) + errWratio2 - 2*errBUc*errW/(avgBUc*avgW)*corBUcW);
@@ -560,7 +569,7 @@ public class SimLJHTTISuper extends Simulation {
 
             double avgZc = avgRawData.getValue(jRaw+3);
             double errZc = errRawData.getValue(jRaw+3);
-            double corZcW = covRawData.getValue((jRaw+5)*nRaw+(jRaw+3))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+3)*nRaw+(jRaw+3)));
+            double corZcW = covRawData.getValue((jRaw+iw)*nRaw+(jRaw+3))/Math.sqrt(covRawData.getValue((jRaw+iw)*nRaw+(jRaw+iw))*covRawData.getValue((jRaw+3)*nRaw+(jRaw+3)));
             if (errW < 1e-7) corZcW=0; // if this is sampled rc
             double biasZc = errWratio2 - errZc*errW/(avgZc*avgW)*corZcW;
             errZc = Math.abs(avgZc/avgW)*Math.sqrt(errZc*errZc/(avgZc*avgZc) + errWratio2 - 2*errZc*errW/(avgZc*avgW)*corZcW);
@@ -570,7 +579,7 @@ public class SimLJHTTISuper extends Simulation {
             // this is dbAc/dv2 at constant Y (for LJ)
             double avgDADv2 = avgRawData.getValue(jRaw+4);
             double errDADv2 = errRawData.getValue(jRaw+4);
-            double corDADv2W = covRawData.getValue((jRaw+5)*nRaw+(jRaw+4))/Math.sqrt(covRawData.getValue((jRaw+5)*nRaw+(jRaw+5))*covRawData.getValue((jRaw+4)*nRaw+(jRaw+4)));
+            double corDADv2W = covRawData.getValue((jRaw+iw)*nRaw+(jRaw+4))/Math.sqrt(covRawData.getValue((jRaw+iw)*nRaw+(jRaw+iw))*covRawData.getValue((jRaw+4)*nRaw+(jRaw+4)));
             if (errW < 1e-7) corDADv2W=0; // if this is sampled rc
             double biasDADv2 = errWratio2 - errDADv2*errW/(avgDADv2*avgW)*corDADv2W;
             errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + errWratio2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
@@ -589,8 +598,8 @@ public class SimLJHTTISuper extends Simulation {
             System.out.print(String.format("rc: %2d Uraw:  % 21.15e  %10.4e  % 10.4e  % 5.3f\n", i, avgU, errU, avgU*biasU, corU));
             System.out.print(String.format("rc: %2d Praw:  % 21.15e  %10.4e  % 10.4e  % 5.3f  % 8.6f\n", i, avgP, errP, avgP*biasP, corP, PUCor));
             System.out.println();
-            j+=5;
-            jRaw+=6;
+            j+=n0;
+            jRaw+=n0+1;
         }
 
         if (nCutoffsLS > 0) {
@@ -603,19 +612,22 @@ public class SimLJHTTISuper extends Simulation {
             corData = accPULSBlocks.getData(accPULSBlocks.BLOCK_CORRELATION);
 
             n = errData.getLength();
+            n0 = n/nCutoffsLS;
+            if (n0*nCutoffsLS != n) throw new RuntimeException("oops");
+            iw = n0;
 
             j = 0;
             jRaw = 0;
             double avgUref = 0, avgPref = 0, avgZCref = 0, avgBUCref = 0, avgDADv2ref = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
                 if (i<cutoffs.length-1) {
-                    j+=5;
-                    jRaw+=6;
+                    j+=n0;
+                    jRaw+=n0+1;
                     continue;
                 }
                 // estimate bias based on difference between averages using all data and average of block data
                 // that gives us bias in block data.  then divide by number of blocks (bias proportional to variance and covariance)
-                double avgW = avgRawData.getValue(jRaw+5);
+                double avgW = avgRawData.getValue(jRaw+iw);
                 double avgU = avgRawData.getValue(jRaw+0)/avgW;
                 double avgU1 = avgData.getValue(j+0);
                 double errU = errData.getValue(j+0);
@@ -649,8 +661,8 @@ public class SimLJHTTISuper extends Simulation {
                     avgZCref = avgZc;
                     avgBUCref = avgBUc;
                     avgDADv2ref = avgDADv2;
-                    j+=5;
-                    jRaw+=6;
+                    j+=n0;
+                    jRaw+=n0+1;
                     continue;
                 }
                 avgU -= avgUref;
@@ -667,8 +679,8 @@ public class SimLJHTTISuper extends Simulation {
                 System.out.print(String.format("rcLS: %2d Praw:  % 21.15e  %10.4e  % 11.4e  % 5.3f  % 8.6f\n", i, avgP, errP, (avgP1-avgP)/numBlocks, corP, PUCor));
                 System.out.println();
 
-                j+=5;
-                jRaw+=6;
+                j+=n0;
+                jRaw+=n0+1;
             }
         }
 
