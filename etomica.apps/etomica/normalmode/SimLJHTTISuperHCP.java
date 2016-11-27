@@ -19,8 +19,6 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressureTensor;
-import etomica.data.types.DataTensor;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
@@ -44,10 +42,9 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
+import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
@@ -93,6 +90,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         primitive = new PrimitiveHexagonal(space, a, c);
         nCells = new int[]{2*n,2*n,n};
         boundary = new BoundaryDeformableLattice(primitive, nCells);
+        boundary.setTruncationRadius(rc);
         basis = new BasisHcp();
 
         box.setBoundary(boundary);
@@ -630,8 +628,8 @@ public class SimLJHTTISuperHCP extends Simulation {
 
             double facDADY = 4*density*density*density*density/temperature;
             double PUCor = covData.getValue((j+1)*n+(j+0))/Math.sqrt(covData.getValue((j+1)*n+(j+1))*covData.getValue((j+0)*n+(j+0)));
-            double DADACor = covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
-            double ZcUcCor = covData.getValue((j+3)*n+(j+4))/Math.sqrt(covData.getValue((j+3)*n+(j+3))*covData.getValue((j+4)*n+(j+4)));
+            double DADACor = -covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
+            double ZcUcCor = covData.getValue((j+2)*n+(j+3))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+3)*n+(j+3)));
 
             System.out.print(String.format("rc: %2d DADY:  % 21.15e  %10.4e  % 10.4e  % 5.3f\n", i, -facDADY*avgBUc, facDADY*errBUc, -facDADY*avgBUc*biasBUc, corBUc));
             System.out.print(String.format("rc: %2d DADv2: % 21.15e  %10.4e  % 10.4e  % 5.3f  % 8.6f\n", i, avgDADv2, errDADv2, avgDADv2*biasDADv2, corDADv2, DADACor));
@@ -694,8 +692,8 @@ public class SimLJHTTISuperHCP extends Simulation {
                 double errPcZ = errData.getValue(j+5);
                 double corPcZ = corData.getValue(j+5);
 
-                double DADACor = covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
-                double ZcUcCor = covData.getValue((j+3)*n+(j+4))/Math.sqrt(covData.getValue((j+3)*n+(j+3))*covData.getValue((j+4)*n+(j+4)));
+                double DADACor = -covData.getValue((j+2)*n+(j+4))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+4)*n+(j+4)));
+                double ZcUcCor = covData.getValue((j+2)*n+(j+3))/Math.sqrt(covData.getValue((j+2)*n+(j+2))*covData.getValue((j+3)*n+(j+3)));
                 double facDADY = 4*density*density*density*density/temperature;
                 double PUCor = covData.getValue((j+1)*n+(j+0))/Math.sqrt(covData.getValue((j+1)*n+(j+1))*covData.getValue((j+0)*n+(j+0)));
 
@@ -737,7 +735,7 @@ public class SimLJHTTISuperHCP extends Simulation {
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     public IBox box;
-    public Boundary boundary;
+    public BoundaryDeformablePeriodic boundary;
     public int[] nCells;
     public Basis basis;
     public Primitive primitive;
