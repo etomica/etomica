@@ -14,9 +14,15 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
+import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorRatioAverageCovarianceFull;
+import etomica.data.DataPipe;
+import etomica.data.DataProcessor;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
+import etomica.data.IEtomicaDataInfo;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
@@ -27,6 +33,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.units.Null;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramNotSoSimple;
 import etomica.util.HistogramSimple;
@@ -204,7 +211,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         
         for (int iBox=0; iBox<2; iBox++) {
             // integrator for iBox samples based on iBox cluster
-            box[iBox] = boxFactory.makeBox(space, sampleClusters[iBox], iBox==0);
+            box[iBox] = boxFactory.makeBox(space, sampleClusters[iBox]);
             addBox(box[iBox]);
             for (int i=0; i<species.length; i++) {
                 box[iBox].setNMolecules(species[i], nMolecules[i]);
@@ -317,12 +324,43 @@ public class SimulationVirialOverlap2 extends Simulation {
         return numAlpha;
     }
 
+    protected void initBlockAccumulator() {
+        blockAccumulator = new AccumulatorAverageCovariance(1, true);
+        DataProcessor dpRatio = new DataProcessor() {
+            
+            DataDoubleArray data = new DataDoubleArray(extraTargetClusters.length+1);
+            
+            public DataPipe getDataCaster(IEtomicaDataInfo inputDataInfo) {
+                return null;
+            }
+            
+            protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+                dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{extraTargetClusters.length+1});
+                return dataInfo;
+            }
+            
+            protected IData processData(IData inputData) {
+                double[] x = data.getData();
+                double oavg = inputData.getValue(x.length);
+                for (int i=0; i<x.length; i++) {
+                    x[i] = inputData.getValue(i)/oavg;
+                }
+                return data;
+            }
+        };
+        accumulators[1].setBlockDataSink(dpRatio);
+        dpRatio.setDataSink(blockAccumulator);
+    }
+
     public void setRefPref(double newRefPref) {
         System.out.println("setting ref pref (explicitly) to "+newRefPref);
         dpVirialOverlap[0].setNumAlpha(1);
         dpVirialOverlap[0].setBennetParam(newRefPref, 1);
         dpVirialOverlap[1].setNumAlpha(1);
         dpVirialOverlap[1].setBennetParam(newRefPref, 1);
+        if (extraTargetClusters.length > 0) {
+            initBlockAccumulator();
+        }
     }
 
     /**
@@ -593,9 +631,16 @@ public class SimulationVirialOverlap2 extends Simulation {
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(false);
         }
+        if (extraTargetClusters.length > 0) {
+            initBlockAccumulator();
+        }
     }
 
     public void printResults(double refIntegral) {
+        printResults(refIntegral, null);
+    }
+
+    public void printResults(double refIntegral, String[] extraNames) {
         double[] ratioAndError = dvo.getAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
@@ -616,6 +661,8 @@ public class SimulationVirialOverlap2 extends Simulation {
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
         System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
                               averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
+        double refRatioAvg = ratioData.getValue(1);
+        double refRatioErr = ratioErrorData.getValue(1);
         
         allYourBase = (DataGroup)accumulators[1].getData();
         ratioData = allYourBase.getData(accumulators[1].RATIO.index);
@@ -633,6 +680,57 @@ public class SimulationVirialOverlap2 extends Simulation {
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
         System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                               averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
+
+        int nTotal = n+2;
+        double oVar = covarianceData.getValue(nTotal*nTotal-1);
+        for (int i=0; i<n; i++) {
+            String name = extraNames == null ? ("Extra "+(i+1)) : extraNames[i];
+            // average is vi/|v| average, error is the uncertainty on that average
+            // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
+            double ivar = covarianceData.getValue((i+1)*nTotal+(i+1));
+            double ocor = ivar*oVar == 0 ? 0 : covarianceData.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar);
+            System.out.print(String.format("%s average: %20.15e  error: %10.15e  ocor: %7.5f", name, averageData.getValue(i+1), errorData.getValue(i+1), ocor));
+            System.out.print("  dcor:");
+            for (int j=-1; j<n; j++) {
+//                if (i==j) continue;
+                double jvar = covarianceData.getValue((j+1)*nTotal+(j+1));
+                double dcor = ivar*jvar == 0 ? 0 : covarianceData.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar);
+                System.out.print(String.format(" %8.6f", dcor));
+            }
+            System.out.println();
+            IData ratioCov = blockAccumulator.getData(blockAccumulator.COVARIANCE);
+            int k = (i+1)*nTotal+(n+1);
+            correlationCoef = covarianceData.getValue(k)/Math.sqrt(covarianceData.getValue((i+1)*nTotal+(i+1))*covarianceData.getValue((n+1)*nTotal+(n+1)));
+            System.out.print(String.format("%s ratio average: %20.15e  error: %10.15e  ocor: %7.5f  tcor:", name, ratioData.getValue(k), ratioErrorData.getValue(k), correlationCoef));
+            int nn = n+1;
+            for (int j=0; j<nn; j++) {
+                correlationCoef = ratioCov.getValue((i+1)*nn+j)/Math.sqrt(ratioCov.getValue((i+1)*nn+(i+1))*ratioCov.getValue(j*nn+j));
+                System.out.print(String.format(" %8.6f", correlationCoef));
+            }
+            System.out.println();
+            
+            double avg = ratioData.getValue(k);
+            double te = ratioErrorData.getValue(k);
+            double err2 = (te*te)/(avg*avg) + (refRatioErr*refRatioErr)/(refRatioAvg*refRatioAvg);
+            avg /= refRatioAvg;
+            double err = Math.sqrt(err2)*Math.abs(avg);
+            System.out.print(String.format("%s full average: %20.15e  error: %10.15e  tcor:", name, refIntegral*avg, Math.abs(refIntegral)*err));
+            for (int j=0; j<nn; j++) {
+                int kj = j*nTotal+(n+1);
+                double avgj = ratioData.getValue(kj);
+                double tej = ratioErrorData.getValue(kj);
+                double err2j = (tej*tej)/(avgj*avgj) + (refRatioErr*refRatioErr)/(refRatioAvg*refRatioAvg);
+                avgj /= refRatioAvg;
+                double errj = Math.sqrt(err2j)*Math.abs(avgj);
+
+                correlationCoef = ratioCov.getValue((i+1)*nn+j)/Math.sqrt(ratioCov.getValue((i+1)*nn+(i+1))*ratioCov.getValue(j*nn+j));
+                correlationCoef *= ratioErrorData.getValue((i+1)*nTotal+(n+1))*ratioErrorData.getValue(j*nTotal+(n+1));
+                correlationCoef += (refRatioErr*refRatioErr)*(avg*avgj);
+                correlationCoef /= (refRatioAvg*refRatioAvg)*(err*errj);
+                System.out.print(String.format(" %8.6f", correlationCoef));
+            }
+            System.out.println();
+        }
     }
 
     protected final ISpecies[] species;
@@ -646,6 +744,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     
 	public DataVirialOverlap dvo;
     public final AccumulatorRatioAverageCovarianceFull[] accumulators;
+    public AccumulatorAverageCovariance blockAccumulator;
     protected DataPumpListener[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
     public final BoxCluster[] box;
@@ -665,7 +764,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected HistogramNotSoSimple targPiHist;
     
     public static class BoxClusterFactory {
-        public BoxCluster makeBox(ISpace space, ClusterWeight sampleCluster, boolean isRef) {
+        public BoxCluster makeBox(ISpace space, ClusterWeight sampleCluster) {
             return new BoxCluster(sampleCluster, space);
         }
     }
