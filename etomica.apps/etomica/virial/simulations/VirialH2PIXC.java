@@ -320,13 +320,6 @@ public class VirialH2PIXC {
 				public void integratorStepFinished(IIntegratorEvent e) {
 					if ((sim.integrator.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
 					System.out.println(temperatureK+" "+avg0.getData(avg0.AVERAGE).getValue(0)+" "+avg0.getData(avg0.ERROR).getValue(0)+" "+avg0.getData(avg0.BLOCK_CORRELATION).getValue(0));
-					double[] xValues = cbl0.h1.xValues();
-
-					for (int i=0; i<xValues.length; i++) {
-						if (!Double.isNaN(cbl0.hValues[i]) && cbl0.hValues[i] != 0) {
-							//                            System.out.println(xValues[i]+" "+cbl0.hValues[i]+" ");
-						}
-					}
 				}
 			};
 			sim.integrator.getEventManager().addListener(progressReport);
