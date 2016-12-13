@@ -33,9 +33,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramNotSoSimple;
-import etomica.util.HistogramSimple;
 
 /**
  * MCMove that fully regrows the beads of a ring polymer by rotating the images, accepting or
@@ -45,6 +42,18 @@ import etomica.util.HistogramSimple;
  */
 public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 
+	// Private instance variables
+	private final int P;
+	private final ISpace space;
+	private final IRandom random;
+	private IOrientation3D[][] oldOrientations;
+	private double weightOld, weightNew,kHarmonic,pacc;
+	private final AtomIteratorLeafAtoms leafIterator;
+	private int acc = 0, molIndexUntouched = -1;
+	private boolean firstMove = true;
+	private boolean[] doExchange;
+	private double [] newAlpha;
+	private final IVectorMutable utilityVec1,utilityVec2, utilityVec3;
 
 	public MCMoveClusterRingRegrowOrientation(IRandom random, ISpace _space, int P) {
 		super(null);
@@ -52,11 +61,11 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		this.P = P;
 		this.random = random;
 		leafIterator = new AtomIteratorLeafAtoms();
-		dr = space.makeVector();
-		dr1 = space.makeVector();
-		dr2 = space.makeVector();
-		dummy = space.makeVector();
+		utilityVec1 = space.makeVector();
+		utilityVec2 = space.makeVector();
+		utilityVec3 = space.makeVector();
 	}
+
 	@Override
 	public void setBox(IBox p) {
 		super.setBox(p);
@@ -72,8 +81,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			}
 		}
 		leafIterator.setBox(p);
-		//        System.out.println(1E-24*Constants.AVOGADRO+" "+Mole.UNIT.fromSim(1)+" "+1/Constants.AVOGADRO);
-		//        System.exit(1);
 	}
 
 	/**
@@ -87,17 +94,11 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	public double getStiffness() {
 		return kHarmonic;
 	}
+
 	@Override
 	public boolean doTrial() {
-		moveCount++;
 		weightOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-		IVectorRandom e1 = (IVectorRandom) space.makeVector();
-		IVectorMutable ex = space.makeVector();
-		IVectorMutable ey = space.makeVector();
-		IVectorMutable ez = space.makeVector();
-		ex.setX(0, 1);
-		ey.setX(1, 1);
-		ez.setX(2, 1);
+		IVectorRandom axis = (IVectorRandom) space.makeVector();
 		IVectorMutable oldCenter = space.makeVector();
 		IVectorMutable newCenter = space.makeVector();
 		IMoleculeList molecules = box.getMoleculeList();
@@ -123,8 +124,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				if (prev < 0) prev = P-1;
 				AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
 				AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
-				avgAngle += Math.acos(jAtom.getOrientation().getDirection().dot(jPrev.getOrientation().getDirection()));
-				//				double distance = dist(jAtom,jPrev,i);
 				uOld += kHarmonic*dist(jAtom,jPrev, i);
 			}
 			oldOrientations[i][0].setDirection(((IAtomOriented) atoms.getAtom(0)).getOrientation().getDirection());
@@ -165,9 +164,8 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 
 					}
 					bl *= dr/(2.0*P + dr);
-
 					// same as r /= (toImage - fromImage + 1)
-					//					if (box.getIndex() == 1) System.out.println("mol Index "+i+" imageIndex "+imageIndex+" radius "+bl);
+
 
 					if (imageIndex == P/2 && doExchange[i]) {
 						pVecOld.TE(-1);
@@ -192,17 +190,15 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						double newY0 = y0;
 						if (y0 == -1.0) piFlagNew = true;
 						if (!piFlagNew) kEff1New = kEff*bl*bl*Math.sqrt((1+y0)/2.0);
-						//						if (box.getIndex() == 1) System.out.println("keffNew "+kEff1New);
 						y0 = oldCenter.dot(oldOrientations[i][imageIndex].getDirection());
 						if (y0 > 1.0) y0 = 1.0;
 						if (y0 < -1.0) y0 = -1.0;
 						double oldCenterY0 = y0;
 						oldAlpha[imageIndex] = Math.acos(y0);
 						double x = random.nextDouble();
-						//                  	double y1_new = (-kEff1New + Math.log(Math.exp(2*kEff1New)-x*(Math.exp(2*kEff1New)-1)))/kEff1New;
+
 						if (!piFlagNew) {
 							pGenNew = Math.log(1 - x)/kEff1New + Math.log(1 + x*Math.exp(-2*kEff1New)/(1-x))/kEff1New;
-							//                  	double a = Math.log(1 - xNew[i][imageIndex])/kEff1New + Math.log(1 + xNew[i][imageIndex]*Math.exp(-2*kEff1New)/(1-xNew[i][imageIndex]))/kEff1New;
 							if (pGenNew > 0) {
 								pGenNew = 0;
 							}
@@ -261,17 +257,17 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						newCenter.normalize();
 						newOrientations[i][imageIndex].setDirection(newCenter);
 
-						e1.E(0);
+						axis.E(0);
 						if (Math.abs(newCenter.getX(0)) > 0.5) {
-							e1.setX(1,1);
+							axis.setX(1,1);
 						}
 						else {
-							e1.setX(0, 1);
+							axis.setX(0, 1);
 						}
-						e1.PEa1Tv1(-e1.dot(newCenter), newCenter);
-						e1.normalize();
+						axis.PEa1Tv1(-axis.dot(newCenter), newCenter);
+						axis.normalize();
 
-						rotateVectorV(newAlpha[imageIndex], e1,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
+						rotateVectorV(newAlpha[imageIndex], axis,(IVectorMutable)newOrientations[i][imageIndex].getDirection());
 						theta[imageIndex] = random.nextDouble()*2*Math.PI;
 						newOrientations[i][imageIndex].rotateBy(theta[imageIndex], newCenter);
 					}
@@ -295,11 +291,9 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 							pRatio = Math.exp(kEff1New*pGenNew - kEff1Old*y0m1)*kEff1New*(1-Math.exp(-2*kEff1Old))/(kEff1Old*(1-Math.exp(-2*kEff1New)));
 						}
 						else if (!piFlagOld && piFlagNew){
-							// if piFlag, pGen = 1/2
 							pRatio = Math.exp(-kEff1Old*y0m1)*(1-Math.exp(-2*kEff1Old))/(2*kEff1Old);
 						}
 						else if (!piFlagNew && piFlagOld) {
-							// if piFlag, pGen = 1/2
 							pRatio = Math.exp(kEff1New*pGenNew)*kEff1New*2/(1-Math.exp(-2*kEff1New));
 						}
 						else {
@@ -307,20 +301,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 						}
 
 						pGenRatio *= pRatio;
-						if (false && box.getIndex() == 1) {
-							System.out.println("moveCount = "+moveCount);
-							System.out.println("imageIndex = "+imageIndex);
-							System.out.println("pGenNew = "+pGenNew);
-							System.out.println("pRatio = "+pRatio);
-							System.out.println("y1 = "+y1);
-							System.out.println("newAlpha = "+newAlpha[imageIndex]);
-							System.out.println("kEff = "+kEff);
-							System.out.println("r = "+bl);
-							System.out.println("v = "+v);
-							System.out.println("v1 = "+v1);
-							System.out.println("s1 = "+s1);
-							System.out.println("y0m1 = "+y0m1);
-						}
 						if (Double.isNaN(pGenRatio)) {
 							System.out.println("a = "+pGenNew);
 							System.out.println("y1 = "+y1);
@@ -332,7 +312,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 							System.out.println("v1 = "+v1);
 							System.out.println("s1 = "+s1);
 							System.out.println("y0m1 = "+y0m1);
-							throw new RuntimeException();
+							throw new RuntimeException("pGenRatio is not a number!");
 						}
 					}
 				}
@@ -347,17 +327,12 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			}
 		}
 		double pActRatio = Math.exp(uOld-uNew);
-		uAcc = uNew;
 		pacc = pActRatio/pGenRatio;
-		//		System.out.println(uOld+" "+uNew);
-		//		System.exit(1);
 		((BoxCluster)box).trialNotify();
 		weightNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
-
 		return true;
 	}
-	protected FileWriter oldFancy,newFancy;
-	public boolean printToFile;
+
 	@Override
 	public double getA() {
 		if (firstMove) {
@@ -376,9 +351,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 
 	@Override
 	public void rejectNotify() {
-		rejected++;
-		prevAcc = false;
-		//        System.out.println("Brute force: orientation move rejected");
 		IMoleculeList molecules = box.getMoleculeList();
 		for (int i=0; i<molecules.getMoleculeCount(); i++) {
 			if (molIndexUntouched == i) continue;
@@ -393,14 +365,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 
 	@Override
 	public void acceptNotify() {
-		//    	System.out.println("Brute force: orientation move accepted");
-		if (box.getIndex() == 0) uCurrent = uAcc;
-		if (rejected > 100 && box.getIndex() == 0) {
-			rc++;
-		}
-		prevAcc = true;
-		rejected = 0;
-		foo++;
+		acc++;
 		firstMove = false;
 		((BoxCluster)box).acceptNotify();
 	}
@@ -414,22 +379,24 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	public AtomIterator affectedAtoms() {
 		return leafIterator;
 	}
-	protected boolean[] doExchange;
+
 	public void setDoExchange(boolean[] b) {
 		doExchange = b;
 	}
-	protected double dist(AtomHydrogen a0, AtomHydrogen a1, int moleculeIndex) {
+
+	private double dist(AtomHydrogen a0, AtomHydrogen a1, int moleculeIndex) {
 		if (moleculeIndex < 0) throw new ArrayIndexOutOfBoundsException("Molecule Index: "+moleculeIndex);
-		dummy.E(a0.getOrientation().getDirection());
+		utilityVec3.E(a0.getOrientation().getDirection());
 		if (a0.getIndex() == 0 && doExchange[moleculeIndex]) {
-			dummy.TE(-1);
+			utilityVec3.TE(-1);
 		}
-		dr.Ea1Tv1(a0.getBondLength(), dummy);
-		dr1.Ea1Tv1(a1.getBondLength(), a1.getOrientation().getDirection());
-		double r2 = dr.Mv1Squared(dr1);
+		utilityVec1.Ea1Tv1(a0.getBondLength(), utilityVec3);
+		utilityVec2.Ea1Tv1(a1.getBondLength(), a1.getOrientation().getDirection());
+		double r2 = utilityVec1.Mv1Squared(utilityVec2);
 		return r2;
 	}
-	public void rotateVectorV(double angle, IVector axis, IVectorMutable v) {
+
+	private void rotateVectorV(double angle, IVector axis, IVectorMutable v) {
 		double q0 = Math.cos(angle/2.0);
 		double sth2 = Math.sin(angle/2.0);
 		IVectorMutable a1 = space.makeVector();
@@ -444,32 +411,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		if (Math.abs(w.getScalar()) > 1E-10 ) throw new RuntimeException("Quaternion product is not a vector!");
 		v.E(w.getVector());
 	}
-	protected double uAcc = 0;
-	protected FileWriter file = null;
-	public static double uCurrent = 0;
-	public double avgAngle = 0;
-	public long moveCount = 0;
-	private static final long serialVersionUID = 1L;
-	protected final int P;
-	protected final ISpace space;
-	protected final IRandom random;
-	protected IOrientation3D[][] oldOrientations;
-	protected double weightOld, weightNew;
-	protected final AtomIteratorLeafAtoms leafIterator;
-	protected int foo = 0;
-	protected double kHarmonic;
-	protected double pacc;
-	protected int molIndexUntouched = -1;
-	protected boolean prevAcc = false;
-	protected boolean firstMove = true;
-	protected int rejected = 0;
-	protected int rc = 0;
-	protected int choice = 1;
-	public HistogramNotSoSimple hist1 = new HistogramNotSoSimple(10000,new DoubleRange(0, 1));
-	public HistogramSimple hPhi01 = new HistogramSimple(500,new DoubleRange(0, Math.PI));
-	protected double [] newAlpha;
-	protected boolean flag;
-	protected final IVectorMutable dr,dr1,dr2,dummy;
+
 	public static void main(String[] args) {
 		ISpace space = Space3D.getInstance();
 		ClusterWeight cluster = new ClusterWeight() {
@@ -517,7 +459,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
 
 			for (int iTemp = 40; iTemp <= 40; iTemp+= 2) {
-				move.foo = 0;
+				move.acc = 0;
 				move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0).getMass());
 				integrator.getMoveManager().addMCMove(move);
 				integrator.reset();
@@ -527,13 +469,13 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				}
 				try{
 					FileWriter Temp = new FileWriter("acceptance.dat",true);
-					Temp.write(iTemp+" "+p+" "+move.getStiffness()+" "+((double)move.foo)/total+"\n");
+					Temp.write(iTemp+" "+p+" "+move.getStiffness()+" "+((double)move.acc)/total+"\n");
 					Temp.close();
 				}
 				catch(IOException ex1){
 					throw new RuntimeException(ex1);
 				}
-				System.out.println("p = "+p+" ,Temp = "+iTemp+" ,acceptance ratio = "+((double)move.foo)/total);
+				System.out.println("p = "+p+" ,Temp = "+iTemp+" ,acceptance ratio = "+((double)move.acc)/total);
 			}
 
 		}
