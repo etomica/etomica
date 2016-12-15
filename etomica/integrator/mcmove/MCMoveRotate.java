@@ -4,28 +4,43 @@
 
 package etomica.integrator.mcmove;
 
+import etomica.api.IAtomList;
+import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
 import etomica.space.ISpace;
+import etomica.space3d.Orientation3D;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
  */
 public class MCMoveRotate extends MCMoveAtom {
     
-    private static final long serialVersionUID = 2L;
-    private final IOrientation oldOrientation;
+    private IOrientation oldOrientation;
 
     private transient IOrientation iOrientation;
 
     public MCMoveRotate(IPotentialMaster potentialMaster, IRandom random,
     		            ISpace _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
-        oldOrientation = _space.makeOrientation();
     }
     
+    public void setBox(IBox box) {
+        super.setBox(box);
+        if (oldOrientation != null) return;
+        IAtomList atoms = box.getLeafList();
+        if (atoms.getAtomCount() == 0) return;
+        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
+        if (atom0.getOrientation() instanceof Orientation3D) {
+            oldOrientation = new Orientation3D(space);
+        }
+        else {
+            oldOrientation = space.makeOrientation();
+        }
+    }
+
     public boolean doTrial() {
         if(box.getMoleculeList().getMoleculeCount()==0) {return false;}
         atom = atomSource.getAtom();
