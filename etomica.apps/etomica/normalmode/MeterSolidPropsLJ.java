@@ -13,9 +13,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -50,7 +48,6 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
     
     protected final double temperature;
     private final PotentialCalculation pcSolidProps;
-    protected boolean isLJ = true;
     protected  PotentialCalculationForceSum pcForceSum;
     
     public MeterSolidPropsLJ(ISpace space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature, double dP,double dU, double ddP, double ULat, double PLat,double dSigma, double dc11, double gamma, double ex) {
@@ -91,7 +88,7 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
     	fe  = -(1+dSigma/temperature*volume)/(3.0*(nMol-1));
     	fee = fe*fe + (1-dc11*volume/temperature)/(3.0*(nMol-1));
     	
-		pcSolidProps = new PotentialCalculationLJ(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,dP, f1, fe, fee);
+		pcSolidProps = new PotentialCalculationLJSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,dP, f1, fe, fee);
 
 
 //        pcUP.setAgentManager(forceManager);
@@ -125,15 +122,10 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
     public IData getData() {
         IBox box = coordinateDefinition.getBox();
         double[] sum;
-        if(isLJ){
-            ((PotentialCalculationLJ)pcSolidProps).reset();
-            potentialMaster.calculate(box, id, pcSolidProps);
-            sum = ((PotentialCalculationLJ)pcSolidProps).getSum();
-        }else{
-            ((PotentialCalculationEFS)pcSolidProps).reset();
-            potentialMaster.calculate(box, id, pcSolidProps);
-            sum = ((PotentialCalculationEFS)pcSolidProps).getSum();
-        }
+        ((PotentialCalculationLJSP)pcSolidProps).reset();
+        potentialMaster.calculate(box, id, pcSolidProps);
+        sum = ((PotentialCalculationLJSP)pcSolidProps).getSum();
+
         potentialMaster.calculate(box, id, pcForceSum);
 
         double[] x = data.getData();
