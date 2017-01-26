@@ -69,9 +69,9 @@ public class MeterSolidProps implements IEtomicaDataSource, AgentSource<MyAgent>
     	if(isLJ){
         	double fe = 1.00000;
         	double fee = 1.00000;
-    		pcSolidProps = new PotentialCalculationLJ(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,dP, f1, fe,fee);
+    		pcSolidProps = new PotentialCalculationLJSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,dP, f1, fe,fee);
     	}else{
-    		pcSolidProps = new PotentialCalculationEFS(space,coordinateDefinition.getBox(),coordinateDefinition,temperature,dP, f1, isLS);
+    		pcSolidProps = new PotentialCalculationEFSSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature, f1, isLS);
     	}
         forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox(), MyAgent.class);
 //        pcUP.setAgentManager(forceManager);
@@ -85,13 +85,13 @@ public class MeterSolidProps implements IEtomicaDataSource, AgentSource<MyAgent>
         IBox box = coordinateDefinition.getBox();
         double[] sum;
         if(isLJ){
-            ((PotentialCalculationLJ)pcSolidProps).reset();
+            ((PotentialCalculationLJSP)pcSolidProps).reset();
             potentialMaster.calculate(box, id, pcSolidProps);
-            sum = ((PotentialCalculationLJ)pcSolidProps).getSum();
+            sum = ((PotentialCalculationLJSP)pcSolidProps).getSum();
         }else{
-            ((PotentialCalculationEFS)pcSolidProps).reset();
+            ((PotentialCalculationEFSSP)pcSolidProps).reset();
             potentialMaster.calculate(box, id, pcSolidProps);
-            sum = ((PotentialCalculationEFS)pcSolidProps).getSum();
+            sum = ((PotentialCalculationEFSSP)pcSolidProps).getSum();
         }
         double[] x = data.getData();
         //ALL with "ij" pairs.
