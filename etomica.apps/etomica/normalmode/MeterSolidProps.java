@@ -130,9 +130,9 @@ public class MeterSolidProps implements IEtomicaDataSource, AgentSource<MyAgent>
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a, IBox oox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, IBox box) {}
 }

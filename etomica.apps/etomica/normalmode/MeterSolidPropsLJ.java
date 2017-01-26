@@ -329,40 +329,9 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a, IBox box) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, IBox box) {}
 }
-
-//OLD: in getData
-////double f = Math.exp(-(1+volume/temperature*dSigma)/(3*(nMol+1))*ex); // sigma11
-//double f = Math.exp( -volume/temperature*dSigma*gamma/(3*(nMol-1)) ); //shear12
-//for(int n=0;n < nMol;n++){
-//dx = box.getLeafList().getAtom(n).getPosition().getX(0) - coordinateDefinition.getLatticePosition(box.getLeafList().getAtom(n)).getX(0);
-//dy = box.getLeafList().getAtom(n).getPosition().getX(1) - coordinateDefinition.getLatticePosition(box.getLeafList().getAtom(n)).getX(1);
-//dz = box.getLeafList().getAtom(n).getPosition().getX(2) - coordinateDefinition.getLatticePosition(box.getLeafList().getAtom(n)).getX(2);
-//
-//x[16] += dx*dx;
-//x[17] += dy*dy;
-//x[18] += dz*dz;
-
-//x[16] += (dx + gamma*dz)*(dx + gamma*dz);
-//x[17] += dy*dy;
-//x[18] += dz*dz;
-//
-//x[19] += (f*(dx + gamma*dz)) * (f*(dx + gamma*dz));
-//x[20] += (f*dy) * (f*dy);
-//x[21] += (f*dz) * (f*dz);
-//
-//x[22] += (f*dx) * (f*dx);
-//x[23] += (f*dy) * (f*dy);
-//x[24] += (f*dz) * (f*dz);
-//
-//
-//}
-//
-//x[16]/=nMol; x[17]/=nMol; x[18]/=nMol;
-//x[19]/=nMol; x[20]/=nMol; x[21]/=nMol;
-//x[22]/=nMol; x[23]/=nMol; x[24]/=nMol;
