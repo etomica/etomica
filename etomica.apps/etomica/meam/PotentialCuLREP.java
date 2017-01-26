@@ -56,8 +56,8 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         return rC2; // rC2=7.8>rC1=6.1
     }
     public void setRange(double rC1, double rC2) {
-    	rC1 = rC1; //d>c
-    	rC2 = rC2; //d>c
+    	this.rC1 = rC1; //d>c
+    	this.rC2 = rC2; //d>c
     }
 
     
