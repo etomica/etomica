@@ -47,6 +47,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         PotentialSoft potentialSoft = (PotentialSoft)potential;
         int nBody = potential.nBody();
         IVector[] f = potentialSoft.gradient(atoms);
+        if (f==null) return;
         switch(nBody) {
         	case 0:
         		IAtomList boxAtoms = integratorAgentManager.getBox().getLeafList();
