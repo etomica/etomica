@@ -273,12 +273,12 @@ public class PotentialGroup extends PotentialMolecular {
         return false;
     }
 
-    public IPotential[] getPotentials() {
+    public IPotentialAtomic[] getPotentials() {
         int nPotentials=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             nPotentials++;
         }
-        IPotential[] potentials = new Potential[nPotentials];
+        IPotentialAtomic[] potentials = new Potential[nPotentials];
         int i=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             potentials[i++] = link.potential;
