@@ -11,6 +11,9 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.iterator.ApiIndexList;
+import etomica.atom.iterator.Atomset3IteratorIndexList;
+import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationGeneric;
 import etomica.potential.P2Harmonic;
@@ -48,9 +51,9 @@ public class ParserLAMMPS {
         
         for (String line : lines) {
         	if (line.length() == 0) continue;
-        	String[] fields = line.split("[\\w]*");
-        	if (fields[0].matches("^[0-9-]")) {
-    			if (line.matches("^[0-9]* atom")) {
+        	String[] fields = line.split("[ \t]+");
+        	if (fields[0].matches("[0-9-]*")) {
+    			if (line.matches("[0-9]* atoms")) {
     				int n = Integer.parseInt(fields[0])+1;
     				atomTypeId = new int[n];
     				charges = new double[n];
@@ -58,13 +61,14 @@ public class ParserLAMMPS {
     				continue;
     			}
     			if (line.matches("^[0-9]* atom types")) {
-    				atomTypes = new IAtomType[Integer.parseInt(fields[0])+1];
-    				atomCounts = new int[atomTypes.length];
-    				sigma = new double[atomTypes.length];
-    				epsilon = new double[atomTypes.length];
+    				int n = Integer.parseInt(fields[0]);
+    				atomTypes = new IAtomType[n];
+    				atomCounts = new int[n];
+    				sigma = new double[n];
+    				epsilon = new double[n];
     				continue;
     			}
-    			if (line.matches("^[0-9]* bond types")) {
+    			if (line.matches("[0-9]* bond types")) {
     				p2Bonds = new P2Harmonic[Integer.parseInt(fields[0])+1];
     				bondedPairs = new ArrayList[p2Bonds.length];
     				for (int i=0; i<p2Bonds.length; i++) {
@@ -72,7 +76,7 @@ public class ParserLAMMPS {
     				}
     				continue;
     			}
-    			if (line.matches("^[0-9]* angle types")) {
+    			if (line.matches("[0-9]* angle types")) {
     				p3Bonds = new P3BondAngle[Integer.parseInt(fields[0])+1];
     				bondedTriplets = new ArrayList[p3Bonds.length];
     				for (int i=0; i<p3Bonds.length; i++) {
@@ -80,7 +84,7 @@ public class ParserLAMMPS {
     				}
     				continue;
     			}
-    			if (line.matches("^[0-9]* angle types")) {
+    			if (line.matches("[0-9]* dihedral types")) {
     				p4Bonds = new P4BondTorsion[Integer.parseInt(fields[0])+1];
     				bondedQuads = new ArrayList[p4Bonds.length];
     				for (int i=0; i<p4Bonds.length; i++) {
@@ -88,53 +92,53 @@ public class ParserLAMMPS {
     				}
     				continue;
     			}
-        		if (heading.matches("^masses")) {
+        		if (heading.matches("masses")) {
         			int idx = Integer.parseInt(fields[0]);
-        			atomTypes[idx] = new AtomTypeLeaf(new ElementSimple(symbol+"", Double.parseDouble(fields[1])));
+        			atomTypes[idx-1] = new AtomTypeLeaf(new ElementSimple(symbol+"", Double.parseDouble(fields[1])));
         			symbol++;
         			continue;
         		}
-        		if (heading.matches("^pair coeffs")) {
+        		if (heading.matches("pair coeffs.*")) {
         			int idx = Integer.parseInt(fields[0]);
-        			sigma[idx] = Double.parseDouble(fields[2]);
-        			epsilon[idx] = Double.parseDouble(fields[1]);
+        			sigma[idx-1] = Double.parseDouble(fields[2]);
+        			epsilon[idx-1] = Double.parseDouble(fields[1]);
         			continue;
         		}
-        		if (heading.matches("^bond coeffs")) {
+        		if (heading.matches("bond coeffs.*")) {
         			// lammps has U = K*(r-r0)^2   http://lammps.sandia.gov/doc/bond_harmonic.html
         			// P2Harmonic does U = 0.5*w*(r-r0)^2
         			p2Bonds[Integer.parseInt(fields[0])] = new P2Harmonic(opts.space, 2*Double.parseDouble(fields[2]), Double.parseDouble(fields[1]));
         		}
-        		if (heading.matches("^angle coeffs")) {
+        		if (heading.matches("angle coeffs.*")) {
         			int idx = Integer.parseInt(fields[0]);
         			p3Bonds[idx] = new P3BondAngle(opts.space);
         			p3Bonds[idx].setEpsilon(2*Double.parseDouble(fields[1]));
         			p3Bonds[idx].setAngle(Double.parseDouble(fields[2])*180/Math.PI);
         		}
-        		if (heading.matches("^dihedral coeffs")) {
+        		if (heading.matches("dihedral coeffs.*")) {
         			int idx = Integer.parseInt(fields[0]);
         			p4Bonds[idx] = new P4BondTorsion(opts.space, Double.parseDouble(fields[1]), Double.parseDouble(fields[2]), Double.parseDouble(fields[3]), Double.parseDouble(fields[4]));
         		}
-        		if (heading.matches("^atoms")) {
+        		if (heading.equals("atoms")) {
         			int idx = Integer.parseInt(fields[0]);
         			int molIdx = Integer.parseInt(fields[1]);
         			atomTypeId[idx] = Integer.parseInt(fields[2]);
-        			atomCounts[atomTypeId[idx]]++;
+        			atomCounts[atomTypeId[idx]-1]++;
         			charges[idx] = Double.parseDouble(fields[3]);
         			coords[idx] = opts.space.makeVector();
         			coords[idx].setX(0, Double.parseDouble(fields[4]));
         			coords[idx].setX(1, Double.parseDouble(fields[5]));
         			coords[idx].setX(2, Double.parseDouble(fields[6]));
         		}
-        		if (heading.matches("^bonds")) {
+        		if (heading.equals("bonds")) {
         			int idx = Integer.parseInt(fields[1]);
         			bondedPairs[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3])});
         		}
-        		if (heading.matches("^angles")) {
+        		if (heading.equals("angles")) {
         			int idx = Integer.parseInt(fields[1]);
         			bondedTriplets[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4])});
         		}
-        		if (heading.matches("^dihedrals")) {
+        		if (heading.equals("dihedrals")) {
         			int idx = Integer.parseInt(fields[1]);
         			bondedQuads[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4])});
         		}
@@ -151,8 +155,8 @@ public class ParserLAMMPS {
         PotentialGroup pInter = new PotentialGroup(2, opts.space);
         for (int i=1; i<=atomTypes.length; i++) {
         	for (int j=i; j<=atomTypes.length; j++) {
-        		double sig = (sigma[i]+sigma[j])*0.5;
-        		double eps = Math.sqrt(epsilon[i]*epsilon[j]);
+        		double sig = (sigma[i-1]+sigma[j-1])*0.5;
+        		double eps = Math.sqrt(epsilon[i-1]*epsilon[j-1]);
     			IPotentialAtomic p = new P2LennardJones(opts.space, sig, eps);
     			switch (opts.truncation) {
     			case TRUNCATED:
@@ -168,11 +172,34 @@ public class ParserLAMMPS {
     				p = new P2SoftSphericalTruncatedSwitched(opts.space, (Potential2SoftSpherical)p, opts.rc);
     				break;
     			}
-    			pInter.addPotential(p, new IAtomType[]{atomTypes[i],atomTypes[j]});
+    			pInter.addPotential(p, new IAtomType[]{atomTypes[i-1],atomTypes[j-1]});
         	}
         }
         
-		return new Stuff(null, pInter, species);
+        PotentialGroup pIntra = new PotentialGroup(1, opts.space);
+        if (p2Bonds != null) {
+	        for (int i=1; i<p2Bonds.length; i++) {
+	        	int[][] pairs = bondedPairs[i].toArray(new int[0][0]);
+	        	ApiIndexList iterator = new ApiIndexList(pairs);
+	        	pIntra.addPotential(p2Bonds[i], iterator);
+	        }
+        }
+        if (p3Bonds != null) {
+	        for (int i=1; i<p4Bonds.length; i++) {
+	        	int[][] triplets = bondedTriplets[i].toArray(new int[0][0]);
+	        	Atomset3IteratorIndexList iterator = new Atomset3IteratorIndexList(triplets);
+	        	pIntra.addPotential(p3Bonds[i], iterator);
+	        }
+        }
+        if (p4Bonds != null) {
+	        for (int i=1; i<p4Bonds.length; i++) {
+	        	int[][] quads = bondedQuads[i].toArray(new int[0][0]);
+	        	Atomset4IteratorIndexList iterator = new Atomset4IteratorIndexList(quads);
+	        	pIntra.addPotential(p4Bonds[i], iterator);
+	        }
+        }
+
+		return new Stuff(pIntra, pInter, species);
 	}
 
 	public static Stuff makeStuff(String fileName, Options opts) {
@@ -213,5 +240,9 @@ public class ParserLAMMPS {
 		public ISpace space = Space3D.getInstance();
 		public Truncation truncation = Truncation.NONE;
 		public double rc = Double.POSITIVE_INFINITY;
+	}
+	
+	public static void main(String[] args) {
+		ParserLAMMPS.makeStuff("/home/andrew/Downloads/test.lammps", new Options());
 	}
 }
