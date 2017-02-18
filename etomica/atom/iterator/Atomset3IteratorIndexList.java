@@ -16,8 +16,6 @@ import etomica.atom.AtomsetArray;
  * 
  * @author Tai Tan
  */
-
-
 public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent {
 
 	/**
