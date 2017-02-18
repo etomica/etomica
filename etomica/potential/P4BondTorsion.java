@@ -126,9 +126,8 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         double v1v2_3 = v1v2*v1v2*v1v2;
         
         double cosphi = v1.dot(v2)/Math.sqrt(v1Sq*v2Sq);
-        double cos2phi = cosphi*cosphi;  // note, this is different than cos2phi in energy()
         
-        double dUdcosphi = 12.0*a3*cos2phi - 4.0*a2*cosphi + a1 - 3*a3;
+        double dUdcosphi = dUdcosphi(cosphi);
 
         gradient[0].Ea1Tv1(1.0/v1v2, v2);
         gradient[0].PEa1Tv1(-v1dotv2*v2Sq/v1v2_3, v1);
@@ -167,6 +166,11 @@ public class P4BondTorsion extends Potential implements PotentialSoft {
         gradient[2].PEa1Tv1(-1, gradient[3]);
 
         return gradient;
+    }
+    
+    public double dUdcosphi(double cosphi) {
+        double cos2phi = cosphi*cosphi;  // note, this is different than cos2phi in energy()
+        return 12.0*a3*cos2phi - 4.0*a2*cosphi + a1 - 3*a3;
     }
 
     public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
