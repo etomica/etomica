@@ -9,6 +9,7 @@ import java.util.List;
 import etomica.api.IAtomType;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
+import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.ApiIndexList;
@@ -23,7 +24,6 @@ import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.P2SoftSphericalTruncatedSwitched;
 import etomica.potential.P2SoftTruncated;
 import etomica.potential.P3BondAngle;
-import etomica.potential.P4BondTorsion;
 import etomica.potential.P4BondTorsionOPLS;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
@@ -42,7 +42,7 @@ public class ParserLAMMPS {
         int[] atomCounts = null;
         int[] atomTypeId = null;
         double[] charges = null;
-        IVectorMutable[] coords = null;
+        List<IVectorMutable>[] coords = null;
         List<int[]>[] bondedPairs = null;
         List<int[]>[] bondedTriplets = null;
         List<int[]>[] bondedQuads = null;
@@ -54,19 +54,17 @@ public class ParserLAMMPS {
         	if (line.length() == 0) continue;
         	String[] fields = line.split("[ \t]+");
         	if (fields[0].matches("[0-9-]*")) {
-    			if (line.matches("[0-9]* atoms")) {
-    				int n = Integer.parseInt(fields[0]);
-    				atomTypeId = new int[n+1];
-    				charges = new double[n+1];
-    				coords = new IVectorMutable[n];
-    				continue;
-    			}
     			if (line.matches("^[0-9]* atom types")) {
     				int n = Integer.parseInt(fields[0]);
+                    charges = new double[n];
     				atomTypes = new IAtomType[n];
     				atomCounts = new int[n];
     				sigma = new double[n];
     				epsilon = new double[n];
+                    coords = new ArrayList[n];
+                    for (int i=0; i<n; i++) {
+                        coords[i] = new ArrayList<IVectorMutable>();
+                    }
     				continue;
     			}
     			if (line.matches("[0-9]* bond types")) {
@@ -123,13 +121,14 @@ public class ParserLAMMPS {
         		if (heading.equals("atoms")) {
         			int idx = Integer.parseInt(fields[0]);
         			int molIdx = Integer.parseInt(fields[1]);
-        			atomTypeId[idx] = Integer.parseInt(fields[2]);
-        			atomCounts[atomTypeId[idx]-1]++;
-        			charges[idx] = Double.parseDouble(fields[3]);
-        			coords[idx-1] = opts.space.makeVector();
-        			coords[idx-1].setX(0, Double.parseDouble(fields[4]));
-        			coords[idx-1].setX(1, Double.parseDouble(fields[5]));
-        			coords[idx-1].setX(2, Double.parseDouble(fields[6]));
+        			int itype = Integer.parseInt(fields[2])-1;
+        			atomCounts[itype]++;
+        			charges[itype] = Double.parseDouble(fields[3]);
+        			IVectorMutable c = opts.space.makeVector();
+        			coords[itype].add(c);
+        			c.setX(0, Double.parseDouble(fields[4]));
+        			c.setX(1, Double.parseDouble(fields[5]));
+        			c.setX(2, Double.parseDouble(fields[6]));
         		}
         		if (heading.equals("bonds")) {
         			int idx = Integer.parseInt(fields[1]);
@@ -150,8 +149,18 @@ public class ParserLAMMPS {
         }
         SpeciesSpheresHetero species = new SpeciesSpheresHetero(opts.space, atomTypes);
         species.setChildCount(atomCounts);
-        species.setConformation(new ConformationGeneric(coords));
-        
+        int nTotal = 0;
+        for (int i=0; i<atomCounts.length; i++) {
+            nTotal += atomCounts[i];
+        }
+        IVector[] flatCoords = new IVector[nTotal];
+        int offset = 0;
+        for (int i=0; i<coords.length; i++) {
+            System.arraycopy(coords[i].toArray(new IVector[0]), 0, flatCoords, offset, atomCounts[i]);
+            offset += atomCounts[i];
+        }
+        species.setConformation(new ConformationGeneric(flatCoords));
+
         PotentialGroup pInter = new PotentialGroup(2, opts.space);
         for (int i=1; i<=atomTypes.length; i++) {
         	for (int j=i; j<=atomTypes.length; j++) {
