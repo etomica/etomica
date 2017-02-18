@@ -234,7 +234,7 @@ public class SpeciesSpheresHetero extends Species {
      * @throws IllegalArgumentException
      *             if newChildFactory is an empty array
      */
-    public void setchildTypes(IAtomType[] newchildTypes) {
+    public void setChildTypes(IAtomType[] newchildTypes) {
         for (int i=0; i<childTypes.length; i++) {
             removeChildType(childTypes[i]);
         }
