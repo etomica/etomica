@@ -21,10 +21,13 @@ import etomica.space.ISpace;
 import etomica.util.Arrays;
 
 /**
- * Species in which molecules are made of arbitrary number of spheres,
- * with each sphere having the same mass and size (same type).
+ * Species in which molecules are made of arbitrary number of atoms, with each
+ * atom have a given atom type.  Atoms of a given type are grouped together.
+ * The number of each type can be give explicitly or as a fraction of the
+ * total.
  * 
  * @author David Kofke
+ * @author Andrew Schultz
  */
 
 public class SpeciesSpheresHetero extends Species {
