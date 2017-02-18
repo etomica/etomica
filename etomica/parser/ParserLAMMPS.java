@@ -24,6 +24,7 @@ import etomica.potential.P2SoftSphericalTruncatedSwitched;
 import etomica.potential.P2SoftTruncated;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
+import etomica.potential.P4BondTorsionOPLS;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
@@ -37,7 +38,7 @@ public class ParserLAMMPS {
         IAtomType[] atomTypes = null;
         P2Harmonic[] p2Bonds = null;
         P3BondAngle[] p3Bonds = null;
-        P4BondTorsion[] p4Bonds = null;
+        P4BondTorsionOPLS[] p4Bonds = null;
         int[] atomCounts = null;
         int[] atomTypeId = null;
         double[] charges = null;
@@ -85,7 +86,7 @@ public class ParserLAMMPS {
     				continue;
     			}
     			if (line.matches("[0-9]* dihedral types")) {
-    				p4Bonds = new P4BondTorsion[Integer.parseInt(fields[0])+1];
+    				p4Bonds = new P4BondTorsionOPLS[Integer.parseInt(fields[0])+1];
     				bondedQuads = new ArrayList[p4Bonds.length];
     				for (int i=0; i<p4Bonds.length; i++) {
     					bondedQuads[i] = new ArrayList<int[]>();
@@ -117,7 +118,7 @@ public class ParserLAMMPS {
         		}
         		if (heading.matches("dihedral coeffs.*")) {
         			int idx = Integer.parseInt(fields[0]);
-        			p4Bonds[idx] = new P4BondTorsion(opts.space, Double.parseDouble(fields[1]), Double.parseDouble(fields[2]), Double.parseDouble(fields[3]), Double.parseDouble(fields[4]));
+        			p4Bonds[idx] = new P4BondTorsionOPLS(opts.space, Double.parseDouble(fields[1]), Double.parseDouble(fields[2]), Double.parseDouble(fields[3]), Double.parseDouble(fields[4]));
         		}
         		if (heading.equals("atoms")) {
         			int idx = Integer.parseInt(fields[0]);
@@ -185,7 +186,7 @@ public class ParserLAMMPS {
 	        }
         }
         if (p3Bonds != null) {
-	        for (int i=1; i<p4Bonds.length; i++) {
+	        for (int i=1; i<p3Bonds.length; i++) {
 	        	int[][] triplets = bondedTriplets[i].toArray(new int[0][0]);
 	        	Atomset3IteratorIndexList iterator = new Atomset3IteratorIndexList(triplets);
 	        	pIntra.addPotential(p3Bonds[i], iterator);
