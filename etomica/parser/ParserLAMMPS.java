@@ -55,9 +55,9 @@ public class ParserLAMMPS {
         	String[] fields = line.split("[ \t]+");
         	if (fields[0].matches("[0-9-]*")) {
     			if (line.matches("[0-9]* atoms")) {
-    				int n = Integer.parseInt(fields[0])+1;
-    				atomTypeId = new int[n];
-    				charges = new double[n];
+    				int n = Integer.parseInt(fields[0]);
+    				atomTypeId = new int[n+1];
+    				charges = new double[n+1];
     				coords = new IVectorMutable[n];
     				continue;
     			}
@@ -126,10 +126,10 @@ public class ParserLAMMPS {
         			atomTypeId[idx] = Integer.parseInt(fields[2]);
         			atomCounts[atomTypeId[idx]-1]++;
         			charges[idx] = Double.parseDouble(fields[3]);
-        			coords[idx] = opts.space.makeVector();
-        			coords[idx].setX(0, Double.parseDouble(fields[4]));
-        			coords[idx].setX(1, Double.parseDouble(fields[5]));
-        			coords[idx].setX(2, Double.parseDouble(fields[6]));
+        			coords[idx-1] = opts.space.makeVector();
+        			coords[idx-1].setX(0, Double.parseDouble(fields[4]));
+        			coords[idx-1].setX(1, Double.parseDouble(fields[5]));
+        			coords[idx-1].setX(2, Double.parseDouble(fields[6]));
         		}
         		if (heading.equals("bonds")) {
         			int idx = Integer.parseInt(fields[1]);
