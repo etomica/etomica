@@ -11,59 +11,76 @@ import etomica.api.IMoleculeList;
 import etomica.atom.AtomPair;
 
 /**
- * Iterator that expires after returning a single atom pair, which is specified
- * by a call to the setPair method. Subsequent calls to reset() and next() will
- * return the specified pair, until another is specified via setPair. No
- * iteration is performed if either or both atoms are null.
+ * Iterator that returns intramolecular pairs of atoms with specific indices.
  * 
- * @author Tai Tan
+ * @author Andrew Schultz
  */
 public class ApiIndexList implements AtomsetIteratorBasisDependent {
 
-	/**
+    /**
      * Constructs iterator without defining atoms in pair.
      */
-    public ApiIndexList(int [][]index) {
+    public ApiIndexList(int[][] index) {
         pair = new AtomPair();
         this.index = index;
+        int max = -1;
+        for (int i=0; i<index.length; i++) {
+        	for (int j=0; j<2; j++) {
+        		if (index[i][j] > max) max=index[i][j];
+        	}
+        }
+        partners = new int[max+1][2][];
+        int[][] nPartners = new int[partners.length][2];
+        for (int i=0; i<index.length; i++) {
+        	nPartners[index[i][0]][0]++;
+        	nPartners[index[i][1]][1]++;
+        }
+        for (int i=0; i<partners.length; i++) {
+            partners[i][0] = new int[nPartners[i][0]];
+            partners[i][1] = new int[nPartners[i][1]];
+        }
+        nPartners = new int[partners.length][2];
+        for (int i=0; i<index.length; i++) {
+        	int idx0 = index[i][0];
+        	int idx1 = index[i][1];
+        	partners[idx0][0][nPartners[idx0][0]] = idx1;
+            partners[idx1][1][nPartners[idx1][1]] = idx0;
+            nPartners[idx0][0]++;
+            nPartners[idx1][1]++;
+        }
     }
 
     public int basisSize(){
     	return 1;
     }
-    
+
     public boolean haveTarget(IAtom a){
-    	for(int i =0; i < index.length; i++){   //index.length = number of pairs
-    		
-    		if (a == parentGroup.getChildList().getAtom(index[i][0])){
-    			return true;
-    		}
-    		if (a == parentGroup.getChildList().getAtom(index[i][1])){
-    			return true;
-    		}
-    		
-    	}
-    	return false;
+        if (parentGroup.getChildList().getAtom(a.getIndex()) != a) return false;
+        if (a.getIndex() >= partners.length) return false;
+        int[][] aPartners = partners[a.getIndex()];
+        if (aPartners[0].length + aPartners[1].length == 0) return false;
+    	return true;
     }
-    
+
     public void setTarget(IAtom a){
     	target = a;
     	unset();
     }
-                                
 
-	public void setBasis(IMoleculeList parent) {
-	    if (parent == null) {
-	        parentGroup = null;
-	    }
-	    else {
-	        parentGroup = parent.getMolecule(0);
-	    }
-		unset();
-	}
+    public void setBasis(IMoleculeList parent) {
+        if (parent == null) {
+            parentGroup = null;
+        }
+        else {
+            parentGroup = parent.getMolecule(0);
+        }
+        unset();
+    }
 
     public int size() {
-        return index.length;
+        if (target == null) return index.length;
+        if (!haveTarget(target)) return 0;
+        return partners[target.getIndex()][0].length + partners[target.getIndex()][1].length;
     }
 
     /**
@@ -78,33 +95,42 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
      * not null.
      */
     public void reset() {
+        cursor = index.length;
         if (parentGroup != null) {
             cursor = 0;
+            if (target!=null && !haveTarget(target)) cursor = index.length;
         }
+        
     }
 
     /**
      * Returns the iterator's pair and unsets iterator.
      */
     public IAtomList next() {
-    	if (target != null){
-        	for(; cursor < index.length; cursor++){   //index.length = number of pairs
-        		
-        		if (target == parentGroup.getChildList().getAtom(index[cursor][0])){
-        			break;
-        		}
-        		if (target == parentGroup.getChildList().getAtom(index[cursor][1])){
-        			break;
-        		}
-        	}
-    	}
-    	
-        if (cursor >= index.length){
-        	return null;
+        if (target != null){
+            int[][] tPartners = partners[target.getIndex()];
+            int t0Length = tPartners[0].length;
+            if (cursor < t0Length) {
+                pair.atom0 = target;
+                pair.atom1 = parentGroup.getChildList().getAtom(tPartners[0][cursor]);
+                cursor++;
+                return pair;
+            }
+            if (cursor < t0Length + tPartners[1].length) {
+                pair.atom1 = target;
+                pair.atom0 = parentGroup.getChildList().getAtom(tPartners[1][cursor-t0Length]);
+                cursor++;
+                return pair;
+            }
+            return null;
         }
-		pair.atom0 = parentGroup.getChildList().getAtom(index[cursor][0]);
-		pair.atom1 = parentGroup.getChildList().getAtom(index[cursor][1]);
-		cursor++;
+
+        if (cursor >= index.length){
+            return null;
+        }
+        pair.atom0 = parentGroup.getChildList().getAtom(index[cursor][0]);
+        pair.atom1 = parentGroup.getChildList().getAtom(index[cursor][1]);
+        cursor++;
         return pair;
     }
 
@@ -113,16 +139,13 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
      */
     public final int nBody() {
         return 2;
-   }
+    }
 
-    private int [][]index;
-    private int cursor;
-    private IMolecule parentGroup;
-    private IAtom target;
-    
-    private final AtomPair pair;
-    
-	private static final long serialVersionUID = 1L;
-
+    protected final int [][] index;
+    protected final int [][][] partners;
+    protected int cursor;
+    protected IMolecule parentGroup;
+    protected IAtom target;
+    protected final AtomPair pair;
 }
 
