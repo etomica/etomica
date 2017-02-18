@@ -147,7 +147,6 @@ public class ParserLAMMPS {
         	else {
         		heading = line.toLowerCase();
         	}
-        	
         }
         SpeciesSpheresHetero species = new SpeciesSpheresHetero(opts.space, atomTypes);
         species.setChildCount(atomCounts);
@@ -235,15 +234,15 @@ public class ParserLAMMPS {
 		public final PotentialGroup interPotential;
 		public final ISpecies species;
 	}
-	
+
 	public enum Truncation {NONE, TRUNCATED, SHIFTED, FORCE_SHIFTED, SWITCHED};
 	public static class Options {
 		public ISpace space = Space3D.getInstance();
 		public Truncation truncation = Truncation.NONE;
 		public double rc = Double.POSITIVE_INFINITY;
 	}
-	
+
 	public static void main(String[] args) {
-		ParserLAMMPS.makeStuff("/home/andrew/Downloads/test.lammps", new Options());
+		ParserLAMMPS.makeStuff("test.lammps", new Options());
 	}
 }
