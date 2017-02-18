@@ -34,26 +34,22 @@ public class SpeciesSpheresHetero extends Species {
 
     /**
      * Constructs instance with 0 components and total number of children 
-     * equal to 1.  The actual number of components must be set in the factory
-     * (AtomFactoryHetero) before use.  The actual number of desired children 
-     * can also be set in the factory.
+     * equal to 1.  The actual atom types must be set before use.
      */
     public SpeciesSpheresHetero(Simulation sim, ISpace _space) {
         this(sim,_space, 0);
     }
     
     /**
-     * Constructs instance with the given number of components and 
-     * total number of children equal to 1.  The actual number of desired 
-     * desired children can be set in the factory (AtomFactoryHetero) after
-     * construction.
+     * Constructs instance with the given number of atom types.  Generic atom
+     * types are created.
      */
-    public SpeciesSpheresHetero(Simulation sim, ISpace _space, int nComponents) {
-        this(_space, makeElements(sim,nComponents));
+    public SpeciesSpheresHetero(Simulation sim, ISpace _space, int nTypes) {
+        this(_space, makeElements(sim,nTypes));
     }
     
-    private static IElement[] makeElements(Simulation sim, int nComponents) {
-        ElementSimple[] elements = new ElementSimple[nComponents];
+    private static IElement[] makeElements(Simulation sim, int nTypes) {
+        ElementSimple[] elements = new ElementSimple[nTypes];
         for (int i=0; i<elements.length; i++) {
             elements[i] = new ElementSimple(sim);
         }
@@ -61,10 +57,7 @@ public class SpeciesSpheresHetero extends Species {
     }
     
     /**
-     * Constructs instance with the given leaf elements and 
-     * total number of children equal to 1.  The actual number of desired 
-     * desired children can be set in the factory (AtomFactoryHetero) after
-     * construction.
+     * Constructs instance with the given elements.
      */
     public SpeciesSpheresHetero(ISpace _space, IElement[] leafElements) {
         this(_space, makeAtomTypes(leafElements));
@@ -78,6 +71,9 @@ public class SpeciesSpheresHetero extends Species {
         return types;
     }
     
+    /**
+     * Constructs instance with the given atom types.
+     */
     public SpeciesSpheresHetero(ISpace space, IAtomType[] atomTypes) {
         super();
         this.space = space;
