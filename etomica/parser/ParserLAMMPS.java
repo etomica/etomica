@@ -141,7 +141,7 @@ public class ParserLAMMPS {
         		}
         		if (heading.equals("dihedrals")) {
         			int idx = Integer.parseInt(fields[1]);
-        			bondedQuads[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4])});
+        			bondedQuads[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4]), Integer.parseInt(fields[5])});
         		}
         	}
         	else {
