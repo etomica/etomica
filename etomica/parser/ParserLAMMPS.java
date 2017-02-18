@@ -29,6 +29,12 @@ import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresCustom;
+import etomica.units.Calorie;
+import etomica.units.Mole;
+import etomica.units.Prefix;
+import etomica.units.PrefixedUnit;
+import etomica.units.Unit;
+import etomica.units.UnitRatio;
 
 public class ParserLAMMPS {
 
@@ -48,6 +54,8 @@ public class ParserLAMMPS {
         char symbol = 'A';
         double[] sigma = null;
         double[] epsilon = null;
+        // let's assume we have "real" LAMMPS units -- Angstroms, kCal/mol
+        Unit eUnit = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
         
         for (String line : lines) {
         	if (line.length() == 0) continue;
@@ -101,23 +109,24 @@ public class ParserLAMMPS {
         		if (heading.matches("pair coeffs.*")) {
         			int idx = Integer.parseInt(fields[0]);
         			sigma[idx-1] = Double.parseDouble(fields[2]);
-        			epsilon[idx-1] = Double.parseDouble(fields[1]);
+        			epsilon[idx-1] = eUnit.toSim(Double.parseDouble(fields[1]));
         			continue;
         		}
         		if (heading.matches("bond coeffs.*")) {
         			// lammps has U = K*(r-r0)^2   http://lammps.sandia.gov/doc/bond_harmonic.html
         			// P2Harmonic does U = 0.5*w*(r-r0)^2
-        			p2Bonds[Integer.parseInt(fields[0])] = new P2Harmonic(opts.space, 2*Double.parseDouble(fields[2]), Double.parseDouble(fields[1]));
+        			p2Bonds[Integer.parseInt(fields[0])] = new P2Harmonic(opts.space, 2*eUnit.toSim(Double.parseDouble(fields[2])), Double.parseDouble(fields[1]));
         		}
         		if (heading.matches("angle coeffs.*")) {
         			int idx = Integer.parseInt(fields[0]);
         			p3Bonds[idx] = new P3BondAngle(opts.space);
-        			p3Bonds[idx].setEpsilon(2*Double.parseDouble(fields[1]));
+        			p3Bonds[idx].setEpsilon(2*eUnit.toSim(Double.parseDouble(fields[1])));
         			p3Bonds[idx].setAngle(Double.parseDouble(fields[2])*180/Math.PI);
         		}
         		if (heading.matches("dihedral coeffs.*")) {
         			int idx = Integer.parseInt(fields[0]);
-        			p4Bonds[idx] = new P4BondTorsionOPLS(opts.space, Double.parseDouble(fields[1]), Double.parseDouble(fields[2]), Double.parseDouble(fields[3]), Double.parseDouble(fields[4]));
+        			p4Bonds[idx] = new P4BondTorsionOPLS(opts.space, eUnit.toSim(Double.parseDouble(fields[1])), eUnit.toSim(Double.parseDouble(fields[2])),
+        			        eUnit.toSim(Double.parseDouble(fields[3])), eUnit.toSim(Double.parseDouble(fields[4])));
         		}
         		if (heading.equals("atoms")) {
         			int idx = Integer.parseInt(fields[0]);
