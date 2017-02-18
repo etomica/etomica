@@ -133,15 +133,15 @@ public class ParserLAMMPS {
         		}
         		if (heading.equals("bonds")) {
         			int idx = Integer.parseInt(fields[1]);
-        			bondedPairs[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3])});
+        			bondedPairs[idx].add(new int[]{Integer.parseInt(fields[2])-1, Integer.parseInt(fields[3])-1});
         		}
         		if (heading.equals("angles")) {
         			int idx = Integer.parseInt(fields[1]);
-        			bondedTriplets[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4])});
+        			bondedTriplets[idx].add(new int[]{Integer.parseInt(fields[2])-1, Integer.parseInt(fields[3])-1, Integer.parseInt(fields[4])-1});
         		}
         		if (heading.equals("dihedrals")) {
         			int idx = Integer.parseInt(fields[1]);
-        			bondedQuads[idx].add(new int[]{Integer.parseInt(fields[2]), Integer.parseInt(fields[3]), Integer.parseInt(fields[4]), Integer.parseInt(fields[5])});
+        			bondedQuads[idx].add(new int[]{Integer.parseInt(fields[2])-1, Integer.parseInt(fields[3])-1, Integer.parseInt(fields[4])-1, Integer.parseInt(fields[5])-1});
         		}
         	}
         	else {
