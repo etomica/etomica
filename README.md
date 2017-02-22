@@ -1,4 +1,4 @@
-# etomica
+![etomica](http://www.etomica.org/images/etomicanew.jpg)
 
 # Instructions for Building
 
