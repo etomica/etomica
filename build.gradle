@@ -2,6 +2,7 @@ apply plugin: 'eclipse'
 
 
 subprojects {
+    apply plugin: 'java'
     apply plugin: 'eclipse'
 
     repositories {
@@ -9,7 +10,7 @@ subprojects {
         jcenter()
     }
 
-    apply plugin: 'java'
+    sourceCompatibility = 1.8
 
     dependencies {
         // TODO: move test classes and change to testCompile
