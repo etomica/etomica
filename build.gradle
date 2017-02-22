@@ -4,6 +4,7 @@ apply plugin: 'eclipse'
 subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
+    apply plugin: 'findbugs'
 
     repositories {
         // superset of maven central
@@ -15,6 +16,24 @@ subprojects {
     dependencies {
         // TODO: move test classes and change to testCompile
         compile 'junit:junit:4.12'
+    }
+
+    /* this prevents findbugs from being run every time the project is build, since the
+     * analysis takes so long. To explicitly run findbugs, run "./gradlew findbugsAll"
+     */
+    check.dependsOn.remove("findbugsMain")
+    check.dependsOn.remove("findbugsTest")
+
+    tasks.withType(FindBugs) {
+        reports {
+            xml.enabled false
+            html.enabled true
+            html.stylesheet resources.text.fromFile("$rootProject.projectDir/config/xsl/findbugs-custom.xsl")
+        }
+    }
+
+    findbugs {
+        ignoreFailures = true
     }
 }
 
@@ -54,3 +73,6 @@ project(':etomica-graph') {
         compile 'org.apache.xmlgraphics:fop:1.0'
     }
 }
+
+task findbugsAll
+subprojects { project -> findbugsAll.dependsOn("${project.path}:findbugsMain")}
