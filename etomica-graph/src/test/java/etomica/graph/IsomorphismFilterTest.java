@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.graph.test;
+package etomica.graph;
 
 
 import etomica.graph.isomorphism.Match;
 import etomica.graph.iterators.DefaultIterator;
 import etomica.graph.iterators.filters.IsomorphismFilter;
-import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.GraphIterator;
-import etomica.graph.property.HasNoRootEdge;
 
 public class IsomorphismFilterTest extends GraphIteratorTest {
 

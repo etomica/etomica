@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.graph.test;
+package etomica.graph;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,10 +12,7 @@ import static etomica.graph.model.Metadata.*;
 import etomica.graph.iterators.DefaultIterator;
 import etomica.graph.iterators.PartitionedIterator;
 import etomica.graph.iterators.IsomorphismPrefilteredPartitionedIterator;
-import etomica.graph.iterators.filters.IsomorphismFilter;
-import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.GraphIterator;
-import etomica.graph.property.HasNoRootEdge;
 
 public class PartitionedIteratorTest extends GraphIteratorTest {
 
