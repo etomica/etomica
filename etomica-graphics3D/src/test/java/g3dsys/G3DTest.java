@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package g3dsys.test;
+package g3dsys;
 
 import g3dsys.control.G3DSys;
 import g3dsys.images.Ball;
