@@ -14,8 +14,7 @@ subprojects {
     sourceCompatibility = 1.8
 
     dependencies {
-        // TODO: move test classes and change to testCompile
-        compile 'junit:junit:4.12'
+        testCompile 'junit:junit:4.12'
     }
 
 
