@@ -18,11 +18,6 @@ subprojects {
         compile 'junit:junit:4.12'
     }
 
-    /* this prevents findbugs from being run every time the project is build, since the
-     * analysis takes so long. To explicitly run findbugs, run "./gradlew findbugsAll"
-     */
-    check.dependsOn.remove("findbugsMain")
-    check.dependsOn.remove("findbugsTest")
 
     tasks.withType(FindBugs) {
         reports {
@@ -33,6 +28,12 @@ subprojects {
     }
 
     findbugs {
+
+        /*
+        Hack to prevent findbugs from running every time the project is build (as a dependency of check).
+        Run findbugs explicitly with findbugsAll.
+         */
+        sourceSets = []
         ignoreFailures = true
     }
 }
