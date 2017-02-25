@@ -2,18 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.modules.junit.crystalviewer;
+package etomica.crystalviewer;
 
 import junit.framework.TestCase;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
-import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.lattice.BravaisLattice;
+import etomica.lattice.crystal.PrimitiveCubic;
 
-public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 
-	private final int DEFAULT_SIZE = 5;
-	private final int DEFAULT_MILLER[] = {0,0,1};
+public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
+
+	BravaisLattice[] lattices = null;
+
+
+	private final int DEFAULT_SIZE = 7;
+	private final int DEFAULT_MILLER[] = {1,0,0};
 	private final int DEFAULT_BOX[] = {DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE};
 	
 	private String funcName = "";
@@ -22,18 +27,21 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 
 	private LatticePlaneTestUtility lptu = null;
 
-	public BLCPrimitiveTetragonalLatticePlaneTest(String name) {
+	public LatticeCubicSimpleLatticePlaneTest(String name) {
 		super(name);
 		funcName = name;
 	}
 
 	protected void setUp() throws Exception {
-		super.setUp();
+    	
+    	super.setUp();
+
 		if (lptu == null) {
 			lptu = new LatticePlaneTestUtility();			
-	        lptu.createLatticeAndBox(lptu.TETRAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
+	        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 	        lptu.setDimensions(DEFAULT_SIZE);
 		}
+
 	}
 
 	protected void tearDown() throws Exception {
@@ -45,22 +53,22 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 	}
 
     /*
-     * Miller indices = 0, 0, 1
+     * Miller indices = 1, 0, 0
      * size of cell (A, B, C) = 1.0
-     * cells per side = 5
-     * plane = 0.0
+     * cells per side = 7
+     * plane = 2.0
      */
     public void testStandard() {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	double plane = 0.0;
+    	double plane = 2.0;
     	IAtomList leafList = null;
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSize);
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
+
         lptu.setDimensions(DEFAULT_SIZE);
         lptu.setLatticePlanePosition(plane);
 
@@ -68,13 +76,13 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getBox().getLeafList();
+        leafList = lptu.getBox().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtom a =  leafList.getAtom(idx);
-                if(a.getPosition().getX(2) >= spacePos-epsilon &&
-                   a.getPosition().getX(2) <= spacePos+epsilon) {
+                if(a.getPosition().getX(0) >= spacePos-epsilon &&
+                   a.getPosition().getX(0) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
             	    		a.getPosition()));
                 }
@@ -86,8 +94,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtom a =  leafList.getAtom(idx);
-            if(a.getPosition().getX(2) >= spacePos-epsilon &&
-               a.getPosition().getX(2) <= spacePos+epsilon) {
+            if(a.getPosition().getX(0) >= spacePos-epsilon &&
+               a.getPosition().getX(0) <= spacePos+epsilon) {
             	System.out.println(funcName + " -> Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
             }
@@ -101,24 +109,22 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     } // End testStandard()
 
     /*
-     * Miller indices = 0, 0, 1
-     * size of cell (A, B) = 1.63
-     * size of cell (C) = 1.0
-     * cells per side = 5
-     * plane = 0.0
+     * Miller indices = 1, 0, 0
+     * size of cell (A, B, C) = 1.63
+     * cells per side = 7
+     * plane = 1.0
      */
-    public void testABCellSizeIncrease() {
+    public void testCellSizeIncrease() {
 
     	int idx = 0;
-    	double cubicSizeAB = 1.63;
-    	double cubicSizeC = 1.0;
-    	double plane = 0.0;
+    	double cubicSize = 1.63;
+    	double plane = 1.0;
     	IAtomList leafList = null;
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
+
         lptu.setDimensions(DEFAULT_SIZE);
         lptu.setLatticePlanePosition(plane);
 
@@ -126,13 +132,13 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getBox().getLeafList();
+        leafList = lptu.getBox().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
 			    IAtom a =  leafList.getAtom(idx);
-                if(a.getPosition().getX(2) >= spacePos-epsilon &&
-                   a.getPosition().getX(2) <= spacePos+epsilon) {
+                if(a.getPosition().getX(0) >= spacePos-epsilon &&
+                   a.getPosition().getX(0) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
             	    		a.getPosition()));
                 }
@@ -144,8 +150,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtom a =  leafList.getAtom(idx);
-            if(a.getPosition().getX(2) >= spacePos-epsilon &&
-               a.getPosition().getX(2) <= spacePos+epsilon) {
+            if(a.getPosition().getX(0) >= spacePos-epsilon &&
+               a.getPosition().getX(0) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
             }
@@ -155,12 +161,12 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
             }
          	fail();
         }
-    } // End testABCellSizeIncrease()
+    } // End testCellSizeIncrease()
 
     /*
      * Miller indices = 1, 3, 2
      * size of cell (A, B, C) = 1.0
-     * cells per side = 9
+     * cells per side = 10
      * plane = 7.0
      */
     public void testOddMillerIndicesDistantPlane() {
@@ -169,25 +175,27 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	double cubicSize = 1.0;
     	double plane = 7.0;
     	IAtomList leafList = null;
-    	int size = 9;
+    	int size = 10;
     	int itemsFound = 0;
     	int[] millerIndices = new int[] { 1, 3, 2 };
         double actualPlane[][] =
-                  { { -4.0, 1.0, 4.0 }, { -4.0, 3.0, 1.0 }, { -3.0, 2.0, 2.0 }, 
-                    { -3.0, 4.0, -1.0 }, { -2.0, 1.0, 3.0 }, { -2.0, 3.0, 0.0 }, 
-                    { -1.0, 0.0, 4.0 }, { -1.0, 2.0, 1.0 }, { -1.0, 4.0, -2.0 }, 
-                    { 0.0, 1.0, 2.0 }, { 0.0, 3.0, -1.0 }, { 1.0, 0.0, 3.0 }, 
-                    { 1.0, 2.0, 0.0 }, { 1.0, 4.0, -3.0 }, { 2.0, -1.0, 4.0 }, 
-                    { 2.0, 1.0, 1.0 }, { 2.0, 3.0, -2.0 }, { 3.0, 0.0, 2.0 }, 
-                    { 3.0, 2.0, -1.0 }, { 3.0, 4.0, -4.0 }, { 4.0, -1.0, 3.0 }, 
-                    { 4.0, 1.0, 0.0 }, { 4.0, 3.0, -3.0 } }; 
+              { {-4.5, 1.5, 3.5}, {-4.5, 3.5, 0.5}, {-3.5, 0.5, 4.5},
+        		{ -3.5, 2.5, 1.5},{ -3.5, 4.5, -1.5},{ -2.5, 1.5, 2.5},
+        		{ -2.5, 3.5, -0.5},{ -1.5, 0.5, 3.5},{ -1.5, 2.5, 0.5},
+        		{ -1.5, 4.5, -2.5},{ -0.5, -0.5, 4.5},{ -0.5, 1.5, 1.5},
+        		{ -0.5, 3.5, -1.5},{ 0.5, 0.5, 2.5},{ 0.5, 2.5, -0.5},
+        		{ 0.5, 4.5, -3.5},{ 1.5, -0.5, 3.5},{ 1.5, 1.5, 0.5},
+        		{ 1.5, 3.5, -2.5},{ 2.5, -1.5, 4.5},{ 2.5, 0.5, 1.5},
+        		{ 2.5, 2.5, -1.5},{ 2.5, 4.5, -4.5},{ 3.5, -0.5, 2.5},
+        		{ 3.5, 1.5, -0.5},{ 3.5, 3.5, -3.5},{ 4.5, -1.5, 3.5},
+        		{ 4.5, 0.5, 0.5},{ 4.5, 2.5, -2.5} };
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, millerIndices, new int[] {size, size, size});
         
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSize);
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
+
         lptu.setDimensions(size);
         lptu.setLatticePlanePosition(plane);
 
@@ -224,28 +232,29 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
          	fail();
         }
 
-        assertEquals(actualPlane.length, itemsFound);
+        assertEquals(itemsFound, actualPlane.length);
 
     } // End testCellSizeIncrease()
 
     /*
-     * Miller indices = 0, 0, 1
+     * Miller indices = 1, 0, 0
      * size of cell (A, B, C) = 1.0
      * cells per side = 8
-     * plane = 0.0
+     * plane = 1.0
      */
     public void testEvenAtomsPerSideZeroPlane() {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	double plane = 0.0;
+    	double plane = 1.0;
     	IAtomList leafList = null;
     	int dimensionSize = 8;
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER,
+        		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSize);
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
+
         lptu.setDimensions(dimensionSize);
         lptu.setLatticePlanePosition(plane);
 
@@ -285,10 +294,10 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	int dimensionSize = 8;
     	int[] millerIndices = new int[] { 0, 1, 0 };
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, millerIndices, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, millerIndices,
+        		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSize);
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
         lptu.setDimensions(dimensionSize);
         lptu.setLatticePlanePosition(plane);
 
@@ -330,27 +339,25 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     } // End testEvenAtomsPerSideZeroPt5Plane
 
     /*
-     * Miller indices = 1, 1, 2
-     * size of cell (A, B) = 1.2
-     * size of cell (C) = 1.4
-     * cells per side = 6
-     * plane = 1.95
+     * Miller indices = 4, 1, 3
+     * size of cell (A, B, C) = 1.45
+     * cells per side = 9
+     * plane = 3.95
      */
     public void testPlaneMinusFiveHundreths() {
 
     	int idx = 0;
-    	double cubicSizeAB = 1.2;
-    	double cubicSizeC = 1.4;
-    	double plane = 1.95;
+    	double cubicSize = 1.45;
+    	double plane = 3.95;
+    	int[] miller = { 4, 1, 3 };
     	IAtomList leafList = null;
-    	int size = 6;
-    	int[] millerIndices = new int[] { 1, 1, 2 };
+    	int dimensionSize = 9;
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, millerIndices, new int[] {size, size, size});
-        
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
-        lptu.setDimensions(size);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,
+        		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
+
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
+        lptu.setDimensions(dimensionSize);
         lptu.setLatticePlanePosition(plane);
 
         // This needs to come after lattice changes
@@ -360,53 +367,54 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
-
+			    IAtom a =  leafList.getAtom(idx);
             	assertFalse(lptu.getLatticePlane().inPlane(
-            	    a.getPosition()));
+            	    	a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
 		    IAtom a =  leafList.getAtom(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
-            			" should not be in plane but is.");
-         	fail();
+            			" should not be in plane but is.");  
+            fail();
         }
-
-    } // End testPlaneMinusFiveHundreths()
+    	
+    } // End testPlaneMinusOneHundreth
 
     /*
-     * Miller indices = 1, 1, 2
-     * size of cell (A, B) = 1.2
-     * size of cell (C) = 1.4
-     * cells per side = 6
-     * plane = 2.0
+     * Miller indices = 4, 1, 3
+     * size of cell (A, B, C) = 1.45
+     * cells per side = 9
+     * plane = 4.0
      */
     public void testPlane() {
 
     	int idx = 0;
-    	double cubicSizeAB = 1.2;
-    	double cubicSizeC = 1.4;
-    	double plane = 2.0;
+    	double cubicSize = 1.45;
+    	double plane = 4.0;
+    	int[] miller = { 4, 1, 3 };
     	IAtomList leafList = null;
-    	int size = 6;
+    	int dimensionSize = 9;
     	int itemsFound = 0;
-    	int[] millerIndices = new int[] { 1, 1, 2 };
         double actualPlane[][] =
-                  { { -3.0, -0.6, 3.5 }, { -3.0, 1.8, 2.1}, { -1.8, -1.8, 3.5 },
-        		    { -1.8, 0.6, 2.1}, { -1.8, 3.0, 0.7 }, { -0.6, -3.0, 3.5},
-                    { -0.6, -0.6, 2.1 }, { -0.6, 1.8, 0.7}, { 0.6, -1.8, 2.1 },
-                    { 0.6, 0.6, 0.7}, { 0.6, 3.0, -0.7 }, { 1.8, -3.0, 2.1},
-                    { 1.8, -0.6, 0.7 }, { 1.8, 1.8, -0.7}, { 3.0, -1.8, 0.7 },
-                    { 3.0, 0.6, -0.7}, { 3.0, 3.0, -2.1} };
+           { { -4.35, 5.8, 5.8 }, { -2.9, 0.0, 5.8 },
+             { -2.9, 4.35, 4.35 }, { -1.45, -5.8, 5.8 },
+             { -1.45, -1.45, 4.35 }, { -1.45, 2.9, 2.9 },
+             { 0.0, -2.9, 2.9 }, { 0.0, 1.45, 1.45 },
+             { 0.0, 5.8, 0.0 }, { 1.45, -4.35, 1.45 },
+             { 1.45, 0.0, 0.0 }, { 1.45, 4.35, -1.45 },
+             { 2.9, -5.8, 0.0 }, { 2.9, -1.45, -1.45 },
+             { 2.9, 2.9, -2.9 }, { 4.350, -2.9, -2.9 },
+             { 4.35, 1.45, -4.35 }, { 4.35, 5.8, -5.8 },
+             { 5.8, -4.35, -4.35 }, { 5.8, 0.0, -5.8 } };
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, millerIndices, new int[] {size, size, size});
-        
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
-        lptu.setDimensions(size);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,
+        		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
+
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
+        lptu.setDimensions(dimensionSize);
         lptu.setLatticePlanePosition(plane);
 
         // This needs to come after lattice changes
@@ -419,12 +427,12 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 			    IAtom a = leafList.getAtom(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
-			    	itemsFound++;
+                    itemsFound++;
             	    assertTrue(lptu.getLatticePlane().inPlane(
             	    		a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
+                	assertFalse(lptu.getLatticePlane().inPlane(
             	    		a.getPosition()));
                 }
 		    }
@@ -441,33 +449,31 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
             }
          	fail();
         }
-
+        
         assertEquals(actualPlane.length, itemsFound);
 
-    } // End testPlane()
+    } // End testPlane
 
     /*
-     * Miller indices = 1, 1, 2
-     * size of cell (A, B) = 1.2
-     * size of cell (C) = 1.4
-     * cells per side = 6
-     * plane = 2.05
+     * Miller indices = 4, 1, 3
+     * size of cell (A, B, C) = 1.45
+     * cells per side = 9
+     * plane = 4.05
      */
     public void testPlanePlusFiveHundreths() {
 
     	int idx = 0;
-    	double cubicSizeAB = 1.2;
-    	double cubicSizeC = 1.4;
-    	double plane = 2.05;
+    	double cubicSize = 1.45;
+    	double plane = 4.05;
+    	int[] miller = { 4, 1, 3 };
     	IAtomList leafList = null;
-    	int size = 6;
-    	int[] millerIndices = new int[] { 1, 1, 2 };
+    	int dimensionSize = 9;
 
-        lptu.createLatticeAndBox(lptu.TETRAGONAL, millerIndices, new int[] {size, size, size});
-        
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
-        ((PrimitiveTetragonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
-        lptu.setDimensions(size);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,
+        		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
+
+        ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
+        lptu.setDimensions(dimensionSize);
         lptu.setLatticePlanePosition(plane);
 
         // This needs to come after lattice changes
@@ -477,10 +483,9 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
-
+			    IAtom a =  leafList.getAtom(idx);
             	assertFalse(lptu.getLatticePlane().inPlane(
-            	    a.getPosition()));
+            	    	a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
@@ -489,8 +494,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
             			" should not be in plane but is.");
          	fail();
         }
-
-    } // End testPlanePlusFiveHundreths()
+    	
+    } // End testPlanePlusOneHundreth
 
     public class DoubleTwoDArray {
     	private double[][] array;
