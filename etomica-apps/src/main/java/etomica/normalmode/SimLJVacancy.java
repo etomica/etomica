@@ -207,7 +207,7 @@ public class SimLJVacancy extends Simulation {
             params.numAtoms = 500;
             params.steps = 1000000;
             params.density = 1.5;
-            params.numV = 1;
+            params.numV = 1; 
             params.temperature = 1;
         }
 
