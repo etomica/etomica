@@ -120,6 +120,7 @@ public class DataSourceMuRoot extends DataSourceScalar {
             lastDMu = dmu;
             double newMu = bmuLat + dmu;
             if (newMu == lastMu) return newMu;
+            if (newMu == maxMu || newMu == minMu) return (minMu+maxMu)/2;
             if (newMu > maxMu) {
                 return maxMu;
             }

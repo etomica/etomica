@@ -4,6 +4,8 @@
 
 package etomica.normalmode;
 
+import etomica.data.AccumulatorAverageBlockless;
+import etomica.data.DataDistributer;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
 import etomica.units.Pressure;
@@ -16,22 +18,22 @@ import etomica.units.Pressure;
  */
 public class DataSourceAvgPressure2 extends DataSourceScalar {
     protected final MCMoveOverlapListener mcMoveOverlapMeter;
+    protected final DataDistributer pSplitter;
     protected double bmu;
-    protected double bALattice;
     protected double latticeDensity;
     protected double volume;
+    protected DataSourceMuRoot dsmr;
 
-    public DataSourceAvgPressure2(MCMoveOverlapListener mcMoveOverlapMeter, double betaMu, double betaALattice, double latticeDensity, double volume) {
+    public DataSourceAvgPressure2(DataDistributer pSplitter, MCMoveOverlapListener mcMoveOverlapMeter, double latticeDensity, double volume) {
         super("pressure", Pressure.DIMENSION);
+        this.pSplitter = pSplitter;
         this.mcMoveOverlapMeter = mcMoveOverlapMeter;
-        this.bmu = betaMu;
-        this.bALattice = betaALattice;
         this.latticeDensity = latticeDensity;
         this.volume = volume;
     }
 
-    public void setBetaMu(double newBetaMu) {
-        bmu = newBetaMu;
+    public void setDataSourceMuRoot(DataSourceMuRoot dsmr) {
+    	this.dsmr = dsmr;
     }
 
     public double getDataAsScalar() {
@@ -44,6 +46,12 @@ public class DataSourceAvgPressure2 extends DataSourceScalar {
             q *= ratios[i]/l;
             sum += q;
         }
-        return (bmu-bALattice)*latticeDensity+Math.log(sum)/volume;
+        double lastDMu = dsmr.getLastDMu();
+        AccumulatorAverageBlockless acc = (AccumulatorAverageBlockless)pSplitter.getDataSink(0);
+        if (acc == null || acc.getSampleCount() == 0) {
+            return Double.NaN;
+        }
+        double pLat = acc.getData().getValue(acc.AVERAGE.index);
+        return pLat + lastDMu*latticeDensity+Math.log(sum)/volume;
     }
 }

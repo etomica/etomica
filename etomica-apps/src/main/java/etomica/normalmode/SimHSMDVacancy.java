@@ -521,7 +521,7 @@ public class SimHSMDVacancy extends Simulation {
             DataPumpListener avgPPump = new DataPumpListener(avgP, pDisplayBox);
             sim.integrator.getEventManager().addListener(avgPPump);
 
-            final DataSourceAvgPressure2 avgP2 = new DataSourceAvgPressure2(mcMoveOverlapMeter, mu, Alat, density, numAtoms/density);
+            final DataSourceAvgPressure2 avgP2 = new DataSourceAvgPressure2(pSplitter, mcMoveOverlapMeter, density, numAtoms/density);
             DataPumpListener avgPPump2 = new DataPumpListener(avgP2, pDisplayBox2);
             sim.integrator.getEventManager().addListener(avgPPump2);
             
@@ -557,7 +557,6 @@ public class SimHSMDVacancy extends Simulation {
                     feHistogram.setMu(newValue);
                     feHistogramImposed.setMu(newValue);
                     avgP.setMu(newValue);
-                    avgP2.setBetaMu(newValue);
                     pmu.setMu(newValue);
                     mcMoveBiasAction.setMu(newValue);
                 }
@@ -579,6 +578,7 @@ public class SimHSMDVacancy extends Simulation {
             simGraphic.add(muBox);
 
             DataSourceMuRoot dsmr = new DataSourceMuRoot(mcMoveOverlapMeter, mu, pSplitter, mu, density, numAtoms/density);
+            avgP2.setDataSourceMuRoot(dsmr);
             final AccumulatorHistory dsmrHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
             dsmrHistory.setTimeDataSource(timeDataSource);
             DataPumpListener dsmrPump = new DataPumpListener(dsmr, dsmrHistory, hybridInterval);

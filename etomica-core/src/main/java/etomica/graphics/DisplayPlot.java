@@ -244,7 +244,7 @@ public class DisplayPlot extends Display implements DataSetListener {
                     plot.setConnected(((Boolean)tagDrawLine.object).booleanValue(), k);
                 }
                 boolean drawLine = false;
-                for(int i=0; i<data.length; i++) {
+                for(int i=0; i<data.length && i<xValues.length; i++) {
                     double y = units[k].fromSim(data[i]);
                     if (!Double.isNaN(y)) {
                         if ((yLog && y<=0) || (xLog && xValues[i]<=0)) {
