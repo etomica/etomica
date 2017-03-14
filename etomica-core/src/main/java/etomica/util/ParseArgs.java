@@ -65,11 +65,16 @@ public class ParseArgs {
     public void parseArgs(String[] args, boolean firstArgFile) {
         if (args.length == 0) return;
         if (firstArgFile) {
-            if (new File(args[0]).exists()) {
-                ReadParameters paramReader = new ReadParameters(args[0], wrapper);
-                paramReader.readParameters();
-                args = (String[])Arrays.removeObject(args, args[0]);
-            }
+        	try {
+	            if (new File(args[0]).exists()) {
+	                ReadParameters paramReader = new ReadParameters(args[0], wrapper);
+	                paramReader.readParameters();
+	                args = (String[])Arrays.removeObject(args, args[0]);
+	            }
+        	}
+        	catch (SecurityException ex) {
+        		// eat it.  probably webstart and first arg isn't even a file
+        	}
         }
         if (args.length == 1 && (args[0].equals("-help") || args[0].equals("-h"))) {
             String strOut = "options and defaults: ";
