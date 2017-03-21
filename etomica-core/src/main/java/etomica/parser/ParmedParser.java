@@ -35,6 +35,9 @@ public class ParmedParser {
             p.waitFor();
 
             System.out.println(tree);
+            JsonNode boxNode = tree.get("_box");
+            System.out.println(boxNode);
+            Double[] b = mapper.treeToValue(boxNode.get(0), Double[].class);
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
