@@ -17,6 +17,17 @@ import etomica.species.SpeciesSpheresCustom;
 
 import java.util.*;
 
+/**
+ * Class that contains the data from a <a href="https://github.com/ParmEd/ParmEd">ParmEd</a> {@code Structure},
+ * and has methods to load this data into various <i>etomica</i> components.
+ *
+ * <p>
+ * This class should not be instantiated directly, but instead created by the {@link ParmedParser}
+ * static methods which invoke the Python library.
+ * </p>
+ *
+ * @see ParmedParser
+ */
 public class ParmedStructure {
     private static final ObjectMapper mapper = new ObjectMapper();
     private final JsonNode root;

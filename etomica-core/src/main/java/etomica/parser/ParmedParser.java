@@ -7,6 +7,13 @@ import java.io.File;
 import java.io.IOException;
 
 
+/**
+ * Class that generates {@link ParmedStructure} objects by invoking
+ * the <a href="https://github.com/ParmEd/ParmEd">ParmEd</a> library and serializing its
+ * Structure object using JSON.
+ *
+ * @see ParmedStructure
+ */
 public class ParmedParser {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String PYTHON_SCRIPT_PATH = "venv/bin/parmed_json";
@@ -23,6 +30,13 @@ public class ParmedParser {
         return new ParmedStructure(root);
     }
 
+    /**
+     * Convenience method to parse gromacs files located in the {@code etomica-core/src/main/resources} directory.
+     * @param topFileName the plain name of the .top file, e.g. {@code "test.top"}
+     * @param groFileName the plain name of the .gro file, e.g. {@code "test.gro"}
+     * @return a {@link ParmedStructure} containing the parsed data.
+     * @throws IOException if the files do not exist.
+     */
     public static ParmedStructure parseGromacsResourceFiles(String topFileName, String groFileName) throws IOException {
         return parseGromacs(getResourceFile(topFileName), getResourceFile(groFileName));
     }
