@@ -17,6 +17,7 @@ import java.io.IOException;
 public class ParmedParser {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String PYTHON_SCRIPT_PATH = "venv/bin/parmed_json";
+    //TODO: move venv to resources dir?
 
     /**
      * Parses the given <a href="http://www.gromacs.org/">Gromacs</a> .top and .gro files
