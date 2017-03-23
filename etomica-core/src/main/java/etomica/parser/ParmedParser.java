@@ -1,90 +1,65 @@
 package etomica.parser;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import etomica.atom.AtomTypeLeaf;
-import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresCustom;
+import java.io.File;
+import java.io.IOException;
 
-/**
- * Created by alex on 3/16/17.
- */
+
 public class ParmedParser {
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static final String PYTHON_SCRIPT_PATH = "venv/bin/parmed_json";
 
-    public static void main(String[] args) {
-        try {
-            File topFile = getResourceFile("test.top");
-            File groFile = getResourceFile("test.gro");
-
-
-            ProcessBuilder pb = new ProcessBuilder(
-                    "venv/bin/parmed_json",
-                    topFile.getCanonicalPath(),
-                    groFile.getCanonicalPath()
-            );
-
-
-            Process p = pb.start();
-
-            JsonNode tree = mapper.readTree(p.getInputStream());
-
-            p.waitFor();
-
-//            System.out.println(tree);
-            JsonNode boxNode = tree.get("_box");
-            double[] b = mapper.treeToValue(boxNode.get(0), double[].class);
-            Box box = new Box(Space3D.getInstance());
-            Boundary bound = new BoundaryRectangularPeriodic(Space3D.getInstance(), Arrays.copyOf(b, 3));
-            box.setBoundary(bound);
-            
-      
-            JsonNode atomTypesList = tree.get("parameterset").get("atom_types");
-            System.out.println(atomTypesList);
-            Map<String, AtomTypeLeaf> atomTypes = new LinkedHashMap<>();
-            List<String> atomTypeIndices = new ArrayList<>();
-            
-            for(JsonNode atomType : atomTypesList) {
-            	System.out.println(atomType);
-            	ElementSimple el = new ElementSimple(atomType.get("name").asText(), atomType.get("mass").asDouble());
-            	AtomTypeLeaf at = new AtomTypeLeaf(el);
-            	atomTypes.put(atomType.get("name").asText(), at);
-            	atomTypeIndices.add(atomType.get("name").asText());
-            }
-            
-            JsonNode speciesAtoms = tree.get("residues").get(0).get("atoms");
-            SpeciesSpheresCustom theSpecies = new SpeciesSpheresCustom(Space3D.getInstance(), atomTypes.values().toArray(new AtomTypeLeaf[]{}));
-            List<Integer> speciesAtomTypes = new ArrayList<>();
-            for(JsonNode atom : speciesAtoms) {
-            	speciesAtomTypes.add(atomTypeIndices.indexOf(atom.get("type").asText()));
-            	
-            }
-            
-            theSpecies.setAtomTypes(speciesAtomTypes.stream().mapToInt(i -> i).toArray());
-            
-          
-            
-
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+    /**
+     * Parses the given <a href="http://www.gromacs.org/">Gromacs</a> .top and .gro files
+     * using the <a href="https://github.com/ParmEd/ParmEd">ParmEd</a> python library.
+     * @param topFile File object containing the path to a Gromacs .top file
+     * @param groFile File object containing the path to a Gromacs .gro file
+     * @return a {@link ParmedStructure} for extracting Etomica simulation components from the ParmEd {@code Structure} object
+     */
+    public static ParmedStructure parseGromacs(File topFile, File groFile) throws IOException {
+        JsonNode root = execParmedPython(topFile, groFile);
+        return new ParmedStructure(root);
     }
+
+    public static ParmedStructure parseGromacsResourceFiles(String topFileName, String groFileName) throws IOException {
+        return parseGromacs(getResourceFile(topFileName), getResourceFile(groFileName));
+    }
+
+    //TODO: method to accept file contents as strings and create temp files for parsing
 
     private static File getResourceFile(String filename) {
         ClassLoader classLoader = ParmedParser.class.getClassLoader();
         return new File(classLoader.getResource(filename).getFile());
+    }
+
+    /**
+     * Runs the python script on the given files
+     * @param topFile File object containing the .top file path
+     * @param groFile File object containing the .gro file path
+     * @return Jackson JsonNode representing the root of the json tree
+     * @throws IOException if the given files do not exist
+     */
+    private static JsonNode execParmedPython(File topFile, File groFile) throws IOException {
+
+
+        ProcessBuilder pb = new ProcessBuilder(
+                PYTHON_SCRIPT_PATH,
+                topFile.getCanonicalPath(),
+                groFile.getCanonicalPath()
+        );
+
+        Process proc = pb.start();
+
+        JsonNode root = mapper.readTree(proc.getInputStream());
+
+        try {
+            proc.waitFor();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return root;
     }
 }
