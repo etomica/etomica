@@ -73,7 +73,6 @@ public class SpeciesSpheresCustom extends Species {
     public SpeciesSpheresCustom(ISpace space, IAtomType[] atomTypes) {
         super();
         this.space = space;
-        numberFraction = new double[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
             addChildType(atomTypes[i]);
         }
@@ -131,7 +130,6 @@ public class SpeciesSpheresCustom extends Species {
         for (int i=0; i<childTypes.length; i++) {
             addChildType(newchildTypes[i]);
         }
-
     }
     
     public void setAtomTypes(int[] atomTypes) {
@@ -145,6 +143,5 @@ public class SpeciesSpheresCustom extends Species {
     private static final long serialVersionUID = 1L;
     protected ISpace space;
     protected boolean isDynamic;
-    protected double[] numberFraction;
     protected int[] atomTypes;
 }
