@@ -48,7 +48,7 @@ project(':etomica-core') {
         compile project(':etomica-graphics3D')
     }
 
-    test.dependsOn ':setupPython'
+    processResources.dependsOn ':setupPython'
 }
 
 project(':etomica-apps') {
