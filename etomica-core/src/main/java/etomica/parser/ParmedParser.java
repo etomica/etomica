@@ -16,8 +16,6 @@ import java.io.IOException;
  */
 public class ParmedParser {
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final String PYTHON_SCRIPT_PATH = "venv/bin/parmed_json";
-    //TODO: move venv to resources dir?
 
     /**
      * Parses the given <a href="http://www.gromacs.org/">Gromacs</a> .top and .gro files
@@ -57,10 +55,12 @@ public class ParmedParser {
      * @throws IOException if the given files do not exist
      */
     private static JsonNode execParmedPython(File topFile, File groFile) throws IOException {
+        ClassLoader classLoader = ParmedParser.class.getClassLoader();
+        String python_script_path = classLoader.getResource("virtualenv/bin/parmed_json").getFile();
 
 
         ProcessBuilder pb = new ProcessBuilder(
-                PYTHON_SCRIPT_PATH,
+                python_script_path,
                 topFile.getCanonicalPath(),
                 groFile.getCanonicalPath()
         );

@@ -47,6 +47,8 @@ project(':etomica-core') {
 
         compile project(':etomica-graphics3D')
     }
+
+    test.dependsOn ':setupPython'
 }
 
 project(':etomica-apps') {
@@ -82,3 +84,8 @@ project(':etomica-graph') {
 
 task findbugsAll
 subprojects { project -> findbugsAll.dependsOn("${project.path}:findbugsMain")}
+
+task setupPython(type:Exec) {
+    workingDir = "${project.rootDir}"
+    commandLine './setup_python.sh'
+}
