@@ -49,6 +49,7 @@ project(':etomica-core') {
     }
 
     processResources.dependsOn ':setupPython'
+    clean.dependsOn ':cleanPython'
 }
 
 project(':etomica-apps') {
@@ -88,4 +89,8 @@ subprojects { project -> findbugsAll.dependsOn("${project.path}:findbugsMain")}
 task setupPython(type:Exec) {
     workingDir = "${project.rootDir}"
     commandLine './setup_python.sh'
+}
+
+task cleanPython(type:Delete) {
+    delete "${project(":etomica-core").projectDir}/src/main/resources/virtualenv"
 }
