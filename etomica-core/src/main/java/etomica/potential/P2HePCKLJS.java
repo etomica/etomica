@@ -24,8 +24,12 @@ import etomica.util.Constants;
  * @author Kate Shaul and Andrew Schultz
  */
 public class P2HePCKLJS extends Potential2SoftSpherical {
-    
-    public P2HePCKLJS(ISpace space) {
+
+	public P2HePCKLJS(ISpace space) {
+		this(space, 0);
+	}
+
+    public P2HePCKLJS(ISpace space, double sigma) {
         super(space);
 
         double W4 = 0.35322e-04/(alpha*alpha);
@@ -67,6 +71,15 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
    
     	P = new double[] { -25.4701669416621, 269.244425630616, -56.3879970402079};
     	Q = new double[] {38.7957487310071, -2.76577136772754};
+
+    	aErr = new double[]{2.456, 1.100, 0.4381};
+    	cErr = new double[]{0.16702e-3, 0.4524e-5, 0.1843e-7};
+
+    	setErrMulti(sigma);
+    }
+
+    public void setErrMulti(double newErrMult) {
+    	errMult = newErrMult;
     }
 
     /**
@@ -116,8 +129,16 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         
         double invr3 = invr*invr*invr;
     	double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
+    	double uSigma = 0;
+    	if (errMult != 0) {
+    		double s = 0;
+        	for (int i=0; i<3; i++) {
+        		s += cErr[i]*Math.exp(-aErr[i]*r);
+        	}
+    		uSigma = errMult*s;
+    	}
  
-    	return  Hartree.UNIT.toSim(u1 + u2 + u3 + Vret);
+    	return  Hartree.UNIT.toSim(u1 + u2 + u3 + Vret + uSigma);
     	
     }
 
@@ -178,7 +199,16 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     	//double Vret = (C[3] + C[4]*invr + C6BO*(1.0-g)*invr3)*invr3;
     	double dVretdr = (-3.0*C[3] -4.0*C[4]*invr -6.0*C6BO*(1.0-g)*invr3)*invr3*invr + C6BO*(-dgdr)*invr3*invr3;
         
-    	double dudr = Hartree.UNIT.toSim(du1dr + du2dr + du3dr + dVretdr);
+    	double duSigma = 0;
+    	if (errMult != 0) {
+    		double s = 0;
+        	for (int i=0; i<3; i++) {
+        		s += -aErr[i]*cErr[i]*Math.exp(-aErr[i]*r);
+        	}
+    		duSigma = errMult*s;
+    	}
+
+    	double dudr = Hartree.UNIT.toSim(du1dr + du2dr + du3dr + dVretdr + duSigma);
     	
         return r*dudr;
         
@@ -265,7 +295,16 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
 //        double dVretdr = (-3.0*C[3] -4.0*C[4]*invr -6.0*C6BO*(1.0-g)*invr3)*invr3*invr + C6BO*(-dgdr)*invr3*invr3;
         double d2Vretdr2 = (12.0*C[3] +20.0*C[4]*invr +42.0*C6BO*(1.0-g)*invr3)*invr3*invr*invr + C6BO*(-d2gdr2 + 12*dgdr*invr)*invr3*invr3;
 
-        double d2udr2 = Hartree.UNIT.toSim(d2u1dr2 + d2u2dr2 + d2u3dr2 + d2Vretdr2);
+    	double d2uSigma = 0;
+    	if (errMult != 0) {
+    		double s = 0;
+        	for (int i=0; i<3; i++) {
+        		s += aErr[i]*aErr[i]*cErr[i]*Math.exp(-aErr[i]*r);
+        	}
+    		d2uSigma = errMult*s;
+    	}
+
+        double d2udr2 = Hartree.UNIT.toSim(d2u1dr2 + d2u2dr2 + d2u3dr2 + d2Vretdr2 + d2uSigma);
         return r*r*d2udr2;
     }
             
@@ -399,9 +438,25 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             double dVretdr = (-3.0*C[3] -4.0*C[4]*invr -6.0*C6BO*(1.0-g)*invr3)*invr3*invr + C6BO*(-dgdr)*invr3*invr3;
             double d2Vretdr2 = (12.0*C[3] +20.0*C[4]*invr +42.0*C6BO*(1.0-g)*invr3)*invr3*invr*invr + C6BO*(-d2gdr2 + 12*dgdr*invr)*invr3*invr3;
 
-            double uc = Hartree.UNIT.toSim(u1 + u2 + u3 + Vret);
-            double duc = Hartree.UNIT.toSim(r*(du1dr + du2dr + du3dr + dVretdr));
-            double d2uc = Hartree.UNIT.toSim(r*r*(d2u1dr2 + d2u2dr2 + d2u3dr2 + d2Vretdr2));
+        	double uSigma = 0, duSigma = 0, d2uSigma = 0;
+        	if (errMult != 0) {
+        		double s = 0, ds = 0, d2s = 0;
+            	for (int i=0; i<3; i++) {
+            		double t = cErr[i]*Math.exp(-aErr[i]*r);
+            		s += t;
+            		t *= -aErr[i];
+            		ds += t;
+            		t *= -aErr[i];
+            		d2s += t;
+            	}
+        		uSigma = errMult*s;
+        		duSigma = errMult*ds;
+        		d2uSigma = errMult*d2s;
+        	}
+
+            double uc = Hartree.UNIT.toSim(u1 + u2 + u3 + Vret + uSigma);
+            double duc = Hartree.UNIT.toSim(r*(du1dr + du2dr + du3dr + dVretdr + duSigma));
+            double d2uc = Hartree.UNIT.toSim(r*r*(d2u1dr2 + d2u2dr2 + d2u3dr2 + d2Vretdr2 + d2uSigma));
 
             if (uc == Double.POSITIVE_INFINITY || d2uc == Double.POSITIVE_INFINITY) { return Double.POSITIVE_INFINITY; }
             double u = uc + (fac/r2)*(d2uc + 2*duc);
@@ -623,5 +678,6 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
     protected static final double b = 2.36824871743591;
     protected static final double eta = 4.09423805117871;
     protected static double sigmaHC = 0.4; //bohr radii
-
+    protected final double[] aErr, cErr;
+    protected double errMult;
 }
