@@ -4,8 +4,8 @@ package etomica.parser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import etomica.api.IAtomList;
 import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
@@ -38,15 +38,24 @@ public class ParmedStructure {
 
     // We're only ever using 3D space for now
     private static final Space SPACE = Space3D.getInstance();
-    private Map<String, AtomTypeLeaf> atomTypes;
 
-    // rmin = 2^(1/6) * sigma
-    private static final double SIGMA_RATIO = 1 / Math.pow(2, 1/6);
+    private Map<String, AtomTypeLeaf> atomTypes;
+    private SpeciesSpheresCustom species;
+
+    /**
+     * rmin = 2^(1/6) * sigma
+      */
+    private static final double SIGMA_FACTOR = 1 / Math.pow(2, 1/6);
 
     ParmedStructure(JsonNode root) {
         this.root = root;
     }
 
+    /**
+     * Gets the (single, rectangular) box found in this Structure.
+     *
+     * @return a Box object with the same boundary coordinates as the box in the Structure.
+     */
     public Box getBox() {
         JsonNode boxNode = root.get("_box");
         double[] boxGeometry;
@@ -64,6 +73,10 @@ public class ParmedStructure {
     }
 
     public SpeciesSpheresCustom getSpecies() {
+        if(!Objects.isNull(species)) {
+            return this.species;
+        }
+
         ensureAtomTypes();
 
         SpeciesSpheresCustom theSpecies = new SpeciesSpheresCustom(
@@ -99,9 +112,17 @@ public class ParmedStructure {
             }
         });
 
+        this.species = theSpecies;
         return theSpecies;
     }
 
+    /**
+     * Gets the intermolecular {@link PotentialGroup} for the atom types found in this Structure. Constructs
+     * all unique unordered pairs of atom types and creates {@link P2LennardJones} potentials using
+     * <a href="https://en.wikipedia.org/wiki/Combining_rules">Lorentz-Berthelot combining rules</a>.
+     *
+     * @return the PotentialGroup for potentials between molecules in this Structure.
+     */
     public PotentialGroup getIntermolecularPotential() {
         ensureAtomTypes();
         PotentialGroup potentialGroup = new PotentialGroup(2, SPACE);
@@ -125,8 +146,8 @@ public class ParmedStructure {
                 // geometric mean
                 double combinedEpsilon = Math.sqrt(epsilon1 * epsilon2);
 
-                double sigma1 = typeNode1.get("rmin").asDouble() * SIGMA_RATIO;
-                double sigma2 = typeNode2.get("rmin").asDouble() * SIGMA_RATIO;
+                double sigma1 = typeNode1.get("rmin").asDouble() * SIGMA_FACTOR;
+                double sigma2 = typeNode2.get("rmin").asDouble() * SIGMA_FACTOR;
                 double combinedSigma = (sigma1 + sigma2) / 2;
 
                 P2LennardJones potential = new P2LennardJones(SPACE, combinedSigma, combinedEpsilon);
@@ -138,6 +159,39 @@ public class ParmedStructure {
         return potentialGroup;
     }
 
+    /**
+     * Gets the list of all molecules in the Structure, initialized with their coordinates in space.
+     *
+     * @return a List containing all the molecules of a species in the structure.
+     */
+    public List<IMolecule> getMolecules() {
+        List<IMolecule> moleculeList = new ArrayList<>();
+        SpeciesSpheresCustom species = getSpecies();
+
+        //TODO: extract by species, i.e. don't assume all molecules are same species
+        for(JsonNode moleculeNode : root.get("residues")) {
+            IMolecule molecule = species.makeMolecule();
+
+            JsonNode atomsListNode = moleculeNode.get("atoms");
+            IAtomList atomList = molecule.getChildList();
+            for(int i = 0; i < atomList.getAtomCount(); i++) {
+                JsonNode atomNode = atomsListNode.get(i);
+                atomList.getAtom(i).getPosition().E(new Vector3D(
+                        atomNode.get("xx").asDouble(),
+                        atomNode.get("xy").asDouble(),
+                        atomNode.get("xz").asDouble()
+                ));
+
+            }
+            moleculeList.add(molecule);
+        }
+        return moleculeList;
+    }
+
+    /**
+     * "Lazily" create the atomTypes field when it is first needed. If the field is null it creates the
+     * map from the data, otherwise it does nothing.
+     */
     private void ensureAtomTypes() {
         if(Objects.isNull(atomTypes)) {
             JsonNode atomTypesList = root.get("parameterset").get("atom_types");

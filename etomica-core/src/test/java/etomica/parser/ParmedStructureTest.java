@@ -16,6 +16,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class ParmedStructureTest {
@@ -77,6 +79,21 @@ public class ParmedStructureTest {
                 EPSILON
         );
 
+    }
+
+    @Test
+    public void testGetMolecules() {
+        List<IMolecule> molList = structure.getMolecules();
+
+        assertTrue(
+                molList.get(0).getChildList().getAtom(0).getPosition()
+                .equals(new Vector3D(0, 0, 0))
+        );
+
+        assertTrue(
+                molList.get(1).getChildList().getAtom(1).getPosition()
+                .equals(new Vector3D(-0.9299999999999999, -0.56, 13.799999999999999))
+        );
     }
 
 }
