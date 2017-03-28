@@ -162,3 +162,7 @@ Temporary Items
 
 # ignore entire .idea directory for now
 .idea
+
+# python virtualenv
+venv
+virtualenv

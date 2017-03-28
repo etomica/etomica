@@ -40,12 +40,16 @@ subprojects {
 project(':etomica-core') {
     
     dependencies {
+        compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0.pr1'
         compile 'gov.nist.math:jama:1.0.3'
         compile 'org.apache.commons:commons-math3:3.3'
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
         compile project(':etomica-graphics3D')
     }
+
+    processResources.dependsOn ':setupPython'
+    clean.dependsOn ':cleanPython'
 }
 
 project(':etomica-apps') {
@@ -81,3 +85,12 @@ project(':etomica-graph') {
 
 task findbugsAll
 subprojects { project -> findbugsAll.dependsOn("${project.path}:findbugsMain")}
+
+task setupPython(type:Exec) {
+    workingDir = "${project.rootDir}"
+    commandLine './setup_python.sh'
+}
+
+task cleanPython(type:Delete) {
+    delete "${project(":etomica-core").projectDir}/src/main/resources/virtualenv"
+}
