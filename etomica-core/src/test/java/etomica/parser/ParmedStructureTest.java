@@ -1,6 +1,15 @@
 package etomica.parser;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import etomica.action.IAction;
+import etomica.action.MoleculeAction;
+import etomica.action.MoleculeActionTranslateTo;
+import etomica.api.IMolecule;
+import etomica.atom.MoleculePair;
 import etomica.box.Box;
+import etomica.potential.P2LennardJones;
+import etomica.potential.PotentialGroup;
+import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresCustom;
 import org.junit.Before;
@@ -44,6 +53,30 @@ public class ParmedStructureTest {
                 species.makeMolecule().getChildList().getAtom(0).getPosition()
                 .equals(new Vector3D(0.0, 0.0, 0.0))
         );
+    }
+
+    @Test
+    public void testGetIntermolecularPotential() throws JsonProcessingException {
+        PotentialGroup potentialGroup = structure.getIntermolecularPotential();
+        SpeciesSpheresCustom species = structure.getSpecies();
+        potentialGroup.setBox(structure.getBox());
+
+        IMolecule mol1 = species.makeMolecule();
+        IMolecule mol2 = species.makeMolecule();
+
+        MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
+        act.setDestination(new Vector3D(5, 5, 5));
+        act.actionPerformed(mol2);
+
+        assertEquals(
+                -0.002102905446227447,
+                potentialGroup.energy(new MoleculePair(
+                        mol1,
+                        mol2
+                )),
+                EPSILON
+        );
+
     }
 
 }
