@@ -96,6 +96,9 @@ task cleanPython(type:Delete) {
 }
 
 task javadocAll(type: Javadoc) {
+    options.setNoTimestamp(true)
+    failOnError = false
+
     source subprojects.collect {
         project -> project.sourceSets.main.allJava
     }
