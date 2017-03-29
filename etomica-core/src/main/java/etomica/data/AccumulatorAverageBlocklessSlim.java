@@ -106,7 +106,7 @@ public class AccumulatorAverageBlocklessSlim extends DataAccumulator {
      * Prepares the accumulator for input data.  Discards any previous 
      * contributions to statistics.
      * 
-     * @param incomingDataInfo
+     * @param inputDataInfo
      *            the DataInfo instance for the data that will be given to
      *            addData
      */

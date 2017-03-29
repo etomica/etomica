@@ -38,7 +38,7 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
 	
 	/**
 	 * Places a set of atoms in a linearly connected fashion.
-	 * @ param atomlist a list of atoms in the order in which they are linked
+	 * @param atomlist a list of atoms in the order in which they are linked
 	 */
 	public void initializePositions(IAtomList atomlist){
 		

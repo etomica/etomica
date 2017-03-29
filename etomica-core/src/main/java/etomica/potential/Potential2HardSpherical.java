@@ -25,7 +25,7 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
 	
 	/**
     * The pair energy u(r^2) with no truncation applied.
-    * @param the square of the distance between the particles.
+    * @param r2 the square of the distance between the particles.
     */
     public abstract double u(double r2);
 

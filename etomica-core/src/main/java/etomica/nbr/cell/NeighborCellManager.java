@@ -93,7 +93,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
 
     /**
      * Sets the potential range to the given value.  Cells are made large 
-     * enough so that cellRange*cellSize > potentialRange.
+     * enough so that {@code cellRange*cellSize > potentialRange}.
      */
     public void setPotentialRange(double newRange) {
         range = newRange;

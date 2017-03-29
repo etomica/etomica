@@ -159,7 +159,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 	/**
 	 * Sets the background color of the display box canvas.
-	 * @param Color : color to set background to
+	 * @param color : color to set background to
 	 */
 	public void setBackgroundColor(Color color) {
 		backgroundColor = color;
@@ -177,7 +177,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 	/**
 	 * Sets the color of the box boundary.
-	 * @param Color : color to set box boundary
+	 * @param color : color to set box boundary
 	 */
 	public void setBoundaryFrameColor(Color color) {
 		boundaryFrameColor = color;
@@ -194,7 +194,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 	/**
 	 * Sets the color of the plane.
-	 * @param Color : color to set plane
+	 * @param color : color to set plane
 	 */
 	public void setPlaneColor(Color color) {
 		planeColor = color;

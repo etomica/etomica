@@ -36,7 +36,7 @@ public abstract class DataProcessor implements DataPipe {
      * processing. Typically the subclass will use this information to make any
      * objects or otherwise prepare for calls to processData.
      * 
-     * @inputDataInfo the DataInfo of the Data that will be input to this
+     * @param inputDataInfo the DataInfo of the Data that will be input to this
      *                DataProcessor
      * @return the DataInfo of the Data that will be output by this
      *         DataProcessor

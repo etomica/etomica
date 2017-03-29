@@ -31,7 +31,7 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * Length of each box edge is given by the default boxSize in the
      * given Simulation.
      * 
-     * @param slitDim index indicating dimension that is not periodic (0 for x-dimension,
+     * @param poreDim index indicating dimension that is not periodic (0 for x-dimension,
      * 1 for y-dimension, etc.).
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
@@ -40,10 +40,10 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
     }
     
     /**
-     * Constructor for periodic boundary conditions with a slit 
+     * Constructor for periodic boundary conditions with a pore
      * in the given dimension.
      * @param space
-     * @param slitDim slit dimension (in which PBC is not imposed).
+     * @param poreDim pore dimension (in which PBC is not imposed).
      */
     public BoundaryRectangularPore(ISpace space, int poreDim, double boxSize) {
         super(space,boxSize);

@@ -66,7 +66,7 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
      *          ignored and the array need to not be of size equal to nPoints.
      *          If only 3-body Mayer function is available, then fMulti can be
      *          of length 4 (0,1,2,3).
-     * @param tol if the magnitude of the computed cluster value is less than
+     * @param precision if the magnitude of the computed cluster value is less than
      *          the value will be recomputed using BigDecimal.  Use tol=0 to
      *          prevent BigDecimal computations.
      */

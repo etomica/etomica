@@ -61,7 +61,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1) for a compatible instance of other.
+   * TIME = O(1) for a compatible instance of other.
    */
   @Override
   public void and(final Bitmap other) {
@@ -84,7 +84,7 @@ public class BitmapOfLong extends AbstractBitmap {
    * The highest order bit is at bit 0 of bitmap, and the lowest order bit is at bit
    * bitSize() - 1 of bitmap.
    *
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   public void clearBit(final int bitIndex) {
 
@@ -101,7 +101,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1) for an instance of BitmapOfLong.
+   * TIME = O(1) for an instance of BitmapOfLong.
    */
   @Override
   public boolean equals(Object other) {
@@ -116,7 +116,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   @Override
   public int hashCode() {
@@ -125,7 +125,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1) for a compatible instance.
+   * TIME = O(1) for a compatible instance.
    */
   @Override
   public void nand(final Bitmap other) {
@@ -140,7 +140,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   @Override
   public void not() {
@@ -149,7 +149,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1) for a compatible instance.
+   * TIME = O(1) for a compatible instance.
    */
   @Override
   public void or(final Bitmap other) {
@@ -167,7 +167,7 @@ public class BitmapOfLong extends AbstractBitmap {
    * The highest order bit is at bit 0 of bitmap, and the lowest order bit is at bit
    * bitSize() - 1 of bitmap.
    *
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   public void setBit(final int bitIndex) {
 
@@ -175,7 +175,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   @Override
   public void setBits(final boolean value) {
@@ -184,7 +184,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   public boolean testBit(final int bitIndex) {
 
@@ -193,7 +193,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1) for a compatible instance.
+   * TIME = O(1) for a compatible instance.
    */
   @Override
   public void xor(final Bitmap other) {
@@ -217,7 +217,7 @@ public class BitmapOfLong extends AbstractBitmap {
   }
 
   /**
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   @Override
   protected void copyFrom(final Bitmap other) {
@@ -244,7 +244,7 @@ public class BitmapOfLong extends AbstractBitmap {
    * Returns a long with a single bit set, corresponding to the bit offset of the given
    * bit index.
    *
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   protected long maskSingleBit(final int bitIndex) {
 
@@ -254,7 +254,7 @@ public class BitmapOfLong extends AbstractBitmap {
   /**
    * Returns a bitmask corresponding to the valid bits of the long with the given index.
    *
-   * @TIME = O(1).
+   * TIME = O(1).
    */
   protected long maskSingleLong() {
 

@@ -103,8 +103,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
      * Adding a bond to bonded atoms does not cause an error, and has no effect.
      * Remove a bond from unbonded atoms causes an exception.
      * 
-     * @param bonded true for adding to bonded list; false for removing
-     * @param pair pair of atoms to be bonded or unbonded
+     * @param bonding true for adding to bonded list; false for removing
      * @throws IndexOutOfBoundsException if specifying unbonding, and atoms are not bonded already
      */
     public void setBonded(boolean bonding, IAtom atom0, IAtom atom1, double bondLengthSquared) {

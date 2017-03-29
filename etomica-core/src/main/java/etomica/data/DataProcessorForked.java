@@ -43,7 +43,7 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
      * Adds the given DataSink to those receiving the Data entering this DataFork,
      * keeping all previously entered DataSinks.
      * 
-     * @param dataSink
+     * @param newDataSink
      */
     public void addDataSink(IDataSink newDataSink) {
         dataFork.addDataSink(newDataSink);
@@ -52,7 +52,7 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
     /**
      * Removes the specified data sink.
      * 
-     * @param dataSink data sink to be removed from this list, if present.
+     * @param oldDataSink data sink to be removed from this list, if present.
      */
     public void removeDataSink(IDataSink oldDataSink) {
         dataFork.removeDataSink(oldDataSink);

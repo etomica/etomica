@@ -18,7 +18,7 @@ import etomica.space.ISpace;
 public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
 
     /**
-     * @param box
+     * @param _box
      */
     public DisplayBoxSpin2D(DisplayBox _box, NeighborSiteManager neighborSiteManager, ISpace space, Controller controller) {
         super(_box, space, controller);

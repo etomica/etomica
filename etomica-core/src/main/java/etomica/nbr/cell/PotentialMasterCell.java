@@ -32,7 +32,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * Constructs with null AtomPositionDefinition, which indicates the position
      * definition given with each atom's AtomType should be used.
      * 
-     * @param space the governing Space
+     * @param _space the governing Space
      * @param range the neighbor distance.  May be changed after construction.
      */
     public PotentialMasterCell(ISimulation sim, double range, ISpace _space) {

@@ -25,7 +25,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
                 AtomsetIteratorDirectable, AtomsetIteratorTargetable, java.io.Serializable {
 
     /**
-     * @param species species for which molecules are returned as iterates. Only
+     * @param atomType species for which molecules are returned as iterates. Only
      * species[0] is relevant, and must not be null.
      */
     public AtomIteratorAllLeafType(IAtomType[] atomType) {

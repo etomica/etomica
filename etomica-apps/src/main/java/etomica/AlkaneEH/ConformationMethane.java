@@ -13,7 +13,7 @@ import etomica.space.ISpace;
 /**
  * Conformation for TraPPE-Explicit hydrogen methane
  * C site and H site, NOTE the H is located in the middle of C-H bond 
- * @shu
+ * @author shu
  * 01-27-2013
  */
 public class ConformationMethane implements IConformation {

@@ -61,7 +61,7 @@ public class IntegratorMC extends IntegratorBox {
     }
 
     /**
-     * @param moveManager The moveManager to set.
+     * @param newMoveManager The moveManager to set.
      */
     public void setMoveManager(MCMoveManager newMoveManager) {
         moveManager = newMoveManager;

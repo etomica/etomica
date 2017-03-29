@@ -83,7 +83,7 @@ public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 
 	/**
 	 * Sets the background color of the display box canvas.
-	 * @param Color : color to set background to
+	 * @param color : color to set background to
 	 */
 	public void setBackgroundColor(Color color) {
 		backgroundColor = color;
@@ -101,7 +101,7 @@ public class DisplayPolytopeCanvasG3DSys extends DisplayCanvas {
 
 	/**
 	 * Sets the color of the box boundary.
-	 * @param Color : color to set box boundary
+	 * @param color : color to set box boundary
 	 */
 	public void setBoundaryFrameColor(Color color) {
 		boundaryFrameColor = color;

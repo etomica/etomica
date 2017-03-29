@@ -84,7 +84,6 @@ public class IntegratorPT extends IntegratorManagerMC {
 	 */
 	public interface MCMoveSwapFactory {
 	    /**
-	     * @param integratorMC the parent integrator using this move
 	     * @param integrator1 integrator for one of the boxes being swapped
 	     * @param integrator2 integrator for the other box
 	     */

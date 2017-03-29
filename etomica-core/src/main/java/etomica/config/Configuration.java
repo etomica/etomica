@@ -28,7 +28,6 @@ public interface Configuration {
      * ways, for example to form a lattice appropriate to a compound
      * (i.e., a solid-box mixture).
      * 
-     * @param atomList array of list of molecules to be placed by this class
      */
     public void initializeCoordinates(IBox box);
 

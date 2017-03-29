@@ -20,9 +20,6 @@ import etomica.config.Configuration;
  */
 public class ConfigurationAligned implements Configuration, java.io.Serializable {
 
-    /**
-     * @param space
-     */
     public ConfigurationAligned() {
     }
 

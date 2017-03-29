@@ -121,7 +121,7 @@ public class DataSourceRmsVelocity implements IEtomicaDataSource, DataSourceAtom
 	 * Sets the iterator defining the atoms for which the RMS velocity is
 	 * calculated.
 	 * 
-	 * @param iterator
+	 * @param newIterator
 	 */
 	public void setIterator(AtomIterator newIterator) {
 	    iterator = newIterator;

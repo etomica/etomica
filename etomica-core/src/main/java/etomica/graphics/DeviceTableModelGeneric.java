@@ -72,7 +72,7 @@ public class DeviceTableModelGeneric extends AbstractTableModel {
 
     /**
      * Set the value in the given table cell.
-     * @param the value to set in the table cell wrapped as an Object
+     * @param value the value to set in the table cell wrapped as an Object
      * @param row row where cell to set resides
      * @param col column where cell to set resides
      */

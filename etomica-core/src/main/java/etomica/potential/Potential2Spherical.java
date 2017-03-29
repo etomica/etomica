@@ -12,7 +12,7 @@ import etomica.api.IPotentialAtomic;
 public interface Potential2Spherical extends IPotentialAtomic {
 	/**
 	 * The pair energy u(r^2) with no truncation applied.
-	 * @param the square of the distance between the particles.
+	 * @param r2 the square of the distance between the particles.
 	 */
 	public double u(double r2);
 

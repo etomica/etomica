@@ -203,8 +203,8 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
     /**
      * Returns a unit normal to the argument vector
      * 
-     * @param vector
-     * @return
+     * @param vect
+     * @return a unit normal to the argument vector
      */
     protected IVectorMutable getNormal(IVectorMutable vect) {
         // Determine the smallest component

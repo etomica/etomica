@@ -38,7 +38,7 @@ import etomica.util.IEventManager;
  * 
  * @author Andrew Schultz and David Kofke
  * 
- * @see Action
+ * @see IAction
  * @see Activity
  */
 public class Controller extends ActivityGroupSeries implements java.io.Serializable, IController {

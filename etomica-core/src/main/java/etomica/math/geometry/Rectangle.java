@@ -81,7 +81,8 @@ public class Rectangle extends Polygon implements Rectangular {
     }
 
     /**
-     * @param edgeLength the new length of the sides of the square
+     * @param edgeLengthX the new length of the sides of the square
+     * @param edgeLengthY the new length of the sides of the square
      */
     protected void setEdgeLengths(double edgeLengthX, double edgeLengthY) {
         nX = -0.5*edgeLengthX;

@@ -96,7 +96,7 @@ public class MpiIntraArrayList implements MoleculesetIterator, java.io.Serializa
      * Sets the list that will be used to generate the pairs. Must call reset()
      * before beginning iteration.
      * 
-     * @param moleculeList
+     * @param newList
      *            the new molecule list for iteration
      */
     public void setList(IMoleculeList newList) {

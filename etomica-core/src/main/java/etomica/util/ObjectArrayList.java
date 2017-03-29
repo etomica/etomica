@@ -165,7 +165,7 @@ import java.util.List;
 	    /**
 	     * Returns true if this list contains the specified element.
 	     *
-	     * @param o element whose presence in this List is to be tested.
+	     * @param elem element whose presence in this List is to be tested.
 	     */
 	    public boolean contains(Object elem) {
 	    	return indexOf(elem) >= 0;
@@ -316,7 +316,7 @@ import java.util.List;
 	    /**
 	     * Appends the specified element to the end of this list.
 	     *
-	     * @param o element to be appended to this list.
+	     * @param object element to be appended to this list.
 	     * @return true (as per the general contract of Collection.add).
 	     */
 	    public boolean add(Object object) {

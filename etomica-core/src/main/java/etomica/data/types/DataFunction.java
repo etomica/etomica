@@ -41,12 +41,7 @@ public class DataFunction extends DataDoubleArray {
     /**
      * Forms a DataFunction using the given independent and dependent data
      * instances.
-     * 
-     * @param independentData
-     *            array of DataDoubleArray, each representing independent-data
-     *            values in one dimension. Domain of data is determined by this
-     *            array of independent data. Given array is cloned for internal
-     *            use, while instances in array are used directly.
+     *
      * @param yData
      *            the data defined on the space of independent data; a
      *            double[] with getDimension equal to

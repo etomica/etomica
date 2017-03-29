@@ -93,7 +93,7 @@ import java.util.Map;
    * radius for that atom.
    *<p>
    *
-   * Notes 27 Sep 2005 </br>
+   * Notes 27 Sep 2005 <br>
    * If I were to switch the representation to staring with
    * a tetrahedron instead of an icosohedron we would get:
    *<code>

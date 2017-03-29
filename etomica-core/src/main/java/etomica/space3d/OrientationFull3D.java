@@ -43,7 +43,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
 
     /**
      * Sets this orientation to point in the given direction.
-     * @throws an exception if vector has 0 length
+     * @throws Exception if vector has 0 length
      */
     public void setDirection(IVector newDirection) {
         direction.E(newDirection);

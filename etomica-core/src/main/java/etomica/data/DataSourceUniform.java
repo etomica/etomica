@@ -109,8 +109,8 @@ public class DataSourceUniform implements IEtomicaDataSource, java.io.Serializab
     
     /**
      * Returns the index of the x value closest to the argument.
-     * @throws an IllegalArgumentException if the argument is outside the defined range.
-     * @param the double you are testing
+     * @throws IllegalArgumentException if the argument is outside the defined range.
+     * @param value the double you are testing
      */
     public int getIndex(double value) {
     	// Test whether or not the desired value is in the defined range.

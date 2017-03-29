@@ -41,7 +41,7 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
      * Note the adherance to the JavaBeans case conventions for property and accessor names.
      *
      * @param obj the object with the property to be modified
-     * @param property the name of the property being modified
+     * @param prop the name of the property being modified
      */
     public ModifierGeneral(Object[] obj, String prop) {
         dimension = Null.DIMENSION;

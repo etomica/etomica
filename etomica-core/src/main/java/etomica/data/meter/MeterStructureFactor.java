@@ -37,7 +37,6 @@ public class MeterStructureFactor extends DataSourceScalar {
 	/**
 	 * Creates meter with default to compute the structure factor
 	 * for all atoms in the box.
-	 * @param parent
 	 */
 	public MeterStructureFactor(ISpace space, BravaisLatticeCrystal aLattice, IBox aBox){
 		super("Structure factor", Undefined.DIMENSION);
@@ -89,7 +88,7 @@ public class MeterStructureFactor extends DataSourceScalar {
 	}
 	
 	/**
-	 * @param waveVec Sets a custom wave vector array.
+	 * @param _waveVec Sets a custom wave vector array.
 	 */
 	public void setWaveVec(IVectorMutable [] _waveVec){
 		 waveVec = space.makeVectorArray(_waveVec.length);
@@ -101,7 +100,7 @@ public class MeterStructureFactor extends DataSourceScalar {
 	}
 	
 	/**
-	 * @param atomList Sets the list of atoms for factor calculation.
+	 * @param moleculeList Sets the list of atoms for factor calculation.
 	 */
 	public void setAtoms(IMoleculeList moleculeList){
 		this.moleculeList = moleculeList;

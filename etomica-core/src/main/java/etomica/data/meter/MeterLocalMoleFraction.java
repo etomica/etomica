@@ -71,7 +71,6 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     /**
      * Accessor method to get the current value of the species index
      *
-     * @see #setSpeciesIndex
      */
     public final ISpecies getSpecies() {return species;}
     

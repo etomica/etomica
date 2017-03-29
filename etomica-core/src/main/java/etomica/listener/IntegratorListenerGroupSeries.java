@@ -54,7 +54,7 @@ public class IntegratorListenerGroupSeries implements IIntegratorListener, java.
     /**
      * Adds the given action to the group.  No check is made of whether
      * action is already in group; it is added regardless.  
-     * @param newAction
+     * @param newListener
      */
     public void addListener(IIntegratorListener newListener) {
         listeners = (IIntegratorListener[])Arrays.addObject(listeners, newListener);

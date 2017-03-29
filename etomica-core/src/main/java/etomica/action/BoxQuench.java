@@ -43,7 +43,7 @@ public class BoxQuench extends BoxActionAdapter {
     }
     
 	/**
-	 * @see etomica.action.BoxActionAdapter#actionPerformed(IAtom)
+	 * @see etomica.action.BoxActionAdapter#actionPerformed()
 	 */
 	public void actionPerformed() {
 		if(box == null) return;

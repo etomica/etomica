@@ -27,8 +27,6 @@ public class DataDouble implements IData, java.io.Serializable {
 
     /**
      * Constructs a new instance with given descriptors.
-     * @param label a phrase describing the data
-     * @param dimension the physical dimensions (e.g., mass, time) of the data 
      */
     public DataDouble() {
         super();

@@ -49,7 +49,6 @@ public class P2SoftTruncated extends Potential2
     /**
      * Returns the energy of the wrapped potential if the separation
      * is less than the cutoff value
-     * @param r2 the squared distance between the atoms
      */
     public double energy(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
@@ -61,7 +60,6 @@ public class P2SoftTruncated extends Potential2
     /**
      * Returns the 2nd derivative (r^2 d^2u/dr^2) of the wrapped potential if the separation
      * is less than the cutoff value
-     * @param r2 the squared distance between the atoms
      */
     public double virial(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
@@ -73,7 +71,6 @@ public class P2SoftTruncated extends Potential2
     /**
      * Returns the derivative (r du/dr) of the wrapped potential if the separation
      * is less than the cutoff value
-     * @param r2 the squared distance between the atoms
      */
     public IVector[] gradient(IAtomList atoms) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
@@ -85,7 +82,6 @@ public class P2SoftTruncated extends Potential2
     /**
      * Returns the derivative (r du/dr) of the wrapped potential if the separation
      * is less than the cutoff value
-     * @param r2 the squared distance between the atoms
      */
     public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());

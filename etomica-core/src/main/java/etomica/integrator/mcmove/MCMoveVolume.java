@@ -47,11 +47,11 @@ public class MCMoveVolume extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolume(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure) {
+    		            ISpace space, double pressure) {
         super(potentialMaster);
         this.random = random;
-        this.D = _space.D();
-        inflate = new BoxInflate(_space);
+        this.D = space.D();
+        inflate = new BoxInflate(space);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);

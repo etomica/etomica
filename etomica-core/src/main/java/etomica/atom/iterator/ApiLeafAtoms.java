@@ -23,7 +23,7 @@ public class ApiLeafAtoms extends ApiIntraArrayList implements
 
     /**
      * Conditions iterator to return all leaf-atom pairs from the given box.
-     * @throws a NullPointerException if the Box is null
+     * @throws NullPointerException if the Box is null
      */
     public void setBox(IBox box) {
         setList(box.getLeafList());

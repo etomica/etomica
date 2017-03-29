@@ -53,7 +53,7 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
     /**
      * Configures iterator to return molecules from the set species in the given
      * box.
-     * @throws a NullPointerException if the Box is null
+     * @throws NullPointerException if the Box is null
      */
     public void setBox(IBox box) {
         if (species0.getIndex() > species1.getIndex()) {

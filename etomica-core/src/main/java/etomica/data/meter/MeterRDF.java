@@ -38,7 +38,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
 	/**
 	 * Creates meter with default to compute pair correlation for all
 	 * leaf atoms in a box.
-	 * @param parent
+	 * @param space
 	 */
     public MeterRDF(ISpace space) {
 	    this.space = space;

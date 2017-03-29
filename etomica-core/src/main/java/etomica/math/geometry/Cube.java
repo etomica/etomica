@@ -76,7 +76,7 @@ public class Cube extends Hexahedron {
         return edgeLength;
     }
     /**
-     * @param size The size to set.
+     * @param edgeLength The size to set.
      */
     public void setEdgeLength(double edgeLength) {
         this.edgeLength = edgeLength;

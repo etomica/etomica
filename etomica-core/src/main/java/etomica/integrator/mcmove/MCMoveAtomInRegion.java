@@ -29,8 +29,8 @@ public class MCMoveAtomInRegion extends MCMoveAtom {
      * randomly.  If the atom is not in the region, repeated attempts are
      * made until one is found or maxAttempts is reached.
      * 
-     * If newXMax > newXMin, then newXMax > x > newXMin.
-     * If newXMax < newXMin, then newXMax < x < newXMin (the region spans the
+     * If {@code newXMax > newXMin}, then {@code newXMax > x > newXMin}.
+     * If {@code newXMax < newXMin}, then {@code newXMax < x < newXMin} (the region spans the
      * boundary, excluding the middle of the box)
      */
     public void setXRange(double newXMin, double newXMax, int maxAttempts) {

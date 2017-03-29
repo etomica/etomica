@@ -147,7 +147,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         return moleculeSource;
     }
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setMoleculeSource(MoleculeSource source) {
         moleculeSource = source;

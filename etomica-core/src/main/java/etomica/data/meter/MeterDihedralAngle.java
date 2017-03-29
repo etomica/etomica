@@ -36,7 +36,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
 	/**
 	 * Creates meter with default to compute dihedral angle for all
 	 * leaf atoms in a box.
-	 * @param parent
+	 * @param space
 	 */
     public MeterDihedralAngle(ISpace space) {
 	    this.space = space;

@@ -47,18 +47,18 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveBoxSize(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space) {
+    		            ISpace space) {
         super(potentialMaster);
-        this.space = _space;
+        this.space = space;
         this.random = random;
-        inflate = new BoxInflate(_space);
+        inflate = new BoxInflate(space);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(0.5);
         setStepSizeMin(0.0);
         setStepSize(0.10);
         energyMeter.setIncludeLrc(true);
         affectedAtomIterator = new AtomIteratorLeafAtoms();
-        boxScale = _space.makeVector();
+        boxScale = space.makeVector();
     }
     
     public void setBox(IBox p) {

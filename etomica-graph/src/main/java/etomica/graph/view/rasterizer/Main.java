@@ -40,7 +40,7 @@ import org.apache.batik.util.ApplicationSecurityEnforcer;
 
 /**
  * Handles command line parameters to configure the <tt>SVGConverter</tt>
- * and rasterizer images. <br />
+ * and rasterizer images. <br>
  *
  * Each command line option is handled by an <tt>OptionHandler</tt> which
  * is responsible for converting the option into a configuration of the

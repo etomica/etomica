@@ -98,7 +98,7 @@ class FigureManager {
    * Remove a Figure from the system without resizing.
    * Useful when doing batch removals from a large system, but the user
    * must manually call shrinkModel at the end.
-   * @param id the ID of the figure to remove
+   * @param f the figure to remove
    * @return the removed figure (or null)
    */
   public synchronized Figure removeFig(Figure f) {

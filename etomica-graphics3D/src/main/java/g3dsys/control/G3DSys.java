@@ -322,7 +322,6 @@ public class G3DSys {
    * Converts molspace point p (in Angstroms) to a point on the display
    * in pixels.
    * @param p the point to convert
-   * @return the pixel coordinate
    */
   public void screenSpace(Point3f p, Point3i s) {
     tempp = tm.transformPoint(p);
@@ -439,8 +438,8 @@ public class G3DSys {
 
   /**
    * Converts the given argb int to a G3D Colix
-   * @param color the argb integer to be converted.
-   * @returns a Colix as a short
+   * @param argb the argb integer to be converted.
+   * @return a Colix as a short
    **/
   public static short getColix(int argb) {
     return Colix.getColixTranslucent(argb);

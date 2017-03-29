@@ -26,13 +26,6 @@ import etomica.space.ISpace;
  */
 public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
    
-    /**
-     * Constructor for MCMoveAtomMulti.
-     * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
-     */
     public MCMoveTorsionAceticAcid(IPotentialMaster potentialMaster, ISpace space,
             IRandom random) {
         super(potentialMaster,random,space,1,Double.POSITIVE_INFINITY);//we don't need stepsize-> put 1
