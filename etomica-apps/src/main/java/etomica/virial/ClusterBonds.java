@@ -127,8 +127,7 @@ public class ClusterBonds implements java.io.Serializable {
 	/**
 	 * Returns value obtained by averaging over all unique permutations of the
 	 * point indices.
-	 * @param pairs
-	 * @param beta
+	 * @param fValues
 	 * @return double
 	 */
 	protected double valueUsingPermutations(double[][][] fValues) {
