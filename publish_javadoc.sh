@@ -9,7 +9,7 @@ fi
 
 if [ "$TRAVIS_REPO_SLUG" == "etomica/etomica" ] && [ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
     echo "Generating javadoc..."
-    ./gradlew javadocAll || echo "Javadoc build failed!"; exit 1
+    ./gradlew javadocAll || { echo "Javadoc build failed!"; exit 1; }
 
     echo "Publishing javadoc..."
     cd $HOME
@@ -20,7 +20,7 @@ if [ "$TRAVIS_REPO_SLUG" == "etomica/etomica" ] && [ "$TRAVIS_JDK_VERSION" == "o
     cd etomica-javadoc
     rsync -r --delete --exclude=.git ${TRAVIS_BUILD_DIR}/docs/javadoc/ .
 
-    [ -z "$(git status --porcelain)" ] && echo "No changes to javadoc"; exit 0
+    [ -z "$(git status --porcelain)" ] && { echo "No changes to javadoc"; exit 0; }
 
     COMMIT_MSG="Latest javadoc auto-pushed by travis
 
