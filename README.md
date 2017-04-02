@@ -1,5 +1,7 @@
 ![etomica](http://www.etomica.org/images/etomicanew.jpg)
 
+### [Javadocs](http://etomica.github.io/javadoc) 
+
 # Instructions for Building
 
 ## Using Eclipse
