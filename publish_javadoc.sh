@@ -34,7 +34,8 @@ if [ "$TRAVIS_REPO_SLUG" == "etomica/etomica" ] && [ "$TRAVIS_JDK_VERSION" == "o
 
     git add -A
     git commit -m "$COMMIT_MSG"
-    git push origin master
+    echo "Pushing to javadoc repo..."
+    git push --quiet origin master > /dev/null 2>&1
     echo "Successfully pushed javadoc to https://github.com/etomica/javadoc"
 
 else
