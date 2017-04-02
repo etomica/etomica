@@ -88,7 +88,7 @@ public class PermutationDegenerateIterator implements IndexIterator, java.io.Ser
      * a call to reset() before this method has any effect.
      *  
      * Degeneracy is taken as the first "length" elements of the given array.
-     * Any elements degeneracy[i] for i>=length are ignored.
+     * Any elements degeneracy[i] for {@code i>=length} are ignored.
      * 
      * @throws IllegalArgumentException
      *             if the sum of the elements in degeneracy is not equal to the
