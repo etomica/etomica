@@ -167,5 +167,5 @@ Temporary Items
 venv
 virtualenv
 
-# ignore the docs folder, we will be force-adding and subtree pushing it to the gh-pages branch instead
+# ignore the docs folder, we will be automatically publishing it to a separate repo
 docs
