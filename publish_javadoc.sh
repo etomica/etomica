@@ -32,4 +32,6 @@ if [ "$TRAVIS_REPO_SLUG" == "etomica/etomica" ] && [ "$TRAVIS_JDK_VERSION" == "o
     git push origin master
     echo "Successfully pushed javadoc to https://github.com/etomica/javadoc"
 
+else
+    echo "Not on master branch of main repository, exiting."
 fi
