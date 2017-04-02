@@ -25,7 +25,7 @@ public interface DataPipeForked extends DataPipe {
      * keeping all previously entered DataSinks.  If argument is null, no action
      * is performed.
      * 
-     * @param dataSink
+     * @param newDataSink
      */
     public void addDataSink(IDataSink newDataSink);
 

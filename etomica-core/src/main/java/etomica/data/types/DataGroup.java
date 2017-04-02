@@ -74,7 +74,7 @@ public class DataGroup implements IData, java.io.Serializable {
     /**
      * Returns the i-th data element in the group, counting from 0.
      * 
-     * @throws ArrayIndexOutOfBounds
+     * @throws ArrayIndexOutOfBoundsException
      *             exception if the given value does not reference a legitimate
      *             element
      */

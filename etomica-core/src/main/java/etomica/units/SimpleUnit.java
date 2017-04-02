@@ -27,7 +27,7 @@ public class SimpleUnit implements Unit, java.io.Serializable {
     /**
      * Constructor.
      * 
-     * @param to
+     * @param toSim
      *            conversion factor from this unit to simulation units
      * @param name
      *            string describing this unit

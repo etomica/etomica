@@ -52,7 +52,6 @@ public class DisplayPolytope extends Display implements IAction {
    /**
     * Size of drawing region of central image, in pixels
     *
-    * @see #computeDrawSize
     */
     protected final int[] drawSize = new int[D];
    

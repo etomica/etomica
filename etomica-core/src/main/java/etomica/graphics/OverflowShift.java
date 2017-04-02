@@ -25,7 +25,7 @@ public class OverflowShift {
 	 * the periodic images of an atom that overflow into the volume (because the
 	 * periodic image is just outside the volume).
 	 * 
-	 * @param boundry
+	 * @param boundary
 	 *            boundary of atoms
 	 * @param rr
 	 *            position of the atom in the central image

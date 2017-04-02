@@ -23,8 +23,7 @@ public class ClusterTreeEF extends ClusterTree {
 
     /**
      * @param bonds
-     * @param fArray
-     * @param temperature
+     * @param eArray
      */
     public ClusterTreeEF(ClusterDiagramTree bonds, MayerFunction[] eArray) {
         super(bonds, (MayerFunction[])Arrays.resizeArray(eArray,eArray.length*2));

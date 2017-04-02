@@ -42,7 +42,7 @@ public class AtomActionTranslateBy implements AtomAction, Serializable {
         return translationVector;
     }
     /**
-     * @param destination The translation vector to set.  A local copy
+     * @param translationVector The translation vector to set.  A local copy
      * is made of the given vector.
      */
     public void setTranslationVector(IVector translationVector) {

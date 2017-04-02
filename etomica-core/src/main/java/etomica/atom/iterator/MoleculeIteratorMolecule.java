@@ -32,7 +32,7 @@ public class MoleculeIteratorMolecule extends MoleculeIteratorArrayListSimple im
     /**
      * Sets the box containing the molecules for iteration. A null
      * box conditions iterator to give no iterates.
-     * @throws a NullPointerException if the Box is null
+     * @throws NullPointerException if the Box is null
      */
     public void setBox(IBox newBox) {
         box = newBox;

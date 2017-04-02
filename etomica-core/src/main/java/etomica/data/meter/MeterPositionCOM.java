@@ -62,7 +62,7 @@ public class MeterPositionCOM implements IEtomicaDataSource, java.io.Serializabl
         return box;
     }
     /**
-     * @param box The box to set.
+     * @param newBox The box to set.
      */
     public void setBox(IBox newBox) {
         box = newBox;

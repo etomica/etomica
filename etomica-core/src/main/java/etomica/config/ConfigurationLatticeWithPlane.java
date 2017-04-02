@@ -86,7 +86,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
     /**
      * 
-     * @param newSpecies : species that should be removed from configuration
+     * @param remSpecies : species that should be removed from configuration
      */
     public void removeSpecies(ISpecies remSpecies) {
     	if(species.indexOf(remSpecies) != -1) {
@@ -117,8 +117,6 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * be initially allocated to the right side of the plane.
      * 
      * @param sp : Species to set allocation for
-     * @param pct : Percentage of species to initially allocate
-     * on the left side of the plane (0.0 <= pct <= 1.0)
      */
     public float getSpeciesAllocation(ISpecies sp) {
     	if(allocation.containsKey(sp)) {

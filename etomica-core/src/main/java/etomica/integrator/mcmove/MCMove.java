@@ -23,8 +23,6 @@ public abstract class MCMove {
 
     /**
      * @param potentialMaster the potential master that move can use to calculate energy
-     * @param nBoxs the number of boxs on which the move acts.  This is used at
-     * construction to size the (final) boxs array and cannot be changed.
      */
 	public MCMove(IPotentialMaster potentialMaster) {
         this(potentialMaster, new MCMoveTracker());
@@ -32,8 +30,6 @@ public abstract class MCMove {
 
     /**
      * @param potentialMaster the potential master that move can use to calculate energy
-     * @param nBoxs the number of boxs on which the move acts.  This is used at
-     * construction to size the (final) boxs array and cannot be changed.
      */
     public MCMove(IPotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
         potential = potentialMaster;

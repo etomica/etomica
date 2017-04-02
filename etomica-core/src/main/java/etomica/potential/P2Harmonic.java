@@ -30,7 +30,7 @@ public class P2Harmonic extends Potential2SoftSpherical {
     }
     /**
      * 
-     * @param parent
+     * @param space
      * @param w spring constant
      * @param r0  Separation at which potential is at its minimum.  Default is
      * zero.
@@ -112,4 +112,3 @@ public class P2Harmonic extends Potential2SoftSpherical {
     }
     
 }//end of P2Harmonic
-  

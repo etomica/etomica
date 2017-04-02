@@ -53,7 +53,7 @@ public class MoleculeActionTranslateTo implements MoleculeAction, Serializable {
         return destination;
     }
     /**
-     * @param destination The destination to set.  A local copy
+     * @param newDestination The destination to set.  A local copy
      * is made of the given vector.
      */
     public void setDestination(IVector newDestination) {

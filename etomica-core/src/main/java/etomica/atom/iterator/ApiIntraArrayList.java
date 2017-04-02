@@ -92,7 +92,7 @@ public class ApiIntraArrayList implements AtomLeafsetIterator, java.io.Serializa
      * Sets the list that will be used to generate the pairs. Must call reset()
      * before beginning iteration.
      * 
-     * @param atomList
+     * @param newList
      *            the new atom list for iteration
      */
     public void setList(IAtomList newList) {

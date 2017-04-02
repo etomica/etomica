@@ -276,7 +276,8 @@ public class DeviceThermoSliderGEMC extends Device {
      * controller to inform the integrator when the temperature and
      * isothermal/adiabatic selection has changed based upon the type
      * of integrator passed in.
-     * @param i Integrator
+     * @param newIntegrator1
+     * @param newIntegrator2
      */
     public void setIntegrators(IntegratorBox newIntegrator1, IntegratorBox newIntegrator2) {
         integrator1 = newIntegrator1;

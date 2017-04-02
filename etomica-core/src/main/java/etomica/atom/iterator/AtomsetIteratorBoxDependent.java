@@ -14,7 +14,7 @@ public interface AtomsetIteratorBoxDependent extends AtomLeafsetIterator {
 
     /**
      * Sets the Box to pull iterates from
-     * @throws a NullPointerException if the Box is null
+     * @throws NullPointerException if the Box is null
      */
 	public void setBox(IBox box);
 	

@@ -17,9 +17,9 @@ import etomica.util.IEvent;
 import etomica.util.IEventManager;
 
 /**
- * Integrator manages other Integrators which either act on a Box, or manager 
+ * Integrator manages other Integrators which either act on a Box, or manage
  * still other Integrators.  Each step, this class either performs global MC 
- * moves between the Integrators or runs the sub-integratos.
+ * moves between the Integrators or runs the sub-integrators.
  * 
  * @author David Kofke and Andrew Schultz
  */
@@ -110,7 +110,7 @@ public class IntegratorManagerMC extends Integrator {
     }
 
     /**
-     * @param moveManager The moveManager to set.
+     * @param newMoveManager The moveManager to set.
      */
     public void setMoveManager(MCMoveManager newMoveManager) {
         moveManager = newMoveManager;

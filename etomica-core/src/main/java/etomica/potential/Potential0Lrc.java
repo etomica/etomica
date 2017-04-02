@@ -147,7 +147,6 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
     /**
      * Returns the number of pairs formed from molecules of the current
      * species, in the given box.
-     * @param box
      * @return int
      */
     protected long nPairs() {

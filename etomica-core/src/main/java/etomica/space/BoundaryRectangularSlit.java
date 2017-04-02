@@ -42,7 +42,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     /**
      * Constructor for periodic boundary conditions with a slit 
      * in the given dimension.
-     * @param space
+     * @param _space
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
     public BoundaryRectangularSlit(int slitDim, double boxSize, ISpace _space) {

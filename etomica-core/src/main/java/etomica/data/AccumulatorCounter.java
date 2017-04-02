@@ -10,14 +10,10 @@ import etomica.units.Quantity;
 
 /**
  * Data processor that simply counts the number of times its
- * <code>addData</code> method is invoked. Output is a DataDouble.
+ * {@code addData} method is invoked. Output is a DataDouble.
  */
 public class AccumulatorCounter extends DataAccumulator {
 
-    /**
-     * @param parentElement
-     * @param dataSource
-     */
     public AccumulatorCounter() {
         dataInfo = new DataInfoDouble("Counter", Quantity.DIMENSION);
         data = new DataDouble();

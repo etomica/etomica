@@ -21,10 +21,6 @@ import etomica.atom.AtomListWrapper;
  */
 public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependent, java.io.Serializable {
 
-    /**
-     * @param species species for which molecules are returned as iterates. Only
-     * species[0] is relevant, and must not be null.
-     */
     public AtomsetIteratorAllLeafAtoms() {
         next = new AtomListWrapper();
     }

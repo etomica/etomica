@@ -181,7 +181,7 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
     }
 
     /**
-     * @param writeOnFinish The writeOnFinish to set.
+     * @param newWriteOnFinishSource The writeOnFinish to set.
      */
     public void setWriteOnFinish(IEtomicaDataSource newWriteOnFinishSource) {
         writeOnFinishSource = newWriteOnFinishSource;

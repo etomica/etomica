@@ -34,7 +34,7 @@ public class AtomActionTransformed implements AtomAction {
     }
 
     /**
-     * @param destination The translation vector to set.  A local copy
+     * @param transformationTensor The translation vector to set.  A local copy
      * is made of the given vector.
      */
     public void setTransformationTensor(Tensor transformationTensor) {

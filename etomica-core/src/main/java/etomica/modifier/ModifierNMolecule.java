@@ -15,10 +15,6 @@ import etomica.units.Quantity;
  */
 public class ModifierNMolecule implements Modifier, java.io.Serializable {
 
-    /**
-     * @param speciesAgent Agent of the affected species in the affected box.
-     * Cannot be changed after construction.
-     */
     public ModifierNMolecule(IBox box, ISpecies species) {
         this.box = box;
         this.species = species;

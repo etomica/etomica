@@ -19,7 +19,7 @@ import etomica.space3d.Vector3D;
 
 
 /**
- * Grows a straight-chain alkane of specified length. Follows Frenkel & Smit
+ * Grows a straight-chain alkane of specified length. Follows Frenkel {@literal &} Smit
  * algorithm 25, 26, 27, 28 in Chapter 13.
  * 
  * Programmer will need to know about the potentials used by the model in order

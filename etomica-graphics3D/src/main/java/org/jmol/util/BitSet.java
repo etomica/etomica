@@ -557,14 +557,15 @@ public class BitSet implements Cloneable {
    * <p>
    * To iterate over the {@code true} bits in a {@code BitSet}, use the
    * following loop:
-   * 
+   *
    * <pre>
-   * @code
+   * {@code
    * for (int i = bs.nextSetBit(0); i >= 0; i = bs.nextSetBit(i+1)) {
    *     // operate on index i here
-   * }}
+   * }
+   * }
    * </pre>
-   * 
+   *
    * @param fromIndex
    *          the index to start checking from (inclusive)
    * @return the index of the next set bit, or {@code -1} if there is no such

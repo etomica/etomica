@@ -34,7 +34,6 @@ public class DeviceToggleRadioButtons extends Device {
     }
     
     /**
-     * @param sim       the parent simulation of this device
      * @param modifier the boolean modifier controlled by this device
      * @param title     a descriptive string.  If empty ("") provides plain border; if null, provides no border.
      * @param trueText  text associated with "true" state of modifier
@@ -139,7 +138,7 @@ public class DeviceToggleRadioButtons extends Device {
     public JRadioButton falseButton() {return falseButton;}
             
     /**
-     * Method to demonstrate and test the use of this class.  
+     * Method to demonstrate and test the use of this class.
      * Buttons are used to toggle the color of atoms in a simulation.
      */
 /*    public static void main(String[] args) {

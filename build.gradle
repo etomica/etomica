@@ -94,3 +94,16 @@ task setupPython(type:Exec) {
 task cleanPython(type:Delete) {
     delete "${project(":etomica-core").projectDir}/src/main/resources/virtualenv"
 }
+
+task javadocAll(type: Javadoc) {
+    options.setNoTimestamp(true)
+    failOnError = false
+
+    source subprojects.collect {
+        project -> project.sourceSets.main.allJava
+    }
+
+    classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
+
+    destinationDir = new File(projectDir, 'docs/javadoc')
+}

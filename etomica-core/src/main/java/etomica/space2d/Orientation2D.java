@@ -32,7 +32,7 @@ public class Orientation2D implements IOrientation2D, Serializable {
 
     /**
      * Constructs with orientation as specified by the given angle theta.
-     * @throws an exception if vector has 0 length
+     * @throws Exception if vector has 0 length
      */
     public Orientation2D(IVector direction) {
         this.direction = Space.makeVector(2);
@@ -49,7 +49,7 @@ public class Orientation2D implements IOrientation2D, Serializable {
     
     /**
      * Sets this orientation to point in the given direction.
-     * @throws an exception if vector has 0 length
+     * @throws Exception if vector has 0 length
      */
     public void setDirection(IVector newDirection) {
         direction.E(newDirection);

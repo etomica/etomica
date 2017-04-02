@@ -34,7 +34,7 @@ public class AtomIteratorLeafAtoms extends AtomIteratorArrayListSimple implement
      * Configures iterator to form its iterates from the leaf atoms of the given
      * box. If a species was previously (or subsequently) set, iterates will
      * be the leaf atoms of under the species in the specified box.
-     * @throws a NullPointerException if the Box is null
+     * @throws NullPointerException if the Box is null
      */
     public void setBox(IBox box) {
         setList(box.getLeafList());

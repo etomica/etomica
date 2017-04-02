@@ -75,7 +75,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     }
 
     /**
-     * @param cellRange The cellRange to set.
+     * @param newCellRange The cellRange to set.
      */
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;

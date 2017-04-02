@@ -18,7 +18,6 @@ import etomica.units.Pixel;
  * Much of the class is involved with defining event handling methods to permit display 
  * to be moved or resized; in the future these functions will be handled instead using awt component functions.
  * 
- * @see DisplayBox.Canvas
  */
 public abstract class DisplayCanvas extends javax.swing.JPanel {
 

@@ -16,7 +16,7 @@ import etomica.space.Space;
 public class CellLattice extends RectangularLattice {
 
     /**
-     * @param dimensions
+     * @param dimVector
      *            the spatial dimensions of the lattice, such that the total
      *            space occupied by the lattice cells a rectangular box with
      *            each side of length dimensions.x(i)/size[i] for side i. The

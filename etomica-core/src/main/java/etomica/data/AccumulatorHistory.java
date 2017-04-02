@@ -60,7 +60,7 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Sets up data and histories, discarding any previous results.
      * 
-     * @param nData
+     * @param newInputDataInfo
      */
     protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo newInputDataInfo) {
         if (newInputDataInfo.getLength() != 1) {

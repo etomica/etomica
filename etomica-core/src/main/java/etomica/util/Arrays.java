@@ -125,7 +125,7 @@ public final class Arrays {
      * If object is not in the given array,
      * method returns original array without performing any action.
      * @param array array with the objects
-     * @param newObject object being removed
+     * @param object object being removed
      * @return new array with the object removed
      */
 	public static Object[] removeObject(Object[] array, Object object) {

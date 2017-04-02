@@ -130,12 +130,14 @@ public class BigComplex
         }
 
         /** The square root.
+         * <p>
+         *    See Tim Ahrendt, <a href="http://dx.doi.org/10.1145/236869.236924">Fast High-precision computation of complex square roots</a>,
+         *    ISSAC 1996 p142-149.
+         * </p>
         * @return the square root of the this.
         *   The branch is chosen such that the imaginary part of the result has the
         *   same sign as the imaginary part of this.
-        * @see Tim Ahrendt, <a href="http://dx.doi.org/10.1145/236869.236924">Fast High-precision computation of complex square roots</a>,
-        *    ISSAC 1996 p142-149.
-        * @since 2008-10-27  
+        * @since 2008-10-27
         */
         BigComplex sqrt(MathContext mc)
         {

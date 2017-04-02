@@ -18,8 +18,8 @@ import etomica.species.Species;
 
 /**
  * Species for methane with explicit hydrogen
- * Bond angle = 109.5--> not exactly, conformation is changed!!!
- * @shu
+ * Bond angle = 109.5 -- not exactly, conformation is changed!!!
+ * @author shu
  * 01-27-2013
  */
 public class SpeciesMethane extends Species {

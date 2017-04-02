@@ -154,8 +154,8 @@ public abstract class CoordinateDefinition {
      * Calculates the generalized coordinates for the given molecules in their
      * current position and orientation.  The result is stored in the |u| field.
      * 
-     * @param molecule
-     *            The molecule of interest, which should be those forming a unit cell of the lattice
+     * @param molecules
+     *            The molecules of interest, which should be those forming a unit cell of the lattice
      */
     public abstract double[] calcU(IMoleculeList molecules);
 

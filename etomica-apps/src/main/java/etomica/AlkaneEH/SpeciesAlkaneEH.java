@@ -18,7 +18,7 @@ import etomica.species.Species;
 /**
  * Species for TraPPE-Explicit hydrogen,Siepmann
  * 
- * @shu
+ * @author shu
  * 01-30-2013
  */
   public class SpeciesAlkaneEH extends Species  {

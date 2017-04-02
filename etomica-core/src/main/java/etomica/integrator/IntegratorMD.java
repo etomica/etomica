@@ -445,7 +445,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
      * chosen form a Maxwell-Boltzmann distribution as in the Andersen 
      * thermostat.  The state of the integrator needs to be updated 
      * after calling this method.
-     * @param aBox box whose atomic momenta are to be randomized
      */
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);

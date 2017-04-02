@@ -25,7 +25,7 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 	}
 
 	/**
-	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
+	 * @see etomica.config.Configuration#initializeCoordinates
 	 */
 	public void initializeCoordinates(IBox box) {
         IVectorMutable dimVector = space.makeVector();

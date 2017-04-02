@@ -131,7 +131,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
      * Plus-equals (+=) operation. Element-by-element addition of the values in
      * the given array to those in this one.
      * 
-     * @throws ArrayIndexOutOfBoundException
+     * @throws ArrayIndexOutOfBoundsException
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
@@ -147,7 +147,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
      * Minus-equals (-=) operation. Element-by-element subtraction of the values
      * in the given array from those in this one.
      * 
-     * @throws ArrayIndexOutOfBoundException
+     * @throws ArrayIndexOutOfBoundsException
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
@@ -161,7 +161,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
     /**
      * Times-equals (*=) operation. Applied element-by-element.
      * 
-     * @throws ArrayIndexOutOfBoundException
+     * @throws ArrayIndexOutOfBoundsException
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
@@ -176,7 +176,7 @@ public class DataDoubleArray implements IData, java.io.Serializable {
     /**
      * Divide-equals (/=) operation. Applied element-by-element.
      * 
-     * @throws ArrayIndexOutOfBoundException
+     * @throws ArrayIndexOutOfBoundsException
      *             if the array in the given object is smaller than this
      *             instance's array.
      */

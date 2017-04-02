@@ -361,11 +361,11 @@ final public class ArrayUtil {
   }
 
   /**
-   * Helper method for creating a List<T>[] without warnings.
-   * 
+   * Helper method for creating a {@code List<T>[]}without warnings.
+   *
    * @param <T> Type of objects in the list.
    * @param size Array size.
-   * @return Array of List<T>
+   * @return Array of {@code List<T>}
    */
   @SuppressWarnings("unchecked")
   public static <T> List<T>[] createArrayOfArrayList(int size) {
@@ -373,7 +373,7 @@ final public class ArrayUtil {
   }
 
   /**
-   * Helper method for creating a Map<K, V>[] without warnings.
+   * Helper method for creating a {@code Map<K, V>[]} without warnings.
    * 
    * @param <K> Type of object for the keys in the map.
    * @param <V> Type of object for the values in the map.

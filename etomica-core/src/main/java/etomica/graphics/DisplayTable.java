@@ -34,7 +34,6 @@ import etomica.units.systems.UnitSystem;
  * Presents data in a tabular form.
  * 
  * @author David Kofke
- * @see DisplayTableFunction
  */
 public class DisplayTable extends Display implements DataTableListener {
 

@@ -35,7 +35,6 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
 	/**
 	 * Creates meter with default to compute pair correlation for all
 	 * leaf atoms in a box.
-	 * @param parent
 	 */
     public MeterRDFPC(ISpace space, IPotentialMaster potentialMaster, IBox box) {
 	    this.space = space;

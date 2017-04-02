@@ -17,7 +17,7 @@ public abstract class PotentialN extends Potential {
 
 	/**
 	 * Constructor for PotentialN.
-	 * @param sim
+	 * @param space
 	 */
 	public PotentialN(ISpace space){
 		super(Integer.MAX_VALUE, space);

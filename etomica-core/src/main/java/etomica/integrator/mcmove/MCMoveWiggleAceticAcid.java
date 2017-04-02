@@ -30,14 +30,7 @@ public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
     	this(potentialMaster,sim.getRandom(), 0.1, _space);
     }
     
-    /**
-     * Constructor for MCMoveAtomMulti.
-     * @param parentIntegrator
-     * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * box should be at least one greater than this value (greater
-     * because first atom is never moved)
-     */
-    public MCMoveWiggleAceticAcid(IPotentialMaster potentialMaster, 
+    public MCMoveWiggleAceticAcid(IPotentialMaster potentialMaster,
             IRandom random, double stepSize, ISpace _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;

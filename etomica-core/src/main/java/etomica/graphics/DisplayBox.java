@@ -63,7 +63,7 @@ public class DisplayBox extends Display {
     /**
      * Size of drawing region of central image, in pixels
      *
-     * @see #computeDrawSize
+     * @see #computeImageParameters()
      */
     protected final int[] drawSize = new int[D];
    
@@ -130,7 +130,6 @@ public class DisplayBox extends Display {
      * 
      * @param width  : width of the box graphic
      * @param height : height of the box graphic
-     * @return void
      */
     private void setSize(int width, int height) {
     	if(width <= 0 || height <= 0) return;
@@ -158,11 +157,10 @@ public class DisplayBox extends Display {
      * of pixels to shift in the specified dimension.
      * <p>
      * Dimension :
-     *  0  => X direction
-     *  1  => Y direction
-     *  2  => Z direction (not used)
+     *  0  : X direction
+     *  1  : Y direction
+     *  2  : Z direction (not used)
      *  
-     *  @return void
      */
     public void setOriginShift(int dimension, int shift) {
         if(dimension <= D) {
@@ -201,7 +199,6 @@ public class DisplayBox extends Display {
 
     /**
      *  
-     *  @return void 
      */
     public void setAlign(int i, int value) {
         align[i] = value;
@@ -221,7 +218,6 @@ public class DisplayBox extends Display {
 
     /**
      *  
-     *  @return void 
      */
     public final void setDrawOverflow(boolean b) {drawOverflow = b;}
 
@@ -233,7 +229,6 @@ public class DisplayBox extends Display {
 
     /**
      *  
-     *  @return void 
      */
     public void setScale(double s) {
         if(s>0) {
@@ -249,28 +244,24 @@ public class DisplayBox extends Display {
 
     /**
      *  
-     *  @return void
      */
     public void addDrawable(Drawable obj) {
         drawables.add(obj);
     }
     /**
      *  
-     *  @return void
      */
     public void removeDrawable(Drawable obj) {
         drawables.remove(obj);
     }
     /**
      *  
-     *  @return void
      */
     public void addDrawable(Object obj) {
         if(space.D() == 3) drawables.add(obj);
     }
     /**
      *  
-     *  @return void
      */
     public void removeDrawable(Object obj) {
         drawables.remove(obj);
@@ -305,7 +296,6 @@ public class DisplayBox extends Display {
 
     /**
      * Specifies the box for this display.  Updates atomIterator appropriately.
-     * @return void
      */
     public void setBox(IBox p) {
 
@@ -378,7 +368,6 @@ public class DisplayBox extends Display {
 
     /**
      * 
-     * @return void
      */
     public void setBoxCanvas(DisplayCanvas boxCanvas) {
         canvas = boxCanvas;
@@ -436,8 +425,7 @@ public class DisplayBox extends Display {
     }
     
     /**
-     * Accessor method for the color scheme used for this display
-     * @return void
+     * Mutator method for the color scheme used for this display
      */
     public void setColorScheme(ColorScheme colorScheme) {
         this.colorScheme = colorScheme;
@@ -467,7 +455,6 @@ public class DisplayBox extends Display {
      * Mutator method for the atom filter that determines which atoms 
      * are displayed.  Atoms for which the filter returns false are not displayed.
      * Default is null, meaning all atoms are displayed.
-     * @return void
      */
     public void setAtomFilter(AtomFilter filter) {
         atomFilter = filter;
@@ -508,7 +495,6 @@ public class DisplayBox extends Display {
     * Changes the value of image shells, and increases/decreases scale accordingly.
     *
     * @param n the new value of imageShells
-    * @return void
     */
     public void setImageShells(int n) {
         if(n>=0) {
@@ -524,9 +510,8 @@ public class DisplayBox extends Display {
     }
 
     /**
-     * @param int w :
-     * @param int h :
-     * @return void
+     * @param w
+     * @param h
      */
     public void computeImageParameters2(int w, int h) {
         //Compute factor converting simulation units to pixels for this display
@@ -550,7 +535,6 @@ public class DisplayBox extends Display {
 
     /**
      * Repaint the graphic associated with the display box.
-     * @return void
      */
     public void repaint() {
         if (canvas != null) {
@@ -569,8 +553,7 @@ public class DisplayBox extends Display {
 
     /**
      * Sets unit for conversion between simulation units and display pixels.
-     * @param Pixel : 
-     * @return void
+     * @param pixel :
      */
     public void setPixelUnit(Pixel pixel) {
         if(canvas == null) {
@@ -609,8 +592,7 @@ public class DisplayBox extends Display {
     
     /**
      * Set the height of the drawing area (only relevant for 1D)
-     * @param int newDrawingHeight :
-     * @return void
+     * @param newDrawingHeight :
      */
     public void setDrawingHeight(int newDrawingHeight) {
         drawingHeight = newDrawingHeight;
@@ -625,8 +607,7 @@ public class DisplayBox extends Display {
 
     /**
      * Set the flag indicating if the boundary should be drawn.
-     * @param boolean b : draw boundary flag
-     * @return void
+     * @param b : draw boundary flag
      */
     public void setShowBoundary(boolean b) {
     	displayBoundary = b;
@@ -643,8 +624,7 @@ public class DisplayBox extends Display {
     /**
      * Set the flag indicating whether the graphic should resize from its
      * currently displayed size when a new box is set.
-     * @param boolean b
-     * @return void
+     * @param b
      */
     public void setResizeOnNewBox(boolean b) {
     	graphicResizable = b;
@@ -663,7 +643,7 @@ public class DisplayBox extends Display {
      * Number of periodic-image shells to be drawn when drawing this box to the
      * screen.  Default value is 0.
      *
-     * @see #paint
+     * @see #repaint
      */
      private int imageShells = 0;
      

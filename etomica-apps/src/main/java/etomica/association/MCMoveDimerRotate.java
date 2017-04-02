@@ -192,7 +192,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
         return atomSource;
     }
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setAtomSource(AtomSource source) {
         atomSource = source;

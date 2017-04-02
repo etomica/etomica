@@ -25,7 +25,7 @@ public interface DataSetListener {
     /**
      * Method called when a Data object is added.  Firing is
      * performed after the object is added to the DataSet.
-     * @param newData the Data object that has been added
+     * @param dataSet the Data object that has been added
      */
     public void dataCountChanged(DataSet dataSet);
 }

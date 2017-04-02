@@ -31,7 +31,6 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
 	 * reset() before iteration.
      * 
      * @param D the dimension of the space of the simulation (used to construct cell iterators)
-     * @param species length = 2 array with the (different) species whose molecules are interacting 
      */
 	public Api1ASite(int D, BoxAgentManager agentManager) {
         neighborIterator = new RectangularLatticeNbrIteratorAdjacent(D);

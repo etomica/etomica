@@ -226,7 +226,6 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
      * neighbor pairs, determines for each pair whether a potential applies to it,
      * and if so, puts each in the other's neighbor list.
      * Called by updateNbrsIfNeeded, and by reset.
-     * @param box box in which neighbor setup is performed.
      */
     protected void neighborSetup() {
 

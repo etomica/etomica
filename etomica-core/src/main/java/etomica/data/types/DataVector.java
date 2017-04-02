@@ -32,10 +32,6 @@ public class DataVector implements IData, java.io.Serializable {
      * 
      * @param space
      *            used to construct the wrapped Vector
-     * @param label
-     *            a descriptive label for this data
-     * @param dimension
-     *            the physical dimensions of the data
      */
     public DataVector(ISpace space) {
         super();

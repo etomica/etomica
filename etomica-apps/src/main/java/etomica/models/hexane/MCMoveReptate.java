@@ -179,8 +179,9 @@ public class MCMoveReptate extends MCMoveBoxStep {
     public MoleculeSource getAtomSource() {
         return atomSource;
     }
+
     /**
-     * @param atomSource The atomSource to set.
+     * @param source The atomSource to set.
      */
     public void setAtomSource(MoleculeSource source) {
         atomSource = source;

@@ -103,7 +103,7 @@ public abstract class AccumulatorAverage extends DataAccumulator {
      * Sets the size of the block used to group data for error analysis. Resets
      * statistics accumulated so far.  Default is 1000.
      * 
-     * @param blockSize
+     * @param newBlockSize
      *            new block size.
      */
     public void setBlockSize(long newBlockSize) {
