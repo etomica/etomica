@@ -55,7 +55,9 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         cellNbrIterator = new ApiAACell(space.D(), range, box);
         cell1ANbrIterator = new Api1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
         agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box,AtomNeighborLists.class);
-        agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(new AtomPotential1ListSource(potentialMasterList), box, AtomPotentialList.class);
+        AtomPotential1ListSource source1 = new AtomPotential1ListSource(potentialMasterList);
+        agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(source1, box, AtomPotentialList.class);
+        source1.setAgentManager(agentManager1Body);
         initialized = false;
         doApplyPBC = true;
         atomSetSinglet = new AtomSetSinglet();
@@ -307,6 +309,9 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         IPotential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
 
+        if (agentManager1Body.getAgent(atom) == null) {
+        	agentManager1Body.setAgent(atom, new AtomPotentialList());
+        }
         for (int i = 0; i < potentials.length; i++) {
             if (potentials[i].nBody() != 1) {
                 continue;
@@ -469,13 +474,26 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
 
     public static class AtomPotential1ListSource implements AtomLeafAgentManager.AgentSource<AtomPotentialList> {
         protected final PotentialMasterList potentialMaster;
+        protected AtomLeafAgentManager<AtomPotentialList> manager;
 
         public AtomPotential1ListSource(PotentialMasterList potentialMaster) {
             this.potentialMaster = potentialMaster;
         }
+        
+        public void setAgentManager(AtomLeafAgentManager<AtomPotentialList> manager) {
+        	this.manager = manager;
+        }
 
         public void releaseAgent(AtomPotentialList obj, IAtom atom, IBox agentBox) {}
         public AtomPotentialList makeAgent(IAtom atom, IBox agentBox) {
+        	if (manager != null) {
+	            AtomPotentialList oldAgent = manager.getAgent(atom);
+	            if (oldAgent != null) {
+	                // NeighborCellManager got notified first and we already made the
+	                // agent (and found the neighbors!).  Return that now.
+	                return oldAgent;
+	            }
+        	}
             AtomPotentialList lists = new AtomPotentialList();
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
             
