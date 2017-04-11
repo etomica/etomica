@@ -4,19 +4,9 @@
 
 package etomica.integrator.mcmove;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IIntegrator;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
@@ -32,6 +22,9 @@ import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.util.IEvent;
 import etomica.util.IListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Looks for atoms without a full set of first nearest neighbors and attempts
@@ -87,7 +80,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         oldPosition = _space.makeVector();
     }
 
-    public void setBox(IBox box) {
+    public void setBox(final IBox box) {
         super.setBox(box);
         // cubic
         if (potentialMaster instanceof PotentialMasterList) {
@@ -95,6 +88,10 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
         else if (potentialMaster instanceof PotentialMasterCell) {
             atomIterator = new AtomIteratorNbrCell(maxDistance, ((PotentialMasterCell)potentialMaster).getCellAgentManager(), box);
+        }
+        else {
+            // brute force!
+            atomIterator = new AtomIteratorBruteForce(box);
         }
         oldBoxSize = box.getBoundary().getBoxSize().getX(0);
     }
@@ -135,6 +132,32 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
     }
 
+    public void makeHcpVectors(double newNbrDistance) {
+        nbrDistance = newNbrDistance;
+        double maxInsertNbrDistance = nbrDistance + maxInsertDistance;
+        if (maxInsertNbrDistance > maxDistance) {
+            throw new RuntimeException("nbrDistance must be greater than maxInsert distance");
+        }
+        nbrVectors = new IVectorMutable[12];
+        double s = nbrDistance;
+
+        for (int i=0; i<12; i++) {
+            nbrVectors[i] = space.makeVector();
+
+            if (i < 6) {
+                nbrVectors[i].setX(0, s*Math.cos(i*Math.PI/3));
+                nbrVectors[i].setX(1, s*Math.sin(i*Math.PI/3));
+            }
+            else {
+                nbrVectors[i].setX(2, 0.5*s*(i<9?(-1):(+1))*Math.sqrt(8.0/3.0));
+                // 0.5*s, 0.5*sqrt(3)/2*s
+                // 0.25*s^2 + 0.25*3/4 = 0.25*s^2*7/4
+                nbrVectors[i].setX(0, s*Math.cos((2*i + 0.5)*Math.PI/3)/Math.sqrt(3));
+                nbrVectors[i].setX(1, s*Math.sin((2*i + 0.5)*Math.PI/3)/Math.sqrt(3));
+            }
+        }
+    }
+
     public void setMaxDistance(double maxDistance) {
         this.maxDistance = maxDistance;
     }
@@ -171,7 +194,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
         numNewDeleteCandidates = 0;
         if (dirty || lastStepCount != integrator.getStepCount()) findCandidates();
-        if(insert) {
+        if (insert) {
             if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
             else testMolecule = species.makeMolecule();
             IAtom testAtom = testMolecule.getChildList().getAtom(0);
@@ -547,6 +570,57 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         
         public void setDirection(Direction direction) {
             api.setDirection(direction);
+        }
+    }
+    
+    public static class AtomIteratorBruteForce implements AtomIteratorAtomDependent, AtomsetIteratorDirectable {
+        protected int cursor = 0;
+        protected int targetIndex = -1;
+        protected final AtomSetSinglet singlet = new AtomSetSinglet();
+        protected final IBox box;
+        protected boolean all = true;
+        
+        public AtomIteratorBruteForce(IBox box) {
+            this.box = box;
+        }
+        
+        public void unset() {
+            cursor = 1000000000;
+        }
+
+        public int size() {
+            return box.getLeafList().getAtomCount()-1;
+        }
+        
+        public void reset() {
+            if (all) cursor = 0;
+            else cursor = targetIndex+1;
+        }
+
+        public int nBody() {
+            return 1;
+        }
+        
+        public IAtomList next() {
+            IAtom n = nextAtom();
+            if (n==null) return null;
+            singlet.atom = n;
+            return singlet;
+        }
+        
+        public IAtom nextAtom() {
+            cursor++;
+            if (cursor==targetIndex) cursor++;
+            if (cursor >= box.getLeafList().getAtomCount()) return null;
+            return box.getLeafList().getAtom(cursor);
+        }
+        
+        public void setAtom(IAtom atom) {
+            targetIndex = atom.getLeafIndex();
+        }
+
+        public void setDirection(Direction direction) {
+            all = direction == null;
         }
     }
 }
