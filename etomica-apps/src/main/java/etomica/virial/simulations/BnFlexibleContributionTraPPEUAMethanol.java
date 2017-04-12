@@ -4,8 +4,6 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.IAction;
 import etomica.api.IAtomType;
 import etomica.api.IBox;
@@ -21,15 +19,10 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.awt.*;
 
 /**
  * Computes (part of) the flexible contribution to the virial coefficient
@@ -386,8 +379,8 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         sim.getController().actionPerformed();
         
         System.out.println();
-        System.out.println("final reference step frequency "+sim.integratorOS.getRefStepFraction());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
        
 
         sim.printResults(ref);
