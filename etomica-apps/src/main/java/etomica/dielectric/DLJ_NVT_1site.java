@@ -1,25 +1,10 @@
 package etomica.dielectric;
 
-import java.awt.Color;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.DipoleSource;
-import etomica.atom.IAtomOriented;
-import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.IAtomTypeOriented;
+import etomica.api.*;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -27,7 +12,6 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
-import etomica.data.IData;
 import etomica.data.meter.MeterDipoleSumSquared1site;
 import etomica.data.meter.MeterDipoleSumSquaredMappedAverage;
 import etomica.data.types.DataDouble;
@@ -53,6 +37,8 @@ import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+
+import java.awt.*;
 
 /**
  * Canonical ensemble Monte Carlo simulation (NVT)
@@ -83,9 +69,6 @@ public class DLJ_NVT_1site extends Simulation {
     		dipoleVector=space.makeVector();
     	}
     	
-//    	public void setDipoleStrength(double dipoleStrength){
-//    		this.dipoleStrength=dipoleStrength;
-//    	}
 		public IVector getDipole(IMolecule molecule) {
 			IAtomList atomList = molecule.getChildList();
 			if(atomList.getAtomCount() !=1){
@@ -102,8 +85,7 @@ public class DLJ_NVT_1site extends Simulation {
 	public DLJ_NVT_1site(Space space, int numberMolecules,final double sigmaLJ,double epsilonLJ, double mu, 
 			double dielectricOutside, double boxSize, double temperature,double truncation){
 		super(space);		
-//		setRandom(new RandomNumberGenerator(3));//Debug only
-		species = new SpeciesSpheresRotating(space, new ElementSimple("A")); 
+		species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
         addSpecies(species);
 		box = new Box(space);
 		addBox(box);
@@ -126,7 +108,7 @@ public class DLJ_NVT_1site extends Simulation {
         pRF.setDielectric(dielectricOutside);
         
         
-    	potentialMaster = new PotentialMaster();//   disable reaction field or dipole-dipole from here TODO???
+    	potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(pDLJ, new ISpecies[] {species,species});
         potentialMaster.addPotential(pRF, new ISpecies[]{species, species});  
         potentialMaster.lrcMaster().addPotential(pRF.makeP0());
@@ -166,15 +148,11 @@ public class DLJ_NVT_1site extends Simulation {
 			
 		}
 		final long startTime = System.currentTimeMillis();
-		DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Calendar cal = Calendar.getInstance();
-		System.out.println("startTime : " + date.format(cal.getTime()));
 		Space space = Space3D.getInstance();
 		int steps = params.steps;
 		boolean isGraphic = params.isGraphic;
 		boolean mSquare = params.mSquare;
 		boolean aEE = params.aEE;
-		boolean sumtest = params.sumtest;
 		
 		double temperature = params.temperature;
 	//	double temperatureK = params.temperatureK;
@@ -187,24 +165,23 @@ public class DLJ_NVT_1site extends Simulation {
 		double dielectricOutside = params.dielectricOutside;
 		//double densitySim = density * Constants.AVOGADRO * 1e-27;  // ?????? convert density to sim unit; in 1/(A)^3
 		//System.out.println("Constants.AVOGADRO * 1e-27: "+Constants.AVOGADRO * 1e-27);
-		double densitySim = density;
-		double boxSize = Math.pow(numberMolecules/densitySim,(1.0/3.0)); 
+		double boxSize = Math.pow(numberMolecules/density,(1.0/3.0));
 		double truncation=boxSize* 0.49;
 		
 
-		System.out.println("******************* dipolar LJ, dielectric constant, NVT********************");
+//		System.out.println("******************* dipolar LJ, dielectric constant, NVT********************");
 		System.out.println("number of molecules =\t"+numberMolecules);
 		System.out.println("steps= "+ steps);
 		System.out.println("density=\t"+density);
 //		System.out.println("denisty(sim)="+densitySim);
 		System.out.println("temperature=\t"+ temperature);
 //		System.out.println("box size="+boxSize);
-		System.out.println("truncation = "+truncation);
+//		System.out.println("truncation = "+truncation);
 //		System.out.println("sigmaLJ="+sigmaLJ);
 //		System.out.println("epsilonLJ="+epsilonLJ);
 		System.out.println("dipoleStrength squared = "+params.dipoleStrength2);
 //		System.out.println("dipoleStrength="+dipoleStrength);
-//		System.out.println("dielectricOutside="+dielectricOutside);
+		System.out.println("dielectricOutside="+dielectricOutside);
 
 		final DLJ_NVT_1site sim = new DLJ_NVT_1site(space,numberMolecules,sigmaLJ, epsilonLJ, dipoleStrength,
 				dielectricOutside, boxSize,temperature,truncation);
@@ -293,51 +270,28 @@ public class DLJ_NVT_1site extends Simulation {
 		
         long endTime = System.currentTimeMillis();
         
-        double totalTime = (endTime - startTime)/(1000.0*60.0);
+        double totalTime = (endTime - startTime)/1000.0;
         if(mSquare){
         System.out.println("-<M^2>*bt*bt:\t"+(-dipoleSumSquared/temperature/temperature)
         		+ " mSquareErr:\t" + (dipoleSumSquaredERR/temperature/temperature)
         		+ " mSquareDifficulty:\t"+(dipoleSumSquaredERR/temperature/temperature)*Math.sqrt(totalTime)
-        		+ " dipolesumcor = " + dipoleSumCor );
+        		+ " dipolesumcor= " + dipoleSumCor );
         }
         if(aEE){
         	System.out.println("AEE_new:\t"+ (AEE) 
         		+ " AEEErr:\t" + AEEER 
         		+ " AEEDifficulty:\t"+ AEEER*Math.sqrt(totalTime)
-        		+ " AEECor = " + AEECor );
+        		+ " AEECor= " + AEECor );
         }
         
-        if(sumtest){
-        	double sum1 =  ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.AVERAGE.index).getValue(1);
-        	double sum1Err =  ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(1);
-        	double sum1Cor = ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_CORRELATION.index).getValue(1);
-//        	System.out.println("sum1:\t" + sum1 
-//        		+ " sum1Err:\t" + sum1Err
-//        		+ " sum1Difficulty:\t"+ sum1Err*Math.sqrt(totalTime)
-//        		+ " sum1Cor:\t" + sum1Cor);
-        	
-        	IData covariance = ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_COVARIANCE.index);
-    		covariance.getValue(1);
-        	double ERsum0 = ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(0);
-        	double ERsum1 = ((DataGroup)AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(1);
-        	
-        	double AEEtest = AEE + sum1*sum1;
-    		double AEEerrtest = Math.sqrt(ERsum0*ERsum0 + 4*sum1*sum1*ERsum1*ERsum1 - 
-    				2*ERsum0*sum1*2*ERsum1*covariance.getValue(1)/Math.sqrt(covariance.getValue(0)*covariance.getValue(3)));
-        	
-    		
-        	System.out.println("AEEtest:\t" + AEEtest
-        		+ " AEEerrtest:\t" + AEEerrtest );
-        }
-        System.out.println(  "Time taken (in mins): " + totalTime); 
+        System.out.println(  "time: " + totalTime);
 	}
 	
 	// ******************* parameters **********************// 
 	public static class Param extends ParameterBase {
 		public boolean isGraphic = false;
 		public boolean mSquare = false;
-		public boolean aEE = true; 
-		public boolean sumtest = true;
+		public boolean aEE = true;
 		public double temperature = 10;
 		public int numberMolecules = 10;
 		public double density = 0.325;
