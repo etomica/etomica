@@ -7,8 +7,6 @@ package etomica.models.water;
 
 import etomica.atom.IAtomPositionDefinition;
 import etomica.space.ISpace;
-import etomica.units.Electron;
-import etomica.units.Kelvin;
 
 /** 
  * TIP4P potential for water.  All the real work is done in P2Water4P.
@@ -16,8 +14,8 @@ import etomica.units.Kelvin;
 public class P2WaterTIP4PSoft extends P2Water4PSoft {
 
     public P2WaterTIP4PSoft(ISpace space,double rCut,IAtomPositionDefinition positionDefinition) {
-        super(space, 3.1540, Kelvin.UNIT.toSim(78.02), 
-                Electron.UNIT.toSim(-1.04), Electron.UNIT.toSim(0.52),rCut,positionDefinition);
+        super(space, P2WaterTIP4P.s, P2WaterTIP4P.e,
+                 P2WaterTIP4P.qH,rCut,positionDefinition);
     }
 
     private static final long serialVersionUID = 1L;

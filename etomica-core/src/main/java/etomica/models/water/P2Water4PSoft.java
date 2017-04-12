@@ -5,18 +5,9 @@
 
 package etomica.models.water;
 
-import javax.management.ImmutableDescriptor;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.api.*;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.IPotentialMolecularSecondDerivative;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -30,8 +21,8 @@ import etomica.space3d.Tensor3D;
 public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecondDerivative  {
 
     public P2Water4PSoft(final ISpace space, double sigma, double epsilon,
-            double chargeM, double chargeH,double rCut, IAtomPositionDefinition positionDefinition) {
-        super(space, sigma, epsilon, chargeM, chargeH,rCut, positionDefinition);
+            double chargeH,double rCut, IAtomPositionDefinition positionDefinition) {
+        super(space, sigma, epsilon, chargeH,rCut, positionDefinition);
         gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();

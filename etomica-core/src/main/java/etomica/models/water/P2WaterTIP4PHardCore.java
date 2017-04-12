@@ -1,16 +1,9 @@
 
 package etomica.models.water;
 
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
-import etomica.units.Calorie;
-import etomica.units.Electron;
-import etomica.units.Mole;
 
 /** 
  * 4-point potential for water.  Potential parameters are typically defined
@@ -21,12 +14,6 @@ import etomica.units.Mole;
  * @author David Kofke, Andrew Schultz
  */
 public class P2WaterTIP4PHardCore extends PotentialMolecular {
-
-	private static double A = 600e3; // kcal A^12 / mol
-	private static double C = 610; // kcal A^6 / mol
-	private static double s6 = A/C;
-	private static double s = Math.pow(s6, 1.0/6.0);
-	private static double e = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C/s6*1000))/4.0;
 
 	private static final long serialVersionUID = 1L;
 	public double sigma , sigma2;
