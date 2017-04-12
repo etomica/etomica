@@ -3,7 +3,6 @@ package etomica.liquidLJ;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate
@@ -16,7 +15,7 @@ import etomica.space.ISpace;
  */
 public class PotentialCalculationSumCutoffLS implements PotentialCalculation {
 
-    public PotentialCalculationSumCutoffLS(ISpace space) {
+    public PotentialCalculationSumCutoffLS() {
         sums = new double[2][0];
     }
     

@@ -44,8 +44,8 @@ public class MeterPUCutLS implements IEtomicaDataSource {
     	dim = space.D();
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = false;
-        pc = new PotentialCalculationSumCutoffLS(space);
-        pcDADv2 = new PotentialCalculationSumCutoffLS(space);
+        pc = new PotentialCalculationSumCutoffLS();
+        pcDADv2 = new PotentialCalculationSumCutoffLS();
     }
 
     public void setPotentialMaster(IPotentialMaster newPotentialMaster) {
