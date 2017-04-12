@@ -50,6 +50,7 @@ import etomica.util.ParameterBase;
  * @author David Kofke and Andrew Schultz
  *
  */
+//akshara********************************************************************
 public class HSMD3D extends Simulation {
 
     //the following fields are made accessible for convenience to permit simple
@@ -61,7 +62,8 @@ public class HSMD3D extends Simulation {
      */
     public final IBox box;
     /**
-     * The Integrator performing the dynamics.
+     * The Integrator performing the dynamics.ls
+     *
      */
     public final IntegratorHard integrator;
     /**
