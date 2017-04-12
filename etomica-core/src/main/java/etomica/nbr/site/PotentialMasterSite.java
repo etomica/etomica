@@ -4,34 +4,14 @@
 
 package etomica.nbr.site;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
-import etomica.api.ISimulation;
-import etomica.api.ISpecies;
+import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
-import etomica.nbr.CriterionAll;
-import etomica.nbr.CriterionInterMolecular;
-import etomica.nbr.CriterionType;
-import etomica.nbr.CriterionTypePair;
-import etomica.nbr.CriterionTypesMulti;
-import etomica.nbr.NeighborCriterion;
-import etomica.nbr.PotentialGroupNbr;
-import etomica.nbr.PotentialMasterNbr;
-import etomica.potential.Potential2;
+import etomica.nbr.*;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.space.ISpace;
@@ -254,7 +234,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 pc.doCalculation(atomSetSinglet, (IPotentialAtomic)potentials[i]);
                 break;
             case 2:
-                Potential2 p2 = (Potential2) potentials[i];
+                IPotentialAtomic p2 = (IPotentialAtomic)potentials[i];
                 NeighborCriterion nbrCriterion = criteria[i];
                 neighborIterator.setTarget(atom);
                 neighborIterator.reset();
