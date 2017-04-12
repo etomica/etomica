@@ -14,7 +14,7 @@ import etomica.util.SineTransform;
  * This is a main method to compute B3 and dB3/dT for Lennard-Jones via FFT
  * 
  * It creates a discretization of the Lennard-Jones Mayer function, and computes
- * B3 via FFT.  The resulting values are accurate to ~13 digits (from T=0.39 up to 100.0)
+ * B3 via FFT.  The resulting values are accurate to ~13 digits (from T=0.39 up to >> 1000)
  * 
  * @author Andrew Schultz
  */
@@ -36,7 +36,7 @@ public class B3LJ {
     
     public static double[] value(double temperature) {
         double r_max = 50; // Defines range of separation distance, r = [0 rmax)
-
+        if (temperature>1000) r_max *= Math.pow(temperature/1000, -0.25);
         int power = 12;
         int N = 1<<power;
         double del_r = r_max/N;
