@@ -22,14 +22,14 @@ public class P2WaterTIP4P extends P2Water4P {
     private static double s6 = A/C;
     public static double s = Math.pow(s6, 1.0/6.0);
     public static double e = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C/s6*1000))/4;
+    public static double qH = Electron.UNIT.toSim(0.52);
     
     
     public P2WaterTIP4P(ISpace space) {
     	this(space, Double.POSITIVE_INFINITY);
     }
     public P2WaterTIP4P(ISpace space, double rCut) {
-	    super(space, s, e, Electron.UNIT.toSim(-1.04),
-	            Electron.UNIT.toSim(0.52),rCut,new AtomPositionCOM(space));
+	    super(space, s, e, qH, rCut, new AtomPositionCOM(space));
     }
     
     public double getRange() {
