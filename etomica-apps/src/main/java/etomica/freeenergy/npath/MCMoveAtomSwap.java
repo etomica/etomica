@@ -118,7 +118,6 @@ public class MCMoveAtomSwap extends MCMoveBox {
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
     public void acceptNotify() {  /* do nothing */
-        System.out.println("accepted");
     }
 
     /**
@@ -127,7 +126,6 @@ public class MCMoveAtomSwap extends MCMoveBox {
      * before the most recent call to doTrial.
      */
     public void rejectNotify() {
-        System.out.println("rejected");
         dr.E(atom.getPosition());
         atom.getPosition().E(atom2.getPosition());
         atom2.getPosition().E(dr);
