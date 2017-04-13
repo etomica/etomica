@@ -1,11 +1,6 @@
 package etomica.surfacetension;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
+import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -33,7 +28,6 @@ import etomica.units.Null;
  */
 public class SurfaceTensionMapped extends DataProcessor implements AgentSource<Forcible> {
 
-    protected final DataInfoDouble dataInfo = new DataInfoDouble("surface tension", Null.DIMENSION);
     protected final DataDouble data = new DataDouble();
     protected final FitTanh fit;
     protected final MeterProfileByVolume densityProfileMeter;
@@ -68,6 +62,7 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
     }
 
     protected IEtomicaDataInfo processDataInfo(IEtomicaDataInfo inputDataInfo) {
+        dataInfo = new DataInfoDouble("surface tension", Null.DIMENSION);
         return dataInfo;
     }
 

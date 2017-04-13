@@ -4,24 +4,9 @@
 
 package etomica.integrator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IBoxMoleculeEvent;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.api.*;
+import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.PotentialMasterHybrid;
@@ -193,12 +178,12 @@ public class IntegratorHard extends IntegratorMD
                 if (Debug.LEVEL > 1) {
                     IAtom a = debugPair.atom0;
                     if (a != null) {
-                        Agent agent = (Agent)agentManager.getAgent(a);
+                        Agent agent = agentManager.getAgent(a);
                         System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
                     }
                     a = debugPair.atom1;
                     if (a != null) {
-                        Agent agent = (Agent)agentManager.getAgent(a);
+                        Agent agent = agentManager.getAgent(a);
                         System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
                     }
                 }
