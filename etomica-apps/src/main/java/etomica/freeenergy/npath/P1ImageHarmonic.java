@@ -62,6 +62,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         IVector p0 = atom0.getPosition();
         IVector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);
+        boundary.nearestImage(dr);
         dr.ME(offset);
         double u = 0.5*w*dr.squared();
         return u;
