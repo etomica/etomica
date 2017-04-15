@@ -165,7 +165,7 @@ public class SimLJ extends Simulation {
             ColorScheme colorScheme = new ColorScheme() {
                 @Override
                 public Color getAtomColor(IAtom a) {
-                    return a.getLeafIndex() < numAtoms ? Color.RED : Color.BLUE;
+                    return a.getLeafIndex() < numAtoms/2 ? Color.RED : Color.BLUE;
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
