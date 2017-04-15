@@ -52,7 +52,12 @@ public class SimLJ extends Simulation {
         box = new Box(space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{20,10,10}));
+        IVectorMutable l = space.makeVector();
+        l.E(10);
+        for (int i=0; i<=offsetDim; i++) {
+            l.setX(i,20);
+        }
+        box.getBoundary().setBoxSize(l);
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
