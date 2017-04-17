@@ -17,6 +17,9 @@ public class HardSphere {
     /**
      * Returns the compressibility factor for solid (FCC) hard spheres at the
      * given density.
+     *
+     * @param rho Density of sold hard spheres
+     * @return z compressibility
      */
     public double zSolid(double rho) {
         double beta = 4*(1-rho/sqrt2);
