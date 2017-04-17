@@ -22,11 +22,23 @@ import etomica.units.Electron;
  */
 public class DipoleSourceAceticAcid implements DipoleSource {
 
+    protected final IVectorMutable dipole;
+
+    /**
+     * @param space space
+     */
+
     public DipoleSourceAceticAcid(ISpace space) {
         dipole = space.makeVector();
     }
-    
+
+    /**
+     * @param molecule molecule
+     * @return dipole
+     */
     public IVector getDipole(IMolecule molecule) {//dipole= sum of position * charge for all sites in a molecule
+
+
         IAtomList childList = molecule.getChildList();
 
         IAtom cH3 = childList.getAtom(0);
@@ -34,12 +46,12 @@ public class DipoleSourceAceticAcid implements DipoleSource {
         IAtom dBO = childList.getAtom(2);
         IAtom sBO = childList.getAtom(3);
         IAtom h = childList.getAtom(4);
-		double zCH3 =  Electron.UNIT.toSim(0.08);//partial charge of CH3 site
-		double zC =  Electron.UNIT.toSim(0.55);
-        double zDBO   = Electron.UNIT.toSim(-0.50);
-        double zSBO   = Electron.UNIT.toSim(-0.58);
-        double zH   =  Electron.UNIT.toSim(0.45);
-        
+        double zCH3 = Electron.UNIT.toSim(0.08);//partial charge of CH3 site
+        double zC = Electron.UNIT.toSim(0.55);
+        double zDBO = Electron.UNIT.toSim(-0.50);
+        double zSBO = Electron.UNIT.toSim(-0.58);
+        double zH = Electron.UNIT.toSim(0.45);
+
         dipole.Ea1Tv1(zCH3, cH3.getPosition());
         dipole.PEa1Tv1(zC, c.getPosition());
         dipole.PEa1Tv1(zDBO, dBO.getPosition());
@@ -48,6 +60,4 @@ public class DipoleSourceAceticAcid implements DipoleSource {
 
         return dipole;
     }
-
-    protected final IVectorMutable dipole;
 }
