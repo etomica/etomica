@@ -12,7 +12,6 @@ import etomica.units.Mole;
 /**
  * Static-method library of various functions
  */
- 
 public final class SpecialFunctions {
     
     private SpecialFunctions() {}
