@@ -12,6 +12,9 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
+/**
+ * Superclass for all Space instances.
+ */
 public abstract class Space implements java.io.Serializable, ISpace {
 
     protected Space() {
