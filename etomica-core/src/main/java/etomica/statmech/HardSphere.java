@@ -36,6 +36,10 @@ public class HardSphere {
      * Returns the difference between absolute free energies between the given
      * densities for solid (FCC) hard spheres.  The result is computed using
      * numeric integration with n points.
+     *
+     * @param rho1 Density of solid 1
+     * @param rho2 Density of solid 2
+     * @param n number of points
      */
     public double deltaA(double rho1, double rho2, int n){
         double h = (rho2 - rho1)/n;
