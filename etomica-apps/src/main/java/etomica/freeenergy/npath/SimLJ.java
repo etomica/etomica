@@ -118,12 +118,11 @@ public class SimLJ extends Simulation {
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
             params.graphics = false;
-            params.numAtoms = 512;
-            params.steps = 10000000;
+            params.numAtoms = 1000;
+            params.steps = 1000000;
             params.density = 1.3;
             params.T = 2;
             params.w = 500;
-            params.doLattice = true;
         }
 
         final int numAtoms = params.numAtoms;
@@ -134,7 +133,6 @@ public class SimLJ extends Simulation {
         boolean graphics = params.graphics;
         double w = params.w;
         int offsetDim = params.offsetDim;
-        boolean doLattice = params.doLattice;
 
         if (!graphics) {
             System.out.println("Running LJ MC with N="+numAtoms+" at rho="+density+" T="+temperature);
@@ -145,15 +143,11 @@ public class SimLJ extends Simulation {
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
         final SimLJ sim = new SimLJ(numAtoms, temperature, density, rc, w, offsetDim);
-        if (doLattice) {
-            sim.integrator.getMoveManager().setFrequency(sim.mcMoveAtom,0);
-            sim.integrator.getMoveManager().setFrequency(sim.mcMoveAtomCoupled,0);
-        }
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMasterCell);
         dsEnergies.setBox(sim.box);
         IData u = dsEnergies.getData();
-        System.out.println("LJ lattice energy: "+u.getValue(1)/numAtoms);
+        if (!graphics) System.out.println("LJ lattice energy: "+u.getValue(1)/numAtoms);
 
         if (graphics) {
             final String APP_NAME = "SimLJ";
@@ -197,13 +191,11 @@ public class SimLJ extends Simulation {
         IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
-        if (!doLattice) {
-            System.out.println("simple move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
-            System.out.println("coupled move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
-        }
+        System.out.println("simple move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
+        System.out.println("coupled move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
-        if (!doLattice) System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
+        System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
@@ -218,7 +210,6 @@ public class SimLJ extends Simulation {
         public boolean graphics = false;
         public double w = 1;
         public int offsetDim = 0;
-        public boolean doLattice = false;
     }
 
 }
