@@ -1,18 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html> 
 <head>
-<!--
-
-  @(#)package.html	1.60 98/01/27
-
-	Permission is granted to use the Etomica classes
-	for your own academic research and instruction. 
-	All other rights are reserved.  Etomica and software
-	derived from it may not be sold or redistributed in any form. 
-	
-  CopyrightVersion 1.0
-
--->
 </head>
 <body bgcolor="white">
 
@@ -32,25 +20,8 @@ defines methods used to perform tensor operations on them.
 happens as atoms cross the boundary of the space (e.g., periodic boundaries).
 </ul>
 All of the classes above (except perhaps Boundary) are implemented in the space subpackages in a manner
-specific to the space being defined.  Additionally, this package defines several Coordinate interface, classes
-and factories that don't require spatially-dependent implementations (instead they are formed from fields
-that are specific to the space).  Coordinates may be just a position/orientation, or additionally
-include momentum components.  An instance of Coordinate is held by every Atom.
-<p>
-Coordinate interfaces are named beginning with "I", and indicate the number and type of fields as follows
-<ul>
-<li><code>ICoordinate</code> has just a vector position
-<li><code>ICoordinateAngular</code> has just a vector orientation
-<li><code>IcoordinateKinetic</code> has a vector position and vector velocity
-<li><code>IcoordinateAngularKinetic</code> has position, orientation, and velocities for each
-</ul>
-Implementations of these interfaces are given in the like-named classes obtained by removing the initial "I".
-<p>
-CoordinateFactory classes make each type of coordinate, using vectors, etc. made from a given Space.
-The coordinate factory is used by an {@link etomica.atom.AtomFactory AtomFactory} to give each
-constructed Atom its Coordinate instance.
-<p>
-The CoordinatePair class is an important tool for classes that perform calculations based on pairs of atoms.
+specific to the space being defined.
+
 
 
 <!--
