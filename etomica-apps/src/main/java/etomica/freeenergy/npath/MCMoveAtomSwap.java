@@ -80,9 +80,9 @@ public class MCMoveAtomSwap extends MCMoveBox {
         atom2 = nbrList.getAtom(r);
 
         singlet.atom = atom;
-        uOld = p1.energy(singlet);
+        uOld = 2*p1.energy(singlet);
         singlet.atom = atom2;
-        uOld += p1.energy(singlet);
+        uOld += 2*p1.energy(singlet);
 
         dr.E(atom.getPosition());
         atom.getPosition().E(atom2.getPosition());
@@ -106,9 +106,9 @@ public class MCMoveAtomSwap extends MCMoveBox {
      */
     public double getB() {
         singlet.atom = atom;
-        uNew = p1.energy(singlet);
+        uNew = 2*p1.energy(singlet);
         singlet.atom = atom2;
-        uNew += p1.energy(singlet);
+        uNew += 2*p1.energy(singlet);
         return -(uNew - uOld);
     }
 
