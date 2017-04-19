@@ -1,66 +1,94 @@
 package etomica.meam;
 
 import etomica.api.*;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
- * EAM (Embedded Atom Method) potential
- * 
- * @author Joe Kromph
- * @author Sabry Moustafa
+ * EAM (Embedded Atom Method) potential that pretends to be a pair potential.
+ * The energy method returns the pairwise energy and also sums up the electron
+ * density.
+ * <p>
+ * To compute the energy, the P1EAM inner class should also be added to the
+ * potential master.  The energy method should be called for all interacting
+ * pairs and then the energy method in P1EAM should be called for all atoms.
+ * <p>
+ * To compute the gradient, the energy method should be called for all pairs.
+ * Then call prepForGradient.  Then the gradient method should be called for
+ * all pairs and summed appropriately.
+ *
+ * @author Andrew Schultz
  */
 public class P2EAM extends PotentialN implements PotentialSoft {
-
-    protected double n2 , m2 , eps , a, a2 , C , rc12, rc22;
+    
+    protected double n2, m2, eps, a, a2, Ceps, rc12, rc22;
     protected IBoundary boundary;
-    protected final IVectorMutable dr, drij, drik, drjk;
+    protected final IVectorMutable dr;
     protected IVectorMutable[] gradient;
-    protected IVectorMutable[] rhograd;
+    protected IVectorMutable rhograd;
     protected double[] rho;
+    protected boolean energyDisabled = false;
 
-    public P2EAM(ISpace space, double n , double  m , double  eps , double  a , double  C, double rc1, double rc2) {
+    public P2EAM(ISpace space, double n, double m, double eps, double a, double C, double rc1, double rc2) {
         super(space);
-        
-        n2=0.5*n;
-        m2=0.5*m;
+
+        n2 = 0.5 * n;
+        m2 = 0.5 * m;
         this.eps = eps;
         this.a = a;
-        a2 = a*a;
-        this.C = C;
-        rc12 = rc1*rc1;
-        rc22 = rc2*rc2;
-        dr=space.makeVector();
-        drij=space.makeVector();
-        drik=space.makeVector();
-        drjk=space.makeVector();
-        gradient=new IVectorMutable[0];
-        rhograd=new IVectorMutable[0];
+        a2 = a * a;
+        Ceps = C*eps;
+        rc12 = rc1 * rc1;
+        rc22 = rc2 * rc2;
+        dr = space.makeVector();
+        gradient = new IVectorMutable[1];
+        rhograd = space.makeVector();
+        rho = new double[0];
     }
-    
+
     public double getRange() {
         return Math.sqrt(rc12 > rc22 ? rc12 : rc22);
     }
+
     public void setCutoff(double rc1, double rc2) {
-        rc12 = rc1*rc1;
-        rc22 = rc2*rc2;
+        rc12 = rc1 * rc1;
+        rc22 = rc2 * rc2;
     }
-    
+
+    public void disableEnergy() {
+        energyDisabled = true;
+    }
+
+    public void enableEnergy() {
+        energyDisabled = false;
+    }
+
+    public void reset() {
+        for (int i = 0; i < rho.length; i++) {
+            rho[i] = 0;
+        }
+    }
+
+    public void prepForGradient() {
+        for (int i = 0; i < rho.length; i++) {
+            rho[i] = 1 / Math.sqrt(rho[i]);
+        }
+    }
+
     public double energy(IAtomList atoms) {
-        IVector pos0=atoms.getAtom(0).getPosition();
-        IVector pos1=atoms.getAtom(1).getPosition();
+        IVector pos0 = atoms.getAtom(0).getPosition();
+        IVector pos1 = atoms.getAtom(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
-        double r2=dr.squared();
+        double r2 = dr.squared();
         double u = 0;
-        if (r2<rc12) {
-            u = Math.pow(a2 / r2, n2);
+        if (!energyDisabled && r2 < rc12) {
+            u = eps * Math.pow(a2 / r2, n2);
         }
-        if (r2<rc22) {
-            double rhoi = Math.pow(a2/r2, m2);
+        if (r2 < rc22) {
+            double rhoi = Math.pow(a2 / r2, m2);
             rho[atoms.getAtom(0).getLeafIndex()] += rhoi;
             rho[atoms.getAtom(1).getLeafIndex()] += rhoi;
         }
@@ -68,8 +96,20 @@ public class P2EAM extends PotentialN implements PotentialSoft {
         return u;
     }
     
+    public double energy1() {
+        double sum1 = 0;
+        for (int i=0; i<rho.length; i++) {
+            sum1 += -Ceps * Math.sqrt(rho[i]);
+        }
+        return sum1;
+    }
+
+    public double getRho(IAtom atom) {
+        return rho[atom.getLeafIndex()];
+    }
+
     public void setBox(IBox box) {
-        boundary=box.getBoundary();
+        boundary = box.getBoundary();
         if (rho.length != box.getLeafList().getAtomCount()) {
             rho = new double[box.getLeafList().getAtomCount()];
         }
@@ -81,58 +121,37 @@ public class P2EAM extends PotentialN implements PotentialSoft {
 
     public IVector[] gradient(IAtomList atoms) {
 
-        IVector pos0=atoms.getAtom(0).getPosition();
-        IVector pos1=atoms.getAtom(1).getPosition();
+        IVector pos0 = atoms.getAtom(0).getPosition();
+        IVector pos1 = atoms.getAtom(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
-        double r2=dr.squared();
-        double u = 0;
-        if (r2<rc12) {
-            u = Math.pow(a2 / r2, n2);
-            double dvdr =  -2*eps*n2/a*Math.pow(a2/r2 , n2) ;
-            gradient[1].Ea1Tv1(-dvdr, dr);
-            gradient[0].Ea1Tv1(+dvdr, dr);
-        }
-        else {
+        double r2 = dr.squared();
+        if (r2 > rc12 && r2 > rc22) {
             gradient[0].E(0);
             gradient[1].E(0);
+            return gradient;
         }
-        if (r2<rc22) {
-            double rhoi = Math.pow(a2/r2, m2);
-            double drhodr = -2*m2*rhoi;
-            rho[atoms.getAtom(0).getLeafIndex()] += rhoi;
-            rho[atoms.getAtom(1).getLeafIndex()] += rhoi;
+        double a2r2 = a2/r2;
+        if (r2 < rc12) {
+            double u = eps * Math.pow(a2r2, n2);
+            double dvdr = -2 * n2 * u;
+            gradient[1].Ea1Tv1(-dvdr, dr);
+        }
+        else {
+            gradient[1].E(0);
         }
 
-        //S: Does NOT start from 0 as it will be -SUM(j>0); see below
-        for(int j=1;j<atoms.getAtomCount();j++){
-            gradient[j].E(0);
-            rhograd[j].E(0);
-            IVector jpos=atoms.getAtom(j).getPosition();
-            dr.Ev1Mv2(ipos, jpos);
-            boundary.nearestImage(dr);
-            double rij=Math.sqrt(dr.squared());
-            if(rij<=rC1 && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
-	            dvdr =  -eps*n/a*Math.pow(a/rij , n+1) ;
-	            gradient[j].Ea1Tv1(-dvdr/rij, dr);//fji <= -fij
-            }
-            if(rij<=rC2){
-                double drhodr;
-                rhoi += Math.pow(a/rij , m);
-                drhodr = -2*m2/a*Math.pow(a2/r2, m);
-                rhograd[j].Ea1Tv1(-drhodr, dr);//fji <= -fij
-            }          
+        if (r2 <= rc22) {
+            double drhodr = -2 * m2 * Math.pow(a2r2, m2);
+            rhograd.Ea1Tv1(drhodr * Ceps / 2, dr);
+            double sqrtRhoDiff = rho[atoms.getAtom(0).getLeafIndex()] - rho[atoms.getAtom(1).getLeafIndex()];
+            gradient[1].PEa1Tv1(sqrtRhoDiff, rhograd);
         }
-        double f=Math.sqrt(rhoi);
-        for (int j=1;j<atoms.getAtomCount();j++){
-            gradient[j].PEa1Tv1(-eps*C/2.0/f,rhograd[j]);//Adds the n-body to the 2-body for j
-            gradient[0].ME(gradient[j]);
-        }
+        gradient[0].Ea1Tv1(-1, gradient[1]);
         return gradient;
     }
 
     public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
+        throw new RuntimeException("not implemented.  use gradient");
     }
-    
 }
