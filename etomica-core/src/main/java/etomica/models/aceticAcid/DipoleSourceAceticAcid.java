@@ -16,7 +16,7 @@ import etomica.space3d.IOrientationFull3D;
 import etomica.units.Electron;
 
 /**
- * dipole for acetic acid
+ * calculates dipole for acetic acid
  *
  * @author Hye Min Kim
  */
@@ -25,7 +25,7 @@ public class DipoleSourceAceticAcid implements DipoleSource {
     protected final IVectorMutable dipole;
 
     /**
-     * @param space space
+     * @param space dimension of the space
      */
 
     public DipoleSourceAceticAcid(ISpace space) {
@@ -33,8 +33,8 @@ public class DipoleSourceAceticAcid implements DipoleSource {
     }
 
     /**
-     * @param molecule molecule
-     * @return dipole
+     * @param molecule index of the molecule
+     * @return Returns the dipole of the given molecule
      */
     public IVector getDipole(IMolecule molecule) {//dipole= sum of position * charge for all sites in a molecule
 
