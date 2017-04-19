@@ -1,21 +1,18 @@
 package etomica.meam;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
- * EFS (Extended Finnis-Sinclair) potential
+ * EAM (Embedded Atom Method) potential
  * 
  * @author Joe Kromph
+ * @author Sabry Moustafa
  */
-public class PotentialFeEAM extends PotentialN implements PotentialSoft{
+public class PotentialEAM extends PotentialN implements PotentialSoft{
 
     protected double n , m , eps , a , C , rC1, rC2;
     protected IBoundary boundary; 
@@ -24,7 +21,7 @@ public class PotentialFeEAM extends PotentialN implements PotentialSoft{
     protected IVectorMutable[] rhograd;
     protected double [][] secondder;
     
-    public PotentialFeEAM(ISpace space, double n ,double  m ,double  eps ,double  a ,double  C, double rC) {
+    public PotentialEAM(ISpace space, double n , double  m , double  eps , double  a , double  C, double rC) {
         super(space);
         
         this.n=n;

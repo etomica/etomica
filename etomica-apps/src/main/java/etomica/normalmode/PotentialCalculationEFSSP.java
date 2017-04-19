@@ -1,14 +1,10 @@
 package etomica.normalmode;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.meam.PotentialCuLREP;
+import etomica.meam.PotentialEAM;
+import etomica.meam.PotentialEAM_LS;
 import etomica.meam.PotentialEFS;
-import etomica.meam.PotentialFeEAM;
-import etomica.meam.PotentialFeEAM_LS;
 import etomica.potential.PotentialCalculation;
 import etomica.space.ISpace;
 
@@ -37,11 +33,11 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
         int nNbrAtoms = atoms.getAtomCount();
 		IVector[] g = null;
 		if(isLS){
-			PotentialFeEAM_LS potentialSoft = (PotentialFeEAM_LS)potential;
+			PotentialEAM_LS potentialSoft = (PotentialEAM_LS)potential;
 	        g = potentialSoft.gradient(atoms);// gradient do nearestImage() !!!
 		}else{
-	        if(potential instanceof PotentialFeEAM){
-	        	PotentialFeEAM potentialSoft = (PotentialFeEAM)potential;
+	        if(potential instanceof PotentialEAM){
+	        	PotentialEAM potentialSoft = (PotentialEAM)potential;
 		        g = potentialSoft.gradient(atoms);// gradient do nearestImage() !!!
 	        }else if(potential instanceof PotentialEFS){
 				PotentialEFS potentialSoft = (PotentialEFS)potential;
