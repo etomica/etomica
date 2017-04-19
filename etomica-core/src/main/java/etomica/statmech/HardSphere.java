@@ -40,6 +40,7 @@ public class HardSphere {
      * @param rho1 Density of solid 1
      * @param rho2 Density of solid 2
      * @param n number of points
+     * @reurn Absolute free energy difference
      */
     public double deltaA(double rho1, double rho2, int n){
         double h = (rho2 - rho1)/n;
@@ -54,6 +55,8 @@ public class HardSphere {
 
     /**
      * Returns the ideal gas free energy for the given density.
+     * @param rho Density of ideal gas
+     * @return free
      */
     public double idFreeEnergy(double rho){return (Math.log(rho)-1.0);}
 
