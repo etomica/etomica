@@ -1,4 +1,4 @@
 /**
- * Created by Navneeth on 4/19/2017.
+ * Does this show up online?
  */
 package etomica.statmech;
