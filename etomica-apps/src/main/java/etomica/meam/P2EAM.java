@@ -1,7 +1,7 @@
 package etomica.meam;
 
 import etomica.api.*;
-import etomica.potential.PotentialN;
+import etomica.potential.Potential2;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -23,7 +23,7 @@ import etomica.space.Tensor;
  *
  * @author Andrew Schultz
  */
-public class P2EAM extends PotentialN implements PotentialSoft {
+public class P2EAM extends Potential2 implements PotentialSoft {
     
     protected double n2, m2, eps, a, a2, Ceps, rc12, rc22;
     protected IBoundary boundary;
@@ -45,7 +45,9 @@ public class P2EAM extends PotentialN implements PotentialSoft {
         rc12 = rc1 * rc1;
         rc22 = rc2 * rc2;
         dr = space.makeVector();
-        gradient = new IVectorMutable[1];
+        gradient = new IVectorMutable[2];
+        gradient[0] = space.makeVector();
+        gradient[1] = space.makeVector();
         rhograd = space.makeVector();
         rho = new double[0];
     }
@@ -142,7 +144,7 @@ public class P2EAM extends PotentialN implements PotentialSoft {
         if (r2 <= rc22) {
             double drhodr = -2 * m2 * Math.pow(a2r2, m2);
             rhograd.Ea1Tv1(drhodr * Ceps / 2, dr);
-            double sqrtRhoDiff = rho[atoms.getAtom(0).getLeafIndex()] - rho[atoms.getAtom(1).getLeafIndex()];
+            double sqrtRhoDiff = rho[atoms.getAtom(1).getLeafIndex()] - rho[atoms.getAtom(0).getLeafIndex()];
             gradient[1].PEa1Tv1(sqrtRhoDiff, rhograd);
         }
         gradient[0].Ea1Tv1(-1, gradient[1]);
