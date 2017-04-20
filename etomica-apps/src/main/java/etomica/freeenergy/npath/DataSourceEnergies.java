@@ -9,6 +9,7 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.meam.P2EAM;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.units.Energy;
@@ -21,7 +22,7 @@ public class DataSourceEnergies implements IEtomicaDataSource {
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final PotentialCalculationEnergies pc;
+    protected PotentialCalculationEnergies pc;
     protected final PotentialMaster potentialMaster;
     protected IBox box;
     protected final IteratorDirective id;
@@ -34,6 +35,10 @@ public class DataSourceEnergies implements IEtomicaDataSource {
         dataInfo.addTag(tag);
         pc = new PotentialCalculationEnergies();
         id = new IteratorDirective();
+    }
+    
+    public void setPotentialCalculation(PotentialCalculationEnergies pc) {
+        this.pc = pc;
     }
 
     public void setBox(IBox box) {
@@ -85,6 +90,17 @@ public class DataSourceEnergies implements IEtomicaDataSource {
             else {
                 sum2 += u;
             }
+        }
+    }
+    
+    public static class PotentialCalculationEnergiesEAM extends PotentialCalculationEnergies {
+        protected final P2EAM p2;
+        public PotentialCalculationEnergiesEAM(P2EAM p2) {
+            this.p2 = p2;
+        }
+        public void reset() {super.reset(); p2.reset();}
+        public double getSum2() {
+            return sum2 + p2.energy1();
         }
     }
 }
