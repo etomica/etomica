@@ -4,11 +4,11 @@
 
 package etomica.integrator;
 
-import java.util.ArrayList;
-
 import etomica.api.IIntegratorEventManager;
 import etomica.api.IIntegratorListener;
 import etomica.api.IIntegratorListenerMD;
+
+import java.util.ArrayList;
 
 public class IntegratorEventManager implements IIntegratorEventManager {
 
@@ -51,6 +51,17 @@ public class IntegratorEventManager implements IIntegratorEventManager {
         eventing = true;
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).integratorInitialized(null);
+        }
+        eventing = false;
+    }
+    
+    public synchronized void forcePrecomputed() {
+        eventing = true;
+        for(int i = 0; i < intervalListeners.size(); i++) {
+            IIntegratorListener l = intervalListeners.get(i);
+            if (l instanceof IIntegratorListenerMD) {
+                ((IIntegratorListenerMD)intervalListeners.get(i)).integratorForcePrecomputed(null);
+            }
         }
         eventing = false;
     }
