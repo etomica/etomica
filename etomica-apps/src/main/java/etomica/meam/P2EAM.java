@@ -8,8 +8,9 @@ import etomica.space.Tensor;
 
 /**
  * EAM (Embedded Atom Method) potential that pretends to be a pair potential.
- * The energy method returns the pairwise energy and also sums up the electron
- * density.
+ * Since it is only pretending, the methods must be called in a somewhat
+ * different manner.  The different structure should result in higher
+ * performance, as compared to {@link PotentialEAM}.
  * <p>
  * To compute the energy, the P1EAM inner class should also be added to the
  * potential master.  The energy method should be called for all interacting
