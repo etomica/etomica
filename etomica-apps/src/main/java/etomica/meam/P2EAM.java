@@ -13,11 +13,12 @@ import etomica.space.Tensor;
  * <p>
  * To compute the energy, the P1EAM inner class should also be added to the
  * potential master.  The energy method should be called for all interacting
- * pairs and then the energy method in P1EAM should be called for all atoms.
+ * pairs and then summed with the result of calling energy1.
  * <p>
  * To compute the gradient, the energy method should be called for all pairs.
  * Then call prepForGradient.  Then the gradient method should be called for
- * all pairs and summed appropriately.
+ * all pairs and summed appropriately.  To speed things up, disableEnergy may
+ * be called.
  *
  * @author Andrew Schultz
  */
@@ -102,10 +103,6 @@ public class P2EAM extends PotentialN implements PotentialSoft {
             sum1 += -Ceps * Math.sqrt(rho[i]);
         }
         return sum1;
-    }
-
-    public double getRho(IAtom atom) {
-        return rho[atom.getLeafIndex()];
     }
 
     public void setBox(IBox box) {
