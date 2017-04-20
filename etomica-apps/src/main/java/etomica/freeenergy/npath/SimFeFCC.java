@@ -6,8 +6,10 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.*;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.api.IAtom;
+import etomica.api.IAtomType;
+import etomica.api.IBox;
+import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.chem.elements.Iron;
 import etomica.config.ConfigurationLattice;
@@ -20,7 +22,6 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.meam.P2EAM;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -78,29 +79,7 @@ public class SimFeFCC extends Simulation {
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, temperature, space);
         integrator.setTemperature(temperature);
-        integrator.getEventManager().addListener(new IIntegratorListenerMD() {
-            PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();
-            IteratorDirective id = new IteratorDirective();
-            @Override
-            public void integratorForcePrecomputed(IIntegratorEvent e) {
-                potential.disableEnergy();
-                potential.reset();
-                potentialMaster.calculate(box, id, pcEnergy);
-                potential.enableEnergy();
-            }
-    
-            @Override
-            public void integratorForceComputed(IIntegratorEvent e) {}
-    
-            @Override
-            public void integratorInitialized(IIntegratorEvent e) {}
-    
-            @Override
-            public void integratorStepStarted(IIntegratorEvent e) {}
-    
-            @Override
-            public void integratorStepFinished(IIntegratorEvent e) {}
-        });
+        integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
 
         ai = new ActivityIntegrate(integrator);

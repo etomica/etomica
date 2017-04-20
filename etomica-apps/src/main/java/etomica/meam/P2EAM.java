@@ -1,7 +1,10 @@
 package etomica.meam;
 
 import etomica.api.*;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.Potential2;
+import etomica.potential.PotentialCalculationEnergySum;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
@@ -153,5 +156,40 @@ public class P2EAM extends Potential2 implements PotentialSoft {
 
     public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         throw new RuntimeException("not implemented.  use gradient");
+    }
+    
+    /**
+     * Creates and returns an integrator listener that makes the integrator's
+     * force sum work properly by running an energy calculation first.
+     *
+     * @param potentialMaster
+     * @param box
+     * @return the listener
+     */
+    public IIntegratorListenerMD makeIntegratorListener(PotentialMaster potentialMaster, IBox box) {
+        final P2EAM p2 = this;
+        return new IIntegratorListenerMD() {
+            PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();
+            IteratorDirective id = new IteratorDirective();
+            @Override
+            public void integratorForcePrecomputed(IIntegratorEvent e) {
+                p2.disableEnergy();
+                p2.reset();
+                potentialMaster.calculate(box, id, pcEnergy);
+                p2.enableEnergy();
+            }
+        
+            @Override
+            public void integratorForceComputed(IIntegratorEvent e) {}
+        
+            @Override
+            public void integratorInitialized(IIntegratorEvent e) {}
+        
+            @Override
+            public void integratorStepStarted(IIntegratorEvent e) {}
+        
+            @Override
+            public void integratorStepFinished(IIntegratorEvent e) {}
+        };
     }
 }
