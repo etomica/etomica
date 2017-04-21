@@ -95,7 +95,7 @@ public class SimFe extends Simulation {
         IVectorMutable offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
         p1ImageHarmonic = new P1ImageHarmonic(space, offset, w);
-        //potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
+        potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
 
         integrator.setBox(box);
 
@@ -111,6 +111,8 @@ public class SimFe extends Simulation {
         }
         config.initializeCoordinates(box);
     
+        p1ImageHarmonic.findNOffset(box);
+    
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.getNeighborManager(box).reset();
     }
@@ -120,12 +122,12 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = true;
+            params.graphics = false;
             params.numAtoms = 1024;
-            params.steps = 1000000;
-            params.density = 1.0/6.6;
+            params.steps = 10000;
+            params.density = 0.15;
             params.T = 6000;
-            params.w = 0;
+            params.w = 1000;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
         }
@@ -203,11 +205,11 @@ public class SimFe extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        long blockSize = steps/numAtoms/100;
+        long blockSize = steps/100;
         if (blockSize==0) blockSize = 1;
 
         AccumulatorAverageFixed accEnergies = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
+        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, 1);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
         sim.getController().actionPerformed();
@@ -217,7 +219,7 @@ public class SimFe extends Simulation {
         IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
-        System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
+        System.out.println("Fe energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");

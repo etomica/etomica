@@ -17,6 +17,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     protected final IVector offset;
     protected final IVectorMutable dr;
     protected final IVectorMutable[] gradient;
+    protected int nOffset;
 
     public P1ImageHarmonic(ISpace space, IVector offset, double w) {
         super(space);
@@ -25,6 +26,23 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         dr = space.makeVector();
         gradient = new IVectorMutable[1];
         gradient[0] = space.makeVector();
+    }
+    
+    public void findNOffset(IBox box) {
+        IAtomList atoms = box.getLeafList();
+        IVector p0 = atoms.getAtom(0).getPosition();
+        IBoundary boundary = box.getBoundary();
+        for (int i=1; i<atoms.getAtomCount(); i++) {
+            IVector p = atoms.getAtom(i).getPosition();
+            dr.Ev1Mv2(p, p0);
+            dr.ME(offset);
+            boundary.nearestImage(dr);
+            if (dr.squared() < 0.1) {
+                nOffset = i;
+                return;
+            }
+        }
+        throw new RuntimeException("could not find N offset");
     }
 
     public void setW(double newW) {
@@ -52,12 +70,12 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         IAtom atom0 = atoms.getAtom(0);
         int idx0 = atom0.getLeafIndex();
         IAtom atom1 = null;
-        if (idx0 >= n/2) {
+        if (idx0%(nOffset*2) >= nOffset) {
             atom1 = atom0;
-            atom0 = allAtoms.getAtom(idx0-n/2);
+            atom0 = allAtoms.getAtom(idx0-nOffset);
         }
         else {
-            atom1 = allAtoms.getAtom(idx0+n/2);
+            atom1 = allAtoms.getAtom(idx0+nOffset);
         }
         IVector p0 = atom0.getPosition();
         IVector p1 = atom1.getPosition();
@@ -80,13 +98,13 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         int idx0 = atom0.getLeafIndex();
         IAtom atom1 = null;
         boolean swapped = false;
-        if (idx0 >= n/2) {
+        if (idx0%(nOffset*2) >= nOffset) {
             swapped = true;
             atom1 = atom0;
-            atom0 = allAtoms.getAtom(idx0-n/2);
+            atom0 = allAtoms.getAtom(idx0-nOffset);
         }
         else {
-            atom1 = allAtoms.getAtom(idx0+n/2);
+            atom1 = allAtoms.getAtom(idx0+nOffset);
         }
         IVector p0 = atom0.getPosition();
         IVector p1 = atom1.getPosition();
