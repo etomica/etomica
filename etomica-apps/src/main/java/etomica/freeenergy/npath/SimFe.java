@@ -13,10 +13,10 @@ import etomica.api.IVectorMutable;
 import etomica.box.Box;
 import etomica.chem.elements.Iron;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.IData;
+import etomica.data.*;
+import etomica.data.meter.MeterKineticEnergy;
 import etomica.graphics.ColorScheme;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicBcc;
@@ -27,8 +27,8 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.ElectronVolt;
-import etomica.units.Kelvin;
+import etomica.units.*;
+import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -79,6 +79,8 @@ public class SimFe extends Simulation {
         potentialMaster.setCellRange(2);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, temperature, space);
+        integrator.setIsothermal(true);
+        integrator.setThermostatInterval(10);
         integrator.setTemperature(temperature);
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
@@ -97,18 +99,19 @@ public class SimFe extends Simulation {
 
         integrator.setBox(box);
 
-        ConfigurationLattice configuration = null;
+        ConfigurationLattice config = null;
         if (crystal == Crystal.FCC) {
-            configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+            config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         }
         else if (crystal == Crystal.BCC) {
-            configuration = new ConfigurationLattice(new LatticeCubicBcc(space), space);
+            config = new ConfigurationLattice(new LatticeCubicBcc(space), space);
         }
         else {
             throw new RuntimeException("Don't know how to do "+crystal);
         }
-        configuration.initializeCoordinates(box);
+        config.initializeCoordinates(box);
     
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.getNeighborManager(box).reset();
     }
     
@@ -118,11 +121,13 @@ public class SimFe extends Simulation {
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
             params.graphics = true;
-            params.numAtoms = 2048*2;
+            params.numAtoms = 1024;
             params.steps = 1000000;
-            params.density = 4.0/6.5;
-            params.T = 1000;
+            params.density = 1.0/6.6;
+            params.T = 6000;
             params.w = 0;
+            params.crystal = Crystal.BCC;
+            params.offsetDim = 2;
         }
 
         final int numAtoms = params.numAtoms;
@@ -148,7 +153,7 @@ public class SimFe extends Simulation {
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
         dsEnergies.setBox(sim.box);
         IData u = dsEnergies.getData();
-        if (!graphics) System.out.println("Fe lattice energy: "+u.getValue(1)/numAtoms);
+        if (!graphics) System.out.println("Fe lattice energy (eV/atom): "+ElectronVolt.UNIT.fromSim(u.getValue(1)/numAtoms));
 
         if (graphics) {
             final String APP_NAME = "SimLJ";
@@ -162,6 +167,27 @@ public class SimFe extends Simulation {
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
+            AccumulatorHistory energyHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            DataSplitter splitter = new DataSplitter();
+            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, 1);
+            sim.integrator.getEventManager().addListener(energyPump);
+            splitter.setDataSink(1, energyHist);
+            DisplayPlot energyPlot = new DisplayPlot();
+            energyPlot.setLabel("Energy");
+            energyPlot.setUnit(new CompoundUnit(new Unit[]{ElectronVolt.UNIT, new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{1,-1}));
+//            energyPlot.setUnit(ElectronVolt.UNIT);
+            energyHist.addDataSink(energyPlot.getDataSet().makeDataSink());
+            simGraphic.add(energyPlot);
+    
+            MeterKineticEnergy meterKE = new MeterKineticEnergy();
+            meterKE.setBox(sim.box);
+            AccumulatorHistory keHist = new AccumulatorHistory();
+            DataPumpListener kePump = new DataPumpListener(meterKE, keHist, 1);
+            sim.integrator.getEventManager().addListener(kePump);
+//            keHist.addDataSink(energyPlot.getDataSet().makeDataSink());
+            energyPlot.setLegend(new DataTag[]{energyHist.getTag()}, "u");
+//            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
+            
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             return;
