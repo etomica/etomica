@@ -137,18 +137,18 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         double a2r2 = a2/r2;
         if (r2 < rc12) {
             double u = eps * Math.pow(a2r2, n2);
-            double dvdr = -2 * n2 * u;
-            gradient[1].Ea1Tv1(-dvdr, dr);
+            double rdudr = -2 * n2 * u;
+            gradient[1].Ea1Tv1(rdudr/r2, dr);
         }
         else {
             gradient[1].E(0);
         }
 
-        if (r2 <= rc22) {
-            double drhodr = -2 * m2 * Math.pow(a2r2, m2);
-            rhograd.Ea1Tv1(drhodr * Ceps / 2, dr);
-            double sqrtRhoDiff = rho[atoms.getAtom(1).getLeafIndex()] - rho[atoms.getAtom(0).getLeafIndex()];
-            gradient[1].PEa1Tv1(sqrtRhoDiff, rhograd);
+        if (r2 < rc22) {
+            double rdrhodr = -2 * m2 * Math.pow(a2r2, m2);
+            rhograd.Ea1Tv1(rdrhodr * Ceps / (2*r2), dr);
+            double sqrtRhoDiff = rho[atoms.getAtom(1).getLeafIndex()] + rho[atoms.getAtom(0).getLeafIndex()];
+            gradient[1].PEa1Tv1(-sqrtRhoDiff, rhograd);
         }
         gradient[0].Ea1Tv1(-1, gradient[1]);
         return gradient;
@@ -177,6 +177,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
                 p2.reset();
                 potentialMaster.calculate(box, id, pcEnergy);
                 p2.enableEnergy();
+                p2.prepForGradient();
             }
         
             @Override
