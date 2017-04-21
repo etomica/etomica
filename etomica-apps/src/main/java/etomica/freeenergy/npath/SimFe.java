@@ -19,6 +19,7 @@ import etomica.data.IData;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.meam.P2EAM;
 import etomica.nbr.list.PotentialMasterList;
@@ -37,7 +38,7 @@ import java.awt.*;
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
  
-public class SimFeFCC extends Simulation {
+public class SimFe extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public final ActivityIntegrate ai;
@@ -47,7 +48,7 @@ public class SimFeFCC extends Simulation {
     public P2EAM potential;
     public P1ImageHarmonic p1ImageHarmonic;
 
-    public SimFeFCC(int numAtoms, double temperature, double density, double w, int offsetDim) {
+    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
@@ -95,8 +96,17 @@ public class SimFeFCC extends Simulation {
         //potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
 
         integrator.setBox(box);
-		
-        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+
+        ConfigurationLattice configuration = null;
+        if (crystal == Crystal.FCC) {
+            configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        }
+        else if (crystal == Crystal.BCC) {
+            configuration = new ConfigurationLattice(new LatticeCubicBcc(space), space);
+        }
+        else {
+            throw new RuntimeException("Don't know how to do "+crystal);
+        }
         configuration.initializeCoordinates(box);
     
         potentialMaster.getNeighborManager(box).reset();
@@ -123,6 +133,7 @@ public class SimFeFCC extends Simulation {
         boolean graphics = params.graphics;
         double w = params.w;
         int offsetDim = params.offsetDim;
+        Crystal crystal = params.crystal;
 
         if (!graphics) {
             System.out.println("Running LJ MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
@@ -131,7 +142,7 @@ public class SimFeFCC extends Simulation {
         }
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
-        final SimFeFCC sim = new SimFeFCC(numAtoms, temperature, density, w, offsetDim);
+        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim);
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
@@ -186,6 +197,8 @@ public class SimFeFCC extends Simulation {
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
     }
 
+    enum Crystal {FCC, BCC, HCP}
+
     public static class LjMC3DParams extends ParameterBase {
         public int numAtoms = 500;
         public double T = 2.0;
@@ -195,6 +208,7 @@ public class SimFeFCC extends Simulation {
         public boolean graphics = false;
         public double w = 1;
         public int offsetDim = 0;
+        public Crystal crystal = Crystal.FCC;
     }
 
 }
