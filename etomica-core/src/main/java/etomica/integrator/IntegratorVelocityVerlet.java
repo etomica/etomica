@@ -4,14 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.ISimulation;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
@@ -103,7 +96,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             v.PEa1Tv1(0.5*timeStep*((IAtom)a).getType().rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
         }
-
+    
+        eventManager.forcePrecomputed();
+    
         forceSum.reset();
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
@@ -154,9 +149,13 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
                 System.out.println(pair+" dr "+dr);
             }
         }
-
+    
+        eventManager.forcePrecomputed();
+    
         forceSum.reset();
         potentialMaster.calculate(box, allAtoms, forceSum);
+    
+        eventManager.forceComputed();
     }
 
 //--------------------------------------------------------------

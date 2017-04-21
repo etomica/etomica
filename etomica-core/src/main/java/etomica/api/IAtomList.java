@@ -5,7 +5,7 @@
 package etomica.api;
 
 /**
- * Interface for a set of IAtoms.  The IAtomSet might contain 0, 1, 2 or many
+ * Interface for a list of IAtoms.  The IAtomList might contain 0, 1, 2 or many
  * IAtoms.
  * 
  * @author Andrew Schultz
@@ -13,13 +13,15 @@ package etomica.api;
 public interface IAtomList {
 
     /**
-     * Returns the i-th atom, with numbering beginning from 0. 
-     * If i is greater than count-1, throws an IllegalArgumentException.
+     * Returns the i-th atom, with numbering beginning from 0.
+     * @param i the index of the desired atom in the list
+     *          if i is greater than count-1, throws an IllegalArgumentException.
+     * @return the requested atom
      */
     public IAtom getAtom(int i);
 
     /**
-     * @return the number of atoms in the set
+     * @return the number of atoms in the list
      */
     public int getAtomCount();
 }
