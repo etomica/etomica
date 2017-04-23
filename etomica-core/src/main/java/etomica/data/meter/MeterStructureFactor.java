@@ -100,9 +100,6 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
                 v.setX(i, 2*Math.PI/L.getX(i)*idx[i]);
             }
             double foo = Math.sqrt(v.squared());
-            if (Math.abs(foo-3.74727598) < 0.01) {
-                System.out.println(nVec+" "+v+" "+foo+" "+ Arrays.toString(idx));
-            }
             if (v.squared() > cutoff2) {
                 continue;
             }
@@ -163,15 +160,6 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
                 term2 += Math.sin(dotprod);
             }
             struct[k] = ((term1*term1) + (term2*term2))/(numAtoms*numAtoms);
-            if (struct[k] > 0.01) {
-                System.out.println(k+" "+waveVec[k]+" "+Math.sqrt(waveVec[k].squared())+" "+struct[k]);
-            }
-            else {
-                double x = Math.sqrt(waveVec[k].squared());
-                if (Math.abs(x-3.74727598) < 0.01) {
-                    System.out.println(k+" "+waveVec[k]+" "+Math.sqrt(waveVec[k].squared())+" "+struct[k]);
-                }
-            }
         }
         return data;
     }
