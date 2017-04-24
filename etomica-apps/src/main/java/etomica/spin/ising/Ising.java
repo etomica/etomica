@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.spin;
+package etomica.spin.ising;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
@@ -37,18 +37,18 @@ import etomica.units.systems.LJ;
  * @author David Kofke
  *
  */
-public class Heisenberg extends Simulation {
+public class Ising extends Simulation {
 
-	private static final String APP_NAME = "Heisenberg";
+	private static final String APP_NAME = "Ising";
 
-    public Heisenberg() {
+    public Ising() {
         this(Space2D.getInstance(),60);
     }
     
     /**
      * 
      */
-    public Heisenberg(Space _space, int nCells) {
+    public Ising(Space _space, int nCells) {
         super(_space);
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
@@ -98,7 +98,7 @@ public class Heisenberg extends Simulation {
     
     public static void main(String[] args) {
     	Space sp = Space2D.getInstance();
-        Heisenberg sim = new Heisenberg(sp, 60);
+        Ising sim = new Ising(sp, 60);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
         ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
