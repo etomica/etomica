@@ -68,6 +68,9 @@ public class HardSphereSolid {
     /**
      * Returns the compressibility factor for solid (FCC) hard spheres at the
      * given density.
+     * @param rho Density
+     * @return Compressibility
+     *
      */
     public static double zSolid(double rho) {
         double x = (1-rho/sqrt2);
@@ -78,6 +81,8 @@ public class HardSphereSolid {
      * Returns the correction to high density expression for the
      * compressibility factor for solid (FCC) hard spheres at the given
      * density.
+     * @param rho Density
+     * @return high density correction to the compressibility
      */
     public static double zSolidCorrection(double rho) {
         double x = (1-rho/sqrt2);
@@ -170,6 +175,8 @@ public class HardSphereSolid {
      * Returns the difference between absolute free energies between the given
      * densities for solid (FCC) hard spheres.  The result is computed using
      * numeric integration with n points.
+     * @param rho Density
+     * @return Absolute free energy difference
      */
     public static double Asolid(double rho){
         return Asolid(rho, 10000);
@@ -193,6 +200,8 @@ public class HardSphereSolid {
     /**
      * Returns the fraction of lattice sites with a vacancy for the given
      * lattice density.
+     * @param rhoLat lattice density
+     * @return Vacant fraction of lattice sites
      */
     public double getVacancyFraction(double rhoLat) {
         double x = 1 - rhoLat/Math.sqrt(2);
@@ -210,6 +219,8 @@ public class HardSphereSolid {
     /**
      * Returns the difference between the pressure with vacancies from the
      * pressure without vacancies for the given lattice density.
+     * @param rhoLat lattice density
+     * @return vacancy pressure difference
      */
     public double getVacancyPressure(double rhoLat) {
         double c = getVacancyFraction(rhoLat);
@@ -227,6 +238,8 @@ public class HardSphereSolid {
     /**
      * Returns the Helmholtz free energy difference due to the presence of
      * vacancies at the given lattice density.
+     * @param rhoLat
+     * @return Helmholtz free energy difference
      */
     public double getVacancyFreeEnergy(double rhoLat) {
         return getVacancyFraction(rhoLat);
@@ -234,6 +247,8 @@ public class HardSphereSolid {
 
     /**
      * Returns the ideal gas free energy for the given density.
+     * @param rho Density
+     * @return ideal gas free energy
      */
     public static double idFreeEnergy(double rho){return (Math.log(rho)-1.0);}
 

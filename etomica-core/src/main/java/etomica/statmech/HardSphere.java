@@ -18,8 +18,8 @@ public class HardSphere {
      * Returns the compressibility factor for solid (FCC) hard spheres at the
      * given density.
      *
-     * @param rho Density of sold hard spheres
-     * @return z compressibility
+     * @param rho Density of solid hard spheres
+     * @return z Compressibility
      */
     public double zSolid(double rho) {
         double beta = 4*(1-rho/sqrt2);
@@ -56,7 +56,7 @@ public class HardSphere {
     /**
      * Returns the ideal gas free energy for the given density.
      * @param rho Density of ideal gas
-     * @return free
+     * @return Ideal Gas Free Energy
      */
     public double idFreeEnergy(double rho){return (Math.log(rho)-1.0);}
 

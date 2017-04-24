@@ -1,4 +1,4 @@
 /**
- * Does this show up online?
+ * Equations of State
  */
 package etomica.statmech;
