@@ -4,6 +4,10 @@
 
 package etomica.api;
 
+/**
+ * Manager for boundary events.  This object maintains a list of listeners
+ * which receive the events.
+ */
 public interface IBoundaryEventManager {
 
     /**
