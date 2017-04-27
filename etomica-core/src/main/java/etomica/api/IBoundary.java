@@ -30,7 +30,7 @@ public interface IBoundary {
     public IBox getBox();
 
     /**
-     * @return the volume enclosed by the boundary
+     * Returns the volume enclosed by the boundary
      */
     public double volume();
 
@@ -94,9 +94,13 @@ public interface IBoundary {
    
    /**
     * 
-    * @return Returns the center point (origin) of the boundary
+    * Returns the center point (origin) of the boundary
     */
    public IVector getCenter();
-   
+    
+    /**
+     * Returns the event manager, which fires notifications about changes to
+     * this boundary to any added listener.
+     */
    public IBoundaryEventManager getEventManager();
 }
