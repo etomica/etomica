@@ -447,11 +447,18 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     }
 //    protected final int istart=3, istop=4;
 
-    
+    /**
+     * Creates a Feynman-Hibbs implementation of a semi-classical potential based on this model for the given temperature.
+     *
+     */
     public P2CO2H2OSC makeSemiclassical(double temperature) {
         return new P2CO2H2OSC(temperature);
     }
 
+    /**
+     * Creates a Takahashi-Imada implementation of a semi-classical potential based on this model for the given temperature.
+     *
+     */
     public P2CO2H2OSCTI makeSemiclassicalTI(double temperature) {
         return new P2CO2H2OSCTI(temperature);
     }
@@ -1099,7 +1106,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         return null;
     }
     
-    /*
+    /**
      * Reads geometry.txt file and computes energy for each configuration
      */
     public static void mainTestU(String[] args) throws IOException {
@@ -1174,7 +1181,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         bufReader.close();
     }
 
-    /*
+    /**
      * Check charges (all sums should be 0 for neutral molecules)
      */
     public static void mainQ(String[] args) {
@@ -1195,7 +1202,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         }
     }
     
-    /*
+    /**
      * Randomly moves molcules all over, computing and checking 2nd derivative
      */
     public static void main(String[] args) {
@@ -1360,7 +1367,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     }
 
     /**
-     * Writes a x-y grid of energies
+     * Writes x-y grid of energies
      */
     public static void main2DGrid(String[] args) throws IOException {
         ISpace space = Space3D.getInstance();
