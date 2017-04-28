@@ -17,11 +17,11 @@ public final class SpecialFunctions {
     private SpecialFunctions() {}
     
     /**
-     * consider using org.apache.commons.math3.special.Erf.erfc()
-     * this method is substantially faster (~10x - 100x), but only accurate to ~10^-7
-     * 
      * Complementary error function, computed using the approximant 7.1.26 of Abramowitz & Stegun.
      * Defined for x >= 0
+     *
+     * consider using org.apache.commons.math3.special.Erf.erfc()
+     * this method is substantially faster (~10x - 100x), but only accurate to ~10^-7
      */
     public static double erfc(double x) {
         double t = 1.0/(1.0 + 0.3275911*x);
@@ -34,8 +34,10 @@ public final class SpecialFunctions {
     
     /**
      * The factorial function, n!
-     * 
+     *
+     * @param n a number greater than 0
      * @throws IllegalArgumentException if n < 0
+     * @return the factorial of n
      */
     public static long factorial(int n){
         if(n < 0){
@@ -74,6 +76,7 @@ public final class SpecialFunctions {
     /**
      * The sign function, returning -1 if x < 0, zero if x == 0, and +1 if x > 0.
      */
+    // TODO: all usages can just be converted to Math.signum
     public static double sgn(double x) {
         return (x < 0.0) ? -1.0 : ((x > 0.0) ? +1.0 : 0.0);
     }
@@ -302,21 +305,22 @@ public final class SpecialFunctions {
         return lp[n];
     }
     
-    /** 
+    protected static int nbin = 100;
+    protected static double [][] binom = new double [nbin][nbin];
+
+    /**
      * Returns the Wigner 3j symbol associated with coupling angular momenta in quantum mechanics.
      * Reference for code that is commented out: (this code is not much robust)
      * 1. http://mathworld.wolfram.com/Wigner3j-Symbol.html
      * 2. http://massey.dur.ac.uk/umk/files/python/wigner.py
      * Robust code taken from Bartolomei's pes-mrci.f file located at
      * /usr/users/rsubrama/Desktop/Acads/Phd/oxygen/Bartolomei2010/
-     * 
+     *
      * Currently only works for all 6 inputs being integers and not
      * half integers
      * @author rsubrama
      * @return double w3j
      */
-    protected static int nbin = 100;
-    protected static double [][] binom = new double [nbin][nbin];
     public static double wigner3J(int j1, int j2, int j3, int m1, int m2, int m3) {
 //        // Rule 1
 //        if (Math.abs(m1) > j1) return 0;
