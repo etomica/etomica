@@ -20,8 +20,8 @@ public final class SpecialFunctions {
      * Complementary error function, computed using the approximant 7.1.26 of Abramowitz & Stegun.
      * Defined for x >= 0
      *
-     * consider using org.apache.commons.math3.special.Erf.erfc()
-     * this method is substantially faster (~10x - 100x), but only accurate to ~10^-7
+     * Consider using {@link org.apache.commons.math3.special.Erf#erfc} if more precision is required.
+     * This method is substantially faster (~10x - 100x), but only accurate to ~10^-7.
      */
     public static double erfc(double x) {
         double t = 1.0/(1.0 + 0.3275911*x);
@@ -52,7 +52,7 @@ public final class SpecialFunctions {
         }
         return product;
     }
-    
+
     public static double lnFactorial(int n) {
         if(n < 0) {
             throw new IllegalArgumentException("Argument less than zero: "+n);
