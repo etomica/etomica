@@ -12,11 +12,15 @@ public interface IBoundaryEventManager {
 
     /**
      * Adds the given listener to this event manager.
+     *
+     * @param listener the listener to be added
      */
     public void addListener(IBoundaryListener listener);
 
     /**
      * Removes the given listener from this event manager.
+     *
+     * @param listener the listener to be removed
      */
     public void removeListener(IBoundaryListener listener);
 }

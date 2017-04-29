@@ -10,7 +10,7 @@ package etomica.api;
 public interface IBoundaryEvent {
     
     /**
-     * Returns the boundary which has changed.
+     * @return the boundary which has changed.
      */
     public IBoundary getBoundary();
 }
