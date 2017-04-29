@@ -20,6 +20,7 @@ public class SpecialFunctionsTest {
         assertEquals(1, SpecialFunctions.factorial(0));
         assertEquals(1, SpecialFunctions.factorial(1));
         assertEquals(120, SpecialFunctions.factorial(5));
+        assertEquals(2432902008176640000L, SpecialFunctions.factorial(20));
 
         // this asserts that an exception will be thrown for -1!
         thrown.expect(IllegalArgumentException.class);

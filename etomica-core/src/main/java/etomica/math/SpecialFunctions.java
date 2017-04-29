@@ -33,9 +33,9 @@ public final class SpecialFunctions {
     }
     
     /**
-     * The factorial function, n!
+     * The factorial function, n! Will overflow with any input value greater than 20.
      *
-     * @param n a number greater than 0
+     * @param n an integer greater than or equal to 0
      * @throws IllegalArgumentException if n < 0
      * @return the factorial of n
      */
