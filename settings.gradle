@@ -22,3 +22,5 @@ include 'etomica-apps'
 include 'etomica-modules'
 include 'etomica-graph'
 include 'etomica-graphics3D'
+
+include 'benchmarks'
