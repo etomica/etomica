@@ -13,7 +13,7 @@ package etomica.api;
 public interface IAtom {
 
     /**
-     * Returns this IAtom's index, which is its place in the parent AtomGroup's
+     * @return this IAtom's index, which is its place in the parent AtomGroup's
      * list of child IAtoms.
      */
     public int getIndex();
@@ -21,6 +21,7 @@ public interface IAtom {
     /**
      * Informs the IAtom of its index within the atoms of its parent molecule.
      * This should only be called by the parent molecule.
+     * @param index the new index
      */
     public void setIndex(int index);
 
@@ -42,22 +43,23 @@ public interface IAtom {
     /**
      * Informs the Atom that the given IMolecule is its parent.
      * This method should only be called by the parent molecule.
+     * @param newParent the new parent molecule
      */
     public void setParent(IMolecule newParent);
 
     /**
-     * Returns the parent molecule of this IAtom.
+     * @return the parent molecule of this IAtom.
      */
     public IMolecule getParentGroup();
 
     /**
-     * Returns the Atom type, holding properties held in common with other
+     * @return the Atom type, holding properties held in common with other 
      * atoms of the same type.
      */
     public IAtomType getType();
 
     /**
-     * Returns the position of the IAtom.  Modifying the returned vector will
+     * @return the position of the IAtom.  Modifying the returned vector will
      * alter the IAtom's position.
      */
     public IVectorMutable getPosition();

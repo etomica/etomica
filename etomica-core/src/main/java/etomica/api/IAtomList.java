@@ -21,7 +21,7 @@ public interface IAtomList {
     public IAtom getAtom(int i);
 
     /**
-     * Returns the number of atoms in the list
+     * @return the number of atoms in the list
      */
     public int getAtomCount();
 }
