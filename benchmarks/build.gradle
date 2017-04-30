@@ -17,11 +17,9 @@ jmh {
     warmupIterations = 2
     iterations = 5
 
-    benchmarkMode = ['Throughput']
-
     profilers = ['stack']
 
 //    uncomment this if you want the console progress summary written to a file instead
 //    humanOutputFile = project.file("${project.buildDir}/reports/jmh/human.txt") // human-readable output file
-    resultFormat = "JSON"
+//    resultFormat = "JSON"
 }
