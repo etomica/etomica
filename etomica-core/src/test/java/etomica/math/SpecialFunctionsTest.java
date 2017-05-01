@@ -22,6 +22,10 @@ public class SpecialFunctionsTest {
         assertEquals(120, SpecialFunctions.factorial(5));
         assertEquals(2432902008176640000L, SpecialFunctions.factorial(20));
 
+    }
+
+    @Test
+    public void testFactorialException() {
         // this asserts that an exception will be thrown for -1!
         thrown.expect(IllegalArgumentException.class);
         SpecialFunctions.factorial(-1);
@@ -31,7 +35,8 @@ public class SpecialFunctionsTest {
     public void testLnFactorial() {
         assertEquals(0, SpecialFunctions.lnFactorial(1), EPSILON);
         assertEquals(10.60460290274525, SpecialFunctions.lnFactorial(8), EPSILON);
-
+        assertEquals(42.335616460753485, SpecialFunctions.lnFactorial(20), EPSILON);
+        assertEquals(363.73937555556349, SpecialFunctions.lnFactorial(100), EPSILON);
     }
 
 

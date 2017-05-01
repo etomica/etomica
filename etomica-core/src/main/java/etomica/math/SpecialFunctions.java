@@ -53,6 +53,13 @@ public final class SpecialFunctions {
         return product;
     }
 
+    /**
+     * The log of the factorial function, ln(n!). Will not overflow even if n! would be large.
+     *
+     * @param n an integer greater than or equal to 0
+     * @throws IllegalArgumentException if n < 0
+     * @return the natural logarithm of the factorial of n.
+     */
     public static double lnFactorial(int n) {
         if(n < 0) {
             throw new IllegalArgumentException("Argument less than zero: "+n);
@@ -85,6 +92,9 @@ public final class SpecialFunctions {
      * Returns the ln(gamma), the natural logarithm of the gamma function.
      * Lanczos approximation, with precision ~15 digits
      * coefficients from GSL (GNU Scientific Library) with g=7
+     *
+     * @param x a non-negative number.
+     * @return the natural logarithm of the gamma function of x.
      */
     public static double lnGamma(double x) {
         if (x < 0) {
