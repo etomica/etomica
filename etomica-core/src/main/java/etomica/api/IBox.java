@@ -4,8 +4,6 @@
 
 package etomica.api;
 
-import java.util.List;
-
 /**
  * IBox holds a boundary and a list of molecules.  The boundary defines the
  * spatial extent of the box and conditions at the edges of the boundary.  The
@@ -21,7 +19,7 @@ public interface IBox {
      *
      * @param newIndex the box's new index
      */
-    public List setIndex(int newIndex);
+    public void setIndex(int newIndex);
 
     /**
      * @return the IBox's index.  The index corresponds to the box's position
