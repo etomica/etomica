@@ -115,7 +115,6 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         dr.Ev1Mv2(p1,p0);
         dr.ME(offset);
         boundary.nearestImage(dr);
-        dr.DE(boundary.getBoxSize());
         gradient[0].Ea1Tv1((swapped?1:-1)*2*w, dr);
         return gradient;
     }
