@@ -15,10 +15,13 @@ import etomica.chem.elements.Iron;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.meter.MeterKineticEnergy;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterStructureFactor;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
@@ -26,6 +29,7 @@ import etomica.lattice.LatticeHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.meam.P2EAM;
+import etomica.meam.PotentialCalculationEnergySumEAM;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
@@ -58,8 +62,9 @@ public class SimFe extends Simulation {
     public IBox box;
     public P2EAM potential;
     public P1ImageHarmonic p1ImageHarmonic;
+    public MCMoveAtomSwap mcMoveSwap;
 
-    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim) {
+    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
@@ -136,8 +141,17 @@ public class SimFe extends Simulation {
         }
         potentialMaster.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, temperature, space);
+        if (numInnerSteps==0) {
+//            integrator = new IntegratorImageHarmonicMD0(potentialMaster, random, 0.001, temperature, space);
+        }
+        else {
+            integrator = new IntegratorImageHarmonicMD(potentialMaster, random, 0.001, temperature, space);
+        }
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+        meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
+        integrator.setMeterPotentialEnergy(meterPE);
         integrator.setIsothermal(true);
+        integrator.setThermostat(IntegratorMD.ThermostatType.HYBRID_MC);
         integrator.setThermostatInterval(10);
         integrator.setTemperature(temperature);
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
@@ -156,6 +170,15 @@ public class SimFe extends Simulation {
         potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
 
         integrator.setBox(box);
+
+        if (numInnerSteps>0) {
+            ((IntegratorImageHarmonicMD)integrator).setP1Harmonic(p1ImageHarmonic);
+            ((IntegratorImageHarmonicMD)integrator).setNumInnerSteps(numInnerSteps);
+        }
+        else {
+//            ((IntegratorImageHarmonicMD0) integrator).setP1Harmonic(p1ImageHarmonic);
+        }
+        p1ImageHarmonic.setZeroForce(false);
 
         ConfigurationLattice config = null;
         if (crystal == Crystal.FCC) {
@@ -176,6 +199,20 @@ public class SimFe extends Simulation {
     
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.getNeighborManager(box).reset();
+    
+        IVector boxLength = box.getBoundary().getBoxSize();
+        double lMin = boxLength.getX(0);
+        if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
+        if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
+        double ww = w / lMin;
+        double swapDistance = 5*Math.sqrt(1.5*temperature/ww);
+        if (swapDistance > lMin/4) swapDistance = lMin/4;
+        if (swapDistance < 2) swapDistance = 2;
+        mcMoveSwap = new MCMoveAtomSwap(random, potentialMaster, space, p1ImageHarmonic);
+        mcMoveSwap.setNbrDistance(swapDistance);
+        IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
+        integrator.setIntegratorMC(integratorMC, 100);
+        integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
     }
     
     public static void main(String[] args) {
@@ -191,6 +228,7 @@ public class SimFe extends Simulation {
             params.w = 1000;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
+            params.numInnerSteps = 100;
         }
 
         final int numAtoms = params.numAtoms;
@@ -202,15 +240,17 @@ public class SimFe extends Simulation {
         double w = params.w;
         int offsetDim = params.offsetDim;
         Crystal crystal = params.crystal;
+        int numInnerSteps = params.numInnerSteps;
 
         if (!graphics) {
-            System.out.println("Running LJ MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
+            System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
             System.out.println(steps+" steps");
             System.out.println("w: "+w);
+            System.out.println(numInnerSteps+" inner steps");
         }
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
-        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim);
+        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps);
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
@@ -220,7 +260,7 @@ public class SimFe extends Simulation {
 
         MeterStructureFactor meterSfac = new MeterStructureFactor(sim.space, sim.box, 8);
         if (graphics) {
-            final String APP_NAME = "SimLJ";
+            final String APP_NAME = "SimFe";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
             ColorScheme colorScheme = new ColorScheme() {
                 @Override
@@ -271,24 +311,33 @@ public class SimFe extends Simulation {
             return;
         }
 
-        long eqSteps = steps/10;
-        sim.ai.setMaxSteps(eqSteps);
+        // initial conservation of energy is often poor.  use a smaller timestep
+        // for a few steps to get off lattice sites
+        sim.ai.setMaxSteps(steps/20);
+        sim.integrator.setTimeStep(0.0002);
+        sim.getController().actionPerformed();
+        sim.ai.setMaxSteps(steps/10);
+        sim.integrator.setTimeStep(0.001);
         sim.getController().actionPerformed();
         sim.getController().reset();
         sim.ai.setMaxSteps(steps);
 
-        System.out.println("equilibration finished ("+eqSteps+" steps)");
+        System.out.println("equilibration finished ("+steps/20+"+"+steps/10+" steps)");
 
         long t1 = System.currentTimeMillis();
 
-        long blockSize = steps/100;
+        int interval = 10;
+        long blockSize = steps/100/interval;
         if (blockSize==0) blockSize = 1;
 
         AccumulatorAverageFixed accEnergies = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, 1);
+        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
         sim.getController().actionPerformed();
+
+        System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
+        System.out.println("Hybrid MD/MC acceptance: "+sim.integrator.getHybridAcceptance());
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);
@@ -312,6 +361,7 @@ public class SimFe extends Simulation {
         public boolean graphics = false;
         public double w = 1;
         public int offsetDim = 0;
+        public int numInnerSteps = 10;
         public Crystal crystal = Crystal.FCC;
     }
 
