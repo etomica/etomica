@@ -1,0 +1,32 @@
+// this script is meant to be dropped into projects for which you want to generate javaconfig files
+
+initscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.sourcegraph.sourcegraph-plugin:sourcegraph-gradle-plugin:1.1.0"
+    }
+}
+
+allprojects { proj ->
+
+    // There seems to be a bug in gradle such that it throws exceptions when trying to access resolved configurations
+    // of sub-projects in the wrong order. Unfortunately, the only way to control the order is to manually construct
+    // and traverse the dependency graph, but when I did that, Gradle still threw exceptions. See this GitHub issue:
+
+    // https://github.com/gradle/gradle/issues/957
+
+    // Anyway, an acceptable workaround is to use the Maven plugin to resolve all the dependencies, and then insert
+    // them into the project before passing it to our own plugin.
+
+    apply plugin: 'maven'
+    afterEvaluate {
+        pom {
+            proj.ext.mavenGeneratedDependencies = getGeneratedDependencies()
+        }
+    }
+    apply plugin: com.sourcegraph.SourcegraphPlugin
+}

@@ -1,0 +1,10 @@
+{
+  "artifactId" : "etomica",
+  "groupId" : "",
+  "version" : "unspecified",
+  "sourceDirectories" : [ ],
+  "testSourceDirectories" : [ ],
+  "repositories" : [ ],
+  "dependencies" : [ ],
+  "compilerOptions" : [ ]
+}

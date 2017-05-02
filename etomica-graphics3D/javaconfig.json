@@ -1,0 +1,26 @@
+{
+  "artifactId" : "etomica-graphics3D",
+  "groupId" : "etomica",
+  "version" : "unspecified",
+  "sourceDirectories" : [ "src/main/java" ],
+  "testSourceDirectories" : [ "src/test/java" ],
+  "repositories" : [ {
+    "id" : "BintrayJCenter",
+    "url" : "https://jcenter.bintray.com/"
+  } ],
+  "dependencies" : [ {
+    "groupId" : "junit",
+    "artifactId" : "junit",
+    "version" : "4.12",
+    "scope" : "test",
+    "packaging" : null,
+    "systemPath" : null
+  } ],
+  "compilerOptions" : [ {
+    "name" : "-source",
+    "value" : "1.8"
+  }, {
+    "name" : "-target",
+    "value" : "1.8"
+  } ]
+}

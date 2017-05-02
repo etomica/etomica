@@ -1,0 +1,54 @@
+{
+  "artifactId" : "etomica-core",
+  "groupId" : "etomica",
+  "version" : "unspecified",
+  "sourceDirectories" : [ "src/main/java" ],
+  "testSourceDirectories" : [ "src/test/java" ],
+  "repositories" : [ {
+    "id" : "BintrayJCenter",
+    "url" : "https://jcenter.bintray.com/"
+  } ],
+  "dependencies" : [ {
+    "groupId" : "com.fasterxml.jackson.core",
+    "artifactId" : "jackson-databind",
+    "version" : "2.9.0.pr1",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "gov.nist.math",
+    "artifactId" : "jama",
+    "version" : "1.0.3",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "org.apache.commons",
+    "artifactId" : "commons-math3",
+    "version" : "3.3",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "etomica",
+    "artifactId" : "etomica-graphics3D",
+    "version" : "unspecified",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "junit",
+    "artifactId" : "junit",
+    "version" : "4.12",
+    "scope" : "test",
+    "packaging" : null,
+    "systemPath" : null
+  } ],
+  "compilerOptions" : [ {
+    "name" : "-source",
+    "value" : "1.8"
+  }, {
+    "name" : "-target",
+    "value" : "1.8"
+  } ]
+}

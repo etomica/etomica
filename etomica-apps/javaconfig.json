@@ -1,0 +1,47 @@
+{
+  "artifactId" : "etomica-apps",
+  "groupId" : "etomica",
+  "version" : "unspecified",
+  "sourceDirectories" : [ "src/main/java" ],
+  "testSourceDirectories" : [ "src/test/java" ],
+  "repositories" : [ {
+    "id" : "BintrayJCenter",
+    "url" : "https://jcenter.bintray.com/"
+  } ],
+  "dependencies" : [ {
+    "groupId" : "com.googlecode.json-simple",
+    "artifactId" : "json-simple",
+    "version" : "1.1",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "etomica",
+    "artifactId" : "etomica-core",
+    "version" : "unspecified",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "etomica",
+    "artifactId" : "etomica-graph",
+    "version" : "unspecified",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "junit",
+    "artifactId" : "junit",
+    "version" : "4.12",
+    "scope" : "test",
+    "packaging" : null,
+    "systemPath" : null
+  } ],
+  "compilerOptions" : [ {
+    "name" : "-source",
+    "value" : "1.8"
+  }, {
+    "name" : "-target",
+    "value" : "1.8"
+  } ]
+}

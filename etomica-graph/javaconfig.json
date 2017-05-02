@@ -1,0 +1,47 @@
+{
+  "artifactId" : "etomica-graph",
+  "groupId" : "etomica",
+  "version" : "unspecified",
+  "sourceDirectories" : [ "src/main/java" ],
+  "testSourceDirectories" : [ "src/test/java" ],
+  "repositories" : [ {
+    "id" : "BintrayJCenter",
+    "url" : "https://jcenter.bintray.com/"
+  } ],
+  "dependencies" : [ {
+    "groupId" : "xml-apis",
+    "artifactId" : "xml-apis-ext",
+    "version" : "1.3.04",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "org.apache.xmlgraphics",
+    "artifactId" : "batik-swing",
+    "version" : "1.7",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "org.apache.xmlgraphics",
+    "artifactId" : "fop",
+    "version" : "1.0",
+    "scope" : "compile",
+    "packaging" : null,
+    "systemPath" : null
+  }, {
+    "groupId" : "junit",
+    "artifactId" : "junit",
+    "version" : "4.12",
+    "scope" : "test",
+    "packaging" : null,
+    "systemPath" : null
+  } ],
+  "compilerOptions" : [ {
+    "name" : "-source",
+    "value" : "1.8"
+  }, {
+    "name" : "-target",
+    "value" : "1.8"
+  } ]
+}
