@@ -5,22 +5,21 @@
 package etomica.chem.elements;
 
 /**
- * Class for the Fluoride element.
+ * Class for the Iron element.
  * reference: Atomic weights of the elements 2009 (IUPAC Technical Report)
  * http://iupac.org/publications/pac/83/2/0359/
  * 
- * @author Shu
+ * @author Andrew Schultz
  */
-public class Fluoride extends ElementChemical {
+public class Iron extends ElementChemical {
 
-    protected Fluoride(String symbol) {
-        this(symbol, 18.9984);
+    protected Iron(String symbol) {
+        this(symbol, 55.845);
     }
     
-    public Fluoride(String symbol, double mass) {
-        super(symbol, mass, 9);
+    public Iron(String symbol, double mass) {
+        super(symbol, mass, 26);
     }
 
-    private static final long serialVersionUID = 1L;
-    public static final Fluoride INSTANCE = new Fluoride("F");
+    public static final Iron INSTANCE = new Iron("Fe");
 }

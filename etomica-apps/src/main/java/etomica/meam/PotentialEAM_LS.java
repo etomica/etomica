@@ -1,10 +1,6 @@
 package etomica.meam;
 
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
@@ -12,13 +8,13 @@ import etomica.space.ISpace;
 import etomica.space.Tensor;
 
 /**
- * EFS (Extended Finnis-Sinclair) potential
+ * EAM (Embedded Atom Potential) potential with a lattice sum
  * 
  * @author Sabry Moustafa
  */
-public class PotentialFeEAM_LS extends PotentialN implements PotentialSoft{
+public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
 
-    protected double nFe , mFe , epsFe , aFe , cFe , rC1, rC2;
+    protected double n, m, eps, a, c, rC1, rC2;
     protected IBoundary boundary; 
     protected final IVectorMutable dr, dR;
     protected IVectorMutable[] gradient; 
@@ -29,16 +25,15 @@ public class PotentialFeEAM_LS extends PotentialN implements PotentialSoft{
     protected final IVector[] a0;
     protected final CoordinateDefinition coordinateDefinition;
 
-
     
-    public PotentialFeEAM_LS(CoordinateDefinition coordinateDefinition,ISpace space, double nFe ,double  mFe ,double  epsFe ,double  aFe ,double  cFe, double rC, IVector[] a0) {
+    public PotentialEAM_LS(CoordinateDefinition coordinateDefinition, ISpace space, double n, double m, double eps, double a, double c, double rC, IVector[] a0) {
         super(space);
         
-        this.nFe=nFe;
-        this.mFe=mFe;
-        this.epsFe = epsFe;
-        this.aFe = aFe;
-        this.cFe = cFe;
+        this.n = n;
+        this.m = m;
+        this.eps = eps;
+        this.a = a;
+        this.c = c;
         this.coordinateDefinition = coordinateDefinition;
         rC1 = rC;
         rC2 = rC1;
@@ -101,23 +96,23 @@ public class PotentialFeEAM_LS extends PotentialN implements PotentialSoft{
 			  Rij = Math.sqrt(dRtmp.squared());
 			  //pair pot.
 		      if(j==1 && Lij<=rC1 && Lij > 0){ //self with 1/2 (Not needed for n-body!)
-			    sumV += 0.5*epsFe*Math.pow(aFe/Lij , nFe);          		
+			    sumV += 0.5* eps *Math.pow(a /Lij , n);
 		      }
 		      if(Rij<=rC1 && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
-			    sumV += epsFe*Math.pow(aFe/rij , nFe);            		
+			    sumV += eps *Math.pow(a /rij , n);
 		      }
 		      //n-body pot.
 		      if(j==1 && Lij<=rC2  && Lij > 0){ //self
-		        rhoi += Math.pow(aFe/Lij , mFe);
+		        rhoi += Math.pow(a /Lij , m);
 		      }
 		      if(Rij<=rC2){
-		        rhoi += Math.pow(aFe/rij , mFe);
+		        rhoi += Math.pow(a /rij , m);
 		      }
 	        }
 	      }
 	    }
       }
-      double frho = -epsFe*cFe*Math.sqrt(rhoi);
+      double frho = -eps * c *Math.sqrt(rhoi);
       return sumV + frho;
     }
     
@@ -164,25 +159,25 @@ public class PotentialFeEAM_LS extends PotentialN implements PotentialSoft{
         	  rij = Math.sqrt(drtmp.squared());
         	  Rij = Math.sqrt(dRtmp.squared());
         	  if(j==1 && Lij<=rC1 && Lij > 0){
-          	    dvdr =  -epsFe*nFe/aFe*Math.pow(aFe/Lij , nFe+1.0) ;
+          	    dvdr =  -eps * n / a *Math.pow(a /Lij , n +1.0) ;
     			gij2b.Ea1Tv1(dvdr/Lij, Lxyz);
     			vir2b += 0.5*gij2b.dot(Lxyz); // Note the 1/2 here
           	  }
         	  if(Rij<=rC1 && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
-        	    dvdr =  -epsFe*nFe/aFe*Math.pow(aFe/rij , nFe+1.0) ;
+        	    dvdr =  -eps * n / a *Math.pow(a /rij , n +1.0) ;
   			    gij2b.Ea1Tv1(dvdr/rij, drtmp);
   			    vir2b += gij2b.dot(drtmp);
         	  }
 
 		      if(j==1 && Lij<=rC2  && Lij > 0){ //self
-	            rhoi += Math.pow(aFe/Lij , mFe);
-          	    drhodr= -mFe/aFe*Math.pow(aFe/Lij, mFe+1);
+	            rhoi += Math.pow(a /Lij , m);
+          	    drhodr= -m / a *Math.pow(a /Lij, m +1);
 	        	gijnb.Ea1Tv1(drhodr/Lij, Lxyz);
 	  			virnb += gijnb.dot(Lxyz);//WHY no 1/2? Bcs Fij== fij-fji = 2fij and 1/2*Fij=fij (which we compute)
 			  }
 			  if(Rij<=rC2){
-			    rhoi += Math.pow(aFe/rij , mFe);
-          	    drhodr= -mFe/aFe*Math.pow(aFe/rij, mFe+1);
+			    rhoi += Math.pow(a /rij , m);
+          	    drhodr= -m / a *Math.pow(a /rij, m +1);
 	        	gijnb.Ea1Tv1(drhodr/rij, drtmp);
 	  			virnb += gijnb.dot(drtmp);
 			  }
@@ -191,7 +186,7 @@ public class PotentialFeEAM_LS extends PotentialN implements PotentialSoft{
    	    }
       }                  	  
       double f=Math.sqrt(rhoi);
-      virnb *= -epsFe*cFe/2.0/f;
+      virnb *= -eps * c /2.0/f;
       double virial = vir2b + virnb;
       return virial;
     }
@@ -244,16 +239,16 @@ public class PotentialFeEAM_LS extends PotentialN implements PotentialSoft{
     			
     			//2-body
 	            if(Rij<=rC1 && atoms.getAtom(0).getLeafIndex() < atoms.getAtom(j).getLeafIndex()){
-			      dvdr =  -epsFe*nFe/aFe*Math.pow(aFe/rij , nFe+1.0) ;
+			      dvdr =  -eps * n / a *Math.pow(a /rij , n +1.0) ;
 			      gradient[j].PEa1Tv1(-dvdr/rij, drtmp);
 		        }
 	            //n-body
 		        if(j==1 && Lij<=rC2  && Lij > 0){ //self
-			      rhoi += Math.pow(aFe/Lij , mFe);
+			      rhoi += Math.pow(a /Lij , m);
 			    }
 		        if(Rij<=rC2){
-		          rhoi += Math.pow(aFe/rij , mFe);
-		          drhodr= -mFe/aFe*Math.pow(aFe/rij, mFe+1);
+		          rhoi += Math.pow(a /rij , m);
+		          drhodr= -m / a *Math.pow(a /rij, m +1);
 		          rhograd[j].PEa1Tv1(-drhodr/rij, drtmp);
 		        }
     	      }
@@ -262,7 +257,7 @@ public class PotentialFeEAM_LS extends PotentialN implements PotentialSoft{
         }//End j
         double f=Math.sqrt(rhoi);
         for (int j=1;j<atoms.getAtomCount();j++){
-            gradient[j].PEa1Tv1(-epsFe*cFe/2.0/f,rhograd[j]);//Adds the n-body to the 2-body for j
+            gradient[j].PEa1Tv1(-eps * c /2.0/f,rhograd[j]);//Adds the n-body to the 2-body for j
             gradient[0].ME(gradient[j]);
         }
         return gradient;

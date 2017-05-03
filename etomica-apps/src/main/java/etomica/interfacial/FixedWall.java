@@ -1,14 +1,6 @@
 package etomica.interfacial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IIntegratorEvent;
-import etomica.api.IIntegratorListenerMD;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.space.ISpace;
@@ -54,7 +46,9 @@ public class FixedWall implements IIntegratorListenerMD {
     public void integratorStepStarted(IIntegratorEvent e) {}
 
     public void integratorStepFinished(IIntegratorEvent e) {}
-
+    
+    public void integratorForcePrecomputed(IIntegratorEvent e) {}
+    
     public void integratorForceComputed(IIntegratorEvent e) {
         IMoleculeList molecules = box.getMoleculeList(species);
         double fz = 0;

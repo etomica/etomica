@@ -118,8 +118,8 @@ public class SimLJ extends Simulation {
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
             params.graphics = false;
-            params.numAtoms = 512;
-            params.steps = 10000000;
+            params.numAtoms = 1000;
+            params.steps = 1000000;
             params.density = 1.3;
             params.T = 2;
             params.w = 500;
@@ -147,17 +147,7 @@ public class SimLJ extends Simulation {
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMasterCell);
         dsEnergies.setBox(sim.box);
         IData u = dsEnergies.getData();
-        System.out.println("LJ lattice energy: "+u.getValue(1)/numAtoms);
-
-        if (!graphics) {
-            long eqSteps = steps/10;
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
-            sim.integrator.getMoveManager().setEquilibrating(false);
-
-            System.out.println("equilibration finished ("+eqSteps+" steps)");
-        }
+        if (!graphics) System.out.println("LJ lattice energy: "+u.getValue(1)/numAtoms);
 
         if (graphics) {
             final String APP_NAME = "SimLJ";
@@ -175,6 +165,16 @@ public class SimLJ extends Simulation {
 
             return;
         }
+
+        long eqSteps = steps/10;
+        sim.ai.setMaxSteps(eqSteps);
+        sim.getController().actionPerformed();
+        sim.getController().reset();
+        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.ai.setMaxSteps(steps);
+
+        System.out.println("equilibration finished ("+eqSteps+" steps)");
+
         long t1 = System.currentTimeMillis();
 
         long blockSize = steps/numAtoms/100;
@@ -191,8 +191,8 @@ public class SimLJ extends Simulation {
         IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
-        System.out.println("simple move step size: "+((MCMoveStepTracker)sim.mcMoveAtom.getTracker()).getAdjustStepSize());
-        System.out.println("coupled move step size: "+((MCMoveStepTracker)sim.mcMoveAtom.getTracker()).getAdjustStepSize());
+        System.out.println("simple move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
+        System.out.println("coupled move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));

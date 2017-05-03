@@ -4,20 +4,14 @@
 
 package etomica.virial;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
-import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Fluoride;
+import etomica.chem.elements.Fluorine;
 import etomica.chem.elements.Sulfur;
-import etomica.config.IConformation;
 import etomica.space.ISpace;
 import etomica.species.Species;
 
@@ -40,7 +34,7 @@ public class Species7SiteRigidSF6 extends Species {
         this.isDynamic = isDynamic;
         
         sType = new AtomTypeLeaf(Sulfur.INSTANCE);
-        fType = new AtomTypeLeaf(Fluoride.INSTANCE);
+        fType = new AtomTypeLeaf(Fluorine.INSTANCE);
         
         addChildType(sType);
         addChildType(fType);
