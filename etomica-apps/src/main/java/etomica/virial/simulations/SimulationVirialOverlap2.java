@@ -635,10 +635,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         IData covarianceData = allYourBase.getData(accumulators[0].BLOCK_COVARIANCE.index);
         double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
-        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %20.18f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %20.18f\n",
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
+        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %20.18f\n",
                               averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
         double refRatioAvg = ratioData.getValue(1);
         double refRatioErr = ratioErrorData.getValue(1);
@@ -654,10 +654,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         int n = numExtraTargetClusters;
         correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(n+1), ratioErrorData.getValue(n+1), correlationCoef));
-        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %20.18f\n", ratioData.getValue(n+1), ratioErrorData.getValue(n+1), correlationCoef));
+        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %20.18f\n",
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+        System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %20.18f\n",
                               averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
 
         int nTotal = n+2;
@@ -681,7 +681,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             String name = extraNames == null ? ("Extra "+(i)) : extraNames[i+1];
             // average is vi/|v| average, error is the uncertainty on that average
             // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)           
-            System.out.print(String.format("%s average: %20.15e  error: %10.15e  ocor: %7.5f", name, averageData.getValue(i), errorData.getValue(i), ocor[i]));
+            System.out.print(String.format("%s average: %20.15e  error: %10.15e  ocor: %20.18f", name, averageData.getValue(i), errorData.getValue(i), ocor[i]));
             System.out.print("  dcor:");
             for (int j=0; j<n+1; j++) {
 //                if (i==j) continue;                
