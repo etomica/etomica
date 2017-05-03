@@ -5,14 +5,7 @@
 package etomica.box;
 
 import etomica.action.BoxInflate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IBoxEventManager;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
+import etomica.api.*;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeArrayList;
 import etomica.space.Boundary;
@@ -65,21 +58,17 @@ public class Box implements java.io.Serializable, IBox {
     protected final AtomSetAllMolecules allMoleculeList;
     private final BoxEventManager eventManager;
     private final ISpace space;
-    protected int[] indexReservoir;
-    protected int reservoirSize = 50;
-    protected int reservoirCount;
-    protected int maxIndex;
     protected MoleculeArrayList[] moleculeLists;
     private IBoundary boundary;
     private int index;
-  
+
     /**
      * Constructs box with default rectangular periodic boundary.
      */
     public Box(ISpace _space) {
         this(new BoundaryRectangularPeriodic(_space), _space);
     }
-     
+
     /**
      * Constructs box with the given boundary
      */
@@ -92,12 +81,8 @@ public class Box implements java.io.Serializable, IBox {
         allMoleculeList = new AtomSetAllMolecules();
         allMoleculeList.setMoleculeLists(moleculeLists);
         leafList = new AtomArrayList();
-
-        indexReservoir = new int[reservoirSize];
-        maxIndex = -1;
-        reservoirCount = 0;
     }
-    
+
     public int getIndex() {
         return index;
     }
@@ -146,7 +131,7 @@ public class Box implements java.io.Serializable, IBox {
             }
         }
     }
-    
+
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
@@ -229,7 +214,7 @@ public class Box implements java.io.Serializable, IBox {
     }
 
     public final IBoundary getBoundary() {return boundary;}
-    
+
     public void setBoundary(IBoundary b) {
         boundary = b;
         boundary.setBox(this);
@@ -274,9 +259,6 @@ public class Box implements java.io.Serializable, IBox {
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
         int numNewLeafAtoms = numNewMolecules * moleculeLeafAtoms;
-        if (numNewLeafAtoms + numNewMolecules > reservoirCount) {
-            eventManager.globalAtomIndexChanged(maxIndex + numNewMolecules + numNewLeafAtoms - reservoirCount);
-        }
         eventManager.numberMolecules(species, moleculeLists[species.getIndex()].getMoleculeCount() + numNewMolecules);
         if (numNewLeafAtoms > 1) {
             eventManager.globalAtomLeafIndexChanged(leafList.getAtomCount() + numNewLeafAtoms);
