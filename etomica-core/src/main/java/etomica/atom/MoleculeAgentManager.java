@@ -4,27 +4,11 @@
 
 package etomica.atom;
 
+import etomica.api.*;
+import etomica.util.Arrays;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
-
-import etomica.api.IBox;
-import etomica.api.IBoxAtomEvent;
-import etomica.api.IBoxAtomIndexEvent;
-import etomica.api.IBoxIndexEvent;
-import etomica.api.IBoxListener;
-import etomica.api.IBoxMoleculeCountEvent;
-import etomica.api.IBoxMoleculeEvent;
-import etomica.api.IBoxMoleculeIndexEvent;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISimulation;
-import etomica.api.ISimulationAtomTypeIndexEvent;
-import etomica.api.ISimulationBoxEvent;
-import etomica.api.ISimulationIndexEvent;
-import etomica.api.ISimulationListener;
-import etomica.api.ISimulationSpeciesEvent;
-import etomica.api.ISimulationSpeciesIndexEvent;
-import etomica.util.Arrays;
 
 /**
  * MoleculeAgentManager acts on behalf of client classes (an AgentSource) to
@@ -177,7 +161,6 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
     public void boxAtomAdded(IBoxAtomEvent e) {}
     public void boxAtomRemoved(IBoxAtomEvent e) {}
     public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) {}
-    public void boxGlobalAtomIndexChanged(IBoxIndexEvent e) {}
     public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) {}
     
     public void simulationSpeciesAdded(ISimulationSpeciesEvent e) {

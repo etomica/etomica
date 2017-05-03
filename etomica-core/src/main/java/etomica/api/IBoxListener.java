@@ -16,8 +16,6 @@ public interface IBoxListener {
     
     public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e);
     
-    public void boxGlobalAtomIndexChanged(IBoxIndexEvent e);
-    
     public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e);
     
     public void boxMoleculeIndexChanged(IBoxMoleculeIndexEvent e);
