@@ -23,41 +23,37 @@ import etomica.util.Debug;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
- * boxs do not interact. These are the important features of a Box:
+ * boxes do not interact. These are the important features of a Box:
  * <p>
- * <ol>
+ * <ul>
  * <li>It holds lists of the molecules in the box, including a list of all
  * molecules, and an array of lists that can be selected by Species.</li>
  * <li>It holds a list of all atoms in the box.</li>
- * <li>It holds a Boundary object, obtained from the governing Space, that
+ * <li>It holds a Boundary object that
  * defines the volume of the box and the behavior of atoms as they move into or
  * across the boundary of the box.</li>
  * <li>It maintains a list of listeners that are informed when significant
- * events happen in the box (such as a change in its boundary).</li>
+ * events happen in the box (such as when molecules are added or removed).</li>
  * <li>Each Box has a unique index assigned when it is constructed.
  * The index assignment begins at 0 and is incremented after each Box
  * construction. This index is useful when collecting things in reference to the
  * box.</li>
- * </ol>
+ * </ul>
  * The box maintains index values for each molecule and each atom. These values
  * are held as integer fields by the corresponding Molecule and Atom instances.
  * The indices are assigned when molecule (and its atoms) are added to the box via
  * the addMolecule method. The indices are assigned to match the index in the list
- * holding the molecule/atom. If a molecule is deleted during the course of the
- * simulation (e.g. grand-canonical sampling), the indices of other atoms are reassigned
- * to ensure they are contiguous; this circumstance triggers an atomLeafIndexChanged event,
- * to be acted upon by any registered listeners that may be affected by the reassignment.
+ * holding the molecule/atom.
  * <br>
  * A box is acted upon by an Integrator instance to move its atoms around and
- * generate configurations. Properties of a box are measured by MeterAbstract
- * instances which are simply DataSource objects that require a box to
- * generate their data. <br>
- * A simulation may involve more than one box. All Box instances are
- * registered with the simulation specified upon their construction, and
- * may be accessed via the simulation's getBoxs method.
+ * generate configurations. <br>
+ * A simulation may involve more than one box. All Box instances should be
+ * registered with the simulation via {@link etomica.simulation.Simulation#addBox(IBox)} and
+ * may be accessed via the simulation's getBox method.
  * 
  * @author David Kofke, Andrew Schultz
  * @see Boundary
+ * @see BoxEventManager
  */
 public class Box implements java.io.Serializable, IBox {
 
