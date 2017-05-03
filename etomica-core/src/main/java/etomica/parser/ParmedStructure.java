@@ -4,22 +4,40 @@ package etomica.parser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.internal.ws.util.StreamUtils;
+import etomica.action.BoxImposePbc;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IMolecule;
+import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataPumpListener;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresCustom;
+import etomica.units.Joule;
+import etomica.util.Constants;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 /**
  * Class that contains the data from a <a href="https://github.com/ParmEd/ParmEd">ParmEd</a> {@code Structure},
@@ -137,6 +155,7 @@ public class ParmedStructure {
         List<JsonNode> atomTypesList = new ArrayList<>();
         atomTypesNode.elements().forEachRemaining(atomTypesList::add);
 
+        //TODO: refactor for potential master
         for (int i = 0; i < atomTypesList.size(); i++) {
             for (int j = i; j < atomTypesList.size(); j++) {
 
@@ -151,10 +170,12 @@ public class ParmedStructure {
                 double epsilon2 = typeNode2.get("epsilon").asDouble();
                 // geometric mean
                 double combinedEpsilon = Math.sqrt(epsilon1 * epsilon2);
+                combinedEpsilon = Joule.UNIT.toSim(combinedEpsilon) * 1000 / Constants.AVOGADRO;
 
                 double sigma1 = typeNode1.get("rmin").asDouble() * SIGMA_FACTOR;
                 double sigma2 = typeNode2.get("rmin").asDouble() * SIGMA_FACTOR;
                 double combinedSigma = (sigma1 + sigma2) / 2;
+                combinedSigma *= 10;
 
                 P2LennardJones potential = new P2LennardJones(SPACE, combinedSigma, combinedEpsilon);
 
@@ -163,6 +184,23 @@ public class ParmedStructure {
         }
 
         return potentialGroup;
+    }
+
+    public PotentialGroup getIntramolecularPotential() {
+        PotentialGroup potentialGroup = new PotentialGroup(1, SPACE);
+
+        JsonNode bondTypesNode = root.get("bond_types");
+        JsonNode bondsNode = root.get("bonds");
+
+        for(JsonNode bondType : bondTypesNode) {
+            int bondIndex = bondType.get("_idx").asInt();
+            StreamSupport.stream(bondsNode.spliterator(), false)
+                    .filter(node -> node.get(3).asInt() == bondIndex)
+                    .forEach();
+
+        }
+
+
     }
 
     /**
@@ -213,5 +251,40 @@ public class ParmedStructure {
             }
         }
         // else do nothing
+    }
+
+    public static void main(String[] args) throws IOException {
+        ParmedStructure structure = ParmedParser.parseGromacsResourceFiles("test.top", "test.gro");
+        Simulation sim = new Simulation(Space3D.getInstance());
+        sim.addBox(structure.getBox());
+        sim.addSpecies(structure.getSpecies());
+        structure.getMolecules().forEach(sim.getBox(0)::addMolecule);
+
+        PotentialMaster pm = new PotentialMaster();
+        pm.addPotential(structure.getIntermolecularPotential(), new ISpecies[] {sim.getSpecies(0), sim.getSpecies(0)});
+
+        IntegratorMC integrator = new IntegratorMC(sim, pm);
+        integrator.setBox(sim.getBox(0));
+        integrator.getMoveManager().addMCMove(new MCMoveAtom(sim.getRandom(), pm, sim.getSpace()));
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        sim.getController().addAction(activityIntegrate);
+
+        integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(integrator.getBox(), sim.getSpace())));
+
+        MeterPotentialEnergy meter = new MeterPotentialEnergy(pm);
+        meter.setBox(sim.getBox(0));
+        AccumulatorHistory ah = new AccumulatorHistory();
+        DataPumpListener dataPumpListener = new DataPumpListener(meter, ah, 100);
+        integrator.getEventManager().addListener(dataPumpListener);
+
+        DisplayPlot plot = new DisplayPlot();
+        ah.addDataSink(plot.getDataSet().makeDataSink());
+
+
+        SimulationGraphic graphics = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
+        graphics.add(plot);
+        graphics.makeAndDisplayFrame();
+
+
     }
 }
