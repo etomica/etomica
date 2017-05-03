@@ -71,7 +71,7 @@ public final class SpecialFunctions {
         double sum = 0;
         for (int i=n; i>1; i--) {
             p *= i;
-            if (p > Integer.MAX_VALUE/(p-1)) {
+            if (p > Integer.MAX_VALUE/(i-1)) {
                 sum += Math.log(p);
                 p = 1;
             }

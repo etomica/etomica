@@ -37,6 +37,7 @@ public class SpecialFunctionsTest {
         assertEquals(10.60460290274525, SpecialFunctions.lnFactorial(8), EPSILON);
         assertEquals(42.335616460753485, SpecialFunctions.lnFactorial(20), EPSILON);
         assertEquals(363.73937555556349, SpecialFunctions.lnFactorial(100), EPSILON);
+        assertEquals(82108.92783681436, SpecialFunctions.lnFactorial(10000),1e-9);
     }
 
 
