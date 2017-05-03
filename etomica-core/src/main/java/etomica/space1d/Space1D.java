@@ -41,9 +41,6 @@ public final class Space1D extends Space {
         return a;
     }
     
-    /**
-     * Returns the Dth root of the given value, a^(1/D), where D is the dimension of the space.
-     */
     public double rootD(double a) {return a;}
 
     public double sphereVolume(double r) {

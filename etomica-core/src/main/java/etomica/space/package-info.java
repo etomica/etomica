@@ -8,10 +8,10 @@
  * appropriate to the space it represents.
  * <li>Vector, which for a D-dimensional space is a set of D fields of type double, with methods used the
  * perform vector operations on them.
- * <li>Tensor, which defines a 2nd-rank tensor in the D-dimensional space.  It hold D^2 fields of type double, and
+ * <li>Tensor, which defines a 2nd-rank tensor in the D-dimensional space.  It hold D<sup>2</sup> fields of type double, and
  * defines methods used to perform tensor operations on them.
  * <li>Orientation, which provides fields and operations define and manipulate the orientation of a rigid body.
- * <li>Boundary, which is held by a Box instance to define the size of the space and to specify what
+ * <li>Boundary, which is held by a Box instance to define the size of the box and to specify what
  * happens as atoms cross the boundary of the space (e.g., periodic boundaries).
  * </ul>
  * All of the classes above (except perhaps Boundary) are implemented in the space subpackages in a manner

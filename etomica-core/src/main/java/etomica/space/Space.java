@@ -37,64 +37,77 @@ public abstract class Space implements java.io.Serializable, ISpace {
             throw new IllegalArgumentException("Illegal dimension for space");
         }
     }
-    
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#D()
-	 */
+
+    /**
+     * @return the dimension of this space.
+     */
     public abstract int D();
 
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#rootD(double)
-	 */
+    /**
+     * @return the given value raised to the power 1/D, where D is the dimension of the space.
+     */
     public abstract double rootD(double a);
-    
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#powerD(int)
-	 */
+
+    /**
+     * @return the given value raised to the Dth power, where D is the dimension of the space.
+     */
     public abstract int powerD(int a);
-    
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#powerD(double)
-	 */
+
+    /**
+     * @return the given value raised to the Dth power, where D is the dimension of the space.
+     */
     public abstract double powerD(double a);
-    
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#makeVector()
-	 */
+
+    /**
+     * @return a new Vector appropriate to the space.
+     */
     public abstract IVectorMutable makeVector();
 
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#makeOrientation()
-	 */
+    /**
+     * @return a new Orientation appropriate to the space.
+     */
     public abstract IOrientation makeOrientation();
-    
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#makeTensor()
-	 */
+
+    /**
+     * @return a new Tensor appropriate to the space.
+     */
     public abstract Tensor makeTensor();
 
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#makeRotationTensor()
-	 */
+    /**
+     * @return a new RotationTensor appropriate to the space.
+     */
     public abstract RotationTensor makeRotationTensor();
-    
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#makeArrayD(int)
-	 */
+
+    /**
+     * @return an array of dimension D (as defined for this Space instance),
+     * with each element equal to the given value.
+     */
     public abstract int[] makeArrayD(int i);
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#makeArrayD(double)
-	 */
+
+    /**
+     * @return an array of dimension D (as defined for this Space instance),
+     * with each element equal to the given value.
+     */
     public abstract double[] makeArrayD(double d);
 
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#sphereVolume(double)
-	 */
+    /**
+     * The "volume" of the "sphere" defined in the D-dimensional space.
+     * In 1-D, this is twice the radius; in 2-D the area of the circle;
+     * in 3-D the volume of the sphere.
+     *
+     * @param r the radius
+     * @return the volume
+     */
     public abstract double sphereVolume(double r);
 
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#sphereArea(double)
-	 */
+    /**
+     * The surface "area" of the "sphere" defined in the D-dimensional space.
+     * In 1-D this is zero; in 2-D the circumference of the circle; in 3-D
+     * the surface area of the sphere.
+     *
+     * @param r the radius
+     * @return the area
+     */
     public abstract double sphereArea(double r);
     
 
@@ -111,6 +124,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
+
     /**
      * Returns a Vector initialized to the given set of values in the array.
      * Spatial dimension of the Vector is determined by the length of a.
@@ -135,10 +149,12 @@ public abstract class Space implements java.io.Serializable, ISpace {
         for(int i=0; i<k.length; i++) {a[i] = k[i];}
         return makeVector(a);
     }
-    
-    /* (non-Javadoc)
-	 * @see etomica.space.ISpace#makeVectorArray(int)
-	 */
+
+    /**
+     * Makes an array of Vectors.
+     * @param n number of vectors in the returned array
+     * @return an array of n new vectors made by this Space instance
+     */
     public IVectorMutable[] makeVectorArray(int n) {
         IVectorMutable[] vectors = new IVectorMutable[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();
