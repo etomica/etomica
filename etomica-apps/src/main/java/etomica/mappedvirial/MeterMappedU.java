@@ -1,6 +1,6 @@
 package etomica.mappedvirial;
 
- import etomica.api.IAtom;
+import etomica.api.IAtom;
 import etomica.api.IBox;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
@@ -23,7 +23,7 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final MappedUpotential pc;
-    
+
     public MeterMappedU(ISpace space, IPotentialMaster potentialMaster, IBox box, int nbins) {
         super("pma",Energy.DIMENSION);
         this.space = space;
@@ -40,11 +40,11 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
         pc = new MappedUpotential(space, box, nbins, forceManager);
         allAtoms = new IteratorDirective();
     }
-    
+
     public MyAgent makeAgent(IAtom a, IBox agentBox) {
         return new MyAgent(space);
     }
-    
+
     public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
 
     public MappedUpotential getPotentialCalculation() {
@@ -56,6 +56,6 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
         potentialMaster.calculate(box, allAtoms, pcForce);
         pc.reset();
         potentialMaster.calculate(box, allAtoms, pc);
-        return pc.getPressure();
+        return pc.getEnergy();
     }
 }
