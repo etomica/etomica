@@ -4,7 +4,6 @@ package etomica.parser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.xml.internal.ws.util.StreamUtils;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
@@ -285,12 +284,14 @@ public class ParmedStructure {
     public static void main(String[] args) throws IOException {
         ParmedStructure structure = ParmedParser.parseGromacsResourceFiles("test.top", "test.gro");
         Simulation sim = new Simulation(Space3D.getInstance());
+        SpeciesSpheresCustom species = structure.getSpecies();
         sim.addBox(structure.getBox());
-        sim.addSpecies(structure.getSpecies());
+        sim.addSpecies(species);
         structure.getMolecules().forEach(sim.getBox(0)::addMolecule);
 
         PotentialMaster pm = new PotentialMaster();
-        pm.addPotential(structure.getIntermolecularPotential(), new ISpecies[] {sim.getSpecies(0), sim.getSpecies(0)});
+        pm.addPotential(structure.getIntermolecularPotential(), new ISpecies[] {species, species});
+        pm.addPotential(structure.getIntramolecularPotential(), new ISpecies[] {species});
 
         IntegratorMC integrator = new IntegratorMC(sim, pm);
         integrator.setBox(sim.getBox(0));
