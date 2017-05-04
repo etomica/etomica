@@ -12,6 +12,8 @@ import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.iterator.ApiIndexList;
+import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorHistory;
@@ -22,9 +24,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.listener.IntegratorListenerAction;
-import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
+import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -193,14 +193,43 @@ public class ParmedStructure {
         JsonNode bondsNode = root.get("bonds");
 
         for(JsonNode bondType : bondTypesNode) {
+            List<int[]> pairs = new ArrayList<>();
             int bondIndex = bondType.get("_idx").asInt();
             StreamSupport.stream(bondsNode.spliterator(), false)
-                    .filter(node -> node.get(3).asInt() == bondIndex)
-                    .forEach();
+                    .filter(node -> node.get(2).asInt() == bondIndex)
+                    .forEach(node -> pairs.add(new int[]{ node.get(0).asInt(), node.get(1).asInt() }));
 
+            // r0 -> req, aka 'r_equilibrium'
+            P2Harmonic p2Bond = new P2Harmonic(SPACE, bondType.get("k").asDouble(), bondType.get("req").asDouble());
+            ApiIndexList pairsIterator = new ApiIndexList(pairs.toArray(new int[][] {{}} ));
+            potentialGroup.addPotential(p2Bond, pairsIterator);
         }
 
+        JsonNode anglesNode = root.get("angles");
+        for(JsonNode angleType : root.get("angle_types")) {
+            List<int[]> triples = new ArrayList<>();
+            int angleIndex = angleType.get("_idx").asInt();
+            StreamSupport.stream(anglesNode.spliterator(), false)
+                    .filter(node -> node.get(3).asInt() == angleIndex)
+                    .forEach(node -> triples.add(new int[]{
+                            node.get(0).asInt(),
+                            node.get(1).asInt(),
+                            node.get(2).asInt()
+                    }));
 
+            P3BondAngle p3Bond = new P3BondAngle(SPACE);
+            p3Bond.setAngle(angleType.get("theteq").asDouble());
+            p3Bond.setEpsilon(angleType.get("k").asDouble());
+
+            Atomset3IteratorIndexList triplesIterator = new Atomset3IteratorIndexList(
+                    triples.toArray(new int[][]{{}})
+            );
+            potentialGroup.addPotential(p3Bond, triplesIterator);
+        }
+
+        // TODO: other types
+
+        return potentialGroup;
     }
 
     /**
