@@ -211,7 +211,7 @@ public class SimFe extends Simulation {
         mcMoveSwap = new MCMoveAtomSwap(random, potentialMaster, space, p1ImageHarmonic);
         mcMoveSwap.setNbrDistance(swapDistance);
         IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
-        integrator.setIntegratorMC(integratorMC, 100);
+        integrator.setIntegratorMC(integratorMC, numAtoms);
         integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
     }
     
@@ -273,23 +273,34 @@ public class SimFe extends Simulation {
             ((DiameterHashByType)diameter).setDiameter(sim.species.getLeafType(),2);
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
+            DataSourceCountTime tSource = new DataSourceCountTime(sim.integrator);
             AccumulatorHistory energyHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            energyHist.setTimeDataSource(tSource);
+            AccumulatorHistory springHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            springHist.setTimeDataSource(tSource);
             DataSplitter splitter = new DataSplitter();
             DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, 1);
             sim.integrator.getEventManager().addListener(energyPump);
+            splitter.setDataSink(0, springHist);
             splitter.setDataSink(1, energyHist);
             DisplayPlot energyPlot = new DisplayPlot();
-            energyPlot.setLabel("Energy");
-            energyPlot.setUnit(new CompoundUnit(new Unit[]{ElectronVolt.UNIT, new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{1,-1}));
+            energyPlot.setLabel("Fe");
+            energyPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
+//            energyPlot.setUnit(new CompoundUnit(new Unit[]{ElectronVolt.UNIT, new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{1,-1}));
 //            energyPlot.setUnit(ElectronVolt.UNIT);
             energyHist.addDataSink(energyPlot.getDataSet().makeDataSink());
             simGraphic.add(energyPlot);
+            DisplayPlot springPlot = new DisplayPlot();
+            springPlot.setLabel("spring");
+            springPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
+            springHist.addDataSink(springPlot.getDataSet().makeDataSink());
+            simGraphic.add(springPlot);
     
             MeterKineticEnergy meterKE = new MeterKineticEnergy();
             meterKE.setBox(sim.box);
             AccumulatorHistory keHist = new AccumulatorHistory();
             DataPumpListener kePump = new DataPumpListener(meterKE, keHist, 1);
-            sim.integrator.getEventManager().addListener(kePump);
+//            sim.integrator.getEventManager().addListener(kePump);
 //            keHist.addDataSink(energyPlot.getDataSet().makeDataSink());
             energyPlot.setLegend(new DataTag[]{energyHist.getTag()}, "u");
 //            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
@@ -304,6 +315,22 @@ public class SimFe extends Simulation {
             plotSfac.setDoDrawLines(new DataTag[]{meterSfac.getTag()},false);
             plotSfac.getPlot().setYLog(true);
             simGraphic.add(plotSfac);
+            
+            sim.integrator.setTimeStep(0.0002);
+            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+                @Override
+                public void integratorInitialized(IIntegratorEvent e) {}
+    
+                @Override
+                public void integratorStepStarted(IIntegratorEvent e) {}
+    
+                @Override
+                public void integratorStepFinished(IIntegratorEvent e) {
+                    if (sim.integrator.getStepCount() > 200) {
+                        sim.integrator.setTimeStep(0.001);
+                    }
+                }
+            });
 
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
