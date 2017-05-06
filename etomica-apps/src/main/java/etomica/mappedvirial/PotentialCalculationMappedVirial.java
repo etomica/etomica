@@ -13,7 +13,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+//import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
@@ -63,7 +63,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
         IBox box = new Box(sim.getSpace());
         PotentialCalculationMappedVirial pc = new PotentialCalculationMappedVirial(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedForceShifted(sim.getSpace(), potential, 2.5);
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 2.5);
         pc.setTemperature(1, p2Truncated);
         for (int i=10; i<30; i++) {
             double r = i*0.1;
