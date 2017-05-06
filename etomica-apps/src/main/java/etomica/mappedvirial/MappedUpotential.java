@@ -16,7 +16,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
+//import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
@@ -25,10 +25,9 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * PotentialCalculation that implements mapped-averaged virial (to get the
- * pressure).
+ * PotentialCalculation that implements mapped-averaged framework (to get the energy).
  *
- * @author Andrew Schultz
+ * @author Akshara Goyal
  */
 public class MappedUpotential implements PotentialCalculation {
 
@@ -49,6 +48,7 @@ public class MappedUpotential implements PotentialCalculation {
     protected double sum;
     protected double[] sum_separate;
     protected double x0, vCut;
+    protected double vShift;
 
     public MappedUpotential(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
@@ -69,26 +69,26 @@ public class MappedUpotential implements PotentialCalculation {
 
         MappedUpotential pc = new MappedUpotential(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedShifted(sim.getSpace(), potential, 4);
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 2.5);
         double vol1 = pc.vol;
         //  System.out.println(vol1);
         pc.setVolume(99999.99999999997);
-        pc.setTemperature(1, p2Truncated);
+        pc.setTemperature(2, p2Truncated);
         double rc = p2Truncated.getRange();
         double x0 = rc;
-        FileWriter fw = new FileWriter("vb.dat");
-        for (int i=10; i<45; i++) {
+       // FileWriter fw = new FileWriter("vb.dat");
+        for (int i=10; i<30; i++) {
             double r = i*0.1;
-            if (r>=4) r = 3.99999999;
+            if (r>=2.5) r = 2.499999999;
             //   double ulrc = potential.uInt(4);
             //     double ulr = potential.uInt(r);
             //  System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
 
-            System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r)));
-            fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
+            System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" ");
+         //   fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
         }
 
-        fw.close();
+       // fw.close();
     }
 
     public double getX0() {
@@ -114,7 +114,9 @@ public class MappedUpotential implements PotentialCalculation {
         q = 0;
         qp = 0;
         qp_q = 0;
+
         if (vCut==0) vCut = x0;
+        vShift = -p2.u(vCut*vCut);
         c1 = Math.log(rc+1)/nbins;
         int D = space.D();
         for (int i=1; i<=nbins; i++) {
@@ -165,11 +167,11 @@ public class MappedUpotential implements PotentialCalculation {
         return y/(r*r*evm1);
     }
 
-    protected double calcV(double r, double u){
-        double vshift =  0.06469795;
+    protected double calcV(double r,double u){
+
         if(r>vCut)
             return 0;
-        return u+vshift;
+        return u+vShift;
     }
 
     protected double cumint( double r) {
@@ -218,7 +220,6 @@ public class MappedUpotential implements PotentialCalculation {
             double xs = calcXs(r, u);
             double wp = 0.5*fifj;
             sum += xs*beta*(vp-wp);
-            //sum_separate[1] += xs*beta*(vp-wp);
 
         }
 

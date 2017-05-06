@@ -28,7 +28,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
+//import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Space;
@@ -44,7 +44,7 @@ public class MappedU extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;
-    public P2SoftSphericalTruncatedShifted p2TruncatedShifted;
+    public P2SoftSphericalTruncated p2Truncated;
 
     public MappedU(ISpace _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
@@ -73,8 +73,8 @@ public class MappedU extends Simulation {
         integrator.getMoveManager().addMCMove(move);
 
         P2LennardJones potential = new P2LennardJones(space);
-        p2TruncatedShifted = new P2SoftSphericalTruncatedShifted(space, potential, rc);
-        potentialMaster.addPotential(p2TruncatedShifted, new IAtomType[]{species.getLeafType(), species.getLeafType()});
+        p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
+        potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         integrator.setBox(box);
@@ -122,7 +122,7 @@ public class MappedU extends Simulation {
         System.out.println("temperature: "+temperature);
         System.out.println("cutoff: "+rc);
         System.out.println(nBlocks+" blocks");
-        // System.out.println("vshift = 0.2675527");
+         System.out.println("vshift such v is 0 at r0");
 
         // FileWriter fwr = new FileWriter("/usr/users/aksharag/workspace/Apps/Ushift/mapped_shifted.dat",true);
 
@@ -176,7 +176,7 @@ public class MappedU extends Simulation {
 
         if (computeUMA){
             final MeterMappedU meterMappedU = new MeterMappedU(space, sim.integrator.getPotentialMaster(), sim.box, nBins);
-            meterMappedU.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2TruncatedShifted);
+            meterMappedU.getPotentialCalculation().setTemperature(sim.integrator.getTemperature(), sim.p2Truncated);
             accMappedVirial = new AccumulatorAverageFixed(samplesPerBlock);
             DataPumpListener pumpMappedU = new DataPumpListener(meterMappedU, accMappedVirial, numAtoms);
             if (computeUMA) sim.integrator.getEventManager().addListener(pumpMappedU);
@@ -203,7 +203,7 @@ public class MappedU extends Simulation {
         if (functionsFile != null) {
             int nbins = (int)Math.floor(halfBoxlength/0.01);
             double eqncutoff = nbins * 0.01;
-            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2TruncatedShifted, sim.box, nbins);
+            meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
             if (computeU && computeUMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
 
             meterRDF = new MeterRDF(space);
@@ -257,7 +257,7 @@ public class MappedU extends Simulation {
             for (int i=0; i<rdata.getLength(); i++) {
                 double r = rdata.getValue(i);
                 double g = gdata.getValue(i);
-                double e = Math.exp(-sim.p2TruncatedShifted.u(r*r)/temperature);
+                double e = Math.exp(-sim.p2Truncated.u(r*r)/temperature);
                 fw.write(String.format("%5.3f %22.15e %22.15e\n", r, g, e));
             }
             //System.out.println(rdata.getLength());
@@ -274,7 +274,7 @@ public class MappedU extends Simulation {
                     double mf = fdata.getValue(i);
                     if (Double.isNaN(mf)) continue;
                     double sdf = Math.sqrt(f2[i]-mf*mf);
-                    double pf = -sim.p2TruncatedShifted.du(r*r)/r;
+                    double pf = -sim.p2Truncated.du(r*r)/r;
                     fw.write(String.format("%5.3f %22.15e %22.15e %22.15e\n", r, mf, sdf, pf));
                 }
                 fw.close();
@@ -295,7 +295,7 @@ public class MappedU extends Simulation {
         public double rc = 4;
         public String functionsFile = null;
         public boolean computeU = true;
-        public boolean computeUMA = false;
+        public boolean computeUMA = true;
         public boolean graphics = false;
         public int nBlocks = 1000;
     }
