@@ -251,6 +251,7 @@ public class SimFe extends Simulation {
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
         final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps);
+        System.out.println(Arrays.toString(sim.getRandomSeeds()));
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
@@ -343,10 +344,13 @@ public class SimFe extends Simulation {
         sim.ai.setMaxSteps(steps/20);
         sim.integrator.setTimeStep(0.0002);
         sim.getController().actionPerformed();
+        sim.getController().reset();
+        sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps/10);
         sim.integrator.setTimeStep(0.001);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps);
 
         System.out.println("equilibration finished ("+steps/20+"+"+steps/10+" steps)");
