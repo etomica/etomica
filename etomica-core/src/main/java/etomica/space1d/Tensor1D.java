@@ -71,6 +71,10 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         }
         xx = ((Vector1D)v[0]).x;
     }
+
+    public void diagE(IVector v) {
+        xx = ((Vector1D)v).x;
+    }
     
     public void assignTo(IVectorMutable[] v) {
         if(v.length != 1) {

@@ -47,10 +47,31 @@ public interface Tensor extends Cloneable {
     /**
      * Fills the tensor column-wise with the given vectors.  The number
      * of vectors must equal the dimension of the tensor, and the vector
-     * dimensions must equal the tensor dimension.
+     * dimensions must equal the tensor dimension. Each vector forms a column of the tensor, so
+     * for D = 3, xx = v[0].x, xy = v[1].x, xz = v[2].x,...,yx = v[0].y, etc.
      * @param v the given vectors used to set this tensor's values
      */
     void E(IVector[] v);
+
+    /**
+     * Sets the tensor elements using the elements of the array.
+     * Tensor values are filled row-wise, so array values [0][0], [0][1], [0][2],...[1][0]... are
+     * assigned to xx, xy, xz, yx, etc. respectively.
+     */
+    void E(double[][] d);
+
+    /**
+     * "Equals" operation, setting all elements of this tensor to the given value
+     * @param a the given value used to set this tensor's elements
+     */
+    void E(double a);
+
+    /**
+     * Makes this a diagonal tensor with elements set by the given vector. All
+     * other elements of this tensor are set to zero.
+     * @param v the given vector
+     */
+    void diagE(IVector v);
     
     /**
      * Assigns the tensor elements column-wise to the given vectors. The number
@@ -66,12 +87,6 @@ public interface Tensor extends Cloneable {
      * @param v2 second vector of the dyad
      */
     void Ev1v2(IVector v1, IVector v2);
-
-    /**
-     * "Equals" operation, setting all elements of this tensor to the given value
-     * @param a the given value used to set this tensor's elements
-     */
-    void E(double a);
 
     /**
      * "Plus equals" (+=) operation, adding the given value to each element of this tensor
@@ -155,14 +170,14 @@ public interface Tensor extends Cloneable {
     void TE(double a);
 
     /**
-     * "Times equals" (*=) operation, replaces each element of this tensor by its current value times the
-     * corresponding element in the given tensor. Element ab is replaced by ab * t.ab.
-     * @param t the given tensor
+     * "Times equals" (*=) operation, as matrix multiplication. Replaces each element of this tensor by the
+     * value given by result of (this)*t, where multiplication is treated as if multiplying matrices.
+     * @param t the tensor this is multiplying
      */
     void TE(Tensor t);
 
     /**
-     * "Divide equals" (/=) operation, replaces each element of this tensor by its current value divided by the
+     * "Divide equals" (/=) operation, element-by-element. Replaces each element of this tensor by its current value divided by the
      * corresponding element in the given tensor. Element ab is replated by ab / t.ab.
      * @param t the given tensor
      */
@@ -184,13 +199,6 @@ public interface Tensor extends Cloneable {
      * @param f the function applied to each element
      */
     void map(IFunction f);
-
-    /**
-     * Sets the tensor elements using the elements of the array.
-     * Tensor values are filled row-wise, so array values 0, 1, 2,... are 
-     * assigned to xx, xy, xz, yx, etc. respectively.
-     */
-    void E(double[][] d);
 
     /**
      * Applies the given tensor transformation to this vector, replacing its

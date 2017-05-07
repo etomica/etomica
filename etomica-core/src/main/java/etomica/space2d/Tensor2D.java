@@ -74,6 +74,13 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         xx = ((Vector2D)v[0]).x; xy = ((Vector2D)v[1]).x;
         yx = ((Vector2D)v[0]).y; yy = ((Vector2D)v[1]).y;
     }
+
+    public void diagE(IVector v) {
+        this.E(0.0);
+        Vector2D v3 = (Vector2D)v;
+        xx = v3.x;
+        yy = v3.y;
+    }
     
     public void assignTo(IVectorMutable[] v) {
         if(v.length != 2) {
@@ -127,8 +134,6 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yy += a1*((Tensor2D)t1).yy;
     }
 
-
-    
     public void MEv1v2(IVector v1, IVector v2) {
         xx-=((Vector2D)v1).x*((Vector2D)v2).x;
         xy-=((Vector2D)v1).x*((Vector2D)v2).y;

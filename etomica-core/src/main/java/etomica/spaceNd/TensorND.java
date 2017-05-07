@@ -10,21 +10,39 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.Tensor;
 
+/**
+ * Implementation of the 2nd-rank tensor class for arbitrary dimension.
+ */
 public class TensorND implements Tensor {
     protected final int dim;
     protected final double[][] x;
 
+    /**
+     * Constructs tensor with specified dimension
+     * @param dim the specified dimension. For example, if dim is equal to 3 then this class is operationally equivalent to Tensor3D.
+     */
     public TensorND(int dim) {
         this.dim = dim;
         this.x = new double[dim][dim];
     }
 
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new InternalError(ex.toString());
+    /**
+     * Constructs and initializes tensor to the values given in an array.  Dimension of tensor is
+     * determined by dimensions of initializing array.
+     * @param d array specifying initial values
+     * @throws IllegalArgumentException if d is not a square array
+     */
+    public TensorND(double[][] d) {
+        dim = d.length;
+        x = new double[dim][];
+        for(int i=0; i<dim; i++) {
+            if(d[i].length != dim) throw new IllegalArgumentException("TensorND constructor expects a square array");
+            x[i] = d[i].clone();
         }
+    }
+
+    public Object clone() {
+        return new TensorND(x);
     }
 
     public int D() {
@@ -54,15 +72,38 @@ public class TensorND implements Tensor {
         }
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
-                x[i][j] = ((VectorND)v[i]).x[j];
+                x[i][j] = ((VectorND)v[j]).x[i];
             }
+        }
+    }
+
+    public void E(double[][] d) {
+        for(int i=0; i<dim; i++){
+            for(int j=0; j<dim; j++){
+                x[i][j] = d[i][j];
+            }
+        }
+    }
+
+    public void E(double a) {
+        for(int i=0; i<dim; i++){
+            for(int j=0; j<dim; j++){
+                x[i][j] = a;
+            }
+        }
+    }
+
+    public void diagE(IVector v) {
+        this.E(0.0);
+        for(int i=0; i<dim; i++) {
+            x[i][i] = v.getX(i);
         }
     }
 
     public void assignTo(IVectorMutable[] v) {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
-                ((VectorND)v[i]).x[j] = x[i][j];
+                ((VectorND)v[i]).x[j] = x[j][i];
             }
         }
     }
@@ -73,14 +114,6 @@ public class TensorND implements Tensor {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
                 x[i][j] = u1.x[i]*u2.x[j];
-            }
-        }
-    }
-
-    public void E(double a) {
-        for(int i=0; i<dim; i++){
-            for(int j=0; j<dim; j++){
-                x[i][j] = a;
             }
         }
     }
@@ -189,10 +222,16 @@ public class TensorND implements Tensor {
 
     public void TE(Tensor u) {
         TensorND t = (TensorND)u;
-        for(int i=0; i<dim; i++){
+        double[] w = new double[dim];
+        if(u.D() != dim) throw new IllegalArgumentException("Tensor multiplication requires two tensors of same size. Dimensions instead are: "+u.D()+", "+dim);
+        for(int i=0; i<dim; i++) {
             for(int j=0; j<dim; j++){
-                x[i][j] *= t.x[i][j];
+                w[j] = 0.0;
+                for(int k=0; k<dim; k++) {
+                    w[j] += x[i][k] * t.x[k][j];
+                }
             }
+            System.arraycopy(w,0,x[i],0,dim);
         }
     }
 
@@ -206,7 +245,14 @@ public class TensorND implements Tensor {
     }
 
     public double[] toArray() {
-        return null;
+        double[] y = new double[dim*dim];
+        int k = 0;
+        for(int i=0; i<dim; i++) {
+            for(int j=0; j<dim; j++) {
+                y[k++] = x[i][j];
+            }
+        }
+        return y;
     }
 
     public String toString() {
@@ -241,14 +287,6 @@ public class TensorND implements Tensor {
         }
     }
 
-    public void E(double[][] d) {
-        for(int i=0; i<dim; i++){
-            for(int j=0; j<dim; j++){
-                x[j][j] = d[i][j];
-            }
-        }
-    }
-
     public void transform(IVectorMutable A) {
         VectorND tmp = new VectorND(dim);
         VectorND B = (VectorND)A;
@@ -271,7 +309,7 @@ public class TensorND implements Tensor {
     public void assignTo(double[][] d) {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){
-                d[j][j] = x[i][j];
+                d[i][j] = x[i][j];
 
             }
         }
