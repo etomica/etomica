@@ -15,17 +15,20 @@ public interface IVectorRandom extends IVectorMutable {
     /**
      * Assigns this vector to equal a point chosen randomly on the 
      * surface of a unit sphere.
+     * @param random the random number generator used to perform the operation
      */
-    public void setRandomSphere(IRandom random);
+    void setRandomSphere(IRandom random);
 
     /**
      * Assigns each component to (its own) random value between -0.5 and + 0.5.
+     * @param random the random number generator used to perform the operation
      */
-    public void setRandomCube(IRandom random);
+    void setRandomCube(IRandom random);
 
     /**
      * Assigns this vector to equal a point chosen randomly in the volume
-     * of a unit spheres.
+     * of a unit sphere.
+     * @param random the random number generator used to perform the operation
      */
-    public void setRandomInSphere(IRandom random);
+    void setRandomInSphere(IRandom random);
 }

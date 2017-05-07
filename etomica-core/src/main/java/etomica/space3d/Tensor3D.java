@@ -63,6 +63,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         else if (i==1) {if (j==0) {yx = d;} else if (j==1) {yy=d;} else yz = d;}
         else {if (j==0) {zx = d;} else if (j==1) {zy = d;} else zz = d;}
     }
+
     public void E(Tensor u) {
         Tensor3D t = (Tensor3D)u;
         xx=t.xx; xy=t.xy; xz=t.xz;
@@ -259,6 +260,11 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         v3D.z = zx * v3D.x + zy * v3D.y + zz * v3D.z;
         v3D.x = x1;
         v3D.y = y1;
+    }
+
+    public boolean equals(Tensor t) {
+        Tensor3D A = (Tensor3D)t;
+        return A.xx==xx && A.xy==xy && A.xz==xz && A.yx==yx && A.yy==yy && A.yz==yz && A.zx==zx && A.zy==zy && A.zz==zz;
     }
 
     public String toString() {

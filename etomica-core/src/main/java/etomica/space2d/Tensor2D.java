@@ -223,6 +223,11 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         v.setX(0, x);
     }
 
+    public boolean equals(Tensor t) {
+        Tensor2D A = (Tensor2D)t;
+        return A.xx==xx && A.xy==xy && A.yx==yx && A.yy==yy;
+    }
+
    public String toString() {
         return "("+xx+", "+xy+")\n("+yx+", "+yy+")";
     }

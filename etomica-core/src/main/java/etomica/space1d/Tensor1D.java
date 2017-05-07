@@ -169,4 +169,8 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
     public double determinant() {
         return xx;
     }
+
+    public boolean equals(Tensor t) {
+        return xx == ((Tensor1D)t).xx;
+    }
 }

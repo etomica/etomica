@@ -11,17 +11,20 @@ import etomica.api.IVectorMutable;
 import etomica.space.Tensor;
 
 public class TensorND implements Tensor {
+    protected final int dim;
+    protected final double[][] x;
+
+    public TensorND(int dim) {
+        this.dim = dim;
+        this.x = new double[dim][dim];
+    }
+
     public Object clone() {
         try {
             return super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new InternalError(ex.toString());
         }
-    }
-
-    public TensorND(int dim) {
-        this.dim = dim;
-        this.x = new double[dim][dim];
     }
 
     public int D() {
@@ -100,7 +103,7 @@ public class TensorND implements Tensor {
     }
 
     public void PE(int i, int j, double a) {
-        x[i][j] += a; 
+        x[i][j] += a;
     }
 
     public void PEv1v2(IVector v1, IVector v2) {
@@ -246,7 +249,6 @@ public class TensorND implements Tensor {
         }
     }
 
-
     public void transform(IVectorMutable A) {
         VectorND tmp = new VectorND(dim);
         VectorND B = (VectorND)A;
@@ -274,6 +276,14 @@ public class TensorND implements Tensor {
             }
         }
     }
-    protected final int dim;
-    protected final double[][] x;
+
+    public boolean equals(Tensor t) {
+        TensorND A = (TensorND)t;
+        for(int i=0; i<dim; i++) {
+            for(int j=0; j<dim; j++) {
+                if(x[i][j] != A.x[i][j]) return false;
+            }
+        }
+        return true;
+    }
 }
