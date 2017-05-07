@@ -26,7 +26,8 @@ public interface IOrientation {
     public IVector getDirection();
 
     /**
-     * Sets the orientation's direction to be the given direction.
+     * Sets this orientation to point in the given direction.
+     * @throws Exception if vector has 0 length
      */
     public void setDirection(IVector newDirection);
 

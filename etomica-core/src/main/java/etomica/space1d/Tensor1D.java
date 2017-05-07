@@ -25,7 +25,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = 0.0;
     }
 
-    public Tensor1D(double[][] d) {
+    public Tensor1D(double d) {
         this.E(d);
     }
 
@@ -92,8 +92,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         return xx;
     }
 
-    public void transpose() {
-    }
+    public void transpose() {}
 
     public void invert() {
         xx = 1.0 / xx;
@@ -141,13 +140,13 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
 
     public void E(double[] d) {
         if (d.length != 1)
-            throw new IllegalArgumentException("Array size incorrector for tensor");
+            throw new IllegalArgumentException("Array size incorrect for tensor");
         xx = d[0];
     }
 
     public void assignTo(double[] d) {
         if (d.length != 1)
-            throw new IllegalArgumentException("Array size incorrector for tensor");
+            throw new IllegalArgumentException("Array size incorrect for tensor");
         d[0] = xx;
     }
 
@@ -164,7 +163,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public void transform(IVectorMutable v) {
-        v.setX(0, xx * v.getX(1));
+        ((Vector1D)v).TE(xx);
     }
 
     public double determinant() {

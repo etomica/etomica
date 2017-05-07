@@ -105,7 +105,7 @@ public abstract class Space implements java.io.Serializable, ISpace {
      * In 1-D this is zero; in 2-D the circumference of the circle; in 3-D
      * the surface area of the sphere.
      *
-     * @param r the radius
+     * @param r the sphere radius
      * @return the area
      */
     public abstract double sphereArea(double r);

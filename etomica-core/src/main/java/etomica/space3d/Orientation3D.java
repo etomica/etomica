@@ -17,6 +17,10 @@ import etomica.util.Debug;
 
 public class Orientation3D implements IOrientation3D, Serializable {
 
+    private static final long serialVersionUID = 1L;
+    protected final IVectorMutable direction;
+    protected final IVectorMutable temp, temp2;
+    
     /**
      * Default constructor sets orientation to point in the X direction.
      */
@@ -30,11 +34,11 @@ public class Orientation3D implements IOrientation3D, Serializable {
     public void E(IOrientation o) {
         setDirection(o.getDirection());
     }
-    
+
     public IVector getDirection() {
         return direction;
     }
-    
+
     /**
      * Sets this orientation to point in the given direction.
      * @throws Exception if vector has 0 length
@@ -54,7 +58,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         // passes through the center of the circle.  The circle passes through
         // the current direction vector and the vector v4 defined below.  We
         // rotate the direction by the given angle (dt) around the circle.
-        
+
         // v1 is the projection of direction onto axis
         // v2 is the component of direction perpendicular to axis
         // v3 has the same magnitude as v2 and is perpendicular to both
@@ -97,15 +101,11 @@ public class Orientation3D implements IOrientation3D, Serializable {
 
         temp.TE(1/Math.sqrt(tempSq));
         double dt = tStep * random.nextDouble();
-        
+
         // new direction is in the plane of the old direction and temp
         // with components equal to cos(dt) and sin(dt).
         // dt=0 ==> cos(dt)=1 ==> old direction
         direction.TE(Math.cos(dt));
         direction.PEa1Tv1(Math.sin(dt), temp);
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final IVectorMutable direction;
-    protected final IVectorMutable temp, temp2;
 }
