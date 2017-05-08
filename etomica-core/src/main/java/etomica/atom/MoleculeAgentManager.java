@@ -158,8 +158,6 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
         }
     }
     
-    public void boxAtomAdded(IBoxAtomEvent e) {}
-    public void boxAtomRemoved(IBoxAtomEvent e) {}
     public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) {}
     public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) {}
     

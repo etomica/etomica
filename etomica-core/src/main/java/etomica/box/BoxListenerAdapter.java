@@ -8,10 +8,6 @@ import etomica.api.*;
 
 public class BoxListenerAdapter implements IBoxListener {
 
-    public void boxAtomAdded(IBoxAtomEvent e) { }
-    
-    public void boxAtomRemoved(IBoxAtomEvent e) { }
-    
     public void boxMoleculeAdded(IBoxMoleculeEvent e) { }
     
     public void boxMoleculeRemoved(IBoxMoleculeEvent e) { }

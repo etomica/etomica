@@ -34,20 +34,6 @@ public class BoxEventManager implements IBoxEventManager, java.io.Serializable {
         intervalListeners.remove(listener);
     }
 
-    public synchronized void atomAdded(IAtom atom) {
-        IBoxAtomEvent event = new BoxAtomEvent(box, atom);
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).boxAtomAdded(event);
-        }
-    }
-
-    public synchronized void atomRemoved(IAtom atom) {
-        IBoxAtomEvent event = new BoxAtomEvent(box, atom);
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).boxAtomRemoved(event);
-        }
-    }
-    
     public synchronized void moleculeAdded(IMolecule molecule) {
         IBoxMoleculeEvent event = new BoxMoleculeEvent(box, molecule);
         for(int i = 0; i < intervalListeners.size(); i++) {
