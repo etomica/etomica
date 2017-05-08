@@ -53,9 +53,9 @@ public class VirialH2OGCPMD {
         }
         else {
             // customize parameters here
-            params.nPoints = 3;
-            params.nDer = 5;
-            params.temperature = 723;
+            params.nPoints = 6;
+            params.nDer = 20;
+            params.temperature = 270;
             params.numSteps = 1000000;
             params.sigmaHSRef = 5;
             params.nonAdditive = Nonadditive.TOTAL;
@@ -134,8 +134,14 @@ public class VirialH2OGCPMD {
         sim.setExtraTargetClusters(primes);
                 
         if(nPoints > 4){
+            double r=30;
+            double w=10;
+            if(nPoints >5){
+                r = 20;
+                w = 50;
+            }
             ClusterWeight[] sampleclusters = sim.getSampleClusters();
-            sampleclusters[1] = new Clusterfoo(targetCluster,30,10);            
+            sampleclusters[1] = new Clusterfoo(targetCluster, r ,w);
             sim.setSampleClusters(sampleclusters);
         }
         
