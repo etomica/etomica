@@ -5,7 +5,7 @@
 package etomica.api;
 
 /**
- * Box even that indicates the number of molecules of a particular species has
+ * Box event that indicates the number of molecules of a particular species has
  * changed.  This event is fired before the molecules have actually been added
  * to the box.  The purpose of the event is then to notify listeners to prepare
  * themselves for a different number of molecules.

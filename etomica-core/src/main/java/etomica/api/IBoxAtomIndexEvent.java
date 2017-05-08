@@ -10,7 +10,7 @@ package etomica.api;
 public interface IBoxAtomIndexEvent extends IBoxAtomEvent {
 
     /**
-     * @return the new index of the atom
+     * @return the index of the atom
      */
     public int getIndex();
 }
