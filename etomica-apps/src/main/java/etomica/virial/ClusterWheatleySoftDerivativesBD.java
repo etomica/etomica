@@ -55,7 +55,6 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         mc = new MathContext(precision);
         this.nDer = nDer;
         tol = Math.pow(10, -precision+3);
-//        clusterBD = tol == 0 ? null : new ClusterWheatleySoftBD(nPoints, f, -3*(int)Math.log10(tol));
         this.binomial = new BigDecimal[nDer+1][]; 
         for(int m=0;m<=nDer;m++){
             binomial[m] = new BigDecimal[m+1];
@@ -213,7 +212,6 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
             }
         }
         calcFullFQ(box);
-//        System.out.println("SET");
         int nf = 1<<n;
         //Compute the fC's
         for(int i=1; i<nf; i++) {
@@ -232,21 +230,12 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
                     jComp = (i & ~j);
                 }
                 if (j==i) break;
-                
-//                System.out.println("i = "+i);
-//                System.out.println("j = "+j);
+
 //                System.out.println("jcomp = "+jComp);
                 for(int m=0;m<=nDer;m++){                
                 	for(int l=0;l<=m;l++){
-//                	    System.out.println("m = "+m);
-//                        System.out.println("l = "+l);
-//                        System.out.println("m-l = "+(m-l));
-//                	    System.out.println("fC intit fC["+i+"]["+m+"]"+" "+fC[i][m]);
-//                	    System.out.println("fC S fC["+j+"]["+l+"]"+" "+fC[j][l]);
-//                	    System.out.println("fQ S* fQ["+jComp+"]["+(m-l)+"]"+" "+fC[jComp][m-l]);
                 		fC[i][m] = fC[i][m].subtract(binomial[m][l].multiply(fC[j][l].multiply(fQ[jComp][m-l], mc),mc), mc);//for fQ, flip the bits on j; use only those appearing in i
                 		//computes fC and its derivatives w.r.t beta
-//                		System.out.println("fC["+i+"]["+m+"]"+" "+fC[i][m]);
                 	}
                 }
             }
@@ -296,10 +285,7 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
             	fB[i][m] = fB[i][m].subtract(fA[i][m], mc);//remove from B graphs that contain articulation point at 0
             }
         }
-//        for(int i=0;i<fA.length;i++){
-//            System.out.println("fA"+" v=1 "+i+" "+Arrays.toString(fA[i]));}
-//        for(int i=0;i<fB.length;i++){
-//            System.out.println("fB"+" v=1 "+i+" "+Arrays.toString(fB[i]));}
+
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
             for (int i=vs1+1; i<nf; i++) {
@@ -389,7 +375,6 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
             }
             return;
         }
-//        System.out.println("SET");
 //        System.out.println("fQ"+" "+Arrays.toString(fQ[nf-1]));
 //        for(int i=0;i<fC.length;i++){
 //            System.out.println("fC"+" "+i+" "+Arrays.toString(fC[i]));}
@@ -424,6 +409,7 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
             }
         }
         
+//        ANALYTICAL CHECK FOR B2 LJ
 //        double sum = 0;
 //        double sumpi = 0;
 //        double dsum = 0;
