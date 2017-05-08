@@ -205,13 +205,13 @@ public class SimFe extends Simulation {
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
         double ww = w / lMin;
-        double swapDistance = 5*Math.sqrt(1.5*temperature/ww);
+        double swapDistance = 1.5*Math.sqrt(1.5*temperature/ww);
         if (swapDistance > lMin/4) swapDistance = lMin/4;
         if (swapDistance < 2) swapDistance = 2;
         mcMoveSwap = new MCMoveAtomSwap(random, potentialMaster, space, p1ImageHarmonic);
         mcMoveSwap.setNbrDistance(swapDistance);
         IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
-        integrator.setIntegratorMC(integratorMC, numAtoms);
+        integrator.setIntegratorMC(integratorMC, 10*numAtoms);
         integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
     }
     
