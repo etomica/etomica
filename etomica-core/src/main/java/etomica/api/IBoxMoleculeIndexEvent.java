@@ -4,7 +4,13 @@
 
 package etomica.api;
 
+/**
+ * Box event that indicates that a molecule's index has changed.
+ */
 public interface IBoxMoleculeIndexEvent extends IBoxMoleculeEvent {
-    
+
+    /**
+     * @return the new index of the atom
+     */
     public int getIndex();
 }
