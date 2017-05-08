@@ -207,6 +207,7 @@ public class SimFe extends Simulation {
         double ww = w / lMin;
         double swapDistance = 1.5*Math.sqrt(1.5*temperature/ww);
         if (swapDistance > lMin/4) swapDistance = lMin/4;
+        if (swapDistance > rc) swapDistance = rc;
         if (swapDistance < 2) swapDistance = 2;
         mcMoveSwap = new MCMoveAtomSwap(random, potentialMaster, space, p1ImageHarmonic);
         mcMoveSwap.setNbrDistance(swapDistance);
