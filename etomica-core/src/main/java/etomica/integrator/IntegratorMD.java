@@ -317,7 +317,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
@@ -328,7 +327,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                 }
                 else {
