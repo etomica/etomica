@@ -5,22 +5,7 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.api.IAtom;
-import etomica.api.IAtomKinetic;
-import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IBoxAtomEvent;
-import etomica.api.IBoxAtomIndexEvent;
-import etomica.api.IBoxIndexEvent;
-import etomica.api.IBoxListener;
-import etomica.api.IBoxMoleculeCountEvent;
-import etomica.api.IBoxMoleculeEvent;
-import etomica.api.IBoxMoleculeIndexEvent;
-import etomica.api.IMolecule;
-import etomica.api.IPotentialMaster;
-import etomica.api.IRandom;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.data.DataSourceScalar;
@@ -332,7 +317,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                     oldPotentialEnergy = currentPotentialEnergy;
                     oldEnergy = oldPotentialEnergy;
@@ -343,7 +327,6 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
                     if (thermostatNoDrift) {
                         shiftMomenta();
                     }
-                    currentKineticEnergy = meterKE.getDataAsScalar();
                     reset();
                 }
                 else {
@@ -599,14 +582,8 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
 
     }
     
-    public void boxAtomAdded(IBoxAtomEvent e) { }
-    
-    public void boxAtomRemoved(IBoxAtomEvent e) { }
-    
     public void boxMoleculeRemoved(IBoxMoleculeEvent e) { }
-    
-    public void boxGlobalAtomIndexChanged(IBoxIndexEvent e) { }
-    
+
     public void boxGlobalAtomLeafIndexChanged(IBoxIndexEvent e) { }
     
     public void boxAtomLeafIndexChanged(IBoxAtomIndexEvent e) { }

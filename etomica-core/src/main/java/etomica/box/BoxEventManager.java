@@ -4,22 +4,11 @@
 
 package etomica.box;
 
+import etomica.api.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
-
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IBoxAtomEvent;
-import etomica.api.IBoxAtomIndexEvent;
-import etomica.api.IBoxEventManager;
-import etomica.api.IBoxIndexEvent;
-import etomica.api.IBoxListener;
-import etomica.api.IBoxMoleculeCountEvent;
-import etomica.api.IBoxMoleculeEvent;
-import etomica.api.IBoxMoleculeIndexEvent;
-import etomica.api.IMolecule;
-import etomica.api.ISpecies;
 
 public class BoxEventManager implements IBoxEventManager, java.io.Serializable {
 
@@ -45,20 +34,6 @@ public class BoxEventManager implements IBoxEventManager, java.io.Serializable {
         intervalListeners.remove(listener);
     }
 
-    public synchronized void atomAdded(IAtom atom) {
-        IBoxAtomEvent event = new BoxAtomEvent(box, atom);
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).boxAtomAdded(event);
-        }
-    }
-
-    public synchronized void atomRemoved(IAtom atom) {
-        IBoxAtomEvent event = new BoxAtomEvent(box, atom);
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).boxAtomRemoved(event);
-        }
-    }
-    
     public synchronized void moleculeAdded(IMolecule molecule) {
         IBoxMoleculeEvent event = new BoxMoleculeEvent(box, molecule);
         for(int i = 0; i < intervalListeners.size(); i++) {
@@ -72,14 +47,7 @@ public class BoxEventManager implements IBoxEventManager, java.io.Serializable {
             intervalListeners.get(i).boxMoleculeRemoved(event);
         }
     }
-    
-    public synchronized void globalAtomIndexChanged(int index) {
-        IBoxIndexEvent event = new BoxIndexEvent(box, index);
-        for(int i = 0; i < intervalListeners.size(); i++) {
-            intervalListeners.get(i).boxGlobalAtomIndexChanged(event);
-        }
-    }
-    
+
     public synchronized void globalAtomLeafIndexChanged(int index) {
         IBoxIndexEvent event = new BoxIndexEvent(box, index);
         for(int i = 0; i < intervalListeners.size(); i++) {

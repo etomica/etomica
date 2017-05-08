@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.freeenergy.npath;
 
 import etomica.api.*;
@@ -68,7 +72,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
         atomIterator.reset();
         nbrList.clear();
         IVector pi = atom.getPosition();
-        for (IAtom jAtom = ((AtomIterator)atomIterator).nextAtom(); jAtom != null ;jAtom = ((AtomIterator)atomIterator).nextAtom()) {
+        for (IAtom jAtom = atomIterator.nextAtom(); jAtom != null; jAtom = atomIterator.nextAtom()) {
             dr.Ev1Mv2(pi, jAtom.getPosition());
             box.getBoundary().nearestImage(dr);
             double r2 = dr.squared();
@@ -117,7 +121,16 @@ public class MCMoveAtomSwap extends MCMoveBox {
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
-    public void acceptNotify() {  /* do nothing */
+    public void acceptNotify() {
+        if (potential instanceof PotentialMasterList) {
+            // we need to remove the atoms from the box and then add them back
+            // this will force its neighbors to be updated so that when we try to
+            // do another move, the atoms will have appropriate neighbors
+            box.removeMolecule(atom.getParentGroup());
+            box.removeMolecule(atom2.getParentGroup());
+            box.addMolecule(atom.getParentGroup());
+            box.addMolecule(atom2.getParentGroup());
+        }
     }
 
     /**

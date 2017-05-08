@@ -9,10 +9,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPumpListener;
-import etomica.data.IData;
+import etomica.data.*;
 import etomica.graphics.ColorScheme;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -23,6 +22,11 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.CompoundUnit;
+import etomica.units.Null;
+import etomica.units.SimpleUnit;
+import etomica.units.Unit;
+import etomica.util.HistoryCollapsingAverage;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -95,7 +99,7 @@ public class SimLJ extends Simulation {
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
         double ww = w / lMin;
-        double swapDistance = 5*Math.sqrt(1.5*temperature/ww);
+        double swapDistance = 1.5*Math.sqrt(1.5*temperature/ww);
         if (swapDistance > lMin/4) swapDistance = lMin/4;
         if (swapDistance < 1) swapDistance = 1;
         mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
@@ -110,6 +114,7 @@ public class SimLJ extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
+        p1ImageHarmonic.findNOffset(box);
     }
     
     public static void main(String[] args) {
@@ -160,7 +165,30 @@ public class SimLJ extends Simulation {
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-
+            
+            DataSourceCountSteps tSource = new DataSourceCountSteps(sim.integrator);
+            AccumulatorHistory energyHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            energyHist.setTimeDataSource(tSource);
+            AccumulatorHistory springHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            springHist.setTimeDataSource(tSource);
+            DataSplitter splitter = new DataSplitter();
+            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, numAtoms);
+            sim.integrator.getEventManager().addListener(energyPump);
+            splitter.setDataSink(0, springHist);
+            splitter.setDataSink(1, energyHist);
+            DisplayPlot energyPlot = new DisplayPlot();
+            energyPlot.setLabel("LJ");
+            energyPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
+//            energyPlot.setUnit(new CompoundUnit(new Unit[]{ElectronVolt.UNIT, new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{1,-1}));
+//            energyPlot.setUnit(ElectronVolt.UNIT);
+            energyHist.addDataSink(energyPlot.getDataSet().makeDataSink());
+            simGraphic.add(energyPlot);
+            DisplayPlot springPlot = new DisplayPlot();
+            springPlot.setLabel("spring");
+            springPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
+            springHist.addDataSink(springPlot.getDataSet().makeDataSink());
+            simGraphic.add(springPlot);
+    
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             return;

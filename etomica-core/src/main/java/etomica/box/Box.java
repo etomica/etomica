@@ -5,14 +5,7 @@
 package etomica.box;
 
 import etomica.action.BoxInflate;
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IBoxEventManager;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
-import etomica.api.ISpecies;
+import etomica.api.*;
 import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeArrayList;
 import etomica.space.Boundary;
@@ -70,10 +63,6 @@ public class Box implements java.io.Serializable, IBox {
         allMoleculeList = new AtomSetAllMolecules();
         allMoleculeList.setMoleculeLists(moleculeLists);
         leafList = new AtomArrayList();
-        
-        indexReservoir = new int[reservoirSize];
-        maxIndex = -1;
-        reservoirCount = 0;
     }
     
     public void setIndex(int newIndex) {
@@ -252,9 +241,6 @@ public class Box implements java.io.Serializable, IBox {
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
         int numNewLeafAtoms = numNewMolecules * moleculeLeafAtoms;
-        if (numNewLeafAtoms + numNewMolecules > reservoirCount) {
-            eventManager.globalAtomIndexChanged(maxIndex + numNewMolecules + numNewLeafAtoms - reservoirCount);
-        }
         eventManager.numberMolecules(species, moleculeLists[species.getIndex()].getMoleculeCount() + numNewMolecules);
         if (numNewLeafAtoms > 1) {
             eventManager.globalAtomLeafIndexChanged(leafList.getAtomCount() + numNewLeafAtoms);
@@ -266,11 +252,6 @@ public class Box implements java.io.Serializable, IBox {
      */
     protected final AtomArrayList leafList;
 
-    protected int[] indexReservoir;
-    protected int reservoirSize = 50;
-    protected int reservoirCount;
-    protected int maxIndex;
-    
     private static final long serialVersionUID = 2L;
     private IBoundary boundary;;
     private final BoxEventManager eventManager;

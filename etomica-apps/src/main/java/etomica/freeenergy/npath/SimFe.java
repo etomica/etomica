@@ -6,25 +6,37 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtom;
-import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
+import etomica.atom.DiameterHash;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.chem.elements.Iron;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.meter.MeterKineticEnergy;
+import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.meter.MeterStructureFactor;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeHcp;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.meam.P2EAM;
+import etomica.meam.PotentialCalculationEnergySumEAM;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbr.list.BoxAgentSourceCellManagerList;
+import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
@@ -33,6 +45,9 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
+import java.util.Arrays;
+
+import static etomica.freeenergy.npath.SimFe.Crystal.HCP;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -47,8 +62,9 @@ public class SimFe extends Simulation {
     public IBox box;
     public P2EAM potential;
     public P1ImageHarmonic p1ImageHarmonic;
+    public MCMoveAtomSwap mcMoveSwap;
 
-    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim) {
+    public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps) {
         super(Space3D.getInstance());
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
@@ -62,10 +78,12 @@ public class SimFe extends Simulation {
             l.setX(i,20);
         }
         box.getBoundary().setBoxSize(l);
-
-        BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(density);
-        inflater.actionPerformed();
+        
+        if (crystal != HCP) {
+            BoxInflate inflater = new BoxInflate(box, space);
+            inflater.setTargetDensity(density);
+            inflater.actionPerformed();
+        }
     
         double n = 8.7932;
         double m = 8.14475;
@@ -74,12 +92,66 @@ public class SimFe extends Simulation {
         double C = 28.8474;
         double rc = 6;
         potential = new P2EAM(space, n, m, eps, a, C, rc, rc);
+        if (crystal == HCP) {
+            int nc = (int)Math.round(Math.pow(numAtoms/8, 1.0/3.0));
+            if (8*nc*nc*nc != numAtoms) {
+                throw new RuntimeException("Not compatible with HCP");
+            }
+            // V = nc
+            // v = 2/density = (2^.5/rho)sqrt(8/3)*f
+            //               = 4f/(rho sqrt(3))
+            // f = sqrt(3)/2
+            // v = sqrt(3)/2 a^3 coa
+            // a = (2 v / (sqrt(3) coa))^(1/3)
+            //   = (4 / (sqrt(3) rho coa))^(1/3)
+            double coa = Math.sqrt(8.0/3.0);
+            double ac = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
+            double cc = coa*ac;
+            IVector[] boxDim = new IVector[3];
+            boxDim[0] = space.makeVector(new double[]{2*nc*ac, 0, 0});
+            boxDim[1] = space.makeVector(new double[]{-2*nc*ac*Math.cos(Degree.UNIT.toSim(60)), 2*nc*ac*Math.sin(Degree.UNIT.toSim(60)), 0});
+            boxDim[2] = space.makeVector(new double[]{0, 0, nc*cc});
+            System.out.println("a: "+ac+" c: "+cc+" nc: "+nc);
+            Primitive primitive = new PrimitiveHexagonal(space, ac, cc);
+            int[] nCells = new int[]{2*nc,2*nc,nc};
+            BoundaryDeformableLattice boundary = new BoundaryDeformableLattice(primitive, nCells);
+            boundary.setTruncationRadius(rc);
+            System.out.println(Arrays.toString(nCells));
+            IVector edge0 = boundary.getEdgeVector(0);
+            System.out.println(Math.sqrt(edge0.squared())+" "+edge0);
+            IVector edge1 = boundary.getEdgeVector(1);
+            System.out.println(Math.sqrt(edge0.squared())+" "+edge1);
+            IVector edge2 = boundary.getEdgeVector(2);
+            System.out.println(Math.sqrt(edge2.squared())+" "+edge2);
     
-        potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
+            box.setBoundary(boundary);
+    
+            ConfigurationLattice config = new ConfigurationLattice(new LatticeHcp(space, ac),space);
+            config.setBoundaryPadding(0);
+            config.initializeCoordinates(box);
+        }
+    
+        if (crystal == HCP) {
+            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
+            potentialMaster = new PotentialMasterList(this, 1.2 * rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
+        }
+        else {
+            potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
+        }
         potentialMaster.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorVelocityVerlet(potentialMaster, random, 0.001, temperature, space);
+        if (numInnerSteps==0) {
+//            integrator = new IntegratorImageHarmonicMD0(potentialMaster, random, 0.001, temperature, space);
+        }
+        else {
+            integrator = new IntegratorImageHarmonicMD(potentialMaster, random, 0.001, temperature, space);
+        }
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+        meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
+        integrator.setMeterPotentialEnergy(meterPE);
         integrator.setIsothermal(true);
+        integrator.setThermostat(IntegratorMD.ThermostatType.HYBRID_MC);
         integrator.setThermostatInterval(10);
         integrator.setTemperature(temperature);
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
@@ -99,6 +171,15 @@ public class SimFe extends Simulation {
 
         integrator.setBox(box);
 
+        if (numInnerSteps>0) {
+            ((IntegratorImageHarmonicMD)integrator).setP1Harmonic(p1ImageHarmonic);
+            ((IntegratorImageHarmonicMD)integrator).setNumInnerSteps(numInnerSteps);
+        }
+        else {
+//            ((IntegratorImageHarmonicMD0) integrator).setP1Harmonic(p1ImageHarmonic);
+        }
+        p1ImageHarmonic.setZeroForce(false);
+
         ConfigurationLattice config = null;
         if (crystal == Crystal.FCC) {
             config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
@@ -106,15 +187,33 @@ public class SimFe extends Simulation {
         else if (crystal == Crystal.BCC) {
             config = new ConfigurationLattice(new LatticeCubicBcc(space), space);
         }
+        else if (crystal == HCP) {
+            // do nothing -- already done
+        }
         else {
             throw new RuntimeException("Don't know how to do "+crystal);
         }
-        config.initializeCoordinates(box);
+        if (config != null) config.initializeCoordinates(box);
     
         p1ImageHarmonic.findNOffset(box);
     
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.getNeighborManager(box).reset();
+    
+        IVector boxLength = box.getBoundary().getBoxSize();
+        double lMin = boxLength.getX(0);
+        if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
+        if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
+        double ww = w / lMin;
+        double swapDistance = 1.5*Math.sqrt(1.5*temperature/ww);
+        if (swapDistance > lMin/4) swapDistance = lMin/4;
+        if (swapDistance > rc) swapDistance = rc;
+        if (swapDistance < 2) swapDistance = 2;
+        mcMoveSwap = new MCMoveAtomSwap(random, potentialMaster, space, p1ImageHarmonic);
+        mcMoveSwap.setNbrDistance(swapDistance);
+        IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
+        integrator.setIntegratorMC(integratorMC, 10*numAtoms);
+        integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
     }
     
     public static void main(String[] args) {
@@ -130,6 +229,7 @@ public class SimFe extends Simulation {
             params.w = 1000;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
+            params.numInnerSteps = 100;
         }
 
         final int numAtoms = params.numAtoms;
@@ -141,15 +241,18 @@ public class SimFe extends Simulation {
         double w = params.w;
         int offsetDim = params.offsetDim;
         Crystal crystal = params.crystal;
+        int numInnerSteps = params.numInnerSteps;
 
         if (!graphics) {
-            System.out.println("Running LJ MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
+            System.out.println("Running Iron MC with N="+numAtoms+" at rho="+density+" T="+temperatureK);
             System.out.println(steps+" steps");
             System.out.println("w: "+w);
+            System.out.println(numInnerSteps+" inner steps");
         }
 
         double L = Math.pow(numAtoms/density, 1.0/3.0);
-        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim);
+        final SimFe sim = new SimFe(crystal, numAtoms, temperature, density, w, offsetDim, numInnerSteps);
+        System.out.println(Arrays.toString(sim.getRandomSeeds()));
 
         DataSourceEnergies dsEnergies = new DataSourceEnergies(sim.potentialMaster);
         dsEnergies.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
@@ -157,8 +260,9 @@ public class SimFe extends Simulation {
         IData u = dsEnergies.getData();
         if (!graphics) System.out.println("Fe lattice energy (eV/atom): "+ElectronVolt.UNIT.fromSim(u.getValue(1)/numAtoms));
 
+        MeterStructureFactor meterSfac = new MeterStructureFactor(sim.space, sim.box, 8);
         if (graphics) {
-            final String APP_NAME = "SimLJ";
+            final String APP_NAME = "SimFe";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
             ColorScheme colorScheme = new ColorScheme() {
                 @Override
@@ -167,52 +271,105 @@ public class SimFe extends Simulation {
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+            DiameterHash diameter = simGraphic.getDisplayBox(sim.box).getDiameterHash();
+            ((DiameterHashByType)diameter).setDiameter(sim.species.getLeafType(),2);
             simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
+            DataSourceCountTime tSource = new DataSourceCountTime(sim.integrator);
             AccumulatorHistory energyHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            energyHist.setTimeDataSource(tSource);
+            AccumulatorHistory springHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            springHist.setTimeDataSource(tSource);
             DataSplitter splitter = new DataSplitter();
             DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, 1);
             sim.integrator.getEventManager().addListener(energyPump);
+            splitter.setDataSink(0, springHist);
             splitter.setDataSink(1, energyHist);
             DisplayPlot energyPlot = new DisplayPlot();
-            energyPlot.setLabel("Energy");
-            energyPlot.setUnit(new CompoundUnit(new Unit[]{ElectronVolt.UNIT, new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{1,-1}));
+            energyPlot.setLabel("Fe");
+            energyPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
+//            energyPlot.setUnit(new CompoundUnit(new Unit[]{ElectronVolt.UNIT, new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{1,-1}));
 //            energyPlot.setUnit(ElectronVolt.UNIT);
             energyHist.addDataSink(energyPlot.getDataSet().makeDataSink());
             simGraphic.add(energyPlot);
+            DisplayPlot springPlot = new DisplayPlot();
+            springPlot.setLabel("spring");
+            springPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
+            springHist.addDataSink(springPlot.getDataSet().makeDataSink());
+            simGraphic.add(springPlot);
     
             MeterKineticEnergy meterKE = new MeterKineticEnergy();
             meterKE.setBox(sim.box);
             AccumulatorHistory keHist = new AccumulatorHistory();
             DataPumpListener kePump = new DataPumpListener(meterKE, keHist, 1);
-            sim.integrator.getEventManager().addListener(kePump);
+//            sim.integrator.getEventManager().addListener(kePump);
 //            keHist.addDataSink(energyPlot.getDataSet().makeDataSink());
             energyPlot.setLegend(new DataTag[]{energyHist.getTag()}, "u");
 //            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
+
+            AccumulatorAverageFixed avgSfac = new AccumulatorAverageFixed(1);
+            avgSfac.setPushInterval(1);
+            DataPumpListener pumpSfac = new DataPumpListener(meterSfac, avgSfac, 500);
+            sim.integrator.getEventManager().addListener(pumpSfac);
+            DisplayPlot plotSfac = new DisplayPlot();
+            avgSfac.addDataSink(plotSfac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{avgSfac.AVERAGE});
+            plotSfac.setLabel("Structure Factor");
+            plotSfac.setDoDrawLines(new DataTag[]{meterSfac.getTag()},false);
+            plotSfac.getPlot().setYLog(true);
+            simGraphic.add(plotSfac);
             
+            sim.integrator.setTimeStep(0.0002);
+            sim.integrator.getEventManager().addListener(new IIntegratorListener() {
+                @Override
+                public void integratorInitialized(IIntegratorEvent e) {}
+    
+                @Override
+                public void integratorStepStarted(IIntegratorEvent e) {}
+    
+                @Override
+                public void integratorStepFinished(IIntegratorEvent e) {
+                    if (sim.integrator.getStepCount() > 200) {
+                        sim.integrator.setTimeStep(0.001);
+                    }
+                }
+            });
+
+
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             return;
         }
 
-        long eqSteps = steps/10;
-        sim.ai.setMaxSteps(eqSteps);
+        // initial conservation of energy is often poor.  use a smaller timestep
+        // for a few steps to get off lattice sites
+        sim.ai.setMaxSteps(steps/20);
+        sim.integrator.setTimeStep(0.0002);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        sim.integrator.resetStepCount();
+        sim.ai.setMaxSteps(steps/10);
+        sim.integrator.setTimeStep(0.001);
+        sim.getController().actionPerformed();
+        sim.getController().reset();
+        sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps);
 
-        System.out.println("equilibration finished ("+eqSteps+" steps)");
+        System.out.println("equilibration finished ("+steps/20+"+"+steps/10+" steps)");
 
         long t1 = System.currentTimeMillis();
 
-        long blockSize = steps/100;
+        int interval = 10;
+        long blockSize = steps/100/interval;
         if (blockSize==0) blockSize = 1;
 
         AccumulatorAverageFixed accEnergies = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, 1);
+        DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
         sim.getController().actionPerformed();
+
+        System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
+        System.out.println("Hybrid MD/MC acceptance: "+sim.integrator.getHybridAcceptance());
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);
@@ -236,6 +393,7 @@ public class SimFe extends Simulation {
         public boolean graphics = false;
         public double w = 1;
         public int offsetDim = 0;
+        public int numInnerSteps = 10;
         public Crystal crystal = Crystal.FCC;
     }
 

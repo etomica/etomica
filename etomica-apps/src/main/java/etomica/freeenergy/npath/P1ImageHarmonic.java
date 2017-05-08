@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 package etomica.freeenergy.npath;
 
 import etomica.api.*;
@@ -18,6 +22,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     protected final IVectorMutable dr;
     protected final IVectorMutable[] gradient;
     protected int nOffset;
+    protected boolean zeroF = true;
 
     public P1ImageHarmonic(ISpace space, IVector offset, double w) {
         super(space);
@@ -43,6 +48,14 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
             }
         }
         throw new RuntimeException("could not find N offset");
+    }
+
+    public int getNOffset() {
+        return nOffset;
+    }
+
+    public IVector getOffset() {
+        return offset;
     }
 
     public void setW(double newW) {
@@ -82,6 +95,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         dr.Ev1Mv2(p1,p0);
         dr.ME(offset);
         boundary.nearestImage(dr);
+        // half the energy for this pair.  energy will be called again for our partner
         double u = 0.5*w*dr.squared();
         return u;
     }
@@ -91,8 +105,17 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         throw new RuntimeException("Implement me (please don't)");
     }
 
+    public void setZeroForce(boolean doZeroForce) {
+        this.zeroF = doZeroForce;
+    }
+
     @Override
     public IVector[] gradient(IAtomList atoms) {
+        if (zeroF) {
+            gradient[0].E(0);
+            return gradient;
+        }
+
         int n = allAtoms.getAtomCount();
         IAtom atom0 = atoms.getAtom(0);
         int idx0 = atom0.getLeafIndex();
@@ -111,7 +134,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         dr.Ev1Mv2(p1,p0);
         dr.ME(offset);
         boundary.nearestImage(dr);
-        dr.DE(boundary.getBoxSize());
+        // full gradient on this atom (2w)
         gradient[0].Ea1Tv1((swapped?1:-1)*2*w, dr);
         return gradient;
     }

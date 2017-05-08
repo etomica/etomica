@@ -4,21 +4,19 @@
 
 package etomica.data.meter;
 
-import etomica.api.*;
-import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.api.IAtomList;
+import etomica.api.IBox;
+import etomica.api.IVector;
+import etomica.api.IVectorMutable;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.lattice.BravaisLatticeCrystal;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveGeneral;
 import etomica.space.ISpace;
 import etomica.units.Null;
-
-import java.util.Arrays;
 
 /**
  * Meter for calculation of structure factor of atoms for all wave vectors less
@@ -44,10 +42,6 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
      * Creates meter with default to compute the structure factor for all atoms
      * in the box.  All wave vectors consistent with the box shape and with
      * magnitude less than cutoff are included.
-     *
-     * @param space the space
-     * @param aBox the box
-     * @param cutoff the cutoff
      */
 	public MeterStructureFactor(ISpace space, IBox aBox, double cutoff) {
 	    this.space = space;
@@ -71,12 +65,22 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
 	protected int makeWaveVector(double cutoff) {
         int nVec = 0;
         double[] x = xData == null ? null : xData.getData();
-        IVector L = box.getBoundary().getBoxSize();
+        IVector[] edges = new IVector[3];
+        edges[0] = box.getBoundary().getEdgeVector(0);
+        edges[1] = box.getBoundary().getEdgeVector(1);
+        edges[2] = box.getBoundary().getEdgeVector(2);
+        Primitive primitiveBox = new PrimitiveGeneral(space, edges);
+        Primitive recip = primitiveBox.makeReciprocal();
+        IVector[] basis = recip.vectors();
+
         double cutoff2 = cutoff*cutoff;
 
         int[] iMax = new int[space.D()];
+        // Be aggressive when look for wave vectors.  If the box is slanty,
+        // we will need to go beyond cutoff/basis, but it's hard to know how
+        // much.
         for (int i=0; i<space.D(); i++) {
-            iMax[i] = 1+(int)(cutoff*L.getX(i)/(2*Math.PI));
+            iMax[i] = 1+2*(int)(cutoff/Math.sqrt(basis[i].squared()));
         }
 
         int[] idx = new int[space.D()];
@@ -96,8 +100,9 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
                 idx[i] = -iMax[i];
             }
             if (!success) break;
+            v.E(0);
             for (int i=0; i<idx.length; i++) {
-                v.setX(i, 2*Math.PI/L.getX(i)*idx[i]);
+                v.PEa1Tv1(idx[i], basis[i]);
             }
             double foo = Math.sqrt(v.squared());
             if (v.squared() > cutoff2) {
