@@ -119,9 +119,6 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                 break;
             }
             v = wrappedCluster.getAllLastValues(box);
-//            if (maxR2>60 && v[0]<-1000) {
-//                wrappedCluster.getAllLastValues(box);
-//            }
             if (debugme) System.out.print(String.format("%10.4e ", v[0]));
             for(int m=0;m<value.length;m++){
                 value[m] += v[m];

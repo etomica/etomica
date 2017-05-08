@@ -277,17 +277,9 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
             }
             fQ[i][0] *= fQmulti[i];
             if (fNonAdditive != null) {
-//                int i3 = Math.abs(fQ[3][0]-1) < 0.001 ? 1 : 0;
-//                int i5 = Math.abs(fQ[5][0]-1) < 0.001 ? 1 : 0;
-//                int i6 = Math.abs(fQ[6][0]-1) < 0.001 ? 1 : 0;
-//                if (i3+i5+i6 == 2 && fQ[7][0]>2000) {
-//                    PNWaterGCPM.debug = true;
-//                }
                 // we don't want to include this in fQmulti because we would just include it again
                 // for larger sets
                 fQ[i][0] *= fNonAdditive.f(molecules, l, moleculeIndices, r2, beta)+1;
-//                PNWaterGCPM.debug = false;
-                
             }
             if (fQ[i][0] == 0){
                 for (int m=1;m<=nDer;m++){

@@ -161,7 +161,6 @@ public class SimulationVirialOverlap2 extends Simulation {
         if (initialized) throw new RuntimeException("you can only call me once");
         // we aren't actually initialized yet, but we will be unless we crash.
         // if we crash, we shouldn't get called again!
-//        setRandom(new RandomMersenneTwister(new int[]{1941442288, -303985770, -1766960871, 2058398830})); 
         initialized = true;
 
         numExtraTargetClusters = extraTargetClusters.length;
