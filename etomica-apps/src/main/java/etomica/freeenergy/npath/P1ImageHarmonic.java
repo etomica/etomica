@@ -66,6 +66,23 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         return w;
     }
 
+    public double getDUDW(IAtomList atoms) {
+        IAtom atom0 = atoms.getAtom(0);
+        int idx0 = atom0.getLeafIndex();
+        IAtom atom1 = null;
+        if (idx0%(nOffset*2) >= nOffset) return 0;
+        atom1 = allAtoms.getAtom(idx0+nOffset);
+        IVector p0 = atom0.getPosition();
+        IVector p1 = atom1.getPosition();
+        dr.Ev1Mv2(p1,p0);
+        dr.ME(offset);
+        boundary.nearestImage(dr);
+        // return the full contribution for this pair.  our partner will be skipped
+        double r2 = dr.squared();
+        double u = r2*(1+2*w*r2);
+        return u;
+    }
+
     @Override
     public double getRange() {
         return Double.POSITIVE_INFINITY;
@@ -79,7 +96,6 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
 
     @Override
     public double energy(IAtomList atoms) {
-        int n = allAtoms.getAtomCount();
         IAtom atom0 = atoms.getAtom(0);
         int idx0 = atom0.getLeafIndex();
         IAtom atom1 = null;
@@ -96,7 +112,8 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         dr.ME(offset);
         boundary.nearestImage(dr);
         // half the energy for this pair.  energy will be called again for our partner
-        double u = 0.5*w*dr.squared();
+        double wr2 = w*dr.squared();
+        double u = 0.5*(wr2*(1+wr2));
         return u;
     }
 
@@ -116,7 +133,6 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
             return gradient;
         }
 
-        int n = allAtoms.getAtomCount();
         IAtom atom0 = atoms.getAtom(0);
         int idx0 = atom0.getLeafIndex();
         IAtom atom1 = null;
@@ -134,8 +150,9 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         dr.Ev1Mv2(p1,p0);
         dr.ME(offset);
         boundary.nearestImage(dr);
+        double r2 = dr.squared();
         // full gradient on this atom (2w)
-        gradient[0].Ea1Tv1((swapped?1:-1)*2*w, dr);
+        gradient[0].Ea1Tv1(-(2*w+4*w*w*r2), dr);
         return gradient;
     }
 
