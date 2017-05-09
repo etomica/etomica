@@ -101,6 +101,7 @@ public class SimLJ extends Simulation {
         double ww = w / lMin;
         double swapDistance = 1.5*Math.sqrt(1.5*temperature/ww);
         if (swapDistance > lMin/4) swapDistance = lMin/4;
+        if (swapDistance > rc) swapDistance = rc;
         if (swapDistance < 1) swapDistance = 1;
         mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
         mcMoveSwap.setNbrDistance(swapDistance);
