@@ -135,16 +135,9 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
 
         IAtom atom0 = atoms.getAtom(0);
         int idx0 = atom0.getLeafIndex();
-        IAtom atom1 = null;
-        boolean swapped = false;
-        if (idx0%(nOffset*2) >= nOffset) {
-            swapped = true;
-            atom1 = atom0;
-            atom0 = allAtoms.getAtom(idx0-nOffset);
-        }
-        else {
-            atom1 = allAtoms.getAtom(idx0+nOffset);
-        }
+        int iOffset = nOffset;
+        if (idx0%(nOffset*2) >= nOffset) iOffset = -nOffset;
+        IAtom atom1 = allAtoms.getAtom(idx0+iOffset);
         IVector p0 = atom0.getPosition();
         IVector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);
