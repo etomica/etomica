@@ -209,7 +209,7 @@ public class SimFe extends Simulation {
         if (swapDistance > lMin/4) swapDistance = lMin/4;
         if (swapDistance > rc) swapDistance = rc;
         if (swapDistance < 2) swapDistance = 2;
-        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, rc, space);
+        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, swapDistance, space);
         potentialMasterCell.setCellRange(2);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
         mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
@@ -227,12 +227,12 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = false;
+            params.graphics = true;
             params.numAtoms = 1024;
             params.steps = 1000;
             params.density = 0.15;
             params.T = 6000;
-            params.w = 1;
+            params.w = 1000;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
             params.numInnerSteps = 100;
