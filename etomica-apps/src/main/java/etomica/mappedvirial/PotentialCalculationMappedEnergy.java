@@ -29,7 +29,7 @@ import etomica.species.SpeciesSpheresMono;
  *
  * @author Akshara Goyal
  */
-public class MappedUpotential implements PotentialCalculation {
+public class PotentialCalculationMappedEnergy implements PotentialCalculation {
 
     protected final IBox box;
     protected final IteratorDirective allAtoms;
@@ -50,7 +50,7 @@ public class MappedUpotential implements PotentialCalculation {
     protected double x0, vCut;
     protected double vShift;
 
-    public MappedUpotential(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
+    public PotentialCalculationMappedEnergy(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -67,9 +67,9 @@ public class MappedUpotential implements PotentialCalculation {
         Simulation sim = new Simulation(Space3D.getInstance());
         IBox box = new Box(sim.getSpace());
 
-        MappedUpotential pc = new MappedUpotential(sim.getSpace(),box, 1000000, null);
+        PotentialCalculationMappedEnergy pc = new PotentialCalculationMappedEnergy(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 2.5);
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 4);
         double vol1 = pc.vol;
         //  System.out.println(vol1);
         pc.setVolume(99999.99999999997);
@@ -77,9 +77,9 @@ public class MappedUpotential implements PotentialCalculation {
         double rc = p2Truncated.getRange();
         double x0 = rc;
        // FileWriter fw = new FileWriter("vb.dat");
-        for (int i=10; i<30; i++) {
+        for (int i=10; i<45; i++) {
             double r = i*0.1;
-            if (r>=2.5) r = 2.499999999;
+            if (r>=4) r = 3.99999999;
             //   double ulrc = potential.uInt(4);
             //     double ulr = potential.uInt(r);
             //  System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
@@ -116,7 +116,7 @@ public class MappedUpotential implements PotentialCalculation {
         qp_q = 0;
 
         if (vCut==0) vCut = x0;
-        vShift = -p2.u(vCut*vCut);
+        vShift = -p2.u(vCut*vCut)+0.0494908;
         c1 = Math.log(rc+1)/nbins;
         int D = space.D();
         for (int i=1; i<=nbins; i++) {

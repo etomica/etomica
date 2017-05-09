@@ -22,7 +22,7 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
     protected final IBox box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
-    protected final MappedUpotential pc;
+    protected final PotentialCalculationMappedEnergy pc;
 
     public MeterMappedU(ISpace space, IPotentialMaster potentialMaster, IBox box, int nbins) {
         super("pma",Energy.DIMENSION);
@@ -37,7 +37,7 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
         else {
             forceManager = null;
         }
-        pc = new MappedUpotential(space, box, nbins, forceManager);
+        pc = new PotentialCalculationMappedEnergy(space, box, nbins, forceManager);
         allAtoms = new IteratorDirective();
     }
 
@@ -47,7 +47,7 @@ public class MeterMappedU extends DataSourceScalar implements  AgentSource<Integ
 
     public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
 
-    public MappedUpotential getPotentialCalculation() {
+    public PotentialCalculationMappedEnergy getPotentialCalculation() {
         return pc;
     }
 

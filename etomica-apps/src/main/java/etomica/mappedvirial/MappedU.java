@@ -122,7 +122,7 @@ public class MappedU extends Simulation {
         System.out.println("temperature: "+temperature);
         System.out.println("cutoff: "+rc);
         System.out.println(nBlocks+" blocks");
-         System.out.println("vshift such v is 0 at r0");
+         System.out.println("vshift: -p2.u(vCut*vCut)+0.0494908");
 
         // FileWriter fwr = new FileWriter("/usr/users/aksharag/workspace/Apps/Ushift/mapped_shifted.dat",true);
 
