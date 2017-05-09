@@ -7,6 +7,7 @@ package etomica.freeenergy.npath;
 import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.ISpace;
@@ -23,11 +24,16 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
     protected P1ImageHarmonic p1;
     protected int numInnerSteps;
     protected final AtomSetSinglet atomSetSinglet;
+    protected NeighborCellManager neighborCellManager;
 
     public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, ISpace space) {
         super(potentialMaster, random, timeStep, temperature, space);
         atomSetSinglet = new AtomSetSinglet();
         setForceSum(new PotentialCalculationForceSum());
+    }
+
+    public void setNeighborCellManager(NeighborCellManager nbrCellManager) {
+        neighborCellManager = nbrCellManager;
     }
 
     public void setP1Harmonic(P1ImageHarmonic p1) {
@@ -110,5 +116,12 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
         if(isothermal) {
             doThermostatInternal();
         }
+    }
+
+    public void doThermostat() {
+        // our swap move uses cell lists from a separate neighbor cell manager
+        // update that now
+        neighborCellManager.assignCellAll();
+        super.doThermostat();
     }
 }

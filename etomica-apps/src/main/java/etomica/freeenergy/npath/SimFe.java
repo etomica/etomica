@@ -22,7 +22,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeHcp;
@@ -31,6 +30,7 @@ import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.meam.P2EAM;
 import etomica.meam.PotentialCalculationEnergySumEAM;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
@@ -57,7 +57,7 @@ public class SimFe extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public final ActivityIntegrate ai;
-    public IntegratorVelocityVerlet integrator;
+    public IntegratorImageHarmonicMD integrator;
     public SpeciesSpheresMono species;
     public IBox box;
     public P2EAM potential;
@@ -209,11 +209,17 @@ public class SimFe extends Simulation {
         if (swapDistance > lMin/4) swapDistance = lMin/4;
         if (swapDistance > rc) swapDistance = rc;
         if (swapDistance < 2) swapDistance = 2;
-        mcMoveSwap = new MCMoveAtomSwap(random, potentialMaster, space, p1ImageHarmonic);
+        PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, rc, space);
+        potentialMasterCell.setCellRange(2);
+        potentialMasterCell.getNbrCellManager(box).assignCellAll();
+        mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
         mcMoveSwap.setNbrDistance(swapDistance);
         IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
         integrator.setIntegratorMC(integratorMC, 10*numAtoms);
         integrator.getIntegratorMC().getMoveManager().addMCMove(mcMoveSwap);
+
+        integrator.getIntegratorMC().getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
+        integrator.setNeighborCellManager(potentialMasterCell.getNbrCellManager(box));
     }
     
     public static void main(String[] args) {
@@ -223,10 +229,10 @@ public class SimFe extends Simulation {
         if (args.length==0) {
             params.graphics = false;
             params.numAtoms = 1024;
-            params.steps = 10000;
+            params.steps = 1000;
             params.density = 0.15;
             params.T = 6000;
-            params.w = 1000;
+            params.w = 1;
             params.crystal = Crystal.BCC;
             params.offsetDim = 2;
             params.numInnerSteps = 100;
@@ -260,6 +266,8 @@ public class SimFe extends Simulation {
         IData u = dsEnergies.getData();
         if (!graphics) System.out.println("Fe lattice energy (eV/atom): "+ElectronVolt.UNIT.fromSim(u.getValue(1)/numAtoms));
 
+        MeterDUDW meterDUDW = new MeterDUDW(sim.potentialMaster, sim.box);
+
         MeterStructureFactor meterSfac = new MeterStructureFactor(sim.space, sim.box, 8);
         if (graphics) {
             final String APP_NAME = "SimFe";
@@ -281,7 +289,7 @@ public class SimFe extends Simulation {
             AccumulatorHistory springHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             springHist.setTimeDataSource(tSource);
             DataSplitter splitter = new DataSplitter();
-            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, 1);
+            DataPumpListener energyPump = new DataPumpListener(dsEnergies, splitter, 10);
             sim.integrator.getEventManager().addListener(energyPump);
             splitter.setDataSink(0, springHist);
             splitter.setDataSink(1, energyHist);
@@ -306,6 +314,16 @@ public class SimFe extends Simulation {
 //            keHist.addDataSink(energyPlot.getDataSet().makeDataSink());
             energyPlot.setLegend(new DataTag[]{energyHist.getTag()}, "u");
 //            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
+
+            AccumulatorHistory dudwHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            dudwHist.setTimeDataSource(tSource);
+            DataPumpListener dudwPump = new DataPumpListener(meterDUDW, dudwHist, 10);
+            sim.integrator.getEventManager().addListener(dudwPump);
+            DisplayPlot dudwPlot = new DisplayPlot();
+            dudwHist.addDataSink(dudwPlot.getDataSet().makeDataSink());
+            dudwPlot.setLabel("dudw");
+            dudwPlot.setUnit(new CompoundUnit(new Unit[]{new SimpleUnit(Null.DIMENSION,1.0/numAtoms,"why do you want a name.  just use it.","per atom", false)},new double[]{-1}));
+            simGraphic.add(dudwPlot);
 
             AccumulatorAverageFixed avgSfac = new AccumulatorAverageFixed(1);
             avgSfac.setPushInterval(1);
@@ -366,6 +384,10 @@ public class SimFe extends Simulation {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
+        AccumulatorAverageFixed accDUDW = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpDUDW = new DataPumpListener(meterDUDW, accDUDW, interval);
+        sim.integrator.getEventManager().addListener(pumpDUDW);
+
         sim.getController().actionPerformed();
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
@@ -377,6 +399,11 @@ public class SimFe extends Simulation {
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("Fe energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
+
+        IData avgDUDW = accDUDW.getData(accEnergies.AVERAGE);
+        IData errDUDW = accDUDW.getData(accEnergies.ERROR);
+        IData corDUDW = accDUDW.getData(accEnergies.BLOCK_CORRELATION);
+        System.out.println("du/dw: "+avgDUDW.getValue(0)/numAtoms+"   error: "+errDUDW.getValue(0)/numAtoms+"  cor: "+corDUDW.getValue(0));
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
