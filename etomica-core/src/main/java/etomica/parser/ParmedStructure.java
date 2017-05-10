@@ -22,6 +22,8 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -174,7 +176,6 @@ public class ParmedStructure {
                 double sigma1 = typeNode1.get("rmin").asDouble() * SIGMA_FACTOR;
                 double sigma2 = typeNode2.get("rmin").asDouble() * SIGMA_FACTOR;
                 double combinedSigma = (sigma1 + sigma2) / 2;
-                combinedSigma *= 10;
 
                 P2LennardJones potential = new P2LennardJones(SPACE, combinedSigma, combinedEpsilon);
 
@@ -190,12 +191,14 @@ public class ParmedStructure {
 
         JsonNode bondTypesNode = root.get("bond_types");
         JsonNode bondsNode = root.get("bonds");
+        int atomsInSpecies = getSpecies().getNumLeafAtoms();
 
         for(JsonNode bondType : bondTypesNode) {
             List<int[]> pairs = new ArrayList<>();
             int bondIndex = bondType.get("_idx").asInt();
             StreamSupport.stream(bondsNode.spliterator(), false)
                     .filter(node -> node.get(2).asInt() == bondIndex)
+                    .filter(node -> node.get(0).asInt() < atomsInSpecies)
                     .forEach(node -> pairs.add(new int[]{ node.get(0).asInt(), node.get(1).asInt() }));
 
             // r0 -> req, aka 'r_equilibrium'
@@ -210,6 +213,7 @@ public class ParmedStructure {
             int angleIndex = angleType.get("_idx").asInt();
             StreamSupport.stream(anglesNode.spliterator(), false)
                     .filter(node -> node.get(3).asInt() == angleIndex)
+                    .filter(node -> node.get(0).asInt() < atomsInSpecies)
                     .forEach(node -> triples.add(new int[]{
                             node.get(0).asInt(),
                             node.get(1).asInt(),
@@ -296,6 +300,8 @@ public class ParmedStructure {
         IntegratorMC integrator = new IntegratorMC(sim, pm);
         integrator.setBox(sim.getBox(0));
         integrator.getMoveManager().addMCMove(new MCMoveAtom(sim.getRandom(), pm, sim.getSpace()));
+        integrator.getMoveManager().addMCMove(new MCMoveMolecule(sim, pm, sim.getSpace()));
+        integrator.getMoveManager().addMCMove(new MCMoveRotateMolecule3D(pm, sim.getRandom(), sim.getSpace()));
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         sim.getController().addAction(activityIntegrate);
 
