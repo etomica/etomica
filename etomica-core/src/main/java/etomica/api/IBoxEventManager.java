@@ -4,15 +4,23 @@
 
 package etomica.api;
 
+/**
+ * Manager for box events.  This object maintains a list of listeners which
+ * receive the events.
+ */
 public interface IBoxEventManager {
 
     /**
      * Adds the given listener to this event manager.
+     *
+     * @param listener the listener to be added
      */
     public void addListener(IBoxListener listener);
 
     /**
      * Removes the given listener from this event manager.
+     *
+     * @param listener the listener to be added
      */
     public void removeListener(IBoxListener listener);
 }

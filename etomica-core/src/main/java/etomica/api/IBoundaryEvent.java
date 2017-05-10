@@ -4,7 +4,13 @@
 
 package etomica.api;
 
+/**
+ * Event that informs a listener about some change to a boundary.
+ */
 public interface IBoundaryEvent {
-
+    
+    /**
+     * @return the boundary which has changed.
+     */
     public IBoundary getBoundary();
 }

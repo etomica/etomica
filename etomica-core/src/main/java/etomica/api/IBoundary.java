@@ -20,11 +20,12 @@ public interface IBoundary {
     /**
      * Sets the box that holds the IBoundary.  If no box holds the boundary,
      * the box should be set to null.
+     * @param newBox the box that holds the boundary
      */
     public void setBox(IBox newBox);
 
     /**
-     * Returns the boundary's IBox.  Might be null if the boundary is not
+     * @return the boundary's IBox.  Might be null if the boundary is not
      * associated with a box.
      */
     public IBox getBox();
@@ -55,6 +56,8 @@ public interface IBoundary {
      * If the vector passed to this method is the displacement vector between
      * two points, the vector will be transformed such that it corresponds to
      * the vector between the nearest image of those two points.
+     *
+     * @param dr the vector to be transformed
      */
     public void nearestImage(IVectorMutable dr);
 
@@ -67,6 +70,8 @@ public interface IBoundary {
      * 
      * Manipulation of this copy will not cause any change to the boundary's
      * dimensions.
+     *
+     * @return the box size
      */
     public IVector getBoxSize();
 
@@ -76,6 +81,8 @@ public interface IBoundary {
      * rectangular boundary, this simply sets the boundary length in each
      * dimension.  Specific interpretation of the given values for
      * non-rectangular shapes depends on the subclass.
+     *
+     * @param v the box's new size
      */
     public void setBoxSize(IVector v);
 
@@ -83,20 +90,29 @@ public interface IBoundary {
      * Returns the vector that defines the edge of this boundary for the given
      * dimension.  All vectors returned by this method can be considered to
      * originate from one corner.
+     *
+     * @param d the dimension of the desired edge vector
+     * @return the edge vector
      */
     public IVector getEdgeVector(int d);
 
     /**
      * Returns true if the boundary is periodic in the given direction (as
      * defined by the getEdgeVector method).
+     *
+     * @param d the dimension of the desired periodicity
+     * @return the periodicity of dimension d
      */
    public boolean getPeriodicity(int d);
    
    /**
-    * 
-    * @return Returns the center point (origin) of the boundary
+    * @return the center point (origin) of the boundary
     */
    public IVector getCenter();
-   
+    
+    /**
+     * @return the event manager, which fires notifications about changes to
+     * this boundary to any added listener.
+     */
    public IBoundaryEventManager getEventManager();
 }

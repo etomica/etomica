@@ -4,40 +4,64 @@
 
 package etomica.api;
 
-
+/**
+ * IAtomType identifies a set of atoms and defines properties of those atoms.
+ * Properties include indices used for tracking, mass and element.
+ */
 public interface IAtomType {
 
+    /**
+     * Informs the atom type what species contains the atom types.  This should
+     * only be called by the species.
+     * @param newParent the atom type's new parent
+     */
     public void setSpecies(ISpecies newParent);
 
     /**
-     * Informs the ISpecies what its index should be.  This should only be
-     * called by the SpeciesManager.
+     * Informs the IAtomType what its index should be.  This should only be
+     * called by the species.
+     * @param newIndex the atom type's new index
      */
     public void setIndex(int newIndex);
 
     /**
-     * Returns the index for this IAtomType, within the context of an
+     * @return the index for this IAtomType, within the context of an
      * ISimulation.  The index is the IAtomType's position in the list of
      * atom types in the simulation.
      */
     public int getIndex();
-    
+
+    /**
+     * Informs the atom type what its child index is.  This should only be called
+     * by the species.
+     * @param newChildIndex the atom type's new child index
+     */
     public void setChildIndex(int newChildIndex);
 
+    /**
+     * @return the child index.  This is the index of the atom type within the
+     * species.
+     */
     public int getChildIndex();
 
+    /**
+     * @return the species that contains the atom type
+     */
     public ISpecies getSpecies();
 
     /**
-     * Returns the value of the mass.
+     * @return the value of the mass.
      */
     public double getMass();
 
     /**
-     * Returns the reciprocal of the mass, 1.0/mass
+     * @return the reciprocal of the mass, 1.0/mass
      */
     public double rm();
 
+    /**
+     * @return the element for this atom type
+     */
     public IElement getElement();
 
 }
