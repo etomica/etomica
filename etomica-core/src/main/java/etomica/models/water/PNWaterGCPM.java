@@ -5,11 +5,7 @@
 package etomica.models.water;
 
 import Jama.Matrix;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
-import etomica.api.IVectorMutable;
+import etomica.api.*;
 import etomica.atom.MoleculePair;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -31,7 +27,6 @@ import etomica.util.Arrays;
  * @author Ken
  */
 public class PNWaterGCPM extends PotentialMolecular implements PotentialPolarizable {
-
     public PNWaterGCPM(ISpace space) {
 	    super(Integer.MAX_VALUE, space);
 	    pair = new MoleculePair();
@@ -50,6 +45,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         sqrtPiHMsigmas = Math.sqrt(Math.PI*(sigmaH*sigmaH+sigmaM*sigmaM));
         sqrtPiMMsigmas = Math.sqrt(Math.PI*(2*sigmaM*sigmaM));
         alphaPol = 1.444;
+        component = Component.FULL;
         
         comWi = space.makeVector();
         comWj = space.makeVector();
@@ -65,29 +61,77 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
 
         Eq = new Matrix[0];
         A = new Matrix[0];
+        pairPolarization = new double[10][10];
 	}   
+    
+    public void setComponent(Component comp) {
+        component = comp;
+    }
+    
+    public class PNWaterGCPMCached implements IPotentialMolecular {
 
-    public double energy(IMoleculeList atoms){
+        public double energy(IMoleculeList molecules) {
+            int idx0 = molecules.getMolecule(0).getIndex();
+            int idx1 = molecules.getMolecule(1).getIndex();
+            if (idx0>idx1) {
+                return pairPolarization[idx1][idx0];
+            }
+            return pairPolarization[idx0][idx1];
+            
+        }
+
+        public double getRange() {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        public void setBox(IBox box) {}
+
+        public int nBody() {
+            return 2;
+        }
+    }
+    public double energy(IMoleculeList molecules){
         double sum = 0;
-        for (int i=0; i<atoms.getMoleculeCount()-1; i++) {
-            pair.atom0 = atoms.getMolecule(i);
-            for (int j=i+1; j<atoms.getMoleculeCount(); j++) {
-                pair.atom1 = atoms.getMolecule(j);
-                sum += getNonPolarizationEnergy(pair);
-                if (Double.isInfinite(sum)) {
-                    return sum;
+
+        if (component != Component.INDUCTION) {
+            for (int i=0; i<molecules.getMoleculeCount()-1; i++) {
+                pair.atom0 = molecules.getMolecule(i);
+                for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
+                    pair.atom1 = molecules.getMolecule(j);
+                    sum += getNonPolarizationEnergy(pair);                
+                    if (Double.isInfinite(sum)) {
+                        return sum;
+                    }
                 }
             }
         }
-        sum += getPolarizationEnergy(atoms);
+        if (component != Component.TWO_BODY) {
+            double up = getPolarizationEnergy(molecules);
+            if (molecules.getMoleculeCount()==2) {
+                int idx0 = molecules.getMolecule(0).getIndex();
+                int idx1 = molecules.getMolecule(1).getIndex();
+                if (idx0>idx1) {
+                    pairPolarization[idx1][idx0] = up;
+                }
+                else {
+                    pairPolarization[idx0][idx1] = up;
+                }
+            }
+            sum += up;
+        }
         return sum;
     }
     
+    public PNWaterGCPMCached makeCachedPairPolarization() {
+        return new PNWaterGCPMCached();
+    }
+           
     /**
      * This returns the pairwise-additive portion of the GCPM potential for a
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
     public double getNonPolarizationEnergy(IMoleculeList atoms) {
+
         IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
         IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
 
@@ -204,7 +248,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
      * number of atoms.
      */
     public double getPolarizationEnergy(IMoleculeList atoms) {
-        
+
         final int atomCount = atoms.getMoleculeCount();
         if (Eq.length < atomCount+1) {
             Eq = (Matrix[])Arrays.resizeArray(Eq, atomCount+1);
@@ -410,6 +454,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     public void setBox(IBox box) {
     	boundary = box.getBoundary();
     }
+    public enum Component { TWO_BODY, INDUCTION, FULL }
 
     protected final MoleculePair pair;
     protected IBoundary boundary;
@@ -432,4 +477,6 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     protected final double sqrtPiMMsigmas;
     protected final double alphaPol;
     private double UpolAtkins;
+    protected final double[][] pairPolarization;
+    protected Component component;
 }

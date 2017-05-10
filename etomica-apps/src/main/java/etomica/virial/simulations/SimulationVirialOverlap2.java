@@ -4,23 +4,11 @@
 
 package etomica.virial.simulations;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.ISpecies;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorRatioAverageCovarianceFull;
-import etomica.data.DataPipe;
-import etomica.data.DataProcessor;
-import etomica.data.DataPumpListener;
-import etomica.data.IData;
-import etomica.data.IEtomicaDataInfo;
+import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
@@ -37,21 +25,11 @@ import etomica.units.Null;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramNotSoSimple;
 import etomica.util.HistogramSimple;
-import etomica.virial.BoxCluster;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWeight;
-import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ConfigurationCluster;
-import etomica.virial.CoordinatePairSet;
-import etomica.virial.MCMoveClusterAngleBend;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterAtomRotateMulti;
-import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMoleculeMulti;
-import etomica.virial.MCMoveClusterWiggleMulti;
-import etomica.virial.MeterVirial;
+import etomica.virial.*;
 import etomica.virial.overlap.DataProcessorVirialOverlap;
 import etomica.virial.overlap.DataVirialOverlap;
+
+import java.io.*;
 
 /**
  * Simulation implementing the overlap-sampling approach to evaluating a cluster
@@ -166,7 +144,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         this.sampleClusters[1] = sampleClusters[1];
     }
     
-    public ClusterAbstract[] getSampleClusters() {
+    public ClusterWeight[] getSampleClusters() {
         return sampleClusters;
     }
     
@@ -656,10 +634,10 @@ public class SimulationVirialOverlap2 extends Simulation {
         IData covarianceData = allYourBase.getData(accumulators[0].BLOCK_COVARIANCE.index);
         double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
-        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+        System.out.print(String.format("reference ratio average: %20.15e error:  %10.5e  cor: %20.18f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
+        System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %20.18f\n",
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
+        System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %20.18f\n",
                               averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
         double refRatioAvg = ratioData.getValue(1);
         double refRatioErr = ratioErrorData.getValue(1);
@@ -675,59 +653,60 @@ public class SimulationVirialOverlap2 extends Simulation {
         int n = numExtraTargetClusters;
         correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
-        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %6.4f\n", ratioData.getValue(n+1), ratioErrorData.getValue(n+1), correlationCoef));
-        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+        System.out.print(String.format("target ratio average: %20.15e  error: %10.5e  cor: %20.18f\n", ratioData.getValue(n+1), ratioErrorData.getValue(n+1), correlationCoef));
+        System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %20.18f\n",
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
+        System.out.print(String.format("target overlap average: %20.15e stdev: %9.4e error: %9.4e cor: %20.18f\n",
                               averageData.getValue(n+1), stdevData.getValue(n+1), errorData.getValue(n+1), correlationData.getValue(n+1)));
 
         int nTotal = n+2;
         double oVar = covarianceData.getValue(nTotal*nTotal-1);
-        for (int i=0; i<n; i++) {
-            String name = extraNames == null ? ("Extra "+(i+1)) : extraNames[i];
+        double ed = refRatioErr/refRatioAvg;
+        double[] e = new double[n+2];
+        double[] ro = new double[n+2];
+        double[] var = new double[n+2];
+        double[] ocor = new double[n+2];
+        double[] dcor = new double[n+1];
+        double[] corcoef = new double[n+1];
+        double[] rd = new double[n+2];
+        for (int i=0; i<n+2; i++) {
+            e[i] = errorData.getValue(i)/averageData.getValue(i);
+            ro[i] = ratioData.getValue((i*nTotal)+n+1)/ratioErrorData.getValue((i*(n+2))+n+1);
+            var[i]= covarianceData.getValue((i)*nTotal+(i));
+            ocor[i] = var[i]*oVar == 0 ? 0 : covarianceData.getValue(nTotal*(i)+nTotal-1)/Math.sqrt(var[i]*oVar);
+            rd[i] = 1/Math.sqrt(ed*ed + 1/(ro[i]*ro[i]));
+        }
+        for (int i=1; i<n+1; i++) {
+            String name = extraNames == null ? ("Extra "+(i)) : extraNames[i+1];
             // average is vi/|v| average, error is the uncertainty on that average
-            // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)
-            double ivar = covarianceData.getValue((i+1)*nTotal+(i+1));
-            double ocor = ivar*oVar == 0 ? 0 : covarianceData.getValue(nTotal*(i+1)+nTotal-1)/Math.sqrt(ivar*oVar);
-            System.out.print(String.format("%s average: %20.15e  error: %10.15e  ocor: %7.5f", name, averageData.getValue(i+1), errorData.getValue(i+1), ocor));
+            // ocor is the correlation coefficient for the average and overlap values (vi/|v| and o/|v|)           
+            System.out.print(String.format("%s average: %20.15e  error: %10.15e  ocor: %20.18f", name, averageData.getValue(i), errorData.getValue(i), ocor[i]));
             System.out.print("  dcor:");
-            for (int j=-1; j<n; j++) {
-//                if (i==j) continue;
-                double jvar = covarianceData.getValue((j+1)*nTotal+(j+1));
-                double dcor = ivar*jvar == 0 ? 0 : covarianceData.getValue((i+1)*nTotal+(j+1))/Math.sqrt(ivar*jvar);
-                System.out.print(String.format(" %8.6f", dcor));
+            for (int j=0; j<n+1; j++) {
+//                if (i==j) continue;                
+                dcor[j] = var[i]*var[j] == 0 ? 0 : covarianceData.getValue((i)*nTotal+(j))/Math.sqrt(var[i]*var[j]);
+                System.out.print(String.format(" %20.18f", dcor[j]));
             }
             System.out.println();
-            IData ratioCov = blockAccumulator.getData(blockAccumulator.COVARIANCE);
-            int k = (i+1)*nTotal+(n+1);
-            correlationCoef = covarianceData.getValue(k)/Math.sqrt(covarianceData.getValue((i+1)*nTotal+(i+1))*covarianceData.getValue((n+1)*nTotal+(n+1)));
-            System.out.print(String.format("%s ratio average: %20.15e  error: %10.15e  ocor: %7.5f  tcor:", name, ratioData.getValue(k), ratioErrorData.getValue(k), correlationCoef));
-            int nn = n+1;
-            for (int j=0; j<nn; j++) {
-                correlationCoef = ratioCov.getValue((i+1)*nn+j)/Math.sqrt(ratioCov.getValue((i+1)*nn+(i+1))*ratioCov.getValue(j*nn+j));
-                System.out.print(String.format(" %8.6f", correlationCoef));
+            int k = (i)*nTotal+(n+1);
+            System.out.print(String.format("%s ratio average: %20.15e  error: %10.15e  tcor:", name, ratioData.getValue(k), ratioErrorData.getValue(k)));
+            
+            for (int j=0; j<n+1; j++) {                
+                corcoef[j] = ro[i]*ro[j]*(e[n+1]*e[n+1] + e[i]*e[j]*dcor[j] - e[i]*e[n+1]*ocor[i] - e[j]*e[n+1]*ocor[j]);        
+                
+                System.out.print(String.format(" %20.18f", corcoef[j]));
             }
             System.out.println();
             
-            double avg = ratioData.getValue(k);
-            double te = ratioErrorData.getValue(k);
-            double err2 = (te*te)/(avg*avg) + (refRatioErr*refRatioErr)/(refRatioAvg*refRatioAvg);
-            avg /= refRatioAvg;
-            double err = Math.sqrt(err2)*Math.abs(avg);
+            double avg = ratioData.getValue(k)/refRatioAvg;
+            double err = Math.abs(avg)/rd[i];
             System.out.print(String.format("%s full average: %20.15e  error: %10.15e  tcor:", name, refIntegral*avg, Math.abs(refIntegral)*err));
-            for (int j=0; j<nn; j++) {
-                int kj = j*nTotal+(n+1);
-                double avgj = ratioData.getValue(kj);
-                double tej = ratioErrorData.getValue(kj);
-                double err2j = (tej*tej)/(avgj*avgj) + (refRatioErr*refRatioErr)/(refRatioAvg*refRatioAvg);
-                avgj /= refRatioAvg;
-                double errj = Math.sqrt(err2j)*Math.abs(avgj);
 
-                correlationCoef = ratioCov.getValue((i+1)*nn+j)/Math.sqrt(ratioCov.getValue((i+1)*nn+(i+1))*ratioCov.getValue(j*nn+j));
-                correlationCoef *= ratioErrorData.getValue((i+1)*nTotal+(n+1))*ratioErrorData.getValue(j*nTotal+(n+1));
-                correlationCoef += (refRatioErr*refRatioErr)*(avg*avgj);
-                correlationCoef /= (refRatioAvg*refRatioAvg)*(err*errj);
-                System.out.print(String.format(" %8.6f", correlationCoef));
+            for ( int j=0; j<n+1;j++){
+                
+                double corrcoeff = rd[i]*rd[j]*(ed*ed + corcoef[j]/(ro[i]*ro[j]));
+                
+                System.out.print(String.format(" %20.18f", corrcoeff));
             }
             System.out.println();
         }
