@@ -63,6 +63,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         else if (i==1) {if (j==0) {yx = d;} else if (j==1) {yy=d;} else yz = d;}
         else {if (j==0) {zx = d;} else if (j==1) {zy = d;} else zz = d;}
     }
+
     public void E(Tensor u) {
         Tensor3D t = (Tensor3D)u;
         xx=t.xx; xy=t.xy; xz=t.xz;
@@ -77,6 +78,29 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         xx = ((Vector3D)v[0]).x; xy = ((Vector3D)v[1]).x; xz = ((Vector3D)v[2]).x;
         yx = ((Vector3D)v[0]).y; yy = ((Vector3D)v[1]).y; yz = ((Vector3D)v[2]).y;
         zx = ((Vector3D)v[0]).z; zy = ((Vector3D)v[1]).z; zz = ((Vector3D)v[2]).z;
+    }
+
+    public void E(double[] d) {
+        if(Debug.ON && d.length != 9) throw new IllegalArgumentException("Array size incorrect for tensor");
+        xx = d[0]; xy = d[1]; xz = d[2];
+        yx = d[3]; yy = d[4]; yz = d[5];
+        zx = d[6]; zy = d[7]; zz = d[8];
+    }
+
+    public void E(double[][] d) {
+        if(Debug.ON && d.length != 3) throw new IllegalArgumentException("Array size incorrect for tensor");
+        xx = d[0][0]; xy = d[0][1]; xz = d[0][2];
+        yx = d[1][0]; yy = d[1][1]; yz = d[1][2];
+        zx = d[2][0]; zy = d[2][1]; zz = d[2][2];
+    }
+
+
+    public void diagE(IVector v) {
+        this.E(0.0);
+        Vector3D v3 = (Vector3D)v;
+        xx = v3.x;
+        yy = v3.y;
+        zz = v3.z;
     }
     
     public void assignTo(IVectorMutable[] v) {
@@ -213,20 +237,6 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx /= u.zx; zy /= u.zy; zz /= u.zz;
     }
     
-    public void E(double[] d) {
-        if(Debug.ON && d.length != 9) throw new IllegalArgumentException("Array size incorrect for tensor");
-        xx = d[0]; xy = d[1]; xz = d[2];
-        yx = d[3]; yy = d[4]; yz = d[5];
-        zx = d[6]; zy = d[7]; zz = d[8];
-    }
-    
-    public void E(double[][] d) {
-        if(Debug.ON && d.length != 3) throw new IllegalArgumentException("Array size incorrect for tensor");
-        xx = d[0][0]; xy = d[0][1]; xz = d[0][2];
-        yx = d[1][0]; yy = d[1][1]; yz = d[1][2];
-        zx = d[2][0]; zy = d[2][1]; zz = d[2][2];
-    }
-    
     public void assignTo(double[] d) {
         if(Debug.ON && d.length != 9) throw new IllegalArgumentException("Array size incorrect for tensor");
         d[0] = xx; d[1] = xy; d[2] = xz; 
@@ -259,6 +269,11 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         v3D.z = zx * v3D.x + zy * v3D.y + zz * v3D.z;
         v3D.x = x1;
         v3D.y = y1;
+    }
+
+    public boolean equals(Tensor t) {
+        Tensor3D A = (Tensor3D)t;
+        return A.xx==xx && A.xy==xy && A.xz==xz && A.yx==yx && A.yy==yy && A.yz==yz && A.zx==zx && A.zy==zy && A.zz==zz;
     }
 
     public String toString() {

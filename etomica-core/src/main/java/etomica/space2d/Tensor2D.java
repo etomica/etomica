@@ -74,6 +74,13 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         xx = ((Vector2D)v[0]).x; xy = ((Vector2D)v[1]).x;
         yx = ((Vector2D)v[0]).y; yy = ((Vector2D)v[1]).y;
     }
+
+    public void diagE(IVector v) {
+        this.E(0.0);
+        Vector2D v3 = (Vector2D)v;
+        xx = v3.x;
+        yy = v3.y;
+    }
     
     public void assignTo(IVectorMutable[] v) {
         if(v.length != 2) {
@@ -127,8 +134,6 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yy += a1*((Tensor2D)t1).yy;
     }
 
-
-    
     public void MEv1v2(IVector v1, IVector v2) {
         xx-=((Vector2D)v1).x*((Vector2D)v2).x;
         xy-=((Vector2D)v1).x*((Vector2D)v2).y;
@@ -152,7 +157,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public double determinant() {
-        return xx+yy - xy*yx;
+        return xx*yy - xy*yx;
     }
 
     public void invert() {
@@ -190,7 +195,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public void E(double[][] d) {
-        if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
+        if(d.length != 2 || d[0].length != 2 || d[1].length != 2) throw new IllegalArgumentException("Array size incorrect for tensor; required: (2,2,2), given: ("+d.length+","+d[0].length+","+d[1].length+")");
         xx = d[0][0]; xy = d[0][1];
         yx = d[1][0]; yy = d[1][1];
     }
@@ -221,6 +226,11 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         double x = xx * v.getX(0) + xy * v.getX(1);
         v.setX(1, yx * v.getX(0) + yy * v.getX(1));
         v.setX(0, x);
+    }
+
+    public boolean equals(Tensor t) {
+        Tensor2D A = (Tensor2D)t;
+        return A.xx==xx && A.xy==xy && A.yx==yx && A.yy==yy;
     }
 
    public String toString() {

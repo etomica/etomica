@@ -47,10 +47,6 @@ public class Orientation2D implements IOrientation2D, Serializable {
         return direction;
     }
     
-    /**
-     * Sets this orientation to point in the given direction.
-     * @throws Exception if vector has 0 length
-     */
     public void setDirection(IVector newDirection) {
         direction.E(newDirection);
         direction.normalize();
@@ -59,7 +55,6 @@ public class Orientation2D implements IOrientation2D, Serializable {
     
     /**
      * Rotates orientation around the given axis by the given value.
-     * @throws IllegalArgumentException if index is not zer0.
      */
     public void rotateBy(double dt) {
         angle += dt;

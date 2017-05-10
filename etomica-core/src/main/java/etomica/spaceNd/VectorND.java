@@ -20,16 +20,13 @@ public final class VectorND implements IVectorRandom, java.io.Serializable {
     public VectorND(int D) {
         x = new double[D];
     }
+
+    public VectorND(double[] d) {
+        x = d.clone();
+    }
     
     public int getD() {
         return x.length;
-    }
-
-    public VectorND(double[] a) {
-        x = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            x[i] = a[i];
-        }
     }
 
     public String toString() {

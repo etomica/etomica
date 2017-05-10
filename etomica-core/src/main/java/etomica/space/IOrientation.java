@@ -16,23 +16,31 @@ public interface IOrientation {
 
     /**
      * Copies the given orientation to this one.
+     *
+     * @param o the new orientation
      */
-    public void E(IOrientation o);
+    void E(IOrientation o);
 
     /**
-     * Returns a unit vector pointing in the orientation's direction.  This
+     * @ return a unit vector pointing in the orientation's direction.  This
      * vector should not be modified.
      */
-    public IVector getDirection();
+    IVector getDirection();
 
     /**
-     * Sets the orientation's direction to be the given direction.
+     * Sets this orientation to point in the given direction.
+     *
+     * @param newDirection the new direction for this orientation
+     * @throws Exception if vector has 0 length
      */
-    public void setDirection(IVector newDirection);
+    void setDirection(IVector newDirection);
 
     /**
      * Perform a rotation by a random amount in the solid angle theta on the 
      * present orientation.
+     *
+     * @param random random number generator used to select the angle
+     * @param theta the maximum angle (in radians) for random rotation
      */
-    public void randomRotation(IRandom random, double theta);
+    void randomRotation(IRandom random, double theta);
 }

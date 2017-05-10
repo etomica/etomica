@@ -9,8 +9,8 @@ import etomica.space.IOrientation;
 
 /**
  * Interface for an orientation in 3D.  The orientation is defined by a single
- * vector, so the oriented object must have linear symmetry for this to make
- * sense.  IOrientationFull3D can be used for an oriented object without linear
+ * vector, so the oriented object must have cylindrical symmetry for this to make
+ * sense.  IOrientationFull3D can be used for an oriented object without cylindrical
  * symmetry.
  * 
  * @author Andrew Schultz

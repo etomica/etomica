@@ -16,33 +16,51 @@ import etomica.util.Debug;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
- * boxs do not interact. These are the important features of a Box:
+ * boxes do not interact. These are the important features of a Box:
  * <p>
- * <ol>
- * <li>It holds a SpeciesMaster instance, which provides the root of a
- * hierarchy of atoms that represent the physical objects that interact.
- * <li>It holds a Boundary object, obtained from the governing Space, that
+ * <ul>
+ * <li>It holds lists of the molecules in the box, including a list of all
+ * molecules, and an array of lists that can be selected by Species.</li>
+ * <li>It holds a list of all atoms in the box.</li>
+ * <li>It holds a Boundary object that
  * defines the volume of the box and the behavior of atoms as they move into or
- * across the boundary of the box.
+ * across the boundary of the box.</li>
  * <li>It maintains a list of listeners that are informed when significant
- * events happen in the box (such as a change in its boundary).
+ * events happen in the box (such as when molecules are added or removed).</li>
  * <li>Each Box has a unique index assigned when it is constructed.
  * The index assignment begins at 0 and is incremented after each Box
  * construction. This index is useful when collecting things in reference to the
- * box.
- * </ol>
+ * box.</li>
+ * </ul>
+ * The box maintains index values for each molecule and each atom. These values
+ * are held as integer fields by the corresponding Molecule and Atom instances.
+ * The indices are assigned when molecule (and its atoms) are added to the box via
+ * the addMolecule method. The indices are assigned to match the index in the list
+ * holding the molecule/atom.
+ * <br>
  * A box is acted upon by an Integrator instance to move its atoms around and
- * generate configurations. Properties of a box are measured by MeterAbstract
- * instances which are simply DataSource objects that require a box to
- * generate their data. <br>
- * A simulation may involve more than one box. All Box instances are
- * registered with the simulation specified upon their construction, and
- * may be accessed via the simulation's getBoxs method.
+ * generate configurations. <br>
+ * A simulation may involve more than one box. All Box instances should be
+ * registered with the simulation via {@link etomica.simulation.Simulation#addBox(IBox)} and
+ * may be accessed via the simulation's getBox method.
  * 
  * @author David Kofke, Andrew Schultz
  * @see Boundary
+ * @see BoxEventManager
  */
 public class Box implements java.io.Serializable, IBox {
+
+    private static final long serialVersionUID = 2L;
+    /**
+     * List of leaf atoms in box
+     */
+    protected final AtomArrayList leafList;
+    protected final AtomSetAllMolecules allMoleculeList;
+    private final BoxEventManager eventManager;
+    private final ISpace space;
+    protected MoleculeArrayList[] moleculeLists;
+    private IBoundary boundary;
+    private int index;
 
     /**
      * Constructs box with default rectangular periodic boundary.
@@ -50,7 +68,7 @@ public class Box implements java.io.Serializable, IBox {
     public Box(ISpace _space) {
         this(new BoundaryRectangularPeriodic(_space), _space);
     }
-    
+
     /**
      * Constructs box with the given boundary
      */
@@ -58,21 +76,21 @@ public class Box implements java.io.Serializable, IBox {
     	this.space = _space;
         eventManager = new BoxEventManager(this);
         setBoundary(boundary);
-        
+
         moleculeLists = new MoleculeArrayList[0];
         allMoleculeList = new AtomSetAllMolecules();
         allMoleculeList.setMoleculeLists(moleculeLists);
         leafList = new AtomArrayList();
     }
-    
-    public void setIndex(int newIndex) {
-        index = newIndex;
-    }
 
     public int getIndex() {
         return index;
     }
-    
+
+    public void setIndex(int newIndex) {
+        index = newIndex;
+    }
+
     public String toString() {
         return "Box"+getIndex();
     }
@@ -146,7 +164,7 @@ public class Box implements java.io.Serializable, IBox {
         }
         leafList.maybeTrimToSize();
     }
-    
+
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
@@ -181,12 +199,12 @@ public class Box implements java.io.Serializable, IBox {
             }
         }
     }
-    
+
     public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
         return moleculeLists[speciesIndex].getMoleculeCount();
     }
-    
+
     public IMoleculeList getMoleculeList(ISpecies species) {
         return moleculeLists[species.getIndex()];
     }
@@ -194,21 +212,21 @@ public class Box implements java.io.Serializable, IBox {
     public IMoleculeList getMoleculeList() {
         return allMoleculeList;
     }
-  
+
+    public final IBoundary getBoundary() {return boundary;}
+
     public void setBoundary(IBoundary b) {
         boundary = b;
         boundary.setBox(this);
      }
-     
-    public final IBoundary getBoundary() {return boundary;}
-    
+
     public void setDensity(double rho) {
         double vNew = getMoleculeList().getMoleculeCount()/rho;
         double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
         BoxInflate inflater = new BoxInflate(this, space);
         inflater.setScale(scale);
         inflater.actionPerformed();
-    }
+    };
 
     public IBoxEventManager getEventManager() {
         return eventManager;
@@ -218,7 +236,7 @@ public class Box implements java.io.Serializable, IBox {
         moleculeLists = (MoleculeArrayList[])Arrays.addObject(moleculeLists, new MoleculeArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
-    
+
     public void removeSpeciesNotify(ISpecies species) {
         moleculeLists = (MoleculeArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
         allMoleculeList.setMoleculeLists(moleculeLists);
@@ -227,7 +245,7 @@ public class Box implements java.io.Serializable, IBox {
     public IAtomList getLeafList() {
         return leafList;
     }
-    
+
     /**
      * Notifies the SpeciesMaster that the given number of new Atoms will be
      * added to the system.  It's not required to call this method before
@@ -236,7 +254,7 @@ public class Box implements java.io.Serializable, IBox {
      */
     protected void notifyNewMolecules(ISpecies species, int numNewMolecules, int moleculeLeafAtoms) {
         if (numNewMolecules < 1) return;
-        // has no actual effect within this object.  We just notify things to 
+        // has no actual effect within this object.  We just notify things to
         // prepare for an increase in the max index.  If things assume that the
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
@@ -246,17 +264,4 @@ public class Box implements java.io.Serializable, IBox {
             eventManager.globalAtomLeafIndexChanged(leafList.getAtomCount() + numNewLeafAtoms);
         }
     }
-
-    /**
-     * List of leaf atoms in box
-     */
-    protected final AtomArrayList leafList;
-
-    private static final long serialVersionUID = 2L;
-    private IBoundary boundary;;
-    private final BoxEventManager eventManager;
-    protected MoleculeArrayList[] moleculeLists;
-    private int index;
-    private final ISpace space;
-    protected final AtomSetAllMolecules allMoleculeList;
 }
