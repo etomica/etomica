@@ -1,6 +1,5 @@
 package etomica.mappedvirial;
 
- import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAtom;
@@ -16,7 +15,6 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
@@ -24,12 +22,11 @@ import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 
 /**
- * PotentialCalculation that implements mapped-averaged virial (to get the
- * pressure).
- * 
- * @author Andrew Schultz
+ * PotentialCalculation that implements mapped-averaged framework (to get the energy).
+ *
+ * @author Akshara Goyal
  */
-public class MappedUpotential implements PotentialCalculation {
+public class PotentialCalculationMappedEnergy implements PotentialCalculation {
 
     protected final IBox box;
     protected final IteratorDirective allAtoms;
@@ -46,9 +43,11 @@ public class MappedUpotential implements PotentialCalculation {
     protected double qp_q;
     protected final int nbins;
     protected double sum;
+    protected double[] sum_separate;
     protected double x0, vCut;
+    protected double vShift;
 
-    public MappedUpotential(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
+    public PotentialCalculationMappedEnergy(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -58,33 +57,41 @@ public class MappedUpotential implements PotentialCalculation {
         dr = space.makeVector();
         cumint = new double[nbins+1];
         vol = box.getBoundary().volume();
-      //  vol = 1e5;
-      }
+        //  vol = 1e5;
+    }
 
     public static void main (String[] args) throws IOException{
         Simulation sim = new Simulation(Space3D.getInstance());
         IBox box = new Box(sim.getSpace());
-        MappedUpotential pc = new MappedUpotential(sim.getSpace(),box, 1000000, null);
+
+        PotentialCalculationMappedEnergy pc = new PotentialCalculationMappedEnergy(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncatedShifted(sim.getSpace(), potential, 4);
-        
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 4);
+        double vol1 = pc.vol;
+        //  System.out.println(vol1);
+        pc.setVolume(99999.99999999997);
         pc.setTemperature(2, p2Truncated);
-        FileWriter fw = new FileWriter("vb.dat");
-        for (int i=13; i<=50; i++) {
-            double r = i*0.05;
-            if (r>=2.5) r = 2.499999;
-         //   double ulrc = potential.uInt(4);
-       //     double ulr = potential.uInt(r);
-          //  System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
-            fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
+        double rc = p2Truncated.getRange();
+        double x0 = rc;
+       // FileWriter fw = new FileWriter("vb.dat");
+        for (int i=10; i<45; i++) {
+            double r = i*0.1;
+            if (r>=4) r = 3.99999999;
+            //   double ulrc = potential.uInt(4);
+            //     double ulr = potential.uInt(r);
+            //  System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" "+(pc.qp/(4*Math.PI*r*r)*(-pc.vol/ pc.q)-((ulrc-ulr)/(r*r)))+(pc.qp_q*r/3));
+
+            System.out.println(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+" ");
+         //   fw.write(r+" "+pc.calcXs(r, p2Truncated.u(r*r))+"\n");
         }
-        fw.close();
+
+       // fw.close();
     }
-    
+
     public double getX0() {
         return x0;
     }
-    
+
     public void setVCut(double newVCut) {
         vCut = newVCut;
     }
@@ -100,26 +107,30 @@ public class MappedUpotential implements PotentialCalculation {
     public void setTemperature(double T, Potential2SoftSpherical p2) {
         beta = 1/T;
         double rc = p2.getRange();
-        x0 = rc*0.95;
+        x0 = rc;
+        q = 0;
+        qp = 0;
+        qp_q = 0;
+
         if (vCut==0) vCut = x0;
+        vShift = -p2.u(vCut*vCut)+0.0494908;
         c1 = Math.log(rc+1)/nbins;
         int D = space.D();
         for (int i=1; i<=nbins; i++) {
             double r = Math.exp(c1*i)-1;
             double r2 = r*r;
-            if (r >= p2.getRange()) {
+            if (r >= p2.getRange() ) {
                 if (i<nbins) throw new RuntimeException("oops "+i+" "+nbins+" "+r+" "+p2.getRange());
                 r = Math.exp(c1*i*0.9999)-1;
                 r2 = r*r;
             }
             double u = p2.u(r2);
             double evm1 = 0;
-            double v = u;
-            if(r>vCut) v=0;
+            double v = calcV(r,u);
             evm1 = Math.exp(-beta*v);
             qp += (D==2 ? r : r2)*evm1*v*c1*(r+1);
             q += (D==2 ? r : r2)*(evm1-1)*c1*(r+1);
-            
+
         }
         qp *= -1*(D==2?2:4)*Math.PI;
         q *= (D==2?2:4)*Math.PI;
@@ -136,19 +147,28 @@ public class MappedUpotential implements PotentialCalculation {
             }
             double u = p2.u(r2);
             double evm1 = 0;
-            double v = u;
-            if(r>vCut) v=0;
+            double v = calcV(r,u);
             evm1 = Math.exp(-beta*v);
             cumint[i] = cumint[i-1] + (D==2 ? r : r2)*(evm1)*(v+qp_q)*c1*(r+1);
+            //   System.out.println("q "+q+" vol "+vol);
+            //  System.out.println("cumint "+i+" "+cumint[i]);
         }
+
+        //  System.out.println("cumint "+cumint[nbins]+ " nbins "+nbins);
     }
-    
+
     protected double calcXs(double r, double u) {
         double y = cumint(r);
-        double v = u;
-        if(r>vCut) v=0;
+        double v = calcV(r,u);
         double evm1 = Math.exp(-beta*v);
         return y/(r*r*evm1);
+    }
+
+    protected double calcV(double r,double u){
+
+        if(r>vCut)
+            return 0;
+        return u+vShift;
     }
 
     protected double cumint( double r) {
@@ -157,20 +177,20 @@ public class MappedUpotential implements PotentialCalculation {
         int ii = (int)i;
         double y = cumint[ii] + (cumint[ii+1]-cumint[ii])*(i-ii);
         return y;
-    } 
+    }
 
     public double getQP_Q() {
         return qp_q;
     }
-    
+
     public double getqp() {
         return qp;
     }
-    
+
     public void reset() {
         sum = 0;
     }
-    
+
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSpherical)) return;
         Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
@@ -185,25 +205,27 @@ public class MappedUpotential implements PotentialCalculation {
         double fij = p2.du(r2);
         double up = fij/r;
         double vp = up;
-        if(r>vCut) sum += -p2.u(r2);
+        double u= p2.u(r2);
+        double v = calcV(r,u);
+        sum += v-u;
+
         if (r<x0) {
             IVector fi = forceManager.getAgent(a).force;
             IVector fj = forceManager.getAgent(b).force;
-            double u = p2.u(r2);
-          //  System.out.println(u+" "+r);
+            //  System.out.println(u+" "+r);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
-            double xs = calcXs(r, u);    
-          //  System.out.println(xs+" "+r);
+            double xs = calcXs(r, u);
             double wp = 0.5*fifj;
             sum += xs*beta*(vp-wp);
-            
+
         }
-        
+
     }
-    
-       public double getPressure() {           
-       
+
+    public double getEnergy() {
+
         return sum;
-        
+
     }
+
 }
