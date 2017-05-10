@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.models.aceticAcid;
+package etomica.models.OPLS;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
@@ -16,17 +16,29 @@ import etomica.space3d.IOrientationFull3D;
 import etomica.units.Electron;
 
 /**
- * dipole for acetic acid
+ * calculates dipole for acetic acid
  *
  * @author Hye Min Kim
  */
 public class DipoleSourceAceticAcid implements DipoleSource {
 
+    protected final IVectorMutable dipole;
+
+    /**
+     * @param space dimension of the space
+     */
+
     public DipoleSourceAceticAcid(ISpace space) {
         dipole = space.makeVector();
     }
-    
+
+    /**
+     * @param molecule index of the molecule
+     * @return Returns the dipole of the given molecule
+     */
     public IVector getDipole(IMolecule molecule) {//dipole= sum of position * charge for all sites in a molecule
+
+
         IAtomList childList = molecule.getChildList();
 
         IAtom cH3 = childList.getAtom(0);
@@ -34,12 +46,12 @@ public class DipoleSourceAceticAcid implements DipoleSource {
         IAtom dBO = childList.getAtom(2);
         IAtom sBO = childList.getAtom(3);
         IAtom h = childList.getAtom(4);
-		double zCH3 =  Electron.UNIT.toSim(0.08);//partial charge of CH3 site
-		double zC =  Electron.UNIT.toSim(0.55);
-        double zDBO   = Electron.UNIT.toSim(-0.50);
-        double zSBO   = Electron.UNIT.toSim(-0.58);
-        double zH   =  Electron.UNIT.toSim(0.45);
-        
+        double zCH3 = Electron.UNIT.toSim(0.08);//partial charge of CH3 site
+        double zC = Electron.UNIT.toSim(0.55);
+        double zDBO = Electron.UNIT.toSim(-0.50);
+        double zSBO = Electron.UNIT.toSim(-0.58);
+        double zH = Electron.UNIT.toSim(0.45);
+
         dipole.Ea1Tv1(zCH3, cH3.getPosition());
         dipole.PEa1Tv1(zC, c.getPosition());
         dipole.PEa1Tv1(zDBO, dBO.getPosition());
@@ -48,6 +60,4 @@ public class DipoleSourceAceticAcid implements DipoleSource {
 
         return dipole;
     }
-
-    protected final IVectorMutable dipole;
 }

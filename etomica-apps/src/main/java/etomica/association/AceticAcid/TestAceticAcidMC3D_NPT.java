@@ -52,7 +52,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.models.OPLS.AceticAcidPotentialHelper;
 import etomica.models.OPLS.SpeciesAceticAcid;
-import etomica.models.aceticAcid.DipoleSourceAceticAcid;
+import etomica.models.OPLS.DipoleSourceAceticAcid;
 import etomica.nbr.cell.molecule.BoxAgentSourceCellManagerMolecular;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.potential.P2ReactionFieldDipole;
