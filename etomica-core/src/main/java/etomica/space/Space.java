@@ -13,7 +13,7 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
 /**
- * Superclass for all Space instances.
+ * Superclass for all Space instances. Space classes are factories for vectors, tensors, etc.
  */
 public abstract class Space implements java.io.Serializable, ISpace {
 
@@ -21,8 +21,8 @@ public abstract class Space implements java.io.Serializable, ISpace {
     }
     
     /**
-     * Returns a space instance of the given dimension, which must be 1, 2, or 3.
-     * 
+     * @return a space instance of the given dimension, which must be 1, 2, or 3.
+     * @param D the dimension of the requested space instance
      * @throws IllegalArgumentException if D is not 1, 2, or 3.
      */
     public static Space getInstance(int D) {

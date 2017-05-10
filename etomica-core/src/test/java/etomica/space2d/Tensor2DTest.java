@@ -30,7 +30,7 @@ public class Tensor2DTest {
     }
 
     @Test
-    public void equals() throws Exception {
+    public void testEquals() throws Exception {
         t2 = (Tensor)t1.clone();
         assertTrue(t2.equals(t1));
         assertFalse(t2.equals(zero));
@@ -40,7 +40,7 @@ public class Tensor2DTest {
 
     //tests component, setComponent, component PE
     @Test
-    public void setComponent() throws Exception {
+    public void testSetComponent() throws Exception {
         t2.E(0.0);
         t3.E(0.0);
         double k = 0.;
@@ -59,7 +59,7 @@ public class Tensor2DTest {
 
     // tests E(IVector[]) and assignTo(IVector[])
     @Test
-    public void E() throws Exception {
+    public void testE() throws Exception {
         Vector2D v0 = new Vector2D(1.0,3.0);
         Vector2D v1 = new Vector2D(2.0,-4.0);
         t2.E(new IVector[] {v0, v1});
@@ -73,7 +73,7 @@ public class Tensor2DTest {
 
     //tests Ev1v2, E, ME, PEv1v2
     @Test
-    public void Ev1v2() throws Exception {
+    public void testEv1v2() throws Exception {
         Vector2D v1 = new Vector2D(new double[] {1.0, 1.5});
         Vector2D v2 = new Vector2D(new double[] {-3.0, 4.0});
         t3.Ev1v2(v1,v2);
@@ -86,12 +86,12 @@ public class Tensor2DTest {
     }
 
     @Test
-    public void trace() throws Exception {
+    public void testTrace() throws Exception {
         assertEquals(t1.trace(),-3.0,tolerance);
     }
 
     @Test
-    public void transpose() throws Exception {
+    public void testTranspose() throws Exception {
         t3.E(t1);
         t1.transpose();
         double[][] d = {{1,3},{2,-4}};
@@ -102,12 +102,12 @@ public class Tensor2DTest {
     }
 
     @Test
-    public void determinant() throws Exception {
+    public void testDeterminant() throws Exception {
         assertEquals(t1.determinant(),-10.,tolerance);
     }
 
     @Test
-    public void transform() throws Exception {
+    public void testTransform() throws Exception {
         Vector2D v1 = new Vector2D(new double[] {1.0, 1.5});
         Vector2D v2 = new Vector2D(new double[] {4.,-3});
         t1.transform(v1);
@@ -115,7 +115,7 @@ public class Tensor2DTest {
     }
 
     @Test
-    public void invert() throws Exception {
+    public void testInvert() throws Exception {
         t2 = new Tensor2D(new double[][] {{1.,1.},{4.,5.}});
         assertEquals(t2.determinant(),+1.0,tolerance);
         t2.invert();
@@ -130,7 +130,7 @@ public class Tensor2DTest {
     }
 
     @Test
-    public void map() throws Exception {
+    public void tesetMap() throws Exception {
         t2.E(0);
         t2.PEa1Tt1(2.0,t1);
         t3.E(t1);
@@ -139,7 +139,7 @@ public class Tensor2DTest {
     }
 
     @Test
-    public void MEv1v2() throws Exception {
+    public void testMEv1v2() throws Exception {
         Vector2D v1 = new Vector2D(new double[] {1.0, 1.5});
         Vector2D v2 = new Vector2D(new double[] {10.,8.5});
         t2.E(0.0);
@@ -150,7 +150,7 @@ public class Tensor2DTest {
 
     //tests E, PE, TE
     @Test
-    public void TE() throws Exception {
+    public void testTE() throws Exception {
         t2.E(t1);
         t2.PE(t1);
         t3.E(t1);
@@ -188,7 +188,7 @@ public class Tensor2DTest {
     }
 
     @Test
-    public void diagE() throws Exception {
+    public void testDiagE() throws Exception {
         t2 = new Tensor2D(new double[][] {{2.0,0.0},{0.0,-1.5}});
         t3.diagE(new Vector2D(2.0,-1.5));
         assertTrue(t2.equals(t3));
