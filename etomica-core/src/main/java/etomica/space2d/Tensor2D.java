@@ -195,7 +195,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public void E(double[][] d) {
-        if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
+        if(d.length != 2) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+2+", "+d);
         xx = d[0][0]; xy = d[0][1];
         yx = d[1][0]; yy = d[1][1];
     }
