@@ -20,8 +20,8 @@ public class P2WaterSPCETest {
     private static final double EPSILON = 1e-10;
     @Before
     public void setUp() throws Exception {
-        IMolecule mol1 = new SpeciesWater4P(Space3D.getInstance()).makeMolecule();
-        IMolecule mol2 = new SpeciesWater4P(Space3D.getInstance()).makeMolecule();
+        IMolecule mol1 = new SpeciesWater3P(Space3D.getInstance()).makeMolecule();
+        IMolecule mol2 = new SpeciesWater3P(Space3D.getInstance()).makeMolecule();
 
         MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
         act.setDestination(new Vector3D(4, 4, 4));
@@ -35,7 +35,7 @@ public class P2WaterSPCETest {
     public void energy() throws Exception {
         P2WaterSPCE potential = new P2WaterSPCE(Space3D.getInstance());
         potential.setBox(new Box(Space3D.getInstance()));
-        assertEquals(-7.167975911365829, potential.energy(molecules), EPSILON);
+        assertEquals(-9.31548273877388, potential.energy(molecules), EPSILON);
     }
 
 }
