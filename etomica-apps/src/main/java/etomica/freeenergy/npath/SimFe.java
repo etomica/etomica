@@ -336,17 +336,17 @@ public class SimFe extends Simulation {
             plotSfac.getPlot().setYLog(true);
             simGraphic.add(plotSfac);
             
-            sim.integrator.setTimeStep(0.0002);
+            sim.integrator.setTimeStep(0.0001);
             sim.integrator.getEventManager().addListener(new IIntegratorListener() {
                 @Override
                 public void integratorInitialized(IIntegratorEvent e) {}
-    
+
                 @Override
                 public void integratorStepStarted(IIntegratorEvent e) {}
-    
+
                 @Override
                 public void integratorStepFinished(IIntegratorEvent e) {
-                    if (sim.integrator.getStepCount() > 200) {
+                    if (sim.integrator.getStepCount() > 400) {
                         sim.integrator.setTimeStep(0.001);
                     }
                 }
@@ -360,6 +360,11 @@ public class SimFe extends Simulation {
 
         // initial conservation of energy is often poor.  use a smaller timestep
         // for a few steps to get off lattice sites
+        sim.ai.setMaxSteps(steps/20);
+        sim.integrator.setTimeStep(0.0001);
+        sim.getController().actionPerformed();
+        sim.getController().reset();
+        sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps/20);
         sim.integrator.setTimeStep(0.0002);
         sim.getController().actionPerformed();
