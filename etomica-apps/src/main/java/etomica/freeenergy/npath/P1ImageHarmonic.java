@@ -154,8 +154,8 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         }
         double wr2 = w*r2;
         double sqrtwr2 = Math.sqrt(wr2);
-        // full gradient on this atom (2w)
-        gradient[0].Ea1Tv1(-(2*w+4*w*w*r2), dr);
+        // full gradient on this atom
+        gradient[0].Ea1Tv1(-w*(2+sqrtwr2)/(1+wr2+2*sqrtwr2), dr);
         return gradient;
     }
 
