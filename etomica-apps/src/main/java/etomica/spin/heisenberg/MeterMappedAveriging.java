@@ -78,8 +78,7 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 		mu = dipoleMagnitude;
 //        QValue = bt*bt*mu*mu + org.apache.commons.math3.b ;//How use Bessel fucntion here????
 		
-		torqueSum = space.makeVector();
-		torqueSum.setX(2, 1);
+		torqueSum = new Vector1D();
 		FSum = new PotentialCalculationFSum(space,dipoleMagnitude,interactionS,temperature);
 		energySum = new PotentialCalculationEnergySum();
 		secondDerivativeSum = new  PotentialCalculationPhiSumHeisenberg(space,dipoleMagnitude,interactionS,temperature);
@@ -129,12 +128,14 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 
 			 IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
 			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
+             System.out.println("torque"+torqueAgent.torque);
+//             System.exit(2);
 			 torqueSum.PE(torqueAgent.torque);
 		 }//i loop
 
 
 		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*torqueSum.squared()+ secondDerivativeSum.getSum();
-//		 x[0] = secondDerivativeSum.getSum();//TODO
+//		 x[0] = secondDerivativeSum.getSum();
 //		 x[1] = 1;
 		
 		return data;
