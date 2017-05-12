@@ -375,6 +375,6 @@ public class TIP4P_NVT extends Simulation {
           public int numberMolecules = 2;
           public double density = 0.001;//g/cm^3
           public double dielectricOutside = 1.0E11;
-          public int steps = 100000;
+          public int steps = 1000000;
      }
 }
