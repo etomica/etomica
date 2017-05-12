@@ -137,7 +137,7 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 //			 vectorSum.PE(dr);
 //		 }//i loop
 //		 
-		 //TODO don't forget about the variance part!!!!	
+
 		 x[0] = secondDerivativeSum.getSum();//TODO
 		 x[1] = 1;
 		
