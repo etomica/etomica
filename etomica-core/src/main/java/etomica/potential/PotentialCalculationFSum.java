@@ -63,33 +63,7 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
 		double bt3 = bt2*bt;
 		double mu2 = mu*mu;
 		double mu3 = mu2*mu;//TOOD check what you need to return, sum F * sum FC or other ways
-		double f1C = 0.5*(-4*Q-2*Q*t1-2*Q*t2+2*bt2*mu2*t1+2*bt2*mu2*t2
-				+J*bt3*(t1-t2)*mu2*Math.cos(2*t1)
-				+2*bt2*(t1+t2)*mu2*Math.cos(t1-t2)-J*bt3*t1*mu2*Math.cos(2*t2)
-				+J*bt3*t2*mu2*Math.cos(2*t2)-2*bt2*t1*mu2*Math.cos(t1+t2)
-				+2*bt2*t2*mu2*Math.cos(t1+t2)-2*J*bt3*t1*mu2*Math.sin(2*t1)
-				+2*J*bt3*t2*mu2*Math.sin(2*t1)+2*J*bt3*t1*mu2*Math.sin(2*t2)
-				-2*J*bt3*t2*mu2*Math.sin(2*t2)+2*bt2*mu2*Math.sin(t1+t2));
-		
-		double f2C = 0.5*(  -4*Q-2*Q*t1-2*Q*t2+4*bt2*mu2 +2*bt2*mu2*t1+2*bt2*mu2*t2
-				+J*bt3*(t1-t2)*mu2*Math.cos(2*t1)
-				+2*bt2*(2+t1+t2)*mu2*Math.cos(t1-t2)-J*bt3*t1*mu2*Math.cos(2*t2)
-				+J*bt3*t2*mu2*Math.cos(2*t2)+2*bt2*t1*mu2*Math.cos(t1+t2)
-				-2*bt2*t2*mu2*Math.cos(t1+t2)-2*J*bt3*t1*mu2*Math.sin(2*t1)
-				+2*J*bt3*t2*mu2*Math.sin(2*t1)+2*J*bt3*t1*mu2*Math.sin(2*t2)
-				-2*J*bt3*t2*mu2*Math.sin(2*t2)+2*bt2*mu2*Math.sin(t1+t2) 	);
 
-		double f1 = -J*Math.sin(t1-t2);//TODO valus not the same with torque in p2spin
-		double f2 = -f1;
-		System.out.println("=======================");
-		System.out.println(" t1= "+t1);
-		System.out.println("x1 = " + x1 + " y1 = " + y1);
-		System.out.println("x2 = " + x2 + " y2 = " + y2);
-		System.out.println("f1 = " + f1);
-		System.out.println("f2 = " + f2);
-		FSum += f1*f1C + f2*f2C;
-//		System.exit(2);
-		
 		//Try to implement the constant part here
 		FSum += -2*Q+J*bt*bt2*(t1-t2)*mu2*(Math.sin(2*t2)-Math.sin(2*t1));
 		
