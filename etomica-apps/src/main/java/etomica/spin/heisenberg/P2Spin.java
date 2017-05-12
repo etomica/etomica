@@ -129,15 +129,15 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		//torque ei cross grad[u,ei] = -J*
 //		dr.Ea1Tv1(-coupling, atom1.getOrientation().getDirection());
 //		dr.XE(atom2.getOrientation().getDirection());
-		torque[0].E(-JSin);
+		torque[0].E(-JSin);//TODO!!!!
 		torque[1].E(JSin);
 		double t1 = Math.acos(x1);
-		System.out.println(" t1= "+t1);
-		System.out.println("x1 = " + x1 + " y1 = " + y1);
-		System.out.println("x2 = " + x2 + " y2 = " + y2);
-		System.out.println(JSin);
-		System.out.println("P2Spin Torque[0] = " + torque[0]);
-		System.out.println("P2Spin Torque[1] = " + torque[1]);
+//		System.out.println(" t1= "+t1);
+//		System.out.println("x1 = " + x1 + " y1 = " + y1);
+//		System.out.println("x2 = " + x2 + " y2 = " + y2);
+//		System.out.println(JSin);
+//		System.out.println("P2Spin Torque[0] = " + torque[0]);
+//		System.out.println("P2Spin Torque[1] = " + torque[1]);
 		return gradientAndTorque;
 	}
 
