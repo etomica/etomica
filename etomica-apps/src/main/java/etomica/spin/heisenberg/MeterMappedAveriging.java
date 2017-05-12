@@ -5,7 +5,6 @@ import java.io.Serializable;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBox;
-import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
@@ -43,7 +42,7 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 	protected PotentialCalculationPhiSumHeisenberg secondDerivativeSum;
 	protected final ISpace space;
 	private IBox box;
-	private IVectorMutable vectorSum;
+	private IVectorMutable torqueSum;
 	//private IVectorMutable r;
 	//private IVectorMutable [] a;
 	
@@ -79,8 +78,8 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 		mu = dipoleMagnitude;
 //        QValue = bt*bt*mu*mu + org.apache.commons.math3.b ;//How use Bessel fucntion here????
 		
-		vectorSum = space.makeVector();
-		vectorSum.setX(2, 1);
+		torqueSum = space.makeVector();
+		torqueSum.setX(2, 1);
 		FSum = new PotentialCalculationFSum(space,dipoleMagnitude,interactionS,temperature);
 		energySum = new PotentialCalculationEnergySum();
 		secondDerivativeSum = new  PotentialCalculationPhiSumHeisenberg(space,dipoleMagnitude,interactionS,temperature);
@@ -125,21 +124,18 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 		 
 		 int nM = leafList.getAtomCount();	
 		 double A = 0;
-		 vectorSum.E(0);
-//		 for (int i = 0;i < nM; i++){
-//			 
-//			 for (int j = 0;j < nM; j++){
-//				 
-//			 }
-//			 IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
-//			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
-//			 dr.XE(torqueAgent.torque);
-//			 vectorSum.PE(dr);
-//		 }//i loop
-//		 
+		 torqueSum.E(0);
+		 for (int i = 0;i < nM; i++){
 
-		 x[0] = secondDerivativeSum.getSum();//TODO
-		 x[1] = 1;
+			 IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
+			 torqueSum.PE(torqueAgent.torque);
+		 }//i loop
+
+
+		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*torqueSum.squared()+ secondDerivativeSum.getSum();
+//		 x[0] = secondDerivativeSum.getSum();//TODO
+//		 x[1] = 1;
 		
 		return data;
 	}
