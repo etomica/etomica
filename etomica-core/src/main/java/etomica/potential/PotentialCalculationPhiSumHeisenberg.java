@@ -44,49 +44,29 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
 		if(!(potential instanceof IPotentialAtomicSecondDerivative)){
 			return;
 		}
-		IPotentialAtomicSecondDerivative potentialSeconDerivative = (IPotentialAtomicSecondDerivative) potential;
-		
-		
-		Tensor[] t = potentialSeconDerivative.secondDerivative(atoms);
+		IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
+
+		Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
 		
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
     	
-//		ei.E(dipoleSource.getDipole(atom1.getParentGroup()));
-//		ej.E(dipoleSource.getDipole(atom2.getParentGroup()));
     	ei.E(atom1.getOrientation().getDirection());
     	ej.E(atom2.getOrientation().getDirection());
     	
-		
 
-		if(ei.getX(0) > 1){
-			ei.setX(0, 1);
-		}
-		if(ei.getX(0)<-1){
-			ei.setX(0, -1);
-		}
-		if(ej.getX(0) > 1){
-			ej.setX(0, 1);
-		}
-		if(ej.getX(0)<-1){
-			ej.setX(0, -1);
-		}
-		
-		double t1 = Math.acos(ei.getX(0));
-		double t2 = Math.acos(ej.getX(0));
-		
+		double s1 = ei.getX(1);
+		double s2 = ej.getX(1);
+
+
 		double bt2=bt*bt;
 		double bt3=bt*bt*bt;
 		double mu2=mu*mu;
-		double phiC = -2*Q+2*bt2*mu2+2*bt2*mu2*Math.cos((t1-t2))-J*bt3*(t1-t2)*mu2*Math.sin(2*t1)
-				     +J*bt3*t1*mu2*Math.sin(2*t2)-J*bt3*t2*mu2*Math.sin(2*t2);
+		double phiC = 0.25*bt3*mu2;
+
+		secondDerivativeSum += 2*t[0].component(0, 0)*phiC*s1*s2 + t[1].component(0, 0)*phiC*s1*s1
+				+t[2].component(0, 0)*phiC*s2*s2;
 		
-		
-		
-		//is this += or just =??????????? TODO also this part is always zero!!!!!!!!!!!!!
-	
-		secondDerivativeSum += t[0].component(0, 0)*phiC+t[1].component(0, 0)*phiC
-				+ t[1].component(0, 0)*phiC+t[2].component(0, 0)*phiC;	
 //		System.out.println("secondDerivative = " + secondDerivativeSum);
 //		System.exit(2);
 	}
@@ -128,7 +108,7 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
 //			ej.setX(0, -1);
 //		}
 //		
-//		double t1 = Math.acos(ei.getX(0));//TODO anything I shoul be aware??? still need to handle abs>1 case
+//		double t1 = Math.acos(ei.getX(0));
 //		double t2 = Math.acos(ej.getX(0));
 //		
 //		double bt2=bt*bt;
