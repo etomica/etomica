@@ -99,7 +99,7 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
 		if(!(potential instanceof IPotentialMolecularSecondDerivative)){
 			return;
 		}
-		//TODO need to implemented in the future
+
 		
 	}
 	

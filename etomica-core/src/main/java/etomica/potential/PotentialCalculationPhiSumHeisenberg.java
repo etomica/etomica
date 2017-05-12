@@ -58,7 +58,7 @@ public class PotentialCalculationPhiSumHeisenberg implements PotentialCalculatio
     	ej.E(atom2.getOrientation().getDirection());
     	
 		
-//TODO		
+
 		if(ei.getX(0) > 1){
 			ei.setX(0, 1);
 		}
