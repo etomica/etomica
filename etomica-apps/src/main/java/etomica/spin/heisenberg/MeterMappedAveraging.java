@@ -30,7 +30,7 @@ import etomica.space1d.Vector1D;
 import etomica.units.Null;
 import etomica.util.numerical.BesselFunction;
 
-public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<MeterMappedAveriging.MoleculeAgent> {
+public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<MeterMappedAveraging.MoleculeAgent> {
 	
 
 	protected final DataDoubleArray data;
@@ -64,7 +64,7 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 
 	
 	//use torquesum here TODO
-	public MeterMappedAveriging(final ISpace space, IBox box, ISimulation sim, double temperature,double interactionS,double dipoleMagnitude,IPotentialMaster potentialMaster) {
+	public MeterMappedAveraging(final ISpace space, IBox box, ISimulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialMaster potentialMaster) {
         data = new DataDoubleArray(2);
 		dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2}); 
 		tag = new DataTag();
@@ -125,19 +125,13 @@ public class MeterMappedAveriging implements IEtomicaDataSource ,AgentSource<Met
 		 double A = 0;
 		 torqueSum.E(0);
 		 for (int i = 0;i < nM; i++){
-
-			 IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
 			 MoleculeAgent torqueAgent = (MoleculeAgent) leafAgentManager.getAgent(leafList.getAtom(i));
-             System.out.println("torque"+torqueAgent.torque);
-//             System.exit(2);
 			 torqueSum.PE(torqueAgent.torque);
 		 }//i loop
 
 
 		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*torqueSum.squared()+ secondDerivativeSum.getSum();
-//		 x[0] = secondDerivativeSum.getSum();
-//		 x[1] = 1;
-		
+
 		return data;
 	}
 	

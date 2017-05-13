@@ -22,11 +22,8 @@ import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.IData;
-import etomica.data.meter.MeterDipoleSumSquared1site;
-import etomica.data.meter.MeterDipoleSumSquaredMappedAverage;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.dielectric.TIP4P_NVT.Param;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxSpin2D;
@@ -43,11 +40,9 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.Kelvin;
 import etomica.units.systems.LJ;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.numerical.BesselFunction;
 
 
 /**
@@ -211,10 +206,10 @@ public class Heisenberg extends Simulation {
 		
 		
 		//AEE 
-		MeterMappedAveriging AEEMeter = null;
+		MeterMappedAveraging AEEMeter = null;
 		AccumulatorAverageCovariance AEEAccumulator = null;
 		if(aEE){
-			AEEMeter = new MeterMappedAveriging(sim.space, sim.box, sim,temperature,interactionS,dipoleMagnitude,sim.potentialMaster);
+			AEEMeter = new MeterMappedAveraging(sim.space, sim.box, sim,temperature,interactionS,dipoleMagnitude,sim.potentialMaster);
 			AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock,true);
 			DataPump AEEPump = new DataPump(AEEMeter,AEEAccumulator);
 			IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -277,10 +272,9 @@ public class Heisenberg extends Simulation {
     	public boolean mSquare = true;
     	public boolean aEE = true; 
     	public double temperature = 78;// Kelvin
-    	public int numberMolecules = 10;
-    	public double interactionS = 1.3;
-    	public double dipoleMagnitude = 1.5;
-    	public double dielectricOutside = 1.0E11;
+    	public int numberMolecules = 2;
+    	public double interactionS = 1;
+    	public double dipoleMagnitude = 1;
     	public double QValue = 0;
     	public int steps = 100000;
     }
