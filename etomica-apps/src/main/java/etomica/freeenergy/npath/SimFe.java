@@ -166,7 +166,7 @@ public class SimFe extends Simulation {
 
         IVectorMutable offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
-        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w);
+        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, true);
         potentialMaster.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
 
         integrator.setBox(box);

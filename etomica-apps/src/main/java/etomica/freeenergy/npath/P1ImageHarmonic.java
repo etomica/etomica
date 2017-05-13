@@ -23,11 +23,13 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     protected final IVectorMutable[] gradient;
     protected int nOffset;
     protected boolean zeroF = true;
+    protected boolean do21;
 
-    public P1ImageHarmonic(ISpace space, IVector offset, double w) {
+    public P1ImageHarmonic(ISpace space, IVector offset, double w, boolean do21) {
         super(space);
         this.offset = offset;
         this.w = w;
+        this.do21 = do21;
         dr = space.makeVector();
         gradient = new IVectorMutable[1];
         gradient[0] = space.makeVector();
@@ -79,12 +81,12 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         boundary.nearestImage(dr);
         // return the full contribution for this pair.  our partner will be skipped
         double r2 = dr.squared();
+        if (!do21) return r2;
         if (r2 == 0) return 0;
         double wr2 = w*r2;
         double sqrtwr2 = Math.sqrt(wr2);
         double foo = wr2+Math.sqrt(wr2);
-        double u = wr2*r2*(2+sqrtwr2)/(2*foo*foo);
-        return u;
+        return wr2*r2*(2+sqrtwr2)/(2*foo*foo);
     }
 
     @Override
@@ -117,8 +119,9 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         boundary.nearestImage(dr);
         // half the energy for this pair.  energy will be called again for our partner
         double wr2 = w*dr.squared();
-        double u = 0.5/(1/wr2+1/Math.sqrt(wr2));
-        return u;
+        if (!do21) return 0.5*wr2;
+        if (wr2==0) return 0;
+        return 0.5/(1/wr2+1/Math.sqrt(wr2));
     }
 
     @Override
@@ -148,6 +151,10 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         dr.ME(offset);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
+        if (!do21) {
+            gradient[0].Ea1Tv1(-2*w, dr);
+            return gradient;
+        }
         if (r2 == 0) {
             gradient[0].E(0);
             return gradient;

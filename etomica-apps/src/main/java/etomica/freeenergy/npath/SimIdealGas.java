@@ -74,7 +74,7 @@ public class SimIdealGas extends Simulation {
 
         IVectorMutable offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
-        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w);
+        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, false);
         IAtomType leafType = species.getLeafType();
         potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
 

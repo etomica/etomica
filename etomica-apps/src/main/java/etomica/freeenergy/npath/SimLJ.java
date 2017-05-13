@@ -84,7 +84,7 @@ public class SimLJ extends Simulation {
 
         IVectorMutable offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim)*0.5);
-        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w);
+        p1ImageHarmonic = new P1ImageHarmonic(space, offset, w, false);
         potentialMasterCell.addPotential(p1ImageHarmonic, new IAtomType[]{leafType});
 
         mcMoveAtom = new MCMoveAtomNPath(random, potentialMasterCell, space, p1ImageHarmonic);
@@ -123,7 +123,7 @@ public class SimLJ extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = false;
+            params.graphics = true;
             params.numAtoms = 1000;
             params.steps = 1000000;
             params.density = 1.3;
