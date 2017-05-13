@@ -28,7 +28,7 @@ import etomica.space1d.Vector1D;
  * vectors are normalized to unity, and that the simulation integrator's
  * algorithm enforces this constraint.
  * 
- * @author David Kofke
+ * @author weisong lin and David Kofke
  *  
  */
 
@@ -117,7 +117,6 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
 		
-		// TODO why x=y in the orientation of atom1 
 		double x1 = atom1.getOrientation().getDirection().getX(0);//cost1
 		double y1 = atom1.getOrientation().getDirection().getX(1);//sint1
 		double x2 = atom2.getOrientation().getDirection().getX(0);//cost2
@@ -126,12 +125,9 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		//sin(t1-t2) = sint1*cost2- cost1*sint2 =y1*x2-x1*y2
 		double JSin = coupling*(y1*x2-x1*y2);
 		
-		//torque ei cross grad[u,ei] = -J*
-//		dr.Ea1Tv1(-coupling, atom1.getOrientation().getDirection());
-//		dr.XE(atom2.getOrientation().getDirection());
-		torque[0].E(-JSin);//TODO!!!!
+		torque[0].E(-JSin);
 		torque[1].E(JSin);
-		double t1 = Math.acos(x1);
+//		double t1 = Math.acos(x1);
 //		System.out.println(" t1= "+t1);
 //		System.out.println("x1 = " + x1 + " y1 = " + y1);
 //		System.out.println("x2 = " + x2 + " y2 = " + y2);
