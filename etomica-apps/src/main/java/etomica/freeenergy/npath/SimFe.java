@@ -266,8 +266,6 @@ public class SimFe extends Simulation {
         IData u = dsEnergies.getData();
         if (!graphics) System.out.println("Fe lattice energy (eV/atom): "+ElectronVolt.UNIT.fromSim(u.getValue(1)/numAtoms));
 
-        MeterDUDW meterDUDW = new MeterDUDW(sim.potentialMaster, sim.box);
-
         MeterStructureFactor meterSfac = new MeterStructureFactor(sim.space, sim.box, 8);
         if (graphics) {
             final String APP_NAME = "SimFe";
@@ -316,9 +314,8 @@ public class SimFe extends Simulation {
 //            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
 
             AccumulatorHistory dudwHist = new AccumulatorHistory(new HistoryCollapsingAverage());
+            splitter.setDataSink(1, dudwHist);
             dudwHist.setTimeDataSource(tSource);
-            DataPumpListener dudwPump = new DataPumpListener(meterDUDW, dudwHist, 10);
-            sim.integrator.getEventManager().addListener(dudwPump);
             DisplayPlot dudwPlot = new DisplayPlot();
             dudwHist.addDataSink(dudwPlot.getDataSet().makeDataSink());
             dudwPlot.setLabel("dudw");
@@ -377,7 +374,7 @@ public class SimFe extends Simulation {
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps);
 
-        System.out.println("equilibration finished ("+steps/20+"+"+steps/10+" steps)");
+        System.out.println("equilibration finished ("+steps/20+"+"+steps/20+"+"+steps/10+" steps)");
 
         long t1 = System.currentTimeMillis();
 
@@ -385,13 +382,9 @@ public class SimFe extends Simulation {
         long blockSize = steps/100/interval;
         if (blockSize==0) blockSize = 1;
 
-        AccumulatorAverageFixed accEnergies = new AccumulatorAverageFixed(blockSize);
+        AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
-
-        AccumulatorAverageFixed accDUDW = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpDUDW = new DataPumpListener(meterDUDW, accDUDW, interval);
-        sim.integrator.getEventManager().addListener(pumpDUDW);
 
         sim.getController().actionPerformed();
 
@@ -401,14 +394,20 @@ public class SimFe extends Simulation {
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);
         IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
+        IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("Fe energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
-
-        IData avgDUDW = accDUDW.getData(accEnergies.AVERAGE);
-        IData errDUDW = accDUDW.getData(accEnergies.ERROR);
-        IData corDUDW = accDUDW.getData(accEnergies.BLOCK_CORRELATION);
-        System.out.println("du/dw: "+avgDUDW.getValue(0)/numAtoms+"   error: "+errDUDW.getValue(0)/numAtoms+"  cor: "+corDUDW.getValue(0));
+        System.out.println("du/dw: "+avgEnergies.getValue(2)/numAtoms+"   error: "+errEnergies.getValue(2)/numAtoms+"  cor: "+corEnergies.getValue(2));
+        double cor01 = covEnergies.getValue(0*3+1)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(1*3+1));
+        double cor02 = covEnergies.getValue(0*3+2)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(2*3+2));
+        System.out.println("spring correlation: 1 "+cor01+" "+cor02);
+        double cor10 = covEnergies.getValue(1*3+0)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(0*3+0));
+        double cor12 = covEnergies.getValue(1*3+2)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(2*3+2));
+        System.out.println("Fe correlation: "+cor10+" 1 "+cor12);
+        double cor20 = covEnergies.getValue(2*3+0)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(0*3+0));
+        double cor21 = covEnergies.getValue(2*3+1)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(1*3+1));
+        System.out.println("du/dw correlation: "+cor20+" "+cor21+" 1");
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");

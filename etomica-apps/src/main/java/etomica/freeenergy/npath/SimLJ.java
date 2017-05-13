@@ -209,7 +209,7 @@ public class SimLJ extends Simulation {
         long blockSize = steps/numAtoms/100;
         if (blockSize==0) blockSize = 1;
 
-        AccumulatorAverageFixed accEnergies = new AccumulatorAverageFixed(blockSize);
+        AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
@@ -218,6 +218,7 @@ public class SimLJ extends Simulation {
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);
         IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
+        IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("simple move step size: " + ((MCMoveStepTracker) sim.mcMoveAtom.getTracker()).getAdjustStepSize());
@@ -225,7 +226,16 @@ public class SimLJ extends Simulation {
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("LJ energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
-
+        System.out.println("du/dw: "+avgEnergies.getValue(2)/numAtoms+"   error: "+errEnergies.getValue(2)/numAtoms+"  cor: "+corEnergies.getValue(2));
+        double cor01 = covEnergies.getValue(0*3+1)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(1*3+1));
+        double cor02 = covEnergies.getValue(0*3+2)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(2*3+2));
+        System.out.println("spring correlation: 1 "+cor01+" "+cor02);
+        double cor10 = covEnergies.getValue(1*3+0)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(0*3+0));
+        double cor12 = covEnergies.getValue(1*3+2)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(2*3+2));
+        System.out.println("Fe correlation: "+cor10+" 1 "+cor12);
+        double cor20 = covEnergies.getValue(2*3+0)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(0*3+0));
+        double cor21 = covEnergies.getValue(2*3+1)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(1*3+1));
+        System.out.println("du/dw correlation: "+cor20+" "+cor21+" 1");
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
     }

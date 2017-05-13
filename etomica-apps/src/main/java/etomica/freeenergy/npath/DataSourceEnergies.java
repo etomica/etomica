@@ -26,6 +26,7 @@ public class DataSourceEnergies implements IEtomicaDataSource {
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
+    protected final PotentialCalculationDUDW pcDUDW;
     protected PotentialCalculationEnergies pc;
     protected final PotentialMaster potentialMaster;
     protected IBox box;
@@ -33,11 +34,12 @@ public class DataSourceEnergies implements IEtomicaDataSource {
 
     public DataSourceEnergies(PotentialMaster potentialMaster) {
         this.potentialMaster = potentialMaster;
-        data = new DataDoubleArray(2);
-        dataInfo = new DataDoubleArray.DataInfoDoubleArray("energies!", Energy.DIMENSION, new int[]{2});
+        data = new DataDoubleArray(3);
+        dataInfo = new DataDoubleArray.DataInfoDoubleArray("energies!", Energy.DIMENSION, new int[]{3});
         tag = new DataTag();
         dataInfo.addTag(tag);
         pc = new PotentialCalculationEnergies();
+        pcDUDW = new PotentialCalculationDUDW();
         id = new IteratorDirective();
     }
     
@@ -56,6 +58,9 @@ public class DataSourceEnergies implements IEtomicaDataSource {
         double[] x = data.getData();
         x[0] = pc.getSum1();
         x[1] = pc.getSum2();
+        pcDUDW.reset();
+        potentialMaster.calculate(box, id, pcDUDW);
+        x[2] = pcDUDW.getSum();
         return data;
     }
 
