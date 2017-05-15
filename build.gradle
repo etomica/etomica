@@ -11,7 +11,7 @@ subprojects {
     apply plugin: 'findbugs'
 
     apply plugin: 'application'
-    mainClassName = System.getProperty("main")
+    mainClassName = System.getProperty("main", "none")
 
     repositories {
         // superset of maven central
