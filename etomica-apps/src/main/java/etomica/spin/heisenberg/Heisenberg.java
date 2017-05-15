@@ -120,7 +120,8 @@ public class Heisenberg extends Simulation {
  		
     	boolean isGraphic = params.isGraphic;
     	double temperature = params.temperature;
-    	int numberMolecules = params.numberMolecules;
+        int nCells = params.nCells;
+    	int numberMolecules = nCells*nCells;
     	boolean aEE = params.aEE;
     	boolean mSquare = params.mSquare;
     	int steps = params.steps;
@@ -132,10 +133,11 @@ public class Heisenberg extends Simulation {
     	System.out.println("temperature= " + temperature);
 
     	Space sp = Space2D.getInstance();
-		Heisenberg sim = new Heisenberg(sp, numberMolecules,temperature,interactionS,dipoleMagnitude);
+		Heisenberg sim = new Heisenberg(sp, nCells,temperature,interactionS,dipoleMagnitude);
     	
 		MeterSpinMSquare meterMSquare = null;
 		AccumulatorAverage dipoleSumSquaredAccumulator = null;
+
     	if(isGraphic){
     		meterMSquare   = new MeterSpinMSquare(sim.space,sim.box,dipoleMagnitude);
     		//I use sp 
@@ -272,11 +274,11 @@ public class Heisenberg extends Simulation {
     	public boolean mSquare = true;
     	public boolean aEE = true; 
     	public double temperature = 78;// Kelvin
-    	public int numberMolecules = 2;
-    	public double interactionS = 1;
-    	public double dipoleMagnitude = 1;
+    	public int nCells = 100;//number of atoms is nCells*nCells
+    	public double interactionS = 1.5;
+    	public double dipoleMagnitude = 1.5;
     	public double QValue = 0;
-    	public int steps = 100000;
+    	public int steps = 10000000;
     }
     
     
