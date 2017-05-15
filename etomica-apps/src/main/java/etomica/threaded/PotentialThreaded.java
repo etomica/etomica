@@ -5,7 +5,7 @@
 package etomica.threaded;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.potential.Potential;
 import etomica.space.ISpace;
@@ -30,7 +30,7 @@ public class PotentialThreaded extends Potential {
 		return potential[0].getRange();
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		
 		for(int i=0; i<potential.length; i++){
 			potential[i].setBox(box);

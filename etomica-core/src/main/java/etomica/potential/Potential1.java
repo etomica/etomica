@@ -5,7 +5,7 @@
 package etomica.potential; 
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.space.ISpace;
 
 /**
@@ -21,7 +21,7 @@ public abstract class Potential1 extends Potential {
         super(1, space);
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

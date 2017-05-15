@@ -8,7 +8,7 @@ import org.apache.commons.math3.special.Erf;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -28,7 +28,7 @@ import etomica.util.Constants;
 public class EwaldSummation implements PotentialSoft{
     protected final ISpace space;
     protected final AtomLeafAgentManager<MyCharge> atomAgentManager;
-    protected final IBox box;
+    protected final Box box;
     protected final double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
     protected final double[] boxSize, basis;
     protected final double volume;
@@ -49,7 +49,7 @@ public class EwaldSummation implements PotentialSoft{
     protected boolean doRealSum = true;
 
 	// *********************************************** constructor ************************************ // 
-    public EwaldSummation(IBox box, AtomLeafAgentManager<MyCharge> atomAgentManager, ISpace _space, double kCut, double rCutRealES){
+    public EwaldSummation(Box box, AtomLeafAgentManager<MyCharge> atomAgentManager, ISpace _space, double kCut, double rCutRealES){
 
         this.box = box;
         this.atomAgentManager = atomAgentManager;
@@ -260,7 +260,7 @@ public class EwaldSummation implements PotentialSoft{
         return 0;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     }
 
     //******************************** inner class ********************************************//
@@ -571,7 +571,7 @@ public class EwaldSummation implements PotentialSoft{
             return rCutRealES;
         }
 
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
 
         public int nBody() {
             return 2;

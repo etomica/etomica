@@ -10,7 +10,7 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
@@ -20,7 +20,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
@@ -42,7 +41,7 @@ import etomica.space.ISpace;
 public class IntegratorDimerMin extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
 	public ISimulation sim;
-	public IBox boxMin;
+	public Box boxMin;
 	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
@@ -548,10 +547,10 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 		activityIntegrate = ai;
 	}
 
-	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 
-	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {}
+	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
 	
 }

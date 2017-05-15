@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 
@@ -22,6 +22,6 @@ public class MayerWell implements MayerFunction {
         return null;
     }
 
-    public void setBox(IBox box) {}
+    public void setBox(Box box) {}
 
 }

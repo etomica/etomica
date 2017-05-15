@@ -2,7 +2,7 @@ package etomica.liquidLJ;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
@@ -30,7 +30,7 @@ public class PotentialCalculationSumCutoff implements PotentialCalculation {
         vSums = new double[cutoffs.length];
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();
     }
@@ -80,6 +80,6 @@ public class PotentialCalculationSumCutoff implements PotentialCalculation {
 	
 	protected double[] uSums, vSums, r2Cuts;
 	protected final IVectorMutable dr;
-	protected IBox box;
+	protected Box box;
 	protected IBoundary boundary;
 }

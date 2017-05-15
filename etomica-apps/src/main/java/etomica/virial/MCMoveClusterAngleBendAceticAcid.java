@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -53,7 +53,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
         work3 = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         dTheta = new double[p.getMoleculeList().getMoleculeCount()];

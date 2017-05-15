@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.liquidLJ;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
@@ -33,7 +33,7 @@ public class MeterPUCutLS implements IEtomicaDataSource {
     protected final PotentialCalculationSumCutoffLS pc, pcDADv2;
     protected IPotentialMaster potentialMaster, potentialMasterDADv2;
     protected double temperature;
-    protected IBox box;
+    protected Box box;
     private final int dim;
 
     public MeterPUCutLS(ISpace space, int nCut) {
@@ -60,7 +60,7 @@ public class MeterPUCutLS implements IEtomicaDataSource {
         temperature = newTemperature;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 

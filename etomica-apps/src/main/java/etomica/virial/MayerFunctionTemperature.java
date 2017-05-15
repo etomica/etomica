@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 
@@ -28,7 +28,7 @@ public class MayerFunctionTemperature implements MayerFunction {
         return mayerFunction.getPotential();
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         mayerFunction.setBox(newBox);
     }
 

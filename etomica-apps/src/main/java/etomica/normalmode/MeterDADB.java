@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -70,7 +70,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
     }
     
     public IData getData() {
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         
         pcForceSum.reset();
         
@@ -143,9 +143,9 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 }

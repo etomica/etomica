@@ -4,11 +4,10 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -29,7 +28,7 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
 	private static final long serialVersionUID = 1L;
 	protected final MeterPotentialEnergy meterPotentialMeasured;
 	protected final MeterPotentialEnergyFromIntegrator meterPotentialSampled;
-    protected final IBox secondaryBox;
+    protected final Box secondaryBox;
     protected double latticeEnergy;
     protected CoordinateDefinitionNitrogen primaryCoordDef, secondaryCoordDef;
     
@@ -37,7 +36,7 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
         super("Scaled Energy unit", Null.DIMENSION);
         this.primaryCoordDef = coordinateDef;
         
-        IBox realBox = coordinateDef.getBox();
+        Box realBox = coordinateDef.getBox();
         secondaryBox = new Box(space);
         sim.addBox(secondaryBox);
        

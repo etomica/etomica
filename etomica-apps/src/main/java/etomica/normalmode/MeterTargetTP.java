@@ -9,12 +9,11 @@ import java.io.IOException;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -48,7 +47,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected final DataTag tag;
-    protected final IBox pretendBox;
+    protected final Box pretendBox;
     protected CoordinateDefinition coordinateDefinition;
     protected final ISpecies species;
     protected double[][] alpha;
@@ -77,7 +76,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     }
 
     public IData getData() {
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
         double u = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
@@ -135,7 +134,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     /**
      * Returns true if all atoms in the given box satisfy p1's constraint
      */
-    protected double constraintEnergy(IBox box) {
+    protected double constraintEnergy(Box box) {
         p1.setBox(box);
         IAtomList atomList = box.getLeafList();
         for (int i=0; i<atomList.getAtomCount(); i++) {
@@ -246,7 +245,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
 
         // insert atoms into the box at their lattice sites.
         // we do this because want to find neighbors now (and then never again)
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IAtomList atoms = realBox.getLeafList();

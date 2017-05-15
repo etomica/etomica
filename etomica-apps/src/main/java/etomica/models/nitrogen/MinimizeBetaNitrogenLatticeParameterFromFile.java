@@ -7,11 +7,10 @@ package etomica.models.nitrogen;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
@@ -586,7 +585,7 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected MeterPotentialEnergy meterPotential;
 	protected PotentialMaster potentialMaster;
-	protected IBox box;
+	protected Box box;
 	protected SpeciesN2 species;
 	protected double density;
 	protected ISpace space;

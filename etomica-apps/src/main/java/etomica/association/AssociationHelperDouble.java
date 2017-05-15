@@ -7,7 +7,7 @@ package etomica.association;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.space.ISpace;
@@ -31,7 +31,7 @@ public class AssociationHelperDouble implements IAssociationHelper {
     protected double minR2;
     protected final IVectorMutable dr;
 
-    public AssociationHelperDouble(ISpace space, IBox box, AssociationManager associationManager) {
+    public AssociationHelperDouble(ISpace space, Box box, AssociationManager associationManager) {
         this.associationManager = associationManager;
         boundary = box.getBoundary();
         dr = space.makeVector();

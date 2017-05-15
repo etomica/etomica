@@ -9,14 +9,13 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
 import etomica.models.OPLS.SpeciesAceticAcid;
-import etomica.potential.PotentialGroup;
 import etomica.space.ISpace;
 import etomica.space3d.RotationTensor3D;
 
@@ -82,7 +81,7 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

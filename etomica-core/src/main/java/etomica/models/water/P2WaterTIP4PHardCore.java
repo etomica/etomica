@@ -2,6 +2,7 @@
 package etomica.models.water;
 
 import etomica.api.*;
+import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
 
@@ -56,7 +57,7 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
         dipole2 = space.makeVector();
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

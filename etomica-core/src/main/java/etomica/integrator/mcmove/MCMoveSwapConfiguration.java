@@ -6,7 +6,7 @@ package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -28,7 +28,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
 	private final IVectorMutable r;
 	private double u1, u2, temp1, temp2, deltaU1;
-	private final IBox[] swappedBoxes = new IBox[2];
+	private final Box[] swappedBoxes = new Box[2];
 
 	public MCMoveSwapConfiguration(IntegratorBox integrator1, IntegratorBox integrator2, ISpace space) {
   		super(null);
@@ -88,19 +88,19 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	/**
 	 * Implementation of MCMoveSwap interface
 	 */
-	public IBox[] swappedBoxes() {
+	public Box[] swappedBoxes() {
 	    swappedBoxes[0] = integrator1.getBox();
 	    swappedBoxes[1] = integrator2.getBox();
 	    return swappedBoxes;
 	}
 
-	public double energyChange(IBox box) {
+	public double energyChange(Box box) {
 	    if(box == integrator1.getBox()) return +deltaU1;
 	    if(box == integrator2.getBox()) return -deltaU1;
 	    return 0.0;
 	}
 	
-	public AtomIterator affectedAtoms(IBox p) {
+	public AtomIterator affectedAtoms(Box p) {
 	    if(p == integrator1.getBox() || p == integrator2.getBox()) {
 	        affectedAtomIterator.setBox(p);
 	        affectedAtomIterator.reset();

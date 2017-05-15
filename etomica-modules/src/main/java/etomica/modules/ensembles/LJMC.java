@@ -5,11 +5,9 @@
 package etomica.modules.ensembles;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -28,7 +26,7 @@ public class LJMC extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtom mcMoveAtom;

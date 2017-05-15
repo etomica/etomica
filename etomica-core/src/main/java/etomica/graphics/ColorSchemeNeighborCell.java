@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.Api1ACell;
@@ -18,7 +18,7 @@ import etomica.nbr.cell.Api1ACell;
  */
 public class ColorSchemeNeighborCell extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeNeighborCell(ISimulation sim, PotentialMasterNbr potentialMaster, IBox box, int dim) {
+    public ColorSchemeNeighborCell(ISimulation sim, PotentialMasterNbr potentialMaster, Box box, int dim) {
         super(box);
         typeColorScheme = new ColorSchemeByType(sim);
         leafList = box.getLeafList();

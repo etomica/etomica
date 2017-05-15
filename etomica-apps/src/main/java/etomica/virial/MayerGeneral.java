@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
@@ -45,7 +45,7 @@ public class MayerGeneral implements MayerFunction {
         return potential;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         potential.setBox(newBox);
     }
 

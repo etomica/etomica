@@ -7,10 +7,9 @@ package etomica.normalmode;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
@@ -100,7 +99,7 @@ public class SimOverlapLJModule {
 
         // HARMONIC
         IBoundary boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        IBox boxHarmonic = new Box(boundaryHarmonic, space);
+        Box boxHarmonic = new Box(boundaryHarmonic, space);
         sim.addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numMolecules);
 
@@ -145,7 +144,7 @@ public class SimOverlapLJModule {
 
         // TARGET
         
-        IBox boxTarget = new Box(space);
+        Box boxTarget = new Box(space);
         sim.addBox(boxTarget);
         boxTarget.setNMolecules(species, numMolecules);
 
@@ -270,7 +269,7 @@ public class SimOverlapLJModule {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarget, boxHarmonic;
+    public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
     public Basis basis;
@@ -316,7 +315,7 @@ public class SimOverlapLJModule {
             this.wrappedPotentialMaster = wrappedPotentialMaster;
         }
 
-        public double calculateEnergy(IBox box) {
+        public double calculateEnergy(Box box) {
             pc.zeroSum();
             wrappedPotentialMaster.calculate(box, id, pc);
             return pc.getSum() - latticeEnergy;
@@ -342,7 +341,7 @@ public class SimOverlapLJModule {
             this.meters = meters;
         }
 
-        public double calculateEnergy(IBox box) {
+        public double calculateEnergy(Box box) {
             return meters[box.getIndex()].getDataAsScalar();
         }
 

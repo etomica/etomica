@@ -8,7 +8,7 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -133,7 +133,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
 
         public int nBody() {
             return 2;
@@ -469,7 +469,7 @@ for (int iter=0; iter<maxIter; iter++) {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     
@@ -559,7 +559,7 @@ for (int iter=0; iter<maxIter; iter++) {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             
         }
 
@@ -790,7 +790,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             }
         });
         sim.addSpecies(speciesCO2);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
@@ -856,7 +856,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
             }
         });
         sim.addSpecies(speciesCO2);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
@@ -910,7 +910,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
         Simulation sim = new Simulation(space);
         SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
         sim.addSpecies(speciesWaterCOM);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesWaterCOM, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));

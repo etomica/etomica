@@ -10,7 +10,7 @@ import java.io.IOException;
 import etomica.action.WriteConfiguration;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -21,7 +21,6 @@ import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
@@ -80,7 +79,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
         affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
@@ -485,11 +484,11 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     public final double getPressure() {return pressure;}
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
 
-	public Agent makeAgent(IAtom a, IBox agentBox) {
+	public Agent makeAgent(IAtom a, Box agentBox) {
 		return new Agent();
 	}
 
-	public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {
+	public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {
 		
 	}
 	public static class Agent {

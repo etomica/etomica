@@ -8,7 +8,6 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -39,7 +38,7 @@ public class LJMD3DThreaded extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones p2lj;
     public P2SoftSphericalTruncated[] potential;
     public PotentialThreaded potentialThreaded;

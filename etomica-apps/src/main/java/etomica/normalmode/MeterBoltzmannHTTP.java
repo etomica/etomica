@@ -6,12 +6,11 @@ package etomica.normalmode;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -44,7 +43,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
     
     protected DataTag tag;
     
-    protected final IBox pretendBox;
+    protected final Box pretendBox;
     protected CoordinateDefinition coordinateDefinition;
     protected final ISpecies species;
     protected P1ConstraintNbr p1;
@@ -72,7 +71,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
     }
 
     public IData getData() {
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
         double u = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
@@ -121,7 +120,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
     /**
      * Returns true if all atoms in the given box satisfy p1's constraint
      */
-    protected double constraintEnergy(IBox box) {
+    protected double constraintEnergy(Box box) {
         p1.setBox(box);
         IAtomList atomList = box.getLeafList();
         for (int i=0; i<atomList.getAtomCount(); i++) {
@@ -166,7 +165,7 @@ public class MeterBoltzmannHTTP implements IEtomicaDataSource {
 
         // insert atoms into the box at their lattice sites.
         // we do this because want to find neighbors now (and then never again)
-        IBox realBox = coordinateDefinition.getBox();
+        Box realBox = coordinateDefinition.getBox();
         pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IAtomList atoms = realBox.getLeafList();

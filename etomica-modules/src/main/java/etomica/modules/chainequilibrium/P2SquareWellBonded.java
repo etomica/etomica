@@ -7,7 +7,7 @@ package etomica.modules.chainequilibrium;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
 import etomica.space.ISpace;
@@ -34,7 +34,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
     protected final AtomLeafAgentManager agentManager;
-    protected IBox box;
+    protected Box box;
     protected double solventThermoFrac;
 
 	public P2SquareWellBonded(ISpace space, AtomLeafAgentManager aam, double coreDiameter,double lambda, double epsilon) {
@@ -44,7 +44,7 @@ public class P2SquareWellBonded extends P2SquareWell {
         ringResult = new RingResult();
 	}
 
-    public void setBox(IBox newBox){
+    public void setBox(Box newBox){
         box = newBox;
         super.setBox(box);
     }

@@ -9,7 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
@@ -67,7 +67,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	}
 
 	@Override
-	public void setBox(IBox p) {
+	public void setBox(Box p) {
 		super.setBox(p);
 		int nMolecules = box.getMoleculeList().getMoleculeCount();
 		doExchange = new boolean[nMolecules];

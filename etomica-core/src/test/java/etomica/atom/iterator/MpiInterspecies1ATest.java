@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -100,7 +100,7 @@ public class MpiInterspecies1ATest extends MoleculeIteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(IBox box, ISpecies[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         speciesTestForward(box, species[0], species[1]);
     }
 
@@ -108,7 +108,7 @@ public class MpiInterspecies1ATest extends MoleculeIteratorTestAbstract {
      * Test iteration in various directions with different targets. Iterator
      * constructed with index of first species less than index of second.
      */
-    private void speciesTestForward(IBox box,
+    private void speciesTestForward(Box box,
             ISpecies species0, ISpecies species1) {
         MpiInterspecies1A api = new MpiInterspecies1A(new ISpecies[] {
                 species0, species1 });

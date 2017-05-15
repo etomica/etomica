@@ -6,7 +6,7 @@
 package etomica.models.nitrogen;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -109,7 +109,7 @@ public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecula
 		this.rC = rC;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

@@ -9,6 +9,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ISpace;
@@ -59,7 +60,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -160,11 +161,11 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
 //--------------------------------------------------------------
     
-    public MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
             
     public final static class MyAgent implements IntegratorBox.Forcible {//need public so to use with instanceof
         public IVectorMutable force;

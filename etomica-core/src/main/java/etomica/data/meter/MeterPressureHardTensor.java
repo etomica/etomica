@@ -6,7 +6,7 @@ package etomica.data.meter;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -97,7 +97,7 @@ public class MeterPressureHardTensor implements IEtomicaDataSource, IntegratorHa
     private Tensor v;
     private IntegratorHard integratorHard;
     private String name;
-    private IBox box;
+    private Box box;
     private final DataTensor data;
     private final IEtomicaDataInfo dataInfo;
     protected final DataTag tag;

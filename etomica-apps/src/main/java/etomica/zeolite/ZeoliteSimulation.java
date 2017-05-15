@@ -7,10 +7,8 @@ package etomica.zeolite;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.atom.DiameterHash;
-import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
+import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
@@ -55,7 +53,7 @@ public class ZeoliteSimulation extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final IBox box;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */

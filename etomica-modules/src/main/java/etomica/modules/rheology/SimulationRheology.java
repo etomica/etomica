@@ -5,9 +5,8 @@
 package etomica.modules.rheology;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -22,7 +21,7 @@ import etomica.species.SpeciesSpheres;
  */
 public class SimulationRheology extends Simulation {
 
-    public final IBox box;
+    public final Box box;
     public final SpeciesSpheres species;
     public final IntegratorPolymer integrator;
     public final ActivityIntegrate activityIntegrate;

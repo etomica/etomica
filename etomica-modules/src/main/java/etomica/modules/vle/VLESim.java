@@ -7,7 +7,6 @@ package etomica.modules.vle;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -36,7 +35,7 @@ import etomica.util.IListener;
 
 public class VLESim extends Simulation {
 
-    public final IBox boxLiquid, boxVapor;
+    public final Box boxLiquid, boxVapor;
     public final SpeciesSpheresRotating species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;

@@ -8,7 +8,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -101,7 +101,7 @@ public class VirialLJOrICPYC {
         }
     
         MayerFunction f12 = new MayerFunction() {
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
             
             public double f(IMoleculeList pair, double r2, double beta) {

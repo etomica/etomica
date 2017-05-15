@@ -4,13 +4,11 @@
 
 package etomica.nbr.list;
 
-import java.io.Serializable;
-
 import etomica.action.BoxImposePbc;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotential;
@@ -43,8 +41,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManager(PotentialMasterList potentialMasterList, double range, 
-            IBox box, ISpace space) {
+    public NeighborListManager(PotentialMasterList potentialMasterList, double range,
+                               Box box, ISpace space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
@@ -415,13 +413,13 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
     protected final AtomLeafAgentManager<AtomNeighborLists> agentManager2Body;
     protected final AtomLeafAgentManager<AtomPotentialList> agentManager1Body;
     private NeighborListEventManager eventManager;
-    protected IBox box;
+    protected Box box;
     private NeighborCriterion[] oldCriteria;
     protected boolean initialized;
     protected boolean doApplyPBC;
     protected int numUpdates;
 
-    public AtomNeighborLists makeAgent(IAtom atom, IBox agentBox) {
+    public AtomNeighborLists makeAgent(IAtom atom, Box agentBox) {
         if (initialized) {
             AtomNeighborLists oldAgent = agentManager2Body.getAgent(atom);
             if (oldAgent != null) {
@@ -436,7 +434,7 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         return lists;
     }
     
-    public void releaseAgent(AtomNeighborLists agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(AtomNeighborLists agent, IAtom atom, Box agentBox) {
         // we need to remove this atom from the neighbor lists of its neighbors.
         AtomNeighborLists nbrLists = agent;
         IAtomList[] upDnLists = nbrLists.getUpList();
@@ -484,8 +482,8 @@ public class NeighborListManager implements IIntegratorListener, AgentSource<Ato
         	this.manager = manager;
         }
 
-        public void releaseAgent(AtomPotentialList obj, IAtom atom, IBox agentBox) {}
-        public AtomPotentialList makeAgent(IAtom atom, IBox agentBox) {
+        public void releaseAgent(AtomPotentialList obj, IAtom atom, Box agentBox) {}
+        public AtomPotentialList makeAgent(IAtom atom, Box agentBox) {
         	if (manager != null) {
 	            AtomPotentialList oldAgent = manager.getAgent(atom);
 	            if (oldAgent != null) {

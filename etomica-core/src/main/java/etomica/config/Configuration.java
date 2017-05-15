@@ -4,7 +4,7 @@
 
 package etomica.config;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 
 /**
  * General class for assignment of molecules to positions in a box.
@@ -29,6 +29,6 @@ public interface Configuration {
      * (i.e., a solid-box mixture).
      * 
      */
-    public void initializeCoordinates(IBox box);
+    public void initializeCoordinates(Box box);
 
 }

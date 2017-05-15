@@ -12,9 +12,7 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -458,7 +456,7 @@ public class SimOverlapLJ extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarget, boxHarmonic;
+    public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
     public Basis basis;

@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -43,7 +43,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         setStartMolecule(1);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         translationVectors = new IVectorRandom[box.getMoleculeList().getMoleculeCount()];
         for (int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {

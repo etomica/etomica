@@ -5,7 +5,7 @@
 package etomica.models.hexane;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -24,8 +24,8 @@ import etomica.util.Constants;
 public abstract class MCMoveCBMC extends MCMoveBox {
 
     public MCMoveCBMC(IPotentialMaster potentialMaster, IRandom random,
-            ISpace _space, IntegratorMC integrator, IBox p, int maxAtomsPerMolecule,
-            int NTrial) {
+                      ISpace _space, IntegratorMC integrator, Box p, int maxAtomsPerMolecule,
+                      int NTrial) {
         super(potentialMaster);
         this.random = random;
 
@@ -66,7 +66,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
     public abstract double energyChange();
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         externalMeter.setBox(p);
     }

@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -49,14 +49,14 @@ public class WriteConfiguration implements IAction {
     /**
      * Sets the box whose atom coordinates get written to the file.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -117,7 +117,7 @@ public class WriteConfiguration implements IAction {
     }
 
     protected String confName, fileName;
-    protected IBox box;
+    protected Box box;
     protected boolean doApplyPBC;
     protected final IVectorMutable writePosition;
 

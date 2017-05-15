@@ -8,6 +8,7 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
@@ -49,7 +50,7 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Time.DIMENSION;}
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         if (box != null) {
             box.getEventManager().removeListener(this);
         }
@@ -625,13 +626,13 @@ public abstract class IntegratorMD extends IntegratorBox implements IBoxListener
             this.space = space;
         }
 
-        public IVectorMutable makeAgent(IAtom a, IBox agentBox) {
+        public IVectorMutable makeAgent(IAtom a, Box agentBox) {
             IVectorMutable p = space.makeVector();
             p.E(a.getPosition());
             return p;
         }
 
-        public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {}
+        public void releaseAgent(IVectorMutable agent, IAtom atom, Box agentBox) {}
     }
 }
 

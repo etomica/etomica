@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageFixed;
@@ -39,7 +38,7 @@ import etomica.util.ParseArgs;
 public class MappedVirialLJ extends Simulation {
     
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;

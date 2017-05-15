@@ -7,6 +7,7 @@ package etomica.models.water;
 
 import etomica.api.*;
 import etomica.atom.IAtomPositionDefinition;
+import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
 import etomica.space.ISpace;
 
@@ -37,7 +38,7 @@ public class P2Water4P extends PotentialMolecular {
         this.positionDefinition = positionDefinition;
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

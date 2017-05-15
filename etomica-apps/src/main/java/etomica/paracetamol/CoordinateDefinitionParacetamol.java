@@ -7,7 +7,7 @@ package etomica.paracetamol;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -36,7 +36,7 @@ import etomica.space.Tensor;
 public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionParacetamol(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionParacetamol(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
     	super(sim, box, primitive, 3, basis, _space);
        
        	axes = new IVectorMutable [3];

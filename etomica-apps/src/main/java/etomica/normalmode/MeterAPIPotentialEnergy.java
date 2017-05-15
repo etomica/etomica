@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.units.Energy;
 
@@ -24,15 +24,15 @@ public class MeterAPIPotentialEnergy extends DataSourceScalar {
         return potential.calculateEnergy(box);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
     private static final long serialVersionUID = 1L;
     protected final IAPIPotential potential;
-    protected IBox box;
+    protected Box box;
 }

@@ -7,7 +7,7 @@ package etomica.atom.iterator;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomListWrapper;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -37,7 +37,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
      * Sets the box containing the molecules for iteration. A null
      * box conditions iterator to give no iterates.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (box == null) {
             throw new NullPointerException("Null box");
@@ -108,7 +108,7 @@ public class AtomIteratorAllLeafType implements AtomsetIteratorBoxDependent,
 
     private static final long serialVersionUID = 1L;
     private final IAtomType[] atomType;
-    private IBox box;
+    private Box box;
     private int nextCursor;
     private final AtomListWrapper next;
 }

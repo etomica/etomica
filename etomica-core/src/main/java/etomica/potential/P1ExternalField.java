@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.atom.DipoleSource;
@@ -32,7 +32,7 @@ public class P1ExternalField extends PotentialMolecular {
 		return energy;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		
 	}
 	

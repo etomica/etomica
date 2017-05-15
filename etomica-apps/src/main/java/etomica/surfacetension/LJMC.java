@@ -9,10 +9,9 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -51,7 +50,7 @@ public class LJMC extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtomInRegion mcMoveAtom, mcMoveAtomBigStep;

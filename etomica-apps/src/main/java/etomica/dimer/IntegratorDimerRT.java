@@ -11,7 +11,7 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -22,7 +22,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -43,7 +42,7 @@ import etomica.space.IVectorRandom;
 
 public class IntegratorDimerRT extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
-	public IBox box1, box2;
+	public Box box1, box2;
 	public ISimulation sim;
 	public double deltaR;
 	public double dTheta, deltaXl, dXl;
@@ -928,11 +927,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 		activityIntegrate = ai;
 	}
 
-	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
 		return new IntegratorVelocityVerlet.MyAgent(space);
 	}
 
-	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {
+	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {
 		// TODO Auto-generated method stub	
 	}
 	

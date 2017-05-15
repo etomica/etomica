@@ -7,7 +7,7 @@ package etomica.models.nitrogen;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -35,7 +35,7 @@ import etomica.util.FunctionGeneral;
 
 public class LatticeSumCrystalMolecular{
 
-	public LatticeSumCrystalMolecular(BravaisLatticeCrystal lattice, CoordinateDefinitionNitrogen coordinateDef, IBox box) {
+	public LatticeSumCrystalMolecular(BravaisLatticeCrystal lattice, CoordinateDefinitionNitrogen coordinateDef, Box box) {
        
     	this.lattice = lattice;
     	this.coordinateDef = coordinateDef;
@@ -220,7 +220,7 @@ public class LatticeSumCrystalMolecular{
     protected final AtomActionTranslateBy translateBy;
     protected MoleculeChildAtomAction atomGroupActionTranslate;
     protected CoordinateDefinitionNitrogen coordinateDef;
-    protected IBox ghostBox;
+    protected Box ghostBox;
     protected Tensor[] xzOrientationTensor, yOrientationTensor;
     protected MoleculeChildAtomAction atomGroupAction;
     protected IVectorMutable[] positionVector;

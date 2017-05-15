@@ -4,7 +4,6 @@
 
 package etomica.box;
 
-import etomica.api.IBox;
 import etomica.api.IBoxMoleculeIndexEvent;
 import etomica.api.IMolecule;
 
@@ -14,7 +13,7 @@ import etomica.api.IMolecule;
  */
 public class BoxMoleculeIndexEvent extends BoxMoleculeEvent implements IBoxMoleculeIndexEvent {
 
-    public BoxMoleculeIndexEvent(IBox box, IMolecule mole, int _index) {
+    public BoxMoleculeIndexEvent(Box box, IMolecule mole, int _index) {
         super(box, mole);
         this.index = _index;
     }

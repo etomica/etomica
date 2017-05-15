@@ -14,7 +14,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorAverage;
@@ -662,7 +662,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
-        public DataSinkExcludeOverlap(IBox box) {
+        public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
         }
@@ -682,7 +682,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         }
         
         protected final DataDouble myData;
-        protected final IBox box;
+        protected final Box box;
     }
 
     public static void main(String[] args) {

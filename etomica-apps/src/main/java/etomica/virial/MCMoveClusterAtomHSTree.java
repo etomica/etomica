@@ -5,9 +5,8 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -19,7 +18,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
         this.sigma = sigma;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         int n = box.getLeafList().getAtomCount();
         degree = new int[n];

@@ -4,7 +4,7 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -398,7 +398,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IMolecule targetMolecule = id.getTargetMolecule();
         NeighborListManagerMolecular neighborManager = neighborListAgentManager.getAgent(box);
@@ -515,14 +515,14 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         moleculeArrayList.clear();
     }
 
-    public NeighborListManagerMolecular getNeighborManager(IBox box) {
+    public NeighborListManagerMolecular getNeighborManager(Box box) {
         // we didn't have the simulation when we made the agent manager.
         // setting the simulation after the first time is a quick return
         return neighborListAgentManager.getAgent(box);
     }
 
     
-    public NeighborCellManagerMolecular getNbrCellManager(IBox box) {
+    public NeighborCellManagerMolecular getNbrCellManager(Box box) {
         return (NeighborCellManagerMolecular)boxAgentManager.getAgent(box);
     }
 
@@ -571,7 +571,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
             potentialMaster = p;
         }
 
-        public NeighborListManagerMolecular makeAgent(IBox box) {
+        public NeighborListManagerMolecular makeAgent(Box box) {
             return new NeighborListManagerMolecular(potentialMaster, range, box, space);
         }
         

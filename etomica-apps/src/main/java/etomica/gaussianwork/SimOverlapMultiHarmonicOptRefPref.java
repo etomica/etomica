@@ -13,9 +13,7 @@ import java.io.IOException;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
@@ -486,7 +484,7 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
 
 	private static final long serialVersionUID = 1L;
 	protected SpeciesSpheresMono species;
-	protected IBox boxA, boxB;
+	protected Box boxA, boxB;
 	protected IController controller;
 	protected ActivityIntegrate activityIntegrate;
 	protected IntegratorMC integratorA, integratorB;

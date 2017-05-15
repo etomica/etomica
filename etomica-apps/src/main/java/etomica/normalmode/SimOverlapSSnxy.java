@@ -12,10 +12,8 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
+import etomica.api.IVector;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataFork;
@@ -69,7 +67,7 @@ public class SimOverlapSSnxy extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarget, boxHarmonic;
+    public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
     public Basis basis;

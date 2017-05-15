@@ -4,7 +4,6 @@
 
 package etomica.box;
 
-import etomica.api.IBox;
 import etomica.api.IBoxEvent;
 
 /**
@@ -14,16 +13,15 @@ import etomica.api.IBoxEvent;
  */
 public class BoxEvent implements java.io.Serializable, IBoxEvent {
     
-    public BoxEvent(IBox box) {
+    public BoxEvent(Box box) {
         this.box = box;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
-    protected IBox box;
+    protected Box box;
 
     private static final long serialVersionUID = 1L;
 }
-    

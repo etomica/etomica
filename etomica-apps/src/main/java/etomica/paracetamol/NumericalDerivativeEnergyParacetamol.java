@@ -4,7 +4,7 @@
 
 package etomica.paracetamol;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -15,7 +15,7 @@ import etomica.util.numerical.FiniteDifferenceDerivative;
 
 public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimensionalDifferentiable{
 	
-	public NumericalDerivativeEnergyParacetamol(IBox box, IPotentialMaster potentialMaster){
+	public NumericalDerivativeEnergyParacetamol(Box box, IPotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -100,7 +100,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 	protected CoordinateDefinition coordinateDefinition;
 	protected MeterPotentialEnergy meterEnergy;
 	protected double[] fPrime;
-	protected IBox box;
+	protected Box box;
 	protected IPotentialMaster potentialMaster;
 	//public Species species;
 	

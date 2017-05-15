@@ -5,7 +5,7 @@
 package etomica.modules.sam;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -37,7 +37,7 @@ public class MeterTilt implements IEtomicaDataSource {
                 new DataDouble.DataInfoDouble("Tilt", Angle.DIMENSION)});
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -70,7 +70,7 @@ public class MeterTilt implements IEtomicaDataSource {
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
+    protected Box box;
     protected final IVectorMutable dr, drSum;
     protected final DataTag tag;
     protected final DataGroup data;

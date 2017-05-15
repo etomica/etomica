@@ -4,9 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
-import etomica.api.IMoleculeList;
 import etomica.box.Box;
+import etomica.api.IMoleculeList;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -58,11 +57,11 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		ghostSpecies.setConformation(conformation);
 		addSpecies(ghostSpecies);
 		
-		IBox box = new Box(space);
+		Box box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		
 		
-		IBox ghostBox = new Box(space);
+		Box ghostBox = new Box(space);
 		addBox(ghostBox);
 		ghostBox.setNMolecules(ghostSpecies, 1);
 		

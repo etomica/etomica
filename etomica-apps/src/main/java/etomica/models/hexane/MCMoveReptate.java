@@ -5,7 +5,7 @@
 package etomica.models.hexane;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -165,7 +165,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     
     public double energyChange(){return uNew - uOld;}
      
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

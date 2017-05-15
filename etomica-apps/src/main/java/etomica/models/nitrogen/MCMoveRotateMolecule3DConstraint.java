@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -49,7 +49,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
     protected final MoleculeChildAtomAction atomGroupAction;
     
     public MCMoveRotateMolecule3DConstraint(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space, double angle, CoordinateDefinitionNitrogen coordinateDef, IBox box) {
+    		                      ISpace _space, double angle, CoordinateDefinitionNitrogen coordinateDef, Box box) {
         super(potentialMaster, random, _space, 0.5*Math.PI, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();

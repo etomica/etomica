@@ -12,9 +12,8 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.api.IVector;
 import etomica.box.BoxAgentManager;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -480,7 +479,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarget, boxHarmonic;
+    public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
     public Basis basis;

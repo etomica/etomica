@@ -6,7 +6,7 @@ package etomica.liquidLJ;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2;
@@ -112,7 +112,7 @@ public class Potential2SoftSphericalLSMulti extends Potential2 implements Potent
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Soft.setBox(box);
 

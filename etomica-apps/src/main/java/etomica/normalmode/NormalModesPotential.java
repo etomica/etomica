@@ -9,10 +9,9 @@ import java.io.IOException;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -50,7 +49,7 @@ public class NormalModesPotential implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, nCells);
         
-        IBox box = new Box(boundary, space);
+        Box box = new Box(boundary, space);
 
         System.out.println("Cell Density: "+nSites/boundary.volume());
         System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);

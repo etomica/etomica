@@ -4,7 +4,7 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -28,8 +28,8 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManagerSlantyMolecular(PotentialMasterListMolecular potentialMasterList, double range, 
-            IBox box, ISpace space) {
+    public NeighborListManagerSlantyMolecular(PotentialMasterListMolecular potentialMasterList, double range,
+                                              Box box, ISpace space) {
         super(potentialMasterList, range, box, space);
         pair = new MoleculePair();
     }
@@ -152,7 +152,7 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
             super(range, space);
         }
 
-        public NeighborListManagerMolecular makeAgent(IBox box) {
+        public NeighborListManagerMolecular makeAgent(Box box) {
             return new NeighborListManagerSlantyMolecular(potentialMaster, range, box, space);
         }
     }

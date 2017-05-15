@@ -9,7 +9,7 @@ import java.awt.Color;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeAgentManager;
@@ -59,11 +59,11 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         fullColorMap.setAgent(type, color);
     }
 
-    public LengthAgent makeAgent(IAtom a, IBox agentBox) {
+    public LengthAgent makeAgent(IAtom a, Box agentBox) {
         return new LengthAgent();
     }
 
-    public void releaseAgent(LengthAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(LengthAgent agent, IAtom atom, Box agentBox) {}
 
     public void colorAllAtoms() {
         // untag all the Atoms
@@ -104,11 +104,11 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         return;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         if (chainLengthManager != null) {
             // allow old agentManager to de-register itself as a BoxListener
@@ -121,7 +121,7 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
         public int chainNumber;
     }
 
-    protected IBox box;
+    protected Box box;
     protected AtomLeafAgentManager<LengthAgent> chainLengthManager;
     protected final AtomLeafAgentManager<IAtom[]> agentManager;
     protected final AtomTypeAgentManager radicalColorMap, fullColorMap;

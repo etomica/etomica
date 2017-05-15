@@ -6,7 +6,7 @@ package etomica.data.meter;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
@@ -68,15 +68,15 @@ public class MeterKineticEnergy extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
-    private IBox box;
+    private Box box;
  }

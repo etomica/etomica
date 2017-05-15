@@ -6,19 +6,13 @@ package etomica.meam;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
-import etomica.space3d.Space3D;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
-import etomica.units.ElectronVolt;
 
 /**
  * EFS (Extended Finnis-Sinclair) potential
@@ -90,7 +84,7 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
         
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary=box.getBoundary();
     }
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
@@ -49,7 +49,7 @@ public class MeterPressure extends DataSourceScalar {
         temperature = newTemperature;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -87,7 +87,7 @@ public class MeterPressure extends DataSourceScalar {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
     	virial.zeroSum();
-    	IBox b = box;
+    	Box b = box;
     	if (b == null) {
     	    b = integrator.getBox();
     	}
@@ -107,6 +107,6 @@ public class MeterPressure extends DataSourceScalar {
     private final PotentialCalculationVirialSum virial;
     protected IPotentialMaster potentialMaster;
     protected double temperature;
-    protected IBox box;
+    protected Box box;
     private final int dim;
 }

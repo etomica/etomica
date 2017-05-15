@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 
 /**
@@ -32,5 +32,5 @@ public interface MayerFunctionNonAdditive {
 	 */
 	public double f(IMoleculeList molecules, int nMolecules, int[] moleculeIndices, double[] r2, double beta);
 
-	public void setBox(IBox box);
+	public void setBox(Box box);
 }

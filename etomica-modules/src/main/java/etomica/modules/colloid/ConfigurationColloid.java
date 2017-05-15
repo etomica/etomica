@@ -5,7 +5,7 @@
 package etomica.modules.colloid;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
@@ -154,7 +154,7 @@ public class ConfigurationColloid implements Configuration {
         colloidMonomerBondManager = newColloidMonomerBondManager;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         box.setNMolecules(species, 0);
         box.setNMolecules(species, nGraft*chainLength);
         box.setNMolecules(speciesColloid, 1);

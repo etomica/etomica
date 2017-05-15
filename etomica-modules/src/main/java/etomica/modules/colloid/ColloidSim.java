@@ -7,12 +7,11 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
@@ -39,7 +38,7 @@ public class ColloidSim extends Simulation {
     
     public PotentialMasterList potentialMaster;
     public SpeciesSpheresMono species, speciesColloid;
-    public IBox box;
+    public Box box;
     public IntegratorHard integrator;
     public P2HardWrapper potentialWrapper;
     public ActivityIntegrate activityIntegrate;
@@ -100,8 +99,8 @@ public class ColloidSim extends Simulation {
         box.setNMolecules(speciesColloid, nColloid);
 
         AgentSource<AtomArrayList> bondAgentSource = new AgentSource<AtomArrayList>() {
-            public void releaseAgent(AtomArrayList agent, IAtom atom, IBox agentBox) {}
-            public AtomArrayList makeAgent(IAtom a, IBox agentBox) {return new AtomArrayList();}
+            public void releaseAgent(AtomArrayList agent, IAtom atom, Box agentBox) {}
+            public AtomArrayList makeAgent(IAtom a, Box agentBox) {return new AtomArrayList();}
         };
         colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
         monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box, AtomArrayList.class);
@@ -257,7 +256,7 @@ public class ColloidSim extends Simulation {
     // reject everything.  we'll add them explicitly
     public static class CriterionNone implements NeighborCriterion {
         public boolean unsafe() {return false;}
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
         public void reset(IAtom atom) {}
         public boolean needUpdate(IAtom atom) {return false;}
         public boolean accept(IAtomList pair) {return false;}

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.data.meter;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
@@ -30,7 +30,7 @@ public class MeterHyperVirial implements IEtomicaDataSource {
     protected final IteratorDirective iteratorDirective;
     protected final PotentialCalculationHyperVirialSum hyperVirial;
     protected IPotentialMaster potentialMaster;
-    protected IBox box;
+    protected Box box;
 
     private final PotentialCalculationVirialSum virial;
     protected double temperature;
@@ -83,7 +83,7 @@ public class MeterHyperVirial implements IEtomicaDataSource {
         potentialMaster = newPotentialMaster;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 

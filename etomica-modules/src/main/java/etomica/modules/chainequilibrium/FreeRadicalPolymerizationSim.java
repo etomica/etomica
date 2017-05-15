@@ -8,12 +8,11 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
@@ -31,7 +30,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	public IController controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
-	public IBox box;
+	public Box box;
 	public SpeciesSpheresMono speciesA; // initiator
 	public SpeciesSpheresMono speciesB; // monomer
 	public P2SquareWellBonded p2AA;
@@ -130,14 +129,14 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public IAtom[] makeAgent(IAtom a, IBox agentBox) {
+	public IAtom[] makeAgent(IAtom a, Box agentBox) {
 	    if (a.getType() == speciesB.getLeafType()) {
 	        return new IAtom[2]; // monomer
 	    }
 		return new IAtom[1]; // initiator
 	}
     
-    public void releaseAgent(IAtom[] agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(IAtom[] agent, IAtom atom, Box agentBox) {}
     
     public AtomLeafAgentManager<IAtom[]> getAgentManager() {
     	return agentManager;

@@ -4,7 +4,7 @@
 
 package etomica.modules.interfacial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
@@ -27,11 +27,11 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         virialData = new double[space.D()][0];
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -90,6 +90,6 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 
     protected DataFunction data;
     protected final double[][] virialData;
-    protected IBox box;
+    protected Box box;
     protected int profileDim;
 }

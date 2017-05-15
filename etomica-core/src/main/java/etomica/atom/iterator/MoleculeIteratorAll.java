@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -40,7 +40,7 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
      * Sets the box containing the molecules for iteration. A null
      * box conditions iterator to give no iterates.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (box == null) {
             throw new NullPointerException("Null box");
@@ -105,7 +105,7 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
     }
 
     protected final ISpecies[] species;
-    protected IBox box;
+    protected Box box;
     protected int nextCursor;
     protected final MoleculeListWrapper next;
     protected final boolean oneIterate;

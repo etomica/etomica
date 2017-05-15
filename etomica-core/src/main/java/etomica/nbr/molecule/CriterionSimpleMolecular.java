@@ -5,7 +5,7 @@
 package etomica.nbr.molecule;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -112,7 +112,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         boundary = box.getBoundary();
         agentManager = boxAgentManager.getAgent(box);
 	}

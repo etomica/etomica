@@ -1,18 +1,13 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
-import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class PotentialCalculationPhiSum implements PotentialCalculationMolecular {

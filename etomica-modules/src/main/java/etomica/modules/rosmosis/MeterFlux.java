@@ -4,7 +4,7 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -81,7 +81,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         return species;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (integrator != null) {
             if (integrator instanceof IntegratorMD) {
@@ -99,7 +99,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
         }
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -204,7 +204,7 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
     protected DataInfoDouble dataInfo;
     protected final DataTag tag;
     protected ISpecies[] species;
-    protected IBox box;
+    protected Box box;
     protected double[] boundaries;
     protected int[] boundaryCoefficients;
     protected int dim;

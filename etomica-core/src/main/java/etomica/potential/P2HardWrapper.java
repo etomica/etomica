@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
@@ -29,7 +29,7 @@ import etomica.space.Tensor;
         return wrappedPotential.nBody();
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         wrappedPotential.setBox(box);
     }
     

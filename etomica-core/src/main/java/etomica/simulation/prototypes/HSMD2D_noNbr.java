@@ -7,9 +7,8 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.box.Box;
+import etomica.api.IPotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -48,7 +47,7 @@ public class HSMD2D_noNbr extends Simulation {
     public AccumulatorHistory pressureHistory;
     public AccumulatorAverageCollapsing temperatureAverage;
     public AccumulatorHistory temperatureHistory;
-    public IBox box;
+    public Box box;
     public SpeciesSpheresMono species;
     public IntegratorHard integrator;
     

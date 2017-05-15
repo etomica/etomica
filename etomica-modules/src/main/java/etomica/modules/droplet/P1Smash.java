@@ -6,7 +6,7 @@ package etomica.modules.droplet;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialSoft;
@@ -24,7 +24,7 @@ public class P1Smash implements PotentialSoft {
         g = 1;
     }
     
-    public void setBox(IBox newBox) {}
+    public void setBox(Box newBox) {}
     
     public int nBody() {
         return 1;

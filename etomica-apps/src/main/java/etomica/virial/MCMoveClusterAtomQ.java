@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomOrientedQuaternion;
@@ -39,7 +39,7 @@ public class MCMoveClusterAtomQ extends MCMoveAtom {
         return true;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         mcMove.setBox(p);
     }
 
@@ -75,15 +75,15 @@ public class MCMoveClusterAtomQ extends MCMoveAtom {
         mcMove.setAtomSource(source);
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return mcMove.getBox();
     }
 
-    public AtomIterator affectedAtoms(IBox aBox) {
+    public AtomIterator affectedAtoms(Box aBox) {
         return mcMove.affectedAtoms(aBox);
     }
 
-    public double energyChange(IBox aBox) {
+    public double energyChange(Box aBox) {
         return mcMove.energyChange(aBox);
     }
 

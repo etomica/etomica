@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.action.MoleculeAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -27,7 +27,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         this.space = _space;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         IMoleculeList moleculeList = box.getMoleculeList();
         rotationAxis = new int[moleculeList.getMoleculeCount()];

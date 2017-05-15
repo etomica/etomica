@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
@@ -37,7 +37,7 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
         innerRadius = 0.8;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.atom.AtomSource;
 
@@ -34,7 +34,7 @@ public class AtomSourceRandomDimer implements AtomSource {
         return atoms.getAtom(random.nextInt(atoms.getAtomCount()));
 	}
 
-	public void setBox(IBox p) {
+	public void setBox(Box p) {
 
 	}
 	protected IRandom random;

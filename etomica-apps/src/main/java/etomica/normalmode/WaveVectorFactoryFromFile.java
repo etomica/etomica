@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.space.Space;
 
@@ -48,7 +48,7 @@ public class WaveVectorFactoryFromFile implements WaveVectorFactory {
         return waveVectors;
     }
 
-    public void makeWaveVectors(IBox box) {
+    public void makeWaveVectors(Box box) {
         // nothing to do
     }
 

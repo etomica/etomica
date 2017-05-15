@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -29,8 +29,8 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public CoordinateDefinitionLeafSuperBox(IBox box, Primitive primitive,
-			Basis basis, ISpace space) {
+	public CoordinateDefinitionLeafSuperBox(Box box, Primitive primitive,
+                                            Basis basis, ISpace space) {
 		super(box, primitive, basis, space);
 	}
 	

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.exception.ConfigurationOverlapException;
@@ -29,7 +29,7 @@ public class IntegratorHardMDMC extends IntegratorHard {
         thermostatActions = new ArrayList<IAction>();
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
     }
     

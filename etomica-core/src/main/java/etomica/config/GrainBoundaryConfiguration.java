@@ -14,7 +14,7 @@
 package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -119,7 +119,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
     	IMoleculeList listMobileA = box.getMoleculeList(speciesAMobile);
     	IMoleculeList listMobileB = box.getMoleculeList(speciesBMobile);
         IMoleculeList listFixedA = box.getMoleculeList(speciesAFixed);

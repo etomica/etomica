@@ -1,6 +1,7 @@
 package etomica.normalmode;
 
 import etomica.api.*;
+import etomica.box.Box;
 import etomica.meam.PotentialCuLREP;
 import etomica.meam.PotentialEAM;
 import etomica.meam.PotentialEAM_LS;
@@ -10,7 +11,7 @@ import etomica.space.ISpace;
 
 public class PotentialCalculationEFSSP implements PotentialCalculation {
 		
-	public PotentialCalculationEFSSP(ISpace space, IBox box, CoordinateDefinition coordinateDefinition, double temperature, double f1, boolean isLS){
+	public PotentialCalculationEFSSP(ISpace space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double f1, boolean isLS){
 		sum = new double[1];
 //		sum = new double[7];
         this.temperature = temperature;
@@ -109,6 +110,6 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
 
     protected final boolean isLS;
 
-    protected final IBox box;
+    protected final Box box;
     protected final CoordinateDefinition coordinateDefinition;
  }//end VirialSum

@@ -5,7 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.IAtomOriented;
@@ -27,7 +27,7 @@ public class MCMoveRotate extends MCMoveAtom {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         if (oldOrientation != null) return;
         IAtomList atoms = box.getLeafList();

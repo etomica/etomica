@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -116,7 +116,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

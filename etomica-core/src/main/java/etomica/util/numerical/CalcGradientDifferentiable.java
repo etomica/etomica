@@ -5,7 +5,7 @@
 package etomica.util.numerical;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
@@ -29,7 +29,7 @@ import etomica.util.FunctionMultiDimensionalDifferentiable;
 
 public class CalcGradientDifferentiable implements FunctionMultiDimensionalDifferentiable, AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
-    public IBox box;
+    public Box box;
     public IPotentialMaster potentialMaster;
     public double forceConstant;
     int  derivativeOrder;
@@ -42,7 +42,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     private final ISpace space;
     
     
-    public CalcGradientDifferentiable(IBox aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, ISpace _space){
+    public CalcGradientDifferentiable(Box aBox, IPotentialMaster aPotentialMaster, IMoleculeList movableSet, ISpace _space){
         this.box = aBox;
         this.potentialMaster = aPotentialMaster;
         this.movableSet = movableSet;
@@ -129,11 +129,11 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         return space.D();
     }
 
-    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {
         // do nothing  
     }
     

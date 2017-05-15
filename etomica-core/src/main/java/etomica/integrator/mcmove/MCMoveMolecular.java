@@ -4,7 +4,7 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.iterator.MoleculeIterator;
 
 
@@ -18,6 +18,6 @@ import etomica.atom.iterator.MoleculeIterator;
  */
 public interface MCMoveMolecular{
 
-	public MoleculeIterator affectedMolecules(IBox box);
+	public MoleculeIterator affectedMolecules(Box box);
 	
 }

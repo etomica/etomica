@@ -7,9 +7,8 @@ package etomica.liquidLJ;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.atom.AtomPair;
 import etomica.box.Box;
+import etomica.atom.AtomPair;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
@@ -42,7 +41,7 @@ public class LjMC3D extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones potential;
     public MCMoveAtom mcMoveAtom;
 

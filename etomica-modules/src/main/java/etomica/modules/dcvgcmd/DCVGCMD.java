@@ -6,9 +6,8 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -51,7 +50,7 @@ public class DCVGCMD extends Simulation {
     public SpeciesSpheresMono species1;
     public SpeciesSpheresMono species2;
     public SpeciesTube speciesTube;
-    public IBox box;
+    public Box box;
     public DataSourceGroup fluxMeters;
     public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
     public MeterTemperature thermometer;

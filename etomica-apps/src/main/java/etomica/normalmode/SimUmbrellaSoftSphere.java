@@ -12,7 +12,6 @@ import java.io.IOException;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
@@ -361,7 +360,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public Basis basis;
     public SpeciesSpheresMono species;

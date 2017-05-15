@@ -9,12 +9,10 @@ import java.util.List;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.DiameterHashByType;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -56,7 +54,7 @@ public class LJMC extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
-    public IBox box;
+    public Box box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
 

@@ -5,7 +5,7 @@
 package etomica.modules.rheology;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
@@ -26,7 +26,7 @@ public class MeterEndToEnd extends DataSourceScalar {
         dr = space.makeVector();
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
@@ -43,6 +43,6 @@ public class MeterEndToEnd extends DataSourceScalar {
         return ee_tot/molecules.getMoleculeCount();
     }
 
-    protected IBox box;
+    protected Box box;
     protected final IVectorMutable dr;
 }

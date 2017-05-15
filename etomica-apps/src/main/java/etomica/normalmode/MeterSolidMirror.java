@@ -1,7 +1,7 @@
 package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -25,7 +25,7 @@ public class MeterSolidMirror implements IEtomicaDataSource {
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected double temperature;
-    protected final IBox box;
+    protected final Box box;
     protected final CoordinateDefinition coordinateDefinition;
     protected final IVectorMutable dr;
 

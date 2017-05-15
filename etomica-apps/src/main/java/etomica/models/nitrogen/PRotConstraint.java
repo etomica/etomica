@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -22,7 +22,7 @@ public class PRotConstraint extends PotentialMolecular{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public PRotConstraint(ISpace space, CoordinateDefinitionNitrogen coordinateDefinition, IBox box) {
+	public PRotConstraint(ISpace space, CoordinateDefinitionNitrogen coordinateDefinition, Box box) {
 		super(1, space);
 		this.box = box;
 		int numMolec = box.getMoleculeList().getMoleculeCount();
@@ -81,7 +81,7 @@ public class PRotConstraint extends PotentialMolecular{
 	}
 
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		this.box = box;
 		
 	}
@@ -97,7 +97,7 @@ public class PRotConstraint extends PotentialMolecular{
 	
 	private IVectorMutable[][] initMolecOrientation;
 	private IVectorMutable molecOrientation;
-	private IBox box;
+	private Box box;
 	protected double constraintAngle = 90.0; //in degree
 	protected int counter=0;
 	protected boolean onSwitch = true;

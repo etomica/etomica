@@ -2,6 +2,7 @@ package etomica.meam;
 
 import etomica.api.*;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
@@ -111,7 +112,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         return sum1;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         if (rho.length != box.getLeafList().getAtomCount()) {
             rho = new double[box.getLeafList().getAtomCount()];
@@ -166,7 +167,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
      * @param box
      * @return the listener
      */
-    public IIntegratorListenerMD makeIntegratorListener(PotentialMaster potentialMaster, IBox box) {
+    public IIntegratorListenerMD makeIntegratorListener(PotentialMaster potentialMaster, Box box) {
         final P2EAM p2 = this;
         return new IIntegratorListenerMD() {
             PotentialCalculationEnergySum pcEnergy = new PotentialCalculationEnergySum();

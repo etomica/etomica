@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtom;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
@@ -92,7 +92,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         }
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -280,7 +280,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
             return u;
         }
         
-        public void setBox(IBox newBox) {
+        public void setBox(Box newBox) {
             box = newBox;
         }
         
@@ -315,7 +315,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
         protected final P2ReactionFieldDipole potential;
         protected final IVectorMutable[] gradient;
         protected IMolecule targetAtom;
-        protected IBox box;
+        protected Box box;
 
     }
 }

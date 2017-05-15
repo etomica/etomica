@@ -5,7 +5,7 @@
 package etomica.models.co2;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -304,7 +304,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         
     }
 
@@ -367,7 +367,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             
         }
 
@@ -589,7 +589,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
         sim.addSpecies(species);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
@@ -683,7 +683,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
         sim.addSpecies(speciesCO2);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));

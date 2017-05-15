@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.potential.P1IntraMolecular;
 import etomica.space.ISpace;
@@ -23,7 +23,7 @@ public class P1IntraLambda implements IPotentialAtomic, P1IntraMolecular {
 		return 0;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		
 	}
 

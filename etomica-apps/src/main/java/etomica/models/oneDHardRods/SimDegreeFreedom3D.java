@@ -6,7 +6,6 @@ package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
@@ -62,7 +61,7 @@ public class SimDegreeFreedom3D extends Simulation {
     public BasisCubicFcc basis;
     public ActivityIntegrate activityIntegrate;
     
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public CoordinateDefinition coordinateDefinition;
     MeterNormalModeCoordinate meternmc;

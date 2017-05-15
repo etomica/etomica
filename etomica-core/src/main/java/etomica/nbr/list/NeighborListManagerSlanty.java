@@ -6,7 +6,7 @@ package etomica.nbr.list;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.atom.AtomPair;
 import etomica.nbr.NeighborCriterion;
@@ -27,8 +27,8 @@ public class NeighborListManagerSlanty extends NeighborListManager {
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManagerSlanty(PotentialMasterList potentialMasterList, double range, 
-            IBox box, ISpace space) {
+    public NeighborListManagerSlanty(PotentialMasterList potentialMasterList, double range,
+                                     Box box, ISpace space) {
         super(potentialMasterList, range, box, space);
         pair = new AtomPair();
     }
@@ -151,7 +151,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
             super(range, space);
         }
         
-        public NeighborListManager makeAgent(IBox box) {
+        public NeighborListManager makeAgent(Box box) {
             return new NeighborListManagerSlanty(potentialMaster, range, box, space);
         }
     }

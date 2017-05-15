@@ -39,19 +39,12 @@ package etomica.potential;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.zip.ZipInputStream;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -60,12 +53,10 @@ import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
-import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
-import etomica.units.Kelvin;
 import etomica.util.Constants;
 
 public class P2HydrogenHinde implements IPotential {
@@ -332,7 +323,7 @@ public class P2HydrogenHinde implements IPotential {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();    
     }
 

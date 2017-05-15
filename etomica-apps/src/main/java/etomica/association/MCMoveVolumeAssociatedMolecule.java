@@ -9,7 +9,7 @@ import java.io.IOException;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.WriteConfiguration;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -96,7 +96,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         moleculeIterator = new MoleculeIteratorAllMolecules();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);
@@ -351,7 +351,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
 		return Agent.class;
 	}
 
-	public MoleculeIterator affectedMolecules(IBox box) {
+	public MoleculeIterator affectedMolecules(Box box) {
 		return moleculeIterator;
 	}
 

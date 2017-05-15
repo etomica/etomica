@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -48,7 +48,7 @@ public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSour
         xDataInfo.addTag(xTag);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
@@ -104,7 +104,7 @@ public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSour
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
+    protected Box box;
     protected final IVectorMutable dr;
     protected final DataFunction data;
     protected final DataInfoFunction dataInfo;

@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
@@ -313,7 +313,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	/* (non-Javadoc)
 	 * @see etomica.potential.Potential#setBox(etomica.box.Box)
 	 */
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		boundary = box.getBoundary();
 	}
 

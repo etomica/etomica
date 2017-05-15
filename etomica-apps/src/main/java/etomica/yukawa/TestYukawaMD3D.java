@@ -10,7 +10,6 @@ import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -38,7 +37,7 @@ public class TestYukawaMD3D extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "Test Yukawa MD3D";
-    public final IBox box;
+    public final Box box;
 	public final IntegratorVelocityVerlet integrator;
 	public final SpeciesSpheresMono species;
 	public final P2Yukawa potential;

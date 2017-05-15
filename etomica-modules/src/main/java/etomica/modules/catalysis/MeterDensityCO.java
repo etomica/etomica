@@ -5,7 +5,7 @@
 package etomica.modules.catalysis;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
@@ -18,7 +18,7 @@ import etomica.units.Volume;
 
 public class MeterDensityCO extends DataSourceScalar {
 
-    public MeterDensityCO(IBox box, ISpecies speciesC, AtomLeafAgentManager interactionAgentManager) {
+    public MeterDensityCO(Box box, ISpecies speciesC, AtomLeafAgentManager interactionAgentManager) {
         super("Density", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{-1,1}));
         this.box = box;
         this.speciesC = speciesC;
@@ -38,7 +38,7 @@ public class MeterDensityCO extends DataSourceScalar {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies speciesC;
     protected final AtomLeafAgentManager interactionAgentManager;
 }

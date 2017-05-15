@@ -5,7 +5,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -107,7 +107,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         translationVector = space.makeVector();
         atomSource.setBox(p);

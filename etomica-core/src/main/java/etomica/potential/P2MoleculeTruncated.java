@@ -1,13 +1,12 @@
 package etomica.potential;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeOrientedDynamic;
 import etomica.space.ISpace;
 
 
@@ -77,7 +76,7 @@ public class P2MoleculeTruncated extends PotentialMolecular {
      */
     public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         potential.setBox(newBox);
         boundary = newBox.getBoundary();
         if (cutoffRatio > 0){

@@ -6,7 +6,7 @@ package etomica.paracetamol;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -72,7 +72,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
         int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {

@@ -4,7 +4,7 @@
 
 package etomica.nbr.cell;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager;
@@ -84,7 +84,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
         
     }
     
-    public NeighborCellManager getNbrCellManager(IBox box) {
+    public NeighborCellManager getNbrCellManager(Box box) {
         NeighborCellManager manager = (NeighborCellManager)boxAgentManager.getAgent(box);
         manager.setPotentialRange(range);
         int cr = getCellRange();

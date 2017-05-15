@@ -5,7 +5,7 @@
 package etomica.modules.colloid;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
@@ -22,7 +22,7 @@ import etomica.units.Length;
  */
 public class MeterEnd2End extends DataSourceScalar {
 
-    protected IBox box;
+    protected Box box;
     protected int chainLength;
     protected IVectorMutable dr, drTot;
     
@@ -32,7 +32,7 @@ public class MeterEnd2End extends DataSourceScalar {
         drTot = space.makeVector();
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     

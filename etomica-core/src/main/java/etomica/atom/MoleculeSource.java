@@ -4,7 +4,7 @@
 
 package etomica.atom;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 
 /**
@@ -17,7 +17,7 @@ public interface MoleculeSource {
      * sets the Box the source should pull Atoms from.
      * Box should not be null
      */
-    public void setBox(IBox p);
+    public void setBox(Box p);
 
     /**
      * Returns an atom.  Will return null if there are no appropriate atoms in 

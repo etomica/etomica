@@ -4,7 +4,7 @@
 
 package etomica.nbr.molecule;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 
@@ -31,7 +31,7 @@ public class CriterionAllMolecular implements NeighborCriterionMolecular, java.i
     /**
      * Performs no action.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     }
 
     /**

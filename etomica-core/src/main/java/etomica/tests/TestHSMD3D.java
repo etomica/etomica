@@ -6,7 +6,6 @@ package etomica.tests;
 
 import etomica.action.ActionIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
@@ -30,7 +29,7 @@ public class TestHSMD3D extends Simulation {
     
     public IntegratorHard integrator;
     public SpeciesSpheresMono species, species2;
-    public IBox box;
+    public Box box;
 
     public TestHSMD3D(ISpace _space, int numAtoms, int numSteps) {
         super(_space);

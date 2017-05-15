@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
@@ -17,7 +17,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.space.ISpace;
-import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 import etomica.util.Function;
@@ -75,7 +74,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         affectedAtomIterator = new AtomIteratorLeafAtoms();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

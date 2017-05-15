@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 
 /**
@@ -22,7 +22,7 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
         confName = aConfName;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IAtomList leafList = box.getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;

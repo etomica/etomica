@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
@@ -16,7 +16,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOriented;
 import etomica.atom.MoleculePair;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -132,7 +131,7 @@ public class P3Induction implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -157,8 +156,8 @@ public class P3Induction implements IPotentialAtomic {
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         species.setAxisSymmetric(false);
         sim.addSpecies(species);
-        IBox box = new Box(space);
-        IBox box2 = new Box(space);
+        Box box = new Box(space);
+        Box box2 = new Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{10000,10000,10000}));

@@ -6,7 +6,7 @@ package etomica.modules.sam;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -89,7 +89,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return 1;
     }
 
-    public void setBox(IBox box) {}
+    public void setBox(Box box) {}
 
     protected final ISpace space;
     protected double b45;

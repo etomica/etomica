@@ -54,7 +54,7 @@ public class DLJ_NVT_1site extends Simulation {
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation
 	protected final MCMoveRotate rotateMolecule;//rotation, atomic
-	protected final IBox box;
+	protected final Box box;
 	protected SpeciesSpheresRotating species;
 	private final static String APP_NAME = "dipolar LJ";
 	private static final int PIXEL_SIZE = 15;

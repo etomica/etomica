@@ -10,7 +10,6 @@ import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -41,7 +40,7 @@ public class TestHC2YukawaMC3D extends Simulation{
     public IntegratorMC integrator;
 	public MCMoveAtom mcMoveAtom;
 	public SpeciesSpheresMono species;
-	public IBox box;
+	public Box box;
 	public P2HC2Yukawa potential;
 	public Controller controller;
 	

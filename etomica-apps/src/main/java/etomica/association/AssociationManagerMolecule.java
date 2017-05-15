@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.association;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -38,13 +38,13 @@ import etomica.util.IListener;
 public class AssociationManagerMolecule implements MoleculeAgentSource,IListener {
     
     private AssociationDefinitionMolecule associationDefinition;
-    private final IBox box;
+    private final Box box;
     private final MoleculeAgentManager agentManager;
     private final Mpi1ACell neighborIterator;
     private final MoleculeArrayList associatedMolecules = new MoleculeArrayList();
     private final IListener mcMoveListener;
 
-    public AssociationManagerMolecule(ISimulation sim,IBox box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
+    public AssociationManagerMolecule(ISimulation sim, Box box, BoxAgentManager<NeighborCellManagerMolecular> cellAgentManager, AssociationDefinitionMolecule definition, double range) {
     	this.box = box;
     	agentManager = new MoleculeAgentManager(sim,box,this);
         associationDefinition = definition;
@@ -168,4 +168,3 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
 		
 	}
 }
-    

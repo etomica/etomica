@@ -6,7 +6,6 @@ package etomica.association;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -45,7 +44,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
     //public MCMoveAtomDimer mcMoveAtomDimer;
     public MCMoveRotateNoSmer mcMoveRotate;
     public SpeciesSpheresRotating species;
-    public IBox box;
+    public Box box;
     public P2HardAssociationCone potential;
     double epsilon = 1.0;
     public MCMoveDimer mcMoveDimer;

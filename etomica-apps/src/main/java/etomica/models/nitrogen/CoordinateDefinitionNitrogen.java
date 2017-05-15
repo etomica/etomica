@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
@@ -41,12 +41,12 @@ import etomica.util.RandomNumberGenerator;
 public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         implements Serializable {
 
-	 public CoordinateDefinitionNitrogen(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
+	 public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
 		 this(sim, box, primitive, basis, _space, 2);
 		
 	 }
 	
-    public CoordinateDefinitionNitrogen(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space, int rotDim) {
+    public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space, int rotDim) {
     	
     	super(sim, box, primitive, rotDim, basis, _space);
        /*

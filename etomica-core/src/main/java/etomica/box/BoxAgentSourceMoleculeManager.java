@@ -4,7 +4,6 @@
 
 package etomica.box;
 
-import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
@@ -22,7 +21,7 @@ public class BoxAgentSourceMoleculeManager implements BoxAgentSource<MoleculeAge
         this.moleculeAgentSource = moleculeAgentSource;
     }
 
-    public MoleculeAgentManager makeAgent(IBox box) {
+    public MoleculeAgentManager makeAgent(Box box) {
         return new MoleculeAgentManager(sim, box, moleculeAgentSource);
     }
 

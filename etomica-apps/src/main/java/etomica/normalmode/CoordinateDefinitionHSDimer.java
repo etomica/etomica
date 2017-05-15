@@ -7,7 +7,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -37,7 +37,7 @@ import etomica.species.Species;
 public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         implements Serializable {
 	
-    public CoordinateDefinitionHSDimer(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionHSDimer(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
     	
     	super(sim, box, primitive, 2, basis, _space);
     	

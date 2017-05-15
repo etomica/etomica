@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -119,7 +119,7 @@ public class MeterSolidDA implements IEtomicaDataSource {
     private final PotentialCalculationSolidSuper pc;
     protected double temperature;
     protected double latticeEnergy, latticePressure;
-    protected final IBox box;
+    protected final Box box;
     protected double pRes;
     protected final boolean doD2;
     protected final CoordinateDefinition coordinteDefinition;

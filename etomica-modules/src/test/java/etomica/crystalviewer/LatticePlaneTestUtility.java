@@ -4,10 +4,9 @@
 
 package etomica.crystalviewer;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
-import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -43,7 +42,7 @@ public class LatticePlaneTestUtility {
 	private Simulation sim = null;
 	private ISpecies species = null;
 	private BravaisLattice lattice = null;
-	private IBox box = null;
+	private Box box = null;
 	private LatticePlane latticePlane = null;
 	private final Space3D space;
 
@@ -156,7 +155,7 @@ public class LatticePlaneTestUtility {
 		return lattice;
 	}
 	
-	public IBox getBox() {
+	public Box getBox() {
 		return box;
 	}
 	

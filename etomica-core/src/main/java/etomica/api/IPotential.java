@@ -5,6 +5,8 @@
 package etomica.api;
 
 
+import etomica.box.Box;
+
 public interface IPotential {
 
     /**
@@ -17,7 +19,7 @@ public interface IPotential {
      * Informs the potential of the box on which it acts so that it can
      * properly consider the boundaries.
      */
-    public void setBox(IBox box);
+    public void setBox(Box box);
 
     /**
      * The number of atoms on which the potential depends.

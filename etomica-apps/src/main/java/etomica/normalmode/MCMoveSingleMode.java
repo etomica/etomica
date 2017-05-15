@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -87,7 +87,7 @@ public class MCMoveSingleMode extends MCMoveBoxStep{
         */
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);

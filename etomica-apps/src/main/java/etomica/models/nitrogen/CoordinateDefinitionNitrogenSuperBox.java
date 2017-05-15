@@ -7,7 +7,7 @@ package etomica.models.nitrogen;
 import java.io.Serializable;
 
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
@@ -43,7 +43,7 @@ import etomica.util.RandomNumberGenerator;
 public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionNitrogenSuperBox(ISimulation sim, IBox box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionNitrogenSuperBox(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
     	super(sim, box, primitive, 2, basis, _space);
        
     	rotationTensor = new RotationTensor3D();

@@ -6,7 +6,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
@@ -17,7 +17,6 @@ import etomica.atom.DipoleSource;
 import etomica.atom.IAtomOriented;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.IAtomTypeOriented;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -35,9 +34,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedFullSite;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LJDipole;
 import etomica.potential.P2MoleculeTruncated;
@@ -51,7 +48,6 @@ import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomNumberGenerator;
 
 /**
  * Canonical ensemble Monte Carlo simulation (NVT)
@@ -67,7 +63,7 @@ public class DLJ_NVT_1site extends Simulation {
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation
 	protected final MCMoveRotate rotateMolecule;//rotation, atomic
-	protected final IBox box;
+	protected final Box box;
 	protected SpeciesSpheresRotating species;
 	private final static String APP_NAME = "dipolar LJ";
 	private static final int PIXEL_SIZE = 15;

@@ -16,11 +16,9 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPair;
-import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -56,7 +54,7 @@ public class RenderMD extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final IBox box;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */
@@ -173,7 +171,7 @@ public class RenderMD extends Simulation {
     public static class CriterionCar implements NeighborCriterion {
 
         protected final Map<IAtom,Set<IAtom>> bondedSet;
-        public CriterionCar(ParseObj parser, IBox box) {
+        public CriterionCar(ParseObj parser, Box box) {
             bondedSet = new HashMap<IAtom,Set<IAtom>>();
             IAtomList leafList = box.getLeafList();
             for (int i=0; i<leafList.getAtomCount(); i++) {
@@ -196,7 +194,7 @@ public class RenderMD extends Simulation {
 
         public boolean needUpdate(IAtom atom) {return false;}
 
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
 
         public boolean unsafe() {return false;}
 
@@ -207,7 +205,7 @@ public class RenderMD extends Simulation {
         protected final Map<IAtomList, Double> bondMap;
         private final double epsMult = 1.0;
         
-        public P2PenetrableCar(ISpace space, ParseObj parser, IBox box) {
+        public P2PenetrableCar(ISpace space, ParseObj parser, Box box) {
             super(space);
             bondMap = new HashMap<IAtomList, Double>();
             IAtomList leafList = box.getLeafList();

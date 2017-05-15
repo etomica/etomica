@@ -5,7 +5,7 @@
 package etomica.models.hexane;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
@@ -41,8 +41,8 @@ import etomica.space3d.Vector3D;
 public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
     public CBMCGrowStraightAlkane(IPotentialMaster potentialMaster,
-            IRandom random, IntegratorMC integrator, IBox p, ISpecies species,
-            ISpace _space, int n, int NTrials) {
+                                  IRandom random, IntegratorMC integrator, Box p, ISpecies species,
+                                  ISpace _space, int n, int NTrials) {
         super(potentialMaster, random, _space, integrator, p, n, NTrials);
 
         setChainlength(n);
@@ -66,7 +66,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         positionSource = new RandomPositionSourceRectangular(_space, random);
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         positionSource.setBox(box);
     }

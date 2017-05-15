@@ -6,7 +6,7 @@ package etomica.models.hexane;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -22,7 +22,7 @@ import etomica.space.ISpace;
  */
 public class CheckCBMCHexane implements IAction {
 
-    public CheckCBMCHexane(IBox p, PotentialMaster potentialMaster, ISpace space) {
+    public CheckCBMCHexane(Box p, PotentialMaster potentialMaster, ISpace space) {
         box = p;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setBox(box);
@@ -165,7 +165,7 @@ public class CheckCBMCHexane implements IAction {
 
     MeterPotentialEnergy energyMeter;
 
-    IBox box;
+    Box box;
 
     MoleculeIteratorAllMolecules moleculeIterator;
 

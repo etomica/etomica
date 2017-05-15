@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 
@@ -20,7 +20,7 @@ public class MayerFunctionMolecularThreeBody extends MayerFunctionThreeBody {
         return p3.energy(molecules);
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         p3.setBox(box);
         super.setBox(box);
     }

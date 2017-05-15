@@ -9,7 +9,6 @@ package etomica.models.hexane;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -277,7 +276,7 @@ public class TestHexaneCBMCOnly extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
-    public IBox box;
+    public Box box;
     public BoundaryDeformablePeriodic bdry;
     public CBMCGrowSolidHexane growMolecule;
     public BravaisLattice lattice;

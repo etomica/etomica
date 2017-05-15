@@ -5,7 +5,7 @@
 package etomica.modules.catalysis;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMolecule;
@@ -25,7 +25,7 @@ public class ReactionManagerCO implements IIntegratorListener {
     }
 
     public void integratorStepFinished(IIntegratorEvent e) {
-        IBox box = sim.getBox(0);
+        Box box = sim.getBox(0);
         double temperature = sim.integrator.getTemperature();
         IRandom random = sim.getRandom();
         AtomLeafAgentManager agentManager = sim.interactionTracker.getAgentManager();

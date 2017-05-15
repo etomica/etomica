@@ -6,7 +6,7 @@ package etomica.modules.entropylottery;
 
 import etomica.action.IAction;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataTag;
@@ -42,7 +42,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
         return tag;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         reset();
     }
@@ -113,7 +113,7 @@ public class DataSourceProbabilityDensity implements IEtomicaDataSource, IAction
 
     protected DataDoubleArray data;
     protected DataInfoDoubleArray dataInfo;
-    protected IBox box;
+    protected Box box;
     protected final AtomIteratorLeafAtoms atomIterator;
     protected double[] newData;
     protected int totalAtomCount;

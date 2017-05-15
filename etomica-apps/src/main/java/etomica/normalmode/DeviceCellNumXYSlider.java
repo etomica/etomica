@@ -19,7 +19,7 @@ import javax.swing.event.ChangeListener;
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.action.activity.IController;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
@@ -43,7 +43,7 @@ public class DeviceCellNumXYSlider extends Device {
 	private final int DEFAULT_MAX_nCells = 50;
 
     protected ISpecies species;
-    protected IBox box;
+    protected Box box;
     
 	
 	public DeviceCellNumXYSlider(IController cont) {
@@ -299,7 +299,7 @@ public class DeviceCellNumXYSlider extends Device {
     	setYCellModifier(new ModifierYCells2D(box, species, (int)getXCellNum()));
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (species != null) {
             init();
@@ -313,7 +313,7 @@ public class DeviceCellNumXYSlider extends Device {
         }
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     

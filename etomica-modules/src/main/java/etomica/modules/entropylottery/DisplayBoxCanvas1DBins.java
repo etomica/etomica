@@ -13,7 +13,7 @@ import java.util.Iterator;
 
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.IData;
@@ -132,7 +132,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
         
-        IBox box = displayBox.getBox();
+        Box box = displayBox.getBox();
         IVector dimensions = box.getBoundary().getBoxSize();
         if (atomCount.length != (int)Math.round(dimensions.getX(0))) {
             atomCount = new int[(int)Math.round(dimensions.getX(0))];

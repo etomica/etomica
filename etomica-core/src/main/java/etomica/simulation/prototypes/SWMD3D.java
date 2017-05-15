@@ -10,7 +10,6 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataPumpListener;
@@ -70,7 +69,7 @@ public class SWMD3D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2SquareWell potential;
     public Controller controller;
     public DisplayBox display;

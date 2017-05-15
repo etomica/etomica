@@ -9,7 +9,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
@@ -19,7 +19,6 @@ import etomica.atom.AtomPositionCOM;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.DipoleSource;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConfigurationLattice;
@@ -53,7 +52,7 @@ import etomica.units.Pixel;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomNumberGenerator;
+
 /**
  * Canonical ensemble Monte Carlo simulation (NVT)
  * dielectric constant (epsilon)
@@ -66,7 +65,7 @@ public class TIP4P_NVT extends Simulation {
      protected final IntegratorMC integrator;
      protected final MCMoveMolecule moveMolecule;//translation
      protected final MCMoveRotateMolecule3D rotateMolecule;//rotation
-     protected final IBox box;
+     protected final Box box;
      protected SpeciesWater4P species;
      protected P2WaterTIP4PSoft pWater;
      private final static String APP_NAME = "TIP4P water";

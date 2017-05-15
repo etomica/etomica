@@ -7,6 +7,7 @@ package etomica.models.water;
 import Jama.Matrix;
 import etomica.api.*;
 import etomica.atom.MoleculePair;
+import etomica.box.Box;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.math.SpecialFunctions;
@@ -84,7 +85,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
 
         public int nBody() {
             return 2;
@@ -451,7 +452,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     public enum Component { TWO_BODY, INDUCTION, FULL }

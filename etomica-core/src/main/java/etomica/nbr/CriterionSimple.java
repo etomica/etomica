@@ -7,7 +7,7 @@ package etomica.nbr;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -99,7 +99,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
 		return r2 > displacementLimit2;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         boundary = box.getBoundary();
         agentManager = boxAgentManager.getAgent(box);
 	}
@@ -130,7 +130,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
         agentManager.getAgent(atom).E(atom.getPosition());
 	}
 
-    public IVectorMutable makeAgent(IAtom atom, IBox agentBox) {
+    public IVectorMutable makeAgent(IAtom atom, Box agentBox) {
         IVectorMutable v = space.makeVector();
         // atom isn't necessarily in the position.  but if atom-adding code is smart,
         // it will be in the appropriate position.
@@ -138,7 +138,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
         return v;
     }
     
-    public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(IVectorMutable agent, IAtom atom, Box agentBox) {}
 
     protected final ISpace space;
     protected double interactionRange, displacementLimit2, neighborRadius2;

@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IPotentialAtomic;
@@ -113,7 +113,7 @@ public class VirialPolyhedra2 {
         final double[][] uValues = new double[nPoints][nPoints];
         IPotentialAtomic p2Wrapper = new IPotentialAtomic() {
             
-            public void setBox(IBox box) {
+            public void setBox(Box box) {
                 p2.setBox(box);
             }
 

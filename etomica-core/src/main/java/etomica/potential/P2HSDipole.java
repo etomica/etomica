@@ -4,18 +4,14 @@
 
 package etomica.potential;
 
-import org.apache.commons.math3.special.Erf;
-
-import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.exception.MethodNotImplementedException;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
@@ -69,7 +65,7 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 	}
 
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		boundary = box.getBoundary();
 	}
 

@@ -6,12 +6,11 @@ package etomica.normalmode;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.integrator.Integrator.Forcible;
@@ -237,7 +236,7 @@ public class LJVacancyMin extends Simulation {
         }
     }
 
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public int[] nCells;
     public Basis basis;

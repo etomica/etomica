@@ -1,6 +1,7 @@
 package etomica.meam;
 
 import etomica.api.*;
+import etomica.box.Box;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
@@ -72,7 +73,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
         
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary=box.getBoundary();
     }
 

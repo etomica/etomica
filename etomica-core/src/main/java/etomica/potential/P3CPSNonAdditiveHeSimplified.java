@@ -12,7 +12,7 @@ import java.util.Date;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
@@ -43,7 +43,7 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

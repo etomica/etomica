@@ -4,7 +4,6 @@
 
 package etomica.box;
 
-import etomica.api.IBox;
 import etomica.api.IBoxMoleculeEvent;
 import etomica.api.IMolecule;
 
@@ -14,7 +13,7 @@ import etomica.api.IMolecule;
  */
 public class BoxMoleculeAddedEvent extends BoxMoleculeEvent implements IBoxMoleculeEvent {
 
-    public BoxMoleculeAddedEvent(IBox box, IMolecule mole) {
+    public BoxMoleculeAddedEvent(Box box, IMolecule mole) {
         super(box, mole);
     }
 

@@ -4,11 +4,10 @@
 
 package etomica;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.atom.AtomTypeLeaf;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -78,7 +77,7 @@ public class UnitTestUtil {
             nBox = n1.length;
         }
         for (int i = 0; i < nBox; i++) {
-            IBox box = new Box(space);
+            Box box = new Box(space);
             sim.addBox(box);
             if (species0 != null)
                 box.setNMolecules(species0, n0[i]);
@@ -117,7 +116,7 @@ public class UnitTestUtil {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         //        new SpeciesSpheres(sim);
-        IBox box = new Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeLeaf[] leafTypes = new AtomTypeLeaf[nAtoms[i].length];

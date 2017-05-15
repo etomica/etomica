@@ -6,7 +6,7 @@ package etomica.rotation;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
 import etomica.space3d.Vector3D;
@@ -19,7 +19,7 @@ public class ConfigurationWater108 implements Configuration, java.io.Serializabl
     public ConfigurationWater108() {
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IVectorMutable[] vec = new IVectorMutable[324];
         vec[ 0 ] = new Vector3D( -8.037857867124083 , -5.771979119571202 , -3.879474004757872 );
         vec[ 1 ] = new Vector3D( -7.5341521374047415 , -4.350795528349474 , -3.251675106735932 );

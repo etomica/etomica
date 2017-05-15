@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -82,7 +82,7 @@ public class MpiInterspecies1A implements MoleculesetIteratorPDT,
      * Configures iterator to return molecules from the set species in the given
      * box.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         if (newBox == null) {
             throw new IllegalArgumentException("You shouldn't pass a null Box.  Why would you do that?");
         }
@@ -184,6 +184,6 @@ public class MpiInterspecies1A implements MoleculesetIteratorPDT,
     private final MpiInnerFixed apiUp, apiDown;
     private MpiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;
-    private IBox box;
+    private Box box;
     private IMolecule targetMolecule;
 }

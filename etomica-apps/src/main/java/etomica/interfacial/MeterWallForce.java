@@ -3,7 +3,7 @@ package etomica.interfacial;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMaster;
@@ -22,10 +22,10 @@ public class MeterWallForce extends DataSourceScalar {
     protected final ISpecies topWall;
     protected final PotentialCalculationWallForce pc;
     protected final ISpace space;
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective id;
     
-    public MeterWallForce(ISpace space, IPotentialMaster potentialMaster, IBox box, ISpecies topWall) {
+    public MeterWallForce(ISpace space, IPotentialMaster potentialMaster, Box box, ISpecies topWall) {
         super("Force", Force.DIMENSION);
         this.space = space;
         this.box = box;

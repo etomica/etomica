@@ -8,14 +8,14 @@ import java.awt.Color;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 
 public class ColorSchemeCoordination extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeCoordination(ISimulation sim, PotentialMasterList potentialMaster, IBox box) {
+    public ColorSchemeCoordination(ISimulation sim, PotentialMasterList potentialMaster, Box box) {
         super(box);
 
         leafList = box.getLeafList();

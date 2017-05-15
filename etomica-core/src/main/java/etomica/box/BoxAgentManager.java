@@ -6,7 +6,6 @@ package etomica.box;
 
 import java.lang.reflect.Array;
 
-import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;
@@ -46,12 +45,12 @@ public class BoxAgentManager<E> implements ISimulationListener {
     /**
      * Returns the agent associated with the given box
      */
-    public E getAgent(IBox box) {
+    public E getAgent(Box box) {
         if (box.getIndex() >= agents.length) return null;
         return agents[box.getIndex()];
     }
     
-    public void setAgent(IBox box, E agent) {
+    public void setAgent(Box box, E agent) {
         int idx = box.getIndex();
         if (idx >= agents.length) {
             // no room in the array.  reallocate the array with an extra cushion.
@@ -112,7 +111,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
     }
     
     public void simulationBoxRemoved(ISimulationBoxEvent e) {
-        IBox box = ((SimulationBoxEvent)e).getBox();
+        Box box = ((SimulationBoxEvent)e).getBox();
         // The given Box got removed.  The remaining boxes got shifted
         // down.
         int index = box.getIndex();
@@ -132,7 +131,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
     public void simulationAtomTypeIndexChanged(ISimulationAtomTypeIndexEvent e) {}
     public void simulationAtomTypeMaxIndexChanged(ISimulationIndexEvent e) {}
     
-    protected void addAgent(IBox box) {
+    protected void addAgent(Box box) {
         agents = (E[])Arrays.resizeArray(agents,box.getIndex()+1);
         if (agentSource != null) {
             agents[box.getIndex()] = agentSource.makeAgent(box);
@@ -145,7 +144,7 @@ public class BoxAgentManager<E> implements ISimulationListener {
      * the produces the atom.
      */
     public interface BoxAgentSource<E> {
-        public E makeAgent(IBox box);
+        public E makeAgent(Box box);
         
         //allow any agent to be disconnected from other elements 
         public void releaseAgent(E agent); 

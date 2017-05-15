@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -47,7 +47,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
     protected final ISimulation sim;
     protected final CellLattice lattice;
     protected final IAtomPositionDefinition positionDefinition;
-    protected final IBox box;
+    protected final Box box;
     protected int cellRange = 2;
     protected double range;
     protected final MoleculeAgentManager agentManager;
@@ -62,7 +62,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManagerMolecular(ISimulation sim, IBox box, double potentialRange, ISpace _space) {
+    public NeighborCellManagerMolecular(ISimulation sim, Box box, double potentialRange, ISpace _space) {
         this(sim, box, potentialRange, null, _space);
     }
     
@@ -73,7 +73,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManagerMolecular(ISimulation sim, IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManagerMolecular(ISimulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;
@@ -276,7 +276,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
     }
     
     private static class MyMCMoveListener implements IListener, java.io.Serializable {
-        public MyMCMoveListener(IBox box, NeighborCellManagerMolecular manager, ISpace space) {
+        public MyMCMoveListener(Box box, NeighborCellManagerMolecular manager, ISpace space) {
             this.box = box;
             neighborCellManager = manager;
             moleculePosition = new AtomPositionGeometricCenter(space);
@@ -315,7 +315,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
         }
         
         private static final long serialVersionUID = 1L;
-        private final IBox box;
+        private final Box box;
         private final NeighborCellManagerMolecular neighborCellManager;
         private IAtomPositionDefinition moleculePosition;
        

@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
@@ -17,7 +17,7 @@ public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 		super(_space);
 	}
 
-	public void initializeCoordinates(IBox box) {
+	public void initializeCoordinates(Box box) {
 		double angle1 = Math.acos(-1.0/3.0);//theta
     	double cosAngle1 = -1.0/3.0;
     	double sinAngle1 = Math.sin(angle1);

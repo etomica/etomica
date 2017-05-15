@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 
@@ -98,6 +98,6 @@ public class ClusterSumIC extends ClusterSum {
         }
 
         public IPotential getPotential() {return null;}
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
     }
 }

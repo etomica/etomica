@@ -9,10 +9,9 @@ import java.awt.Color;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
@@ -367,7 +366,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public int[] nCells;
     public Basis basis;
@@ -397,7 +396,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
             return frac;
         }
         
-        public IBox getBox() {
+        public Box getBox() {
             return meterPE1.getBox();
         }
 
@@ -405,7 +404,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
             return meterPE1.isIncludeLrc();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             meterPE1.setBox(box);
             meterPE2.setBox(box);
         }

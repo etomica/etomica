@@ -5,7 +5,7 @@
 package etomica.spin;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.space.ISpace;
 
@@ -69,7 +69,7 @@ public class P2Spin extends Potential2 {
         this.coupling = coupling;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         //does nothing
     }
 

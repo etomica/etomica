@@ -6,7 +6,7 @@ package etomica.conjugategradient;
 
 import etomica.action.Activity;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -30,7 +30,7 @@ public class FiniteDifferenceDerivativeCG {
 	 * @author Tai Tan
 	 */
 	
-	protected IBox box;
+	protected Box box;
 	protected MeterPotentialEnergy meterEnergy;
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
@@ -44,9 +44,9 @@ public class FiniteDifferenceDerivativeCG {
 	
 	private final ISpace space;
 	
-	public FiniteDifferenceDerivativeCG(IBox box, PotentialMaster potentialMaster,
-			             AnalyticalDerivativeEnergyParacetamol derivativeFunction,
-			             ISpace _space){
+	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster,
+                                        AnalyticalDerivativeEnergyParacetamol derivativeFunction,
+                                        ISpace _space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.space = _space;
@@ -130,9 +130,9 @@ public class FiniteDifferenceDerivativeCG {
 		public MyAgentSource(ISpace space){
 			this.space = space;
 		}
-		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox){}
+		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox){}
 
-		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, IBox agentBox){
+		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, Box agentBox){
 			return new IntegratorVelocityVerlet.MyAgent(space);
 		}
 		protected ISpace space;

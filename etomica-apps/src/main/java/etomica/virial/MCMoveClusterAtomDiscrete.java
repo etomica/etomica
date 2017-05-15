@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -29,7 +29,7 @@ public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
         rPow = 0;
 	}
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         if (translationVectors == null) {
             translationVectors = new IVectorRandom[box.getLeafList().getAtomCount()-1];

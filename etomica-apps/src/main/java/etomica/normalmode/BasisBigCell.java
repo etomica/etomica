@@ -6,11 +6,10 @@ package etomica.normalmode;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Basis;
@@ -42,7 +41,7 @@ public class BasisBigCell extends Basis {
         IBoundary boundary = new BoundaryRectangularPeriodic(space);
         Primitive primitive = new PrimitiveCubic(space);
         
-        IBox box = new Box(boundary, space);
+        Box box = new Box(boundary, space);
         sim.addBox(box);
         IVector vector = space.makeVector(nSubCells);
         box.getBoundary().setBoxSize(vector);

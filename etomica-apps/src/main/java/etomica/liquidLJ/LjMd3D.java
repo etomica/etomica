@@ -10,10 +10,9 @@ import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IIntegrator;
-import etomica.box.Box;
 import etomica.config.ConfigurationFileBinary;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage.StatType;
@@ -82,7 +81,7 @@ public class LjMd3D extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public Potential2SoftSpherical potential;
     public IntegratorMC integratorMC;
     public MCMoveVolume mcMoveVolume;
@@ -1081,14 +1080,14 @@ public class LjMd3D extends Simulation {
         private final double uFac;
         protected DataDoubleArray data;
         protected final double deltaMu, deltaP;
-        protected final IBox box;
+        protected final Box box;
         protected final int numMolecules0;
         protected final double v0;
         protected final IFunction vBias;
 
         public DataProcessorReweight(double temperature,
-                ValueCache energyFastCache, ValueCache energyFullCache,
-                double uFac, double deltaMu, double deltaP, IBox box, IFunction vBias) {
+                                     ValueCache energyFastCache, ValueCache energyFullCache,
+                                     double uFac, double deltaMu, double deltaP, Box box, IFunction vBias) {
             this.temperature = temperature;
             this.energyFastCache = energyFastCache;
             this.energyFullCache = energyFullCache;

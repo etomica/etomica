@@ -6,7 +6,7 @@ package etomica.config;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -69,7 +69,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
         int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {

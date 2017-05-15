@@ -5,9 +5,8 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
@@ -139,7 +138,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 	
 	protected IntegratorHarmonic integrator;
 	protected ActivityIntegrate activityIntegrate;
-	protected IBox box;
+	protected Box box;
 	protected Boundary boundary;
 	protected Primitive primitive;
 	protected Basis basis;

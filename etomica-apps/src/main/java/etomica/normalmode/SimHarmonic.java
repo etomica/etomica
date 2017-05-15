@@ -8,13 +8,11 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -268,7 +266,7 @@ public class SimHarmonic extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public SpeciesSpheresMono species;
     public NormalModes normalModes;

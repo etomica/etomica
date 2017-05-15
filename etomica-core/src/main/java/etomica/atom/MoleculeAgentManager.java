@@ -5,6 +5,7 @@
 package etomica.atom;
 
 import etomica.api.*;
+import etomica.box.Box;
 import etomica.util.Arrays;
 
 import java.io.Serializable;
@@ -20,7 +21,7 @@ import java.lang.reflect.Array;
  */
 public class MoleculeAgentManager implements IBoxListener, ISimulationListener, Serializable {
 
-    public MoleculeAgentManager(ISimulation sim, IBox box, MoleculeAgentSource source) {
+    public MoleculeAgentManager(ISimulation sim, Box box, MoleculeAgentSource source) {
         agentSource = source;
         this.box = box;
         this.sim = sim;
@@ -75,7 +76,7 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
     /**
      * Convenience method to return the box the Manager is tracking.
      */
-    public IBox getBox(){
+    public Box getBox(){
         return box;
     }
     
@@ -213,7 +214,7 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
     private static final long serialVersionUID = 1L;
     protected final MoleculeAgentSource agentSource;
     protected Object[][] agents;
-    protected final IBox box;
+    protected final Box box;
     protected final ISimulation sim;
     protected int reservoirSize;
     

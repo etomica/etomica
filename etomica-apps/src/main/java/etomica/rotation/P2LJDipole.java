@@ -5,12 +5,11 @@
 package etomica.rotation;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
@@ -72,7 +71,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         dipoleUShift = -1.75*s2*s1;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -251,7 +250,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         RandomNumberGenerator random = new RandomNumberGenerator();
         Space3D space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        IBox box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim, space);
         species.setIsDynamic(true);

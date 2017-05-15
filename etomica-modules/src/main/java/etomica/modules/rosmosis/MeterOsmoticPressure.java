@@ -4,7 +4,7 @@
 
 package etomica.modules.rosmosis;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -29,7 +29,7 @@ import etomica.units.Pressure;
  */
 public class MeterOsmoticPressure implements IEtomicaDataSource {
 
-    public MeterOsmoticPressure(IPotentialCalculationWallForce pc, IBox box) {
+    public MeterOsmoticPressure(IPotentialCalculationWallForce pc, Box box) {
         this.pc = pc;
         this.box = box;
         data = new DataDouble();
@@ -52,7 +52,7 @@ public class MeterOsmoticPressure implements IEtomicaDataSource {
     }
 
     protected final IPotentialCalculationWallForce pc;
-    protected final IBox box;
+    protected final Box box;
     protected DataDouble data;
     protected DataInfoDouble dataInfo;
     protected DataTag tag;

@@ -5,7 +5,7 @@
 package etomica.modules.droplet;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -37,11 +37,11 @@ public class MeterDeformation implements IEtomicaDataSource {
         setFilter(AtomFilterStatic.ACCEPT_ALL);
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -158,7 +158,7 @@ public class MeterDeformation implements IEtomicaDataSource {
         return tag;
     }
 
-    protected IBox box;
+    protected Box box;
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

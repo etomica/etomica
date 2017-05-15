@@ -4,7 +4,7 @@
 
 package etomica.data;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -28,11 +28,11 @@ public class DataProcessorInterfacialTension extends DataProcessor {
         data = new DataDouble();
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -79,7 +79,7 @@ public class DataProcessorInterfacialTension extends DataProcessor {
     }
 
     protected final ISpace space;
-    protected IBox box;
+    protected Box box;
     protected final DataDouble data;
     protected int surfaceDim;
 }

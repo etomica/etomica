@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -82,7 +82,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -292,11 +292,11 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         potentialMaster.calculate(box, allAtoms, forceSum);
     }
 
-    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
 
     public Class<BondConstraints> getSpeciesAgentClass() {
         return BondConstraints.class;

@@ -6,11 +6,10 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.api.IVector;
-import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
@@ -34,7 +33,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         this.space = _space;
     }
     
-    public void makeWaveVectors(IBox box) {
+    public void makeWaveVectors(Box box) {
         // If we weren't given wave vectors, determine them from the box boundary and primitve
         // assume 1-molecule basis and matchup betwen the box and the primitive
     
@@ -156,7 +155,7 @@ outer:              for (int i=0; i<3; i++){
         int [] nCells = new int []{2,3,4};
         Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sp);
+        Box box = new Box(sp);
         sim.addBox(box);
         box.getBoundary().setBoxSize(new Vector3D(nCells[0], nCells[1], nCells[2]));
         ISpecies species = new SpeciesSpheresMono(sim, sp);

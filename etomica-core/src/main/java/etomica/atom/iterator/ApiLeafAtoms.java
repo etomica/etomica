@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 
 /**
  * Iterator that returns all pairs that can be formed from all leaf atoms of a
@@ -25,7 +25,7 @@ public class ApiLeafAtoms extends ApiIntraArrayList implements
      * Conditions iterator to return all leaf-atom pairs from the given box.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         setList(box.getLeafList());
     }
 

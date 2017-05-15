@@ -5,7 +5,7 @@
 package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.atom.MoleculePair;
 import etomica.data.DataInfo;
@@ -37,7 +37,7 @@ import etomica.util.Arrays;
 public class HarmonicCrystalOrthorhombic {
 
     public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive,
-    		     Basis basis, IBox box,
+    		     Basis basis, Box box,
     		     CoordinateDefinitionParacetamol coordinateDefinitionParacetamol,
     		     ISpace _space) {
         this.nCells = (int[])nCells.clone();

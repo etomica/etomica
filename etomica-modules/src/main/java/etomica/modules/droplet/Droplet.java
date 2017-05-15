@@ -5,9 +5,8 @@
 package etomica.modules.droplet;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -23,7 +22,7 @@ import etomica.species.SpeciesSpheresMono;
 public class Droplet extends Simulation {
 
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final IntegratorDroplet integrator;
     public final ActivityIntegrate activityIntegrate;
     public final P2Cohesion p2;

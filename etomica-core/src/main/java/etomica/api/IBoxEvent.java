@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.box.Box;
+
 /**
  * A box event fired by the box's event manager.  The box that changed is
  * available via getBox.  Other details can be inferred from the other
@@ -15,6 +17,6 @@ public interface IBoxEvent {
     /**
      * @return the box that changed and triggered the event
      */
-    public IBox getBox();
+    public Box getBox();
 
 }

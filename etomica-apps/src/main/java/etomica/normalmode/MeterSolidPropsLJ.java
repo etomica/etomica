@@ -1,7 +1,7 @@
 package etomica.normalmode;
   
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -120,7 +120,7 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
 
     //U_direct is computed in the main classes using MeterPotentialEnergyFromIntegrator.
     public IData getData() {
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         double[] sum;
         ((PotentialCalculationLJSP)pcSolidProps).reset();
         potentialMaster.calculate(box, id, pcSolidProps);
@@ -321,9 +321,9 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a, IBox box) {
+    public final MyAgent makeAgent(IAtom a, Box box) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox box) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box box) {}
 }

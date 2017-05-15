@@ -9,7 +9,7 @@ import java.lang.reflect.Array;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IBoxAtomIndexEvent;
 import etomica.api.IBoxIndexEvent;
 import etomica.api.IBoxMoleculeEvent;
@@ -28,7 +28,7 @@ import etomica.util.Arrays;
  */
 public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Serializable {
     
-    public AtomLeafAgentManager(AgentSource<E> source, IBox box, Class agentClass) {
+    public AtomLeafAgentManager(AgentSource<E> source, Box box, Class agentClass) {
         agentSource = source;
         this.agentClass = agentClass;
         this.box = box;
@@ -92,7 +92,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
     /**
      * Convenience method to return the box the Manager is tracking.
      */
-    public IBox getBox(){
+    public Box getBox(){
         return box;
     }
     
@@ -212,7 +212,7 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
          * handle multiple boxes.
          * @param agentBox TODO
          */
-        public E makeAgent(IAtom a, IBox agentBox);
+        public E makeAgent(IAtom a, Box agentBox);
         
         /**
          * This informs the agent source that the agent is going away and that 
@@ -220,13 +220,13 @@ public class AtomLeafAgentManager<E> extends BoxListenerAdapter implements Seria
          * The agentBox is provided for convenience for agent sources that
          * handle multiple boxes.
          */
-        public void releaseAgent(E agent, IAtom atom, IBox agentBox);
+        public void releaseAgent(E agent, IAtom atom, Box agentBox);
     }
 
     private static final long serialVersionUID = 1L;
     protected final AgentSource<E> agentSource;
     protected E[] agents;
-    protected final IBox box;
+    protected final Box box;
     protected int reservoirSize;
     protected final Class agentClass;
     

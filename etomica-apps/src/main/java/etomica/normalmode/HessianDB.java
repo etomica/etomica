@@ -12,9 +12,8 @@ import Jama.Matrix;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -262,7 +261,7 @@ public class HessianDB extends Simulation {
 //        sim.getController().actionPerformed();
     }
 
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public Primitive primitive, primitiveUnitCell;
     public Basis basis, basisFCC;

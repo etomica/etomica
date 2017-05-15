@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -56,7 +56,7 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
         work3 = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         selectedAtoms = new int[box.getMoleculeList().getMoleculeCount()];
         translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];

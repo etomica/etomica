@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -31,7 +31,7 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Does nothing.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     }
 
     /**

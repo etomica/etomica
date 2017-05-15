@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
 import etomica.atom.iterator.IteratorDirective;
@@ -195,7 +195,7 @@ public class MeterSolidDACut implements IEtomicaDataSource {
     protected double temperature;
     protected double[] latticeEnergy, latticePressure;
     protected double[] latticeEnergyDADv2, latticePressureDADv2;
-    protected final IBox box;
+    protected final Box box;
     protected double[] bpRes, bpResDADv2;
     protected final CoordinateDefinition coordinteDefinition;
 }

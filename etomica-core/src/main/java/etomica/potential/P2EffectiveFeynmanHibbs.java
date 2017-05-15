@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.space3d.Space3D;
@@ -94,7 +94,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
         return fac*(d2uc + 2*duc)/r2*(-2/temperature/temperature);  //fac includes temperature in the denominator
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         p2Classy.setBox(box);
         boundary = box.getBoundary();
     }

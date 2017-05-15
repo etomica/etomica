@@ -4,7 +4,7 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
@@ -38,7 +38,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
         IMoleculeList initiatorList = box.getMoleculeList(speciesInitiator);
         IMoleculeList monomerList = box.getMoleculeList(speciesMonomer);

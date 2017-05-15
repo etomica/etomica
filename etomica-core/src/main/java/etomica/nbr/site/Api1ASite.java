@@ -10,7 +10,7 @@ package etomica.nbr.site;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
@@ -42,7 +42,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         boxAgentManager = agentManager;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(box);
         lattice = neighborSiteManager.getLattice();
         neighborIterator.setLattice(lattice);

@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -81,7 +81,7 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
         //energyMeter.setIncludeLrc(false);
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         moleculeSource.setBox(newBox);
         energyMeter.setBox(newBox);

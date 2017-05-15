@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.MoleculeIteratorAllMolecules;
@@ -76,7 +76,7 @@ public class IntegratorHarmonic extends IntegratorMD {
    		eigenVectors = newEigenVectors;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
 

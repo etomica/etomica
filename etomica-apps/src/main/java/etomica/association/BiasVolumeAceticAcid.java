@@ -9,7 +9,7 @@ import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
 import etomica.api.IVector;
@@ -37,7 +37,7 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     protected MoleculeChildAtomAction moveMoleculeAction;
     protected final RotationTensor3D rotationTensor;
     
-    public BiasVolumeAceticAcid(ISpace space, IRandom random, IBox box){
+    public BiasVolumeAceticAcid(ISpace space, IRandom random, Box box){
         super(space);
         this.random = random;
         pair = new MoleculePair();
@@ -68,7 +68,7 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

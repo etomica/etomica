@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
 import etomica.api.ISpecies;
@@ -154,7 +154,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         energyMeter = newEnergyMeter;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         this.box = newBox;
         energyMeter.setBox(box);
         positionSource.setBox(box);
@@ -199,7 +199,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
     private MoleculeActionTranslateTo atomTranslator;
     protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeter;
-    protected IBox box;
+    protected Box box;
     protected double temperature;
     protected double pressure = Double.NaN;
 }

@@ -10,15 +10,11 @@ import java.util.List;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataDump;
 import etomica.data.DataPump;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterDensity;
@@ -26,7 +22,6 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -50,7 +45,7 @@ public class LJNVT extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtom mcMoveAtom;

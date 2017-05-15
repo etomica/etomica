@@ -4,7 +4,7 @@
 
 package etomica.atom;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
 
@@ -27,7 +27,7 @@ public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Ser
         return random;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         box = p;
     }
     
@@ -39,6 +39,6 @@ public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Ser
     }
     
     private static final long serialVersionUID = 1L;
-    protected IBox box = null;
+    protected Box box = null;
     protected IRandom random;
 }

@@ -7,7 +7,7 @@ package etomica.potential;
 import java.util.ArrayList;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
@@ -40,7 +40,7 @@ public class PotentialMasterLrc {
      * and that the given IteratorDirective has includeLrc set to true; if all
      * are so, calculation is performed.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || !id.includeLrc) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();

@@ -4,10 +4,8 @@
 
 package etomica.normalmode;
 
-import java.util.Arrays;
-
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -28,7 +26,7 @@ import etomica.spaceNd.TensorND;
 
 public class LatticeSumMolecularCrystal {
 
-    public LatticeSumMolecularCrystal(IPotentialMaster potentialMaster, IBox box, final ISpace space, int basisDim,Primitive primitive) {
+    public LatticeSumMolecularCrystal(IPotentialMaster potentialMaster, Box box, final ISpace space, int basisDim, Primitive primitive) {
 
     	this.potentialMaster = potentialMaster;
     	this.box = box;
@@ -47,10 +45,10 @@ public class LatticeSumMolecularCrystal {
         double[] kCoefficients = kFactory.getCoefficients(); //kCoefficients=0.5 non-deg.; = 1 degenerate twice!
 
 		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
 		        return new IntegratorVelocityVerlet.MyAgent(space);
 		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
+		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
         };
 		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 		atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , box,IntegratorVelocityVerlet.MyAgent.class);
@@ -220,7 +218,7 @@ public class LatticeSumMolecularCrystal {
     }
     
     private final int basisDim;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpace space;
     protected IAtomPositionDefinition atomPosDef;
     protected final IVectorMutable com0, com1;

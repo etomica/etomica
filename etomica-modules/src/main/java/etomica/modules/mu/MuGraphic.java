@@ -21,7 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
@@ -736,7 +736,7 @@ public class MuGraphic extends SimulationGraphic {
     
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
-        public DataSinkExcludeOverlap(IBox box) {
+        public DataSinkExcludeOverlap(Box box) {
             myData = new DataDouble();
             this.box = box;
         }
@@ -759,7 +759,7 @@ public class MuGraphic extends SimulationGraphic {
             return inputDataInfo;
         }
         
-        protected final IBox box;
+        protected final Box box;
         protected final DataDouble myData;
     }
 

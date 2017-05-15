@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -34,7 +34,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
         pos = new AtomPositionGeometricCenter(_space);
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         IMoleculeList molecules = p.getMoleculeList();
         int nPlanes = drSum.length;

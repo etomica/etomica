@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -100,7 +100,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         }
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         inserted = new boolean[box.getLeafList().getAtomCount()];
     }

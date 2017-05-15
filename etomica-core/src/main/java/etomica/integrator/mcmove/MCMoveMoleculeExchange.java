@@ -7,7 +7,7 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -36,8 +36,8 @@ import etomica.space.ISpace;
 public class MCMoveMoleculeExchange extends MCMove {
     
     private static final long serialVersionUID = 2L;
-    protected IBox box1;
-    protected IBox box2;
+    protected Box box1;
+    protected Box box2;
     protected final IntegratorBox integrator1, integrator2;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
@@ -49,7 +49,7 @@ public class MCMoveMoleculeExchange extends MCMove {
     protected RandomPositionSource positionSource;
     
     private transient IMolecule molecule;
-    private transient IBox iBox, dBox;
+    private transient Box iBox, dBox;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     
@@ -183,13 +183,13 @@ public class MCMoveMoleculeExchange extends MCMove {
         dBox.addMolecule(molecule);
     }
 
-    public final AtomIterator affectedAtoms(IBox box) {
+    public final AtomIterator affectedAtoms(Box box) {
         if(this.box1 != box && this.box2 != box) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setList(molecule.getChildList());
         return affectedAtomIterator;
     }
     
-    public double energyChange(IBox box) {
+    public double energyChange(Box box) {
         if(box == iBox) return uNew;
         else if(box == dBox) return -uOld;
         else return 0.0;

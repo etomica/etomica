@@ -13,12 +13,11 @@ import java.io.InputStreamReader;
 
 import etomica.api.IAtom;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
-import etomica.box.Box;
 import etomica.chem.elements.Argon;
 import etomica.chem.elements.Helium;
 import etomica.simulation.Simulation;
@@ -253,7 +252,7 @@ public class PotentialEmul extends PotentialMolecular {
 	}
 
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         this.boundary = box.getBoundary();
     }
 	

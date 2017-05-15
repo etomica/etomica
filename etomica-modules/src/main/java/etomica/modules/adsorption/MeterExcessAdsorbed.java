@@ -6,7 +6,7 @@ package etomica.modules.adsorption;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.data.DataSourceScalar;
@@ -14,7 +14,7 @@ import etomica.units.Quantity;
 
 public class MeterExcessAdsorbed extends DataSourceScalar {
 
-    protected IBox box;
+    protected Box box;
     protected int dim;
     protected double xMin, xMax;
     protected double pressure;
@@ -33,7 +33,7 @@ public class MeterExcessAdsorbed extends DataSourceScalar {
         this.xMax = xMax;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
     

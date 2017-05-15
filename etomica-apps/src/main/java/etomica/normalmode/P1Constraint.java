@@ -5,15 +5,14 @@
 package etomica.normalmode;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
-import etomica.lattice.crystal.Primitive;
 import etomica.potential.Potential1;
 import etomica.space.ISpace;
 
 public class P1Constraint extends Potential1{
 
-	public P1Constraint(ISpace space, double neighborRadius, IBox box, CoordinateDefinition coordinateDefinition) {
+	public P1Constraint(ISpace space, double neighborRadius, Box box, CoordinateDefinition coordinateDefinition) {
 	    super(space);
 
 	    siteIndex = box.getLeafList().getAtomCount();

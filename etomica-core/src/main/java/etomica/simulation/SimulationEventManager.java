@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationAtomTypeIndexEvent;
 import etomica.api.ISimulationBoxEvent;
@@ -39,14 +39,14 @@ public class SimulationEventManager implements ISimulationEventManager {
         intervalListeners.add(listener);
     }
 
-    public synchronized void boxAdded(IBox box) {
+    public synchronized void boxAdded(Box box) {
         ISimulationBoxEvent e = new SimulationBoxEvent(simulation, box);
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).simulationBoxAdded(e);
         }
     }
     
-    public synchronized void boxRemoved(IBox box) {
+    public synchronized void boxRemoved(Box box) {
         ISimulationBoxEvent e = new SimulationBoxEvent(simulation, box);
         for(int i = 0; i < intervalListeners.size(); i++) {
             intervalListeners.get(i).simulationBoxRemoved(e);

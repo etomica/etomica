@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import etomica.action.IAction;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.association.BiasVolume2SiteAceticAcid;
 import etomica.atom.DiameterHashByType;
@@ -638,8 +638,8 @@ public class Wertheim2SiteAceticAcid {
         wiggle[1] = new MCMoveClusterWiggleAceticAcid(sim,sim.integrators[1].getPotentialMaster(), space);
         sim.integrators[1].getMoveManager().addMCMove(wiggle[1]);//target system
 
-        IBox referenceBox = sim.box[0];
-        IBox targetBox = sim.box[1];
+        Box referenceBox = sim.box[0];
+        Box targetBox = sim.box[1];
             
         if (false) {
             referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));

@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
 import etomica.data.types.DataTensor;
@@ -25,12 +25,12 @@ import etomica.space.Tensor;
  */
 public class CalcAnalytical2ndDerivativeNitrogen{
 	
-	public CalcAnalytical2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition){
+	public CalcAnalytical2ndDerivativeNitrogen(ISpace space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition){
 		this(space, box, potential, coordinateDefinition, false, potential.getRange());
 	}
 	
-	public CalcAnalytical2ndDerivativeNitrogen(ISpace space, IBox box, P2Nitrogen potential,CoordinateDefinitionNitrogen coordinateDefinition,
-			boolean doLatticeSum, double rC){
+	public CalcAnalytical2ndDerivativeNitrogen(ISpace space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition,
+                                               boolean doLatticeSum, double rC){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;
 		this.doLatticeSum = doLatticeSum;
@@ -127,7 +127,7 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 	protected IVectorMutable[][] initMolecOrientation;
 	protected IVectorMutable[][] secDerXr;
 	protected IVectorMutable[] dUdRotA, dUdRotB;
-	protected IBox box;
+	protected Box box;
 	protected ISpace space;
 	protected CoordinateDefinitionNitrogen coordinateDefinition;
 	protected P2Nitrogen potential;

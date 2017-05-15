@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculeArrayList;
@@ -34,7 +34,7 @@ public class MoleculeIteratorMolecule extends MoleculeIteratorArrayListSimple im
      * box conditions iterator to give no iterates.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
@@ -87,6 +87,6 @@ public class MoleculeIteratorMolecule extends MoleculeIteratorArrayListSimple im
     private static final long serialVersionUID = 1L;
     private final ISpecies species;
     private final MoleculeArrayList littleList = new MoleculeArrayList();
-    private IBox box;
+    private Box box;
     private IMolecule targetAtom;
 }

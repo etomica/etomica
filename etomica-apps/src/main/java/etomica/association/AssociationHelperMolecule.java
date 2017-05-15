@@ -4,10 +4,8 @@
 
 package etomica.association;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -38,7 +36,7 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
     protected double minR2;
     protected final IVectorMutable dr;
 
-    public AssociationHelperMolecule(ISpace space, IBox box, AssociationManagerMolecule associationManager) {
+    public AssociationHelperMolecule(ISpace space, Box box, AssociationManagerMolecule associationManager) {
         this.associationManager = associationManager;
         boundary = box.getBoundary();
         dr = space.makeVector();

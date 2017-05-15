@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -34,7 +34,7 @@ public class ConfigurationLammps implements Configuration {
         topPadding = newTopPadding;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         List<IVectorMutable>[] coords = new List[3];
         coords[0] = new ArrayList<IVectorMutable>();
         coords[1] = new ArrayList<IVectorMutable>();

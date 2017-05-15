@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeAgentManager;
@@ -56,7 +56,7 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
         return p2Classy.getRange();
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         p2Classy.setBox(box);
     }
 

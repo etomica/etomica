@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
 import etomica.nbr.list.NeighborListManager;
@@ -24,9 +24,9 @@ public class MeterMaxExpansion extends DataSourceScalar {
 
     protected final IVectorMutable dr;
     protected final NeighborListManager neighborManager;
-    protected final IBox box;
+    protected final Box box;
     
-    public MeterMaxExpansion(ISpace space, IBox box, NeighborListManager neighborManager) {
+    public MeterMaxExpansion(ISpace space, Box box, NeighborListManager neighborManager) {
         super("displacement", Length.DIMENSION);
         this.neighborManager = neighborManager;
         this.box = box;

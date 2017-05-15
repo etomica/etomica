@@ -7,7 +7,7 @@ package etomica.nbr.list.molecule;
 import java.io.Serializable;
 
 import etomica.action.BoxImposePbc;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMolecule;
@@ -46,8 +46,8 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManagerMolecular(PotentialMasterListMolecular potentialMasterList, double range, 
-            IBox box, ISpace space) {
+    public NeighborListManagerMolecular(PotentialMasterListMolecular potentialMasterList, double range,
+                                        Box box, ISpace space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
@@ -389,7 +389,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
     protected final MoleculeAgentManager agentManager2Body;
     protected final MoleculeAgentManager agentManager1Body;
     private NeighborListEventManagerMolecular eventManager;
-    protected IBox box;
+    protected Box box;
     private NeighborCriterionMolecular[] oldCriteria;
     protected boolean initialized;
     protected boolean doApplyPBC;

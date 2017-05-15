@@ -5,7 +5,7 @@ import java.awt.Color;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.graphics.ColorSchemeCollectiveAgent;
@@ -24,7 +24,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
     public ColorSchemeScaledOverlap(ISpace space, PotentialMasterList potentialMaster, CoordinateDefinition coordinateDefinition) {
         super(coordinateDefinition.getBox());
         this.coordinateDefinition = coordinateDefinition;
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         nOverlaps = new int[box.getLeafList().getAtomCount()];
         neighborManager = potentialMaster.getNeighborManager(box);
         pi = space.makeVector();
@@ -50,7 +50,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
     
     public synchronized void colorAllAtoms() {
         
-        IBox box = coordinateDefinition.getBox();
+        Box box = coordinateDefinition.getBox();
         IAtomList leafList = box.getLeafList();
         double vOld = box.getBoundary().volume();
         int nAtoms = box.getLeafList().getAtomCount();

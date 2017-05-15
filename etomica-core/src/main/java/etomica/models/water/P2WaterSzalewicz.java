@@ -7,7 +7,7 @@ package etomica.models.water;
 import java.util.Arrays;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -947,7 +947,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         return 0;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
 
     }
 
@@ -1020,7 +1020,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             
         }
 
@@ -1376,7 +1376,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         species.setAxisSymmetric(false);
         sim.addSpecies(species);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
@@ -1425,7 +1425,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         species.setAxisSymmetric(false);
         sim.addSpecies(species);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{1000,1000,1000}));
@@ -1485,7 +1485,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         speciesH2O.setAxisSymmetric(false);
         sim.addSpecies(speciesH2O);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesH2O, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
@@ -1601,7 +1601,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         speciesH2O.setAxisSymmetric(false);
         sim.addSpecies(speciesH2O);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesH2O, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));

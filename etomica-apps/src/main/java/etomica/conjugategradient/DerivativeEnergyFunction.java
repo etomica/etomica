@@ -7,7 +7,7 @@ package etomica.conjugategradient;
 import etomica.action.Activity;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -30,7 +30,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	 * @author Tai Tan
 	 */
 	
-	protected IBox box;
+	protected Box box;
 	protected MeterPotentialEnergy meterEnergy;
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
@@ -42,7 +42,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected IVectorMutable moleculeForce;
 	protected FunctionMultiDimensionalDifferentiable fFunction;
 	
-	public DerivativeEnergyFunction(IBox box, PotentialMaster potentialMaster, ISpace space){
+	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster, ISpace space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -173,9 +173,9 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 			this.space = space;
 		}
 		
-		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox){}
+		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox){}
 
-		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, IBox agentBox){
+		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, Box agentBox){
 			
 		    return new IntegratorVelocityVerlet.MyAgent(space);
 		}

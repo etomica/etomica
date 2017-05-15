@@ -4,21 +4,21 @@
 
 package etomica.simulation;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationBoxEvent;
 
 public class SimulationBoxEvent extends SimulationEvent implements ISimulationBoxEvent {
 
-    private final IBox box;
+    private final Box box;
     private static final long serialVersionUID = 1L;
     
-    public SimulationBoxEvent(ISimulation sim, IBox box) {
+    public SimulationBoxEvent(ISimulation sim, Box box) {
         super(sim);
         this.box = box;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 

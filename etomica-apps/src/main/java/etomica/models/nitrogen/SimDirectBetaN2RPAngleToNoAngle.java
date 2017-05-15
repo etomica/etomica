@@ -8,10 +8,9 @@ import java.io.File;
 
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
@@ -251,6 +250,6 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     private static final long serialVersionUID = 1L;
     protected ActivityIntegrate activityIntegrate;
     protected AccumulatorAverageFixed boltzmannAverage;
-    protected IBox boxTarg;
+    protected Box boxTarg;
 
 }

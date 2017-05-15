@@ -5,7 +5,7 @@
 package etomica.modules.rheology;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
@@ -28,7 +28,7 @@ public class MeterNormalStress extends DataSourceScalar {
         integrator = newIntegrator;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -65,7 +65,7 @@ public class MeterNormalStress extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
+    protected Box box;
     protected IVectorMutable dr;
     protected IntegratorPolymer integrator;
     protected int[] d;

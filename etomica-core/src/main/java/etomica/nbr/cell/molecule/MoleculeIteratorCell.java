@@ -4,7 +4,7 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.atom.MoleculeSetSinglet;
@@ -37,7 +37,7 @@ public class MoleculeIteratorCell implements MoleculeIterator, java.io.Serializa
         moleculeSetSinglet = new MoleculeSetSinglet();
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         CellLattice lattice = ((NeighborCellManagerMolecular)boxAgentManager.getAgent(box)).getLattice();
         cellIterator.setLattice(lattice);
         unset();

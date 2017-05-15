@@ -11,7 +11,7 @@ import java.util.List;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
@@ -66,7 +66,7 @@ public class PotentialMaster implements IPotentialMaster {
      /* (non-Javadoc)
 	 * @see etomica.potential.IPotentialMaster#calculate(etomica.box.Box, etomica.atom.iterator.IteratorDirective, etomica.potential.PotentialCalculation)
 	 */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
     	IMolecule targetMolecule = id.getTargetMolecule();
     	IAtom targetAtomLeaf = id.getTargetAtom();
@@ -301,7 +301,7 @@ public class PotentialMaster implements IPotentialMaster {
 
     public static class MoleculeIterator0 implements MoleculesetIteratorPDT {
         public MoleculeIterator0() {}
-        public void setBox(IBox box) {}
+        public void setBox(Box box) {}
         public void setTarget(IMolecule target) {}
         public void setDirection(IteratorDirective.Direction direction) {}
         public int nBody() {return 0;}

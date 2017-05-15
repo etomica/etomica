@@ -6,9 +6,8 @@ package etomica.modules.rosmosis;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -33,7 +32,7 @@ public class ReverseOsmosis extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono speciesSolvent, speciesSolute, speciesMembrane;
-    public IBox box;
+    public Box box;
     public IntegratorVelocityVerlet integrator;
     public P2LennardJones potential11, potential12, potential22;
     public P2LennardJones potentialMM, potentialM1, potentialM2;

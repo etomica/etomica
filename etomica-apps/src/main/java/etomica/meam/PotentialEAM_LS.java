@@ -1,6 +1,7 @@
 package etomica.meam;
 
 import etomica.api.*;
+import etomica.box.Box;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
@@ -116,7 +117,7 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
       return sumV + frho;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary=box.getBoundary();
     }
 

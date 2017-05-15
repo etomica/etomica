@@ -7,7 +7,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -35,11 +35,11 @@ import etomica.space.ISpace;
 public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, IBox box, Primitive primitive, int orientationDim, ISpace space) {
+    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, ISpace space) {
         this(sim, box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, IBox box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
+    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
         super(box, ((space.D() + orientationDim)*basis.getScaledCoordinates().length+1), primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();

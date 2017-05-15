@@ -7,7 +7,6 @@ package etomica.modules.joulethomson;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
@@ -44,7 +43,7 @@ public class JouleThomsonSim extends Simulation {
     IntegratorMD integratorNVE;
     SpeciesSpheresMono species;
     P2LennardJones potential;
-    IBox box;
+    Box box;
     IntegratorJT integratorJT;
     ActivityIntegrate activityIntegrate;
     Configuration config;

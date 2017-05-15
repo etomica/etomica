@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
@@ -25,7 +25,7 @@ public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
         setStepSize(1.2);
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         if (oldOrientations != null) return;
         IAtomList atoms = box.getLeafList();

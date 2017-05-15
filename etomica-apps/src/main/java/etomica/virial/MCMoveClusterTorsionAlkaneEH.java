@@ -5,7 +5,7 @@
 package etomica.virial;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -13,7 +13,6 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomPositionGeometricCenterAlkaneEH;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculeArrayList;
@@ -21,7 +20,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.P4BondTorsion;
-import etomica.potential.P4BondTorsionAlkaneXCCH;
 import etomica.space.ISpace;
 import etomica.space3d.RotationTensor3D;
 
@@ -61,7 +59,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
         dr34 = space.makeVector();
         oldCenter = space.makeVector();
     }
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         ((MCMoveStepTracker)getTracker()).setTunable(false);

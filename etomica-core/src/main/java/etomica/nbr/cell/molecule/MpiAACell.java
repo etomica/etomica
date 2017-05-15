@@ -4,7 +4,7 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.IteratorDirective;
@@ -34,7 +34,7 @@ public class MpiAACell implements MoleculesetIteratorCellular, java.io.Serializa
      *            neighbors. Used to define neighbor cells; some iterates may
      *            exceed this separation
      */
-	public MpiAACell(int D, double range, IBox box) {
+	public MpiAACell(int D, double range, Box box) {
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.Direction.UP);
@@ -149,7 +149,7 @@ public class MpiAACell implements MoleculesetIteratorCellular, java.io.Serializa
    
     private static final long serialVersionUID = 1L;
     private MoleculesetIterator listIterator;
-    private final IBox box;
+    private final Box box;
     private final MpiIntraArrayList intraListIterator;
     private final MpiInterArrayList interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;

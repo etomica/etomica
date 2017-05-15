@@ -6,7 +6,7 @@ package etomica.spin;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.iterator.AtomIterator;
@@ -36,7 +36,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
         energyMeter.setIncludeLrc(false);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
     }

@@ -5,7 +5,7 @@
 package etomica.models.oneDHardRods;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -16,7 +16,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space3d.Vector3D;
 
 /**
  * A Monte Carlo move which selects a wave vector and mode(s), and changes the normal mode
@@ -110,7 +109,7 @@ public class MCMoveChangeMultipleModes extends MCMoveBoxStep{
         eigenVectors = newEigenVectors;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(newBox);
         energyMeter.setBox(newBox);

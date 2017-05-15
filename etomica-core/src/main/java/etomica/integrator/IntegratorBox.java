@@ -4,7 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -25,7 +25,7 @@ import etomica.units.Temperature;
 
 public abstract class IntegratorBox extends Integrator {
 
-    protected IBox box;
+    protected Box box;
     protected double temperature;
     protected boolean isothermal = false;
     protected DataSourceScalar meterPE;
@@ -111,14 +111,14 @@ public abstract class IntegratorBox extends Integrator {
 	 * @return true if the box was successfully added to the integrator; false
 	 *         otherwise
 	 */
-	public void setBox(IBox p) {
+	public void setBox(Box p) {
 	    box = p;
 	    if(meterPE instanceof MeterPotentialEnergy){
 	        ((MeterPotentialEnergy)meterPE).setBox(p);
 	    }
 	}
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 

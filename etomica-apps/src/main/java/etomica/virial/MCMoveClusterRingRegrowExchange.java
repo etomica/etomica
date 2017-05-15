@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.api.IVector;
@@ -65,7 +65,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
         fac = factor;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         oldPositions = new IVectorMutable[nMolecules][0];

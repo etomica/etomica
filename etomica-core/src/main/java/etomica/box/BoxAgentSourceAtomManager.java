@@ -4,7 +4,6 @@
 
 package etomica.box;
 
-import etomica.api.IBox;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.BoxAgentManager.BoxAgentSource;
@@ -17,7 +16,7 @@ public class BoxAgentSourceAtomManager<E> implements BoxAgentSource<AtomLeafAgen
         this.atomAgentClass = atomAgentClass;
     }
 
-    public AtomLeafAgentManager<E> makeAgent(IBox box) {
+    public AtomLeafAgentManager<E> makeAgent(Box box) {
         return new AtomLeafAgentManager<E>(atomAgentSource, box, atomAgentClass);
     }
 

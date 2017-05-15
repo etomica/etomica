@@ -1,5 +1,5 @@
 package etomica.liquidLJ;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataTag;
@@ -55,17 +55,17 @@ public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
-    protected IBox box;
+    protected Box box;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final DataDoubleArray data;

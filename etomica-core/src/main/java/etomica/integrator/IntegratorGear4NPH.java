@@ -10,7 +10,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -105,7 +105,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         inflate.setBox(box);
         meterTemperature = new MeterTemperature(box, D);
@@ -216,7 +216,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             integrator.setIsothermal(isothermal);
             if(!isothermal) {
                 integrator.calculateForces();
-                IBox box = integrator.getBox();
+                Box box = integrator.getBox();
                 double kineticT = integrator.getMeterTemperature().getDataAsScalar();
                 double mvsq = kineticT * dim * box.getLeafList().getAtomCount();
                 double volume = box.getBoundary().volume();
@@ -254,7 +254,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         }
         
         public IData getData() {
-            IBox box = integrator.getBox();
+            Box box = integrator.getBox();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
             double mvsq = kineticT* dim * box.getLeafList().getAtomCount();
             double volume = box.getBoundary().volume();
@@ -290,7 +290,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             dv = space.makeVector();
         }
         
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             nearestImageTransformer = box.getBoundary();
         }
         

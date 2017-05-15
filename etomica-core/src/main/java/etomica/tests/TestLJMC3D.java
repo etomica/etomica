@@ -7,7 +7,6 @@ import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
@@ -39,7 +38,7 @@ public class TestLJMC3D extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones potential;
     public Controller controller;
     

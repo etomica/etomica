@@ -7,7 +7,7 @@ package etomica.modules.sam;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -27,7 +27,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         this.surfaceType = surfaceType;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         if (box != newBox) {
             if (box != null) {
                 bondManager.dispose();
@@ -91,7 +91,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
     }
 
     protected final ISimulation sim;
-    protected IBox box;
+    protected Box box;
     protected final ISpecies polymerSpecies;
     protected IMoleculeList polymerList;
     protected MoleculeAgentManager bondManager;

@@ -5,18 +5,16 @@ import java.awt.Color;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
@@ -25,12 +23,9 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
@@ -42,12 +37,8 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
@@ -311,7 +302,7 @@ public class SimEinStep2HCP extends Simulation {
 
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public BoundaryDeformableLattice boundary;
     public int[] nCells;
     public Basis basis;
@@ -338,7 +329,7 @@ public class SimEinStep2HCP extends Simulation {
             return lambda;
         }
         
-        public IBox getBox() {
+        public Box getBox() {
             return meterPE1.getBox();
         }
 
@@ -346,7 +337,7 @@ public class SimEinStep2HCP extends Simulation {
             return meterPE1.isIncludeLrc();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             meterPE1.setBox(box);
             meterPE2.setBox(box);
         }

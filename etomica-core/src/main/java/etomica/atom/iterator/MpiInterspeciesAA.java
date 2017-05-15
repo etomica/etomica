@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculePair;
@@ -55,7 +55,7 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
      * box.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         if (species0.getIndex() > species1.getIndex()) {
             // species were out of order.  swap them
             ISpecies tempSpecies = species0;

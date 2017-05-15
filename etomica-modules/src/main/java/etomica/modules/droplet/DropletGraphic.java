@@ -13,7 +13,7 @@ import javax.swing.JTabbedPane;
 
 import etomica.action.IAction;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.DiameterHashByType;
 import etomica.data.AccumulatorHistory;
@@ -332,7 +332,7 @@ public class DropletGraphic extends SimulationGraphic {
     }
     
     public static class ModifierBoxSize implements Modifier {
-        public ModifierBoxSize(ISpace space, IBox box, int dim, IAction reconfig) {
+        public ModifierBoxSize(ISpace space, Box box, int dim, IAction reconfig) {
             this.box = box;
             this.dim = dim;
             this.reconfig = reconfig;
@@ -375,7 +375,7 @@ public class DropletGraphic extends SimulationGraphic {
             }
         }
         
-        protected final IBox box;
+        protected final Box box;
         protected final int dim;
         protected final IAction reconfig;
         protected final IVectorMutable size;

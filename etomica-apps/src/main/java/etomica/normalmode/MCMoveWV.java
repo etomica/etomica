@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
@@ -31,7 +31,7 @@ public class MCMoveWV extends MCMoveBoxStep {
         }
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         int nMolecules = box.getMoleculeList().getMoleculeCount();
         double L = box.getBoundary().getBoxSize().getX(0);

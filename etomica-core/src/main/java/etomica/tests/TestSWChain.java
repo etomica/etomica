@@ -6,10 +6,9 @@ package etomica.tests;
 
 import etomica.action.ActionIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
@@ -42,7 +41,7 @@ import etomica.util.ParseArgs;
 public class TestSWChain extends Simulation {
 
     public IntegratorHard integrator;
-    public IBox box;
+    public Box box;
 
     public TestSWChain(ISpace _space, int numMolecules, double simTime) {
         super(_space);

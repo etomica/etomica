@@ -9,7 +9,7 @@ import java.io.IOException;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -555,7 +555,7 @@ public class P2HydrogenPatkowski implements IPotential {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {    
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

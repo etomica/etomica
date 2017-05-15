@@ -5,6 +5,8 @@
 package etomica.api;
 
 
+import etomica.box.Box;
+
 /**
  * Interface for boundary objects that describe the size and periodic nature
  * of the box boundaries. Each Box has its own instance of this class. It
@@ -22,13 +24,13 @@ public interface IBoundary {
      * the box should be set to null.
      * @param newBox the box that holds the boundary
      */
-    public void setBox(IBox newBox);
+    public void setBox(Box newBox);
 
     /**
      * @return the boundary's IBox.  Might be null if the boundary is not
      * associated with a box.
      */
-    public IBox getBox();
+    public Box getBox();
 
     /**
      * @return the volume enclosed by the boundary

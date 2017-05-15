@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryListener;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -42,7 +42,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     protected final ISimulation sim;
     protected final CellLattice lattice;
     protected final IAtomPositionDefinition positionDefinition;
-    protected final IBox box;
+    protected final Box box;
     protected int cellRange = 2;
     protected double range;
     protected final AtomLeafAgentManager<Cell> agentManager;
@@ -55,7 +55,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, ISpace _space) {
+    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, ISpace _space) {
         this(sim, box, potentialRange, null, _space);
     }
     
@@ -66,7 +66,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(ISimulation sim, IBox box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;
@@ -244,7 +244,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * Returns the cell containing the given atom.  The atom is added to the
      * cell's atom list.
      */
-    public Cell makeAgent(IAtom atom, IBox agentBox) {
+    public Cell makeAgent(IAtom atom, Box agentBox) {
         // if we have no cells, there's no point in trying here.  cell assignment will happen later
         if (numCells[0] == 0) return null;
         IVectorMutable position = atom.getPosition();
@@ -261,12 +261,12 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
     /**
      * Removes the given atom from the cell.
      */
-    public void releaseAgent(Cell cell, IAtom atom, IBox agentBox) {
+    public void releaseAgent(Cell cell, IAtom atom, Box agentBox) {
         cell.removeAtom(atom);
     }
     
     private static class MyMCMoveListener implements IListener, java.io.Serializable {
-        public MyMCMoveListener(IBox box, NeighborCellManager manager) {
+        public MyMCMoveListener(Box box, NeighborCellManager manager) {
             this.box = box;
             neighborCellManager = manager;
         }
@@ -298,7 +298,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
         }
         
         private static final long serialVersionUID = 1L;
-        private final IBox box;
+        private final Box box;
         private final NeighborCellManager neighborCellManager;
     }
 }

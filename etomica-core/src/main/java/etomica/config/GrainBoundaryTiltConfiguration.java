@@ -4,7 +4,7 @@
 
 package etomica.config;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -150,7 +150,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
      * Resizes simulation box to preserve periodic boundary conditions after rotation of lattice.
      * @param box
      */
-    public void setBoxSize(IBox box, int[] boxMultiples){
+    public void setBoxSize(Box box, int[] boxMultiples){
     	int [] m = new int[millerPlane.length];
     	for(int i=0; i<m.length; i++){
     		m[i] = millerPlane[i];
@@ -218,7 +218,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     	box.getBoundary().setBoxSize(new Vector3D(xaxispbc*boxMultiples[0], yaxispbc*boxMultiples[1], 2.0*Math.PI/Math.sqrt(normal.squared())*boxMultiples[2]));
     }
     
-    public void initializeCoordinates(IBox box){
+    public void initializeCoordinates(Box box){
         
     	if(!(box.getBoundary() instanceof Boundary)) {
     		throw new RuntimeException("Cannot initialize coordinates for a box containing a non etomica.space.Boundary");

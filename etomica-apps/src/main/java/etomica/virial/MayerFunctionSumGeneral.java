@@ -4,8 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.space.ISpace;
@@ -21,7 +20,7 @@ public class MayerFunctionSumGeneral implements MayerFunction {
 		return null;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		for (int i=0;i<functions.length;i++){
 			functions[i].setBox(box);
 			}

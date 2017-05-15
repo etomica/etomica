@@ -1,8 +1,7 @@
 package etomica.data.meter;
 
 import etomica.api.IAtom;
-import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -43,7 +42,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 	protected PotentialCalculationTorqueSum torqueSum;
 	protected PotentialCalculationPhiSum secondDerivativeSum;
 	protected final ISpace space;
-	private IBox box;
+	private Box box;
 	private IVectorMutable vectorSum;
 //	private IVectorMutable r;
 //	private IVectorMutable [] a;
@@ -59,7 +58,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
     protected AtomLeafAgentManager atomAgentManager;
     protected PotentialCalculationForceSum pcForce;
 
-	public MeterDipoleSumSquaredMappedAverage(final ISpace space, IBox box,ISimulation sim, double dipoleMagnitude,double temperature,IPotentialMaster potentialMaster) {
+	public MeterDipoleSumSquaredMappedAverage(final ISpace space, Box box, ISimulation sim, double dipoleMagnitude, double temperature, IPotentialMaster potentialMaster) {
 		data = new DataDoubleArray(2);
 		dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
 		tag = new DataTag();
@@ -82,10 +81,10 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 		work = space.makeVector();
 		
 		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
 		        return new IntegratorVelocityVerlet.MyAgent(space);
 		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
+		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
         };
 		
 		pcForce = new PotentialCalculationForceSum();
@@ -171,7 +170,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 		return dataInfo;
 	}
 
-	public IBox getBox() {
+	public Box getBox() {
 		return box;
 	}
 

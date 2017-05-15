@@ -10,17 +10,13 @@ import java.io.IOException;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.units.BohrRadius;
-import etomica.units.Kelvin;
 
 public class P3HydrogenATM implements IPotential{
     public static void main(String[] args) {       
@@ -52,7 +48,7 @@ public class P3HydrogenATM implements IPotential{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {    
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
     

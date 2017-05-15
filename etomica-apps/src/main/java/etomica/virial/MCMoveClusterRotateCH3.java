@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -18,7 +18,6 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.space.ISpace;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
-import etomica.util.Debug;
 
 /**
  * Monte Carlo CH3 rotation for cluster integrals(Alkane TraPPE-EH).
@@ -45,7 +44,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
 
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
     	super.setBox(p);
         selectedAtoms = new IAtom[box.getMoleculeList().getMoleculeCount()];
         translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];

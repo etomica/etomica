@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.math.SpecialFunctions;
@@ -84,7 +84,7 @@ public class MayerSphericalPTAtt implements MayerFunction {
 		return dfdkT;
 	}
 	
-	public void setBox(IBox newBox) {
+	public void setBox(Box newBox) {
 	    potentialRef.setBox(newBox);
 	    potentialAtt.setBox(newBox);
 	}

@@ -4,7 +4,7 @@
 
 package etomica.action;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -28,7 +28,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
         
     }
     
-    public BoxInflateAnisotropic(IBox box, ISpace space){
+    public BoxInflateAnisotropic(Box box, ISpace space){
     	this(space);
     	setBox(box);
     	deltaX = new double[box.getMoleculeList().getMoleculeCount()];

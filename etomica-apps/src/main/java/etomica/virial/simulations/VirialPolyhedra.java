@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
@@ -203,7 +203,7 @@ public class VirialPolyhedra {
         double vhs = (4.0/3.0)*Math.PI*sigmaHSRef*sigmaHSRef*sigmaHSRef;
         MayerFunction fRefPos = new MayerFunction() {
 
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {

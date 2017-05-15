@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.action.WriteConfigurationDLPOLY;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.space.ISpace;
 
@@ -46,7 +46,7 @@ public class PotentialDLPOLY extends PotentialMolecular {
 	}
 
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
 		configDLPOLY.setBox(box);
 	}
 	

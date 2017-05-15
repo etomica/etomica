@@ -10,7 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -363,7 +363,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         
     }
 
@@ -512,7 +512,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             
         }
 
@@ -877,7 +877,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             
         }
 
@@ -1119,7 +1119,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         speciesH2O.setAxisSymmetric(false);
         sim.addSpecies(speciesH2O);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 1);
         box.setNMolecules(speciesH2O, 1);
@@ -1214,7 +1214,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         speciesH2O.setAxisSymmetric(false);
         sim.addSpecies(speciesH2O);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 1);
         box.setNMolecules(speciesH2O, 1);
@@ -1320,7 +1320,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         speciesH2O.setAxisSymmetric(false);
         sim.addSpecies(speciesH2O);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 1);
         box.setNMolecules(speciesH2O, 1);
@@ -1378,7 +1378,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         speciesH2O.setAxisSymmetric(false);
         sim.addSpecies(speciesH2O);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 1);
         box.setNMolecules(speciesH2O, 1);

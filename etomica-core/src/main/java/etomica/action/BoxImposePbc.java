@@ -7,7 +7,7 @@ package etomica.action;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -43,7 +43,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * 
 	 * @param box
 	 */
-	public BoxImposePbc(IBox box, ISpace space) {
+	public BoxImposePbc(Box box, ISpace space) {
 		this(space);
 		setBox(box);
 	}

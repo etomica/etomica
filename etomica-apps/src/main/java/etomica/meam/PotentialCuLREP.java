@@ -6,7 +6,7 @@ package etomica.meam;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialN;
@@ -94,7 +94,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
         
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary=box.getBoundary();
     }
 

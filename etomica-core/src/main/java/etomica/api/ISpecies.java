@@ -4,6 +4,7 @@
 
 package etomica.api;
 
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 
 /**
@@ -16,7 +17,7 @@ import etomica.potential.PotentialMaster;
  * @author David Kofke
  * @author C. Daniel Barnes
  * @author Andrew Schultz
- * @see IBox
+ * @see Box
  * @see PotentialMaster
  */
 public interface ISpecies {

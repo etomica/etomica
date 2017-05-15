@@ -4,7 +4,7 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
@@ -41,12 +41,12 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
     public boolean isOnlyHardRod;
     
     public MeterCompareMultipleWVBrute(IPotentialMaster potentialMaster, 
-            CoordinateDefinition cd, IBox box){
+            CoordinateDefinition cd, Box box){
         this("meterCompareMultipleModes", potentialMaster, cd, box);
     }
     
     public MeterCompareMultipleWVBrute(String string, IPotentialMaster
-            potentialMaster, CoordinateDefinition cd, IBox box){
+            potentialMaster, CoordinateDefinition cd, Box box){
         super(string, Null.DIMENSION);
         setCoordinateDefinition(cd);
         realT = new double[coordinateDim];

@@ -6,7 +6,7 @@ package etomica.modules.rosmosis;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -27,7 +27,7 @@ import etomica.space.Tensor;
  */
 public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>, PotentialSoft {
 
-    public P1Tether(IBox box, ISpecies species, ISpace _space) {
+    public P1Tether(Box box, ISpecies species, ISpace _space) {
         super(_space);
         this.species = species;
         agentManager = new AtomLeafAgentManager<IVectorMutable>(this, box, IVectorMutable.class);
@@ -65,7 +65,7 @@ public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>,
     public double virial(IAtomList atoms) {
         return 0;
     }
-    public IVectorMutable makeAgent(IAtom a, IBox agentBox) {
+    public IVectorMutable makeAgent(IAtom a, Box agentBox) {
         if (a.getType().getSpecies() == species) {
             IVectorMutable vec = space.makeVector();
             vec.E(a.getPosition());
@@ -74,7 +74,7 @@ public class P1Tether extends Potential1 implements AgentSource<IVectorMutable>,
         return null;
     }
 
-    public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(IVectorMutable agent, IAtom atom, Box agentBox) {
         /* do nothing */
     }
 

@@ -9,11 +9,10 @@ import java.util.ArrayList;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
-import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -152,7 +151,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 	}
 	
 	protected final IPotentialMaster potentialMaster;
-	protected final IBox box;
+	protected final Box box;
 	protected final SpeciesWater4P species;
 	protected final IntegratorMC integrator;
 	protected final BoundaryRectangularPeriodic boundary;

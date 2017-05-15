@@ -5,7 +5,7 @@
 package etomica.nbr.list;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.Cell;
@@ -20,12 +20,12 @@ import etomica.space.ISpace;
  */
 public class NeighborCellManagerList extends NeighborCellManager {
 
-    public NeighborCellManagerList(ISimulation sim, IBox box,
+    public NeighborCellManagerList(ISimulation sim, Box box,
             double potentialRange, ISpace _space) {
         this(sim, box, potentialRange, null, _space);
     }
 
-    public NeighborCellManagerList(ISimulation sim, IBox box,
+    public NeighborCellManagerList(ISimulation sim, Box box,
             double potentialRange, IAtomPositionDefinition positionDefinition,
             ISpace _space) {
         super(sim, box, potentialRange, positionDefinition, _space);
@@ -35,7 +35,7 @@ public class NeighborCellManagerList extends NeighborCellManager {
         potentialMaster = newPotentialMaster;
     }
 
-    public Cell makeAgent(IAtom atom, IBox agentBox) {
+    public Cell makeAgent(IAtom atom, Box agentBox) {
         if (range == 0) {
             // no range, no lattice, etc
             return null;

@@ -7,7 +7,7 @@ package etomica.integrator;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -57,7 +57,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         t2 = timeStep * timeStep;
     }
           
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -143,11 +143,11 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         agent.rMrLast.Ea1Tv1(timeStep,atom.getVelocity());//06/13/03 removed minus sign before timeStep
     }
     
-    public final Agent makeAgent(IAtom a, IBox agentBox) {
+    public final Agent makeAgent(IAtom a, Box agentBox) {
         return new Agent(space);
     }
     
-    public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
             
 	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVectorMutable force;

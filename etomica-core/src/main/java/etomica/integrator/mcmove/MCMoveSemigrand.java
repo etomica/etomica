@@ -5,7 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -62,7 +62,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     /**
      * Extends the superclass method to initialize the exchange-set species agents for the box.
      */
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(box);
     }//end setBox

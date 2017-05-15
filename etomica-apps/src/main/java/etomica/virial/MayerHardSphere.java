@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 
@@ -55,6 +55,6 @@ public class MayerHardSphere implements MayerFunction {
         return null;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
     }
 }

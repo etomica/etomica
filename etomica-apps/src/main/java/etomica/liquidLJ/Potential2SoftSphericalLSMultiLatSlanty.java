@@ -5,13 +5,11 @@
 package etomica.liquidLJ;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IVector;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2Soft;
 import etomica.space.ISpace;
-import etomica.space.Tensor;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -100,7 +98,7 @@ public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSpher
         return rv;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Soft.setBox(box);
 

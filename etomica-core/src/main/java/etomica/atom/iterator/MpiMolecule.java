@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -60,7 +60,7 @@ public class MpiMolecule implements MoleculesetIteratorPDT, java.io.Serializable
     /**
      * Specifies the box from which iterates are taken.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         if (box == null) {
             throw new NullPointerException("Null Box");
@@ -134,6 +134,6 @@ public class MpiMolecule implements MoleculesetIteratorPDT, java.io.Serializable
     private MoleculesetIteratorBoxDependent iterator;
     private final MoleculesetIteratorPDT api1A;
     private final MoleculesetIteratorBoxDependent apiAA;
-    private IBox box;
+    private Box box;
 
 }

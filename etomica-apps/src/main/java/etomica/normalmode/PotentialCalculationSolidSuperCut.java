@@ -3,7 +3,7 @@ package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -26,7 +26,7 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
     protected double[] energySum, dadbSum;
     protected double fac1;
     protected double[] fac2;
-    protected IBox box;
+    protected Box box;
     protected IBoundary boundary;
     protected final double[] r2Cut;
     protected double temperature;
@@ -149,7 +149,7 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         fac1 = 1.0/(D*vol);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();
     }

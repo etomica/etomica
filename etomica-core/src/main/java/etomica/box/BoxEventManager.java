@@ -14,9 +14,9 @@ public class BoxEventManager implements IBoxEventManager, java.io.Serializable {
 
     private transient final LinkedList<IBoxListener> intervalListeners = new LinkedList<IBoxListener>();
     private transient final ArrayList<Boolean> serial = new ArrayList<Boolean>();
-    private final IBox box;
+    private final Box box;
 
-    public BoxEventManager(IBox _box) {
+    public BoxEventManager(Box _box) {
         box = _box;
     }
     

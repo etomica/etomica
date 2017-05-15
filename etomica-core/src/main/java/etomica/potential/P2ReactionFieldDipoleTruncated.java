@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.api.IAtom;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
@@ -10,7 +10,6 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.atom.MoleculeOrientedDynamic;
 import etomica.space.ISpace;
 import etomica.space.Tensor;
 
@@ -70,7 +69,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         }
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         if (cutoffRatio > 0){
         	IVector vectorBox = boundary.getBoxSize();
@@ -181,7 +180,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
             return u;
         }
         
-        public void setBox(IBox newBox) {
+        public void setBox(Box newBox) {
             box = newBox;
         }
         
@@ -217,7 +216,7 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
         protected final P2ReactionFieldDipoleTruncated potential;
         protected final IVectorMutable[] gradient;
         protected IMolecule targetAtom;
-        protected IBox box;
+        protected Box box;
         
 
     }

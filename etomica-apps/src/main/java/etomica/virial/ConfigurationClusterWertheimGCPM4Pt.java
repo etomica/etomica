@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
@@ -16,7 +16,6 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculePair;
 import etomica.models.water.PNWaterGCPMThreeSite;
-import etomica.models.water.SpeciesWater4P;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
 import etomica.space.RotationTensor;
@@ -57,7 +56,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		this.random = random;
 		this.diagramIndex = diagramIndex;
 	}
-	public void initializeCoordinates(IBox box) {
+	public void initializeCoordinates(Box box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
 		BoxCluster clusterBox =(BoxCluster) box;
@@ -75,7 +74,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	
-	public void initializeCoordinatesER(IBox box) {
+	public void initializeCoordinatesER(Box box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
 		BoxCluster clusterBox =(BoxCluster) box;
@@ -88,7 +87,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	
-	public void initializeCoordinates2(IBox box) {
+	public void initializeCoordinates2(Box box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
 		associationPotential2.setBox(box);
@@ -110,7 +109,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		clusterBox.acceptNotify();
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
-	public void initializeCoordinates3(IBox box) {
+	public void initializeCoordinates3(Box box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
 		associationPotential2.setBox(box);
@@ -137,7 +136,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		clusterBox.acceptNotify();
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
-	public void initializeCoordinatesRef(IBox box) {
+	public void initializeCoordinatesRef(Box box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
 		associationPotential2.setBox(box);
@@ -150,7 +149,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		clusterBox.acceptNotify();
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
-	public void initializeCoordinates4(IBox box) {
+	public void initializeCoordinates4(Box box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
 		associationPotential2.setBox(box);
@@ -173,7 +172,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	
-	public void initializeCoordinates5(IBox box) {
+	public void initializeCoordinates5(Box box) {
 		super.initializeCoordinates(box);
 		associationPotential.setBox(box);
 		associationPotential2.setBox(box);
@@ -196,7 +195,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		System.out.println("box "+clusterBox.getSampleCluster().value(clusterBox));
 	}
 	
-	public void translation(double[] d,double[] e,double[] f, IBox box){//place molecule1,2,3 at some position
+	public void translation(double[] d,double[] e,double[] f, Box box){//place molecule1,2,3 at some position
 		IMoleculeList list = box.getMoleculeList();
         MoleculeActionTranslateTo translationA = new MoleculeActionTranslateTo(space);
         MoleculeActionTranslateTo translationB = new MoleculeActionTranslateTo(space);
@@ -217,7 +216,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
         translationB.actionPerformed(mol2);
         translationC.actionPerformed(mol3);
 	}
-	public void association(MoleculePair pair, IBox box){
+	public void association(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		IVectorMutable r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
@@ -257,7 +256,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 	}
 	
 	
-	public void association2(MoleculePair pair, IBox box){
+	public void association2(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		IVectorMutable r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
@@ -298,7 +297,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		}
 	}
 	
-	public void association3(MoleculePair pair, IBox box){
+	public void association3(MoleculePair pair, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		IVectorMutable r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
@@ -339,7 +338,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
 		}
 	}
 	
-	public void association4(MoleculePair pair,MoleculePair pair2, IBox box){
+	public void association4(MoleculePair pair,MoleculePair pair2, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		IVectorMutable r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);
@@ -382,7 +381,7 @@ public class ConfigurationClusterWertheimGCPM4Pt extends ConfigurationCluster {
         	}
 		}
 	}
-	public void association5(MoleculePair pair,MoleculePair pair2, IBox box){
+	public void association5(MoleculePair pair,MoleculePair pair2, Box box){
 		RotationTensor rotationTensor = space.makeRotationTensor();
 		IVectorMutable r0 = space.makeVector();
 		IAtomPositionDefinition positionDefinition = new AtomPositionGeometricCenter(space);

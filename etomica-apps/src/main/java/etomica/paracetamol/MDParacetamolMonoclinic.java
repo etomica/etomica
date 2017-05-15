@@ -9,12 +9,11 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
@@ -71,7 +70,7 @@ public class MDParacetamolMonoclinic extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final IBox box;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */

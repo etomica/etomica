@@ -12,7 +12,6 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
@@ -65,7 +64,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
-    public IBox boxTarget, boxRef;
+    public Box boxTarget, boxRef;
     public Boundary boundaryTarget, boundaryRef;
     MCMoveChangeMultipleWV changeMove;
     MCMoveCompareMultipleWV compareMove;
@@ -153,7 +152,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         changeMove.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         changeMove.setEigenVectors(nm.getEigenvectors());
         changeMove.setCoordinateDefinition(coordinateDefinitionTarget);
-        changeMove.setBox((IBox)boxTarget);
+        changeMove.setBox((Box)boxTarget);
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
         
@@ -247,7 +246,7 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         compareMove.setEigenVectors(nm.getEigenvectors());
         compareMove.setCoordinateDefinition(coordinateDefinitionRef);
         compareMove.setTemperature(temperature);
-        compareMove.setBox((IBox)boxRef);
+        compareMove.setBox((Box)boxRef);
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
         

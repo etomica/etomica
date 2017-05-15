@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -25,7 +25,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
         this.uValues = uValues;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         int n = box.getLeafList().getAtomCount();
         degree = new int[n];

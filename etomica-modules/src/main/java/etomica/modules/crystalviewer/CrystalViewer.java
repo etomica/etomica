@@ -6,9 +6,8 @@ package etomica.modules.crystalviewer;
 
 import javax.swing.JTabbedPane;
 
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -40,7 +39,7 @@ public class CrystalViewer extends SimulationPanel {
     protected final Simulation sim;
 
     protected SpeciesSpheresMono species;
-    protected IBox box;
+    protected Box box;
     protected IVectorMutable center;
     protected LatticePlane latticePlane;
     protected ClipPlaneEditor clipPlaneEditor;

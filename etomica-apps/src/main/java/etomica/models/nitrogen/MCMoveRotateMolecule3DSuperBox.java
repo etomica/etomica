@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IPotentialMolecular;
@@ -189,7 +189,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     	return -(uNew - uOld);
     }
     
-	public MoleculeIterator affectedMolecules(IBox aBox) {
+	public MoleculeIterator affectedMolecules(Box aBox) {
 	   if (box == aBox) {
 		   affectedMoleculeIterator.setList(affectedMoleculeList);
 		   return affectedMoleculeIterator;

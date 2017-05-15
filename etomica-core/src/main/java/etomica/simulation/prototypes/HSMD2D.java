@@ -5,7 +5,6 @@
 package etomica.simulation.prototypes;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
@@ -28,7 +27,7 @@ public class HSMD2D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species1, species2;
-    public IBox box;
+    public Box box;
     public Potential2 potential11;
     public Potential2 potential12;
     public Potential2 potential22;

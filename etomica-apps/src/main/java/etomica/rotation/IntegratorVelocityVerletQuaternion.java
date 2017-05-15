@@ -14,7 +14,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -36,7 +36,6 @@ import etomica.atom.OrientationCalcQuaternion;
 import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -502,11 +501,11 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         return new MoleculeAgent(space);
     }
     
-    public AtomAgent makeAgent(IAtom a, IBox agentBox) {
+    public AtomAgent makeAgent(IAtom a, Box agentBox) {
         return new AtomAgent(space);
     }
     
-    public void releaseAgent(AtomAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(AtomAgent agent, IAtom atom, Box agentBox) {}
     public void releaseAgent(Object agent, IMolecule atom) {}
             
     public static class MoleculeAgent implements Serializable {  //need public so to use with instanceof

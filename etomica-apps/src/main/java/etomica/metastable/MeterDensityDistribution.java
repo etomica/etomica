@@ -1,7 +1,7 @@
 package etomica.metastable;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.AccumulatorHistogram;
@@ -14,22 +14,20 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.space.ISpace;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
-import etomica.units.Null;
 import etomica.units.Quantity;
 import etomica.units.Volume;
 import etomica.util.HistogramDiscrete;
-import etomica.util.HistogramExpanding;
 
 public class MeterDensityDistribution implements IEtomicaDataSource {
 
     protected AccumulatorHistogram histogram; 
-    protected final IBox box;
+    protected final Box box;
     protected final int[][][] counts;
     protected final IVectorMutable p2;
     protected final IVectorMutable subBox, shift;
     protected final DataDouble subData;
     
-    public MeterDensityDistribution(ISpace space, IBox box, int nSubBoxes) {
+    public MeterDensityDistribution(ISpace space, Box box, int nSubBoxes) {
         this.box = box;
         histogram = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
         Dimension densityDim = new CompoundDimension(new Dimension[]{Quantity.DIMENSION,Volume.DIMENSION},new double[]{1,-1});

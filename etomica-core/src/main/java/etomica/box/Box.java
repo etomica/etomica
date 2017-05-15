@@ -41,14 +41,14 @@ import etomica.util.Debug;
  * A box is acted upon by an Integrator instance to move its atoms around and
  * generate configurations. <br>
  * A simulation may involve more than one box. All Box instances should be
- * registered with the simulation via {@link etomica.simulation.Simulation#addBox(IBox)} and
+ * registered with the simulation via {@link etomica.simulation.Simulation#addBox(Box)} and
  * may be accessed via the simulation's getBox method.
  * 
  * @author David Kofke, Andrew Schultz
  * @see Boundary
  * @see BoxEventManager
  */
-public class Box implements java.io.Serializable, IBox {
+public class Box implements java.io.Serializable {
 
     private static final long serialVersionUID = 2L;
     /**

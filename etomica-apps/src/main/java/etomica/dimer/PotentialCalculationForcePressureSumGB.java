@@ -5,7 +5,7 @@
 package etomica.dimer;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -28,10 +28,10 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     protected ISpecies fixed;
-    protected IBox box;
+    protected Box box;
     private final ISpace space;
     
-    public PotentialCalculationForcePressureSumGB(ISpace _space, IBox box) {
+    public PotentialCalculationForcePressureSumGB(ISpace _space, Box box) {
     	this.space = _space;
         pressureTensor = space.makeTensor();
         this.box = box;

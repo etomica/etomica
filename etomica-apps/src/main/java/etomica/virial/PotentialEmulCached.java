@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.potential.PotentialEmul;
 import etomica.space.ISpace;
@@ -54,7 +54,7 @@ public class PotentialEmulCached extends PotentialEmul {
         return lastEnergies[gid];
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         boolean discard = true;
         if (newBox instanceof BoxCluster) {
             discard = lastCPairID != ((BoxCluster)newBox).getCPairID();

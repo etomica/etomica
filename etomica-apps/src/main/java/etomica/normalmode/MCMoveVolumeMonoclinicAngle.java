@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflateAnisotropic;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -13,7 +13,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.integrator.Integrator;
 import etomica.space.ISpace;
 
 /**
@@ -41,7 +40,7 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeMonoclinicAngle(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, IBox box) {
+    		            ISpace _space, Box box) {
         super(potentialMaster);
         this.random = random;
         inflate = new BoxInflateAnisotropic(box, _space);
@@ -54,7 +53,7 @@ public class MCMoveVolumeMonoclinicAngle extends MCMoveBoxStep {
         cVec = _space.makeVector();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

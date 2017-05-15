@@ -6,7 +6,7 @@ package etomica.models.co2;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
@@ -463,7 +463,7 @@ for (int iter=0; iter<maxIter; iter++) {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     
@@ -532,7 +532,7 @@ for (int iter=0; iter<maxIter; iter++) {
             return Double.POSITIVE_INFINITY;
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             
         }
 
@@ -727,7 +727,7 @@ for (int iter=0; iter<maxIter; iter++) {
             }
         });
         sim.addSpecies(speciesCO2);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
@@ -795,7 +795,7 @@ for (int iter=0; iter<maxIter; iter++) {
             }
         });
         sim.addSpecies(speciesCO2);
-        IBox box = new etomica.box.Box(space);
+        Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));

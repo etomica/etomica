@@ -12,7 +12,7 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IIntegrator;
 import etomica.api.IRandom;
@@ -36,7 +36,7 @@ public class Simulation implements ISimulation  {
      */
     public Simulation(ISpace space) {
         this.space = space;
-        boxList = new IBox[0];
+        boxList = new Box[0];
         controller = new Controller();
         seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
@@ -55,13 +55,13 @@ public class Simulation implements ISimulation  {
         return seeds;
     }
 
-    public final void addBox(IBox newBox) {
+    public final void addBox(Box newBox) {
         for (int i=0; i<boxList.length; i++) {
             if (boxList[i] == newBox) {
                 throw new IllegalArgumentException("Box "+newBox+" is already a part of this Simulation");
             }
         }
-        boxList = (IBox[])Arrays.addObject(boxList, newBox);
+        boxList = (Box[])Arrays.addObject(boxList, newBox);
         newBox.setIndex(boxList.length-1);
         for(int i=0; i<speciesList.length; i++) {
             newBox.addSpeciesNotify(speciesList[i]);
@@ -69,7 +69,7 @@ public class Simulation implements ISimulation  {
         eventManager.boxAdded(newBox);
     }
     
-    public final void removeBox(IBox oldBox) {
+    public final void removeBox(Box oldBox) {
         boolean found = false;
         for (int i=0; i<boxList.length; i++) {
             if (boxList[i] == oldBox) {
@@ -81,7 +81,7 @@ public class Simulation implements ISimulation  {
             throw new IllegalArgumentException("Box "+oldBox+" is not part of this Simulation");
         }
 
-        boxList = (IBox[])Arrays.removeObject(boxList, oldBox);
+        boxList = (Box[])Arrays.removeObject(boxList, oldBox);
 
         for (int i = oldBox.getIndex(); i<boxList.length; i++) {
             boxList[i].setIndex(i);
@@ -97,7 +97,7 @@ public class Simulation implements ISimulation  {
     /**
      * Returns an array of Boxs contained in the Simulation
      */
-    public final IBox getBox(int index) {
+    public final Box getBox(int index) {
         return boxList[index];
     }
 
@@ -279,7 +279,7 @@ public class Simulation implements ISimulation  {
     protected final ISpace space;
     protected int[] seeds;
     protected final SimulationEventManager eventManager;
-    private IBox[] boxList;
+    private Box[] boxList;
     protected IRandom random;
     private Controller controller;
     private ISpecies[] speciesList;

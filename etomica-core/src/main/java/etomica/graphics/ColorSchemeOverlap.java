@@ -9,7 +9,7 @@ import java.awt.Color;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.nbr.list.NeighborListManager;
@@ -23,7 +23,7 @@ import etomica.space.ISpace;
  */
 public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeOverlap(ISpace space, PotentialMasterList potentialMaster, IBox box) {
+    public ColorSchemeOverlap(ISpace space, PotentialMasterList potentialMaster, Box box) {
         super(box);
         leafList = box.getLeafList();
         nOverlaps = new int[leafList.getAtomCount()];

@@ -3,7 +3,7 @@ package etomica.data.meter;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceUniform;
@@ -27,7 +27,7 @@ public class PotentialCalculationRDF implements PotentialCalculation {
     protected double xMax;
 
     
-    public PotentialCalculationRDF(ISpace space, IBox box) {
+    public PotentialCalculationRDF(ISpace space, Box box) {
         dr = space.makeVector();
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(LimitType.HALF_STEP);
@@ -42,7 +42,7 @@ public class PotentialCalculationRDF implements PotentialCalculation {
         return xDataSource;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

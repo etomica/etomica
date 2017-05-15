@@ -6,7 +6,6 @@ package etomica.simulation.prototypes;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
@@ -30,7 +29,7 @@ import etomica.species.SpeciesSpheres;
 public class ChainHSMD3D extends Simulation {
 
     private static final long serialVersionUID = 2L;
-    public IBox box;
+    public Box box;
     public IntegratorHard integrator;
     public SpeciesSpheres species;
     public P2HardSphere potential;

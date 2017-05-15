@@ -20,7 +20,7 @@ import javax.swing.JPopupMenu;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegrator;
 import etomica.api.ISimulation;
 import etomica.graphics.DisplayPlot.PopupListener;
@@ -57,7 +57,7 @@ public class SimulationGraphic implements SimulationContainer {
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private final LinkedList<Display> displayList = new LinkedList<Display>();
     private final LinkedList<Device> deviceList = new LinkedList<Device>();
-    private HashMap<IBox,IntegratorListenerAction> repaintActions = new HashMap<IBox,IntegratorListenerAction>();
+    private HashMap<Box,IntegratorListenerAction> repaintActions = new HashMap<Box,IntegratorListenerAction>();
     private int graphicType = GRAPHIC_ONLY;
     protected final ISpace space;
     protected final String appName;
@@ -126,7 +126,7 @@ public class SimulationGraphic implements SimulationContainer {
         }
         dcb = new DeviceTrioControllerButton(simulation, space, controller);
         add(dcb);
-        setupDisplayBox(simulation.getIntegrator(), new LinkedList<IBox>());
+        setupDisplayBox(simulation.getIntegrator(), new LinkedList<Box>());
     }
 
     public ISimulation getSimulation() {return simulation;}
@@ -148,9 +148,9 @@ public class SimulationGraphic implements SimulationContainer {
 	  * a box handled by an Integrator is in BoxList, a new DisplayBox is
 	  * not created.
 	  */
-	private void setupDisplayBox(IIntegrator integrator, LinkedList<IBox> boxList) {
+	private void setupDisplayBox(IIntegrator integrator, LinkedList<Box> boxList) {
 	    if (integrator instanceof IntegratorBox) {
-	        IBox box = ((IntegratorBox)integrator).getBox();
+	        Box box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
 	        boxList.add(box);
 	        final DisplayBox display = new DisplayBox(simulation, box, space, controller);
@@ -190,7 +190,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  * Sets the integrator interval between repaint actions to the value
 	  * specified for the given Box.
 	  */
-    public void setPaintInterval(IBox box, int interval) {
+    public void setPaintInterval(Box box, int interval) {
         IntegratorListenerAction repaintAction = repaintActions.get(box);
 	    repaintAction.setInterval(interval);
     }
@@ -204,7 +204,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  *
 	  * @return Returns the paint action associated with the given Box.
 	  */
-    public IAction getPaintAction(IBox box) {
+    public IAction getPaintAction(Box box) {
 	    return repaintActions.get(box).getAction();
     }
    
@@ -399,7 +399,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     public DeviceTrioControllerButton getController() { return dcb; }
 
-    protected IAction createDisplayBoxPaintAction(IBox box) {
+    protected IAction createDisplayBoxPaintAction(Box box) {
     	IAction repaintAction = null;
 
     	final DisplayBox display = getDisplayBox(box);
@@ -459,7 +459,7 @@ public class SimulationGraphic implements SimulationContainer {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
         
-    public DisplayBox getDisplayBox(IBox box) {
+    public DisplayBox getDisplayBox(Box box) {
         Iterator<Display> iterator = displayList.iterator();
         while(iterator.hasNext()) {
             Object display = iterator.next();

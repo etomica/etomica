@@ -6,7 +6,7 @@ package etomica.nbr;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -154,7 +154,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
 		return dr > displacementLimit;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         boxSize = box.getBoundary().getBoxSize().getX(neighborDim);
         agentManager = boxAgentManager.getAgent(box);
 	}
@@ -191,11 +191,11 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
 		agentManager.getAgent(atom).x = atom.getPosition().getX(neighborDim);
 	}
 
-    public DoubleWrapper makeAgent(IAtom atom, IBox agentBox) {
+    public DoubleWrapper makeAgent(IAtom atom, Box agentBox) {
         return new DoubleWrapper();
     }
     
-    public void releaseAgent(DoubleWrapper agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(DoubleWrapper agent, IAtom atom, Box agentBox) {}
 
     protected static class DoubleWrapper {
         public double x;

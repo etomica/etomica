@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -66,7 +66,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
         work3 = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
     	super.setBox(p);
     	int nMolecules = box.getMoleculeList().getMoleculeCount();
     	selectedAtoms = new IAtom[nMolecules][8];// [0] is carbon, other 5 or 6 or 7 are H

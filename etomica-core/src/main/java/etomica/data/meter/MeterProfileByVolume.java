@@ -4,7 +4,7 @@
 
 package etomica.data.meter;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -141,13 +141,13 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
     
@@ -194,7 +194,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     }
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
+    protected Box box;
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
     protected IEtomicaDataInfo dataInfo;

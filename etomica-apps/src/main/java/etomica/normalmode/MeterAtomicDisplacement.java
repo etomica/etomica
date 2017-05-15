@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.IAction;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceIndependent;
@@ -47,7 +47,7 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
     	
 
 
-    public IBox getBox() {
+    public Box getBox() {
         return coordinateDefinition.getBox();
     }
     

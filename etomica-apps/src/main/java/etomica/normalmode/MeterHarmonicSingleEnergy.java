@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -67,11 +67,11 @@ public class MeterHarmonicSingleEnergy implements IEtomicaDataSource {
         return data;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return coordinateDefinition.getBox();
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         
         normalModes.getWaveVectorFactory().makeWaveVectors(newBox);

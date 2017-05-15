@@ -5,7 +5,7 @@
 package etomica.modules.catalysis;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -13,7 +13,6 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationLatticeSimple;
@@ -56,7 +55,7 @@ public class ConfigurationCatalysis implements Configuration {
         return moleculeOffset;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         box.setNMolecules(speciesSurface, 0);
         box.setNMolecules(speciesO, 0);
         box.setNMolecules(speciesC, 0);

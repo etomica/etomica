@@ -11,10 +11,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.listener.IntegratorListenerAction;
@@ -32,7 +31,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
-    public IBox box;
+    public Box box;
     public etomica.action.SimulationRestart restartAction;
     public boolean initializing = true;
     public MeterTemperature thermometer;
@@ -115,11 +114,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
      * @param a  ignored
      * @return Object always null
      */
-    public IAtom makeAgent(IAtom a, IBox agentBox) {
+    public IAtom makeAgent(IAtom a, Box agentBox) {
         return null;
     }
     
-    public void releaseAgent(IAtom agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(IAtom agent, IAtom atom, Box agentBox) {}
 
 
 }

@@ -9,14 +9,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import etomica.action.BoxInflate;
-import etomica.action.WriteConfigurationBinary;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
-import etomica.api.IVector;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.ISpecies;
+import etomica.api.IVectorMutable;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
@@ -32,7 +29,7 @@ public class ConfigurationFileBinary implements Configuration {
         confName = aConfName;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         String fileName = confName+".pos";
 
         double[][] x;
@@ -81,9 +78,9 @@ public class ConfigurationFileBinary implements Configuration {
      * then written out to outFilename (also as binary).  The density and
      * original number of atoms are required as input.
      */
-    public static void replicate(Configuration config, IBox box1, int[] reps, ISpace space) {
+    public static void replicate(Configuration config, Box box1, int[] reps, ISpace space) {
         Simulation sim = new Simulation(space);
-        IBox box0 = new Box(space);
+        Box box0 = new Box(space);
         sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
@@ -123,9 +120,9 @@ public class ConfigurationFileBinary implements Configuration {
         }
     }
 
-    public static void rescale(Configuration config, IBox box1, double density1, ISpace space) {
+    public static void rescale(Configuration config, Box box1, double density1, ISpace space) {
         Simulation sim = new Simulation(space);
-        IBox box0 = new Box(space);
+        Box box0 = new Box(space);
         sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);

@@ -6,9 +6,8 @@ package etomica.normalmode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.data.DataInfo;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -47,7 +46,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, nCells);
         
-        IBox box = new Box(boundary, space);
+        Box box = new Box(boundary, space);
 
         System.out.println("Density: "+nSites/boundary.volume());
         kFactory = new WaveVectorFactorySimple(primitive, space);

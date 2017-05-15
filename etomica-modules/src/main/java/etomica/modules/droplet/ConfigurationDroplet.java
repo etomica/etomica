@@ -5,7 +5,7 @@
 package etomica.modules.droplet;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
@@ -20,7 +20,7 @@ public class ConfigurationDroplet implements Configuration {
         center = space.makeVector();
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         
         double factor = (1+deformation) / (1-deformation);
         axis.E(Math.pow(factor, -1.0/3.0));

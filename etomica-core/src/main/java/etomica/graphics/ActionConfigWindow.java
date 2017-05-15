@@ -12,7 +12,7 @@ import javax.swing.JFrame;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 
 /**
@@ -22,7 +22,7 @@ import etomica.api.IVectorMutable;
 public class ActionConfigWindow implements IAction {
     private final IAtomList leafList;
     
-    public ActionConfigWindow(IBox box) {
+    public ActionConfigWindow(Box box) {
         leafList = box.getLeafList();
     }
     

@@ -7,7 +7,7 @@ package etomica.modules.mu;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -43,7 +43,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
         return e;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         neighborManager = potentialMaster.getNeighborManager(newBox);
     }

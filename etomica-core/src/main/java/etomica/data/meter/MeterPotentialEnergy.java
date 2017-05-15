@@ -4,7 +4,7 @@
 
 package etomica.data.meter;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
@@ -67,13 +67,13 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
     
@@ -81,7 +81,7 @@ public class MeterPotentialEnergy extends DataSourceScalar {
         energy = newEnergySummer;
     }
 
-    protected IBox box;
+    protected Box box;
     protected final IteratorDirective iteratorDirective = new IteratorDirective();
     protected PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     protected final IPotentialMaster potential;

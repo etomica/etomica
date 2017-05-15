@@ -1,12 +1,12 @@
 package etomica.mappedvirial;
 
  import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceScalar;
+ import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;
@@ -18,12 +18,12 @@ public class MeterMappedVirialV extends DataSourceScalar implements  AgentSource
     protected final ISpace space;
     protected final IPotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final PotentialCalculationMappedVirialV pc;
     
-    public MeterMappedVirialV(ISpace space, IPotentialMaster potentialMaster, IBox box, int nbins) {
+    public MeterMappedVirialV(ISpace space, IPotentialMaster potentialMaster, Box box, int nbins) {
         super("pma",Pressure.DIMENSION);
         this.space = space;
         this.box = box;
@@ -40,11 +40,11 @@ public class MeterMappedVirialV extends DataSourceScalar implements  AgentSource
         allAtoms = new IteratorDirective();
     }
     
-    public MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 
     public PotentialCalculationMappedVirialV getPotentialCalculation() {
         return pc;

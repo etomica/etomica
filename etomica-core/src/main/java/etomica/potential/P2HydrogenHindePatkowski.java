@@ -10,16 +10,14 @@ import java.io.IOException;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
-import etomica.potential.P2HydrogenHinde.P2HydrogenHindeMolecular;
 import etomica.space.ISpace;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
@@ -50,7 +48,7 @@ public class P2HydrogenHindePatkowski implements IPotential {
     }
 
 
-    public void setBox(IBox box) {    
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Patkowski.setBox(box);
         p2Hinde.setBox(box);

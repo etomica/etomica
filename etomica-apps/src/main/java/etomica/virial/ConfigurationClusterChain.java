@@ -5,9 +5,8 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
-import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
 
 public class ConfigurationClusterChain extends ConfigurationCluster {
@@ -16,7 +15,7 @@ public class ConfigurationClusterChain extends ConfigurationCluster {
 		super(_space);
 	}
 
-	public void initializeCoordinates(IBox box) {
+	public void initializeCoordinates(Box box) {
 		super.initializeCoordinates(box);
 		BoxCluster clusterBox =(BoxCluster) box;
 		IAtomList list = box.getLeafList();

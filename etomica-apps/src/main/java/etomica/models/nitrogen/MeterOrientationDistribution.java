@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -42,7 +42,7 @@ import etomica.util.HistogramExpanding;
  */
 public class MeterOrientationDistribution implements IEtomicaDataSource, IAction, Serializable {
 
-    public MeterOrientationDistribution(IBox newBox, CoordinateDefinitionNitrogen coordDef, ISpecies species) {
+    public MeterOrientationDistribution(Box newBox, CoordinateDefinitionNitrogen coordDef, ISpecies species) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
         

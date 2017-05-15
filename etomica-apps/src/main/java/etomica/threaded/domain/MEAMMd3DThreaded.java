@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Silver;
@@ -80,7 +79,7 @@ public class MEAMMd3DThreaded extends Simulation {
     public SpeciesSpheresMono sn;
     public SpeciesSpheresMono ag;
     public SpeciesSpheresMono cu;
-    public IBox box;
+    public Box box;
     public PotentialMEAM[] potentialN;
     public PotentialThreaded potentialThreaded;
     public Controller controller;

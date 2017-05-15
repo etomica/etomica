@@ -19,9 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.box.Box;
+import etomica.api.ISpecies;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSlider;
@@ -47,7 +46,7 @@ public class LatticeEditor {
     protected int size;
     protected BravaisLattice currentLattice;
     private JPanel panel;
-    protected IBox box;
+    protected Box box;
     protected ISpecies species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
@@ -301,7 +300,7 @@ public class LatticeEditor {
 
     protected void changeBox() {
     	
-    	IBox oldBox = box;
+    	Box oldBox = box;
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
     	box = new Box(new BoundaryDeformableLattice

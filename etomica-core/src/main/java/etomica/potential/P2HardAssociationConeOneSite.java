@@ -5,7 +5,7 @@
 package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
@@ -183,7 +183,7 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

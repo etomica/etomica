@@ -3,14 +3,14 @@ package etomica.mappedvirial;
  import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.data.DataSourceIndependent;
+ import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -34,7 +34,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
 
     protected final IPotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final ISpace space;
@@ -47,7 +47,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
     protected final DataDoubleArray xData;
     protected final DataInfoDoubleArray xDataInfo;
     
-    public MeterMeanForce(ISpace space, IPotentialMaster potentialMaster, Potential2SoftSpherical p2, IBox box, int nbins) {
+    public MeterMeanForce(ISpace space, IPotentialMaster potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
         this.space = space;
         this.p2 = p2;
         this.box = box;
@@ -86,11 +86,11 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
         return hist2;
     }
 
-    public MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 
     public void actionPerformed() {
         pcForce.reset();

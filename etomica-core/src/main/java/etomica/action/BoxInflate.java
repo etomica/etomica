@@ -4,7 +4,7 @@
 
 package etomica.action;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -36,7 +36,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     /**
      * Constructs action ready to be performed on the given box. 
      */
-    public BoxInflate(IBox box, ISpace space) {
+    public BoxInflate(Box box, ISpace space) {
         this(space);
         setBox(box);
     }

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Formatter;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -81,11 +81,11 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         return IntegratorVelocityVerlet.MyAgent.class;
     }
 
-    public Object makeAgent(IAtom a, IBox agentBox) {
+    public Object makeAgent(IAtom a, Box agentBox) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(Object agent, IAtom atom, IBox agentBox) {
+    public void releaseAgent(Object agent, IAtom atom, Box agentBox) {
         // TODO Auto-generated method stub  
     }
     

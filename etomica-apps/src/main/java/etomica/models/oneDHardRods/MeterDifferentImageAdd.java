@@ -5,12 +5,11 @@
 package etomica.models.oneDHardRods;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
@@ -50,7 +49,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     double[] gaussCoord;
     
     protected final IRandom random;
-    public IBox box;
+    public Box box;
     protected int numAtoms;
     protected IBoundary bdry;
     protected NormalModes nm;
@@ -282,7 +281,7 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     }
 
     
-    public IBox getBox(){
+    public Box getBox(){
         return box;
     }
     

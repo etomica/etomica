@@ -9,7 +9,6 @@ import java.awt.Color;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCovariance;
@@ -443,7 +442,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
 
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public CoordinateDefinitionLeaf coordinateDefinition;
     public int[] nCells;

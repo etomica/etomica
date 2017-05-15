@@ -42,7 +42,7 @@ public class SimLJ extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2LennardJones potential;
     public MCMoveAtomNPath mcMoveAtom;
     public MCMoveAtomCoupled mcMoveAtomCoupled;

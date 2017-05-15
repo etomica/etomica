@@ -8,18 +8,16 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -31,8 +29,6 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicBcc;
 import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialGroupSoft;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -59,7 +55,7 @@ public class CH4NVT extends Simulation {
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotateMolecule3D rotateMolecule;//rotation mc move
-	protected final IBox box;
+	protected final Box box;
 	private final static String APP_NAME = "methane, TraPPE-EH model";
 	private static final int PIXEL_SIZE = 15;
 	public final ActivityIntegrate activityIntegrate;

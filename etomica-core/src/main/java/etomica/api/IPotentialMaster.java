@@ -5,6 +5,7 @@
 package etomica.api;
 
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.chem.models.Model;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
@@ -31,8 +32,8 @@ public interface IPotentialMaster {
 	 * and applies doCalculation of given PotentialCalculation with the iterators
 	 * and potentials.
 	 */
-	public void calculate(IBox box, IteratorDirective id,
-			PotentialCalculation pc);
+	public void calculate(Box box, IteratorDirective id,
+                          PotentialCalculation pc);
 
 	/**
 	 * Add the given Model's intramolecular potentials to this PotentialMaster

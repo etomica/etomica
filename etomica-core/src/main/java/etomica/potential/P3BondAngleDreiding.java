@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -160,7 +160,7 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
         return gradient(atoms,null);
     }
 	
-	public void setBox(IBox box){
+	public void setBox(Box box){
 		boundary = box.getBoundary();
 	}
 	

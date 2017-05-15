@@ -5,10 +5,9 @@
 package etomica.models.nitrogen;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -345,7 +344,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarg, boxRef;
+    public Box boxTarg, boxRef;
     public int[] nCells;
     public Basis basis;
     public double refPref;

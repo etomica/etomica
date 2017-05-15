@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -21,7 +21,6 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.RotationTensor;
 
 /**
@@ -301,7 +300,7 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         return affectedAtomIterator;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);

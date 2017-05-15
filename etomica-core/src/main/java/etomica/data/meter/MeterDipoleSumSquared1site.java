@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -19,11 +19,11 @@ import etomica.units.Dipole;
  */
 public class MeterDipoleSumSquared1site extends DataSourceScalar {
 	 
-    private IBox box;
+    private Box box;
     private IVectorMutable dipoleSum;
     private double dipoleMagnitude;
     
-	public MeterDipoleSumSquared1site(ISpace space, IBox box, double dipoleMagnitude) {
+	public MeterDipoleSumSquared1site(ISpace space, Box box, double dipoleMagnitude) {
 		super("dipoleSum^2", new CompoundDimension(new Dimension[]{Dipole.DIMENSION},new double[]{2.0}));
 		this.box=box;
 		this.dipoleMagnitude = dipoleMagnitude;
@@ -45,10 +45,10 @@ public class MeterDipoleSumSquared1site extends DataSourceScalar {
         return squared;
 	}
 
-    public IBox getBox() {
+    public Box getBox() {
     	return box;
     }
-    public void setBox(IBox _box) {
+    public void setBox(Box _box) {
     	box = _box;
     }
 

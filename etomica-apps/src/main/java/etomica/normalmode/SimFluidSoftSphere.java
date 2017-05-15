@@ -11,7 +11,6 @@ import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
@@ -337,7 +336,7 @@ public class SimFluidSoftSphere extends Simulation {
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public PotentialMaster potentialMaster;
     public static String filename;
 }

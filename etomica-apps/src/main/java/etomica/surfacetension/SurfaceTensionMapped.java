@@ -4,6 +4,7 @@ import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
@@ -35,10 +36,10 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<Forcible> forceAgentManager;
     protected final ISpace space;
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
 
-    public SurfaceTensionMapped(ISpace space, IBox box, ISpecies species, IPotentialMaster potentialMaster) {
+    public SurfaceTensionMapped(ISpace space, Box box, ISpecies species, IPotentialMaster potentialMaster) {
         this.space = space;
         this.box = box;
         densityProfileMeter = new MeterProfileByVolume(space);
@@ -114,10 +115,10 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         return data;
     }
 
-    public Forcible makeAgent(IAtom a, IBox agentBox) {
+    public Forcible makeAgent(IAtom a, Box agentBox) {
         return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
-    public void releaseAgent(Forcible agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Forcible agent, IAtom atom, Box agentBox) {}
 
 }

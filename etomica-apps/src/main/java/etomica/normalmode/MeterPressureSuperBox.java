@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.normalmode;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
@@ -73,7 +73,7 @@ public class MeterPressureSuperBox extends DataSourceScalar {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
     	virial.zeroSum();
-        IBox box = integrator.getBox();
+        Box box = integrator.getBox();
         integrator.getPotentialMaster().calculate(box, iteratorDirective, virial);
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
         return (box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume())*integrator.getTemperature() - 27*virial.getSum()/(box.getBoundary().volume()*dim);

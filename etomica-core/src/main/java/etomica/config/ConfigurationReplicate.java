@@ -6,10 +6,9 @@ package etomica.config;
 
 import etomica.action.BoxInflate;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.ISpace;
 import etomica.species.SpeciesSpheresMono;
@@ -20,9 +19,9 @@ public class ConfigurationReplicate {
      * Replicates the configuration from config within boxBig.  There are reps
      * replicates in each direction.
      */
-    public static void replicate(Configuration config, IBox boxBig, int[] reps, ISpace space) {
+    public static void replicate(Configuration config, Box boxBig, int[] reps, ISpace space) {
         Simulation sim = new Simulation(space);
-        IBox box0 = new Box(space);
+        Box box0 = new Box(space);
         sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);

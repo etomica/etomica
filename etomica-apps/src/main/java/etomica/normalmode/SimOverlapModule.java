@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegrator;
 import etomica.data.AccumulatorAverageCollapsingLog;
 import etomica.data.DataPumpListener;
@@ -30,10 +30,10 @@ import etomica.overlap.MeterOverlap;
  */
 public class SimOverlapModule {
 
-    public SimOverlapModule(IBox boxReference, IBox boxTarget,
-            IIntegrator integratorReference, IIntegrator integratorTarget,
-            IAPIPotential potentialReference, IAPIPotential potentialTarget,
-            double temperature) {
+    public SimOverlapModule(Box boxReference, Box boxTarget,
+                            IIntegrator integratorReference, IIntegrator integratorTarget,
+                            IAPIPotential potentialReference, IAPIPotential potentialTarget,
+                            double temperature) {
         integrators = new IIntegrator[2];
         integrators[0] = integratorReference;
         integrators[1] = integratorTarget;

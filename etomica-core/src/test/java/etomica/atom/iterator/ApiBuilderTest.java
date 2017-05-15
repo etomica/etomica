@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -93,7 +93,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         IAtomType[] types = new IAtomType[2];
         MoleculePair basisPair = new MoleculePair();
 
-        IBox box = sim.getBox(0);
+        Box box = sim.getBox(0);
         IMoleculeList moleculeList0 = box.getMoleculeList(species0);
         IMoleculeList moleculeList1 = box.getMoleculeList(species1);
         
@@ -253,7 +253,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
-        IBox box = sim.getBox(1);
+        Box box = sim.getBox(1);
         ISpecies species1 = sim.getSpecies(1);
         parent = box.getMoleculeList(species1).getMolecule(0);//box1, species1, molecule0
         target = parent.getChildList().getAtom(0);

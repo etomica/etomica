@@ -7,7 +7,7 @@ package etomica.space;
 import etomica.api.IBoundary;
 import etomica.api.IBoundaryEvent;
 import etomica.api.IBoundaryEventManager;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
@@ -40,7 +40,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
      * Sets the boundary's box to be the given box.  The box may be null to
      * indicate that the boundary is not associated with a box.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (box == null) {
             inflateEvent = null;
@@ -54,7 +54,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
      * Returns the boundary's box.  May be null if the boundary is not
      * associated with a box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -100,7 +100,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     private final IVector center;
     protected final Polytope shape;
     protected final ISpace space;
-    protected IBox box;
+    protected Box box;
     protected IBoundaryEvent inflateEvent;
     protected BoundaryEventManager eventManager;
 }

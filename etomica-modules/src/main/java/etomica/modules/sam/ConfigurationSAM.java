@@ -6,13 +6,12 @@ package etomica.modules.sam;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.config.ConformationChainZigZag;
@@ -53,7 +52,7 @@ public class ConfigurationSAM implements Configuration {
         return moleculeOffset;
     }
     
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         Box pretendBox = new Box(box.getBoundary(), space);
         sim.addBox(pretendBox);
         potentialMaster.getNbrCellManager(pretendBox).setDoApplyPBC(true);

@@ -5,7 +5,7 @@
 package etomica.models.hexane;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -40,8 +40,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private ConformationHexane confHex;
     
     
-    public CoordinateDefinitionHexane(ISimulation sim, IBox box, Primitive primitive, 
-            SpeciesHexane species, ISpace space){
+    public CoordinateDefinitionHexane(ISimulation sim, Box box, Primitive primitive,
+                                      SpeciesHexane species, ISpace space){
         super(sim, box, primitive, 6, space);
         
         length = species.getBondLength();

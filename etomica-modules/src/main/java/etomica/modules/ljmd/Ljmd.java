@@ -5,9 +5,8 @@
 package etomica.modules.ljmd;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -26,7 +25,7 @@ public class Ljmd extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public IntegratorVelocityVerlet integrator;
     public ActivityIntegrate activityIntegrate;
     

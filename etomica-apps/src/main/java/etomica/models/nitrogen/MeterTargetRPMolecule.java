@@ -4,13 +4,12 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
@@ -46,7 +45,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     protected final DataTag tag;
-    protected final IBox pretendBox;
+    protected final Box pretendBox;
     protected CoordinateDefinitionNitrogen coordinateDefinition;
     protected final ISpecies species;
     protected double[][] alpha;
@@ -81,7 +80,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
 		}
 		
-		IBox realBox = coordinateDef.getBox();
+		Box realBox = coordinateDef.getBox();
 		pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         
@@ -101,7 +100,7 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
     }
 
     public IData getData() {
-    	IBox realBox = coordinateDefinition.getBox();
+    	Box realBox = coordinateDefinition.getBox();
         meterPotential.setBox(realBox);
         
         double energy = meterPotential.getDataAsScalar();

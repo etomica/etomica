@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.graphics.ColorSchemeByType;
@@ -266,8 +266,8 @@ public class BnFlexibleContributionTraPPEUAMethanol {
 //         sim.integratorOS.setAdjustStepFreq(false);
 //         sim.integratorOS.setStepFreq0(1);
         	
-        IBox referenceBox = sim.box[0];
-        IBox targetBox = sim.box[1];
+        Box referenceBox = sim.box[0];
+        Box targetBox = sim.box[1];
       
         sim.integratorOS.setNumSubSteps(1000); // Is this necessary?
         

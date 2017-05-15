@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -41,7 +41,7 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(IBox box, ISpecies[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         MoleculeIteratorAllMolecules iterator = new MoleculeIteratorAllMolecules();
 
         iterator.setBox(box);

@@ -6,7 +6,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.ISpecies;
@@ -17,7 +17,6 @@ import etomica.atom.DipoleSource;
 import etomica.atom.IAtomOriented;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.IAtomTypeOriented;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -65,7 +64,7 @@ public class DHS_NVT extends Simulation {
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move
-	protected final IBox box;
+	protected final Box box;
 	private final static String APP_NAME = "dipolar HS, dielectric constant";
 	private static final int PIXEL_SIZE = 15;
 	public final ActivityIntegrate activityIntegrate;

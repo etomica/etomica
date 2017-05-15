@@ -8,9 +8,7 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
@@ -331,7 +329,7 @@ public class TestHexaneHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public IBox box;
+    public Box box;
 
     public BoundaryDeformablePeriodic bdry;
  

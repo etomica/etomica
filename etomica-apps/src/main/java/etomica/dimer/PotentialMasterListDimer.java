@@ -4,9 +4,7 @@
 
 package etomica.dimer;
 
-import etomica.api.IAtom;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -28,7 +26,7 @@ public class PotentialMasterListDimer extends PotentialMasterList{
         this.species = species;
     }
     
-   public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+   public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         if (id.getTargetAtom() != null || id.getTargetMolecule() != null) {
             super.calculate(box, id, pc);

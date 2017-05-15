@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.integrator.IntegratorBox;
 import etomica.space.ISpace;
@@ -57,7 +57,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
 		((PotentialSoft)potential).gradient(atoms, pressureTensor);
 	}
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         leafList = newBox.getLeafList();
     }
 

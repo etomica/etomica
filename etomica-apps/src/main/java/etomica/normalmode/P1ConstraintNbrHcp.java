@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
@@ -21,7 +21,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic{
     private static final long serialVersionUID = 1L;
 
     // this could take a NeighborListManager to try to speed up finding neighbors
-    public P1ConstraintNbrHcp(ISpace space, double neighborDistance, IBox box) {
+    public P1ConstraintNbrHcp(ISpace space, double neighborDistance, Box box) {
         boundary = box.getBoundary();
 
         neighborRadiusSq = neighborDistance*neighborDistance;
@@ -60,7 +60,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         leafList = box.getLeafList();
     }
 

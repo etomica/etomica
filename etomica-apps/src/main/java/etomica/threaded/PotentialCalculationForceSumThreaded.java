@@ -6,7 +6,7 @@ package etomica.threaded;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -60,7 +60,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	
 	public void writeData(){
        
-		IBox box = integratorAgentManager.getBox();
+		Box box = integratorAgentManager.getBox();
         IAtomList atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
@@ -75,11 +75,11 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
             
 	}
     
-    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent object, IAtom atom, IBox agentBox){
+    public void releaseAgent(MyAgent object, IAtom atom, Box agentBox){
         
     }
     

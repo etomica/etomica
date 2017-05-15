@@ -6,7 +6,6 @@ package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
@@ -65,7 +64,7 @@ public class SimDegFreeBinning extends Simulation {
     public BasisMonatomic basis;
     public ActivityIntegrate activityIntegrate;
     
-    public IBox box;
+    public Box box;
     public Boundary bdry;
     public CoordinateDefinition coordinateDefinition;
     MeterNMCBaskets meternmc;

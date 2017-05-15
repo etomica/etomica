@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.data.DataTag;
@@ -41,7 +41,7 @@ import etomica.util.HistogramExpanding;
  */
 public class MeterNormalizedCoordBeta implements IEtomicaDataSource, IAction, Serializable {
 
-    public MeterNormalizedCoordBeta(IBox newBox, CoordinateDefinition coordDef, ISpecies species) {
+    public MeterNormalizedCoordBeta(Box newBox, CoordinateDefinition coordDef, ISpecies species) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
         

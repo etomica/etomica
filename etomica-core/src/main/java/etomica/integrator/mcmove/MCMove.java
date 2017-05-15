@@ -4,7 +4,7 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.AtomIterator;
 
@@ -86,14 +86,14 @@ public abstract class MCMove {
      * move caused an atom to be removed from the box, it will not be returned
      * because that Atom is not considered an affected Atom.                    
 	 */
-	public abstract AtomIterator affectedAtoms(IBox box);
+	public abstract AtomIterator affectedAtoms(Box box);
 
 	/**
 	 * Returns the change in the energy of the given box that results from the
 	 * trial move. Should be called only after lnProbabilityRatio(); returns
 	 * Double.NaN if invoked between calls to doTrial and lnProbabilityRatio.
 	 */
-	public abstract double energyChange(IBox box);
+	public abstract double energyChange(Box box);
 
 	public MCMoveTracker getTracker() {
         return moveTracker;

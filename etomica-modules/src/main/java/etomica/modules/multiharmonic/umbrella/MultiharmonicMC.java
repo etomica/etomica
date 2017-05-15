@@ -6,7 +6,6 @@ package etomica.modules.multiharmonic.umbrella;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
@@ -73,7 +72,7 @@ public class MultiharmonicMC extends Simulation {
 
     private static final long serialVersionUID = 1L;
     protected final SpeciesSpheresMono species;
-    protected final IBox box;
+    protected final Box box;
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integrator;
     protected final MCMoveMultiHarmonic moveA, moveB;

@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -55,7 +55,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
         rScale = _space.makeVector();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

@@ -6,7 +6,7 @@
 package etomica.models.water;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -36,7 +36,7 @@ public class P2Water3P extends PotentialMolecular {
         this.chargeH = chargeH;
 	}
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

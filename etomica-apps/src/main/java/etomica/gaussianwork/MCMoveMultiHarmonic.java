@@ -5,7 +5,7 @@
 package etomica.gaussianwork;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -30,7 +30,7 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         this.random = random;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         iterator.setBox(box);
     }

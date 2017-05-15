@@ -5,13 +5,12 @@
 package etomica.association;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
@@ -55,7 +54,7 @@ public class MCMoveBiasUB extends MCMoveBox {
         perParticleFrequency = true;// the frequency of the move is increasing with the system size
     }
     
-    public void setBox(IBox box){
+    public void setBox(Box box){
     	super.setBox(box);
     	meterPotentialEnergy.setBox(box);
     }

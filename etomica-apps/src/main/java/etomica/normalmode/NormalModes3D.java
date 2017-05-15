@@ -4,9 +4,6 @@
 
 package etomica.normalmode;
 
-import Jama.EigenvalueDecomposition;
-import Jama.Matrix;
-import etomica.api.IBox;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.ISpace;

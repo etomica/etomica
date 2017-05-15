@@ -4,6 +4,8 @@
 
 package etomica.api;
 
+import etomica.box.Box;
+
 /**
  * The ISimulation is an interface for a simulation, containing boxes, species,
  * a random number generator and an integrator.
@@ -16,13 +18,13 @@ public interface ISimulation {
      * Adds a Box to the simulation.  This method should not be called if
      * newBox is already held by the simulation.
      */
-    public void addBox(IBox newBox);
+    public void addBox(Box newBox);
 
     /**
      * Removes a Box to the simulation.  This method should not be called if
      * oldBox is not held by the simulation.
      */
-    public void removeBox(IBox oldBox);
+    public void removeBox(Box oldBox);
 
     /**
      * Returns number of boxes contained in the Simulation
@@ -32,7 +34,7 @@ public interface ISimulation {
     /**
      * Returns Box specified by index contained in the Simulation
      */
-    public IBox getBox(int index);
+    public Box getBox(int index);
 
     /**
      * Adds species to the list of all ISpecies in the simulation, and

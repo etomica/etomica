@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 
 /**
  * Iterator for all the molecules in a box. Loops over all those atoms that
@@ -26,7 +26,7 @@ public class MoleculeIteratorAllMolecules extends MoleculeIteratorArrayListSimpl
      * Returns a new iterator ready to iterate over the molecules of the given
      * box.
      */
-    public MoleculeIteratorAllMolecules(IBox box) {
+    public MoleculeIteratorAllMolecules(Box box) {
         this();
         setBox(box);
     }
@@ -34,7 +34,7 @@ public class MoleculeIteratorAllMolecules extends MoleculeIteratorArrayListSimpl
     /**
      * Sets the box having the molecules to be returned as iterates.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         setList(box.getMoleculeList());
     }
     

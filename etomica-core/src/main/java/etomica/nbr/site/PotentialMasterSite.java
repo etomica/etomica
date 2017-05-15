@@ -8,6 +8,7 @@ import etomica.api.*;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
@@ -132,7 +133,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
         for (int i=0; i<criteriaArray.length; i++) {
@@ -260,7 +261,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             this.space = _space;
         }
 
-        public BoxCellManager makeAgent(IBox box) {
+        public BoxCellManager makeAgent(Box box) {
             return new NeighborSiteManager(box,nCells, space);
         }
         

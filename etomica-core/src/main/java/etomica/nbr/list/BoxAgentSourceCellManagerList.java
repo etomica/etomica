@@ -4,7 +4,7 @@
 
 package etomica.nbr.list;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
@@ -24,7 +24,7 @@ public class BoxAgentSourceCellManagerList extends BoxAgentSourceCellManager {
         potentialMaster = newPotentialMaster;
     }
 
-    public NeighborCellManager makeAgent(IBox box) {
+    public NeighborCellManager makeAgent(Box box) {
         NeighborCellManagerList cellManager = new NeighborCellManagerList(sim, box,range,positionDefinition, space);
         cellManager.setPotentialMaster(potentialMaster);
         box.getBoundary().getEventManager().addListener(cellManager);

@@ -8,7 +8,7 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.IController;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
@@ -49,7 +49,7 @@ public class DeviceNSelector extends DeviceSlider {
         return resetAction;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         if (species != null) {
             init();
@@ -63,7 +63,7 @@ public class DeviceNSelector extends DeviceSlider {
         }
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -94,7 +94,7 @@ public class DeviceNSelector extends DeviceSlider {
     
     protected IAction resetAction;
     protected ISpecies species;
-    protected IBox box;
+    protected Box box;
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
@@ -119,4 +119,3 @@ public class DeviceNSelector extends DeviceSlider {
     
 
 } //end of DeviceNSelector
-  

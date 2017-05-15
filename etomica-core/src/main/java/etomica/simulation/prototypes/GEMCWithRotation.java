@@ -7,9 +7,8 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.box.Box;
+import etomica.api.IPotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorMC;
@@ -98,7 +97,7 @@ public class GEMCWithRotation extends Simulation {
         inflater.actionPerformed();
     }
     
-    public IBox box1, box2;
+    public Box box1, box2;
     public IntegratorGEMC integrator;
     public SpeciesSpheresRotating species;
     public P2LennardJones potential;

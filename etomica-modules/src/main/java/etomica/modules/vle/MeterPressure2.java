@@ -4,7 +4,7 @@
 
 package etomica.modules.vle;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
@@ -49,11 +49,11 @@ public class MeterPressure2 extends DataSourceScalar {
         return potentialMaster;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -86,7 +86,7 @@ public class MeterPressure2 extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
     protected IPotentialMaster potentialMaster;
-    protected IBox box;
+    protected Box box;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
     private final int dim;

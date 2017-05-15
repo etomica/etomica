@@ -10,7 +10,7 @@ import java.io.IOException;
 import etomica.action.IAction;
 import etomica.action.activity.ControllerEvent;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegrator;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -64,7 +64,7 @@ public class MSDCoordWriter implements IAction, IListener {
 */
 	}
 	
-	public void setBox(IBox newBox){
+	public void setBox(Box newBox){
 		
 		box = newBox;
 		iterator.setBox(box);
@@ -163,7 +163,7 @@ public class MSDCoordWriter implements IAction, IListener {
     }
 
 	private AfterPBC afterPBCinstance;
-	private IBox box;
+	private Box box;
 	private AtomIteratorBoxDependent iterator;
 	private int writeInterval;
 	private int intervalCount;
@@ -187,7 +187,7 @@ public class MSDCoordWriter implements IAction, IListener {
 			return atomPBIarray;
 		}
 				
-		public void setBox(IBox box){
+		public void setBox(Box box){
 			atomOldCoord = new IVectorMutable[box.getLeafList().getAtomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = space.makeVector();

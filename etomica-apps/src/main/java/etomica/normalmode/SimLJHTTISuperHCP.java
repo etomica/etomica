@@ -10,9 +10,8 @@ import java.util.Arrays;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.api.IVector;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
@@ -734,7 +733,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public BoundaryDeformablePeriodic boundary;
     public int[] nCells;
     public Basis basis;

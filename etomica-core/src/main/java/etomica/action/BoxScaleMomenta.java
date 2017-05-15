@@ -7,7 +7,7 @@ package etomica.action;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
 import etomica.util.Debug;
@@ -21,7 +21,7 @@ import etomica.util.Debug;
  */
 public class BoxScaleMomenta implements IAction {
 
-    public BoxScaleMomenta(IBox box, ISpace space) {
+    public BoxScaleMomenta(Box box, ISpace space) {
         this.box = box;
         momentum = space.makeVector();
     }
@@ -34,7 +34,7 @@ public class BoxScaleMomenta implements IAction {
         return temperature;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -104,7 +104,7 @@ public class BoxScaleMomenta implements IAction {
         }
     }
 
-    protected final IBox box;
+    protected final Box box;
     protected final IVectorMutable momentum;
     protected double temperature;
 }

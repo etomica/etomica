@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -45,7 +45,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
         this.ny = ny;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         
         int nPlanes = drSum.length;
@@ -133,7 +133,7 @@ public class MeterPlaneSlip implements IEtomicaDataSource {
     }
 
     protected final ISpecies species;
-    protected IBox box;
+    protected Box box;
     protected final IVectorMutable[][] drSum;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;

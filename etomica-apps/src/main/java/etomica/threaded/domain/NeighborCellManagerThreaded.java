@@ -4,7 +4,7 @@
 
 package etomica.threaded.domain;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.IAtomPositionDefinition;
@@ -15,13 +15,13 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
 
     public int totalCells;
     
-    public NeighborCellManagerThreaded(ISimulation sim, IBox box, double potentialRange, ISpace space) {
+    public NeighborCellManagerThreaded(ISimulation sim, Box box, double potentialRange, ISpace space) {
         super(sim, box, potentialRange, space);
         // TODO Auto-generated constructor stub
     }
 
-    public NeighborCellManagerThreaded(ISimulation sim, IBox box, double potentialRange,
-            IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManagerThreaded(ISimulation sim, Box box, double potentialRange,
+                                       IAtomPositionDefinition positionDefinition, ISpace space) {
         super(sim, box, potentialRange, positionDefinition, space);
         // TODO Auto-generated constructor stub
     }

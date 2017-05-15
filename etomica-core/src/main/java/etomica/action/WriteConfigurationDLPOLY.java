@@ -12,7 +12,7 @@ import java.util.HashMap;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
@@ -65,7 +65,7 @@ public class WriteConfigurationDLPOLY implements IAction {
     /**
      * Sets the box whose atom coordinates get written to the file.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
     	if(!(box.getBoundary() instanceof Boundary)) {
     		throw new RuntimeException("The boundary within the box in WriteConfigurationDLPOLY MUST be derived from etomica.space.Boundary.");
         }
@@ -76,7 +76,7 @@ public class WriteConfigurationDLPOLY implements IAction {
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -200,7 +200,7 @@ public class WriteConfigurationDLPOLY implements IAction {
     }
 
     private String confName;
-    private IBox box;
+    private Box box;
     private boolean doApplyPBC;
     private boolean writeVelocity;
     private HashMap<IElement,String> elementHash;

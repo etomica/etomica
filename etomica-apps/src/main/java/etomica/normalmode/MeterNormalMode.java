@@ -7,7 +7,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -66,7 +66,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
      * Sets the box, and should be called while the Atoms are in 
      * their lattice positions.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         callCount = 0;
 
         waveVectorFactory.makeWaveVectors(newBox);
@@ -89,7 +89,7 @@ public class MeterNormalMode implements IEtomicaDataSource, IAction, Serializabl
         dataInfo = new DataInfoGroup("all S", Null.DIMENSION, Sinfo);
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return coordinateDefinition.getBox();
     }
     

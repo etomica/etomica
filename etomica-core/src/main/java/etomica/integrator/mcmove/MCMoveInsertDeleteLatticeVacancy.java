@@ -12,6 +12,7 @@ import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
 import etomica.nbr.cell.Api1ACell;
@@ -80,7 +81,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         oldPosition = _space.makeVector();
     }
 
-    public void setBox(final IBox box) {
+    public void setBox(final Box box) {
         super.setBox(box);
         // cubic
         if (potentialMaster instanceof PotentialMasterList) {
@@ -529,7 +530,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         protected final Api1ACell api;
         protected IAtom myAtom;
         
-        public AtomIteratorNbrCell(double maxDistance, BoxAgentManager<? extends BoxCellManager> neighborCellAgentManager, IBox box) {
+        public AtomIteratorNbrCell(double maxDistance, BoxAgentManager<? extends BoxCellManager> neighborCellAgentManager, Box box) {
             api = new Api1ACell(3, maxDistance, neighborCellAgentManager);
             api.setBox(box);
         }
@@ -577,10 +578,10 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         protected int cursor = 0;
         protected int targetIndex = -1;
         protected final AtomSetSinglet singlet = new AtomSetSinglet();
-        protected final IBox box;
+        protected final Box box;
         protected boolean all = true;
         
-        public AtomIteratorBruteForce(IBox box) {
+        public AtomIteratorBruteForce(Box box) {
             this.box = box;
         }
         

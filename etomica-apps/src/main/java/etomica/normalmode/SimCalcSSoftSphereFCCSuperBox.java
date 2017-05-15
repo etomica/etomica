@@ -7,7 +7,6 @@ package etomica.normalmode;
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -260,7 +259,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public Boundary boundary;
     public Primitive primitive;
     public Basis basis;

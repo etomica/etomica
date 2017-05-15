@@ -9,12 +9,11 @@ import etomica.action.activity.IController;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -33,7 +32,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 	public IController controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
-	public IBox box;
+	public Box box;
 	public MeterTemperature thermometer;
 	public SpeciesSpheresMono speciesA;
 	public SpeciesSpheresMono speciesB;
@@ -164,7 +163,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public IAtom[] makeAgent(IAtom a, IBox agentBox) {
+	public IAtom[] makeAgent(IAtom a, Box agentBox) {
 	    IMolecule m = a.getParentGroup();
 	    int nBonds = 2;
 	    if (m.getType() == speciesA) {
@@ -183,7 +182,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 		return new IAtom[nBonds];
 	}
     
-    public void releaseAgent(IAtom[] agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(IAtom[] agent, IAtom atom, Box agentBox) {}
     
     public AtomLeafAgentManager<IAtom[]> getAgentManager() {
     	return agentManager;

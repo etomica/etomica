@@ -4,7 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -72,7 +72,7 @@ public class IntegratorMC extends IntegratorBox {
      * Moves are not notified if they have a number of boxs different from
      * the number of boxs handled by the integrator.
      */
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
     	super.setBox(p);
     	moveManager.setBox(p);
     }

@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationFile;
 import etomica.space.ISpace;
@@ -29,7 +29,7 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
 		this.space = space;
 		this.isIce = isIce;
 	}
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IAtomList leafList = box.getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;

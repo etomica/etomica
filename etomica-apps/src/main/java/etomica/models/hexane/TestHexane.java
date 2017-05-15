@@ -8,10 +8,9 @@ import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -53,7 +52,7 @@ public class TestHexane extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public IBox box;
+    public Box box;
 
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;

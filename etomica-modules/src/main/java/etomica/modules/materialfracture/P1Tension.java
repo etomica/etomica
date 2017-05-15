@@ -4,7 +4,7 @@
 
 package etomica.modules.materialfracture;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialSoft;
@@ -17,7 +17,7 @@ public class P1Tension implements PotentialSoft {
     protected final ISpace space;
     protected double w;
     protected final IVectorMutable[] force;
-    protected IBox box;
+    protected Box box;
     
     public P1Tension(ISpace space) {
         this.space = space;
@@ -45,7 +45,7 @@ public class P1Tension implements PotentialSoft {
         return Null.DIMENSION;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 

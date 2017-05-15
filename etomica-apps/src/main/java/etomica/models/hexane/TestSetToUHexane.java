@@ -11,11 +11,10 @@ package etomica.models.hexane;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -40,7 +39,7 @@ public class TestSetToUHexane extends Simulation {
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;
     SpeciesHexane species;
-    IBox box;
+    Box box;
     
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;

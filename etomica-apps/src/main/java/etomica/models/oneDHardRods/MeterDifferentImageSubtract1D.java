@@ -4,13 +4,10 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomArrayList;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
@@ -56,7 +53,7 @@ public class MeterDifferentImageSubtract1D extends DataSourceScalar {
     private double[][] simOmegaSquared;
 
     protected final IRandom random;
-    private IBox box;
+    private Box box;
     private int numAtoms;
     private Boundary bdry;
     private NormalModes nm;

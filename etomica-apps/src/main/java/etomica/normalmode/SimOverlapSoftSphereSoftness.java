@@ -6,9 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -404,7 +402,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
     public ActivityIntegrate activityIntegrate;
-    public IBox boxTarg, boxRef;
+    public Box boxTarg, boxRef;
     public Boundary boundaryTarg, boundaryRef;
     public int[] nCells;
     public Basis basis;

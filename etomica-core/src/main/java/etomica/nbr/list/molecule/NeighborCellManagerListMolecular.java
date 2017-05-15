@@ -4,7 +4,7 @@
 
 package etomica.nbr.list.molecule;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
@@ -19,12 +19,12 @@ import etomica.space.ISpace;
  */
 public class NeighborCellManagerListMolecular extends NeighborCellManagerMolecular {
 
-	public NeighborCellManagerListMolecular(ISimulation sim, IBox box,
+	public NeighborCellManagerListMolecular(ISimulation sim, Box box,
             double potentialRange, ISpace _space) {
         this(sim, box, potentialRange, null, _space);
     }
 
-    public NeighborCellManagerListMolecular(ISimulation sim, IBox box,
+    public NeighborCellManagerListMolecular(ISimulation sim, Box box,
             double potentialRange, IAtomPositionDefinition positionDefinition,
             ISpace _space) {
         super(sim, box, potentialRange, positionDefinition, _space);

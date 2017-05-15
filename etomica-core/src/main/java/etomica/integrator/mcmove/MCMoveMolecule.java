@@ -6,7 +6,7 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -124,7 +124,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         moveMoleculeAction.actionPerformed(molecule);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         moleculeSource.setBox(p);
@@ -135,7 +135,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         return affectedAtomIterator;
     }
     
-    public MoleculeIterator affectedMolecules(IBox box) {
+    public MoleculeIterator affectedMolecules(Box box) {
         affectedMoleculeIterator.setMolecule(molecule);
         return affectedMoleculeIterator;
     }

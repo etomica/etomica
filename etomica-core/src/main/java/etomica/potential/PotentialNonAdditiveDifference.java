@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.MoleculePair;
@@ -34,7 +34,7 @@ public class PotentialNonAdditiveDifference extends PotentialMolecular {
         return u;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         pFull.setBox(box);
         p2.setBox(box);
     }

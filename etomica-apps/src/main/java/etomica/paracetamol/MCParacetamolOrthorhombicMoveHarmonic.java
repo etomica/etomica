@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.DataPump;
@@ -50,7 +49,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 	private final static String APP_NAME = "MC Move Harmonic Paracetamol Orthorhombic";
-    public IBox box;
+    public Box box;
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;

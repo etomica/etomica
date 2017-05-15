@@ -5,7 +5,6 @@
 package etomica.box;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
 import etomica.api.IBoxAtomIndexEvent;
 
 
@@ -14,7 +13,7 @@ import etomica.api.IBoxAtomIndexEvent;
  */
 public class BoxAtomIndexEvent extends BoxAtomEvent implements IBoxAtomIndexEvent {
 
-    public BoxAtomIndexEvent(IBox box, IAtom atom, int _index) {
+    public BoxAtomIndexEvent(Box box, IAtom atom, int _index) {
         super(box, atom);
         this.index = _index;
     }

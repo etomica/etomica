@@ -6,7 +6,7 @@ package etomica.data.meter;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
@@ -80,13 +80,13 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
 
@@ -100,7 +100,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     
     private static final long serialVersionUID = 1L;
     private String name;
-    private IBox box;
+    private Box box;
     private final DataTensor data, atomData;
     private final DataInfoTensor dataInfo;
     protected DataTag tag;

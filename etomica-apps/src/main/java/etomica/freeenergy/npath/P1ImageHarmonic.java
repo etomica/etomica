@@ -5,6 +5,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.api.*;
+import etomica.box.Box;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.ISpace;
@@ -35,7 +36,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         gradient[0] = space.makeVector();
     }
     
-    public void findNOffset(IBox box) {
+    public void findNOffset(Box box) {
         IAtomList atoms = box.getLeafList();
         IVector p0 = atoms.getAtom(0).getPosition();
         IBoundary boundary = box.getBoundary();
@@ -95,7 +96,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     }
 
     @Override
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         allAtoms = box.getLeafList();
         boundary = box.getBoundary();
     }

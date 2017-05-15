@@ -4,7 +4,7 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -30,18 +30,18 @@ public abstract class MCMoveBox extends MCMove {
      * Sets the box on which this move acts.  The box itself can be changed
      * via this method, if desired.
      */
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         box = p;
     }
 
     /**
      * @return the box(s) on which this move acts.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
-    public AtomIterator affectedAtoms(IBox aBox) {
+    public AtomIterator affectedAtoms(Box aBox) {
         if (box == aBox) {
             return affectedAtoms();
         }
@@ -50,7 +50,7 @@ public abstract class MCMoveBox extends MCMove {
 
     public abstract AtomIterator affectedAtoms();
     
-    public double energyChange(IBox aBox) {
+    public double energyChange(Box aBox) {
         if (box == aBox) {
             return energyChange();
         }
@@ -80,5 +80,5 @@ public abstract class MCMoveBox extends MCMove {
      */
     protected boolean perParticleFrequency;
     
-    protected IBox box;
+    protected Box box;
 }

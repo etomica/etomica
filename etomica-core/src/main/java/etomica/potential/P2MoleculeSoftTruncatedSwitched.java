@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -189,7 +189,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
      */
     public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         potential.setBox(newBox);
         boundary = newBox.getBoundary();
     }

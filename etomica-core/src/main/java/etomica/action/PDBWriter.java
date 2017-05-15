@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.DiameterHashByType;
 
 /**
@@ -30,12 +30,12 @@ public class PDBWriter implements IAction, Serializable {
     public PDBWriter() {
     }
 
-    public PDBWriter(IBox aBox) {
+    public PDBWriter(Box aBox) {
         this();
         setBox(aBox);
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         leafList = newBox.getLeafList();
     }
     

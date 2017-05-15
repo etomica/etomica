@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.conjugategradient.DerivativeEnergyFunction;
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	
-	public AnalyticalDerivativeEnergyParacetamol(IBox box, PotentialMaster potentialMaster, ISpace space){
+	public AnalyticalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster, ISpace space){
 		super(box, potentialMaster, space);
 		rotationAxis = space.makeVector();
 		a      = space.makeVector();

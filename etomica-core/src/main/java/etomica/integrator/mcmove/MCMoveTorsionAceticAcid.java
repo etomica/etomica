@@ -6,13 +6,9 @@ package etomica.integrator.mcmove;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
-import etomica.api.IMolecule;
-import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.ISpace;
 
 /**

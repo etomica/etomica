@@ -5,7 +5,6 @@
 package etomica.box;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -39,11 +38,11 @@ public class RandomPositionSourceDeformable implements RandomPositionSource {
         return p;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
     protected final IRandom random;
-    protected IBox box;
+    protected Box box;
     protected final IVectorRandom p;
 }

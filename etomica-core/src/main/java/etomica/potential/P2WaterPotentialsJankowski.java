@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IRandom;
@@ -37,7 +37,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     protected int icc;
     protected int iMonomer;
     protected IPotentialAtomic pRigid = null;
-    protected IBox b = null;
+    protected Box b = null;
     protected static final int nsitemax = 8;
     protected static double[] bl = new double [4], angles = new double [2], ccpol2BL = new double [4];
     protected static double[] ccpol2Angles = new double [2];
@@ -294,7 +294,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         pRigid.setBox(box);
     }

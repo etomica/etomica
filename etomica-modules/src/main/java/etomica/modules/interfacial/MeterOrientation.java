@@ -6,7 +6,7 @@ package etomica.modules.interfacial;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceMolecular;
@@ -36,7 +36,7 @@ public class MeterOrientation implements DataSourceMolecular {
         return tag;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         boundary = newBox.getBoundary();
     }
     

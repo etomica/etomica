@@ -5,7 +5,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -49,7 +49,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	    this.speciesTube = speciesTube;
 	}
 	
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IMoleculeList[] spheresLists = new IMoleculeList[]{box.getMoleculeList(speciesSpheres[0]), box.getMoleculeList(speciesSpheres[1])};
         
         int basisSize = 1;

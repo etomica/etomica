@@ -8,6 +8,7 @@ import etomica.api.*;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.INeighborListListener;
@@ -83,7 +84,7 @@ public class IntegratorHard extends IntegratorMD
 
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -712,7 +713,7 @@ public class IntegratorHard extends IntegratorMD
      * called by the agentManager, which allocates/deallocates 
      * agents as needed.
 	 */
-    public Agent makeAgent(IAtom a, IBox agentBox) {
+    public Agent makeAgent(IAtom a, Box agentBox) {
         Agent agent = new Agent(a, this);
         if (nullPotentialManager != null) {
             agent.setNullPotential((PotentialHard)nullPotentialManager.getAgent(a.getType()));
@@ -722,7 +723,7 @@ public class IntegratorHard extends IntegratorMD
 
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
-    public void releaseAgent(Agent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(Agent agent, IAtom atom, Box agentBox) {}
 
     public Class getSpeciesAgentClass() {
         return PotentialHard.class;

@@ -6,9 +6,8 @@ package etomica.modules.insertion;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
@@ -30,7 +29,7 @@ import etomica.util.RandomMersenneTwister;
 public class Insertion extends Simulation {
     
     public SpeciesSpheresMono species, speciesGhost;
-    public IBox box;
+    public Box box;
     public IntegratorHard integrator;
     public P2HardWrapper potentialWrapper;
     public P2DoubleWell potentialGhost;

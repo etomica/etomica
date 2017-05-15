@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Formatter;
 
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
@@ -237,13 +237,13 @@ public void runQChem() {
 	}
 
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         this.box = box;
     }
 	
 	protected IBoundary boundary;
 
-	private IBox box;
+	private Box box;
 	
 
 }

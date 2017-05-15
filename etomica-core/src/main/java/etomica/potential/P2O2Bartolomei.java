@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
@@ -128,7 +128,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 
@@ -765,7 +765,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
             return P2O2Bartolomei.this.getRange();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             P2O2Bartolomei.this.setBox(box);
         }
 

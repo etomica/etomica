@@ -9,9 +9,8 @@ import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.box.Box;
+import etomica.api.IPotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPumpListener;
@@ -59,7 +58,7 @@ public class HSMD3D extends Simulation {
     /**
      * The Box holding the atoms. 
      */
-    public final IBox box;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */

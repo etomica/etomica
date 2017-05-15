@@ -4,7 +4,7 @@
 
 package etomica.atom.iterator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
 import etomica.api.ISpecies;
@@ -75,7 +75,7 @@ public class MpiInterspeciesAATest extends MoleculeIteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(IBox box, ISpecies[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         speciesTestForward(box, species, 0, 1);
         speciesTestForward(box, species, 1, 0);
     }
@@ -83,7 +83,7 @@ public class MpiInterspeciesAATest extends MoleculeIteratorTestAbstract {
     /**
      * Test iteration in various directions with different targets.
      */
-    private void speciesTestForward(IBox box, ISpecies[] species, int species0Index, int species1Index) {
+    private void speciesTestForward(Box box, ISpecies[] species, int species0Index, int species1Index) {
         MpiInterspeciesAA api = new MpiInterspeciesAA(new ISpecies[] {species[species0Index], species[species1Index]});
         MoleculesetAction speciesTest = new SpeciesTestAction();
 

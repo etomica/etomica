@@ -6,7 +6,7 @@ package etomica.modules.entropylottery;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.data.DataSourceScalar;
 import etomica.data.IEtomicaDataSource;
@@ -49,16 +49,16 @@ public class MeterEntropy extends DataSourceScalar implements IEtomicaDataSource
         return -sum;
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
 
     }
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
+    protected Box box;
     protected int[] atomCount;
 }

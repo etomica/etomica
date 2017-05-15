@@ -9,12 +9,11 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -226,7 +225,7 @@ public class SimModesJ extends Simulation {
     private static final long serialVersionUID = 1L;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
-    public final IBox box;
+    public final Box box;
     public final Boundary bdry;
     public final Primitive primitive;
     public final CoordinateDefinition coordinateDefinition;

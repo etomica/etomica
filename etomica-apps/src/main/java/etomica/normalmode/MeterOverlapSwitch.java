@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -56,7 +56,7 @@ public class MeterOverlapSwitch implements IEtomicaDataSource {
         return tag;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         meterRef.setBox(newBox);
         meterTarget.setBox(newBox);
     }

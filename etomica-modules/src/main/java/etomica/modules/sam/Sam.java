@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -19,7 +19,6 @@ import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -57,7 +56,7 @@ public class Sam extends Simulation {
     private static final long serialVersionUID = 1L;
     public SpeciesAlkaneThiol species;
     public SpeciesSpheresMono speciesSurface;
-    public IBox box;
+    public Box box;
     public IntegratorVelocityVerletSAM integrator;
     public ActivityIntegrate activityIntegrate;
     public IAtomPositionDefinition positionDefinition;
@@ -207,7 +206,7 @@ public class Sam extends Simulation {
             }
             public boolean needUpdate(IAtom atom) {return false;}
             public void reset(IAtom atom) {}
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public boolean unsafe() {return false;}
         };
         potentialMaster.addPotential(p2CH2t, new IAtomType[]{typeCH2, typeCH2});

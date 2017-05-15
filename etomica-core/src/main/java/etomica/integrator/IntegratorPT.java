@@ -4,7 +4,7 @@
 
 package etomica.integrator;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -95,7 +95,7 @@ public class IntegratorPT extends IntegratorManagerMC {
      * the swapped boxes.
      */
     public interface MCMoveSwap {
-        public IBox[] swappedBoxes();
+        public Box[] swappedBoxes();
     }
 
 
@@ -127,7 +127,7 @@ public class IntegratorPT extends IntegratorManagerMC {
         public void actionPerformed(IEvent evt) {
             if(evt instanceof MCMoveTrialInitiatedEvent || !((MCMoveTrialCompletedEvent)evt).isAccepted()) return;
             if(!(((MCMoveEvent)evt).getMCMove() instanceof MCMoveSwap)) return;
-            IBox[] boxes = ((MCMoveSwap)((MCMoveEvent)evt).getMCMove()).swappedBoxes();
+            Box[] boxes = ((MCMoveSwap)((MCMoveEvent)evt).getMCMove()).swappedBoxes();
             int i0 = boxes[0].getIndex()-1;
             int i1 = boxes[1].getIndex()-1;
             int temp = track[i0];

@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 import etomica.action.activity.Controller;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.graphics.DisplayBox;
@@ -43,7 +43,7 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
         IVector l = coordinateDefinition.getLatticePosition(a);
         p.ME(l);
 
-        IBox box = displayBox.getBox();
+        Box box = displayBox.getBox();
         double vOld = box.getBoundary().volume();
         int nAtoms = box.getLeafList().getAtomCount();
         double vNew = nAtoms/displayDensity;

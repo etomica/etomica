@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IElement;
 import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementChemical;
@@ -27,7 +27,7 @@ import etomica.chem.elements.ElementChemical;
  */
 public class XYZWriter implements IAction, Serializable {
 
-    public XYZWriter(IBox aBox) {
+    public XYZWriter(Box aBox) {
         leafList = aBox.getLeafList();
         elementAtomType = new LinkedList<ElementLinker>();
     }

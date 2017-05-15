@@ -1,7 +1,7 @@
 package etomica.liquidLJ;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IMolecule;
 import etomica.api.IRandom;
@@ -162,7 +162,7 @@ public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
         energyMeterFull = newEnergyMeterFull;
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         this.box = newBox;
         energyMeterFast.setBox(box);
         energyMeterFull.setBox(box);
@@ -201,7 +201,7 @@ public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
     private MoleculeActionTranslateTo atomTranslator;
     protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeterFast, energyMeterFull;
-    protected IBox box;
+    protected Box box;
     protected double temperature;
     protected double uFac = 0;
     public double epsFactor = 1.0;

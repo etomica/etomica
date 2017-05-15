@@ -22,7 +22,7 @@ import etomica.util.ParseArgs;
 public class SimLattice extends Simulation {
 
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
 
     public SimLattice(int numAtoms, double temperature, double density, double w, int offsetDim) {
         super(Space3D.getInstance());

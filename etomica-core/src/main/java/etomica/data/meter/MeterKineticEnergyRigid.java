@@ -7,7 +7,7 @@ package etomica.data.meter;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISimulation;
@@ -36,7 +36,7 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
         this(space, sim, null);
     }
     
-    public MeterKineticEnergyRigid(ISpace space, ISimulation sim, IBox box) {
+    public MeterKineticEnergyRigid(ISpace space, ISimulation sim, Box box) {
         super("Kinetic Energy",Energy.DIMENSION);
         angularVelocity = space.makeVector();
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
@@ -100,20 +100,20 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
     /**
      * Sets the box to the given box.
      */
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
     
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
     private static final long serialVersionUID = 1L;
     protected final ISimulation sim;
-    protected IBox box;
+    protected Box box;
     protected final IVectorMutable angularVelocity;
     protected final RotationTensor3D rotationTensor;
  }

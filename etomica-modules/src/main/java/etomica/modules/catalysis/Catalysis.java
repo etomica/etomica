@@ -5,9 +5,8 @@
 package etomica.modules.catalysis;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
@@ -36,7 +35,7 @@ public class Catalysis extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono speciesO, speciesC, speciesSurface;
-    public final IBox box;
+    public final Box box;
     public final IntegratorHard integrator;
     public final ActivityIntegrate activityIntegrate;
     public final P2SquareWellBonding potentialOO;

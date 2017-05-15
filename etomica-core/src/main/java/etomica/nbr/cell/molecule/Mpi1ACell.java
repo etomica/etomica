@@ -4,7 +4,7 @@
 
 package etomica.nbr.cell.molecule;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.atom.MoleculePair;
@@ -60,7 +60,7 @@ public class Mpi1ACell implements MoleculesetIteratorPDT, MoleculesetIteratorCel
         boxAgentManager = agentManager;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         cellManager = (NeighborCellManagerMolecular)boxAgentManager.getAgent(box);
         lattice = cellManager.getLattice();
         neighborIterator.setLattice(lattice);

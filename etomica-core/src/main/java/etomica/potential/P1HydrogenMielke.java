@@ -4,24 +4,16 @@
 
 package etomica.potential;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
-import etomica.api.IVector;
 import etomica.atom.AtomHydrogen;
-import etomica.atom.IAtomOriented;
-import etomica.chem.elements.Hydrogen;
 import etomica.space.ISpace;
-import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
-import etomica.units.Kelvin;
 
 public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
 //    1 Eh (hartree) = 27.2113961eV = 627.5096 kcal/mol = 219474.7 cm^-1 
@@ -42,7 +34,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {    
+    public void setBox(Box box) {
         boundary = box.getBoundary();
     }
 

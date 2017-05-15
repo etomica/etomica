@@ -12,7 +12,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -20,7 +20,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -35,8 +34,6 @@ import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.potential.EwaldSummation;
 import etomica.potential.EwaldSummation.MyCharge;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2SoftSphericalLS;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -173,10 +170,10 @@ public class MinimizationTIP4P extends Simulation{
 		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
 		
 		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
 		        return new IntegratorVelocityVerlet.MyAgent(sim.space);
 		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {/**do nothing**/}
+		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
         };
 		AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , sim.box , IntegratorVelocityVerlet.MyAgent.class);
 
@@ -437,11 +434,11 @@ public class MinimizationTIP4P extends Simulation{
 		}
 		
 		// *********************** set half(even # of particles ) as +ion, the other half -ion ***********************
-		public MyCharge makeAgent(IAtom a, IBox agentBox) {
+		public MyCharge makeAgent(IAtom a, Box agentBox) {
 			int index = a.getType().getChildIndex();
 			return myCharge[index];
 		}
-		public void releaseAgent(MyCharge agent, IAtom atom, IBox agentBox) {
+		public void releaseAgent(MyCharge agent, IAtom atom, Box agentBox) {
 			// Do nothing
 		}
 	}

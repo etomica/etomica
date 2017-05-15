@@ -7,7 +7,7 @@ package etomica.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
@@ -132,7 +132,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      */
 // Method is assuming plane is in the middle.  Calculations making this
 // assumption are noted.
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
 
         int numSpecies = species.size();
         int[] speciesCount = new int[numSpecies];

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
@@ -240,7 +240,7 @@ public class PotentialGroup extends PotentialMolecular {
     	}
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	this.box = box;
   		for (PotentialLinker link=first; link!= null; link=link.next) {
   		    link.potential.setBox(box);
@@ -287,7 +287,7 @@ public class PotentialGroup extends PotentialMolecular {
     }
     
     protected PotentialLinker first;
-    protected IBox box;
+    protected Box box;
     protected IPotentialMaster potentialMaster;
     protected NeighborCriterion criterion = new CriterionAll();
 

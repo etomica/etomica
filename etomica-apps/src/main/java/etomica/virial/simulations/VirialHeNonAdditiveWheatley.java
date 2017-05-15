@@ -8,7 +8,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
 import etomica.api.IMoleculeList;
@@ -29,12 +29,9 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.DoubleRange;
-import etomica.util.HistogramExpanding;
-import etomica.util.HistogramNotSoSimple;
 import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.RandomMersenneTwister;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterChainHS;
 import etomica.virial.ClusterDifference;
@@ -106,7 +103,7 @@ public class VirialHeNonAdditiveWheatley {
         
         MayerFunction fRef = new MayerFunction() {
 
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {

@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.chem.elements.ElementSimple;
@@ -64,7 +64,7 @@ public class VirialSWWE {
             final double sigma2 = 1.0;
             final double well2 = lambda*lambda;
             
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             
             public IPotential getPotential() {return null;}
             
@@ -75,7 +75,7 @@ public class VirialSWWE {
         };
         MayerFunction fRefPos = new MayerFunction() {
 
-            public void setBox(IBox box) {}
+            public void setBox(Box box) {}
             public IPotential getPotential() {return null;}
 
             public double f(IMoleculeList pair, double r2, double beta) {

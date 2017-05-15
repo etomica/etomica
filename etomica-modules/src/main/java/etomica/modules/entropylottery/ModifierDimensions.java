@@ -4,7 +4,7 @@
 
 package etomica.modules.entropylottery;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.modifier.Modifier;
 import etomica.space.ISpace;
@@ -13,7 +13,7 @@ import etomica.units.Length;
 
 public class ModifierDimensions implements Modifier {
 
-    public ModifierDimensions(ISpace space, IBox box) {
+    public ModifierDimensions(ISpace space, Box box) {
         this.box = box;
         boxDim = space.makeVector();
     }
@@ -39,6 +39,6 @@ public class ModifierDimensions implements Modifier {
         box.getBoundary().setBoxSize(boxDim);
     }
 
-    private final IBox box;
+    private final Box box;
     protected final IVectorMutable boxDim;
 }

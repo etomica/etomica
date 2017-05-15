@@ -7,7 +7,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
@@ -69,7 +69,7 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         oldPosition = new IVectorMutable[0];
     }
     
-    public void setBox(IBox box){
+    public void setBox(Box box){
     	super.setBox(box);
     	meterPotentialEnergy.setBox(box);
     }
@@ -186,7 +186,7 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
         }
 	}
 
-	public MoleculeIterator affectedMolecules(IBox box) {
+	public MoleculeIterator affectedMolecules(Box box) {
         affectedMoleculeIterator.setMolecule(moleculeA);
         return affectedMoleculeIterator;
 	}

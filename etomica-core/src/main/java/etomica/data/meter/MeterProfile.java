@@ -4,7 +4,7 @@
 
 package etomica.data.meter;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.box.RandomPositionSource;
@@ -127,13 +127,13 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
         if (meter != null) {
             meter.setBox(box);
@@ -173,7 +173,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     private DataSourceUniform xDataSource;
     private DataFunction data;
     private IEtomicaDataInfo dataInfo;

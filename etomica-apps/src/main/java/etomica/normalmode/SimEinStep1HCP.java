@@ -5,9 +5,8 @@ import java.awt.Color;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.api.IVector;
 import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
@@ -277,7 +276,7 @@ public class SimEinStep1HCP extends Simulation {
 
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public IBox box;
+    public Box box;
     public BoundaryDeformableLattice boundary;
     public int[] nCells;
     public BasisHcp basis;

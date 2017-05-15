@@ -6,9 +6,8 @@ package etomica.normalmode;
 
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
-import etomica.api.IVector;
 import etomica.box.Box;
+import etomica.api.IVector;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -260,7 +259,7 @@ public class MinimizeHCP extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
-    public final IBox box;
+    public final Box box;
     public final PotentialMaster potentialMaster;
     public final double density;
     public final int numMolecules;

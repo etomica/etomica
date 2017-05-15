@@ -58,7 +58,7 @@ public class DHS_NVT extends Simulation {
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move
-	protected final IBox box;
+	protected final Box box;
 	private final static String APP_NAME = "dipolar HS, dielectric constant";
 	private static final int PIXEL_SIZE = 15;
 	public final ActivityIntegrate activityIntegrate;

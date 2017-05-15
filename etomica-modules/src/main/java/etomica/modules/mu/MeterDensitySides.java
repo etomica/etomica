@@ -4,7 +4,7 @@
 
 package etomica.modules.mu;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -16,7 +16,7 @@ import etomica.units.Volume;
 
 public class MeterDensitySides extends DataSourceScalar {
 
-    public MeterDensitySides(IBox box, ISpecies species, boolean ig) {
+    public MeterDensitySides(Box box, ISpecies species, boolean ig) {
         super("density", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1,-1}));
         this.box = box;
         this.species = species;
@@ -36,7 +36,7 @@ public class MeterDensitySides extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IBox box;
+    protected final Box box;
     protected final ISpecies species;
     protected final boolean ig;
 }

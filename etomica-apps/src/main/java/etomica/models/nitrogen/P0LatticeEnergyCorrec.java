@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.potential.PotentialMolecular;
@@ -33,7 +33,7 @@ public class P0LatticeEnergyCorrec extends PotentialMolecular{
 		return uCorrection(rho);
 	}
 	
-	public void setBox(IBox p){
+	public void setBox(Box p){
 		this.box = p;
 	   if(species==null){
        	throw new RuntimeException("<P0LatticeEnergyCorrec.java> Must set Species First");
@@ -99,7 +99,7 @@ public class P0LatticeEnergyCorrec extends PotentialMolecular{
 	}
 
 	private ISpecies species;
-	private IBox box;
+	private Box box;
 	private double[] coeff;
     private int caseNumMolec = 0;
     protected int numMolec;

@@ -4,8 +4,10 @@
 
 package etomica.api;
 
+import etomica.box.Box;
+
 public interface ISimulationBoxEvent extends ISimulationEvent {
 
-    public IBox getBox();
+    public Box getBox();
     
 }

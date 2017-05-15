@@ -4,7 +4,7 @@
 
 package etomica.integrator.mcmove;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.space.ISpace;
@@ -33,7 +33,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
         this.maxN = maxN;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
     }
     

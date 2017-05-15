@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISimulation;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -30,11 +30,11 @@ import etomica.units.Temperature;
  */
 public class MeterTemperature extends DataSourceScalar {
 
-    public MeterTemperature(IBox box, int D) {
+    public MeterTemperature(Box box, int D) {
         this(null, box, D);
     }
 
-    public MeterTemperature(ISimulation sim, IBox box, int D) {
+    public MeterTemperature(ISimulation sim, Box box, int D) {
 		super("Temperature", Temperature.DIMENSION);
 		dim = D;
 		meterKE = new MeterKineticEnergy();
@@ -92,7 +92,7 @@ public class MeterTemperature extends DataSourceScalar {
 	}
 
     private static final long serialVersionUID = 1L;
-    protected IBox box;
+    protected Box box;
 	protected DataSourceScalar meterKE;
 	protected final ISimulation sim;
 	private final int dim;

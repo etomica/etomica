@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.api.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -24,7 +24,7 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 			confName = aConfName;
 		}
 		
-		public void initializeCoordinates(IBox box) {
+		public void initializeCoordinates(Box box) {
             min = space.makeVector();
             max = space.makeVector();
             dim = space.makeVector();

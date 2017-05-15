@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.MoleculePair;
@@ -34,7 +34,7 @@ public class MpiIntraspeciesAA implements MoleculesetIteratorBoxDependent, Seria
      * box.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         list = box.getMoleculeList(species);
         unset();
     }

@@ -4,14 +4,12 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.list.PotentialMasterList;
@@ -23,7 +21,6 @@ import etomica.normalmode.WaveVectorFactory;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ISpace;
 import etomica.units.Null;
-import etomica.normalmode.BasisBigCell;
 
 
 /**
@@ -51,7 +48,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected double[][] sqrtSimOmega2, oneOverSqrtOmega2;
 
     protected final IRandom random;
-    protected IBox box;
+    protected Box box;
     protected int numAtoms;
     protected IBoundary bdry;
     protected NormalModes nm;
@@ -284,7 +281,7 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     }
 
 
-    public IBox getBox(){
+    public Box getBox(){
         return box;
     }
     

@@ -7,7 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
@@ -291,7 +291,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         super.setBox(box);
         wellManager = boxWellManager.getAgent(box);
         if (wellManager == null) {
@@ -346,7 +346,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         }
     }
     
-    public AtomLeafAgentManager<AtomArrayList> makeAgent(IBox box) {
+    public AtomLeafAgentManager<AtomArrayList> makeAgent(Box box) {
         suppressMakeAgent = true;
         AtomLeafAgentManager<AtomArrayList> foo = new AtomLeafAgentManager<AtomArrayList>(this, box, AtomArrayList.class);
         IAtomList leafList = box.getLeafList();
@@ -368,7 +368,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         return foo;
     }
     
-    public AtomArrayList makeAgent(IAtom atom, IBox agentBox) {
+    public AtomArrayList makeAgent(IAtom atom, Box agentBox) {
         if (suppressMakeAgent) {
             // allow [box] makeAgent to find all interacting pairs
             return new AtomArrayList();
@@ -383,7 +383,7 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         return rv;
     }
 
-    public void releaseAgent(AtomArrayList iList, IAtom atom, IBox agentBox) {
+    public void releaseAgent(AtomArrayList iList, IAtom atom, Box agentBox) {
         // atom is going away.  remove it from all of its neighbor's lists
         AtomLeafAgentManager<AtomArrayList> agentManager = boxWellManager.getAgent(agentBox);
         for (int j=0; j<iList.getAtomCount(); j++) {

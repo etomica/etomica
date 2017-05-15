@@ -4,8 +4,6 @@
 
 package etomica.normalmode;
 
-import etomica.api.IBox;
-
 /**
  * Provides information about all the normal modes for a periodic system.  The periodicity is
  * described by a set of wave vectors, which are provided via a WaveVectorFactory.  For

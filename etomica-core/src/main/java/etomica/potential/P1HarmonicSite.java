@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
@@ -38,11 +38,11 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
         boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<? extends IVector>>(null, AtomLeafAgentManager.class);
     }
 
-    public void setAtomAgentManager(IBox box, AtomLeafAgentManager<? extends IVector> agentManager) {
+    public void setAtomAgentManager(Box box, AtomLeafAgentManager<? extends IVector> agentManager) {
         boxAgentManager.setAgent(box, agentManager);
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         atomAgentManager = boxAgentManager.getAgent(box);
     }
 

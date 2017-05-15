@@ -7,7 +7,7 @@ package etomica.models.nitrogen;
 import java.io.Serializable;
 
 import etomica.action.IAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.data.DataTag;
@@ -36,11 +36,11 @@ import etomica.util.HistogramExpanding;
  *  	3 translation and 2 rotation motion respectively.
  */
 public class MeterNormalizedCoord implements IEtomicaDataSource, IAction, Serializable {
-	 public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species) {
+	 public MeterNormalizedCoord(Box newBox, CoordinateDefinition coordDef, ISpecies species) {
 		 this(newBox, coordDef, species,false);
 	 }
 	
-    public MeterNormalizedCoord(IBox newBox, CoordinateDefinition coordDef, ISpecies species, boolean isVolFluctuation) {
+    public MeterNormalizedCoord(Box newBox, CoordinateDefinition coordDef, ISpecies species, boolean isVolFluctuation) {
         tag = new DataTag();
         this.coordinateDefinition = coordDef;
         this.isVolFluctuation = isVolFluctuation;

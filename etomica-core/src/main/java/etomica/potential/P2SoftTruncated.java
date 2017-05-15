@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.ISpace;
@@ -41,7 +41,7 @@ public class P2SoftTruncated extends Potential2
         return wrappedPotential;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         wrappedPotential.setBox(newBox);
         boundary = newBox.getBoundary();
     }

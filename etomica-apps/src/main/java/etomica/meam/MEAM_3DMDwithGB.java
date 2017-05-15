@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.GrainBoundaryConfiguration;
@@ -80,7 +79,7 @@ public class MEAM_3DMDwithGB extends Simulation {
     public SpeciesSpheresMono snB;
 //    public SpeciesSpheresMono agB;
 //    public SpeciesSpheresMono cuB;
-    public IBox box;
+    public Box box;
     public PotentialMEAM potentialN;
     public Controller controller;
     public DisplayPlot plot;

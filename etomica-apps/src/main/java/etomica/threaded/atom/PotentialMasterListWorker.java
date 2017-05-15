@@ -6,7 +6,7 @@ package etomica.threaded.atom;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
@@ -194,7 +194,7 @@ public class PotentialMasterListWorker extends Thread {
         arrayList.clear();
     }
     
-    public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, IBox box){
+    public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, Box box){
         
         // Make reference to neighbor lists
         IMoleculeList list = box.getMoleculeList();

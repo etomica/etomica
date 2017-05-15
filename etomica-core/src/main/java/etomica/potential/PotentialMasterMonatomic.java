@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
@@ -18,7 +18,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.potential.PotentialMaster.PotentialLinker;
 import etomica.util.Arrays;
 
 /**
@@ -86,7 +85,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
     }
 
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();

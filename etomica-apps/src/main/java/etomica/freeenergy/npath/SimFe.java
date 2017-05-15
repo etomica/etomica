@@ -59,7 +59,7 @@ public class SimFe extends Simulation {
     public final ActivityIntegrate ai;
     public IntegratorImageHarmonicMD integrator;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2EAM potential;
     public P1ImageHarmonic p1ImageHarmonic;
     public MCMoveAtomSwap mcMoveSwap;

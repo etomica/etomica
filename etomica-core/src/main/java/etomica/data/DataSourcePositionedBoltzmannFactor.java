@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
@@ -59,7 +59,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
     public IData getData(IVector a) {
         atomTranslator.setDestination(a);
         atomTranslator.actionPerformed(testMolecule);
-        IBox box = integrator.getBox();
+        Box box = integrator.getBox();
         box.addMolecule(testMolecule);
         energyMeter.setTarget(testMolecule);
         double temp = integrator.getTemperature();
@@ -70,7 +70,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         return data;
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         if (integrator != null && newBox != integrator.getBox()) {
             throw new RuntimeException("You should really figure out which IBox is for me!");
         }

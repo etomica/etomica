@@ -6,10 +6,9 @@ package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -37,7 +36,7 @@ public class PistonCylinder extends Simulation {
     public IntegratorHardPiston integrator;
     public P1HardMovingBoundary pistonPotential;
     public SpeciesSpheresMono species;
-    public IBox box;
+    public Box box;
     public P2HardWrapper potentialWrapper;
     public P1HardBoundary wallPotential;
     public ActivityIntegrate ai;

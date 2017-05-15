@@ -6,7 +6,7 @@ package etomica.nbr.cell;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomToAtomSetFixed;
 import etomica.atom.iterator.AtomIterator;
@@ -56,7 +56,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         boxAgentManager = agentManager;
 	}
 
-	public void setBox(IBox box) {
+	public void setBox(Box box) {
         cellManager = (NeighborCellManager)boxAgentManager.getAgent(box);
         lattice = cellManager.getLattice();
         neighborIterator.setLattice(lattice);

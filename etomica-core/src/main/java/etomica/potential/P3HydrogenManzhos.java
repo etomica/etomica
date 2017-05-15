@@ -14,22 +14,15 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
-import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.atom.IAtomOriented;
 import etomica.space.ISpace;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
-import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -273,7 +266,7 @@ public class P3HydrogenManzhos implements IPotential{
     }
 
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();        
     }
 

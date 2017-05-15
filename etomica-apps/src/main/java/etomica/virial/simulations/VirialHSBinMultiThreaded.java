@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.chem.elements.ElementSimple;
@@ -112,7 +112,7 @@ public class VirialHSBinMultiThreaded {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHS);
         MayerFunction fRefPos = new MayerFunction() {
             
-            public void setBox(IBox box) {
+            public void setBox(Box box) {
             }
             
             public IPotential getPotential() {

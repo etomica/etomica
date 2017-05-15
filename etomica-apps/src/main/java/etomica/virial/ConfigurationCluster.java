@@ -4,12 +4,11 @@
 
 package etomica.virial;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
-import etomica.config.IConformation;
 import etomica.space.ISpace;
 
 /**
@@ -27,7 +26,7 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
 	/**
 	 * @see etomica.config.Configuration#initializeCoordinates
 	 */
-	public void initializeCoordinates(IBox box) {
+	public void initializeCoordinates(Box box) {
         IVectorMutable dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getBoxSize());
 		IMoleculeList moleculeList = box.getMoleculeList();

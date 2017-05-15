@@ -12,9 +12,8 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISimulation;
 import etomica.box.Box;
+import etomica.api.ISimulation;
 import etomica.data.DataPump;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -88,7 +87,7 @@ public class SimDifferentImage extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
     public IEtomicaDataSource[] meters;
-    public IBox boxTarget, boxRef;
+    public Box boxTarget, boxRef;
     public Boundary bdryTarget, bdryRef;
     MeterPotentialEnergy meterTargInTarg, meterRef, meterRefInRef;
     MeterDifferentImageAdd meterTargInRef;

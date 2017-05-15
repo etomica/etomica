@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -22,7 +22,7 @@ import etomica.units.Fraction;
  */
 public class MeterLocalMoleFraction extends DataSourceScalar {
 
-    public MeterLocalMoleFraction(ISpace space, IBox _box) {
+    public MeterLocalMoleFraction(ISpace space, Box _box) {
         super("Local Mole Fraction",Fraction.DIMENSION);
         if(!(_box.getBoundary() instanceof Boundary)) {
         	throw new RuntimeException("The box boundary must be a subclass of etomica.Space.Boundary");
@@ -96,7 +96,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
@@ -127,7 +127,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */

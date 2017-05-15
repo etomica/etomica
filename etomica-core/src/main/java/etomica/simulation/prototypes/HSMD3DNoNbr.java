@@ -9,9 +9,8 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IPotentialMaster;
 import etomica.box.Box;
+import etomica.api.IPotentialMaster;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
@@ -25,7 +24,7 @@ import etomica.species.SpeciesSpheresMono;
 public class HSMD3DNoNbr extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public IBox box;
+    public Box box;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
     public P2HardSphere potential;

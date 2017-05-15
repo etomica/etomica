@@ -42,7 +42,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -314,7 +314,7 @@ public class P2HydrogenHindeAtomic implements IPotentialAtomic {
         return Double.POSITIVE_INFINITY;
     }
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();    
     }
 

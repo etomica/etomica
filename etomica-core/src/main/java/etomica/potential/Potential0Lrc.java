@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
@@ -88,7 +88,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
         return truncatedPotential;
     }
 
-    public void setBox(IBox b) {
+    public void setBox(Box b) {
         for (int i=0; i<2; i++) {
             if (lrcAtomsPerMolecule[i] != 0) {
                 continue;
@@ -166,6 +166,6 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
     }
 
     protected double divisor;
-    protected IBox box;
+    protected Box box;
 
 }

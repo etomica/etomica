@@ -4,7 +4,7 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
@@ -26,7 +26,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
         this.random = random;
     }
 
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
         int sumOfMolecules = moleculeList.getMoleculeCount();
         if (sumOfMolecules == 0) {

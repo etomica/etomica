@@ -10,7 +10,7 @@ package etomica.data.meter;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
@@ -62,13 +62,13 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
     /**
      * @return Returns the box.
      */
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         this.box = box;
     }
     
@@ -89,7 +89,7 @@ public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializabl
     }
 
     private static final long serialVersionUID = 1L;
-    private IBox box;
+    private Box box;
     private final IVectorMutable momentumSum;
     private final DataVector data;    
     private final DataInfo dataInfo;

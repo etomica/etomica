@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IPotentialMolecular;
@@ -42,7 +42,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
 
     
     public MCMoveMoleculeCoupledSuperBox(IPotentialMaster potentialMaster, IRandom nRandom,
-    		                     ISpace _space, IBox box, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef){
+                                         ISpace _space, Box box, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef){
         super(potentialMaster);
         this.random = nRandom;
         this.box = box;
@@ -119,7 +119,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         
     }
 
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
  
     }
     
@@ -135,7 +135,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         return null;
     }
 
-	public MoleculeIterator affectedMolecules(IBox aBox) {
+	public MoleculeIterator affectedMolecules(Box aBox) {
 		   if (box == aBox) {
 			   affectedMoleculeIterator.setList(affectedMoleculeList);
 			   return affectedMoleculeIterator;

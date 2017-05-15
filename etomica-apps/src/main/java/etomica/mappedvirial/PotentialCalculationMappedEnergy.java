@@ -4,14 +4,13 @@ import java.io.IOException;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -28,7 +27,7 @@ import etomica.space3d.Space3D;
  */
 public class PotentialCalculationMappedEnergy implements PotentialCalculation {
 
-    protected final IBox box;
+    protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final ISpace space;
@@ -47,7 +46,7 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
     protected double x0, vCut;
     protected double vShift;
 
-    public PotentialCalculationMappedEnergy(ISpace space, IBox box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
+    public PotentialCalculationMappedEnergy(ISpace space, Box box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -62,7 +61,7 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
 
     public static void main (String[] args) throws IOException{
         Simulation sim = new Simulation(Space3D.getInstance());
-        IBox box = new Box(sim.getSpace());
+        Box box = new Box(sim.getSpace());
 
         PotentialCalculationMappedEnergy pc = new PotentialCalculationMappedEnergy(sim.getSpace(),box, 1000000, null);
         P2LennardJones potential = new P2LennardJones(sim.getSpace());

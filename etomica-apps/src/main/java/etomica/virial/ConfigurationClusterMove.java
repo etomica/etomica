@@ -5,7 +5,7 @@
 package etomica.virial;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.space.ISpace;
 import etomica.space.IVectorRandom;
@@ -22,7 +22,7 @@ public class ConfigurationClusterMove extends ConfigurationCluster {
 		this.distance = distance;
 	}
 
-	public void initializeCoordinates(IBox box) {
+	public void initializeCoordinates(Box box) {
 		super.initializeCoordinates(box);
 		BoxCluster clusterBox =(BoxCluster) box;
 		while (clusterBox.getSampleCluster().value(clusterBox) == 0) {

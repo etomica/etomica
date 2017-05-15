@@ -6,7 +6,7 @@ package etomica.virial;
 
 import Jama.EigenvalueDecomposition;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -57,7 +57,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	}
 
 	@Override
-	public void setBox(IBox p) {
+	public void setBox(Box p) {
 		super.setBox(p);
 		int nMolecules = box.getMoleculeList().getMoleculeCount();
 		doExchange = new boolean[nMolecules];

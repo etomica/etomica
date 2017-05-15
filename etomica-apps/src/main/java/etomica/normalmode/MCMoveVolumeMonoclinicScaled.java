@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialAtomic;
@@ -57,7 +57,7 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
     
     protected Function uLatFunction = uLat0;
     
-    protected IBox latticeBox;
+    protected Box latticeBox;
 
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
@@ -95,11 +95,11 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         inflate = newInflate;
     }
     
-    public void setLatticeBox(IBox newLatticeBox) {
+    public void setLatticeBox(Box newLatticeBox) {
         latticeBox = newLatticeBox;
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         affectedAtomIterator.setBox(p);

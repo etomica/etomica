@@ -6,13 +6,10 @@ package etomica.models.oneDHardRods;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IRandom;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -39,7 +36,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
-import etomica.util.RandomNumberGenerator;
 import etomica.util.ReadParameters;
 
 /**
@@ -69,7 +65,7 @@ public class TestDifferentImage1DHRSubtract extends Simulation {
     public BasisMonatomic basis;
     public ActivityIntegrate activityIntegrate;
     
-    public IBox box;
+    public Box box;
     public Boundary bdry;
     public CoordinateDefinition coordinateDefinition;
     MeterDifferentImageSubtract1D meterdi;

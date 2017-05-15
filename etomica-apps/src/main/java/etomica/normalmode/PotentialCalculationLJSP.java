@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -11,7 +11,7 @@ import etomica.space.ISpace;
 
 public class PotentialCalculationLJSP implements PotentialCalculation {
 		
-	public PotentialCalculationLJSP(ISpace space, IBox box, CoordinateDefinition coordinateDefinition, double temperature, double dP, double f1,double fe, double fee){
+	public PotentialCalculationLJSP(ISpace space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double dP, double f1, double fe, double fee){
 		sum = new double[1];
 //		sum = new double[14];
         this.space = space;
@@ -152,6 +152,6 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
     
 
     protected final ISpace space;
-    protected final IBox box;
+    protected final Box box;
     protected final CoordinateDefinition coordinateDefinition;
  }//end VirialSum

@@ -4,13 +4,10 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.atom.AtomArrayList;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.crystal.Basis;
@@ -18,7 +15,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
 import etomica.normalmode.P2XOrder;
@@ -30,7 +26,6 @@ import etomica.potential.Potential2HardSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 
@@ -59,7 +54,7 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
     double gaussCoord;
     
     protected final IRandom random;
-    public IBox box;
+    public Box box;
     private int numAtoms;
     private Boundary bdry;
     private NormalModes nm;

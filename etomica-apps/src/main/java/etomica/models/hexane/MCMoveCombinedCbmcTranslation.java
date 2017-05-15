@@ -6,7 +6,7 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -64,13 +64,13 @@ public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
         temp = space.makeVector();
     }
     
-    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv, 
-            IRandom nRandom, IBox ph, ISpace _space){
+    public MCMoveCombinedCbmcTranslation(IPotentialMaster pm, MCMoveCBMC mv,
+                                         IRandom nRandom, Box ph, ISpace _space){
         this(pm, mv, nRandom, _space);
         setBox(ph);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         super.setBox(newBox);
         moleculeSource.setBox(newBox);
         energyMeter.setBox(newBox);

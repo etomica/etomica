@@ -5,7 +5,7 @@
 package etomica.threaded.domain;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IPotential;
 import etomica.api.ISimulation;
@@ -56,11 +56,11 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         agentManagerThreaded = new BoxAgentManager<NeighborCellManagerThreaded>(new BoxAgentSourceCellManagerThreaded(sim, null, _space), NeighborCellManagerThreaded.class, sim);
 	}
 	
-    public NeighborCellManagerThreaded getNbrCellManagerThreaded(IBox box) {
+    public NeighborCellManagerThreaded getNbrCellManagerThreaded(Box box) {
         return (NeighborCellManagerThreaded)agentManagerThreaded.getAgent(box);
     }
     
-    public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
@@ -117,7 +117,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-    protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(Box box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
     	
 			                            
             for(int i=0; i<threads.length; i++){
@@ -157,7 +157,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     }
 	
-	public void setNumThreads(int t, IBox box){
+	public void setNumThreads(int t, Box box){
         
         //Sets the number of domains to the number of threads
 		NeighborCellManagerThreaded neighborCellManagerThreaded = (NeighborCellManagerThreaded)agentManagerThreaded.getAgent(box);
@@ -186,7 +186,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             super(range, _space);
         }
 
-        public NeighborListManagerThreaded makeAgent(IBox box) {
+        public NeighborListManagerThreaded makeAgent(Box box) {
             return new NeighborListManagerThreaded((PotentialMasterListThreaded)potentialMaster, range, box, space);
         }
     }

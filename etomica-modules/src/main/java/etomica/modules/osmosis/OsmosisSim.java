@@ -9,7 +9,6 @@ import java.awt.Color;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -45,7 +44,7 @@ public class OsmosisSim extends Simulation {
 
     public IntegratorHard integrator;
     public SpeciesSpheresMono speciesSolvent,speciesSolute;
-    public IBox box;
+    public Box box;
     public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardA;
     public P1HardBoundary boundaryHardB;

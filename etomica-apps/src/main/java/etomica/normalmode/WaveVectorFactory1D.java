@@ -6,9 +6,8 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
@@ -29,7 +28,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
-    public void makeWaveVectors(IBox box) {
+    public void makeWaveVectors(Box box) {
 
         int nA = box.getMoleculeList().getMoleculeCount();
         double L = box.getBoundary().getBoxSize().getX(0);
@@ -63,7 +62,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         int nCells = 6;
         Space sp = Space1D.getInstance();
         Simulation sim = new Simulation(sp);
-        IBox box = new Box(sim.getSpace());
+        Box box = new Box(sim.getSpace());
         sim.addBox(box);
         box.getBoundary().setBoxSize(new Vector1D(nCells));
         ISpecies species = new SpeciesSpheresMono(sim, sp);

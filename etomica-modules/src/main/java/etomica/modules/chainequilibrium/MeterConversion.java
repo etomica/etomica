@@ -5,7 +5,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.atom.AtomLeafAgentManager;
@@ -19,7 +19,7 @@ import etomica.units.Fraction;
  */
 public class MeterConversion extends DataSourceScalar {
 
-    public MeterConversion(IBox box, AtomLeafAgentManager agentManager) {
+    public MeterConversion(Box box, AtomLeafAgentManager agentManager) {
         super("Conversion", Fraction.DIMENSION);
         this.box = box;
         this.agentManager = agentManager;
@@ -57,6 +57,6 @@ public class MeterConversion extends DataSourceScalar {
 
     protected final AtomLeafAgentManager agentManager;
     protected ISpecies[] species;
-    protected final IBox box;
+    protected final Box box;
     protected int total, nReacted;
 }

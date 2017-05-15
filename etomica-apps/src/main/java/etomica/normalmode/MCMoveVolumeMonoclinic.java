@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
@@ -53,7 +53,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
         scaleVector = _space.makeVector();
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

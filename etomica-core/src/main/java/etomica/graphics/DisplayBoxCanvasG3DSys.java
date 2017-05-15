@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Panel;
 
+import etomica.box.Box;
 import org.jmol.util.Colix;
 import org.jmol.util.Point3f;
 
@@ -15,7 +16,6 @@ import etomica.action.activity.Controller;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
 import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -208,7 +208,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return planeColor;
 	}
 
-	public void removeObjectByBox(IBox p) {
+	public void removeObjectByBox(Box p) {
 
 		// Remove old box atoms
 		IAtomList leafList = p.getLeafList();
@@ -732,11 +732,11 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	
 	public class OrientedAgentSource implements AgentSource<Ball[]> {
 
-        public Ball[] makeAgent(IAtom a, IBox agentBox) {
+        public Ball[] makeAgent(IAtom a, Box agentBox) {
             return null;
         }
 
-        public void releaseAgent(Ball[] agent, IAtom atom, IBox agentBox) {
+        public void releaseAgent(Ball[] agent, IAtom atom, Box agentBox) {
             for (int i=0; i<agent.length; i++) {
                 gsys.removeFig(agent[i]);
             }
@@ -760,7 +760,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	/***************************************************************************
 	 * AgentSource methods
 	 **************************************************************************/
-	public Figure makeAgent(IAtom a, IBox agentBox) {
+	public Figure makeAgent(IAtom a, Box agentBox) {
 		a.getPosition().assignTo(coords);
 
 		float diameter = (float) displayBox.getDiameterHash().getDiameter(a);
@@ -789,7 +789,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return newBall;
 	}
 
-	public void releaseAgent(Figure agent, IAtom atom, IBox agentBox) {
+	public void releaseAgent(Figure agent, IAtom atom, Box agentBox) {
 		gsys.removeFig(agent);
 	}
 

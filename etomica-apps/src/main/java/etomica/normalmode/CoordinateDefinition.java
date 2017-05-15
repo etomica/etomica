@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.api.IAtom;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
@@ -38,11 +38,11 @@ import etomica.space.ISpace;
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, ISpace _space) {
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, ISpace _space) {
         this(box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
     }
     
-    public CoordinateDefinition(IBox box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
@@ -222,7 +222,7 @@ public abstract class CoordinateDefinition {
 
     }
 
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
 
@@ -249,7 +249,7 @@ public abstract class CoordinateDefinition {
     }
 
     protected final int coordinateDim;
-    protected final IBox box;
+    protected final Box box;
     protected AtomLeafAgentManager<IVectorMutable> siteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;
@@ -263,12 +263,12 @@ public abstract class CoordinateDefinition {
         public SiteSource(ISpace space) {
             this.space = space;
         }
-        public IVectorMutable makeAgent(IAtom atom, IBox agentBox) {
+        public IVectorMutable makeAgent(IAtom atom, Box agentBox) {
             IVectorMutable vector = space.makeVector();
             vector.E(atom.getPosition());
             return vector;
         }
-        public void releaseAgent(IVectorMutable agent, IAtom atom, IBox agentBox) {
+        public void releaseAgent(IVectorMutable agent, IAtom atom, Box agentBox) {
             //nothing to do
         }
 

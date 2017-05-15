@@ -5,7 +5,7 @@
 package etomica.action;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 
 /**
@@ -16,7 +16,7 @@ import etomica.api.IRandom;
  */
 public class BoxRandomizeMomenta implements IAction {
 
-    public BoxRandomizeMomenta(IBox box, IRandom random) {
+    public BoxRandomizeMomenta(Box box, IRandom random) {
         this.box = box;
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(0, random);
     }
@@ -29,7 +29,7 @@ public class BoxRandomizeMomenta implements IAction {
         return temperature;
     }
     
-    public IBox getBox() {
+    public Box getBox() {
         return box;
     }
     
@@ -43,6 +43,6 @@ public class BoxRandomizeMomenta implements IAction {
     }
 
     protected final AtomActionRandomizeVelocity atomActionRandomizeVelocity;
-    protected final IBox box;
+    protected final Box box;
     protected double temperature;
 }

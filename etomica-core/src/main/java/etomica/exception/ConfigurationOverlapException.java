@@ -4,7 +4,7 @@
 
 package etomica.exception;
 
-import etomica.api.IBox;
+import etomica.box.Box;
 
 /**
  * Exception thrown when an overlap is detected in the configuration of
@@ -17,11 +17,11 @@ public class ConfigurationOverlapException extends RuntimeException {
      * 
      * @param box the Box in which the overlap is detected
      */
-    public ConfigurationOverlapException(IBox box) {
+    public ConfigurationOverlapException(Box box) {
         super("Overlap in configuration "+box);
         this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    public final IBox box;
+    public final Box box;
 }

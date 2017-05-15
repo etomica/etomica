@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.api.IAtom;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
@@ -35,7 +35,7 @@ public class BiasVolumeCube extends BiasVolume {
     public void setBiasCubeDimensions(double d) {dimensions.E(d);}
     public IVector getBiasCubeDimensions() {return dimensions;}
     
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
     	boundary = box.getBoundary();
     }
     

@@ -13,6 +13,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorAtomDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -142,7 +143,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
         return affectedAtomIterator;
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         atomSource.setBox(p);
         atoms = p.getLeafList();

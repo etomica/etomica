@@ -9,7 +9,7 @@ import java.io.Serializable;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
@@ -68,7 +68,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         dr = space.makeVector();
     }
     
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
@@ -267,11 +267,11 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 
 //--------------------------------------------------------------
 
-    public final MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
             
     public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;

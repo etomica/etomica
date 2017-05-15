@@ -8,13 +8,11 @@ import etomica.action.BoxInflateDeformable;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.ISpecies;
 import etomica.box.Box;
+import etomica.api.ISpecies;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureByVolumeChange;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -57,7 +55,7 @@ public class TestHexaneFileConfig extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public IBox box;
+    public Box box;
 
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;

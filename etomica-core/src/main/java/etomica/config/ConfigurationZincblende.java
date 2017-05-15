@@ -6,7 +6,7 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -51,7 +51,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializeCoordinates(IBox box) {
+    public void initializeCoordinates(Box box) {
         translator0 = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
         translator1 = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
         IMoleculeList[] lists = new IMoleculeList[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};

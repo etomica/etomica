@@ -6,9 +6,8 @@ package etomica.modules.multiharmonic.mbar;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IIntegrator;
 import etomica.box.Box;
+import etomica.api.IIntegrator;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
@@ -92,7 +91,7 @@ public class MultiharmonicMC extends Simulation {
 
     private static final long serialVersionUID = 1L;
     protected final SpeciesSpheresMono species;
-    protected final IBox boxA, boxB;
+    protected final Box boxA, boxB;
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integratorA, integratorB;
     protected final IntegratorOverlap integratorOS;

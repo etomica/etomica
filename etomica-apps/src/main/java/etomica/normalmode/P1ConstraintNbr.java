@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IBoundary;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
@@ -37,7 +37,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
      * Assigns & keeps track of a set of neighbors for each box
      * @param box
      */
-    public void initBox(IBox box){
+    public void initBox(Box box){
         //Does boxAgentManager already know what to do with this box?
         if(boxManager.getAgent(box) != null){return;}
         
@@ -75,7 +75,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
         boxManager.setAgent(box, neighborAtoms);
     }
 
-    public int[][] getNbrAtoms(IBox box) {
+    public int[][] getNbrAtoms(Box box) {
         return boxManager.getAgent(box);
     }
 
@@ -87,7 +87,7 @@ public class P1ConstraintNbr implements IPotentialAtomic{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         leafList = box.getLeafList();
         neighborAtoms = boxManager.getAgent(box);

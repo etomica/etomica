@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.space.ISpace;
 
@@ -46,7 +46,7 @@ public abstract class Potential implements IPotentialAtomic {
      * coordinatePair (if it uses one), e.g.:
      * cPair.setNearestImageTransformer(box.boundary());
      */
-    public abstract void setBox(IBox box);
+    public abstract void setBox(Box box);
     
     /**
      * The number of atoms on which the potential depends.

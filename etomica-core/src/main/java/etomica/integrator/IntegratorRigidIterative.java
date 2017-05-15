@@ -14,7 +14,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
@@ -36,7 +36,6 @@ import etomica.atom.MoleculeOrientedDynamic;
 import etomica.atom.OrientationCalc;
 import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterKineticEnergyRigid;
@@ -128,7 +127,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         meterKE = new MeterKineticEnergyRigid(space, sim);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         if (box != null) {
             // allow agentManager to de-register itself as a BoxListener
             leafAgentManager.dispose();
@@ -642,11 +641,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         return MyAgent.class;
     }
 
-    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, IBox agentBox) {
+    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
         return new MyAgent(space);
     }
 
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, IBox agentBox) {}
+    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
 
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;

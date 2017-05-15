@@ -13,12 +13,11 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.DiameterHashByType;
-import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -71,7 +70,7 @@ public class HSNPT extends Simulation {
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
     public final SpeciesSpheresMono species;
-    public final IBox box;
+    public final Box box;
     public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinition coordinateDefinition;
     public final P2HardSphere pCross;
@@ -577,7 +576,7 @@ public class HSNPT extends Simulation {
         protected int count;
         protected final ISpace space;
         
-        public ActionSummer(IBox box, ISpace space) {
+        public ActionSummer(Box box, ISpace space) {
             this.space = space;
             agentManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
             v = space.makeVector();
@@ -588,7 +587,7 @@ public class HSNPT extends Simulation {
         }
         
         public void actionPerformed() {
-            IBox box = agentManager.getBox();
+            Box box = agentManager.getBox();
             IAtomList atoms = box.getLeafList();
             for (int i=0; i<atoms.getAtomCount(); i++) {
                 IAtom atom = atoms.getAtom(i);
@@ -606,7 +605,7 @@ public class HSNPT extends Simulation {
         }
         
         public void reset() {
-            IBox box = agentManager.getBox();
+            Box box = agentManager.getBox();
             IAtomList atoms = box.getLeafList();
             for (int i=0; i<atoms.getAtomCount(); i++) {
                 IAtom atom = atoms.getAtom(i);
@@ -617,11 +616,11 @@ public class HSNPT extends Simulation {
             count = 0;
         }
         
-        public MyAgent makeAgent(IAtom a, IBox agentBox) {
+        public MyAgent makeAgent(IAtom a, Box agentBox) {
             return new MyAgent(space);
         }
         
-        public void releaseAgent(MyAgent agent, IAtom atom, IBox agentBox) {}
+        public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 
     }
     

@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
@@ -37,7 +37,7 @@ public class MeterTiltRotationStdev implements IEtomicaDataSource {
         dataInfo.addTag(tag);
     }
     
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
     }
 
@@ -79,7 +79,7 @@ public class MeterTiltRotationStdev implements IEtomicaDataSource {
 
     private static final long serialVersionUID = 1L;
     protected final ISpecies species;
-    protected IBox box;
+    protected Box box;
     protected final IVectorMutable dr;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;

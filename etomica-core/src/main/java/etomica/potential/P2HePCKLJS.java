@@ -5,7 +5,7 @@
 
 package etomica.potential;
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -351,7 +351,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             return P2HePCKLJS.this.getRange();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             P2HePCKLJS.this.setBox(box);
         }
 
@@ -495,7 +495,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
             return P2HePCKLJS.this.getRange();
         }
 
-        public void setBox(IBox box) {
+        public void setBox(Box box) {
             P2HePCKLJS.this.setBox(box);
         }
 

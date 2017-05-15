@@ -5,7 +5,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IFunction;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
@@ -67,7 +67,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
         inflate.setBox(box);
     }
 
-    public void setBox(IBox p) {
+    public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
         inflate.setBox(p);

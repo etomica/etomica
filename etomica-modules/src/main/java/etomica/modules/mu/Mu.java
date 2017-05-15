@@ -5,9 +5,8 @@
 package etomica.modules.mu;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
-import etomica.api.IBox;
-import etomica.api.IVectorMutable;
 import etomica.box.Box;
+import etomica.api.IVectorMutable;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -27,7 +26,7 @@ public class Mu extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono speciesA, speciesB;
-    public final IBox box;
+    public final Box box;
     public final IntegratorHard integrator;
     public final ActivityIntegrate activityIntegrate;
     public final P2SquareWellOneSide potentialAA, potentialAB, potentialBB;

@@ -5,7 +5,6 @@
 package etomica.paracetamol;
 
 import etomica.api.IAtomType;
-import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -223,7 +222,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public PotentialMaster potentialMaster;
-    public IBox box;
+    public Box box;
     public BoundaryRectangularPeriodic boundary;
     public PrimitiveOrthorhombic primitive;
     public CoordinateDefinitionParacetamol coordinateDefinition;

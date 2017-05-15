@@ -5,7 +5,7 @@
 package etomica.data.meter;
 
 import etomica.api.IAtomList;
-import etomica.api.IBox;
+import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.*;
@@ -28,7 +28,7 @@ import etomica.units.Null;
 public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndependent {
 	
 	protected final ISpace space;
-    protected IBox box;
+    protected Box box;
     protected double[] struct;
     protected IVectorMutable [] waveVec;
     protected IAtomList atomList;
@@ -43,7 +43,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
      * in the box.  All wave vectors consistent with the box shape and with
      * magnitude less than cutoff are included.
      */
-	public MeterStructureFactor(ISpace space, IBox aBox, double cutoff) {
+	public MeterStructureFactor(ISpace space, Box aBox, double cutoff) {
 	    this.space = space;
 	    this.box = aBox;
         atomList = box.getLeafList();
