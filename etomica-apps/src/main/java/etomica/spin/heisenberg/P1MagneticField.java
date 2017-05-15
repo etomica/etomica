@@ -25,7 +25,7 @@ public class P1MagneticField extends Potential1 implements PotentialSoft {
     /**
      * @param space
      */
-    public P1MagneticField(ISpace space, double dipoleMagnitude) {//TODO I add dipoleMagnitude here 
+    public P1MagneticField(ISpace space, double dipoleMagnitude) {
         super(space);
         direction = space.makeVector();
         direction.E(0.0);
