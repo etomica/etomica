@@ -59,11 +59,8 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 	protected IVectorMutable work;
 	protected AtomLeafAgentManager leafAgentManager;
 	protected DipoleSource dipoleSource;
-	protected AtomLeafAgentManager atomAgentManager;
-	protected PotentialCalculationForceSum pcForce;
 
 	
-	//use torquesum here TODO
 	public MeterMappedAveraging(final ISpace space, IBox box, ISimulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialMaster potentialMaster) {
         data = new DataDoubleArray(2);
 		dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2}); 
@@ -76,15 +73,13 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		J = interactionS;
 		bt = 1/temperature;
 		mu = dipoleMagnitude;
-//        QValue = bt*bt*mu*mu + org.apache.commons.math3.b ;//How use Bessel fucntion here????
-		
+
 		torqueSum = new Vector1D();
 		FSum = new PotentialCalculationFSum(space,dipoleMagnitude,interactionS,temperature);
 		energySum = new PotentialCalculationEnergySum();
 		secondDerivativeSum = new  PotentialCalculationPhiSumHeisenberg(space,dipoleMagnitude,interactionS,temperature);
 		leafAgentManager  = new AtomLeafAgentManager<MoleculeAgent>(this , box, MoleculeAgent.class); 
-//		FSum.setAgentManager(leafAgentManager); TODO
-		
+
 		allAtoms = new IteratorDirective();
 		dr = space.makeVector();
 		work = space.makeVector();
@@ -111,16 +106,8 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 		 
 		
 		 double bt2 = bt*bt;
-		 double bt3 = bt2*bt;
 		 double mu2 = mu*mu;
-		 double mu3 = mu2*mu;
-		 
-		 
-		 double Q = bt*bt*mu*mu*(1+BesselFunction.I(1, J*bt)/BesselFunction.I(0, J*bt));
-		 IAtomOriented atom1 = (IAtomOriented) leafList.getAtom(0);
-		 IAtomOriented atom2 = (IAtomOriented) leafList.getAtom(1);
-		 
-		 
+
 		 int nM = leafList.getAtomCount();	
 		 double A = 0;
 		 torqueSum.E(0);
