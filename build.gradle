@@ -10,6 +10,9 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'findbugs'
 
+    apply plugin: 'application'
+    mainClassName = System.getProperty("main")
+
     repositories {
         // superset of maven central
         jcenter()
