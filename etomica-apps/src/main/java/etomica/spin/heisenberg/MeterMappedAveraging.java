@@ -43,9 +43,6 @@ public class MeterMappedAveraging implements IEtomicaDataSource ,AgentSource<Met
 	protected final ISpace space;
 	private IBox box;
 	private IVectorMutable torqueSum;
-	//private IVectorMutable r;
-	//private IVectorMutable [] a;
-	
 	//private double truncation;
 	protected double temperature;
 	protected double J;
