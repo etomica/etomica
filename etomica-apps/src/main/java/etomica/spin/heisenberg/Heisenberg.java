@@ -46,8 +46,10 @@ import etomica.util.ParseArgs;
 
 
 /**
- * Simulation of a simple 2D Ising model.  Prototype
- * for simulation of a more general magentic system.
+ * Compute  the dielectric constant of  2D Heisenberg model in conventional way and mapped averaging.
+ * Conventional way: get the -bt*bt*<M^2> with M is the total dipole moment;
+ * Mapped averaging: get the A_EE secondDerivative of free energy w.r.t electric field E when E is zero
+ * Prototype for simulation of a more general magnetic system.
  *
  * @author David Kofke & Weisong Lin
  *
@@ -75,11 +77,11 @@ public class Heisenberg extends Simulation {
         potential = new P2Spin(space,interactionS);
         field = new P1MagneticField(space,dipoleMagnitude);
         integrator = new IntegratorMC(this, potentialMaster);
-        mcmove =new MCMoveRotate(potentialMaster, random, space); 
+        mcMove =new MCMoveRotate(potentialMaster, random, space);
 //        		new MCMoveSpinFlip(potentialMaster, getRandom(),space);
         
         
-        integrator.getMoveManager().addMCMove(mcmove);
+        integrator.getMoveManager().addMCMove(mcMove);
         
         integrator.setTemperature(temperature);
         
@@ -101,7 +103,7 @@ public class Heisenberg extends Simulation {
     public P2Spin potential;
     public P1MagneticField field;
     private IntegratorMC integrator;
-    public MCMoveRotate mcmove;
+    public MCMoveRotate mcMove;
     
     public final ActivityIntegrate activityIntegrate;
     
@@ -140,7 +142,6 @@ public class Heisenberg extends Simulation {
 
     	if(isGraphic){
     		meterMSquare   = new MeterSpinMSquare(sim.space,sim.box,dipoleMagnitude);
-    		//I use sp 
     		dipoleSumSquaredAccumulator = new AccumulatorAverageCollapsing(100);
     		DataPump dipolePump = new DataPump(meterMSquare,dipoleSumSquaredAccumulator);
     		IntegratorListenerAction dipoleListener = new IntegratorListenerAction(dipolePump);
@@ -273,7 +274,7 @@ public class Heisenberg extends Simulation {
     	public boolean isGraphic = false;
     	public boolean mSquare = true;
     	public boolean aEE = true; 
-    	public double temperature = 78;// Kelvin
+    	public double temperature = 78;// Kelvin  
     	public int nCells = 100;//number of atoms is nCells*nCells
     	public double interactionS = 1.5;
     	public double dipoleMagnitude = 1.5;
