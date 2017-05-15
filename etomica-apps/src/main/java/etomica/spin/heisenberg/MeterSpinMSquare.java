@@ -40,25 +40,14 @@ public class MeterSpinMSquare extends DataSourceScalar implements IEtomicaDataSo
 
     public double getDataAsScalar() {
         sum.E(0.0);
-
-//        int count = 0;
-//        iterator.setBox(box);
-//        iterator.reset();
-//        for (IAtomOriented atom = (IAtomOriented) iterator.nextAtom(); atom != null;
-//             atom = (IAtomOriented) iterator.nextAtom()) {
-//            sum.PE(atom.getOrientation().getDirection());
-//            count++;
-//        }
-
-        // test for new way to get MSquare
-        if (box == null) throw new IllegalStateException("no box");
-        IAtomList leafList = box.getLeafList();
-        int nM = leafList.getAtomCount();
-        for (int i = 0;i < nM; i++){
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+        int count = 0;
+        iterator.setBox(box);
+        iterator.reset();
+        for (IAtomOriented atom = (IAtomOriented) iterator.nextAtom(); atom != null;
+             atom = (IAtomOriented) iterator.nextAtom()) {
             sum.PE(atom.getOrientation().getDirection());
-        }//i loop
-
+            count++;
+        }
         return sum.squared()*dipoleMagnitude*dipoleMagnitude;
     }
     
