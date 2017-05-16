@@ -32,7 +32,6 @@ import etomica.space1d.Vector1D;
  *  
  */
 
-//TODO to set atoms with orientation check with stockmayer code p2LJDipole
 public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAtomicSecondDerivative {
 
     public P2Spin(ISpace space) {
@@ -61,12 +60,10 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
     
     /**
      * Returns the energy for the given pair of atoms.
-     * 
-     * @throws ClassCastException
-     *             if atoms is not an instance of AtomPair
+     * @param atoms
+     * @throws ClassCastException if atoms is not an instance of AtomPair
      */
-    
-    
+
     public double energy(IAtomList atoms) {
     	IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
@@ -83,17 +80,27 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
         return 0;
     }
 
-    public double getCoupling() {
+	/**
+	 * 	 * @return J the coupling parameter
+	 */
+	public double getCoupling() {
         return coupling;
     }
 
-    public void setCoupling(double coupling) {
+	/**
+	 * set the coupling parameter J
+	 * @param coupling
+	 */
+	public void setCoupling(double coupling) {
         this.coupling = coupling;
     }
-    
 
-    public void setBox(IBox box) {
-        //does nothing
+	/**
+	 * does nothing
+	 * @param box
+	 */
+	public void setBox(IBox box) {
+
     }
 
     private static final long serialVersionUID = 1L;
@@ -104,13 +111,22 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 	private final IVectorMutable[] gradient;
 	protected final IVectorMutable[] torque;
 	protected final Tensor[] secondDerivative;
-    //TODO
-    
+
+	/**
+	 * no virial is use here
+	 *
+	 * @throws Exception when virial is used
+	 */
 	public double virial(IAtomList atoms) {
 		
 		throw new RuntimeException("virial is not used in p2Spin");
 		
 	}
+
+	/**
+	 * @param atoms
+	 * @return gradient and torque of given pair of atoms
+	 */
 
 	public IVector[][] gradientAndTorque(IAtomList atoms) {
 		
@@ -137,10 +153,20 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
 		return gradientAndTorque;
 	}
 
+    /**
+     * do nothing
+     */
 	public IVector[][] gradientAndTorque(IAtomList atoms, Tensor pressureTensor) {
 		return gradientAndTorque(atoms);
 	}
-	
+
+    /**
+     * compute the secondDerivative array of pair energy w.r.t theta1 or theta2
+     * i.e d^2u/dtheta1_dtheta1 d^2u/dtheta1_dtheta2 and d^2u/dtheta2_dtheta2
+     * theta1 is the angle between x axis and atom1's orientation etc.
+     * @param atoms given pair of atoms
+     * @return   secondDerivative array
+     */
 	public Tensor[] secondDerivative(IAtomList atoms){
 		IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
     	IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
@@ -151,17 +177,23 @@ public class P2Spin extends Potential2 implements IPotentialTorque,IPotentialAto
     	secondDerivative[1].E(JCos);
     	secondDerivative[2].E(-JCos);
     	
-    	//TODO
 //    	System.out.println(secondDerivative[0].component(0, 0));
 //    	System.out.println(secondDerivative[1].component(0, 0));
 //    	System.out.println(secondDerivative[2].component(0, 0));
 //    	System.out.println("test for secondDerivative in p2Spin");
 		return secondDerivative;
 	}
-	
+
+    /**
+     * do nothing
+     */
 	public IVector[] gradient(IAtomList atoms) { 
 		throw new RuntimeException("don't need to use gradient");
 	}
+
+    /**
+     * do nothing
+     */
 
 	public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
 		throw new RuntimeException("don't need to use gradient");

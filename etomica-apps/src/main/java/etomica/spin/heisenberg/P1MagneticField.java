@@ -15,7 +15,7 @@ import etomica.space.Tensor;
 
 /**
  *
- *this class is to introduced electric field to the 2D Heisenberg Model.
+ * this class is to introduce electric field to the 2D Heisenberg Model.
  * Right now the electric filed is set to be zero since we are only interested
  * in the secondDerivative of free energy w.r.t electric filed when electric field
  * is zero
@@ -26,7 +26,8 @@ import etomica.space.Tensor;
 public class P1MagneticField extends Potential1 implements PotentialSoft {
 
     /**
-     * @param space,dipoleMagnitude
+     * @param space use to define vector
+     * @param dipoleMagnitude the dipole strength of dipole
      */
     public P1MagneticField(ISpace space, double dipoleMagnitude) {
         super(space);
@@ -43,7 +44,7 @@ public class P1MagneticField extends Potential1 implements PotentialSoft {
 
     /**
      *
-     * @param atoms
+     * @param atoms atomlist in the system
      * @return energy of dipole in electric field
      */
     public double energy(IAtomList atoms) {
@@ -105,7 +106,6 @@ public class P1MagneticField extends Potential1 implements PotentialSoft {
 		return gradient;
 	}
 
-	@Override
 	public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
 		return gradient(atoms);
 	}
