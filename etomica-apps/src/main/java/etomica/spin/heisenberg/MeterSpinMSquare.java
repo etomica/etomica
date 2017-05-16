@@ -20,7 +20,7 @@ import etomica.units.Undefined;
 
 
 /**
- * returns dipole square
+ * returns the average of square of total dipole moment.
  *
  * @author  Weisong Lin
  *
@@ -28,7 +28,7 @@ import etomica.units.Undefined;
 public class MeterSpinMSquare extends DataSourceScalar implements IEtomicaDataSource {
 
     /**
-     * 
+     * @param space, box and dipoleMagnitude
      */
 	
     public MeterSpinMSquare(ISpace space,IBox box,double dipoleMagnitude) {
@@ -38,6 +38,10 @@ public class MeterSpinMSquare extends DataSourceScalar implements IEtomicaDataSo
         this.dipoleMagnitude = dipoleMagnitude;
     }
 
+    /**
+     *
+     * @return <M^2> with M is the total dipole moment;
+     */
     public double getDataAsScalar() {
         sum.E(0.0);
         int count = 0;
