@@ -14,38 +14,41 @@ import etomica.space.Tensor;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  *
- * @author David Kofke
+ *this class is to introduced electric field to the 2D Heisenberg Model.
+ * Right now the electric filed is set to be zero since we are only interested
+ * in the secondDerivative of free energy w.r.t electric filed when electric field
+ * is zero
+ *
+ * @author David Kofke & Weisong Lin
  *
  */
 public class P1MagneticField extends Potential1 implements PotentialSoft {
 
     /**
-     * @param space
+     * @param space,dipoleMagnitude
      */
     public P1MagneticField(ISpace space, double dipoleMagnitude) {
         super(space);
         direction = space.makeVector();
         direction.E(0.0);
-        direction.setX(0,1.0);//This one set the direction of atoms, should  I change it????
+        direction.setX(0,1.0);
         
-        //TODO
         this.dipoleMagnitude = dipoleMagnitude;
         dr = space.makeVector();
         dr.E(0);
         gradient = new IVectorMutable[1];
         gradient[0] = space.makeVector();
-        //TODO
     }
 
-    /* (non-Javadoc)
-     * @see etomica.Potential#energy(etomica.AtomSet)
+    /**
+     *
+     * @param atoms
+     * @return energy of dipole in electric field
      */
     public double energy(IAtomList atoms) {
         IVectorMutable r = atoms.getAtom(0).getPosition();
-        return dipoleMagnitude*h*r.dot(direction);//TODO Add mu here
+        return dipoleMagnitude*h*r.dot(direction);
     }
     
     
@@ -79,19 +82,25 @@ public class P1MagneticField extends Potential1 implements PotentialSoft {
     private double h;
     private final IVectorMutable direction;
     
-    //TODO shoudl I add final
     private double dipoleMagnitude;
     private IVectorMutable dr;
     private IVectorMutable [] gradient;
-    //TODO
-	@Override
+
+    /**
+     *
+     * @param atoms
+     * @return 0 since no virial is used here
+     */
 	public double virial(IAtomList atoms) {
-		
 		return 0;
 	}
 
-	@Override
-	public IVector[] gradient(IAtomList atoms) {//TODO I thought I only need to return one vector not an array??
+    /**
+     *
+     * @param atoms
+     * @return gradient vector
+     */
+	public IVector[] gradient(IAtomList atoms) {
 		gradient[0].Ea1Tv1(-dipoleMagnitude*h, direction);
 		return gradient;
 	}
