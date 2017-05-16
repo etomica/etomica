@@ -61,7 +61,7 @@ public class Heisenberg extends Simulation {
     
     /**
      * 2D heisenberg model in square lattice.
-	 * @param _space
+	 * @param _space use to define vector/tensor
      * @param nCells total number of atoms = nCells*nCells
 	 * @param interactionS  the J in heisenberg energy function: U = J*Cos(theta1-theta2)
 	 * @param dipoleMagnitude is the strength of heisenberg dipole.
