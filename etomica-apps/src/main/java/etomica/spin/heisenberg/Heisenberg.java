@@ -60,7 +60,11 @@ public class Heisenberg extends Simulation {
 
     
     /**
-     * 
+     * 2D heisenberg model in square lattice.
+	 * @param {space,nCells,temperature,interactionStrength,dipoleMagnitude}
+	 * total number of atoms is square of nCells.
+	 * interactionStrength is the J in heisenberg energy function: U = J*Cos(theta1-theta2)
+	 * dipoleMagnitude is the strength of heisenberg dipole.
      */
     public Heisenberg(Space _space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(_space);
@@ -104,7 +108,6 @@ public class Heisenberg extends Simulation {
     public P1MagneticField field;
     private IntegratorMC integrator;
     public MCMoveRotate mcMove;
-    
     public final ActivityIntegrate activityIntegrate;
     
     
@@ -274,8 +277,8 @@ public class Heisenberg extends Simulation {
     	public boolean isGraphic = false;
     	public boolean mSquare = true;
     	public boolean aEE = true; 
-    	public double temperature = 78;// Kelvin  
-    	public int nCells = 100;//number of atoms is nCells*nCells
+    	public double temperature = 10;// Kelvin
+    	public int nCells = 50;//number of atoms is nCells*nCells
     	public double interactionS = 1.5;
     	public double dipoleMagnitude = 1.5;
     	public double QValue = 0;
