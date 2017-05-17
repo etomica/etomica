@@ -314,7 +314,7 @@ public class SimFe extends Simulation {
 //            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
 
             AccumulatorHistory dudwHist = new AccumulatorHistory(new HistoryCollapsingAverage());
-            splitter.setDataSink(1, dudwHist);
+            splitter.setDataSink(2, dudwHist);
             dudwHist.setTimeDataSource(tSource);
             DisplayPlot dudwPlot = new DisplayPlot();
             dudwHist.addDataSink(dudwPlot.getDataSet().makeDataSink());
@@ -361,16 +361,25 @@ public class SimFe extends Simulation {
         sim.integrator.setTimeStep(0.0001);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        if (sim.integrator.getHybridAcceptance() < 0.5) {
+            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
+        }
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps/20);
         sim.integrator.setTimeStep(0.0002);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        if (sim.integrator.getHybridAcceptance() < 0.5) {
+            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
+        }
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps/10);
         sim.integrator.setTimeStep(0.001);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        if (sim.integrator.getHybridAcceptance() < 0.5) {
+            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
+        }
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps);
 
