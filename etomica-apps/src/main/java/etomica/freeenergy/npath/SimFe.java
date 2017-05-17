@@ -314,7 +314,7 @@ public class SimFe extends Simulation {
 //            energyPlot.setLegend(new DataTag[]{keHist.getTag()}, "ke");
 
             AccumulatorHistory dudwHist = new AccumulatorHistory(new HistoryCollapsingAverage());
-            splitter.setDataSink(1, dudwHist);
+            splitter.setDataSink(2, dudwHist);
             dudwHist.setTimeDataSource(tSource);
             DisplayPlot dudwPlot = new DisplayPlot();
             dudwHist.addDataSink(dudwPlot.getDataSet().makeDataSink());
@@ -361,16 +361,25 @@ public class SimFe extends Simulation {
         sim.integrator.setTimeStep(0.0001);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        if (sim.integrator.getHybridAcceptance() < 0.5) {
+            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
+        }
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps/20);
         sim.integrator.setTimeStep(0.0002);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        if (sim.integrator.getHybridAcceptance() < 0.5) {
+            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
+        }
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps/10);
         sim.integrator.setTimeStep(0.001);
         sim.getController().actionPerformed();
         sim.getController().reset();
+        if (sim.integrator.getHybridAcceptance() < 0.5) {
+            throw new RuntimeException("hybrid acceptance "+sim.integrator.getHybridAcceptance());
+        }
         sim.integrator.resetStepCount();
         sim.ai.setMaxSteps(steps);
 
@@ -399,15 +408,17 @@ public class SimFe extends Simulation {
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("Fe energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));
         System.out.println("du/dw: "+avgEnergies.getValue(2)/numAtoms+"   error: "+errEnergies.getValue(2)/numAtoms+"  cor: "+corEnergies.getValue(2));
-        double cor01 = covEnergies.getValue(0*3+1)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(1*3+1));
-        double cor02 = covEnergies.getValue(0*3+2)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(2*3+2));
+        double var0 = covEnergies.getValue(0*3+0);
+        double var1 = covEnergies.getValue(1*3+1);
+        double var2 = covEnergies.getValue(2*3+2);
+        double cor01 = 0;
+        if (var0*var1>0) cor01 = covEnergies.getValue(0*3+1)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(1*3+1));
+        double cor02 = 0;
+        if (var0*var2>0) cor02 = covEnergies.getValue(0*3+2)/Math.sqrt(covEnergies.getValue(0*3+0)*covEnergies.getValue(2*3+2));
         System.out.println("spring correlation: 1 "+cor01+" "+cor02);
-        double cor10 = covEnergies.getValue(1*3+0)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(0*3+0));
         double cor12 = covEnergies.getValue(1*3+2)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(2*3+2));
-        System.out.println("Fe correlation: "+cor10+" 1 "+cor12);
-        double cor20 = covEnergies.getValue(2*3+0)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(0*3+0));
-        double cor21 = covEnergies.getValue(2*3+1)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(1*3+1));
-        System.out.println("du/dw correlation: "+cor20+" "+cor21+" 1");
+        System.out.println("Fe correlation: "+cor01+" 1 "+cor12);
+        System.out.println("du/dw correlation: "+cor02+" "+cor12+" 1");
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
