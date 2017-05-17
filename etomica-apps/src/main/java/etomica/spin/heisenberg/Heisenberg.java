@@ -58,16 +58,16 @@ public class Heisenberg extends Simulation {
 
 	private static final String APP_NAME = "Heisenberg";
 
-    
+
     /**
      * 2D heisenberg model in square lattice.
-	 * @param _space use to define vector/tensor
+	 * @param space use to define vector/tensor
      * @param nCells total number of atoms = nCells*nCells
 	 * @param interactionS  the J in heisenberg energy function: U = J*Cos(theta1-theta2)
 	 * @param dipoleMagnitude is the strength of heisenberg dipole.
      */
-    public Heisenberg(Space _space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
-        super(_space);
+    public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
+		super(Space2D.getInstance());
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
         addBox(box);
@@ -79,19 +79,14 @@ public class Heisenberg extends Simulation {
         box.setNMolecules(spins, numAtoms);
         
         potential = new P2Spin(space,interactionS);
+        // the electric field is zero for now, maybe need to add electric field in the future.
         field = new P1MagneticField(space,dipoleMagnitude);
         integrator = new IntegratorMC(this, potentialMaster);
         mcMove =new MCMoveRotate(potentialMaster, random, space);
-//        		new MCMoveSpinFlip(potentialMaster, getRandom(),space);
-        
-        
         integrator.getMoveManager().addMCMove(mcMove);
-        
         integrator.setTemperature(temperature);
-        
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-
         IAtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
         potentialMaster.addPotential(potential, new IAtomType[] {type, type});
@@ -138,7 +133,7 @@ public class Heisenberg extends Simulation {
     	System.out.println("temperature= " + temperature);
 
     	Space sp = Space2D.getInstance();
-		Heisenberg sim = new Heisenberg(sp, nCells,temperature,interactionS,dipoleMagnitude);
+		Heisenberg sim = new Heisenberg(sp,nCells,temperature,interactionS,dipoleMagnitude);
     	
 		MeterSpinMSquare meterMSquare = null;
 		AccumulatorAverage dipoleSumSquaredAccumulator = null;
@@ -200,7 +195,6 @@ public class Heisenberg extends Simulation {
 		 System.out.println("equilibrationTime: " + (equilibrationTime - startTime)/(1000.0*60.0));
 		
 		//mSquare 
-		
 		if(mSquare){
 			meterMSquare   = new MeterSpinMSquare(sim.space,sim.box,dipoleMagnitude);
 			dipoleSumSquaredAccumulator = new AccumulatorAverageFixed(samplePerBlock);
@@ -256,7 +250,7 @@ public class Heisenberg extends Simulation {
     		System.out.println("-<M^2>*bt*bt:\t"+(-dipoleSumSquared/temperature/temperature)
     				+ " mSquareErr:\t" + (dipoleSumSquaredERR/temperature/temperature)
     				+ " mSquareDifficulty:\t"+(dipoleSumSquaredERR/temperature/temperature)*Math.sqrt(totalTime)
-    				+ " dipolesumcor= " + dipoleSumCor );
+    				+ " dipolesumCor= " + dipoleSumCor );
     		System.out.println(  "mSquare_Time: " + (endTime - startTime)/(1000.0*60.0)); 
     	}
     	
@@ -277,11 +271,10 @@ public class Heisenberg extends Simulation {
     	public boolean isGraphic = false;
     	public boolean mSquare = true;
     	public boolean aEE = true; 
-    	public double temperature = 10;// Kelvin
+    	public double temperature = 20;// Kelvin
     	public int nCells = 50;//number of atoms is nCells*nCells
     	public double interactionS = 1;
     	public double dipoleMagnitude = 1;
-    	public double QValue = 0;
     	public int steps = 10000000;
     }
     
