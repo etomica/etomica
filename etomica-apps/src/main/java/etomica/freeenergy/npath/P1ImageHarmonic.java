@@ -81,7 +81,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
         boundary.nearestImage(dr);
         // return the full contribution for this pair.  our partner will be skipped
         double r2 = dr.squared();
-        if (!do21) return r2;
+        if (!do21 || w==0) return r2;
         if (r2 == 0) return 0;
         double wr2 = w*r2;
         double sqrtwr2 = Math.sqrt(wr2);
