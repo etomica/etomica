@@ -7,7 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -40,11 +40,11 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected IVectorMutable dv;
     protected final boolean ignoreOverlap;
 
-    public P2SquareWell(ISpace space) {
+    public P2SquareWell(Space space) {
         this(space, 1.0, 2.0, 1.0, false);
     }
 
-    public P2SquareWell(ISpace space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
+    public P2SquareWell(Space space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);

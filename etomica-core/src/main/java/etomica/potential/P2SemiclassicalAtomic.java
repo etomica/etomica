@@ -12,7 +12,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Constants;
 
 /**
@@ -32,9 +32,9 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
     protected final IPotentialTorque p2Classy;
     protected double temperature, fac;
     protected final AtomTypeAgentManager agents;
-    protected final ISpace space;
+    protected final Space space;
     
-    public P2SemiclassicalAtomic(ISpace space, IPotentialTorque p2Classy, double temperature) {
+    public P2SemiclassicalAtomic(Space space, IPotentialTorque p2Classy, double temperature) {
         this.space = space;
         this.p2Classy = p2Classy;
         if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");

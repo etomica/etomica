@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class WaveVectorFactorySuperBox extends WaveVectorFactorySimple {
 
@@ -25,7 +25,7 @@ public class WaveVectorFactorySuperBox extends WaveVectorFactorySimple {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public WaveVectorFactorySuperBox(Primitive primitive, ISpace _space) {
+	public WaveVectorFactorySuperBox(Primitive primitive, Space _space) {
 		super(primitive, _space);
 		// TODO Auto-generated constructor stub
 	}

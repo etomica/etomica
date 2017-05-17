@@ -4,7 +4,7 @@ package etomica.models.water;
 import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /** 
  * 4-point potential for water.  Potential parameters are typically defined
@@ -32,7 +32,7 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
 	private IVectorMutable r;
 	private IVectorMutable dipole1, dipole2;
 
-	public P2WaterTIP4PHardCore(ISpace space, double hardCore, double sigma, double epsilon, double chargeM, double chargeH) {
+	public P2WaterTIP4PHardCore(Space space, double hardCore, double sigma, double epsilon, double chargeM, double chargeH) {
 		super(2, space);
 		this.hardCore=hardCore;
 		this.sigma = sigma;

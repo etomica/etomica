@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angle;
 
 /**
@@ -20,7 +20,7 @@ import etomica.units.Angle;
  */
 public class MeterPhiDeviation extends DataSourceScalar {
 
-    public MeterPhiDeviation(ISpace space) {
+    public MeterPhiDeviation(Space space) {
         super("phi deviation", Angle.DIMENSION);
         dr = space.makeVector();
     }

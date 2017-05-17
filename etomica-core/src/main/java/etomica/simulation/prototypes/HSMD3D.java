@@ -31,7 +31,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
@@ -77,11 +77,11 @@ public class HSMD3D extends Simulation {
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public HSMD3D(ISpace _space) {
+    public HSMD3D(Space _space) {
         this(_space, new HSMD3DParam());
     }
     
-    public HSMD3D(ISpace _space, HSMD3DParam params) {
+    public HSMD3D(Space _space, HSMD3DParam params) {
 
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
@@ -155,7 +155,7 @@ public class HSMD3D extends Simulation {
     public static void main(String[] args) {
     	final String APP_NAME = "HSMD3D";
 
-    	ISpace sp = Space3D.getInstance();
+    	Space sp = Space3D.getInstance();
         HSMD3DParam params = new HSMD3DParam();
         final HSMD3D sim = new HSMD3D(sp, params);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());

@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -20,7 +20,7 @@ import etomica.units.Null;
  */
 public class MeterThetaDeviation extends DataSourceScalar {
 
-    public MeterThetaDeviation(ISpace space) {
+    public MeterThetaDeviation(Space space) {
         super("theta deviation", Null.DIMENSION);
         dr = space.makeVector();
     }

@@ -21,7 +21,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterCollective;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pixel;
 
     /* History of changes
@@ -36,10 +36,10 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
-    private final ISpace space;
+    private final Space space;
     private final int[] atomOrigin;
     
-    public DisplayBoxCanvas1D(ISpace _space, DisplayBox _box, Controller _controller) {
+    public DisplayBoxCanvas1D(Space _space, DisplayBox _box, Controller _controller) {
         super(_controller);
         displayBox = _box;
         space = _space;

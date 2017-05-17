@@ -15,9 +15,8 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
+import etomica.space.IVectorRandom;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.util.RandomNumberGenerator;
@@ -31,7 +30,7 @@ import etomica.util.RandomNumberGenerator;
  * Mar 2013
  */
 public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft {
-	public P4BondTorsionAlkaneXCCH(ISpace space, double a0, double a1, double a2, double a3) {
+	public P4BondTorsionAlkaneXCCH(Space space, double a0, double a1, double a2, double a3) {
     	
         super(4, space);
         dr21 = space.makeVector();

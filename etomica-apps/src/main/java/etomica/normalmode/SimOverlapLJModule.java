@@ -34,7 +34,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
@@ -84,7 +84,7 @@ public class SimOverlapLJModule {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim);
         IntegratorBox[] integrators = new IntegratorBox[2];

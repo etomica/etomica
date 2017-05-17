@@ -8,7 +8,7 @@ import etomica.api.IIntegrator;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator. Used to evaluate fluid-fluid
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
  */
 public class IntegratorGEMC extends IntegratorManagerMC {
 
-    public IntegratorGEMC(IRandom random, ISpace _space) {
+    public IntegratorGEMC(IRandom random, Space _space) {
         super(random);
         _space = space;
     }
@@ -63,6 +63,6 @@ public class IntegratorGEMC extends IntegratorManagerMC {
     private static final long serialVersionUID = 1L;
     private MCMoveVolumeExchange volumeExchange;
     private MCMoveMoleculeExchange moleculeExchange;
-    private ISpace space;
+    private Space space;
 
 }

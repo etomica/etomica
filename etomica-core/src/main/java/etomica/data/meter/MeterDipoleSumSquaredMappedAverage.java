@@ -24,7 +24,7 @@ import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialCalculationPhiSum;
 import etomica.potential.PotentialCalculationTorqueSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -41,7 +41,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
 	protected PotentialCalculationEnergySum energySum;
 	protected PotentialCalculationTorqueSum torqueSum;
 	protected PotentialCalculationPhiSum secondDerivativeSum;
-	protected final ISpace space;
+	protected final Space space;
 	private Box box;
 	private IVectorMutable vectorSum;
 //	private IVectorMutable r;
@@ -58,7 +58,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IEtomicaDataSource,Mo
     protected AtomLeafAgentManager atomAgentManager;
     protected PotentialCalculationForceSum pcForce;
 
-	public MeterDipoleSumSquaredMappedAverage(final ISpace space, Box box, ISimulation sim, double dipoleMagnitude, double temperature, IPotentialMaster potentialMaster) {
+	public MeterDipoleSumSquaredMappedAverage(final Space space, Box box, ISimulation sim, double dipoleMagnitude, double temperature, IPotentialMaster potentialMaster) {
 		data = new DataDoubleArray(2);
 		dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
 		tag = new DataTag();

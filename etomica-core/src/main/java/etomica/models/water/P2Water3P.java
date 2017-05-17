@@ -11,7 +11,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /** 
  * 3-point potential for water.  Potential parameters are typically defined
@@ -21,7 +21,7 @@ import etomica.space.ISpace;
  */
 public class P2Water3P extends PotentialMolecular {
 
-	public P2Water3P(ISpace space, double sigma, double epsilon, double chargeO, double chargeH) {
+	public P2Water3P(Space space, double sigma, double epsilon, double chargeO, double chargeH) {
 		super(2, null);
         this.sigma = sigma;
         sigma2 = sigma*sigma;

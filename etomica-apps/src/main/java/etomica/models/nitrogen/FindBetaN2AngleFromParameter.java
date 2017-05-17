@@ -14,7 +14,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 
@@ -33,7 +33,7 @@ import etomica.units.Degree;
  */
 public class FindBetaN2AngleFromParameter extends Simulation{
 
-	public FindBetaN2AngleFromParameter(ISpace space, double density, double[][]param) {
+	public FindBetaN2AngleFromParameter(Space space, double density, double[][]param) {
 		super(space);
 		double ratio = 1.631;
 		double a = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);

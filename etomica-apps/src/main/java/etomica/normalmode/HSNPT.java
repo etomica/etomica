@@ -49,7 +49,6 @@ import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -488,7 +487,7 @@ public class HSNPT extends Simulation {
         protected final ActionSummer summer;
         protected double mysum;
         
-        public ColorSchemeDisplacement(CoordinateDefinition cDef, ISpace space, ActionSummer summer) {
+        public ColorSchemeDisplacement(CoordinateDefinition cDef, Space space, ActionSummer summer) {
             super();
             v = space.makeVector();
             v2 = space.makeVector();
@@ -574,9 +573,9 @@ public class HSNPT extends Simulation {
         protected final AtomLeafAgentManager<MyAgent> agentManager;
         protected final IVectorMutable v;
         protected int count;
-        protected final ISpace space;
+        protected final Space space;
         
-        public ActionSummer(Box box, ISpace space) {
+        public ActionSummer(Box box, Space space) {
             this.space = space;
             agentManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
             v = space.makeVector();
@@ -626,7 +625,7 @@ public class HSNPT extends Simulation {
     
     public static class MyAgent {
         public IVectorMutable pSum, pSum2;
-        public MyAgent(ISpace space) {
+        public MyAgent(Space space) {
             pSum = space.makeVector();
             pSum2 = space.makeVector();
         }

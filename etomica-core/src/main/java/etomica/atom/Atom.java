@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
  /**
@@ -19,7 +19,7 @@ import etomica.util.Debug;
   */
 public class Atom implements IAtom, java.io.Serializable {
 
-    public Atom(ISpace space, IAtomType type) {
+    public Atom(Space space, IAtomType type) {
         super();
         this.type = type;
         position = space.makeVector();
@@ -30,7 +30,7 @@ public class Atom implements IAtom, java.io.Serializable {
      * node is for a leaf atom; type is a sphere with unit mass and unit size, 
      * unique to the new atom; depth is 0.
      */
-    public Atom(ISpace space) {
+    public Atom(Space space) {
         super();
         type = null;
         position = space.makeVector();

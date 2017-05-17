@@ -18,7 +18,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
@@ -48,7 +48,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLattice(SpaceLattice lattice, ISpace space) {
+    public ConfigurationLattice(SpaceLattice lattice, Space space) {
         this(lattice, new IndexIteratorRectangular(lattice.D()), space);
     }
 
@@ -58,7 +58,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * iterator.
      */
     public ConfigurationLattice(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator, ISpace space) {
+            IndexIteratorSizable indexIterator, Space space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -256,7 +256,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     protected final MoleculeActionTranslateTo atomActionTranslateTo;
     protected MyLattice myLat;
     protected double boundaryPadding;
-    protected final ISpace space;
+    protected final Space space;
     protected IAtomPositionDefinition positionDefinition;
     private static final long serialVersionUID = 3L;
 
@@ -296,7 +296,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             this.site = l.getSpace().makeVector();
         }
 
-        public ISpace getSpace() {
+        public Space getSpace() {
             return lattice.getSpace();
         }
 

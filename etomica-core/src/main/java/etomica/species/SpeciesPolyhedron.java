@@ -10,7 +10,7 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Species in which molecules are made of a single atom of type SpheroPolyhedron
@@ -20,11 +20,11 @@ import etomica.space.ISpace;
  */
 public class SpeciesPolyhedron extends SpeciesSpheresMono {
     
-    public SpeciesPolyhedron(Simulation sim, ISpace _space, List<IVector> vertices, double sweepRadius) {
+    public SpeciesPolyhedron(Simulation sim, Space _space, List<IVector> vertices, double sweepRadius) {
         this(_space, vertices, sweepRadius, new ElementSimple(sim));
     }
     
-    public SpeciesPolyhedron(ISpace _space, List<IVector> vertices, double sweepRadius, IElement element) {
+    public SpeciesPolyhedron(Space _space, List<IVector> vertices, double sweepRadius, IElement element) {
         super(_space, new AtomTypeSpheroPolyhedron(element, _space, vertices, sweepRadius));
     }
 

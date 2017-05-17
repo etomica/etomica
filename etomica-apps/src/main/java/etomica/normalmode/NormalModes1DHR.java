@@ -8,7 +8,7 @@ import etomica.api.IBoundary;
 import etomica.api.ISpecies;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.SpeciesSpheresMono;
@@ -90,7 +90,7 @@ public class NormalModes1DHR implements NormalModes {
 
     public static void main(String[] args) {
         int N = 8;
-        ISpace space = Space1D.getInstance();
+        Space space = Space1D.getInstance();
         Box box = new Box(space);
         Simulation sim = new Simulation(space);
         sim.addBox(box);

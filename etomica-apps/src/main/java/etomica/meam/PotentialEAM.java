@@ -4,7 +4,7 @@ import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -22,7 +22,7 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
     protected IVectorMutable[] rhograd;
     protected double [][] secondder;
     
-    public PotentialEAM(ISpace space, double n , double  m , double  eps , double  a , double  C, double rC) {
+    public PotentialEAM(Space space, double n , double  m , double  eps , double  a , double  C, double rC) {
         super(space);
         
         this.n=n;

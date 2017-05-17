@@ -8,12 +8,12 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 
 public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 
-	public ConfigurationClusterChainFourSites(ISpace _space) {
+	public ConfigurationClusterChainFourSites(Space _space) {
 		super(_space);
 	}
 

@@ -16,7 +16,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.OrientationFull3D;
@@ -31,7 +31,7 @@ import etomica.util.numerical.AkimaSpline;
 public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     
     protected IBoundary boundary;
-    protected ISpace space;
+    protected Space space;
     protected int iSurf, iEmbed;
     protected static int iPotParts;
     protected int icc;
@@ -65,7 +65,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     protected static double comHackDist = 0.0;
     protected static boolean flag = true, comHack = false, flip = false;
     
-    public P2WaterPotentialsJankowski(ISpace space, int iSurface, int iMon, double tSim, IPotentialAtomic pRigid) {
+    public P2WaterPotentialsJankowski(Space space, int iSurface, int iMon, double tSim, IPotentialAtomic pRigid) {
         this.space = space;
         iSurf = iSurface;
         tKelvin = Kelvin.UNIT.fromSim(tSim);
@@ -518,7 +518,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     }
     
     public static void set_sites(IVector[] cartX) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
 //        System.out.println("From set_sites");
 //        for (int i=0; i<3; i++) {
 //            System.out.println(carta[i]);
@@ -678,7 +678,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     }
     
     public static double dipind(int iaa, int ibb, int[] itypea, int[] itypeb) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         //
         // A simple routine to calculate the dipole-dipole induction,
         // now in the flexible case
@@ -1944,7 +1944,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     }
     
     public static double align_on_z_axis(IVectorMutable[] carta, IVectorMutable[] cartb) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double thr = 1E-09;
         IVectorMutable coma = space.makeVector();
         IVectorMutable comb = space.makeVector();
@@ -2321,7 +2321,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     public static IAtomList posVecToAtoms(IVectorMutable[] a1, IVectorMutable[] b1) {
         // Returns atoms whose orientation vectors' order corresponds to the order used in
         // P2WaterSzalewicz.java
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         final IVectorMutable comA = space.makeVector();
         final IVectorMutable comB = space.makeVector();
         final IOrientationFull3D orA = (IOrientationFull3D)space.makeOrientation();
@@ -2474,7 +2474,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     }
     
     public static void atomToPosVec(IAtom atomi) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         if (bl == null || angles == null) throw new RuntimeException("Bond lengths or bond angles haven't been set");
         int ind = atomi.getIndex();
         double cth0 = Math.cos(angles[ind]);
@@ -2508,7 +2508,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     }
     
     public static void processAtoms (IAtomList atomL) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         IVectorMutable[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
         atomToPosVec(atomL.getAtom(0));
         for (int i=0; i<3; i++) {

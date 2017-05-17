@@ -11,7 +11,7 @@ import etomica.api.IMolecule;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Calculates the geometric center over a set of atoms. The position of the
@@ -26,7 +26,7 @@ import etomica.space.ISpace;
  */
 public class AtomPositionGeometricCenterAlkaneEH implements IAtomPositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenterAlkaneEH(ISpace space, ISpecies speciesAlkane) {
+    public AtomPositionGeometricCenterAlkaneEH(Space space, ISpecies speciesAlkane) {
         center = space.makeVector();
         this.speciesAlkane =speciesAlkane; 
     }

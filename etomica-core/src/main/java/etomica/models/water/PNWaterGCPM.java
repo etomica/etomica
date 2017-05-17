@@ -13,7 +13,7 @@ import etomica.chem.elements.Oxygen;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -28,7 +28,7 @@ import etomica.util.Arrays;
  * @author Ken
  */
 public class PNWaterGCPM extends PotentialMolecular implements PotentialPolarizable {
-    public PNWaterGCPM(ISpace space) {
+    public PNWaterGCPM(Space space) {
 	    super(Integer.MAX_VALUE, space);
 	    pair = new MoleculePair();
         sigma = 3.69;

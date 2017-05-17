@@ -15,7 +15,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /** 
  * 
@@ -33,7 +33,7 @@ import etomica.space.ISpace;
 
 public class P2QChem extends PotentialMolecular {
 	
-	public P2QChem (ISpace space){
+	public P2QChem (Space space){
 		super(2, space);
     
 	}

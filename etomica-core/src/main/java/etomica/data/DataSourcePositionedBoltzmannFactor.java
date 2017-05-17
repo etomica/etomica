@@ -13,7 +13,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -25,7 +25,7 @@ import etomica.units.Null;
  */
 public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned {
 
-    public DataSourcePositionedBoltzmannFactor(ISpace space) {
+    public DataSourcePositionedBoltzmannFactor(Space space) {
         data = new DataDouble();
         dataInfo = new DataInfoDouble("chemical potential", Null.DIMENSION);
         tag = new DataTag();

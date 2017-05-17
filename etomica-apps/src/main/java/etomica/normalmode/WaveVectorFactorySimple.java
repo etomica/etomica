@@ -13,7 +13,6 @@ import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -28,7 +27,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactorySimple(Primitive primitive, ISpace _space) {
+    public WaveVectorFactorySimple(Primitive primitive, Space _space) {
         this.primitive = primitive;
         this.space = _space;
     }
@@ -177,5 +176,5 @@ outer:              for (int i=0; i<3; i++){
     protected final Primitive primitive;
     protected IVectorMutable[] waveVectors;
     protected double[] coefficients;
-    protected final ISpace space;
+    protected final Space space;
 }

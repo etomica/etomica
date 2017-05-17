@@ -30,7 +30,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
@@ -50,7 +50,7 @@ public class LJNVT extends Simulation {
     public final IntegratorMC integrator;
     public final MCMoveAtom mcMoveAtom;
 
-    public LJNVT(ISpace _space, int numAtoms, double temperature, double density, double rc, int[] seeds) {
+    public LJNVT(Space _space, int numAtoms, double temperature, double density, double rc, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -99,7 +99,7 @@ public class LJNVT extends Simulation {
         }
         else {
         }
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double temperature0 = params.temperature0;

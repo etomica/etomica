@@ -15,7 +15,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -41,13 +41,13 @@ import etomica.space.Tensor;
 public class ConfigurationMonoclinicLattice implements Configuration, java.io.Serializable {
 
 	private final static String APP_NAME = "Configuration Monoclinic Lattice";
-	private final ISpace space;
+	private final Space space;
 
     /**
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationMonoclinicLattice(SpaceLattice lattice, ISpace _space) {
+    public ConfigurationMonoclinicLattice(SpaceLattice lattice, Space _space) {
         this(lattice, new IndexIteratorRectangular(lattice.D()), _space);
     }
 
@@ -57,7 +57,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
      * iterator.
      */
     public ConfigurationMonoclinicLattice(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator, ISpace _space) {
+            IndexIteratorSizable indexIterator, Space _space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -288,7 +288,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, java.io.Se
             this.site = l.getSpace().makeVector();
         }
 
-        public ISpace getSpace() {
+        public Space getSpace() {
             return lattice.getSpace();
         }
 

@@ -17,7 +17,7 @@ import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 
@@ -30,7 +30,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
 	private static final long serialVersionUID = 1L;
 
 	public CoordinateDefinitionLeafSuperBox(Box box, Primitive primitive,
-                                            Basis basis, ISpace space) {
+                                            Basis basis, Space space) {
 		super(box, primitive, basis, space);
 	}
 	

@@ -18,7 +18,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
 
 public class DerivativeEnergyFunction implements FunctionMultiDimensionalDifferentiable{
@@ -42,7 +42,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected IVectorMutable moleculeForce;
 	protected FunctionMultiDimensionalDifferentiable fFunction;
 	
-	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster, ISpace space){
+	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster, Space space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -169,7 +169,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	
 	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
 		
-		public MyAgentSource(ISpace space){
+		public MyAgentSource(Space space){
 			this.space = space;
 		}
 		
@@ -179,7 +179,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 			
 		    return new IntegratorVelocityVerlet.MyAgent(space);
 		}
-		protected ISpace space;
+		protected Space space;
 	}
 
 }

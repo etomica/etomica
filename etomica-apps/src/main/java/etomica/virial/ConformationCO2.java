@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 
  /**
@@ -20,7 +20,7 @@ import etomica.units.Electron;
  */
 public class ConformationCO2 implements IConformation, java.io.Serializable{
 	
-	public ConformationCO2(ISpace space){
+	public ConformationCO2(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}
@@ -51,7 +51,7 @@ public class ConformationCO2 implements IConformation, java.io.Serializable{
 
         }
 	
-	protected final ISpace space;
+	protected final Space space;
 	protected static final double bondlength = 1.16;
 
 	

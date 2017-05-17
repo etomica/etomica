@@ -5,7 +5,6 @@
 package etomica.virial;
 
 import etomica.potential.P2LennardJones;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.SineTransform;
@@ -115,7 +114,7 @@ public class B3LJ {
     public static double[] getdfdT(int N, double del_r, double reducedTemp) {
         double sigma = 1.0;
         double epsilon = 1.0;
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P2LennardJones p2 = new P2LennardJones(space, sigma, epsilon);
         double[] dfdr = new double[N];  // Holds discretization of Mayer function in r-space
 

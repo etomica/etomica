@@ -10,7 +10,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.Potential2HardSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -44,8 +44,8 @@ public class P2SquareWellBondingCO extends Potential2HardSpherical {
     protected final double minOOr2;
     protected P2SquareWellSurface potentialCS;
 
-    public P2SquareWellBondingCO(ISpace space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon,
-            int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOOr) {
+    public P2SquareWellBondingCO(Space space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon,
+                                 int nSurfaceSites, double epsilonBarrier, double epsilonBonding, double minOOr) {
         super(space);
         this.agentManager = agentManager;
         setCoreDiameter(coreDiameter);

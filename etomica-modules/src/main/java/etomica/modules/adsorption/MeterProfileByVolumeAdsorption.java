@@ -8,11 +8,11 @@ import etomica.api.IBoundary;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MeterProfileByVolumeAdsorption extends MeterProfileByVolume {
 
-    public MeterProfileByVolumeAdsorption(ISpace space) {
+    public MeterProfileByVolumeAdsorption(Space space) {
         super(space);
         setProfileDim(1);
     }

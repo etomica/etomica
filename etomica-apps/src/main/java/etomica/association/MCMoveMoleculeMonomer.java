@@ -10,7 +10,7 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Monte Carlo molecule-displacement trial move for monomer molecules
@@ -26,13 +26,13 @@ public class MCMoveMoleculeMonomer extends MCMoveMolecule {
 	
 	
 	public MCMoveMoleculeMonomer(ISimulation sim, IPotentialMaster potentialMaster,
-			ISpace _space) {
+			Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
 	}
 
 
 	public MCMoveMoleculeMonomer(IPotentialMaster potentialMaster, IRandom random,
-			ISpace _space, double stepSize, double stepSizeMax) {
+                                 Space _space, double stepSize, double stepSizeMax) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax);
 		this.smerList = new MoleculeArrayList();
 		this.dr = _space.makeVector();

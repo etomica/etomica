@@ -26,7 +26,7 @@ import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsionOPLS;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresCustom;
 import etomica.units.Calorie;
@@ -245,7 +245,7 @@ public class ParserLAMMPS {
 
 	public enum Truncation {NONE, TRUNCATED, SHIFTED, FORCE_SHIFTED, SWITCHED};
 	public static class Options {
-		public ISpace space = Space3D.getInstance();
+		public Space space = Space3D.getInstance();
 		public Truncation truncation = Truncation.NONE;
 		public double rc = Double.POSITIVE_INFINITY;
 	}

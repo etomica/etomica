@@ -15,7 +15,7 @@ import etomica.atom.AtomHydrogen;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientation3D;
 
 /**
@@ -28,7 +28,7 @@ import etomica.space3d.IOrientation3D;
  */
 public class MCMoveClusterRingRegrowExchange extends MCMoveBox {    
     
-    public MCMoveClusterRingRegrowExchange(IRandom random, ISpace _space) {
+    public MCMoveClusterRingRegrowExchange(IRandom random, Space _space) {
         super(null);
         this.space = _space;
         this.random = random;        
@@ -196,7 +196,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final IRandom random;
     protected IVectorMutable[][] oldPositions;
     protected IVectorMutable[] rTrial;    

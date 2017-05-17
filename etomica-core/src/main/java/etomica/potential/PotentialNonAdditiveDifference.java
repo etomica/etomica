@@ -4,14 +4,14 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMolecular;
 import etomica.atom.MoleculePair;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class PotentialNonAdditiveDifference extends PotentialMolecular {
 
     protected final IPotentialMolecular p2, pFull;
     protected final MoleculePair pair;
     
-    public PotentialNonAdditiveDifference(ISpace space, IPotentialMolecular p2, IPotentialMolecular pFull) {
+    public PotentialNonAdditiveDifference(Space space, IPotentialMolecular p2, IPotentialMolecular pFull) {
         super(Integer.MAX_VALUE, space);
         this.p2 = p2;
         this.pFull = pFull;

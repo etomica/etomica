@@ -12,12 +12,12 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class P1Wall implements PotentialHard {
 
-    public P1Wall(ISpace space, AtomLeafAgentManager monomerMonomerBondManager) {
+    public P1Wall(Space space, AtomLeafAgentManager monomerMonomerBondManager) {
         lastVirialTensor = space.makeTensor();
         this.monomerMonomerBondManager = monomerMonomerBondManager;
     }

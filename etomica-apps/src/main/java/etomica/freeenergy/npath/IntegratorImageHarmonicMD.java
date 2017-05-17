@@ -10,7 +10,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -26,7 +26,7 @@ public class IntegratorImageHarmonicMD extends IntegratorVelocityVerlet {
     protected final AtomSetSinglet atomSetSinglet;
     protected NeighborCellManager neighborCellManager;
 
-    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, ISpace space) {
+    public IntegratorImageHarmonicMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space) {
         super(potentialMaster, random, timeStep, temperature, space);
         atomSetSinglet = new AtomSetSinglet();
         setForceSum(new PotentialCalculationForceSum());

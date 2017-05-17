@@ -19,7 +19,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 
@@ -58,14 +58,14 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
     protected double scaling;
     
     
-    public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
+    public MeterDifferentImageSubtract(ISimulation sim, Space space,
             CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
             NormalModes otherNM){
         this(sim, space, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
-    public MeterDifferentImageSubtract(ISimulation sim, ISpace space, 
+    public MeterDifferentImageSubtract(ISimulation sim, Space space,
             CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
             NormalModes otherNM, String otherFilename){

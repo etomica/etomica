@@ -7,11 +7,9 @@ package etomica.virial.simulations;
 
 
 
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
@@ -99,7 +97,7 @@ public class ReeHooverMC {
         System.out.println("10^" + log10Steps + " steps");
         System.out.println();
 		
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);

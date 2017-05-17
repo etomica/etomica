@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Places polymer in a blob near the origin.
@@ -17,7 +17,7 @@ import etomica.space.ISpace;
  */
 public class ConformationPolymer implements IConformation {
     
-    public ConformationPolymer(ISpace space, IRandom random) {
+    public ConformationPolymer(Space space, IRandom random) {
         this.random = random;
         r = space.makeVector();
     }

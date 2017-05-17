@@ -12,7 +12,7 @@ import etomica.graphics.ColorSchemeCollectiveAgent;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Color atoms based on being neighbors of the reference atom
@@ -21,7 +21,7 @@ import etomica.space.ISpace;
  */
 public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeScaledOverlap(ISpace space, PotentialMasterList potentialMaster, CoordinateDefinition coordinateDefinition) {
+    public ColorSchemeScaledOverlap(Space space, PotentialMasterList potentialMaster, CoordinateDefinition coordinateDefinition) {
         super(coordinateDefinition.getBox());
         this.coordinateDefinition = coordinateDefinition;
         Box box = coordinateDefinition.getBox();

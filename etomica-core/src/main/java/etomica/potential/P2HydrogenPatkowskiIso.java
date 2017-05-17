@@ -7,9 +7,6 @@ package etomica.potential;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.management.RuntimeErrorException;
-
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
@@ -39,7 +36,7 @@ public class P2HydrogenPatkowskiIso extends Potential2SoftSpherical {
         System.out.println("Energy = "+pot1.u(r2limit));
     }
 
-    public P2HydrogenPatkowskiIso(ISpace space) {        
+    public P2HydrogenPatkowskiIso(Space space) {
         super(space);                
         // TODO Auto-generated constructor stub
     }

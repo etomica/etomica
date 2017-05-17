@@ -8,12 +8,12 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class MCMoveClusterAtomHSTree extends MCMoveAtom {
 
-    public MCMoveClusterAtomHSTree(IRandom random, ISpace _space, double sigma) {
+    public MCMoveClusterAtomHSTree(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
     }

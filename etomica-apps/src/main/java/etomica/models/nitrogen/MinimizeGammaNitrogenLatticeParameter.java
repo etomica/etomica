@@ -17,7 +17,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 
@@ -34,7 +34,7 @@ import etomica.space3d.Space3D;
  */
 public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
 
-	public MinimizeGammaNitrogenLatticeParameter(ISpace space, int numMolecule, double density, double ratio) {
+	public MinimizeGammaNitrogenLatticeParameter(Space space, int numMolecule, double density, double ratio) {
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -261,7 +261,7 @@ public double findOptRatio(double minRatio, double maxRatio){
 
 	protected double a, c, latticeEnergy;
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected int numMolecule;
 	protected double density;
 	protected int nCell;

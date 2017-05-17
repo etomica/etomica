@@ -8,13 +8,13 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.potential.Potential;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class PotentialThreaded extends Potential {
 
 	final protected IPotentialAtomic[] potential;
 	
-	public PotentialThreaded(ISpace space, IPotentialAtomic[] potential) {
+	public PotentialThreaded(Space space, IPotentialAtomic[] potential) {
 		super(potential[0].nBody(), space);
 		this.potential = potential;
 	

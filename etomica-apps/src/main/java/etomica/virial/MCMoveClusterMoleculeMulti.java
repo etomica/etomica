@@ -10,7 +10,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 
@@ -26,7 +26,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     protected int[] constraintMap;
     protected int startMolecule;
 
-    public MCMoveClusterMoleculeMulti(ISimulation sim, ISpace _space) {
+    public MCMoveClusterMoleculeMulti(ISimulation sim, Space _space) {
     	this(null, sim.getRandom(), _space, 1.0);
     }
     
@@ -38,7 +38,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      * because first atom is never moved)
      */
     public MCMoveClusterMoleculeMulti(IPotentialMaster potentialMaster,
-            IRandom random, ISpace _space, double stepSize) {
+                                      IRandom random, Space _space, double stepSize) {
         super(potentialMaster, random, _space, stepSize, Double.POSITIVE_INFINITY);
         setStartMolecule(1);
     }

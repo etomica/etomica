@@ -6,7 +6,7 @@ package etomica.atom;
 
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
@@ -19,11 +19,11 @@ import etomica.space3d.OrientationFull3D;
  */
 public class MoleculeOriented extends Molecule implements IMoleculeOriented {
 
-    public MoleculeOriented(ISpace space, ISpecies species, int numLeafAtoms) {
+    public MoleculeOriented(Space space, ISpecies species, int numLeafAtoms) {
         this(space, species, numLeafAtoms, false);
     }
 
-    public MoleculeOriented(ISpace space, ISpecies species, int numLeafAtoms, boolean isAxisSymmetric) {
+    public MoleculeOriented(Space space, ISpecies species, int numLeafAtoms, boolean isAxisSymmetric) {
         super(species, numLeafAtoms);
         orientation = isAxisSymmetric ? new Orientation3D(space) : new OrientationFull3D(space);
         position = space.makeVector();

@@ -14,7 +14,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Color atoms based on how many overlaps they have with their neighbors
@@ -23,7 +23,7 @@ import etomica.space.ISpace;
  */
 public class ColorSchemeOverlap extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeOverlap(ISpace space, PotentialMasterList potentialMaster, Box box) {
+    public ColorSchemeOverlap(Space space, PotentialMasterList potentialMaster, Box box) {
         super(box);
         leafList = box.getLeafList();
         nOverlaps = new int[leafList.getAtomCount()];

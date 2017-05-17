@@ -16,7 +16,7 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculePair;
 import etomica.models.water.PNWaterGCPMThreeSite;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space.RotationTensor;
 
@@ -29,19 +29,19 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 	protected PNWaterGCPMThreeSite nonAssociationPotential;
 	protected double diagramIndex;
 
-	public ConfigurationClusterWertheimGCPMDirectSampling(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential) {
+	public ConfigurationClusterWertheimGCPMDirectSampling(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.random = random;
 	}
 
-	public ConfigurationClusterWertheimGCPMDirectSampling(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential,PNWaterGCPMThreeSite associationPotential2 ) {
+	public ConfigurationClusterWertheimGCPMDirectSampling(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential, PNWaterGCPMThreeSite associationPotential2 ) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.associationPotential2 = associationPotential2;
 		this.random = random;
 	}
-	public ConfigurationClusterWertheimGCPMDirectSampling(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential,PNWaterGCPMThreeSite associationPotential2, PNWaterGCPMThreeSite associationPotential3 ) {
+	public ConfigurationClusterWertheimGCPMDirectSampling(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential, PNWaterGCPMThreeSite associationPotential2, PNWaterGCPMThreeSite associationPotential3 ) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.associationPotential2 = associationPotential2;
@@ -49,7 +49,7 @@ public class ConfigurationClusterWertheimGCPMDirectSampling extends Configuratio
 		this.random = random;
 	}
 	
-	public ConfigurationClusterWertheimGCPMDirectSampling(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential,PNWaterGCPMThreeSite associationPotential2, double diagramIndex ) {
+	public ConfigurationClusterWertheimGCPMDirectSampling(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential, PNWaterGCPMThreeSite associationPotential2, double diagramIndex ) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.associationPotential2 = associationPotential2;

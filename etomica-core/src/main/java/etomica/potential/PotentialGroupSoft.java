@@ -11,7 +11,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /** 
@@ -27,7 +27,7 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 	protected final IAtomPositionDefinition positionDefinition;
 	protected double truncation;
 
-	public PotentialGroupSoft(int nBody,ISpace space,double truncation) {
+	public PotentialGroupSoft(int nBody, Space space, double truncation) {
 		super(nBody,space);
 		gradients = new IVectorMutable[2];
         gradients[0] = space.makeVector();

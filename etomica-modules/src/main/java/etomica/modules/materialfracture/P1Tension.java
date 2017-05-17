@@ -8,18 +8,18 @@ import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Null;
 
 public class P1Tension implements PotentialSoft {
     
-    protected final ISpace space;
+    protected final Space space;
     protected double w;
     protected final IVectorMutable[] force;
     protected Box box;
     
-    public P1Tension(ISpace space) {
+    public P1Tension(Space space) {
         this.space = space;
         force = new IVectorMutable[1];
         force[0] = space.makeVector();

@@ -22,7 +22,7 @@ import etomica.atom.SpeciesAgentManager;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -48,12 +48,12 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected final IVectorMutable temp;
     public int printInterval = 0;
 
-    public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorVelocityVerletShake(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, ISpace _space) {
+            double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.

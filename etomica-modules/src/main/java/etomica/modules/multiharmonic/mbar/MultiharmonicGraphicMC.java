@@ -38,7 +38,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space1d.Vector1D;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -58,7 +58,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
     /**
      * 
      */
-    public MultiharmonicGraphicMC(MultiharmonicMC simulation, ISpace _space) {
+    public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         this.sim = simulation;
         final DisplayBox displayBoxA = getDisplayBox(sim.boxA);

@@ -15,7 +15,7 @@ import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -78,7 +78,7 @@ public class ConfigurationFileBinary implements Configuration {
      * then written out to outFilename (also as binary).  The density and
      * original number of atoms are required as input.
      */
-    public static void replicate(Configuration config, Box box1, int[] reps, ISpace space) {
+    public static void replicate(Configuration config, Box box1, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
         Box box0 = new Box(space);
         sim.addBox(box0);
@@ -120,7 +120,7 @@ public class ConfigurationFileBinary implements Configuration {
         }
     }
 
-    public static void rescale(Configuration config, Box box1, double density1, ISpace space) {
+    public static void rescale(Configuration config, Box box1, double density1, Space space) {
         Simulation sim = new Simulation(space);
         Box box0 = new Box(space);
         sim.addBox(box0);

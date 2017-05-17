@@ -6,7 +6,7 @@ package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Primitive group for a body-centered-cubic system.
@@ -18,10 +18,10 @@ public class PrimitiveBcc extends Primitive {
     private IVectorMutable[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
-    public PrimitiveBcc(ISpace space) {
+    public PrimitiveBcc(Space space) {
         this(space, 1.0);
     }
-    public PrimitiveBcc(ISpace space, double size) {
+    public PrimitiveBcc(Space space, double size) {
         super(space);
         //set up orthogonal vectors of unit size
         unitVectors = new IVectorMutable[D];

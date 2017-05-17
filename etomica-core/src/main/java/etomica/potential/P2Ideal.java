@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 
@@ -22,7 +22,7 @@ import etomica.space.Tensor;
 public class P2Ideal extends Potential2 implements Potential2Soft,
         Potential2Spherical, PotentialHard {
 
-    public P2Ideal(ISpace space) {
+    public P2Ideal(Space space) {
         super(space);
         zeroVector = new IVectorMutable[1];
         zeroVector[0] = space.makeVector();

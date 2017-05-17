@@ -15,7 +15,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Area;
 import etomica.units.DimensionRatio;
 import etomica.units.Energy;
@@ -23,7 +23,7 @@ import etomica.units.Length;
 
 public class DataProcessorInterfacialTensionProfile extends DataProcessor {
 
-    public DataProcessorInterfacialTensionProfile(ISpace space) {
+    public DataProcessorInterfacialTensionProfile(Space space) {
         virialData = new double[space.D()][0];
     }
     

@@ -9,7 +9,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -29,7 +29,7 @@ public class MeterSolidMirror implements IEtomicaDataSource {
     protected final CoordinateDefinition coordinateDefinition;
     protected final IVectorMutable dr;
 
-    public MeterSolidMirror(ISpace space, IEtomicaDataSource dataSource, CoordinateDefinition coordinateDefinition) {
+    public MeterSolidMirror(Space space, IEtomicaDataSource dataSource, CoordinateDefinition coordinateDefinition) {
         this.coordinateDefinition = coordinateDefinition;
         this.ds = dataSource;
         tag = new DataTag();

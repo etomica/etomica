@@ -5,7 +5,7 @@
 package etomica.potential; 
 
 import etomica.nbr.NeighborCriterion;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Potential that does not depend on any atom positions.
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
 
 public abstract class Potential0 extends Potential {
       
-    public Potential0(ISpace space) {
+    public Potential0(Space space) {
         super(0, space);
     }
     

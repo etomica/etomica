@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.api.IPotential;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomHydrogen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
 
@@ -27,7 +27,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     protected final static double alpha = 3.980917850296971;
     protected final static double[] xlp = {-1.709663318869429E-1,-6.675286769482015E-1,-1.101876055072129E+0,-1.106460095658282E+0,-7.414724284525231E-1,-3.487882731923523E-1,-1.276736255756598E-1,-5.875965709151867E-2,-4.030128017933840E-2,-2.038653237221007E-2,-7.639198558462706E-4,2.912954920483885E-3,-2.628273116815280E-4,-4.622088855684211E-4,1.278468948126147E-4,-1.157434070240206E-5,-2.609691840882097E-12};
 
-    public P1HydrogenMielke(ISpace space) {        
+    public P1HydrogenMielke(Space space) {
     }
 
     public double getRange() {    
@@ -115,7 +115,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     
     
     public static class P1HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialAtomic,P1IntraMolecular {
-        public P1HydrogenMielkeAtomic(ISpace space) {
+        public P1HydrogenMielkeAtomic(Space space) {
             super(space);     
         }
 
@@ -129,7 +129,7 @@ public class P1HydrogenMielke implements IPotential, P1IntraMolecular{
     }
     
     public static class P2HydrogenMielkeAtomic extends P1HydrogenMielke implements IPotentialAtomic {
-    	public P2HydrogenMielkeAtomic(ISpace space) {
+    	public P2HydrogenMielkeAtomic(Space space) {
     		super(space);
     	}
     	

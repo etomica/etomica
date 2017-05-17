@@ -11,7 +11,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Electron;
 import etomica.units.Hartree;
@@ -20,7 +20,7 @@ import etomica.units.Kelvin;
 public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
             
     protected IBoundary boundary;
-    protected ISpace space;
+    protected Space space;
     protected double[] q,pos;    
     public boolean parametersB = true; // set this to false if using parameters for V_12^A potential
     public static final double blN2 = 1.1014;
@@ -34,7 +34,7 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
     protected static final double[] sitePosB = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
     protected static final double[] qB = {-832.77884541,1601.24507755,-1536.93246428,1601.24507755, -832.77884541};    
 
-    public P3NitrogenHellmannNonAdditive(ISpace space) {
+    public P3NitrogenHellmannNonAdditive(Space space) {
         this.space = space;
         q = new double[3];
         pos = new double[7];

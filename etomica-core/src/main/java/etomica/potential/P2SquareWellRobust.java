@@ -15,7 +15,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.box.BoxAgentManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -54,11 +54,11 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
     protected IAtomType[] atomTypes;
     protected boolean suppressMakeAgent = false;
 
-    public P2SquareWellRobust(ISpace space) {
+    public P2SquareWellRobust(Space space) {
         this(space, 1.0, 2.0, 1.0, false);
     }
 
-    public P2SquareWellRobust(ISpace space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
+    public P2SquareWellRobust(Space space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);

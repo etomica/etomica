@@ -13,7 +13,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialMolecularSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Kelvin;
 
@@ -27,7 +27,7 @@ import etomica.units.Kelvin;
  */
 public class P2NitrogenAB extends PotentialMolecular implements PotentialMolecularSoft{
 
-	public P2NitrogenAB(ISpace space, double rC) {
+	public P2NitrogenAB(Space space, double rC) {
 		super(2, space);
 		
 		gradient = new IVectorMutable[2];

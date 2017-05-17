@@ -21,7 +21,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * not periodic.  Length of each box edge is given by default boxSize in
      * given Simulation.
      */
-    public BoundaryRectangularSlit(ISpace _space) {
+    public BoundaryRectangularSlit(Space _space) {
         //consumer can set appropriate slit dim later
         this(0, _space);
     }
@@ -35,7 +35,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * 1 for y-dimension, etc.).
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
-    public BoundaryRectangularSlit(int slitDim, ISpace _space) {
+    public BoundaryRectangularSlit(int slitDim, Space _space) {
         this(slitDim, 10.0, _space);
     }
     
@@ -45,7 +45,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @param _space
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
-    public BoundaryRectangularSlit(int slitDim, double boxSize, ISpace _space) {
+    public BoundaryRectangularSlit(int slitDim, double boxSize, Space _space) {
         super(_space,boxSize);
         sDim = slitDim;
         dimensionsHalf = space.makeVector();

@@ -10,7 +10,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -29,7 +29,7 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
      * Constructor for CoordinatePairLeafSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public CoordinatePairMoleculeSet(IMoleculeList list, ISpace space) {
+    public CoordinatePairMoleculeSet(IMoleculeList list, Space space) {
         numAtoms = list.getMoleculeCount();
         atoms = new IMolecule[numAtoms];
         r2 = new double[numAtoms*numAtoms];

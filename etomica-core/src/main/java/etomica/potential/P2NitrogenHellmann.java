@@ -54,7 +54,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Nitrogen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
@@ -64,7 +64,7 @@ import etomica.util.Constants;
 
 public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {    
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P2NitrogenHellmann pN2 = new P2NitrogenHellmann(space);
         FileReader fileReader = null;
         String fileName = "P2NitrogenHellmann_energies.dat";
@@ -117,12 +117,12 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
     protected static final double[] c6B = {0.298807116692E7, -0.608284467163E7, 0.490318811890E7, 0.146889670654E8, -0.129841807274E8, 0.107874613877E8};
     protected static final double[] sitePosB = {-0.680065710389,-0.447763006688, 0.00, 0.447763006688, 0.680065710389};
     protected static final double dHSCore = 2.0;
-    protected final ISpace space;
+    protected final Space space;
     protected static final double massN2 = 2*Nitrogen.INSTANCE.getMass();
     public static final double blN2 = 1.1014;
     protected static final double moment = 0.25*massN2*blN2*blN2;
     
-    public P2NitrogenHellmann(ISpace space) {
+    public P2NitrogenHellmann(Space space) {
         this.space = space;
         A = new double[3][3];
         alpha = new double[3][3];
@@ -329,7 +329,7 @@ public class P2NitrogenHellmann implements IPotentialAtomic, IPotentialTorque {
         // v4 is a unit vector whose components are v1 and v3
         
         // v1 = v1overAxis * axis
-        ISpace space = Space3D.getInstance();        
+        Space space = Space3D.getInstance();
         double v1overAxis = axis.dot(direction);
         IVectorMutable temp = space.makeVector();
         IVectorMutable temp2 = space.makeVector();

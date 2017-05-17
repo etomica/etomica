@@ -17,7 +17,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -31,7 +31,7 @@ import etomica.units.Null;
  
 public class MeterSolidDA implements IEtomicaDataSource {
 
-    public MeterSolidDA(ISpace space, IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) {
+    public MeterSolidDA(Space space, IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) {
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
     	this.potentialMaster = potentialMaster;

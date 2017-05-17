@@ -15,7 +15,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
 import etomica.config.IConformation;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -25,23 +25,23 @@ import etomica.space.ISpace;
  */
 public class SpeciesSpheres extends Species {
 
-    public SpeciesSpheres(Simulation sim, ISpace _space) {
+    public SpeciesSpheres(Simulation sim, Space _space) {
         this(sim, _space, 1);
     }
-    public SpeciesSpheres(Simulation sim, ISpace _space, int nA) {
+    public SpeciesSpheres(Simulation sim, Space _space, int nA) {
         this(_space, nA, new ElementSimple(sim));
     }
     
-    public SpeciesSpheres(ISpace _space, int nA, IElement leafElement) {
+    public SpeciesSpheres(Space _space, int nA, IElement leafElement) {
         this(nA, leafElement, new ConformationLinear(_space), _space);
     }
     
     public SpeciesSpheres(int nA, IElement leafElement,
-    		              IConformation conformation, ISpace _space) {
+    		              IConformation conformation, Space _space) {
         this(_space, nA, new AtomTypeLeaf(leafElement), conformation);
     }
     
-    public SpeciesSpheres(ISpace _space, int nA, IAtomType leafAtomType, IConformation conformation) {
+    public SpeciesSpheres(Space _space, int nA, IAtomType leafAtomType, IConformation conformation) {
         super();
         this.space = _space;
         addChildType(leafAtomType);
@@ -94,7 +94,7 @@ public class SpeciesSpheres extends Species {
 
      private static final long serialVersionUID = 1L;
      protected boolean isDynamic;
-     protected final ISpace space;
+     protected final Space space;
      protected int atomsPerGroup;
      protected final IAtomType leafAtomType;
 }

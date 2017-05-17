@@ -15,7 +15,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
 
@@ -33,7 +33,7 @@ import etomica.util.Debug;
  */
 public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
 
-    public MCMoveClusterWiggleAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveClusterWiggleAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 0.1, _space);//0.1 rad wiggle move
     }
     
@@ -45,7 +45,7 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
      * because first atom is never moved)
      */
     public MCMoveClusterWiggleAceticAcid(IPotentialMaster potentialMaster, 
-            IRandom random, double stepSize, ISpace _space) {
+            IRandom random, double stepSize, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         bondedAtoms = new int[]{1,-1,1,-1,3};//0(Ch3) and 2(dBO) are bonded to 1 (C), 4(H) is bonded to 3 (O)
@@ -196,6 +196,6 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
     protected final IVectorMutable work1, work2, work3;
     protected IVectorMutable[] translationVectors;
     protected double wOld, wNew;
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species;
 }

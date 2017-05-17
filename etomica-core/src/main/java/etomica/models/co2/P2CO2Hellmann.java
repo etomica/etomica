@@ -17,7 +17,7 @@ import etomica.potential.IPotentialTorque;
 import etomica.potential.P2SemiclassicalAtomic;
 import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Orientation3D;
@@ -60,7 +60,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
     protected final double[] pos, q;
     protected final double[][] A, alpha, b, C6, C8;
 
-    protected final ISpace space;
+    protected final Space space;
     protected final IVectorMutable[][] gradientAndTorque;
     protected final static double mass;
     static {
@@ -71,7 +71,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
         A, B
     }
     
-    public P2CO2Hellmann(ISpace space, Parameters param) {
+    public P2CO2Hellmann(Space space, Parameters param) {
         this.space = space;
         A = new double[4][4];
         alpha = new double[4][4];
@@ -584,7 +584,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
     }
 
     public static void main1(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(200);
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
@@ -678,7 +678,7 @@ public class P2CO2Hellmann implements IPotentialTorque {
      * Randomly moves molcules all over, computing and checking 2nd derivative
      */
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(200);
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));

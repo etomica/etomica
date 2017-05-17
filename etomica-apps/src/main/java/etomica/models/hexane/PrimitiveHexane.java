@@ -6,7 +6,7 @@ package etomica.models.hexane;
 import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**
@@ -24,7 +24,7 @@ public class PrimitiveHexane extends Primitive {
     protected final double[] fixedSizes;
     private Vector3D[] temp;
     
-    public PrimitiveHexane(ISpace space) {
+    public PrimitiveHexane(Space space) {
         super(space);
 
         fixedSizes = new double[3];

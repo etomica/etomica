@@ -14,13 +14,12 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.normalmode.ArrayReader1D;
 import etomica.normalmode.BasisBigCell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 
@@ -34,7 +33,7 @@ import etomica.units.Degree;
  */
 public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simulation{
 	
-	public HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2(ISpace space, int numMolecule, String densityStr) {
+	public HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2(Space space, int numMolecule, String densityStr) {
 		super(space);
 		this.space = space;
 		
@@ -300,7 +299,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simula
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;

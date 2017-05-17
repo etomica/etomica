@@ -24,11 +24,11 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ConfigurationMembrane implements Configuration {
 
-    public ConfigurationMembrane(ISimulation sim, ISpace _space) {
+    public ConfigurationMembrane(ISimulation sim, Space _space) {
         soluteMoleFraction = 1;
         solutionChamberDensity = 0.5;
         solventChamberDensity = 0.5;
@@ -252,6 +252,6 @@ public class ConfigurationMembrane implements Configuration {
     protected double soluteMoleFraction;
     protected int membraneDim;
     protected final ISimulation sim;
-    private final ISpace space;
+    private final Space space;
     protected IAtomPositionDefinition positionDefinition;
 }

@@ -16,7 +16,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 
@@ -31,7 +31,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
-    protected final ISpace space;
+    protected final Space space;
     protected double beta;
     protected final IVectorMutable dr;
     protected double c1;
@@ -45,7 +45,7 @@ public class PotentialCalculationMappedVirial implements PotentialCalculation {
     protected double sum;
     protected double x0, vCut;
 
-    public PotentialCalculationMappedVirial(ISpace space, Box box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
+    public PotentialCalculationMappedVirial(Space space, Box box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;

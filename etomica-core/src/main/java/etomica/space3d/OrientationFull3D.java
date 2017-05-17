@@ -10,7 +10,7 @@ import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.util.Debug;
 
@@ -19,7 +19,7 @@ public class OrientationFull3D implements IOrientationFull3D, Serializable {
     /**
      * Default constructor sets orientation to point in the X direction.
      */
-    public OrientationFull3D(ISpace space) {
+    public OrientationFull3D(Space space) {
         direction = space.makeVector();
         direction.setX(0, 1);
         secondaryDirection = space.makeVector();

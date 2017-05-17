@@ -13,7 +13,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * An MC Move for cluster simulations that performs torsion moves on acetic acid.
@@ -33,7 +33,7 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterTorsionAceticAcid(IPotentialMaster potentialMaster, ISpace space,
+    public MCMoveClusterTorsionAceticAcid(IPotentialMaster potentialMaster, Space space,
             IRandom random) {
         super(potentialMaster,random,space,1,Double.POSITIVE_INFINITY);//we don't need stepsize-> put 1
         ((MCMoveStepTracker)getTracker()).setTunable(false);

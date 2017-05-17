@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 public class MeterDisplacementRMS extends DataSourceScalar {
@@ -16,7 +16,7 @@ public class MeterDisplacementRMS extends DataSourceScalar {
     protected final CoordinateDefinition coordinateDefinition;
     protected final IVectorMutable dr, boxSize0;
     
-    public MeterDisplacementRMS(ISpace space, CoordinateDefinition coordinateDefinition) {
+    public MeterDisplacementRMS(Space space, CoordinateDefinition coordinateDefinition) {
         super("displacement", Length.DIMENSION);
         this.coordinateDefinition = coordinateDefinition;
         dr = space.makeVector();

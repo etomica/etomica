@@ -26,7 +26,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -74,19 +74,19 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 	public boolean rotate, normalD, minFound;
 	public String file;
 	public WriteConfiguration writer;
-	private final ISpace space;
+	private final Space space;
 	public CalcVibrationalModes vib;
 	
 	
 	public IntegratorDimerMin(ISimulation sim, IPotentialMaster potentialMaster,
 			                  ISpecies[] species,
-			                  Boolean normalDir, ISpace _space) {
+			                  Boolean normalDir, Space _space) {
 		this(sim, potentialMaster, 1.0, species, normalDir, _space);
 	}
 	
 	public IntegratorDimerMin(ISimulation aSim, IPotentialMaster potentialMaster,
 			                  double temperature,
-			                  ISpecies[] aspecies, Boolean normalDir, ISpace _space) {
+			                  ISpecies[] aspecies, Boolean normalDir, Space _space) {
 		super(potentialMaster, temperature);
 		this.sim = aSim;
 		this.force0 = new PotentialCalculationForceSum();

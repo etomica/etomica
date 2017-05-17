@@ -15,7 +15,7 @@ import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Species in which molecules are made of a single atom.  The molecule itself
@@ -25,21 +25,21 @@ import etomica.space.ISpace;
  */
 public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implements ISpeciesOriented {
     
-    public SpeciesSpheresRotatingMolecule(Simulation sim, ISpace _space) {
+    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space) {
         this(sim, _space, makeNominalMoment(_space));
     }
 
-    protected static final IVectorMutable makeNominalMoment(ISpace space) {
+    protected static final IVectorMutable makeNominalMoment(Space space) {
         IVectorMutable m = space.makeVector();
         m.E(1);
         return m;
     }
 
-    public SpeciesSpheresRotatingMolecule(Simulation sim, ISpace _space, IVector moment) {
+    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space, IVector moment) {
         this(_space, new AtomTypeLeaf(new ElementSimple(sim)), moment);
     }
     
-    public SpeciesSpheresRotatingMolecule(ISpace _space, IAtomType atomType, IVector moment) {
+    public SpeciesSpheresRotatingMolecule(Space _space, IAtomType atomType, IVector moment) {
         super(_space, atomType);
         this.moment = _space.makeVector();
         this.moment.E(moment);

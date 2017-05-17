@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -19,7 +19,7 @@ import etomica.units.Null;
  */
 public class MeterViscosity extends DataSourceScalar {
 
-    public MeterViscosity(ISpace space) {
+    public MeterViscosity(Space space) {
         super("viscosity", Null.DIMENSION);
         dr = space.makeVector();
     }

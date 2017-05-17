@@ -21,7 +21,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Degree;
 import etomica.util.numerical.ArrayReader1D;
@@ -44,7 +43,7 @@ import etomica.util.numerical.ArrayReader1D;
 public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 	
 
-	public MinimizeBetaNitrogenLatticeParameterFromFile(ISpace space, int[] nC, double density, double[] u){
+	public MinimizeBetaNitrogenLatticeParameterFromFile(Space space, int[] nC, double density, double[] u){
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -588,7 +587,7 @@ public class MinimizeBetaNitrogenLatticeParameterFromFile extends Simulation {
 	protected Box box;
 	protected SpeciesN2 species;
 	protected double density;
-	protected ISpace space;
+	protected Space space;
 	protected Primitive primitive;
 	protected Boundary boundary;
 	protected IVector[] boxDim; 

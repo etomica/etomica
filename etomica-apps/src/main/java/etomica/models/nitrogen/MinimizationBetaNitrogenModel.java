@@ -36,10 +36,7 @@ import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.potential.PotentialCalculationEnergySumBigDecimal;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
@@ -55,7 +52,7 @@ import etomica.units.Degree;
  */
 public class MinimizationBetaNitrogenModel extends Simulation{
 
-	public MinimizationBetaNitrogenModel(ISpace space, int[] nC, double density) {
+	public MinimizationBetaNitrogenModel(Space space, int[] nC, double density) {
 		super(space);
 		this.space = space;
 		
@@ -453,7 +450,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 
 
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;

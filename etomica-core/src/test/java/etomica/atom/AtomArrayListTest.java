@@ -6,10 +6,6 @@ package etomica.atom;
 
 import junit.framework.TestCase;
 import etomica.api.IAtom;
-import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomsetArray;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -19,7 +15,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testTrimToSize()
 	 */
 	public void testTrimToSize() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		final int size = 40;
 		AtomArrayList arrayList = new AtomArrayList(size + 10);
 		IAtom[] listOfAtoms = new Atom[size];
@@ -53,7 +49,7 @@ public class AtomArrayListTest extends TestCase {
 	 */
 	public void testMaybeTrimToSize() {
 
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		float trimThreshold = 0.5f;
 		int size = 100;
 
@@ -83,7 +79,7 @@ public class AtomArrayListTest extends TestCase {
 	 */
 	public void testEnsureCapacity() {
 
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 20;
 
 		// test case where capacity is already large enough.
@@ -122,7 +118,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testIsEmpty()
 	 */
 	public void testIsEmpty() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 20;
 
 		AtomArrayList arrayList = new AtomArrayList(size);
@@ -139,7 +135,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testIndexOf()
 	 */
 	public void testIndexOf() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 20;
 
 		AtomArrayList arrayList = new AtomArrayList(size);
@@ -158,7 +154,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testToArray()
 	 */
 	public void testToArray() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 20;
 		int numElems = 5;
 
@@ -183,7 +179,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testSet()
 	 */
 	public void testSet() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 20;
 		int numElems = 5;
         IAtom newElem = new Atom(space);
@@ -253,7 +249,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testAdd()
 	 */
 	public void testAdd() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 10;
         boolean addResult;
         IAtom[] atomList = new IAtom[size];
@@ -292,7 +288,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testAddAll()
 	 */
 	public void testAddAll() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 10;
         IAtom[] atomList = new IAtom[size];
         IAtom[] atomsetList = new IAtom[size];
@@ -323,7 +319,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testRemove()
 	 */
 	public void testRemove() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 5;
         IAtom[] atomList = new IAtom[size];
 
@@ -368,7 +364,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testRemoveAndReplace()
 	 */
 	public void testRemoveAndReplace() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 5;
         IAtom[] atomList = new IAtom[size];
 
@@ -423,7 +419,7 @@ public class AtomArrayListTest extends TestCase {
 	 * testClear()
 	 */
 	public void testClear() {
-		ISpace space = Space.getInstance(3);
+		Space space = Space.getInstance(3);
 		int size = 5;
         IAtom[] atomList = new IAtom[size];
 

@@ -23,7 +23,7 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -45,7 +45,7 @@ import etomica.units.Time;
  */
 public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
 
-    public MeterFlux(ISimulation sim, ISpace _space) {
+    public MeterFlux(ISimulation sim, Space _space) {
         this.sim = sim;
     	this.space = _space;
         data = new DataDouble();
@@ -212,6 +212,6 @@ public class MeterFlux implements IEtomicaDataSource, MoleculeAgentSource {
     protected IntegratorBox integrator;
     protected double oldTime;
     protected long oldStep;
-    private final ISpace space;
+    private final Space space;
     protected IAtomPositionDefinition positionDefinition;
 }

@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -22,7 +22,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
 
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
-    protected final ISpace space;
+    protected final Space space;
     protected IAtomList leafList;
     protected IntegratorBox integrator;
     protected boolean warningPrinted;
@@ -30,7 +30,7 @@ public class PotentialCalculationPressureTensor implements PotentialCalculation 
     protected final Tensor I;
     protected boolean doNonEquilibrium;
     
-    public PotentialCalculationPressureTensor(ISpace space) {
+    public PotentialCalculationPressureTensor(Space space) {
         this.space = space;
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();

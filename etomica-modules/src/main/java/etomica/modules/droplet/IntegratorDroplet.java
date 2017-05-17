@@ -21,7 +21,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
 
@@ -41,12 +41,12 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
 
-    public IntegratorDroplet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorDroplet(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
 
     public IntegratorDroplet(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, ISpace _space) {
+            double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
@@ -279,7 +279,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         public IVectorMutable r0; // position at the beginning of the timestep
         public IVectorMutable rp;
 
-        public MyAgent(ISpace space) {
+        public MyAgent(Space space) {
             force = space.makeVector();
             r0 = space.makeVector();
             rp = space.makeVector();

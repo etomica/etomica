@@ -10,7 +10,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialMolecularTorque;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /** 
@@ -19,8 +19,8 @@ import etomica.space.Tensor;
  */
 public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorque {
 
-	public P2Water3PSoft(ISpace space, double sigma, double epsilon,
-	        double chargeO, double chargeH) {
+	public P2Water3PSoft(Space space, double sigma, double epsilon,
+                         double chargeO, double chargeH) {
 		super(space, sigma, epsilon, chargeO, chargeH);
 		gradient = new IVectorMutable[2];
 		gradient[0] = space.makeVector();

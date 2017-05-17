@@ -9,7 +9,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -25,11 +25,11 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     protected double cutoff;
     protected int wallDim;
 
-    public P1WCAWall(ISpace space, int wallDim) {
+    public P1WCAWall(Space space, int wallDim) {
         this(space, wallDim, 1.0, 1.0);
     }
 
-    public P1WCAWall(ISpace space, int wallDim, double sigma, double epsilon) {
+    public P1WCAWall(Space space, int wallDim, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);

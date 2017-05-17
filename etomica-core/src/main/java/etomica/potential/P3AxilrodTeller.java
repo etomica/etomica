@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Axilrod-Teller potential.  The potential is atomic.  Ionization energy and
@@ -21,11 +21,11 @@ import etomica.space.ISpace;
 public class P3AxilrodTeller implements IPotentialAtomic {
 
     protected final AtomTypeAgentManager paramsManager;
-    protected final ISpace space;
+    protected final Space space;
     protected final IVectorMutable dr1, dr2;
     protected IBoundary boundary;
     
-    public P3AxilrodTeller(ISpace space, AtomTypeAgentManager paramsManager) {
+    public P3AxilrodTeller(Space space, AtomTypeAgentManager paramsManager) {
         this.space = space;
         this.paramsManager = paramsManager;
         dr1 = space.makeVector();

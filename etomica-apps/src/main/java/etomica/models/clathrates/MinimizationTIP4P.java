@@ -40,7 +40,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
@@ -54,7 +54,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 public class MinimizationTIP4P extends Simulation{
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected SpeciesWater4P species;
 	protected MeterHarmonicEnergy meterHarm;
@@ -64,7 +64,7 @@ public class MinimizationTIP4P extends Simulation{
 	private static final long serialVersionUID = 1L;
 	protected EwaldSummation potentialES;
 	protected static double selfELJ;
-	public MinimizationTIP4P(ISpace space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis,  boolean isIce, double kCut, String configFile,boolean includeM) {
+	public MinimizationTIP4P(Space space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis, boolean isIce, double kCut, String configFile, boolean includeM) {
 		super(space);
 		this.space = space;
 		species = new SpeciesWater4P(space);

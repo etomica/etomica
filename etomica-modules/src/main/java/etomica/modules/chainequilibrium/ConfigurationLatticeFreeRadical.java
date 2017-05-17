@@ -13,7 +13,7 @@ import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Configuration that puts atoms randomly on a lattice and groups pairs of
@@ -24,7 +24,7 @@ import etomica.space.ISpace;
 public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
 
     public ConfigurationLatticeFreeRadical(SpaceLattice lattice,
-            ISpace space, IRandom random) {
+                                           Space space, IRandom random) {
         super(lattice, space);
         this.random = random;
     }

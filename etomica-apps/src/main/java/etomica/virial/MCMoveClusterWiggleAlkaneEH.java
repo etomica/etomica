@@ -15,7 +15,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
@@ -42,7 +42,7 @@ import etomica.util.Debug;
  */
 
 public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterWiggleAlkaneEH(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, ISpace _space) {
+    public MCMoveClusterWiggleAlkaneEH(ISimulation sim, IPotentialMaster potentialMaster, int nAtoms, Space _space) {
         this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
 
     }
@@ -55,7 +55,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
      * because first atom is never moved)
      */
 
-    public MCMoveClusterWiggleAlkaneEH(IPotentialMaster potentialMaster,IRandom random, double stepSize, int nAtoms, ISpace _space) {
+    public MCMoveClusterWiggleAlkaneEH(IPotentialMaster potentialMaster,IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         setStepSizeMax(Math.PI);
@@ -701,7 +701,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
     protected final IVectorMutable work1, work2, work3;
     protected IVectorMutable[][] translationVectors;
     protected double wOld, wNew;
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species;
     protected RotationTensor3D rotateTensor;
     protected int numAtomsMove ;

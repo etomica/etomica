@@ -12,7 +12,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -32,7 +32,7 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
     protected double latticeEnergy;
     protected CoordinateDefinitionNitrogen primaryCoordDef, secondaryCoordDef;
     
-    public MeterRotPerturbMolecule(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+    public MeterRotPerturbMolecule(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species, Space space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         super("Scaled Energy unit", Null.DIMENSION);
         this.primaryCoordDef = coordinateDef;
         

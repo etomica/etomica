@@ -15,7 +15,7 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class MCMoveBiasUB extends MCMoveBox {
@@ -41,7 +41,7 @@ public class MCMoveBiasUB extends MCMoveBox {
     protected final AtomArrayList smerList;
     protected final IVectorMutable dr;
 
-    public MCMoveBiasUB(PotentialMasterCell potentialMaster, BiasVolume bv, IRandom random, ISpace space) {
+    public MCMoveBiasUB(PotentialMasterCell potentialMaster, BiasVolume bv, IRandom random, Space space) {
         super(potentialMaster);//variable
         biasVolume = bv;
         this.random =random;

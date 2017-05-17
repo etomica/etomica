@@ -7,7 +7,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -37,7 +37,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
     protected double[] rho;
     protected boolean energyDisabled = false;
 
-    public P2EAM(ISpace space, double n, double m, double eps, double a, double C, double rc1, double rc2) {
+    public P2EAM(Space space, double n, double m, double eps, double a, double C, double rc1, double rc2) {
         super(space);
 
         n2 = 0.5 * n;

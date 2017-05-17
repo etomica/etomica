@@ -69,7 +69,6 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -840,7 +839,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     }
     
     public static class ModifierBoxSize implements Modifier {
-        public ModifierBoxSize(ISpace space, Box box, int dim, IAction reconfig) {
+        public ModifierBoxSize(Space space, Box box, int dim, IAction reconfig) {
             this.box = box;
             this.dim = dim;
             this.reconfig = reconfig;

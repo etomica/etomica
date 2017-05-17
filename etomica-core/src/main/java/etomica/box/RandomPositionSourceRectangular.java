@@ -6,12 +6,12 @@ package etomica.box;
 
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class RandomPositionSourceRectangular implements RandomPositionSource {
     
-    public RandomPositionSourceRectangular(ISpace space, IRandom random) {
+    public RandomPositionSourceRectangular(Space space, IRandom random) {
         p = (IVectorRandom)space.makeVector();
         this.random = random;
     }

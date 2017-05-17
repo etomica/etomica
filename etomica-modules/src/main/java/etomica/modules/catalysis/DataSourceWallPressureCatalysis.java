@@ -18,11 +18,11 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHard.CollisionListener;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.P1HardBoundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pressure;
 
 public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, CollisionListener {
-    public DataSourceWallPressureCatalysis(ISpace space, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {
+    public DataSourceWallPressureCatalysis(Space space, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager interactionAgentManager) {
         this.space = space;
         this.speciesC = speciesC;
         this.speciesO = speciesO;
@@ -114,7 +114,7 @@ public class DataSourceWallPressureCatalysis implements IEtomicaDataSource, Coll
     }
 
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final ISpecies speciesC, speciesO;
     protected final AtomLeafAgentManager interactionAgentManager;
     protected IntegratorHard integratorHard;

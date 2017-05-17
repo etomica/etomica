@@ -16,7 +16,7 @@ import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 
@@ -31,7 +31,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
     protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
-    protected final ISpace space;
+    protected final Space space;
     protected double beta;
     protected final IVectorMutable dr;
     protected double c1;
@@ -47,7 +47,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
     protected VFunc vf;
     protected boolean customVF;
 
-    public PotentialCalculationMappedVirialV(ISpace space, Box box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
+    public PotentialCalculationMappedVirialV(Space space, Box box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -73,7 +73,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
         }
     }
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(space, potential, 4);
         USine uSine = new USine(p2, new double[][]{{0.87624,2.17775},{0.684801,0.647015},{-0.748087,1.1296},{0.692743,-1.07915}}, 2.0);

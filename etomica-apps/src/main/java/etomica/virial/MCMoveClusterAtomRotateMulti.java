@@ -11,7 +11,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Orientation3D;
 
 /**
@@ -20,7 +20,7 @@ import etomica.space3d.Orientation3D;
  */
 public class MCMoveClusterAtomRotateMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomRotateMulti(IRandom random, ISpace _space) {
+    public MCMoveClusterAtomRotateMulti(IRandom random, Space _space) {
         super(null, random, _space, 1.0, Math.PI, false);
         setStepSize(1.2);
 	}

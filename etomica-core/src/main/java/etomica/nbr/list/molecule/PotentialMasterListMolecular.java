@@ -30,7 +30,7 @@ import etomica.nbr.molecule.PotentialMasterNbrMolecular;
 import etomica.potential.PotentialArrayMolecular;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -46,14 +46,14 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     /**
      * Default constructor uses range of 1.0.
      */
-    public PotentialMasterListMolecular(ISimulation sim, ISpace _space) {
+    public PotentialMasterListMolecular(ISimulation sim, Space _space) {
         this(sim, 1.0, _space);
     }
     
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
      */
-    public PotentialMasterListMolecular(ISimulation sim, double range, ISpace _space) {
+    public PotentialMasterListMolecular(ISimulation sim, double range, Space _space) {
         this(sim, range, (IAtomPositionDefinition)null, _space);
     }
     
@@ -64,22 +64,22 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
      * @param positionDefinition
      *            if null, specifies use of atom type's position definition
      */
-    public PotentialMasterListMolecular(ISimulation sim, double range, IAtomPositionDefinition positionDefinition, ISpace _space) {
+    public PotentialMasterListMolecular(ISimulation sim, double range, IAtomPositionDefinition positionDefinition, Space _space) {
         this(sim, range, new BoxAgentSourceCellManagerListMolecular(sim, positionDefinition, _space), _space);
     }
 
-    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, ISpace _space) {
+    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, Space _space) {
         this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, NeighborCellManagerMolecular.class), _space);
     }
 
-    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, ISpace _space){
+    public PotentialMasterListMolecular(ISimulation sim, double range, BoxAgentSourceCellManagerListMolecular boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
         this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceMolecular(range, _space), _space);
     }
 
     public PotentialMasterListMolecular(ISimulation sim, double range,
     		BoxAgentSourceCellManagerListMolecular boxAgentSource,
     		BoxAgentManager<? extends BoxCellManager> agentManager,
-    		NeighborListAgentSourceMolecular neighborListAgentSource, ISpace _space) {
+    		NeighborListAgentSourceMolecular neighborListAgentSource, Space _space) {
         super(sim, boxAgentSource, agentManager);
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
@@ -541,7 +541,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         return cellRange;
     }
 
-    protected final ISpace space;
+    protected final Space space;
     private final MoleculeIteratorSinglet singletIterator;
     protected final MoleculeSetSinglet moleculeSetSinglet;
     protected final MoleculePair moleculePair;
@@ -557,7 +557,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
     private MoleculeArrayList moleculeArrayList;
     
     public static class NeighborListAgentSourceMolecular implements BoxAgentManager.BoxAgentSource<NeighborListManagerMolecular>{
-        public NeighborListAgentSourceMolecular(double range, ISpace space) {
+        public NeighborListAgentSourceMolecular(double range, Space space) {
             
             this.range = range;
             this.space = space;
@@ -581,7 +581,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
         
         protected PotentialMasterListMolecular potentialMaster;
         protected double range;
-        protected final ISpace space;
+        protected final Space space;
     }
 
 

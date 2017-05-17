@@ -13,7 +13,6 @@ import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
@@ -28,7 +27,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactory2D implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactory2D(Primitive primitive, ISpace _space) {
+    public WaveVectorFactory2D(Primitive primitive, Space _space) {
         this.primitive = primitive;
         this.space = _space;
     }
@@ -174,5 +173,5 @@ outer:              for (int i=0; i<2; i++){
     protected final Primitive primitive;
     protected IVectorMutable[] waveVectors;
     protected double[] coefficients;
-    private final ISpace space;
+    private final Space space;
 }

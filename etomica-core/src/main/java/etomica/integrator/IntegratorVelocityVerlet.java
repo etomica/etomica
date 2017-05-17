@@ -12,7 +12,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
 
@@ -25,12 +25,12 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
 
-    public IntegratorVelocityVerlet(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorVelocityVerlet(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
 
     public IntegratorVelocityVerlet(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, ISpace _space) {
+            double timeStep, double temperature, Space _space) {
         super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
@@ -170,7 +170,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     public final static class MyAgent implements IntegratorBox.Forcible {//need public so to use with instanceof
         public IVectorMutable force;
 
-        public MyAgent(ISpace space) {
+        public MyAgent(Space space) {
             force = space.makeVector();
         }
         

@@ -16,7 +16,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.listener.IntegratorListenerAction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
@@ -52,7 +52,7 @@ import etomica.util.IListener;
 
 public class MSDCoordWriter implements IAction, IListener {
 	
-	public MSDCoordWriter(ISpace _space, String fileName) throws RuntimeException {
+	public MSDCoordWriter(Space _space, String fileName) throws RuntimeException {
 	    throw new RuntimeException("MSDCoordWriter is not usable due to the removal of " +
 	                               "action priorities.");
 /*
@@ -176,7 +176,7 @@ public class MSDCoordWriter implements IAction, IListener {
 	
 	private static class AfterPBC implements IAction {
 		
-		public AfterPBC(ISpace _space, AtomIteratorBoxDependent iterator){
+		public AfterPBC(Space _space, AtomIteratorBoxDependent iterator){
 			workVector = _space.makeVector();
 			this.iterator = iterator;
 			this.space = _space;
@@ -242,7 +242,7 @@ public class MSDCoordWriter implements IAction, IListener {
 		private IVectorMutable workVector;
 		private IVectorMutable [] atomOldCoord;
 		private AtomIteratorBoxDependent iterator;
-		private final ISpace space;
+		private final Space space;
 	}
 	
 }

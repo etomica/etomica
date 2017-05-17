@@ -26,7 +26,7 @@ import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
@@ -43,7 +43,7 @@ import etomica.util.RandomNumberGeneratorUnix;
 public class P3Induction implements IPotentialAtomic {
 
     protected final AtomTypeAgentManager paramsManager;
-    protected final ISpace space;
+    protected final Space space;
     protected final double[] I = new double[3];
     protected final double[] alpha = new double[3];
     protected final IVectorMutable dr1, dr2;
@@ -52,7 +52,7 @@ public class P3Induction implements IPotentialAtomic {
     protected final IVectorMutable or3;
     protected IBoundary boundary;
 
-    public P3Induction(ISpace space, AtomTypeAgentManager paramsManager) {
+    public P3Induction(Space space, AtomTypeAgentManager paramsManager) {
         this.space = space;
         this.paramsManager = paramsManager;
         dr1 = space.makeVector();
@@ -151,7 +151,7 @@ public class P3Induction implements IPotentialAtomic {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         species.setAxisSymmetric(false);

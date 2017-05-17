@@ -11,7 +11,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Class describing a plane through a lattice.  Holds a Plane
@@ -24,7 +24,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     private final Plane plane;
     private Primitive primitive;
     private IVectorMutable normal, delta;
-    private ISpace space;
+    private Space space;
     private int[] millerIndices;
     private IVectorMutable origin;
     

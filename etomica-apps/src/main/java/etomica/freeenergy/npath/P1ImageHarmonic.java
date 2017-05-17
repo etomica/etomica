@@ -8,7 +8,7 @@ import etomica.api.*;
 import etomica.box.Box;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -26,7 +26,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     protected boolean zeroF = true;
     protected boolean do21;
 
-    public P1ImageHarmonic(ISpace space, IVector offset, double w, boolean do21) {
+    public P1ImageHarmonic(Space space, IVector offset, double w, boolean do21) {
         super(space);
         this.offset = offset;
         this.w = w;

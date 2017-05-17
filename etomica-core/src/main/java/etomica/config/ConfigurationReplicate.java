@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 public class ConfigurationReplicate {
@@ -19,7 +19,7 @@ public class ConfigurationReplicate {
      * Replicates the configuration from config within boxBig.  There are reps
      * replicates in each direction.
      */
-    public static void replicate(Configuration config, Box boxBig, int[] reps, ISpace space) {
+    public static void replicate(Configuration config, Box boxBig, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
         Box box0 = new Box(space);
         sim.addBox(box0);

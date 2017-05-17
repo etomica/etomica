@@ -13,7 +13,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are serialized to a
@@ -23,7 +23,7 @@ import etomica.space.ISpace;
  */
 public class WriteConfigurationBinary implements IAction {
 
-	public WriteConfigurationBinary(ISpace space) {
+	public WriteConfigurationBinary(Space space) {
         writePosition = space.makeVector();
         setDoApplyPBC(true);
 	}

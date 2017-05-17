@@ -38,7 +38,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.math.geometry.Plane;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Null;
 import etomica.units.Pixel;
@@ -59,7 +59,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
     protected final MeterProfileByVolumeAdsorption densityProfileMeterA, densityProfileMeterB;
     protected final Adsorption sim;
 
-    public AdsorptionGraphic(final Adsorption simulation, ISpace _space) {
+    public AdsorptionGraphic(final Adsorption simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
@@ -405,7 +405,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
 
 
         AdsorptionGraphic adsGraphic = new AdsorptionGraphic(new Adsorption(space), space);
@@ -418,7 +418,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            ISpace sp = Space3D.getInstance();
+            Space sp = Space3D.getInstance();
             AdsorptionGraphic swmdGraphic = new AdsorptionGraphic(new Adsorption(sp), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());

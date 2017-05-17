@@ -4,7 +4,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.atom.DipoleSource;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P1ExternalField extends PotentialMolecular {
 
@@ -12,7 +12,7 @@ public class P1ExternalField extends PotentialMolecular {
 	protected IVector externalField;
 	
 	
-	public P1ExternalField( ISpace space) {
+	public P1ExternalField( Space space) {
 		super(1,space);
 	}
 

@@ -17,7 +17,7 @@ import etomica.atom.MoleculeArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists
@@ -48,7 +48,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     private transient int iInsert, iDelete;
 
     public MCMoveSemigrand(IPotentialMaster potentialMaster, IRandom random,
-    		               ISpace _space) {
+    		               Space _space) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);

@@ -9,18 +9,18 @@ import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.OrientationFull3D;
 
 public class ClusterCoupledAtomFlipped  extends ClusterCoupledFlipped {
 
     protected final IVectorMutable axis;
     
-    public ClusterCoupledAtomFlipped(ClusterAbstract cluster, ISpace space) {
+    public ClusterCoupledAtomFlipped(ClusterAbstract cluster, Space space) {
         this(cluster,space, 0);
     }
 
-    public ClusterCoupledAtomFlipped(ClusterAbstract cluster, ISpace space, double minFlipDistance) {
+    public ClusterCoupledAtomFlipped(ClusterAbstract cluster, Space space, double minFlipDistance) {
     	super(cluster,space, minFlipDistance);
     	axis = space.makeVector();
     }

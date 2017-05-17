@@ -13,7 +13,7 @@ import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -32,22 +32,22 @@ public class MCMoveAtom extends MCMoveBoxStep {
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
 
-    public MCMoveAtom(IRandom random, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveAtom(IRandom random, IPotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, random, _space, 1.0, 15.0, false);
     }
 
     public MCMoveAtom(IPotentialMaster potentialMaster, IRandom random,
-    		          ISpace _space, double stepSize, double stepSizeMax,
-    		          boolean fixOverlap) {
+                      Space _space, double stepSize, double stepSizeMax,
+                      boolean fixOverlap) {
         this(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, _space,
                 stepSize, stepSizeMax, fixOverlap);
     }
 
     public MCMoveAtom(IPotentialMaster potentialMaster, MeterPotentialEnergy meterPE, IRandom random,
-            ISpace _space, double stepSize, double stepSizeMax,
-            boolean fixOverlap) {
+                      Space _space, double stepSize, double stepSizeMax,
+                      boolean fixOverlap) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;

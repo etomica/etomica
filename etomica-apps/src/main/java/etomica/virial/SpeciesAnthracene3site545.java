@@ -10,9 +10,8 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
-import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -26,11 +25,11 @@ import etomica.species.Species;
  */
 public class SpeciesAnthracene3site545 extends Species {
 
-    public SpeciesAnthracene3site545(ISpace space) {
+    public SpeciesAnthracene3site545(Space space) {
         this(space, false);
     }
     
-    public SpeciesAnthracene3site545(ISpace space, boolean isDynamic) {
+    public SpeciesAnthracene3site545(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -81,7 +80,7 @@ public class SpeciesAnthracene3site545 extends Species {
    
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final boolean isDynamic;
     protected final AtomTypeLeaf cType, chType;
 }

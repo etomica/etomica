@@ -13,7 +13,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 
@@ -41,7 +41,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     
     
     public CoordinateDefinitionHexane(ISimulation sim, Box box, Primitive primitive,
-                                      SpeciesHexane species, ISpace space){
+                                      SpeciesHexane species, Space space){
         super(sim, box, primitive, 6, space);
         
         length = species.getBondLength();

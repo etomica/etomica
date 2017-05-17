@@ -14,7 +14,7 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -30,7 +30,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	private double u1, u2, temp1, temp2, deltaU1;
 	private final Box[] swappedBoxes = new Box[2];
 
-	public MCMoveSwapConfiguration(IntegratorBox integrator1, IntegratorBox integrator2, ISpace space) {
+	public MCMoveSwapConfiguration(IntegratorBox integrator1, IntegratorBox integrator2, Space space) {
   		super(null);
 		r = space.makeVector();
 		this.integrator1 = integrator1;
@@ -112,7 +112,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     public final static SwapFactory FACTORY = new SwapFactory();
 
 	protected static class SwapFactory implements MCMoveSwapFactory, java.io.Serializable {
-	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, ISpace _space) {
+	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, Space _space) {
 	        return new MCMoveSwapConfiguration(integrator1, integrator2, _space);
 	    }
         private static final long serialVersionUID = 1L;

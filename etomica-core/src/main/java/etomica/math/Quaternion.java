@@ -6,7 +6,7 @@ package etomica.math;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 
@@ -18,7 +18,7 @@ import etomica.space3d.Space3D;
 // TODO : Test all methods
 public class Quaternion extends Object {
 	protected double q0,q1,q2,q3;
-	protected static final ISpace space = Space3D.getInstance();
+	protected static final Space space = Space3D.getInstance();
 	protected final IVector vec = space.makeVector();
 	protected double norm;	
 	

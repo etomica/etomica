@@ -7,7 +7,7 @@ package etomica.atom;
 import etomica.api.IAtomType;
 import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
 
@@ -15,11 +15,11 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
         IAtomOrientedKinetic {
 
     private static final long serialVersionUID = 1L;
-    public AtomOrientedDynamic(ISpace space, IAtomType type) {
+    public AtomOrientedDynamic(Space space, IAtomType type) {
         this(space, type, false);
     }
     
-    public AtomOrientedDynamic(ISpace space, IAtomType type, boolean isAxisSymmetric) {
+    public AtomOrientedDynamic(Space space, IAtomType type, boolean isAxisSymmetric) {
         super(space, type);
         if (space.D() == 3) {
             if (isAxisSymmetric) {

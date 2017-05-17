@@ -19,14 +19,14 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Primitive;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
 
 public class LatticeSumMolecularCrystal {
 
-    public LatticeSumMolecularCrystal(IPotentialMaster potentialMaster, Box box, final ISpace space, int basisDim, Primitive primitive) {
+    public LatticeSumMolecularCrystal(IPotentialMaster potentialMaster, Box box, final Space space, int basisDim, Primitive primitive) {
 
     	this.potentialMaster = potentialMaster;
     	this.box = box;
@@ -219,7 +219,7 @@ public class LatticeSumMolecularCrystal {
     
     private final int basisDim;
     protected final Box box;
-    protected final ISpace space;
+    protected final Space space;
     protected IAtomPositionDefinition atomPosDef;
     protected final IVectorMutable com0, com1;
     protected WaveVectorFactorySimple kFactory;

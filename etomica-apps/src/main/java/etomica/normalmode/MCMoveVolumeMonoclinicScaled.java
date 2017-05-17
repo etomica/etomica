@@ -22,7 +22,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 import etomica.util.Function;
@@ -64,12 +64,12 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeMonoclinicScaled(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace space, double pressure) {
+                                        Space space, double pressure) {
         this(potentialMaster, random, space, pressure, space.D());
     }
     
     public MCMoveVolumeMonoclinicScaled(IPotentialMaster potentialMaster, IRandom random,
-            ISpace space, double pressure, int D) {
+                                        Space space, double pressure, int D) {
         super(potentialMaster);
         this.random = random;
         this.D = D;

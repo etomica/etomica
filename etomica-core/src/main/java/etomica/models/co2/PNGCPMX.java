@@ -2,7 +2,7 @@ package etomica.models.co2;
 
 import etomica.api.IAtomType;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * GCPM potential that allows combining parameters to be adjusted.
@@ -15,14 +15,14 @@ public class PNGCPMX extends PNGCPM {
 
     protected final double kSigma, kEpsilon, kGamma;
     
-    public PNGCPMX(ISpace space, AtomTypeAgentManager typeManager,
-            int nAtomTypes, double kSigma, double kEpsilon, double kGamma) {
+    public PNGCPMX(Space space, AtomTypeAgentManager typeManager,
+                   int nAtomTypes, double kSigma, double kEpsilon, double kGamma) {
         this(space, typeManager, nAtomTypes, kSigma, kEpsilon, kGamma, Integer.MAX_VALUE);
     }
 
-    public PNGCPMX(ISpace space, AtomTypeAgentManager typeManager,
-            int nAtomTypes, double kSigma, double kEpsilon, double kGamma,
-            int nBody) {
+    public PNGCPMX(Space space, AtomTypeAgentManager typeManager,
+                   int nAtomTypes, double kSigma, double kEpsilon, double kGamma,
+                   int nBody) {
         super(space, typeManager, nAtomTypes, nBody);
         this.kSigma = kSigma;
         this.kEpsilon = kEpsilon;

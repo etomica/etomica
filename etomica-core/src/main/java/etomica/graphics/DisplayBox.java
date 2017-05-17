@@ -22,7 +22,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByElement;
 import etomica.atom.DiameterHashByElementType;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pixel;
 
 /**
@@ -51,7 +51,7 @@ public class DisplayBox extends Display {
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private Box box;
     private boolean graphicResizable = true;
-    private final ISpace space;
+    private final Space space;
     private double sigma = 1.0;
     protected final ISimulation sim;
             
@@ -108,7 +108,7 @@ public class DisplayBox extends Display {
      * }
      * @param box
      */
-    public DisplayBox(ISimulation sim, Box box, ISpace space, Controller controller) {
+    public DisplayBox(ISimulation sim, Box box, Space space, Controller controller) {
         super();
         this.sim = sim;
         this.controller = controller;

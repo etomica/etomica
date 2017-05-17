@@ -14,7 +14,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.space.ISpace;
 import etomica.space.Space;
 
 /**
@@ -23,11 +22,11 @@ import etomica.space.Space;
  */
 public final class SimulationRestart extends SimulationActionAdapter {
     
-    public SimulationRestart(ISimulation sim, ISpace _space, IController _controller) {
+    public SimulationRestart(ISimulation sim, Space _space, IController _controller) {
         setSimulation(sim, _space, _controller);
     }
 
-    protected void setSimulation(ISimulation sim, ISpace _space, IController _controller) {
+    protected void setSimulation(ISimulation sim, Space _space, IController _controller) {
         super.setSimulation(sim, _space);
         controller = _controller;
         if (space != null) {

@@ -8,7 +8,7 @@ package etomica.math.geometry;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**
@@ -28,7 +28,7 @@ public class Plane implements java.io.Serializable {
     private IVectorMutable[] inPlane; //work vectors used by inPlaneSquare method
     private IVectorMutable work0; //work vector used by inPlaneSquare method (no-x0 version)
     private IVectorMutable work1; //work vector used by inPlaneSquare method (no-x0 version)
-    private final ISpace space;
+    private final Space space;
     
     /**
      * Tolerance used to judge if a given point is in the plane.
@@ -40,7 +40,7 @@ public class Plane implements java.io.Serializable {
     /**
      * Default constructor returns the y-z plane.
      */
-    public Plane(ISpace space) {
+    public Plane(Space space) {
         this(space, 1.0, 0.0, 0.0, 0.0);
     }
     /**
@@ -53,7 +53,7 @@ public class Plane implements java.io.Serializable {
     /**
      * Constructs a Plane satisfying the equation a x + b y + c z + d = 0
      */
-    public Plane(ISpace space, double a, double b, double c, double d) {
+    public Plane(Space space, double a, double b, double c, double d) {
         if(a == 0 && b == 0 && c == 0) throw new IllegalArgumentException("Arguments to Plane constructor do not define a plane");
         this.space = space;
         this.a = a;
@@ -350,7 +350,7 @@ public class Plane implements java.io.Serializable {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Plane plane = new Plane(space, 2.8, 7.5, -2.1, 293.8);
     //    Plane plane = new Plane(5.0, 0.0, 0.0, 293.8);
         IVectorMutable[] p = new IVectorMutable[]{space.makeVector(),space.makeVector()};

@@ -14,7 +14,7 @@ import etomica.api.IVectorMutable;
 import etomica.data.types.DataTensor;
 import etomica.potential.IPotentialMolecularTorque;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Tensor3D;
 import etomica.units.Kelvin;
@@ -29,7 +29,7 @@ import etomica.units.Kelvin;
  */
 public class P2Nitrogen extends PotentialMolecular implements IPotentialMolecularTorque {
 
-	public P2Nitrogen(ISpace space, double rC) {
+	public P2Nitrogen(Space space, double rC) {
 		super(2, space);
 		
 		gradient = new IVectorMutable[2];

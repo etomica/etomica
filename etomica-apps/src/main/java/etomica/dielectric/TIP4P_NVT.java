@@ -43,7 +43,6 @@ import etomica.models.water.SpeciesWater4P;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Electron;
@@ -79,7 +78,7 @@ public class TIP4P_NVT extends Simulation {
      //************************************* for reaction field ********************************************//
      public static class DipoleSourceTIP4PWater implements DipoleSource{//for potential reaction field
     	 protected final IVectorMutable dipole;
-         public DipoleSourceTIP4PWater(ISpace space){
+         public DipoleSourceTIP4PWater(Space space){
               dipole=space.makeVector();
          }
          public IVector getDipole(IMolecule molecule) {// dipole = sum of position * charge on the site

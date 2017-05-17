@@ -7,11 +7,11 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class PotentialCalculationLJSP implements PotentialCalculation {
 		
-	public PotentialCalculationLJSP(ISpace space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double dP, double f1, double fe, double fee){
+	public PotentialCalculationLJSP(Space space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double dP, double f1, double fe, double fee){
 		sum = new double[1];
 //		sum = new double[14];
         this.space = space;
@@ -151,7 +151,7 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 
     
 
-    protected final ISpace space;
+    protected final Space space;
     protected final Box box;
     protected final CoordinateDefinition coordinateDefinition;
  }//end VirialSum

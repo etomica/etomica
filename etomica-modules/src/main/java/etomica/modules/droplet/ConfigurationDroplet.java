@@ -9,12 +9,12 @@ import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class ConfigurationDroplet implements Configuration {
 
-    public ConfigurationDroplet(IRandom random, ISpace space) {
+    public ConfigurationDroplet(IRandom random, Space space) {
         this.random = random;
         axis = space.makeVector();
         center = space.makeVector();

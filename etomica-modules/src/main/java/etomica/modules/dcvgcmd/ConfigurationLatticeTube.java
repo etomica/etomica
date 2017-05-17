@@ -14,7 +14,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -25,7 +25,7 @@ import etomica.species.SpeciesSpheresMono;
 public class ConfigurationLatticeTube extends ConfigurationLattice {
 
     public ConfigurationLatticeTube(BravaisLatticeCrystal lattice,
-    		               double length, ISpace _space) {
+    		               double length, Space _space) {
         this(lattice, length, new IndexIteratorRectangular(lattice.D()), _space);//need a default iterator
     }
 	/**
@@ -34,7 +34,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	 */
 	public ConfigurationLatticeTube(BravaisLatticeCrystal lattice,
 			        double length, IndexIteratorSizable indexIterator,
-			        ISpace _space) {
+			        Space _space) {
 	    super(lattice, _space);
         this.indexIterator = indexIterator;
         this.length = length;

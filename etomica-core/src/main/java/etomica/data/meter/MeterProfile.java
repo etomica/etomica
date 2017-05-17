@@ -22,7 +22,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 /**
@@ -40,7 +40,7 @@ public class MeterProfile implements IEtomicaDataSource, DataSourceIndependent, 
      * Default constructor sets profile along the x-axis, with 100 points in
      * the profile.
      */
-    public MeterProfile(ISpace space, IRandom random) {
+    public MeterProfile(Space space, IRandom random) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);

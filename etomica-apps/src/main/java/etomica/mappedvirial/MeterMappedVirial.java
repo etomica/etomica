@@ -10,12 +10,12 @@ import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pressure;
 
 public class MeterMappedVirial extends DataSourceScalar implements  AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
-    protected final ISpace space;
+    protected final Space space;
     protected final IPotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
     protected final Box box;
@@ -23,7 +23,7 @@ public class MeterMappedVirial extends DataSourceScalar implements  AgentSource<
     protected final AtomLeafAgentManager<MyAgent> forceManager;
     protected final PotentialCalculationMappedVirial pc;
     
-    public MeterMappedVirial(ISpace space, IPotentialMaster potentialMaster, Box box, int nbins) {
+    public MeterMappedVirial(Space space, IPotentialMaster potentialMaster, Box box, int nbins) {
         super("pma",Pressure.DIMENSION);
         this.space = space;
         this.box = box;

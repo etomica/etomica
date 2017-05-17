@@ -8,11 +8,11 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P1Constraint extends Potential1{
 
-	public P1Constraint(ISpace space, double neighborRadius, Box box, CoordinateDefinition coordinateDefinition) {
+	public P1Constraint(Space space, double neighborRadius, Box box, CoordinateDefinition coordinateDefinition) {
 	    super(space);
 
 	    siteIndex = box.getLeafList().getAtomCount();

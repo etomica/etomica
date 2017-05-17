@@ -20,11 +20,11 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ConfigurationSAM implements Configuration {
 
-    public ConfigurationSAM(ISimulation sim, ISpace space,
+    public ConfigurationSAM(ISimulation sim, Space space,
             ISpecies speciesMolecules, ISpecies speciesSurface,
             PotentialMasterList potentialMaster) {
         this.sim = sim;
@@ -200,7 +200,7 @@ public class ConfigurationSAM implements Configuration {
         this.basisSurface = basisSurface;
     }
     
-    protected final ISpace space;
+    protected final Space space;
     protected final ISimulation sim;
     protected final ISpecies speciesMolecules;
     protected final ISpecies speciesSurface;

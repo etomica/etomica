@@ -27,7 +27,7 @@ import etomica.models.water.SpeciesWater4POriented;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -36,7 +36,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class WaterDropletMatrix {
 
     public static SimulationGraphic makeWaterDroplet() {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);

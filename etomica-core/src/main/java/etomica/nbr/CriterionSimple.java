@@ -16,7 +16,7 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomSetSinglet;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceAtomManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -29,7 +29,7 @@ import etomica.util.Debug;
  */
 public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMutable> {
 
-	public CriterionSimple(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
+	public CriterionSimple(ISimulation sim, Space _space, double interactionRange, double neighborRadius) {
 		super();
         this.space = _space;
         dr = space.makeVector();
@@ -140,7 +140,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<IVectorMu
     
     public void releaseAgent(IVectorMutable agent, IAtom atom, Box agentBox) {}
 
-    protected final ISpace space;
+    protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
 	protected final IVectorMutable dr;
     protected IBoundary boundary;

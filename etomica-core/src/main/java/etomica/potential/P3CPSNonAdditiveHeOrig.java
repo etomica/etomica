@@ -12,7 +12,6 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
@@ -28,7 +27,7 @@ import etomica.units.Energy;
  */
 public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
 
-    public P3CPSNonAdditiveHeOrig(ISpace space) {
+    public P3CPSNonAdditiveHeOrig(Space space) {
         super(3, space);
         drAB = space.makeVector();
         drBC = space.makeVector();

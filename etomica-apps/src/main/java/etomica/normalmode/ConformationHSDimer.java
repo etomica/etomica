@@ -10,9 +10,9 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.config.IConformationOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
- /**
+/**
   *  Conformation for HS Dimer
   *
   * @author Tai Boon Tan
@@ -20,7 +20,7 @@ import etomica.space.ISpace;
   */
 public class ConformationHSDimer implements IConformationOriented, java.io.Serializable{
 	
-	public ConformationHSDimer(ISpace space, double L){
+	public ConformationHSDimer(Space space, double L){
 		this.space = space;
 		this.L = L;
         orientationX = space.makeOrientation();
@@ -42,7 +42,7 @@ public class ConformationHSDimer implements IConformationOriented, java.io.Seria
         initializePositions(atomList, orientationX);
 	}
 		
-	protected final ISpace space;
+	protected final Space space;
 	protected final double L;
 	
 	protected IOrientation orientationX;

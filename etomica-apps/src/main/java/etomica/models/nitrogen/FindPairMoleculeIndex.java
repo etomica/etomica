@@ -8,7 +8,7 @@ import etomica.api.IMolecule;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -31,7 +31,7 @@ import etomica.space.ISpace;
  *
  */
 public class FindPairMoleculeIndex {
-	public FindPairMoleculeIndex(ISpace space, CoordinateDefinitionNitrogen coordinateDefination){
+	public FindPairMoleculeIndex(Space space, CoordinateDefinitionNitrogen coordinateDefination){
 		this.coordinateDef = coordinateDefination;
 		positionDefinition = new AtomPositionGeometricCenter(space);
 		tempVec = space.makeVector();

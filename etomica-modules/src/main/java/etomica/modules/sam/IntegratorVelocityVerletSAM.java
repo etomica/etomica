@@ -14,7 +14,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForcePressureSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -26,7 +26,7 @@ import etomica.util.Debug;
 public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
 
     public IntegratorVelocityVerletSAM(IPotentialMaster potentialMaster,
-            IRandom random, double timeStep, double temperature, ISpace _space) {
+            IRandom random, double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
     }
     

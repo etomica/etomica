@@ -12,7 +12,7 @@ import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -32,7 +32,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
     protected Potential2HardSpherical wrappedPotential;
     protected boolean hasPBC;
     
-    public P2XOrder(ISpace space, Potential2HardSpherical wrappedPotential) {
+    public P2XOrder(Space space, Potential2HardSpherical wrappedPotential) {
         super(space);
         dr = space.makeVector();
         this.wrappedPotential = wrappedPotential;

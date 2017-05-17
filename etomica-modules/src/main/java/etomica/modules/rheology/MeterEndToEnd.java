@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -21,7 +21,7 @@ import etomica.units.Length;
  */
 public class MeterEndToEnd extends DataSourceScalar {
 
-    public MeterEndToEnd(ISpace space) {
+    public MeterEndToEnd(Space space) {
         super("end-to-end distance^2", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}));
         dr = space.makeVector();
     }

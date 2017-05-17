@@ -11,7 +11,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -29,8 +29,8 @@ public class PotentialEFS extends PotentialN implements PotentialSoft{
     protected IVectorMutable[] rhograd;
     protected double [][] secondder;
     
-    public PotentialEFS(ISpace space, double A, double B, double c, double d, double c0, double c1, 
-            double c2, double c3, double c4) {
+    public PotentialEFS(Space space, double A, double B, double c, double d, double c0, double c1,
+                        double c2, double c3, double c4) {
         super(space);
         
         this.rCc=c;

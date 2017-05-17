@@ -16,7 +16,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.math.geometry.Plane;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
@@ -52,7 +52,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLatticeWithPlane(SpaceLattice lattice, Plane plane, ISpace space) {
+    public ConfigurationLatticeWithPlane(SpaceLattice lattice, Plane plane, Space space) {
         this(lattice, plane, new IndexIteratorRectangular(lattice.D()), space);
     }
 
@@ -62,7 +62,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * iterator.
      */
     private ConfigurationLatticeWithPlane(SpaceLattice lattice,
-            Plane plane, IndexIteratorSizable indexIterator, ISpace space) {
+            Plane plane, IndexIteratorSizable indexIterator, Space space) {
     	super(lattice, indexIterator, space);
 
         if(indexIterator.getD() != lattice.D()) {

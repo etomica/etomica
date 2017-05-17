@@ -12,7 +12,7 @@ import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -26,7 +26,7 @@ public class IntegratorHardPiston extends IntegratorHard {
      */
     public IntegratorHardPiston(ISimulation sim,
     		           IPotentialMaster potentialMaster,
-    		           P1HardMovingBoundary potentialWrapper, ISpace _space) {
+    		           P1HardMovingBoundary potentialWrapper, Space _space) {
         super(sim, potentialMaster, _space);
         setTimeStep(1.0);
         pistonPotential = potentialWrapper;

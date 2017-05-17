@@ -27,7 +27,7 @@ import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 import etomica.util.ParameterBase;
@@ -43,7 +43,7 @@ public class TestSWChain extends Simulation {
     public IntegratorHard integrator;
     public Box box;
 
-    public TestSWChain(ISpace _space, int numMolecules, double simTime) {
+    public TestSWChain(Space _space, int numMolecules, double simTime) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int chainLength = 10;
@@ -103,7 +103,7 @@ public class TestSWChain extends Simulation {
         int numMolecules = params.numAtoms;
         double simTime = params.numSteps/numMolecules;
 
-        ISpace sp = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         TestSWChain sim = new TestSWChain(sp, numMolecules, simTime);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);

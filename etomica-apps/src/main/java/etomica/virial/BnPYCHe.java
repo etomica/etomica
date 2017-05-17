@@ -4,7 +4,7 @@ import etomica.potential.P2HePCKLJS;
 import etomica.potential.P2HeSimplified;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -56,7 +56,7 @@ public class BnPYCHe {
         boolean verbose = params.verbose;
         boolean calcApprox = params.calcApprox;
         double sigma = params.sigma;
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Potential2SoftSpherical p2 = calcApprox ? new P2HeSimplified(space) : new P2HePCKLJS(space, sigma);
         Potential2Spherical p2sc = calcApprox ? new P2HeSimplified(space).makeQFH(T) : new P2HePCKLJS(space, sigma).makeQFH(T);
         double rMax = params.rmax;

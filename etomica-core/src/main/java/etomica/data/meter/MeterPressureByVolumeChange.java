@@ -18,7 +18,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 import etomica.units.Pressure;
 import etomica.units.Volume;
@@ -34,7 +34,7 @@ import etomica.units.Volume;
  */
 public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.Serializable {
     
-    public MeterPressureByVolumeChange(ISpace space) {
+    public MeterPressureByVolumeChange(Space space) {
         this(space, makeDefaultDimensions(space.D()));
     }
     
@@ -46,7 +46,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
         return dim;
     }
     
-    public MeterPressureByVolumeChange(ISpace space, boolean[] dimensions) {
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions) {
         this.space = space;
         tag = new DataTag();
         setX(-0.001, 0.001, 10);
@@ -57,11 +57,11 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
         scale = space.makeVector();
     }
     
-    public MeterPressureByVolumeChange(ISpace space, BoxInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, BoxInflateDeformable pid){
         this(space, makeDefaultDimensions(space.D()), pid);
     }
     
-    public MeterPressureByVolumeChange(ISpace space, boolean[] dimensions, BoxInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions, BoxInflateDeformable pid){
         this.space = space;
         tag = new DataTag();
         setX(-0.001, 0.001, 10);
@@ -175,7 +175,7 @@ public class MeterPressureByVolumeChange implements IEtomicaDataSource, java.io.
     private final IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private int nDimension;
-    private final ISpace space;
+    private final Space space;
     private DataSourceUniform xDataSource;
     protected DataSourceExp vDataSource;
     private IntegratorBox integrator;

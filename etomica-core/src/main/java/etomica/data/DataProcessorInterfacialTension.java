@@ -8,7 +8,7 @@ import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Area;
 import etomica.units.DimensionRatio;
 import etomica.units.Energy;
@@ -23,7 +23,7 @@ import etomica.units.Length;
  */
 public class DataProcessorInterfacialTension extends DataProcessor {
 
-    public DataProcessorInterfacialTension(ISpace space) {
+    public DataProcessorInterfacialTension(Space space) {
         this.space = space;
         data = new DataDouble();
     }
@@ -78,7 +78,7 @@ public class DataProcessorInterfacialTension extends DataProcessor {
         return null;
     }
 
-    protected final ISpace space;
+    protected final Space space;
     protected Box box;
     protected final DataDouble data;
     protected int surfaceDim;

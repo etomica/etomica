@@ -15,7 +15,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MCMove that scales the atoms of a molecule in or out.  This is helpful
@@ -23,11 +23,11 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterRingScale extends MCMoveBox {
 
-    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, ISpace _space) {
+    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, Space _space) {
         this(potentialMaster, random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, ISpace _space, int[][] tangledMolecules) {
+    public MCMoveClusterRingScale(IPotentialMaster potentialMaster, IRandom random, Space _space, int[][] tangledMolecules) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;
@@ -163,7 +163,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
     protected double scale;
     protected double wRatio;
     protected IAtomList atoms;
-    protected final ISpace space;
+    protected final Space space;
     protected final IRandom random;
     protected double weightOld, weightNew, uOld, uNew;
     protected final IVectorMutable com;

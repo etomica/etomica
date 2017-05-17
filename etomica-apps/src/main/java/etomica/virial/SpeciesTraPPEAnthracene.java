@@ -12,7 +12,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -27,11 +27,11 @@ import etomica.species.Species;
  */
 public class SpeciesTraPPEAnthracene extends Species {
 
-    public SpeciesTraPPEAnthracene(ISpace space) {
+    public SpeciesTraPPEAnthracene(Space space) {
         this(space, false);
     }
     
-    public SpeciesTraPPEAnthracene(ISpace space, boolean isDynamic) {
+    public SpeciesTraPPEAnthracene(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -98,7 +98,7 @@ public class SpeciesTraPPEAnthracene extends Species {
     public final static int indexCH10 = 13;
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final boolean isDynamic;
     protected final AtomTypeLeaf cType, chType;
 }

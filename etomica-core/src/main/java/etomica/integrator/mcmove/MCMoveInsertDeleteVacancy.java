@@ -19,7 +19,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -54,8 +54,8 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     protected double oldLnA, oldB, newLnA;
     protected final IVectorMutable oldPosition;
 
-    public MCMoveInsertDeleteVacancy(IPotentialMaster potentialMaster, 
-            IRandom random, ISpace _space, IIntegrator integrator, double nbrDistance, int maxN, int maxVacancy) {
+    public MCMoveInsertDeleteVacancy(IPotentialMaster potentialMaster,
+                                     IRandom random, Space _space, IIntegrator integrator, double nbrDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.potentialMaster = (PotentialMasterList)potentialMaster;
         dest = (IVectorRandom)_space.makeVector();

@@ -9,10 +9,9 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.potential.P2ElectrostaticWithHardCore;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.util.Constants;
 
 /**
  * PotentialHelper class of acetic acid using improved OPLS (or TraPPE) united atom model
@@ -23,7 +22,7 @@ import etomica.util.Constants;
 public class AceticAcidModPotentialHelper {
 	
 	
-	public static void initPotential(ISpace space, SpeciesAceticAcid species, PotentialGroup p) {
+	public static void initPotential(Space space, SpeciesAceticAcid species, PotentialGroup p) {
 		double epsilonCH3 = Kelvin.UNIT.toSim(98.0); 
 		double epsilonC = Kelvin.UNIT.toSim(41.0);
 		double epsilonDBO = Kelvin.UNIT.toSim(79.0);

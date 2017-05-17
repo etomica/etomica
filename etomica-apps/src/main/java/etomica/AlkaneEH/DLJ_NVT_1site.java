@@ -41,7 +41,6 @@ import etomica.potential.P2MoleculeTruncated;
 import etomica.potential.P2ReactionFieldDipole;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
@@ -73,7 +72,7 @@ public class DLJ_NVT_1site extends Simulation {
     public static class DipoleSourceDLJ implements DipoleSource{//for potential reaction field
     	protected final IVectorMutable dipoleVector;
     	protected double dipoleStrength;
-    	public DipoleSourceDLJ(ISpace space,double s){
+    	public DipoleSourceDLJ(Space space, double s){
     		dipoleStrength=s;
     		dipoleVector=space.makeVector();
     	}

@@ -25,7 +25,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.paracetamol.AtomActionTransformed;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
@@ -41,12 +41,12 @@ import etomica.util.RandomNumberGenerator;
 public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         implements Serializable {
 
-	 public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
+	 public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
 		 this(sim, box, primitive, basis, _space, 2);
 		
 	 }
 	
-    public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space, int rotDim) {
+    public CoordinateDefinitionNitrogen(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space, int rotDim) {
     	
     	super(sim, box, primitive, rotDim, basis, _space);
        /*
@@ -410,7 +410,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         this.configuration = configuration;
     }
     
-    public void setOrientationVectorGamma(ISpace space){
+    public void setOrientationVectorGamma(Space space){
     	/*
     	 * Reference : R.L. Mills and A.F. Schuch, PRL 23(20) 1969 pg.1154 Fig1
     	 */
@@ -423,7 +423,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     }
     
   
-    public void setOrientationVectorAlpha(ISpace space){
+    public void setOrientationVectorAlpha(Space space){
     	/*
     	 * Reference : A. Di Nola et al Acta Cryst. (1970) A26, 144 Fig1
     	 */
@@ -461,7 +461,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	
     }
     
-    public void setOrientationVectorBetaInitial(ISpace space){
+    public void setOrientationVectorBetaInitial(Space space){
     	/*
     	 * To determine the minimum energy structure.
     	 */
@@ -497,7 +497,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	
     }
     
-    public void setOrientationVectorBeta(ISpace space){
+    public void setOrientationVectorBeta(Space space){
     	/*
     	 * Through minimized structure.
     	 * 
@@ -539,7 +539,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	
     }
     
-    public void setOrientationVectorBetaLatticeSum(ISpace space, double density, double[][] param){
+    public void setOrientationVectorBetaLatticeSum(Space space, double density, double[][] param){
     	/*
     	 * 
     	 *

@@ -19,7 +19,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * An MC Move for cluster simulations that bends the bond angle for 3-atom
@@ -30,12 +30,12 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
 
-    public MCMoveClusterAngleBendAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveClusterAngleBendAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 1.0, _space);
     }
     
     public MCMoveClusterAngleBendAceticAcid(IPotentialMaster potentialMaster, 
-            IRandom random, double stepSize, ISpace _space) {
+            IRandom random, double stepSize, Space _space) {
         super(potentialMaster);
         this.space = _space;
         this.random = random;
@@ -200,7 +200,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
     protected final IVectorMutable work1, work2, work3;
     protected double[] dTheta;
     protected double wOld, wNew;
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species;
     protected double uOld;
     protected double uNew = Double.NaN;

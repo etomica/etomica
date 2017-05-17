@@ -20,7 +20,7 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Null;
 
@@ -41,10 +41,10 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	private ISpecies speciesA, speciesB;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
-	private ISpace space;
+	private Space space;
     
 	public IntegratorDCVGCMD(IPotentialMaster parent, double temperature,
-			                 ISpace _space,
+			                 Space _space,
 			                 ISpecies species1, ISpecies species2) {
 		super(parent, temperature);
 		this.speciesA = species1;

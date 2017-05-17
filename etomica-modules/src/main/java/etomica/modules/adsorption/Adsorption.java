@@ -17,7 +17,7 @@ import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -40,7 +40,7 @@ public class Adsorption extends Simulation {
     public final P1Wall p1WallA, p1WallB;
     public final MyMCMove mcMoveIDA, mcMoveIDB;
     
-    public Adsorption(ISpace _space) {
+    public Adsorption(Space _space) {
         super(_space);
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
         
@@ -127,7 +127,7 @@ public class Adsorption extends Simulation {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         
         Adsorption sim = new Adsorption(space);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1, sim.space, sim.getController());

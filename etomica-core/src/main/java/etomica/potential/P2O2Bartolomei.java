@@ -13,7 +13,7 @@ import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.ElectronVolt;
@@ -69,7 +69,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
 }
 
     protected IBoundary boundary;
-    protected final ISpace space;
+    protected final Space space;
     public static int s = -1;    
     protected static boolean isPT2 = false;
     protected static final int nfctmx=101,mxter=47,nbin = 100;
@@ -120,7 +120,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
     protected static final double [] qbetPT2 = {0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.000000,0.000000,0.2500000,0.2500000,0.2500000,0.2500000,0.000000,0.000000,0.2500000,0.2500000,0.000000,0.000000,0.000000,0.000000,0.000000};
 
 
-    public P2O2Bartolomei(ISpace space) {
+    public P2O2Bartolomei(Space space) {
         this.space = space;
     }
 

@@ -7,7 +7,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
@@ -20,14 +20,14 @@ import etomica.units.Length;
 
 public class ConformationLinear implements IConformation, java.io.Serializable {
     
-    public ConformationLinear(ISpace _space) {
+    public ConformationLinear(Space _space) {
         this(_space, 0.55);
     }
-    public ConformationLinear(ISpace _space, double bondLength) {
+    public ConformationLinear(Space _space, double bondLength) {
     	this(_space, bondLength, makeDefaultAngles(_space));
     }
     
-    private static double[] makeDefaultAngles(ISpace _space) {
+    private static double[] makeDefaultAngles(Space _space) {
         switch (_space.D()) {
             case 1: return new double[0];
             case 2: return new double[]{etomica.units.Degree.UNIT.toSim(45)};
@@ -36,7 +36,7 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
         }
     }
     
-    public ConformationLinear(ISpace space, double bondLength, double[] initAngles) {
+    public ConformationLinear(Space space, double bondLength, double[] initAngles) {
         this.space = space;
         this.bondLength = bondLength;
         orientation = space.makeVector();
@@ -90,7 +90,7 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected double bondLength;
     private IVectorMutable orientation;
     private double[] angle;

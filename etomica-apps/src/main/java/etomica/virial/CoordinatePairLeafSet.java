@@ -6,7 +6,7 @@ package etomica.virial;
 
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -26,7 +26,7 @@ public class CoordinatePairLeafSet implements CoordinatePairSet {
      * Constructor for CoordinatePairLeafSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public CoordinatePairLeafSet(IAtomList list, ISpace space) {
+    public CoordinatePairLeafSet(IAtomList list, Space space) {
         positions = new IVectorMutable[list.getAtomCount()];
         numAtoms = list.getAtomCount();
         r2 = new double[numAtoms*numAtoms];

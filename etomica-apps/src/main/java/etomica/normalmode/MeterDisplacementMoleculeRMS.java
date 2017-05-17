@@ -9,7 +9,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 public class MeterDisplacementMoleculeRMS extends DataSourceScalar {
@@ -18,7 +18,7 @@ public class MeterDisplacementMoleculeRMS extends DataSourceScalar {
     protected final IVectorMutable dr;
     protected IAtomPositionDefinition position;
     
-    public MeterDisplacementMoleculeRMS(ISpace space, CoordinateDefinitionMolecule coordinateDefinition) {
+    public MeterDisplacementMoleculeRMS(Space space, CoordinateDefinitionMolecule coordinateDefinition) {
         super("displacement", Length.DIMENSION);
         this.coordinateDefinition = coordinateDefinition;
         dr = space.makeVector();

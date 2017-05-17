@@ -8,12 +8,12 @@ import etomica.api.IAtomType;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sulfur;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkaneThiol extends SpeciesSpheresHetero {
 
-    public SpeciesAlkaneThiol(ISpace _space, int numCarbons) {
+    public SpeciesAlkaneThiol(Space _space, int numCarbons) {
         super(_space, makeAtomTypes(new Element[]{Sulfur.INSTANCE, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14)}));
         setIsDynamic(true);
         setTotalChildren(numCarbons+1);

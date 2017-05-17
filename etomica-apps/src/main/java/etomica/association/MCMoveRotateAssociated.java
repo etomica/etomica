@@ -11,11 +11,9 @@ import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomOriented;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -32,7 +30,7 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
     private transient IOrientation iOrientation;
 
     public MCMoveRotateAssociated(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space) {
+    		            Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
         oldOrientation = _space.makeOrientation();
         this.smerList = new AtomArrayList();

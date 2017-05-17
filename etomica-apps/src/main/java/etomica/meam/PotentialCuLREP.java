@@ -11,7 +11,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.ElectronVolt;
 
@@ -26,7 +26,7 @@ public class PotentialCuLREP extends PotentialN implements PotentialSoft{
     protected double [][] secondder;
     protected int test = 1;
     
-    public PotentialCuLREP(ISpace space) {
+    public PotentialCuLREP(Space space) {
         super(space);
         
                 this.mLREP   = 4.0;

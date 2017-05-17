@@ -7,7 +7,7 @@ package etomica.potential;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -25,10 +25,10 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 	private final IVectorMutable[] gradient;
 	private double radius;
 	
-    public P1SoftBoundary(ISpace space) {
+    public P1SoftBoundary(Space space) {
         this(space, 0.5);
     }
-	public P1SoftBoundary(ISpace space, double radius) {
+	public P1SoftBoundary(Space space, double radius) {
 		super(space);
         gradient = new IVectorMutable[1];
 		gradient[0] = space.makeVector();

@@ -11,7 +11,7 @@ import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -24,11 +24,11 @@ import etomica.species.Species;
  */
 public class SpeciesHSDimer extends Species {
 
-    public SpeciesHSDimer(ISpace space) {
+    public SpeciesHSDimer(Space space) {
         this(space, false, 1.0);
     }
     
-    public SpeciesHSDimer(ISpace space, boolean isDynamic, double L) {
+    public SpeciesHSDimer(Space space, boolean isDynamic, double L) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -60,7 +60,7 @@ public class SpeciesHSDimer extends Species {
     public final static int indexAtom2 = 1;
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final boolean isDynamic;
     protected final AtomTypeLeaf dimerAtomType;
 }

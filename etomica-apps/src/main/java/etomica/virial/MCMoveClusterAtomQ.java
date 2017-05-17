@@ -8,13 +8,13 @@ import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMoveClusterAtomQ extends MCMoveAtom {
 
     protected final MCMoveAtom mcMove;
     
-    public MCMoveClusterAtomQ(IRandom random, ISpace space, MCMoveAtom mcMove) {
+    public MCMoveClusterAtomQ(IRandom random, Space space, MCMoveAtom mcMove) {
         super(random, null, space);
         this.mcMove = mcMove;
     }

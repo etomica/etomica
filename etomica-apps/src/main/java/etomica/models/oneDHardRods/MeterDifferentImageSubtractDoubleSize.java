@@ -4,12 +4,11 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.api.IAtomList;
 import etomica.api.ISimulation;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.NormalModes;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -27,14 +26,14 @@ public class MeterDifferentImageSubtractDoubleSize extends MeterDifferentImageSu
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "MeterDifferentImageSubtractDoubleSize";
     
-    public MeterDifferentImageSubtractDoubleSize(ISimulation sim, ISpace space, 
+    public MeterDifferentImageSubtractDoubleSize(ISimulation sim, Space space,
             CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
             NormalModes otherNM){
         this(sim, space, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
-    public MeterDifferentImageSubtractDoubleSize(ISimulation sim, ISpace space, 
+    public MeterDifferentImageSubtractDoubleSize(ISimulation sim, Space space,
             CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
             NormalModes otherNM, String otherFilename){

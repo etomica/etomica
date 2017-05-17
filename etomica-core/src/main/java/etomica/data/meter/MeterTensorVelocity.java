@@ -15,7 +15,7 @@ import etomica.data.IDataInfo;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Energy;
 
 /**
@@ -29,7 +29,7 @@ import etomica.units.Energy;
 
 public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializable {
 
-    public MeterTensorVelocity(ISpace space) {
+    public MeterTensorVelocity(Space space) {
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("pp/m",Energy.DIMENSION, space);
         atomData = new DataTensor(space);

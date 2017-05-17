@@ -18,7 +18,7 @@ import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
@@ -47,7 +47,7 @@ import etomica.units.Kelvin;
 // are based on the fitting program written by Robert Bukowski et al.
 public class P2HydrogenPatkowski implements IPotential {
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P2HydrogenPatkowski p2 = new P2HydrogenPatkowskiAtomic(space);
         double dth1 = 0;
         double dth2 = 0;
@@ -120,7 +120,7 @@ public class P2HydrogenPatkowski implements IPotential {
     //     from /home/teojan/H2-H2/fit_h22/opt.out.07
     //
     // ----------------------------------------------------------------------------
-    public P2HydrogenPatkowski(ISpace space) {  
+    public P2HydrogenPatkowski(Space space) {
         dr = space.makeVector();
         com0 = space.makeVector();
         com1 = space.makeVector();  
@@ -563,7 +563,7 @@ public class P2HydrogenPatkowski implements IPotential {
         return 2;
     }
     public static class P2HydrogenPatkowskiMolecular extends P2HydrogenPatkowski implements IPotentialMolecular {
-        public P2HydrogenPatkowskiMolecular(ISpace space) {
+        public P2HydrogenPatkowskiMolecular(Space space) {
             super(space);     
         }
 
@@ -612,7 +612,7 @@ public class P2HydrogenPatkowski implements IPotential {
         } 
     }
     public static class P2HydrogenPatkowskiAtomic extends P2HydrogenPatkowski implements IPotentialAtomic {
-        public P2HydrogenPatkowskiAtomic(ISpace space) {
+        public P2HydrogenPatkowskiAtomic(Space space) {
             super(space);     
         }
 

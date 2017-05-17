@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /** 
  * 3-point potential for CO2.  Includes LJ interactions for each pair of atom types.
@@ -21,7 +21,7 @@ import etomica.space.ISpace;
  */
 public class P2CO2EMP extends PotentialMolecular {
 
-	public P2CO2EMP(ISpace space, double sigmaC, double sigmaCO, double sigmaO, double epsilonC, double epsilonCO, double epsilonO, double chargeC) {
+	public P2CO2EMP(Space space, double sigmaC, double sigmaCO, double sigmaO, double epsilonC, double epsilonCO, double epsilonO, double chargeC) {
 		super(2, null);
         this.sigmaC = sigmaC;
         sigmaC2 = sigmaC*sigmaC;

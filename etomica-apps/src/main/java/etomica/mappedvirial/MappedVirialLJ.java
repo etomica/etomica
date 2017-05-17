@@ -28,7 +28,6 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.Histogram;
@@ -44,7 +43,7 @@ public class MappedVirialLJ extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public P2SoftSphericalTruncated p2Truncated;
     
-    public MappedVirialLJ(ISpace _space, int numAtoms, double temperature, double density, double rc) {
+    public MappedVirialLJ(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.lrcMaster().setEnabled(false);
@@ -115,7 +114,7 @@ public class MappedVirialLJ extends Simulation {
         System.out.println("cutoff: "+rc);
         System.out.println(nBlocks+" blocks");
 
-        ISpace space = Space.getInstance(3);
+        Space space = Space.getInstance(3);
 
         MappedVirialLJ sim = new MappedVirialLJ(space, numAtoms, temperature, density, rc);
         

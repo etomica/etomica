@@ -16,7 +16,7 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.SpeciesAgentManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Constants;
 
@@ -37,9 +37,9 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
     protected final IPotentialMolecularTorque p2Classy;
     protected double temperature, fac;
     protected final SpeciesAgentManager agents;
-    protected final ISpace space;
+    protected final Space space;
     
-    public P2SemiclassicalMolecular(ISpace space, IPotentialMolecularTorque p2Classy) {
+    public P2SemiclassicalMolecular(Space space, IPotentialMolecularTorque p2Classy) {
         this.space = space;
         this.p2Classy = p2Classy;
         if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");
@@ -113,7 +113,7 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
         protected final Tensor id, moment, momentj, rjrj;
         protected final IVectorMutable[] rv;
         
-        public MoleculeInfoBrute(ISpace space) {
+        public MoleculeInfoBrute(Space space) {
             moment = space.makeTensor();
             momentj = space.makeTensor();
             rj = space.makeVector();

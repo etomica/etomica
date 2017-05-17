@@ -7,7 +7,7 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -16,7 +16,7 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
 
-    public MCMoveClusterAtomChainHSTail(IRandom random, ISpace _space, double sigma, double pow) {
+    public MCMoveClusterAtomChainHSTail(IRandom random, Space _space, double sigma, double pow) {
         super(random, null, _space);
         this.sigma = sigma;
         dr = (IVectorRandom)space.makeVector();

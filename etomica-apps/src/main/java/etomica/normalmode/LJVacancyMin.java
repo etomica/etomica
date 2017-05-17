@@ -28,7 +28,6 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -227,7 +226,7 @@ public class LJVacancyMin extends Simulation {
     public static class VectorForce implements Forcible {
         public final IVectorMutable f;
         
-        public VectorForce(ISpace space) {
+        public VectorForce(Space space) {
             f = space.makeVector();
         }
 

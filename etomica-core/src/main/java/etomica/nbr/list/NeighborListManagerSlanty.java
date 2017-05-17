@@ -12,7 +12,7 @@ import etomica.atom.AtomPair;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList.NeighborListAgentSource;
 import etomica.potential.PotentialArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Implements neighbor listing for a slanty box.  Because using slanty cells
@@ -28,7 +28,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManagerSlanty(PotentialMasterList potentialMasterList, double range,
-                                     Box box, ISpace space) {
+                                     Box box, Space space) {
         super(potentialMasterList, range, box, space);
         pair = new AtomPair();
     }
@@ -147,7 +147,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
      * PotentialMaster
      */
     public static class NeighborListSlantyAgentSource extends NeighborListAgentSource {
-        public NeighborListSlantyAgentSource(double range, ISpace space) {
+        public NeighborListSlantyAgentSource(double range, Space space) {
             super(range, space);
         }
         

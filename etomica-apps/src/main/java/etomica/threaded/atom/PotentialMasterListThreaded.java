@@ -19,7 +19,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
 
@@ -31,27 +31,27 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	int ready2;
 	
 	
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space) {
+	public PotentialMasterListThreaded(ISimulation sim, Space _space) {
 		super(sim, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range) {
+	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range) {
 		super(sim, range, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			IAtomPositionDefinition positionDefinition) {
+	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+                                       IAtomPositionDefinition positionDefinition) {
 		super(sim, range, positionDefinition, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			BoxAgentSourceCellManagerList boxAgentSource) {
+	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource) {
 		super(sim, range, boxAgentSource, _space);
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, ISpace _space, double range,
-			BoxAgentSourceCellManagerList boxAgentSource,
-			BoxAgentManager agentManager) {
+	public PotentialMasterListThreaded(ISimulation sim, Space _space, double range,
+                                       BoxAgentSourceCellManagerList boxAgentSource,
+                                       BoxAgentManager agentManager) {
 		super(sim, range, boxAgentSource, agentManager, _space);
 	}
 	

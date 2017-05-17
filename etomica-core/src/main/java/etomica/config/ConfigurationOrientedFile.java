@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 
 /**
@@ -20,7 +20,7 @@ import etomica.space3d.IOrientationFull3D;
  */
 public class ConfigurationOrientedFile extends ConfigurationFile {
 
-    public ConfigurationOrientedFile(String aConfName, ISpace space) {
+    public ConfigurationOrientedFile(String aConfName, Space space) {
         super(aConfName);
         direction = space.makeVector();
         secondaryDirection = space.makeVector();

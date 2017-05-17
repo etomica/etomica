@@ -23,7 +23,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
@@ -31,7 +31,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final ISpace space;
+    protected final Space space;
     protected final CoordinateDefinition coordinateDefinition;
     protected final DataSourceScalar meterPE;
     protected final PotentialCalculationForceSum pcForceSum;
@@ -44,7 +44,7 @@ public class MeterDADB implements IEtomicaDataSource, AgentSource<MyAgent> {
     public static boolean justDADB = true;
     public static boolean justU = false;
     
-    public MeterDADB(ISpace space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature) {
+    public MeterDADB(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature) {
         int nData = justDADB ? 1 : 9;
         data = new DataDoubleArray(nData);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nData});

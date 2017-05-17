@@ -24,7 +24,7 @@ import etomica.atom.iterator.MoleculesetIterator;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.potential.PotentialMaster.AtomIterator0;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -46,7 +46,7 @@ public class PotentialGroup extends PotentialMolecular {
         this(nBody, null);
     }
     
-    public PotentialGroup(int nBody, ISpace space) {
+    public PotentialGroup(int nBody, Space space) {
         super(nBody, space);
     }
     

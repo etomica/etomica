@@ -4,12 +4,12 @@
 
 package etomica.association;
 import etomica.api.IAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public abstract class BiasVolume implements AssociationDefinition, java.io.Serializable {
     
-    public final ISpace space;
-    public BiasVolume(ISpace s) {
+    public final Space space;
+    public BiasVolume(Space s) {
         space = s;
     }
     

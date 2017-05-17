@@ -9,7 +9,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**
@@ -20,7 +20,7 @@ import etomica.space3d.Space3D;
  */
 public class BoxInflateAnisotropic extends BoxInflate{
     
-    public BoxInflateAnisotropic(ISpace space){
+    public BoxInflateAnisotropic(Space space){
     	super(space);
     	
         cVector = space.makeVector();
@@ -28,7 +28,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
         
     }
     
-    public BoxInflateAnisotropic(Box box, ISpace space){
+    public BoxInflateAnisotropic(Box box, Space space){
     	this(space);
     	setBox(box);
     	deltaX = new double[box.getMoleculeList().getMoleculeCount()];

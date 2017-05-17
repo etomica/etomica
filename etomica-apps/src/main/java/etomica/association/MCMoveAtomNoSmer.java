@@ -7,12 +7,12 @@ package etomica.association;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMoveAtomNoSmer extends MCMoveAtom {
 
 	public MCMoveAtomNoSmer(IRandom random, IPotentialMaster potentialMaster,
-			ISpace _space) {
+			Space _space) {
 		super(random, potentialMaster, _space);
 	}
 	public void setAssociationManager(AssociationManager associationManager){

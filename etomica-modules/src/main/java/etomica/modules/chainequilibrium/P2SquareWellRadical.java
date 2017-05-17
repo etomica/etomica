@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.api.IRandom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -29,8 +29,8 @@ public class P2SquareWellRadical extends P2SquareWell {
     protected final IRandom random;
     protected double combinationProbability;
 
-    public P2SquareWellRadical(ISpace space, AtomLeafAgentManager aam,
-            double coreDiameter, double lambda, double epsilon, IRandom random) {
+    public P2SquareWellRadical(Space space, AtomLeafAgentManager aam,
+                               double coreDiameter, double lambda, double epsilon, IRandom random) {
         super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
         this.random = random;

@@ -19,7 +19,7 @@ import etomica.models.water.PNWaterGCPM.Component;
 import etomica.models.water.PNWaterGCPM.PNWaterGCPMCached;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialNonAdditiveDifference;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
@@ -89,7 +89,7 @@ public class VirialH2OGCPMD {
         
         System.out.println("  B"+nPoints+"HS: "+HSB);
 		
-        final ISpace space = Space3D.getInstance();
+        final Space space = Space3D.getInstance();
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 

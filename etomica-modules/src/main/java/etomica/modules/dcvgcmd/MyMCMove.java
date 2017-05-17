@@ -14,7 +14,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.MoleculeArrayList;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * @author kofke
@@ -29,7 +29,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * @param parent
 	 */
 	public MyMCMove(IntegratorBox integrator, IRandom random,
-			        ISpace space, double zFraction) {
+                    Space space, double zFraction) {
 		super(integrator.getPotentialMaster(), random, space);
 		position = space.makeVector();
 		setZFraction(zFraction);

@@ -11,11 +11,11 @@ import java.io.IOException;
 import etomica.action.WriteConfigurationP2DLPOLY;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P2DLPOLY extends PotentialMolecular {
 	
-	public P2DLPOLY(ISpace space){
+	public P2DLPOLY(Space space){
 		super(2, space);
        	configP2DLPOLY = new WriteConfigurationP2DLPOLY();
     	configP2DLPOLY.setConfName("CONFIG");

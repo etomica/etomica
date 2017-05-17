@@ -21,7 +21,7 @@ import etomica.atom.iterator.MoleculeIteratorArrayListSimple;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.RotationTensor;
 
 
@@ -59,7 +59,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     protected double uCorrect;
     
     public MCMoveRotateMolecule3DSuperBox(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef) {
+                                          Space _space, int nC, int basis, CoordinateDefinitionNitrogenSuperBox coordinateDef) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         this.basisCell = coordinateDef.getBasisCells();
         this.random = random;

@@ -24,7 +24,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**
@@ -37,7 +37,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
      * proceeding in the order resulting from iteration through the given index
      * iterator.
      */
-    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB, ISpace space) {
+    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB, Space space) {
         super(); 
         /** Lattices A + B share same space.  Only need to getSpace() for one 
          *  of the two.
@@ -226,7 +226,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
             this.site = l.getSpace().makeVector();
         }
 
-        public ISpace getSpace() {
+        public Space getSpace() {
             return lattice.getSpace();
         }
 
@@ -265,6 +265,6 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
     double[] latticeDimensionsB = new double[3];
     private int nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, nCellsBz;
     private MyLattice myLatA, myLatB;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 2L;
 }

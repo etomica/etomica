@@ -16,7 +16,7 @@ import etomica.atom.MoleculeAgentManager;
 import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentSourceMoleculeManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
@@ -31,7 +31,7 @@ import etomica.units.Length;
  */
 public class CriterionSimpleMolecular implements NeighborCriterionMolecular, MoleculeAgentSource {
 
-	public CriterionSimpleMolecular(ISimulation sim, ISpace _space, double interactionRange, double neighborRadius) {
+	public CriterionSimpleMolecular(ISimulation sim, Space _space, double interactionRange, double neighborRadius) {
 		super();
         this.space = _space;
         dr = space.makeVector();
@@ -155,7 +155,7 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
     
     public void releaseAgent(Object agent, IMolecule molecule) {}
 
-    protected final ISpace space;
+    protected final Space space;
     protected double interactionRange, displacementLimit2, neighborRadius2;
 	protected final IVectorMutable dr;
     protected IBoundary boundary;

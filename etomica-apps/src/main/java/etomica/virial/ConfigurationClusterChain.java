@@ -7,11 +7,11 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ConfigurationClusterChain extends ConfigurationCluster {
 
-	public ConfigurationClusterChain(ISpace _space) {
+	public ConfigurationClusterChain(Space _space) {
 		super(_space);
 	}
 

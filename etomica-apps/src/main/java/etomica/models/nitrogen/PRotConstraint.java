@@ -9,7 +9,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Degree;
 
 public class PRotConstraint extends PotentialMolecular{
@@ -22,7 +22,7 @@ public class PRotConstraint extends PotentialMolecular{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public PRotConstraint(ISpace space, CoordinateDefinitionNitrogen coordinateDefinition, Box box) {
+	public PRotConstraint(Space space, CoordinateDefinitionNitrogen coordinateDefinition, Box box) {
 		super(1, space);
 		this.box = box;
 		int numMolec = box.getMoleculeList().getMoleculeCount();

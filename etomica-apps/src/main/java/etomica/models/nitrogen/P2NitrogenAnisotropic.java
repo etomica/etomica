@@ -11,7 +11,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 
 /** 
@@ -25,7 +25,7 @@ import etomica.units.Kelvin;
  */
 public class P2NitrogenAnisotropic extends PotentialMolecular {
 
-	public P2NitrogenAnisotropic(ISpace space, double rC) {
+	public P2NitrogenAnisotropic(Space space, double rC) {
 		super(2, space);
 		work = space.makeVector();
 		shift = space.makeVector();

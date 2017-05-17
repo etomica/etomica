@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -16,7 +16,7 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterAtom extends MCMoveAtom {
 
-    public MCMoveClusterAtom(IRandom random, ISpace _space) {
+    public MCMoveClusterAtom(IRandom random, Space _space) {
         super(random, null, _space);
 	}
 	

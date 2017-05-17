@@ -5,7 +5,7 @@
 package etomica.lattice;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Hexagonal primitive with a 2-site hcp basis.
@@ -20,11 +20,11 @@ public class LatticeHcp extends BravaisLatticeCrystal {
      * Use scaleBy method if desired to make lattice constant give
      * maximum density for another sphere size.
      */
-    public LatticeHcp(ISpace space) {
+    public LatticeHcp(Space space) {
         this(space, 1.0);
     }
     
-    public LatticeHcp(ISpace space, double latticeConstant) {
+    public LatticeHcp(Space space, double latticeConstant) {
         this(new PrimitiveHexagonal(space, latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant));
         if(space.D() != 3) {
             throw new IllegalArgumentException("LatticeCubicHcp requires a 3-D space");

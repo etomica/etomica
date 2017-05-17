@@ -13,7 +13,7 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -26,7 +26,7 @@ import etomica.space.Tensor;
  
 public class Potential2SoftSphericalLSMultiLat extends Potential2 implements PotentialSoft {
    
-    public Potential2SoftSphericalLSMultiLat(ISpace space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition) {
+    public Potential2SoftSphericalLSMultiLat(Space space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition) {
         super(space);
         gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();
@@ -176,7 +176,7 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     public class ReturnValue {
         public double[] energySum, virialSum, sum1, dadbSum;
         public IVectorMutable[] pSumXYZ1, pSumXYZ2;
-        public ReturnValue(int n, ISpace space) {
+        public ReturnValue(int n, Space space) {
             energySum = new double[n];
             virialSum = new double[n];
             sum1 = new double[n];

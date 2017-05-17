@@ -7,7 +7,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class PotentialCalculationPhiSum implements PotentialCalculationMolecular {
@@ -21,7 +21,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 	 protected final IVectorMutable [] a;
 	 protected final Tensor iT;
 	 
-	public PotentialCalculationPhiSum(ISpace space) {
+	public PotentialCalculationPhiSum(Space space) {
 		fieldE = space.makeVector();
 		Ai = space.makeVector();
 	    Aj = space.makeVector();

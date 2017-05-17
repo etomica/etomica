@@ -12,7 +12,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
@@ -26,7 +26,7 @@ import etomica.units.Kelvin;
  */
 public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
 
-    public P3CPSNonAdditiveHe(ISpace space) {
+    public P3CPSNonAdditiveHe(Space space) {
         super(3, space);
         drAB = space.makeVector();
         drBC = space.makeVector();
@@ -551,7 +551,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     }
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
 
         P3CPSNonAdditiveHe potential = new P3CPSNonAdditiveHe(space);
       

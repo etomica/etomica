@@ -7,7 +7,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate
@@ -20,7 +20,7 @@ import etomica.space.ISpace;
  */
 public class PotentialCalculationSumCutoff implements PotentialCalculation {
 
-    public PotentialCalculationSumCutoff(ISpace space, double[] cutoffs) {
+    public PotentialCalculationSumCutoff(Space space, double[] cutoffs) {
         dr = space.makeVector();
         r2Cuts = new double[cutoffs.length];
         for (int i=0; i<cutoffs.length; i++) {

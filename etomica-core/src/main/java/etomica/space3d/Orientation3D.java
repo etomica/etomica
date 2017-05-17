@@ -10,9 +10,8 @@ import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
+import etomica.space.IVectorRandom;
 import etomica.util.Debug;
 
 public class Orientation3D implements IOrientation3D, Serializable {
@@ -24,7 +23,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
     /**
      * Default constructor sets orientation to point in the X direction.
      */
-    public Orientation3D(ISpace space) {
+    public Orientation3D(Space space) {
         direction = space.makeVector();
         direction.setX(0, 1);
         temp = Space.makeVector(3);

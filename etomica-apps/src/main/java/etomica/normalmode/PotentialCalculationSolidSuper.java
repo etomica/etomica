@@ -9,7 +9,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -19,7 +19,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
     protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
-    protected final ISpace space;
+    protected final Space space;
     protected double pSum, virialSum;
     protected final IVectorMutable pSumXYZ, pTmp;
     protected double energySum, dadbSum;
@@ -30,7 +30,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
     protected double d2sum;
     protected double pHarmonic, temperature;
     
-    public PotentialCalculationSolidSuper(ISpace space, CoordinateDefinition coordinateDefinition) {
+    public PotentialCalculationSolidSuper(Space space, CoordinateDefinition coordinateDefinition) {
         this.coordinateDefinition = coordinateDefinition;
         this.space = space;
         drSite0 = space.makeVector();

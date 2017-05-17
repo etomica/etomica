@@ -19,7 +19,6 @@ import etomica.api.IPotential;
 import etomica.chem.elements.ElementSimple;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -305,7 +304,7 @@ public class VirialSQWBinMultiThreaded {
         protected final double vhs;
         protected final double chainFrac, ringFrac;
         protected final long steps;
-        protected final ISpace space;
+        protected final Space space;
         protected final String runName;
         protected final double tRatio;
         protected final Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData;
@@ -318,10 +317,10 @@ public class VirialSQWBinMultiThreaded {
         public MeterVirialEBinMultiThreaded meter;
         
         public SimulationWorker(int iThread, int nPoints, MayerFunction fTargetf1, MayerFunction fTargete2,
-                MayerFunction fRefPos, double lambda, double vhs, double chainFrac, double ringFrac,
-                long steps, ISpace space, String runName, double tRatio,
-                Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
-                boolean doReweight, int[] mySeeds, boolean doCov) {
+                                MayerFunction fRefPos, double lambda, double vhs, double chainFrac, double ringFrac,
+                                long steps, Space space, String runName, double tRatio,
+                                Map<IntSet,MeterVirialEBinMultiThreaded.MyData> allMyData, double w, long[] totalCount,
+                                boolean doReweight, int[] mySeeds, boolean doCov) {
             this.iThread = iThread;
             this.nPoints = nPoints;
             this.fTargetf1 = fTargetf1;

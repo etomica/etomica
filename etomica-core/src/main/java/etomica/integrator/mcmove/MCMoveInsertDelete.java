@@ -19,7 +19,7 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -48,7 +48,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     protected RandomPositionSource positionSource;
 
     public MCMoveInsertDelete(IPotentialMaster potentialMaster, IRandom random,
-    		                  ISpace _space) {
+    		                  Space _space) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);

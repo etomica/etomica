@@ -4,6 +4,7 @@
 
 package etomica.potential;
 
+import etomica.space.Space;
 import org.apache.commons.math3.special.Erf;
 
 import etomica.api.IAtom;
@@ -14,7 +15,6 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.space.ISpace;
 import etomica.space.Tensor;
 import etomica.space3d.Tensor3D;
 import etomica.units.Joule;
@@ -26,7 +26,7 @@ import etomica.util.Constants;
 //                            Shu : nx = ny = nz = coefficient_fourier * N^1/3 (coefficient_fourier=4 hERE)
 
 public class EwaldSummation implements PotentialSoft{
-    protected final ISpace space;
+    protected final Space space;
     protected final AtomLeafAgentManager<MyCharge> atomAgentManager;
     protected final Box box;
     protected final double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
@@ -49,7 +49,7 @@ public class EwaldSummation implements PotentialSoft{
     protected boolean doRealSum = true;
 
 	// *********************************************** constructor ************************************ // 
-    public EwaldSummation(Box box, AtomLeafAgentManager<MyCharge> atomAgentManager, ISpace _space, double kCut, double rCutRealES){
+    public EwaldSummation(Box box, AtomLeafAgentManager<MyCharge> atomAgentManager, Space _space, double kCut, double rCutRealES){
 
         this.box = box;
         this.atomAgentManager = atomAgentManager;

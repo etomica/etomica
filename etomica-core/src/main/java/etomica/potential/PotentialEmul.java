@@ -22,7 +22,7 @@ import etomica.chem.elements.Argon;
 import etomica.chem.elements.Helium;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
@@ -46,15 +46,15 @@ public class PotentialEmul extends PotentialMolecular {
     protected double r2Core;
     protected final IVectorMutable r12Vec;
     
-	public PotentialEmul(ISpace space, String templateName){
+	public PotentialEmul(Space space, String templateName){
 	    this(space, templateName, 2.5);
 	}
 	
-	public PotentialEmul(ISpace space, String templateName, double rCore) {
+	public PotentialEmul(Space space, String templateName, double rCore) {
 	    this(space, templateName, countMolecules(templateName), rCore);
 	}
 
-	protected PotentialEmul(ISpace space, String templateName, int nBody, double rCore) {
+	protected PotentialEmul(Space space, String templateName, int nBody, double rCore) {
 		super(nBody, space);
 		this.r2Core = rCore*rCore;
         r12Vec = space.makeVector();
@@ -259,7 +259,7 @@ public class PotentialEmul extends PotentialMolecular {
 	protected IBoundary boundary;
 	
 	public static void main(String[] args) {
-	    ISpace space = Space3D.getInstance();
+	    Space space = Space3D.getInstance();
 	    if (false) {
     	    PotentialEmul p2 = new PotentialEmul(space, "template.in");
     	    Simulation sim = new Simulation(space);

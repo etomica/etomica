@@ -20,7 +20,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.P4BondTorsion;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 
 /**
@@ -31,7 +31,7 @@ import etomica.space3d.RotationTensor3D;
  * Feb 2013
  */
 public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
-    public MCMoveClusterTorsionAlkaneEH(ISimulation sim, IPotentialMaster potentialMaster, ISpace space, P4BondTorsion torsionPotential) {
+    public MCMoveClusterTorsionAlkaneEH(ISimulation sim, IPotentialMaster potentialMaster, Space space, P4BondTorsion torsionPotential) {
     this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
         setBondLength(1.0);
     }
@@ -41,7 +41,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
      * @param nAtoms number of atoms to move in a trial.  Number of atoms in box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterTorsionAlkaneEH(IPotentialMaster potentialMaster, ISpace space,
+    public MCMoveClusterTorsionAlkaneEH(IPotentialMaster potentialMaster, Space space,
             IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
     	super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);

@@ -23,7 +23,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -36,7 +36,7 @@ import etomica.space.Tensor;
 public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionParacetamol(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionParacetamol(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
     	super(sim, box, primitive, 3, basis, _space);
        
        	axes = new IVectorMutable [3];

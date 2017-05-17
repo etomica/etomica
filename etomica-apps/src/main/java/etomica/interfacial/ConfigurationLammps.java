@@ -12,10 +12,10 @@ import etomica.api.ISpecies;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ConfigurationLammps implements Configuration {
-    protected final ISpace space;
+    protected final Space space;
     protected final String filename;
     protected final ISpecies[] species;
     protected IVectorMutable shift;
@@ -23,7 +23,7 @@ public class ConfigurationLammps implements Configuration {
     protected double topPadding;
     protected double zMax;
     
-    public ConfigurationLammps(ISpace space, String filename, ISpecies topWall, ISpecies bottomWall, ISpecies fluid) {
+    public ConfigurationLammps(Space space, String filename, ISpecies topWall, ISpecies bottomWall, ISpecies fluid) {
         this.space = space;
         this.filename = filename;
         this.species = new ISpecies[]{topWall, fluid, bottomWall};

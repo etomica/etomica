@@ -20,7 +20,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angle;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramNotSoSimple;
@@ -32,7 +32,7 @@ import etomica.util.HistogramNotSoSimple;
  */
 public class MeterTiltHistogram implements IAction, IEtomicaDataSource, DataSourceIndependent {
 
-    public MeterTiltHistogram(ISpace space, ISpecies species) {
+    public MeterTiltHistogram(Space space, ISpecies species) {
         this.species = species;
         int nData = 180;
         dr = space.makeVector();

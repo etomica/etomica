@@ -18,7 +18,7 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
@@ -46,7 +46,7 @@ public class Catalysis extends Simulation {
     public final InteractionTracker interactionTracker;
     public final ReactionManagerCO reactionManagerCO;
     
-    public Catalysis(ISpace _space, int nCellsZ) {
+    public Catalysis(Space _space, int nCellsZ) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 9, space); //List(this, 2.0);
         
@@ -146,7 +146,7 @@ public class Catalysis extends Simulation {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         int nCellsZ = 20;
         
         Catalysis sim = new Catalysis(space, nCellsZ);

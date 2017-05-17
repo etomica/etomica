@@ -5,7 +5,7 @@
 package etomica.models.rowley;
 
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 
@@ -18,11 +18,11 @@ import etomica.units.Energy;
  */
 public final class P2RepRowley extends Potential2SoftSpherical {
 
-    public P2RepRowley (ISpace space) {
+    public P2RepRowley (Space space) {
         this(space, 1.0, 1.0);
     }
     
-    public P2RepRowley (ISpace space, double BXX, double CXX) {
+    public P2RepRowley (Space space, double BXX, double CXX) {
         super(space);
         setBXX(BXX);
         setCXX(CXX);

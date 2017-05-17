@@ -8,12 +8,12 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IPotentialAtomic;
 import etomica.potential.P1IntraMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P1IntraLambda implements IPotentialAtomic, P1IntraMolecular {
 	protected double lambda = -1, u0 = 0;
 	protected P1IntraMolecular p1;
-	public P1IntraLambda(ISpace space, double lambda, P1IntraMolecular pot1, double u00) {
+	public P1IntraLambda(Space space, double lambda, P1IntraMolecular pot1, double u00) {
 		p1 = pot1;
 		this.lambda = lambda;		        
 		u0 = u00;

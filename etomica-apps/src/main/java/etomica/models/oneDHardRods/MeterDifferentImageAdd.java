@@ -19,7 +19,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 
@@ -58,18 +58,18 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     protected double scaling;
     protected double sqrtTemperature;
     
-    public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition 
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM) {
+    public MeterDifferentImageAdd(ISimulation sim, Space space, double temp,
+                                  CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                  NormalModes otherNM) {
         this(sim, space, temp, simCD, simNM, otherCD, potentialMaster, 
                 otherNCells, otherNM, "file");
     }
     
-    public MeterDifferentImageAdd(ISimulation sim, ISpace space, double temp, 
-            CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition 
-            otherCD, PotentialMasterList potentialMaster, int[] otherNCells, 
-            NormalModes otherNM, String otherFilename){
+    public MeterDifferentImageAdd(ISimulation sim, Space space, double temp,
+                                  CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
+            otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
+                                  NormalModes otherNM, String otherFilename){
         
         super("MeterAdd", Null.DIMENSION);
         this.random = sim.getRandom();

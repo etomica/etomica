@@ -12,7 +12,7 @@ import etomica.api.IVectorMutable;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -25,7 +25,7 @@ import etomica.space.Tensor;
  
 public class Potential2SoftSphericalLSMulti extends Potential2 implements PotentialSoft {
    
-    public Potential2SoftSphericalLSMulti(ISpace space, double[] rCut, Potential2Soft p2Soft) {
+    public Potential2SoftSphericalLSMulti(Space space, double[] rCut, Potential2Soft p2Soft) {
         super(space);
         gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();

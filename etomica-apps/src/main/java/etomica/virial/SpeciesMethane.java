@@ -12,8 +12,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -24,11 +23,11 @@ import etomica.species.Species;
  */
 public class SpeciesMethane extends Species {
 
-	public SpeciesMethane(ISpace space) {
+	public SpeciesMethane(Space space) {
         this(space, false);
     }
     
-    public SpeciesMethane(ISpace space, boolean isDynamic) {   
+    public SpeciesMethane(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -73,7 +72,7 @@ public class SpeciesMethane extends Species {
      public final static int indexH4  = 4;
 
      private static final long serialVersionUID = 1L;
-     protected final ISpace space;
+     protected final Space space;
      protected final boolean isDynamic;
      protected final AtomTypeLeaf cType, hType;
 }

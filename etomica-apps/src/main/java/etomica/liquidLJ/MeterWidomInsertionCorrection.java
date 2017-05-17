@@ -15,7 +15,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -40,7 +40,7 @@ import etomica.units.Null;
  */
 public class MeterWidomInsertionCorrection implements IEtomicaDataSource {
 
-    public MeterWidomInsertionCorrection(ISpace space, IRandom random) {
+    public MeterWidomInsertionCorrection(Space space, IRandom random) {
         tag = new DataTag();
         dataInfo = new DataInfoDoubleArray("exp(-\u03BC/kT)", Null.DIMENSION, new int[]{4});
         dataInfo.addTag(tag);

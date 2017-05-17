@@ -13,7 +13,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -40,7 +40,7 @@ public class MCMoveVolumeMonoclinic extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeMonoclinic(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space) {
+    		            Space _space) {
         super(potentialMaster);
         this.random = random;
         inflate = new BoxInflate(_space);

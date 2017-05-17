@@ -18,7 +18,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angle;
 
 /**
@@ -28,7 +28,7 @@ import etomica.units.Angle;
  */
 public class MeterPlaneSlip implements IEtomicaDataSource {
 
-    public MeterPlaneSlip(ISpace space, ISpecies species, int nPlanes, int nx, int ny) {
+    public MeterPlaneSlip(Space space, ISpecies species, int nPlanes, int nx, int ny) {
         this.species = species;
         pos = new AtomPositionGeometricCenter(space);
         drSum = new IVectorMutable[nPlanes][2];

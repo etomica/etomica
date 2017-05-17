@@ -14,7 +14,7 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.paracetamol.AtomActionTransformed;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.RotationTensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
@@ -49,7 +49,7 @@ public class MCMoveRotateMolecule3DConstraint extends MCMoveMolecule {
     protected final MoleculeChildAtomAction atomGroupAction;
     
     public MCMoveRotateMolecule3DConstraint(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space, double angle, CoordinateDefinitionNitrogen coordinateDef, Box box) {
+                                            Space _space, double angle, CoordinateDefinitionNitrogen coordinateDef, Box box) {
         super(potentialMaster, random, _space, 0.5*Math.PI, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();

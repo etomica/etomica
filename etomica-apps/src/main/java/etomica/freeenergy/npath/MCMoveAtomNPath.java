@@ -7,7 +7,7 @@ package etomica.freeenergy.npath;
 import etomica.api.IRandom;
 import etomica.atom.AtomSetSinglet;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Created by andrew on 4/11/17.
@@ -16,7 +16,7 @@ public class MCMoveAtomNPath extends etomica.integrator.mcmove.MCMoveAtom {
     protected final P1ImageHarmonic p1;
     protected final AtomSetSinglet atomSinglet;
 
-    public MCMoveAtomNPath(IRandom random, PotentialMaster potentialMaster, ISpace space, P1ImageHarmonic p1) {
+    public MCMoveAtomNPath(IRandom random, PotentialMaster potentialMaster, Space space, P1ImageHarmonic p1) {
         super(random,potentialMaster,space);
         this.p1 = p1;
         atomSinglet = new AtomSetSinglet();

@@ -10,7 +10,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Orientation3D;
 
 /**
@@ -23,7 +23,7 @@ public class MCMoveRotate extends MCMoveAtom {
     private transient IOrientation iOrientation;
 
     public MCMoveRotate(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space) {
+    		            Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI, false);
     }
     

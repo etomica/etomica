@@ -19,7 +19,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
@@ -36,7 +36,7 @@ import etomica.util.FunctionGeneral;
 
 public class NormalModesSoftSpherical implements NormalModes {
 
-    public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential, ISpace space) {
+    public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential, Space space) {
         
         needToCalculateModes = true;
         

@@ -14,7 +14,7 @@ import etomica.potential.IPotentialMolecularTorque;
 import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientation3D;
@@ -31,11 +31,11 @@ import etomica.util.RandomNumberGenerator;
  */
 public class P2LJDipole extends PotentialMolecular implements IPotentialMolecularTorque {
 
-    public P2LJDipole(ISpace space) {
+    public P2LJDipole(Space space) {
         this(space, 1, 1, 1);
     }
 
-    public P2LJDipole(ISpace space, double sigma, double epsilon,  double momentSquared) {
+    public P2LJDipole(Space space, double sigma, double epsilon, double momentSquared) {
         super(2, space);
         setSigma(sigma);
         setEpsilon(epsilon);

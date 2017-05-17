@@ -23,7 +23,7 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -55,14 +55,14 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
     protected final IVectorMutable v;
     protected final int[] numCells;
     protected IAtomPositionDefinition moleculeSite;
-    protected ISpace space;
+    protected Space space;
     
     /**
      * Constructs manager for neighbor cells in the given box.  The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManagerMolecular(ISimulation sim, Box box, double potentialRange, ISpace _space) {
+    public NeighborCellManagerMolecular(ISimulation sim, Box box, double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
     
@@ -73,7 +73,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManagerMolecular(ISimulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManagerMolecular(ISimulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;
@@ -276,7 +276,7 @@ public class NeighborCellManagerMolecular implements BoxCellManager, IBoundaryLi
     }
     
     private static class MyMCMoveListener implements IListener, java.io.Serializable {
-        public MyMCMoveListener(Box box, NeighborCellManagerMolecular manager, ISpace space) {
+        public MyMCMoveListener(Box box, NeighborCellManagerMolecular manager, Space space) {
             this.box = box;
             neighborCellManager = manager;
             moleculePosition = new AtomPositionGeometricCenter(space);

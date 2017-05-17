@@ -14,7 +14,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -39,7 +39,7 @@ public class MeterPU implements IEtomicaDataSource {
     protected Box box;
     private final int dim;
     
-    public MeterPU(ISpace space) {
+    public MeterPU(Space space) {
         data = new DataDoubleArray(4);
         dataInfo = new DataInfoDoubleArray("PU", Null.DIMENSION, new int[]{4});
         tag = new DataTag();

@@ -7,12 +7,12 @@ package etomica.association;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotate;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMoveRotateNoSmer extends MCMoveRotate {
 
 	public MCMoveRotateNoSmer(IPotentialMaster potentialMaster, IRandom random,
-			ISpace _space) {
+			Space _space) {
 		super(potentialMaster, random, _space);
 	}
 	public void setAssociationManager(AssociationManager associationManager){

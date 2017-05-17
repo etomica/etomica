@@ -20,7 +20,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angle;
 import etomica.units.Null;
 
@@ -38,7 +38,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
 	 * leaf atoms in a box.
 	 * @param space
 	 */
-    public MeterDihedralAngle(ISpace space) {
+    public MeterDihedralAngle(Space space) {
 	    this.space = space;
 
         xDataSource = new DataSourceUniform("phi", Angle.DIMENSION);
@@ -202,7 +202,7 @@ public class MeterDihedralAngle implements IAction, IEtomicaDataSource, DataSour
     
     private static final long serialVersionUID = 1L;
     protected Box box;
-    protected final ISpace space;
+    protected final Space space;
     protected long[] gSum;
     protected DataFunction data;
     private IEtomicaDataInfo dataInfo;

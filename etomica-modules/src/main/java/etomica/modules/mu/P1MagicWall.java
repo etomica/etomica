@@ -16,7 +16,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -30,7 +30,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     protected final IVectorMutable dr, dv;
     protected double lastDeltaU;
     
-    public P1MagicWall(ISpace space, PotentialMasterList potentialMaster) {
+    public P1MagicWall(Space space, PotentialMasterList potentialMaster) {
         super(space);
         this.potentialMaster = potentialMaster;
         dr = space.makeVector();

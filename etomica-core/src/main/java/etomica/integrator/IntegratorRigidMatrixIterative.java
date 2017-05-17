@@ -37,7 +37,6 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.data.meter.MeterKineticEnergyRigid;
 import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientationFull3D;
@@ -82,12 +81,12 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
     protected AtomLeafAgentManager<IntegratorRigidMatrixIterative.AtomAgent> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidMatrixIterative(ISimulation sim, PotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorRigidMatrixIterative(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, 0.05, 1.0, _space);
     }
     
     public IntegratorRigidMatrixIterative(ISimulation sim, PotentialMaster potentialMaster,
-            double timeStep, double temperature, ISpace _space) {
+            double timeStep, double temperature, Space _space) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
         this.sim = sim;
         torqueSum = new PotentialCalculationTorqueSum();
@@ -641,7 +640,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         public final IVectorMutable torque;
         public final IVectorMutable force;
 
-        public MoleculeAgent(ISpace space) {
+        public MoleculeAgent(Space space) {
             torque = space.makeVector();
             force = space.makeVector();
         }
@@ -654,7 +653,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Agen
         private static final long serialVersionUID = 1L;
         public final IVectorMutable force;  // for leaf atoms
 
-        public AtomAgent(ISpace space) {
+        public AtomAgent(Space space) {
             force = space.makeVector();
         }
         

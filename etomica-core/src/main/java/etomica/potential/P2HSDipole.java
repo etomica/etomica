@@ -12,7 +12,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -24,19 +24,19 @@ import etomica.space.Tensor;
  */
 public class P2HSDipole extends PotentialMolecular implements IPotentialMolecularSecondDerivative {
 //public class P2HSDipole extends PotentialMolecular implements IPotentialMolecularTorque  {
-	public P2HSDipole(ISpace space) {
+	public P2HSDipole(Space space) {
 		this(space, 1, 1);
 	}
 
-	public P2HSDipole(ISpace space, double dipole) {
+	public P2HSDipole(Space space, double dipole) {
 		this(space, 1,dipole);
 	}
 
-	public P2HSDipole(ISpace space, double sigma,double dipole) {
+	public P2HSDipole(Space space, double sigma, double dipole) {
 		this(space, 1,dipole,Double.POSITIVE_INFINITY);
 	}
 
-	public P2HSDipole(ISpace space, double sigma,double dipole,double rCut) {
+	public P2HSDipole(Space space, double sigma, double dipole, double rCut) {
 		super(2, space);
 		setSigma(sigma);
 		gradient = new IVectorMutable[2];

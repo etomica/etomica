@@ -11,7 +11,7 @@ import etomica.api.IAtom;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 
 /**
@@ -22,7 +22,7 @@ import etomica.space3d.IOrientationFull3D;
  */
 public class WriteConfigurationOriented extends WriteConfiguration {
 
-    public WriteConfigurationOriented(ISpace space) {
+    public WriteConfigurationOriented(Space space) {
         super(space);
     }
     

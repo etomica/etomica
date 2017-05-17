@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.config.IConformation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 
  /**
@@ -21,7 +21,7 @@ import etomica.units.Electron;
  */
 public class ConformationNitrogen implements IConformation, java.io.Serializable{
 	
-	public ConformationNitrogen(ISpace space){
+	public ConformationNitrogen(Space space){
 		this.space = space;
 		vector = space.makeVector();
 	}
@@ -81,7 +81,7 @@ public class ConformationNitrogen implements IConformation, java.io.Serializable
         ConformationNitrogen.Echarge[SpeciesN2.indexP2right] = Electron.UNIT.toSim( 0.373);
     }
 	
-	protected final ISpace space;
+	protected final Space space;
 	protected static final double bondOrigN = 0.547;
 	protected static final double bondOrigP2 = 0.847;
 	protected static final double bondOrigP1 = 1.044;

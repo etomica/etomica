@@ -39,7 +39,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsingAverage;
@@ -55,7 +55,7 @@ public class LJMC extends Simulation {
     public final IntegratorMC integrator;
     public final MCMoveAtomInRegion mcMoveAtom, mcMoveAtomBigStep;
 
-    public LJMC(ISpace _space, int numAtoms, double temperature, double aspectRatio) {
+    public LJMC(Space _space, int numAtoms, double temperature, double aspectRatio) {
         super(_space);
         double rc = 4.0;
         potentialMaster = new PotentialMasterCell(this, rc, space);
@@ -163,7 +163,7 @@ public class LJMC extends Simulation {
         }
         else {
         }
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         int numAtoms = params.numAtoms;
         double temperature = params.temperature;
         double aspectRatio = params.aspectRatio;

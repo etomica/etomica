@@ -5,7 +5,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class P1Wall extends Potential1 implements PotentialSoft {
@@ -14,7 +14,7 @@ public class P1Wall extends Potential1 implements PotentialSoft {
     protected final double gSat;
     protected final IVectorMutable[] grad;
     
-    public P1Wall(ISpace space, double spring, double springPosition, double gSat) {
+    public P1Wall(Space space, double spring, double springPosition, double gSat) {
         super(space);
         this.spring = spring;
         this.springPosition = springPosition;

@@ -11,7 +11,7 @@ import etomica.action.WriteConfiguration;
 import etomica.api.IAtom;
 import etomica.api.ISpecies;
 import etomica.api.IVector;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are written in a 
@@ -24,7 +24,7 @@ public class WriteConfigurationInterfacial extends WriteConfiguration {
     protected ISpecies species;
     protected IVector shift;
     
-	public WriteConfigurationInterfacial(ISpace space) {
+	public WriteConfigurationInterfacial(Space space) {
 	    super(space);
 	}
 	

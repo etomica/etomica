@@ -11,7 +11,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
@@ -27,7 +27,7 @@ public class MeterDensityDistribution implements IEtomicaDataSource {
     protected final IVectorMutable subBox, shift;
     protected final DataDouble subData;
     
-    public MeterDensityDistribution(ISpace space, Box box, int nSubBoxes) {
+    public MeterDensityDistribution(Space space, Box box, int nSubBoxes) {
         this.box = box;
         histogram = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
         Dimension densityDim = new CompoundDimension(new Dimension[]{Quantity.DIMENSION,Volume.DIMENSION},new double[]{1,-1});

@@ -24,7 +24,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Configuration for catalysis module.  Places molecules within the box on an
@@ -35,7 +35,7 @@ import etomica.space.ISpace;
  */
 public class ConfigurationCatalysis implements Configuration {
 
-    public ConfigurationCatalysis(ISimulation sim, ISpace space,
+    public ConfigurationCatalysis(ISimulation sim, Space space,
             ISpecies speciesSurface, ISpecies speciesC, ISpecies speciesO, AtomLeafAgentManager agentManager) {
         this.sim = sim;
         this.space = space;
@@ -192,7 +192,7 @@ public class ConfigurationCatalysis implements Configuration {
         nCellsZ = cellsZ;
     }
 
-    protected final ISpace space;
+    protected final Space space;
     protected final ISimulation sim;
     protected final ISpecies speciesSurface, speciesO, speciesC;
     protected int nCO, nO2;
@@ -209,11 +209,11 @@ public class ConfigurationCatalysis implements Configuration {
         /**
          * Makes a fcc 4-atom basis.
          */
-        public BasisOrthorhombicHexagonal3D(ISpace space) {
+        public BasisOrthorhombicHexagonal3D(Space space) {
             super(makeScaledPositions(space));
         }
         
-        private static final IVector[] makeScaledPositions(ISpace space) {
+        private static final IVector[] makeScaledPositions(Space space) {
             IVectorMutable[] v = new IVectorMutable[2];
             for (int i=0; i<2; i++) {
                 v[i] = space.makeVector();

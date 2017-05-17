@@ -19,7 +19,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -39,7 +39,7 @@ public class MCMoveSmer extends MCMoveBoxStep {
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
     protected final PotentialMasterCell potentialMaster;
     protected final Api1ACell neighborIterator;
     protected final IVectorMutable dr;
@@ -48,13 +48,13 @@ public class MCMoveSmer extends MCMoveBoxStep {
     protected final AtomArrayList newSmerList;
     protected AssociationManager associationManager;
 
-    public MCMoveSmer(ISimulation sim, PotentialMasterCell potentialMaster, ISpace _space, IPotentialAtomic dimerPotential) {
+    public MCMoveSmer(ISimulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
     }
     
     public MCMoveSmer(PotentialMasterCell potentialMaster, IRandom random,
-    		          ISpace _space, double stepSize, double stepSizeMax,
-            boolean fixOverlap, IPotentialAtomic TrimerPotential) {
+                      Space _space, double stepSize, double stepSizeMax,
+                      boolean fixOverlap, IPotentialAtomic TrimerPotential) {
         super(potentialMaster);
         this.smerList = new AtomArrayList();
         this.newSmerList = new AtomArrayList();

@@ -8,7 +8,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 
 /**
@@ -23,7 +23,7 @@ import etomica.units.Kelvin;
  */
 public class P0LatticeEnergyCorrec extends PotentialMolecular{
 
-	public P0LatticeEnergyCorrec(ISpace space){
+	public P0LatticeEnergyCorrec(Space space){
 		super(0, space);
 		coeff = new double[3];
 	}

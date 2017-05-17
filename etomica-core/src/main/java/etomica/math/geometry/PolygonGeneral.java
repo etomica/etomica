@@ -6,7 +6,7 @@ package etomica.math.geometry;
 
 import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * TODO To change the template for this generated type comment go to Window -
@@ -25,7 +25,7 @@ public class PolygonGeneral extends Polygon {
      * @param embeddedSpace
      * @param nSides
      */
-    public PolygonGeneral(ISpace embeddedSpace, int nSides) {
+    public PolygonGeneral(Space embeddedSpace, int nSides) {
         super(embeddedSpace, nSides);
     }
 

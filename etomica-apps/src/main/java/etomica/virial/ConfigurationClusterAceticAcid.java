@@ -15,7 +15,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculePair;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space.RotationTensor;
 
@@ -26,18 +26,18 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 	protected MayerFunction f2;
 	protected MayerFunction f3;
 	
-	public ConfigurationClusterAceticAcid(ISpace _space, IRandom random, MayerFunction f) {
+	public ConfigurationClusterAceticAcid(Space _space, IRandom random, MayerFunction f) {
 		super(_space);
 		this.f = f;
 		this.random = random;
 	}
-	public ConfigurationClusterAceticAcid(ISpace _space, IRandom random, MayerFunction f, MayerFunction f2) {
+	public ConfigurationClusterAceticAcid(Space _space, IRandom random, MayerFunction f, MayerFunction f2) {
 		super(_space);
 		this.f = f;
 		this.f2 = f2;
 		this.random = random;
 	}
-	public ConfigurationClusterAceticAcid(ISpace _space, IRandom random, MayerFunction f, MayerFunction f2, MayerFunction f3) {
+	public ConfigurationClusterAceticAcid(Space _space, IRandom random, MayerFunction f, MayerFunction f2, MayerFunction f3) {
 		super(_space);
 		this.f = f;
 		this.f2 = f2;

@@ -21,9 +21,8 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.units.Degree;
 
 /**
  * Disordered alpha-phase
@@ -46,7 +45,7 @@ import etomica.units.Degree;
 public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Simulation{
 
 	
-	public HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS(ISpace space, int numMolecule, double density, double rC) {
+	public HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS(Space space, int numMolecule, double density, double rC) {
 		super(space);
 		this.space = space;
 		
@@ -310,7 +309,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;

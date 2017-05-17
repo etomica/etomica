@@ -13,7 +13,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.RotationTensor;
 
 
@@ -39,7 +39,7 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     protected double cosThetaConstraint, workAveCosTheta;
     
     public MCMoveRotateMolecule3DN2AveCosThetaConstraint(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space, CoordinateDefinitionNitrogen coordinateDef, double cosThetaConstraint) {
+                                                         Space _space, CoordinateDefinitionNitrogen coordinateDef, double cosThetaConstraint) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();

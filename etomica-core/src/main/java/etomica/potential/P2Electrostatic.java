@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Simple electrostatic potential class.
@@ -12,7 +12,7 @@ import etomica.space.ISpace;
  */
 public class P2Electrostatic extends Potential2SoftSpherical {
 
-    public P2Electrostatic(ISpace space) {
+    public P2Electrostatic(Space space) {
         super(space);
     }
     

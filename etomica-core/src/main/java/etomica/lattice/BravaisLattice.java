@@ -7,7 +7,7 @@ package etomica.lattice;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Arbitrary-dimension Bravais Lattice, in which the sites are instances of 
@@ -26,7 +26,7 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
         return getSpace().D();
     }
     
-    public ISpace getSpace() {
+    public Space getSpace() {
         return primitive.getSpace();
     }
     

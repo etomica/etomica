@@ -13,7 +13,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -22,11 +22,11 @@ import etomica.species.Species;
  */
 public class SpeciesWater4PCOM extends Species {
 
-    public SpeciesWater4PCOM(ISpace space) {
+    public SpeciesWater4PCOM(Space space) {
         this(space, false);
     }
     
-    public SpeciesWater4PCOM(ISpace space, boolean isDynamic) {
+    public SpeciesWater4PCOM(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -79,7 +79,7 @@ public class SpeciesWater4PCOM extends Species {
     public final static int indexM  = 3;
     public final static int indexC  = 4;
 
-    protected final ISpace space;
+    protected final Space space;
     protected final boolean isDynamic;
     protected final AtomTypeLeaf oType, hType, mType, cType;
 }

@@ -7,11 +7,11 @@ package etomica.models.nitrogen;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class BoundaryDeformablePeriodicSwitch extends BoundaryDeformablePeriodic{
 	
-	public BoundaryDeformablePeriodicSwitch(ISpace _space, IVector[] vex) {
+	public BoundaryDeformablePeriodicSwitch(Space _space, IVector[] vex) {
 		super(_space, vex);
 		temp = space.makeVector();
 		

@@ -11,7 +11,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /*
  * Integrator for simulation DimerApproach
@@ -24,7 +24,7 @@ import etomica.space.ISpace;
 
 public class IntegratorDimerApproach extends IntegratorBox {
 	
-	public IntegratorDimerApproach(IPotentialMaster potentialMaster, ISpace space) {
+	public IntegratorDimerApproach(IPotentialMaster potentialMaster, Space space) {
 		
 		super(potentialMaster, 0);
 		
@@ -293,7 +293,7 @@ public class IntegratorDimerApproach extends IntegratorBox {
         System.out.println();*/
 	}
 	
-	private final ISpace space;
+	private final Space space;
     
 	private static final long serialVersionUID = 1L;
     

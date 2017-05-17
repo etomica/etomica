@@ -22,7 +22,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -57,7 +57,7 @@ public class MeterTargetTP implements IEtomicaDataSource {
     protected FileWriter fw;
     protected P1ConstraintNbr p1;
     
-    public MeterTargetTP(IPotentialMaster potentialMaster, ISpecies species, ISpace space, ISimulation sim) {
+    public MeterTargetTP(IPotentialMaster potentialMaster, ISpecies species, Space space, ISimulation sim) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;

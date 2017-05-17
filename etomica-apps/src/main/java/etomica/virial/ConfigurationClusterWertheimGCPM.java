@@ -17,7 +17,7 @@ import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.MoleculePair;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space.RotationTensor;
 
@@ -30,19 +30,19 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 	protected PNWaterGCPMThreeSite nonAssociationPotential;
 	protected double diagramIndex;
 
-	public ConfigurationClusterWertheimGCPM(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential) {
+	public ConfigurationClusterWertheimGCPM(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.random = random;
 	}
 
-	public ConfigurationClusterWertheimGCPM(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential,PNWaterGCPMThreeSite associationPotential2 ) {
+	public ConfigurationClusterWertheimGCPM(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential, PNWaterGCPMThreeSite associationPotential2 ) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.associationPotential2 = associationPotential2;
 		this.random = random;
 	}
-	public ConfigurationClusterWertheimGCPM(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential,PNWaterGCPMThreeSite associationPotential2, PNWaterGCPMThreeSite associationPotential3 ) {
+	public ConfigurationClusterWertheimGCPM(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential, PNWaterGCPMThreeSite associationPotential2, PNWaterGCPMThreeSite associationPotential3 ) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.associationPotential2 = associationPotential2;
@@ -57,7 +57,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 //		this.random = random;
 //	}
 	
-	public ConfigurationClusterWertheimGCPM(ISpace _space, IRandom random, PNWaterGCPMThreeSite associationPotential,PNWaterGCPMThreeSite associationPotential2, double diagramIndex ) {
+	public ConfigurationClusterWertheimGCPM(Space _space, IRandom random, PNWaterGCPMThreeSite associationPotential, PNWaterGCPMThreeSite associationPotential2, double diagramIndex ) {
 		super(_space);
 		this.associationPotential = associationPotential;
 		this.associationPotential2 = associationPotential2;

@@ -21,7 +21,6 @@ import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
 import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Energy;
 import etomica.util.FunctionGeneral;
@@ -45,7 +44,7 @@ import etomica.util.FunctionGeneral;
  */
 public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 	
-	public MinimizeBetaNitrogenLatticeParameterLSFromFile(ISpace space, double density, double[] u, double rC){
+	public MinimizeBetaNitrogenLatticeParameterLSFromFile(Space space, double density, double[] u, double rC){
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -562,7 +561,7 @@ public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 	protected SpeciesN2 species;
 	protected double density;
 	protected Basis basis;
-	protected ISpace space;
+	protected Space space;
 	protected Primitive primitive;
 	protected double [] parameters;  
 	protected int[] nC;

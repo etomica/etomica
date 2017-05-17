@@ -29,7 +29,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.models.OPLS.SpeciesAceticAcid;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
@@ -65,7 +65,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     protected final ISimulation sim;
 
     public MCMoveVolumeAssociatedMolecule(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    		            Space _space) {
         this(sim, potentialMaster, sim.getRandom(), _space, 1.0);
     }
     
@@ -74,7 +74,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeAssociatedMolecule(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure) {
+                                          Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;
         this.sim = sim;

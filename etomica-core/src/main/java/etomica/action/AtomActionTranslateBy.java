@@ -9,7 +9,7 @@ import java.io.Serializable;
 import etomica.api.IAtom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class AtomActionTranslateBy implements AtomAction, Serializable {
     private static final long serialVersionUID = 1L;
     private final IVectorMutable translationVector;
     
-    public AtomActionTranslateBy(ISpace space) {
+    public AtomActionTranslateBy(Space space) {
         translationVector = space.makeVector();
     }
     

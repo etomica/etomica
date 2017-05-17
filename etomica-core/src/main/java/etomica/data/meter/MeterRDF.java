@@ -22,7 +22,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 import etomica.units.Null;
 
@@ -40,7 +40,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
 	 * leaf atoms in a box.
 	 * @param space
 	 */
-    public MeterRDF(ISpace space) {
+    public MeterRDF(Space space) {
 	    this.space = space;
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
@@ -198,7 +198,7 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     
     private static final long serialVersionUID = 1L;
     protected Box box;
-    protected final ISpace space;
+    protected final Space space;
     protected long[] gSum;
     protected DataFunction data;
     private IEtomicaDataInfo dataInfo;

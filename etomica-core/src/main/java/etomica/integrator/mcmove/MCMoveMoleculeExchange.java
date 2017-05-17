@@ -24,7 +24,7 @@ import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Performs a trial that results in the exchange of a molecule from one box to another.
@@ -55,7 +55,7 @@ public class MCMoveMoleculeExchange extends MCMove {
     
 
     public MCMoveMoleculeExchange(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space,
+    		                      Space _space,
                                   IntegratorBox integrator1,
                                   IntegratorBox integrator2) {
         super(potentialMaster);

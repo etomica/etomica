@@ -7,16 +7,16 @@ package etomica.virial;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class ConfigurationClusterMove extends ConfigurationCluster {
 
-    public ConfigurationClusterMove(ISpace _space, IRandom random) {
+    public ConfigurationClusterMove(Space _space, IRandom random) {
         this(_space, random, 2);
     }
     
-	public ConfigurationClusterMove(ISpace _space, IRandom random, double distance) {
+	public ConfigurationClusterMove(Space _space, IRandom random, double distance) {
 		super(_space);
 		this.random = random;
 		this.distance = distance;

@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Electron;
 
 /**
@@ -16,7 +16,7 @@ import etomica.units.Electron;
  */
 public class ConformationWaterGCPMCOM extends ConformationWaterGCPM {
 
-    public ConformationWaterGCPMCOM(ISpace space) {
+    public ConformationWaterGCPMCOM(Space space) {
         super(space);
     }
     

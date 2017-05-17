@@ -15,7 +15,7 @@ import etomica.action.activity.Controller;
 import etomica.api.ISimulation;
 import etomica.data.DataPump;
 import etomica.simulation.prototypes.HSMD2D;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Device comprising three buttons: (1) attaches to a controller to toggle its pause/resume state; 
@@ -40,7 +40,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Contructs device with buttons that affect the given simulation.
      */
-    public DeviceTrioControllerButton(ISimulation simulation, ISpace space, Controller _controller) {
+    public DeviceTrioControllerButton(ISimulation simulation, Space space, Controller _controller) {
         this();
         setSimulation(simulation, space, _controller);
     }
@@ -71,7 +71,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Sets the controller that is toggled by this device.
      */
-    protected void setSimulation(ISimulation sim, ISpace space, Controller controller) {
+    protected void setSimulation(ISimulation sim, Space space, Controller controller) {
         simulation = sim;
         simRestart = new SimulationRestart(sim, space, controller);
         final Controller c = controller;

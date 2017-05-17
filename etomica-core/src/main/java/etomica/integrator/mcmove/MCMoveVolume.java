@@ -13,7 +13,7 @@ import etomica.api.ISimulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 import etomica.util.Function;
@@ -38,7 +38,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
     protected double temperature;
 
     public MCMoveVolume(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    		            Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
 
@@ -47,7 +47,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolume(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace space, double pressure) {
+                        Space space, double pressure) {
         super(potentialMaster);
         this.random = random;
         this.D = space.D();

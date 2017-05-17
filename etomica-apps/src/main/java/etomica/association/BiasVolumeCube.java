@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class BiasVolumeCube extends BiasVolume {
@@ -21,7 +21,7 @@ public class BiasVolumeCube extends BiasVolume {
     private final IRandom random;
     private IBoundary boundary;
     
-    public BiasVolumeCube(ISpace space, IRandom random){
+    public BiasVolumeCube(Space space, IRandom random){
         super(space);
         this.random = random;
         dimensions = space.makeVector();

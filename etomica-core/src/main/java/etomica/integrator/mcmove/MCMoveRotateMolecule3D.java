@@ -10,7 +10,7 @@ import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.RotationTensor;
 
 
@@ -22,7 +22,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     protected IAtomPositionDefinition positionDefinition;
     
     public MCMoveRotateMolecule3D(IPotentialMaster potentialMaster, IRandom random,
-    		                      ISpace _space) {
+    		                      Space _space) {
         super(potentialMaster, random, _space, Math.PI/2, Math.PI);
         rotationTensor = _space.makeRotationTensor();
         r0 = _space.makeVector();

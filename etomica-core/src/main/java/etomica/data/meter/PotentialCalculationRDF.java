@@ -9,7 +9,7 @@ import etomica.api.IVectorMutable;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 /**
@@ -27,7 +27,7 @@ public class PotentialCalculationRDF implements PotentialCalculation {
     protected double xMax;
 
     
-    public PotentialCalculationRDF(ISpace space, Box box) {
+    public PotentialCalculationRDF(Space space, Box box) {
         dr = space.makeVector();
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(LimitType.HALF_STEP);

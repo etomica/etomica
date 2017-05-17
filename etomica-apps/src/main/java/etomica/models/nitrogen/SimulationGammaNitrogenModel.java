@@ -6,7 +6,6 @@ package etomica.models.nitrogen;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.ISpecies;
-import etomica.api.IVector;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -33,7 +32,7 @@ import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
@@ -51,7 +50,7 @@ import etomica.units.Pixel;
 public class SimulationGammaNitrogenModel extends Simulation{
 
 	
-	public SimulationGammaNitrogenModel(ISpace space, int numMolecule, double temperature, double pressure) {
+	public SimulationGammaNitrogenModel(Space space, int numMolecule, double temperature, double pressure) {
 		super(space);
 		this.space = space;
 		double inita = 3.957;
@@ -257,7 +256,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	}
 
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;

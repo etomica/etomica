@@ -10,9 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
-import etomica.atom.MoleculeOriented;
-import etomica.space.ISpace;
-import etomica.space3d.IOrientationFull3D;
+import etomica.space.Space;
 import etomica.units.Electron;
 
 /**
@@ -28,7 +26,7 @@ public class DipoleSourceAceticAcid implements DipoleSource {
      * @param space dimension of the space
      */
 
-    public DipoleSourceAceticAcid(ISpace space) {
+    public DipoleSourceAceticAcid(Space space) {
         dipole = space.makeVector();
     }
 

@@ -5,9 +5,8 @@
 package etomica.kmc;
 
 import etomica.api.IVectorMutable;
-import etomica.dimer.SimDimerMEAMadatom;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class SimKMCworker extends Simulation{
 
@@ -16,7 +15,7 @@ public class SimKMCworker extends Simulation{
      */
     private static final long serialVersionUID = 1L;
 
-    public SimKMCworker(ISpace space) {
+    public SimKMCworker(Space space) {
         super(space);
     }
 

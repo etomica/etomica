@@ -7,11 +7,11 @@ package etomica.models.nitrogen;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class BoundaryRectangularPeriodicSwitch extends BoundaryRectangularPeriodic{
 	
-	public BoundaryRectangularPeriodicSwitch(ISpace _space) {
+	public BoundaryRectangularPeriodicSwitch(Space _space) {
 		super(_space);
 		
 	}

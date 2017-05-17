@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
@@ -34,7 +34,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
     protected double mass;
     protected double fac;
     
-    public P2EffectiveFeynmanHibbs(ISpace space, Potential2SoftSpherical p2Classical) {
+    public P2EffectiveFeynmanHibbs(Space space, Potential2SoftSpherical p2Classical) {
         p2Classy = p2Classical;
         dr = space.makeVector();
     }
@@ -104,7 +104,7 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
     }
 
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(20);
         final P2HePCKLJS p2 = new P2HePCKLJS(space);
         P2EffectiveFeynmanHibbs p2fh = new P2EffectiveFeynmanHibbs(space, p2);

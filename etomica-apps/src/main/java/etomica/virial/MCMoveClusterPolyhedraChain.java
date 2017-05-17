@@ -11,12 +11,12 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomPair;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
 
-    public MCMoveClusterPolyhedraChain(IRandom random, ISpace _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
+    public MCMoveClusterPolyhedraChain(IRandom random, Space _space, double sigma, IPotentialAtomic p2, double[][] uValues) {
         super(random, null, _space);
         this.sigma = sigma;
         dr = (IVectorRandom)space.makeVector();

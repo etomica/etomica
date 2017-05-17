@@ -19,7 +19,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.util.HistogramExpanding;
@@ -29,7 +29,7 @@ import etomica.util.HistogramExpanding;
  */
 public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIndependent, IAction {
 
-    public MeterAtomicDisplacement(ISpace space, CoordinateDefinition coordinateDefinition) {
+    public MeterAtomicDisplacement(Space space, CoordinateDefinition coordinateDefinition) {
     	
     	this.coordinateDefinition = coordinateDefinition;
     	this.space = space;
@@ -150,7 +150,7 @@ public class MeterAtomicDisplacement implements IEtomicaDataSource, DataSourceIn
     private DataInfoDoubleArray rDataInfo;
     protected IVectorMutable workVector;
     private DataFunction data;
-    private ISpace space;
+    private Space space;
     private HistogramExpanding histogram;
     private DataDoubleArray distanceR;
 	

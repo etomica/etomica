@@ -9,7 +9,7 @@ import etomica.api.*;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.potential.IPotentialMolecularSecondDerivative;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
@@ -20,8 +20,8 @@ import etomica.space3d.Tensor3D;
  */
 public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecondDerivative  {
 
-    public P2Water4PSoft(final ISpace space, double sigma, double epsilon,
-            double chargeH,double rCut, IAtomPositionDefinition positionDefinition) {
+    public P2Water4PSoft(final Space space, double sigma, double epsilon,
+                         double chargeH, double rCut, IAtomPositionDefinition positionDefinition) {
         super(space, sigma, epsilon, chargeH,rCut, positionDefinition);
         gradient = new IVectorMutable[2];
         gradient[0] = space.makeVector();

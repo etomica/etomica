@@ -12,7 +12,7 @@ import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 import etomica.util.Arrays;
@@ -22,7 +22,7 @@ import etomica.util.Arrays;
  */
 public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
-	public PotentialMEAM(ISpace space) {
+	public PotentialMEAM(Space space) {
 		super(space);
     }
 	

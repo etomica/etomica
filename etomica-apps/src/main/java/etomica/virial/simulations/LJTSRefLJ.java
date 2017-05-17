@@ -12,15 +12,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
@@ -123,7 +121,7 @@ public class LJTSRefLJ {
         System.out.println("10^" + log10Steps + " steps");
         System.out.println();
 		
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         
         
         Potential2Spherical pLJ = new P2LennardJones(space,1.0,1.0);

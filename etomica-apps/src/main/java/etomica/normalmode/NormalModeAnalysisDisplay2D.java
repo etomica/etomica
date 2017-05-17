@@ -15,7 +15,7 @@ import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -31,7 +31,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "2-D Harmonic Oscillator";
 
-	public NormalModeAnalysisDisplay2D(ISpace _space){
+	public NormalModeAnalysisDisplay2D(Space _space){
         super(_space);
         this.space = _space;
         
@@ -123,7 +123,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 	 */
 	public static void main(String[] args) {
  
-        ISpace sp = Space2D.getInstance();
+        Space sp = Space2D.getInstance();
         
         //instantiate simulation
         NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D(sp);
@@ -146,7 +146,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 	protected NormalModes nm;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
 	protected WaveVectorFactory waveVectorFactory;
-	protected ISpace space;
+	protected Space space;
 	
 	protected int dimx = 20;
 	protected int dimy = 10;

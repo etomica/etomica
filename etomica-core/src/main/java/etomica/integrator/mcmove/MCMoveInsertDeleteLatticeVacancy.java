@@ -19,7 +19,7 @@ import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -57,12 +57,12 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
     protected double oldLnA, oldB, newLnA;
     protected final IVectorMutable oldPosition;
     protected IVectorMutable[] nbrVectors;
-    protected final ISpace space;
+    protected final Space space;
     protected double oldBoxSize;
     protected AtomIteratorAtomDependent atomIterator;
 
-    public MCMoveInsertDeleteLatticeVacancy(IPotentialMaster potentialMaster, 
-            IRandom random, ISpace _space, IIntegrator integrator, double maxDistance, int maxN, int maxVacancy) {
+    public MCMoveInsertDeleteLatticeVacancy(IPotentialMaster potentialMaster,
+                                            IRandom random, Space _space, IIntegrator integrator, double maxDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.space = _space;
         this.potentialMaster = potentialMaster;

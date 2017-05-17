@@ -19,7 +19,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -33,7 +33,7 @@ import etomica.units.Time;
  */
 public class MeterMomentumCOM implements IEtomicaDataSource, java.io.Serializable {
 
-    public MeterMomentumCOM(ISpace space) {
+    public MeterMomentumCOM(Space space) {
         data = new DataVector(space);
         momentumSum = data.x;
         dataInfo = new DataInfoVector("COM momentum", new CompoundDimension(

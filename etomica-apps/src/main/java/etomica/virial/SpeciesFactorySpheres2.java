@@ -8,16 +8,16 @@ import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 public class SpeciesFactorySpheres2 implements SpeciesFactory, java.io.Serializable {
 
-    public SpeciesFactorySpheres2(ISpace space, int nA, ElementSimple CH3element, ElementSimple CH2element) {
+    public SpeciesFactorySpheres2(Space space, int nA, ElementSimple CH3element, ElementSimple CH2element) {
         this(space, nA, CH3element,CH2element, nominalBondL, nominalBondTheta);
     }
     
-    public SpeciesFactorySpheres2(ISpace space, int nA, ElementSimple CH3element, ElementSimple CH2element, double bondL, double bondTheta) {
+    public SpeciesFactorySpheres2(Space space, int nA, ElementSimple CH3element, ElementSimple CH2element, double bondL, double bondTheta) {
         this.nA = nA;
         this.CH3element = CH3element;
         this.CH2element = CH2element;
@@ -54,7 +54,7 @@ public class SpeciesFactorySpheres2 implements SpeciesFactory, java.io.Serializa
         conformation = new ConformationChainZigZag2(space, vector1, vector2);
     }
     
-    public ISpecies makeSpecies(ISpace _space) {
+    public ISpecies makeSpecies(Space _space) {
         SpeciesAlkane species = new SpeciesAlkane(_space, nA,CH3element, CH2element);
         species.setConformation(conformation);
         return species;
@@ -63,7 +63,7 @@ public class SpeciesFactorySpheres2 implements SpeciesFactory, java.io.Serializa
     private static final long serialVersionUID = 1L;
     protected static final double nominalBondL = 1.54;
     protected static final double nominalBondTheta = Math.PI*114/180;
-    protected final ISpace space;
+    protected final Space space;
     protected double bondL;
     protected double bondTheta;
     private final int nA;

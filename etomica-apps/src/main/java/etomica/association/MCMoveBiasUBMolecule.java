@@ -23,7 +23,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveMolecular;
 import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space3d.RotationTensor3D;
 
@@ -49,12 +49,12 @@ public class MCMoveBiasUBMolecule extends MCMoveBox implements MCMoveMolecular{
     private double uNew;
     private IVectorMutable[] oldPosition;
     protected final MoleculeArrayList smerList;
-    protected final ISpace space;
+    protected final Space space;
     protected final RotationTensor3D rotationTensor;
     protected IVectorRandom groupTranslationVector;
     protected MoleculeChildAtomAction moveMoleculeAction;
     
-    public MCMoveBiasUBMolecule(PotentialMaster potentialMaster, BiasVolumeMolecule bv, IRandom random, ISpace space) {
+    public MCMoveBiasUBMolecule(PotentialMaster potentialMaster, BiasVolumeMolecule bv, IRandom random, Space space) {
         super(potentialMaster);//variable
         biasVolume = bv;
         this.random =random;

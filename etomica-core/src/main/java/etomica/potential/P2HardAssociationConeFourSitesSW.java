@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.units.Angle;
 import etomica.units.Dimension;
@@ -36,7 +36,7 @@ public class P2HardAssociationConeFourSitesSW extends Potential2 {
     private final IVectorMutable dr;
     private IBoundary boundary;
     
-    public P2HardAssociationConeFourSitesSW(ISpace space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
+    public P2HardAssociationConeFourSitesSW(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
         super(space);
         dr = space.makeVector();
 

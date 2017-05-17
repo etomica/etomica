@@ -19,7 +19,7 @@ import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.ISimulationEventManager;
 import etomica.api.ISpecies;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.RandomMersenneTwister;
 import etomica.util.RandomNumberGeneratorUnix;
@@ -34,7 +34,7 @@ public class Simulation implements ISimulation  {
     /**
      * Creates a new simulation using the given space
      */
-    public Simulation(ISpace space) {
+    public Simulation(Space space) {
         this.space = space;
         boxList = new Box[0];
         controller = new Controller();
@@ -116,7 +116,7 @@ public class Simulation implements ISimulation  {
     /**
      * @return the space
      */
-    public final ISpace getSpace() {
+    public final Space getSpace() {
         return space;
     }
 
@@ -276,7 +276,7 @@ public class Simulation implements ISimulation  {
     }
 
     private static final long serialVersionUID = 4L;
-    protected final ISpace space;
+    protected final Space space;
     protected int[] seeds;
     protected final SimulationEventManager eventManager;
     private Box[] boxList;

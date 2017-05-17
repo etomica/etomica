@@ -10,7 +10,7 @@ package etomica.math.geometry;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**
@@ -27,7 +27,7 @@ public class TruncatedOctahedron extends Polyhedron {
      * Constructs a truncated octahedron with vertices defined in the embedded
      * space and with unit edge lengths.
      */
-    public TruncatedOctahedron(ISpace embeddedSpace) {
+    public TruncatedOctahedron(Space embeddedSpace) {
         this(embeddedSpace, 1.0);
     }
 
@@ -36,7 +36,7 @@ public class TruncatedOctahedron extends Polyhedron {
      * space and with edge lengths equal to the given value.
      */
 
-    public TruncatedOctahedron(ISpace embeddedSpace, double edgeLength) {
+    public TruncatedOctahedron(Space embeddedSpace, double edgeLength) {
         super(makeFaces(embeddedSpace));
         setEdgeLength(edgeLength);
     }
@@ -146,7 +146,7 @@ public class TruncatedOctahedron extends Polyhedron {
      * @return
      */
 
-    private static Polygon[] makeFaces(ISpace embeddedSpace) {
+    private static Polygon[] makeFaces(Space embeddedSpace) {
         IVectorMutable[] vertices = embeddedSpace.makeVectorArray(24);
         LineSegment[] edges = new LineSegment[36];
         Polygon[] faces = new Polygon[14];

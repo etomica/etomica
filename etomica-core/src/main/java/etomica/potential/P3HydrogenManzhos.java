@@ -20,7 +20,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
 import etomica.api.IPotentialMolecular;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
@@ -29,7 +29,7 @@ import etomica.util.Constants;
 public class P3HydrogenManzhos implements IPotential{
     public static void main(String[] args) {       
 
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         P3HydrogenManzhos pot1 = new P3HydrogenManzhos(space);
         double E = 0.0;
         IVectorMutable[] v2 = new IVectorMutable[6];
@@ -130,7 +130,7 @@ public class P3HydrogenManzhos implements IPotential{
     protected IVectorMutable vec;
     protected double[][] xPos = {{0.0374,-0.2422,0.2792},{-0.0374,0.2422,-0.2792},{-0.016,-1.2877,2.9799},{-0.0196,-2.0073,2.7949},{-0.1047,1.5911,2.54},{0.063,1.7936,3.2349}};
     protected int[][] nPerm = {{1,2,3,4,5,6,7,8,9,10,11,12},{1,2,3,4,6,5,8,7,10,9,12,11},{2,1,4,3,5,6,7,8,11,12,9,10},{3,4,1,2,7,8,5,6,9,10,11,12},{5,6,7,8,1,2,3,4,9,11,10,12},{1,3,2,4,9,10,11,12,5,6,7,8},{9,11,10,12,5,7,6,8,1,3,2,4}};
-    public P3HydrogenManzhos(ISpace space) {
+    public P3HydrogenManzhos(Space space) {
         for (int i=0; i<6; i++) {            
             eqPos[i] = space.makeVector();
             eqPos[i].E(xPos[i]);
@@ -276,7 +276,7 @@ public class P3HydrogenManzhos implements IPotential{
     }
     public static class P3HydrogenManzhosMolecular extends P3HydrogenManzhos implements IPotentialMolecular {
         protected IVectorMutable[] v = new IVectorMutable[6];
-        public P3HydrogenManzhosMolecular(ISpace space) {            
+        public P3HydrogenManzhosMolecular(Space space) {
             super(space);     
             for (int i=0; i<6; i++) {
                 v[i] = space.makeVector();

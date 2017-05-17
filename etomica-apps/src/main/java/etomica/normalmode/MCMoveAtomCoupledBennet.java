@@ -17,7 +17,7 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -51,7 +51,7 @@ public class MCMoveAtomCoupledBennet extends MCMoveBoxStep {
 
 
 	public MCMoveAtomCoupledBennet(IPotentialMaster potentialMaster, IRandom random, 
-    		CoordinateDefinition coordinateDef, NormalModes normalMode, double refpref, ISpace _space) {
+    		CoordinateDefinition coordinateDef, NormalModes normalMode, double refpref, Space _space) {
         super(potentialMaster);
         this.random = random;
         this.refPref = refpref;

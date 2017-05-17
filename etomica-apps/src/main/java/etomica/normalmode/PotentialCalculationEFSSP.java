@@ -7,11 +7,11 @@ import etomica.meam.PotentialEAM;
 import etomica.meam.PotentialEAM_LS;
 import etomica.meam.PotentialEFS;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class PotentialCalculationEFSSP implements PotentialCalculation {
 		
-	public PotentialCalculationEFSSP(ISpace space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double f1, boolean isLS){
+	public PotentialCalculationEFSSP(Space space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double f1, boolean isLS){
 		sum = new double[1];
 //		sum = new double[7];
         this.temperature = temperature;

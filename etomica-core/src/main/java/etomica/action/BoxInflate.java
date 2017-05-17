@@ -10,7 +10,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Performs actions that cause volume of system to expand or contract, with
@@ -23,7 +23,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * Constructs action with a default scale of 1.0.  Requires call
      * to setBox before action can have any effect.
      */
-    public BoxInflate(ISpace space) {
+    public BoxInflate(Space space) {
 
         translator = new AtomActionTranslateBy(space);
         groupScaler = new MoleculeChildAtomAction(translator);
@@ -36,7 +36,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     /**
      * Constructs action ready to be performed on the given box. 
      */
-    public BoxInflate(Box box, ISpace space) {
+    public BoxInflate(Box box, Space space) {
         this(space);
         setBox(box);
     }

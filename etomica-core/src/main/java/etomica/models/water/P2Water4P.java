@@ -9,7 +9,7 @@ import etomica.api.*;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.box.Box;
 import etomica.potential.PotentialMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /** 
  * 4-point potential for water.  Potential parameters are typically defined
@@ -19,7 +19,7 @@ import etomica.space.ISpace;
  */
 public class P2Water4P extends PotentialMolecular {
 
-	public P2Water4P(ISpace space, double sigma, double epsilon, double chargeH, double rCut, IAtomPositionDefinition positionDefinition) {
+	public P2Water4P(Space space, double sigma, double epsilon, double chargeH, double rCut, IAtomPositionDefinition positionDefinition) {
 		super(2, space);
         this.sigma = sigma;
         sigma2 = sigma*sigma;

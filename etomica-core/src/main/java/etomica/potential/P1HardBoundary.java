@@ -12,7 +12,7 @@ import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.graphics.Drawable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -37,11 +37,11 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     private final Tensor lastVirialTensor;
     protected IBoundary boundary;
     
-    public P1HardBoundary(ISpace space) {
+    public P1HardBoundary(Space space) {
         this(space, false);
     }
     
-    public P1HardBoundary(ISpace space, boolean ignoreOverlap) {
+    public P1HardBoundary(Space space, boolean ignoreOverlap) {
         this.ignoreOverlap = ignoreOverlap;
         work = space.makeVector();
         lastVirialTensor = space.makeTensor();

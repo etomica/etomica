@@ -39,7 +39,6 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Joule;
@@ -69,7 +68,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
     protected ChainEquilibriumSim sim;
 
-    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, ISpace _space) {
+    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, Space _space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         getPanel().toolbar.addAuthor("Dr. William Chirdon");

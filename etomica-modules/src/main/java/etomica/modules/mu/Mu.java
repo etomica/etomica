@@ -17,7 +17,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardBoundary;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -34,7 +33,7 @@ public class Mu extends Simulation {
     public final P1HardBoundary p1BoundaryA, p1BoundaryB;
     public final ConfigurationLatticeRandom configuration;
     
-    public Mu(ISpace _space) {
+    public Mu(Space _space) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space); //List(this, 2.0);
         

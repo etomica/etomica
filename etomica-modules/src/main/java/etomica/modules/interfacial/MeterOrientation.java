@@ -15,7 +15,7 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angle;
 
 /**
@@ -25,7 +25,7 @@ import etomica.units.Angle;
  */
 public class MeterOrientation implements DataSourceMolecular {
     
-    public MeterOrientation(ISpace space) {
+    public MeterOrientation(Space space) {
         dataInfo = new DataInfoDouble("orientation", Angle.DIMENSION);
         data = new DataDouble();
         tag = new DataTag();

@@ -13,7 +13,7 @@ import etomica.api.IVectorMutable;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 
@@ -42,7 +42,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
     public CBMCGrowStraightAlkane(IPotentialMaster potentialMaster,
                                   IRandom random, IntegratorMC integrator, Box p, ISpecies species,
-                                  ISpace _space, int n, int NTrials) {
+                                  Space _space, int n, int NTrials) {
         super(potentialMaster, random, _space, integrator, p, n, NTrials);
 
         setChainlength(n);

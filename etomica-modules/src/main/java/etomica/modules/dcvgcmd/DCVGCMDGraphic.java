@@ -36,7 +36,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
@@ -49,7 +49,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     final static String APP_NAME = "Dual Control-volume GCMD";
     final static int REPAINT_INTERVAL = 70;
 
-    public DCVGCMDGraphic(final DCVGCMD sim, ISpace _space){
+    public DCVGCMDGraphic(final DCVGCMD sim, Space _space){
 
         super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());	
         getDisplayBox(sim.box).setPixelUnit(new Pixel(7));

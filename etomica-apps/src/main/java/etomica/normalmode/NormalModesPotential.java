@@ -22,10 +22,7 @@ import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformableLattice;
-import etomica.space.ISpace;
-import etomica.space.Tensor;
+import etomica.space.*;
 import etomica.space3d.Tensor3D;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
@@ -39,7 +36,7 @@ import etomica.util.FunctionGeneral;
 
 public class NormalModesPotential implements NormalModes {
 
-    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, ISpace space) {
+    public NormalModesPotential(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential, Space space) {
         this.space = space;
         needToCalculateModes = true;
         
@@ -286,7 +283,7 @@ public class NormalModesPotential implements NormalModes {
 		this.fileName = filename;
 	}
 
-    protected final ISpace space;
+    protected final Space space;
     private final BravaisLatticeCrystal lattice;
     private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;

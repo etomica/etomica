@@ -7,25 +7,17 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
-import etomica.api.IElement;
 import etomica.api.IIntegratorEvent;
 import etomica.api.IIntegratorListener;
-import etomica.api.ISpecies;
 import etomica.atom.IAtomTypeOriented;
 import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Nitrogen;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedFullSite;
-import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2HSDipole;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
@@ -34,7 +26,6 @@ import etomica.util.HistogramNotSoSimple;
 import etomica.util.HistogramSimple;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterCoupledAtomFlipped;
@@ -42,12 +33,10 @@ import etomica.virial.ClusterSum;
 import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MayerPUGeneral;
 import etomica.virial.MuGeneral;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap2;
 
 /**
  * B3,C2, dielectric constant

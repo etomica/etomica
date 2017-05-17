@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -37,7 +37,7 @@ public class P2SquareWellBonded extends P2SquareWell {
     protected Box box;
     protected double solventThermoFrac;
 
-	public P2SquareWellBonded(ISpace space, AtomLeafAgentManager aam, double coreDiameter,double lambda, double epsilon) {
+	public P2SquareWellBonded(Space space, AtomLeafAgentManager aam, double coreDiameter, double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
         setSolventThermoFrac(0);

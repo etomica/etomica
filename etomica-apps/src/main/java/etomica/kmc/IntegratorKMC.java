@@ -19,7 +19,7 @@ import etomica.dimer.IntegratorDimerRT;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Joule;
 
 public class IntegratorKMC extends IntegratorBox{
@@ -29,7 +29,7 @@ public class IntegratorKMC extends IntegratorBox{
     IntegratorDimerMin integratorMin1, integratorMin2;
     IPotentialMaster potentialMaster;
     double temperature;
-    private final ISpace space;
+    private final Space space;
     IRandom random;
     ISimulation sim;
     ISpecies [] species;
@@ -51,7 +51,7 @@ public class IntegratorKMC extends IntegratorBox{
     XYZWriter xyzfile;
     BoxImposePbc imposePbc;
     
-    public IntegratorKMC(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, ISpace _space){
+    public IntegratorKMC(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;

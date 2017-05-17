@@ -9,7 +9,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomOrientedQuaternion;
 import etomica.atom.AtomTypeSpheroPolyhedron;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.spaceNd.VectorND;
 
 public class P2SpheroPolyhedron extends Potential2 {
@@ -24,7 +24,7 @@ public class P2SpheroPolyhedron extends Potential2 {
     protected final IVectorMutable dir0, dir1, dir2;
     protected final IVectorMutable norm0, norm1, norm2;
     
-    public P2SpheroPolyhedron(ISpace space) {
+    public P2SpheroPolyhedron(Space space) {
         super(space);
         dr = space.makeVector();
         v = space.makeVector();

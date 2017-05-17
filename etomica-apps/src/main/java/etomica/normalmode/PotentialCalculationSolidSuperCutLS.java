@@ -5,7 +5,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVectorMutable;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat.ReturnValue;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -13,7 +13,7 @@ import etomica.space.ISpace;
  */
 public class PotentialCalculationSolidSuperCutLS extends PotentialCalculationSolidSuperCut {
         
-    public PotentialCalculationSolidSuperCutLS(ISpace space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
+    public PotentialCalculationSolidSuperCutLS(Space space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         super(space, coordinateDefinition, cutoffs);
     }
     

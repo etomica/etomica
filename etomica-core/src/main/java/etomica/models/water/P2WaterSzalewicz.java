@@ -19,7 +19,7 @@ import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotentialTorque;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.OrientationFull3D;
@@ -268,7 +268,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         }
     }
     
-    public static IVector[] getSites(ISpace space) {
+    public static IVector[] getSites(Space space) {
         IVectorMutable[] siteV = new IVectorMutable[siteDoubles.length];
         double bohrConv = BohrRadius.UNIT.toSim(1);
         for (int i=0; i<siteV.length; i++) {
@@ -303,9 +303,9 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     protected Component component = Component.ALL;
     protected final double[] aj3;
     protected final double bohrConv = BohrRadius.UNIT.fromSim(1);
-    protected final ISpace space;
+    protected final Space space;
     
-    public P2WaterSzalewicz(ISpace space, int nBody) {
+    public P2WaterSzalewicz(Space space, int nBody) {
         this.space = space;
         sitePos = new IVectorMutable[nBody][sites.length];
         com0 = new IVectorMutable[nBody];
@@ -1371,7 +1371,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     
     public static void main1(String[] args) {
         double bohrConv = BohrRadius.UNIT.fromSim(1);
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         species.setAxisSymmetric(false);
@@ -1420,7 +1420,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     }
     
     public static void main3(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
         species.setAxisSymmetric(false);
@@ -1479,7 +1479,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
      * Randomly moves molcules all over, computing and checking 2nd derivative
      */
     public static void main2(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(200);
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
@@ -1595,7 +1595,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         System.out.println("total polarizability "+s*bohrConv*bohrConv*bohrConv);
         System.out.println("total dipole "+Debye.UNIT.fromSim(d.getX(2)));
         System.exit(1);
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(200);
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));

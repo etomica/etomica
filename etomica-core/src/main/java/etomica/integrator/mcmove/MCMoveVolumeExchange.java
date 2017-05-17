@@ -14,7 +14,7 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Elementary Monte Carlo trial that exchanges volume between two boxs.  Trial
@@ -44,7 +44,7 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     private transient double hOld, v1Scale, v2Scale;
 
     public MCMoveVolumeExchange(IPotentialMaster potentialMaster, IRandom random,
-    		                    ISpace _space,
+    		                    Space _space,
                                 IntegratorBox integrator1,
                                 IntegratorBox integrator2) {
         super(potentialMaster, new MCMoveStepTracker());

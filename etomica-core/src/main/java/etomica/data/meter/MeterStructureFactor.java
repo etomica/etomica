@@ -15,7 +15,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveGeneral;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -27,7 +27,7 @@ import etomica.units.Null;
  */
 public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndependent {
 	
-	protected final ISpace space;
+	protected final Space space;
     protected Box box;
     protected double[] struct;
     protected IVectorMutable [] waveVec;
@@ -43,7 +43,7 @@ public class MeterStructureFactor implements IEtomicaDataSource, DataSourceIndep
      * in the box.  All wave vectors consistent with the box shape and with
      * magnitude less than cutoff are included.
      */
-	public MeterStructureFactor(ISpace space, Box aBox, double cutoff) {
+	public MeterStructureFactor(Space space, Box aBox, double cutoff) {
 	    this.space = space;
 	    this.box = aBox;
         atomList = box.getLeafList();

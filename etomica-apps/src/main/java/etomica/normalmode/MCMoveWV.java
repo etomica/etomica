@@ -9,11 +9,11 @@ import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMoveWV extends MCMoveBoxStep {
     
-    public MCMoveWV(ISpace space, NormalModesVariable normalModes, CoordinateDefinition coordinateDefinition, IRandom random) {
+    public MCMoveWV(Space space, NormalModesVariable normalModes, CoordinateDefinition coordinateDefinition, IRandom random) {
         super(null);
         this.space = space;
         this.normalModes = normalModes;
@@ -120,7 +120,7 @@ public class MCMoveWV extends MCMoveBoxStep {
         return 0;
     }
 
-    protected final ISpace space;
+    protected final Space space;
     protected final NormalModesVariable normalModes;
     protected IVectorMutable[] oldWaveVectors;
     protected double[][] oldEigenVectors;

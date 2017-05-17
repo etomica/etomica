@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Angle;
 import etomica.units.Dimension;
@@ -35,11 +35,11 @@ public class P2HardAssociationConeOneSite extends Potential2 implements Potentia
     private final IVectorMutable dr;
     private IBoundary boundary;
     
-    public P2HardAssociationConeOneSite(ISpace space) {
+    public P2HardAssociationConeOneSite(Space space) {
         this(space, 1.0, 1.0, 2.0, 8.0);
     }
     
-    public P2HardAssociationConeOneSite(ISpace space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
+    public P2HardAssociationConeOneSite(Space space, double sigma, double epsilon, double cutoffFactorLJ, double wellConstant) {
         super(space);
         dr = space.makeVector();
 

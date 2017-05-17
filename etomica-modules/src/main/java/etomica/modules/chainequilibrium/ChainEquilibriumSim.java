@@ -23,7 +23,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
@@ -92,7 +92,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         box.setNMolecules(speciesB, nMonoAcid+nDiAcid+nCrossLinkersAcid);
     }
 
-    public ChainEquilibriumSim(ISpace space) {
+    public ChainEquilibriumSim(Space space) {
         super(space);
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList)potentialMaster).setCellRange(1);

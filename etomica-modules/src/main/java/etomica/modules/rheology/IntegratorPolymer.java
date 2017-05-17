@@ -11,7 +11,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorMD;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Integrator for Brownian dynamics of a polymer in a flow field.
@@ -21,7 +21,7 @@ import etomica.space.ISpace;
 public class IntegratorPolymer extends IntegratorMD {
 
     public IntegratorPolymer(IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, ISpace _space) {
+            double timeStep, double temperature, Space _space) {
         super(potentialMaster, random, timeStep, temperature, _space);
         center = _space.makeVector();
         drPrev = _space.makeVector();

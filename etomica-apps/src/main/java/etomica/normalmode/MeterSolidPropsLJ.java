@@ -17,7 +17,7 @@ import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgent> {
@@ -25,7 +25,7 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final ISpace space;
+    protected final Space space;
     protected final CoordinateDefinition coordinateDefinition;
     protected final DataSourceScalar meterPE;
     protected final PotentialMaster potentialMaster;
@@ -50,7 +50,7 @@ public class MeterSolidPropsLJ implements IEtomicaDataSource, AgentSource<MyAgen
     private final PotentialCalculation pcSolidProps;
     protected  PotentialCalculationForceSum pcForceSum;
     
-    public MeterSolidPropsLJ(ISpace space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature, double dP,double dU, double ddP, double ULat, double PLat,double dSigma, double dc11, double gamma, double ex) {
+    public MeterSolidPropsLJ(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double temperature, double dP, double dU, double ddP, double ULat, double PLat, double dSigma, double dc11, double gamma, double ex) {
         int nData = 2;
 //        int nData = 18;
         data = new DataDoubleArray(nData);

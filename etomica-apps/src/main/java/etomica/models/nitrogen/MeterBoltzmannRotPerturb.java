@@ -17,7 +17,7 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorMC;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -29,8 +29,8 @@ import etomica.units.Null;
  */
 public class MeterBoltzmannRotPerturb implements IEtomicaDataSource {
     
-    public MeterBoltzmannRotPerturb(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species, 
-    		ISpace space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
+    public MeterBoltzmannRotPerturb(IntegratorMC integrator, IPotentialMaster potentialMaster, ISpecies species,
+                                    Space space, ISimulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.primaryCoordDef = coordinateDef;
         
         Box realBox = coordinateDef.getBox();

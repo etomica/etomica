@@ -11,14 +11,14 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ClusterCoupledFlipped implements ClusterAbstract {
 
     /**
      * cluster must have caching disabled
      */
-    public ClusterCoupledFlipped(ClusterAbstract cluster, ISpace space) {
+    public ClusterCoupledFlipped(ClusterAbstract cluster, Space space) {
         this(cluster, space, 0);
     }
     
@@ -27,7 +27,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
      * configurations will be flipped when the minimum distance between any two molecules
      * exceeds minFlipDistance.  set minFlipDistance to 0 to always flip.
      */
-    public ClusterCoupledFlipped(ClusterAbstract cluster, ISpace space, double minFlipDistance) {
+    public ClusterCoupledFlipped(ClusterAbstract cluster, Space space, double minFlipDistance) {
         this.space = space;
         wrappedCluster = cluster;
         childAtomVector = space.makeVector();
@@ -134,7 +134,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     }
     
     protected final ClusterAbstract wrappedCluster;
-    protected final ISpace space;
+    protected final Space space;
     protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;

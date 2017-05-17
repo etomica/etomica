@@ -12,7 +12,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -20,7 +20,7 @@ import etomica.species.Species;
  */
 public class SpeciesMethanol extends Species {
 
-    public SpeciesMethanol(ISpace space) {
+    public SpeciesMethanol(Space space) {
     	
         super();
         
@@ -71,6 +71,6 @@ public class SpeciesMethanol extends Species {
     public final static int indexH  = 2;
   
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final AtomTypeLeaf cH3Type, oType, hType;
 }

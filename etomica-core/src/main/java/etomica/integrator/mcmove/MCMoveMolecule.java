@@ -18,7 +18,7 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.MoleculeIterator;
 import etomica.atom.iterator.MoleculeIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -35,7 +35,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     protected double uOld;
     protected double uNew = Double.NaN;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
 
     protected final MoleculeChildAtomAction moveMoleculeAction;
     protected final IVectorRandom groupTranslationVector;
@@ -43,12 +43,12 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     protected IMolecule molecule;
 
     public MCMoveMolecule(ISimulation sim, IPotentialMaster potentialMaster,
-    		              ISpace _space) {
+    		              Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
     }
     
     public MCMoveMolecule(IPotentialMaster potentialMaster, IRandom random,
-    		              ISpace _space, double stepSize,
+                          Space _space, double stepSize,
                           double stepSizeMax) {
         super(potentialMaster);
         this.random = random;

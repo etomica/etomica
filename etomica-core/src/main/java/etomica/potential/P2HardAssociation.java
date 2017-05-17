@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -23,11 +23,11 @@ import etomica.units.Length;
  */
 public class P2HardAssociation extends Potential2HardSpherical {
 
-    public P2HardAssociation(ISpace space) {
+    public P2HardAssociation(Space space) {
         this(space, 2.0, 1.0);
     }
     
-    public P2HardAssociation(ISpace space, double wellDiameter, double epsilon) {
+    public P2HardAssociation(Space space, double wellDiameter, double epsilon) {
         super(space);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);

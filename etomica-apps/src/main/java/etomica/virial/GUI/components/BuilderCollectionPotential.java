@@ -15,7 +15,7 @@ import etomica.api.ISpecies;
 import etomica.potential.P2LJQ;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.virial.MCMoveClusterTorsionMulti;
 
 import etomica.virial.GUI.models.EnumSiteName;
@@ -381,7 +381,7 @@ public class BuilderCollectionPotential {
 	
 		@SuppressWarnings("rawtypes")
 		Class[] ParamClass = new Class[numberofParameters+1];
-		ParamClass[0] = ISpace.class;
+		ParamClass[0] = Space.class;
 		for(int j = 1;j<=numberofParameters;j++){
 			ParamClass[j] = Double.TYPE;
 		}
@@ -422,7 +422,7 @@ public class BuilderCollectionPotential {
 		Object[] ParamValueObj = new Object[numberofParameters+1];
 		@SuppressWarnings("rawtypes")
 		Class[] ParamClass = new Class[numberofParameters+1];
-		ParamClass[0] = ISpace.class;
+		ParamClass[0] = Space.class;
 		for(int j = 1;j<=numberofParameters;j++){
 			ParamClass[j] = Double.TYPE;
 		}
@@ -616,7 +616,7 @@ public class BuilderCollectionPotential {
 			}
 			
 			Class[] ParamClass = new Class[ParametersForPotential.length+1];
-			ParamClass[0] = ISpace.class;
+			ParamClass[0] = Space.class;
 			for(int j1 = 1;j1<=ParametersForPotential.length;j1++){
 				ParamClass[j1] = Double.TYPE;
 			}

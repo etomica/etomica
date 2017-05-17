@@ -6,8 +6,7 @@ package etomica.kmc;
 
 import etomica.api.IVectorMutable;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
-import etomica.units.Kelvin;
+import etomica.space.Space;
 
 public class SimKMCmaster extends Simulation{
 
@@ -16,7 +15,7 @@ public class SimKMCmaster extends Simulation{
      */
     private static final long serialVersionUID = 1L;
 
-    public SimKMCmaster(ISpace space) {
+    public SimKMCmaster(Space space) {
         super(space);
     }
 

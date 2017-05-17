@@ -11,11 +11,11 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ClusterCoupledFlippedPartial implements ClusterAbstract {
 
-	public ClusterCoupledFlippedPartial(ClusterAbstract cluster, ISpace space, int[][] flipList) {
+	public ClusterCoupledFlippedPartial(ClusterAbstract cluster, Space space, int[][] flipList) {
 		this.space = space;
 		this.flipList = flipList;
 		actualFlipList = new int[flipList.length];
@@ -125,7 +125,7 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
     }
     
     private final ClusterAbstract wrappedCluster;
-    protected final ISpace space;
+    protected final Space space;
     protected long cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     protected final boolean[] flippedAtoms;

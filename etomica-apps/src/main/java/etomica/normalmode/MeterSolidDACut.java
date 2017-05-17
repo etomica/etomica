@@ -15,7 +15,7 @@ import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -29,7 +29,7 @@ import etomica.units.Null;
  
 public class MeterSolidDACut implements IEtomicaDataSource {
 
-    public MeterSolidDACut(ISpace space, IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
+    public MeterSolidDACut(Space space, IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
         this.potentialMaster = potentialMaster;

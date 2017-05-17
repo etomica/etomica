@@ -11,7 +11,7 @@ package etomica.math.geometry;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * A quadrilateral with opposite sides parallel
@@ -24,14 +24,14 @@ public class Parallelogram extends Polygon implements Parallelotope {
     /**
      * Default constructor makes a square of unit size
      */
-    public Parallelogram(ISpace embeddedSpace) {
+    public Parallelogram(Space embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector(new double[]{1,0}), embeddedSpace.makeVector(new double[]{0,1}));
     }
 
     /**
      * Constructs a parallelogram with the given edge vectors.
      */
-    public Parallelogram(ISpace embeddedSpace, IVector a, IVector b) {
+    public Parallelogram(Space embeddedSpace, IVector a, IVector b) {
         super(embeddedSpace, 4);
         this.a = embeddedSpace.makeVector();
         this.b = embeddedSpace.makeVector();

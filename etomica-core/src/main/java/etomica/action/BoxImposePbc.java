@@ -15,7 +15,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.atom.IMoleculePositioned;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Action that imposes the central-image effect of a box having periodic
@@ -30,7 +30,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * before action can have any effect. Default is to apply central-imaging at
 	 * the atom rather than molecule level.
 	 */
-	public BoxImposePbc(ISpace space) {
+	public BoxImposePbc(Space space) {
 		setApplyToMolecules(false);
 		this.space = space;
 		setPositionDefinition(new AtomPositionGeometricCenter(space));
@@ -43,7 +43,7 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 * 
 	 * @param box
 	 */
-	public BoxImposePbc(Box box, ISpace space) {
+	public BoxImposePbc(Box box, Space space) {
 		this(space);
 		setBox(box);
 	}
@@ -122,7 +122,7 @@ public class BoxImposePbc extends BoxActionAdapter {
     private static final long serialVersionUID = 1L;
     private AtomActionTranslateBy translator;
     private MoleculeChildAtomAction moleculeTranslator;
-    private ISpace space;
+    private Space space;
     private IAtomPositionDefinition positionDefinition;
 
 	private boolean applyToMolecules;

@@ -6,7 +6,6 @@ package etomica.models.nitrogen;
 
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
@@ -175,7 +174,7 @@ public class TestRotationVector {
 	
 	protected double[] u;
 	protected IVectorMutable[] axis;
-	protected ISpace space;
+	protected Space space;
 	protected Tensor3D tensor;
 	protected RotationTensor3D rotation;
 	protected IVectorMutable rotationAxis;

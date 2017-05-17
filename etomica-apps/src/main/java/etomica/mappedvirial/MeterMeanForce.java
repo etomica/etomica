@@ -23,7 +23,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Force;
 import etomica.units.Length;
 import etomica.util.DoubleRange;
@@ -37,7 +37,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
     protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final AtomLeafAgentManager<MyAgent> forceManager;
-    protected final ISpace space;
+    protected final Space space;
     protected final Potential2SoftSpherical p2;
     protected final IVectorMutable dr, fij;
     protected final DataFunction data;
@@ -47,7 +47,7 @@ public class MeterMeanForce implements IEtomicaDataSource, AgentSource<Integrato
     protected final DataDoubleArray xData;
     protected final DataInfoDoubleArray xDataInfo;
     
-    public MeterMeanForce(ISpace space, IPotentialMaster potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
+    public MeterMeanForce(Space space, IPotentialMaster potentialMaster, Potential2SoftSpherical p2, Box box, int nbins) {
         this.space = space;
         this.p2 = p2;
         this.box = box;

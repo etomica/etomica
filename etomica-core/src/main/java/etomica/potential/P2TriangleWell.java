@@ -10,7 +10,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.
@@ -20,11 +20,11 @@ import etomica.space.ISpace;
 
 public class P2TriangleWell extends Potential2 {
 
-    public P2TriangleWell(ISpace space) {
+    public P2TriangleWell(Space space) {
         this(space, 1.0, 2.0, 1.0);
     }
   
-    public P2TriangleWell(ISpace space, double coreDiameter, double lambda, double epsilon) {
+    public P2TriangleWell(Space space, double coreDiameter, double lambda, double epsilon) {
         super(space);
         setCoreDiameter(coreDiameter);
         setLambda(lambda);

@@ -32,7 +32,7 @@ import etomica.potential.PotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
@@ -51,7 +51,7 @@ import etomica.units.Pixel;
 public class SimulationBetaNitrogenModelTest extends Simulation{
 
 	
-	public SimulationBetaNitrogenModelTest(ISpace space, int[] nC, double temperature, double pressure, double newScale) {
+	public SimulationBetaNitrogenModelTest(Space space, int[] nC, double temperature, double pressure, double newScale) {
 		super(space);
 		this.space = space;
 		double a = 3.840259;//3.854;
@@ -583,7 +583,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 	}
 
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;

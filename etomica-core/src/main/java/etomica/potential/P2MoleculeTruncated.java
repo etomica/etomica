@@ -7,7 +7,7 @@ import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -16,7 +16,7 @@ import etomica.space.ISpace;
  */
 public class P2MoleculeTruncated extends PotentialMolecular {
     
-    public P2MoleculeTruncated(IPotentialMolecular potential, double truncationRadius, ISpace _space, IAtomPositionDefinition positionDefinition) {
+    public P2MoleculeTruncated(IPotentialMolecular potential, double truncationRadius, Space _space, IAtomPositionDefinition positionDefinition) {
         super(2, _space);
         this.potential = potential;
         this.positionDefinition = positionDefinition;

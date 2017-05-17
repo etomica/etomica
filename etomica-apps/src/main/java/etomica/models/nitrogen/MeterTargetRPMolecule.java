@@ -18,7 +18,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Degree;
 import etomica.units.Null;
 
@@ -56,8 +56,8 @@ public class MeterTargetRPMolecule implements IEtomicaDataSource {
 	private IVectorMutable[][] initMolecOrientation;
 	protected PRotConstraint pRotConstraint;
     
-    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, ISpecies species, ISpace space, ISimulation sim, 
-    		CoordinateDefinitionNitrogen coordinateDef, PRotConstraint pRotConstraint) {
+    public MeterTargetRPMolecule(IPotentialMaster potentialMasterSampled, ISpecies species, Space space, ISimulation sim,
+                                 CoordinateDefinitionNitrogen coordinateDef, PRotConstraint pRotConstraint) {
         this.potentialMaster = potentialMasterSampled;
         this.coordinateDefinition = coordinateDef;
         this.pRotConstraint = pRotConstraint;

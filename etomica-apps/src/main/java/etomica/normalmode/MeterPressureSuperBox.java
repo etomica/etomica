@@ -8,7 +8,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pressure;
 
 /**
@@ -22,7 +22,7 @@ import etomica.units.Pressure;
  
 public class MeterPressureSuperBox extends DataSourceScalar {
     
-    public MeterPressureSuperBox(ISpace space) {
+    public MeterPressureSuperBox(Space space) {
     	super("Pressure",Pressure.dimension(space.D()));
     	dim = space.D();
         iteratorDirective = new IteratorDirective();

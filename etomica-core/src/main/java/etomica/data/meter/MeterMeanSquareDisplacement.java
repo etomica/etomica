@@ -12,7 +12,7 @@ import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Undefined;
 
 /**
@@ -29,11 +29,11 @@ import etomica.units.Undefined;
 public class MeterMeanSquareDisplacement extends DataSourceScalar {
 
     
-    public MeterMeanSquareDisplacement(ISpace space, IntegratorBox integrator) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator) {
         this(space, integrator, new AtomIteratorLeafAtoms());
     }
 
-    public MeterMeanSquareDisplacement(ISpace space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
         super("Mean square displacement", Undefined.DIMENSION);
         throw new RuntimeException("MeterMeanSquareDisplacement class is currently unusable.");
 /*
@@ -143,6 +143,6 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
     AtomIteratorBoxDependent iterator;
     IntegratorBox integrator;
     protected IVectorMutable[] rAccum, rLast;
-    private final ISpace space;
+    private final Space space;
 
 }//end of class

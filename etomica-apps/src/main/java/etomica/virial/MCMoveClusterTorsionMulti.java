@@ -21,7 +21,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.potential.P4BondTorsion;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * An MC Move for cluster simulations that performs torsion moves on a chain
@@ -36,7 +36,7 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
 
-    public MCMoveClusterTorsionMulti(ISimulation sim, IPotentialMaster potentialMaster, ISpace space,
+    public MCMoveClusterTorsionMulti(ISimulation sim, IPotentialMaster potentialMaster, Space space,
                                      P4BondTorsion torsionPotential) {
     	this(potentialMaster, space, sim.getRandom(), 1.0,torsionPotential, 20);
         setBondLength(1.0);
@@ -49,7 +49,7 @@ public class MCMoveClusterTorsionMulti extends MCMoveMolecule {
      * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterTorsionMulti(IPotentialMaster potentialMaster, ISpace space,
+    public MCMoveClusterTorsionMulti(IPotentialMaster potentialMaster, Space space,
             IRandom random, double stepSize, P4BondTorsion torsionPotential, int nBins) {
         super(potentialMaster,random,space,stepSize,Double.POSITIVE_INFINITY);
         ((MCMoveStepTracker)getTracker()).setTunable(false);

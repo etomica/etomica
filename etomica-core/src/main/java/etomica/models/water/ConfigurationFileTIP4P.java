@@ -13,7 +13,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.config.ConfigurationFile;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Degree;
 
 /**
@@ -22,9 +22,9 @@ import etomica.units.Degree;
  * to the file containing limited precision.
  */
 public class ConfigurationFileTIP4P extends ConfigurationFile {
-	protected final ISpace space;
+	protected final Space space;
 	protected boolean isIce;
-	public ConfigurationFileTIP4P(String aConfName, ISpace space, boolean isIce) {
+	public ConfigurationFileTIP4P(String aConfName, Space space, boolean isIce) {
 		super(aConfName);
 		this.space = space;
 		this.isIce = isIce;

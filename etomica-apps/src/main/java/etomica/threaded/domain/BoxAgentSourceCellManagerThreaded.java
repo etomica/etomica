@@ -8,14 +8,14 @@ import etomica.box.Box;
 import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.box.BoxAgentManager.BoxAgentSource;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * BoxAgentSource responsible for creating a NeighborCellManager.
  */
 public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource<NeighborCellManagerThreaded> {
 
-    public BoxAgentSourceCellManagerThreaded(ISimulation sim, IAtomPositionDefinition positionDefinition, ISpace _space) {
+    public BoxAgentSourceCellManagerThreaded(ISimulation sim, IAtomPositionDefinition positionDefinition, Space _space) {
         this.sim = sim;
         this.positionDefinition = positionDefinition;
         this.space = _space;
@@ -36,5 +36,5 @@ public class BoxAgentSourceCellManagerThreaded implements BoxAgentSource<Neighbo
     
     protected final ISimulation sim;
     private final IAtomPositionDefinition positionDefinition;
-    private final ISpace space;
+    private final Space space;
 }

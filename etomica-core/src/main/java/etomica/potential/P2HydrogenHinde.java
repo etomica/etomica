@@ -53,7 +53,7 @@ import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
@@ -61,7 +61,7 @@ import etomica.util.Constants;
 
 public class P2HydrogenHinde implements IPotential {
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();        
+        Space space = Space3D.getInstance();
         P2HydrogenHinde pHin = new P2HydrogenHinde(space);
         P2HydrogenPatkowski pPat = new P2HydrogenPatkowski(space);        
         double r0 = BohrRadius.UNIT.toSim(1.448736);
@@ -86,7 +86,7 @@ public class P2HydrogenHinde implements IPotential {
     protected final double [][] cten = new double [3][3];
     protected IBoundary boundary;
     protected final IVectorMutable dr,com0,com1,hh0,hh1,n0,n1;
-    public P2HydrogenHinde(ISpace space) {        
+    public P2HydrogenHinde(Space space) {
         dr = space.makeVector();
         com0 = space.makeVector();
         com1 = space.makeVector();  
@@ -331,7 +331,7 @@ public class P2HydrogenHinde implements IPotential {
         return 2;
     }
     public static class P2HydrogenHindeMolecular extends P2HydrogenHinde implements IPotentialMolecular {
-        public P2HydrogenHindeMolecular(ISpace space) {
+        public P2HydrogenHindeMolecular(Space space) {
             super(space);     
         }
         public double energy(IMoleculeList molecules) {
@@ -380,7 +380,7 @@ public class P2HydrogenHinde implements IPotential {
         } 
     }
     public static class P2HydrogenHindeAtomic extends P2HydrogenHinde implements IPotentialAtomic {
-        public P2HydrogenHindeAtomic(ISpace space) {
+        public P2HydrogenHindeAtomic(Space space) {
             super(space);     
         }
 

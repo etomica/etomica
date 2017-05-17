@@ -16,7 +16,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 import etomica.util.Function;
@@ -55,7 +55,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeSolid(IPotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, IRandom random,
-    		            ISpace _space, double pressure) {
+                             Space _space, double pressure) {
         super(potentialMaster);
 //        System.out.println("do Corti? "+doCorti);
         this.coordinateDefinition = coordinateDefinition;

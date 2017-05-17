@@ -11,7 +11,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.iterator.AtomIterator;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MC move whose purpose in life is to sample an  Einstein crystal.
@@ -22,7 +22,7 @@ import etomica.space.ISpace;
  */
 public class MCMoveEinsteinCrystal extends MCMoveBox {
 
-    public MCMoveEinsteinCrystal(ISpace space, IRandom random) {
+    public MCMoveEinsteinCrystal(Space space, IRandom random) {
         super(null);
         this.random = random;
         fixedCOM = true;

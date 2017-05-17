@@ -27,7 +27,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
      * can be used to generate Vectors, and a Polytope that defines the shape
      * and volume of the boundary region. Both are final.
      */
-    public Boundary(ISpace space, Polytope shape) {
+    public Boundary(Space space, Polytope shape) {
         this.space = space;
         this.shape = shape;
         double zip[] = new double[space.D()];
@@ -99,7 +99,7 @@ public abstract class Boundary implements IBoundary, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final IVector center;
     protected final Polytope shape;
-    protected final ISpace space;
+    protected final Space space;
     protected Box box;
     protected IBoundaryEvent inflateEvent;
     protected BoundaryEventManager eventManager;

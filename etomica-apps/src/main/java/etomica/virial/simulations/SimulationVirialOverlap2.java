@@ -18,7 +18,7 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Null;
@@ -44,8 +44,8 @@ public class SimulationVirialOverlap2 extends Simulation {
      * set methods before using it.  When you are done calling set methods,
      * you must call init() before using it.
      */
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, int nMolecules,
-            double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
+    public SimulationVirialOverlap2(Space aSpace, ISpecies species, int nMolecules,
+                                    double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
         this(aSpace, new ISpecies[]{species}, new int[]{nMolecules}, temperature, refCluster, targetCluster);
     }
 
@@ -55,8 +55,8 @@ public class SimulationVirialOverlap2 extends Simulation {
      * set methods before using it.  When you are done calling set methods,
      * you must call init() before using it.
      */
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules,
-            double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
+    public SimulationVirialOverlap2(Space aSpace, ISpecies[] species, int[] nMolecules,
+                                    double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
         super(aSpace);
         this.species = species;
         this.temperature = temperature;
@@ -77,23 +77,23 @@ public class SimulationVirialOverlap2 extends Simulation {
      * If this constructor is used to instantiate the simulation, then doWiggle is set to false, and 
      * ClusterAbstract[] is set to {refCluster,targetCluster}
      */
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
-            double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
+    public SimulationVirialOverlap2(Space aSpace, ISpecies species,
+                                    double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
         this(aSpace, new ISpecies[]{species}, new int[]{refCluster.pointCount()}, temperature, refCluster, targetCluster);
         init();
     }
 
     // this constructor allows you to specify doWiggle=true
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
-            double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster, boolean doWiggle) {
+    public SimulationVirialOverlap2(Space aSpace, ISpecies species,
+                                    double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster, boolean doWiggle) {
         this(aSpace,new ISpecies[]{species}, new int[]{refCluster.pointCount()},temperature,refCluster,targetCluster);
         setDoWiggle(doWiggle);
         init();
     }
     
     // this constructor allows you to specify your own sampleClusters
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies species, 
-            double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
+    public SimulationVirialOverlap2(Space aSpace, ISpecies species,
+                                    double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
         this(aSpace, new ISpecies[]{species}, new int[]{aValueClusters[0].pointCount()}, temperature, aValueClusters[0], aValueClusters[1]);
         setDoWiggle(doWiggle);
         setSampleClusters(aSampleClusters);
@@ -101,8 +101,8 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     // this constructor allows you to perform the calculation for a mixture
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules, 
-            double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
+    public SimulationVirialOverlap2(Space aSpace, ISpecies[] species, int[] nMolecules,
+                                    double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
         this(aSpace, species, nMolecules, temperature, aValueClusters[0], aValueClusters[1]);
         setSampleClusters(aSampleClusters);
         setDoWiggle(doWiggle);
@@ -111,8 +111,8 @@ public class SimulationVirialOverlap2 extends Simulation {
 
     // this constructor allows you to perform the calculation for a mixture or a flexible molecule (with an alternate/ghost molecule)
     // this constructor also allows you to specify extra target diagrams to be calculated during the simulation
-    public SimulationVirialOverlap2(ISpace aSpace, ISpecies[] species, int[] nMolecules,
-            double temperature, final ClusterAbstract[] aValueClusters, final ClusterAbstract[] extraTargetClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
+    public SimulationVirialOverlap2(Space aSpace, ISpecies[] species, int[] nMolecules,
+                                    double temperature, final ClusterAbstract[] aValueClusters, final ClusterAbstract[] extraTargetClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle) {
         this(aSpace, species, nMolecules, temperature, aValueClusters[0], aValueClusters[1]);
         setSampleClusters(aSampleClusters);
         setDoWiggle(doWiggle);
@@ -743,7 +743,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected HistogramNotSoSimple targPiHist;
     
     public static class BoxClusterFactory {
-        public BoxCluster makeBox(ISpace space, ClusterWeight sampleCluster) {
+        public BoxCluster makeBox(Space space, ClusterWeight sampleCluster) {
             return new BoxCluster(sampleCluster, space);
         }
     }

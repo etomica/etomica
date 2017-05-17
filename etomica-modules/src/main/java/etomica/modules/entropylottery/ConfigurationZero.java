@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Configuration that simply puts all the Atoms at 0, or -0.5 if the box size
@@ -18,9 +18,9 @@ import etomica.space.ISpace;
  */
 public class ConfigurationZero implements Configuration, java.io.Serializable {
 
-	private final ISpace space;
+	private final Space space;
 
-    public ConfigurationZero(ISpace _space) {
+    public ConfigurationZero(Space _space) {
         super();
         this.space = _space;
     }

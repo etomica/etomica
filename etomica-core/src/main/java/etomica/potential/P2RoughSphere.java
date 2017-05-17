@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.atom.IAtomTypeOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 
@@ -28,11 +28,11 @@ public class P2RoughSphere extends P2HardSphere {
     private final Vector3D v12Perp;
     private final Vector3D impulse;
     
-    public P2RoughSphere(ISpace space) {
+    public P2RoughSphere(Space space) {
         this(space, 1.0, false);
     }
     
-    public P2RoughSphere(ISpace space, double d, boolean ignoreOverlap) {
+    public P2RoughSphere(Space space, double d, boolean ignoreOverlap) {
         super(space,d,ignoreOverlap);
         v12Surface = new Vector3D();
         v12Par = new Vector3D();

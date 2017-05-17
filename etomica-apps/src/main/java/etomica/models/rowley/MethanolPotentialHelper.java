@@ -10,7 +10,7 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.potential.P2ModifiedMorse;
 import etomica.potential.P2Morse;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Calorie;
 import etomica.units.Mole;
 import etomica.units.Prefix;
@@ -20,7 +20,7 @@ import etomica.units.UnitRatio;
 public class MethanolPotentialHelper {
 	
 	
-	public static void initPotential(ISpace space, SpeciesMethanol species, PotentialGroup U_a_b, boolean pointCharges, double sigmaOC, double sigmaOH) {
+	public static void initPotential(Space space, SpeciesMethanol species, PotentialGroup U_a_b, boolean pointCharges, double sigmaOC, double sigmaOH) {
 		
 		IPotentialAtomic u_O_O;
 		IPotentialAtomic u_O_aC;

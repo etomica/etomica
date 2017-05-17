@@ -55,7 +55,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientationFull3D;
@@ -95,12 +94,12 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidIterative(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorRigidIterative(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, 0.05, 1.0, _space);
     }
     
     public IntegratorRigidIterative(ISimulation sim, IPotentialMaster potentialMaster,
-            double timeStep, double temperature, ISpace _space) {
+            double timeStep, double temperature, Space _space) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
         this.sim = sim;
         // if you're motivated to throw away information earlier, you can use 
@@ -652,7 +651,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         public final IVectorMutable torque;
         public final IVectorMutable force;
 
-        public MoleculeAgent(ISpace space) {
+        public MoleculeAgent(Space space) {
             torque = space.makeVector();
             force = space.makeVector();
         }

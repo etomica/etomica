@@ -17,7 +17,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.Potential2;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -33,7 +33,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
 
 
     public MCMoveAtomSuperBox(IPotentialMaster potentialMaster, IRandom random,
-    		                 ISpace _space, CoordinateDefinitionLeafSuperBox coordinateDefinition) {
+                              Space _space, CoordinateDefinitionLeafSuperBox coordinateDefinition) {
         super(potentialMaster);
         this.random = random;
         this.coordinateDefinition = coordinateDefinition;

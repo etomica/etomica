@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IRandom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class BiasVolumeSphere extends BiasVolume {
@@ -20,7 +20,7 @@ public class BiasVolumeSphere extends BiasVolume {
     private final IRandom random;
     private IBoundary boundary;
     
-    public BiasVolumeSphere(ISpace space, IRandom random){
+    public BiasVolumeSphere(Space space, IRandom random){
         super(space);
         this.random = random;
         work = (IVectorRandom)space.makeVector();

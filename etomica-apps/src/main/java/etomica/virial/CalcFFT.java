@@ -33,7 +33,7 @@ import etomica.graph.property.IsBiconnected;
 import etomica.math.SpecialFunctions;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.Arrays;
 import etomica.util.SineTransform;
@@ -323,7 +323,7 @@ public class CalcFFT {
 		int power = 18;
 		double dr = 0.01;
 		
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Potential2Spherical p2 = new P2LennardJones(space, 1, 1);
 		CalcFFT calcFFT = new CalcFFT(makeF(p2, 1.0), dr, power);
 //		List myList = new ArrayList();

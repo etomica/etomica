@@ -8,9 +8,7 @@ package etomica.virial.GUI.models;
 import etomica.api.ISpecies;
 import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
-import etomica.potential.P2LennardJones;
 
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;

@@ -25,7 +25,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 
@@ -41,7 +41,7 @@ import etomica.units.Degree;
  */
 public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulation{
 	
-	public HarmonicBetaNitrogenModelPairMoleculeSequentialLS(ISpace space, int numMolecule, double density, double rC) {
+	public HarmonicBetaNitrogenModelPairMoleculeSequentialLS(Space space, int numMolecule, double density, double rC) {
 		super(space);
 		this.space = space;
 		
@@ -393,7 +393,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialLS extends Simulatio
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;

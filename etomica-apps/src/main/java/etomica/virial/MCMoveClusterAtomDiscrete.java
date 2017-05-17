@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -21,7 +21,7 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterAtomDiscrete extends MCMoveAtom {
 
-    public MCMoveClusterAtomDiscrete(IRandom random, ISpace _space, double dr) {
+    public MCMoveClusterAtomDiscrete(IRandom random, Space _space, double dr) {
         super(random, null, _space);
         setStepSize(1.2);
         setStepSizeMin(2*dr);

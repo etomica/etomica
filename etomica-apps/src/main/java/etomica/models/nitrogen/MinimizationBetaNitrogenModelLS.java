@@ -32,7 +32,7 @@ import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
 import etomica.normalmode.BasisBigCell;
 import etomica.paracetamol.AtomActionTransformed;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
@@ -51,7 +51,7 @@ import etomica.util.FunctionGeneral;
  */
 public class MinimizationBetaNitrogenModelLS extends Simulation{
 
-	public MinimizationBetaNitrogenModelLS(ISpace space,double density, double rC) {
+	public MinimizationBetaNitrogenModelLS(Space space, double density, double rC) {
 		super(space);
 		this.space = space;
 		this.density = density;
@@ -515,7 +515,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 
 
 	protected Box box, ghostBox;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;

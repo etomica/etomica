@@ -8,7 +8,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Energy;
 
 /**
@@ -21,7 +21,7 @@ import etomica.units.Energy;
  
 public class MeterPotentialEnergyCutoff implements IEtomicaDataSource {
     
-    public MeterPotentialEnergyCutoff(IPotentialMaster potentialMaster, ISpace space, double[] cutoffs) {
+    public MeterPotentialEnergyCutoff(IPotentialMaster potentialMaster, Space space, double[] cutoffs) {
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("energy", Energy.DIMENSION, new int[]{cutoffs.length});
         tag = new DataTag();
         data = new DataDoubleArray(cutoffs.length);

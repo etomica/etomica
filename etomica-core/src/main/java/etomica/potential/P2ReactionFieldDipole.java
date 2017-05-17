@@ -14,12 +14,12 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
 import etomica.atom.IAtomPositionDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class P2ReactionFieldDipole extends PotentialMolecular implements PotentialMolecularSoft, IPotentialMolecularSecondDerivative {
 
-    public P2ReactionFieldDipole(ISpace space,IAtomPositionDefinition positionDefinition) {
+    public P2ReactionFieldDipole(Space space, IAtomPositionDefinition positionDefinition) {
         super(2, space);
         this.positionDefinition = positionDefinition;
         iDipole = space.makeVector();
@@ -254,7 +254,7 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
      */
     public static class P0ReactionField extends PotentialMolecular implements IPotential0Lrc, PotentialMolecularSoft {
 
-        public P0ReactionField(ISpace space, P2ReactionFieldDipole p) {
+        public P0ReactionField(Space space, P2ReactionFieldDipole p) {
             super(0,space);
             this.potential = p;
             gradient = new IVectorMutable[0];

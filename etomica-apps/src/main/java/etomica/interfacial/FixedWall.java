@@ -4,7 +4,7 @@ import etomica.api.*;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class FixedWall implements IIntegratorListenerMD {
 
@@ -12,7 +12,7 @@ public class FixedWall implements IIntegratorListenerMD {
     protected final Box box;
     protected final ISpecies species;
     
-    public FixedWall(ISpace space, Box box, AtomLeafAgentManager<MyAgent> agentManager, ISpecies species) {
+    public FixedWall(Space space, Box box, AtomLeafAgentManager<MyAgent> agentManager, ISpecies species) {
         this.box = box;
         this.agentManager = agentManager;
         this.species = species;

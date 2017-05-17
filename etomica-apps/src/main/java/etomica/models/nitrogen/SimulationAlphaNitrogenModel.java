@@ -23,7 +23,6 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -35,7 +34,7 @@ import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -53,7 +52,7 @@ import etomica.units.Pixel;
 public class SimulationAlphaNitrogenModel extends Simulation{
 
 	
-	public SimulationAlphaNitrogenModel(ISpace space, int[] nC, double temperature, double density) {
+	public SimulationAlphaNitrogenModel(Space space, int[] nC, double temperature, double density) {
 		super(space);
 		this.space = space;
 
@@ -315,7 +314,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 	}
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;

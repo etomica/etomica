@@ -21,7 +21,7 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * not periodic.  Length of each box edge is given by default boxSize in
      * given Simulation.
      */
-    public BoundaryRectangularPore(ISpace space) {
+    public BoundaryRectangularPore(Space space) {
         //consumer can set appropriate slit dim later
         this(space,0);
     }
@@ -35,7 +35,7 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * 1 for y-dimension, etc.).
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
-    public BoundaryRectangularPore(ISpace space, int poreDim) {
+    public BoundaryRectangularPore(Space space, int poreDim) {
         this(space, poreDim, 10.0);
     }
     
@@ -45,7 +45,7 @@ public class BoundaryRectangularPore extends BoundaryRectangular {
      * @param space
      * @param poreDim pore dimension (in which PBC is not imposed).
      */
-    public BoundaryRectangularPore(ISpace space, int poreDim, double boxSize) {
+    public BoundaryRectangularPore(Space space, int poreDim, double boxSize) {
         super(space,boxSize);
         pDim = poreDim;
         dimensionsHalf = space.makeVector();

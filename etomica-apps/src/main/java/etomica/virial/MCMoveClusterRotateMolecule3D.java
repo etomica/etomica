@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MC move for Mayer Sampling that rotates a single molecule
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
     public MCMoveClusterRotateMolecule3D(IPotentialMaster potentialMaster,
-            IRandom random, ISpace _space) {
+            IRandom random, Space _space) {
         super(potentialMaster, random, _space);
     }
 

@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
 
@@ -37,10 +37,10 @@ public class P2HardSphere extends Potential2HardSpherical {
     protected final IVectorMutable dv;
     protected final Tensor lastCollisionVirialTensor;
     
-    public P2HardSphere(ISpace space) {
+    public P2HardSphere(Space space) {
         this(space, 1.0, false);
     }
-    public P2HardSphere(ISpace space, double d, boolean ignoreOverlap) {
+    public P2HardSphere(Space space, double d, boolean ignoreOverlap) {
         super(space);
         setCollisionDiameter(d);
         lastCollisionVirialTensor = space.makeTensor();

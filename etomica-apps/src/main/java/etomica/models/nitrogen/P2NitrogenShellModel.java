@@ -13,7 +13,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialMolecularSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /** 
@@ -31,7 +31,7 @@ import etomica.space.Tensor;
  */
 public class P2NitrogenShellModel extends PotentialMolecular implements PotentialMolecularSoft{
 
-	public P2NitrogenShellModel(ISpace space, double rC) {
+	public P2NitrogenShellModel(Space space, double rC) {
 		super(2, space);
 		
 		gradient = new IVectorMutable[2];

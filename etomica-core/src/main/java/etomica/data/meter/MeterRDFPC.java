@@ -17,7 +17,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -36,7 +36,7 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
 	 * Creates meter with default to compute pair correlation for all
 	 * leaf atoms in a box.
 	 */
-    public MeterRDFPC(ISpace space, IPotentialMaster potentialMaster, Box box) {
+    public MeterRDFPC(Space space, IPotentialMaster potentialMaster, Box box) {
 	    this.space = space;
 	    
 	    this.potentialMaster = potentialMaster;
@@ -161,7 +161,7 @@ public class MeterRDFPC implements IAction, IEtomicaDataSource, DataSourceIndepe
     }
     
     protected Box box;
-    protected final ISpace space;
+    protected final Space space;
     protected DataFunction data;
     private IEtomicaDataInfo dataInfo;
     protected DataDoubleArray rData;

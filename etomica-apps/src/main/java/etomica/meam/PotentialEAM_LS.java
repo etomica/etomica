@@ -5,7 +5,7 @@ import etomica.box.Box;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -27,7 +27,7 @@ public class PotentialEAM_LS extends PotentialN implements PotentialSoft{
     protected final CoordinateDefinition coordinateDefinition;
 
     
-    public PotentialEAM_LS(CoordinateDefinition coordinateDefinition, ISpace space, double n, double m, double eps, double a, double c, double rC, IVector[] a0) {
+    public PotentialEAM_LS(CoordinateDefinition coordinateDefinition, Space space, double n, double m, double eps, double a, double c, double rC, IVector[] a0) {
         super(space);
         
         this.n = n;

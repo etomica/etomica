@@ -15,7 +15,7 @@ import etomica.box.BoxCellManager;
 import etomica.nbr.*;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -27,17 +27,17 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * position definition to null, so that atom type's definition is used
      * to assign cells. 
 	 */
-	public PotentialMasterSite(ISimulation sim, int nCells, ISpace _space) {
+	public PotentialMasterSite(ISimulation sim, int nCells, Space _space) {
         this(sim, new BoxAgentSiteSource(nCells, _space), _space);
     }
     
     public PotentialMasterSite(ISimulation sim,
-    		                   BoxAgentSource<BoxCellManager> boxAgentSource, ISpace _space) {
+    		                   BoxAgentSource<BoxCellManager> boxAgentSource, Space _space) {
         this(sim, boxAgentSource, new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class), _space);
     }
     
     public PotentialMasterSite(ISimulation sim, BoxAgentSource<BoxCellManager> boxAgentSource,
-    		BoxAgentManager<BoxCellManager> agentManager, ISpace _space) {
+    		BoxAgentManager<BoxCellManager> agentManager, Space _space) {
         this(sim, boxAgentSource, agentManager, new Api1ASite(_space.D(),agentManager));
     }
     
@@ -256,7 +256,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
     public static class BoxAgentSiteSource implements BoxAgentSource<BoxCellManager> {
-        public BoxAgentSiteSource(int nCells, ISpace _space) {
+        public BoxAgentSiteSource(int nCells, Space _space) {
             this.nCells = nCells;
             this.space = _space;
         }
@@ -269,6 +269,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
         
         private final int nCells;
-        private final ISpace space;
+        private final Space space;
     }
 }

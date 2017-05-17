@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
@@ -28,7 +28,7 @@ public class BiasVolumeSphereOrientedDoubleSites extends BiasVolume {
     private double ec2;
     private double ec1;
     
-    public BiasVolumeSphereOrientedDoubleSites(ISpace space, IRandom random){
+    public BiasVolumeSphereOrientedDoubleSites(Space space, IRandom random){
         super(space);
         this.random = random;
         work = (IVectorRandom)space.makeVector();

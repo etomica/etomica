@@ -22,7 +22,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * An abstract class that defines the real-space generalized coordinates that are
@@ -38,11 +38,11 @@ import etomica.space.ISpace;
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, ISpace _space) {
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Space _space) {
         this(box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
     }
     
-    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Basis basis, Space _space) {
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
@@ -256,11 +256,11 @@ public abstract class CoordinateDefinition {
     protected final Basis basis;
     protected final MoleculeActionTranslateTo atomActionTranslateTo;
     protected BasisCell[] cells;
-    protected final ISpace space;
+    protected final Space space;
     
     protected static class SiteSource implements AtomLeafAgentManager.AgentSource<IVectorMutable> {
         
-        public SiteSource(ISpace space) {
+        public SiteSource(Space space) {
             this.space = space;
         }
         public IVectorMutable makeAgent(IAtom atom, Box agentBox) {
@@ -272,7 +272,7 @@ public abstract class CoordinateDefinition {
             //nothing to do
         }
 
-        private final ISpace space;
+        private final Space space;
     }
     
     public static class BasisCell implements Serializable {

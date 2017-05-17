@@ -10,7 +10,7 @@ import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionCOM;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -20,7 +20,7 @@ import etomica.space.ISpace;
  */
 public abstract class SpeciesOriented extends Species implements ISpeciesOriented {
 
-    public SpeciesOriented(ISpace space) {
+    public SpeciesOriented(Space space) {
         super();
         moment = space.makeVector();
         this.space = space;
@@ -71,5 +71,5 @@ public abstract class SpeciesOriented extends Species implements ISpeciesOriente
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable moment;
     protected double mass;
-    protected final ISpace space;
+    protected final Space space;
 }

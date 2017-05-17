@@ -7,8 +7,7 @@ package etomica.models.water;
 import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.math.SpecialFunctions;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * GCPM Water potential with three association site for Wertheim approach.  
@@ -24,14 +23,14 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 	protected boolean bondingAngleRestriction;
 	double minE;
 
-	public PNWaterGCPMThreeSite(ISpace space, double minE, boolean isAssociation, boolean bondingAngleRestriction) {
+	public PNWaterGCPMThreeSite(Space space, double minE, boolean isAssociation, boolean bondingAngleRestriction) {
 		super(space);
 		this.isAssociation = isAssociation;
 		this.bondingAngleRestriction = bondingAngleRestriction;
 		this.minE = minE;
 	}
 	
-	public PNWaterGCPMThreeSite(ISpace space, double minE, boolean isAssociation) {
+	public PNWaterGCPMThreeSite(Space space, double minE, boolean isAssociation) {
 		super(space);
 		this.isAssociation = isAssociation;
 		this.minE = minE;

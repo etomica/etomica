@@ -27,7 +27,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 
@@ -80,17 +80,17 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 	public String file;
 	public ActivityIntegrate activityIntegrate;
 	public CalcVibrationalModes vib;
-	private final ISpace space;
+	private final Space space;
 	
 	
 	public IntegratorDimerRT(ISimulation sim, IPotentialMaster potentialMaster,
-			                 ISpecies[] species, ISpace _space) {
+			                 ISpecies[] species, Space _space) {
 		this(sim, potentialMaster, sim.getRandom(), 1.0, species, _space);
 	}
 	
 	public IntegratorDimerRT(ISimulation aSim, IPotentialMaster potentialMaster,
 			                 IRandom random, double temperature,
-			                 ISpecies[] aspecies, ISpace _space) {
+			                 ISpecies[] aspecies, Space _space) {
 		super(potentialMaster, temperature);
 		this.random1 = random;
 		this.sim = aSim;

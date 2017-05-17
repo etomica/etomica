@@ -10,9 +10,8 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
-import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -26,11 +25,11 @@ import etomica.species.Species;
  */
 public class SpeciesPh3site464 extends Species {
 
-    public SpeciesPh3site464(ISpace space) {
+    public SpeciesPh3site464(Space space) {
         this(space, false);
     }
     
-    public SpeciesPh3site464(ISpace space, boolean isDynamic) {
+    public SpeciesPh3site464(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -79,7 +78,7 @@ public class SpeciesPh3site464 extends Species {
    
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final boolean isDynamic;
     protected final AtomTypeLeaf cType, chType;
 }

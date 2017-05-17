@@ -15,7 +15,7 @@ import etomica.space3d.Vector3D;
 /**
  * Superclass for all Space instances. Space classes are factories for vectors, tensors, etc.
  */
-public abstract class Space implements java.io.Serializable, ISpace {
+public abstract class Space implements java.io.Serializable {
 
     protected Space() {
     }

@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import Jama.Matrix;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
@@ -27,7 +26,7 @@ import etomica.util.numerical.AkimaSpline;
  */
 public class P2QChemInterpolated extends Potential2SoftSpherical {
     
-    public P2QChemInterpolated(ISpace space) {
+    public P2QChemInterpolated(Space space) {
     	
         super(space);
    

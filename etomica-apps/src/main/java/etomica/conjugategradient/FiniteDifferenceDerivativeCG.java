@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.paracetamol.AnalyticalDerivativeEnergyParacetamol;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
 public class FiniteDifferenceDerivativeCG {
@@ -42,11 +42,11 @@ public class FiniteDifferenceDerivativeCG {
 	protected double h;
 	protected boolean hOptimizer;
 	
-	private final ISpace space;
+	private final Space space;
 	
 	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster,
                                         AnalyticalDerivativeEnergyParacetamol derivativeFunction,
-                                        ISpace _space){
+                                        Space _space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.space = _space;
@@ -127,7 +127,7 @@ public class FiniteDifferenceDerivativeCG {
 
 	
 	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
-		public MyAgentSource(ISpace space){
+		public MyAgentSource(Space space){
 			this.space = space;
 		}
 		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox){}
@@ -135,7 +135,7 @@ public class FiniteDifferenceDerivativeCG {
 		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, Box agentBox){
 			return new IntegratorVelocityVerlet.MyAgent(space);
 		}
-		protected ISpace space;
+		protected Space space;
 	}
 
 

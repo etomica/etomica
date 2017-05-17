@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.api.IVector;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 
@@ -22,7 +22,7 @@ import etomica.space.Tensor;
 public class P2SoftSphericalTruncated extends Potential2SoftSpherical
                implements PotentialTruncated {
     
-    public P2SoftSphericalTruncated(ISpace _space, Potential2SoftSpherical potential, double truncationRadius) {
+    public P2SoftSphericalTruncated(Space _space, Potential2SoftSpherical potential, double truncationRadius) {
         super(_space);
         this.potential = potential;
         setTruncationRadius(truncationRadius);
@@ -125,8 +125,8 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         private final int D;
         private Potential2Soft potential;
         
-        public P0Lrc(ISpace space, Potential2Soft truncatedPotential, 
-                Potential2Soft potential, IAtomType[] types) {
+        public P0Lrc(Space space, Potential2Soft truncatedPotential,
+                     Potential2Soft potential, IAtomType[] types) {
             super(space, types, truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element

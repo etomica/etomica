@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Representation of a mathematical polytope, which is a finite region of space
@@ -53,7 +53,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * Constructor used for the Point subclass
      */
-    Polytope(ISpace embeddedSpace, IVectorMutable vertex) {
+    Polytope(Space embeddedSpace, IVectorMutable vertex) {
         D = 0;
         this.embeddedSpace = embeddedSpace;
         this.vertices = new IVectorMutable[] { vertex };
@@ -146,7 +146,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * The space defining the vectors used to represent the vertices.
      */
-    public ISpace getEmbeddedSpace() {
+    public Space getEmbeddedSpace() {
         return embeddedSpace;
     }
 
@@ -190,7 +190,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
         return str.toString();
     }
 
-    protected final ISpace embeddedSpace;
+    protected final Space embeddedSpace;
     protected final int D;
 
     /**

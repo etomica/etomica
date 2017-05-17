@@ -5,7 +5,7 @@
 package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**
@@ -20,10 +20,10 @@ public class PrimitiveHexagonal extends Primitive {
     protected static final double cosGamma = Math.cos(gamma);
     protected static final double sinGamma = Math.sin(gamma);
     
-    public PrimitiveHexagonal(ISpace space) {
+    public PrimitiveHexagonal(Space space) {
         this(space, 1.0, 1.0);
     }
-    public PrimitiveHexagonal(ISpace space, double ab, double c) {
+    public PrimitiveHexagonal(Space space, double ab, double c) {
         super(space);
         setSize(new double[]{ab, ab, c});
         this.ab = ab;
@@ -115,7 +115,7 @@ public class PrimitiveHexagonal extends Primitive {
     public String toString() {return "Hexagonal";}
     
     protected static class PrimitiveHexagonalReciprocal extends PrimitiveHexagonal {
-        public PrimitiveHexagonalReciprocal(ISpace space, double ab, double c) {
+        public PrimitiveHexagonalReciprocal(Space space, double ab, double c) {
             super(space, ab, c);
         }
 

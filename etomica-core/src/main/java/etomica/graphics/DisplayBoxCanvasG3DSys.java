@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Panel;
 
 import etomica.box.Box;
+import etomica.space.Space;
 import org.jmol.util.Colix;
 import org.jmol.util.Point3f;
 
@@ -32,7 +33,6 @@ import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
 import etomica.space3d.IOrientationFull3D;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
@@ -68,12 +68,12 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private IVectorMutable[] planeIntersections;
     private IVectorMutable work, work2, work3;
     private double[] planeAngles;
-    private final ISpace space;
+    private final Space space;
     protected AtomLeafAgentManager<Ball[]> aamOriented;
     protected final AtomTypeAgentManager atomTypeOrientedManager;
     protected IVector rMin, rMax;
 
-    public DisplayBoxCanvasG3DSys(ISimulation sim, DisplayBox _box, ISpace _space, Controller controller) {
+    public DisplayBoxCanvasG3DSys(ISimulation sim, DisplayBox _box, Space _space, Controller controller) {
         super(controller);
         displayBox = _box;
         space = _space;

@@ -11,7 +11,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -21,11 +21,11 @@ import etomica.space.Tensor;
  */
 public class P2LJQ extends Potential2 implements Potential2Soft {
 
-    public P2LJQ(ISpace space) {
+    public P2LJQ(Space space) {
         this(space, 1, 1, 1);
     }
 
-    public P2LJQ(ISpace space, double sigma, double epsilon,  double momentSquared) {
+    public P2LJQ(Space space, double sigma, double epsilon, double momentSquared) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);

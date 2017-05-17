@@ -12,12 +12,12 @@ import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesOriented;
 
 public class SpeciesWater3POriented extends SpeciesOriented {
 
-    public SpeciesWater3POriented(ISpace space, boolean isDynamic) {
+    public SpeciesWater3POriented(Space space, boolean isDynamic) {
         super(space);
         this.isDynamic = isDynamic;
         this.space = space;
@@ -57,7 +57,7 @@ public class SpeciesWater3POriented extends SpeciesOriented {
     public final static int indexO  = 2;
 
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final AtomTypeLeaf oType, hType;
     protected final boolean isDynamic;
 }

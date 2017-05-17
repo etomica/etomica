@@ -14,7 +14,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
@@ -114,7 +114,7 @@ public class P2HydrogenPatkowskiAtomic implements IPotentialAtomic {
     //     from /home/teojan/H2-H2/fit_h22/opt.out.07
     //
     // ----------------------------------------------------------------------------
-    public P2HydrogenPatkowskiAtomic(ISpace space) {  
+    public P2HydrogenPatkowskiAtomic(Space space) {
         dr = space.makeVector();
         com0 = space.makeVector();
         com1 = space.makeVector();  

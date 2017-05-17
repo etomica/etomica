@@ -11,7 +11,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -19,11 +19,11 @@ import etomica.species.Species;
  */
 public class SpeciesWater3P extends Species {
     
-    public SpeciesWater3P(ISpace space) {
+    public SpeciesWater3P(Space space) {
         this(space, false);
     }
     
-    public SpeciesWater3P(ISpace space, boolean isDynamic) {
+    public SpeciesWater3P(Space space, boolean isDynamic) {
         super();
         this.space = space;
         hType = new AtomTypeLeaf(Hydrogen.INSTANCE);
@@ -61,7 +61,7 @@ public class SpeciesWater3P extends Species {
     public final static int indexO  = 2;
 
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final AtomTypeLeaf oType, hType;
     protected final boolean isDynamic;
 }

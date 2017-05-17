@@ -7,7 +7,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
 import etomica.data.DataSourceScalar;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -23,7 +23,7 @@ public class MeterDipoleSumSquared1site extends DataSourceScalar {
     private IVectorMutable dipoleSum;
     private double dipoleMagnitude;
     
-	public MeterDipoleSumSquared1site(ISpace space, Box box, double dipoleMagnitude) {
+	public MeterDipoleSumSquared1site(Space space, Box box, double dipoleMagnitude) {
 		super("dipoleSum^2", new CompoundDimension(new Dimension[]{Dipole.DIMENSION},new double[]{2.0}));
 		this.box=box;
 		this.dipoleMagnitude = dipoleMagnitude;

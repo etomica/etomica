@@ -10,7 +10,7 @@ import etomica.api.IPotentialMolecular;
 import etomica.atom.MoleculeArrayList;
 import etomica.chem.elements.Argon;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.virial.cluster.VirialDiagrams;
@@ -256,7 +256,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
 
     public static void main(String[] args) {
 
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         PotentialEmulCached p3 = new PotentialEmulCached(space, "3body_template.in", 3);
         PotentialEmulCached p2 = new PotentialEmulCached(space, "2body_template.in", 3);
         Simulation sim = new Simulation(space);

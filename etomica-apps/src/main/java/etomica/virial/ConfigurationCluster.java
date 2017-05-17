@@ -9,7 +9,7 @@ import etomica.api.IMolecule;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * @author kofke
@@ -19,7 +19,7 @@ import etomica.space.ISpace;
  */
 public class ConfigurationCluster implements Configuration, java.io.Serializable {
 
-	public ConfigurationCluster(ISpace _space) {
+	public ConfigurationCluster(Space _space) {
 		this.space = _space;
 	}
 
@@ -45,6 +45,6 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
         // nothing needs that (and alkanes are unhappy with it).
 	}
 
-	protected final ISpace space;
+	protected final Space space;
     private static final long serialVersionUID = 3L;
 }

@@ -12,7 +12,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.ISpecies;
 import etomica.api.IVectorMutable;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**
@@ -26,7 +26,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     private MoleculeChildAtomAction translator0, translator1;
     protected ISpecies[] species;
     
-    public ConfigurationZincblende(double latticeConstant, ISpace space) {
+    public ConfigurationZincblende(double latticeConstant, Space space) {
         super(new LatticeCubicFcc(space, latticeConstant), space);
         species = new ISpecies[2];
     }

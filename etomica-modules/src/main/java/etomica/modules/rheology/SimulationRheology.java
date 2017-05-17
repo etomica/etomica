@@ -10,7 +10,7 @@ import etomica.api.IVectorMutable;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
@@ -27,7 +27,7 @@ public class SimulationRheology extends Simulation {
     public final ActivityIntegrate activityIntegrate;
     public final ConformationPolymer conformation;
     
-    public SimulationRheology(ISpace space) {
+    public SimulationRheology(Space space) {
         super(space);
         box = new Box(new BoundaryRectangularNonperiodic(space), space);
         IVectorMutable d = space.makeVector();

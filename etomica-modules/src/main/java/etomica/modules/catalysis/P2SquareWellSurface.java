@@ -10,7 +10,7 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.Potential2HardSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -38,11 +38,11 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
     protected final AtomLeafAgentManager agentManager;
     protected int minRadicalSites;
 
-    public P2SquareWellSurface(ISpace space, AtomLeafAgentManager agentManager) {
+    public P2SquareWellSurface(Space space, AtomLeafAgentManager agentManager) {
         this(space, agentManager, 1.0, 2.0, 1.0, 3);
     }
 
-    public P2SquareWellSurface(ISpace space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon, int minRadicalSites) {
+    public P2SquareWellSurface(Space space, AtomLeafAgentManager agentManager, double coreDiameter, double lambda, double epsilon, int minRadicalSites) {
         super(space);
         this.agentManager = agentManager;
         setCoreDiameter(coreDiameter);

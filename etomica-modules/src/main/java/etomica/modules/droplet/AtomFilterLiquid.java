@@ -10,11 +10,11 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomFilterCollective;
 import etomica.data.IDataSource;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class AtomFilterLiquid implements AtomFilterCollective {
     
-    public AtomFilterLiquid(ISpace space, IDataSource meterDeformation) {
+    public AtomFilterLiquid(Space space, IDataSource meterDeformation) {
         axis = space.makeVector();
         work = space.makeVector();
         meter = meterDeformation;

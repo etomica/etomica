@@ -13,7 +13,7 @@ import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 
@@ -29,9 +29,9 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
     protected final Tensor pressureTensor;
     protected ISpecies fixed;
     protected Box box;
-    private final ISpace space;
+    private final Space space;
     
-    public PotentialCalculationForcePressureSumGB(ISpace _space, Box box) {
+    public PotentialCalculationForcePressureSumGB(Space _space, Box box) {
     	this.space = _space;
         pressureTensor = space.makeTensor();
         this.box = box;

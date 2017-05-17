@@ -17,7 +17,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.integrator.Integrator.Forcible;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 
@@ -35,11 +35,11 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
     protected final IPotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<Forcible> forceAgentManager;
-    protected final ISpace space;
+    protected final Space space;
     protected final Box box;
     protected final IteratorDirective allAtoms;
 
-    public SurfaceTensionMapped(ISpace space, Box box, ISpecies species, IPotentialMaster potentialMaster) {
+    public SurfaceTensionMapped(Space space, Box box, ISpecies species, IPotentialMaster potentialMaster) {
         this.space = space;
         this.box = box;
         densityProfileMeter = new MeterProfileByVolume(space);

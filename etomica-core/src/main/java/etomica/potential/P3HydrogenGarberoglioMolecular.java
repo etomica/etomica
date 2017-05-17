@@ -7,13 +7,13 @@ package etomica.potential;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
 import etomica.potential.P3HydrogenManzhos.P3HydrogenManzhosMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P3HydrogenGarberoglioMolecular extends P3HydrogenManzhosMolecular {
     protected double R0 = 5.0;
     protected double dR = 0.4;
     protected IVectorMutable[] pos = new IVectorMutable[3];
-    public P3HydrogenGarberoglioMolecular(ISpace space) {
+    public P3HydrogenGarberoglioMolecular(Space space) {
         super(space);
         for (int i=0; i<3; i++) {
             pos[i] = space.makeVector();

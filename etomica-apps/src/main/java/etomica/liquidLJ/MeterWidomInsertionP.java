@@ -11,7 +11,7 @@ import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -36,7 +36,7 @@ import etomica.units.Null;
  */
 public class MeterWidomInsertionP extends DataSourceScalar {
 
-    public MeterWidomInsertionP(ISpace space, IRandom random) {
+    public MeterWidomInsertionP(Space space, IRandom random) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
         atomTranslator = new MoleculeActionTranslateTo(space);

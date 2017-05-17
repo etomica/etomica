@@ -20,7 +20,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 
@@ -33,7 +33,7 @@ import etomica.space3d.Space3D;
 public class HarmonicAlphaNitrogenModel extends Simulation{
 
 	
-	public HarmonicAlphaNitrogenModel(ISpace space, int numMolecule, double density) {
+	public HarmonicAlphaNitrogenModel(Space space, int numMolecule, double density) {
 		super(space);
 		this.space = space;
 		
@@ -211,7 +211,7 @@ public class HarmonicAlphaNitrogenModel extends Simulation{
 	
 	
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected PotentialMaster potentialMaster;

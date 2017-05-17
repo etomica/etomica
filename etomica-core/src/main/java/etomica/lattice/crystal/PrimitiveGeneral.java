@@ -7,7 +7,7 @@ package etomica.lattice.crystal;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.math.geometry.Polytope;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Primitive defined simply by its vectors.  Cannot be modified by setting
@@ -17,7 +17,7 @@ import etomica.space.ISpace;
  */
 public class PrimitiveGeneral extends Primitive {
 
-    public PrimitiveGeneral(ISpace space, IVector[] primitiveVectors) {
+    public PrimitiveGeneral(Space space, IVector[] primitiveVectors) {
         super(space);
         for (int i=0; i<latticeVectors.length; i++) {
             latticeVectors[i].E(primitiveVectors[i]);

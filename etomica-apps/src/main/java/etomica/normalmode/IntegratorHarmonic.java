@@ -11,7 +11,7 @@ import etomica.atom.iterator.MoleculeIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorMD;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -23,7 +23,7 @@ import etomica.units.Null;
  */
 public class IntegratorHarmonic extends IntegratorMD {
 
-    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, ISpace _space) {
+    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, Space _space) {
         super(null,random, timeStep, temperature, _space);
         iterator = new MoleculeIteratorAllMolecules();
         // make IntergratorMD happy.

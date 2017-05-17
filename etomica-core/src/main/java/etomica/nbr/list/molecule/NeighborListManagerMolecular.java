@@ -23,7 +23,7 @@ import etomica.nbr.cell.molecule.MpiAACell;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.molecule.NeighborCriterionMolecular;
 import etomica.potential.PotentialArrayMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -47,7 +47,7 @@ public class NeighborListManagerMolecular implements IIntegratorListener, Molecu
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManagerMolecular(PotentialMasterListMolecular potentialMasterList, double range,
-                                        Box box, ISpace space) {
+                                        Box box, Space space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;

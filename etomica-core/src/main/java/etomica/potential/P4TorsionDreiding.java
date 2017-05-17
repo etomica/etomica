@@ -10,7 +10,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 
@@ -29,7 +29,7 @@ import etomica.space3d.Vector3D;
 
 public class P4TorsionDreiding extends Potential implements PotentialSoft {
 	
-	public P4TorsionDreiding (ISpace space, double phiEq, double beta, int n){
+	public P4TorsionDreiding (Space space, double phiEq, double beta, int n){
 		super(4, space);
 		
 		dr12 = new Vector3D();

@@ -10,7 +10,7 @@ import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Subclass of NeighborCellManager that notifies the NeighborListManager when
@@ -21,13 +21,13 @@ import etomica.space.ISpace;
 public class NeighborCellManagerList extends NeighborCellManager {
 
     public NeighborCellManagerList(ISimulation sim, Box box,
-            double potentialRange, ISpace _space) {
+            double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
 
     public NeighborCellManagerList(ISimulation sim, Box box,
             double potentialRange, IAtomPositionDefinition positionDefinition,
-            ISpace _space) {
+            Space _space) {
         super(sim, box, potentialRange, positionDefinition, _space);
     }
 

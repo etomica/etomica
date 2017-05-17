@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MCMove for use in a Mayer sampling simulation that rotates all molecules in
@@ -22,7 +22,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
      * @param potentialMaster
      * @param space
      */
-    public MCMoveClusterRotateMoleculeMulti(IRandom random, ISpace _space) {
+    public MCMoveClusterRotateMoleculeMulti(IRandom random, Space _space) {
         super(null, random, _space);
         this.space = _space;
     }

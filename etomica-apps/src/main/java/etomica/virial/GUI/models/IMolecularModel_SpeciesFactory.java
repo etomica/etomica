@@ -5,7 +5,6 @@
 package etomica.virial.GUI.models;
 
 import etomica.api.ISpecies;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.virial.SpeciesFactory;
 

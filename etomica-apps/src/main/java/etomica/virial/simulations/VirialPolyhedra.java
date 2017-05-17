@@ -46,7 +46,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.listener.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.potential.P2SpheroPolyhedron;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.Null;
@@ -123,7 +123,7 @@ public class VirialPolyhedra {
         }
         
 
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
 
         P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
         MayerFunction fTarget = new MayerGeneralAtomic(p2);

@@ -69,7 +69,7 @@ import etomica.overlap.DataOverlap.DataSourceOverlapAvgCollapsing;
 import etomica.overlap.DataOverlap.DataSourceOverlapLogAvg;
 import etomica.overlap.IntegratorOverlap;
 import etomica.overlap.MeterOverlap;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space1d.Vector1D;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -100,7 +100,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
     /**
      * 
      */
-    public MultiharmonicGraphicMC(MultiharmonicMC simulation, ISpace _space) {
+    public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
         this.sim = simulation;
         

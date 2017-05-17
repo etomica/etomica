@@ -4,7 +4,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MC move that operates only on atoms within a given region of x values.
@@ -19,7 +19,7 @@ public class MCMoveAtomInRegion extends MCMoveAtom {
     protected IVectorMutable oldPosition;
     
     public MCMoveAtomInRegion(IRandom random, IPotentialMaster potentialMaster,
-            ISpace _space) {
+            Space _space) {
         super(random, potentialMaster, _space);
         oldPosition = _space.makeVector();
     }

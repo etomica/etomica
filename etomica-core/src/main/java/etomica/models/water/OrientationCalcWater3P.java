@@ -14,7 +14,7 @@ import etomica.atom.AtomPositionCOM;
 import etomica.atom.OrientationCalc;
 import etomica.atom.OrientationCalcQuaternion;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.RotationTensor;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
@@ -22,7 +22,7 @@ import etomica.space3d.RotationTensor3D;
 public class OrientationCalcWater3P extends ConformationWater3P implements 
                                              OrientationCalc, OrientationCalcQuaternion, java.io.Serializable {
 
-    public OrientationCalcWater3P(ISpace space) {
+    public OrientationCalcWater3P(Space space) {
         super(space);
         xWork = space.makeVector();
         yWork = space.makeVector();

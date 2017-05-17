@@ -25,7 +25,7 @@ import etomica.potential.P3AxilrodTeller;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
@@ -45,11 +45,11 @@ import etomica.units.Kelvin;
  */
 public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizable {
 
-    public PNCO2GCPM(ISpace space) {
+    public PNCO2GCPM(Space space) {
         this(space, Integer.MAX_VALUE);
     }
     
-    public PNCO2GCPM(ISpace space, int nBody) {
+    public PNCO2GCPM(Space space, int nBody) {
 	    super(nBody, space);
 	    pair = new MoleculePair();
         sigmaC = 3.193;
@@ -507,7 +507,7 @@ for (int iter=0; iter<maxIter; iter++) {
         public static final double dpolx = 1.95, anx = 2.1;
         public final double nufac0;
         
-        public P3GCPMAxilrodTeller(ISpace space) {
+        public P3GCPMAxilrodTeller(Space space) {
             rij = space.makeVector();
             rik = space.makeVector();
             rjk = space.makeVector();
@@ -714,7 +714,7 @@ for (int iter=0; iter<maxIter; iter++) {
     public static void main2(String[] args) {
         double x = 0;
         double z = 4.;
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
         speciesCO2.setChildCount(new int[]{1,2});
@@ -782,7 +782,7 @@ for (int iter=0; iter<maxIter; iter++) {
         double z1 = 5.;
         double y2 = 7.;
         double z2 = -2;
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
         speciesCO2.setChildCount(new int[]{1,2});

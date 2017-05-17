@@ -23,7 +23,7 @@ import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
@@ -39,7 +39,7 @@ import etomica.util.numerical.FiniteDifferenceDerivative;
 public class NormalModesPotentialParacetamol implements NormalModes {
 
     public NormalModesPotentialParacetamol(int[] nCells, Primitive primitive,
-    		               Basis basis, ISpace space) {
+    		               Basis basis, Space space) {
         
         harmonicFudge = 1.0;
         needToCalculateModes = true;

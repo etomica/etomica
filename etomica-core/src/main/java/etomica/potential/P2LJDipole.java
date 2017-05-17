@@ -8,7 +8,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -20,7 +20,7 @@ import etomica.space.Tensor;
  */
 public class P2LJDipole extends PotentialMolecular implements IPotentialMolecularSecondDerivative{  
 
-    public P2LJDipole(ISpace space, double sigma, double epsilon, double dipole,double rCut) {
+    public P2LJDipole(Space space, double sigma, double epsilon, double dipole, double rCut) {
         super(2, space);
         setSigma(sigma);
         setEpsilon(epsilon);

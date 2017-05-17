@@ -15,7 +15,7 @@ import etomica.math.geometry.Polygon;
 import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * This class enables creation of a periodic truncated-octahedron boundary.
@@ -32,10 +32,10 @@ import etomica.space.ISpace;
  */
 public class BoundaryTruncatedOctahedron extends Boundary {
 
-    public BoundaryTruncatedOctahedron(ISpace _space) {
+    public BoundaryTruncatedOctahedron(Space _space) {
         this(_space, 30.0);
     }
-    public BoundaryTruncatedOctahedron(ISpace _space, double boxSize) {
+    public BoundaryTruncatedOctahedron(Space _space, double boxSize) {
         super(_space, new TruncatedOctahedron(_space));
         plane = new Plane(space);
         dimensions = space.makeVector();

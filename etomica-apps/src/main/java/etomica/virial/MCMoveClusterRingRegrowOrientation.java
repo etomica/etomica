@@ -26,7 +26,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.math.Quaternion;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
@@ -44,7 +44,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 
 	// Private instance variables
 	private final int P;
-	private final ISpace space;
+	private final Space space;
 	private final IRandom random;
 	private IOrientation3D[][] oldOrientations;
 	private double weightOld, weightNew,kHarmonic,pacc;
@@ -55,7 +55,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	private double [] newAlpha;
 	private final IVectorMutable utilityVec1,utilityVec2, utilityVec3;
 
-	public MCMoveClusterRingRegrowOrientation(IRandom random, ISpace _space, int P) {
+	public MCMoveClusterRingRegrowOrientation(IRandom random, Space _space, int P) {
 		super(null);
 		this.space = _space;
 		this.P = P;
@@ -413,7 +413,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	}
 
 	public static void main(String[] args) {
-		ISpace space = Space3D.getInstance();
+		Space space = Space3D.getInstance();
 		ClusterWeight cluster = new ClusterWeight() {
 
 			@Override

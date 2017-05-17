@@ -13,12 +13,11 @@ import etomica.api.IVectorMutable;
 import etomica.api.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
 import etomica.space.Space;
 
 public class ConfigurationFileXYZ implements Configuration, java.io.Serializable {
 
-		public ConfigurationFileXYZ(String aConfName, ISpace _space){
+		public ConfigurationFileXYZ(String aConfName, Space _space){
 			super();
 			this.space = _space;
 			confName = aConfName;
@@ -115,6 +114,6 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		private IVectorMutable dim;
 		private int[] nAtomsList;
 		private String confName;
-		private final ISpace space;
+		private final Space space;
 
 }

@@ -29,7 +29,6 @@ import etomica.integrator.IntegratorManagerMC;
 import etomica.listener.IntegratorListenerAction;
 import etomica.simulation.SimulationContainer;
 import etomica.simulation.prototypes.HSMD2D;
-import etomica.space.ISpace;
 import etomica.space.Space;
 
 /**
@@ -59,27 +58,27 @@ public class SimulationGraphic implements SimulationContainer {
     private final LinkedList<Device> deviceList = new LinkedList<Device>();
     private HashMap<Box,IntegratorListenerAction> repaintActions = new HashMap<Box,IntegratorListenerAction>();
     private int graphicType = GRAPHIC_ONLY;
-    protected final ISpace space;
+    protected final Space space;
     protected final String appName;
     protected int repaintSleep = 0;
 
 
     public SimulationGraphic(ISimulation simulation,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
     public SimulationGraphic(ISimulation simulation,
                              int graphicType,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space, controller);
     }
 
     public SimulationGraphic(ISimulation simulation,
                              String appName,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
@@ -87,7 +86,7 @@ public class SimulationGraphic implements SimulationContainer {
     public SimulationGraphic(ISimulation simulation,
                              int graphicType,
                              String appName,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space, controller);
     }
@@ -95,7 +94,7 @@ public class SimulationGraphic implements SimulationContainer {
     public SimulationGraphic(ISimulation simulation,
                              String appName,
                              int updateInterval,
-                             ISpace space,
+                             Space space,
                              Controller controller) {
     	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space, controller);
     }
@@ -104,7 +103,7 @@ public class SimulationGraphic implements SimulationContainer {
                              int graphicType,
                              String appName,
     		                 int updateInterval,
-    		                 ISpace space,
+    		                 Space space,
     		                 Controller controller) {
         this.simulation = simulation;
         this.controller = controller;

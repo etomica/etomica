@@ -16,7 +16,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * MCMove that fully regrows the beads of a ring polymer, accepting or
@@ -28,11 +28,11 @@ import etomica.space.ISpace;
  */
 public class MCMoveClusterRingRegrow extends MCMoveBox {
 
-    public MCMoveClusterRingRegrow(IRandom random, ISpace _space) {
+    public MCMoveClusterRingRegrow(IRandom random, Space _space) {
         this(random, _space, new int[0][0]);
     }
     
-    public MCMoveClusterRingRegrow(IRandom random, ISpace _space, int[][] tangledMolecules) {
+    public MCMoveClusterRingRegrow(IRandom random, Space _space, int[][] tangledMolecules) {
         super(null);
         this.space = _space;
         this.random = random;
@@ -247,7 +247,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final IRandom random;
     protected IVectorMutable[][] oldPositions;
     protected IVectorMutable[] rTrial;

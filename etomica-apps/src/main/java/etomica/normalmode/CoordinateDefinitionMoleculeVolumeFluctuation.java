@@ -20,7 +20,7 @@ import etomica.atom.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first
@@ -35,11 +35,11 @@ import etomica.space.ISpace;
 public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, ISpace space) {
+    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, Space space) {
         this(sim, box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, ISpace space) {
+    public CoordinateDefinitionMoleculeVolumeFluctuation(ISimulation sim, Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
         super(box, ((space.D() + orientationDim)*basis.getScaledCoordinates().length+1), primitive, basis, space);
         this.sim = sim;
         work1 = space.makeVector();
@@ -165,7 +165,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
 
     protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
         
-        public MoleculeSiteSource(ISpace space, IAtomPositionDefinition positionDefinition) {
+        public MoleculeSiteSource(Space space, IAtomPositionDefinition positionDefinition) {
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
@@ -181,7 +181,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             //nothing to do
         }
 
-        private final ISpace space;
+        private final Space space;
         protected final IAtomPositionDefinition positionDefinition;
         private static final long serialVersionUID = 1L;
     }

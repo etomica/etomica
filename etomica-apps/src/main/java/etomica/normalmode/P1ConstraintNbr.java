@@ -13,16 +13,16 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.box.BoxAgentManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P1ConstraintNbr implements IPotentialAtomic{
 
     // this could take a NeighborListManager to try to speed up finding neighbors
-    public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim) {
+    public P1ConstraintNbr(Space space, double neighborDistance, ISimulation sim) {
         this(space, neighborDistance, sim, 3.0);
     }
     
-    public P1ConstraintNbr(ISpace space, double neighborDistance, ISimulation sim, double constraint) {
+    public P1ConstraintNbr(Space space, double neighborDistance, ISimulation sim, double constraint) {
         boxManager = new BoxAgentManager<int[][]>(null, int[][].class, sim);
         
         neighborRadiusSq = neighborDistance*neighborDistance;

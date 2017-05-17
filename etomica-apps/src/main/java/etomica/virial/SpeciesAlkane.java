@@ -11,15 +11,15 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkane extends SpeciesSpheresHetero {
 
-    public SpeciesAlkane(ISpace _space, int numCarbons) {
+    public SpeciesAlkane(Space _space, int numCarbons) {
         this(_space,numCarbons, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14));
     }
-    public SpeciesAlkane(ISpace _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
+    public SpeciesAlkane(Space _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
     	super(_space, makeAtomTypes(new Element[]{CH3element, CH2element}));
         setTotalChildren(numCarbons);
         setConformationParameters(nominalBondL, nominalBondTheta);

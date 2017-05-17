@@ -7,7 +7,7 @@ package etomica.modules.pistoncylinder;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * data source front for virial sum from P1HardMovingBoundary
@@ -15,7 +15,7 @@ import etomica.space.ISpace;
  */
 public class DataSourceWallPressure extends MeterPressureHard {
 
-    public DataSourceWallPressure(ISpace _space, P1HardMovingBoundary pistonPotential) {
+    public DataSourceWallPressure(Space _space, P1HardMovingBoundary pistonPotential) {
         super(_space);
         wallPotential = pistonPotential;
         space = _space;
@@ -46,5 +46,5 @@ public class DataSourceWallPressure extends MeterPressureHard {
     
     private static final long serialVersionUID = 1L;
     protected final P1HardMovingBoundary wallPotential;
-    private ISpace space;
+    private Space space;
 }

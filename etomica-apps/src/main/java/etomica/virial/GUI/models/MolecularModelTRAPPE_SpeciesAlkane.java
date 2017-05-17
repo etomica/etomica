@@ -4,20 +4,10 @@
 
 package etomica.virial.GUI.models;
 
-import etomica.api.IAtomList;
-import etomica.api.IElement;
 import etomica.api.ISpecies;
-import etomica.chem.elements.Carbon;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
-import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.units.Electron;
 import etomica.units.Kelvin;
 
 import etomica.virial.SpeciesAlkane;

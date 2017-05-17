@@ -12,7 +12,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.IConformation;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -26,7 +26,7 @@ public class ModelChain extends Model {
      * must be set before making the Species.  The conformation and element can
      * also be set if desired.
      */
-    public ModelChain(ISpace _space, boolean isDynamic) {
+    public ModelChain(Space _space, boolean isDynamic) {
         super(isDynamic);
         speciesMade = false;
         space = _space;
@@ -155,5 +155,5 @@ public class ModelChain extends Model {
     protected IConformation conformation;
     protected IElement element;
     protected boolean speciesMade;
-    private final ISpace space;
+    private final Space space;
 }

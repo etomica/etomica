@@ -7,12 +7,11 @@ import etomica.api.IAtom;
 import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
-import etomica.units.Null;
 import etomica.util.Debug;
 /**
  * Basic penetrable-sphere potential.
@@ -34,11 +33,11 @@ public class P2PenetrableSphere extends Potential2HardSpherical {
     /**
      * Constructor with default values of unity for core diameter and core energy.
      */
-    public P2PenetrableSphere(ISpace space) {
+    public P2PenetrableSphere(Space space) {
         this(space, 1.0, 1.0);
     }
 
-    public P2PenetrableSphere(ISpace space, double coreDiameter, double epsilon) {
+    public P2PenetrableSphere(Space space, double coreDiameter, double epsilon) {
         super(space);
         setCoreDiameter(coreDiameter);
         setEpsilon(epsilon);

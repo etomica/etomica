@@ -9,7 +9,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -19,7 +19,7 @@ import etomica.space.Tensor;
 public class P2Cohesion extends Potential2SoftSpherical implements
         IPotentialAtomic {
 
-    public P2Cohesion(ISpace space) {
+    public P2Cohesion(Space space) {
         super(space);
     }
 

@@ -9,7 +9,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.DipoleSource;
 import etomica.atom.MoleculeOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 
 /**
@@ -26,7 +26,7 @@ import etomica.space3d.IOrientationFull3D;
  */
 public class DipoleSourceWater implements DipoleSource {
 
-    public DipoleSourceWater(ISpace space) {
+    public DipoleSourceWater(Space space) {
         dipole = space.makeVector();
     }
 

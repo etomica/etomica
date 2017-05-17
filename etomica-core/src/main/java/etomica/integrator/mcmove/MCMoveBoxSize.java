@@ -15,7 +15,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Monte Carlo move for changing the box dimensions at constant volume. 
@@ -28,7 +28,7 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
-    protected final ISpace space;
+    protected final Space space;
     private IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected final IVectorMutable boxScale;
@@ -38,7 +38,7 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
     private transient double uNew = Double.NaN;
 
     public MCMoveBoxSize(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    		            Space _space) {
         this(potentialMaster, sim.getRandom(), _space);
     }
     
@@ -47,7 +47,7 @@ public class MCMoveBoxSize extends MCMoveBoxStep {
      * @param space the governing space for the simulation
      */
     public MCMoveBoxSize(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace space) {
+    		            Space space) {
         super(potentialMaster);
         this.space = space;
         this.random = random;

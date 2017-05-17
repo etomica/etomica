@@ -4,7 +4,7 @@
 
 package etomica.potential;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * @author kofke
@@ -19,7 +19,7 @@ public abstract class PotentialN extends Potential {
 	 * Constructor for PotentialN.
 	 * @param space
 	 */
-	public PotentialN(ISpace space){
+	public PotentialN(Space space){
 		super(Integer.MAX_VALUE, space);
 	}
 }

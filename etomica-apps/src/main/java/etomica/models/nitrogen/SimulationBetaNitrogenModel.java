@@ -39,7 +39,7 @@ import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
@@ -57,7 +57,7 @@ import etomica.units.Pixel;
 public class SimulationBetaNitrogenModel extends Simulation{
 
 	
-	public SimulationBetaNitrogenModel(ISpace space, int numMolecule, double temperature, double density) {
+	public SimulationBetaNitrogenModel(Space space, int numMolecule, double temperature, double density) {
 		super(space);
 		this.space = space;
 		
@@ -388,7 +388,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		
 	}
 	protected Box box;
-	protected ISpace space;
+	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
 	protected ActivityIntegrate activityIntegrate;

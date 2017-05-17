@@ -4,7 +4,6 @@
 
 package etomica.association;
 
-import etomica.action.WriteConfiguration;
 import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IPotentialMaster;
@@ -13,8 +12,7 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMoveAtomSmer extends MCMoveAtom {
 	protected AssociationManager associationManager;
@@ -26,14 +24,14 @@ public class MCMoveAtomSmer extends MCMoveAtom {
 	
 
 	public MCMoveAtomSmer(ISimulation sim, IPotentialMaster potentialMaster,
-			ISpace _space) {
+			Space _space) {
 		this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false);
 	}
 
 
 	public MCMoveAtomSmer(IPotentialMaster potentialMaster, IRandom random,
-			ISpace _space, double stepSize, double stepSizeMax,
-			boolean fixOverlap) {
+                          Space _space, double stepSize, double stepSizeMax,
+                          boolean fixOverlap) {
 		super(potentialMaster, random, _space, stepSize, stepSizeMax,
 				fixOverlap);
 		this.smerList = new AtomArrayList();

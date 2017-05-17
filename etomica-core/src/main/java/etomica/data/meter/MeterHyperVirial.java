@@ -16,7 +16,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.PotentialCalculationHyperVirialSum;
 import etomica.potential.PotentialCalculationVirialSum;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -50,7 +50,7 @@ public class MeterHyperVirial implements IEtomicaDataSource {
      * @param space
      * @param doFull
      */
-    public MeterHyperVirial(ISpace space, boolean doFull) {
+    public MeterHyperVirial(Space space, boolean doFull) {
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
         hyperVirial = new PotentialCalculationHyperVirialSum();

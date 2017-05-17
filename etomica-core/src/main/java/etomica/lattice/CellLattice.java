@@ -6,7 +6,6 @@ package etomica.lattice;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
 import etomica.space.Space;
 
 /**
@@ -30,7 +29,7 @@ public class CellLattice extends RectangularLattice {
      * @param siteFactory
      *            makes the sites of the lattice
      */
-    public CellLattice(ISpace space, IVector dimVector, SiteFactory siteFactory) {
+    public CellLattice(Space space, IVector dimVector, SiteFactory siteFactory) {
         super(space.D(), siteFactory);
         cellSize = new double[D()];
         this.dimensions = space.makeVector();

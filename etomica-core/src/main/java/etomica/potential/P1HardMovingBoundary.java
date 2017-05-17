@@ -12,7 +12,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.graphics.Drawable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
@@ -35,8 +35,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
      * @param space
      * @param wallDimension dimension which the wall is perpendicular to
      */
-    public P1HardMovingBoundary(ISpace space, IBoundary boundary, int wallDimension, double mass,
-            boolean ignoreOverlap) {
+    public P1HardMovingBoundary(Space space, IBoundary boundary, int wallDimension, double mass,
+                                boolean ignoreOverlap) {
         super(space);
         D = space.D();
         wallD = wallDimension;

@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IVectorMutable;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -25,11 +25,11 @@ import etomica.units.Length;
 
 public class P2Exp6Buckingham extends Potential2SoftSpherical {
 
-    public P2Exp6Buckingham(ISpace _space) {
+    public P2Exp6Buckingham(Space _space) {
               this(_space, 1.0, 1.0, 1.0, 1.0);
     }
 
-    public P2Exp6Buckingham(ISpace _space, double epsilon, double alpha, double rm, double rmax) {
+    public P2Exp6Buckingham(Space _space, double epsilon, double alpha, double rm, double rmax) {
         super(_space);
         dr01 = space.makeVector();
         setEpsilon(epsilon);

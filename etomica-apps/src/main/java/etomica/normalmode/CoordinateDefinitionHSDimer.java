@@ -24,7 +24,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.nitrogen.AtomActionTransformed;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -37,7 +37,7 @@ import etomica.species.Species;
 public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         implements Serializable {
 	
-    public CoordinateDefinitionHSDimer(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionHSDimer(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
     	
     	super(sim, box, primitive, 2, basis, _space);
     	

@@ -14,12 +14,12 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class P1Wall implements PotentialHard {
 
-    public P1Wall(ISpace space) {
+    public P1Wall(Space space) {
         lastVirialTensor = space.makeTensor();
         vOld = space.makeVector();
     }

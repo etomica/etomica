@@ -16,17 +16,17 @@ import etomica.atom.MoleculeSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
-    public MCMoveReptate(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space){
+    public MCMoveReptate(ISimulation sim, IPotentialMaster potentialMaster, Space _space){
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false, _space);
     }
     
     public MCMoveReptate(IPotentialMaster potentialMaster, IRandom random, 
-            double stepSize, double stepSizeMax, boolean fixOverlap, ISpace _space){
+            double stepSize, double stepSizeMax, boolean fixOverlap, Space _space){
         super(potentialMaster);
         this.space = _space;
         this.random = random;
@@ -204,7 +204,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     private boolean forward;
     private double bondLength;
     protected final IRandom random;
-    private final ISpace space;
+    private final Space space;
     
     
 }

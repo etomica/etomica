@@ -20,7 +20,6 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -148,7 +147,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 	protected WaveVectorFactory waveVectorFactory;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
 	protected MeterPotentialEnergy meterPE;
-	protected ISpace space;
+	protected Space space;
 	protected double L;
 	protected int n = 3;
 	protected P2SoftSphericalTruncatedShifted pTruncated;

@@ -11,7 +11,7 @@ import etomica.api.IBoundary;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Calculates the geometric center over a set of atoms. The position of the
@@ -26,7 +26,7 @@ import etomica.space.ISpace;
  */
 public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenterPBC(ISpace space, IBoundary boundary) {
+    public AtomPositionGeometricCenterPBC(Space space, IBoundary boundary) {
         center = space.makeVector();
         dr = space.makeVector();
         this.boundary = boundary;
@@ -52,4 +52,3 @@ public class AtomPositionGeometricCenterPBC implements IAtomPositionDefinition, 
     protected final IVectorMutable center, dr;
     protected final IBoundary boundary;
 }
- 

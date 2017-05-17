@@ -14,7 +14,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.MoleculePair;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Degree;
 
 /**
@@ -37,11 +37,11 @@ import etomica.units.Degree;
  */
 public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 	
-	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(ISpace space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition, boolean isAlpha){
+	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(Space space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition, boolean isAlpha){
 		this(space, box, potential, coordinateDefinition, false, potential.getRange(), isAlpha);
 	}
 	
-	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(ISpace space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition,
+	public CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(Space space, Box box, P2Nitrogen potential, CoordinateDefinitionNitrogen coordinateDefinition,
                                                             boolean doLatticeSum, double rC, boolean isAlpha){
 		this.coordinateDefinition = coordinateDefinition;
 		this.potential = potential;

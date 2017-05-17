@@ -16,7 +16,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.P1IntraMolecular;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.util.Constants;
 import etomica.util.DoubleRange;
@@ -37,7 +37,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	private final IVectorMutable utilityVec1, utilityVec2, utilityVec3;
 	private HistogramSimple h1;
 
-	public MCMoveChangeBondLength(IPotentialMaster potentialMaster, IRandom random, ISpace space, double temperature) {
+	public MCMoveChangeBondLength(IPotentialMaster potentialMaster, IRandom random, Space space, double temperature) {
 		super(potentialMaster);
 		leafIterator = new AtomIteratorLeafAtoms();
 		this.random = random;

@@ -9,19 +9,19 @@ import etomica.api.ISimulation;
 import etomica.api.IVector;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class NeighborCellManagerThreaded extends NeighborCellManager {
 
     public int totalCells;
     
-    public NeighborCellManagerThreaded(ISimulation sim, Box box, double potentialRange, ISpace space) {
+    public NeighborCellManagerThreaded(ISimulation sim, Box box, double potentialRange, Space space) {
         super(sim, box, potentialRange, space);
         // TODO Auto-generated constructor stub
     }
 
     public NeighborCellManagerThreaded(ISimulation sim, Box box, double potentialRange,
-                                       IAtomPositionDefinition positionDefinition, ISpace space) {
+                                       IAtomPositionDefinition positionDefinition, Space space) {
         super(sim, box, potentialRange, positionDefinition, space);
         // TODO Auto-generated constructor stub
     }

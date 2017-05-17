@@ -22,7 +22,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
@@ -53,7 +53,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
     protected FileWriter fileWriter;
 
     public MCMoveVolumeAssociated(ISimulation sim, IPotentialMaster potentialMaster,
-    		            ISpace _space) {
+    		            Space _space) {
         this(potentialMaster, sim.getRandom(), _space, 1.0);
     }
     
@@ -62,7 +62,7 @@ public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAge
      * @param space the governing space for the simulation
      */
     public MCMoveVolumeAssociated(IPotentialMaster potentialMaster, IRandom random,
-    		            ISpace _space, double pressure) {
+                                  Space _space, double pressure) {
         super(potentialMaster);
         this.random = random;
         smerList = new AtomArrayList();

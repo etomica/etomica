@@ -11,12 +11,12 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.ISpecies;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class NeighborListManagerColloid extends NeighborListManager {
 
     public NeighborListManagerColloid(PotentialMasterList potentialMasterList,
-                                      double range, Box box, ISpace space) {
+                                      double range, Box box, Space space) {
         super(potentialMasterList, range, box, space);
     }
     
@@ -74,7 +74,7 @@ public class NeighborListManagerColloid extends NeighborListManager {
     protected int chainLength;
 
     public static class NeighborListAgentSourceColloid extends PotentialMasterList.NeighborListAgentSource {
-        public NeighborListAgentSourceColloid(double range, ISpace space) {
+        public NeighborListAgentSourceColloid(double range, Space space) {
             super(range, space);
         }
 

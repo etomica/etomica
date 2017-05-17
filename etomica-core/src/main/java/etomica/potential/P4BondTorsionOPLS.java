@@ -14,9 +14,8 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
+import etomica.space.IVectorRandom;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
 import etomica.util.RandomNumberGenerator;
@@ -28,7 +27,7 @@ import etomica.util.RandomNumberGenerator;
  */
 public class P4BondTorsionOPLS extends P4BondTorsion {
 
-    public P4BondTorsionOPLS(ISpace space, double a0, double a1, double a2, double a3) {
+    public P4BondTorsionOPLS(Space space, double a0, double a1, double a2, double a3) {
         super(space, a0, a1, a2, a3);
     }
 

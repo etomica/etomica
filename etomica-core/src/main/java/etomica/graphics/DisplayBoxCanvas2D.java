@@ -25,7 +25,7 @@ import etomica.atom.IAtomOriented;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pixel;
 
 //Class used to define canvas onto which configuration is drawn
@@ -38,9 +38,9 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final int[] atomOrigin;
     private final IVectorMutable boundingBox;
-    protected final ISpace space;
+    protected final Space space;
         
-    public DisplayBoxCanvas2D(DisplayBox _box, ISpace _space, Controller controller) {
+    public DisplayBoxCanvas2D(DisplayBox _box, Space _space, Controller controller) {
         super(controller);
     	this.space = _space;
         scaleText.setVisible(true);

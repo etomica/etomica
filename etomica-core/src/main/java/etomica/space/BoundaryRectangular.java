@@ -25,14 +25,14 @@ public abstract class BoundaryRectangular extends Boundary {
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
      * given by the Simulation.
      */
-    public BoundaryRectangular(ISpace _space) {
+    public BoundaryRectangular(Space _space) {
         this(_space, 10.0);
     }
 
     /**
      * Constructs cubic boundary of the given periodicity with each edge of length boxSize
      */
-    public BoundaryRectangular(ISpace space, double boxSize) {
+    public BoundaryRectangular(Space space, double boxSize) {
         this(space, makeArray(space.D(), boxSize));
     }
 
@@ -40,7 +40,7 @@ public abstract class BoundaryRectangular extends Boundary {
      * Constructs rectangular boundary of the given periodicity with edges given by the
      * values in the array boxSize.  Length of arrays must equal dimension of space.
      */
-    public BoundaryRectangular(ISpace space, double[] boxSize) {
+    public BoundaryRectangular(Space space, double[] boxSize) {
         super(space, makeShape(space));
         dimensions = space.makeVector();
         dimensions.E(boxSize);
@@ -62,7 +62,7 @@ public abstract class BoundaryRectangular extends Boundary {
     }
 
     //used by constructors
-    private static Polytope makeShape(ISpace space) {
+    private static Polytope makeShape(Space space) {
         switch (space.D()) {
             case 1:
                 return new LineSegment(space);

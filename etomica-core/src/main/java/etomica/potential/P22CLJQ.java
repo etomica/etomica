@@ -10,7 +10,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Two-centered Lennard Jones molecule with a quadrupole.
@@ -19,11 +19,11 @@ import etomica.space.ISpace;
  */
 public class P22CLJQ extends PotentialMolecular {
 
-    public P22CLJQ(ISpace space) {
+    public P22CLJQ(Space space) {
         this(space, 1, 1, 1);
     }
 
-    public P22CLJQ(ISpace space, double sigma, double epsilon,  double moment) {
+    public P22CLJQ(Space space, double sigma, double epsilon, double moment) {
         super(2, space);
         setSigma(sigma);
         setEpsilon(epsilon);

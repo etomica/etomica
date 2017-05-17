@@ -18,7 +18,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomHydrogen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.BohrRadius;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
@@ -31,7 +31,7 @@ public class P2HydrogenHindePatkowski implements IPotential {
     protected static final double r0 = BohrRadius.UNIT.toSim(1.448736);
     protected boolean print = false;
     public FileWriter filePat = null;
-    public P2HydrogenHindePatkowski(ISpace space) {
+    public P2HydrogenHindePatkowski(Space space) {
         p2Hinde = new P2HydrogenHinde(space);
         p2Patkowski = new P2HydrogenPatkowski(space);        
         dr = space.makeVector();
@@ -59,7 +59,7 @@ public class P2HydrogenHindePatkowski implements IPotential {
         return 2;
     }
     public static class P2HydrogenHindePatkowskiMolecular extends P2HydrogenHindePatkowski implements IPotential {
-        public P2HydrogenHindePatkowskiMolecular(ISpace space) {
+        public P2HydrogenHindePatkowskiMolecular(Space space) {
             super(space);
         }
         public double energy(IMoleculeList molecules) {
@@ -114,7 +114,7 @@ public class P2HydrogenHindePatkowski implements IPotential {
         }
     }
     public static class P2HydrogenHindePatkowskiAtomic extends P2HydrogenHindePatkowski implements IPotentialAtomic {
-        public P2HydrogenHindePatkowskiAtomic(ISpace space) {
+        public P2HydrogenHindePatkowskiAtomic(Space space) {
             super(space);     
         }
 

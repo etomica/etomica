@@ -5,11 +5,11 @@
 package etomica.normalmode;
 
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class NormalModesVariable {
 
-    public NormalModesVariable(ISpace space, int nModes, CoordinateDefinition coordinateDefinition) {
+    public NormalModesVariable(Space space, int nModes, CoordinateDefinition coordinateDefinition) {
         eigenVectors = new double[nModes][coordinateDefinition.getCoordinateDim()];
         waveVectors = new IVectorMutable[nModes];
         for (int i=0; i<nModes; i++) {

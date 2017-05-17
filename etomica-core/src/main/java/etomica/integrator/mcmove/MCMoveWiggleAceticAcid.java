@@ -10,7 +10,7 @@ import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -20,12 +20,12 @@ import etomica.util.Debug;
  */
 public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
 
-    public MCMoveWiggleAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveWiggleAceticAcid(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
     	this(potentialMaster,sim.getRandom(), 0.1, _space);
     }
     
     public MCMoveWiggleAceticAcid(IPotentialMaster potentialMaster,
-            IRandom random, double stepSize, ISpace _space) {
+            IRandom random, double stepSize, Space _space) {
         super(potentialMaster,random,_space, stepSize,Double.POSITIVE_INFINITY);
         this.space = _space;
         bondedAtoms = new int[]{1,-1,1,-1,3};//0(Ch3) and 2(dBO) are bonded to 1 (C), 4(H) is bonded to 3 (O)
@@ -139,5 +139,5 @@ public class MCMoveWiggleAceticAcid extends MCMoveMolecule {
     protected int[] bondedAtoms;
     protected final IVectorMutable work1, work2, work3;
     protected final IVectorMutable translationVectors;
-    protected final ISpace space;
+    protected final Space space;
 }

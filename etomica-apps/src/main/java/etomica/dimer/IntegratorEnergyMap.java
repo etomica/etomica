@@ -16,18 +16,18 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
 
     IAtom adatom;
     public MeterPotentialEnergy energy;
     String fileTail;
-    private final ISpace space;
+    private final Space space;
 
     public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster,
     		                   IAtom aAdatom, String aFileTail,
-    		                   ISpace _space) {
+    		                   Space _space) {
         super(potentialMaster, 1.0);
         this.fileTail = aFileTail;
         this.adatom = aAdatom;

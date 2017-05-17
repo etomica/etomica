@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import etomica.api.IVector;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ShapeParser {
 
-    public static ShapeData doParse(String filename, ISpace space) {
+    public static ShapeData doParse(String filename, Space space) {
         ShapeData shape = new ShapeData();
         try {
             FileReader fr = new FileReader(filename);

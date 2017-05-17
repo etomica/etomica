@@ -13,7 +13,7 @@ import etomica.api.IRandom;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.util.RandomMersenneTwister;
@@ -51,7 +51,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                                  (0.009769643775720165 + (5*sqrtU)/729.)*sqrtU))))));
     }
 
-    public MCMoveClusterAtomHSRing(IRandom random, ISpace _space, double sigma) {
+    public MCMoveClusterAtomHSRing(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
         axis0 = space.makeVector();

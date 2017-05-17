@@ -7,8 +7,7 @@ package etomica.models.water;
 import etomica.api.IAtomList;
 import etomica.api.IMoleculeList;
 import etomica.api.IVectorMutable;
-import etomica.math.SpecialFunctions;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P2HardAssociationGCPMReference extends PNWaterGCPM {
 	
@@ -17,7 +16,7 @@ public class P2HardAssociationGCPMReference extends PNWaterGCPM {
 	public static final int BONDAC = 1, BONDBC = 2, BONDCA = 3, BONDCB = 4;
 	protected boolean isAssociation;
 
-	public P2HardAssociationGCPMReference(ISpace space, boolean isAssociation) {
+	public P2HardAssociationGCPMReference(Space space, boolean isAssociation) {
 		super(space);
 		this.isAssociation = isAssociation;
 	}

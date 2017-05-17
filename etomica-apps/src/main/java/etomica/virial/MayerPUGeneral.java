@@ -13,7 +13,7 @@ import etomica.api.IPotentialMolecular;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * f + u 
@@ -30,7 +30,7 @@ public class MayerPUGeneral implements MayerFunction, java.io.Serializable {
 	private IPotentialMolecular potential;
 	private double sigmaHS;
 	private IVectorMutable dr;
-    public MayerPUGeneral(ISpace space, double sigmaHS, double mu, IPotentialMolecular potential) {
+    public MayerPUGeneral(Space space, double sigmaHS, double mu, IPotentialMolecular potential) {
     	this.mu=mu;
 		this.potential=potential;
 		this.sigmaHS=sigmaHS;

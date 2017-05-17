@@ -21,7 +21,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Angle;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramSimple;
@@ -33,7 +33,7 @@ import etomica.util.HistogramSimple;
  */
 public class MeterTiltRotationHistogram implements IAction, IEtomicaDataSource {
 
-    public MeterTiltRotationHistogram(ISpace space, ISpecies species, int nPlanes) {
+    public MeterTiltRotationHistogram(Space space, ISpecies species, int nPlanes) {
         this.species = species;
         int nData = 360;
         dr = space.makeVector();

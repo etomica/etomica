@@ -32,7 +32,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Joule;
 
 public class IntegratorKMCCluster extends IntegratorBox{
@@ -41,7 +41,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     IntegratorDimerMin integratorMin1, integratorMin2;
     IPotentialMaster potentialMaster;
     double temperature;
-    private final ISpace space;
+    private final Space space;
     IRandom random;
     ISimulation sim;
     ISpecies [] species;
@@ -69,7 +69,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
     BufferedReader buffReader;
     FileWriter writer;
     
-    public IntegratorKMCCluster(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, ISpace _space){
+    public IntegratorKMCCluster(ISimulation _sim, IPotentialMaster _potentialMaster, double _temperature, int _totalSearches, IRandom _random, ISpecies [] _species, Space _space){
         super(_potentialMaster, _temperature);
         
         this.potentialMaster = _potentialMaster;

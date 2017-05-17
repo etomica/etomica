@@ -13,7 +13,7 @@ import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 /**
  * Species for TraPPE-Explicit hydrogen,Siepmann
@@ -24,7 +24,7 @@ import etomica.species.Species;
   public class SpeciesAlkaneEH extends Species  {
 
 	  	private static final long serialVersionUID = 1L;
-	    protected final ISpace space;
+	    protected final Space space;
 	    protected final int numCarbons;
 	    public int indexC_3_1;//CH3 on the left
 	    public int indexC_3_2;//CH3 on the right
@@ -34,7 +34,7 @@ import etomica.species.Species;
 	  
 	    protected final int totalAtoms ; 
 	    protected boolean isDynamic;
-	    public SpeciesAlkaneEH(ISpace space, int numCarbons) {
+	    public SpeciesAlkaneEH(Space space, int numCarbons) {
 	    	super();
 	        this.space = space;
 	        this.numCarbons = numCarbons;

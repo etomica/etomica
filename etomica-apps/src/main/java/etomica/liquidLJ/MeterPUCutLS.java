@@ -12,7 +12,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -36,7 +36,7 @@ public class MeterPUCutLS implements IEtomicaDataSource {
     protected Box box;
     private final int dim;
 
-    public MeterPUCutLS(ISpace space, int nCut) {
+    public MeterPUCutLS(Space space, int nCut) {
         data = new DataDoubleArray(new int[]{nCut,4});
         dataInfo = new DataInfoDoubleArray("PU", Null.DIMENSION, new int[]{nCut,4});
         tag = new DataTag();

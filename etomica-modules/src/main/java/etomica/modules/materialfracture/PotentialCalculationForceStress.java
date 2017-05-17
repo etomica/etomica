@@ -10,12 +10,12 @@ import etomica.api.IVector;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class PotentialCalculationForceStress extends
         PotentialCalculationForcePressureSum {
 
-    public PotentialCalculationForceStress(ISpace space) {
+    public PotentialCalculationForceStress(Space space) {
         super(space);
     }
     

@@ -10,7 +10,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.BoxAgentManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -32,7 +32,7 @@ public class P1HarmonicSite extends Potential1 implements PotentialSoft {
     protected final BoxAgentManager<AtomLeafAgentManager<? extends IVector>> boxAgentManager;
     protected AtomLeafAgentManager<? extends IVector> atomAgentManager;
     
-    public P1HarmonicSite(ISpace space) {
+    public P1HarmonicSite(Space space) {
         super(space);
         force = new IVectorMutable[]{space.makeVector()};
         boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<? extends IVector>>(null, AtomLeafAgentManager.class);

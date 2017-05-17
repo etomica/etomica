@@ -25,7 +25,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 /**
@@ -48,7 +48,7 @@ public class MeterProfileByVolume implements IEtomicaDataSource, DataSourceIndep
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterProfileByVolume(ISpace space) {
+    public MeterProfileByVolume(Space space) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         position = space.makeVector();
         tag = new DataTag();

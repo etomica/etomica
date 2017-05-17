@@ -10,7 +10,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -57,7 +57,7 @@ public class Box implements java.io.Serializable {
     protected final AtomArrayList leafList;
     protected final AtomSetAllMolecules allMoleculeList;
     private final BoxEventManager eventManager;
-    private final ISpace space;
+    private final Space space;
     protected MoleculeArrayList[] moleculeLists;
     private IBoundary boundary;
     private int index;
@@ -65,14 +65,14 @@ public class Box implements java.io.Serializable {
     /**
      * Constructs box with default rectangular periodic boundary.
      */
-    public Box(ISpace _space) {
+    public Box(Space _space) {
         this(new BoundaryRectangularPeriodic(_space), _space);
     }
 
     /**
      * Constructs box with the given boundary
      */
-    public Box(IBoundary boundary, ISpace _space) {
+    public Box(IBoundary boundary, Space _space) {
     	this.space = _space;
         eventManager = new BoxEventManager(this);
         setBoundary(boundary);

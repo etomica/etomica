@@ -14,7 +14,7 @@ import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataTensor;
 import etomica.potential.PotentialCalculationPressureTensor;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Pressure;
 
 /**
@@ -26,7 +26,7 @@ import etomica.units.Pressure;
  */
 public class MeterPressureTensor implements IEtomicaDataSource {
     
-    public MeterPressureTensor(IPotentialMaster potentialMaster, ISpace space) {
+    public MeterPressureTensor(IPotentialMaster potentialMaster, Space space) {
     	super();
         this.potentialMaster = potentialMaster;
         data = new DataTensor(space);

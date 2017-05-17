@@ -12,12 +12,12 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 public class PotentialMasterListDimer extends PotentialMasterList{
 
-    public PotentialMasterListDimer(ISimulation sim, ISpace space) {
+    public PotentialMasterListDimer(ISimulation sim, Space space) {
         super(sim, space);
         
     }

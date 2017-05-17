@@ -7,11 +7,11 @@ package etomica.virial;
 import etomica.box.Box;
 import etomica.api.IMoleculeList;
 import etomica.api.IPotential;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MayerFunctionSumGeneral implements MayerFunction {
 
-	public MayerFunctionSumGeneral(ISpace space, MayerFunction[]functions, double []coefficients) {
+	public MayerFunctionSumGeneral(Space space, MayerFunction[]functions, double []coefficients) {
 		this.functions = functions;
 		this.coefficients = coefficients;
 	}

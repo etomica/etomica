@@ -18,7 +18,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
 import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Joule;
@@ -35,7 +35,7 @@ import etomica.util.FunctionGeneral;
 public class HarmonicAlphaNitrogenModelLatticeSum extends Simulation{
 
 	
-	public HarmonicAlphaNitrogenModelLatticeSum(ISpace space, int numMolecule, double density, double rC) {
+	public HarmonicAlphaNitrogenModelLatticeSum(Space space, int numMolecule, double density, double rC) {
 		super(space);
 				
 		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));

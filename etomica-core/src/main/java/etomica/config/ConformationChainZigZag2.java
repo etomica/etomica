@@ -6,18 +6,18 @@ package etomica.config;
 
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class ConformationChainZigZag2 extends ConformationChain {
 	
-    public ConformationChainZigZag2(ISpace space){
+    public ConformationChainZigZag2(Space space){
 		super(space);
 		
 		v1 = space.makeVector();
 		v2 = space.makeVector();
 		isVectorOne = true;
 	}
-	public ConformationChainZigZag2(ISpace space, IVector vect1, IVector vect2){
+	public ConformationChainZigZag2(Space space, IVector vect1, IVector vect2){
 		super(space);
 		v1 = space.makeVector();
 		v2 = space.makeVector();

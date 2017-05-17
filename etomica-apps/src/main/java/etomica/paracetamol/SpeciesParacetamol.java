@@ -6,7 +6,6 @@ package etomica.paracetamol;
 
 import etomica.api.IAtom;
 import etomica.api.IAtomType;
-import etomica.api.IAtomType;
 import etomica.api.IMolecule;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeafDynamic;
@@ -16,13 +15,13 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.ElectronVolt;
 
 public class SpeciesParacetamol extends Species {
 
-	public SpeciesParacetamol(ISpace _space, boolean isDynamic) {
+	public SpeciesParacetamol(Space _space, boolean isDynamic) {
 		super();
 		space = _space;
 		this.isDynamic = isDynamic;
@@ -151,7 +150,7 @@ public class SpeciesParacetamol extends Species {
     }
     
 	private static final long serialVersionUID = 1L;
-	protected final ISpace space;
+	protected final Space space;
 	protected final boolean isDynamic;
     protected final AtomTypeLeaf cType, oType, nType, hpType, hyType;
 }

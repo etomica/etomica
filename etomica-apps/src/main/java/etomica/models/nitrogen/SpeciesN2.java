@@ -13,7 +13,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -27,11 +27,11 @@ import etomica.species.Species;
  */
 public class SpeciesN2 extends Species {
 
-    public SpeciesN2(ISpace space) {
+    public SpeciesN2(Space space) {
         this(space, false);
     }
     
-    public SpeciesN2(ISpace space, boolean isDynamic) {
+    public SpeciesN2(Space space, boolean isDynamic) {
         super();
         this.space = space;
         this.isDynamic = isDynamic;
@@ -84,7 +84,7 @@ public class SpeciesN2 extends Species {
     
     
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
     protected final boolean isDynamic;
     protected final AtomTypeLeaf nType, pType;
 }

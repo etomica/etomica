@@ -13,7 +13,7 @@ import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Null;
 
 /**
@@ -38,7 +38,7 @@ import etomica.units.Null;
  */
 public class MeterWidomInsertion extends DataSourceScalar {
 
-    public MeterWidomInsertion(ISpace space, IRandom random) {
+    public MeterWidomInsertion(Space space, IRandom random) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         setNInsert(100);
         setResidual(true);

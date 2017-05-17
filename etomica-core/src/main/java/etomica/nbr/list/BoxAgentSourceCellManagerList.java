@@ -9,14 +9,14 @@ import etomica.api.ISimulation;
 import etomica.atom.IAtomPositionDefinition;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * BoxAgentSource responsible for creating a NeighborCellManager.
  */
 public class BoxAgentSourceCellManagerList extends BoxAgentSourceCellManager {
 
-    public BoxAgentSourceCellManagerList(ISimulation sim, IAtomPositionDefinition positionDefinition, ISpace _space) {
+    public BoxAgentSourceCellManagerList(ISimulation sim, IAtomPositionDefinition positionDefinition, Space _space) {
         super(sim, positionDefinition, _space);
     }
 

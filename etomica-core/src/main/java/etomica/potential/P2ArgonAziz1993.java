@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Pair potential for argon from Aziz (1993) JCP 99(6): 4518.  This is a true pair potential, rather than a pairwise-additive potential.
@@ -14,7 +14,7 @@ import etomica.space.ISpace;
  */
 public class P2ArgonAziz1993 extends Potential2SoftSpherical {
     
-    public P2ArgonAziz1993(ISpace space) {
+    public P2ArgonAziz1993(Space space) {
         super(space);
    
     }

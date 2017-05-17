@@ -8,7 +8,7 @@ import etomica.api.IBoundary;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 /**
@@ -21,7 +21,7 @@ import etomica.space.IVectorRandom;
  */
 public class RandomPositionSourceDeformable implements RandomPositionSource {
     
-    public RandomPositionSourceDeformable(ISpace space, IRandom random) {
+    public RandomPositionSourceDeformable(Space space, IRandom random) {
         p = (IVectorRandom)space.makeVector();
         this.random = random;
     }

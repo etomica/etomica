@@ -22,7 +22,7 @@ import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotentialTorque;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.OrientationFull3D;
@@ -202,7 +202,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     protected static final double sitesCO2L = 2.2114;
     protected static final double sitesOH = 1.12169, sitesHH = 1.45365;
     protected final IVectorMutable[][] sitePos;
-    protected final ISpace space;
+    protected final Space space;
     protected final Tensor rot0, rot1;
     protected final IVectorMutable or01, or02, orH2O3;
     protected final IVector[] allOr0, allOr1;
@@ -210,7 +210,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     protected final IVectorMutable drij, torque;
     protected final double mass1;
     
-    public P2CO2H2OWheatley(ISpace space) {
+    public P2CO2H2OWheatley(Space space) {
         this.space = space;
         sitePos = new IVectorMutable[2][3];
         for (int i=0; i<2; i++) {
@@ -1112,7 +1112,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     public static void mainTestU(String[] args) throws IOException {
 //        System.out.println(Hartree.UNIT.toSim(0.1));
 //        System.exit(1);
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
         sim.addSpecies(speciesCO2);
@@ -1206,7 +1206,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
      * Randomly moves molcules all over, computing and checking 2nd derivative
      */
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(200);
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
@@ -1312,7 +1312,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
     }
 
     public static void main2(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(200);
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
@@ -1370,7 +1370,7 @@ public class P2CO2H2OWheatley implements IPotentialTorque {
      * Writes x-y grid of energies
      */
     public static void main2DGrid(String[] args) throws IOException {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         double temperature = Kelvin.UNIT.toSim(1);
         Simulation sim = new Simulation(space);
         SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));

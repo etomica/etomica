@@ -16,7 +16,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.MoleculePair;
 import etomica.models.OPLS.SpeciesAceticAcid;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 
 public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule {
@@ -41,7 +41,7 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     protected final RotationTensor3D rotationTensor;
 
     
-    public BiasVolume2SiteAceticAcid(ISpace space, IRandom random){
+    public BiasVolume2SiteAceticAcid(Space space, IRandom random){
         this.random = random;
 
         pair = new MoleculePair();

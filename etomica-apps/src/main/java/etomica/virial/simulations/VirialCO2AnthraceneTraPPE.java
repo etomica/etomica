@@ -16,7 +16,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -137,7 +136,7 @@ public class VirialCO2AnthraceneTraPPE {
         
         // this is CO2
         SpeciesFactory factoryCO2 = new SpeciesFactory() {
-            public ISpecies makeSpecies(ISpace space) { //declare
+            public ISpecies makeSpecies(Space space) { //declare
             	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
                       return species;
             }
@@ -145,7 +144,7 @@ public class VirialCO2AnthraceneTraPPE {
 
         // this is for 
         SpeciesFactory factoryAn = new SpeciesFactory() {
-            public ISpecies makeSpecies(ISpace space) { 
+            public ISpecies makeSpecies(Space space) {
             	SpeciesTraPPEAnthracene species = new SpeciesTraPPEAnthracene(space);
                       return species;
             }

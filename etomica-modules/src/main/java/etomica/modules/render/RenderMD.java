@@ -29,7 +29,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2PenetrableSquareWell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -76,11 +76,11 @@ public class RenderMD extends Simulation {
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public RenderMD(ISpace _space) {
+    public RenderMD(Space _space) {
         this(_space, new RenderMDParam());
     }
     
-    public RenderMD(ISpace _space, RenderMDParam params) {
+    public RenderMD(Space _space, RenderMDParam params) {
         
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
@@ -205,7 +205,7 @@ public class RenderMD extends Simulation {
         protected final Map<IAtomList, Double> bondMap;
         private final double epsMult = 1.0;
         
-        public P2PenetrableCar(ISpace space, ParseObj parser, Box box) {
+        public P2PenetrableCar(Space space, ParseObj parser, Box box) {
             super(space);
             bondMap = new HashMap<IAtomList, Double>();
             IAtomList leafList = box.getLeafList();

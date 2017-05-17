@@ -10,7 +10,7 @@ import etomica.api.IBoundary;
 import etomica.box.Box;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -28,7 +28,7 @@ import etomica.space.Tensor;
 
 public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	
-	public P3BondAngleDreiding (ISpace space, double thetaEq, double gamma){
+	public P3BondAngleDreiding (Space space, double thetaEq, double gamma){
 		super(3, space);
 		dr12 = space.makeVector();
 		dr23 = space.makeVector();

@@ -41,7 +41,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
@@ -64,7 +64,7 @@ public class ClathrateHarmonicFE extends Simulation{
 	protected Potential2SoftSphericalLS potentialLJLS;
 	protected EwaldSummation potentialES;
 
-	public ClathrateHarmonicFE(ISpace space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
+	public ClathrateHarmonicFE(Space space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
 		super(space);
 		species = new SpeciesWater4P(space);
 		addSpecies(species);
@@ -202,7 +202,7 @@ public class ClathrateHarmonicFE extends Simulation{
 
 		
 		int numMolecule =nBasis*nC[0]*nC[1]*nC[2];
-		final ISpace space = Space3D.getInstance(); 
+		final Space space = Space3D.getInstance();
 		final ClathrateHarmonicFE sim = new ClathrateHarmonicFE(space, nC, rCutRealES, rCutLJ, a0_sc, numMolecule, configFile, isIce, kCut, includeM);
 		
 		

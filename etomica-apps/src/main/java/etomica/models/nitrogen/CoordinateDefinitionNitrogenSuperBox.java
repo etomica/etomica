@@ -26,7 +26,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.paracetamol.AtomActionTransformed;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
@@ -43,7 +43,7 @@ import etomica.util.RandomNumberGenerator;
 public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionNitrogenSuperBox(ISimulation sim, Box box, Primitive primitive, Basis basis, ISpace _space) {
+    public CoordinateDefinitionNitrogenSuperBox(ISimulation sim, Box box, Primitive primitive, Basis basis, Space _space) {
     	super(sim, box, primitive, 2, basis, _space);
        
     	rotationTensor = new RotationTensor3D();
@@ -288,7 +288,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         this.configuration = configuration;
     }
     
-    public void setOrientationVectorGamma(ISpace space){
+    public void setOrientationVectorGamma(Space space){
     	/*
     	 * Reference : R.L. Mills and A.F. Schuch, PRL 23(20) 1969 pg.1154 Fig1
     	 */
@@ -301,7 +301,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     }
     
   
-    public void setOrientationVectorAlpha(ISpace space){
+    public void setOrientationVectorAlpha(Space space){
     	/*
     	 * Reference : A. Di Nola et al Acta Cryst. (1970) A26, 144 Fig1
     	 */

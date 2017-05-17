@@ -18,7 +18,7 @@ import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Created by andrew on 4/11/17.
@@ -30,7 +30,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected final IRandom random;
-    protected ISpace space;
+    protected Space space;
     protected IAtomList atoms;
     protected AtomIteratorAtomDependent atomIterator;
     protected double nbrDistance;
@@ -39,7 +39,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
     protected final P1ImageHarmonic p1;
     protected final AtomSetSinglet singlet;
 
-    public MCMoveAtomSwap(IRandom random, IPotentialMaster potentialMaster, ISpace _space, P1ImageHarmonic p1) {
+    public MCMoveAtomSwap(IRandom random, IPotentialMaster potentialMaster, Space _space, P1ImageHarmonic p1) {
         super(potentialMaster);
         this.random = random;
         this.space = _space;

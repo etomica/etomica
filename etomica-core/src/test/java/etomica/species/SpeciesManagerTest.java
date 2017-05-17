@@ -10,15 +10,12 @@ import etomica.api.ISpecies;
 import etomica.atom.AtomTypeLeaf;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.species.SpeciesSpheresMono;
 
 public class SpeciesManagerTest extends TestCase {
 
 	Simulation simulation;
-	ISpace space;
+	Space space;
 	IElement element;
 	
 	public void setUp() {

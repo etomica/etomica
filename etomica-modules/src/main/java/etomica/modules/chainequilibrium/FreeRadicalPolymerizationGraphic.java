@@ -42,7 +42,6 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Joule;
@@ -72,7 +71,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
     protected final FreeRadicalPolymerizationSim sim;
 
-    public FreeRadicalPolymerizationGraphic(FreeRadicalPolymerizationSim simulation, ISpace _space) {
+    public FreeRadicalPolymerizationGraphic(FreeRadicalPolymerizationSim simulation, Space _space) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 		getPanel().toolbar.addAuthor("Dr. William Chirdon");

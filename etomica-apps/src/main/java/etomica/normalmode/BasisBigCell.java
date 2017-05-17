@@ -17,18 +17,18 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 public class BasisBigCell extends Basis {
 
     private static final long serialVersionUID = 1L;
 
-    public BasisBigCell(ISpace space, Basis subBasis, int[] nSubCells) {
+    public BasisBigCell(Space space, Basis subBasis, int[] nSubCells) {
         super(makeScaledCoordinates(space, subBasis, nSubCells));
     }
 
-    protected static IVector[] makeScaledCoordinates(ISpace space, Basis subBasis, int[] nSubCells) {
+    protected static IVector[] makeScaledCoordinates(Space space, Basis subBasis, int[] nSubCells) {
         // make pretend sim, species and box so we can find the appropriate coordinates
         Simulation sim = new Simulation(space);
         ISpecies species = new SpeciesSpheresMono(sim, space);

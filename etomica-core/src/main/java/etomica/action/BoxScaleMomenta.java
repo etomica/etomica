@@ -9,7 +9,7 @@ import etomica.api.IAtomKinetic;
 import etomica.api.IAtomList;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -21,7 +21,7 @@ import etomica.util.Debug;
  */
 public class BoxScaleMomenta implements IAction {
 
-    public BoxScaleMomenta(Box box, ISpace space) {
+    public BoxScaleMomenta(Box box, Space space) {
         this.box = box;
         momentum = space.makeVector();
     }

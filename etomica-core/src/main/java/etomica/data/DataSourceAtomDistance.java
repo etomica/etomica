@@ -6,12 +6,12 @@ package etomica.data;
 
 import etomica.api.IAtom;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Length;
 
 public class DataSourceAtomDistance extends DataSourceScalar {
 	
-    public DataSourceAtomDistance(ISpace space) {
+    public DataSourceAtomDistance(Space space) {
 		super("interatomic distance", Length.DIMENSION);
 		
 		this.space = space;
@@ -36,7 +36,7 @@ public class DataSourceAtomDistance extends DataSourceScalar {
 	
 
     private static final long serialVersionUID = 1L;
-	protected final ISpace space;
+	protected final Space space;
 	protected final IVectorMutable vector;
 	protected IAtom atom1;
 	protected IAtom atom2;

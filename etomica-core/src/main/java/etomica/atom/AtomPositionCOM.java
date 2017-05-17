@@ -11,7 +11,7 @@ import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Calculates the center of mass (COM) over a set of atoms. The mass and
@@ -30,7 +30,7 @@ import etomica.space.ISpace;
 
 public class AtomPositionCOM implements IAtomPositionDefinition, Serializable {
 
-    public AtomPositionCOM(ISpace space) {
+    public AtomPositionCOM(Space space) {
         center = space.makeVector();
     }
     

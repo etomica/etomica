@@ -9,7 +9,7 @@ import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -19,7 +19,7 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
     protected final IVectorMutable drSite0, drSite1, drA, dr, drB;
-    protected final ISpace space;
+    protected final Space space;
     protected IVectorMutable[] pSumXYZ1, pSumXYZ2;
     protected final IVectorMutable pTmp1, pTmp2;
     protected double[] sum1, virialSum;
@@ -32,7 +32,7 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
     protected double temperature;
     protected double[] pHarmonic;
     
-    public PotentialCalculationSolidSuperCut(ISpace space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
+    public PotentialCalculationSolidSuperCut(Space space, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinateDefinition = coordinateDefinition;
         this.space = space;
         this.r2Cut = new double[cutoffs.length];

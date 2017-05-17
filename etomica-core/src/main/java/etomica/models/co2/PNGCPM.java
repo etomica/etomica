@@ -26,7 +26,7 @@ import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
@@ -44,11 +44,11 @@ import etomica.units.Kelvin;
  */
 public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
-    public PNGCPM(ISpace space, AtomTypeAgentManager typeManager, int nAtomTypes) {
+    public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes) {
         this(space, typeManager, nAtomTypes, Integer.MAX_VALUE);
     }
     
-    public PNGCPM(ISpace space, AtomTypeAgentManager typeManager, int nAtomTypes, int nBody) {
+    public PNGCPM(Space space, AtomTypeAgentManager typeManager, int nAtomTypes, int nBody) {
 	    super(nBody, space);
 	    this.typeManager = typeManager;
 	    this.nAtomTypes = nAtomTypes;
@@ -535,7 +535,7 @@ for (int iter=0; iter<maxIter; iter++) {
         protected final IVectorMutable yveci, yvecj, yveck;
         protected final double[] xx, yy, zz;
         
-        public P3GCPMAxilrodTeller(ISpace space) {
+        public P3GCPMAxilrodTeller(Space space) {
             rij = space.makeVector();
             rik = space.makeVector();
             rjk = space.makeVector();
@@ -777,7 +777,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
     public static void main2(String[] args) {
         double x = 0;
         double z = 4.;
-        final ISpace space = Space3D.getInstance();
+        final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
         speciesCO2.setChildCount(new int[]{1,2});
@@ -843,7 +843,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
         double x = 0;
         double z1 = 5.;
         double y2 = 2.;
-        final ISpace space = Space3D.getInstance();
+        final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
         speciesCO2.setChildCount(new int[]{1,2});
@@ -906,7 +906,7 @@ for (int ii=0; ii<atomsi.getAtomCount(); ii++) {
         double x = 0;
         double z1 = 5.;
         double y2 = 7.;
-        final ISpace space = Space3D.getInstance();
+        final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
         sim.addSpecies(speciesWaterCOM);

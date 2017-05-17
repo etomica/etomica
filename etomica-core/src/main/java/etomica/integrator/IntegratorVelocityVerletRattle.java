@@ -16,7 +16,7 @@ import etomica.api.ISimulation;
 import etomica.api.IVectorMutable;
 import etomica.atom.AtomSetSinglet;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -32,12 +32,12 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     private static final long serialVersionUID = 1L;
     protected final IVectorMutable dv;
 
-    public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, ISpace _space) {
+    public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorVelocityVerletRattle(ISimulation sim, IPotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature, ISpace _space) {
+            double timeStep, double temperature, Space _space) {
         super(sim, potentialMaster,random,timeStep,temperature, _space);
         dv = space.makeVector();
     }

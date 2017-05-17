@@ -22,7 +22,7 @@ import etomica.listener.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotatingMolecule;
@@ -34,7 +34,7 @@ public class DipoleBoxMatrix extends Simulation {
     public final ActivityIntegrate ai;
     public final Box box;
     
-    public DipoleBoxMatrix(ISpace space, int nAtoms, double dt) {
+    public DipoleBoxMatrix(Space space, int nAtoms, double dt) {
         super(space);
         box = new Box(new BoundaryRectangularPeriodic(getSpace(), 10), space);
         addBox(box);
@@ -78,7 +78,7 @@ public class DipoleBoxMatrix extends Simulation {
     }
     
     public static void main(String[] args) {
-        ISpace space = Space3D.getInstance();
+        Space space = Space3D.getInstance();
         int nAtoms = 864;
         double dt = 0.01;
         if (args.length == 0) {
@@ -100,7 +100,7 @@ public class DipoleBoxMatrix extends Simulation {
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            ISpace space = Space3D.getInstance();
+            Space space = Space3D.getInstance();
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, 864, 0.01);
             sim.ai.setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());

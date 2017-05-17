@@ -11,7 +11,7 @@ import etomica.api.IMoleculeList;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.RotationTensor;
 
 
@@ -35,7 +35,7 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
     protected double thetaFrac = 1;
     
     public MCMoveVolumeSolidNPTMolecularOriented(IPotentialMaster potentialMaster, IRandom random,
-            ISpace space, double pressure, IVectorMutable[] drSum) {
+                                                 Space space, double pressure, IVectorMutable[] drSum) {
         super(potentialMaster, random, space, pressure, 5);
         rotationTensor = space.makeRotationTensor();
         this.drSum = drSum;

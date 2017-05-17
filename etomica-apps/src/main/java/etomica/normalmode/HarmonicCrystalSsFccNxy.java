@@ -18,7 +18,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -39,7 +38,7 @@ import etomica.util.ParameterBase;
 public class HarmonicCrystalSsFccNxy {
 
     public HarmonicCrystalSsFccNxy(int[] nCells, Primitive primitive, Basis 
-            basis, Potential2SoftSpherical potential, ISpace _space) {
+            basis, Potential2SoftSpherical potential, Space _space) {
         this.potential = potential;
         this.nCells = (int[])nCells.clone();
         this.space = _space;
@@ -180,7 +179,7 @@ public class HarmonicCrystalSsFccNxy {
     private int[] nCells;
     private int maxLatticeShell;
     private Potential2SoftSpherical potential;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
     

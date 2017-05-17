@@ -20,7 +20,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.P2DLPOLY;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
@@ -39,7 +38,7 @@ public class HarmonicCrystalOrthorhombic {
     public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive,
     		     Basis basis, Box box,
     		     CoordinateDefinitionParacetamol coordinateDefinitionParacetamol,
-    		     ISpace _space) {
+    		     Space _space) {
         this.nCells = (int[])nCells.clone();
         this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
         this.space = _space;
@@ -220,7 +219,7 @@ public class HarmonicCrystalOrthorhombic {
     private int maxLatticeShell;
     private final CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
     private final P2DLPOLY potential;
-    private final ISpace space;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
     public static final class LatticeEnergy implements LatticeEnergyParacetamol {

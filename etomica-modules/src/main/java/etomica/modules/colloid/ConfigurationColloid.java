@@ -13,12 +13,12 @@ import etomica.api.IVectorMutable;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.config.Configuration;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.IVectorRandom;
 
 public class ConfigurationColloid implements Configuration {
 
-    public ConfigurationColloid(ISpace space, ISpecies species, ISpecies speciesColloid, IRandom random) {
+    public ConfigurationColloid(Space space, ISpecies species, ISpecies speciesColloid, IRandom random) {
         this.space = space;
         this.species = species;
         this.speciesColloid = speciesColloid;
@@ -219,7 +219,7 @@ public class ConfigurationColloid implements Configuration {
         }
     }
 
-    protected final ISpace space;
+    protected final Space space;
     protected ISpecies species, speciesColloid;
     protected int chainLength, nGraft;
     protected IVectorMutable[] graftVectors;

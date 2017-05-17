@@ -16,7 +16,7 @@ import etomica.atom.AtomPositionCOM;
 import etomica.lattice.crystal.Primitive;
 import etomica.models.water.SpeciesWater4P;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
@@ -28,7 +28,7 @@ import etomica.spaceNd.TensorND;
 
 public class NormalModesMolecular implements NormalModes {
 
-    public NormalModesMolecular(SpeciesWater4P species, boolean waveVectorMethod , IPotentialMaster potentialMaster, Box box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, ISpace space) {
+    public NormalModesMolecular(SpeciesWater4P species, boolean waveVectorMethod , IPotentialMaster potentialMaster, Box box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, Space space) {
     	this.waveVectorMethod = waveVectorMethod;
         this.space = space;
         this.potentialMaster = potentialMaster;
@@ -212,7 +212,7 @@ public class NormalModesMolecular implements NormalModes {
 	
 	
 	
-    protected final ISpace space;
+    protected final Space space;
     private boolean needToCalculateModes;
     private String fileName;
     protected Box box;

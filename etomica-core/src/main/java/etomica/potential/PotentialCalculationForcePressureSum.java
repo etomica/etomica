@@ -8,7 +8,7 @@ import etomica.api.IAtomList;
 import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.integrator.IntegratorBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 /**
@@ -22,7 +22,7 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     
-    public PotentialCalculationForcePressureSum(ISpace space) {
+    public PotentialCalculationForcePressureSum(Space space) {
         pressureTensor = space.makeTensor();
     }
     

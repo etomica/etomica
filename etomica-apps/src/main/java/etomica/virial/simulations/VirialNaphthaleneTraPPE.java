@@ -15,7 +15,6 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -101,7 +100,7 @@ public class VirialNaphthaleneTraPPE {
         
         // species Na
         SpeciesFactory factoryNa = new SpeciesFactory() {
-            public ISpecies makeSpecies(ISpace space) { 
+            public ISpecies makeSpecies(Space space) {
             	SpeciesTraPPENaphthalene species = new SpeciesTraPPENaphthalene(space);
                       return species;
             }

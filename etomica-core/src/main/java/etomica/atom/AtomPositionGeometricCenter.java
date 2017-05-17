@@ -10,7 +10,7 @@ import etomica.api.IAtomList;
 import etomica.api.IMolecule;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Calculates the geometric center over a set of atoms. The position of the
@@ -22,7 +22,7 @@ import etomica.space.ISpace;
  */
 public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Serializable {
 
-    public AtomPositionGeometricCenter(ISpace space) {
+    public AtomPositionGeometricCenter(Space space) {
         center = space.makeVector();
     }
 
@@ -40,4 +40,3 @@ public class AtomPositionGeometricCenter implements IAtomPositionDefinition, Ser
     private static final long serialVersionUID = 1L;
     private final IVectorMutable center;
 }
- 

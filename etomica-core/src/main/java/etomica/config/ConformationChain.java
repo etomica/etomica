@@ -8,7 +8,7 @@ import etomica.api.IAtom;
 import etomica.api.IAtomList;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * General class for a collection of linearly linked atoms.
@@ -18,7 +18,7 @@ import etomica.space.ISpace;
 
 public abstract class ConformationChain implements IConformation, java.io.Serializable {
 
-    public ConformationChain(ISpace space){	
+    public ConformationChain(Space space){
 		this.space = space;
 		//orientationVector = space.makeVector();
 		//wrongNumberOfVectors = "Wrong number of vectors in the argument to ConformationChain subclass.";
@@ -63,7 +63,7 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
 	}
 	
     private static final long serialVersionUID = 1L;
-    protected final ISpace space;
+    protected final Space space;
 	/**
 	 * The vector drawn from the head of the molecule to the tail of the molecule.
 	 */

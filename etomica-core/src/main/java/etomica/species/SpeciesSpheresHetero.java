@@ -17,7 +17,7 @@ import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Arrays;
 
 /**
@@ -36,7 +36,7 @@ public class SpeciesSpheresHetero extends Species {
      * Constructs instance with 0 components and total number of children 
      * equal to 1.  The actual atom types must be set before use.
      */
-    public SpeciesSpheresHetero(Simulation sim, ISpace _space) {
+    public SpeciesSpheresHetero(Simulation sim, Space _space) {
         this(sim,_space, 0);
     }
     
@@ -44,7 +44,7 @@ public class SpeciesSpheresHetero extends Species {
      * Constructs instance with the given number of atom types.  Generic atom
      * types are created.
      */
-    public SpeciesSpheresHetero(Simulation sim, ISpace _space, int nTypes) {
+    public SpeciesSpheresHetero(Simulation sim, Space _space, int nTypes) {
         this(_space, makeElements(sim,nTypes));
     }
     
@@ -59,7 +59,7 @@ public class SpeciesSpheresHetero extends Species {
     /**
      * Constructs instance with the given elements.
      */
-    public SpeciesSpheresHetero(ISpace _space, IElement[] leafElements) {
+    public SpeciesSpheresHetero(Space _space, IElement[] leafElements) {
         this(_space, makeAtomTypes(leafElements));
     }
     
@@ -74,7 +74,7 @@ public class SpeciesSpheresHetero extends Species {
     /**
      * Constructs instance with the given atom types.
      */
-    public SpeciesSpheresHetero(ISpace space, IAtomType[] atomTypes) {
+    public SpeciesSpheresHetero(Space space, IAtomType[] atomTypes) {
         super();
         this.space = space;
         numberFraction = new double[atomTypes.length];
@@ -311,7 +311,7 @@ public class SpeciesSpheresHetero extends Species {
     }
 
     private static final long serialVersionUID = 1L;
-    protected ISpace space;
+    protected Space space;
     protected boolean isDynamic;
     protected double[] numberFraction;
     protected int[] childCount;

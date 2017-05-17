@@ -14,7 +14,7 @@ import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 
 /**
@@ -29,9 +29,9 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
     protected IAtom atom;
     protected AtomSource atomSource;
     protected final IRandom random;
-    private final ISpace space;
+    private final Space space;
 
-    public MCMoveAtomAdjacent(IRandom random, ISpace _space) {
+    public MCMoveAtomAdjacent(IRandom random, Space _space) {
         super(null);
         this.random = random;
         this.space = _space;

@@ -14,13 +14,13 @@ import etomica.data.IData;
 import etomica.data.IEtomicaDataInfo;
 import etomica.data.IEtomicaDataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Null;
 
 public class MeterDeformation implements IEtomicaDataSource {
 
-    public MeterDeformation(ISpace space) {
+    public MeterDeformation(Space space) {
         data = new DataDoubleArray(2);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("deformation", Null.DIMENSION, new int[]{2});
         tag = new DataTag();

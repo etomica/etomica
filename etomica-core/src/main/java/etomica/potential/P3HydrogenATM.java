@@ -16,7 +16,7 @@ import etomica.api.IPotentialAtomic;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.atom.IAtomOriented;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class P3HydrogenATM implements IPotential{
     public static void main(String[] args) {       
@@ -38,7 +38,7 @@ public class P3HydrogenATM implements IPotential{
     protected static final double E0 = 49400; //(K Angstorm^9)
     protected IVectorMutable dr,r1,r2,r3;
 
-    public P3HydrogenATM(ISpace space) {
+    public P3HydrogenATM(Space space) {
         dr = space.makeVector();
         r1 = space.makeVector();
         r2 = space.makeVector();
@@ -56,7 +56,7 @@ public class P3HydrogenATM implements IPotential{
         return 3;
     }
     public static class P3HydrogenAtomic extends P3HydrogenATM implements IPotentialAtomic {
-        public P3HydrogenAtomic(ISpace space) {
+        public P3HydrogenAtomic(Space space) {
             super(space);     
         }
         

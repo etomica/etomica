@@ -5,7 +5,7 @@ import java.util.List;
 import etomica.api.IElement;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
 
@@ -13,7 +13,7 @@ public class AtomTypeSpheroPolyhedron extends AtomTypeLeaf {
     protected final double sweepRadius;
     protected final List<IVector> vertices;
     
-    public AtomTypeSpheroPolyhedron(IElement element,ISpace space, List<IVector> vertices, double sweepRadius) {
+    public AtomTypeSpheroPolyhedron(IElement element, Space space, List<IVector> vertices, double sweepRadius) {
         super(element);
         this.vertices = vertices;
         if (vertices.size() == 1 && sweepRadius == 0) sweepRadius = 0.5;

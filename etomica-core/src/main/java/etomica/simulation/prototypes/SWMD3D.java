@@ -23,7 +23,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -32,7 +32,7 @@ import etomica.species.SpeciesSpheresMono;
 
 public class SWMD3D extends Simulation {
 
-    public SWMD3D(ISpace _space) {
+    public SWMD3D(Space _space) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 	
@@ -80,7 +80,7 @@ public class SWMD3D extends Simulation {
     public static void main(String[] args) {
         final String APP_NAME = "SWMD3D";
 
-        ISpace sp = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         final SWMD3D sim = new SWMD3D(sp);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
 

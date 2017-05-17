@@ -11,12 +11,12 @@ import etomica.api.IPotential;
 import etomica.api.IVector;
 import etomica.api.IVectorMutable;
 import etomica.potential.PotentialSoft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 
 public class P1Sinusoidal implements IPotential, PotentialSoft {
 
-    public P1Sinusoidal(ISpace space) {
+    public P1Sinusoidal(Space space) {
         this.space = space;
         setB(1);
         this.offset = space.makeVector();
@@ -91,7 +91,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
 
     public void setBox(Box box) {}
 
-    protected final ISpace space;
+    protected final Space space;
     protected double b45;
     protected final IVectorMutable offset;
     protected final IVectorMutable r;

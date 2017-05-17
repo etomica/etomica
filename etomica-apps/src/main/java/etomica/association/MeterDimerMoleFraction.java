@@ -7,7 +7,7 @@ package etomica.association;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Fraction;
 
 /**
@@ -17,7 +17,7 @@ public class MeterDimerMoleFraction extends DataSourceScalar {
 	
     private AssociationManager associationManager;
 
-    public MeterDimerMoleFraction(ISpace space, Box _box) {
+    public MeterDimerMoleFraction(Space space, Box _box) {
         super("Dimer Mole Fraction",Fraction.DIMENSION);
         if(!(_box.getBoundary() instanceof Boundary)) {
         	throw new RuntimeException("The box boundary must be a subclass of etomica.Space.Boundary");

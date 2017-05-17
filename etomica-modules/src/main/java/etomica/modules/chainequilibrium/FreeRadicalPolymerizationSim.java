@@ -20,7 +20,7 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
@@ -44,7 +44,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         this(Space2D.getInstance());
     }
     
-    public FreeRadicalPolymerizationSim(ISpace space) {
+    public FreeRadicalPolymerizationSim(Space space) {
         super(space);
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList)potentialMaster).setCellRange(1);

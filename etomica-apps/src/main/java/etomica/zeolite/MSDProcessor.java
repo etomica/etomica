@@ -10,11 +10,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.api.IVectorMutable;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MSDProcessor {
 
-    public MSDProcessor(ISpace space, String inputFile, String outputFile){
+    public MSDProcessor(Space space, String inputFile, String outputFile){
         msdOutput = outputFile;
         msdInput = inputFile;
         try {

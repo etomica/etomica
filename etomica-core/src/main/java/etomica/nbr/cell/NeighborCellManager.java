@@ -23,7 +23,7 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.lattice.CellLattice;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.util.Debug;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -55,7 +55,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, ISpace _space) {
+    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, Space _space) {
         this(sim, box, potentialRange, null, _space);
     }
     
@@ -66,7 +66,7 @@ public class NeighborCellManager implements BoxCellManager, IBoundaryListener, A
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, ISpace space) {
+    public NeighborCellManager(ISimulation sim, Box box, double potentialRange, IAtomPositionDefinition positionDefinition, Space space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
         this.sim = sim;

@@ -3,11 +3,11 @@ package etomica.interfacial;
 import etomica.api.IPotentialMaster;
 import etomica.api.IRandom;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class MCMoveAtomNbr extends MCMoveAtom {
 
-    public MCMoveAtomNbr(IRandom random, IPotentialMaster potentialMaster, ISpace _space) {
+    public MCMoveAtomNbr(IRandom random, IPotentialMaster potentialMaster, Space _space) {
         super(random, potentialMaster, _space);
     }
 

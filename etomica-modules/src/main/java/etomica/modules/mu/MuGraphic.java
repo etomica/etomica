@@ -67,7 +67,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
@@ -87,7 +86,7 @@ public class MuGraphic extends SimulationGraphic {
     public ItemListener potentialChooserListener;
     protected Mu sim;
 
-    public MuGraphic(final Mu simulation, ISpace _space) {
+    public MuGraphic(final Mu simulation, Space _space) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
 
@@ -768,7 +767,7 @@ public class MuGraphic extends SimulationGraphic {
         if (args.length > 0) {
             dim = Integer.parseInt(args[0]);
         }
-        ISpace space = Space.getInstance(dim);
+        Space space = Space.getInstance(dim);
         
         MuGraphic swmdGraphic = new MuGraphic(new Mu(space), space);
 		SimulationGraphic.makeAndDisplayFrame

@@ -12,7 +12,7 @@ import etomica.api.IVectorMutable;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.space.Boundary;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.RotationTensor;
 import etomica.space3d.Vector3D;
 
@@ -35,7 +35,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     double dist;
     double spacing;
     protected ISpecies fixedSpecies, mobileSpecies;
-    private ISpace space;
+    private Space space;
     IVector [] reciprocal;
     IVectorMutable[] origin, plane;
     IVectorMutable normal;
@@ -43,7 +43,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     
     public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP,
     		    BravaisLatticeCrystal aLatticeBOTTOM, ISpecies [] aSpecies,
-    		    double aCutoff, ISpace space){
+    		    double aCutoff, Space space){
         super();    
         
         latticeTOP = aLatticeTOP;

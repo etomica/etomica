@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2Soft;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -21,7 +21,7 @@ import etomica.space.ISpace;
  
 public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSphericalLSMultiLat {
    
-    public Potential2SoftSphericalLSMultiLatSlanty(ISpace space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition, int[] nShells) {
+    public Potential2SoftSphericalLSMultiLatSlanty(Space space, double[] rCut, Potential2Soft p2Soft, CoordinateDefinition coordinateDefinition, int[] nShells) {
         super(space, rCut, p2Soft, coordinateDefinition);
         xLxyz = space.makeVector();
         yLxyz = space.makeVector();

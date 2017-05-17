@@ -9,7 +9,7 @@ import etomica.api.IAtomList;
 import etomica.api.IVectorMutable;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Length;
 
@@ -21,11 +21,11 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     private static final long serialVersionUID = 1L;
     private double collisionRadius;
     
-    public P1HardWall(ISpace space) {
+    public P1HardWall(Space space) {
         this(space, 1.0);
     }
     
-    public P1HardWall(ISpace space, double sigma) {
+    public P1HardWall(Space space, double sigma) {
         super(space);
         collisionRadius = sigma;
     }

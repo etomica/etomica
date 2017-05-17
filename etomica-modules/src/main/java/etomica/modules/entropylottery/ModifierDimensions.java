@@ -7,13 +7,13 @@ package etomica.modules.entropylottery;
 import etomica.box.Box;
 import etomica.api.IVectorMutable;
 import etomica.modifier.Modifier;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
 public class ModifierDimensions implements Modifier {
 
-    public ModifierDimensions(ISpace space, Box box) {
+    public ModifierDimensions(Space space, Box box) {
         this.box = box;
         boxDim = space.makeVector();
     }

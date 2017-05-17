@@ -13,7 +13,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -31,7 +31,7 @@ public class TestHSMD3D extends Simulation {
     public SpeciesSpheresMono species, species2;
     public Box box;
 
-    public TestHSMD3D(ISpace _space, int numAtoms, int numSteps) {
+    public TestHSMD3D(Space _space, int numAtoms, int numSteps) {
         super(_space);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         

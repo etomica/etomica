@@ -55,7 +55,6 @@ import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.RotationTensor3D;
@@ -514,7 +513,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         public final IVectorMutable torque;
         public final IVectorMutable force;
 
-        public MoleculeAgent(ISpace space) {
+        public MoleculeAgent(Space space) {
             quat = new double[4];
             torque = space.makeVector();
             force = space.makeVector();
@@ -525,7 +524,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         private static final long serialVersionUID = 1L;
         public final IVectorMutable force;  // for leaf atoms
 
-        public AtomAgent(ISpace space) {
+        public AtomAgent(Space space) {
             force = space.makeVector();
         }
         

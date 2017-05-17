@@ -10,11 +10,11 @@ import etomica.api.IVectorMutable;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
 
-    public DisplayBoxCanvas2DNpTScaling(DisplayBox _box, ISpace _space,
+    public DisplayBoxCanvas2DNpTScaling(DisplayBox _box, Space _space,
             Controller controller, CoordinateDefinition coordinateDefinition) {
         super(_box, _space, controller);
         p = _space.makeVector();

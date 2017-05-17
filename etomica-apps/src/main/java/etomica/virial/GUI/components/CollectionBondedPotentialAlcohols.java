@@ -13,7 +13,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 
 import etomica.potential.P3BondAngle;
 
-import etomica.space.ISpace;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 
 
@@ -24,7 +24,7 @@ public class CollectionBondedPotentialAlcohols extends ACollectionBondedPotentia
 	
 	@Override
 	public void addBondedPotentialSets(CollectionPotentialAtomicLike pObject,
-			ISpace space, int speciesIndex) {
+                                       Space space, int speciesIndex) {
 		// TODO Auto-generated method stub
 		
 		pObject.setHashMapPotentialIntraBonded(new HashMap<String[],IPotential>());

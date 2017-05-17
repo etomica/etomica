@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.api.IBoundary;
 import etomica.box.Box;
-import etomica.space.ISpace;
+import etomica.space.Space;
 
 /**
  * Potential acting on a single atom or atom group.
@@ -17,7 +17,7 @@ public abstract class Potential1 extends Potential {
       
 	protected IBoundary boundary;
 	
-    public Potential1(ISpace space) {
+    public Potential1(Space space) {
         super(1, space);
     }
 

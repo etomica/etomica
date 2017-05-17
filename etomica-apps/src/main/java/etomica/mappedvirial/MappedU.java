@@ -28,7 +28,6 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.ISpace;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.Histogram;
@@ -44,7 +43,7 @@ public class MappedU extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public P2SoftSphericalTruncated p2Truncated;
 
-    public MappedU(ISpace _space, int numAtoms, double temperature, double density, double rc) {
+    public MappedU(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
 
         //species and potentials
@@ -124,7 +123,7 @@ public class MappedU extends Simulation {
 
         // FileWriter fwr = new FileWriter("/usr/users/aksharag/workspace/Apps/Ushift/mapped_shifted.dat",true);
 
-        ISpace space = Space.getInstance(3);
+        Space space = Space.getInstance(3);
 
         MappedU sim = new MappedU(space, numAtoms, temperature, density, rc);
         halfBoxlength = Math.cbrt(numAtoms/density) / 2;
