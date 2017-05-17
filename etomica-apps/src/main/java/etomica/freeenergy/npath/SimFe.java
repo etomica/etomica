@@ -418,8 +418,7 @@ public class SimFe extends Simulation {
         System.out.println("spring correlation: 1 "+cor01+" "+cor02);
         double cor12 = covEnergies.getValue(1*3+2)/Math.sqrt(covEnergies.getValue(1*3+1)*covEnergies.getValue(2*3+2));
         System.out.println("Fe correlation: "+cor01+" 1 "+cor12);
-        double cor21 = covEnergies.getValue(2*3+1)/Math.sqrt(covEnergies.getValue(2*3+2)*covEnergies.getValue(1*3+1));
-        System.out.println("du/dw correlation: "+cor02+" "+cor21+" 1");
+        System.out.println("du/dw correlation: "+cor02+" "+cor12+" 1");
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0+" seconds");
