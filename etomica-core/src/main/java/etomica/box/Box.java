@@ -20,7 +20,8 @@ import etomica.util.Debug;
  * <p>
  * <ul>
  * <li>It holds lists of the molecules in the box, including a list of all
- * molecules, and an array of lists that can be selected by Species.</li>
+ * molecules, and an array of lists that can be selected by Species. It
+ * contains methods to add and remove molecules.</li>
  * <li>It holds a list of all atoms in the box.</li>
  * <li>It holds a Boundary object that
  * defines the volume of the box and the behavior of atoms as they move into or
@@ -65,15 +66,15 @@ public class Box implements java.io.Serializable {
     /**
      * Constructs box with default rectangular periodic boundary.
      */
-    public Box(Space _space) {
-        this(new BoundaryRectangularPeriodic(_space), _space);
+    public Box(Space space) {
+        this(new BoundaryRectangularPeriodic(space), space);
     }
 
     /**
      * Constructs box with the given boundary
      */
-    public Box(IBoundary boundary, Space _space) {
-    	this.space = _space;
+    public Box(IBoundary boundary, Space space) {
+    	this.space = space;
         eventManager = new BoxEventManager(this);
         setBoundary(boundary);
 
@@ -83,24 +84,52 @@ public class Box implements java.io.Serializable {
         leafList = new AtomArrayList();
     }
 
+    /**
+     * @return the IBox's index.  The index corresponds to the box's position
+     * in the simulation's list of IBoxes.  The index of the first IBox is 0.
+     * The index of the last IBox is n-1, where n is the number of IBoxes.
+     */
     public int getIndex() {
         return index;
     }
 
+    /**
+     * Informs the IBox what its index is.  This should only be called by the
+     * ISimulation.
+     *
+     * @param newIndex the box's new index
+     */
     public void setIndex(int newIndex) {
         index = newIndex;
     }
 
+    /**
+     *
+     * @return the String "Box" with the box index appended
+     */
     public String toString() {
-        return "Box"+getIndex();
+        return "Box "+getIndex();
     }
-    
+
+    /**
+     * Creates a molecule of the given species and adds it to the box
+     * @param species the given species
+     * @return the new molecule
+     */
     public IMolecule addNewMolecule(ISpecies species) {
         IMolecule aNew = species.makeMolecule();
         addMolecule(aNew);
         return aNew;
     }
 
+    /**
+     * Adds the given molecule to the this box.  The molecule should not
+     * already be in this box and should not be in another IBox.  The molecule
+     * should be a member of an ISpecies which has been added to the
+     * ISimulation.
+     *
+     * @param molecule the molecule to be added to the box
+     */
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
@@ -132,6 +161,12 @@ public class Box implements java.io.Serializable {
         }
     }
 
+    /**
+     * Removes the given molecule from this box.  The molecule must be held
+     * by the box before this method is called.
+     *
+     * @param molecule the molecule to be removed from the box
+     */
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
@@ -165,6 +200,14 @@ public class Box implements java.io.Serializable {
         leafList.maybeTrimToSize();
     }
 
+    /**
+     * Sets the number of molecules in this box of the given Species to n.
+     * Molecules are added to or removed from the box to achieve the desired
+     * number.
+     *
+     * @param species the species whose number of molecules should be changed
+     * @param n the desired number of molecules
+     */
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
@@ -200,26 +243,52 @@ public class Box implements java.io.Serializable {
         }
     }
 
+    /**
+     * @return the number of molecules in this box of the given ISpecies.
+     */
     public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
         return moleculeLists[speciesIndex].getMoleculeCount();
     }
 
+    /**
+     * Returns the list of molecules of the given species.
+     *
+     * @param species the species
+     * @return the requested list of molecules
+     */
     public IMoleculeList getMoleculeList(ISpecies species) {
         return moleculeLists[species.getIndex()];
     }
 
+    /**
+     * @return a list of all molecules in this box.
+     */
     public IMoleculeList getMoleculeList() {
         return allMoleculeList;
     }
 
+    /**
+     * @return the box's boundary.
+     */
     public final IBoundary getBoundary() {return boundary;}
 
+    /**
+     * Sets the box's boundary to the given IBoundary.
+     *
+     * @param b the new boundary
+     */
     public void setBoundary(IBoundary b) {
         boundary = b;
         boundary.setBox(this);
      }
 
+    /**
+     * Uses BoxInflate to adjust the volume to the specified density.
+     * New volume is set such that N/V = rho, where N is the number of
+     * molecules in the box.
+     * @param rho the specified density
+     */
     public void setDensity(double rho) {
         double vNew = getMoleculeList().getMoleculeCount()/rho;
         double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
@@ -228,20 +297,39 @@ public class Box implements java.io.Serializable {
         inflater.actionPerformed();
     };
 
+    /**
+     * @return the event manager for this box.
+     */
     public IBoxEventManager getEventManager() {
         return eventManager;
     }
 
+    /**
+     * Notifies the IBox that the given species has been added to the
+     * simulation.  This method should only be called by the simulation.
+     *
+     * @param species the added species
+     */
     public void addSpeciesNotify(ISpecies species) {
         moleculeLists = (MoleculeArrayList[])Arrays.addObject(moleculeLists, new MoleculeArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
+    /**
+     * Notifies the IBox that a Species has been removed.  This method should
+     * only be called by the simulation.  This triggers the removal of all
+     * molecules of the given species from this box.
+     *
+     * @param species the removed species
+     */
     public void removeSpeciesNotify(ISpecies species) {
         moleculeLists = (MoleculeArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
 
+    /**
+     * @return the list of atoms contained in this box.
+     */
     public IAtomList getLeafList() {
         return leafList;
     }
