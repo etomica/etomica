@@ -947,7 +947,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Inte
 			this.species = species;
 		}
 		
-	   public void calculate(IBox box, IteratorDirective id, PotentialCalculation pc) {
+	   public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
 	        if(!enabled) return;
 	        IAtom targetAtom = id.getTargetAtom();
 	        if (targetAtom != null) {

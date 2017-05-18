@@ -12,7 +12,7 @@ public interface IMolecule {
 
     /**
      * Returns this IMolecule's index, which is its place in the list of
-     * molecules of its ISpecies in its IBox.
+     * molecules of its ISpecies in its Box.
      */
     public int getIndex();
 

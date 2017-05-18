@@ -85,16 +85,16 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * @return the IBox's index.  The index corresponds to the box's position
-     * in the simulation's list of IBoxes.  The index of the first IBox is 0.
-     * The index of the last IBox is n-1, where n is the number of IBoxes.
+     * @return the Box's index.  The index corresponds to the box's position
+     * in the simulation's list of IBoxes.  The index of the first Box is 0.
+     * The index of the last Box is n-1, where n is the number of IBoxes.
      */
     public int getIndex() {
         return index;
     }
 
     /**
-     * Informs the IBox what its index is.  This should only be called by the
+     * Informs the Box what its index is.  This should only be called by the
      * ISimulation.
      *
      * @param newIndex the box's new index
@@ -124,7 +124,7 @@ public class Box implements java.io.Serializable {
 
     /**
      * Adds the given molecule to the this box.  The molecule should not
-     * already be in this box and should not be in another IBox.  The molecule
+     * already be in this box and should not be in another Box.  The molecule
      * should be a member of an ISpecies which has been added to the
      * ISimulation.
      *
@@ -305,7 +305,7 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * Notifies the IBox that the given species has been added to the
+     * Notifies the Box that the given species has been added to the
      * simulation.  This method should only be called by the simulation.
      *
      * @param species the added species
@@ -316,7 +316,7 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * Notifies the IBox that a Species has been removed.  This method should
+     * Notifies the Box that a Species has been removed.  This method should
      * only be called by the simulation.  This triggers the removal of all
      * molecules of the given species from this box.
      *

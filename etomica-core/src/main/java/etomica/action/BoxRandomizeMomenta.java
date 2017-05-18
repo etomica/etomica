@@ -9,7 +9,7 @@ import etomica.box.Box;
 import etomica.api.IRandom;
 
 /**
- * Randomizes the velocities of all the leaf atoms in an IBox based on the
+ * Randomizes the velocities of all the leaf atoms in a Box based on the
  * Maxwell-Boltzmann distribution.
  * 
  * @author Andrew Schultz

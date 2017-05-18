@@ -192,7 +192,7 @@ public class VirialLJOrICPYC {
 
         if (false) {
 //            for (int i=0; i<2; i++) {
-//                IBox box = sim.box[i];
+//                Box box = sim.box[i];
 //                final IAtomList atoms = box.getLeafList();
 //                IAtom atom1 = atoms.getAtom(1);
 //                IVectorMutable p1 = atom1.getPosition();

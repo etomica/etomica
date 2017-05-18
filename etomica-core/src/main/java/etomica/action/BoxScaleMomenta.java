@@ -13,7 +13,7 @@ import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
- * Scales the momenta of all the leaf atoms in an IBox such that the kinetic
+ * Scales the momenta of all the leaf atoms in a Box such that the kinetic
  * temperature matches some value.  The net momentum is also subtracted off so
  * that there is no net momentum.
  * 

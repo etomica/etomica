@@ -27,7 +27,7 @@ public interface IBoundary {
     public void setBox(Box newBox);
 
     /**
-     * @return the boundary's IBox.  Might be null if the boundary is not
+     * @return the boundary's Box.  Might be null if the boundary is not
      * associated with a box.
      */
     public Box getBox();

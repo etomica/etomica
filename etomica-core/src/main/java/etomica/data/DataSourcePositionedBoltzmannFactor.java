@@ -34,7 +34,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
 
     /**
      * Sets the integrator.  The integrator is used to obtain the
-     * IPotentialMaster, IBox and temperature.
+     * IPotentialMaster, Box and temperature.
      */
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
@@ -72,7 +72,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
 
     public void setBox(Box newBox) {
         if (integrator != null && newBox != integrator.getBox()) {
-            throw new RuntimeException("You should really figure out which IBox is for me!");
+            throw new RuntimeException("You should really figure out which Box is for me!");
         }
     }
 

@@ -103,7 +103,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
      * @param box The box to set.
      */
 /*
-    public void setBox(IBox newBox) {
+    public void setBox(Box newBox) {
         box = newBox;
         tempVec = space.makeVector();
         shapeOrigin = space.makeVector();

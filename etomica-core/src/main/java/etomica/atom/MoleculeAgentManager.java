@@ -191,7 +191,7 @@ public class MoleculeAgentManager implements IBoxListener, ISimulationListener, 
     
     /**
      * Interface for an object that wants an agent associated with each
-     * IMolecule an IBox.
+     * IMolecule a Box.
      */
     public interface MoleculeAgentSource {
         /**

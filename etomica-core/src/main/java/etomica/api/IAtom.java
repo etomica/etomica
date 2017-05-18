@@ -27,7 +27,7 @@ public interface IAtom {
 
     /**
      * Sets the atom's global index to the give value.  This method should only
-     * be called by the IBox.
+     * be called by the Box.
      */
     public void setLeafIndex(int newGlobalIndex);
 
